@@ -3852,376 +3852,311 @@
                 "examples": {
                   "minimum fields used": {
                     "value": {
-                      "errors": [
-                        {
-                          "title": "Internal server error",
-                          "detail": "Internal server error",
-                          "code": "500",
-                          "status": "500",
-                          "meta": {
-                            "exception": "undefined method `upload_submission' for an instance of AppealsApi::SupplementalClaim",
-                            "backtrace": [
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activemodel-7.2.2.1/lib/active_model/attribute_methods.rb:512:in `method_missing'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activerecord-7.2.2.1/lib/active_record/attribute_methods.rb:491:in `method_missing'",
-                              "/workspaces/vets-api/modules/appeals_api/app/serializers/appeals_api/supplemental_claim_serializer.rb:11:in `block in <class:SupplementalClaimSerializer>'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/helpers.rb:17:in `call_proc'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/scalar.rb:14:in `serialize'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:49:in `block in attributes_hash'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:48:in `each'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:48:in `each_with_object'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:48:in `attributes_hash'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:81:in `record_hash'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/object_serializer.rb:52:in `hash_for_one_record'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/object_serializer.rb:41:in `serializable_hash'",
-                              "/workspaces/vets-api/modules/appeals_api/app/controllers/appeals_api/v2/decision_reviews/supplemental_claims_controller.rb:66:in `create'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/basic_implicit_render.rb:8:in `send_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/base.rb:226:in `process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/rendering.rb:193:in `process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/callbacks.rb:261:in `block in process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:110:in `run_callbacks'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/callbacks.rb:260:in `process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/rescue.rb:27:in `process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/instrumentation.rb:77:in `block in process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications.rb:210:in `block in instrument'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications/instrumenter.rb:58:in `instrument'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications.rb:210:in `instrument'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/instrumentation.rb:76:in `process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/params_wrapper.rb:259:in `process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activerecord-7.2.2.1/lib/active_record/railties/controller_runtime.rb:39:in `process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/base.rb:163:in `process'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal.rb:252:in `dispatch'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal.rb:335:in `dispatch'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:67:in `dispatch'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:50:in `serve'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:53:in `block in serve'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:133:in `block in find_routes'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `each'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `find_routes'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:34:in `serve'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:896:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/railties-7.2.2.1/lib/rails/engine.rb:535:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/railties-7.2.2.1/lib/rails/railtie.rb:226:in `public_send'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/railties-7.2.2.1/lib/rails/railtie.rb:226:in `method_missing'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/mapper.rb:33:in `block in <class:Constraints>'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/mapper.rb:62:in `serve'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:53:in `block in serve'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:133:in `block in find_routes'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `each'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `find_routes'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:34:in `serve'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:896:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-attack-6.7.0/lib/rack/attack.rb:103:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:36:in `block in call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:34:in `catch'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:34:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/session/abstract/id.rb:266:in `context'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/session/abstract/id.rb:260:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/cookies.rb:704:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-attack-6.7.0/lib/rack/attack.rb:127:in `call'",
-                              "/workspaces/vets-api/lib/statsd_middleware.rb:13:in `call'",
-                              "/workspaces/vets-api/lib/source_app_middleware.rb:183:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/olive_branch-4.0.1/lib/olive_branch/middleware.rb:64:in `call'",
-                              "/workspaces/vets-api/lib/olive_branch_patch.rb:9:in `call'",
-                              "/workspaces/vets-api/modules/accredited_representative_portal/config/initializers/bypass_olive_branch.rb:23:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/etag.rb:27:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/conditional_get.rb:40:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/head.rb:12:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/callbacks.rb:31:in `block in call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:101:in `run_callbacks'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/callbacks.rb:30:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/executor.rb:16:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/actionable_exceptions.rb:18:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/debug_exceptions.rb:31:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/show_exceptions.rb:32:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rails_semantic_logger-4.18.0/lib/rails_semantic_logger/rack/logger.rb:53:in `call_app'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rails_semantic_logger-4.18.0/lib/rails_semantic_logger/rack/logger.rb:26:in `block in call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/semantic_logger-4.17.0/lib/semantic_logger/base.rb:189:in `block in tagged'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/semantic_logger-4.17.0/lib/semantic_logger/semantic_logger.rb:395:in `named_tagged'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/semantic_logger-4.17.0/lib/semantic_logger/base.rb:196:in `tagged'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rails_semantic_logger-4.18.0/lib/rails_semantic_logger/rack/logger.rb:26:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/remote_ip.rb:96:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/request_store-1.7.0/lib/request_store/middleware.rb:19:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/request_id.rb:33:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/runtime.rb:22:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/executor.rb:16:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/static.rb:27:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/sendfile.rb:110:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-cors-2.0.2/lib/rack/cors.rb:102:in `call'",
-                              "/workspaces/vets-api/lib/http_method_not_allowed.rb:13:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/utf8-cleaner-1.0.0/lib/utf8-cleaner/middleware.rb:21:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/railties-7.2.2.1/lib/rails/engine.rb:535:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-test-2.2.0/lib/rack/test.rb:360:in `process_request'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-test-2.2.0/lib/rack/test.rb:153:in `request'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:287:in `process'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:25:in `post'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:378:in `post'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rswag-specs-2.16.0/lib/rswag/specs/example_helpers.rb:20:in `submit_request'",
-                              "/workspaces/vets-api/modules/appeals_api/spec/support/doc_helpers.rb:97:in `block (3 levels) in <module:DocHelpers>'",
-                              "/workspaces/vets-api/modules/appeals_api/spec/support/doc_helpers.rb:66:in `with_rswag_auth'",
-                              "/workspaces/vets-api/modules/appeals_api/spec/support/doc_helpers.rb:97:in `block (2 levels) in <module:DocHelpers>'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:365:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:529:in `block in run_owned_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in `each'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in `run_owned_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:615:in `block in run_example_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in `reverse_each'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in `run_example_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:484:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:505:in `run_before_example'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:261:in `block in run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in `block in with_around_and_singleton_context_hooks'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in `block in with_around_example_hooks'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in `block in run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:626:in `block in run_around_example_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-rails-8.0.1/lib/rspec/rails/adapters.rb:75:in `block (2 levels) in <module:MinitestLifecycleAdapter>'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/webmock-3.25.1/lib/webmock/rspec.rb:39:in `block (2 levels) in <top (required)>'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:124:in `block in run'",
-                              "<internal:kernel>:187:in `loop'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:110:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-retry-0.6.2/lib/rspec_ext/rspec_ext.rb:12:in `run_with_retry'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:37:in `block (2 levels) in setup'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:629:in `run_around_example_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in `with_around_example_hooks'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in `with_around_and_singleton_context_hooks'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:259:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:653:in `block in run_examples'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in `map'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in `run_examples'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:614:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `block (3 levels) in run_specs'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `map'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `block (2 levels) in run_specs'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/configuration.rb:2097:in `with_suite_hooks'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:116:in `block in run_specs'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/reporter.rb:74:in `report'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:115:in `run_specs'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:89:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:71:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:45:in `invoke'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/exe/rspec:4:in `<main>'"
+                      "data": {
+                        "id": "00000000-1111-2222-3333-444444444444",
+                        "type": "supplementalClaim",
+                        "attributes": {
+                          "status": "pending",
+                          "updatedAt": "2020-01-02T03:04:05.067Z",
+                          "createdAt": "2020-01-02T03:04:05.067Z",
+                          "formData": {
+                            "data": {
+                              "type": "supplementalClaim",
+                              "attributes": {
+                                "benefitType": "fiduciary",
+                                "claimantType": "veteran",
+                                "veteran": {
+                                  "address": {
+                                    "addressLine1": "123 Main St",
+                                    "city": "New York",
+                                    "countryCodeISO2": "US",
+                                    "zipCode5": "30012"
+                                  },
+                                  "phone": {
+                                    "areaCode": "555",
+                                    "phoneNumber": "8001111"
+                                  },
+                                  "email": "josie@example.com",
+                                  "timezone": "America/Chicago"
+                                },
+                                "socOptIn": false,
+                                "evidenceSubmission": {
+                                  "evidenceType": [
+                                    "upload"
+                                  ]
+                                }
+                              }
+                            },
+                            "included": [
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "right shoulder",
+                                  "decisionDate": "1900-01-06"
+                                }
+                              }
                             ]
                           }
                         }
-                      ]
+                      }
                     }
                   },
                   "all fields used": {
                     "value": {
-                      "errors": [
-                        {
-                          "title": "Internal server error",
-                          "detail": "Internal server error",
-                          "code": "500",
-                          "status": "500",
-                          "meta": {
-                            "exception": "undefined method `upload_submission' for an instance of AppealsApi::SupplementalClaim",
-                            "backtrace": [
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activemodel-7.2.2.1/lib/active_model/attribute_methods.rb:512:in `method_missing'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activerecord-7.2.2.1/lib/active_record/attribute_methods.rb:491:in `method_missing'",
-                              "/workspaces/vets-api/modules/appeals_api/app/serializers/appeals_api/supplemental_claim_serializer.rb:11:in `block in <class:SupplementalClaimSerializer>'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/helpers.rb:17:in `call_proc'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/scalar.rb:14:in `serialize'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:49:in `block in attributes_hash'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:48:in `each'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:48:in `each_with_object'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:48:in `attributes_hash'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:81:in `record_hash'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/object_serializer.rb:52:in `hash_for_one_record'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/object_serializer.rb:41:in `serializable_hash'",
-                              "/workspaces/vets-api/modules/appeals_api/app/controllers/appeals_api/v2/decision_reviews/supplemental_claims_controller.rb:66:in `create'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/basic_implicit_render.rb:8:in `send_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/base.rb:226:in `process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/rendering.rb:193:in `process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/callbacks.rb:261:in `block in process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:110:in `run_callbacks'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/callbacks.rb:260:in `process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/rescue.rb:27:in `process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/instrumentation.rb:77:in `block in process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications.rb:210:in `block in instrument'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications/instrumenter.rb:58:in `instrument'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications.rb:210:in `instrument'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/instrumentation.rb:76:in `process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/params_wrapper.rb:259:in `process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activerecord-7.2.2.1/lib/active_record/railties/controller_runtime.rb:39:in `process_action'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/base.rb:163:in `process'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal.rb:252:in `dispatch'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal.rb:335:in `dispatch'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:67:in `dispatch'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:50:in `serve'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:53:in `block in serve'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:133:in `block in find_routes'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `each'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `find_routes'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:34:in `serve'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:896:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/railties-7.2.2.1/lib/rails/engine.rb:535:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/railties-7.2.2.1/lib/rails/railtie.rb:226:in `public_send'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/railties-7.2.2.1/lib/rails/railtie.rb:226:in `method_missing'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/mapper.rb:33:in `block in <class:Constraints>'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/mapper.rb:62:in `serve'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:53:in `block in serve'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:133:in `block in find_routes'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `each'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `find_routes'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:34:in `serve'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:896:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-attack-6.7.0/lib/rack/attack.rb:103:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:36:in `block in call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:34:in `catch'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:34:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/session/abstract/id.rb:266:in `context'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/session/abstract/id.rb:260:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/cookies.rb:704:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-attack-6.7.0/lib/rack/attack.rb:127:in `call'",
-                              "/workspaces/vets-api/lib/statsd_middleware.rb:13:in `call'",
-                              "/workspaces/vets-api/lib/source_app_middleware.rb:183:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/olive_branch-4.0.1/lib/olive_branch/middleware.rb:64:in `call'",
-                              "/workspaces/vets-api/lib/olive_branch_patch.rb:9:in `call'",
-                              "/workspaces/vets-api/modules/accredited_representative_portal/config/initializers/bypass_olive_branch.rb:23:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/etag.rb:27:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/conditional_get.rb:40:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/head.rb:12:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/callbacks.rb:31:in `block in call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:101:in `run_callbacks'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/callbacks.rb:30:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/executor.rb:16:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/actionable_exceptions.rb:18:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/debug_exceptions.rb:31:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/show_exceptions.rb:32:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rails_semantic_logger-4.18.0/lib/rails_semantic_logger/rack/logger.rb:53:in `call_app'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rails_semantic_logger-4.18.0/lib/rails_semantic_logger/rack/logger.rb:26:in `block in call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/semantic_logger-4.17.0/lib/semantic_logger/base.rb:189:in `block in tagged'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/semantic_logger-4.17.0/lib/semantic_logger/semantic_logger.rb:395:in `named_tagged'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/semantic_logger-4.17.0/lib/semantic_logger/base.rb:196:in `tagged'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rails_semantic_logger-4.18.0/lib/rails_semantic_logger/rack/logger.rb:26:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/remote_ip.rb:96:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/request_store-1.7.0/lib/request_store/middleware.rb:19:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/request_id.rb:33:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/runtime.rb:22:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/executor.rb:16:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/static.rb:27:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/sendfile.rb:110:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-cors-2.0.2/lib/rack/cors.rb:102:in `call'",
-                              "/workspaces/vets-api/lib/http_method_not_allowed.rb:13:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/utf8-cleaner-1.0.0/lib/utf8-cleaner/middleware.rb:21:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/railties-7.2.2.1/lib/rails/engine.rb:535:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-test-2.2.0/lib/rack/test.rb:360:in `process_request'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-test-2.2.0/lib/rack/test.rb:153:in `request'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:287:in `process'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:25:in `post'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:378:in `post'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rswag-specs-2.16.0/lib/rswag/specs/example_helpers.rb:20:in `submit_request'",
-                              "/workspaces/vets-api/modules/appeals_api/spec/support/doc_helpers.rb:97:in `block (3 levels) in <module:DocHelpers>'",
-                              "/workspaces/vets-api/modules/appeals_api/spec/support/doc_helpers.rb:66:in `with_rswag_auth'",
-                              "/workspaces/vets-api/modules/appeals_api/spec/support/doc_helpers.rb:97:in `block (2 levels) in <module:DocHelpers>'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:365:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:529:in `block in run_owned_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in `each'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in `run_owned_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:615:in `block in run_example_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in `reverse_each'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in `run_example_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:484:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:505:in `run_before_example'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:261:in `block in run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in `block in with_around_and_singleton_context_hooks'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in `block in with_around_example_hooks'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in `block in run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:626:in `block in run_around_example_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-rails-8.0.1/lib/rspec/rails/adapters.rb:75:in `block (2 levels) in <module:MinitestLifecycleAdapter>'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/webmock-3.25.1/lib/webmock/rspec.rb:39:in `block (2 levels) in <top (required)>'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:124:in `block in run'",
-                              "<internal:kernel>:187:in `loop'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:110:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-retry-0.6.2/lib/rspec_ext/rspec_ext.rb:12:in `run_with_retry'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:37:in `block (2 levels) in setup'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:629:in `run_around_example_hooks_for'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in `with_around_example_hooks'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in `with_around_and_singleton_context_hooks'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:259:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:653:in `block in run_examples'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in `map'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in `run_examples'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:614:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `block (3 levels) in run_specs'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `map'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `block (2 levels) in run_specs'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/configuration.rb:2097:in `with_suite_hooks'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:116:in `block in run_specs'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/reporter.rb:74:in `report'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:115:in `run_specs'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:89:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:71:in `run'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:45:in `invoke'",
-                              "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/exe/rspec:4:in `<main>'"
+                      "data": {
+                        "id": "00000000-1111-2222-3333-444444444444",
+                        "type": "supplementalClaim",
+                        "attributes": {
+                          "status": "pending",
+                          "updatedAt": "2020-01-02T03:04:05.067Z",
+                          "createdAt": "2020-01-02T03:04:05.067Z",
+                          "formData": {
+                            "data": {
+                              "type": "supplementalClaim",
+                              "attributes": {
+                                "benefitType": "compensation",
+                                "claimantType": "other",
+                                "claimantTypeOtherValue": "Veteran Attorney",
+                                "homeless": true,
+                                "homelessLivingSituation": [
+                                  "I LIVE OR SLEEP IN A PLACE THAT IS NOT MEANT FOR REGULAR SLEEPING",
+                                  "I LIVE IN A SHELTER",
+                                  "I AM STAYING WITH A FRIEND OR FAMILY MEMBER, BECAUSE I AM UNABLE TO OWN A HOME RIGHT NOW",
+                                  "IN THE NEXT 30 DAYS, I WILL HAVE TO LEAVE A FACILITY, LIKE A HOMELESS SHELTER",
+                                  "IN THE NEXT 30 DAYS, I WILL LOSE MY HOME",
+                                  "NONE OF THESE SITUATIONS APPLY TO ME",
+                                  "OTHER"
+                                ],
+                                "homelessLivingSituationOther": "random words for other living situation ",
+                                "homelessPointOfContact": "Shawn Hobkens Veteran Care Network",
+                                "mstUpcomingEventDisclosure": "NOT APPLICABLE AND/OR NOT ENROLLED IN VHA HEALTHCARE",
+                                "homelessPointOfContactPhone": {
+                                  "areaCode": "777",
+                                  "phoneNumber": "9957023"
+                                },
+                                "veteran": {
+                                  "address": {
+                                    "addressLine1": "123 Main St",
+                                    "addressLine2": "Suite #1200",
+                                    "addressLine3": "Box 4",
+                                    "city": "New York",
+                                    "countryCodeISO2": "US",
+                                    "stateCode": "NY",
+                                    "zipCode5": "30012"
+                                  },
+                                  "phone": {
+                                    "countryCode": "03",
+                                    "areaCode": "555",
+                                    "phoneNumber": "8001111"
+                                  },
+                                  "email": "bobsemail@bobbytablesemail.com",
+                                  "timezone": "America/Chicago"
+                                },
+                                "claimant": {
+                                  "address": {
+                                    "addressLine1": "456 First St",
+                                    "addressLine2": "Apt 5",
+                                    "addressLine3": "Box 1",
+                                    "city": "Montreal",
+                                    "countryCodeISO2": "CA",
+                                    "zipCode5": "00000",
+                                    "internationalPostalCode": "A9999AAA"
+                                  },
+                                  "phone": {
+                                    "countryCode": "1",
+                                    "areaCode": "555",
+                                    "phoneNumber": "8111100",
+                                    "phoneNumberExt": "4"
+                                  },
+                                  "email": "joe@email.com",
+                                  "timezone": "America/Detroit"
+                                },
+                                "socOptIn": true,
+                                "form5103Acknowledged": true,
+                                "evidenceSubmission": {
+                                  "treatmentLocations": [
+                                    "PRIVATE HEALTH CARE PROVIDER",
+                                    "VA VET CENTER",
+                                    "COMMUNITY CARE",
+                                    "VA MEDICAL CENTERS (VAMC) AND COMMUNITY-BASED OUTPATIENT CLINICS (CBOC)",
+                                    "DEPARTMENT OF DEFENSE (DOD) MILITARY TREATMENT FACILITY(IES) (MTF)"
+                                  ],
+                                  "treatmentLocationOther": "hospital that is not standard other more words more words hospital that is not standard other more words more words",
+                                  "evidenceType": [
+                                    "upload",
+                                    "retrieval"
+                                  ],
+                                  "retrieveFrom": [
+                                    {
+                                      "type": "retrievalEvidence",
+                                      "attributes": {
+                                        "locationAndName": "X-Ray VAMC",
+                                        "evidenceDates": [
+                                          {
+                                            "startDate": "2020-04-10",
+                                            "endDate": "2020-04-10"
+                                          },
+                                          {
+                                            "startDate": "2020-01-02",
+                                            "endDate": "2020-02-01"
+                                          },
+                                          {
+                                            "startDate": "2020-02-20",
+                                            "endDate": "2020-02-22"
+                                          },
+                                          {
+                                            "startDate": "2019-02-02",
+                                            "endDate": "2020-02-03"
+                                          }
+                                        ],
+                                        "noTreatmentDates": true
+                                      }
+                                    },
+                                    {
+                                      "type": "retrievalEvidence",
+                                      "attributes": {
+                                        "locationAndName": "Blood Lab VA Facility",
+                                        "evidenceDates": [
+                                          {
+                                            "startDate": "2020-02-20",
+                                            "endDate": "2020-02-22"
+                                          },
+                                          {
+                                            "startDate": "2020-02-02",
+                                            "endDate": "2020-02-07"
+                                          }
+                                        ],
+                                        "noTreatmentDates": true
+                                      }
+                                    },
+                                    {
+                                      "type": "retrievalEvidence",
+                                      "attributes": {
+                                        "locationAndName": "Doctor's Notes VAMC",
+                                        "evidenceDates": [
+                                          {
+                                            "startDate": "2020-04-10",
+                                            "endDate": "2020-04-10"
+                                          }
+                                        ],
+                                        "noTreatmentDates": true
+                                      }
+                                    },
+                                    {
+                                      "type": "retrievalEvidence",
+                                      "attributes": {
+                                        "locationAndName": "CT scan VA Medical Facility",
+                                        "evidenceDates": [
+                                          {
+                                            "startDate": "2020-07-19",
+                                            "endDate": "2020-07-19"
+                                          },
+                                          {
+                                            "startDate": "2018-03-06",
+                                            "endDate": "2019-02-12"
+                                          }
+                                        ],
+                                        "noTreatmentDates": true
+                                      }
+                                    },
+                                    {
+                                      "type": "retrievalEvidence",
+                                      "attributes": {
+                                        "locationAndName": "Lab work VAMC",
+                                        "evidenceDates": [
+                                          {
+                                            "startDate": "2018-03-06",
+                                            "endDate": "2018-03-06"
+                                          },
+                                          {
+                                            "startDate": "2018-01-15",
+                                            "endDate": "2018-01-15"
+                                          }
+                                        ],
+                                        "noTreatmentDates": false
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            "included": [
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "right shoulder",
+                                  "decisionDate": "2000-01-08",
+                                  "socDate": "2020-04-30"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "lower back",
+                                  "decisionDate": "1900-01-06",
+                                  "socDate": "2021-02-24"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "torn rotator cuff",
+                                  "decisionDate": "1989-03-07",
+                                  "socDate": "2020-04-30"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "hearing loss",
+                                  "decisionDate": "1930-10-20",
+                                  "socDate": "2016-05-30"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "sciatica",
+                                  "decisionDate": "2007-01-19",
+                                  "socDate": "2012-01-02"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "bowel obstruction",
+                                  "decisionDate": "1999-12-29",
+                                  "socDate": "2019-08-13"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "right eye",
+                                  "decisionDate": "1920-04-02",
+                                  "socDate": "2019-11-19"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "left index finger",
+                                  "decisionDate": "2018-08-17",
+                                  "socDate": "2021-03-20"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "spinal compression",
+                                  "decisionDate": "2013-09-11",
+                                  "socDate": "2020-08-24"
+                                }
+                              }
                             ]
                           }
                         }
-                      ]
+                      }
                     }
                   }
                 },
@@ -4611,189 +4546,15 @@
             "content": {
               "application/json": {
                 "example": {
-                  "errors": [
-                    {
-                      "title": "Internal server error",
-                      "detail": "Internal server error",
-                      "code": "500",
-                      "status": "500",
-                      "meta": {
-                        "exception": "undefined method `upload_submission' for an instance of AppealsApi::SupplementalClaim",
-                        "backtrace": [
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activemodel-7.2.2.1/lib/active_model/attribute_methods.rb:512:in `method_missing'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activerecord-7.2.2.1/lib/active_record/attribute_methods.rb:491:in `method_missing'",
-                          "/workspaces/vets-api/modules/appeals_api/app/serializers/appeals_api/supplemental_claim_serializer.rb:11:in `block in <class:SupplementalClaimSerializer>'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/helpers.rb:17:in `call_proc'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/scalar.rb:14:in `serialize'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:49:in `block in attributes_hash'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:48:in `each'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:48:in `each_with_object'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:48:in `attributes_hash'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/serialization_core.rb:81:in `record_hash'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/object_serializer.rb:52:in `hash_for_one_record'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/jsonapi-serializer-2.2.0/lib/fast_jsonapi/object_serializer.rb:41:in `serializable_hash'",
-                          "/workspaces/vets-api/modules/appeals_api/app/controllers/appeals_api/v2/decision_reviews/supplemental_claims_controller.rb:39:in `show'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/basic_implicit_render.rb:8:in `send_action'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/base.rb:226:in `process_action'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/rendering.rb:193:in `process_action'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/callbacks.rb:261:in `block in process_action'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:110:in `run_callbacks'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/callbacks.rb:260:in `process_action'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/rescue.rb:27:in `process_action'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/instrumentation.rb:77:in `block in process_action'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications.rb:210:in `block in instrument'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications/instrumenter.rb:58:in `instrument'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/notifications.rb:210:in `instrument'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/instrumentation.rb:76:in `process_action'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal/params_wrapper.rb:259:in `process_action'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activerecord-7.2.2.1/lib/active_record/railties/controller_runtime.rb:39:in `process_action'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/abstract_controller/base.rb:163:in `process'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal.rb:252:in `dispatch'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_controller/metal.rb:335:in `dispatch'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:67:in `dispatch'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:50:in `serve'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:53:in `block in serve'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:133:in `block in find_routes'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `each'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `find_routes'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:34:in `serve'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:896:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/railties-7.2.2.1/lib/rails/engine.rb:535:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/railties-7.2.2.1/lib/rails/railtie.rb:226:in `public_send'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/railties-7.2.2.1/lib/rails/railtie.rb:226:in `method_missing'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/mapper.rb:33:in `block in <class:Constraints>'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/mapper.rb:62:in `serve'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:53:in `block in serve'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:133:in `block in find_routes'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `each'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:126:in `find_routes'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/journey/router.rb:34:in `serve'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/routing/route_set.rb:896:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-attack-6.7.0/lib/rack/attack.rb:103:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:36:in `block in call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:34:in `catch'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/warden-1.2.9/lib/warden/manager.rb:34:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/session/abstract/id.rb:266:in `context'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/session/abstract/id.rb:260:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/cookies.rb:704:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-attack-6.7.0/lib/rack/attack.rb:127:in `call'",
-                          "/workspaces/vets-api/lib/statsd_middleware.rb:13:in `call'",
-                          "/workspaces/vets-api/lib/source_app_middleware.rb:183:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/olive_branch-4.0.1/lib/olive_branch/middleware.rb:64:in `call'",
-                          "/workspaces/vets-api/lib/olive_branch_patch.rb:9:in `call'",
-                          "/workspaces/vets-api/modules/accredited_representative_portal/config/initializers/bypass_olive_branch.rb:23:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/etag.rb:27:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/conditional_get.rb:27:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/head.rb:12:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/callbacks.rb:31:in `block in call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/callbacks.rb:101:in `run_callbacks'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/callbacks.rb:30:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/executor.rb:16:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/actionable_exceptions.rb:18:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/debug_exceptions.rb:31:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/show_exceptions.rb:32:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rails_semantic_logger-4.18.0/lib/rails_semantic_logger/rack/logger.rb:53:in `call_app'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rails_semantic_logger-4.18.0/lib/rails_semantic_logger/rack/logger.rb:26:in `block in call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/semantic_logger-4.17.0/lib/semantic_logger/base.rb:189:in `block in tagged'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/semantic_logger-4.17.0/lib/semantic_logger/semantic_logger.rb:395:in `named_tagged'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/semantic_logger-4.17.0/lib/semantic_logger/base.rb:196:in `tagged'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rails_semantic_logger-4.18.0/lib/rails_semantic_logger/rack/logger.rb:26:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/remote_ip.rb:96:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/request_store-1.7.0/lib/request_store/middleware.rb:19:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/request_id.rb:33:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/runtime.rb:22:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/activesupport-7.2.2.1/lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/executor.rb:16:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/middleware/static.rb:27:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-2.2.17/lib/rack/sendfile.rb:110:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-cors-2.0.2/lib/rack/cors.rb:102:in `call'",
-                          "/workspaces/vets-api/lib/http_method_not_allowed.rb:13:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/utf8-cleaner-1.0.0/lib/utf8-cleaner/middleware.rb:21:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/railties-7.2.2.1/lib/rails/engine.rb:535:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-test-2.2.0/lib/rack/test.rb:360:in `process_request'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rack-test-2.2.0/lib/rack/test.rb:153:in `request'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:287:in `process'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:19:in `get'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/actionpack-7.2.2.1/lib/action_dispatch/testing/integration.rb:378:in `get'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rswag-specs-2.16.0/lib/rswag/specs/example_helpers.rb:20:in `submit_request'",
-                          "/workspaces/vets-api/modules/appeals_api/spec/support/doc_helpers.rb:97:in `block (3 levels) in <module:DocHelpers>'",
-                          "/workspaces/vets-api/modules/appeals_api/spec/support/doc_helpers.rb:66:in `with_rswag_auth'",
-                          "/workspaces/vets-api/modules/appeals_api/spec/support/doc_helpers.rb:97:in `block (2 levels) in <module:DocHelpers>'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:365:in `run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:529:in `block in run_owned_hooks_for'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in `each'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:528:in `run_owned_hooks_for'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:615:in `block in run_example_hooks_for'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in `reverse_each'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:614:in `run_example_hooks_for'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:484:in `run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:505:in `run_before_example'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:261:in `block in run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in `block in with_around_and_singleton_context_hooks'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in `block in with_around_example_hooks'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in `block in run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:626:in `block in run_around_example_hooks_for'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-rails-8.0.1/lib/rspec/rails/adapters.rb:75:in `block (2 levels) in <module:MinitestLifecycleAdapter>'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/webmock-3.25.1/lib/webmock/rspec.rb:39:in `block (2 levels) in <top (required)>'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:124:in `block in run'",
-                          "<internal:kernel>:187:in `loop'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:110:in `run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-retry-0.6.2/lib/rspec_ext/rspec_ext.rb:12:in `run_with_retry'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-retry-0.6.2/lib/rspec/retry.rb:37:in `block (2 levels) in setup'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:457:in `instance_exec'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:390:in `execute_with'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:352:in `call'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:629:in `run_around_example_hooks_for'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/hooks.rb:486:in `run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:468:in `with_around_example_hooks'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:511:in `with_around_and_singleton_context_hooks'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example.rb:259:in `run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:653:in `block in run_examples'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in `map'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:649:in `run_examples'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:614:in `run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `block in run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `map'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/example_group.rb:615:in `run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `block (3 levels) in run_specs'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `map'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:121:in `block (2 levels) in run_specs'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/configuration.rb:2097:in `with_suite_hooks'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:116:in `block in run_specs'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/reporter.rb:74:in `report'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:115:in `run_specs'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:89:in `run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:71:in `run'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/lib/rspec/core/runner.rb:45:in `invoke'",
-                          "/home/vscode/.asdf/installs/ruby/3.3.6/lib/ruby/gems/3.3.0/gems/rspec-core-3.13.5/exe/rspec:4:in `<main>'"
-                        ]
-                      }
+                  "data": {
+                    "id": "00000000-1111-2222-3333-444444444444",
+                    "type": "supplementalClaim",
+                    "attributes": {
+                      "status": "pending",
+                      "updatedAt": "2020-01-02T03:04:05.067Z",
+                      "createdAt": "2020-01-02T03:04:05.067Z"
                     }
-                  ]
+                  }
                 },
                 "schema": {
                   "$ref": "#/components/schemas/scCreateResponse"
@@ -9203,6 +8964,11 @@
                     "type": "string",
                     "format": "date-time",
                     "example": "2018-07-30T17:31:15.958Z"
+                  },
+                  "finalStatus": {
+                    "description": "Indicates whether the status of the submission is final. Submissions with a final_status of true will no longer update to a new status.",
+                    "type": "boolean",
+                    "example": false
                   }
                 }
               }
