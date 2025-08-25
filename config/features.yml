@@ -2397,3 +2397,4 @@ features:
   accredited_representative_portal_homepage:
     actor_type: user
     description: Enables new homepage redesign for ARP
+
