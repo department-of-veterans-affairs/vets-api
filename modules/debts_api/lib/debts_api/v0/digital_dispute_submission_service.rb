@@ -26,6 +26,7 @@ module DebtsApi
         return duplicate_submission_result(submission) if check_duplicate?(submission)
 
         send_to_dmc
+        send_submission_email if email_notifications_enabled?
         submission.register_success
         in_progress_form&.destroy
 
@@ -150,6 +151,23 @@ module DebtsApi
                   end
 
         base_hash.merge!(details)
+      end
+
+      def email_notifications_enabled?
+        Flipper.enabled?(:digital_dispute_email_notifications) && @user.email.present?
+      end
+
+      def send_submission_email
+        DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_in(
+          5.minutes,
+          {
+            'submission_type' => 'digital_dispute',
+            'email' => @user.email,
+            'first_name' => @user.first_name,
+            'user_uuid' => @user.uuid,
+            'template_id' => DigitalDisputeSubmission::SUBMISSION_TEMPLATE
+          }
+        )
       end
     end
   end
