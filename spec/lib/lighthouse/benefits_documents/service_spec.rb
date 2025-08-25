@@ -41,7 +41,8 @@ RSpec.describe BenefitsDocuments::Service do
           file: upload_file,
           trackedItemIds: ['1'], # Lighthouse expects an array for tracked items
           documentType: 'L023',
-          password: nil
+          password: 'password',
+          qqfilename: 'test.txt'
         }
       end
 
@@ -90,6 +91,28 @@ RSpec.describe BenefitsDocuments::Service do
             expect(Rails.logger)
               .to have_received(:info)
               .with('LH - Created Evidence Submission Record', any_args)
+            # ensure the logger is filtering out sensitive data
+            expect(Rails.logger).to have_received(:info).with(
+              a_string_starting_with('Parameters for document upload'),
+              hash_including(
+                file: have_attributes(
+                  content_type: 'image/jpeg',
+                  headers: '[FILTERED!]',
+                  original_filename: '[FILTERED!]'
+                ),
+                file_number: 'xyz',
+                claimId: '1',
+                trackedItemIds: ['1'],
+                documentType: 'L023'
+              )
+            )
+            expect(Rails.logger).not_to have_received(:info).with(
+              a_string_starting_with('Parameters for document upload'),
+              hash_including(
+                password: 'password',
+                qqfilename: 'test.txt'
+              )
+            )
           end
         end
 

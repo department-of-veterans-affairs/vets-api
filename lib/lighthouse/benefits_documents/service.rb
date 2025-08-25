@@ -13,6 +13,9 @@ module BenefitsDocuments
     STATSD_KEY_PREFIX = 'api.benefits_documents'
     STATSD_UPLOAD_LATENCY = 'lighthouse.api.benefits.documents.latency'
 
+    # In order to avoid logging sensitive data, we need to exclude these params from the logs
+    DISALLOWED_PARAMS = %i[qqfilename password].freeze
+
     def initialize(user)
       @user = user
       raise ArgumentError, 'no user passed in for LH API request.' if @user.blank?
@@ -21,8 +24,7 @@ module BenefitsDocuments
     end
 
     def queue_document_upload(params, lighthouse_client_id = nil)
-      loggable_params = params.except(:password)
-      Rails.logger.info('Parameters for document upload', loggable_params)
+      Rails.logger.info('Parameters for document upload', filter_sensitive_params(params))
 
       start_timer = Time.zone.now
 
@@ -32,7 +34,7 @@ module BenefitsDocuments
     end
 
     def queue_multi_image_upload_document(params, lighthouse_client_id = nil)
-      loggable_params = params.except(:password)
+      loggable_params = filter_sensitive_params(params)
       loggable_params[:icn] = @user.icn
       Rails.logger.info('Parameters for document multi image upload', loggable_params)
 
@@ -234,6 +236,14 @@ module BenefitsDocuments
       end
 
       false
+    end
+
+    # To avoid logging PII, this method filters out sensitive data while keeping other pertinent data unchanged
+    def filter_sensitive_params(params)
+      unfiltered_params = params.except(*DISALLOWED_PARAMS)
+      filtered_file = ParameterFilterHelper.filter_params(params.slice(:file))
+      # Return everything except the disallowed params plus the filtered file
+      unfiltered_params.merge(filtered_file)
     end
   end
 end
