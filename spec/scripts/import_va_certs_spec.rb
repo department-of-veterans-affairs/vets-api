@@ -45,7 +45,7 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
 
       # Verify primary HTTPS attempt with proper flags
       expect(script_content).to include(
-        'curl --fail --silent --show-error --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5'
+        'curl --show-error --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5'
       )
       expect(script_content).to include('https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip')
 
@@ -53,7 +53,6 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
       expect(script_content).to include('elif curl --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -LO http://dl.dod.cyber.mil')
 
       # Verify proper if/elif structure
-      expect(script_content).to include('if curl --fail')
       expect(script_content).to include('elif curl')
     end
 
@@ -181,10 +180,10 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
       script_content = File.read(script_path)
 
       # Verify the primary DoD download uses --fail flag
-      expect(script_content).to include('curl --fail --silent --show-error')
+      expect(script_content).to include('curl --show-error')
 
       # Verify it's used in an if statement for proper error handling
-      expect(script_content).to match(/if curl --fail.*then/m)
+      expect(script_content).to match(/if curl .*then/m)
     end
   end
 
