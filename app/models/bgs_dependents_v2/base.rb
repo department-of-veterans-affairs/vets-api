@@ -164,9 +164,11 @@ module BGSDependentsV2
       if address['military_postal_code'].present? || address['country'] == 'USA'
         frgn_postal_code = nil
         state = address['state']
+        zip_prefix_nbr = address['postal_code']
       else
         frgn_postal_code = address['postal_code']
         state = nil
+        zip_prefix_nbr = nil
       end
       {
         efctv_dt: Time.current.iso8601,
@@ -183,7 +185,7 @@ module BGSDependentsV2
         frgn_postal_cd: frgn_postal_code,
         mlty_postal_type_cd: address['military_postal_code'],
         mlty_post_office_type_cd: address['military_post_office_type_code'],
-        zip_prefix_nbr: address['postal_code'],
+        zip_prefix_nbr:,
         prvnc_nm: address['state'],
         email_addrs_txt: payload['email_address']
       }
