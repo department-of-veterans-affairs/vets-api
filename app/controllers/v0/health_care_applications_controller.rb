@@ -9,6 +9,7 @@ module V0
   class HealthCareApplicationsController < ApplicationController
     include IgnoreNotFound
     include RetriableConcern
+    include PdfFilenameGenerator
 
     service_tag 'healthcare-application'
     FORM_ID = '1010ez'
@@ -99,7 +100,7 @@ module V0
         PdfFill::Filler.fill_form(health_care_application, file_name)
       end
 
-      client_file_name = file_name_for_pdf(health_care_application.parsed_form)
+      client_file_name = file_name_for_pdf(health_care_application.parsed_form, 'veteranFullName', '10-10EZ')
       file_contents    = File.read(source_file_path)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
@@ -108,13 +109,6 @@ module V0
     end
 
     private
-
-    def file_name_for_pdf(parsed_form)
-      veteran_name = parsed_form.try(:[], 'veteranFullName')
-      first_name = veteran_name.try(:[], 'first') || 'First'
-      last_name = veteran_name.try(:[], 'last') || 'Last'
-      "10-10EZ_#{first_name}_#{last_name}.pdf"
-    end
 
     def health_care_application
       @health_care_application ||= HealthCareApplication.new(params.permit(:form))
