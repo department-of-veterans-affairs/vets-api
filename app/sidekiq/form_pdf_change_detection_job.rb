@@ -71,11 +71,11 @@ class FormPdfChangeDetectionJob
   def log_form_revision(form_attributes, form_id)
     form_name = form_attributes['form_name']
     last_revision_on = form_attributes['last_revision_on']
+    url = form_attributes['url']
 
     StatsD.increment('form.pdf.change.detected', tags: ["form:#{form_name}", "form_id:#{form_id}"])
     Rails.logger.info(<<~MESSAGE)
-      PDF form #{form_name} (form_id: #{form_id}) was revised.
-      Last revised on date: #{last_revision_on}
+      PDF form #{form_name} (form_id: #{form_id}) was revised. Last revised on date: #{last_revision_on}. URL: #{url}
     MESSAGE
   end
 end
