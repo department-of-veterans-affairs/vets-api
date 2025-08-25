@@ -20,6 +20,7 @@
 - **Serializers**: End controllers with `render json: object, serializer: SomeSerializer`
 - **Auth**: Most endpoints need `before_action :authenticate_user!`
 - **Jobs**: Use `perform_async` for background work, `perform_in` for delayed
+- **Flipper in tests**: Never use `Flipper.enable/disable` - always stub with `allow(Flipper).to receive(:enabled?).with(:feature).and_return(true)`
 
 ### Common Patterns
 - Controllers in `modules/[name]/app/controllers` or `app/controllers`
@@ -38,7 +39,7 @@
 
 ### VA Service Integration
 - **BGS**: Benefits data, often slow/unreliable
-- **MVI**: Veteran identity, use ICN for lookups  
+- **MVI**: Veteran identity, use ICN for lookups
 - **Lighthouse**: Preferred over legacy EVSS
 - **EVSS**: Being deprecated, migrate to Lighthouse
 
@@ -52,7 +53,7 @@
 - **Missing authentication**: Controllers handling sensitive data without auth checks
 - **Mass assignment**: Direct use of params hash without strong parameters
 
-### Business Logic Issues  
+### Business Logic Issues
 - **Non-idempotent operations**: Creates without duplicate protection
 - **Blocking operations in controllers**: sleep(), long external calls, file processing
 - **Wrong error response format**: Not using VA.gov standard error envelope
@@ -70,7 +71,7 @@
 ### Architecture Concerns
 - **N+1 queries**: Loading associations in loops without includes
 - **Response validation**: Parsing external responses without checks
-- **Method complexity**: Methods handling multiple concerns or very long
+- **Method complexity**: Methods with many conditional paths or multiple responsibilities
 - **Database migrations**: Mixing index changes with other schema modifications
 
 ## Consolidation Examples
@@ -89,9 +90,31 @@ Recommend: Remove PII, move key to env var, add before_action
 - Flagging things RuboCop catches (style, syntax)
 - Repeating same feedback in different words
 
+## Flipper Usage in Tests
+
+Avoid enabling or disabling Flipper features in tests. Instead, use stubs to control feature flag behavior:
+
+**❌ Avoid (modifies global state):**
+```ruby
+Flipper.enable(:veteran_benefit_processing)
+Flipper.disable(:legacy_claims_api)
+```
+
+**✅ Correct approach (stubs without side effects):**
+```ruby
+allow(Flipper).to receive(:enabled?).with(:veteran_benefit_processing).and_return(true)
+allow(Flipper).to receive(:enabled?).with(:legacy_claims_api).and_return(false)
+```
+
+**For multiple feature flags:**
+```ruby
+allow(Flipper).to receive(:enabled?).and_return(false) # Default to false
+allow(Flipper).to receive(:enabled?).with(:enabled_feature).and_return(true)
+```
+
 ## Context for Responses
 - **VA.gov serves millions of veterans** - reliability and security critical
-- **External services often fail** - assume timeouts and retries needed  
+- **External services often fail** - assume timeouts and retries needed
 - **PII/PHI protection paramount** - err on side of caution for sensitive data
 - **Performance matters** - veterans waiting for benefits decisions
 - **Feature flags enable safe rollouts** - wrap risky or debug code
