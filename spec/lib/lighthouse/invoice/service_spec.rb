@@ -33,8 +33,8 @@ RSpec.describe Invoice::Service do
 
       before do
         allow(service.send(:config).connection).to receive(:get).and_raise(error)
-        allow(Lighthouse::ServiceException).to receive(:send_error) # silence side-effect
-        allow(service).to receive(:handle_error).and_call_original # still re-raises
+        allow(Lighthouse::ServiceException).to receive(:send_error)
+        allow(service).to receive(:handle_error).and_call_original
       end
 
       it 'calls handle_error and re-raises the error' do

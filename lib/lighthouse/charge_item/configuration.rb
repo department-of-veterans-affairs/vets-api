@@ -28,7 +28,7 @@ module Lighthouse
       def connection
         @conn ||= Faraday.new(charge_item_url, headers: base_request_headers, request: request_options) do |faraday|
           faraday.use(:breakers, service_name:)
-          faraday.use Faraday::Response::RaiseError # custom error handling for 4xx and 5xx responses
+          faraday.use Faraday::Response::RaiseError
         end
       end
     end
