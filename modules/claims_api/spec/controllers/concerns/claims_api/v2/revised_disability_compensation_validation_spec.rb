@@ -383,12 +383,12 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           let(:form_attributes) do
             base_form_attributes.merge(
               'changeOfAddress' => {
-                  'addressChangeType' => 'TEMPORARY',
-                  'type' => 'DOMESTIC',
-                  'city' => 'New York',
-                  'state' => 'NY',
-                  'zipFirstFive' => '10001',
-                  'endingDate' => (Date.current + 30.days).to_s
+                'addressChangeType' => 'TEMPORARY',
+                'type' => 'DOMESTIC',
+                'city' => 'New York',
+                'state' => 'NY',
+                'zipFirstFive' => '10001',
+                'endingDate' => (Date.current + 30.days).to_s
               }
             )
           end
@@ -407,12 +407,12 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           let(:form_attributes) do
             base_form_attributes.merge(
               'changeOfAddress' => {
-                  'addressChangeType' => 'PERMANENT',
-                  'type' => 'DOMESTIC',
-                  'city' => 'New York',
-                  'state' => 'NY',
-                  'zipFirstFive' => '10001',
-                  'endingDate' => (Date.current + 30.days).to_s
+                'addressChangeType' => 'PERMANENT',
+                'type' => 'DOMESTIC',
+                'city' => 'New York',
+                'state' => 'NY',
+                'zipFirstFive' => '10001',
+                'endingDate' => (Date.current + 30.days).to_s
               }
             )
           end
@@ -431,13 +431,13 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           let(:form_attributes) do
             base_form_attributes.merge(
               'changeOfAddress' => {
-                  'addressChangeType' => 'TEMPORARY',
-                  'type' => 'DOMESTIC',
-                  'city' => 'New York',
-                  'state' => 'NY',
-                  'zipFirstFive' => '10001',
-                  'beginningDate' => (Date.current - 1.day).to_s,
-                  'endingDate' => (Date.current + 30.days).to_s
+                'addressChangeType' => 'TEMPORARY',
+                'type' => 'DOMESTIC',
+                'city' => 'New York',
+                'state' => 'NY',
+                'zipFirstFive' => '10001',
+                'beginningDate' => (Date.current - 1.day).to_s,
+                'endingDate' => (Date.current + 30.days).to_s
               }
             )
           end
@@ -456,13 +456,13 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           let(:form_attributes) do
             base_form_attributes.merge(
               'changeOfAddress' => {
-                  'addressChangeType' => 'TEMPORARY',
-                  'type' => 'DOMESTIC',
-                  'city' => 'New York',
-                  'state' => 'NY',
-                  'zipFirstFive' => '10001',
-                  'beginningDate' => (Date.current + 60.days).to_s,
-                  'endingDate' => (Date.current + 30.days).to_s
+                'addressChangeType' => 'TEMPORARY',
+                'type' => 'DOMESTIC',
+                'city' => 'New York',
+                'state' => 'NY',
+                'zipFirstFive' => '10001',
+                'beginningDate' => (Date.current + 60.days).to_s,
+                'endingDate' => (Date.current + 30.days).to_s
               }
             )
           end
@@ -481,10 +481,10 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           let(:form_attributes) do
             base_form_attributes.merge(
               'changeOfAddress' => {
-                  'addressChangeType' => 'PERMANENT',
-                  'type' => 'DOMESTIC',
-                  'city' => 'New York'
-                  # Missing state and zipFirstFive
+                'addressChangeType' => 'PERMANENT',
+                'type' => 'DOMESTIC',
+                'city' => 'New York'
+                # Missing state and zipFirstFive
               }
             )
           end
