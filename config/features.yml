@@ -761,8 +761,8 @@ features:
     enable_in_development: true
   digital_dispute_duplicate_prevention:
     actor_type: user
-    description: When enabled, vets-api opens an endpoint to Event Bus Gateway for sending notification emails
-    enable_in_development: true
+    description: Enables duplicate prevention for digital dispute submissions
+    enable_in_development: false
   event_bus_gateway_retry_emails:
     actor_type: user
     description: When enabled, vets-api retries event bus gateway emails that VA Notify marks temporary-failure
@@ -2398,4 +2398,3 @@ features:
   accredited_representative_portal_homepage:
     actor_type: user
     description: Enables new homepage redesign for ARP
-  
