@@ -69,7 +69,10 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Conditions', type: :request do
       end
 
       expect(response).to be_successful
-      expect(response.body).to be_a(String)
+      body = JSON.parse(response.body)
+      expect(body['entry']).to be_a(Array)
+      expect(body['entry'][0]['resource']['resourceType']).to eq('Condition')
+      expect(body['entry'][0]['resource']['clinicalStatus']['coding'][0]['display']).to eq('Resolved')
     end
 
     it 'responds to GET #show' do
@@ -78,7 +81,9 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Conditions', type: :request do
       end
 
       expect(response).to be_successful
-      expect(response.body).to be_a(String)
+      body = JSON.parse(response.body)
+      expect(body['resourceType']).to eq('Condition')
+      expect(body['clinicalStatus']['coding'][0]['code']).to eq('active')
     end
 
     context 'when the patient is not found' do
