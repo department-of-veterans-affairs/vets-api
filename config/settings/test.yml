@@ -1327,6 +1327,7 @@ va_profile:
     enabled: true
     mock: false
     timeout: 30
+valid_va_file_number: false
 vanotify:
   callback_url: https://test-api.va.gov/va_notify/callbacks
   client_url: http://fakeapi.com
