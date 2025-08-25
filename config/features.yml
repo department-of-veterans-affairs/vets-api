@@ -73,6 +73,12 @@ features:
   arm_use_datadog_real_user_monitoring:
     actor_type: user
     description: Enables Datadog Real User Monitoring for ARM apps (Find a Rep, Appoint a Rep)
+  ar_poa_request_failure_claimant_notification:
+    actor_type: user
+    description: Enables sending POA failure notifications to claimants
+  ar_poa_request_failure_rep_notification:
+    actor_type: user
+    description: Enables sending POA failure notifications to representatives
   ask_va_announcement_banner:
     actor_type: cookie_id
     description: >
@@ -401,10 +407,6 @@ features:
     actor_type: user
     description: Use new Form526 Establishment Service (FES) for v2 disability compensation claims
     enable_in_development: true
-  lighthouse_claims_api_run_header_hash_filler_job:
-    actor_type: user
-    description: When enabled, will allow for the header hash to be filled in by the HeaderHashFillerJob
-    enable_in_development: true
   confirmation_page_new:
     actor_type: user
     description: Enables the 2024 version of the confirmation page view in simple forms
@@ -453,14 +455,6 @@ features:
     actor_type: user
     description: When enabled, CST does not show Attorney Fees, Secondary Action Required, or Stage 2 Development on mobile
     enable_in_development: false
-  cst_override_pmr_pending_tracked_items:
-    actor_type: user
-    description: When enabled, CST overrides PMR Pending tracked items to be NEEDED_FROM_OTHERS
-    enable_in_development: true
-  cst_override_reserve_records_website:
-    actor_type: user
-    description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on vets-website
-    enable_in_development: true
   cst_override_reserve_records_mobile:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
@@ -628,6 +622,10 @@ features:
     actor_type: user
     description: Manage whether the enqueued job for 686c and 674 will be with a User model or the new User struct
     enable_in_development: true
+  dependents_module_enabled:
+    actor_type: user
+    description: Enables new Dependents module
+    enable_in_development: true
   dependents_pension_check:
     actor_type: user
     description: Manage whether or not Pension check is enabled for the 686/674
@@ -645,7 +643,7 @@ features:
     description: Enable using the ClaimsEvidenceAPI module to upload 686/674 documents to VBMS
   dependents_bypass_schema_validation:
     actor_type: user
-    description: Bypasses vets_json_schema validation for dependency claims 
+    description: Bypasses vets_json_schema validation for dependency claims
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -672,6 +670,10 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
+    enable_in_development: true
+  disability_526_show_confirmation_review:
+    actor_type: user
+    description: enables showing a submission review section on the 526 confirmation page
     enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
@@ -730,6 +732,9 @@ features:
     actor_type: user
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
     enable_in_development: true
+  disability_526_track_saved_claim_error:
+    actor_type: user
+    description: enables improved logging of SavedClaim::DisabilityCompensation::Form526AllClaim save failures
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -1304,6 +1309,10 @@ features:
   mhv_medical_records_milestone_two:
     actor_type: user
     description: Enables/disables Medical Records new Milestone 2 changes
+    enable_in_development: true
+  mhv_medical_records_retry_next_page:
+    actor_type: user
+    description: Enables/disables with_retries when getting the next page
     enable_in_development: true
   mhv_medical_records_support_backend_pagination_allergy:
     actor_type: user
@@ -2178,6 +2187,13 @@ features:
       A frontend-focused switch that toggles visibility of and access to the Travel Pay claim details page and entry point (features toggled together).
       Enabled - Entry point link and claim details page are viewable.
       Disabled - Entry point link and claim details page are not viewable.
+  travel_pay_enable_complex_claims:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the availability of the expense and document submission features for travel pay claims. This feature flag can be retired when the feature is deployed to 100% of logged-in users in production for > 30 days.
+      Enabled - Requests are handled as normal. Users can submit various types of expenses (mileage, lodging, meal, other) to their travel pay claims. Users can upload documents to their travel claims.
+      Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
   travel_pay_submit_mileage_expense:
     actor_type: user
     enable_in_development: true
@@ -2367,3 +2383,7 @@ features:
   gi_feedback_tool_vet_tec_education_benefit:
     actor_type: user
     description: Includes the (VET TEC 2.0) option for selection under the Education Benefits question in the GI Bill® School Feedback Tool
+  accredited_representative_portal_homepage:
+    actor_type: user
+    description: Enables new homepage redesign for ARP
+  

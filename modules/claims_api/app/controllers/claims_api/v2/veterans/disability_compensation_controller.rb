@@ -3,6 +3,7 @@
 require 'common/exceptions'
 require 'jsonapi/parser'
 require 'claims_api/v2/disability_compensation_validation'
+require 'claims_api/v2/revised_disability_compensation_validation'
 require 'claims_api/v2/disability_compensation_pdf_mapper'
 require 'claims_api/v2/disability_compensation_evss_mapper'
 require 'claims_api/v2/disability_compensation_documents'
@@ -16,6 +17,7 @@ module ClaimsApi
     module Veterans
       class DisabilityCompensationController < ClaimsApi::V2::Veterans::Base
         include ClaimsApi::V2::DisabilityCompensationValidation
+        include ClaimsApi::V2::RevisedDisabilityCompensationValidation
         include ClaimsApi::V2::Error::LighthouseErrorHandler
         include ClaimsApi::V2::JsonFormatValidation
 
@@ -199,12 +201,17 @@ module ClaimsApi
 
         def shared_validation
           # Custom validations for 526 submission, we must check this first
-          @claims_api_forms_validation_errors = validate_form_526_submission_values(target_veteran)
+          @claims_api_forms_validation_errors = if Flipper.enabled?(:lighthouse_claims_api_v2_enable_FES)
+                                                  validate_form_526_fes_values(target_veteran)
+                                                else
+                                                  validate_form_526_submission_values(target_veteran)
+                                                end
+
           # JSON validations for 526 submission, will combine with previously captured errors and raise
           validate_json_schema
           validate_veteran_name(true)
           # if we get here there were only validations file errors
-          if @claims_api_forms_validation_errors
+          if @claims_api_forms_validation_errors.present?
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
