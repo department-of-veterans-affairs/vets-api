@@ -184,6 +184,12 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     )
 
     uploader.upload! unless Rails.env.development?
+  rescue => e
+    # VBMS sometimes returns PII in errors, so we can only log the error class.
+    # Do NOT raise the real error to calling methods.
+    monitor.track_event('error', 'DependencyClaim: Issue Uploading to VBMS in upload_to_vbms method',
+                        'dependents_claim.vbms_upload_error', { error: e&.class })
+    raise StandardError, 'Unknown error occurred while uploading to VBMS'
   end
 
   def form_matches_schema

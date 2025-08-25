@@ -49,6 +49,38 @@ RSpec.describe Dependents::Monitor do
   end
   let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
 
+  context 'with PII' do
+    it 'scrubs SSNs from error messages' do
+      msg = { error: 'Error! 123-45-6789', message: 'Failed: 123456789' }
+      payload = monitor_v1.generate_payload(msg)
+
+      expect(payload[:message]).to include('[REDACTED]')
+      expect(payload[:error]).to include('[REDACTED]')
+      expect(payload[:error]).not_to include('123-45-6789')
+      expect(payload[:message]).not_to include('123456789')
+    end
+
+    it 'scrubs emails from error messages' do
+      msg = { e: 'Error! test@example.com', message: 'Failed: 123@email.net' }
+      payload = monitor_v1.generate_payload(msg)
+
+      expect(payload[:message]).to include('[REDACTED]')
+      expect(payload[:e]).to include('[REDACTED]')
+      expect(payload[:e]).not_to include('test@example.com')
+      expect(payload[:message]).not_to include('123@email.net')
+    end
+
+    it 'scrubs phone numbers from error messages' do
+      msg = { error: 'Error! (555) 555-5555', message: 'Failed: 5555555555' }
+      payload = monitor_v1.generate_payload(msg)
+
+      expect(payload[:message]).to include('[REDACTED]')
+      expect(payload[:error]).to include('[REDACTED]')
+      expect(payload[:error]).not_to include('(555) 555-5555')
+      expect(payload[:message]).not_to include('5555555555')
+    end
+  end
+
   context 'v1' do
     describe '#track_submission_exhaustion' do
       it 'logs sidekiq job exhaustion' do

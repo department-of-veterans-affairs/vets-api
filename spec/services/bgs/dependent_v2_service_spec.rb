@@ -28,9 +28,7 @@ RSpec.describe BGS::DependentV2Service do
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
 
   before do
-    allow(claim).to receive_messages(id: '1234', use_v2: true, user_account_id: user.user_account_uuid,
-                                     submittable_686?: false, submittable_674?: true, add_veteran_info: true,
-                                     valid?: true, persistent_attachments: [], upload_pdf: true)
+    allow(claim).to receive_messages(id: '1234')
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
@@ -416,6 +414,8 @@ RSpec.describe BGS::DependentV2Service do
   end
 
   describe '#submit_pdf_job' do
+    let(:claim) { build(:dependency_claim_v2) }
+
     before do
       allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
     end
@@ -423,8 +423,7 @@ RSpec.describe BGS::DependentV2Service do
     it 'calls the VBMS::SubmitDependentsPdfJob with the correct arguments' do
       service = BGS::DependentV2Service.new(user)
       expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
-        claim.id, encrypted_vet_info, false,
-        true
+        claim.id, encrypted_vet_info, true, true
       )
       # use 'send' to call the private method
       service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
@@ -432,12 +431,24 @@ RSpec.describe BGS::DependentV2Service do
 
     it 'in case of error it logs the exception and raises a custom error' do
       service = BGS::DependentV2Service.new(user)
-      allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).and_raise(StandardError)
+      allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).and_raise(StandardError, 'Test error')
       expect(Rails.logger).to receive(:warn)
       expect do
         service.send(:submit_pdf_job, claim:,
                                       encrypted_vet_info:)
-      end.to raise_error(BGS::DependentV2Service::PDFSubmissionError)
+      end.to raise_error(BGS::DependentV2Service::PDFSubmissionError, 'Test error')
+    end
+
+    it 'in case of VBMS error it receives no third-party error messages' do
+      service = BGS::DependentV2Service.new(user)
+      uploader = double(ClaimsApi::VBMSUploader)
+      allow(ClaimsApi::VBMSUploader).to receive(:new).and_return(uploader)
+      allow(uploader).to receive(:upload!).and_raise(StandardError, 'Invalid SSN:123-45-6789')
+      expect(Rails.logger).to receive(:warn)
+      expect do
+        service.send(:submit_pdf_job, claim:,
+                                      encrypted_vet_info:)
+      end.to raise_error(BGS::DependentV2Service::PDFSubmissionError, 'Unknown error occurred while uploading to VBMS')
     end
   end
 end

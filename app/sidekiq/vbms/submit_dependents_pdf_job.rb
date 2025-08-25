@@ -34,11 +34,11 @@ module VBMS
 
       generate_pdf(submittable_686_form, submittable_674_form)
       monitor.track_event('info', 'VBMS::SubmitDependentsPdfJob succeeded!', "#{STATSD_KEY}.success")
-    rescue
+    rescue => e
       monitor.track_event('error', 'VBMS::SubmitDependentsPdfJob failed!',
-                          "#{STATSD_KEY}.failure")
+                          "#{STATSD_KEY}.failure", { error: e&.message })
       @saved_claim_id = saved_claim_id
-      raise
+      raise e
     end
 
     private
