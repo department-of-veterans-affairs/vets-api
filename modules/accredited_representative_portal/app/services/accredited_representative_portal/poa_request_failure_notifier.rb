@@ -6,7 +6,7 @@ module AccreditedRepresentativePortal
       @poa_request = poa_request
     end
 
-    def call
+    def call(async: true)
       raise ArgumentError, 'PoaRequest is required' unless @poa_request.is_a?(PowerOfAttorneyRequest)
 
       recipient_types.each do |recipient_type|
@@ -14,7 +14,12 @@ module AccreditedRepresentativePortal
           type: 'enqueue_failed',
           recipient_type: recipient_type.to_s
         )
-        PowerOfAttorneyRequestEmailJob.perform_async(notification.id)
+
+        if async
+          PowerOfAttorneyRequestEmailJob.perform_async(notification.id)
+        else
+          PowerOfAttorneyRequestEmailJob.new.perform(notification.id)
+        end
       end
     end
 
