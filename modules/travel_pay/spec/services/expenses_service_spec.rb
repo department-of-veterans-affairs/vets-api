@@ -190,8 +190,8 @@ describe TravelPay::ExpensesService do
     it 'throws an ArgumentException if not passed the right params' do
       expect do
         service.add_expense({ 'claim_id' => nil,
-                                      'appt_date' => '2024-10-02T14:36:38.043Z',
-                                      'trip_type' => 'OneWay' })
+                              'appt_date' => '2024-10-02T14:36:38.043Z',
+                              'trip_type' => 'OneWay' })
       end.to raise_error(ArgumentError, /You must provide/i)
     end
   end
