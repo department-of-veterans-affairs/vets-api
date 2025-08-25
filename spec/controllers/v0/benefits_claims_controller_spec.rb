@@ -231,38 +231,15 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(support_alias_values).to include(['DBQ PSYCH Mental Disorders'])
       end
 
-      context 'when cst_override_reserve_records_website flipper is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(true)
+      it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get(:show, params: { id: '600383363' })
         end
-
-        it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get(:show, params: { id: '600383363' })
-          end
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4,
-                                 'displayName')).to eq('RV1 - Reserve Records Request')
-          # In the cassette, this value is NEEDED_FROM_YOU
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4, 'status')).to eq('NEEDED_FROM_OTHERS')
-        end
-      end
-
-      context 'when cst_override_reserve_records_website flipper is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(false)
-        end
-
-        it 'leaves the tracked item status as NEEDED_FROM_YOU' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get(:show, params: { id: '600383363' })
-          end
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4,
-                                 'displayName')).to eq('RV1 - Reserve Records Request')
-          # Do not modify the cassette value
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4, 'status')).to eq('NEEDED_FROM_YOU')
-        end
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4,
+                               'displayName')).to eq('RV1 - Reserve Records Request')
+        # In the cassette, this value is NEEDED_FROM_YOU
+        expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4, 'status')).to eq('NEEDED_FROM_OTHERS')
       end
 
       context 'when :cst_suppress_evidence_requests_website is enabled' do

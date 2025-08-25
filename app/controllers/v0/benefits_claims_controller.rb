@@ -38,7 +38,7 @@ module V0
       # This should be removed when the items are re-categorized by BGS
       # We are not doing this in the Lighthouse service because we want web and mobile to have
       # separate rollouts and testing.
-      claim = rename_rv1(claim) if Flipper.enabled?(:cst_override_reserve_records_website)
+      claim = rename_rv1(claim)
 
       # https://github.com/department-of-veterans-affairs/va.gov-team/issues/98364
       # This should be removed when the items are removed by BGS
