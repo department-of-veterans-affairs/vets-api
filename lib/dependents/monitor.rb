@@ -23,6 +23,11 @@ module Dependents
     # statsd key for email notifications
     EMAIL_STATS_KEY = 'dependents.email_notification'
 
+    SSN_REGEX = /\b\d{3}-?\d{2}-?\d{4}\b/
+    EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
+    PHONE_REGEX = /\b(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}\b/
+    REDACTION = '[REDACTED]'
+
     def initialize(claim_id)
       @claim_id = claim_id
       @claim = claim(claim_id)
@@ -47,12 +52,23 @@ module Dependents
       { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: @claim&.user_account_id, tags: }
     end
 
+    def generate_payload(data)
+      payload = default_payload
+      return payload if data.blank?
+
+      data[:error] = Dependents::Monitor.scrub(data[:error]) if data[:error].present?
+      data[:message] = Dependents::Monitor.scrub(data[:message]) if data[:message].present?
+      data[:e] = Dependents::Monitor.scrub(data[:e]) if data[:e].present?
+
+      payload.merge(data || {})
+    end
+
     def tags
       @tags ||= ["service:#{service}", "v2:#{@use_v2}"]
     end
 
     def track_submission_exhaustion(msg, email = nil)
-      additional_context = default_payload.merge({ message: msg })
+      additional_context = generate_payload({ message: msg })
       if email
         # if an email address is present it means an email has been sent by vanotify
         # this means the silent failure is avoided.
@@ -71,21 +87,21 @@ module Dependents
 
     def track_unknown_claim_type(e)
       metric = "#{EMAIL_STATS_KEY}.unknown_type"
-      payload = default_payload.merge({ statsd: metric, e: })
+      payload = generate_payload({ statsd: metric, e: })
 
       StatsD.increment(metric, tags:)
       Rails.logger.error("Unknown Dependents form type for claim #{@claim_id}", payload)
     end
 
     def track_send_email_success(message, metric, user_account_id = nil)
-      payload = default_payload.merge({ statsd: metric, user_account_id: })
+      payload = generate_payload({ statsd: metric, user_account_id: })
 
       StatsD.increment(metric, tags:)
       Rails.logger.info(message, payload)
     end
 
     def track_send_email_error(message, metric, e, user_account_uuid = nil)
-      payload = default_payload.merge({ statsd: metric, e:, user_account_uuid: })
+      payload = generate_payload({ statsd: metric, e:, user_account_uuid: })
 
       StatsD.increment(metric, tags:)
       Rails.logger.error(message, payload)
@@ -116,7 +132,7 @@ module Dependents
     def track_to_pdf_failure(e, form_id)
       metric = "#{CLAIM_STATS_KEY}.to_pdf.failure"
       metric = "#{metric}.v2" if @use_v2
-      payload = default_payload.merge({ statsd: metric, e:, form_id: })
+      payload = generate_payload({ statsd: metric, e:, form_id: })
 
       StatsD.increment(metric, tags:)
       Rails.logger.error('SavedClaim::DependencyClaim#to_pdf error', payload)
@@ -125,7 +141,7 @@ module Dependents
     def track_pdf_overflow_tracking_failure(e)
       metric = "#{CLAIM_STATS_KEY}.track_pdf_overflow.failure"
       metric = "#{metric}.v2" if @use_v2
-      payload = default_payload.merge({ statsd: metric, e: })
+      payload = generate_payload({ statsd: metric, e: })
 
       StatsD.increment(metric, tags:)
       Rails.logger.warn('Error tracking PDF overflow', payload)
@@ -138,7 +154,33 @@ module Dependents
     end
 
     def track_event(level, message, stats_key, payload = {})
-      submit_event(level, message, stats_key, default_payload.merge(payload))
+      submit_event(level, message, stats_key, generate_payload(payload))
+    end
+
+    def self.scrub(message)
+      return message if message.blank?
+
+      scrubbed_message = nil
+
+      if message.is_a?(String)
+        scrubbed_message = message
+                           .gsub(SSN_REGEX, REDACTION)
+                           .gsub(EMAIL_REGEX, REDACTION)
+                           .gsub(PHONE_REGEX, REDACTION)
+      end
+
+      if message.is_a?(Hash)
+        message.each do |key, value|
+          message[key] = if value.is_a?(String)
+                           scrub(value)
+                         else
+                           REDACTION
+                         end
+        end
+        scrubbed_message = message
+      end
+
+      scrubbed_message
     end
   end
 end
