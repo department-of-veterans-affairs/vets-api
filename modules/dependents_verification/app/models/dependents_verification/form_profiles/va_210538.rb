@@ -80,7 +80,7 @@ module DependentsVerification
 
       dependents[:persons].filter_map do |person|
         # Skip if the dependent is not active for benefits
-        return nil if person[:award_indicator] == 'N'
+        next if person[:award_indicator] == 'N'
 
         person_to_dependent_information(person)
       end

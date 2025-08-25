@@ -4,6 +4,15 @@ require 'vets/model'
 require 'bid/awards/service'
 
 class FormProfiles::VA686c674v2 < FormProfile
+  class DependentInformation
+    include Vets::Model
+
+    attribute :full_name, FormFullName
+    attribute :date_of_birth, Date
+    attribute :ssn, String
+    attribute :relationship_to_veteran, String
+  end
+
   class FormAddress
     include Vets::Model
 
@@ -19,9 +28,11 @@ class FormProfiles::VA686c674v2 < FormProfile
   end
 
   attribute :form_address, FormAddress
+  attribute :dependents_information, DependentInformation, array: true
 
   def prefill
     prefill_form_address
+    prefill_dependents_information
 
     super
   end
@@ -100,7 +111,55 @@ class FormProfiles::VA686c674v2 < FormProfile
     end
   end
 
+  ##
+  # This method retrieves the dependents from the BGS service and maps them to the DependentInformation model.
+  # If no dependents are found or if they are not active for benefits, it returns an empty array.
+  def prefill_dependents_information
+    dependents = dependent_service.get_dependents
+    if dependents.nil? || dependents[:persons].blank?
+      monitor.track_event('warn', 'Missing dependents information for prefill', 'dependents.prefill.error')
+      return []
+    end
+    @dependents_information = dependents[:persons].filter_map do |person|
+      # Skip if the dependent is not active for benefits
+      next if person[:award_indicator] == 'N'
+
+      person_to_dependent_information(person)
+    end
+  rescue => e
+    monitor.track_event('warn', 'Failure initializing dependents_information', 'dependents.prefill.error',
+                        { error: e&.message })
+    []
+  end
+
+  ##
+  # Assigns a dependent's information to the DependentInformation model.
+  #
+  # @param person [Hash] The dependent's information as a hash
+  # @return [DependentInformation] The dependent's information mapped to the model
+  def person_to_dependent_information(person)
+    DependentInformation.new(
+      full_name: FormFullName.new({
+                                    first: person[:first_name],
+                                    middle: person[:middle_name],
+                                    last: person[:last_name],
+                                    suffix: person[:suffix]
+                                  }),
+      date_of_birth: person[:date_of_birth],
+      ssn: person[:ssn],
+      relationship_to_veteran: person[:relationship]
+    )
+  end
+
+  def dependent_service
+    @dependent_service ||= BGS::DependentService.new(user)
+  end
+
   def pension_award_service
     @pension_award_service ||= BID::Awards::Service.new(user)
+  end
+
+  def monitor
+    @monitor ||= Dependents::Monitor.new(nil)
   end
 end
