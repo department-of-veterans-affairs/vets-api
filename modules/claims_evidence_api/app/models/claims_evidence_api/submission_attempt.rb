@@ -3,7 +3,7 @@
 require 'claims_evidence_api/monitor'
 
 # Representation of a submission attempt to ClaimsEvidence API
-# https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#model-payload
+# https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#model-payload
 #
 # create_table "claims_evidence_api_submission_attempts", force: :cascade do |t|
 #   t.bigint "claims_evidence_api_submissions_id", null: false
