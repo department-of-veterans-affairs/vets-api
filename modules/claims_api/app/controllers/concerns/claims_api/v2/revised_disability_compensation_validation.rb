@@ -265,9 +265,6 @@ module ClaimsApi
 
       ### FES Val Section 5: veteran validations
       def validate_veteran!
-        veteran_info = form_attributes['veteran']
-        return if veteran_info.blank?
-
         # FES Val Section 5.b: currentMailingAddress validations
         validate_current_mailing_address!
 
@@ -278,32 +275,28 @@ module ClaimsApi
       # From V2 disability_compensation_validation.rb:224-250
       # FES Val Section 5.b: currentMailingAddress validations
       def validate_current_mailing_address!
-        mailing_address = form_attributes.dig('veteran', 'currentMailingAddress')
+        mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
         return if mailing_address.blank?
 
         # FES Val Section 5.b.ii: city, state and zipCode are required if type=DOMESTIC
-        if mailing_address['type'] == 'DOMESTIC'
-          validate_domestic_address_fields!(mailing_address, 'currentMailingAddress')
-        end
+        validate_domestic_address_fields!(mailing_address, 'mailingAddress') if mailing_address['type'] == 'DOMESTIC'
 
         # FES Val Section 5.b.iii: city and country are required if type=INTERNATIONAL
         if mailing_address['type'] == 'INTERNATIONAL'
-          validate_international_address_fields!(mailing_address, 'currentMailingAddress')
+          validate_international_address_fields!(mailing_address, 'mailingAddress')
         end
 
         # FES Val Section 5.b.iv: MilitaryStateCode, militaryPostOfficeTypeCode and zipFirstFive if type=MILITARY
-        if mailing_address['type'] == 'MILITARY'
-          validate_military_address_fields!(mailing_address, 'currentMailingAddress')
-        end
+        validate_military_address_fields!(mailing_address, 'mailingAddress') if mailing_address['type'] == 'MILITARY'
 
         # FES Val Section 5.b.vi: country must be in the list provided by the referenceDataService
-        validate_address_country!(mailing_address, 'currentMailingAddress')
+        validate_address_country!(mailing_address, 'mailingAddress')
       end
 
       # From V2 disability_compensation_validation.rb:55-196
       # FES Val Section 5.c: changeOfAddress validations
       def validate_change_of_address!
-        change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+        change_of_address = form_attributes['changeOfAddress']
         return if change_of_address.blank?
 
         validate_change_of_address_dates!(change_of_address)
@@ -327,7 +320,7 @@ module ClaimsApi
         # FES Val Section 5.c.i.2: Missing beginningDate
         if change_of_address['beginningDate'].blank?
           collect_error(
-            source: '/veteran/changeOfAddress/beginningDate',
+            source: '/changeOfAddress/beginningDate',
             title: 'Missing required field',
             detail: 'beginningDate is required for temporary address'
           )
@@ -336,7 +329,7 @@ module ClaimsApi
         # FES Val Section 5.c.i.3: Missing endingDate
         if change_of_address['endingDate'].blank?
           collect_error(
-            source: '/veteran/changeOfAddress/endingDate',
+            source: '/changeOfAddress/endingDate',
             title: 'Missing required field',
             detail: 'endingDate is required for temporary address'
           )
@@ -349,7 +342,7 @@ module ClaimsApi
           begin_date = parse_date_safely(change_of_address['beginningDate'])
           if begin_date && begin_date <= Date.current
             collect_error(
-              source: '/veteran/changeOfAddress/beginningDate',
+              source: '/changeOfAddress/beginningDate',
               title: 'Invalid beginningDate',
               detail: 'BeginningDate cannot be in the past: YYYY-MM-DD'
             )
@@ -369,7 +362,7 @@ module ClaimsApi
 
         # FES Val Section 5.c.iv.2: Invalid beginningDate
         collect_error(
-          source: '/veteran/changeOfAddress/beginningDate',
+          source: '/changeOfAddress/beginningDate',
           title: 'Invalid beginningDate',
           detail: 'BeginningDate cannot be after endingDate: YYYY-MM-DD'
         )
@@ -380,7 +373,7 @@ module ClaimsApi
         return if change_of_address['endingDate'].blank?
 
         collect_error(
-          source: '/veteran/changeOfAddress/endingDate',
+          source: '/changeOfAddress/endingDate',
           title: 'Cannot provide endingDate',
           detail: 'EndingDate cannot be provided for a permanent address.'
         )
@@ -415,8 +408,15 @@ module ClaimsApi
       def validate_required_field!(address, address_type, field, detail)
         return if address[field].present?
 
+        # Determine the correct path based on address_type
+        source_path = if address_type == 'mailingAddress'
+                        "/veteranIdentification/#{address_type}/#{field}"
+                      else
+                        "/#{address_type}/#{field}"
+                      end
+
         collect_error(
-          source: "/veteran/#{address_type}/#{field}",
+          source: source_path,
           title: 'Missing required field',
           detail:
         )
@@ -450,8 +450,15 @@ module ClaimsApi
         # FES Val Section 5.b.vii.2 / 5.c.x.2: Handle BGS service unavailable
         countries = valid_countries
         if countries.nil?
+          # Determine the correct path based on address_type
+          source_path = if address_type == 'mailingAddress'
+                          "/veteranIdentification/#{address_type}/country"
+                        else
+                          "/#{address_type}/country"
+                        end
+
           collect_error(
-            source: "/veteran/#{address_type}/country",
+            source: source_path,
             title: 'Internal Server Error',
             detail: 'Failed To Obtain Country Types (Request Failed)'
           )
@@ -461,8 +468,15 @@ module ClaimsApi
         # FES Val Section 5.b.vi.2 / 5.c.ix.2: Invalid country
         return if countries.include?(address['country'])
 
+        # Determine the correct path based on address_type
+        source_path = if address_type == 'mailingAddress'
+                        "/veteranIdentification/#{address_type}/country"
+                      else
+                        "/#{address_type}/country"
+                      end
+
         collect_error(
-          source: "/veteran/#{address_type}/country",
+          source: source_path,
           title: 'Invalid country',
           detail: "Provided country is not valid: #{address['country']}"
         )
