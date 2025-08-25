@@ -8,7 +8,7 @@ module ClaimsEvidenceApi
   MODULE_PATH = 'modules/claims_evidence_api'
 
   # The expected 'contentSource' value for uploads; schema/properties/contentSource
-  CONTENT_SOURCE = 'VA.gov'.freeze
+  CONTENT_SOURCE = 'VA.gov'
 
   # Collection of module exceptions
   module Exceptions; end
