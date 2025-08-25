@@ -148,7 +148,7 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
 
       it '#process_claim' do
         allow(controller).to receive(:veteran_middle_initial).and_return('M')
-        expect(ClaimsApi::V2::DisabilityCompensationPdfGenerator).to receive(:perform_async).with('456', 'M')
+        expect(ClaimsApi::DisabilityCompensationPdfGenerator).to receive(:perform_async).with('456', 'M')
         controller.send(:process_claim, double(id: '456'))
       end
 
