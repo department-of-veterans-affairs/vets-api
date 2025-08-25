@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-
 RSpec.describe SimpleFormsApi::VBA4010007 do
   describe 'handle_attachments' do
     it 'saves the merged pdf' do
