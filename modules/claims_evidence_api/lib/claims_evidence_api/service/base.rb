@@ -40,7 +40,7 @@ module ClaimsEvidenceApi
       # @see ClaimsEvidenceApi::FolderIdentifier#validate
       # @param folder_identifier [String] x_folder_uri header value
       def folder_identifier=(folder_identifier)
-        @folder_identifier = ClaimsEvidenceApi::FolderIdentifier.validate(folder_identifier)
+        @folder_identifier = validate_folder_identifier(folder_identifier)
       end
 
       # set the folder identifier that the file will be associated to

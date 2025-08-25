@@ -73,6 +73,12 @@ features:
   arm_use_datadog_real_user_monitoring:
     actor_type: user
     description: Enables Datadog Real User Monitoring for ARM apps (Find a Rep, Appoint a Rep)
+  ar_poa_request_failure_claimant_notification:
+    actor_type: user
+    description: Enables sending POA failure notifications to claimants
+  ar_poa_request_failure_rep_notification:
+    actor_type: user
+    description: Enables sending POA failure notifications to representatives
   ask_va_announcement_banner:
     actor_type: cookie_id
     description: >
@@ -400,10 +406,6 @@ features:
   lighthouse_claims_api_v2_enable_FES:
     actor_type: user
     description: Use new Form526 Establishment Service (FES) for v2 disability compensation claims
-    enable_in_development: true
-  lighthouse_claims_api_run_header_hash_filler_job:
-    actor_type: user
-    description: When enabled, will allow for the header hash to be filled in by the HeaderHashFillerJob
     enable_in_development: true
   confirmation_page_new:
     actor_type: user
@@ -1307,6 +1309,10 @@ features:
   mhv_medical_records_milestone_two:
     actor_type: user
     description: Enables/disables Medical Records new Milestone 2 changes
+    enable_in_development: true
+  mhv_medical_records_retry_next_page:
+    actor_type: user
+    description: Enables/disables with_retries when getting the next page
     enable_in_development: true
   mhv_medical_records_support_backend_pagination_allergy:
     actor_type: user
@@ -2377,3 +2383,7 @@ features:
   gi_feedback_tool_vet_tec_education_benefit:
     actor_type: user
     description: Includes the (VET TEC 2.0) option for selection under the Education Benefits question in the GI Bill® School Feedback Tool
+  accredited_representative_portal_homepage:
+    actor_type: user
+    description: Enables new homepage redesign for ARP
+  

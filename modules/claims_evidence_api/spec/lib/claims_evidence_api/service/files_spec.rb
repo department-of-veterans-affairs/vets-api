@@ -18,7 +18,7 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
   let(:file_name) { File.basename(file_path) }
   let(:provider_data) do
     # minimally required fields
-    { contentSource: 'va.gov', dateVaReceivedDocument: '1955-11-05', documentTypeId: 23 }
+    { contentSource: 'VA.gov', dateVaReceivedDocument: '1955-11-05', documentTypeId: 23 }
   end
 
   let(:post_params) do
@@ -26,7 +26,7 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
       payload: {
         contentName: file_name,
         providerData: provider_data
-      },
+      }.to_json,
       file: anything
     }
   end
@@ -43,12 +43,14 @@ RSpec.describe ClaimsEvidenceApi::Service::Files do
 
   describe '#upload|create' do
     it 'performs a POST to files' do
+      upload_headers = headers.merge({ 'Content-Type' => 'multipart/form-data' })
+
       expect(service).to receive(:validate_upload_payload).with(file_name, provider_data).and_call_original
-      expect(service).to receive(:perform).with(:post, 'files', post_params, headers)
+      expect(service).to receive(:perform).with(:post, 'files', post_params, upload_headers)
       service.upload(file_path, provider_data:)
 
       expect(service).to receive(:validate_upload_payload).with(file_name, provider_data).and_call_original
-      expect(service).to receive(:perform).with(:post, 'files', post_params, headers)
+      expect(service).to receive(:perform).with(:post, 'files', post_params, upload_headers)
       service.create(file_path, provider_data:)
     end
 
