@@ -97,11 +97,27 @@ module TravelPay
       def expense_params_for_service(expense)
         {
           'claim_id' => expense.claim_id,
-          'purchase_date' => expense.purchase_date&.iso8601,
+          'purchase_date' => format_purchase_date(expense.purchase_date),
           'description' => expense.description,
           'cost_requested' => expense.cost_requested,
           'expense_type' => expense.expense_type
         }
+      end
+
+      # Ensures purchase_date is formatted as ISO8601, regardless of input type
+      def format_purchase_date(purchase_date)
+        return nil if purchase_date.nil?
+        if purchase_date.is_a?(Date) || purchase_date.is_a?(Time) || purchase_date.is_a?(DateTime)
+          purchase_date.iso8601
+        elsif purchase_date.is_a?(String)
+          begin
+            Date.iso8601(purchase_date).iso8601
+          rescue ArgumentError
+            nil
+          end
+        else
+          nil
+        end
       end
     end
   end
