@@ -107,6 +107,7 @@ module TravelPay
       # Ensures purchase_date is formatted as ISO8601, regardless of input type
       def format_purchase_date(purchase_date)
         return nil if purchase_date.nil?
+
         if purchase_date.is_a?(Date) || purchase_date.is_a?(Time) || purchase_date.is_a?(DateTime)
           purchase_date.iso8601
         elsif purchase_date.is_a?(String)
@@ -115,8 +116,6 @@ module TravelPay
           rescue ArgumentError
             nil
           end
-        else
-          nil
         end
       end
     end
