@@ -60,7 +60,7 @@ module TravelClaim
     rescue => e
       error_class = e.class.name
       Rails.logger.error('Travel Claim Mileage Expense API error',
-                         { uuid: check_in_session&.uuid, claim_id: claim_id&.last(4), error_class: })
+                         { uuid: check_in_session&.uuid, error_class: })
       raise e
     end
 

@@ -127,7 +127,6 @@ RSpec.describe TravelClaim::MileageExpenseService do
           'Travel Claim Mileage Expense API error',
           {
             uuid:,
-            claim_id: '0000',
             error_class: 'Common::Exceptions::BackendServiceException'
           }
         )
@@ -152,7 +151,6 @@ RSpec.describe TravelClaim::MileageExpenseService do
           'Travel Claim Mileage Expense API error',
           {
             uuid:,
-            claim_id: '0000',
             error_class: 'Common::Exceptions::BackendServiceException'
           }
         )
@@ -176,7 +174,6 @@ RSpec.describe TravelClaim::MileageExpenseService do
           'Travel Claim Mileage Expense API error',
           {
             uuid:,
-            claim_id: '0000',
             error_class: 'StandardError'
           }
         )
