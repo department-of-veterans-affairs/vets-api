@@ -48,7 +48,7 @@ module HCA
 
     def notify(params)
       # Add 1 to retry_count to match retry_monitoring logic
-      retry_count = Integer(params['retry_count']) + 1
+      retry_count = params['retry_count'].to_i + 1
       health_care_application_id = params['args'][2]
 
       if retry_count == 10
