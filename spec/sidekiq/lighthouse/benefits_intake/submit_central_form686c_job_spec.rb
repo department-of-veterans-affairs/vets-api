@@ -8,7 +8,8 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
 
   # Performance tweak
   before do
-    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
+    allow(PdfFill::Filler)
+      .to receive(:fill_form) { |saved_claim, *_| "tmp/pdfs/686C-674_#{saved_claim.id || 'stub'}_final.pdf" }
   end
 
   let(:user) { create(:evss_user, :loa3) }
