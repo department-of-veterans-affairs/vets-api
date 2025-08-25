@@ -699,6 +699,14 @@ lighthouse:
     staging_url: <%= ENV['lighthouse__benefits_reference_data__staging_url'] %>
     url: <%= ENV['lighthouse__benefits_reference_data__url'] %>
     version: <%= ENV['lighthouse__benefits_reference_data__version'] %>
+  charge_item:
+    access_token:
+      aud_claim_url: <%= ENV['lighthouse__charge_item__access_token__aud_claim_url'] %>
+      client_id: <%= ENV['lighthouse__charge_item__access_token__client_id'] %>
+      rsa_key: <%= ENV['lighthouse__charge_item__access_token__rsa_key'] %>
+    path: <%= ENV['lighthouse__charge_item__path'] %>
+    url: <%= ENV['lighthouse__charge_item__url'] %>
+    use_mocks: <%= ENV['lighthouse__charge_item__use_mocks'] %>
   direct_deposit:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__direct_deposit__access_token__aud_claim_url'] %>
@@ -713,6 +721,14 @@ lighthouse:
     url: <%= ENV['lighthouse__facilities__url'] %>
     veterans_health:
       url: <%= ENV['lighthouse__facilities__veterans_health__url'] %>
+  invoice:
+    access_token:
+      aud_claim_url: <%= ENV['lighthouse__invoice__access_token__aud_claim_url'] %>
+      client_id: <%= ENV['lighthouse__invoice__access_token__client_id'] %>
+      rsa_key: <%= ENV['lighthouse__invoice__access_token__rsa_key'] %>
+    path: <%= ENV['lighthouse__invoice__path'] %>
+    url: <%= ENV['lighthouse__invoice__url'] %>
+    use_mocks: <%= ENV['lighthouse__invoice__use_mocks'] %>
   letters_generator:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__letters_generator__access_token__aud_claim_url'] %>
@@ -722,14 +738,6 @@ lighthouse:
     path: <%= ENV['lighthouse__letters_generator__path'] %>
     url: <%= ENV['lighthouse__letters_generator__url'] %>
     use_mocks: <%= ENV['lighthouse__letters_generator__use_mocks'] %>
-  invoice:
-    access_token:
-      aud_claim_url: <%= ENV['lighthouse__invoice__access_token__aud_claim_url'] %>
-      client_id: <%= ENV['lighthouse__invoice__access_token__client_id'] %>
-      rsa_key: <%= ENV['lighthouse__invoice__access_token__rsa_key'] %>
-    path: <%= ENV['lighthouse__invoice__path'] %>
-    url: <%= ENV['lighthouse__invoice__url'] %>
-    use_mocks: <%= ENV['lighthouse__invoice__use_mocks'] %>
   s3:
     aws_access_key_id: <%= ENV['lighthouse__s3__aws_access_key_id'] %>
     aws_secret_access_key: <%= ENV['lighthouse__s3__aws_secret_access_key'] %>

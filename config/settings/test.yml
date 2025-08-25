@@ -697,6 +697,14 @@ lighthouse:
     staging_url: https://staging-api.va.gov
     url: https://sandbox-api.va.gov
     version: v1
+  charge_item:
+    access_token:
+        aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
+        client_id: ~
+        rsa_key: ~
+    path: "/services/charge_item/v1/"
+    url: https://staging-api.va.gov
+    use_mocks: false
   direct_deposit:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi0e21hbv5iElEh2p7/v1/token
@@ -711,15 +719,6 @@ lighthouse:
     url: https://sandbox-api.va.gov
     veterans_health:
       url: ~
-  letters_generator:
-    access_token:
-      aud_claim_url: https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token
-      client_id: ~
-      path: oauth2/va-letter-generator/system/v1/token
-      rsa_key: ~
-    path: "/services/va-letter-generator/v1/"
-    url: https://sandbox-api.va.gov
-    use_mocks: false
   invoice:
     access_token:
         aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
@@ -728,13 +727,14 @@ lighthouse:
     path: "/services/invoice/v1/"
     url: https://staging-api.va.gov
     use_mocks: false
-  charge_item:
+  letters_generator:
     access_token:
-        aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
-        client_id: ~
-        rsa_key: ~
-    path: "/services/charge_item/v1/"
-    url: https://staging-api.va.gov
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token
+      client_id: ~
+      path: oauth2/va-letter-generator/system/v1/token
+      rsa_key: ~
+    path: "/services/va-letter-generator/v1/"
+    url: https://sandbox-api.va.gov
     use_mocks: false
   s3:
     aws_access_key_id: ~
