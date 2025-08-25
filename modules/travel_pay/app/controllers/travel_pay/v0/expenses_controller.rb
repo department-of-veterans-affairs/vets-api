@@ -12,7 +12,7 @@ module TravelPay
         begin
           Rails.logger.info(message: 'Travel Pay expense submission START')
           Rails.logger.info(
-            message: "Creating expense of type '#{params[:expense_type]}' for claim #{claim_id.slice(0, 8)}"
+            message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
           )
 
           expense = create_and_validate_expense
