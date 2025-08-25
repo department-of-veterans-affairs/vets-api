@@ -7,8 +7,6 @@ class AddCompoundPrimaryKeyToMHVMetricsUniqueUserEvents < ActiveRecord::Migratio
     add_index :mhv_metrics_unique_user_events, 
               [:user_id, :event_name], 
               unique: true,
-              algorithm: :concurrently,
-              if_not_exists: true,
               name: 'index_mhv_metrics_unique_user_events_on_user_id_and_event_name'
   end
 end
