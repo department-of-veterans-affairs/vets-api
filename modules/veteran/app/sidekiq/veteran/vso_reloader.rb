@@ -252,7 +252,7 @@ module Veteran
     def calculate_vso_counts(vso_data)
       {
         reps: vso_data.count { |v| v['Representative'].present? && v['Registration Num'].present? },
-        orgs: vso_data.map { |v| v['POA'] }.compact.uniq.count # rubocop:disable Rails/Pluck
+        orgs: vso_data.map { |v| v['POA'] }.compact.uniq.count
       }
     end
 
