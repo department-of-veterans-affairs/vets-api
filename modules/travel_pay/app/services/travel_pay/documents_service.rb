@@ -68,7 +68,7 @@ module TravelPay
 
       message = "Invalid document type: .#{extension}. Allowed types are: #{allowed_extensions.join(', ')}"
       Rails.logger.error(message)
-      raise Common::Exceptions::BadRequest, detail: message
+      raise Common::Exceptions::BadRequest.new(detail: message)
     end
 
     def validate_document_size!(document)
@@ -80,7 +80,7 @@ module TravelPay
       if file_size > max_size_in_bytes
         message = "Uploaded document size (#{file_size} bytes) exceeds the 5 MB limit."
         Rails.logger.error(message)
-        raise Common::Exceptions::BadRequest, detail: message
+        raise Common::Exceptions::BadRequest.new(detail: message)
       end
     end
   end
