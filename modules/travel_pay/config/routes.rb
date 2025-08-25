@@ -5,7 +5,7 @@ TravelPay::Engine.routes.draw do
     resources :claims
 
     scope '/claims/:claim_id' do
-      resources :documents, only: %i[index show]
+      resources :documents, only: %i[index show create]
     end
   end
 end
