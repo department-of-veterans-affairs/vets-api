@@ -447,30 +447,34 @@ module ClaimsApi
       def validate_address_country!(address, address_type)
         return if address['country'].blank?
 
-        # FES Val Section 5.b.vii.2 / 5.c.x.2: Handle BGS service unavailable
         countries = valid_countries
-        if countries.nil?
-          # Determine the correct path based on address_type
-          source_path = if address_type == 'mailingAddress'
-                          "/veteranIdentification/#{address_type}/country"
-                        else
-                          "/#{address_type}/country"
-                        end
+        validate_country_service_availability!(countries, address_type)
+        return if countries.nil?
 
-          collect_error(
-            source: source_path,
-            title: 'Internal Server Error',
-            detail: 'Failed To Obtain Country Types (Request Failed)'
-          )
-          return
-        end
+        validate_country_validity!(countries, address, address_type)
+      end
 
-        # FES Val Section 5.b.vi.2 / 5.c.ix.2: Invalid country
+      def validate_country_service_availability!(countries, address_type)
+        return unless countries.nil?
+
+        source_path = if address_type == 'mailingAddress'
+                        '/veteranIdentification/mailingAddress/country'
+                      else
+                        "/#{address_type}/country"
+                      end
+
+        collect_error(
+          source: source_path,
+          title: 'Internal Server Error',
+          detail: 'Failed To Obtain Country Types (Request Failed)'
+        )
+      end
+
+      def validate_country_validity!(countries, address, address_type)
         return if countries.include?(address['country'])
 
-        # Determine the correct path based on address_type
         source_path = if address_type == 'mailingAddress'
-                        "/veteranIdentification/#{address_type}/country"
+                        '/veteranIdentification/mailingAddress/country'
                       else
                         "/#{address_type}/country"
                       end
