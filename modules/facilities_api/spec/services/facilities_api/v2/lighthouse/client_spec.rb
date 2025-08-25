@@ -190,7 +190,7 @@ RSpec.describe FacilitiesApi::V2::Lighthouse::Client, team: :facilities, vcr: vc
       instructions = ['More hours are available for some services. To learn more, call our main phone number.',
                       'If you need to talk to someone or get advice right away, call the Vet Center anytime at ' \
                       '1-877-WAR-VETS (1-877-927-8387).']
-      expect(r[:operational_hours_special_instructions]).to eql(instructions)
+      expect(r.operational_hours_special_instructions).to eql(instructions)
     end
 
     it 'returns a 404 error' do

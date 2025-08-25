@@ -719,7 +719,7 @@ module IvcChampva
       ##
       # Builds the attachment_ids array for the given form submission.
       # For 10-7959a resubmissions:
-      #  - If Claim control number selected: the main claim sheet is labeled "CVA Reopen",
+      #  - If Control number selected: the main claim sheet is labeled "CVA Reopen",
       #    supporting docs retain original types.
       #  - If PDI selected: use the standard logic because the generated stamped doc
       #    (created in stamp_metadata) is labeled "CVA Bene Response" by the model, and
@@ -737,7 +737,7 @@ module IvcChampva
            parsed_form_data['claim_status'] == 'resubmission'
           selector = parsed_form_data['pdi_or_claim_number']
 
-          if selector == 'Claim control number'
+          if selector == 'Control number'
             # Relabel main claim sheet as CVA Reopen; supporting docs retain original types.
             main = Array.new(applicant_rounded_number) { 'CVA Reopen' }
             main.concat(supporting_document_ids(parsed_form_data))

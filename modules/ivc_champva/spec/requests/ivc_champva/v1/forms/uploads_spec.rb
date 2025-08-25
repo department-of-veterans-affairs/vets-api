@@ -707,7 +707,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           {
             'form_number' => '10-7959A',
             'claim_status' => 'resubmission',
-            'pdi_or_claim_number' => 'Claim control number',
+            'pdi_or_claim_number' => 'Control number',
             'identifying_number' => 'CLAIM789',
             'claims' => [
               { 'provider_name' => 'Test Provider' }

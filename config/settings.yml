@@ -1309,6 +1309,7 @@ va_profile:
     enabled: <%= ENV['va_profile__veteran_status__enabled'] %>
     mock: <%= ENV['va_profile__veteran_status__mock'] %>
     timeout: 30
+valid_va_file_number: false
 vanotify:
   callback_url: <%= ENV['vanotify__callback_url'] %>
   client_url: <%= ENV['vanotify__client_url'] %>
