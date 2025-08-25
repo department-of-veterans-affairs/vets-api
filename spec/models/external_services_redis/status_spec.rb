@@ -29,7 +29,10 @@ describe ExternalServicesRedis::Status do
 
     it 'includes an array of PagerDuty::Models::Service hashes', :aggregate_failures do
       expect(fetch_or_cache.statuses.class).to eq Array
-      expect(fetch_or_cache.statuses).to all(be_a(Hash))
+
+      fetch_or_cache.statuses.each do |status|
+        expect(status.class).to eq Hash
+      end
     end
 
     it 'includes the relevant status details about each external service', :aggregate_failures do
