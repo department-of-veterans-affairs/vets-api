@@ -1691,6 +1691,78 @@ RSpec.describe FormProfile, type: :model do
                 end
               end
             end
+
+            context 'with dependents prefill' do
+              let(:user) { create(:evss_user, :loa3) }
+              let(:form_profile) do
+                FormProfiles::VA686c674v2.new(user:, form_id: '686C-674-V2')
+              end
+              let(:dependent_service) { instance_double(BGS::DependentService) }
+              let(:dependents_data) do
+                { number_of_records: '1', persons: [{
+                  award_indicator: 'Y',
+                  date_of_birth: '01/02/1960',
+                  email_address: 'test@email.com',
+                  first_name: 'JANE',
+                  last_name: 'WEBB',
+                  middle_name: 'M',
+                  ptcpnt_id: '600140899',
+                  related_to_vet: 'Y',
+                  relationship: 'Spouse',
+                  ssn: '222883214',
+                  veteran_indicator: 'N'
+                }] }
+              end
+              let(:dependents_information) do
+                [{
+                  'fullName' => { 'first' => 'JANE', 'middle' => 'M', 'last' => 'WEBB' },
+                  'dateOfBirth' => '1960-02-01',
+                  'ssn' => '222883214',
+                  'relationshipToVeteran' => 'Spouse'
+                }]
+              end
+
+              before do
+                allow(Rails.logger).to receive(:warn)
+              end
+
+              it 'returns formatted dependent information' do
+                # Mock the dependent service to return active dependents
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+                allow(dependent_service).to receive(:get_dependents).and_return(dependents_data)
+
+                result = form_profile.prefill
+                expect(result[:form_data]).to have_key('veteranInformation')
+                expect(result[:form_data]).to have_key('veteranContactInformation')
+                expect(result[:form_data]).to have_key('nonPrefill')
+                expect(result[:form_data]['nonPrefill']).to have_key('dependents')
+                expect(result[:form_data]['nonPrefill']['dependents']).to eq(dependents_information)
+              end
+
+              it 'handles a dependent information error' do
+                # Mock the dependent service to return an error
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+                allow(dependent_service).to receive(:get_dependents).and_raise(
+                  StandardError.new('Dependent information error')
+                )
+                result = form_profile.prefill
+                expect(result[:form_data]).to have_key('veteranInformation')
+                expect(result[:form_data]).to have_key('veteranContactInformation')
+                expect(result[:form_data]).to have_key('nonPrefill')
+                expect(result[:form_data]['nonPrefill']).not_to have_key('dependents')
+              end
+
+              it 'handles missing dependents data' do
+                # Mock the dependent service to return no dependents
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+                allow(dependent_service).to receive(:get_dependents).and_return(nil)
+                result = form_profile.prefill
+                expect(result[:form_data]).to have_key('veteranInformation')
+                expect(result[:form_data]).to have_key('veteranContactInformation')
+                expect(result[:form_data]).to have_key('nonPrefill')
+                expect(result[:form_data]['nonPrefill']).not_to have_key('dependents')
+              end
+            end
           end
         end
 
