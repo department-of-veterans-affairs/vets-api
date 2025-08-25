@@ -1506,6 +1506,32 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      it 'sets future and past flags on eps appointments based on start time' do
+        VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          Timecop.freeze(Time.zone.parse('2024-12-02T12:01:00Z')) do
+            allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+
+            result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+            data = result[:data]
+
+            eps124 = data.find { |a| a.dig(:referral, :referral_number) == 'ref124' }
+            eps125 = data.find { |a| a.dig(:referral, :referral_number) == 'ref125' }
+
+            expect(eps124).not_to be_nil
+            expect(eps125).not_to be_nil
+
+            # 2024-12-02T10:00:00Z should be past at 12:01Z (past true, future false)
+            expect(eps124[:past]).to be(true)
+            expect(eps124[:future]).to be(false)
+
+            # 2024-12-03T10:00:00Z should be future at 2024-12-02T12:01Z
+            expect(eps125[:past]).to be(false)
+            expect(eps125[:future]).to be(true)
+          end
+        end
+      end
+
       it 'merges provider data correctly' do
         VCR.use_cassette('vaos/eps/token/token_200',
                          match_requests_on: %i[method path],
