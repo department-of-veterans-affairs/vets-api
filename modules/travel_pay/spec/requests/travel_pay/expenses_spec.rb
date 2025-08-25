@@ -10,7 +10,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
   before do
     sign_in(user)
     allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:travel_pay_complex_claims, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
   end
 
   describe 'POST #create' do
@@ -123,7 +123,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
 
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_complex_claims, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(false)
       end
 
       it 'returns service unavailable status' do

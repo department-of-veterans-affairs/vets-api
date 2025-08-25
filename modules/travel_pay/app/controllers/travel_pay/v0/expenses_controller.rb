@@ -39,7 +39,7 @@ module TravelPay
       end
 
       def validate_feature_flag_enabled
-        return if Flipper.enabled?(:travel_pay_complex_claims, @current_user)
+        return if Flipper.enabled?(:travel_pay_enable_complex_claims, @current_user)
 
         message = 'Travel Pay expense submission unavailable per feature toggle'
         Rails.logger.error(message:)
