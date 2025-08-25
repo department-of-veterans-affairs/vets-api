@@ -100,7 +100,8 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
           a_string_including('failed with error: No such file or directory - File not found')
         )
         expect(monitor).to have_received(:track_experiment_error).with('tesseract_ocr_validator', 'Errno::ENOENT',
-                                                                       'uuid', 'No such file or directory - File not found')
+                                                                       'uuid',
+                                                                       'No such file or directory - File not found')
         expect(Rails.logger).not_to have_received(:error).with(a_string_including('file_path')) # path may contain PII
       end
 
@@ -113,7 +114,8 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
           a_string_including('File path is nil')
         )
         expect(monitor).to have_received(:track_experiment_error).with('tesseract_ocr_validator', 'Errno::ENOENT',
-                                                                       'uuid', 'No such file or directory - File path is nil')
+                                                                       'uuid',
+                                                                       'No such file or directory - File path is nil')
       end
 
       it 'logs a warning and returns early when attachment record is not found' do

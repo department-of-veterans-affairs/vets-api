@@ -14,7 +14,7 @@ module IvcChampva
     # @param [String] uuid The UUID of the attachment
     # @param [Integer] attachment_record_id The ID of the attachment record to be processed
     # @param [String] attachment_id The doc_type of the attachment
-    def perform(form_id, uuid, attachment_record_id, attachment_id)
+    def perform(form_id, uuid, attachment_record_id, attachment_id) # rubocop:disable Metrics/MethodLength
       return unless Flipper.enabled?(:champva_enable_llm_on_submit)
 
       Rails.logger.info(
@@ -35,7 +35,7 @@ module IvcChampva
         begin
           # Create a tempfile from the persistent attachment object
           tempfile = IvcChampva::TempfileHelper.tempfile_from_attachment(attachment, form_id)
-          
+
           # Convert to PDF for LLM processing
           pdf_path = Common::ConvertToPdf.new(tempfile).run
 
