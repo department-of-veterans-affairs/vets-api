@@ -36,7 +36,6 @@ ALLOWLIST = %w[
   included
   kafka_payload
   line
-  message
   message_id
   method
   number
