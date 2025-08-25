@@ -7,8 +7,6 @@ module EventBusGateway
   class LetterReadyRetryEmailJob
     include Sidekiq::Job
 
-    include Constants
-
     class EventBusGatewayNotificationNotFoundError < StandardError; end
 
     STATSD_METRIC_PREFIX = 'event_bus_gateway.letter_ready_retry_email'
