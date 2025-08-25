@@ -1515,19 +1515,19 @@ describe VAOS::V2::AppointmentsService do
             result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
             data = result[:data]
 
-            eps_124 = data.find { |a| a.dig(:referral, :referral_number) == 'ref124' }
-            eps_125 = data.find { |a| a.dig(:referral, :referral_number) == 'ref125' }
+            eps124 = data.find { |a| a.dig(:referral, :referral_number) == 'ref124' }
+            eps125 = data.find { |a| a.dig(:referral, :referral_number) == 'ref125' }
 
-            expect(eps_124).not_to be_nil
-            expect(eps_125).not_to be_nil
+            expect(eps124).not_to be_nil
+            expect(eps125).not_to be_nil
 
             # 2024-12-02T10:00:00Z should be past at 12:01Z (past true, future false)
-            expect(eps_124[:past]).to be(true)
-            expect(eps_124[:future]).to be(false)
+            expect(eps124[:past]).to be(true)
+            expect(eps124[:future]).to be(false)
 
             # 2024-12-03T10:00:00Z should be future at 2024-12-02T12:01Z
-            expect(eps_125[:past]).to be(false)
-            expect(eps_125[:future]).to be(true)
+            expect(eps125[:past]).to be(false)
+            expect(eps125[:future]).to be(true)
           end
         end
       end
