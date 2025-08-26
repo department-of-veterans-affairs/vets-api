@@ -45,7 +45,7 @@ describe TravelPay::AuthManager do
         # Verify that the tokens were stored
         expect($redis.ttl("travel-pay-store:#{user.user_account_uuid}")).to eq(3300)
         saved_tokens = $redis.get("travel-pay-store:#{user.user_account_uuid}")
-        # The Oj.load method is normally handled by the RedisStore
+        # The Oj.load method is normally handled by the ValkeyStore (RedisStore)
         Oj.load(saved_tokens) => { veis_token:, btsss_token: }
         destructured_tokens = { veis_token:, btsss_token: }
         expect(destructured_tokens).to eq(tokens)

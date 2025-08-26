@@ -16,7 +16,7 @@ Rails.application.reloader.to_prepare do
 
   Sidekiq.configure_server do |config|
     config.health_check('0.0.0.0:7433') if config.respond_to? :health_check
-    config.redis = REDIS_CONFIG[:sidekiq]
+    config.redis = VALKEY_CONFIG[:sidekiq]
     # super_fetch! is only available in sidekiq-pro and will cause
     #   "undefined method `super_fetch!'"
     # for those using regular sidekiq
@@ -71,7 +71,7 @@ Rails.application.reloader.to_prepare do
   end
 
   Sidekiq.configure_client do |config|
-    config.redis = REDIS_CONFIG[:sidekiq]
+    config.redis = VALKEY_CONFIG[:sidekiq]
 
     config.client_middleware do |chain|
       chain.add SidekiqStatsInstrumentation::ClientMiddleware

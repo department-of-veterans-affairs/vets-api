@@ -1,7 +1,7 @@
 version: '3.4'
 services:
-  redis:
-    image: ${ECR_REGISTRY_WITH_SLASH}redis:6.2-alpine
+  valkey:
+    image: ${ECR_REGISTRY_WITH_SLASH}valkey/valkey:7.2-alpine
   postgres:
     image: ${ECR_REGISTRY_WITH_SLASH}postgis/postgis:14-3.3-alpine
     command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c max_connections=200
@@ -21,8 +21,8 @@ services:
     environment:
       SETTINGS__DATABASE_URL: "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
       SETTINGS__TEST_DATABASE_URL: "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}"
-      SETTINGS__REDIS__APP_DATA__URL: "redis://redis:6379"
-      SETTINGS__REDIS__SIDEKIQ__URL: "redis://redis:6379"
+      SETTINGS__VALKEY__APP_DATA__URL: "redis://valkey:6379"
+      SETTINGS__VALKEY__SIDEKIQ__URL: "redis://valkey:6379"
       POSTGRES_HOST: "${POSTGRES_HOST:-postgres}"
       POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
@@ -37,9 +37,9 @@ services:
       DISABLE_BOOTSNAP: "true"
     depends_on:
       - postgres
-      - redis
+      - valkey
     links:
       - postgres
-      - redis
+      - valkey
 volumes:
   test_bundle:

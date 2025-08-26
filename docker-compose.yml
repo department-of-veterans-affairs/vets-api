@@ -9,9 +9,9 @@ x-app: &common
     BUNDLE_ENTERPRISE__CONTRIBSYS__COM: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
     SETTINGS__DATABASE_URL: "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
     SETTINGS__TEST_DATABASE_URL: "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}"
-    SETTINGS__REDIS__APP_DATA__URL: "redis://redis:6379"
-    SETTINGS__REDIS__SIDEKIQ__URL: "redis://redis:6379"
-    SETTINGS__REDIS__RAILS_CACHE__URL: "redis://redis:6379"
+    SETTINGS__VALKEY__APP_DATA__URL: "redis://valkey:6379"
+    SETTINGS__VALKEY__SIDEKIQ__URL: "redis://valkey:6379"
+    SETTINGS__VALKEY__RAILS_CACHE__URL: "redis://valkey:6379"
   image: vets-api:${DOCKER_IMAGE:-latest}
   volumes:
     - "../vets-api-mockdata:/cache"
@@ -21,11 +21,11 @@ x-app: &common
   depends_on:
     - clamav
     - postgres
-    - redis
+    - valkey
   links:
     - clamav
     - postgres
-    - redis
+    - valkey
 
 services:
   clamav:
@@ -34,8 +34,8 @@ services:
       - 33100:3310
     volumes:
      - shared-vol:/vets-api
-  redis:
-    image: redis:6.2-alpine
+  valkey:
+    image: valkey/valkey:7.2-alpine
     ports:
       - 63790:6379
   postgres:

@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-namespace :redis do
+namespace :valkey do
   desc 'Flush Vets.gov User/Sessions'
   task flush_session: %i[flush_session_store flush_users_store]
 
-  desc 'Flush RedisStore: Session'
+  desc 'Flush ValkeyStore: Session'
   task flush_session_store: :environment do
     namespace = Session.new.redis_namespace.namespace
     flush_keys(namespace)
   end
 
-  desc 'Flush RedisStore: User'
+  desc 'Flush ValkeyStore: User'
   task flush_users_store: :environment do
     namespace = User.new.redis_namespace.namespace
     flush_keys(namespace)
