@@ -1243,8 +1243,6 @@ token_validation:
   url: <%= ENV['token_validation__url'] %>
 travel_pay:
   base_url: <%= ENV['travel_pay__base_url'] %>
-  btsss:
-    base_url: 'https://btsss.gov/api'
   client_number: <%= ENV['travel_pay__client_number'] %>
   mobile_client_number: <%= ENV['travel_pay__mobile_client_number'] %>
   mock: <%= ENV['travel_pay__mock'] %>
