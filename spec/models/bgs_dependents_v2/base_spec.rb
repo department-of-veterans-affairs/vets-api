@@ -111,6 +111,7 @@ RSpec.describe BGSDependentsV2::Base do
         params = base.create_address_params('1', '1', address)
         expect(params[:postal_cd]).to be_nil
         expect(params[:prvnc_nm]).to eq('Tuscany')
+        expect(params[:zip_prefix_nbr]).to be_nil
       end
     end
   end
