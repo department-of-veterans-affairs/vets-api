@@ -18,6 +18,14 @@ describe UnifiedHealthData::Service, type: :service do
     ).read)
   end
 
+  let(:notes_sample_response) do
+    JSON.parse(Rails.root.join(
+      'spec', 'fixtures', 'unified_health_data', 'notes_sample_response.json'
+    ).read)
+  end
+
+  # TODO: add notes tests
+
   describe '#get_labs' do
     context 'with defensive nil checks' do
       it 'handles missing contained sections' do
@@ -770,6 +778,59 @@ describe UnifiedHealthData::Service, type: :service do
           }
         }
         expect(service.send(:fetch_display, record)).to eq('')
+      end
+    end
+  end
+
+  # Clinical Notes
+  describe '#get_care_summaries_and_notes' do
+    context 'happy path' do
+      before do
+        allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_sample_response),
+                                           parse_response_body: notes_sample_response)
+      end
+
+      context 'when Flipper is enabled for all codes' do
+        it 'returns labs/tests' do
+          notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-05-31')
+          expect(notes.size).to eq(6)
+          expect(notes.map(&:type)).to contain_exactly(
+            'PHYSICIAN_PROCEDURE_NOTE',
+            'CONSULT_RESULT',
+            'DISCHARGE_SUMMARY',
+            'OTHER',
+            'PHYSICIAN_PROCEDURE_NOTE',
+            'PHYSICIAN_PROCEDURE_NOTE'
+          )
+          expect(notes).to all(have_attributes(
+                                 {
+                                   'id' => be_a(String),
+                                   'name' => be_a(String),
+                                   'type' => be_a(String),
+                                   'date' => be_a(String),
+                                   'date_signed' => be_a(String).or(be_nil),
+                                   'written_by' => be_a(String),
+                                   'signed_by' => be_a(String).or(be_nil),
+                                   'location' => be_a(String).or(be_nil),
+                                   'note' => be_a(String).or(be_nil),
+                                   'summary' => be_a(String).or(be_nil)
+                                 }
+                               ))
+        end
+      end
+    end
+
+    context 'with malformed response' do
+      before do
+        allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: nil))
+      end
+
+      it 'handles gracefully' do
+        allow(service).to receive(:parse_response_body).and_return(nil)
+        allow(Flipper).to receive(:enabled?).and_return(true)
+        expect do
+          service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-05-31')
+        end.not_to raise_error
       end
     end
   end
