@@ -55,14 +55,14 @@
 
 ### Business Logic Issues
 - **Non-idempotent operations**: Creates without duplicate protection
-- **Blocking operations in controllers**: sleep(), long external calls, file processing
+- **Blocking operations in controllers**: sleep(), File.read, document processing, operations >2 seconds
 - **Wrong error response format**: Not using VA.gov standard error envelope
 - **Service method contracts**: Returning `{ success: true }` instead of data/error pattern
 
 ### VA-Specific Patterns
 - **New logging without Flipper**: Suggest wrapping debug logs with feature flags
 - **External service calls**: Missing timeouts, retries, or error handling context
-- **Background job candidates**: File processing, bulk updates, email sending in controllers
+- **Background job candidates**: File.read operations, PDF/document processing, bulk database updates, .deliver_now emails
 - **Feature flag testing**: Using .enable/.disable instead of stubbing in tests
 - **ICN vs User ID**: Use ICN for veteran lookups with MVI/BGS
 - **Form serialization**: Use form objects for complex form submissions
