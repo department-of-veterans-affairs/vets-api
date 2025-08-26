@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe TravelPay::V0::DocumentsController, type: :request do
   include TravelPay::Engine.routes.url_helpers
 
-  let(:claim_id) { 'claim-123' }
+  let(:claim_id) { '73611905-71bf-46ed-b1ec-e790593b8565' }
   let(:doc_id) { 'doc-456' }
   let(:user) { build(:user) }
   let(:service) { instance_double(TravelPay::DocumentsService) }

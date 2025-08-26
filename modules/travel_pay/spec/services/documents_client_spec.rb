@@ -110,8 +110,8 @@ describe TravelPay::DocumentsClient do
     it 'sends a POST to the correct URL with headers and Document body' do
       # Build a Faraday Multipart::FilePart explicitly so we can check the file name
       file_part = Faraday::Multipart::FilePart.new(
-        file_path,           # path to your fixture file
-        'application/pdf',   # Content type
+        file_path,           # path to the fixture file
+        'application/pdf',   # content type
         'test.pdf'           # explicit filename
       )
       @stubs.post("api/v3/claims/#{claim_id}/documents/form-data") do |env|

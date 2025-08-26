@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: post
-      uri: https://btsss.gov/api/v3/claims/claim-123/documents/form-data
+      uri: https://btsss.gov/api/v3/claims/73611905-71bf-46ed-b1ec-e790593b8565/documents/form-data
       body:
         encoding: US-ASCII
         string: |

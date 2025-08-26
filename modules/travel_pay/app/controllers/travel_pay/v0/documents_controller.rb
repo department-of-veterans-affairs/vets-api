@@ -93,7 +93,10 @@ module TravelPay
         # it’s part of the URL path and Rails routing prevents that.
         raise Common::Exceptions::BadRequest.new(detail: 'Claim ID is required') if claim_id.blank?
 
-        raise Common::Exceptions::BadRequest.new(detail: 'Claim ID is invalid') unless claim_id =~ /\A[\w-]+\z/
+        # ensure claim ID is the right format, allowing any version
+        uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
+
+        raise Common::Exceptions::BadRequest.new(detail: 'Claim ID is invalid') unless uuid_all_version_format.match?(claim_id)
       end
 
       def validate_document_exists!(document)
