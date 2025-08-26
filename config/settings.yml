@@ -1031,15 +1031,15 @@ rack_timeout:
   service_timeout: <%= ENV['rack_timeout__service_timeout'] %>
   wait_overtime: <%= ENV['rack_timeout__wait_overtime'] %>
   wait_timeout: <%= ENV['rack_timeout__wait_timeout'] %>
-valkey:
+redis:
   app_data:
-    url: <%= ENV['valkey__app_data__url'] %>
-  host: <%= ENV['valkey__host'] %>
+    url: <%= ENV['redis__app_data__url'] %>
+  host: <%= ENV['redis__host'] %>
   port: 6379
   rails_cache:
-    url: <%= ENV['valkey__rails_cache__url'] %>
+    url: <%= ENV['redis__rails_cache__url'] %>
   sidekiq:
-    url: <%= ENV['valkey__sidekiq__url'] %>
+    url: <%= ENV['redis__sidekiq__url'] %>
 relative_url_root: "/"
 reports:
   aws:

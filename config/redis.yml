@@ -1,8 +1,8 @@
 development: &defaults
-  valkey:
-    url: <%= Settings.valkey.app_data.url %>
+  redis:
+    url: <%= Settings.redis.app_data.url %>
   sidekiq:
-    url: <%= Settings.valkey.sidekiq.url %>
+    url: <%= Settings.redis.sidekiq.url %>
   # DO NOT CHANGE BELOW TTL (We have agreement with MHV on this for SSO)
   session_store:
     namespace: vets-api-session
@@ -228,11 +228,11 @@ development: &defaults
     each_ttl: 3300 # 55 minutes
 test:
   <<: *defaults
-  valkey:
+  redis:
     inherit_socket: true
-    url: <%= Settings.valkey.app_data.url %>
+    url: <%= Settings.redis.app_data.url %>
   sidekiq:
-    url: <%= Settings.valkey.sidekiq.url %>
+    url: <%= Settings.redis.sidekiq.url %>
 
 production:
   <<: *defaults
