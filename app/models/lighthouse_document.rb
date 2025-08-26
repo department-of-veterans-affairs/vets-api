@@ -2,6 +2,7 @@
 
 require 'vets/model'
 require 'pdf_info'
+require 'common/pdf_helpers'
 
 class LighthouseDocument
   include Vets::Model
@@ -98,23 +99,46 @@ class LighthouseDocument
   def convert_to_unlocked_pdf
     return unless file_name.match?(/\.pdf$/i) && password.present?
 
-    pdftk = PdfForms.new(Settings.binaries.pdftk)
     tempfile_without_pass = Tempfile.new(['decrypted_lighthouse_claim_document', '.pdf'])
+
+    # choose PDF unlocking Strategy
+    if Flipper.enabled?(:lighthouse_document_convert_to_unlocked_pdf_use_hexapdf)
+      unlock_with_hexapdf(tempfile_without_pass)
+    else
+      unlock_with_pdftk(tempfile_without_pass)
+    end
+
+    cleanup_after_unlock(tempfile_without_pass)
+  end
+
+  def unlock_with_hexapdf(tempfile_without_pass)
+    ::Common::PdfHelpers.unlock_pdf(file_obj.tempfile.path, password, tempfile_without_pass)
+    tempfile_without_pass.rewind
+  end
+
+  def unlock_with_pdftk(tempfile_without_pass)
+    pdftk = PdfForms.new(Settings.binaries.pdftk)
 
     begin
       pdftk.call_pdftk(file_obj.tempfile.path,
                        'input_pw', password,
                        'output', tempfile_without_pass.path)
     rescue PdfForms::PdftkError => e
-      file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
-      password_regex = /(input_pw).*?(output)/
-      sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
-      log_message_to_sentry(sanitized_message, 'warn')
-      errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
+      handle_pdftk_error(e)
     end
+  end
 
+  def handle_pdftk_error(error)
+    file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
+    password_regex = /(input_pw).*?(output)/
+    sanitized_message = error.message.gsub(file_regex, '[FILTERED FILENAME]')
+                             .gsub(password_regex, '\1 [FILTERED] \2')
+    log_message_to_sentry(sanitized_message, 'warn')
+    errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
+  end
+
+  def cleanup_after_unlock(tempfile_without_pass)
     @password = nil
-
     file_obj.tempfile.unlink
     file_obj.tempfile = tempfile_without_pass
   end
