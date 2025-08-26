@@ -1079,7 +1079,7 @@ features:
     description: Enables ability to show updated letter page design
     enable_in_development: true
   lighthouse_document_convert_to_unlocked_pdf_use_hexapdf:
-    description: Enables the LighthouseDocument class's convert_to_unlocked_pdf method to use hexapdf to unlock encrypted pds
+    description: Enables the LighthouseDocument class's convert_to_unlocked_pdf method to use hexapdf to unlock encrypted pdfs
   lighthouse_claims_api_v2_add_person_proxy:
     actor_type: user
     description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID
