@@ -114,6 +114,9 @@ class LighthouseDocument
   def unlock_with_hexapdf(tempfile_without_pass)
     ::Common::PdfHelpers.unlock_pdf(file_obj.tempfile.path, password, tempfile_without_pass)
     tempfile_without_pass.rewind
+  rescue Common::Exceptions::UnprocessableEntity => e
+    log_error_to_sentry(e)
+    errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
   end
 
   def unlock_with_pdftk(tempfile_without_pass)
@@ -129,12 +132,16 @@ class LighthouseDocument
   end
 
   def handle_pdftk_error(error)
+    log_error_to_sentry(error)
+    errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
+  end
+
+  def log_error_to_sentry(error)
     file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
     password_regex = /(input_pw).*?(output)/
     sanitized_message = error.message.gsub(file_regex, '[FILTERED FILENAME]')
                              .gsub(password_regex, '\1 [FILTERED] \2')
     log_message_to_sentry(sanitized_message, 'warn')
-    errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
   end
 
   def cleanup_after_unlock(tempfile_without_pass)
