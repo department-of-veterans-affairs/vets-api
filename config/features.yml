@@ -1238,6 +1238,10 @@ features:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
     enable_in_development: true
+  mhv_medical_records_ccd_extended_file_types:
+    actor_type: user
+    description: Allows users to download CCD (health summary) in PDF and HTML formats
+    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
