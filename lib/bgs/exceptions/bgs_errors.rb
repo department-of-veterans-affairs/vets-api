@@ -23,11 +23,7 @@ module BGS
       def notify_of_service_exception(error, method, attempt = nil, status = :error)
         # CEST11 errors include PII. Override message to avoid logging sensitive information.
         if error.message.present? && error.message.include?('CEST11')
-          filtered_error = error.class.new('CEST11 Error').tap { |err| err.set_backtrace(caller) }
-          context = { icn: @user[:icn] }
-          tags = { team: 'vfs-ebenefits' }
-          log_message_to_sentry('CEST11 Error', :error, context, tags)
-          raise_backend_exception('BGS_686c_SERVICE_403', self.class, filtered_error)
+          raise_backend_exception('BGS_686c_SERVICE_403', self.class, error.class.new('CEST11 Error'))
         end
         msg = "Unable to #{method}: #{error.message}: try #{attempt} of #{MAX_ATTEMPTS}"
         context = { icn: @user[:icn] }
