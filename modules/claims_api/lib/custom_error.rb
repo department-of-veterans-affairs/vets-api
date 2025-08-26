@@ -61,7 +61,7 @@ module ClaimsApi
     def get_error_info
       all_errors = []
 
-      (@original_body&.dig(:messages) || []).each do |err|
+      error_sources.each do |err|
         symbolized_error = err.deep_symbolize_keys
         all_errors << munge_error(symbolized_error) unless symbolized_error[:severity] == 'WARN'
       end
@@ -93,6 +93,13 @@ module ClaimsApi
 
     def get_original_body
       @detail ||= @error&.original_body if @error&.methods&.include?(:original_body)
+    end
+
+    def error_sources
+      [
+        @original_body&.dig(:messages),
+        @original_body&.dig(:errors)
+      ].compact.flatten
     end
   end
 end

@@ -218,4 +218,32 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
       end
     end
   end
+
+  describe 'FES errors' do
+    let(:response_values) do
+      { status: 400, detail: nil, code: 'VA_400', source: nil }
+    end
+    let(:detail) do
+      { errors: [
+        {
+          detail: 'Http Message Not Readable (Unrecognized Property)', status: 400, title: 'Bad Request',
+          instance: 'b3a8fe91', diagnostics: '285vwsmYlv='
+        }
+      ] }
+    end
+
+    # (key = nil, response_values = {}, original_status = nil, original_body = nil)
+    let(:backend_error) do
+      Common::Exceptions::BackendServiceException.new('VA_400', response_values, 400, detail)
+    end
+
+    it 'handles returning a message when errors is inside the original_body not messages' do
+      ClaimsApi::CustomError.new(backend_error, detail, false).build_error
+    rescue => e
+      expect(e.errors[0][:status]).to eq('422') # standards require this to be a string
+      expect(e.errors[0][:title]).to eq('Backend Service Exception')
+      expect(e.errors[0][:detail]).to eq('The claim could not be established - Http Message Not Readable ' \
+                                         '(Unrecognized Property).')
+    end
+  end
 end
