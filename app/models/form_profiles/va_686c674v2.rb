@@ -11,6 +11,7 @@ class FormProfiles::VA686c674v2 < FormProfile
     attribute :date_of_birth, Date
     attribute :ssn, String
     attribute :relationship_to_veteran, String
+    attribute :award_indicator, String
   end
 
   class FormAddress
@@ -121,9 +122,6 @@ class FormProfiles::VA686c674v2 < FormProfile
       return []
     end
     @dependents_information = dependents[:persons].filter_map do |person|
-      # Skip if the dependent is not active for benefits
-      next if person[:award_indicator] == 'N'
-
       person_to_dependent_information(person)
     end
   rescue => e
@@ -147,7 +145,8 @@ class FormProfiles::VA686c674v2 < FormProfile
                                   }),
       date_of_birth: person[:date_of_birth],
       ssn: person[:ssn],
-      relationship_to_veteran: person[:relationship]
+      relationship_to_veteran: person[:relationship],
+      award_indicator: person[:award_indicator]
     )
   end
 

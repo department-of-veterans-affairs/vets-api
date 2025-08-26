@@ -1718,7 +1718,8 @@ RSpec.describe FormProfile, type: :model do
                   'fullName' => { 'first' => 'JANE', 'middle' => 'M', 'last' => 'WEBB' },
                   'dateOfBirth' => '1960-02-01',
                   'ssn' => '222883214',
-                  'relationshipToVeteran' => 'Spouse'
+                  'relationshipToVeteran' => 'Spouse',
+                  'awardIndicator' => 'Y'
                 }]
               end
 
