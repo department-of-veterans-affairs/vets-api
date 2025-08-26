@@ -1589,7 +1589,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'when sending emails' do
         let(:params) do
           {
-            template_id: '5678'
+            template_id: '5678',
+            ep_code: 'EP110'
           }
         end
 
