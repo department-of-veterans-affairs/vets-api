@@ -60,11 +60,11 @@
 - **Service method contracts**: Returning `{ success: true }` instead of data/error pattern
 
 ### VA-Specific Patterns
-- **New logging without Flipper**: Suggest wrapping debug logs with feature flags
-- **External service calls**: Faraday clients missing `timeout: 30, open_timeout: 10` and `retry` middleware
+- **New logging without Flipper**: Logs not wrapped with feature flags
+- **External service calls**: Missing error handling, timeouts, retries, or rescue blocks
 - **Background job candidates**: File.read operations, PDF/document processing, bulk database updates, .deliver_now emails
-- **ICN vs User ID**: Use ICN for veteran lookups with MVI/BGS
-- **Form serialization**: Use form objects for complex form submissions
+- **Wrong identifier usage**: Using User ID instead of ICN for MVI/BGS lookups
+- **Form handling**: Complex forms not using form objects for serialization
 
 ### Architecture Concerns
 - **N+1 queries**: Loading associations in loops without includes
