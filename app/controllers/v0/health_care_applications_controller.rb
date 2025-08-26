@@ -50,7 +50,7 @@ module V0
       end
 
       begin
-        clear_saved_form(FORM_ID) if current_user
+        clear_saved_form(FORM_ID)
       rescue => e
         Rails.logger.warn("[10-10EZ] - Failed to clear saved form: #{e.message}")
       end
