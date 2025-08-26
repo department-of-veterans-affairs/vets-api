@@ -11,7 +11,7 @@ module MyHealth
         # @return [Array] of objects with CCDs generated date and status (COMPLETE or not)
         #
         def generate
-          resource = bb_client.get_generate_ccd(current_user.icn, current_user.last_name, format: requested_format)
+          resource = bb_client.get_generate_ccd(current_user.icn, current_user.last_name)
           render json: resource.to_json
         rescue => e
           log_aal_action('Download My VA Health Summary', 0)

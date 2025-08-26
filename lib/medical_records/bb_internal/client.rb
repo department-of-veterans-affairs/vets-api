@@ -178,16 +178,12 @@ module BBInternal
     ##
     # @param icn - user icn
     # @param last_name - user last name
-    # @param format - the format to generate; one of xml, html, pdf
     # @return JSON [{ dateGenerated, status, patientId }]
     #
-    def get_generate_ccd(icn, last_name, format: :xml)
+    def get_generate_ccd(icn, last_name)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        fmt_sym = normalize_ccd_format(format) # :xml | :html | :pdf
-        suffix  = fmt_sym.to_s # "xml" | "html" | "pdf"
-
         escaped_last_name = URI::DEFAULT_PARSER.escape(last_name)
-        response = perform(:get, "bluebutton/healthsummary/#{icn}/#{escaped_last_name}/#{suffix}", nil, token_headers)
+        response = perform(:get, "bluebutton/healthsummary/#{icn}/#{escaped_last_name}/xml", nil, token_headers)
         response.body
       end
     end
