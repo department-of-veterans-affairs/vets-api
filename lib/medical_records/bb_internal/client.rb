@@ -196,10 +196,10 @@ module BBInternal
     def get_download_ccd(date:, format: :xml)
       fmt_sym = normalize_ccd_format(format) # :xml | :html | :pdf
       fmt = fmt_sym.to_s.upcase # XML | HTML | PDF
-      # accept_header = FORMAT_ACCEPT.fetch(fmt_sym)
+      accept_header = FORMAT_ACCEPT.fetch(fmt_sym)
 
       modified_headers = token_headers.dup
-      modified_headers['Accept'] = '*/*'
+      modified_headers['Accept'] = accept_header
 
       path = "bluebutton/healthsummary/#{date}/fileFormat/#{fmt}/ccdType/#{fmt}"
 
