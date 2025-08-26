@@ -143,25 +143,51 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
         end
       end
 
-      it 'submits the saved claim and updates submission to success' do
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          user_struct.va_profile_email,
-          'fake_received686',
-          { 'confirmation_number' => claim.confirmation_number,
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'first_name' => 'MARK' },
-          'fake_secret',
-          { callback_klass: 'Dependents::NotificationCallback',
-            callback_metadata: { email_template_id: 'fake_received686',
-                                 email_type: :received686,
-                                 form_id: '686C-674',
-                                 saved_claim_id: claim.id,
-                                 service_name: 'dependents' } }
-        )
-        expect(claim).to receive(:submittable_686?).and_return(true).exactly(4).times
-        expect(claim).to receive(:submittable_674?).and_return(false).at_least(:once)
-        subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
-        expect(central_mail_submission.reload.state).to eq('success')
+      context 'success and Flipper enabled dependents_separate_confirmation_email' do
+        before do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+        end
+
+        it 'submits the saved claim, updates submission to success, and sends received email' do
+          expect(VANotify::EmailJob).to receive(:perform_async).with(
+            user_struct.va_profile_email,
+            'fake_received686',
+            { 'confirmation_number' => claim.confirmation_number,
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+              'first_name' => 'MARK' },
+            'fake_secret',
+            { callback_klass: 'Dependents::NotificationCallback',
+              callback_metadata: { email_template_id: 'fake_received686',
+                                   email_type: :received686,
+                                   form_id: '686C-674',
+                                   saved_claim_id: claim.id,
+                                   service_name: 'dependents' } }
+          )
+          expect(claim).to receive(:submittable_686?).and_return(true).exactly(4).times
+          expect(claim).to receive(:submittable_674?).and_return(false).at_least(:once)
+          subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
+          expect(central_mail_submission.reload.state).to eq('success')
+        end
+      end
+
+      context 'success and Flipper disabled dependents_separate_confirmation_email' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:dependents_separate_confirmation_email).and_return(false)
+        end
+
+        it 'submits the saved claim, updates submission to success, and sends a confirmation email to the user' do
+          expect(VANotify::ConfirmationEmail).to receive(:send).with(
+            email_address: user_struct.va_profile_email,
+            template_id: Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
+            first_name: 'MARK',
+            user_uuid_and_form_id: "#{user_struct.uuid}_686C-674"
+          )
+
+          expect(claim).to receive(:submittable_686?).and_return(true).twice
+          expect(claim).to receive(:submittable_674?).and_return(false).at_least(:once)
+          subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
+          expect(central_mail_submission.reload.state).to eq('success')
+        end
       end
     end
 
@@ -212,6 +238,33 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
           hash: 'hexdigest',
           pages: 2
         )
+      end
+    end
+
+    describe '#create_request_body' do
+      subject { job.create_request_body }
+
+      before do
+        job.instance_variable_set('@claim', claim)
+        job.instance_variable_set('@form_path', 'pdf_path')
+        job.instance_variable_set('@attachment_paths', ['attachment_path'])
+        allow(Digest::SHA256).to receive(:file).with('pdf_path').and_return(
+          OpenStruct.new(hexdigest: 'hash1')
+        )
+        allow(PdfInfo::Metadata).to receive(:read).with('pdf_path').and_return(
+          OpenStruct.new(pages: 1)
+        )
+        allow(Digest::SHA256).to receive(:file).with('attachment_path').and_return(
+          OpenStruct.new(hexdigest: 'hash2')
+        )
+        allow(PdfInfo::Metadata).to receive(:read).with('attachment_path').and_return(
+          OpenStruct.new(pages: 2)
+        )
+        allow(Faraday::UploadIO).to receive(:new).and_return 'a-file-io-object'
+      end
+
+      it 'returns a body' do
+        expect(subject).to be_a(Hash)
       end
     end
 
