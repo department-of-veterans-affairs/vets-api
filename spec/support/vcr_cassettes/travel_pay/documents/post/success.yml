@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: post
-      uri: "<TRAVEL_PAY_V3_BASE_URL>/form-data"
+      uri: "<TRAVEL_PAY_BTSSS_BASE_URL>/v3/claims/73611905-71bf-46ed-b1ec-e790593b8565/documents/form-data"
       body:
         encoding: US-ASCII
         string: |

@@ -1243,12 +1243,9 @@ token_validation:
   url: <%= ENV['token_validation__url'] %>
 travel_pay:
   base_url: <%= ENV['travel_pay__base_url'] %>
+  btsss:
+    base_url: 'https://btsss.gov/api'
   client_number: <%= ENV['travel_pay__client_number'] %>
-  documents:
-    v2:
-      base_url: 'https://btsss.gov/api/v2/claims/73611905-71bf-46ed-b1ec-e790593b8565/documents'
-    v3:
-      base_url: 'https://btsss.gov/api/v3/claims/73611905-71bf-46ed-b1ec-e790593b8565/documents'
   mobile_client_number: <%= ENV['travel_pay__mobile_client_number'] %>
   mock: <%= ENV['travel_pay__mock'] %>
   service_name: BTSSS-API

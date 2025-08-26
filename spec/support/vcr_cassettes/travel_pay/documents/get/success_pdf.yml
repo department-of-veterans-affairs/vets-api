@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<TRAVEL_PAY_V2_BASE_URL>/doc-456"
+      uri: "<TRAVEL_PAY_BTSSS_BASE_URL>/v2/claims/73611905-71bf-46ed-b1ec-e790593b8565/documents/doc-456"
       body:
         encoding: US-ASCII
         string: ""
