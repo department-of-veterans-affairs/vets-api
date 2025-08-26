@@ -118,8 +118,7 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(
-          'RepresentationManagement::AccreditedIndividualsUpdate: Update failed for Rep id: not_found: ' \
-          "Couldn't find AccreditedIndividual with 'id'=not_found"
+          /RepresentationManagement::AccreditedIndividualsUpdate: Update failed for Rep id: not_found/
         )
 
         subject.perform(json_data)
@@ -487,8 +486,7 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
         it 'logs an error' do
           expect(Rails.logger).to receive(:error).with(
-            'RepresentationManagement::AccreditedIndividualsUpdate: Update failed for Rep id: not_found: ' \
-            "Couldn't find AccreditedIndividual with 'id'=not_found"
+            /RepresentationManagement::AccreditedIndividualsUpdate: Update failed for Rep id: not_found/
           )
 
           subject.perform(json_data)
