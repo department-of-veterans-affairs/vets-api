@@ -240,7 +240,7 @@ RSpec.describe IvcChampva::FormVersionManager do
         it 'uses the versioned form and returns correct attachment IDs' do
           attachment_ids, form = controller.send(:get_attachment_ids_and_form, form_data)
 
-          expect(attachment_ids).to include('test_versioned_form')
+          expect(attachment_ids).to include('test_base_form')
           expect(form).to be_a(mock_versioned_form_class)
           expect(form.form_id).to eq('test_versioned_form')
         end
@@ -272,10 +272,10 @@ RSpec.describe IvcChampva::FormVersionManager do
           file_paths, metadata = controller.send(:get_file_paths_and_metadata, form_data)
 
           expect(file_paths).to include(file_path)
-          # Attachment IDs should be mapped to legacy form ID
+          # Attachment IDs should be mapped to legacy form ID for downstream services
           expect(metadata['attachment_ids']).to include('test_base_form')
           # DocType should be mapped to legacy form ID for backwards compatibility
-          expect(metadata['docType']).to eq('test_versioned_form')
+          expect(metadata['docType']).to eq('test_base_form')
         end
       end
     end

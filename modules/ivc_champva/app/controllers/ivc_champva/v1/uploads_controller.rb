@@ -691,8 +691,8 @@ module IvcChampva
         form.track_current_user_loa(@current_user)
         form.track_email_usage
 
-        attachment_ids = build_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
-        attachment_ids = [form_id] if attachment_ids.empty?
+        attachment_ids = build_attachment_ids(base_form_id, parsed_form_data, applicant_rounded_number)
+        attachment_ids = [base_form_id] if attachment_ids.empty?
 
         [attachment_ids.compact, form]
       end
@@ -801,17 +801,13 @@ module IvcChampva
                       filler.generate
                     end
 
-        # Get validated metadata (form models already set docType to the correct display form number)
+        # Get validated metadata and ensure docType uses legacy form ID for backwards compatibility
         metadata = IvcChampva::MetadataValidator.validate(form.metadata)
+        metadata['docType'] = legacy_form_id if IvcChampva::FormVersionManager.versioned_form?(actual_form_id)
 
         file_paths = form.handle_attachments(file_path)
 
-        # Use legacy form ID in attachment IDs for S3 compatibility
-        legacy_attachment_ids = attachment_ids.map do |id|
-          id == actual_form_id ? legacy_form_id : id
-        end
-
-        [file_paths, metadata.merge({ 'attachment_ids' => legacy_attachment_ids })]
+        [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]
       end
 
       def get_form_id
