@@ -27,11 +27,15 @@ module VAProfile
             address.address_pou = address.address_pou == 'RESIDENCE/CHOICE' ? 'RESIDENCE' : address.address_pou
 
             begin
-              candidate_with_response(address)
+              candidate_res = candidate(address)
+
+              AddressSuggestionsResponse.new(candidate_res)
             rescue Common::Exceptions::BackendServiceException => e
               # If candidate endpoint returns candidate address not found, validate provided address and return that
               if candidate_address_not_found?(e.detail)
-                validate_with_response(address)
+                validate_res = validate(address)
+
+                AddressSuggestionsResponse.new(validate_res, validate: true)
               else
                 handle_error(e)
               end
@@ -79,22 +83,6 @@ module VAProfile
             'VET360_AV_ERROR',
             detail: error.body
           )
-        end
-
-        def candidate_with_response(address)
-          candidate_res = candidate(address)
-          if Settings.vsp_environment == 'staging'
-            Rails.logger.info("AddressValidation CANDIDATE RES: #{candidate_res}")
-          end
-
-          AddressSuggestionsResponse.new(candidate_res)
-        end
-
-        def validate_with_response(address)
-          validate_res = validate(address)
-          Rails.logger.info("AddressValidation VALIDATE RES: #{validate_res}") if Settings.vsp_environment == 'staging'
-
-          AddressSuggestionsResponse.new(validate_res, validate: true)
         end
 
         def candidate_address_not_found?(exception)
