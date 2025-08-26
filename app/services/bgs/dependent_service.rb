@@ -127,7 +127,7 @@ module BGS
 
       if claim.submittable_674?
         form_id = '21-674'
-        doctype = '142'
+        doctype = 142
         claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
         @monitor.track_event('info', "#{self.class} claims evidence upload of #{form_id} claim_id #{claim.id}",
                              "#{STATS_KEY}.claims_evidence.upload", tags: ["form_id:#{form_id}"])

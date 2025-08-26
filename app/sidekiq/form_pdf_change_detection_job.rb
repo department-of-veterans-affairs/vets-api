@@ -2,6 +2,24 @@
 
 require 'forms/client'
 
+# FormPdfChangeDetectionJob
+#
+# This Sidekiq job monitors VA form PDF revisions by comparing current SHA256 checksums
+# against cached values to detect when forms have been updated.
+#
+# Why:
+# - Enables automated tracking of form revisions for compliance and version management.
+# - Provides metrics and logging for form change analytics and auditing.
+# - Helps maintain awareness of form updates that may affect user experience.
+#
+# How:
+# - Fetches current form data and SHA256 checksums from the VA Lighthouse Forms API.
+# - Compares current checksums against cached values from previous runs.
+# - Logs detected changes with StatsD metrics and detailed logging.
+# - Updates the Rails cache with new checksums for future comparisons.
+#
+# See also: Forms::Client for API integration
+
 class FormPdfChangeDetectionJob
   include Sidekiq::Job
 
@@ -71,11 +89,13 @@ class FormPdfChangeDetectionJob
   def log_form_revision(form_attributes, form_id)
     form_name = form_attributes['form_name']
     last_revision_on = form_attributes['last_revision_on']
+    url = form_attributes['url']
 
     StatsD.increment('form.pdf.change.detected', tags: ["form:#{form_name}", "form_id:#{form_id}"])
-    Rails.logger.info(<<~MESSAGE)
-      PDF form #{form_name} (form_id: #{form_id}) was revised.
-      Last revised on date: #{last_revision_on}
-    MESSAGE
+    Rails.logger.info(
+      "PDF form #{form_name} (form_id: #{form_id}) was revised. " \
+      "Last revised on date: #{last_revision_on}. " \
+      "URL: #{url}"
+    )
   end
 end
