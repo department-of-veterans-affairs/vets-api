@@ -7,8 +7,8 @@ RSpec.describe SimpleFormsApi::VBA4010007 do
     it 'saves the merged pdf' do
       original_pdf = double('HexaPDF::Document')
       combined_pdf = double('HexaPDF::Document')
-      original_file_path = 'original-file-path'
-      attachment_page_path = 'attachment_page.pdf'
+      original_file_path = Rails.root.join('tmp', 'original-file-path').to_s
+      attachment_page_path = Rails.root.join('tmp', 'attachment_page.pdf').to_s
       page = double('HexaPDF::Page')
 
       form = build(:vba4010007)
@@ -72,6 +72,7 @@ RSpec.describe SimpleFormsApi::VBA4010007 do
 
     context 'missing applicant and claimant names' do
       let(:data) { { 'application' => { 'applicant' => {}, 'claimant' => {} } } }
+
       it 'returns nil if names are missing' do
         expect(described_class.new(data).notification_first_name).to be_nil
       end
@@ -95,6 +96,7 @@ RSpec.describe SimpleFormsApi::VBA4010007 do
 
     context 'missing email' do
       let(:data) { { 'application' => { 'claimant' => {} } } }
+
       it 'returns nil if email is missing' do
         expect(described_class.new(data).notification_email_address).to be_nil
       end
@@ -104,17 +106,17 @@ RSpec.describe SimpleFormsApi::VBA4010007 do
   describe '#not_veteran?' do
     it 'returns true when relationship is not 1 or veteran' do
       data = { 'application' => { 'claimant' => { 'relationship_to_vet' => '2' } } }
-      expect(described_class.new(data).not_veteran?(data)).to eq true
+      expect(described_class.new(data).not_veteran?(data)).to be true
     end
 
     it 'returns false when relationship is 1' do
       data = { 'application' => { 'claimant' => { 'relationship_to_vet' => '1' } } }
-      expect(described_class.new(data).not_veteran?(data)).to eq false
+      expect(described_class.new(data).not_veteran?(data)).to be false
     end
 
     it 'returns false when relationship is veteran' do
       data = { 'application' => { 'claimant' => { 'relationship_to_vet' => 'veteran' } } }
-      expect(described_class.new(data).not_veteran?(data)).to eq false
+      expect(described_class.new(data).not_veteran?(data)).to be false
     end
   end
 
@@ -129,52 +131,91 @@ RSpec.describe SimpleFormsApi::VBA4010007 do
     end
 
     it 'returns value from veteran path if not veteran' do
-      expect(described_class.new(form_data).dig_data(form_data, %w[application veteran baz], %w[application claimant foo])).to eq 'qux'
+      expect(
+        described_class.new(form_data).dig_data(form_data, %w[application veteran baz], %w[application claimant foo])
+      ).to eq 'qux'
     end
 
     it 'returns value from claimant path if veteran' do
       form_data['application']['claimant']['relationship_to_vet'] = '1'
-      expect(described_class.new(form_data).dig_data(form_data, %w[application veteran baz], %w[application claimant foo])).to eq 'bar'
+      expect(
+        described_class.new(form_data).dig_data(form_data, %w[application veteran baz], %w[application claimant foo])
+      ).to eq 'bar'
     end
   end
 
   describe '#veteran_or_claimant_first_name' do
     it 'returns veteran first name if not veteran' do
-      data = { 'application' => { 'claimant' => { 'relationship_to_vet' => '2' }, 'veteran' => { 'current_name' => { 'first' => 'Vet' } } } }
+      data = {
+        'application' => {
+          'claimant' => { 'relationship_to_vet' => '2' },
+          'veteran' => { 'current_name' => { 'first' => 'Vet' } }
+        }
+      }
       expect(described_class.new(data).veteran_or_claimant_first_name(data)).to eq 'Vet'
     end
 
     it 'returns claimant first name if veteran' do
-      data = { 'application' => { 'claimant' => { 'relationship_to_vet' => '1', 'name' => { 'first' => 'Claimant' } }, 'veteran' => { 'current_name' => { 'first' => 'Vet' } } } }
+      data = {
+        'application' => {
+          'claimant' => { 'relationship_to_vet' => '1', 'name' => { 'first' => 'Claimant' } },
+          'veteran' => { 'current_name' => { 'first' => 'Vet' } }
+        }
+      }
       expect(described_class.new(data).veteran_or_claimant_first_name(data)).to eq 'Claimant'
     end
   end
 
   describe '#veteran_or_claimant_last_name' do
     it 'returns veteran last name if not veteran' do
-      data = { 'application' => { 'claimant' => { 'relationship_to_vet' => '2' }, 'veteran' => { 'current_name' => { 'last' => 'VetLast' } } } }
+      data = {
+        'application' => {
+          'claimant' => { 'relationship_to_vet' => '2' },
+          'veteran' => { 'current_name' => { 'last' => 'VetLast' } }
+        }
+      }
       expect(described_class.new(data).veteran_or_claimant_last_name(data)).to eq 'VetLast'
     end
 
     it 'returns claimant last name if veteran' do
-      data = { 'application' => { 'claimant' => { 'relationship_to_vet' => '1', 'name' => { 'last' => 'ClaimantLast' } }, 'veteran' => { 'current_name' => { 'last' => 'VetLast' } } } }
+      data = {
+        'application' => {
+          'claimant' => { 'relationship_to_vet' => '1', 'name' => { 'last' => 'ClaimantLast' } },
+          'veteran' => { 'current_name' => { 'last' => 'VetLast' } }
+        }
+      }
       expect(described_class.new(data).veteran_or_claimant_last_name(data)).to eq 'ClaimantLast'
     end
   end
 
   describe '#veteran_or_claimant_file_number' do
     it 'returns veteran ssn if not veteran' do
-      data = { 'application' => { 'claimant' => { 'relationship_to_vet' => '2' }, 'veteran' => { 'ssn' => '123456789' } } }
+      data = {
+        'application' => {
+          'claimant' => { 'relationship_to_vet' => '2' },
+          'veteran' => { 'ssn' => '123456789' }
+        }
+      }
       expect(described_class.new(data).veteran_or_claimant_file_number(data)).to eq '123456789'
     end
 
     it 'returns claimant ssn if veteran' do
-      data = { 'application' => { 'claimant' => { 'relationship_to_vet' => '1', 'ssn' => '987654321' }, 'veteran' => { 'ssn' => '123456789' } } }
+      data = {
+        'application' => {
+          'claimant' => { 'relationship_to_vet' => '1', 'ssn' => '987654321' },
+          'veteran' => { 'ssn' => '123456789' }
+        }
+      }
       expect(described_class.new(data).veteran_or_claimant_file_number(data)).to eq '987654321'
     end
 
     it 'returns empty string if ssn missing' do
-      data = { 'application' => { 'claimant' => { 'relationship_to_vet' => '1' }, 'veteran' => {} } }
+      data = {
+        'application' => {
+          'claimant' => { 'relationship_to_vet' => '1' },
+          'veteran' => {}
+        }
+      }
       expect(described_class.new(data).veteran_or_claimant_file_number(data)).to eq ''
     end
   end
@@ -184,7 +225,7 @@ RSpec.describe SimpleFormsApi::VBA4010007 do
       data = {
         'application' => {
           'claimant' => {
-            'relationship_to_vet' => '1', # This makes not_veteran? false
+            'relationship_to_vet' => '1',
             'address' => { 'postal_code' => '12345' },
             'name' => { 'first' => 'Claimant', 'last' => 'Last' },
             'ssn' => '987654321'
@@ -209,7 +250,7 @@ RSpec.describe SimpleFormsApi::VBA4010007 do
 
   describe '#zip_code_is_us_based' do
     it 'returns true' do
-      expect(described_class.new({}).zip_code_is_us_based).to eq true
+      expect(described_class.new({}).zip_code_is_us_based).to be true
     end
   end
 
@@ -246,8 +287,21 @@ RSpec.describe SimpleFormsApi::VBA4010007 do
 
   describe '#find_cemetery_by_id' do
     it 'returns cemetery name if found' do
-      allow(File).to receive(:read).and_return({ 'data' => [{ 'attributes' => { 'cemetery_id' => '123', 'name' => 'Test Cemetery' } }] }.to_json)
-      expect(described_class.new({}).find_cemetery_by_id('123')).to eq 'Test Cemetery'
+      allow(File).to receive(:read).and_return(
+        {
+          'data' => [
+            {
+              'attributes' => {
+                'cemetery_id' => '123',
+                'name' => 'Test Cemetery'
+              }
+            }
+          ]
+        }.to_json
+      )
+      expect(
+        described_class.new({}).find_cemetery_by_id('123')
+      ).to eq 'Test Cemetery'
     end
 
     it 'returns not found if missing' do
@@ -288,7 +342,11 @@ RSpec.describe SimpleFormsApi::VBA4010007 do
       allow(Rails.logger).to receive(:info)
       form.track_user_identity('abc123')
       expect(StatsD).to have_received(:increment).with(/api\.simple_forms_api\.40_10007\.Is veteran/)
-      expect(Rails.logger).to have_received(:info).with('Simple forms api - 40-10007 submission user identity', identity: 'Is veteran', confirmation_number: 'abc123')
+      expect(Rails.logger).to have_received(:info).with(
+        'Simple forms api - 40-10007 submission user identity',
+        identity: 'Is veteran',
+        confirmation_number: 'abc123'
+      )
     end
   end
 
@@ -324,7 +382,6 @@ RSpec.describe SimpleFormsApi::VBA4010007 do
     end
   end
 
-  # Edge case: missing application key
   describe 'edge cases' do
     it 'handles missing application key gracefully' do
       expect { described_class.new({}).notification_first_name }.not_to raise_error

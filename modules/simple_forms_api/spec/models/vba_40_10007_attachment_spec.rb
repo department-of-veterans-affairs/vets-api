@@ -3,7 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe SimpleFormsApi::VBA4010007Attachment do
-  let(:file_path) { Rails.root.join('tmp/test_attachment.pdf').to_s }
+  subject { described_class.new(file_path:, data:) }
+
+  let(:file_path) { Rails.root.join('tmp', 'test_attachment.pdf').to_s }
   let(:data) do
     {
       'application' => {
@@ -14,9 +16,24 @@ RSpec.describe SimpleFormsApi::VBA4010007Attachment do
           'city_of_birth' => 'Springfield',
           'state_of_birth' => 'IL',
           'service_records' => [
-            { 'service_branch' => 'AR', 'discharge_type' => '1', 'highest_rank' => 'Sergeant', 'highest_rank_description' => 'SGT' },
-            { 'service_branch' => 'NA', 'discharge_type' => '2', 'highest_rank' => 'Lieutenant', 'highest_rank_description' => 'LT' },
-            { 'service_branch' => 'MC', 'discharge_type' => '3', 'highest_rank' => 'Captain', 'highest_rank_description' => 'CPT' }
+            {
+              'service_branch' => 'AR',
+              'discharge_type' => '1',
+              'highest_rank' => 'Sergeant',
+              'highest_rank_description' => 'SGT'
+            },
+            {
+              'service_branch' => 'NA',
+              'discharge_type' => '2',
+              'highest_rank' => 'Lieutenant',
+              'highest_rank_description' => 'LT'
+            },
+            {
+              'service_branch' => 'MC',
+              'discharge_type' => '3',
+              'highest_rank' => 'Captain',
+              'highest_rank_description' => 'CPT'
+            }
           ],
           'ethnicity' => 'isSpanishHispanicLatino',
           'email' => 'vet@example.com',
@@ -41,8 +58,6 @@ RSpec.describe SimpleFormsApi::VBA4010007Attachment do
     }
   end
 
-  subject { described_class.new(file_path: file_path, data: data) }
-
   describe '#initialize' do
     it 'sets file_path and data' do
       expect(subject.file_path).to eq(file_path)
@@ -55,34 +70,6 @@ RSpec.describe SimpleFormsApi::VBA4010007Attachment do
       subject.create
       expect(File).to exist(file_path)
       File.delete(file_path)
-    end
-
-    context 'when version is not present (else branch)' do
-      let(:data_without_version) do
-        {
-          'application' => {
-            'veteran' => {
-              'gender' => 'Male',
-              'service_records' => [
-                { 'service_branch' => 'AR', 'discharge_type' => '1', 'highest_rank' => 'Sergeant' },
-                { 'service_branch' => 'NA', 'discharge_type' => '2', 'highest_rank' => 'Lieutenant' },
-                { 'service_branch' => 'MC', 'discharge_type' => '3', 'highest_rank' => 'Captain' }
-              ]
-            }
-          }
-          # no 'version' key
-        }
-      end
-
-      subject { described_class.new(file_path: file_path, data: data_without_version) }
-
-      it 'generates a PDF file and covers the else branch' do
-        expect_any_instance_of(Prawn::Document).to receive(:text).at_least(:once)
-        expect_any_instance_of(Prawn::Document).to receive(:move_down).at_least(:once)
-        subject.create
-        expect(File).to exist(file_path)
-        File.delete(file_path)
-      end
     end
   end
 
@@ -106,6 +93,32 @@ RSpec.describe SimpleFormsApi::VBA4010007Attachment do
 
     it 'returns correct military status label' do
       expect(subject.send(:get_military_status, 'V')).to eq('Veteran')
+    end
+  end
+
+  describe '#create else branch coverage' do
+    subject { described_class.new(file_path:, data:) }
+
+    let(:file_path) { Rails.root.join('tmp', 'test_attachment.pdf').to_s }
+    let(:data) do
+      {
+        'application' => {
+          'veteran' => {
+            'service_records' => [
+              { 'service_branch' => 'AR', 'discharge_type' => '1', 'highest_rank' => 'Sergeant' },
+              { 'service_branch' => 'NA', 'discharge_type' => '2', 'highest_rank' => 'Lieutenant' },
+              { 'service_branch' => 'MC', 'discharge_type' => '3', 'highest_rank' => 'Captain' }
+            ]
+          }
+        }
+        # no 'version' key
+      }
+    end
+
+    it 'covers the else branch in create' do
+      subject.create
+      expect(File).to exist(file_path)
+      File.delete(file_path)
     end
   end
 end

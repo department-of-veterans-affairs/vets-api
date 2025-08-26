@@ -73,7 +73,8 @@ RSpec.describe SimpleFormsApi::VBA400247 do
         }
       }
       expect(described_class.new(data).applicant_address).to include('123 Main St, Apt 4')
-      expect(described_class.new(data).applicant_address).to include('Springfield, IL 62704 USA')
+      expect(described_class.new(data).applicant_address)
+        .to include('Springfield, IL 62704 USA')
     end
 
     it 'handles missing fields' do
@@ -85,17 +86,17 @@ RSpec.describe SimpleFormsApi::VBA400247 do
   describe '#zip_code_is_us_based' do
     it 'returns true if country is USA' do
       data = { 'applicant_address' => { 'country' => 'USA' } }
-      expect(described_class.new(data).zip_code_is_us_based).to eq true
+      expect(described_class.new(data).zip_code_is_us_based).to be true
     end
 
     it 'returns false if country is not USA' do
       data = { 'applicant_address' => { 'country' => 'CAN' } }
-      expect(described_class.new(data).zip_code_is_us_based).to eq false
+      expect(described_class.new(data).zip_code_is_us_based).to be false
     end
 
     it 'returns false if country is missing' do
       data = { 'applicant_address' => {} }
-      expect(described_class.new(data).zip_code_is_us_based).to eq false
+      expect(described_class.new(data).zip_code_is_us_based).to be false
     end
   end
 
@@ -171,7 +172,15 @@ RSpec.describe SimpleFormsApi::VBA400247 do
 
   describe 'private #get_attachments' do
     it 'returns file path for additional address' do
-      data = { 'additional_address' => { 'street' => '123 Fake St.', 'city' => 'Fakesville', 'state' => 'FS', 'postal_code' => '12345', 'country' => 'USA' } }
+      data = {
+        'additional_address' => {
+          'street' => '123 Fake St.',
+          'city' => 'Fakesville',
+          'state' => 'FS',
+          'postal_code' => '12345',
+          'country' => 'USA'
+        }
+      }
       filler = double('SimpleFormsApi::PdfFiller', generate: 'filled.pdf')
       allow(SimpleFormsApi::PdfFiller).to receive(:new).and_return(filler)
       expect(described_class.new(data).send(:get_attachments)).to include('filled.pdf')
