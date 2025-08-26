@@ -31,7 +31,8 @@ module VAProfile
 
               # If candidate endpoint returns candidate address not found (200 response),
               # validate provided address and return the original address + validation key
-              if candidate_address_not_found?(candidate_res)
+              if Flipper.enabled?(:profile_validate_address_when_no_candidate_found) &&
+                 candidate_address_not_found?(candidate_res)
                 validate_res = validate(address)
 
                 AddressSuggestionsResponse.new(validate_res, validate: true)
