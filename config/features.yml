@@ -461,14 +461,6 @@ features:
     actor_type: user
     description: When enabled, CST does not show Attorney Fees, Secondary Action Required, or Stage 2 Development on mobile
     enable_in_development: false
-  cst_override_pmr_pending_tracked_items:
-    actor_type: user
-    description: When enabled, CST overrides PMR Pending tracked items to be NEEDED_FROM_OTHERS
-    enable_in_development: true
-  cst_override_reserve_records_website:
-    actor_type: user
-    description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on vets-website
-    enable_in_development: true
   cst_override_reserve_records_mobile:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
@@ -769,6 +761,10 @@ features:
     actor_type: user
     description: Enables duplicate prevention for digital dispute submissions
     enable_in_development: false
+  event_bus_gateway_retry_emails:
+    actor_type: user
+    description: When enabled, vets-api retries event bus gateway emails that VA Notify marks temporary-failure
+    enable_in_development: true
   facilities_autosuggest_vamc_services_enabled:
     actor_type: user
     description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
@@ -2400,4 +2396,9 @@ features:
   accredited_representative_portal_homepage:
     actor_type: user
     description: Enables new homepage redesign for ARP
-  
+  accredited_representative_portal_dashboard_link:
+    actor_type: user
+    description: Enables new dashboard link on nav
+  gi_comparison_tool_cautionary_info_update:
+    actor_type: user
+    description: Enables updated cautionary info student feedback ui for GI Comparison Tool
