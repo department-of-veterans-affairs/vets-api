@@ -480,6 +480,8 @@ module VAOS
         set_derived_appointment_date_fields(appointment)
 
         appointment[:show_schedule_link] = schedulable?(appointment) if appointment[:status] == 'cancelled'
+
+        log_telehealth_issue(appointment) if appointment[:modality] == "vaVideoCareAtHome"
       end
 
       def find_and_merge_provider_name(appointment)
@@ -984,6 +986,17 @@ module VAOS
         appointment[:pending] = request?(appointment)
         appointment[:past] = past?(appointment)
         appointment[:future] = future?(appointment)
+      end
+
+      def log_telehealth_issue(appointment)
+        context = {
+          kind: appointment[:kind],
+          vvsVistaVideoAppt: appointment.dig(:extension, :vvsVistaVideoAppt),
+          modality: appointment[:modality],
+          telehealthUrl: appointment.dig(:telehealth, :url),
+          start: appointment.dig(:start)
+        }
+        Rails.logger.warn("VAOS video telehealth issue", context.to_json)
       end
 
       def log_modality_failure(appointment)
