@@ -98,7 +98,7 @@ module BBInternal
     #
     def request_study(id)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        # Fetch the original studyIdUrn from the Valkey cache
+        # Fetch the original studyIdUrn from the Redis cache
         study_id = get_study_id_from_cache(id)
 
         # Perform the API call with the original studyIdUrn
@@ -412,7 +412,7 @@ module BBInternal
     end
 
     ##
-    # Overriding this to ensure a unique namespace for the valkey lock.
+    # Overriding this to ensure a unique namespace for the redis lock.
     #
     def session_config_key
       :mhv_mr_bb_session_lock

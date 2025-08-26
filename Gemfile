@@ -141,7 +141,6 @@ gem 'rack-timeout', require: 'rack/timeout/base'
 gem 'rails_semantic_logger'
 gem 'rails-session_cookie'
 gem 'ransack'
-# Valkey (Redis-compatible) client gems
 gem 'redis'
 gem 'redis-namespace'
 gem 'request_store'
@@ -192,7 +191,7 @@ end
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.1.0.vsp'
   gem 'committee-rails'
-  gem 'mock_redis' # Mock implementation for Valkey (Redis-compatible)
+  gem 'mock_redis'
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'
   gem 'rspec-retry'
