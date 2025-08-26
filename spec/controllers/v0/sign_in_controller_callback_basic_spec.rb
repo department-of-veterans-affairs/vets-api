@@ -1,22 +1,20 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative 'sign_in_controller_shared_examples_spec'
 
 RSpec.describe V0::SignInController, type: :controller do
-  include_context 'sign_in_controller_shared_setup'
   include_context 'callback_setup'
 
   describe 'GET callback' do
     context 'when error is not given' do
-      let(:error) { {} }
+      let(:error_params) { {} }
 
       context 'when code is not given' do
         let(:code) { {} }
         let(:expected_error) { 'Code is not defined' }
         let(:client_id) { nil }
 
-        it_behaves_like 'callback api based error response'
+        it_behaves_like 'callback_api_error_response'
       end
 
       context 'when state is not given' do
@@ -24,7 +22,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_error) { 'State is not defined' }
         let(:client_id) { nil }
 
-        it_behaves_like 'callback api based error response'
+        it_behaves_like 'callback_api_error_response'
       end
 
       context 'when state is arbitrary' do
@@ -32,7 +30,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_error) { 'State JWT is malformed' }
         let(:client_id) { nil }
 
-        it_behaves_like 'callback api based error response'
+        it_behaves_like 'callback_api_error_response'
       end
 
       context 'when state is a JWT but with improper signature' do
@@ -42,53 +40,44 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_error) { 'State JWT body does not match signature' }
         let(:client_id) { nil }
 
-        it_behaves_like 'callback api based error response'
+        it_behaves_like 'callback_api_error_response'
       end
 
-      context 'and code in state payload does not match an existing state code' do
-        let(:state_value) do
-          SignIn::StatePayloadJwtEncoder.new(code_challenge:,
-                                             code_challenge_method:,
-                                             acr:,
-                                             client_config:,
-                                             type:,
-                                             client_state:).perform
+      context 'when state is a proper, expected JWT' do
+        include_context 'callback_state_jwt_setup'
+
+        context 'and code in state payload does not match an existing state code' do
+          let(:expected_error) { 'Code in state is not valid' }
+          let(:error_code) { SignIn::Constants::ErrorCode::INVALID_REQUEST }
+
+          before { allow(SignIn::StateCode).to receive(:find).and_return(nil) }
+
+          it_behaves_like 'callback_error_response'
         end
-        let(:expected_error) { 'Code in state is not valid' }
-        let(:error_code) { SignIn::Constants::ErrorCode::INVALID_REQUEST }
-
-        before { allow(SignIn::StateCode).to receive(:find).and_return(nil) }
-
-        it_behaves_like 'callback error response'
       end
     end
 
     context 'when error is given' do
-      let(:state_value) do
-        SignIn::StatePayloadJwtEncoder.new(code_challenge:,
-                                           code_challenge_method:,
-                                           acr:,
-                                           client_config:,
-                                           type:,
-                                           client_state:).perform
-      end
+      let(:error_params) { { error: error_value } }
 
       context 'and error is access denied value' do
         let(:error_value) { SignIn::Constants::Auth::ACCESS_DENIED }
         let(:expected_error) { 'User Declined to Authorize Client' }
 
         context 'and type from state is logingov' do
+          include_context 'callback_state_jwt_setup'
           let(:type) { SignIn::Constants::Auth::LOGINGOV }
           let(:error_code) { SignIn::Constants::ErrorCode::LOGINGOV_VERIFICATION_DENIED }
 
-          it_behaves_like 'callback error response'
+          it_behaves_like 'callback_error_response'
         end
 
         context 'and type from state is some other value' do
+          include_context 'callback_state_jwt_setup'
           let(:type) { SignIn::Constants::Auth::IDME }
           let(:error_code) { SignIn::Constants::ErrorCode::IDME_VERIFICATION_DENIED }
 
-          it_behaves_like 'callback error response'
+          it_behaves_like 'callback_error_response'
         end
       end
 
@@ -97,7 +86,9 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_error) { 'Unknown Credential Provider Issue' }
         let(:error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
 
-        it_behaves_like 'callback error response'
+        include_context 'callback_state_jwt_setup'
+
+        it_behaves_like 'callback_error_response'
       end
     end
   end

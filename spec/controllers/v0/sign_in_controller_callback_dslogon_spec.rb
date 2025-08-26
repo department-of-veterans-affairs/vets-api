@@ -1,42 +1,27 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative 'sign_in_controller_shared_examples_spec'
+require 'sign_in/idme/service'
 
 RSpec.describe V0::SignInController, type: :controller do
-  include_context 'sign_in_controller_shared_setup'
   include_context 'callback_setup'
 
-  # CSP-specific constants
   let(:csp_type) { SignIn::Constants::Auth::DSLOGON }
-  let(:dslogon_uuid) { 'some-dslogon-uuid' }
   let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
+  let(:dslogon_uuid) { 'some-dslogon-uuid' }
 
   describe 'GET callback' do
     context 'when state is a proper, expected JWT' do
-      let(:state_value) do
-        SignIn::StatePayloadJwtEncoder.new(code_challenge:,
-                                           code_challenge_method:,
-                                           acr:,
-                                           client_config:,
-                                           type:,
-                                           client_state:).perform
-      end
-      let(:uplevel_state_value) do
-        SignIn::StatePayloadJwtEncoder.new(code_challenge:,
-                                           code_challenge_method:,
-                                           acr:,
-                                           client_config:,
-                                           type:,
-                                           client_state:).perform
-      end
+      include_context 'callback_state_jwt_setup'
+
+      let(:type) { csp_type }
+      let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
 
       context 'and code in state payload matches an existing state code' do
         before { Timecop.freeze }
         after { Timecop.return }
 
         context 'when type in state JWT is dslogon' do
-          let(:type) { csp_type }
           let(:user_info) do
             OpenStruct.new(
               sub: backing_idme_uuid,
@@ -76,7 +61,7 @@ RSpec.describe V0::SignInController, type: :controller do
             let(:expected_error) { 'Code is not valid' }
             let(:error_code) { SignIn::Constants::ErrorCode::INVALID_REQUEST }
 
-            it_behaves_like 'callback error response'
+            it_behaves_like 'callback_error_response'
           end
 
           context 'and code is given that matches expected code for auth service' do
@@ -135,6 +120,10 @@ RSpec.describe V0::SignInController, type: :controller do
 
               it 'logs the successful callback' do
                 expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
+                subject
+              end
+
+              it 'updates StatsD with a callback request success' do
                 expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_tags)
               end
             end

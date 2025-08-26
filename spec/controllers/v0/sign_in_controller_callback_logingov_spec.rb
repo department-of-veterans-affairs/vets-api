@@ -1,43 +1,26 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative 'sign_in_controller_shared_examples_spec'
+require 'sign_in/logingov/service'
 
 RSpec.describe V0::SignInController, type: :controller do
-  include_context 'sign_in_controller_shared_setup'
   include_context 'callback_setup'
 
-  # CSP-specific constants
   let(:csp_type) { SignIn::Constants::Auth::LOGINGOV }
-  let(:logingov_uuid) { 'some-logingov_uuid' }
+  let(:logingov_uuid) { 'some-logingov-uuid' }
 
   describe 'GET callback' do
     context 'when state is a proper, expected JWT' do
-      let(:state_value) do
-        SignIn::StatePayloadJwtEncoder.new(code_challenge:,
-                                           code_challenge_method:,
-                                           acr:,
-                                           client_config:,
-                                           type:,
-                                           client_state:).perform
-      end
-      let(:uplevel_state_value) do
-        SignIn::StatePayloadJwtEncoder.new(code_challenge:,
-                                           code_challenge_method:,
-                                           acr:,
-                                           client_config:,
-                                           type:,
-                                           client_state:).perform
-      end
+      include_context 'callback_state_jwt_setup'
+
+      let(:type) { csp_type }
+      let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
 
       context 'and code in state payload matches an existing state code' do
         before { Timecop.freeze }
         after { Timecop.return }
 
         context 'when type in state JWT is logingov' do
-          let(:type) { csp_type }
-          let(:response) { OpenStruct.new(access_token: token) }
-          let(:token) { 'some-token' }
           let(:user_info) do
             OpenStruct.new(
               {
@@ -51,6 +34,17 @@ RSpec.describe V0::SignInController, type: :controller do
               }
             )
           end
+          let(:mpi_profile) do
+            build(:mpi_profile,
+                  ssn: user_info.social_security_number,
+                  birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
+                  given_names: [user_info.given_name],
+                  family_name: user_info.family_name)
+          end
+          let(:response) { OpenStruct.new(access_token: token, logingov_acr:, expires_in:) }
+          let(:expires_in) { 900 }
+          let(:logingov_acr) { IAL::LOGIN_GOV_IAL2 }
+          let(:token) { 'some-token' }
 
           before do
             allow_any_instance_of(SignIn::Logingov::Service).to receive(:token).with(code_value).and_return(response)
@@ -62,7 +56,7 @@ RSpec.describe V0::SignInController, type: :controller do
             let(:expected_error) { 'Code is not valid' }
             let(:error_code) { SignIn::Constants::ErrorCode::INVALID_REQUEST }
 
-            it_behaves_like 'callback error response'
+            it_behaves_like 'callback_error_response'
           end
 
           context 'and code is given that matches expected code for auth service' do
@@ -117,13 +111,6 @@ RSpec.describe V0::SignInController, type: :controller do
                   credential_uuid: logingov_uuid,
                   authentication_time:
                 }
-              end
-              let(:mpi_profile) do
-                build(:mpi_profile,
-                      ssn: user_info.social_security_number,
-                      birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
-                      given_names: [user_info.given_name],
-                      family_name: user_info.family_name)
               end
               let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
