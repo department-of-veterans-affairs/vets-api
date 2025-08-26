@@ -17,6 +17,7 @@ ALLOWLIST = %w[
   controller
   cookie_id
   document_id
+  doctype
   document_type
   endDate
   endpoint_sid
