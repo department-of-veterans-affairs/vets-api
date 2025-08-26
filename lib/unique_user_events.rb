@@ -21,12 +21,14 @@ module UniqueUserEvents
   #
   # @param user_id [String] UUID of the authenticated user
   # @param event_name [String] Name of the event being logged (max 50 chars)
-  # @return [Boolean] true if new event was logged, false if already existed
+  # @return [Boolean] true if new event was logged, false if already existed or feature disabled
   # @raise [ArgumentError] if parameters are invalid
   #
   # @example
   #   UniqueUserEvents.log_event(user_id: user.uuid, event_name: 'appointments_viewed')
   def self.log_event(user_id:, event_name:)
+    return false unless Flipper.enabled?(:unique_user_metrics_logging)
+
     Service.log_event(user_id:, event_name:)
   end
 
@@ -34,7 +36,7 @@ module UniqueUserEvents
   #
   # @param user_id [String] UUID of the user
   # @param event_name [String] Name of the event to check
-  # @return [Boolean] true if event exists, false otherwise
+  # @return [Boolean] true if event exists, false otherwise or if feature disabled
   # @raise [ArgumentError] if parameters are invalid
   #
   # @example
@@ -42,6 +44,8 @@ module UniqueUserEvents
   #     # User has already accessed MHV landing page
   #   end
   def self.event_logged?(user_id:, event_name:)
+    return false unless Flipper.enabled?(:unique_user_metrics_logging)
+
     Service.event_logged?(user_id:, event_name:)
   end
 end

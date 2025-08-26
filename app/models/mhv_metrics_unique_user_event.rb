@@ -10,7 +10,7 @@
 # - Uses compound unique index (user_id, event_name) to ensure one record per user per event
 # - No foreign key constraint on user_id for performance and historical data preservation
 # - Includes Redis caching to minimize database reads for duplicate event checks
-class MetricsUniqueUserEvent < ApplicationRecord
+class MHVMetricsUniqueUserEvent < ApplicationRecord
   include RedisCaching
 
   # Cache configuration

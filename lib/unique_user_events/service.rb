@@ -15,7 +15,7 @@ module UniqueUserEvents
   # Service class for MHV Unique User Metrics
   #
   # This service provides the core business logic for logging and checking unique user events
-  # for MHV Portal analytics. It integrates with the MetricsUniqueUserEvent model and provides
+  # for MHV Portal analytics. It integrates with the MHVMetricsUniqueUserEvent model and provides
   # DataDog metric increments for new events.
   class Service
     # StatsD key prefix for unique user metrics
@@ -28,7 +28,7 @@ module UniqueUserEvents
     # @return [Boolean] true if new event was logged, false if already existed
     def self.log_event(user_id:, event_name:)
       # Record the event to database/cache
-      new_event_created = MetricsUniqueUserEvent.record_event(
+      new_event_created = MHVMetricsUniqueUserEvent.record_event(
         user_id:,
         event_name:
       )
@@ -54,7 +54,7 @@ module UniqueUserEvents
     # @param event_name [String] Name of the event
     # @return [Boolean] true if event exists, false otherwise
     def self.event_logged?(user_id:, event_name:)
-      MetricsUniqueUserEvent.event_exists?(user_id:, event_name:)
+      MHVMetricsUniqueUserEvent.event_exists?(user_id:, event_name:)
     rescue => e
       Rails.logger.error("UUM: Failed to check event - User: #{user_id}, Event: #{event_name}, Error: #{e.message}")
       # Don't raise - return false if we can't check
