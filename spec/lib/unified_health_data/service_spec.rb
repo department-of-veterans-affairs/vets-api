@@ -795,12 +795,12 @@ describe UnifiedHealthData::Service, type: :service do
           notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-05-31')
           expect(notes.size).to eq(6)
           expect(notes.map(&:type)).to contain_exactly(
-            'PHYSICIAN_PROCEDURE_NOTE',
-            'CONSULT_RESULT',
-            'DISCHARGE_SUMMARY',
-            'OTHER',
-            'PHYSICIAN_PROCEDURE_NOTE',
-            'PHYSICIAN_PROCEDURE_NOTE'
+            'physician_procedure_note',
+            'physician_procedure_note',
+            'consult_result',
+            'physician_procedure_note',
+            'discharge_summary',
+            'other'
           )
           expect(notes).to all(have_attributes(
                                  {

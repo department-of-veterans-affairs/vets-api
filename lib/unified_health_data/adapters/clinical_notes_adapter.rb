@@ -12,6 +12,13 @@ module UnifiedHealthData
 
         EMPTY_FIELD = 'None recorded'
 
+        NOTE_TYPES = {
+          'PHYSICIAN_PROCEDURE_NOTE' => 'physician_procedure_note',
+          'CONSULT_RESULT' => 'consult_result',
+          'DISCHARGE_SUMMARY' => 'discharge_summary',
+          'OTHER' => 'other'
+        }.freeze
+
         def parse(care_summary_or_note)
           return nil unless care_summary_or_note
 
@@ -59,9 +66,9 @@ module UnifiedHealthData
 
         def get_record_type(record)
           LOINC_CODES.each do |key, value|
-            return value if record['type']['coding']&.any? { |coding| coding['code'] == key }
+            return NOTE_TYPES[value] if record['type']['coding']&.any? { |coding| coding['code'] == key }
           end
-          'OTHER'
+          NOTE_TYPES['OTHER']
         end
 
         def array_and_has_items(item)
