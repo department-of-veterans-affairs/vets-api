@@ -83,8 +83,6 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
           get '/my_health/v1/medical_records/ccd/download.pdf?date=2025-05-06T09:26:08.000-0400'
         end
 
-        puts "response: #{response.body}"
-
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to include('application/pdf')
         expect(response.headers['Content-Disposition']).to include('attachment')

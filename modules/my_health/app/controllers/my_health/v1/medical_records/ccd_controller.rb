@@ -27,12 +27,12 @@ module MyHealth
         # @return [XML|PDF|HTML] Continuity of Care Document
         #
         def download
-          generated_datetime = params[:date].to_s
-          raise Common::Exceptions::ParameterMissing, 'date' if generated_datetime.blank?
-
           fmt = requested_format
 
           body = handle_aal_action('Download My VA Health Summary') do
+            generated_datetime = params[:date].to_s
+            raise Common::Exceptions::ParameterMissing, 'date' if generated_datetime.blank?
+
             bb_client.get_download_ccd(date: generated_datetime, format: fmt)
           end
 
