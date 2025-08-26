@@ -72,7 +72,7 @@ describe TravelPay::DocumentsService do
     end
 
     describe '#upload_document' do
-      let(:claim_id) { 'claim-123' }
+      let(:claim_id) { '73611905-71bf-46ed-b1ec-e790593b8565' }
       let(:file_path) { 'modules/travel_pay/spec/fixtures/documents/test.pdf' }
       # Have to set the filename here since Rack::Test::UploadedFile creates a tempfile under /tmp with a unique name
       let(:file) { Rack::Test::UploadedFile.new(file_path, 'application/pdf', 'test.pdf') }
