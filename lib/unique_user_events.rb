@@ -29,7 +29,15 @@ module UniqueUserEvents
   def self.log_event(user_id:, event_name:)
     return false unless Flipper.enabled?(:unique_user_metrics_logging)
 
-    Service.log_event(user_id:, event_name:)
+    start_time = Time.current
+    result = Service.log_event(user_id:, event_name:)
+    duration = (Time.current - start_time) * 1000.0 # Convert to milliseconds
+
+    StatsD.measure('uum.unique_user_metrics.log_event.duration', duration, tags: ["event_name:#{event_name}"])
+    result
+  rescue => e
+    Rails.logger.error("UUM: Failed during log_event - Event: #{event_name}, Error: #{e.message}")
+    false
   end
 
   # Check if an event has already been logged for a user

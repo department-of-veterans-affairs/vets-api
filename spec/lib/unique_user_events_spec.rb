@@ -15,6 +15,7 @@ RSpec.describe UniqueUserEvents do
     context 'when feature flag is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_logging).and_return(true)
+        allow(StatsD).to receive(:measure) # Stub StatsD calls that aren't being tested
       end
 
       it 'delegates to service and returns result' do
@@ -99,10 +100,28 @@ RSpec.describe UniqueUserEvents do
     it 'uses the correct feature flag name' do
       allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_logging).and_return(true)
       allow(UniqueUserEvents::Service).to receive(:log_event).and_return(true)
+      allow(StatsD).to receive(:measure) # Stub StatsD calls that aren't being tested
 
       described_class.log_event(user_id:, event_name:)
 
       expect(Flipper).to have_received(:enabled?).with(:unique_user_metrics_logging)
+    end
+  end
+
+  describe 'performance metrics' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_logging).and_return(true)
+      allow(UniqueUserEvents::Service).to receive(:log_event).and_return(true)
+    end
+
+    it 'measures log_event latency with StatsD' do
+      expect(StatsD).to receive(:measure).with(
+        'uum.unique_user_metrics.log_event.duration',
+        kind_of(Numeric),
+        tags: ["event_name:#{event_name}"]
+      )
+
+      described_class.log_event(user_id:, event_name:)
     end
   end
 end
