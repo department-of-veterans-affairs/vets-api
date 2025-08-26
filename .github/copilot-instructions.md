@@ -27,7 +27,7 @@
 - Controllers in `modules/[name]/app/controllers` or `app/controllers`
 - Background jobs in `app/sidekiq/` - use for operations >2 seconds
 - External service clients in `lib/` with Faraday + timeouts + retries
-- Feature flags via Flipper - always wrap debugging logs
+- Feature flags via Flipper for gradual rollouts and A/B testing
 - Strong parameters required - never use `params` directly
 - Error responses use envelope: `{ error: { code, message } }`
 - Service objects return `{ data: result, error: nil }` pattern
