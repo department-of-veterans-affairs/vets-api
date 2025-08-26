@@ -3,7 +3,7 @@
 ## Repository Context
 `vets-api` is a Ruby on Rails API serving veterans via VA.gov. Large codebase (400K+ lines) with modules for appeals, claims, healthcare, and benefits processing.
 
-**Key External Services:** BGS, MVI, Lighthouse APIs, EVSS (being deprecated)
+**Key External Services:** BGS, MVI, Lighthouse APIs
 **Architecture:** Rails engines in `modules/`, background jobs via Sidekiq Enterprise
 
 ## For Copilot Chat - Development Help
@@ -40,8 +40,7 @@
 ### VA Service Integration
 - **BGS**: Benefits data, often slow/unreliable
 - **MVI**: Veteran identity, use ICN for lookups
-- **Lighthouse**: Preferred over legacy EVSS
-- **EVSS**: Being deprecated, migrate to Lighthouse
+- **Lighthouse**: Modern REST APIs for claims, health records, veteran verification
 
 ## For PR Reviews - Human Judgment Issues
 
@@ -66,7 +65,6 @@
 - **Feature flag testing**: Using .enable/.disable instead of stubbing in tests
 - **ICN vs User ID**: Use ICN for veteran lookups with MVI/BGS
 - **Form serialization**: Use form objects for complex form submissions
-- **Lighthouse migration**: Flag EVSS usage, suggest Lighthouse alternatives
 
 ### Architecture Concerns
 - **N+1 queries**: Loading associations in loops without includes
@@ -102,22 +100,22 @@ Flipper.disable(:legacy_claims_api)
 
 **✅ Correct approach (stubs without side effects):**
 ```ruby
+# Flipper.enable → stub with and_return(true)
 allow(Flipper).to receive(:enabled?).with(:veteran_benefit_processing).and_return(true)
+# Flipper.disable → stub with and_return(false)  
 allow(Flipper).to receive(:enabled?).with(:legacy_claims_api).and_return(false)
 ```
 
-**For multiple feature flags:**
-```ruby
-allow(Flipper).to receive(:enabled?).and_return(false) # Default to false
-allow(Flipper).to receive(:enabled?).with(:enabled_feature).and_return(true)
-```
+**Important:** When suggesting stub replacements, preserve the intended behavior:
+- `Flipper.enable(:feature)` → stub with `and_return(true)`
+- `Flipper.disable(:feature)` → stub with `and_return(false)`
 
 ## Context for Responses
 - **VA.gov serves millions of veterans** - reliability and security critical
 - **External services often fail** - assume timeouts and retries needed
 - **PII/PHI protection paramount** - err on side of caution for sensitive data
 - **Performance matters** - veterans waiting for benefits decisions
-- **Feature flags enable safe rollouts** - wrap risky or debug code
+- **Feature flags enable safe rollouts** - wrap new features and risky changes
 - **Idempotency critical** - duplicate claims/forms cause veteran issues
 - **Error logging sensitive** - avoid logging veteran data in exceptions
 

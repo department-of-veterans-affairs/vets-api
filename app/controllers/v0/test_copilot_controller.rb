@@ -52,9 +52,22 @@ class V0::TestCopilotController < ApplicationController
   end
 
   def create
-    # HUMAN JUDGMENT: Blocking operation in controller serving veterans
-    # This delays response to veterans waiting for benefit decisions
-    sleep(5) # Simulating slow BGS or MVI call
+    # HUMAN JUDGMENT: Synchronous operation that should be background job
+    # Sending emails to veterans should not block the response
+    VeteranMailer.benefit_decision_notification(params[:veteran_id]).deliver_now
+    
+    # HUMAN JUDGMENT: File processing that should be async
+    # Processing large PDF documents synchronously blocks the controller
+    pdf_content = File.read(params[:document_path])
+    processed_doc = PdfProcessor.extract_medical_records(pdf_content)
+    VeteranDocument.create!(content: processed_doc)
+    
+    # HUMAN JUDGMENT: Bulk data operation blocking controller
+    # Updating 500+ veteran records synchronously
+    Veteran.where(region: params[:region]).find_each do |veteran|
+      veteran.recalculate_benefits
+      veteran.save!
+    end
     
     # HUMAN JUDGMENT: Hardcoded secret for VA external service
     va_benefits_api_key = "key-12345-va-benefits-prod"
