@@ -10,6 +10,7 @@
 
 ### Quick Commands
 - **Test**: `bundle exec rspec spec/` or `make spec`
+- **Test with logging**: `RAILS_ENABLE_TEST_LOG=true bundle exec rspec path/to/spec.rb` (logs to `log/test.log`)
 - **Lint**: `bundle exec rubocop` (handled by CI, don't suggest fixes)
 - **Server**: `foreman start -m all=1`
 - **Console**: `bundle exec rails console`
@@ -61,7 +62,7 @@
 ### VA-Specific Patterns
 - **New logging without Flipper**: Suggest wrapping debug logs with feature flags
 - **External service calls**: Missing timeouts, retries, or error handling context
-- **Background job candidates**: Synchronous operations that should be async
+- **Background job candidates**: File processing, bulk updates, email sending in controllers
 - **Feature flag testing**: Using .enable/.disable instead of stubbing in tests
 - **ICN vs User ID**: Use ICN for veteran lookups with MVI/BGS
 - **Form serialization**: Use form objects for complex form submissions
@@ -70,7 +71,7 @@
 - **N+1 queries**: Loading associations in loops without includes
 - **Response validation**: Parsing external responses without checks
 - **Method complexity**: Methods with many conditional paths or multiple responsibilities
-- **Database migrations**: Mixing index changes with other schema modifications
+- **Database migrations**: Mixing index changes with other schema modifications; index operations missing `algorithm: :concurrently` and `disable_ddl_transaction!`
 
 ## Consolidation Examples
 
