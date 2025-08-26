@@ -63,7 +63,6 @@
 - **New logging without Flipper**: Suggest wrapping debug logs with feature flags
 - **External service calls**: Missing timeouts, retries, or error handling context
 - **Background job candidates**: File.read operations, PDF/document processing, bulk database updates, .deliver_now emails
-- **Feature flag testing**: Using .enable/.disable instead of stubbing in tests
 - **ICN vs User ID**: Use ICN for veteran lookups with MVI/BGS
 - **Form serialization**: Use form objects for complex form submissions
 
