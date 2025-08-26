@@ -119,15 +119,18 @@ class FormProfiles::VA686c674v2 < FormProfile
     dependents = dependent_service.get_dependents
     if dependents.nil? || dependents[:persons].blank?
       monitor.track_event('warn', 'Missing dependents information for prefill', 'dependents.prefill.error')
-      return []
+      @dependents_information = []
+      return @dependents_information
     end
     @dependents_information = dependents[:persons].filter_map do |person|
       person_to_dependent_information(person)
     end
+    @dependents_information
   rescue => e
     monitor.track_event('warn', 'Failure initializing dependents_information', 'dependents.prefill.error',
                         { error: e&.message })
-    []
+    @dependents_information = []
+    @dependents_information
   end
 
   ##
