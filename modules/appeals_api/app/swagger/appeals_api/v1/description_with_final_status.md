@@ -27,7 +27,7 @@ The submission statuses begin with pending and end with complete.
 | submitting   | Data is transferring to upstream systems but is not yet complete. |
 | submitted   | A submitted status means the data was successfully transferred to the central mail portal.<br /><br />A submitted status is confirmation from the central mail portal that they have received the PDF, but the data is not yet being processed. The Date of Receipt is set when this status is achieved.<br /><br />Submitted is the final status in the sandbox environment.<p> |
 | processing   | Indicates intake has begun, the Intake, Conversion and Mail Handling Services (ICMHS) group is processing the appeal data. |
-| success   | The centralized mail portal, Digital Mail Handling System (DHMS), has received the data.<br /><br /> Success is the final status for a small percentage of submissions with claim types, Veteran types, or exception processes that are not worked in VBMS. A true value in the final_status attribute will indicate this.<br /> |
+| success   | The centralized mail portal, Digital Mail Handling System (DHMS), has received the data. |
 | complete   | Final status. Indicates the document package has been successfully associated with the Veteran and has been received in the correct business area for processing. |
 | error   | An error occurred. See the error code and message for further information. |
 
@@ -49,7 +49,6 @@ Our Notice of Disagreement (NOD) and Supplemental Claim (SC) evidence submission
 
 - `guid`: An identifier used for subsequent evidence upload status requests (not to be confused with the NOD or SC submission GUID)
 - `location`: A URL to which the actual document package payload can be submitted in the next step. The URL is specific to this upload request, and should not be re-used for subsequent uploads. The URL is valid for 900 seconds (15 minutes) from the time of this response. If the location is not used within 15 minutes, the GUID will expire. Once expired, status checks on the GUID will return a status of `expired`.
-- `final_status`: Indicates whether the status of the submission is final. Submissions with a `final_status` of `true` will no longer update to a new status.
 
 1. Client Request: PUT to the location URL returned in step 1.
 
@@ -91,13 +90,18 @@ The metadata.json file only supports a limited set of characters within the asci
 
 | Status      | What it means |
 | ---        |     ---     |
-| pending      | Initial status of the submission when no supporting documents have been uploaded. |
-| uploaded   | Indicates document package has been successfully uploaded (PUT) from the vendor's application system to the API server but has not yet been validated. Date of Receipt is not yet established with this status. |
-| received   | Indicates document package has been received upstream of the API, but is not yet in processing. Date of Receipt is set when this status is achieved. (This is also the final status in the sandbox environment unless further progress is simulated.) |
-| processing   | Indicates intake has begun, the Intake, Conversion and Mail Handling Services (ICMHS) group is processing the appeal data. |
-| success   | The centralized mail portal, Digital Mail Handling System (DHMS), has received the data. |
-| vbms   | Final status. Indicates document package has been received by Veterans Benefits Management System (VBMS). |
-| error   | An error occurred. See the error code and message for further information. |
+| pending      | This is the initial status. Indicates no document submission has been uploaded yet. |
+| uploaded   | Indicates document submission has been successfully uploaded (PUT) to the API server and is waiting to be sent to VA's mail handling system. Submission has not yet been validated.
+Any errors with the evidence submission, such as having an unreadable PDF, may cause an Error status. |
+| received   | Indicates document submission has been received downstream of the API and is awaiting processing. Any errors with the document submission, such as having an unreadable PDF, may cause an Error status. |
+| processing   | Indicates the evidence package is being validated, processed, and made ready to route and work. Any errors with the evidence submission, such as having an unreadable PDF, may cause an Error status. |
+| success   | Indicates the evidence submission has been successfully received within VA's mail handling system. Success is the final status for a small percentage of submissions with exception processes that are not worked in VBMS. A true value in the final_status attribute will indicate this.
+Most submissions reach a Success status within 1 business day. A small portion will take longer. However, some submissions may take up to 2 weeks to reach a Success status. |
+| vbms   | Indicates the evidence submission was successfully uploaded into a Veteran's eFolder within VBMS. On average, submissions reach VBMS status within 3 business days. However, processing times vary and some submissions may remain in a Success status for several weeks before reaching a VBMS status.
+Some document packages are worked in VA systems other than VBMS. For these submissions, Success is the final status. |
+| error   | Indicates that there was an error. Refer to the error code and detail for further information. |
+
+- `final_status`: The statuses have a `final_status` attribute that indicates whether the status of the evidence is final. Submissions with a `final_status` of `true` will no longer update to a new status.
 
 ### Status Caching
 
