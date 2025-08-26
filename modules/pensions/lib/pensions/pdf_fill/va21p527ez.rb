@@ -206,7 +206,7 @@ module Pensions
             question_suffix: 'A',
             question_label: 'Other First Name',
             question_text: 'OTHER FIRST NAME',
-            key: 'form1[0].#subform[48].Other_Name_You_Served_Under_First_Name[0]'
+            key: "form1[0].#subform[48].Other_Name_You_Served_Under_First_Name[#{ITERATOR}]"
           },
           'last' => {
             limit: 18,
@@ -214,7 +214,7 @@ module Pensions
             question_suffix: 'A',
             question_label: 'Other Last Name',
             question_text: 'OTHER LAST NAME',
-            key: 'form1[0].#subform[48].Other_Name_You_Served_Under_Last_Name[0]'
+            key: "form1[0].#subform[48].Other_Name_You_Served_Under_Last_Name[#{ITERATOR}]"
           }
         },
         # 3b
@@ -271,20 +271,10 @@ module Pensions
         },
         # 3d
         'serviceNumber' => {
-          limit: 12,
-          question_num: 3,
-          question_suffix: 'D',
-          question_label: 'Your Service Number',
-          question_text: 'YOUR SERVICE NUMBER',
           key: 'form1[0].#subform[48].Your_Service_Number[0]'
         },
         # 3f
         'placeOfSeparationLineOne' => {
-          limit: 18,
-          question_num: 3,
-          question_suffix: 'F',
-          question_label: 'Place Of Your Last Separation',
-          question_text: 'PLACE OF YOUR LAST SEPARATION.',
           key: 'form1[0].#subform[48].Place_Of_Your_Last_Separation[1]'
         },
         'placeOfSeparationLineTwo' => {
