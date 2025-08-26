@@ -20,6 +20,13 @@ module BBInternal
     USERMGMT_BASE_PATH = "#{Settings.mhv.api_gateway.hosts.usermgmt}/v1/".freeze
     BLUEBUTTON_BASE_PATH = "#{Settings.mhv.api_gateway.hosts.bluebutton}/v1/".freeze
 
+    # Supported output formats and their Accept headers for CCD
+    FORMAT_ACCEPT = {
+      xml: 'application/xml',
+      html: 'text/html',
+      pdf: 'application/pdf'
+    }.freeze
+
     ################################################################################
     # User Management APIs
     ################################################################################
@@ -183,16 +190,20 @@ module BBInternal
 
     ##
     # @param date - receieved from get_generate_ccd call property dateGenerated (e.g. 2024-10-18T09:55:58.000-0400)
-    # @return - Continuity of Care Document in XML format
+    # @param format - the format to return; one of XML, HTML, PDF
+    # @return - Continuity of Care Document in the specified format
     #
-    def get_download_ccd(date)
+    def get_download_ccd(date:, format: :xml)
+      fmt_sym = normalize_ccd_format(format) # :xml | :html | :pdf
+      fmt = fmt_sym.to_s.upcase # XML | HTML | PDF
+      accept_header = FORMAT_ACCEPT.fetch(fmt_sym)
+
       modified_headers = token_headers.dup
-      modified_headers['Accept'] = 'application/xml'
-      response = config.connection_non_gateway.get(
-        "bluebutton/healthsummary/#{date}/fileFormat/XML/ccdType/XML",
-        nil,
-        modified_headers
-      )
+      modified_headers['Accept'] = accept_header
+
+      path = "bluebutton/healthsummary/#{date}/fileFormat/#{fmt}/ccdType/#{fmt}"
+
+      response = config.connection_non_gateway.get(path, nil, modified_headers)
       response.body
     end
 
@@ -515,6 +526,13 @@ module BBInternal
       with_custom_base_path(USERMGMT_BASE_PATH) do
         perform(:get, 'usermgmt/auth/session', nil, auth_headers)
       end
+    end
+
+    def normalize_ccd_format(format)
+      sym = format.to_s.downcase.to_sym
+      return sym if FORMAT_ACCEPT.key?(sym)
+
+      raise ArgumentError, "Unsupported format: #{format} (supported: #{FORMAT_ACCEPT.keys.join(', ')})"
     end
   end
 end

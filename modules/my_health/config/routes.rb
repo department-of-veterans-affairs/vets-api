@@ -30,8 +30,10 @@ MyHealth::Engine.routes.draw do
       end
       resources :ccd, only: [] do
         collection do
-          get :generate, to: 'ccd#generate'
-          get :download, to: 'ccd#download'
+          get :generate
+          get 'download(.:format)', action: :download,
+                                    constraints: { format: /(xml|html|pdf)/ },
+                                    defaults: { format: 'xml' }
         end
       end
       resources :bbmi_notification, only: [] do
