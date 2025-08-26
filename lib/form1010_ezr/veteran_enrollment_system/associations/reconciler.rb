@@ -94,7 +94,9 @@ module Form1010Ezr
 
           return if missing_fields.empty?
 
-          raise StandardError, "VES association is missing the following field(s): #{missing_fields.join(', ')}"
+          missing_fields_msg = "VES association is missing the following field(s): #{missing_fields.join(', ')}"
+          fields_present_msg = "Fields present: #{association.keys&.join(', ')}"
+          raise StandardError, "#{missing_fields_msg}. #{fields_present_msg}"
         end
 
         def build_transformed_association(association)
