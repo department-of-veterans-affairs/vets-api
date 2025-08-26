@@ -6,7 +6,7 @@ require_relative 'constants'
 module EventBusGateway
   class LetterReadyEmailJob
     include Sidekiq::Job
-    
+
     STATSD_METRIC_PREFIX = 'event_bus_gateway.letter_ready_email'
 
     # retry for  2d 1h 47m 12s
