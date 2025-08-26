@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: c2e33402fd8f59eddb55c2f630ec199ff9584897
+  revision: 4b57c07cfbb2bf4dc0a348f2536cb3646f294ef6
   branch: master
   specs:
-    vets_json_schema (25.1.8)
+    vets_json_schema (25.1.9)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -245,7 +245,7 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1147.0)
+    aws-partitions (1.1149.0)
     aws-sdk-core (3.229.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -260,7 +260,7 @@ GEM
     aws-sdk-kms (1.110.0)
       aws-sdk-core (~> 3, >= 3.228.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.196.1)
+    aws-sdk-s3 (1.197.0)
       aws-sdk-core (~> 3, >= 3.228.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -440,7 +440,7 @@ GEM
     erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
-    ethon (0.16.0)
+    ethon (0.17.0)
       ffi (>= 1.15.0)
     factory_bot (6.5.4)
       activesupport (>= 6.1.0)
