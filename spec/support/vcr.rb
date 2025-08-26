@@ -84,6 +84,7 @@ VCR.configure do |c|
     "#{Settings.veteran_enrollment_system.host}:#{Settings.veteran_enrollment_system.port}"
   end
   c.filter_sensitive_data('<VETERAN_ENROLLMENT_SYSTEM>') { Settings.hca.endpoint }
+  c.filter_sensitive_data('<CASEFLOW_API_HOST>') { Settings.caseflow.host }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')
