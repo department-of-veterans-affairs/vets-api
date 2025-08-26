@@ -92,14 +92,15 @@ describe VAProfile::V3::AddressValidation::Service do
         before do
           allow(Flipper).to receive(:enabled?).with(:profile_validate_address_when_no_candidate_found).and_return(true)
         end
+
         it 'returns original address with validation key' do
           VCR.use_cassette(
             'va_profile/v3/address_validation/candidate_no_match',
-            :match_requests_on => [:uri]
+            match_requests_on: [:uri]
           ) do
             VCR.use_cassette(
               'va_profile/v3/address_validation/validate_after_candidate_no_match',
-              :match_requests_on => [:uri]
+              match_requests_on: [:uri]
             ) do
               res = described_class.new.address_suggestions(invalid_address)
               expect(JSON.parse(res.to_json)).to eq(
@@ -134,10 +135,11 @@ describe VAProfile::V3::AddressValidation::Service do
         before do
           allow(Flipper).to receive(:enabled?).with(:profile_validate_address_when_no_candidate_found).and_return(false)
         end
+
         it 'returns a candidate address not found response' do
           VCR.use_cassette(
             'va_profile/v3/address_validation/candidate_no_match',
-            :match_requests_on => [:uri]
+            match_requests_on: [:uri]
           ) do
             res = described_class.new.address_suggestions(invalid_address)
             expect(JSON.parse(res.to_json)).to eq(
