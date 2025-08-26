@@ -1537,6 +1537,9 @@ features:
   profile_show_quick_submit_notification_setting:
     actor_type: user
     description: Show/Hide the quick submit section of notification settings in profile
+  profile_validate_address_when_no_candidate_found:
+    actor_type: user
+    description: When enabled, a NoCandidateFound error will be followed up by a call to the validate endpoint
   profile_show_no_validation_key_address_alert:
     actor_type: user
     description: Show/Hide alert messages when no validationKey is returned from the address_validation endpoint
