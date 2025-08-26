@@ -43,6 +43,22 @@ RSpec.describe BGSV2::Exceptions::BGSErrors do
       end
     end
 
+    context 'CEST11 errors' do
+      it 'logs the error message to Sentry, but no PII' do
+        error_message = 'CEST11 John Smith john@email.com'
+        dummy_error = StandardError.new(error_message)
+        expect(dummy_instance).to receive(:log_message_to_sentry).with(
+          'CEST11 Error',
+          :error,
+          { icn: '1234' },
+          { team: 'vfs-ebenefits' }
+        )
+        expect do
+          dummy_instance.notify_of_service_exception(dummy_error, 'dummy_method')
+        end.to raise_error(BGSV2::ServiceException)
+      end
+    end
+
     context 'no error message' do
       it 'raises a BGS::ServiceException' do
         dummy_error = StandardError.new
