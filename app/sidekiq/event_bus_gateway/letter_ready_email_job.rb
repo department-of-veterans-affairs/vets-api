@@ -6,9 +6,7 @@ require_relative 'constants'
 module EventBusGateway
   class LetterReadyEmailJob
     include Sidekiq::Job
-
-    include Constants
-
+    
     STATSD_METRIC_PREFIX = 'event_bus_gateway.letter_ready_email'
 
     # retry for  2d 1h 47m 12s
@@ -32,7 +30,7 @@ module EventBusGateway
         response = notify_client.send_email(
           recipient_identifier: { id_value: participant_id, id_type: 'PID' },
           template_id:,
-          personalisation: { host: HOSTNAME_MAPPING[Settings.hostname] || Settings.hostname,
+          personalisation: { host: Constants::HOSTNAME_MAPPING[Settings.hostname] || Settings.hostname,
                              first_name: get_first_name_from_participant_id(participant_id) }
         )
         EventBusGatewayNotification.create(user_account: user_account(participant_id), template_id:,

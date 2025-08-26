@@ -133,7 +133,7 @@ module BGS
 
     def submit_674_via_claims_evidence(claim)
       form_id = '21-674-V2'
-      doctype = '142'
+      doctype = 142
 
       @monitor.track_event('info', "#{self.class} claims evidence upload of #{form_id} claim_id #{claim.id}",
                            "#{STATS_KEY}.claims_evidence.upload", tags: ["form_id:#{form_id}"])
