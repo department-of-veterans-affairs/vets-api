@@ -232,7 +232,7 @@ describe BBInternal::Client do
     context 'when verifying headers with WebMock' do
       it 'sends the correct Accept header' do
         stub_request(:get, expected_url)
-          .with(headers: { 'Accept' => 'application/xml' })
+          .with(headers: { 'Accept' => '*/*' })
           .to_return(status: 200, body: response_body, headers: { 'Content-Type' => 'application/xml' })
 
         ccd = client.get_download_ccd(date:)
