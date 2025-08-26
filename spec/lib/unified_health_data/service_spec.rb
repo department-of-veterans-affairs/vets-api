@@ -812,8 +812,7 @@ describe UnifiedHealthData::Service, type: :service do
                                    'written_by' => be_a(String),
                                    'signed_by' => be_a(String).or(be_nil),
                                    'location' => be_a(String).or(be_nil),
-                                   'note' => be_a(String).or(be_nil),
-                                   'summary' => be_a(String).or(be_nil)
+                                   'note' => be_a(String).or(be_nil)
                                  }
                                ))
         end

@@ -15,6 +15,5 @@ module UnifiedHealthData
     attribute :signed_by, String
     attribute :location, String
     attribute :note, String
-    attribute :summary, String
   end
 end

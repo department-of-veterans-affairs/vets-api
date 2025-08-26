@@ -19,50 +19,24 @@ module UnifiedHealthData
           'OTHER' => 'other'
         }.freeze
 
-        def parse(care_summary_or_note)
-          return nil unless care_summary_or_note
+        def parse(note)
+          record = note['resource']
+          return nil unless record
 
-          # byebug
-          record_type = get_record_type(care_summary_or_note['resource'])
-
-          adapted_record = if record_type == 'DISCHARGE_SUMMARY'
-                             convert_admission_and_discharge_details(care_summary_or_note['resource'], record_type)
-                           else
-                             convert_progress_note(care_summary_or_note['resource'], record_type)
-                           end
-
-          UnifiedHealthData::ClinicalNotes.new(adapted_record)
+          UnifiedHealthData::ClinicalNotes.new({
+                                                 id: record['id'],
+                                                 name: get_title(record),
+                                                 type: get_record_type(record),
+                                                 date: record['date'],
+                                                 date_signed: get_date_signed(record),
+                                                 written_by: extract_author(record),
+                                                 signed_by: extract_authenticator(record),
+                                                 location: extract_location(record),
+                                                 note: get_note(record)
+                                               })
         end
 
         private
-
-        def convert_admission_and_discharge_details(record, record_type)
-          {
-            id: record['id'],
-            name: get_title(record),
-            type: record_type,
-            date: record['date'],
-            date_signed: get_date_signed(record),
-            written_by: extract_author(record),
-            signed_by: extract_authenticator(record),
-            location: extract_location(record),
-            summary: get_note(record)
-          }
-        end
-
-        def convert_progress_note(record, record_type)
-          {
-            id: record['id'],
-            name: get_title(record),
-            type: record_type,
-            date: record['date'],
-            date_signed: get_date_signed(record),
-            written_by: extract_author(record),
-            signed_by: extract_authenticator(record),
-            location: extract_location(record),
-            note: get_note(record)
-          }
-        end
 
         def get_record_type(record)
           LOINC_CODES.each do |key, value|
