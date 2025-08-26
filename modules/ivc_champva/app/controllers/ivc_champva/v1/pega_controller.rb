@@ -37,15 +37,9 @@ module IvcChampva
 
       private
 
-      def update_data(form_uuid, file_names, status, case_id) # rubocop:disable Metrics/MethodLength
+      def update_data(form_uuid, file_names, status, case_id)
         # First get the query that defines which records we want to update
-        ivc_forms = if file_names.any? { |name| name.end_with?('_merged.pdf') }
-                      # Use all forms for this UUID if it's a merged PDF case
-                      fetch_forms_by_uuid(form_uuid)
-                    else
-                      # Only use specified files for non-merged cases
-                      forms_query(form_uuid, file_names)
-                    end
+        ivc_forms = get_ivc_forms(form_uuid, file_names)
 
         if ivc_forms.any?
           begin
@@ -71,6 +65,14 @@ module IvcChampva
           { json:
           { error_message: "No form(s) found with the form_uuid: #{form_uuid} and/or the file_names: #{file_names}." },
             status: :not_found }
+        end
+      end
+
+      def get_ivc_forms(form_uuid, file_names)
+        if file_names.any? { |name| name.end_with?('_merged.pdf') }
+          fetch_forms_by_uuid(form_uuid)
+        else
+          forms_query(form_uuid, file_names)
         end
       end
 
