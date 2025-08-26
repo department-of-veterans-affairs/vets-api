@@ -104,26 +104,33 @@ check_in:
     retry_attempt_expiry: 604800
   chip_api_v2:
     base_path: dev
-    host: ~
+    base_path_v2: dev
     mock: false
     redis_session_prefix: check_in_chip_v2
     service_name: CHIP-API
     timeout: 30
     tmp_api_id: 2dcdrrn5zc
+    tmp_api_id_v2: 2dcdrrn5zc
     tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
+    tmp_api_user_v2: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
     tmp_api_username: vetsapiTempUser
+    tmp_api_username_v2: vetsapiTempUser
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    url_v2: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
   lorota_v2:
     api_id: 22t00c6f97
+    api_id_v2: 22t00c6f97
     api_key: Xc7k35oE2H9aDeUEpeGa38PzAHyLT9jb5HiKeBfs
+    api_key_v2: Xc7k35oE2H9aDeUEpeGa38PzAHyLT9jb5HiKeBfs
     base_path: dev
-    host: ~
+    base_path_v2: dev
     key_path: modules/vaos/config/rsa/sandbox_rsa
     mock: false
     redis_session_prefix: check_in_lorota_v2
     redis_token_expiry: 43200
     service_name: LoROTA-API
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    url_v2: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
   map_api:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
@@ -144,6 +151,8 @@ check_in:
     service_name: BTSSS-API
     subscription_key: fake_subscription_key
     tenant_id: fake_template_id
+    travel_pay_client_id: fake_travel_pay_client_id
+    travel_pay_client_secret: fake_travel_pay_client_secret
   vaos:
     mock: false
 chip:
@@ -218,6 +227,7 @@ claims_api:
 claims_evidence_api:
   base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
   breakers_error_threshold: 80
+  include_request: false
   jwt_secret: fake-secret
   mock: false
   ssl: false
@@ -616,8 +626,6 @@ ivc_forms:
       enabled: true
     old_records_cleanup_job:
       enabled: true
-    ves_retry_failures_job:
-      enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: 'arn:aws:iam::123456789012:role/role-name' # this is an example
@@ -793,6 +801,7 @@ maintenance:
     1010ezr: ~
     appeals: P9S4RFU
     arcgis: P45YBFA
+    askva: ~
     avs: ~
     bgs: P5Q2OCZ
     carma: P6XLE0T
@@ -801,6 +810,7 @@ maintenance:
     coe: PSY4HU1
     community_care_ds: ~
     decision_reviews: ~
+    disability_compensation_form: ~
     dmc: ~
     dslogon: P9DJJAV
     es: PH7OPR4
@@ -920,9 +930,7 @@ mhv:
     x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
-    base_path: mhv-sm-api/patient/v1/
     gw_base_path: v1/sm/patient/
-    host: http://mhv-api.example.com
     mock: true
     x_api_key: fake-x-api-key
   uhd:
@@ -1319,7 +1327,9 @@ va_profile:
     enabled: true
     mock: false
     timeout: 30
+valid_va_file_number: false
 vanotify:
+  callback_url: https://test-api.va.gov/va_notify/callbacks
   client_url: http://fakeapi.com
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
@@ -1401,8 +1411,12 @@ vanotify:
     accredited_representative_portal:
       api_key: fake_secret
       email:
+        confirmation:
+          template_id: arp_confirmation_email_template_id
         error:
           template_id: arp_error_email_template_id
+        received:
+          template_id: arp_received_email_template_id
     benefits_decision_review:
       api_key: fake_secret
       template_id:
@@ -1453,6 +1467,9 @@ vanotify:
     dmc:
       api_key: fake_secret
       template_id:
+        digital_dispute_confirmation_email: fake_template_id
+        digital_dispute_failure_email: fake_template_id
+        digital_dispute_submission_email: fake_template_id
         fsr_confirmation_email: fake_template_id
         fsr_failed_email: fake_template_id
         fsr_step_1_submission_in_progress_email: fake_template_id
@@ -1506,6 +1523,8 @@ vanotify:
     va_gov:
       api_key: fake_secret
       template_id:
+        accredited_representative_portal_poa_request_failure_claimant_email: accredited_representative_portal_poa_request_failure_claimant_email_template_id
+        accredited_representative_portal_poa_request_failure_rep_email: accredited_representative_portal_poa_request_failure_rep_email_template_id
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
         appoint_a_representative_digital_expiration_confirmation_email: appoint_a_representative_digital_expiration_confirmation_email_template_id
         appoint_a_representative_digital_expiration_warning_email: appoint_a_representative_digital_expiration_warning_email_template_id
@@ -1636,7 +1655,6 @@ vba_documents:
   slack:
     api_key: ''
     channel_id: ''
-    daily_notification_hour: 7
     default_alert_email: ''
     enabled: false
     in_flight_notification_hung_time_in_days: 14
@@ -1653,8 +1671,6 @@ vba_documents:
   webhooks:
     registration_max_retries: 3
     registration_next_run_in_minutes: 15
-    registration_next_run_minutes: 15
-    registration_rescue_in_minutes: 60
 vbms:
   ca_cert: VBMS-Client-Signing-CA.crt
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
@@ -1714,6 +1730,7 @@ veteran_enrollment_system:
 veteran_onboarding:
   onboarding_threshold_days: ~
 veteran_readiness_and_employment:
+  api_key: ~
   auth_endpoint: https://fake_url.com/auth/oauth/token
   base_url: https://fake_url.com
   credentials: fake_auth
@@ -1779,6 +1796,13 @@ veteran_readiness_and_employment:
       - VRE.VBAANC@va.gov
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
+  email:
+    confirmation_lighthouse:
+      template_id: 'confirmation_lighthouse'
+    confirmation_vbms:
+      template_id: 'confirmation_vbms'
+    error:
+      template_id: 'error'
 vetext:
   mock: ~
 vetext_push:

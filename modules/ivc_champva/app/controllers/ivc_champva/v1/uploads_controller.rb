@@ -93,8 +93,7 @@ module IvcChampva
       #
       # @return [Hash] response from build_json
       def handle_file_uploads_wrapper(form_id, parsed_form_data)
-        if Flipper.enabled?(:champva_send_to_ves, @current_user) &&
-           Settings.vsp_environment != 'production' && form_id == 'vha_10_10d'
+        if Flipper.enabled?(:champva_send_to_ves, @current_user) && form_id == 'vha_10_10d'
           # first, prepare and validate the VES request
           ves_request = prepare_ves_request(parsed_form_data)
 
@@ -248,9 +247,8 @@ module IvcChampva
             # Prepare the base response
             response_data = PersistentAttachmentSerializer.new(attachment).serializable_hash
 
-            # Add LLM analysis if enabled (convert form_id to mapped format)
-            mapped_form_id = FORM_NUMBER_MAP[params[:form_id]]
-            llm_result = call_llm_service(attachment, mapped_form_id, params['attachment_id'])
+            # Add LLM analysis if enabled
+            llm_result = call_llm_service(attachment, params[:form_id], params['attachment_id'])
             response_data[:llm_response] = llm_result if llm_result.present?
 
             render json: response_data
@@ -280,13 +278,10 @@ module IvcChampva
       end
 
       def launch_ocr_job(form_id, attachment, attachment_id)
-        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) && form_id == 'vha_10_7959a'
+        if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) && form_id == '10-7959A'
           begin
-            # create a temp file from the persistent attachment object
-            tmpfile = tempfile_from_attachment(attachment, form_id)
-
             # queue Tesseract OCR job for tmpfile
-            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, tmpfile.path, attachment_id)
+            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, attachment.id, attachment_id)
             Rails.logger.info(
               "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
             )
@@ -297,7 +292,7 @@ module IvcChampva
       end
 
       def launch_llm_job(form_id, attachment, attachment_id)
-        if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user) && form_id == 'vha_10_7959a'
+        if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user) && form_id == '10-7959A'
           begin
             # create a temp file from the persistent attachment object
             tmpfile = tempfile_from_attachment(attachment, form_id)
@@ -317,22 +312,25 @@ module IvcChampva
       ##
       # Calls the LLM service synchronously for immediate response
       # @param [PersistentAttachments::MilitaryRecords] attachment The attachment object containing the file
-      # @param [String] form_id The mapped form ID (e.g., 'vha_10_7959a')
+      # @param [String] form_id The mapped form ID (e.g., '10-7959A')
       # @param [String] attachment_id The document type/attachment ID
       # @return [Hash, nil] LLM analysis result or nil if conditions not met
       def call_llm_service(attachment, form_id, attachment_id)
         return nil unless Flipper.enabled?(:champva_claims_llm_validation, @current_user)
-        return nil unless form_id == 'vha_10_7959a'
+        return nil unless form_id == '10-7959A'
 
         begin
           # create a temp file from the persistent attachment object
           tmpfile = tempfile_from_attachment(attachment, form_id)
           pdf_path = Common::ConvertToPdf.new(tmpfile).run
 
+          # Convert form_id to mapped format for LLM service
+          mapped_form_id = FORM_NUMBER_MAP[form_id]
+
           # Call LLM service synchronously
           llm_service = IvcChampva::LlmService.new
           llm_service.process_document(
-            form_id:,
+            form_id: mapped_form_id,
             file_path: pdf_path,
             uuid: attachment.guid,
             attachment_id:
@@ -358,10 +356,34 @@ module IvcChampva
         tmpfile.binmode
         tmpfile.write(attachment.file.read)
         tmpfile.flush
+        tmpfile.rewind
+
+        content_type = if attachment.file.respond_to?(:content_type)
+                         attachment.file.content_type
+                       else
+                         content_type_from_extension(ext)
+                       end
+
+        # Define content_type method on the tmpfile singleton
+        tmpfile.define_singleton_method(:content_type) { content_type }
+
         tmpfile
       end
 
       private
+
+      def content_type_from_extension(ext)
+        case ext.downcase
+        when '.pdf'
+          'application/pdf'
+        when '.jpg', '.jpeg'
+          'image/jpeg'
+        when '.png'
+          'image/png'
+        else
+          'application/octet-stream'
+        end
+      end
 
       def applicants_with_ohi(applicants)
         applicants.select do |item|
@@ -668,8 +690,7 @@ module IvcChampva
         form.track_current_user_loa(@current_user)
         form.track_email_usage
 
-        attachment_ids = Array.new(applicant_rounded_number) { form_id }
-        attachment_ids.concat(supporting_document_ids(parsed_form_data))
+        attachment_ids = build_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
         attachment_ids = [form_id] if attachment_ids.empty?
 
         [attachment_ids.compact, form]
@@ -690,8 +711,56 @@ module IvcChampva
         # reduce down to just the attachment id strings:
         attachment_ids = cached_uploads.sort_by { |h| h[:created_at] }.pluck(:attachment_id)&.compact.presence
 
-        # Return either the attachment IDs or `claim_id`s (in the case of form 10-7959a):
-        attachment_ids || parsed_form_data['supporting_docs']&.pluck('claim_id')&.compact.presence || []
+        # Return either the attachment IDs or `claim_id`s (fallback for form 10-7959a):
+        attachment_ids || parsed_form_data['supporting_docs']&.pluck('attachment_id')&.compact.presence ||
+          parsed_form_data['supporting_docs']&.pluck('claim_id')&.compact.presence || []
+      end
+
+      ##
+      # Builds the attachment_ids array for the given form submission.
+      # For 10-7959a resubmissions:
+      #  - If Control number selected: the main claim sheet is labeled "CVA Reopen",
+      #    supporting docs retain original types.
+      #  - If PDI selected: use the standard logic because the generated stamped doc
+      #    (created in stamp_metadata) is labeled "CVA Bene Response" by the model, and
+      #    supporting docs retain original types. Main claim sheet remains the default
+      #    form_id.
+      # For all other cases, uses the standard logic.
+      #
+      # @param [String] form_id The mapped form ID (e.g., 'vha_10_7959a')
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @param [Integer] applicant_rounded_number number of main form attachments needed
+      # @return [Array<String>] array of attachment_ids for all documents
+      def build_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
+        if Flipper.enabled?(:champva_resubmission_attachment_ids) &&
+           form_id == 'vha_10_7959a' &&
+           parsed_form_data['claim_status'] == 'resubmission'
+          selector = parsed_form_data['pdi_or_claim_number']
+
+          if selector == 'Control number'
+            # Relabel main claim sheet as CVA Reopen; supporting docs retain original types.
+            main = Array.new(applicant_rounded_number) { 'CVA Reopen' }
+            main.concat(supporting_document_ids(parsed_form_data))
+          else
+            # Main claim sheet stays as default form_id; generated stamped page in model is labeled
+            # "CVA Bene Response"; supporting docs keep their original types.
+            build_default_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
+          end
+        else
+          build_default_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
+        end
+      end
+
+      ##
+      # Builds the default attachment_ids array using the standard logic.
+      #
+      # @param [String] form_id The mapped form ID
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @param [Integer] applicant_rounded_number number of main form attachments needed
+      # @return [Array<String>] array of attachment_ids
+      def build_default_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
+        attachment_ids = Array.new(applicant_rounded_number) { form_id }
+        attachment_ids.concat(supporting_document_ids(parsed_form_data))
       end
 
       ##

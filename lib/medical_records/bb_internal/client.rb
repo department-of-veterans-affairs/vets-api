@@ -399,9 +399,7 @@ module BBInternal
     end
 
     def with_custom_base_path(custom_base_path)
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway) && custom_base_path
-        BBInternal::Configuration.custom_base_path = custom_base_path
-      end
+      BBInternal::Configuration.custom_base_path = custom_base_path
       yield
     end
 
@@ -441,6 +439,8 @@ module BBInternal
         id = id.to_s
         study_id = study_data_hash[id]
 
+        # Log UUID if not cached for debugging
+        Rails.logger.info(message: "[MHV-Images] Study UUID #{id} not cached") if study_id.nil?
         study_id || raise(Common::Exceptions::RecordNotFound, id)
       else
         # throw 400 for FE to know to refetch the list
@@ -473,6 +473,8 @@ module BBInternal
         else
           new_uuid = SecureRandom.uuid
           id_uuid_map[new_uuid] = study_id
+          # Log UUID here - to track the mapping for debugging
+          Rails.logger.info(message: "[MHV-Images] Assigned studyIdUrn to new UUID #{new_uuid}")
           obj['studyIdUrn'] = new_uuid
         end
         obj
