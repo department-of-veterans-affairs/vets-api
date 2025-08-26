@@ -23,16 +23,16 @@ RSpec.describe SupportingEvidenceAttachmentUploader do
   describe 'logging methods' do
     let(:mock_file) do
       double('uploaded_file', size: 1024, headers: {
-        'Content-Type' => 'application/pdf',
-        'User-Agent' => 'Mozilla/5.0',
-        'filename' => 'PII.pdf'
-      })
+               'Content-Type' => 'application/pdf',
+               'User-Agent' => 'Mozilla/5.0',
+               'filename' => 'PII.pdf'
+             })
     end
 
     describe '#log_transaction_start' do
       it 'logs process_id, filesize, and upload_start without file_headers' do
         freeze_time = Time.parse('2025-08-26 12:00:00 UTC')
-        
+
         allow(Time).to receive(:current).and_return(freeze_time)
         allow(Rails.logger).to receive(:info)
 
@@ -64,7 +64,7 @@ RSpec.describe SupportingEvidenceAttachmentUploader do
     describe '#log_transaction_complete' do
       it 'logs process_id, filesize, and upload_complete without file_headers' do
         freeze_time = Time.parse('2025-08-26 12:00:00 UTC')
-        
+
         allow(Time).to receive(:current).and_return(freeze_time)
         allow(Rails.logger).to receive(:info)
 
