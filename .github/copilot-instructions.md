@@ -26,7 +26,7 @@
 ### Common Patterns
 - Controllers in `modules/[name]/app/controllers` or `app/controllers`
 - Background jobs in `app/sidekiq/` - use for operations >2 seconds
-- External service clients in `lib/` with Faraday + timeouts + retries
+- External service clients in `lib/` with Faraday configuration
 - Feature flags via Flipper for gradual rollouts and A/B testing
 - Strong parameters required - never use `params` directly
 - Error responses use envelope: `{ error: { code, message } }`
@@ -61,7 +61,7 @@
 
 ### VA-Specific Patterns
 - **New logging without Flipper**: Suggest wrapping debug logs with feature flags
-- **External service calls**: Missing timeouts, retries, or error handling context
+- **External service calls**: Faraday clients missing `timeout: 30, open_timeout: 10` and `retry` middleware
 - **Background job candidates**: File.read operations, PDF/document processing, bulk database updates, .deliver_now emails
 - **ICN vs User ID**: Use ICN for veteran lookups with MVI/BGS
 - **Form serialization**: Use form objects for complex form submissions
@@ -112,7 +112,7 @@ allow(Flipper).to receive(:enabled?).with(:legacy_claims_api).and_return(false)
 
 ## Context for Responses
 - **VA.gov serves millions of veterans** - reliability and security critical
-- **External services often fail** - assume timeouts and retries needed
+- **External services often fail** - VA systems like BGS/MVI require resilient retry logic
 - **PII/PHI protection paramount** - err on side of caution for sensitive data
 - **Performance matters** - veterans waiting for benefits decisions
 - **Feature flags enable safe rollouts** - wrap new features and risky changes
