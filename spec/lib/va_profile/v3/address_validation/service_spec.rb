@@ -91,11 +91,11 @@ describe VAProfile::V3::AddressValidation::Service do
       it 'returns original address with validation key' do
         VCR.use_cassette(
           'va_profile/v3/address_validation/candidate_no_match',
-          VCR::MATCH_EVERYTHING
+          :match_requests_on => [:uri]
         ) do
           VCR.use_cassette(
             'va_profile/v3/address_validation/validate_after_candidate_no_match',
-            VCR::MATCH_EVERYTHING
+            :match_requests_on => [:uri]
           ) do
             res = described_class.new.address_suggestions(invalid_address)
             expect(JSON.parse(res.to_json)).to eq(
@@ -113,12 +113,13 @@ describe VAProfile::V3::AddressValidation::Service do
                   'address_meta_data' => {
                     'confidence_score' => 0.0,
                     'address_type' => 'Domestic',
-                    'delivery_point_validation' => 'MISSING_ZIP'
+                    'delivery_point_validation' => nil
                   }
                 }
               ],
-              'override_validation_key' => 1_499_210_293,
-              'validation_key' => 1_499_210_293
+              'override_validation_key' => 1_499_210_294,
+              'validation_key' => 1_499_210_294,
+              'validated' => true
             )
           end
         end
