@@ -98,7 +98,8 @@ module ClaimsApi
     def error_sources
       [
         @original_body&.dig(:messages),
-        @original_body&.dig(:errors)
+        @original_body&.dig(:errors),
+        @original_body&.dig(:data)&.dig(:errors)
       ].compact.flatten
     end
   end
