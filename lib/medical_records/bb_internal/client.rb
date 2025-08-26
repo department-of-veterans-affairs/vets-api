@@ -20,13 +20,6 @@ module BBInternal
     USERMGMT_BASE_PATH = "#{Settings.mhv.api_gateway.hosts.usermgmt}/v1/".freeze
     BLUEBUTTON_BASE_PATH = "#{Settings.mhv.api_gateway.hosts.bluebutton}/v1/".freeze
 
-    # Supported output formats and their Accept headers for CCD
-    FORMAT_ACCEPT = {
-      xml: 'application/xml',
-      html: 'text/html',
-      pdf: 'application/pdf'
-    }.freeze
-
     ################################################################################
     # User Management APIs
     ################################################################################
@@ -194,12 +187,11 @@ module BBInternal
     # @return - Continuity of Care Document in the specified format
     #
     def get_download_ccd(date:, format: :xml)
-      fmt_sym = normalize_ccd_format(format) # :xml | :html | :pdf
-      fmt = fmt_sym.to_s.upcase # XML | HTML | PDF
-      accept_header = FORMAT_ACCEPT.fetch(fmt_sym)
-
+      fmt = format.to_s.upcase # XML | HTML | PDF
       modified_headers = token_headers.dup
-      modified_headers['Accept'] = accept_header
+
+      # The backend returns a 406 for 'application/pdf' and 'text/html' so we just use '*/*'
+      modified_headers['Accept'] = '*/*'
 
       path = "bluebutton/healthsummary/#{date}/fileFormat/#{fmt}/ccdType/#{fmt}"
 
@@ -526,13 +518,6 @@ module BBInternal
       with_custom_base_path(USERMGMT_BASE_PATH) do
         perform(:get, 'usermgmt/auth/session', nil, auth_headers)
       end
-    end
-
-    def normalize_ccd_format(format)
-      sym = format.to_s.downcase.to_sym
-      return sym if FORMAT_ACCEPT.key?(sym)
-
-      raise ArgumentError, "Unsupported format: #{format} (supported: #{FORMAT_ACCEPT.keys.join(', ')})"
     end
   end
 end
