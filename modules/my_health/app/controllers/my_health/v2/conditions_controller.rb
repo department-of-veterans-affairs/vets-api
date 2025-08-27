@@ -13,32 +13,14 @@ module MyHealth
       STATSD_KEY_PREFIX = 'api.my_health.conditions_v2'
 
       def index
-        Rails.logger.info(
-          message: 'Fetching conditions for user',
-          feature: 'conditions_v2',
-          patient_icn: @current_user.icn
-        )
-
-        begin
-          conditions = service.get_conditions
-
-          serialized_conditions = conditions.map { |record| ConditionSerializer.serialize(record) }
-
-          StatsD.gauge("#{STATSD_KEY_PREFIX}.count", serialized_conditions.length)
-
-          Rails.logger.info(
-            message: 'Successfully fetched conditions',
-            feature: 'conditions_v2',
-            patient_icn: @current_user.icn,
-            result_count: serialized_conditions.length
-          )
-
-          render json: { data: serialized_conditions }
-        rescue Common::Client::Errors::ClientError,
-               Common::Exceptions::BackendServiceException,
-               StandardError => e
-          handle_error(e)
-        end
+        conditions = service.get_conditions
+        serialized_conditions = conditions.map { |record| ConditionSerializer.serialize(record) }
+        StatsD.gauge("#{STATSD_KEY_PREFIX}.count", serialized_conditions.length)
+        render json: { data: serialized_conditions }
+      rescue Common::Client::Errors::ClientError,
+             Common::Exceptions::BackendServiceException,
+             StandardError => e
+        handle_error(e)
       end
 
       private
