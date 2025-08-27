@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require 'decision_reviews/v1/helpers'
 require 'decision_reviews/saved_claim/service'
 require_relative '../v1/appeals_base_controller'
 
 module DecisionReviews
   module V2
     class HigherLevelReviewsController < V1::AppealsBaseController
+      include DecisionReviews::V1::Helpers
       include DecisionReviews::SavedClaim::Service
       service_tag 'higher-level-review'
 
@@ -19,8 +21,9 @@ module DecisionReviews
       end
 
       def create
+        req_body_obj = normalize_area_code_for_lighthouse_schema(request_body_hash)
         hlr_response_body = decision_review_service
-                            .create_higher_level_review(request_body: request_body_hash, user: @current_user,
+                            .create_higher_level_review(request_body: req_body_obj, user: @current_user,
                                                         version: 'V2')
                             .body
         submitted_appeal_uuid = hlr_response_body.dig('data', 'id')

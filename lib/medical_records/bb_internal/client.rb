@@ -439,6 +439,8 @@ module BBInternal
         id = id.to_s
         study_id = study_data_hash[id]
 
+        # Log UUID if not cached for debugging
+        Rails.logger.info(message: "[MHV-Images] Study UUID #{id} not cached") if study_id.nil?
         study_id || raise(Common::Exceptions::RecordNotFound, id)
       else
         # throw 400 for FE to know to refetch the list
@@ -471,6 +473,8 @@ module BBInternal
         else
           new_uuid = SecureRandom.uuid
           id_uuid_map[new_uuid] = study_id
+          # Log UUID here - to track the mapping for debugging
+          Rails.logger.info(message: "[MHV-Images] Assigned studyIdUrn to new UUID #{new_uuid}")
           obj['studyIdUrn'] = new_uuid
         end
         obj

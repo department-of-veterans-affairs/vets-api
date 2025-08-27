@@ -18,6 +18,10 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       def initialize(attributes = {})
         @form_attributes = attributes
       end
+
+      def bgs_service
+        # This will be stubbed in individual tests
+      end
     end
   end
   let(:form_attributes) { {} }
@@ -659,6 +663,320 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
         expect { subject.validate_form_526_change_of_address! }
           .to raise_error(Common::Exceptions::InvalidFieldValue)
       end
+    end
+  end
+
+  # rubocop:disable RSpec/SubjectStub
+  describe '#contention_classification_type_code_list' do
+    let(:mock_list) { [{ clsfcn_id: '1234', end_dt: nil }, { clsfcn_id: '5678', end_dt: '2020-01-01' }] }
+    let(:mock_data) { double('data', get_contention_classification_type_code_list: mock_list) }
+    let(:mock_bgs_service) { double('bgs_service', data: mock_data) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(false)
+      allow(subject).to receive(:bgs_service).and_return(mock_bgs_service)
+    end
+
+    it 'returns the contention classification type code list' do
+      expect(subject.contention_classification_type_code_list).to eq(mock_list)
+    end
+  end
+
+  describe '#bgs_classification_ids' do
+    let(:mock_list) { [{ clsfcn_id: '1234', end_dt: nil }, { clsfcn_id: '5678', end_dt: '2020-01-01' }] }
+
+    before do
+      allow(subject).to receive(:contention_classification_type_code_list).and_return(mock_list)
+    end
+
+    it 'returns an array of classification ids' do
+      expect(subject.bgs_classification_ids).to eq(%w[1234 5678])
+    end
+  end
+  # rubocop:enable RSpec/SubjectStub
+
+  describe '#validate_form_526_fewer_than_150_disabilities!' do
+    context 'when disabilities count is less than or equal to 150' do
+      let(:form_attributes) { { 'disabilities' => Array.new(150) { { 'name' => 'PTSD' } } } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_fewer_than_150_disabilities! }.not_to raise_error
+      end
+    end
+
+    context 'when disabilities count is greater than 150' do
+      let(:form_attributes) { { 'disabilities' => Array.new(151) { { 'name' => 'PTSD' } } } }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_fewer_than_150_disabilities! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
+  describe '#validate_form_526_disability_classification_code!' do
+    let(:classification_code) { '1234' }
+    let(:expired_code) { '9999' }
+    let(:unknown_code) { '8888' }
+    let(:today) { Time.zone.today }
+    let(:valid_disabilities) do
+      [
+        { 'classificationCode' => classification_code },
+        { 'classificationCode' => nil },
+        { 'classificationCode' => '' }
+      ]
+    end
+    let(:form_attributes) { { 'disabilities' => valid_disabilities } }
+    let(:contention_list) do
+      [
+        { clsfcn_id: classification_code, end_dt: nil },
+        { clsfcn_id: expired_code, end_dt: (today - 1).to_s }
+      ]
+    end
+
+    before do
+      # Stubbing this because it's a method on the subject that fetches data from BRD
+      # rubocop:disable RSpec/SubjectStub
+      allow(subject).to receive_messages(
+        contention_classification_type_code_list: contention_list,
+        bgs_classification_ids: contention_list.map { |c|
+          c[:clsfcn_id]
+        }
+      )
+      # rubocop:enable RSpec/SubjectStub
+    end
+
+    context 'when all classification codes are valid and not expired' do
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_classification_code! }.not_to raise_error
+      end
+    end
+
+    context 'when a classification code is not in the BGS list' do
+      let(:form_attributes) { { 'disabilities' => [{ 'classificationCode' => unknown_code }] } }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_disability_classification_code! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when a classification code is expired' do
+      let(:form_attributes) { { 'disabilities' => [{ 'classificationCode' => expired_code }] } }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_disability_classification_code! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when classificationCode is nil or blank' do
+      let(:form_attributes) { { 'disabilities' => [{ 'classificationCode' => nil }, { 'classificationCode' => '' }] } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_classification_code! }.not_to raise_error
+      end
+    end
+  end
+
+  describe '#validate_form_526_disability_approximate_begin_date!' do
+    context 'when disabilities is blank' do
+      let(:form_attributes) { { 'disabilities' => [] } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_approximate_begin_date! }.not_to raise_error
+      end
+    end
+
+    context 'when approximateBeginDate is blank' do
+      let(:form_attributes) { { 'disabilities' => [{ 'approximateBeginDate' => nil }] } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_approximate_begin_date! }.not_to raise_error
+      end
+    end
+
+    context 'when approximateBeginDate is in the past' do
+      let(:form_attributes) { { 'disabilities' => [{ 'approximateBeginDate' => 1.day.ago.to_date.iso8601 }] } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_approximate_begin_date! }.not_to raise_error
+      end
+    end
+
+    context 'when approximateBeginDate is today' do
+      let(:form_attributes) { { 'disabilities' => [{ 'approximateBeginDate' => Time.zone.today.iso8601 }] } }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_disability_approximate_begin_date! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when approximateBeginDate is in the future' do
+      let(:form_attributes) { { 'disabilities' => [{ 'approximateBeginDate' => 1.day.from_now.to_date.iso8601 }] } }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_disability_approximate_begin_date! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'with multiple disabilities, one with invalid date' do
+      let(:form_attributes) do
+        {
+          'disabilities' => [
+            { 'approximateBeginDate' => 1.year.ago.to_date.iso8601 },
+            { 'approximateBeginDate' => 1.day.from_now.to_date.iso8601 }
+          ]
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_disability_approximate_begin_date! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
+  describe '#validate_form_526_special_issues!' do
+    let(:form_attributes) do
+      { 'disabilities' => disabilities, 'serviceInformation' => service_information,
+        'disabilityActionType' => disability_action_type }
+    end
+    let(:service_information) { {} }
+    let(:disability_action_type) { nil }
+
+    context 'when disabilities is blank' do
+      let(:disabilities) { [] }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_special_issues! }.not_to raise_error
+      end
+    end
+
+    context 'when specialIssues is blank' do
+      let(:disabilities) { [{ 'specialIssues' => nil }] }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_special_issues! }.not_to raise_error
+      end
+    end
+
+    context "when specialIssues includes 'HEPC' and name is 'hepatitis'" do
+      let(:disabilities) { [{ 'specialIssues' => ['HEPC'], 'name' => 'hepatitis' }] }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_special_issues! }.not_to raise_error
+      end
+    end
+
+    context "when specialIssues includes 'HEPC' and name is not 'hepatitis'" do
+      let(:disabilities) { [{ 'specialIssues' => ['HEPC'], 'name' => 'PTSD' }] }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_special_issues! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context "when specialIssues includes 'POW' and confinements is present" do
+      let(:disabilities) { [{ 'specialIssues' => ['POW'] }] }
+      let(:service_information) { { 'confinements' => ['some confinement'] } }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_special_issues! }.not_to raise_error
+      end
+    end
+
+    context "when specialIssues includes 'POW' and confinements is blank" do
+      let(:disabilities) { [{ 'specialIssues' => ['POW'] }] }
+      let(:service_information) { { 'confinements' => nil } }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_special_issues! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context "when disabilityActionType is 'INCREASE' and specialIssues includes 'EMP'" do
+      let(:disabilities) { [{ 'specialIssues' => ['EMP'] }] }
+      let(:disability_action_type) { 'INCREASE' }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_special_issues! }.not_to raise_error
+      end
+    end
+
+    context "when disabilityActionType is 'INCREASE' and specialIssues includes 'RRD'" do
+      let(:disabilities) { [{ 'specialIssues' => ['RRD'] }] }
+      let(:disability_action_type) { 'INCREASE' }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_special_issues! }.not_to raise_error
+      end
+    end
+
+    context "when disabilityActionType is 'INCREASE' and specialIssues includes other value" do
+      let(:disabilities) { [{ 'specialIssues' => ['OTHER'] }] }
+      let(:disability_action_type) { 'INCREASE' }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_special_issues! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
+  describe '#validate_form_526_disability_unique_names!' do
+    context 'when all disability names are unique' do
+      let(:form_attributes) do
+        { 'disabilities' => [
+          { 'name' => 'PTSD' },
+          { 'name' => 'Back Pain' },
+          { 'name' => 'Hearing Loss' }
+        ] }
+      end
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_unique_names! }.not_to raise_error
+      end
+    end
+
+    context 'when there are duplicate disability names (case-insensitive)' do
+      let(:form_attributes) do
+        { 'disabilities' => [
+          { 'name' => 'PTSD' },
+          { 'name' => 'ptsd' },
+          { 'name' => 'Back Pain' }
+        ] }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_disability_unique_names! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
+  describe '#mask_all_but_first_character' do
+    it 'returns nil if value is blank' do
+      expect(subject.mask_all_but_first_character(nil)).to be_nil
+      expect(subject.mask_all_but_first_character('')).to eq('')
+    end
+
+    it 'returns the value if it is not a String' do
+      expect(subject.mask_all_but_first_character(123)).to eq(123)
+      expect(subject.mask_all_but_first_character([])).to eq([])
+    end
+
+    it 'returns the value if it is a single character' do
+      expect(subject.mask_all_but_first_character('A')).to eq('A')
+    end
+
+    it 'masks all but the first character for longer strings' do
+      expect(subject.mask_all_but_first_character('PTSD')).to eq('P***')
+      expect(subject.mask_all_but_first_character('hepatitis')).to eq('h********')
     end
   end
 end
