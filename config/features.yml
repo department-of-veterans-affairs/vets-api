@@ -2394,4 +2394,8 @@ features:
   accredited_representative_portal_homepage:
     actor_type: user
     description: Enables new homepage redesign for ARP
-  
+  unique_user_metrics_logging:
+    # System level feature flag
+    actor_type:
+    description: Enables unique user metrics logging for MHV Portal analytics. When disabled, no events will be recorded to database or sent to StatsD.
+    enable_in_development: true
