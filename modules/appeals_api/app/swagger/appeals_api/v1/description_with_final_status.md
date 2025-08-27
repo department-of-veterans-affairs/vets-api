@@ -88,17 +88,15 @@ Note that until a document status of “received”, “processing”, “succes
 
 The metadata.json file only supports a limited set of characters within the ascii character space. Refer to the `documentUploadMetadata` schema for more details.
 
-| Status      | What it means |
-| ---        |     ---     |
-| pending      | This is the initial status. Indicates no document submission has been uploaded yet. |
-| uploaded   | Indicates document submission has been successfully uploaded (PUT) to the API server and is waiting to be sent to VA's mail handling system. Submission has not yet been validated. Any errors with the evidence submission, such as having an unreadable PDF, may cause an Error status. |
-| received   | Indicates document submission has been received downstream of the API and is awaiting processing. Any errors with the document submission, such as having an unreadable PDF, may cause an Error status. |
-| processing   | Indicates the evidence package is being validated, processed, and made ready to route and work. Any errors with the evidence submission, such as having an unreadable PDF, may cause an Error status. |
-| success   | Indicates the evidence submission has been successfully received within VA's mail handling system. Success is the final status for a small percentage of submissions with exception processes that are not worked in VBMS. A true value in the final_status attribute will indicate this.
-Most submissions reach a Success status within 1 business day. A small portion will take longer. However, some submissions may take up to 2 weeks to reach a Success status. |
-| vbms   | Indicates the evidence submission was successfully uploaded into a Veteran's eFolder within VBMS. On average, submissions reach VBMS status within 3 business days. However, processing times vary and some submissions may remain in a Success status for several weeks before reaching a VBMS status.
-Some document packages are worked in VA systems other than VBMS. For these submissions, Success is the final status. |
-| error   | Indicates that there was an error. Refer to the error code and detail for further information. |
+| Status    | What it means |
+|-----------|---------------|
+| pending   | This is the initial status. Indicates no document submission has been uploaded yet. |
+| uploaded  | Indicates document submission has been successfully uploaded (PUT) to the API server and is waiting to be sent to VA's mail handling system. Submission has not yet been validated. Any errors with the evidence submission, such as having an unreadable PDF, may cause an Error status. |
+| received  | Indicates document submission has been received downstream of the API and is awaiting processing. Any errors with the document submission, such as having an unreadable PDF, may cause an Error status. |
+| processing | Indicates the evidence package is being validated, processed, and made ready to route and work. Any errors with the evidence submission, such as having an unreadable PDF, may cause an Error status. |
+| success   | Indicates the evidence submission has been successfully received within VA's mail handling system. Success is the final status for a small percentage of submissions with exception processes that are not worked in VBMS. A true value in the `final_status` attribute will indicate this. Most submissions reach a Success status within 1 business day. A small portion will take longer. However, some submissions may take up to 2 weeks to reach a Success status. |
+| vbms      | Indicates the evidence submission was successfully uploaded into a Veteran's eFolder within VBMS. On average, submissions reach VBMS status within 3 business days. However, processing times vary and some submissions may remain in a Success status for several weeks before reaching a VBMS status. Some document packages are worked in VA systems other than VBMS. For these submissions, Success is the final status. |
+| error     | Indicates that there was an error. Refer to the error code and detail for further information. |
 
 - `final_status`: The statuses have a `final_status` attribute that indicates whether the status of the evidence is final. Submissions with a `final_status` of `true` will no longer update to a new status.
 
