@@ -20,13 +20,26 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::AuthorizeAsRepresentative', 
 
       context 'and user is an accredited representative' do
         before do
-          allow_any_instance_of(AccreditedRepresentativePortal::RepresentativeUserAccount)
-            .to receive(:registrations).and_return([
-                                                     OpenStruct.new(
-                                                       accredited_individual_registration_number: '1234',
-                                                       power_of_attorney_holder_type: 'veteran_service_organization'
-                                                     )
-                                                   ])
+          prepared_account = AccreditedRepresentativePortal::RepresentativeUserAccount.find(user.user_account.id)
+
+          allow(AccreditedRepresentativePortal::RepresentativeUserAccount)
+            .to receive(:find)
+            .with(user.user_account.id)
+            .and_return(prepared_account)
+
+          vso_type =
+            AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION
+
+          holder =
+            AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+              type: vso_type,
+              poa_code: '067',
+              can_accept_digital_poa_requests: true
+            )
+
+          allow(prepared_account)
+            .to receive(:power_of_attorney_holders)
+            .and_return([holder])
         end
 
         it 'returns 204 No Content' do
@@ -38,8 +51,14 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::AuthorizeAsRepresentative', 
 
       context 'and user is not an accredited representative' do
         before do
-          allow_any_instance_of(AccreditedRepresentativePortal::RepresentativeUserAccount)
-            .to receive(:registrations).and_return([])
+          prepared_account = AccreditedRepresentativePortal::RepresentativeUserAccount.find(user.user_account.id)
+
+          allow(AccreditedRepresentativePortal::RepresentativeUserAccount)
+            .to receive(:find)
+            .with(user.user_account.id)
+            .and_return(prepared_account)
+
+          allow(prepared_account).to receive(:power_of_attorney_holders).and_return([])
         end
 
         it 'returns 403 Forbidden' do
@@ -50,8 +69,14 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::AuthorizeAsRepresentative', 
 
       context 'and RepresentativeUserAccount raises Forbidden (e.g., OGC conflict/none)' do
         before do
-          allow_any_instance_of(AccreditedRepresentativePortal::RepresentativeUserAccount)
-            .to receive(:registrations).and_raise(Common::Exceptions::Forbidden)
+          prepared_account = AccreditedRepresentativePortal::RepresentativeUserAccount.find(user.user_account.id)
+
+          allow(AccreditedRepresentativePortal::RepresentativeUserAccount)
+            .to receive(:find)
+            .with(user.user_account.id)
+            .and_return(prepared_account)
+
+          allow(prepared_account).to receive(:power_of_attorney_holders).and_raise(Common::Exceptions::Forbidden)
         end
 
         it 'returns 403 Forbidden' do

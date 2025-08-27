@@ -8,11 +8,10 @@ module AccreditedRepresentativePortal
 
     def authorize_as_representative?
       # Must be logged in is enforced by ApplicationPolicy initialize
-      # Authorize only if the current user's account has at least one registration
+      # Authorize only if the current user's account maps to any POA holders
       account = @user.user_account
 
-      registrations = account.registrations
-      registrations.present?
+      account.power_of_attorney_holders.size.positive?
     rescue Common::Exceptions::Forbidden
       false
     end
