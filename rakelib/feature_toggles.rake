@@ -17,10 +17,15 @@ namespace :feature_toggles do
     
     unless status.success?
       # Fallback to master if main doesn't exist
+      # Try origin/master first, then fall back to master
       changed_files_output, status = Open3.capture2('git', 'diff', '--name-only', 'origin/master...HEAD')
       unless status.success?
-        puts "⚠️  Unable to determine changed files. Assuming features.yml was modified."
-        changed_files_output = "config/features.yml\n"
+        puts "⚠️  origin/master not available, trying master..."
+        changed_files_output, status = Open3.capture2('git', 'diff', '--name-only', 'master...HEAD')
+        unless status.success?
+          puts "⚠️  Unable to determine changed files. Assuming features.yml was modified."
+          changed_files_output = "config/features.yml\n"
+        end
       end
     end
 
@@ -34,8 +39,12 @@ namespace :feature_toggles do
       diff_output, diff_status = Open3.capture2('git', 'diff', 'origin/master...HEAD', '--', 'config/features.yml')
       
       unless diff_status.success?
-        puts "⚠️  Unable to get diff for features.yml"
-        exit 1
+        puts "⚠️  origin/master not available, trying master..."
+        diff_output, diff_status = Open3.capture2('git', 'diff', 'master...HEAD', '--', 'config/features.yml')
+        unless diff_status.success?
+          puts "⚠️  Unable to get diff for features.yml"
+          exit 1
+        end
       end
 
       modified_features = []
@@ -43,8 +52,8 @@ namespace :feature_toggles do
         # Look for new feature definitions (lines starting with +, followed by feature name and colon)
         if line =~ /^\+\s+([a-zA-Z_][a-zA-Z0-9_]*):$/ && !line.include?('features:')
           feature_name = $1
-          # Exclude test features
-          unless feature_name.include?('test')
+          # Exclude the built-in test features used for specs
+          unless ['this_is_only_a_test', 'this_is_only_a_test_two'].include?(feature_name)
             modified_features << feature_name
           end
         end
