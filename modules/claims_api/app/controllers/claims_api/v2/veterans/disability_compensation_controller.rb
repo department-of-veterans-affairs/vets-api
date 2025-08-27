@@ -34,41 +34,8 @@ module ClaimsApi
           permit_scopes(%w[system/526.override], actions: [:synchronous])
         end
 
-        def submit
-          auto_claim = shared_submit_methods
-
-          # This kicks off the first of three jobs required to fully establish the claim
-          process_claim(auto_claim) unless Flipper.enabled? :claims_load_testing
-
-          render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
-            auto_claim, root: :data
-          ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
-        end
-
         def validate
           render json: valid_526_response
-        end
-
-        def attachments
-          if params.keys.select { |key| key.include? 'attachment' }.count > 10
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-              detail: 'Too many attachments.'
-            )
-          end
-
-          claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
-
-          unless claim
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
-              detail: 'Resource not found'
-            )
-          end
-
-          documents_service(params, claim).process_documents
-
-          render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
-            claim, root: :data
-          ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: claim.id)
         end
 
         # Returns filled out 526EZ form as PDF
