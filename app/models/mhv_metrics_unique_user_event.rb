@@ -62,7 +62,7 @@ class MHVMetricsUniqueUserEvent < ApplicationRecord
 
     # Check Redis cache first - if exists, skip database entirely
     if key_cached?(cache_key)
-      Rails.logger.debug { "UUM: Event found in cache - User: #{user_id}, Event: #{event_name}" }
+      Rails.logger.debug('UUM: Event found in cache', { user_id:, event_name: })
       return false
     end
 
@@ -73,13 +73,13 @@ class MHVMetricsUniqueUserEvent < ApplicationRecord
       # Cache that this event now exists
       mark_key_cached(cache_key)
 
-      Rails.logger.info("UUM: New unique event recorded - User: #{user_id}, Event: #{event_name}")
+      Rails.logger.info('UUM: New unique event recorded', { user_id:, event_name: })
       true # NEW EVENT - top-level library should log to statsd
     rescue ActiveRecord::RecordNotUnique
       # Event already exists in database
       mark_key_cached(cache_key)
 
-      Rails.logger.debug { "UUM: Duplicate event found in database - User: #{user_id}, Event: #{event_name}" }
+      Rails.logger.debug('UUM: Duplicate event found in database', { user_id:, event_name: })
       false # DUPLICATE EVENT - top-level library should NOT log to statsd
     end
   end
