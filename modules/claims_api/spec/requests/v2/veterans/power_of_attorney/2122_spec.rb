@@ -214,7 +214,6 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   it 'adds cid to attributes' do
                     VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                       mock_ccg(scopes) do |auth_header|
-
                         json = JSON.parse(request_body)
                         json['data']['attributes']['claimant'] = claimant_data
                         request_body = json.to_json
