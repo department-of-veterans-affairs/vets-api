@@ -84,7 +84,6 @@ module TravelClaim
           appointmentDateTime: appointment_date_time,
           facilityStationNumber: facility_id
         }
-        headers = build_standard_headers
 
         perform(:post, '/api/v3/appointments/find-or-add', body, headers)
       end
@@ -109,12 +108,19 @@ module TravelClaim
     end
 
     ##
-    # Builds standard headers for Travel Claim API requests.
+    # Returns standard headers for Travel Claim API requests.
     # Includes content type, authorization, and correlation ID.
+    # Headers are memoized and automatically updated when tokens change.
     #
     # @return [Hash] Complete headers hash including subscription key headers
     #
-    def build_standard_headers
+    def headers
+      @headers ||= build_headers
+    end
+
+    private
+
+    def build_headers
       headers = {
         'Content-Type' => 'application/json',
         'Authorization' => "Bearer #{@current_veis_token}",
@@ -186,6 +192,9 @@ module TravelClaim
       # Store tokens in Redis
       @redis_client.save_token(token: @current_veis_token)
       @redis_client.save_v4_token(cache_key: "btsss_#{@current_icn}", token: @current_btsss_token)
+
+      # Clear memoized headers so they get rebuilt with new tokens
+      @headers = nil
     end
 
     ##
@@ -195,6 +204,9 @@ module TravelClaim
     def refresh_tokens!
       @current_veis_token = nil
       @current_btsss_token = nil
+
+      # Clear memoized headers so they get rebuilt with new tokens
+      @headers = nil
 
       # Clear tokens from Redis
       @redis_client.save_token(token: nil)
