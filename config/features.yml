@@ -162,6 +162,8 @@ features:
   dv_email_notification:
     actor_type: user
     description: Enables dependents verification emails
+  event_bus_gateway_ep040_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP040 claims"
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -1921,9 +1923,6 @@ features:
   vet_status_pdf_logging:
     actor_type: user
     description: Enables the Veteran Status Card to log PDF download events/failures
-  vet_status_stage_1:
-    actor_type: user
-    description: Enables the stage 1 features of the veteran status card
   vre_cutover_notice:
     actor_type: user
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
