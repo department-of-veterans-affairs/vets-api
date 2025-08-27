@@ -36,14 +36,14 @@ module UniqueUserEvents
       # Increment DataDog counter only for new events
       if new_event_created
         increment_statsd_counter(event_name)
-        Rails.logger.info("UUM: New unique event logged with metrics - User: #{user_id}, Event: #{event_name}")
+        Rails.logger.info('UUM: New unique event logged with metrics', { user_id:, event_name: })
       else
-        Rails.logger.debug { "UUM: Duplicate event, no metrics increment - User: #{user_id}, Event: #{event_name}" }
+        Rails.logger.debug('UUM: Duplicate event, no metrics increment', { user_id:, event_name: })
       end
 
       new_event_created
     rescue => e
-      Rails.logger.error("UUM: Failed to log event - User: #{user_id}, Event: #{event_name}, Error: #{e.message}")
+      Rails.logger.error('UUM: Failed to log event', { user_id:, event_name:, error: e.message })
       # Don't raise - this is analytics, shouldn't break user flow
       false
     end
@@ -56,7 +56,7 @@ module UniqueUserEvents
     def self.event_logged?(user_id:, event_name:)
       MHVMetricsUniqueUserEvent.event_exists?(user_id:, event_name:)
     rescue => e
-      Rails.logger.error("UUM: Failed to check event - User: #{user_id}, Event: #{event_name}, Error: #{e.message}")
+      Rails.logger.error('UUM: Failed to check event', { user_id:, event_name:, error: e.message })
       # Don't raise - return false if we can't check
       false
     end
@@ -67,7 +67,7 @@ module UniqueUserEvents
     def self.increment_statsd_counter(event_name)
       StatsD.increment("#{STATSD_KEY_PREFIX}.event", tags: ["event_name:#{event_name}"])
     rescue => e
-      Rails.logger.error("UUM: Failed to increment StatsD counter - Event: #{event_name}, Error: #{e.message}")
+      Rails.logger.error('UUM: Failed to increment StatsD counter', { event_name:, error: e.message })
       # Don't raise - metrics failure shouldn't break the main flow
     end
 

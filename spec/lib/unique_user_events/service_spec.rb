@@ -31,7 +31,7 @@ RSpec.describe UniqueUserEvents::Service do
         expect(MHVMetricsUniqueUserEvent).to have_received(:record_event).with(user_id:, event_name:)
         expect(described_class).to have_received(:increment_statsd_counter).with(event_name)
         expect(logger).to have_received(:info)
-          .with("UUM: New unique event logged with metrics - User: #{user_id}, Event: #{event_name}")
+          .with('UUM: New unique event logged with metrics', { user_id:, event_name: })
       end
     end
 
@@ -63,7 +63,7 @@ RSpec.describe UniqueUserEvents::Service do
 
         expect(result).to be(false)
         expect(logger).to have_received(:error)
-          .with("UUM: Failed to log event - User: #{user_id}, Event: #{event_name}, Error: #{error_message}")
+          .with('UUM: Failed to log event', { user_id:, event_name:, error: error_message })
       end
 
       it 'does not increment StatsD counter when exception occurs' do
@@ -112,7 +112,7 @@ RSpec.describe UniqueUserEvents::Service do
 
         expect(result).to be(false)
         expect(logger).to have_received(:error)
-          .with("UUM: Failed to check event - User: #{user_id}, Event: #{event_name}, Error: #{error_message}")
+          .with('UUM: Failed to check event', { user_id:, event_name:, error: error_message })
       end
     end
   end
@@ -148,7 +148,7 @@ RSpec.describe UniqueUserEvents::Service do
         end.not_to raise_error
 
         expect(logger).to have_received(:error)
-          .with("UUM: Failed to increment StatsD counter - Event: #{event_name}, Error: #{error_message}")
+          .with('UUM: Failed to increment StatsD counter', { event_name:, error: error_message })
       end
     end
   end
