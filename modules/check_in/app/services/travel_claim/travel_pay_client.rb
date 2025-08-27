@@ -13,6 +13,7 @@ module TravelClaim
     EXPENSE_DESCRIPTION = 'mileage'
     TRIP_TYPE = 'RoundTrip'
     GRANT_TYPE = 'client_credentials'
+    CLIENT_TYPE = '1'
 
     attr_reader :redis_client, :settings
 
@@ -51,6 +52,7 @@ module TravelClaim
       body = URI.encode_www_form({
                                    client_id: travel_pay_client_id,
                                    client_secret: travel_pay_client_secret,
+                                   client_type: CLIENT_TYPE,
                                    scope:,
                                    grant_type: GRANT_TYPE,
                                    resource: travel_pay_resource

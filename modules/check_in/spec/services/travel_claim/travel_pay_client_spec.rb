@@ -23,7 +23,7 @@ RSpec.describe TravelClaim::TravelPayClient do
         expect(client).to receive(:perform).with(
           :post,
           'https://auth.example.test/tenant-123/oauth2/token',
-          'client_id=client-id&client_secret=super-secret-123&' \
+          'client_id=client-id&client_secret=super-secret-123&client_type=1&' \
           'scope=scope.read&grant_type=client_credentials&resource=test-resource',
           { 'Content-Type' => 'application/x-www-form-urlencoded' }
         ).and_return(mock_response)
