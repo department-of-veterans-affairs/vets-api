@@ -171,5 +171,45 @@ RSpec.describe TravelClaim::TravelPayClient do
       expect(headers['X-BTSSS-Token']).to eq('test-btsss')
       expect(headers['X-Correlation-ID']).to eq(client.instance_variable_get(:@correlation_id))
     end
+
+    it 'fetches fresh tokens when none are cached' do
+      allow(client.redis_client).to receive(:token).and_return(nil)
+      expect(client).to receive(:fetch_tokens!)
+
+      client.send(:ensure_tokens!)
+    end
+
+    it 'refreshes tokens and clears cache' do
+      client.instance_variable_set(:@current_veis_token, 'old-veis')
+      client.instance_variable_set(:@current_btsss_token, 'old-btsss')
+      expect(client).to receive(:fetch_tokens!)
+      expect(client.redis_client).to receive(:save_token).with(token: nil)
+
+      client.send(:refresh_tokens!)
+
+      expect(client.instance_variable_get(:@current_veis_token)).to be_nil
+      expect(client.instance_variable_get(:@current_btsss_token)).to be_nil
+    end
+  end
+
+  describe '#subscription_key_headers' do
+    it 'returns single subscription key for non-production environments' do
+      allow(Settings).to receive(:vsp_environment).and_return('dev')
+
+      headers = client.subscription_key_headers
+
+      expect(headers).to eq({ 'Ocp-Apim-Subscription-Key' => 'sub-key' })
+    end
+
+    it 'returns separate E and S keys for production environment' do
+      allow(Settings).to receive(:vsp_environment).and_return('production')
+
+      headers = client.subscription_key_headers
+
+      expect(headers).to eq({
+                              'Ocp-Apim-Subscription-Key-E' => 'e-sub',
+                              'Ocp-Apim-Subscription-Key-S' => 's-sub'
+                            })
+    end
   end
 end
