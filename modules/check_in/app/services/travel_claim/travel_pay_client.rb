@@ -80,7 +80,7 @@ module TravelClaim
         'Authorization' => "Bearer #{veis_access_token}"
       }.merge(subscription_key_headers)
 
-      perform(:post, '/api/v4/auth/system-access-token', body, headers)
+      perform(:post, "#{claims_url_v2}/api/v4/auth/system-access-token", body, headers)
     end
 
     ##
@@ -97,7 +97,7 @@ module TravelClaim
           facilityStationNumber: facility_id
         }
 
-        perform(:post, '/api/v3/appointments/find-or-add', body, headers)
+        perform(:post, "#{claims_url_v2}/api/v3/appointments/find-or-add", body, headers)
       end
     end
 

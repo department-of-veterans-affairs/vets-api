@@ -62,7 +62,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       expect(client).to receive(:perform).with(
         :post,
-        '/api/v4/auth/system-access-token',
+        'https://claims.example.test/api/v4/auth/system-access-token',
         { secret: 'super-secret-123', icn: },
         hash_including(
           'Content-Type' => 'application/json',
@@ -97,7 +97,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       expect(client).to receive(:perform).with(
         :post,
-        '/api/v3/appointments/find-or-add',
+        'https://claims.example.test/api/v3/appointments/find-or-add',
         {
           appointmentDateTime: appointment_date_time,
           facilityStationNumber: facility_id
