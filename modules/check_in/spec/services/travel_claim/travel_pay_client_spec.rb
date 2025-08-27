@@ -19,7 +19,8 @@ RSpec.describe TravelClaim::TravelPayClient do
       mock: false,
       subscription_key: 'sub-key',
       e_subscription_key: 'e-sub',
-      s_subscription_key: 's-sub'
+      s_subscription_key: 's-sub',
+      travel_pay_resource: 'test-resource'
     )
   end
   let(:check_in_settings) { OpenStruct.new(travel_reimbursement_api_v2: settings_double) }
@@ -41,7 +42,8 @@ RSpec.describe TravelClaim::TravelPayClient do
       expect(client).to receive(:perform).with(
         :post,
         'https://auth.example.test/tenant-123/oauth2/token',
-        kind_of(String),
+        'client_id=client-id&client_secret=super-secret-123&' \
+        'scope=scope.read&grant_type=client_credentials&resource=test-resource',
         { 'Content-Type' => 'application/x-www-form-urlencoded' }
       ).and_return(mock_response)
 
