@@ -994,7 +994,8 @@ module VAOS
           vvsVistaVideoAppt: appointment.dig(:extension, :vvs_vista_video_appt),
           modality: appointment[:modality],
           telehealthUrl: appointment.dig(:telehealth, :url),
-          start: appointment[:start]
+          start: appointment[:start],
+          displayLink: appointment.dig(:telehealth, :display_link)
         }
         issue_detected = context[:telehealthUrl].empty? || context[:telehealthUrl].nil?
         Rails.logger.warn('VAOS video telehealth issue', context.to_json) if issue_detected
