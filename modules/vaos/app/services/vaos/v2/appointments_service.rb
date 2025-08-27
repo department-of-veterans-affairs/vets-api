@@ -481,7 +481,7 @@ module VAOS
 
         appointment[:show_schedule_link] = schedulable?(appointment) if appointment[:status] == 'cancelled'
 
-        log_telehealth_issue(appointment) if appointment[:modality] == "vaVideoCareAtHome"
+        log_telehealth_issue(appointment) if appointment[:modality] == 'vaVideoCareAtHome'
       end
 
       def find_and_merge_provider_name(appointment)
@@ -955,8 +955,8 @@ module VAOS
         if appointment[:telehealth] && appointment[:modality] == 'vaVideoCareAtHome' && appointment[:start]
           # if current time is between 30 minutes prior to appointment.start and 4 hours after appointment.start, set
           # telehealth_visible to true
-          appointment[:telehealth][:displayLink] = (appointment[:start].to_datetime - 30.minutes) <= Time.now.utc &&
-                                                   (appointment[:start].to_datetime + 4.hours) >= Time.now.utc
+          appointment[:telehealth][:display_link] = (appointment[:start].to_datetime - 30.minutes) <= Time.now.utc &&
+                                                    (appointment[:start].to_datetime + 4.hours) >= Time.now.utc
         end
       end
 
@@ -991,12 +991,13 @@ module VAOS
       def log_telehealth_issue(appointment)
         context = {
           kind: appointment[:kind],
-          vvsVistaVideoAppt: appointment.dig(:extension, :vvsVistaVideoAppt),
+          vvsVistaVideoAppt: appointment.dig(:extension, :vvs_vista_video_appt),
           modality: appointment[:modality],
           telehealthUrl: appointment.dig(:telehealth, :url),
-          start: appointment.dig(:start)
+          start: appointment[:start]
         }
-        Rails.logger.warn("VAOS video telehealth issue", context.to_json)
+        issue_detected = context[:telehealthUrl].empty? || context[:telehealthUrl].nil?
+        Rails.logger.warn('VAOS video telehealth issue', context.to_json) if issue_detected
       end
 
       def log_modality_failure(appointment)
