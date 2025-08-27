@@ -32,7 +32,7 @@ RSpec.describe TravelClaim::TravelPayClient do
   end
 
   before do
-    allow(Settings).to receive_messages(check_in: check_in_settings, vsp_environment: 'dev')
+    allow(Settings).to receive_messages(check_in: check_in_settings)
   end
 
   describe '#veis_token_request' do
@@ -194,8 +194,6 @@ RSpec.describe TravelClaim::TravelPayClient do
 
   describe '#subscription_key_headers' do
     it 'returns single subscription key for non-production environments' do
-      allow(Settings).to receive(:vsp_environment).and_return('dev')
-
       headers = client.subscription_key_headers
 
       expect(headers).to eq({ 'Ocp-Apim-Subscription-Key' => 'sub-key' })
