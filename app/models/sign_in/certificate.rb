@@ -17,6 +17,8 @@ module SignIn
     scope :expired,  -> { select(&:expired?) }
     scope :expiring, -> { select(&:expiring?) }
 
+    normalizes :pem, with: ->(value) { value.present? ? "#{value.chomp}\n" : value }
+
     validates :pem, presence: true
     validate :validate_certificate!
 
