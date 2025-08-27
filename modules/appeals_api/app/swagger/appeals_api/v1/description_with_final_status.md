@@ -91,8 +91,7 @@ The metadata.json file only supports a limited set of characters within the asci
 | Status      | What it means |
 | ---        |     ---     |
 | pending      | This is the initial status. Indicates no document submission has been uploaded yet. |
-| uploaded   | Indicates document submission has been successfully uploaded (PUT) to the API server and is waiting to be sent to VA's mail handling system. Submission has not yet been validated.
-Any errors with the evidence submission, such as having an unreadable PDF, may cause an Error status. |
+| uploaded   | Indicates document submission has been successfully uploaded (PUT) to the API server and is waiting to be sent to VA's mail handling system. Submission has not yet been validated. Any errors with the evidence submission, such as having an unreadable PDF, may cause an Error status. |
 | received   | Indicates document submission has been received downstream of the API and is awaiting processing. Any errors with the document submission, such as having an unreadable PDF, may cause an Error status. |
 | processing   | Indicates the evidence package is being validated, processed, and made ready to route and work. Any errors with the evidence submission, such as having an unreadable PDF, may cause an Error status. |
 | success   | Indicates the evidence submission has been successfully received within VA's mail handling system. Success is the final status for a small percentage of submissions with exception processes that are not worked in VBMS. A true value in the final_status attribute will indicate this.
