@@ -443,7 +443,7 @@ RSpec.describe TravelClaim::TravelPayClient do
           expect(headers).to eq({ 'Ocp-Apim-Subscription-Key' => 'sub-key' })
         end
       end
-    end
+      expect(client).to receive(:refresh_tokens!)
 
     it 'returns separate E and S keys for production environment' do
       with_settings(Settings, vsp_environment: 'production') do
