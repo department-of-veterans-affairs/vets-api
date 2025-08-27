@@ -23,7 +23,7 @@
   "homePhone": "(123) 124-1234",
   "mobilePhone": "(123) 555-1234",
   "email": "foo@example.com",
-  "maritalStatus": 1,
+  "maritalStatus": "NEVER MARRIED",
   "providers": [
     {
       "insuranceName": "MyInsurance",

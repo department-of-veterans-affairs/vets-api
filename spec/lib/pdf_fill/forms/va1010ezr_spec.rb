@@ -24,10 +24,36 @@ describe PdfFill::Forms::Va1010ezr do
   }
 
   describe '#merge_fields' do
+    subject(:merged_fields) { form_class.merge_fields }
+
     it 'merges the right fields' do
-      expect(form_class.merge_fields.to_json).to eq(
-        get_fixture('pdf_fill/10-10EZR/merge_fields').to_json
+      expect(merged_fields).to eq(
+        get_fixture('pdf_fill/10-10EZR/merge_fields')
       )
+    end
+
+    describe '#merge_marital_status' do
+      ['Divorced', 'Married', 'Never Married', 'Separated', 'Widowed'].each do |status|
+        context "when marital status is #{status}" do
+          let(:form_data) { { 'maritalStatus' => status } }
+
+          it "merges marital status to uppercase #{status.upcase}" do
+            expect(merged_fields).to include(
+              'maritalStatus' => status.upcase
+            )
+          end
+        end
+      end
+
+      context 'when marital status is unknown' do
+        let(:form_data) { { 'maritalStatus' => 'Unknown' } }
+
+        it 'defaults to Off' do
+          expect(merged_fields).to include(
+            'maritalStatus' => described_class::OFF
+          )
+        end
+      end
     end
 
     context 'when veteran personal information is missing' do

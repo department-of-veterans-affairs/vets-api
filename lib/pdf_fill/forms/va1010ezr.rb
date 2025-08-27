@@ -43,13 +43,13 @@ module PdfFill
         'exposureToWarfareAgents' => 2
       }.freeze
 
-      MARITAL_STATUS = {
-        'Divorced' => 5,
-        'Married' => 1,
-        'Never Married' => 2,
-        'Separated' => 3,
-        'Widowed' => 4
-      }.freeze
+      MARITAL_STATUS = [
+        'DIVORCED',
+        'MARRIED',
+        'NEVER MARRIED',
+        'SEPARATED',
+        'WIDOWED'
+      ].freeze
 
       SEX = {
         'F' => 0,
@@ -163,7 +163,12 @@ module PdfFill
       end
 
       def merge_marital_status
-        @form_data['maritalStatus'] = MARITAL_STATUS[@form_data['maritalStatus']] || OFF
+        uppercase_marital_status = @form_data['maritalStatus']&.upcase
+        @form_data['maritalStatus'] = if MARITAL_STATUS.include?(uppercase_marital_status)
+                                        uppercase_marital_status
+                                      else
+                                        OFF
+                                      end
       end
 
       def merge_exposure
