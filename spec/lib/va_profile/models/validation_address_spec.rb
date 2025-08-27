@@ -19,7 +19,7 @@ describe VAProfile::Models::ValidationAddress do
 
   describe '#build_from_address_suggestion' do
     subject do
-      described_class.build_from_address_suggestion(address_suggestion_hash).to_h.compact
+      described_class.build_from_address_suggestion(address_suggestion_hash).attributes.compact
     end
 
     context 'with a domestic address' do
@@ -54,7 +54,7 @@ describe VAProfile::Models::ValidationAddress do
       end
 
       it 'correctly parses the addresses' do
-        expect(subject).to eq(
+        expect(subject).to match(
           { address_line1: '37 N 1st St',
             address_type: 'DOMESTIC',
             city: 'Brooklyn',
