@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'English'
 require 'ostruct'
 
 module VSPDanger
@@ -373,11 +374,9 @@ module VSPDanger
       diff_output.lines.each do |line|
         # Look for new feature definitions (lines starting with +, followed by feature name and colon)
         if line =~ /^\+\s+([a-zA-Z_][a-zA-Z0-9_]*):$/ && !line.include?('features:')
-          feature_name = $1
+          feature_name = ::Regexp.last_match(1)
           # Exclude test features
-          unless feature_name.include?('test')
-            modified_features << feature_name
-          end
+          modified_features << feature_name unless feature_name.include?('test')
         end
       end
 
@@ -396,10 +395,10 @@ module VSPDanger
 
         unless has_enabled_test && has_disabled_test
           missing_coverage << {
-            feature: feature,
+            feature:,
             missing: [],
-            enabled_specs: enabled_specs,
-            disabled_specs: disabled_specs
+            enabled_specs:,
+            disabled_specs:
           }
           missing_coverage.last[:missing] << 'enabled state' unless has_enabled_test
           missing_coverage.last[:missing] << 'disabled state' unless has_disabled_test
@@ -414,21 +413,19 @@ module VSPDanger
         # Standard allow(Flipper) patterns with true/false
         "allow\\(Flipper\\).*receive.*enabled.*:#{feature}.*and_return\\(#{enabled_state}\\)",
         "allow\\(Flipper\\).*receive.*enabled.*'#{feature}'.*and_return\\(#{enabled_state}\\)",
-        
+
         # Patterns with .with() method
         "allow\\(Flipper\\).*receive\\(:enabled\\?\\).*with\\(:#{feature}\\).*and_return\\(#{enabled_state}\\)",
         "allow\\(Flipper\\).*receive\\(:enabled\\?\\).*with\\('#{feature}'\\).*and_return\\(#{enabled_state}\\)"
       ]
-      
+
       found_files = []
-      
+
       search_patterns.each do |pattern|
         output = `grep -r -l -E "#{pattern}" spec/ --include=*.rb 2>/dev/null`
-        if $?.success?
-          found_files.concat(output.split("\n"))
-        end
+        found_files.concat(output.split("\n")) if $CHILD_STATUS.success?
       end
-      
+
       found_files.uniq.compact
     end
 
@@ -438,7 +435,7 @@ module VSPDanger
 
       missing_coverage.each do |item|
         message << "- **#{item[:feature]}**: Missing tests for #{item[:missing].join(' and ')}"
-        
+
         if item[:enabled_specs].any?
           message << "  - ✅ Found enabled tests in: #{item[:enabled_specs].take(2).join(', ')}"
         end
@@ -448,17 +445,17 @@ module VSPDanger
       end
 
       message << "\n**How to fix:**"
-      message << "Each feature toggle must be tested in both enabled and disabled states using stubs:"
-      message << "```ruby"
-      message << "# For enabled state:"
+      message << 'Each feature toggle must be tested in both enabled and disabled states using stubs:'
+      message << '```ruby'
+      message << '# For enabled state:'
       message << "allow(Flipper).to receive(:enabled?).with(:#{missing_coverage.first[:feature]}).and_return(true)"
-      message << "# For disabled state:"
+      message << '# For disabled state:'
       message << "allow(Flipper).to receive(:enabled?).with(:#{missing_coverage.first[:feature]}).and_return(false)"
-      message << "```"
+      message << '```'
       message << "\nAlternatively, use the shared examples:"
-      message << "```ruby"
+      message << '```ruby'
       message << "it_behaves_like 'feature toggle behavior', :#{missing_coverage.first[:feature]}"
-      message << "```"
+      message << '```'
 
       message.join("\n")
     end

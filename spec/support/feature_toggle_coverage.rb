@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'set'
 require 'singleton'
 
 module FeatureToggleCoverage
@@ -42,18 +41,18 @@ end
 
 # Custom RSpec matcher for tracking feature toggle testing
 RSpec::Matchers.define :test_feature_toggle do |feature_name|
-  match do |actual|
+  match do |_actual|
     # Track that this toggle was tested
     state = @state || :enabled
     FeatureToggleCoverage::Tracker.instance.record_toggle_test(feature_name, state)
-    
+
     # Perform the actual assertion based on state
     if state == :enabled
       expect(Flipper).to receive(:enabled?).with(feature_name).and_return(true)
     else
       expect(Flipper).to receive(:enabled?).with(feature_name).and_return(false)
     end
-    
+
     true
   end
 
@@ -66,11 +65,11 @@ RSpec::Matchers.define :test_feature_toggle do |feature_name|
   end
 
   description do
-    state_desc = @state ? "when #{@state}" : "when enabled"
+    state_desc = @state ? "when #{@state}" : 'when enabled'
     "test feature toggle #{feature_name} #{state_desc}"
   end
 
-  failure_message do |actual|
+  failure_message do |_actual|
     "expected to test feature toggle #{feature_name} when #{@state || 'enabled'}"
   end
 end
@@ -118,7 +117,7 @@ end
 
 RSpec.configure do |config|
   config.include FlipperStubTracker
-  
+
   # Reset coverage tracker before each test suite
   config.before(:suite) do
     FeatureToggleCoverage::Tracker.instance.reset!
