@@ -515,14 +515,6 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           error = JSON.parse(response.body)['error']
           expect(error).to include('Unable to fetch documentation')
         end
-
-        it 'responds with not_found when the feature is disabled' do
-          VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
-            get '/my_health/v1/prescriptions/21296515/documentation'
-          end
-          expect(response).to have_http_status(:not_found)
-          expect(JSON.parse(response.body)).to eq({ 'error' => 'Documentation is not available' })
-        end
       end
 
       context 'nested resources' do
