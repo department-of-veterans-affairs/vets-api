@@ -13,6 +13,8 @@ module TravelClaim
     attr_reader :settings, :redis_client
 
     def initialize(icn:)
+      raise ArgumentError, 'ICN cannot be blank' if icn.blank?
+
       @current_icn = icn
       @settings = Settings.check_in.travel_reimbursement_api_v2
       @correlation_id = SecureRandom.uuid
@@ -140,8 +142,6 @@ module TravelClaim
     # @return [Faraday::Response] API response
     #
     def with_auth
-      raise ArgumentError, 'ICN not set' if @current_icn.blank?
-
       ensure_tokens!
       yield
     rescue Common::Exceptions::BackendServiceException => e
@@ -160,12 +160,12 @@ module TravelClaim
     def ensure_tokens!
       return if @current_veis_token && @current_btsss_token
 
-      # Try to get tokens from Redis first
+      # Try to get VEIS token from Redis first (shared across users)
       cached_veis = @redis_client.token
-      cached_btsss = @redis_client.v4_token(cache_key: "btsss_#{@current_icn}")
-      if cached_veis && cached_btsss
+      if cached_veis
         @current_veis_token = cached_veis
-        @current_btsss_token = cached_btsss
+        # Still need to fetch BTSSS token since it's user-specific
+        fetch_btsss_token! if @current_btsss_token.nil?
         return
       end
 
@@ -174,7 +174,7 @@ module TravelClaim
 
     ##
     # Fetches fresh tokens.
-    # Updates internal token state and stores in Redis.
+    # Updates internal token state and stores VEIS token in Redis.
     #
     def fetch_tokens!
       # Get VEIS token
@@ -182,19 +182,26 @@ module TravelClaim
       @current_veis_token = veis_response.body['access_token']
 
       # Get BTSSS token
+      fetch_btsss_token!
+
+      # Store VEIS token in Redis (shared across users)
+      @redis_client.save_token(token: @current_veis_token)
+
+      # Clear memoized headers so they get rebuilt with new tokens
+      @headers = nil
+    end
+
+    ##
+    # Fetches BTSSS token using current VEIS token.
+    # BTSSS token is user-specific and stored only in instance.
+    #
+    def fetch_btsss_token!
       btsss_response = system_access_token_request(
         client_number: nil,
         veis_access_token: @current_veis_token,
         icn: @current_icn
       )
       @current_btsss_token = btsss_response.body['access_token']
-
-      # Store tokens in Redis
-      @redis_client.save_token(token: @current_veis_token)
-      @redis_client.save_v4_token(cache_key: "btsss_#{@current_icn}", token: @current_btsss_token)
-
-      # Clear memoized headers so they get rebuilt with new tokens
-      @headers = nil
     end
 
     ##
@@ -204,14 +211,8 @@ module TravelClaim
     def refresh_tokens!
       @current_veis_token = nil
       @current_btsss_token = nil
-
-      # Clear memoized headers so they get rebuilt with new tokens
       @headers = nil
-
-      # Clear tokens from Redis
       @redis_client.save_token(token: nil)
-      @redis_client.save_v4_token(cache_key: "btsss_#{@current_icn}", token: nil)
-
       fetch_tokens!
     end
   end
