@@ -115,12 +115,9 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
   end
 
   describe '.record_event' do
-    let(:logger) { instance_double(Logger) }
-
     before do
-      allow(Rails).to receive(:logger).and_return(logger)
-      allow(logger).to receive(:info)
-      allow(logger).to receive(:debug)
+      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:debug)
       allow(described_class).to receive(:key_cached?)
       allow(described_class).to receive(:mark_key_cached)
       allow(described_class).to receive(:create!)
@@ -143,7 +140,7 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
     context 'when event exists in cache' do
       before do
         allow(described_class).to receive(:key_cached?).with(cache_key).and_return(true)
-        allow(logger).to receive(:debug)
+        allow(Rails.logger).to receive(:debug)
       end
 
       it 'returns false without attempting database operation' do
@@ -151,7 +148,8 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
 
         expect(result).to be(false)
         expect(described_class).not_to have_received(:create!)
-        expect(logger).to have_received(:debug)
+        expect(Rails.logger).to have_received(:debug)
+          .with('UUM: Event found in cache', { user_id:, event_name: })
       end
     end
 
@@ -171,15 +169,15 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
           expect(result).to be(true)
           expect(described_class).to have_received(:create!).with(user_id:, event_name:)
           expect(described_class).to have_received(:mark_key_cached).with(cache_key)
-          expect(logger).to have_received(:info)
-            .with("UUM: New unique event recorded - User: #{user_id}, Event: #{event_name}")
+          expect(Rails.logger).to have_received(:info)
+            .with('UUM: New unique event recorded', { user_id:, event_name: })
         end
       end
 
       context 'and record already exists in database' do
         before do
           allow(described_class).to receive(:create!).and_raise(ActiveRecord::RecordNotUnique)
-          allow(logger).to receive(:debug)
+          allow(Rails.logger).to receive(:debug)
         end
 
         it 'returns false and logs debug message' do
@@ -187,7 +185,8 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
 
           expect(result).to be(false)
           expect(described_class).to have_received(:mark_key_cached).with(cache_key)
-          expect(logger).to have_received(:debug)
+          expect(Rails.logger).to have_received(:debug)
+            .with('UUM: Duplicate event found in database', { user_id:, event_name: })
         end
       end
     end
