@@ -1083,6 +1083,16 @@ describe VAOS::V2::AppointmentsService do
             expect(resp[:show_schedule_link]).to be_nil
           end
         end
+
+        it 'returns a booked cerner appointment without clinic fields' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_booked_cerner',
+                           match_requests_on: %i[method path query]) do
+            resp = subject.get_appointment('180402')
+            expect(resp[:id]).to eq('180402')
+            expect(resp.respond_to?(:service_name)).to be false
+            expect(resp.respond_to?(:physical_location)).to be false
+          end
+        end
       end
 
       context 'when requesting a CnP appointment' do
@@ -1229,6 +1239,16 @@ describe VAOS::V2::AppointmentsService do
             expect(resp[:id]).to eq('180402')
             expect(resp[:requested_periods]).to be_nil
             expect(resp[:show_schedule_link]).to be_nil
+          end
+        end
+
+        it 'returns a booked cerner appointment without clinic fields' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_booked_cerner_vpg',
+                           match_requests_on: %i[method path query]) do
+            resp = subject.get_appointment('180402')
+            expect(resp[:id]).to eq('180402')
+            expect(resp.respond_to?(:service_name)).to be false
+            expect(resp.respond_to?(:physical_location)).to be false
           end
         end
       end
@@ -1864,20 +1884,6 @@ describe VAOS::V2::AppointmentsService do
 
     it 'returns false for non-medical appointments' do
       expect(subject.send(:medical?, appt_non)).to be(false)
-    end
-  end
-
-  describe '#cerner?' do
-    it 'raises an ArgumentError if appt is nil' do
-      expect { subject.send(:cerner?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
-    end
-
-    it 'returns true for appointments with a "CERN" prefix' do
-      expect(subject.send(:cerner?, { id: 'CERN99999' })).to be(true)
-    end
-
-    it 'returns false for appointments without a "CERN" prefix' do
-      expect(subject.send(:cerner?, { id: '99999' })).to be(false)
     end
   end
 
@@ -2590,6 +2596,12 @@ describe VAOS::V2::AppointmentsService do
     it 'has a type of request for Cerner appointments without end dates' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = 'CERN1234'
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
       appt[:end] = nil
       subject.send(:set_type, appt)
       expect(appt[:type]).to eq('REQUEST')
@@ -2598,6 +2610,12 @@ describe VAOS::V2::AppointmentsService do
     it 'is a VA appointment for Cerner appointments with a valid end date' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = 'CERN1234'
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
       appt[:end] = :end_date
       subject.send(:set_type, appt)
       expect(appt[:type]).to eq('VA')
@@ -2644,6 +2662,12 @@ describe VAOS::V2::AppointmentsService do
     it 'is a cc request for Cerner with no start date or requested periods' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = 'CERN1234'
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
       appt[:kind] = 'cc'
       appt[:start] = nil
       appt[:requested_periods] = []
