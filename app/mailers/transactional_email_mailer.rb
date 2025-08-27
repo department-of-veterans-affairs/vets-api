@@ -15,16 +15,16 @@ class TransactionalEmailMailer < ApplicationMailer
     )
   end
 
+  def first_initial_last_name(name)
+    return '' if name.nil?
+
+    "#{name.first[0, 1]} #{name.last}"
+  end
+
   def first_and_last_name(name)
     return '' if name.nil?
 
     "#{name.first} #{name.last}"
-  end
-
-  def stub_name(name)
-    return '' if name.nil?
-
-    "#{name.first[0..3]}#{name.last[0]}".upcase
   end
 
   def template(name = self.class::TEMPLATE)

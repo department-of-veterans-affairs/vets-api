@@ -36,7 +36,8 @@ RSpec.describe ClaimsEvidenceApi::Monitor do
         tags = ["class:#{record.record.class.to_s.downcase.gsub(/:+/, '_')}", "action:#{action}"]
         attributes = { foo: :bar, 'test' => 23 }
 
-        expect(record).to receive(:track_request).with(:info, message, metric, tags:, **attributes)
+        expect(record).to receive(:track_request).with(:info, message, metric, call_location: anything, tags:,
+                                                                               **attributes)
 
         record.track_event(action, **attributes)
       end
@@ -57,7 +58,7 @@ RSpec.describe ClaimsEvidenceApi::Monitor do
         formatted_tags = ['method:get', 'code:210', 'root:test']
         message = "#{service.class}: #{code} #{reason}"
 
-        kwargs = { call_location:, path:, reason:, tags: formatted_tags, **tags }
+        kwargs = { call_location:, reason:, tags: formatted_tags, **tags }
         expect(service).to receive(:track_request).with(:info, message, metric, **kwargs)
 
         service.track_api_request(:get, path, code, reason, call_location:)
@@ -73,7 +74,7 @@ RSpec.describe ClaimsEvidenceApi::Monitor do
         formatted_tags = ['method:get', 'code:404', 'root:test']
         message = "#{service.class}: #{code} #{reason}"
 
-        kwargs = { call_location:, path:, reason:, tags: formatted_tags, **tags }
+        kwargs = { call_location:, reason:, tags: formatted_tags, **tags }
         expect(service).to receive(:track_request).with(:error, message, metric, **kwargs)
 
         service.track_api_request(:get, path, code, reason, call_location:)
@@ -91,7 +92,7 @@ RSpec.describe ClaimsEvidenceApi::Monitor do
           message = "#{uploader.class}: upload #{action}"
           tags = ["action:#{action}"]
 
-          kwargs = { call_location: anything, message: nil, tags:, **context }
+          kwargs = { call_location: anything, error: nil, tags:, **context }
           expect(uploader).to receive(:track_upload).and_call_original
           expect(uploader).to receive(:track_request).with(:info, message, metric, **kwargs)
 
@@ -105,7 +106,7 @@ RSpec.describe ClaimsEvidenceApi::Monitor do
         msg = "#{uploader.class}: upload #{action} - ERROR #{message}"
         tags = ["action:#{action}"]
 
-        kwargs = { call_location: anything, message: "ERROR #{message}", tags:, **context }
+        kwargs = { call_location: anything, error: "ERROR #{message}", tags:, **context }
         expect(uploader).to receive(:track_upload).and_call_original
         expect(uploader).to receive(:track_request).with(:error, msg, metric, **kwargs)
 
