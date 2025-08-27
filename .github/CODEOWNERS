@@ -342,6 +342,7 @@ app/serializers/benefits_intake_submission_serializer.rb @department-of-veterans
 app/serializers/cemetery_serializer.rb @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
 app/serializers/communication_groups_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/serializers/contact_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
+app/serializers/condition_serializer.rb @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 app/serializers/decision_review_evidence_attachment_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/serializers/dependents_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/serializers/dependents_verifications_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
