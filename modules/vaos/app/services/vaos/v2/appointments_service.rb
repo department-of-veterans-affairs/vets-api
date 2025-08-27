@@ -441,6 +441,7 @@ module VAOS
         get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
       end
 
+      # rubocop:disable Metrics/MethodLength
       def prepare_appointment(appointment, include = {})
         # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
         set_cancellable_false(appointment) if cannot_be_cancelled?(appointment)
@@ -483,6 +484,7 @@ module VAOS
 
         log_telehealth_issue(appointment) if appointment[:modality] == 'vaVideoCareAtHome'
       end
+      # rubocop:enable Metrics/MethodLength
 
       def find_and_merge_provider_name(appointment)
         practitioners_list = appointment[:practitioners]
