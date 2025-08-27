@@ -86,8 +86,8 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     before do
       # Set up tokens
-      client.instance_variable_set(:@current_veis_token, 'test-veis-token')
-      client.instance_variable_set(:@current_btsss_token, 'test-btsss-token')
+      client.send(:current_veis_token=, 'test-veis-token')
+      client.send(:current_btsss_token=, 'test-btsss-token')
     end
 
     it 'makes appointment request with correct parameters' do
@@ -165,7 +165,7 @@ RSpec.describe TravelClaim::TravelPayClient do
       client.instance_variable_set(:@current_veis_token, 'test-veis')
       client.instance_variable_set(:@current_btsss_token, 'test-btsss')
 
-      headers = client.headers
+      headers = client.send(:headers)
 
       expect(headers['Authorization']).to eq('Bearer test-veis')
       expect(headers['X-BTSSS-Token']).to eq('test-btsss')

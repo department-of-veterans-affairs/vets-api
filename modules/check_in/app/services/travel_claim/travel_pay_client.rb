@@ -119,20 +119,9 @@ module TravelClaim
       end
     end
 
-    ##
-    # Returns standard headers for Travel Claim API requests.
-    # Includes content type, authorization, and correlation ID.
-    # Headers are memoized and automatically updated when tokens change.
-    #
-    # @return [Hash] Complete headers hash including subscription key headers
-    #
-    def headers
-      @headers ||= build_headers
-    end
-
     private
 
-    def build_headers
+    def headers
       headers = {
         'Content-Type' => 'application/json',
         'Authorization' => "Bearer #{@current_veis_token}",
