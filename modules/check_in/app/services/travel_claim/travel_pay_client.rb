@@ -1,16 +1,25 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 module TravelClaim
   ##
   # Unified client for all Travel Claim API operations.
   # Consolidates functionality from individual clients into a single interface.
   #
   class TravelPayClient < Common::Client::Base
+    extend Forwardable
+
     EXPENSE_DESCRIPTION = 'mileage'
     TRIP_TYPE = 'RoundTrip'
     GRANT_TYPE = 'client_credentials'
 
-    attr_reader :settings, :redis_client
+    attr_reader :redis_client, :settings
+
+    # Delegate settings methods directly to the settings object
+    def_delegators :settings, :auth_url, :tenant_id, :travel_pay_client_id, :travel_pay_client_secret,
+                   :scope, :claims_url_v2, :subscription_key, :e_subscription_key, :s_subscription_key,
+                   :travel_pay_client_number, :travel_pay_resource
 
     def initialize(icn:)
       raise ArgumentError, 'ICN cannot be blank' if icn.blank?
@@ -40,16 +49,16 @@ module TravelClaim
     #
     def veis_token_request
       body = URI.encode_www_form({
-                                   client_id: @settings.travel_pay_client_id,
-                                   client_secret: @settings.travel_pay_client_secret,
-                                   scope: @settings.scope,
+                                   client_id: travel_pay_client_id,
+                                   client_secret: travel_pay_client_secret,
+                                   scope:,
                                    grant_type: GRANT_TYPE,
-                                   resource: @settings.travel_pay_resource
+                                   resource: travel_pay_resource
                                  })
 
       headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
 
-      perform(:post, "#{@settings.auth_url}/#{@settings.tenant_id}/oauth2/token", body, headers)
+      perform(:post, "#{auth_url}/#{tenant_id}/oauth2/token", body, headers)
     end
 
     ##
@@ -61,8 +70,8 @@ module TravelClaim
     # @return [Faraday::Response] HTTP response containing access token
     #
     def system_access_token_request(client_number:, veis_access_token:, icn:)
-      body = { secret: @settings.travel_pay_client_secret, icn: }
-      client_number ||= @settings.travel_pay_client_number
+      body = { secret: travel_pay_client_secret, icn: }
+      client_number ||= travel_pay_client_number
 
       headers = {
         'Content-Type' => 'application/json',
@@ -71,7 +80,7 @@ module TravelClaim
         'Authorization' => "Bearer #{veis_access_token}"
       }.merge(subscription_key_headers)
 
-      perform(:post, "#{@settings.claims_base_path}/api/v4/auth/system-access-token", body, headers)
+      perform(:post, '/api/v4/auth/system-access-token', body, headers)
     end
 
     ##
@@ -88,7 +97,7 @@ module TravelClaim
           facilityStationNumber: facility_id
         }
 
-        perform(:post, "#{@settings.claims_base_path}/api/v3/appointments/find-or-add", body, headers)
+        perform(:post, '/api/v3/appointments/find-or-add', body, headers)
       end
     end
 
@@ -102,11 +111,11 @@ module TravelClaim
     def subscription_key_headers
       if Settings.vsp_environment == 'production'
         {
-          'Ocp-Apim-Subscription-Key-E' => @settings.e_subscription_key,
-          'Ocp-Apim-Subscription-Key-S' => @settings.s_subscription_key
+          'Ocp-Apim-Subscription-Key-E' => e_subscription_key,
+          'Ocp-Apim-Subscription-Key-S' => s_subscription_key
         }
       else
-        { 'Ocp-Apim-Subscription-Key' => @settings.subscription_key }
+        { 'Ocp-Apim-Subscription-Key' => subscription_key }
       end
     end
 
