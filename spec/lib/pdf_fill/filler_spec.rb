@@ -31,11 +31,7 @@ describe PdfFill::Filler, type: :model do
       it 'generates extras and combine the files' do
         file_path = 'tmp/pdfs/file_path_final.pdf'
         expect(extras_generator).to receive(:generate).once.and_return('extras.pdf')
-        expect(described_class::PDF_FORMS).to receive(:cat).once.with(
-          old_file_path,
-          'extras.pdf',
-          file_path
-        )
+        expect(described_class).to receive(:merge_pdfs).once.with(old_file_path, 'extras.pdf', file_path)
         expect(File).to receive(:delete).once.with('extras.pdf')
         expect(File).to receive(:delete).once.with(old_file_path)
 
@@ -62,7 +58,7 @@ describe PdfFill::Filler, type: :model do
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
     %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 28-1900-V2 21-674 21-674-V2 26-1880 5655
-       22-10216 22-10215 22-10215a].each do |form_id|
+       22-10216 22-10215 22-10215a 22-1919].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].product([false])
         form_types << ['overflow', true] if form_id == '21-0781V2'

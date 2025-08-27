@@ -385,22 +385,31 @@ RSpec.describe BGS::DependentService do
 
     it 'submits evidence pdf via claims evidence uploader' do
       expect(Dependents::Monitor).to receive(:new).with(claim.id).and_return(monitor)
-      expect(monitor).to receive(:track_event).with('debug', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
-                                                    "#{stats_key}.submit_pdf.begin")
-      expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier, content_source: 'BGS::DependentService')
-                                                          .and_return(uploader)
+      expect(monitor).to receive(:track_event).with(
+        'info', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+        "#{stats_key}.submit_pdf.begin"
+      )
+      expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return(uploader)
 
       expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '686C-674',
                                                                    doctype: claim.document_type)
       expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '21-674',
-                                                                   doctype: '142')
+                                                                   doctype: 142)
 
       expect(claim).to receive(:persistent_attachments).and_return([pa])
       expect(stamper).to receive(:run).and_return(pdf_path)
       expect(uploader).to receive(:upload_evidence).with(claim.id, pa.id, file_path: pdf_path, form_id: '21-674',
                                                                           doctype: pa.document_type)
 
-      expect(monitor).to receive(:track_event).with('debug', 'BGS::DependentService#submit_pdf_job completed',
+      expect(monitor).to receive(:track_event).with(
+        'info', "BGS::DependentService claims evidence upload of 686C-674 claim_id #{claim.id}",
+        "#{stats_key}.claims_evidence.upload", tags: ['form_id:686C-674']
+      )
+      expect(monitor).to receive(:track_event).with(
+        'info', "BGS::DependentService claims evidence upload of 21-674 claim_id #{claim.id}",
+        "#{stats_key}.claims_evidence.upload", tags: ['form_id:21-674']
+      )
+      expect(monitor).to receive(:track_event).with('info', 'BGS::DependentService#submit_pdf_job completed',
                                                     "#{stats_key}.submit_pdf.completed")
 
       service.send(:submit_pdf_job, claim:, encrypted_vet_info:)

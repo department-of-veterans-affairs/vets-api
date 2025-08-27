@@ -157,12 +157,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Daily find POAs caching
   mgr.register('0 2 * * *', 'ClaimsApi::FindPoasJob')
 
-  # Off-peak hours job to fill in header_hash for ClaimsApi::PowerOfAttorney and AutoEstablishedClaim
-  # Two jobs are registered to run hourly at "late evening" and "early morning"
-  # The batch will spawn multiple jobs throughout the hour using perform_in, so ending at 3am will fill out runs to 4am
-  mgr.register('10 21-23 * * *', 'ClaimsApi::OneOff::HeaderHashFillerBatchJob') # 9:10pm-11:10pm
-  mgr.register('10 0-3 * * *', 'ClaimsApi::OneOff::HeaderHashFillerBatchJob')   # 12:10am-3:10am
-
   # TODO: Document this job
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
 

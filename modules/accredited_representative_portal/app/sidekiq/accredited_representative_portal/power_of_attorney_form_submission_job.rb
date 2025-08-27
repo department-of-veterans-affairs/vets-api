@@ -52,6 +52,7 @@ module AccreditedRepresentativePortal
       poa_form_submission_id = job['args'].first
       poa_form_submission = PowerOfAttorneyFormSubmission.find(poa_form_submission_id)
       poa_form_submission.update(status: :failed, status_updated_at: DateTime.current)
+      PoaRequestFailureNotifier.new(poa_form_submission.power_of_attorney_request).call
 
       Monitoring.new.track_duration(
         'ar.poa.submission.duration',
@@ -100,6 +101,7 @@ module AccreditedRepresentativePortal
         :succeeded
       # If any of the 3 critical steps have failed, mark as failed
       elsif Set.new(failed_steps).intersect? Set.new(CRITICAL_STEPS)
+        PoaRequestFailureNotifier.new(poa_form_submission.power_of_attorney_request).call
         :failed
       # Otherwise, continue to query the request
       else
