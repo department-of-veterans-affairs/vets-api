@@ -109,7 +109,7 @@ module TravelClaim
     # @return [Hash] Headers hash with appropriate subscription keys
     #
     def subscription_key_headers
-      if Settings.vsp_environment == 'production'
+      if production_environment?
         {
           'Ocp-Apim-Subscription-Key-E' => e_subscription_key,
           'Ocp-Apim-Subscription-Key-S' => s_subscription_key
@@ -121,6 +121,10 @@ module TravelClaim
 
     private
 
+    def production_environment?
+      Settings.vsp_environment == 'production'
+    end
+
     def headers
       headers = {
         'Content-Type' => 'application/json',
@@ -130,7 +134,6 @@ module TravelClaim
       }
 
       headers.merge!(subscription_key_headers)
-      headers
     end
 
     ##
@@ -183,7 +186,6 @@ module TravelClaim
       @current_veis_token = veis_response.body['access_token']
       fetch_btsss_token!
       @redis_client.save_token(token: @current_veis_token)
-      @headers = nil
     end
 
     ##

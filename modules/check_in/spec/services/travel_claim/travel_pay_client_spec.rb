@@ -85,9 +85,16 @@ RSpec.describe TravelClaim::TravelPayClient do
     let(:facility_id) { 'facility-123' }
 
     before do
-      # Set up tokens
-      client.send(:current_veis_token=, 'test-veis-token')
-      client.send(:current_btsss_token=, 'test-btsss-token')
+      # Mock ensure_tokens! to skip token fetching
+      allow(client).to receive(:ensure_tokens!)
+      # Mock the headers method to return expected headers
+      allow(client).to receive(:headers).and_return({
+                                                      'Content-Type' => 'application/json',
+                                                      'Authorization' => 'Bearer test-veis-token',
+                                                      'X-BTSSS-Token' => 'test-btsss-token',
+                                                      'X-Correlation-ID' =>
+                                                        client.instance_variable_get(:@correlation_id)
+                                                    })
     end
 
     it 'makes appointment request with correct parameters' do
@@ -200,7 +207,7 @@ RSpec.describe TravelClaim::TravelPayClient do
     end
 
     it 'returns separate E and S keys for production environment' do
-      allow(Settings).to receive(:vsp_environment).and_return('production')
+      allow(client).to receive(:production_environment?).and_return(true)
 
       headers = client.subscription_key_headers
 
