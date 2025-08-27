@@ -168,6 +168,48 @@ RSpec.describe SimpleFormsApi::VBA400247 do
       expect(pdf).to receive(:write).with(file_path, optimize: true)
       described_class.new({}).handle_attachments(file_path)
     end
+
+    it 'handles additional address attachment' do
+      file_path = 'original-file-path'
+      filler = double('SimpleFormsApi::PdfFiller', generate: 'filled.pdf')
+      pdf = double('HexaPDF::Document', pages: [], write: true, import: true)
+      attachment_pdf = double('HexaPDF::Document', pages: [double('HexaPDF::Page')])
+      allow(SimpleFormsApi::PdfFiller).to receive(:new).and_return(filler)
+      allow(HexaPDF::Document).to receive(:open).with(file_path).and_return(pdf)
+      allow(HexaPDF::Document).to receive(:open).with('filled.pdf').and_return(attachment_pdf)
+      allow_any_instance_of(SimpleFormsApi::VBA400247).to receive(:get_attachments).and_return(['filled.pdf'])
+      expect(pdf).to receive(:import).at_least(:once)
+      expect(pdf).to receive(:write).with(file_path, optimize: true)
+      data = {
+        'additional_address' => {
+          'street' => '123 Fake St.',
+          'city' => 'Fakesville',
+          'state' => 'FS',
+          'postal_code' => '12345',
+          'country' => 'USA'
+        }
+      }
+      described_class.new(data).handle_attachments(file_path)
+    end
+
+    it 'handles supporting document attachments' do
+      file_path = 'original-file-path'
+      pdf = double('HexaPDF::Document', pages: [], write: true, import: true)
+      attachment_pdf = double('HexaPDF::Document', pages: [double('HexaPDF::Page')])
+      attachment = double('PersistentAttachment', to_pdf: 'pdf_path')
+      allow(PersistentAttachment).to receive(:where).with(guid: ['abc']).and_return([attachment])
+      allow(HexaPDF::Document).to receive(:open).with(file_path).and_return(pdf)
+      allow(HexaPDF::Document).to receive(:open).with('pdf_path').and_return(attachment_pdf)
+      allow_any_instance_of(SimpleFormsApi::VBA400247).to receive(:get_attachments).and_return(['pdf_path'])
+      expect(pdf).to receive(:import).at_least(:once)
+      expect(pdf).to receive(:write).with(file_path, optimize: true)
+      data = {
+        'veteran_supporting_documents' => [
+          { 'confirmation_code' => 'abc' }
+        ]
+      }
+      described_class.new(data).handle_attachments(file_path)
+    end
   end
 
   describe 'private #get_attachments' do

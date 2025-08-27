@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'pdf-reader'
 
 RSpec.describe SimpleFormsApi::VBA4010007Attachment do
   subject { described_class.new(file_path:, data:) }
@@ -66,9 +67,19 @@ RSpec.describe SimpleFormsApi::VBA4010007Attachment do
   end
 
   describe '#create' do
-    it 'generates a PDF file at the given path' do
+    it 'generates a PDF file at the given path with version true' do
       subject.create
       expect(File).to exist(file_path)
+      File.delete(file_path)
+    end
+
+    it 'includes expected veteran and claimant info in the PDF' do
+      subject.create
+      reader = PDF::Reader.new(file_path)
+      text = reader.pages.map(&:text).join(' ')
+      expect(text).to include('Springfield')
+      expect(text).to include('SGT')
+      expect(text).to include('Hispanic or Latino')
       File.delete(file_path)
     end
   end
@@ -115,9 +126,19 @@ RSpec.describe SimpleFormsApi::VBA4010007Attachment do
       }
     end
 
-    it 'covers the else branch in create' do
+    it 'generates a PDF file at the given path with version missing' do
       subject.create
       expect(File).to exist(file_path)
+      File.delete(file_path)
+    end
+
+    it 'includes expected service info in the PDF' do
+      subject.create
+      reader = PDF::Reader.new(file_path)
+      text = reader.pages.map(&:text).join(' ')
+      expect(text).to include('Sergeant')
+      expect(text).to include('Lieutenant')
+      expect(text).to include('Captain')
       File.delete(file_path)
     end
   end
