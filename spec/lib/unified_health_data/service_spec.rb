@@ -862,7 +862,8 @@ describe UnifiedHealthData::Service, type: :service do
         end
 
         it 'returns care summaries and notes for OH only' do
-          allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_no_vista_response),
+          allow(service).to receive_messages(fetch_access_token: 'token',
+                                             perform: double(body: notes_no_vista_response),
                                              parse_response_body: notes_no_vista_response)
 
           notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-05-31')
