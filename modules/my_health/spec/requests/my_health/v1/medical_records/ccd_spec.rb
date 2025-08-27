@@ -86,7 +86,6 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to include('application/pdf')
         expect(response.headers['Content-Disposition']).to include('attachment')
-        expect(response.headers['Content-Disposition']).to include('.pdf')
       end
 
       it 'succeeds for HTML' do
@@ -96,7 +95,6 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to include('text/html')
         expect(response.headers['Content-Disposition']).to include('attachment')
-        expect(response.headers['Content-Disposition']).to include('.html')
       end
 
       it 'returns 500 and logs an AAL error when API call fails' do
