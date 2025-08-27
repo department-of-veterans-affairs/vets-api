@@ -517,7 +517,6 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         end
 
         it 'responds with not_found when the feature is disabled' do
-          Flipper.disable(:mhv_medications_display_documentation_content)
           VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
             get '/my_health/v1/prescriptions/21296515/documentation'
           end
