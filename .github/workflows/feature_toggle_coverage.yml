@@ -1,0 +1,55 @@
+name: Feature Toggle Coverage Check
+
+on:
+  pull_request:
+    paths:
+      - 'config/features.yml'
+      - 'app/**/*.rb'
+      - 'modules/**/*.rb'
+      - 'spec/**/*.rb'
+    types: [opened, reopened, synchronize]
+
+permissions:
+  id-token: write
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  check-toggle-coverage:
+    name: Feature Toggle Test Coverage
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for git diff
+      
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.6'
+          bundler-cache: true
+      
+      - name: Setup Rails environment
+        run: |
+          bundle config --local build.nokogiri --use-system-libraries
+          bundle install --retry 3
+          
+      - name: Check Feature Toggle Test Coverage
+        run: |
+          echo "🔍 Checking feature toggle test coverage..."
+          bundle exec rake feature_toggles:validate_coverage
+        env:
+          RAILS_ENV: test
+          
+      - name: Generate Coverage Report
+        if: always()
+        run: |
+          echo "📊 Generating coverage report..."
+          bundle exec rake feature_toggles:list_coverage || true
+        env:
+          RAILS_ENV: test

@@ -8,6 +8,7 @@ require 'support/spool_helpers'
 require 'support/excel_helpers'
 require 'support/fixture_helpers'
 require 'support/silence_stream'
+require 'support/feature_toggle_coverage'
 require 'simplecov_helper'
 require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
 require 'support/rswag/text_helpers'
