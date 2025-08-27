@@ -24,6 +24,7 @@ require 'pdf_fill/forms/va5655'
 require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
 require 'pdf_fill/forms/va2210215a'
+require 'pdf_fill/forms/va221919'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
 require 'utilities/date_parser'
 require 'forwardable'
@@ -79,7 +80,8 @@ module PdfFill
       '5655' => PdfFill::Forms::Va5655,
       '22-10216' => PdfFill::Forms::Va2210216,
       '22-10215' => PdfFill::Forms::Va2210215,
-      '22-10215a' => PdfFill::Forms::Va2210215a
+      '22-10215a' => PdfFill::Forms::Va2210215a,
+      '22-1919' => PdfFill::Forms::Va221919
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
     end
@@ -97,7 +99,7 @@ module PdfFill
         file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
         extras_path = extras_generator.generate
 
-        PDF_FORMS.cat(old_file_path, extras_path, file_path)
+        merge_pdfs(old_file_path, extras_path, file_path)
 
         File.delete(extras_path)
         File.delete(old_file_path)
@@ -106,6 +108,29 @@ module PdfFill
       else
         old_file_path
       end
+    end
+
+    ##
+    # Merges multiple PDF files into a single PDF file using HexaPDF.
+    #
+    # @param file_paths [Array<String>] The paths of the PDF files to merge.
+    # @param new_file_path [String] The path for the final merged PDF file.
+    #
+    # @return [void]
+    #
+    def merge_pdfs(*file_paths, new_file_path)
+      # Use the first file as the target document so that we get its metadata and
+      # other properties in the merged document without having to do extra steps.
+      target = HexaPDF::Document.open(file_paths.first)
+
+      file_paths.drop(1).each do |file_path|
+        pdf = HexaPDF::Document.open(file_path)
+        pdf.pages.each do |page|
+          target.pages << target.import(page)
+        end
+      end
+
+      target.write(new_file_path)
     end
 
     ##
@@ -178,9 +203,7 @@ module PdfFill
       )
 
       file_path = stamp_form(file_path, submit_date) if should_stamp_form?(form_id, fill_options, submit_date)
-      output = combine_extras(file_path, hash_converter.extras_generator)
-      Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
-      output
+      combine_extras(file_path, hash_converter.extras_generator)
     end
     # rubocop:enable Metrics/MethodLength
 

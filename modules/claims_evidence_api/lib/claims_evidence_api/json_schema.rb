@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 module ClaimsEvidenceApi
-  # JSON Schema paths
-  # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/openapi.json
-  # @see modules/claims_evidence_api/documentation/claims-evidence-openapi.json
-  # voxpupuli/json-schema (gem) only supports up to draft-06
   module JsonSchema
     # base path for our schemas
     DIR = "#{__dir__}/schema".freeze
@@ -13,6 +9,21 @@ module ClaimsEvidenceApi
     UPLOAD_PAYLOAD = "#{DIR}/uploadPayload.json".freeze
     # #/components/schemas/updateDataProviderData
     PROVIDER_DATA = "#{DIR}/providerData.json".freeze
+
+    class << self
+      private
+
+      # assemble the leaf node properties that can be validated
+      def properties
+        props = "#{DIR}/properties"
+        props = Dir.children(props).map { |f| "#{props}/#{f}" }.select { |f| File.file?(f) }
+        props.index_by { |prop| File.basename(prop, '.json').to_sym }
+      end
+    end
+
+    # hash { :property_name => json-schema }
+    # :property_name == filename without extension
+    PROPERTIES = properties.freeze
 
     # end JsonSchema
   end

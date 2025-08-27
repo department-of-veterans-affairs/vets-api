@@ -4907,6 +4907,145 @@
         "summary": "/v0/maintenance_windows"
       }
     },
+    "/v0/medical_copays": {
+      "get": {
+        "description": "Returns a list of medical copay balances for the current user",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedicalCopays"
+                }
+              }
+            },
+            "description": "ok"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/medical_copays"
+      }
+    },
+    "/v0/medical_copays/{id}": {
+      "get": {
+        "description": "Returns medical copay information for a specified copay ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedicalCopay"
+                }
+              }
+            },
+            "description": "ok"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/medical_copays/{id}"
+      }
+    },
+    "/v0/medical_copays/download/{id}": {
+      "get": {
+        "description": "Retrieves the statement PDF for the given ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "ok"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/medical_copays/download/{id}"
+      }
+    },
     "/v0/messaging/health/folders": {
       "get": {
         "description": "List available secure messaging folders",
@@ -20736,6 +20875,589 @@
                     "end_time": {
                       "type": "datetime",
                       "example": "2019-04-20T18:15:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "MedicalCopays": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 200
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                },
+                "pSSeqNum": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pSTotSeqNum": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pSFacilityNum": {
+                  "type": "string"
+                },
+                "pSFacPhoneNum": {
+                  "type": "string"
+                },
+                "pSTotStatement": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pSStatementVal": {
+                  "type": "string"
+                },
+                "pSStatementDate": {
+                  "type": "string"
+                },
+                "pSStatementDateOutput": {
+                  "type": "string"
+                },
+                "pSProcessDate": {
+                  "type": "string"
+                },
+                "pSProcessDateOutput": {
+                  "type": "string"
+                },
+                "pHPatientLstNme": {
+                  "type": "string"
+                },
+                "pHPatientFstNme": {
+                  "type": "string"
+                },
+                "pHPatientMidNme": {
+                  "type": "string"
+                },
+                "pHAddress1": {
+                  "type": "string"
+                },
+                "pHAddress2": {
+                  "type": "string"
+                },
+                "pHAddress3": {
+                  "type": "string"
+                },
+                "pHCity": {
+                  "type": "string"
+                },
+                "pHState": {
+                  "type": "string"
+                },
+                "pHZipCde": {
+                  "type": "string"
+                },
+                "pHZipCdeOutput": {
+                  "type": "string"
+                },
+                "pHCtryNme": {
+                  "type": "string"
+                },
+                "pHAmtDue": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHAmtDueOutput": {
+                  "type": "string"
+                },
+                "pHPrevBal": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHPrevBalOutput": {
+                  "type": "string"
+                },
+                "pHTotCharges": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHTotChargesOutput": {
+                  "type": "string"
+                },
+                "pHTotCredits": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHTotCreditsOutput": {
+                  "type": "string"
+                },
+                "pHNewBalance": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHNewBalanceOutput": {
+                  "type": "string"
+                },
+                "pHSpecialNotes": {
+                  "type": "string"
+                },
+                "pHROParaCdes": {
+                  "type": "string"
+                },
+                "pHNumOfLines": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHDfnNumber": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHCernerStatementNumber": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHCernerPatientId": {
+                  "type": "string"
+                },
+                "pHCernerAccountNumber": {
+                  "type": "string"
+                },
+                "pHIcnNumber": {
+                  "type": "string"
+                },
+                "pHAccountNumber": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHLargeFontIndcator": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "station": {
+                  "type": "object",
+                  "description": "Facility information",
+                  "properties": {
+                    "facilitYNum": {
+                      "type": "string"
+                    },
+                    "visNNum": {
+                      "type": "string"
+                    },
+                    "facilitYDesc": {
+                      "type": "string"
+                    },
+                    "cyclENum": {
+                      "type": "string"
+                    },
+                    "remiTToFlag": {
+                      "type": "string"
+                    },
+                    "maiLInsertFlag": {
+                      "type": "string"
+                    },
+                    "staTAddress1": {
+                      "type": "string"
+                    },
+                    "staTAddress2": {
+                      "type": "string"
+                    },
+                    "staTAddress3": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    },
+                    "ziPCde": {
+                      "type": "string"
+                    },
+                    "ziPCdeOutput": {
+                      "type": "string"
+                    },
+                    "baRCde": {
+                      "type": "string"
+                    },
+                    "teLNumFlag": {
+                      "type": "string"
+                    },
+                    "teLNum": {
+                      "type": "string"
+                    },
+                    "teLNum2": {
+                      "type": "string"
+                    },
+                    "contacTInfo": {
+                      "type": "string"
+                    },
+                    "dM2TelNum": {
+                      "type": "string"
+                    },
+                    "contacTInfo2": {
+                      "type": "string"
+                    },
+                    "toPTelNum": {
+                      "type": "string"
+                    },
+                    "lbXFedexAddress1": {
+                      "type": "string"
+                    },
+                    "lbXFedexAddress2": {
+                      "type": "string"
+                    },
+                    "lbXFedexAddress3": {
+                      "type": "string"
+                    },
+                    "lbXFedexCity": {
+                      "type": "string"
+                    },
+                    "lbXFedexState": {
+                      "type": "string"
+                    },
+                    "lbXFedexZipCde": {
+                      "type": "string"
+                    },
+                    "lbXFedexBarCde": {
+                      "type": "string"
+                    },
+                    "lbXFedexContact": {
+                      "type": "string"
+                    },
+                    "lbXFedexContactTelNum": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "details": {
+                  "type": "array",
+                  "description": "A collection of transactions for a specific medical copay balance",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "pDDatePosted": {
+                        "type": "string"
+                      },
+                      "pDDatePostedOutput": {
+                        "type": "string"
+                      },
+                      "pDTransDesc": {
+                        "type": "string"
+                      },
+                      "pDTransDescOutput": {
+                        "type": "string"
+                      },
+                      "pDTransAmt": {
+                        "type": "integer",
+                        "example": 0
+                      },
+                      "pDTransAmtOutput": {
+                        "type": "string"
+                      },
+                      "pDRefNo": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "MedicalCopay": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 200
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "id",
+              "station",
+              "details"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              },
+              "pSSeqNum": {
+                "type": "integer",
+                "example": 0
+              },
+              "pSTotSeqNum": {
+                "type": "integer",
+                "example": 0
+              },
+              "pSFacilityNum": {
+                "type": "string"
+              },
+              "pSFacPhoneNum": {
+                "type": "string"
+              },
+              "pSTotStatement": {
+                "type": "integer",
+                "example": 0
+              },
+              "pSStatementVal": {
+                "type": "string"
+              },
+              "pSStatementDate": {
+                "type": "string"
+              },
+              "pSStatementDateOutput": {
+                "type": "string"
+              },
+              "pSProcessDate": {
+                "type": "string"
+              },
+              "pSProcessDateOutput": {
+                "type": "string"
+              },
+              "pHPatientLstNme": {
+                "type": "string"
+              },
+              "pHPatientFstNme": {
+                "type": "string"
+              },
+              "pHPatientMidNme": {
+                "type": "string"
+              },
+              "pHAddress1": {
+                "type": "string"
+              },
+              "pHAddress2": {
+                "type": "string"
+              },
+              "pHAddress3": {
+                "type": "string"
+              },
+              "pHCity": {
+                "type": "string"
+              },
+              "pHState": {
+                "type": "string"
+              },
+              "pHZipCde": {
+                "type": "string"
+              },
+              "pHZipCdeOutput": {
+                "type": "string"
+              },
+              "pHCtryNme": {
+                "type": "string"
+              },
+              "pHAmtDue": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHAmtDueOutput": {
+                "type": "string"
+              },
+              "pHPrevBal": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHPrevBalOutput": {
+                "type": "string"
+              },
+              "pHTotCharges": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHTotChargesOutput": {
+                "type": "string"
+              },
+              "pHTotCredits": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHTotCreditsOutput": {
+                "type": "string"
+              },
+              "pHNewBalance": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHNewBalanceOutput": {
+                "type": "string"
+              },
+              "pHSpecialNotes": {
+                "type": "string"
+              },
+              "pHROParaCdes": {
+                "type": "string"
+              },
+              "pHNumOfLines": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHDfnNumber": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHCernerStatementNumber": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHCernerPatientId": {
+                "type": "string"
+              },
+              "pHCernerAccountNumber": {
+                "type": "string"
+              },
+              "pHIcnNumber": {
+                "type": "string"
+              },
+              "pHAccountNumber": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHLargeFontIndcator": {
+                "type": "integer",
+                "example": 0
+              },
+              "station": {
+                "type": "object",
+                "description": "Facility information",
+                "properties": {
+                  "facilitYNum": {
+                    "type": "string"
+                  },
+                  "visNNum": {
+                    "type": "string"
+                  },
+                  "facilitYDesc": {
+                    "type": "string"
+                  },
+                  "cyclENum": {
+                    "type": "string"
+                  },
+                  "remiTToFlag": {
+                    "type": "string"
+                  },
+                  "maiLInsertFlag": {
+                    "type": "string"
+                  },
+                  "staTAddress1": {
+                    "type": "string"
+                  },
+                  "staTAddress2": {
+                    "type": "string"
+                  },
+                  "staTAddress3": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "ziPCde": {
+                    "type": "string"
+                  },
+                  "ziPCdeOutput": {
+                    "type": "string"
+                  },
+                  "baRCde": {
+                    "type": "string"
+                  },
+                  "teLNumFlag": {
+                    "type": "string"
+                  },
+                  "teLNum": {
+                    "type": "string"
+                  },
+                  "teLNum2": {
+                    "type": "string"
+                  },
+                  "contacTInfo": {
+                    "type": "string"
+                  },
+                  "dM2TelNum": {
+                    "type": "string"
+                  },
+                  "contacTInfo2": {
+                    "type": "string"
+                  },
+                  "toPTelNum": {
+                    "type": "string"
+                  },
+                  "lbXFedexAddress1": {
+                    "type": "string"
+                  },
+                  "lbXFedexAddress2": {
+                    "type": "string"
+                  },
+                  "lbXFedexAddress3": {
+                    "type": "string"
+                  },
+                  "lbXFedexCity": {
+                    "type": "string"
+                  },
+                  "lbXFedexState": {
+                    "type": "string"
+                  },
+                  "lbXFedexZipCde": {
+                    "type": "string"
+                  },
+                  "lbXFedexBarCde": {
+                    "type": "string"
+                  },
+                  "lbXFedexContact": {
+                    "type": "string"
+                  },
+                  "lbXFedexContactTelNum": {
+                    "type": "string"
+                  }
+                }
+              },
+              "details": {
+                "type": "array",
+                "description": "A collection of transactions for a specific medical copay balance",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "pDDatePosted": {
+                      "type": "string"
+                    },
+                    "pDDatePostedOutput": {
+                      "type": "string"
+                    },
+                    "pDTransDesc": {
+                      "type": "string"
+                    },
+                    "pDTransDescOutput": {
+                      "type": "string"
+                    },
+                    "pDTransAmt": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "pDTransAmtOutput": {
+                      "type": "string"
+                    },
+                    "pDRefNo": {
+                      "type": "string"
                     }
                   }
                 }

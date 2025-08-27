@@ -26,28 +26,49 @@ module VAProfile
           with_monitoring do
             address.address_pou = address.address_pou == 'RESIDENCE/CHOICE' ? 'RESIDENCE' : address.address_pou
 
-            candidate_res = candidate(address)
-            if Settings.vsp_environment == 'staging'
-              Rails.logger.info("AddressValidation CANDIDATE RES: #{candidate_res}")
+            begin
+              candidate_res = candidate(address)
+
+              # If candidate endpoint returns candidate address not found (200 response),
+              # validate provided address and return the original address + validation key
+              if Flipper.enabled?(:profile_validate_address_when_no_candidate_found) &&
+                 candidate_address_not_found?(candidate_res)
+                validate_res = validate(address)
+
+                AddressSuggestionsResponse.new(validate_res, validate: true)
+              else
+                AddressSuggestionsResponse.new(candidate_res)
+              end
+            rescue => e
+              handle_error(e)
             end
-            AddressSuggestionsResponse.new(candidate_res)
           end
         end
 
         # @return [Hash] raw data from VA profile address validation API including
         #   address suggestions, validation key, and address errors
         def candidate(address)
-          begin
-            res = perform(
-              :post,
-              'candidate',
-              address.address_validation_req.to_json
-            )
-          rescue => e
-            handle_error(e)
-          end
+          res = perform(
+            :post,
+            'candidate',
+            address.address_validation_req.to_json
+          )
 
           res.body
+        rescue => e
+          handle_error(e)
+        end
+
+        def validate(address)
+          res = perform(
+            :post,
+            'validate',
+            address.address_validation_req.to_json
+          )
+
+          res.body
+        rescue => e
+          handle_error(e)
         end
 
         private
@@ -62,6 +83,13 @@ module VAProfile
             'VET360_AV_ERROR',
             detail: error.body
           )
+        end
+
+        def candidate_address_not_found?(exception)
+          return false unless exception.is_a?(Hash)
+
+          messages = exception['messages'] || []
+          messages.any? { |msg| msg['key'] == 'CandidateAddressNotFound' }
         end
       end
     end
