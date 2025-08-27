@@ -2,11 +2,6 @@ name: Feature Toggle Coverage Check
 
 on:
   pull_request:
-    paths:
-      - 'config/features.yml'
-      - 'app/**/*.rb'
-      - 'modules/**/*.rb'
-      - 'spec/**/*.rb'
     types: [opened, reopened, synchronize]
 
 permissions:
@@ -28,18 +23,33 @@ jobs:
         with:
           fetch-depth: 0  # Need full history for git diff
       
+      - name: Check for relevant changes
+        id: changes
+        run: |
+          # Check if there are any Ruby files or feature config changes
+          if git diff --name-only origin/main...HEAD | grep -E '\.(rb|rake)$|config/features\.yml' > /dev/null; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "✅ Found Ruby code or feature config changes"
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT  
+            echo "ℹ️  No Ruby code or feature config changes detected"
+          fi
+      
       - name: Setup Ruby
+        if: steps.changes.outputs.has_changes == 'true'
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3.6'
           bundler-cache: true
       
       - name: Setup Rails environment
+        if: steps.changes.outputs.has_changes == 'true'
         run: |
           bundle config --local build.nokogiri --use-system-libraries
           bundle install --retry 3
           
       - name: Check Feature Toggle Test Coverage
+        if: steps.changes.outputs.has_changes == 'true'
         run: |
           echo "🔍 Checking feature toggle test coverage..."
           bundle exec rake feature_toggles:validate_coverage
@@ -47,7 +57,7 @@ jobs:
           RAILS_ENV: test
           
       - name: Generate Coverage Report
-        if: always()
+        if: always() && steps.changes.outputs.has_changes == 'true'
         run: |
           echo "📊 Generating coverage report..."
           bundle exec rake feature_toggles:list_coverage || true
