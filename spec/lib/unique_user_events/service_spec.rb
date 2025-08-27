@@ -8,13 +8,10 @@ RSpec.describe UniqueUserEvents::Service do
   let(:event_name) { 'test_event' }
 
   describe '.log_event' do
-    let(:logger) { instance_double(Logger) }
-
     before do
-      allow(Rails).to receive(:logger).and_return(logger)
-      allow(logger).to receive(:info)
-      allow(logger).to receive(:debug)
-      allow(logger).to receive(:error)
+      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:debug)
+      allow(Rails.logger).to receive(:error)
       allow(MHVMetricsUniqueUserEvent).to receive(:record_event)
       allow(described_class).to receive(:increment_statsd_counter)
     end
@@ -30,7 +27,7 @@ RSpec.describe UniqueUserEvents::Service do
         expect(result).to be(true)
         expect(MHVMetricsUniqueUserEvent).to have_received(:record_event).with(user_id:, event_name:)
         expect(described_class).to have_received(:increment_statsd_counter).with(event_name)
-        expect(logger).to have_received(:info)
+        expect(Rails.logger).to have_received(:info)
           .with('UUM: New unique event logged with metrics', { user_id:, event_name: })
       end
     end
@@ -38,7 +35,6 @@ RSpec.describe UniqueUserEvents::Service do
     context 'when event already exists' do
       before do
         allow(MHVMetricsUniqueUserEvent).to receive(:record_event).and_return(false)
-        allow(logger).to receive(:debug)
       end
 
       it 'returns false and does not increment StatsD counter' do
@@ -47,7 +43,8 @@ RSpec.describe UniqueUserEvents::Service do
         expect(result).to be(false)
         expect(MHVMetricsUniqueUserEvent).to have_received(:record_event).with(user_id:, event_name:)
         expect(described_class).not_to have_received(:increment_statsd_counter)
-        expect(logger).to have_received(:debug)
+        expect(Rails.logger).to have_received(:debug)
+          .with('UUM: Duplicate event, no metrics increment', { user_id:, event_name: })
       end
     end
 
@@ -62,7 +59,7 @@ RSpec.describe UniqueUserEvents::Service do
         result = described_class.log_event(user_id:, event_name:)
 
         expect(result).to be(false)
-        expect(logger).to have_received(:error)
+        expect(Rails.logger).to have_received(:error)
           .with('UUM: Failed to log event', { user_id:, event_name:, error: error_message })
       end
 
@@ -75,11 +72,8 @@ RSpec.describe UniqueUserEvents::Service do
   end
 
   describe '.event_logged?' do
-    let(:logger) { instance_double(Logger) }
-
     before do
-      allow(Rails).to receive(:logger).and_return(logger)
-      allow(logger).to receive(:error)
+      allow(Rails.logger).to receive(:error)
       allow(MHVMetricsUniqueUserEvent).to receive(:event_exists?)
     end
 
@@ -111,18 +105,15 @@ RSpec.describe UniqueUserEvents::Service do
         result = described_class.event_logged?(user_id:, event_name:)
 
         expect(result).to be(false)
-        expect(logger).to have_received(:error)
+        expect(Rails.logger).to have_received(:error)
           .with('UUM: Failed to check event', { user_id:, event_name:, error: error_message })
       end
     end
   end
 
   describe '.increment_statsd_counter' do
-    let(:logger) { instance_double(Logger) }
-
     before do
-      allow(Rails).to receive(:logger).and_return(logger)
-      allow(logger).to receive(:error)
+      allow(Rails.logger).to receive(:error)
       allow(StatsD).to receive(:increment)
     end
 
@@ -147,7 +138,7 @@ RSpec.describe UniqueUserEvents::Service do
           described_class.send(:increment_statsd_counter, event_name)
         end.not_to raise_error
 
-        expect(logger).to have_received(:error)
+        expect(Rails.logger).to have_received(:error)
           .with('UUM: Failed to increment StatsD counter', { event_name:, error: error_message })
       end
     end
