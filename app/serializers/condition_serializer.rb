@@ -7,7 +7,6 @@ class ConditionSerializer
     return {} if record.nil?
 
     attributes = record.attributes || OpenStruct.new
-
     {
       id: record.id.to_s,
       date: format_date(attributes.date),
@@ -27,6 +26,5 @@ class ConditionSerializer
       value.to_s
     end
   end
-
   private_class_method :format_date
 end
