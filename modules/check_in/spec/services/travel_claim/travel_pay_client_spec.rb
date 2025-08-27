@@ -6,49 +6,31 @@ require 'webmock/rspec'
 RSpec.describe TravelClaim::TravelPayClient do
   let(:icn) { '1234567890V123456' }
   let(:client) { described_class.new(icn:) }
-  let(:settings_double) do
-    OpenStruct.new(
-      auth_url: 'https://auth.example.test',
-      tenant_id: 'tenant-123',
-      travel_pay_client_id: 'client-id',
-      travel_pay_client_secret: 'super-secret-123',
-      travel_pay_client_number: 'client-number',
-      scope: 'scope.read',
-      claims_url_v2: 'https://claims.example.test',
-      service_name: 'check-in-travel-pay',
-      mock: false,
-      subscription_key: 'sub-key',
-      e_subscription_key: 'e-sub',
-      s_subscription_key: 's-sub',
-      travel_pay_resource: 'test-resource'
-    )
-  end
-  let(:check_in_settings) { OpenStruct.new(travel_reimbursement_api_v2: settings_double) }
-  let(:tokens) do
-    {
-      veis_token: 'veis-token-123',
-      btsss_token: 'btsss-token-456'
-    }
-  end
 
-  before do
-    allow(Settings).to receive_messages(check_in: check_in_settings)
-  end
+  # Settings are configured in individual tests using with_settings
 
   describe '#veis_token_request' do
     it 'makes VEIS token request with correct parameters' do
-      mock_response = double('Response', body: { 'access_token' => 'test-token' }.to_json)
+      with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                    auth_url: 'https://auth.example.test',
+                    tenant_id: 'tenant-123',
+                    travel_pay_client_id: 'client-id',
+                    travel_pay_client_secret: 'super-secret-123',
+                    scope: 'scope.read',
+                    travel_pay_resource: 'test-resource') do
+        mock_response = double('Response', body: { 'access_token' => 'test-token' }.to_json)
 
-      expect(client).to receive(:perform).with(
-        :post,
-        'https://auth.example.test/tenant-123/oauth2/token',
-        'client_id=client-id&client_secret=super-secret-123&' \
-        'scope=scope.read&grant_type=client_credentials&resource=test-resource',
-        { 'Content-Type' => 'application/x-www-form-urlencoded' }
-      ).and_return(mock_response)
+        expect(client).to receive(:perform).with(
+          :post,
+          'https://auth.example.test/tenant-123/oauth2/token',
+          'client_id=client-id&client_secret=super-secret-123&' \
+          'scope=scope.read&grant_type=client_credentials&resource=test-resource',
+          { 'Content-Type' => 'application/x-www-form-urlencoded' }
+        ).and_return(mock_response)
 
-      result = client.veis_token_request
-      expect(result).to eq(mock_response)
+        result = client.veis_token_request
+        expect(result).to eq(mock_response)
+      end
     end
   end
 
@@ -57,26 +39,30 @@ RSpec.describe TravelClaim::TravelPayClient do
     let(:veis_access_token) { 'veis-token-abc' }
 
     it 'makes system access token request with correct parameters' do
-      mock_response = double('Response', body: { 'data' => { 'accessToken' => 'v4-token' } }.to_json)
+      with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                    claims_url_v2: 'https://claims.example.test',
+                    travel_pay_client_secret: 'super-secret-123') do
+        mock_response = double('Response', body: { 'data' => { 'accessToken' => 'v4-token' } }.to_json)
 
-      expect(client).to receive(:perform).with(
-        :post,
-        'https://claims.example.test/api/v4/auth/system-access-token',
-        { secret: 'super-secret-123', icn: },
-        hash_including(
-          'Content-Type' => 'application/json',
-          'Authorization' => "Bearer #{veis_access_token}",
-          'BTSSS-API-Client-Number' => client_number,
-          'X-Correlation-ID' => anything
+        expect(client).to receive(:perform).with(
+          :post,
+          'https://claims.example.test/api/v4/auth/system-access-token',
+          { secret: 'super-secret-123', icn: },
+          hash_including(
+            'Content-Type' => 'application/json',
+            'Authorization' => "Bearer #{veis_access_token}",
+            'BTSSS-API-Client-Number' => client_number,
+            'X-Correlation-ID' => anything
+          )
+        ).and_return(mock_response)
+
+        result = client.system_access_token_request(
+          client_number:,
+          veis_access_token:,
+          icn:
         )
-      ).and_return(mock_response)
-
-      result = client.system_access_token_request(
-        client_number:,
-        veis_access_token:,
-        icn:
-      )
-      expect(result).to eq(mock_response)
+        expect(result).to eq(mock_response)
+      end
     end
   end
 
@@ -98,28 +84,31 @@ RSpec.describe TravelClaim::TravelPayClient do
     end
 
     it 'makes appointment request with correct parameters' do
-      mock_response = double('Response', body: { 'data' => { 'id' => 'appt-123' } }.to_json)
+      with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                    claims_url_v2: 'https://claims.example.test') do
+        mock_response = double('Response', body: { 'data' => { 'id' => 'appt-123' } }.to_json)
 
-      expect(client).to receive(:perform).with(
-        :post,
-        'https://claims.example.test/api/v3/appointments/find-or-add',
-        {
-          appointmentDateTime: appointment_date_time,
-          facilityStationNumber: facility_id
-        },
-        hash_including(
-          'Content-Type' => 'application/json',
-          'Authorization' => 'Bearer test-veis-token',
-          'X-BTSSS-Token' => 'test-btsss-token',
-          'X-Correlation-ID' => anything
+        expect(client).to receive(:perform).with(
+          :post,
+          'https://claims.example.test/api/v3/appointments/find-or-add',
+          {
+            appointmentDateTime: appointment_date_time,
+            facilityStationNumber: facility_id
+          },
+          hash_including(
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer test-veis-token',
+            'X-BTSSS-Token' => 'test-btsss-token',
+            'X-Correlation-ID' => anything
+          )
+        ).and_return(mock_response)
+
+        result = client.send_appointment_request(
+          appointment_date_time:,
+          facility_id:
         )
-      ).and_return(mock_response)
-
-      result = client.send_appointment_request(
-        appointment_date_time:,
-        facility_id:
-      )
-      expect(result).to eq(mock_response)
+        expect(result).to eq(mock_response)
+      end
     end
   end
 
@@ -201,20 +190,25 @@ RSpec.describe TravelClaim::TravelPayClient do
 
   describe '#subscription_key_headers' do
     it 'returns single subscription key for non-production environments' do
-      headers = client.subscription_key_headers
-
-      expect(headers).to eq({ 'Ocp-Apim-Subscription-Key' => 'sub-key' })
+      with_settings(Settings, vsp_environment: 'dev') do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2, subscription_key: 'sub-key') do
+          headers = client.subscription_key_headers
+          expect(headers).to eq({ 'Ocp-Apim-Subscription-Key' => 'sub-key' })
+        end
+      end
     end
 
     it 'returns separate E and S keys for production environment' do
-      allow(client).to receive(:production_environment?).and_return(true)
-
-      headers = client.subscription_key_headers
-
-      expect(headers).to eq({
-                              'Ocp-Apim-Subscription-Key-E' => 'e-sub',
-                              'Ocp-Apim-Subscription-Key-S' => 's-sub'
-                            })
+      with_settings(Settings, vsp_environment: 'production') do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2, e_subscription_key: 'e-sub',
+                                                                     s_subscription_key: 's-sub') do
+          headers = client.subscription_key_headers
+          expect(headers).to eq({
+                                  'Ocp-Apim-Subscription-Key-E' => 'e-sub',
+                                  'Ocp-Apim-Subscription-Key-S' => 's-sub'
+                                })
+        end
+      end
     end
   end
 end
