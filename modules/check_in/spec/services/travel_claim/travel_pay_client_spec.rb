@@ -281,6 +281,46 @@ RSpec.describe TravelClaim::TravelPayClient do
     end
   end
 
+  describe '#headers' do
+    before do
+      client.instance_variable_set(:@current_veis_token, 'test-veis-token')
+      client.instance_variable_set(:@current_btsss_token, 'test-btsss-token')
+    end
+
+    it 'rebuilds headers when tokens change' do
+      initial_headers = client.headers
+
+      # Change tokens
+      client.instance_variable_set(:@current_veis_token, 'new-veis-token')
+      client.instance_variable_set(:@current_btsss_token, 'new-btsss-token')
+
+      # Clear memoized headers
+      client.instance_variable_set(:@headers, nil)
+
+      new_headers = client.headers
+
+      expect(new_headers).not_to eq(initial_headers)
+      expect(new_headers['Authorization']).to eq('Bearer new-veis-token')
+      expect(new_headers['X-BTSSS-Token']).to eq('new-btsss-token')
+    end
+
+    it 'includes all required headers' do
+      headers = client.headers
+
+      expect(headers).to include(
+        'Content-Type' => 'application/json',
+        'Authorization' => 'Bearer test-veis-token',
+        'X-BTSSS-Token' => 'test-btsss-token',
+        'X-Correlation-ID' => client.instance_variable_get(:@correlation_id)
+      )
+    end
+
+    it 'includes subscription key headers' do
+      headers = client.headers
+      expect(headers).to include('Ocp-Apim-Subscription-Key' => 'sub-key')
+    end
+  end
+
   describe '#config' do
     it 'returns the TravelClaim::Configuration instance' do
       expect(client.config).to eq(TravelClaim::Configuration.instance)
