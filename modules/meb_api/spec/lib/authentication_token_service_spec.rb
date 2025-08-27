@@ -34,4 +34,3 @@ RSpec.describe MebApi::AuthenticationTokenService do
     end
   end
 end
-

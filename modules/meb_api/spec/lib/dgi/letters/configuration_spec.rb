@@ -44,4 +44,3 @@ describe MebApi::DGI::Letters::Configuration do
     expect(config.connection).to equal(first_conn)
   end
 end
-
