@@ -164,6 +164,14 @@ features:
     description: Enables dependents verification emails
   event_bus_gateway_ep040_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP040 claims"
+  faceted_search_sync_forms:
+    actor_type: user
+    description: Controls on/off status for a cron job that queries the Forms API and saves its results to a Kendra search index
+    enable_in_development: false
+  faceted_search_sync_research_and_support:
+    actor_type: user
+    description: Controls on/off status for an API endpoint that receives a call to add R&S data to a Kendra search index
+    enable_in_development: false
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
