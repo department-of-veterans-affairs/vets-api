@@ -884,7 +884,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             get '/vaos/v2/appointments/75105', headers: inflection_header
             expect(response).to have_http_status(:ok)
             data = json_body_for(response)['attributes']
-            expect(data['telehealth']['displayLink']).to be(true)
+            expect(data['telehealth']['display_link']).to be(true)
 
             Timecop.unfreeze
           end
@@ -901,7 +901,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             get '/vaos/v2/appointments/75105', headers: inflection_header
             expect(response).to have_http_status(:ok)
             data = json_body_for(response)['attributes']
-            expect(data['telehealth']['displayLink']).to be(false)
+            expect(data['telehealth']['display_link']).to be(false)
 
             Timecop.unfreeze
           end
@@ -918,7 +918,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             get '/vaos/v2/appointments/75105', headers: inflection_header
             expect(response).to have_http_status(:ok)
             data = json_body_for(response)['attributes']
-            expect(data['telehealth']['displayLink']).to be(true)
+            expect(data['telehealth']['display_link']).to be(true)
 
             Timecop.unfreeze
           end
@@ -935,7 +935,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             get '/vaos/v2/appointments/75105', headers: inflection_header
             expect(response).to have_http_status(:ok)
             data = json_body_for(response)['attributes']
-            expect(data['telehealth']['displayLink']).to be(false)
+            expect(data['telehealth']['display_link']).to be(false)
 
             Timecop.unfreeze
           end
