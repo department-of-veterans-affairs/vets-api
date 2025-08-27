@@ -18,10 +18,13 @@
 
 require 'hca/service'
 require 'hca/soap_parser'
+require 'sidekiq/monitored_worker'
 
 module HCA
   class SubmissionJob
     include Sidekiq::Job
+    include Sidekiq::MonitoredWorker
+
     VALIDATION_ERROR = HCA::SOAPParser::ValidationError
 
     # retry for  2d 1h 47m 12s
@@ -37,6 +40,21 @@ module HCA
         form: form.to_json,
         google_analytics_client_id: msg['args'][3]
       )
+    end
+
+    def retry_limits_for_notification
+      [10]
+    end
+
+    def notify(params)
+      # Add 1 to retry_count to match retry_monitoring logic
+      retry_count = params['retry_count'].to_i + 1
+      health_care_application_id = params['args'][2]
+
+      if retry_count == 10
+        StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.async.failed_ten_retries",
+                         tags: ["health_care_application_id:#{health_care_application_id}"])
+      end
     end
 
     def self.decrypt_form(encrypted_form)

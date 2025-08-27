@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_17_152023) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_19_181750) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -346,6 +346,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_17_152023) do
     t.string "type", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "recipient_type"
     t.index ["notification_id"], name: "idx_on_notification_id_2402e9daad"
     t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_b7c74f46e5"
   end
@@ -853,6 +854,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_17_152023) do
     t.string "template_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "attempts", default: 1
     t.index ["user_account_id"], name: "index_event_bus_gateway_notifications_on_user_account_id"
   end
 
@@ -1766,6 +1768,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_17_152023) do
     t.text "to_ciphertext"
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.text "service_api_key_path"
     t.index ["needs_kms_rotation"], name: "index_va_notify_notifications_on_needs_kms_rotation"
     t.index ["notification_id"], name: "index_va_notify_notifications_on_notification_id"
   end

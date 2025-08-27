@@ -14,7 +14,7 @@ class FormProfiles::VA1010ezr < FormProfile
   def ezr_data
     @ezr_data ||=
       begin
-        HCA::EnrollmentEligibility::Service.new.get_ezr_data(user.icn)
+        HCA::EnrollmentEligibility::Service.new.get_ezr_data(user)
       rescue => e
         log_exception_to_sentry(e)
         OpenStruct.new

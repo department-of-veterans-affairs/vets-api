@@ -14,11 +14,18 @@ module VAOS
         end
       end
 
-      def get_available_slots(location_id:, clinic_id:, clinical_service:, start_dt:, end_dt:)
+      def get_available_slots(options = {})
+        location_id = options[:location_id]
+        clinic_id = options[:clinic_id]
+        clinical_service = options[:clinical_service]
+        provider_id = options[:provider_id]
+        start_dt = options[:start_dt]
+        end_dt = options[:end_dt]
+
         with_monitoring do
           response = if Flipper.enabled?(:va_online_scheduling_use_vpg, user) &&
                         Flipper.enabled?(:va_online_scheduling_enable_OH_slots_search, user)
-                       get_slots_vpg(location_id:, clinic_id:, clinical_service:, start_dt:, end_dt:)
+                       get_slots_vpg(location_id:, clinic_id:, clinical_service:, provider_id:, start_dt:, end_dt:)
                      else
                        get_slots_vaos(location_id:, clinic_id:, start_dt:, end_dt:)
                      end
@@ -73,14 +80,15 @@ module VAOS
         perform(:get, url_path, url_params, headers)
       end
 
-      def get_slots_vpg(location_id:, clinic_id:, clinical_service:, start_dt:, end_dt:)
+      def get_slots_vpg(options = {})
         url_path = '/vpg/v1/slots'
         url_params = {
-          'start' => start_dt,
-          'end' => end_dt,
-          'clinic' => clinic_id,
-          'clinicalService' => clinical_service,
-          'location' => location_id
+          'start' => options[:start_dt],
+          'end' => options[:end_dt],
+          'clinic' => options[:clinic_id],
+          'clinicalService' => options[:clinical_service],
+          'location' => options[:location_id],
+          'provider' => options[:provider_id]
         }.compact
 
         perform(:get, url_path, url_params, headers)

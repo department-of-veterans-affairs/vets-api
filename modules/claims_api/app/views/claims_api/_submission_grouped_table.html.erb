@@ -9,7 +9,18 @@
     <% claims&.each do |grp_transaction_alias_and_guid| %>
           <tr>
             <td><%= grp_transaction_alias_and_guid[0] %></td>
-            <td><%= grp_transaction_alias_and_guid[1].pluck(:id) %></td>
+            <% # Compute timestamp for 3 days ago in milliseconds, helpful for
+               # weekend alerts to be viewed Monday %>
+            <% three_days_ago_ms = (Time.now - 72.hours).to_i * 1000 %>
+            <% # Create a link to Data Dog logs for the given GUID %>
+            <td>
+              <%= safe_join(
+                    grp_transaction_alias_and_guid[1].pluck(:id).map { |guid|
+                      link_to guid, "https://vagov.ddog-gov.com/logs?query='#{guid}'&from_ts=#{three_days_ago_ms}"
+                    },
+                    ', '
+                  ) %>
+            </td>
           </tr>
     <% end %>
   </tbody>
