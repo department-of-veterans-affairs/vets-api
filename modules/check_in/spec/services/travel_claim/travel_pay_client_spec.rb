@@ -18,7 +18,7 @@ RSpec.describe TravelClaim::TravelPayClient do
                     travel_pay_client_secret: 'super-secret-123',
                     scope: 'scope.read',
                     travel_pay_resource: 'test-resource') do
-        mock_response = double('Response', body: { 'access_token' => 'test-token' }.to_json)
+        mock_response = double('Response', body: { 'access_token' => 'test-token' })
 
         expect(client).to receive(:perform).with(
           :post,
@@ -42,7 +42,7 @@ RSpec.describe TravelClaim::TravelPayClient do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
                     claims_url_v2: 'https://claims.example.test',
                     travel_pay_client_secret: 'super-secret-123') do
-        mock_response = double('Response', body: { 'data' => { 'accessToken' => 'v4-token' } }.to_json)
+        mock_response = double('Response', body: { 'data' => { 'accessToken' => 'v4-token' } })
 
         expect(client).to receive(:perform).with(
           :post,
@@ -86,7 +86,7 @@ RSpec.describe TravelClaim::TravelPayClient do
     it 'makes appointment request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
                     claims_url_v2: 'https://claims.example.test') do
-        mock_response = double('Response', body: { 'data' => { 'id' => 'appt-123' } }.to_json)
+        mock_response = double('Response', body: { 'data' => { 'id' => 'appt-123' } })
 
         expect(client).to receive(:perform).with(
           :post,
