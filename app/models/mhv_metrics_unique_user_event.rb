@@ -38,14 +38,13 @@ class MHVMetricsUniqueUserEvent < ApplicationRecord
     cache_key = generate_cache_key(user_id, event_name)
 
     # Check Redis cache first for performance
-    cached_result = get_cached(cache_key)
-    return true if cached_result == 'exists'
+    return true if key_cached?(cache_key)
 
     # Check database if not in cache
     exists = exists?(user_id:, event_name:)
 
-    # Cache the result to avoid future database queries
-    set_cached(cache_key, exists ? 'exists' : 'not_exists')
+    # Cache the result only if record exists (saves memory for non-existent records)
+    mark_key_cached(cache_key) if exists
 
     exists
   end
@@ -62,8 +61,7 @@ class MHVMetricsUniqueUserEvent < ApplicationRecord
     cache_key = generate_cache_key(user_id, event_name)
 
     # Check Redis cache first - if exists, skip database entirely
-    cached_result = get_cached(cache_key)
-    if cached_result == 'exists'
+    if key_cached?(cache_key)
       Rails.logger.debug { "UUM: Event found in cache - User: #{user_id}, Event: #{event_name}" }
       return false
     end
@@ -73,13 +71,13 @@ class MHVMetricsUniqueUserEvent < ApplicationRecord
       create!(user_id:, event_name:)
 
       # Cache that this event now exists
-      set_cached(cache_key, 'exists')
+      mark_key_cached(cache_key)
 
       Rails.logger.info("UUM: New unique event recorded - User: #{user_id}, Event: #{event_name}")
       true # NEW EVENT - top-level library should log to statsd
     rescue ActiveRecord::RecordNotUnique
       # Event already exists in database
-      set_cached(cache_key, 'exists')
+      mark_key_cached(cache_key)
 
       Rails.logger.debug { "UUM: Duplicate event found in database - User: #{user_id}, Event: #{event_name}" }
       false # DUPLICATE EVENT - top-level library should NOT log to statsd
@@ -106,14 +104,20 @@ class MHVMetricsUniqueUserEvent < ApplicationRecord
     raise ArgumentError, 'event_name must be 50 characters or less' if event_name.length > 50
   end
 
-  # Override the default cache methods to work with simple string values
-  def self.get_cached(key)
-    Rails.cache.read(key, namespace: CACHE_NAMESPACE)
+  # Check if a cache key exists (presence-based caching)
+  #
+  # @param key [String] Cache key to check
+  # @return [Boolean] true if key exists in cache, false otherwise
+  def self.key_cached?(key)
+    Rails.cache.exist?(key, namespace: CACHE_NAMESPACE)
   end
 
-  def self.set_cached(key, value)
-    Rails.cache.write(key, value, namespace: CACHE_NAMESPACE, expires_in: CACHE_TTL)
+  # Mark a cache key as existing (sets key to indicate presence)
+  #
+  # @param key [String] Cache key to mark as cached
+  def self.mark_key_cached(key)
+    Rails.cache.write(key, true, namespace: CACHE_NAMESPACE, expires_in: CACHE_TTL)
   end
 
-  private_class_method :generate_cache_key, :validate_inputs, :get_cached, :set_cached
+  private_class_method :generate_cache_key, :validate_inputs, :key_cached?, :mark_key_cached
 end
