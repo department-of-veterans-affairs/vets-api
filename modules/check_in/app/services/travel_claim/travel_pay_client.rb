@@ -161,11 +161,9 @@ module TravelClaim
     def ensure_tokens!
       return if @current_veis_token && @current_btsss_token
 
-      # Try to get VEIS token from Redis first (shared across users)
       cached_veis = @redis_client.token
       if cached_veis
         @current_veis_token = cached_veis
-        # Still need to fetch BTSSS token since it's user-specific
         fetch_btsss_token! if @current_btsss_token.nil?
         return
       end
@@ -178,17 +176,10 @@ module TravelClaim
     # Updates internal token state and stores VEIS token in Redis.
     #
     def fetch_tokens!
-      # Get VEIS token
       veis_response = veis_token_request
       @current_veis_token = veis_response.body['access_token']
-
-      # Get BTSSS token
       fetch_btsss_token!
-
-      # Store VEIS token in Redis (shared across users)
       @redis_client.save_token(token: @current_veis_token)
-
-      # Clear memoized headers so they get rebuilt with new tokens
       @headers = nil
     end
 
