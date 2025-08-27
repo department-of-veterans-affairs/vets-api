@@ -8,23 +8,32 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
   stub_virus_scan
   let!(:poa_code) { '067' }
   let(:representative_user) do
-    create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov'])
+    create(
+      :representative_user,
+      email: 'test@va.gov',
+      icn: '123498767V234859',
+      all_emails: ['test@va.gov']
+    )
   end
   let(:service) { BenefitsIntakeService::Service.new }
   let(:pdf_path) { 'random/path/to/pdf' }
   let!(:accredited_individual) do
-    create(:user_account_accredited_individual,
-           user_account_email: representative_user.email,
-           user_account_icn: representative_user.icn,
-           accredited_individual_registration_number: '357458',
-           poa_code:)
+    create(
+      :user_account_accredited_individual,
+      user_account_email: representative_user.email,
+      user_account_icn: representative_user.icn,
+      accredited_individual_registration_number: '357458',
+      poa_code:
+    )
   end
   let!(:representative) do
-    create(:representative,
-           :vso,
-           email: representative_user.email,
-           representative_id: accredited_individual.accredited_individual_registration_number,
-           poa_codes: [poa_code])
+    create(
+      :representative,
+      :vso,
+      email: representative_user.email,
+      representative_id: accredited_individual.accredited_individual_registration_number,
+      poa_codes: [poa_code]
+    )
   end
 
   let!(:vso) { create(:organization, poa: poa_code) }
@@ -53,8 +62,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       PersistentAttachments::VAFormDocumentation.create!(guid: supporting_attachment_guid, form_id: '21-686c')
     end
     let(:representative_fixture_path) do
-      Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
-                      'representative_form_upload_21_686c.json')
+      Rails.root.join(
+        'modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
+        'representative_form_upload_21_686c.json'
+      )
     end
     let(:veteran_params) do
       JSON.parse(representative_fixture_path.read).tap do |memo|
@@ -74,27 +85,36 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
         ]
       end
     end
+
     let(:invalid_form_fixture_path) do
-      Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
-                      'invalid_form_number.json')
+      Rails.root.join(
+        'modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
+        'invalid_form_number.json'
+      )
     end
     let(:invalid_form_params) do
       JSON.parse(invalid_form_fixture_path.read).merge('confirmationCode' => attachment_guid)
     end
 
     let(:claimant_fixture_path) do
-      Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
-                      'claimant_form_upload_21_686c.json')
+      Rails.root.join(
+        'modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
+        'claimant_form_upload_21_686c.json'
+      )
     end
     let(:claimant_params) do
       JSON.parse(claimant_fixture_path.read).tap do |memo|
         memo['representative_form_upload']['confirmationCode'] = attachment_guid
       end
     end
-    let(:form_name) { 'Request for Nursing Home Information in Connection with Claim for Aid and Attendance' }
+    let(:form_name) do
+      'Request for Nursing Home Information in Connection with Claim for Aid and Attendance'
+    end
     let(:pdf_path) do
-      Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'files',
-                      '21_686c_empty_form.pdf')
+      Rails.root.join(
+        'modules', 'accredited_representative_portal', 'spec', 'fixtures', 'files',
+        '21_686c_empty_form.pdf'
+      )
     end
     let!(:representative_user_account) do
       AccreditedRepresentativePortal::RepresentativeUserAccount.create!(icn: representative_user.icn)
@@ -193,12 +213,16 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
     context '21-526EZ form' do
       let(:form_number) { '21-526EZ' }
       let(:representative_fixture_path) do
-        Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
-                        'representative_form_upload_21_526EZ.json')
+        Rails.root.join(
+          'modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
+          'representative_form_upload_21_526EZ.json'
+        )
       end
       let(:pdf_path) do
-        Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'files',
-                        'VBA-21-526EZ-ARE.pdf')
+        Rails.root.join(
+          'modules', 'accredited_representative_portal', 'spec', 'fixtures', 'files',
+          'VBA-21-526EZ-ARE.pdf'
+        )
       end
       let!(:attachment) { PersistentAttachments::VAForm.create!(guid: attachment_guid, form_id: '21-526EZ') }
       let!(:supporting_attachment) do
@@ -352,6 +376,93 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
                                         'status' => '422'
                                       }]
                                     })
+    end
+
+    context 'when form_id includes -UPLOAD suffix' do
+      it 'strips the suffix and processes upload' do
+        clamscan = double(safe?: true)
+        allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+        file = fixture_file_upload('doctors-note.gif')
+
+        params = { form_id: "#{form_number}-UPLOAD", file: }
+        allow_any_instance_of(BenefitsIntakeService::Service).to receive(:valid_document?).and_return(pdf_path)
+
+        expect do
+          post '/accredited_representative_portal/v0/upload_supporting_documents', params:
+        end.to change(PersistentAttachments::VAFormDocumentation, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+  end
+
+  describe 'handle_attachment_upload error handling' do
+    before do
+      stub_const('AccreditedRepresentativePortal::SavedClaimService', Module.new)
+      stub_const('AccreditedRepresentativePortal::SavedClaimService::Attach', Module.new)
+
+      stub_const(
+        'AccreditedRepresentativePortal::SavedClaimService::Attach::RecordInvalidError',
+        Class.new(StandardError) do
+          attr_reader :record
+
+          def initialize(record)
+            super()
+            @record = record
+          end
+        end
+      )
+
+      stub_const(
+        'AccreditedRepresentativePortal::SavedClaimService::Attach::UpstreamInvalidError',
+        Class.new(StandardError)
+      )
+
+      stub_const(
+        'AccreditedRepresentativePortal::SavedClaimService::Attach::UnknownError',
+        Class.new(StandardError) do
+          attr_reader :cause
+
+          def initialize(cause)
+            super()
+            @cause = cause
+          end
+        end
+      )
+
+      AccreditedRepresentativePortal::SavedClaimService::Attach.define_singleton_method(:perform) do |_klass, **_kwargs|
+        nil
+      end
+
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+      allow_any_instance_of(BenefitsIntakeService::Service).to receive(:valid_document?).and_return(pdf_path)
+    end
+
+    it 'maps UpstreamInvalidError to UpstreamUnprocessableEntity' do
+      expect(AccreditedRepresentativePortal::SavedClaimService::Attach)
+        .to receive(:perform)
+        .and_raise(
+          AccreditedRepresentativePortal::SavedClaimService::Attach::UpstreamInvalidError.new('bad upstream')
+        )
+
+      post '/accredited_representative_portal/v0/representative_form_upload',
+           params: { form_id: form_number, file: fixture_file_upload('doctors-note.gif') }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'maps UnknownError to InternalServerError' do
+      expect(AccreditedRepresentativePortal::SavedClaimService::Attach)
+        .to receive(:perform)
+        .and_raise(
+          AccreditedRepresentativePortal::SavedClaimService::Attach::UnknownError.new(StandardError.new('oops'))
+        )
+
+      post '/accredited_representative_portal/v0/representative_form_upload',
+           params: { form_id: form_number, file: fixture_file_upload('doctors-note.gif') }
+
+      expect(response).to have_http_status(:internal_server_error)
     end
   end
 end
