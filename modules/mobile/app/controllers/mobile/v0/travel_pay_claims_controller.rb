@@ -20,6 +20,17 @@ module Mobile
                status:
       end
 
+      def show
+        claim = claims_service.get_claim_details(params[:id])
+        
+        if claim.nil?
+          raise Common::Exceptions::ResourceNotFound, detail: "Claim not found. ID provided: #{params[:id]}"
+        end
+
+        normalized_claim = normalize_claim_summary(claim)
+        render json: Mobile::V0::TravelPayClaimSummarySerializer.new(normalized_claim), status: :ok
+      end
+
       # rubocop:disable Metrics/MethodLength
       def create
         appt_params = {
