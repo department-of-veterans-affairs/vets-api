@@ -126,12 +126,21 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::Evidence
       nod_uuid = es.supportable_id
       get "#{path}#{es.guid}"
       submission = JSON.parse(response.body)['data']
-
+      
       expect(submission['id']).to eq es.guid
       expect(submission['type']).to eq('evidenceSubmission')
       expect(submission['attributes']['status']).to eq('pending')
       expect(submission['attributes']['appealId']).to eq(nod_uuid)
       expect(submission['attributes']['appealType']).to eq('NoticeOfDisagreement')
+    end
+
+    it 'returns finalStatus for an evidence submission' do 
+      es = evidence_submissions.sample
+      nod_uuid = es.supportable_id
+      get "#{path}#{es.guid}"
+      submission = JSON.parse(response.body)['data']
+
+      expect(submission['attributes']['finalStatus']).to eq(false)
     end
 
     it 'returns an error if record is not found' do
