@@ -67,6 +67,14 @@ namespace :feature_toggles do
         modified_features.each do |feature|
           puts "  Analyzing feature: #{feature}"
 
+          # First check if this feature is actually used in the Ruby codebase
+          unless feature_used_in_codebase?(feature)
+            puts '    ℹ️  Feature not used in Ruby codebase (frontend-only or config-only) - skipping test validation'
+            next
+          end
+
+          puts '    🔍 Feature is used in Ruby codebase - validating test coverage'
+
           # Search for specs testing this feature toggle in both enabled and disabled states
           enabled_specs = find_feature_toggle_specs(feature, true)
           disabled_specs = find_feature_toggle_specs(feature, false)
@@ -136,15 +144,29 @@ namespace :feature_toggles do
     all_features.each do |feature|
       next if feature.include?('test') # Skip test features
 
-      enabled_specs = find_feature_toggle_specs(feature, true)
-      disabled_specs = find_feature_toggle_specs(feature, false)
+      # Check if feature is actually used in codebase
+      is_used = feature_used_in_codebase?(feature)
 
-      coverage_data[feature] = {
-        enabled: !enabled_specs.empty?,
-        disabled: !disabled_specs.empty?,
-        enabled_files: enabled_specs.size,
-        disabled_files: disabled_specs.size
-      }
+      if is_used
+        enabled_specs = find_feature_toggle_specs(feature, true)
+        disabled_specs = find_feature_toggle_specs(feature, false)
+
+        coverage_data[feature] = {
+          enabled: !enabled_specs.empty?,
+          disabled: !disabled_specs.empty?,
+          enabled_files: enabled_specs.size,
+          disabled_files: disabled_specs.size,
+          used_in_code: true
+        }
+      else
+        coverage_data[feature] = {
+          enabled: false,
+          disabled: false,
+          enabled_files: 0,
+          disabled_files: 0,
+          used_in_code: false
+        }
+      end
     end
 
     # Display results
@@ -153,6 +175,11 @@ namespace :feature_toggles do
     not_covered = 0
 
     coverage_data.each do |feature, data|
+      unless data[:used_in_code]
+        puts "ℹ️  UNUSED  #{feature} (frontend-only or config-only)"
+        next
+      end
+
       status = if data[:enabled] && data[:disabled]
                  fully_covered += 1
                  '✅ FULL'
@@ -172,14 +199,21 @@ namespace :feature_toggles do
       puts "#{status.ljust(10)} #{feature} #{state_info}"
     end
 
+    used_features_count = coverage_data.count { |_, data| data[:used_in_code] }
+    unused_features_count = coverage_data.count { |_, data| !data[:used_in_code] }
+
     puts "\n📈 Summary:"
     puts "  Fully covered: #{fully_covered}"
     puts "  Partially covered: #{partially_covered}"
     puts "  Not covered: #{not_covered}"
+    puts "  Used in Ruby code: #{used_features_count}"
+    puts "  Frontend/config-only: #{unused_features_count}"
     puts "  Total features: #{coverage_data.size}"
 
-    coverage_percentage = (fully_covered.to_f / coverage_data.size * 100).round(1)
-    puts "  Coverage: #{coverage_percentage}%"
+    if used_features_count.positive?
+      coverage_percentage = (fully_covered.to_f / used_features_count * 100).round(1)
+      puts "  Coverage (used features): #{coverage_percentage}%"
+    end
   end
 
   private
@@ -205,7 +239,35 @@ namespace :feature_toggles do
     found_files.uniq
   end
 
-  private
+  def feature_used_in_codebase?(feature)
+    # Search for actual Flipper.enabled? calls in the codebase (excluding specs)
+    search_patterns = [
+      # Flipper.enabled?(:feature) patterns
+      "Flipper\\.enabled\\?\\(:#{feature}\\)",
+      "Flipper\\.enabled\\?\\('#{feature}'\\)",
+      "Flipper\\.enabled\\?\\([:'\"]#{feature}['\"])",
+
+      # Flipper.enabled?(:feature, actor) patterns
+      "Flipper\\.enabled\\?\\(:#{feature}\\s*,",
+      "Flipper\\.enabled\\?\\('#{feature}'\\s*,",
+
+      # Variable-based patterns like Flipper.enabled?(feature_name, user)
+      "Flipper\\.enabled\\?\\(.*#{feature}"
+    ]
+
+    search_directories = %w[app/ lib/ modules/]
+
+    search_patterns.each do |pattern|
+      search_directories.each do |dir|
+        next unless Dir.exist?(dir)
+
+        output, status = Open3.capture2('grep', '-r', '-l', '-E', pattern, dir, '--include=*.rb')
+        return true if status.success? && !output.strip.empty?
+      end
+    end
+
+    false
+  end
 
   def show_enabled_test_info(item)
     puts "    Found enabled tests in: #{item[:enabled_specs].take(3).join(', ')}"

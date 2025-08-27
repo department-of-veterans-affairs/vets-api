@@ -387,6 +387,9 @@ module VSPDanger
       missing_coverage = []
 
       features.each do |feature|
+        # Skip features that aren't actually used in Ruby codebase
+        next unless feature_used_in_codebase?(feature)
+
         enabled_specs = find_feature_toggle_specs(feature, true)
         disabled_specs = find_feature_toggle_specs(feature, false)
 

@@ -17,6 +17,8 @@ The repository has automated checks to ensure feature toggle test coverage:
 2. **GitHub Actions**: Runs on PR creation/updates to validate coverage
 3. **Rake Tasks**: Available for local testing and CI/CD validation
 
+**Smart Validation**: The system only requires test coverage for feature toggles that are actually referenced in Ruby code. Frontend-only or configuration-only toggles are automatically skipped during validation.
+
 ## How to Test Feature Toggles
 
 ### Method 1: Using Flipper Stubs (Recommended)
@@ -261,6 +263,7 @@ The validation runs automatically on pull requests through:
    - Posts warning comments when new feature toggles lack test coverage
    - Provides code examples and guidance
    - Does not block PR merging (warnings only)
+   - Only validates features actually used in Ruby code (skips frontend-only toggles)
 
 3. **Local Testing**:
    ```bash
