@@ -59,7 +59,7 @@
 - **Wrong error response format**: Not using VA.gov standard error envelope
 - **Service method contracts**: Returning `{ success: true }` instead of data/error pattern
 
-### VA-Specific Patterns
+### Patterns
 - **New logging without Flipper**: Logs not wrapped with feature flags
 - **External service calls**: Missing error handling, timeouts, retries, or rescue blocks
 - **Background job candidates**: File.read operations, PDF/document processing, bulk database updates, .deliver_now emails
@@ -102,7 +102,7 @@ Flipper.disable(:legacy_claims_api)
 ```ruby
 # Flipper.enable → stub with and_return(true)
 allow(Flipper).to receive(:enabled?).with(:veteran_benefit_processing).and_return(true)
-# Flipper.disable → stub with and_return(false)  
+# Flipper.disable → stub with and_return(false)
 allow(Flipper).to receive(:enabled?).with(:legacy_claims_api).and_return(false)
 ```
 
