@@ -23,7 +23,7 @@ module MyHealth
         # Uses Rails format negotiation: /ccd/download.xml|.html|.pdf?date=...
         # Defaults to XML when no format is supplied (route should set defaults: { format: 'xml' }).
         #
-        # @param date [String] date receieved from get_generate_ccd call property dateGenerated
+        # @param date [String] date received from get_generate_ccd call property dateGenerated
         # @return [XML|PDF|HTML] Continuity of Care Document
         #
         def download
@@ -48,15 +48,15 @@ module MyHealth
         def deliver_ccd(body, fmt)
           case fmt
           when :xml
-            render xml: body
+            send_data body,
+                      type: 'application/xml; charset=utf-8',
+                      disposition: 'attachment'
           when :html
             send_data body,
-                      filename: "Health_Summary_#{Time.zone.today}.html",
                       type: 'text/html; charset=utf-8',
                       disposition: 'attachment'
           when :pdf
             send_data body,
-                      filename: "Health_Summary_#{Time.zone.today}.pdf",
                       type: 'application/pdf',
                       disposition: 'attachment'
           else

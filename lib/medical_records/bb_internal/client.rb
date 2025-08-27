@@ -182,7 +182,7 @@ module BBInternal
     end
 
     ##
-    # @param date - receieved from get_generate_ccd call property dateGenerated (e.g. 2024-10-18T09:55:58.000-0400)
+    # @param date - received from get_generate_ccd call property dateGenerated (e.g. 2024-10-18T09:55:58.000-0400)
     # @param format - the format to return; one of XML, HTML, PDF
     # @return - Continuity of Care Document in the specified format
     #
