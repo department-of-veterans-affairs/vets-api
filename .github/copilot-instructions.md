@@ -59,7 +59,7 @@
 - **Wrong error response format**: Not using VA.gov standard error envelope
 - **Service method contracts**: Returning `{ success: true }` instead of data/error pattern
 
-### Patterns
+### Anti-Patterns
 - **New logging without Flipper**: Logs not wrapped with feature flags
 - **External service calls**: Missing error handling, timeouts, retries, or rescue blocks
 - **Background job candidates**: File.read operations, PDF/document processing, bulk database updates, .deliver_now emails
