@@ -112,6 +112,124 @@ RSpec.describe TravelClaim::TravelPayClient do
     end
   end
 
+  describe '#send_claim_request' do
+    let(:appointment_id) { 'appt-123' }
+
+    before do
+      # Mock ensure_tokens! to skip token fetching
+      allow(client).to receive(:ensure_tokens!)
+      # Mock the headers method to return expected headers
+      allow(client).to receive(:headers).and_return({
+                                                      'Content-Type' => 'application/json',
+                                                      'Authorization' => 'Bearer test-veis-token',
+                                                      'X-BTSSS-Token' => 'test-btsss-token',
+                                                      'X-Correlation-ID' =>
+                                                        client.instance_variable_get(:@correlation_id)
+                                                    })
+    end
+
+    it 'makes claim request with correct parameters' do
+      with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                    claims_url_v2: 'https://dev.integration.d365.va.gov') do
+        VCR.use_cassette('check_in/travel_claim/claims_create_200') do
+          result = client.send_claim_request(appointment_id:)
+
+          expect(result).to respond_to(:status)
+          expect(result).to respond_to(:body)
+          expect(result.status).to eq(200)
+
+          response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
+          expect(response_body['success']).to be true
+          expect(response_body['statusCode']).to eq(200)
+          expect(response_body['message']).to eq('Claim created successfully.')
+          expect(response_body['data']['claimId']).to be_present
+          expect(response_body['correlationId']).to be_present
+        end
+      end
+    end
+  end
+
+  describe '#send_mileage_expense_request' do
+    let(:claim_id) { 'claim-123' }
+    let(:date_incurred) { '2024-01-15' }
+
+    before do
+      # Mock ensure_tokens! to skip token fetching
+      allow(client).to receive(:ensure_tokens!)
+      # Mock the headers method to return expected headers
+      allow(client).to receive(:headers).and_return({
+                                                      'Content-Type' => 'application/json',
+                                                      'Authorization' => 'Bearer test-veis-token',
+                                                      'X-BTSSS-Token' => 'test-btsss-token',
+                                                      'X-Correlation-ID' =>
+                                                        client.instance_variable_get(:@correlation_id)
+                                                    })
+    end
+
+    it 'makes mileage expense request with correct parameters' do
+      with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                    claims_url_v2: 'https://dev.integration.d365.va.gov') do
+        VCR.use_cassette('check_in/travel_claim/expenses_mileage_200') do
+          result = client.send_mileage_expense_request(
+            claim_id:,
+            date_incurred:
+          )
+
+          expect(result).to respond_to(:status)
+          expect(result).to respond_to(:body)
+          expect(result.status).to eq(200)
+
+          response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
+          expect(response_body['success']).to be true
+          expect(response_body['statusCode']).to eq(200)
+          expect(response_body['message']).to eq('Expense added successfully.')
+          expect(response_body['data']['expenseId']).to be_present
+          expect(response_body['correlationId']).to be_present
+        end
+      end
+    end
+  end
+
+  describe '#send_claim_submission_request' do
+    let(:claim_id) { 'claim-123' }
+
+    before do
+      # Mock ensure_tokens! to skip token fetching
+      allow(client).to receive(:ensure_tokens!)
+      # Mock the headers method to return expected headers
+      allow(client).to receive(:headers).and_return({
+                                                      'Content-Type' => 'application/json',
+                                                      'Authorization' => 'Bearer test-veis-token',
+                                                      'X-BTSSS-Token' => 'test-btsss-token',
+                                                      'X-Correlation-ID' =>
+                                                        client.instance_variable_get(:@correlation_id)
+                                                    })
+    end
+
+    it 'makes claim submission request with correct parameters' do
+      with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                    claims_url_v2: 'https://dev.integration.d365.va.gov') do
+        VCR.use_cassette('check_in/travel_claim/claims_submit_200') do
+          result = client.send_claim_submission_request(claim_id:)
+
+          expect(result).to respond_to(:status)
+          expect(result).to respond_to(:body)
+          expect(result.status).to eq(200)
+
+          response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
+          expect(response_body['success']).to be true
+          expect(response_body['statusCode']).to eq(200)
+          expect(response_body['message']).to eq('Claim submitted successfully.')
+          expect(response_body['data']['claimId']).to be_present
+          expect(response_body['data']['status']).to eq('InManualReview')
+          expect(response_body['data']['createdOn']).to be_present
+          expect(response_body['data']['modifiedOn']).to be_present
+          expect(response_body['correlationId']).to be_present
+        end
+      end
+    end
+  end
+
   describe '#config' do
     it 'returns the TravelClaim::Configuration instance' do
       expect(client.config).to eq(TravelClaim::Configuration.instance)
