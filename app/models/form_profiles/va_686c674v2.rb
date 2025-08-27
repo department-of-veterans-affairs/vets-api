@@ -117,20 +117,18 @@ class FormProfiles::VA686c674v2 < FormProfile
   # If no dependents are found or if they are not active for benefits, it returns an empty array.
   def prefill_dependents_information
     dependents = dependent_service.get_dependents
-    if dependents.nil? || dependents[:persons].blank?
-      monitor.track_event('warn', 'Missing dependents information for prefill', 'dependents.prefill.error')
-      @dependents_information = []
-      return @dependents_information
-    end
-    @dependents_information = dependents[:persons].filter_map do |person|
+    persons = if dependents.nil? || dependents[:persons].blank?
+                []
+              else
+                dependents[:persons]
+              end
+    @dependents_information = persons.filter_map do |person|
       person_to_dependent_information(person)
     end
-    @dependents_information
   rescue => e
     monitor.track_event('warn', 'Failure initializing dependents_information', 'dependents.prefill.error',
                         { error: e&.message })
     @dependents_information = []
-    @dependents_information
   end
 
   ##
@@ -139,6 +137,8 @@ class FormProfiles::VA686c674v2 < FormProfile
   # @param person [Hash] The dependent's information as a hash
   # @return [DependentInformation] The dependent's information mapped to the model
   def person_to_dependent_information(person)
+    parsed_date = parse_date_safely(person[:date_of_birth])
+
     DependentInformation.new(
       full_name: FormFullName.new({
                                     first: person[:first_name],
@@ -146,7 +146,7 @@ class FormProfiles::VA686c674v2 < FormProfile
                                     last: person[:last_name],
                                     suffix: person[:suffix]
                                   }),
-      date_of_birth: person[:date_of_birth],
+      date_of_birth: parsed_date,
       ssn: person[:ssn],
       relationship_to_veteran: person[:relationship],
       award_indicator: person[:award_indicator]
@@ -163,5 +163,19 @@ class FormProfiles::VA686c674v2 < FormProfile
 
   def monitor
     @monitor ||= Dependents::Monitor.new(nil)
+  end
+
+  ##
+  # Safely parses a date string, handling various formats
+  #
+  # @param date_string [String, Date, nil] The date to parse
+  # @return [Date, nil] The parsed date or nil if parsing fails
+  def parse_date_safely(date_string)
+    return nil if date_string.blank?
+    return date_string if date_string.is_a?(Date)
+
+    Date.parse(date_string.to_s)
+  rescue ArgumentError, TypeError
+    nil
   end
 end

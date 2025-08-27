@@ -1763,6 +1763,36 @@ RSpec.describe FormProfile, type: :model do
                 expect(result[:form_data]).to have_key('nonPrefill')
                 expect(result[:form_data]['nonPrefill']).not_to have_key('dependents')
               end
+
+              it 'handles invalid date formats gracefully' do
+                invalid_date_data = dependents_data.dup
+                invalid_date_data[:persons][0][:date_of_birth] = 'invalid-date'
+
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+                allow(dependent_service).to receive(:get_dependents).and_return(invalid_date_data)
+
+                result = form_profile.prefill
+                expect(result[:form_data]).to have_key('nonPrefill')
+                expect(result[:form_data]['nonPrefill']).to have_key('dependents')
+                dependents = result[:form_data]['nonPrefill']['dependents']
+                expect(dependents).to be_an(Array)
+                expect(dependents.first['dateOfBirth']).to be_nil
+              end
+
+              it 'handles nil date gracefully' do
+                nil_date_data = dependents_data.dup
+                nil_date_data[:persons][0][:date_of_birth] = nil
+
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+                allow(dependent_service).to receive(:get_dependents).and_return(nil_date_data)
+
+                result = form_profile.prefill
+                expect(result[:form_data]).to have_key('nonPrefill')
+                expect(result[:form_data]['nonPrefill']).to have_key('dependents')
+                dependents = result[:form_data]['nonPrefill']['dependents']
+                expect(dependents).to be_an(Array)
+                expect(dependents.first['dateOfBirth']).to be_nil
+              end
             end
           end
         end
