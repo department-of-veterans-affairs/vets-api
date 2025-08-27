@@ -56,8 +56,6 @@ module Form1010Ezr
 
         # Transform the VES Associations API data to match the EZR 'nextOfKins' and 'emergencyContacts' schemas.
         def transform_ves_association(association)
-          validate_required_fields!(association)
-
           transformed_association = build_transformed_association(association)
           fill_association_full_name_from_ves_association(transformed_association, association)
 
@@ -79,24 +77,10 @@ module Form1010Ezr
 
         # There are instances where a VES association may have a 'relationship' field
         def handle_relationship(association)
-          relationship = association['relationship'] || association['relationType']
-
-          return relationship if relationship.blank?
-
+          # VES can return an association with a blank relationship. We need to set a default value
+          # in case the Veteran decides to delete this association, otherwise the update to VES will fail.
+          relationship = association['relationship'] || association['relationType'] || 'UNRELATED FRIEND'
           relationship.gsub(/_/, ' ').split.join(' ')
-        end
-
-        def validate_required_fields!(association)
-          missing_fields = []
-          missing_fields << 'role' if association['role'].blank?
-          missing_fields << 'name' if association['name'].blank?
-          missing_fields << 'relationship' if handle_relationship(association).blank?
-
-          return if missing_fields.empty?
-
-          missing_fields_msg = "VES association is missing the following field(s): #{missing_fields.join(', ')}"
-          fields_present_msg = "Fields present: #{association.keys&.join(', ')}"
-          raise StandardError, "#{missing_fields_msg}. #{fields_present_msg}"
         end
 
         def build_transformed_association(association)
