@@ -40,7 +40,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       expect(client).to receive(:perform).with(
         :post,
-        '/tenant-123/oauth2/v2.0/token',
+        'https://auth.example.test/tenant-123/oauth2/token',
         kind_of(String),
         { 'Content-Type' => 'application/x-www-form-urlencoded' }
       ).and_return(mock_response)

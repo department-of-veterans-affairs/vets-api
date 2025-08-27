@@ -43,12 +43,13 @@ module TravelClaim
                                    client_id: @settings.travel_pay_client_id,
                                    client_secret: @settings.travel_pay_client_secret,
                                    scope: @settings.scope,
-                                   grant_type: GRANT_TYPE
+                                   grant_type: GRANT_TYPE,
+                                   resource: @settings.travel_pay_resource
                                  })
 
       headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
 
-      perform(:post, "/#{@settings.tenant_id}/oauth2/v2.0/token", body, headers)
+      perform(:post, "#{@settings.auth_url}/#{@settings.tenant_id}/oauth2/token", body, headers)
     end
 
     ##
@@ -70,7 +71,7 @@ module TravelClaim
         'Authorization' => "Bearer #{veis_access_token}"
       }.merge(subscription_key_headers)
 
-      perform(:post, '/api/v4/auth/system-access-token', body, headers)
+      perform(:post, "#{@settings.claims_base_path}/api/v4/auth/system-access-token", body, headers)
     end
 
     ##
@@ -87,7 +88,7 @@ module TravelClaim
           facilityStationNumber: facility_id
         }
 
-        perform(:post, '/api/v3/appointments/find-or-add', body, headers)
+        perform(:post, "#{@settings.claims_base_path}/api/v3/appointments/find-or-add", body, headers)
       end
     end
 
