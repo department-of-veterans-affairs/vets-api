@@ -10,8 +10,6 @@ module UnifiedHealthData
           '18842-5' => 'DISCHARGE_SUMMARY'
         }.freeze
 
-        EMPTY_FIELD = 'None recorded'
-
         NOTE_TYPES = {
           'PHYSICIAN_PROCEDURE_NOTE' => 'physician_procedure_note',
           'CONSULT_RESULT' => 'consult_result',
