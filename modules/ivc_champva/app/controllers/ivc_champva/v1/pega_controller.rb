@@ -166,17 +166,16 @@ module IvcChampva
         return unless form_files.any?
 
         # Calculate and publish metrics for first matching form file
-        form_files.first do |form|
-          duration_seconds = (Time.current - form.created_at).to_i
+        form = form_files.first
+        duration_seconds = (Time.current - form.created_at).to_i
 
-          tags = [
-            'service:veteran-ivc-champva-forms',
-            "form_number:#{form.form_number}"
-          ]
+        tags = [
+          'service:veteran-ivc-champva-forms',
+          "form_number:#{form.form_number}"
+        ]
 
-          # Publish the duration metric
-          StatsD.histogram('champva.submit_to_callback.duration_seconds', duration_seconds, tags:)
-        end
+        # Publish the duration metric
+        StatsD.histogram('champva.submit_to_callback.duration_seconds', duration_seconds, tags:)
       rescue => e
         Rails.logger.error "Error tracking submit to callback duration: #{e.message}"
         # Don't raise the error to avoid disrupting the main callback flow
