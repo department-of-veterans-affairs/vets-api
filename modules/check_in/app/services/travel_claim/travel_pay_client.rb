@@ -193,7 +193,7 @@ module TravelClaim
         veis_access_token: @current_veis_token,
         icn: @current_icn
       )
-      @current_btsss_token = btsss_response.body['access_token']
+      @current_btsss_token = btsss_response.body['data']['accessToken']
     end
 
     ##
