@@ -20,9 +20,13 @@ RSpec.describe TravelClaim::TravelPayClient do
                     travel_pay_resource: 'test-resource') do
         mock_response = double('Response', body: { 'access_token' => 'test-token' })
 
-          expect(result).to respond_to(:status)
-          expect(result).to respond_to(:body)
-          expect(result.status).to eq(200)
+        expect(client).to receive(:perform).with(
+          :post,
+          'https://auth.example.test/tenant-123/oauth2/token',
+          'client_id=client-id&client_secret=super-secret-123&client_type=1&' \
+          'scope=scope.read&grant_type=client_credentials&resource=test-resource',
+          { 'Content-Type' => 'application/x-www-form-urlencoded' }
+        ).and_return(mock_response)
 
           response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
           expect(response_body['access_token']).to be_present
