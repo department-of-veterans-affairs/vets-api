@@ -179,9 +179,7 @@ module TravelClaim
     def fetch_tokens!
       veis_response = veis_token_request
 
-      unless veis_response.body&.dig('access_token')
-        raise_backend_error('VEIS response missing access_token')
-      end
+      raise_backend_error('VEIS response missing access_token') unless veis_response.body&.dig('access_token')
 
       @current_veis_token = veis_response.body['access_token']
       fetch_btsss_token!
