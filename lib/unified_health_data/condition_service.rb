@@ -112,8 +112,6 @@ module UnifiedHealthData
         codings = resource['code']['coding']
         displays = codings.map { |c| c['display'] || c['code'] }.compact
         displays.any? ? displays.join(', ') : nil
-      else
-        nil
       end
     end
 
