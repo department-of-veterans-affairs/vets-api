@@ -180,7 +180,7 @@ module TravelClaim
       veis_response = veis_token_request
 
       unless veis_response.body&.dig('access_token')
-        raise_backend_error('VEIS_TOKEN_MISSING', 'VEIS response missing access_token')
+        raise_backend_error('VEIS response missing access_token')
       end
 
       @current_veis_token = veis_response.body['access_token']
@@ -200,7 +200,7 @@ module TravelClaim
       )
 
       unless btsss_response.body&.dig('data', 'accessToken')
-        raise_backend_error('BTSSS_TOKEN_MISSING', 'BTSSS response missing accessToken in data')
+        raise_backend_error('BTSSS response missing accessToken in data')
       end
 
       @current_btsss_token = btsss_response.body['data']['accessToken']
@@ -218,8 +218,8 @@ module TravelClaim
       fetch_tokens!
     end
 
-    def raise_backend_error(key, detail)
-      raise Common::Exceptions::BackendServiceException.new(key, { detail: })
+    def raise_backend_error(detail)
+      raise Common::Exceptions::BackendServiceException.new('CheckIn travel claim submission error', { detail: })
     end
   end
 end
