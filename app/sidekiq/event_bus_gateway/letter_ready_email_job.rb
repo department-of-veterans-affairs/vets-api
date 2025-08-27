@@ -9,9 +9,7 @@ module EventBusGateway
 
     STATSD_METRIC_PREFIX = 'event_bus_gateway.letter_ready_email'
 
-    # retry for  2d 1h 47m 12s
-    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
-    sidekiq_options retry: 16
+    sidekiq_options Constants::SIDEKIQ_RETRY_OPTIONS
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
