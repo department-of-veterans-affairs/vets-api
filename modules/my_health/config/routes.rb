@@ -5,6 +5,7 @@ MyHealth::Engine.routes.draw do
     scope :medical_records do
       resources :labs_and_tests, only: %i[index], defaults: { format: :json }
       resources :immunizations, only: %i[index show], defaults: { format: :json }
+      resources :conditions, only: %i[index], defaults: { format: :json }
     end
   end
 

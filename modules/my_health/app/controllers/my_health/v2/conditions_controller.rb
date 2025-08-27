@@ -9,6 +9,7 @@ module MyHealth
   module V2
     class ConditionsController < ApplicationController
       service_tag 'mhv-medical-records'
+      skip_before_action :authenticate
 
       STATSD_KEY_PREFIX = 'api.my_health.conditions_v2'
 
