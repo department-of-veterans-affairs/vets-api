@@ -123,13 +123,12 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSub
       expect(submission['attributes']['appealType']).to eq('SupplementalClaim')
     end
 
-    it 'returns finalStatus for an evidence submission' do 
+    it 'returns finalStatus for an evidence submission' do
       es = evidence_submissions.sample
-      nod_uuid = es.supportable_id
       get "#{path}#{es.guid}"
       submission = JSON.parse(response.body)['data']
 
-      expect(submission['attributes']['finalStatus']).to eq(false)
+      expect(submission['attributes']['finalStatus']).to be false
     end
 
     it 'returns an error if record is not found' do
