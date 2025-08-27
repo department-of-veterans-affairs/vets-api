@@ -113,7 +113,7 @@ RSpec.describe MyHealth::V2::ConditionsController, type: :controller do
 
     it 'handles generic errors' do
       expect(Rails.logger).to receive(:error).with(hash_including(
-                                                     message: 'Unexpected error in conditions v2 controller: Unexpected error',
+                                                     message: 'Unexpected error in conditions v2 controller: Error',
                                                      feature: 'conditions_v2'
                                                    ))
 

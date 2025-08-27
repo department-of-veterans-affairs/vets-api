@@ -9,13 +9,15 @@ RSpec.describe UnifiedHealthData::ConditionService do
 
   describe '#get_conditions' do
     before do
-      allow(service).to receive(:fetch_access_token).and_return('Bearer test-token')
-      allow(service).to receive(:perform).and_return(double(body: response_body))
+      allow(service).to receive_messages(
+        fetch_access_token: 'Bearer test-token',
+        perform: double(body: response_body)
+      )
     end
 
     context 'with FHIR Condition resources' do
       let(:response_body) do
-        File.read(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'condition_sample_response.json'))
+        Rails.root.join('spec', 'fixtures', 'unified_health_data', 'condition_sample_response.json').read
       end
 
       it 'parses conditions correctly without date filtering' do
@@ -30,13 +32,15 @@ RSpec.describe UnifiedHealthData::ConditionService do
         expect(first_condition.attributes.name).to eq('Major depressive disorder, recurrent, moderate')
         expect(first_condition.attributes.provider).to eq('BORLAND,VICTORIA A')
         expect(first_condition.attributes.facility).to eq('CHYSHR TEST LAB')
-        expect(first_condition.attributes.comments).to be_nil # No notes in first condition
+        expect(first_condition.attributes.comments).to be_nil
 
         # Test that Oracle Health condition is included
         oracle_condition = conditions.find { |c| c.id == 'p1533314061' }
         expect(oracle_condition).not_to be_nil
         expect(oracle_condition.attributes.name).to eq('Disease caused by 2019 novel coronavirus')
-        expect(oracle_condition.attributes.comments).to eq('This problem was added by Discern Expert for positive COVID-19 lab test.')
+        expect(oracle_condition.attributes.comments).to eq(
+          'This problem was added by Discern Expert for positive COVID-19 lab test.'
+        )
       end
     end
 
