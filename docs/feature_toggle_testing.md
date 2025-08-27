@@ -57,7 +57,7 @@ For common patterns, use the provided shared examples:
 
 ```ruby
 describe 'MyController' do
-  include_examples 'feature toggle behavior', :my_feature do
+  it_behaves_like 'feature toggle behavior', :my_feature do
     let(:enabled_behavior) { 'enables new functionality' }
     let(:disabled_behavior) { 'maintains legacy functionality' }
   end
@@ -250,14 +250,22 @@ end
 
 ## CI/CD Integration
 
-The validation runs automatically on:
-- Pull requests that modify `config/features.yml`
-- Pull requests that modify Ruby files in `app/` or `modules/`
-- Pull requests that modify spec files
+The validation runs automatically on pull requests through:
 
-Failed validation will:
-- Block the PR from merging (if configured)
-- Add a warning comment with specific guidance
-- Provide examples of proper test patterns
+1. **GitHub Actions** (`.github/workflows/feature_toggle_coverage.yml`):
+   - Triggers on Ruby file or `config/features.yml` changes
+   - Runs `bundle exec rake feature_toggles:validate_coverage`
+   - Generates coverage reports
+
+2. **Danger Bot** (`Dangerfile`):
+   - Posts warning comments when new feature toggles lack test coverage
+   - Provides code examples and guidance
+   - Does not block PR merging (warnings only)
+
+3. **Local Testing**:
+   ```bash
+   bundle exec rake feature_toggles:validate_coverage
+   bundle exec danger local
+   ```
 
 For questions or issues, consult the [vets-api Copilot Instructions](/.github/copilot-instructions.md).
