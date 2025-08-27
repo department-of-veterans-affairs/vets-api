@@ -36,6 +36,7 @@ RSpec.describe BGS::DependentV2Service do
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:dependents_claims_evidence_api_upload).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_dependents_bgs_extra_error_logging).and_return(false)
   end
 
   describe '#submit_686c_form' do
@@ -202,6 +203,69 @@ RSpec.describe BGS::DependentV2Service do
           expect do
             service.submit_686c_form(claim)
           end.to raise_error(StandardError, 'Test error')
+        end
+      end
+
+      context 'when Flipper is enabled for extra error logging' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_dependents_bgs_extra_error_logging).and_return(true)
+        end
+
+        it 'logs increments StatsD for certain errors - 302,500,502,504' do
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            error_cause = double('ErrorCause')
+            allow(error_cause).to receive(:message).and_return('HTTP error (302)')
+
+            custom_error = StandardError.new('Test error')
+            allow(custom_error).to receive(:cause).and_return(error_cause)
+
+            allow(BGS::SubmitForm686cV2Job)
+              .to receive(:perform_async)
+              .and_raise(custom_error)
+
+            allow(StatsD).to receive(:increment)
+
+            service = BGS::DependentV2Service.new(user)
+            expect(service).to receive(:log_exception_to_sentry)
+            expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync)
+
+            expect do
+              service.submit_686c_form(claim)
+            end.to raise_error(custom_error)
+
+            expect(StatsD)
+              .to have_received(:increment)
+              .with(
+                'bgs.dependent_service.non_validation_error.302',
+                tags: ['form_id:686C-674-V2']
+              )
+          end
+        end
+
+        it 'does not log increments StatsD for other errors' do
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            error_cause = double('ErrorCause')
+            allow(error_cause).to receive(:message).and_return('Some other error')
+
+            custom_error = StandardError.new('Test error')
+            allow(custom_error).to receive(:cause).and_return(error_cause)
+
+            allow(BGS::SubmitForm686cV2Job)
+              .to receive(:perform_async)
+              .and_raise(custom_error)
+
+            allow(StatsD).to receive(:increment)
+
+            service = BGS::DependentV2Service.new(user)
+            expect(service).to receive(:log_exception_to_sentry)
+            expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync)
+
+            expect do
+              service.submit_686c_form(claim)
+            end.to raise_error(custom_error)
+
+            expect(StatsD).not_to have_received(:increment)
+          end
         end
       end
     end

@@ -68,8 +68,6 @@ module BGS
       raise e
     end
 
-    # So basically the idea is to look at the error.cause&.message and if it has "HTTP error (302)" in it then do StatsD.iterate(whatever.302) or StatsD.iterate(whatever, tags:[error_category:http302] (or something like that)
-
     private
 
     def service
@@ -78,13 +76,23 @@ module BGS
 
     def log_bgs_errors(error)
       if Flipper.enabled?(:va_dependents_bgs_extra_error_logging)
-        error_types = ['HTTP error (302)', 'HTTP error (502)']
-        status_types = [302, 500, 502]
+        error_messages = ['HTTP error (302)', 'HTTP error (500)', 'HTTP error (502)', 'HTTP error (504)']
+        error_type_map = {
+          'HTTP error (302)' => '302',
+          'HTTP error (500)' => '500',
+          'HTTP error (502)' => '502',
+          'HTTP error (504)' => '504'
+        }
         nested_error_message = error.cause&.message
-        should_increment = error_types.any? do |et|
+
+        error_type = error_messages.select do |et|
           nested_error_message&.include?(et)
-        end || status_types.include?(error.status)
-        StatsD.increment("#{STATS_KEY}.non_validation_error", tags: ["form_id:#{form_id}"]) if should_increment
+        end
+
+        if error_type.present?
+          error_status = error_type_map[error_type.first]
+          StatsD.increment("#{STATS_KEY}.non_validation_error.#{error_status}", tags: ["form_id:#{BGS::SubmitForm686cV2Job::FORM_ID}"])
+        end
       end
       @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
                            "#{STATS_KEY}.failure", { error: error.message })
