@@ -77,13 +77,13 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
 
     context 'with valid parameters' do
       before do
-        allow(described_class).to receive(:get_cached)
-        allow(described_class).to receive(:set_cached)
+        allow(described_class).to receive(:key_cached?)
+        allow(described_class).to receive(:mark_key_cached)
         allow(described_class).to receive(:exists?)
       end
 
       it 'returns true when event exists in cache' do
-        allow(described_class).to receive(:get_cached).with(cache_key).and_return('exists')
+        allow(described_class).to receive(:key_cached?).with(cache_key).and_return(true)
 
         result = described_class.event_exists?(user_id:, event_name:)
 
@@ -92,24 +92,24 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
       end
 
       it 'checks database when not in cache and caches result when found' do
-        allow(described_class).to receive(:get_cached).with(cache_key).and_return(nil)
+        allow(described_class).to receive(:key_cached?).with(cache_key).and_return(false)
         allow(described_class).to receive(:exists?).with(user_id:, event_name:).and_return(true)
 
         result = described_class.event_exists?(user_id:, event_name:)
 
         expect(result).to be(true)
         expect(described_class).to have_received(:exists?).with(user_id:, event_name:)
-        expect(described_class).to have_received(:set_cached).with(cache_key, 'exists')
+        expect(described_class).to have_received(:mark_key_cached).with(cache_key)
       end
 
-      it 'returns false when event does not exist and caches negative result' do
-        allow(described_class).to receive(:get_cached).with(cache_key).and_return(nil)
+      it 'returns false when event does not exist and does not cache negative result' do
+        allow(described_class).to receive(:key_cached?).with(cache_key).and_return(false)
         allow(described_class).to receive(:exists?).with(user_id:, event_name:).and_return(false)
 
         result = described_class.event_exists?(user_id:, event_name:)
 
         expect(result).to be(false)
-        expect(described_class).to have_received(:set_cached).with(cache_key, 'not_exists')
+        expect(described_class).not_to have_received(:mark_key_cached)
       end
     end
   end
@@ -121,8 +121,8 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
       allow(Rails).to receive(:logger).and_return(logger)
       allow(logger).to receive(:info)
       allow(logger).to receive(:debug)
-      allow(described_class).to receive(:get_cached)
-      allow(described_class).to receive(:set_cached)
+      allow(described_class).to receive(:key_cached?)
+      allow(described_class).to receive(:mark_key_cached)
       allow(described_class).to receive(:create!)
     end
 
@@ -142,7 +142,7 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
 
     context 'when event exists in cache' do
       before do
-        allow(described_class).to receive(:get_cached).with(cache_key).and_return('exists')
+        allow(described_class).to receive(:key_cached?).with(cache_key).and_return(true)
         allow(logger).to receive(:debug)
       end
 
@@ -157,7 +157,7 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
 
     context 'when event does not exist in cache' do
       before do
-        allow(described_class).to receive(:get_cached).with(cache_key).and_return(nil)
+        allow(described_class).to receive(:key_cached?).with(cache_key).and_return(false)
       end
 
       context 'and record is successfully created' do
@@ -170,7 +170,7 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
 
           expect(result).to be(true)
           expect(described_class).to have_received(:create!).with(user_id:, event_name:)
-          expect(described_class).to have_received(:set_cached).with(cache_key, 'exists')
+          expect(described_class).to have_received(:mark_key_cached).with(cache_key)
           expect(logger).to have_received(:info)
             .with("UUM: New unique event recorded - User: #{user_id}, Event: #{event_name}")
         end
@@ -186,7 +186,7 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
           result = described_class.record_event(user_id:, event_name:)
 
           expect(result).to be(false)
-          expect(described_class).to have_received(:set_cached).with(cache_key, 'exists')
+          expect(described_class).to have_received(:mark_key_cached).with(cache_key)
           expect(logger).to have_received(:debug)
         end
       end
@@ -231,31 +231,30 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
 
     describe 'cache methods' do
       let(:test_key) { 'test_key' }
-      let(:test_value) { 'test_value' }
 
-      describe '.get_cached' do
+      describe '.key_cached?' do
         before do
-          allow(Rails.cache).to receive(:read)
+          allow(Rails.cache).to receive(:exist?)
         end
 
-        it 'calls Rails.cache.read with correct parameters' do
-          described_class.send(:get_cached, test_key)
+        it 'calls Rails.cache.exist? with correct parameters' do
+          described_class.send(:key_cached?, test_key)
 
-          expect(Rails.cache).to have_received(:read).with(test_key, namespace: 'unique_user_metrics')
+          expect(Rails.cache).to have_received(:exist?).with(test_key, namespace: 'unique_user_metrics')
         end
       end
 
-      describe '.set_cached' do
+      describe '.mark_key_cached' do
         before do
           allow(Rails.cache).to receive(:write)
         end
 
         it 'calls Rails.cache.write with correct parameters' do
-          described_class.send(:set_cached, test_key, test_value)
+          described_class.send(:mark_key_cached, test_key)
 
           expect(Rails.cache).to have_received(:write).with(
             test_key,
-            test_value,
+            true,
             namespace: 'unique_user_metrics',
             expires_in: described_class::CACHE_TTL
           )
