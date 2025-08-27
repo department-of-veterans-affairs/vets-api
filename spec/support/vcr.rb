@@ -8,6 +8,7 @@ VCR.configure do |c|
 
   c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
   c.filter_sensitive_data('<AV_KEY>') { VAProfile::Configuration::SETTINGS.address_validation.api_key }
+  c.filter_sensitive_data('<CLAIMS_API_BD_URL>') { Settings.claims_api.benefits_documents.host }
   c.filter_sensitive_data('<DMC_TOKEN>') { Settings.dmc.client_secret }
   c.filter_sensitive_data('<DMC_BASE_URL>') { Settings.dmc.url }
   c.filter_sensitive_data('<BGS_BASE_URL>') { Settings.bgs.url }
@@ -15,6 +16,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<EVSS_AWS_BASE_URL>') { Settings.evss.aws.url }
   c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
   c.filter_sensitive_data('<EVSS_DVP_BASE_URL>') { Settings.evss.dvp.url }
+  c.filter_sensitive_data('<FES_BASE_URL>') { Settings.claims_api.fes.host }
   c.filter_sensitive_data('<FARADAY_VERSION>') { Faraday::Connection::USER_AGENT }
   c.filter_sensitive_data('<DISABILITY_MAX_RATINGS_URI>') { Settings.disability_max_ratings_api.url }
   c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }
@@ -82,6 +84,7 @@ VCR.configure do |c|
     "#{Settings.veteran_enrollment_system.host}:#{Settings.veteran_enrollment_system.port}"
   end
   c.filter_sensitive_data('<VETERAN_ENROLLMENT_SYSTEM>') { Settings.hca.endpoint }
+  c.filter_sensitive_data('<CASEFLOW_API_HOST>') { Settings.caseflow.host }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')
