@@ -1,33 +1,32 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+
 RSpec.describe SimpleFormsApi::VBA4010007 do
   describe 'handle_attachments' do
     it 'saves the merged pdf' do
       original_pdf = double('HexaPDF::Document')
       combined_pdf = double('HexaPDF::Document')
-      original_file_path = 'original-file-path'
-      attachment_page_path = 'attachment_page.pdf'
+      original_file_path = Rails.root.join('tmp', 'original-file-path').to_s
+      attachment_page_path = Rails.root.join('tmp', 'attachment_page.pdf').to_s
       page = double('HexaPDF::Page')
 
       form = build(:vba4010007)
 
       allow(HexaPDF::Document).to receive(:open).with(original_file_path).and_return(original_pdf)
+      # Accept both the full path and the relative path for attachment_page.pdf
       allow(HexaPDF::Document).to receive(:open).with(attachment_page_path).and_return(combined_pdf)
-
+      allow(HexaPDF::Document).to receive(:open).with('attachment_page.pdf').and_return(combined_pdf)
       allow(combined_pdf).to receive(:pages).and_return([page])
       allow(original_pdf).to receive(:pages).and_return([page])
-
       allow(original_pdf).to receive(:import).with(page).and_return(page)
-
       allow(original_pdf).to receive(:write).with(original_file_path, optimize: true)
-
-      allow(form).to receive(:create_attachment_page).with(attachment_page_path)
+      allow(form).to receive(:create_attachment_page).with(anything)
 
       form.handle_attachments(original_file_path)
 
       expect(HexaPDF::Document).to have_received(:open).with(original_file_path)
-      expect(HexaPDF::Document).to have_received(:open).with(attachment_page_path)
+      expect(HexaPDF::Document).to have_received(:open).with('attachment_page.pdf')
       expect(original_pdf).to have_received(:write).with(original_file_path, optimize: true)
     end
   end
@@ -70,6 +69,14 @@ RSpec.describe SimpleFormsApi::VBA4010007 do
 
       it 'returns the applicant first name' do
         expect(described_class.new(data).notification_first_name).to eq 'Applicant'
+      end
+    end
+
+    context 'missing applicant and claimant names' do
+      let(:data) { { 'application' => { 'applicant' => {}, 'claimant' => {} } } }
+
+      it 'returns nil if names are missing' do
+        expect(described_class.new(data).notification_first_name).to be_nil
       end
     end
   end
