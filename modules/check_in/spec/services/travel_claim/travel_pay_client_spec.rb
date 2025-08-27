@@ -55,7 +55,6 @@ RSpec.describe TravelClaim::TravelPayClient do
   describe '#system_access_token_request' do
     let(:client_number) { 'test-client-123' }
     let(:veis_access_token) { 'veis-token-abc' }
-    let(:icn) { '1234567890V123456' }
 
     it 'makes system access token request with correct parameters' do
       mock_response = double('Response', body: { 'data' => { 'accessToken' => 'v4-token' } }.to_json)
@@ -84,7 +83,6 @@ RSpec.describe TravelClaim::TravelPayClient do
   describe '#send_appointment_request' do
     let(:appointment_date_time) { '2024-01-15T10:00:00Z' }
     let(:facility_id) { 'facility-123' }
-    let(:icn) { '1234567890V123456' }
 
     before do
       # Set up tokens

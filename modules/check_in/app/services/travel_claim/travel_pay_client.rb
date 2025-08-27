@@ -187,12 +187,8 @@ module TravelClaim
     def fetch_tokens!
       veis_response = veis_token_request
 
-      unless veis_response.body && veis_response.body['access_token']
-        raise Common::Exceptions::BackendServiceException.new(
-          'VEIS_TOKEN_MISSING',
-          { detail: 'VEIS response missing access_token' },
-          500
-        )
+      unless veis_response.body&.dig('access_token')
+        raise_backend_error('VEIS_TOKEN_MISSING', 'VEIS response missing access_token')
       end
 
       @current_veis_token = veis_response.body['access_token']
@@ -212,12 +208,8 @@ module TravelClaim
         icn: @current_icn
       )
 
-      unless btsss_response.body && btsss_response.body['data'] && btsss_response.body['data']['accessToken']
-        raise Common::Exceptions::BackendServiceException.new(
-          'BTSSS_TOKEN_MISSING',
-          { detail: 'BTSSS response missing accessToken in data' },
-          500
-        )
+      unless btsss_response.body&.dig('data', 'accessToken')
+        raise_backend_error('BTSSS_TOKEN_MISSING', 'BTSSS response missing accessToken in data')
       end
 
       @current_btsss_token = btsss_response.body['data']['accessToken']
@@ -233,6 +225,10 @@ module TravelClaim
       @headers = nil
       @redis_client.save_token(token: nil)
       fetch_tokens!
+    end
+
+    def raise_backend_error(key, detail)
+      raise Common::Exceptions::BackendServiceException.new(key, { detail: })
     end
   end
 end
