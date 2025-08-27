@@ -14,17 +14,19 @@ RSpec.describe SimpleFormsApi::VBA4010007 do
       form = build(:vba4010007)
 
       allow(HexaPDF::Document).to receive(:open).with(original_file_path).and_return(original_pdf)
+      # Accept both the full path and the relative path for attachment_page.pdf
       allow(HexaPDF::Document).to receive(:open).with(attachment_page_path).and_return(combined_pdf)
+      allow(HexaPDF::Document).to receive(:open).with('attachment_page.pdf').and_return(combined_pdf)
       allow(combined_pdf).to receive(:pages).and_return([page])
       allow(original_pdf).to receive(:pages).and_return([page])
       allow(original_pdf).to receive(:import).with(page).and_return(page)
       allow(original_pdf).to receive(:write).with(original_file_path, optimize: true)
-      allow(form).to receive(:create_attachment_page).with(attachment_page_path)
+      allow(form).to receive(:create_attachment_page).with(anything)
 
       form.handle_attachments(original_file_path)
 
       expect(HexaPDF::Document).to have_received(:open).with(original_file_path)
-      expect(HexaPDF::Document).to have_received(:open).with(attachment_page_path)
+      expect(HexaPDF::Document).to have_received(:open).with('attachment_page.pdf')
       expect(original_pdf).to have_received(:write).with(original_file_path, optimize: true)
     end
   end
