@@ -11,10 +11,7 @@ module AccreditedRepresentativePortal
       # Authorize only if the current user's account has at least one registration
       account = @user.user_account
 
-      rep_account =
-        AccreditedRepresentativePortal::RepresentativeUserAccount.find(account.id)
-
-      registrations = rep_account.registrations
+      registrations = account.registrations
       registrations.present?
     rescue Common::Exceptions::Forbidden
       false
