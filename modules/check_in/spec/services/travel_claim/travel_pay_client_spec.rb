@@ -12,14 +12,13 @@ RSpec.describe TravelClaim::TravelPayClient do
   describe '#veis_token_request' do
     it 'makes VEIS token request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    auth_url: 'https://dev.integration.d365.va.gov',
-                    tenant_id: 'fake_template_id',
-                    travel_pay_client_id: 'fake_client_id',
-                    travel_pay_client_secret: 'fake_client_secret',
-                    scope: 'fake_scope',
-                    travel_pay_resource: 'fake_resource') do
-        VCR.use_cassette('check_in/travel_claim/veis_token_200') do
-          result = client.veis_token_request
+                    auth_url: 'https://auth.example.test',
+                    tenant_id: 'tenant-123',
+                    travel_pay_client_id: 'client-id',
+                    travel_pay_client_secret: 'super-secret-123',
+                    scope: 'scope.read',
+                    travel_pay_resource: 'test-resource') do
+        mock_response = double('Response', body: { 'access_token' => 'test-token' })
 
           expect(result).to respond_to(:status)
           expect(result).to respond_to(:body)
@@ -40,13 +39,19 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'makes system access token request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2: 'https://dev.integration.d365.va.gov',
-                    travel_pay_client_secret: 'fake_client_secret') do
-        VCR.use_cassette('check_in/travel_claim/system_access_token_200') do
-          result = client.system_access_token_request(
-            client_number:,
-            veis_access_token:,
-            icn:
+                    claims_url_v2: 'https://claims.example.test',
+                    travel_pay_client_secret: 'super-secret-123') do
+        mock_response = double('Response', body: { 'data' => { 'accessToken' => 'v4-token' } })
+
+        expect(client).to receive(:perform).with(
+          :post,
+          'https://claims.example.test/api/v4/auth/system-access-token',
+          { secret: 'super-secret-123', icn: },
+          hash_including(
+            'Content-Type' => 'application/json',
+            'Authorization' => "Bearer #{veis_access_token}",
+            'BTSSS-API-Client-Number' => client_number,
+            'X-Correlation-ID' => anything
           )
 
           expect(result).to respond_to(:status)
@@ -72,11 +77,21 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'makes appointment request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2: 'https://dev.integration.d365.va.gov') do
-        VCR.use_cassette('check_in/travel_claim/appointments_find_or_add_200') do
-          result = client.send_appointment_request(
-            appointment_date_time:,
-            facility_id:
+                    claims_url_v2: 'https://claims.example.test') do
+        mock_response = double('Response', body: { 'data' => { 'id' => 'appt-123' } })
+
+        expect(client).to receive(:perform).with(
+          :post,
+          'https://claims.example.test/api/v3/appointments/find-or-add',
+          {
+            appointmentDateTime: appointment_date_time,
+            facilityStationNumber: facility_id
+          },
+          hash_including(
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer test-veis-token',
+            'X-BTSSS-Token' => 'test-btsss-token',
+            'X-Correlation-ID' => anything
           )
 
           expect(result).to respond_to(:status)
