@@ -115,8 +115,8 @@ RSpec.describe V0::BdsGatewayController, type: :controller do
           branchOfService: ['NAVY'],
           disabilityRating: '60', # Note: string, not integer due to Rails param conversion
           serviceDates: [{ startDate: '2018-01-01', endDate: '2022-01-01' }]
-        }).permit(:dateOfBirth, :disabilityRating, 
-                  dischargeStatus: [], branchOfService: [], 
+        }).permit(:dateOfBirth, :disabilityRating,
+                  dischargeStatus: [], branchOfService: [],
                   serviceDates: [:startDate, :endDate])
 
         expect(service_instance).to receive(:get_eligible_benefits).with(expected_params)
