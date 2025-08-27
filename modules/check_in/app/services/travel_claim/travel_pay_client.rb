@@ -211,7 +211,6 @@ module TravelClaim
     def refresh_tokens!
       @current_veis_token = nil
       @current_btsss_token = nil
-      @headers = nil
       @redis_client.save_token(token: nil)
       fetch_tokens!
     end
