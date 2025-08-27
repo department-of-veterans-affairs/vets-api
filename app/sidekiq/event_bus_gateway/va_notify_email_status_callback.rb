@@ -12,8 +12,6 @@ module EventBusGateway
 
     STATSD_METRIC_PREFIX = 'event_bus_gateway.va_notify_email_status_callback'
 
-    MAX_ATTEMPTS = 16
-
     def self.call(notification)
       status = notification.status
 
@@ -26,7 +24,7 @@ module EventBusGateway
 
     def self.retry_email(notification)
       ebg_noti = find_notification_by_va_notify_id(notification.id)
-      return handle_exhausted_retries(notification, ebg_noti) if ebg_noti.attempts > MAX_ATTEMPTS
+      return handle_exhausted_retries(notification, ebg_noti) if ebg_noti.attempts > Constants::MAX_EMAIL_ATTEMPTS
 
       schedule_retry_job(ebg_noti)
       StatsD.increment("#{STATSD_METRIC_PREFIX}.queued_retry_success", tags: Constants::DD_TAGS)
@@ -97,7 +95,7 @@ module EventBusGateway
     def self.add_exhausted_retry_log(_notification, ebg_notification)
       context = {
         ebg_notification_id: ebg_notification.id,
-        max_attempts: MAX_ATTEMPTS
+        max_attempts: Constants::MAX_EMAIL_ATTEMPTS
       }
 
       Rails.logger.error('EventBusGateway email retries exhausted', context)
