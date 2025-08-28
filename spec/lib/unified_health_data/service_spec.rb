@@ -807,7 +807,7 @@ describe UnifiedHealthData::Service, type: :service do
           allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_sample_response),
                                              parse_response_body: notes_sample_response)
 
-          notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-05-31')
+          notes = service.get_care_summaries_and_notes
           expect(notes.size).to eq(6)
           expect(notes.map(&:type)).to contain_exactly(
             'physician_procedure_note',
@@ -838,7 +838,7 @@ describe UnifiedHealthData::Service, type: :service do
           allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_no_oh_response),
                                              parse_response_body: notes_no_oh_response)
 
-          notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-05-31')
+          notes = service.get_care_summaries_and_notes
           expect(notes.size).to eq(4)
           expect(notes.map(&:type)).to contain_exactly(
             'physician_procedure_note',
@@ -866,7 +866,7 @@ describe UnifiedHealthData::Service, type: :service do
                                              perform: double(body: notes_no_vista_response),
                                              parse_response_body: notes_no_vista_response)
 
-          notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-05-31')
+          notes = service.get_care_summaries_and_notes
           expect(notes.size).to eq(2)
           expect(notes.map(&:type)).to contain_exactly(
             'discharge_summary',
@@ -893,7 +893,7 @@ describe UnifiedHealthData::Service, type: :service do
           allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_empty_response),
                                              parse_response_body: notes_empty_response)
 
-          notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-05-31')
+          notes = service.get_care_summaries_and_notes
           expect(notes.size).to eq(0)
         end
       end
@@ -906,7 +906,7 @@ describe UnifiedHealthData::Service, type: :service do
         allow(uhd_service).to receive(:get_care_summaries_and_notes).and_raise(StandardError.new('Unknown fetch error'))
 
         expect do
-          uhd_service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-05-31')
+          uhd_service.get_care_summaries_and_notes
         end.to raise_error(StandardError, 'Unknown fetch error')
       end
     end
