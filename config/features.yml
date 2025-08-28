@@ -155,9 +155,6 @@ features:
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
-  decision_reviews_4142_banner:
-    actor_type: user
-    description: Enables the re-authorization banner on the 4142 legalese page
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -612,9 +609,6 @@ features:
   decision_review_service_common_exceptions_enabled:
     actor_type: user
     description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
-  decision_review_form4142_use_2024_template:
-    actor_type: user
-    description: Enables the use of the 2024 template for form 4142 in decision review applications
   decision_review_form4142_validate_schema:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in decision review applications
@@ -1242,6 +1236,10 @@ features:
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
+    enable_in_development: true
+  mhv_medical_records_ccd_extended_file_types:
+    actor_type: user
+    description: Allows users to download CCD (health summary) in PDF and HTML formats
     enable_in_development: true
   mhv_medical_records_display_conditions:
     actor_type: user
@@ -2392,6 +2390,9 @@ features:
   gi_feedback_tool_vet_tec_education_benefit:
     actor_type: user
     description: Includes the (VET TEC 2.0) option for selection under the Education Benefits question in the GI Bill® School Feedback Tool
+  discover_your_benefits_browser_monitoring_enabled:
+    actor_type: user
+    description: Discover Your Benefits Datadog RUM monitoring
   accredited_representative_portal_homepage:
     actor_type: user
     description: Enables new homepage redesign for ARP
@@ -2401,3 +2402,4 @@ features:
   gi_comparison_tool_cautionary_info_update:
     actor_type: user
     description: Enables updated cautionary info student feedback ui for GI Comparison Tool
+
