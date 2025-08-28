@@ -137,6 +137,18 @@ module TravelClaim
     end
 
     ##
+    # Sends a request to get a claim by ID.
+    #
+    # @param claim_id [String] Claim ID
+    # @return [Faraday::Response] HTTP response containing claim data
+    #
+    def send_get_claim_request(claim_id:)
+      with_auth do
+        perform(:get, "#{claims_url_v2}/api/v3/claims/#{claim_id}", nil, headers)
+      end
+    end
+
+    ##
     # Sends a request to submit a claim for processing.
     #
     # @param claim_id [String] Claim ID
