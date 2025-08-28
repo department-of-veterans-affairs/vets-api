@@ -24,6 +24,7 @@ require 'pdf_fill/forms/va5655'
 require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
 require 'pdf_fill/forms/va2210215a'
+require 'pdf_fill/forms/va221919'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
 require 'utilities/date_parser'
 require 'forwardable'
@@ -79,7 +80,8 @@ module PdfFill
       '5655' => PdfFill::Forms::Va5655,
       '22-10216' => PdfFill::Forms::Va2210216,
       '22-10215' => PdfFill::Forms::Va2210215,
-      '22-10215a' => PdfFill::Forms::Va2210215a
+      '22-10215a' => PdfFill::Forms::Va2210215a,
+      '22-1919' => PdfFill::Forms::Va221919
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
     end
