@@ -109,7 +109,7 @@ module UnifiedHealthData
           parts = name.split(',')
           return name if parts.length != 2
 
-          firstname, lastname = parts
+          lastname, firstname = parts
           "#{firstname} #{lastname}"
         rescue
           nil
@@ -164,9 +164,8 @@ module UnifiedHealthData
             unless resource && (resource['resourceType'] == type_id.first || resource['resourceType'] == type)
               return nil
             end
-
-            resource
           end
+          resource
         end
       end
     end
