@@ -29,15 +29,16 @@ module VAProfile
             begin
               candidate_res = candidate(address)
 
-              # If candidate endpoint returns candidate address not found (200 response),
-              # validate provided address and return the original address + validation key
+              AddressSuggestionsResponse.new(candidate_res)
+            rescue Common::Exceptions::BackendServiceException => e
+              # binding.pry
               if Flipper.enabled?(:profile_validate_address_when_no_candidate_found) &&
-                 candidate_address_not_found?(candidate_res)
-                validate_res = validate(address)
+                 candidate_address_not_found?(e)
+                 validate_res = validate(address)
 
-                AddressSuggestionsResponse.new(validate_res, validate: true)
+                 AddressSuggestionsResponse.new(validate_res, validate: true)
               else
-                AddressSuggestionsResponse.new(candidate_res)
+                handle_error(e)
               end
             rescue => e
               handle_error(e)
@@ -86,10 +87,9 @@ module VAProfile
         end
 
         def candidate_address_not_found?(exception)
-          return false unless exception.is_a?(Hash)
-
-          messages = exception['messages'] || []
-          messages.any? { |msg| msg['key'] == 'CandidateAddressNotFound' }
+          binding.pry
+          details = exception.errors.map { |e| e.instance_variable_get('@detail') } || []
+          details.any? { |detail| detail['messages'].any? { |message| message['key'] == 'CandidateAddressNotFound' } }
         end
       end
     end
