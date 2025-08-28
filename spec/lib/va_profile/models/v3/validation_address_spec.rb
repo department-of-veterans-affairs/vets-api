@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'va_profile/models/v3/validation_address'
+require 'va_profile/models/validation_address'
 
-describe VAProfile::Models::V3::ValidationAddress do
+describe VAProfile::Models::ValidationAddress do
   let(:address) { build(:va_profile_v3_validation_address, :multiple_matches) }
 
   describe '#address_validation_req' do

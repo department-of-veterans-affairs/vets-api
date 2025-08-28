@@ -65,7 +65,7 @@ module VAProfile
 
         def update_address(address)
           address_type =
-            if address.address_pou == VAProfile::Models::V3::BaseAddress::RESIDENCE
+            if address.address_pou == VAProfile::Models::BaseAddress::RESIDENCE
               'residential'
             else
               'mailing'

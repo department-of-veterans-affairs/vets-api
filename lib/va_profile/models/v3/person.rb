@@ -25,7 +25,7 @@ module VAProfile
         # @return [VAProfile::Models::Person] the model built from the response body
         def self.build_from(body)
           body ||= {}
-          addresses = body['addresses']&.map { |a| VAProfile::Models::V3::Address.build_from(a) }
+          addresses = body['addresses']&.map { |a| VAProfile::Models::Address.build_from(a) }
           emails = body['emails']&.map { |e| VAProfile::Models::Email.build_from(e) }
           telephones = body['telephones']&.map { |t| VAProfile::Models::Telephone.build_from(t) }
 

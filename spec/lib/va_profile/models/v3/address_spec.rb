@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'va_profile/models/v3/address'
+require 'va_profile/models/address'
 
-describe VAProfile::Models::V3::Address do
+describe VAProfile::Models::Address do
   let(:address) { build(:va_profile_v3_address) }
 
   describe 'geolocation' do
@@ -233,12 +233,12 @@ describe VAProfile::Models::V3::Address do
 
     context 'when address pou is correspondence' do
       it 'correspondence? is true' do
-        address.address_pou = VAProfile::Models::V3::Address::CORRESPONDENCE
+        address.address_pou = VAProfile::Models::Address::CORRESPONDENCE
         expect(address.correspondence?).to be(true)
       end
 
       it 'bad address is false' do
-        address.address_pou = VAProfile::Models::V3::Address::CORRESPONDENCE
+        address.address_pou = VAProfile::Models::Address::CORRESPONDENCE
         json = JSON.parse(address.in_json_v2)
         expect(json['bio']['badAddress']).to be(false)
       end
@@ -246,12 +246,12 @@ describe VAProfile::Models::V3::Address do
 
     context 'when address pou is residence' do
       it 'correspondence? is false' do
-        address.address_pou = VAProfile::Models::V3::Address::RESIDENCE
+        address.address_pou = VAProfile::Models::Address::RESIDENCE
         expect(address.correspondence?).to be(false)
       end
 
       it 'bad address is nil' do
-        address.address_pou = VAProfile::Models::V3::Address::RESIDENCE
+        address.address_pou = VAProfile::Models::Address::RESIDENCE
         json = JSON.parse(address.in_json_v2)
         expect(json['bio']['badAddress']).to be_nil
       end

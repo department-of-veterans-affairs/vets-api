@@ -3,7 +3,7 @@
 require 'va_profile/models/validation_address'
 
 FactoryBot.define do
-  factory :va_profile_validation_address, class: 'VAProfile::Models::ValidationAddress' do
+  factory :va_profile_v3_validation_address, class: 'VAProfile::Models::ValidationAddress' do
     address_pou { VAProfile::Models::Address::RESIDENCE }
     address_type { VAProfile::Models::Address::DOMESTIC }
     country_name { 'USA' }
@@ -13,6 +13,7 @@ FactoryBot.define do
       address_line1 { '37 1st st' }
       city { 'Brooklyn' }
       state_code { 'NY' }
+      country_name {}
       zip_code { '11249' }
     end
 

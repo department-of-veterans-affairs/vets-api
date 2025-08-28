@@ -2,7 +2,7 @@
 
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
-require 'va_profile/models/v3/validation_address'
+require 'va_profile/models/validation_address'
 require 'va_profile/v3/address_validation/service'
 
 module V0
@@ -14,7 +14,7 @@ module V0
 
       def create
         address = if Flipper.enabled?(:remove_pciu)
-                    VAProfile::Models::V3::ValidationAddress.new(address_params)
+                    VAProfile::Models::ValidationAddress.new(address_params)
                   else
                     VAProfile::Models::ValidationAddress.new(address_params)
                   end
