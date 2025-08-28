@@ -105,7 +105,7 @@ RSpec.describe Pensions::MilitaryInformation do
       bad_response = instance_double(
         VAProfile::MilitaryPersonnel::ServiceHistoryResponse,
         status: 200,
-        episodes: ["This should be an Array of Hashes"]
+        episodes: ['This should be an Array of Hashes']
       )
 
       allow(military_personnel_stub).to receive(:get_service_history).and_return(bad_response)
