@@ -51,8 +51,10 @@ module PdfFill
         'WIDOWED'
       ].freeze
 
+      # These are the options for the `Sex field on the 10-10EZR`
+      # "options": ["1", "FEMALE", "Off"],
       SEX = {
-        'F' => 0,
+        'F' => 'FEMALE',
         'M' => 1
       }.freeze
 
@@ -239,18 +241,14 @@ module PdfFill
         end
       end
 
-      def merge_single_association(type)
-        association = @form_data[type].first
-
-        association['fullName'] = FORMATTER.format_full_name(association['fullName'])
-        association['address'] = combine_full_address(association['address'])
-        association['primaryPhone'] = format_phone_number(association['primaryPhone'])
-      end
-
       def merge_associations(type)
         return if @form_data[type].blank?
 
-        merge_single_association(type)
+        @form_data[type].each do |association|
+          association['fullName'] = FORMATTER.format_full_name(association['fullName'])
+          association['address'] = combine_full_address(association['address'])
+          association['primaryPhone'] = format_phone_number(association['primaryPhone'])
+        end
       end
 
       def merge_value(type, method_name)
