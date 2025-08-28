@@ -10,6 +10,7 @@ accredited_representative_portal:
       base_uri: ~
       path: ~
       repo: ~
+  frontend_base_url: http://localhost:3001/representative
 adapted_housing:
   prefill: true
 argocd:
