@@ -42,7 +42,7 @@ module Lighthouse
       # datadog converts most non-alphanumeric characters into underscores
       # this series of substitutions is being done to make the tag more readable
       def format_benefits(sorted)
-        sorted.to_h.to_s.tr('\"{}=>', '').tr('[', '/').gsub('], ', '/').gsub(', ', ':').tr(']', '/')
+        sorted.to_h.to_s.tr('\/"{}=>', '').tr('[', '/').gsub('], ', '/').gsub(', ', ':').tr(']', '/')
       end
     end
   end
