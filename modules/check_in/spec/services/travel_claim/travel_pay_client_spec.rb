@@ -377,6 +377,43 @@ RSpec.describe TravelClaim::TravelPayClient do
     end
   end
 
+  describe '#send_get_claim_request' do
+    let(:claim_id) { 'claim-123' }
+
+    before do
+      # Mock ensure_tokens! to skip token fetching
+      allow(client).to receive(:ensure_tokens!)
+      # Mock the headers method to return expected headers
+      allow(client).to receive(:headers).and_return({
+                                                      'Content-Type' => 'application/json',
+                                                      'Authorization' => 'Bearer test-veis-token',
+                                                      'X-BTSSS-Token' => 'test-btsss-token',
+                                                      'X-Correlation-ID' =>
+                                                      client.instance_variable_get(:@correlation_id)
+                                                    })
+    end
+
+    it 'makes get claim request with correct parameters' do
+      with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                    claims_url_v2: 'https://dev.integration.d365.va.gov') do
+        VCR.use_cassette('check_in/travel_claim/claims_get_200') do
+          result = client.send_get_claim_request(claim_id:)
+
+          expect(result).to respond_to(:status)
+          expect(result).to respond_to(:body)
+          expect(result.status).to eq(200)
+
+          response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
+          expect(response_body['success']).to be true
+          expect(response_body['statusCode']).to eq(200)
+          expect(response_body['message']).to eq('Claim retrieved successfully.')
+          expect(response_body['data']['claimId']).to eq(claim_id)
+          expect(response_body['correlationId']).to be_present
+        end
+      end
+    end
+  end
+
   describe '#send_mileage_expense_request' do
     let(:claim_id) { 'claim-123' }
     let(:date_incurred) { '2024-01-15' }
