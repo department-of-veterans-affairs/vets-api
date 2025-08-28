@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'unified_health_data/service'
-require 'clinical_notes_serializer'
+require 'unified_health_data/serializers/clinical_notes_serializer'
 
 module MyHealth
   module V2
@@ -9,10 +9,8 @@ module MyHealth
       service_tag 'mhv-medical-records'
 
       def index
-        start_date = params['start_date']
-        end_date = params['end_date']
-        care_notes = service.get_care_summaries_and_notes(start_date:, end_date:)
-        serialized_notes = ClinicalNotesSerializer.new(care_notes)
+        care_notes = service.get_care_summaries_and_notes
+        serialized_notes = UnifiedHealthData::ClinicalNotesSerializer.new(care_notes)
         render json: serialized_notes,
                status: :ok
       rescue Common::Client::Errors::ClientError,

@@ -44,7 +44,6 @@ module UnifiedHealthData
         headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
         patient_id = @user.icn
 
-        # TODO: verify path
         path = "#{config.base_path}notes?patientId=#{patient_id}"
         response = perform(:get, path, nil, headers)
         body = parse_response_body(response.body)
