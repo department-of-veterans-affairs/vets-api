@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'unified_health_data/service'
-require 'condition_serializer'
+require 'unified_health_data/serializers/condition_serializer'
 
 module MyHealth
   module V2
@@ -11,7 +11,7 @@ module MyHealth
 
       def index
         conditions = service.get_conditions
-        render json: conditions.map { |record| ConditionSerializer.serialize(record) }
+        render json: UnifiedHealthData::Serializers::ConditionSerializer.new(conditions).serializable_hash[:data]
       end
 
       private

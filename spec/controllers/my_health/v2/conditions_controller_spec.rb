@@ -18,14 +18,11 @@ RSpec.describe MyHealth::V2::ConditionsController, type: :controller do
       [
         UnifiedHealthData::Condition.new(
           id: 'condition-1',
-          type: 'Condition',
-          attributes: UnifiedHealthData::ConditionAttributes.new(
-            date: '2025-01-15T10:30:00Z',
-            name: 'Test Condition',
-            provider: 'Dr. Test',
-            facility: 'Test Facility',
-            comments: 'Test comments'
-          )
+          date: '2025-01-15T10:30:00Z',
+          name: 'Test Condition',
+          provider: 'Dr. Test',
+          facility: 'Test Facility',
+          comments: 'Test comments'
         )
       ]
     end
@@ -42,15 +39,18 @@ RSpec.describe MyHealth::V2::ConditionsController, type: :controller do
       get :index
     end
 
-    it 'returns serialized conditions in correct format' do
+    it 'returns serialized conditions in JSONAPI format' do
       get :index
 
       expect(response).to have_http_status(:ok)
 
       json_response = JSON.parse(response.body)
       expect(json_response).to be_an(Array)
-      expect(json_response.first).to include(
-        'id' => 'condition-1',
+
+      first_condition = json_response.first
+      expect(first_condition['id']).to eq('condition-1')
+      expect(first_condition['type']).to eq('condition')
+      expect(first_condition['attributes']).to include(
         'name' => 'Test Condition',
         'provider' => 'Dr. Test',
         'facility' => 'Test Facility',

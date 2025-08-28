@@ -799,9 +799,9 @@ describe UnifiedHealthData::Service, type: :service do
         first_condition = conditions.first
 
         expect(first_condition.id).to eq('2b4de3e7-0ced-43c6-9a8a-336b9171f4df')
-        expect(first_condition.attributes.name).to eq('Major depressive disorder, recurrent, moderate')
-        expect(first_condition.attributes.provider).to eq('BORLAND,VICTORIA A')
-        expect(first_condition.attributes.facility).to eq('CHYSHR TEST LAB')
+        expect(first_condition.name).to eq('Major depressive disorder, recurrent, moderate')
+        expect(first_condition.provider).to eq('BORLAND,VICTORIA A')
+        expect(first_condition.facility).to eq('CHYSHR TEST LAB')
       end
     end
 
@@ -868,7 +868,10 @@ describe UnifiedHealthData::Service, type: :service do
 
       expect(condition).to be_a(UnifiedHealthData::Condition)
       expect(condition.id).to eq('test-id-123')
-      expect(condition.type).to eq('Condition')
+      expect(condition.date).to eq('2024-01-15T00:00:00Z')
+      expect(condition.name).to eq('Test Condition')
+      expect(condition.provider).to eq('Dr. Test Provider')
+      expect(condition.facility).to eq('Test Medical Center')
     end
 
     it 'handles nil record' do
@@ -879,63 +882,6 @@ describe UnifiedHealthData::Service, type: :service do
     it 'handles record with nil resource' do
       condition = service.send(:parse_single_condition, { 'resource' => nil })
       expect(condition).to be_nil
-    end
-  end
-
-  describe '#build_condition_attributes' do
-    it 'extracts date from onsetDateTime' do
-      resource = { 'onsetDateTime' => '2024-01-15T00:00:00Z' }
-      attributes = service.send(:build_condition_attributes, resource)
-      expect(attributes.date).to eq('2024-01-15T00:00:00Z')
-    end
-
-    it 'falls back to recordedDate when onsetDateTime is missing' do
-      resource = { 'recordedDate' => '2024-02-20T00:00:00Z' }
-      attributes = service.send(:build_condition_attributes, resource)
-      expect(attributes.date).to eq('2024-02-20T00:00:00Z')
-    end
-
-    it 'extracts name from code coding display' do
-      resource = { 'code' => { 'coding' => [{ 'display' => 'Essential Hypertension' }] } }
-      attributes = service.send(:build_condition_attributes, resource)
-      expect(attributes.name).to eq('Essential Hypertension')
-    end
-
-    it 'falls back to code text when coding display is missing' do
-      resource = { 'code' => { 'text' => 'Essential Hypertension' } }
-      attributes = service.send(:build_condition_attributes, resource)
-      expect(attributes.name).to eq('Essential Hypertension')
-    end
-
-    it 'extracts provider from contained practitioner' do
-      resource = {
-        'contained' => [
-          { 'resourceType' => 'Practitioner', 'name' => [{ 'text' => 'Dr. Jane Smith' }] }
-        ]
-      }
-      attributes = service.send(:build_condition_attributes, resource)
-      expect(attributes.provider).to eq('Dr. Jane Smith')
-    end
-
-    it 'extracts facility from contained location' do
-      resource = {
-        'contained' => [
-          { 'resourceType' => 'Location', 'name' => 'VA Medical Center - Primary Care' }
-        ]
-      }
-      attributes = service.send(:build_condition_attributes, resource)
-      expect(attributes.facility).to eq('VA Medical Center - Primary Care')
-    end
-
-    it 'handles missing fields gracefully' do
-      resource = {}
-      attributes = service.send(:build_condition_attributes, resource)
-
-      expect(attributes.date).to be_nil
-      expect(attributes.name).to eq('')
-      expect(attributes.provider).to eq('')
-      expect(attributes.facility).to eq('')
-      expect(attributes.comments).to eq('')
     end
   end
 

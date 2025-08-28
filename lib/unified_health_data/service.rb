@@ -169,17 +169,9 @@ module UnifiedHealthData
       return nil if record.nil? || record['resource'].nil?
 
       resource = record['resource']
-      attributes = build_condition_attributes(resource)
 
       UnifiedHealthData::Condition.new(
         id: resource['id'],
-        type: resource['resourceType'],
-        attributes:
-      )
-    end
-
-    def build_condition_attributes(resource)
-      UnifiedHealthData::ConditionAttributes.new(
         date: resource['onsetDateTime'] || resource['recordedDate'],
         name: resource.dig('code', 'coding', 0, 'display') || resource.dig('code', 'text') || '',
         provider: extract_condition_provider(resource),

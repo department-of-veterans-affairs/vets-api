@@ -3,21 +3,14 @@
 require 'vets/model'
 
 module UnifiedHealthData
-  class ConditionAttributes
+  class Condition
     include Vets::Model
 
+    attribute :id, String
     attribute :date, String
     attribute :name, String
     attribute :provider, String
     attribute :facility, String
     attribute :comments, String
-  end
-
-  class Condition
-    include Vets::Model
-
-    attribute :id, String
-    attribute :type, String
-    attribute :attributes, UnifiedHealthData::ConditionAttributes, array: false
   end
 end
