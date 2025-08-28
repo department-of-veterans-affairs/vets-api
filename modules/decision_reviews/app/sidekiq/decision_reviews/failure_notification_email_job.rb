@@ -174,7 +174,7 @@ module DecisionReviews
         reference = "#{appeal_type}-secondary_form-#{form.guid}"
 
         response = send_email_with_vanotify_callback(form.appeal_submission, :secondary_form, nil,
-                                                    form.created_at, reference)
+                                                     form.created_at, reference)
 
         form.update(failure_notification_sent_at: DateTime.now)
 

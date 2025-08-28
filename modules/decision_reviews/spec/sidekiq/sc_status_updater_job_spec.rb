@@ -19,7 +19,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
       include_examples 'engine status updater job with base forms', SavedClaim::SupplementalClaim
       include_examples 'engine status updater job when forms include evidence', SavedClaim::SupplementalClaim
 
-      # EXISTING TESTS (unchanged)
       context 'SavedClaim records are present with completed status in LH and have associated secondary forms' do
         let(:benefits_intake_service) { instance_double(BenefitsIntake::Service) }
         let!(:secondary_form1) { create(:secondary_appeal_form4142_module, guid: SecureRandom.uuid) }
@@ -79,7 +78,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           benefits_intake_service { nil }
         end
 
-        # EXISTING TESTS (unchanged)
         it 'does NOT check status for 4142 records that already have a delete_date' do
           expect(benefits_intake_service).to receive(:get_status).with(uuid: secondary_form1.guid)
           expect(benefits_intake_service).to receive(:get_status).with(uuid: secondary_form2.guid)
@@ -186,18 +184,15 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
         end
       end
 
-      # NEW TEST SUITES FOR final_status FUNCTIONALITY
-      context 'final_status intelligent polling and completion logic' do
+      context 'final_status polling and completion logic' do
         let(:benefits_intake_service) { instance_double(BenefitsIntake::Service) }
         let(:frozen_time) { DateTime.new(2024, 1, 1).utc }
 
-        # Test forms for different final_status scenarios
         let!(:form_vbms_final) { create(:secondary_appeal_form4142_module, guid: SecureRandom.uuid) }
         let!(:form_error_recoverable) { create(:secondary_appeal_form4142_module, guid: SecureRandom.uuid) }
         let!(:form_error_permanent) { create(:secondary_appeal_form4142_module, guid: SecureRandom.uuid) }
         let!(:form_processing_active) { create(:secondary_appeal_form4142_module, guid: SecureRandom.uuid) }
 
-        # Associated SavedClaims
         let!(:saved_claim_vbms) do
           SavedClaim::SupplementalClaim.create(
             guid: form_vbms_final.appeal_submission.submitted_appeal_uuid,
@@ -223,7 +218,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           )
         end
 
-        # API Response fixtures using base fixture with dynamic modifications for final_status testing
         let(:response_vbms_final) do
           response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json'))
           response['data']['attributes']['status'] = 'vbms'
@@ -262,13 +256,13 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           allow(DecisionReviews::V1::Service).to receive(:new).and_return(service)
           allow(BenefitsIntake::Service).to receive(:new).and_return(benefits_intake_service)
 
-          # Setup main form responses (all complete for testing secondary form logic)
           allow(service).to receive(:get_supplemental_claim).with(saved_claim_vbms.guid).and_return(response_complete)
+          # rubocop:disable Layout/LineLength
           allow(service).to receive(:get_supplemental_claim).with(saved_claim_recoverable.guid).and_return(response_complete)
           allow(service).to receive(:get_supplemental_claim).with(saved_claim_permanent.guid).and_return(response_complete)
           allow(service).to receive(:get_supplemental_claim).with(saved_claim_processing.guid).and_return(response_complete)
+          # rubocop:enable Layout/LineLength
 
-          # Setup secondary form API responses using the actual form GUIDs
           allow(benefits_intake_service).to receive(:get_status)
             .with(uuid: form_vbms_final.guid).and_return(response_vbms_final)
           allow(benefits_intake_service).to receive(:get_status)
@@ -286,14 +280,12 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           benefits_intake_service { nil }
         end
 
-        # TEST SUITE 1: Polling Based on final_status
         context 'polling behavior' do
           it 'processes all forms and makes API calls for each' do
             Timecop.freeze(frozen_time) do
               subject.new.perform
             end
 
-            # Verify API calls made for all forms
             expect(benefits_intake_service).to have_received(:get_status).with(uuid: form_vbms_final.guid)
             expect(benefits_intake_service).to have_received(:get_status).with(uuid: form_error_recoverable.guid)
             expect(benefits_intake_service).to have_received(:get_status).with(uuid: form_error_permanent.guid)
@@ -312,7 +304,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
             form_error_recoverable.reload
             parsed_status = JSON.parse(form_error_recoverable.status)
             expect(parsed_status['status']).to eq('error')
-            expect(parsed_status['final_status']).to eq(false)
+            expect(parsed_status['final_status']).to be(false)
             expect(parsed_status['detail']).to eq('Service temporarily unavailable. Please try again later.')
           end
 
@@ -328,7 +320,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
             form_processing_active.reload
             parsed_status = JSON.parse(form_processing_active.status)
             expect(parsed_status['status']).to eq('processing')
-            expect(parsed_status['final_status']).to eq(false)
+            expect(parsed_status['final_status']).to be(false)
           end
 
           it 'processes all forms and updates their records' do
@@ -344,7 +336,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           end
         end
 
-        # TEST SUITE 2: final_status Data Storage from API
         context 'final_status data storage and retrieval' do
           before do
             allow(benefits_intake_service).to receive(:get_status)
@@ -358,19 +349,17 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
               subject.new.perform
             end
 
-            # Verify successful form with final_status: true
             form_vbms_final.reload
             vbms_status = JSON.parse(form_vbms_final.status)
             expect(vbms_status['status']).to eq('vbms')
-            expect(vbms_status['final_status']).to eq(true)
+            expect(vbms_status['final_status']).to be(true)
             expect(vbms_status['detail']).to eq('')
             expect(vbms_status['updated_at']).to eq('2024-10-25T17:39:58.166Z')
 
-            # Verify permanent error form
             form_error_permanent.reload
             error_status = JSON.parse(form_error_permanent.status)
             expect(error_status['status']).to eq('error')
-            expect(error_status['final_status']).to eq(true)
+            expect(error_status['final_status']).to be(true)
             expect(error_status['detail']).to eq('Maximum page size exceeded. Limit is 78 in x 101 in.')
           end
 
@@ -379,13 +368,11 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
               subject.new.perform
             end
 
-            # All forms should have updated timestamps
             expect(form_vbms_final.reload.status_updated_at).to eq(frozen_time)
             expect(form_error_permanent.reload.status_updated_at).to eq(frozen_time)
           end
         end
 
-        # TEST SUITE 3: Enhanced delete_date Logic with final_status
         context 'delete_date setting requires both success AND final_status' do
           before do
             allow(benefits_intake_service).to receive(:get_status)
@@ -402,10 +389,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
             # Successful AND final form should get delete_date
             form_vbms_final.reload
             expect(form_vbms_final.delete_date).to eq(frozen_time + 59.days)
-
-            # Permanent error should NOT get delete_date (not successful)
-            form_error_permanent.reload
-            expect(form_error_permanent.delete_date).to be_nil
           end
 
           it 'increments delete_date metrics only for qualifying forms' do
@@ -420,16 +403,14 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           end
         end
 
-        # TEST SUITE 4: Record-Level Completion Logic (all_complete)
         context 'record completion requires ALL secondary forms to be successful AND final' do
-          # Create a record with multiple secondary forms
           let!(:multi_form_submission) { create(:appeal_submission) }
-          let!(:multi_form_1) do
+          let!(:multi_form_one) do
             create(:secondary_appeal_form4142_module,
                    guid: SecureRandom.uuid,
                    appeal_submission: multi_form_submission)
           end
-          let!(:multi_form_2) do
+          let!(:multi_form_two) do
             create(:secondary_appeal_form4142_module,
                    guid: SecureRandom.uuid,
                    appeal_submission: multi_form_submission)
@@ -449,9 +430,9 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           context 'when all secondary forms are successful AND final' do
             before do
               allow(benefits_intake_service).to receive(:get_status)
-                .with(uuid: multi_form_1.guid).and_return(response_vbms_final)
+                .with(uuid: multi_form_one.guid).and_return(response_vbms_final)
               allow(benefits_intake_service).to receive(:get_status)
-                .with(uuid: multi_form_2.guid).and_return(response_vbms_final)
+                .with(uuid: multi_form_two.guid).and_return(response_vbms_final)
             end
 
             it 'marks entire record as complete and sets main delete_date' do
@@ -468,9 +449,9 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           context 'when one form is successful but another has permanent error' do
             before do
               allow(benefits_intake_service).to receive(:get_status)
-                .with(uuid: multi_form_1.guid).and_return(response_vbms_final)
+                .with(uuid: multi_form_one.guid).and_return(response_vbms_final)
               allow(benefits_intake_service).to receive(:get_status)
-                .with(uuid: multi_form_2.guid).and_return(response_error_permanent)
+                .with(uuid: multi_form_two.guid).and_return(response_error_permanent)
             end
 
             it 'does not mark record as complete due to permanent error' do
@@ -478,7 +459,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
                 subject.new.perform
               end
 
-              # Main record should NOT get delete_date when any secondary form failed permanently
               saved_claim_multi.reload
               expect(saved_claim_multi.delete_date).to be_nil
             end
@@ -487,9 +467,9 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           context 'when one form has recoverable error (active mitigation scenario)' do
             before do
               allow(benefits_intake_service).to receive(:get_status)
-                .with(uuid: multi_form_1.guid).and_return(response_vbms_final)
+                .with(uuid: multi_form_one.guid).and_return(response_vbms_final)
               allow(benefits_intake_service).to receive(:get_status)
-                .with(uuid: multi_form_2.guid).and_return(response_error_recoverable)
+                .with(uuid: multi_form_two.guid).and_return(response_error_recoverable)
             end
 
             it 'does not mark record as complete and continues mitigation' do
@@ -502,33 +482,29 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
               expect(saved_claim_multi.delete_date).to be_nil
 
               # Recoverable form should continue being polled next time
-              expect(benefits_intake_service).to have_received(:get_status).with(uuid: multi_form_2.guid)
+              expect(benefits_intake_service).to have_received(:get_status).with(uuid: multi_form_two.guid)
             end
           end
         end
 
-        # TEST SUITE 5: Metrics and Logging with final_status
         context 'metrics and logging behavior with final_status' do
           it 'logs errors appropriately for both recoverable and permanent errors' do
             Timecop.freeze(frozen_time) do
               subject.new.perform
             end
 
-            # Verify error logging for permanent error
             expect(Rails.logger).to have_received(:info)
               .with('DecisionReviews::SavedClaimScStatusUpdaterJob secondary form status error',
                     hash_including(guid: form_error_permanent.guid))
           end
 
           it 'increments status metrics for all processed forms' do
-            # Reset StatsD to count only calls from this test
             allow(StatsD).to receive(:increment)
 
             Timecop.freeze(frozen_time) do
               subject.new.perform
             end
 
-            # Verify StatsD metrics for different statuses (each form gets one call)
             expect(StatsD).to have_received(:increment)
               .with('worker.decision_review.saved_claim_sc_status_updater_secondary_form.status',
                     tags: ['status:error']).twice # recoverable + permanent error

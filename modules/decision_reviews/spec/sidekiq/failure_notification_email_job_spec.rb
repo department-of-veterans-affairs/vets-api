@@ -535,12 +535,11 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           end
         end
 
-        # ADD THIS NEW TEST CONTEXT:
         context 'when secondary form has error status but final_status is false' do
           let(:secondary_form_status_non_final_error) do
             {
               status: 'error',
-              final_status: false, # This should be filtered out by the new logic
+              final_status: false,
               detail: nil,
               createDate: 10.days.ago,
               updateDate: 5.days.ago
@@ -549,21 +548,19 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
 
           let!(:secondary_form_non_final) do
             create(:secondary_appeal_form4142, appeal_submission: appeal_submission1,
-                  status: secondary_form_status_non_final_error)
+                                               status: secondary_form_status_non_final_error)
           end
 
           before do
-            secondary_form1.destroy # Remove the final error form to test non-final behavior
+            secondary_form1.destroy
           end
 
           it 'does not send email for non-final errors' do
             subject.new.perform
 
-            # Should not send any emails because final_status: false
             expected_hash = hash_including(template_id: 'fake_sc_secondary_form_template_id')
             expect(vanotify_service).not_to have_received(:send_email).with(expected_hash)
 
-            # Should log that 0 records were processed
             expect(StatsD).to have_received(:increment)
               .with('worker.decision_review.failure_notification_email.secondary_forms.processing_records', 0)
           end
