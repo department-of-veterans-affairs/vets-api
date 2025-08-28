@@ -3,7 +3,7 @@
 require 'va_profile/configuration'
 
 module VAProfile
-  module VAddressValidation
+  module AddressValidation
     module V3
       class Configuration < VAProfile::Configuration
         def base_path
