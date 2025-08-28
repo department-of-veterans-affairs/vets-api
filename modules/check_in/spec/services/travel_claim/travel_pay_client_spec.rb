@@ -281,7 +281,7 @@ RSpec.describe TravelClaim::TravelPayClient do
   end
 
   describe 'authentication' do
-    it 'handles 401 errors by refreshing tokens and retrying' do
+    it 'handles 401 errors by refreshing tokens and retrying once' do
       # Set up tokens
       client.instance_variable_set(:@current_veis_token, 'test-veis-token')
       client.instance_variable_set(:@current_btsss_token, 'test-btsss-token')
@@ -301,6 +301,44 @@ RSpec.describe TravelClaim::TravelPayClient do
       client.send(:with_auth) do
         client.send(:perform, :get, '/test', {}, {})
       end
+    end
+
+    it 'fails fast when token refresh fails after 401' do
+      # Set up tokens
+      client.instance_variable_set(:@current_veis_token, 'test-veis-token')
+      client.instance_variable_set(:@current_btsss_token, 'test-btsss-token')
+
+      # First call raises 401, token refresh fails
+      allow(client).to receive(:perform).and_raise(
+        Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
+      )
+      allow(client).to receive(:refresh_tokens!).and_raise(
+        Common::Exceptions::BackendServiceException.new('AUTH_FAILED', {}, 500, 'Internal Server Error')
+      )
+
+      expect do
+        client.send(:with_auth) do
+          client.send(:perform, :get, '/test', {}, {})
+        end
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+    end
+
+    it 'does not retry authentication more than once per request' do
+      # Set up tokens
+      client.instance_variable_set(:@current_veis_token, 'test-veis-token')
+      client.instance_variable_set(:@current_btsss_token, 'test-btsss-token')
+
+      # Multiple 401 responses should only trigger one retry
+      allow(client).to receive(:perform).and_raise(
+        Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
+      )
+      expect(client).to receive(:refresh_tokens!).once
+
+      expect do
+        client.send(:with_auth) do
+          client.send(:perform, :get, '/test', {}, {})
+        end
+      end.to raise_error(Common::Exceptions::BackendServiceException)
     end
 
     it 'uses cached VEIS token from Redis when available' do

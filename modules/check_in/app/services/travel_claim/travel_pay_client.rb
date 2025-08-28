@@ -31,6 +31,7 @@ module TravelClaim
       @redis_client = TravelClaim::RedisClient.build
       @current_veis_token = nil
       @current_btsss_token = nil
+      @auth_retry_attempted = false
       super()
     end
 
@@ -200,7 +201,7 @@ module TravelClaim
 
     ##
     # Wraps external API calls to ensure proper authentication.
-    # Handles token refresh on unauthorized responses.
+    # Handles token refresh on unauthorized responses with retry limit.
     #
     # @yield Block containing the API call to make
     # @return [Faraday::Response] API response
@@ -209,9 +210,10 @@ module TravelClaim
       ensure_tokens!
       yield
     rescue Common::Exceptions::BackendServiceException => e
-      if e.original_status == 401
+      if e.original_status == 401 && !@auth_retry_attempted
+        @auth_retry_attempted = true
         refresh_tokens!
-        yield
+        yield # Retry once with fresh tokens
       else
         raise
       end
