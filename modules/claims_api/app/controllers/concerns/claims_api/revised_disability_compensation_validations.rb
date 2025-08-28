@@ -35,9 +35,6 @@ module ClaimsApi
 
     def retrieve_separation_locations
       ClaimsApi::BRD.new.intake_sites
-    rescue
-      exception_msg = 'Failed To Obtain Intake Sites (Request Failed)'
-      raise ::Common::Exceptions::ServiceUnavailable.new({ source: 'intake_sites', detail: exception_msg })
     end
 
     def validate_form_526_submission_claim_date!
@@ -58,12 +55,11 @@ module ClaimsApi
       form_attributes['serviceInformation']['servicePeriods'].each do |service_period|
         next if Date.parse(service_period['activeDutyEndDate']) <= Time.zone.today
         next if separation_locations.any? do |location|
-                  location[:id]&.to_s == service_period['separationLocationCode']
-                end
+          location[:id]&.to_s == service_period['separationLocationCode']
+        end
 
-        exception_msg = "Provided separation location code is not valid: #{service_period['separationLocationCode']}"
-        raise ::Common::Exceptions::InvalidFieldValue.new('Invalid separation location code',
-                                                          exception_msg)
+        raise ::Common::Exceptions::InvalidFieldValue.new('separationLocationCode',
+                                                          service_period['separationLocationCode'])
       end
     end
 
