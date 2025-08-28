@@ -8,19 +8,46 @@ module DebtsApi
       service_tag 'debt-resolution'
 
       def create
-        StatsD.increment("#{V0::DigitalDispute::STATS_KEY}.initiated")
+        StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.initiated")
 
-        result = process_submission
+        if Flipper.enabled?(:digital_dmc_dispute_service)
+          submission = DebtsApi::V0::DigitalDisputeSubmission.new(
+            user_uuid: current_user.uuid,
+            user_account: current_user.user_account,
+            state: :pending,
+            metadata: submission_params[:metadata]
+          )
+          submission.files.attach(submission_params[:files])
 
-        if result[:success]
-          StatsD.increment("#{V0::DigitalDispute::STATS_KEY}.success")
-          render json: {
-            message: result[:message],
-            submission_id: result[:submission_id]
-          }, status: :ok
+          begin
+            ApplicationRecord.transaction do
+              submission.save!
+              DebtsApi::V0::DigitalDisputeDmcService.new(current_user, submission).call!
+            end
+
+            StatsD.increment("#{KEY}.success")
+            render json: { message: 'Submission received', submission_id: submission.id }, status: :ok
+
+          rescue ActiveRecord::RecordInvalid => e
+            StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
+            render json: { success: false, error_type: 'validation_error', errors: e.record.errors.to_hash(true) },
+                   status: :unprocessable_entity
+
+          rescue DebtsApi::V0::DigitalDisputeDmcService::Error => e
+            # DB rolled back because we were inside the transaction
+            StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
+            render json: { errors: [e.message] }, status: :bad_gateway
+          end
+
         else
-          StatsD.increment("#{V0::DigitalDispute::STATS_KEY}.failure")
-          render json: { errors: result[:errors] }, status: :unprocessable_entity
+          result = process_submission
+          if result[:success]
+            StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.success")
+            render json: { message: result[:message], submission_id: result[:submission_id] }, status: :ok
+          else
+            StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
+            render json: { errors: result[:errors] }, status: :unprocessable_entity
+          end
         end
       end
 
