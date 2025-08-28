@@ -3,8 +3,8 @@
 require 'va_profile/configuration'
 
 module VAProfile
-  module V3
-    module AddressValidation
+  module VAddressValidation3
+    module V3
       class Configuration < VAProfile::Configuration
         def base_path
           "https://#{VAProfile::Configuration::SETTINGS.address_validation.hostname}/services/address-validation/v3/"
