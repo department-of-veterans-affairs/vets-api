@@ -19,6 +19,9 @@ module ClaimsApi
         # Validate service information
         validate_service_information!
 
+        # Validate veteran information
+        validate_veteran!
+
         # Return collected errors
         error_collection if @errors
 
@@ -258,6 +261,192 @@ module ClaimsApi
             detail: "Federal activation date is in the future: #{federal_activation['activationDate']}"
           )
         end
+      end
+
+      ### FES Val Section 5: veteran validations
+      def validate_veteran!
+        # FES Val Section 5.b: currentMailingAddress validations
+        validate_current_mailing_address!
+
+        # FES Val Section 5.c: changeOfAddress validations
+        validate_change_of_address!
+      end
+
+      # From V2 disability_compensation_validation.rb:224-250
+      # FES Val Section 5.b: currentMailingAddress validations
+      def validate_current_mailing_address!
+        mailing_address = form_attributes.dig('veteran', 'currentMailingAddress')
+        return if mailing_address.blank?
+
+        # FES Val Section 5.b.ii-iv: Address field validations
+        # USA-specific validations (replaces type-based validation)
+        if mailing_address['country'] == 'USA'
+          # FES Val Section 5.b.ii.3: State required for USA addresses
+          validate_required_field!(mailing_address, 'currentMailingAddress', 'state',
+                                   'State is required for USA addresses')
+          # FES Val Section 5.b.ii.4: ZipFirstFive required for USA addresses
+          validate_required_field!(mailing_address, 'currentMailingAddress', 'zipFirstFive',
+                                   'ZipFirstFive is required for USA addresses')
+
+          # Validate internationalPostalCode should NOT be present for USA
+          if mailing_address['internationalPostalCode'].present?
+            collect_error(
+              source: '/veteran/currentMailingAddress/internationalPostalCode',
+              title: 'Invalid field',
+              detail: 'InternationalPostalCode should not be provided for USA addresses'
+            )
+          end
+        end
+
+        # FES Val Section 5.b.vi: country must be in the list provided by the referenceDataService
+        validate_address_country!(mailing_address, 'currentMailingAddress')
+      end
+
+      # From V2 disability_compensation_validation.rb:55-196
+      # FES Val Section 5.c: changeOfAddress validations
+      def validate_change_of_address!
+        change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+        return if change_of_address.blank?
+
+        validate_change_of_address_dates!(change_of_address)
+        validate_change_of_address_fields!(change_of_address)
+      end
+
+      def validate_change_of_address_dates!(change_of_address)
+        if change_of_address['addressChangeType'] == 'TEMPORARY'
+          validate_temporary_address_dates!(change_of_address)
+        elsif change_of_address['addressChangeType'] == 'PERMANENT'
+          validate_permanent_address_dates!(change_of_address)
+        end
+      end
+
+      def validate_temporary_address_dates!(change_of_address)
+        validate_temporary_required_dates!(change_of_address)
+        validate_temporary_date_logic!(change_of_address)
+      end
+
+      def validate_temporary_required_dates!(change_of_address)
+        # FES Val Section 5.c.i.2: Missing beginDate
+        if change_of_address['beginDate'].blank?
+          collect_error(
+            source: '/veteran/changeOfAddress/beginDate',
+            title: 'Missing required field',
+            detail: 'beginDate is required for temporary address'
+          )
+        end
+
+        # FES Val Section 5.c.i.3: Missing endDate
+        if change_of_address['endDate'].blank?
+          collect_error(
+            source: '/veteran/changeOfAddress/endDate',
+            title: 'Missing required field',
+            detail: 'endDate is required for temporary address'
+          )
+        end
+      end
+
+      def validate_temporary_date_logic!(change_of_address)
+        # FES Val Section 5.c.iii.2: beginDate must be in the future if addressChangeType is TEMPORARY
+        if change_of_address['beginDate'].present?
+          begin_date = parse_date_safely(change_of_address['beginDate'])
+          if begin_date && begin_date <= Date.current
+            collect_error(
+              source: '/veteran/changeOfAddress/beginDate',
+              title: 'Invalid beginDate',
+              detail: 'BeginDate cannot be in the past: YYYY-MM-DD'
+            )
+          end
+        end
+
+        # FES Val Section 5.c.iv.2: beginDate and endDate must be in chronological order
+        validate_temporary_date_order!(change_of_address)
+      end
+
+      def validate_temporary_date_order!(change_of_address)
+        return unless change_of_address['beginDate'].present? && change_of_address['endDate'].present?
+
+        begin_date = parse_date_safely(change_of_address['beginDate'])
+        end_date = parse_date_safely(change_of_address['endDate'])
+        return unless begin_date && end_date && begin_date >= end_date
+
+        # FES Val Section 5.c.iv.2: Invalid beginDate
+        collect_error(
+          source: '/veteran/changeOfAddress/beginDate',
+          title: 'Invalid beginDate',
+          detail: 'BeginDate cannot be after endDate: YYYY-MM-DD'
+        )
+      end
+
+      def validate_permanent_address_dates!(change_of_address)
+        # FES Val Section 5.c.ii.2: Cannot provide endDate
+        return if change_of_address['endDate'].blank?
+
+        collect_error(
+          source: '/veteran/changeOfAddress/endDate',
+          title: 'Cannot provide endDate',
+          detail: 'EndDate cannot be provided for a permanent address.'
+        )
+      end
+
+      def validate_change_of_address_fields!(change_of_address)
+        # FES Val Section 5.c.v-viii: Address field validations
+        # USA-specific validations (replaces type-based validation)
+        if change_of_address['country'] == 'USA'
+          # FES Val Section 5.c.v.3: State required for USA addresses
+          validate_required_field!(change_of_address, 'changeOfAddress', 'state',
+                                   'State is required for USA addresses')
+          # FES Val Section 5.c.v.4: ZipFirstFive required for USA addresses
+          validate_required_field!(change_of_address, 'changeOfAddress', 'zipFirstFive',
+                                   'ZipFirstFive is required for USA addresses')
+
+          # Validate internationalPostalCode should NOT be present for USA
+          if change_of_address['internationalPostalCode'].present?
+            collect_error(
+              source: '/changeOfAddress/internationalPostalCode',
+              title: 'Invalid field',
+              detail: 'InternationalPostalCode should not be provided for USA addresses'
+            )
+          end
+        end
+
+        # FES Val Section 5.c.x: country must be in the list provided by the referenceDataService
+        validate_address_country!(change_of_address, 'changeOfAddress')
+      end
+
+      # Helper method for address validation
+      def validate_required_field!(address, address_type, field, detail)
+        return if address[field].present?
+
+        source_prefix = address_type == 'changeOfAddress' ? '' : '/veteran'
+        collect_error(
+          source: "#{source_prefix}/#{address_type}/#{field}",
+          title: 'Missing required field',
+          detail:
+        )
+      end
+
+      def validate_address_country!(address, address_type)
+        return if address['country'].blank?
+
+        countries = valid_countries
+        source_prefix = address_type == 'changeOfAddress' ? '' : '/veteran'
+        if countries.nil?
+          collect_error(
+            source: "#{source_prefix}/#{address_type}/country",
+            title: 'Internal Server Error',
+            detail: 'Failed To Obtain Country Types (Request Failed)'
+          )
+          return
+        end
+
+        # FES Val Section 5.b.vi.2 / 5.c.ix.2: Invalid country
+        return if countries.include?(address['country'])
+
+        collect_error(
+          source: "#{source_prefix}/#{address_type}/country",
+          title: 'Invalid country',
+          detail: "Provided country is not valid: #{address['country']}"
+        )
       end
 
       # Utility methods grouped at the bottom

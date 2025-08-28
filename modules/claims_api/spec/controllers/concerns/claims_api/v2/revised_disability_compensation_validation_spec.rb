@@ -200,5 +200,337 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
       end
     end
+
+    # FES Val Section 5: veteran validations
+    context 'veteran validations' do
+      # FES Val Section 5.a: homelessness validations - REMOVED (crossed off in FES doc)
+
+      # FES Val Section 5.b: currentMailingAddress validations
+      context 'currentMailingAddress validation' do
+        # USA address validations
+        context 'when USA address missing state' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'currentMailingAddress' => {
+                  'country' => 'USA',
+                  'city' => 'Los Angeles',
+                  'zipFirstFive' => '90210'
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/currentMailingAddress/state')
+            expect(errors.first[:detail]).to eq('State is required for USA addresses')
+          end
+        end
+
+        context 'when USA address missing zipFirstFive' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'currentMailingAddress' => {
+                  'country' => 'USA',
+                  'city' => 'Los Angeles',
+                  'state' => 'CA'
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/currentMailingAddress/zipFirstFive')
+            expect(errors.first[:detail]).to eq('ZipFirstFive is required for USA addresses')
+          end
+        end
+
+        # Validation for internationalPostalCode when country is USA
+        context 'when USA address has internationalPostalCode' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'currentMailingAddress' => {
+                  'country' => 'USA',
+                  'city' => 'Los Angeles',
+                  'state' => 'CA',
+                  'zipFirstFive' => '90210',
+                  'internationalPostalCode' => 'SW1A 1AA'
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/currentMailingAddress/internationalPostalCode')
+            expect(errors.first[:detail]).to eq('InternationalPostalCode should not be provided for USA addresses')
+          end
+        end
+
+        # FES Val Section 5.b.vi.2: country must be valid
+        context 'when country is invalid' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'currentMailingAddress' => {
+                  'type' => 'INTERNATIONAL',
+                  'city' => 'London',
+                  'country' => 'INVALID_COUNTRY',
+                  'internationalPostalCode' => 'SW1A 1AA'
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/currentMailingAddress/country')
+            expect(errors.first[:detail]).to eq('Provided country is not valid: INVALID_COUNTRY')
+          end
+        end
+
+        # FES Val Section 5.b.vii.2: BGS service unavailable
+        context 'when BGS service is unavailable' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'currentMailingAddress' => {
+                  'type' => 'INTERNATIONAL',
+                  'city' => 'London',
+                  'country' => 'GBR',
+                  'internationalPostalCode' => 'SW1A 1AA'
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(nil)
+          end
+
+          it 'returns BGS service error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/currentMailingAddress/country')
+            expect(errors.first[:title]).to eq('Internal Server Error')
+            expect(errors.first[:detail]).to eq('Failed To Obtain Country Types (Request Failed)')
+          end
+        end
+      end
+
+      # FES Val Section 5.c: changeOfAddress validations
+      context 'changeOfAddress validation' do
+        # FES Val Section 5.c.i: TEMPORARY address requires dates
+        context 'when TEMPORARY address missing beginDate' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'changeOfAddress' => {
+                  'addressChangeType' => 'TEMPORARY',
+                  'country' => 'USA',
+                  'city' => 'New York',
+                  'state' => 'NY',
+                  'zipFirstFive' => '10001',
+                  'endDate' => (Date.current + 30.days).to_s
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.any? { |e| e[:source] == '/veteran/changeOfAddress/beginDate' }).to be true
+            matching_error = errors.find { |e| e[:source] == '/veteran/changeOfAddress/beginDate' }
+            expect(matching_error[:detail]).to eq('beginDate is required for temporary address')
+          end
+        end
+
+        # FES Val Section 5.c.ii.2: PERMANENT address cannot have endDate
+        context 'when PERMANENT address has endDate' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'changeOfAddress' => {
+                  'addressChangeType' => 'PERMANENT',
+                  'country' => 'USA',
+                  'city' => 'New York',
+                  'state' => 'NY',
+                  'zipFirstFive' => '10001',
+                  'endDate' => (Date.current + 30.days).to_s
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteran/changeOfAddress/endDate')
+            expect(errors.first[:title]).to eq('Cannot provide endDate')
+            expect(errors.first[:detail]).to eq('EndDate cannot be provided for a permanent address.')
+          end
+        end
+
+        # FES Val Section 5.c.iii.2: beginningDate must be in future for TEMPORARY
+        context 'when TEMPORARY address beginDate is in past' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'changeOfAddress' => {
+                  'addressChangeType' => 'TEMPORARY',
+                  'country' => 'USA',
+                  'city' => 'New York',
+                  'state' => 'NY',
+                  'zipFirstFive' => '10001',
+                  'beginDate' => (Date.current - 1.day).to_s,
+                  'endDate' => (Date.current + 30.days).to_s
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            error = errors.find { |e| e[:source] == '/veteran/changeOfAddress/beginDate' }
+            expect(error[:title]).to eq('Invalid beginDate')
+            expect(error[:detail]).to eq('BeginDate cannot be in the past: YYYY-MM-DD')
+          end
+        end
+
+        # FES Val Section 5.c.iv.2: dates must be chronological
+        context 'when beginDate is after endDate' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'changeOfAddress' => {
+                  'addressChangeType' => 'TEMPORARY',
+                  'country' => 'USA',
+                  'city' => 'New York',
+                  'state' => 'NY',
+                  'zipFirstFive' => '10001',
+                  'beginDate' => (Date.current + 60.days).to_s,
+                  'endDate' => (Date.current + 30.days).to_s
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            error = errors.find { |e| e[:source] == '/veteran/changeOfAddress/beginDate' }
+            expect(error[:title]).to eq('Invalid beginDate')
+            expect(error[:detail]).to eq('BeginDate cannot be after endDate: YYYY-MM-DD')
+          end
+        end
+
+        # FES Val Section 5.c.v-viii: Address field requirements same as currentMailingAddress
+        context 'when changeOfAddress USA missing required fields' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteran' => {
+                'changeOfAddress' => {
+                  'addressChangeType' => 'PERMANENT',
+                  'country' => 'USA',
+                  'city' => 'New York'
+                  # Missing state and zipFirstFive
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.size).to be >= 2
+
+            error_sources = errors.map { |e| e[:source] }
+            expect(error_sources).to include('/changeOfAddress/state')
+            expect(error_sources).to include('/changeOfAddress/zipFirstFive')
+          end
+        end
+      end
+
+      # Testing error aggregation for veteran validations
+      context 'with multiple veteran validation errors' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'veteran' => {
+              'currentMailingAddress' => {
+                'country' => 'USA'
+                # Missing state and zipFirstFive
+              },
+              'changeOfAddress' => {
+                'addressChangeType' => 'PERMANENT',
+                'country' => 'USA',
+                'city' => 'New York',
+                'endDate' => '2025-01-01' # Invalid for permanent
+              }
+            }
+          )
+        end
+
+        before do
+          allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+        end
+
+        it 'collects all veteran validation errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.size).to be >= 3 # At least 3 errors expected
+
+          error_sources = errors.map { |e| e[:source] }
+          expect(error_sources).to include('/veteran/currentMailingAddress/state')
+          expect(error_sources).to include('/veteran/currentMailingAddress/zipFirstFive')
+          expect(error_sources).to include('/veteran/changeOfAddress/endDate')
+        end
+      end
+    end
   end
 end
