@@ -8,6 +8,9 @@ module VAProfile
       include Vets::Model
 
       SOURCE_SYSTEM = 'VETSGOV'
+
+      alias to_h attributes
+      alias to_hash attributes
     end
   end
 end
