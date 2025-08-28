@@ -152,9 +152,6 @@ features:
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
-  decision_reviews_4142_banner:
-    actor_type: user
-    description: Enables the re-authorization banner on the 4142 legalese page
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -609,9 +606,6 @@ features:
   decision_review_service_common_exceptions_enabled:
     actor_type: user
     description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
-  decision_review_form4142_use_2024_template:
-    actor_type: user
-    description: Enables the use of the 2024 template for form 4142 in decision review applications
   decision_review_form4142_validate_schema:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in decision review applications
