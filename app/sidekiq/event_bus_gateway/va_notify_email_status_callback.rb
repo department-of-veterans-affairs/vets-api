@@ -24,7 +24,7 @@ module EventBusGateway
 
     def self.retry_email(notification)
       ebg_noti = find_notification_by_va_notify_id(notification.id)
-      return handle_exhausted_retries(notification, ebg_noti) if ebg_noti.attempts > Constants::MAX_EMAIL_ATTEMPTS
+      return handle_exhausted_retries(notification, ebg_noti) if ebg_noti.attempts >= Constants::MAX_EMAIL_ATTEMPTS
 
       schedule_retry_job(ebg_noti)
       StatsD.increment("#{STATSD_METRIC_PREFIX}.queued_retry_success", tags: Constants::DD_TAGS)
