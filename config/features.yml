@@ -1234,6 +1234,10 @@ features:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
     enable_in_development: true
+  mhv_medical_records_ccd_extended_file_types:
+    actor_type: user
+    description: Allows users to download CCD (health summary) in PDF and HTML formats
+    enable_in_development: true
   mhv_medical_records_display_conditions:
     actor_type: user
     description: Show/hide content related to Health Conditions in Medical Records
@@ -2383,6 +2387,9 @@ features:
   gi_feedback_tool_vet_tec_education_benefit:
     actor_type: user
     description: Includes the (VET TEC 2.0) option for selection under the Education Benefits question in the GI Bill® School Feedback Tool
+  discover_your_benefits_browser_monitoring_enabled:
+    actor_type: user
+    description: Discover Your Benefits Datadog RUM monitoring
   accredited_representative_portal_homepage:
     actor_type: user
     description: Enables new homepage redesign for ARP
@@ -2392,3 +2399,4 @@ features:
   gi_comparison_tool_cautionary_info_update:
     actor_type: user
     description: Enables updated cautionary info student feedback ui for GI Comparison Tool
+
