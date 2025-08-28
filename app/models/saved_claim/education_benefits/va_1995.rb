@@ -29,16 +29,25 @@ class SavedClaim::EducationBenefits::VA1995 < SavedClaim::EducationBenefits
   def send_confirmation_email(parsed_form_data, email)
     benefit_claimed = BENEFIT_TITLE_FOR_1995[parsed_form_data['benefit']] || ''
 
-    VANotify::EmailJob.perform_async(
-      email,
-      Settings.vanotify.services.va_gov.template_id.form1995_confirmation_email,
-      {
-        'first_name' => parsed_form.dig('veteranFullName', 'first')&.upcase.presence,
-        'benefit' => benefit_claimed,
-        'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-        'confirmation_number' => education_benefits_claim.confirmation_number,
-        'regional_office_address' => regional_office_address
-      }
-    )
+    if Flipper.enabled?(:form1995_confirmation_email_with_silent_failure_processing)
+      # this method is in the parent class
+      send_education_benefits_confirmation_email(email, parsed_form_data, { 'benefit' => benefit_claimed })
+    else
+      VANotify::EmailJob.perform_async(
+        email,
+        Settings.vanotify.services.va_gov.template_id.form1995_confirmation_email,
+        {
+          'first_name' => parsed_form.dig('veteranFullName', 'first')&.upcase.presence,
+          'benefit' => benefit_claimed,
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'confirmation_number' => education_benefits_claim.confirmation_number,
+          'regional_office_address' => regional_office_address
+        }
+      )
+    end
+  end
+
+  def template_id
+    Settings.vanotify.services.va_gov.template_id.form1995_confirmation_email
   end
 end
