@@ -152,9 +152,9 @@ module VSPDanger
 
         OpenStruct.new(
           total_changes: insertions + deletions,
-          insertions:,
-          deletions:,
-          file_name:
+          insertions: insertions,
+          deletions: deletions,
+          file_name: file_name
         )
       end.compact
     end
@@ -398,10 +398,10 @@ module VSPDanger
 
         unless has_enabled_test && has_disabled_test
           missing_coverage << {
-            feature:,
+            feature: feature,
             missing: [],
-            enabled_specs:,
-            disabled_specs:
+            enabled_specs: enabled_specs,
+            disabled_specs: disabled_specs
           }
           missing_coverage.last[:missing] << 'enabled state' unless has_enabled_test
           missing_coverage.last[:missing] << 'disabled state' unless has_disabled_test
@@ -461,6 +461,36 @@ module VSPDanger
       message << '```'
 
       message.join("\n")
+    end
+
+    def feature_used_in_codebase?(feature)
+      # Search for actual Flipper.enabled? calls in the codebase (excluding specs)
+      search_patterns = [
+        # Flipper.enabled?(:feature) patterns
+        "Flipper\\.enabled\\?\\(:#{feature}\\)",
+        "Flipper\\.enabled\\?\\('#{feature}'\\)",
+        "Flipper\\.enabled\\?\\([:'\"]#{feature}['\"])",
+
+        # Flipper.enabled?(:feature, actor) patterns
+        "Flipper\\.enabled\\?\\(:#{feature}\\s*,",
+        "Flipper\\.enabled\\?\\('#{feature}'\\s*,",
+
+        # Variable-based patterns like Flipper.enabled?(feature_name, user)
+        "Flipper\\.enabled\\?\\(.*#{feature}"
+      ]
+
+      search_directories = %w[app/ lib/ modules/]
+
+      search_patterns.each do |pattern|
+        search_directories.each do |dir|
+          next unless Dir.exist?(dir)
+
+          output = `grep -r -l -E "#{pattern}" #{dir} --include=*.rb 2>/dev/null`
+          return true if $CHILD_STATUS.success? && !output.strip.empty?
+        end
+      end
+
+      false
     end
   end
 
