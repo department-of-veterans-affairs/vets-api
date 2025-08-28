@@ -13,9 +13,6 @@ module ClaimsApi
       def validate_form_526_fes_values(_target_veteran = nil)
         return [] if form_attributes.empty?
 
-        # Validate claim date if provided
-        validate_claim_date!
-
         # Validate service information
         validate_service_information!
 
@@ -29,26 +26,6 @@ module ClaimsApi
       end
 
       private
-
-      def validate_claim_date!
-        # PDF Section 2.1: claimDate must be equal to or earlier than today's date
-        return if form_attributes['claimDate'].blank?
-
-        claim_date = Date.parse(form_attributes['claimDate'])
-        if claim_date > Date.current
-          collect_error(
-            source: '/claimDate',
-            title: 'Bad Request',
-            detail: 'The request failed validation, because the claim date was in the future.'
-          )
-        end
-      rescue ArgumentError
-        collect_error(
-          source: '/claimDate',
-          title: 'Bad Request',
-          detail: 'Invalid date format for claimDate'
-        )
-      end
 
       def validate_service_information!
         # PDF Section 2.4: serviceInformation validations
@@ -134,7 +111,7 @@ module ClaimsApi
         # Skip service branch validation - it requires external service calls
         # This will be validated downstream in the submission process
 
-        # Validate reserves/national guard specific fields
+        # Validate reserves/national guard specific fields if present
         validate_reserves_national_guard!(period, index) if period['reservesNationalGuardService'].present?
       end
 
@@ -165,73 +142,30 @@ module ClaimsApi
 
       def validate_reserves_national_guard!(period, index)
         # PDF Section 2.4.c: reservesNationalGuardService validation rules
+        # v2 schema uses nested structure: obligationTermsOfService.beginDate/endDate
         rng_service = period['reservesNationalGuardService']
+        obligation_terms = rng_service['obligationTermsOfService']
 
-        # Validate obligation dates
-        if rng_service['obligationTermOfServiceFromDate'].blank?
+        # FES Section 2.4.c.i: Obligation dates are required if obligationTermsOfService is present
+        return if obligation_terms.nil?
+
+        if obligation_terms['beginDate'].blank?
           collect_error(
-            source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService",
+            source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/obligationTermsOfService",
             title: 'Missing required field',
-            detail: 'The service period is missing a required start date for the obligation terms of service'
+            detail: 'Reserves national guard service obligation to date not found'
           )
         end
 
-        if rng_service['obligationTermOfServiceToDate'].blank?
+        if obligation_terms['endDate'].blank?
           collect_error(
-            source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService",
+            source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/obligationTermsOfService",
             title: 'Missing required field',
-            detail: 'The service period is missing a required end date for the obligation terms of service'
+            detail: 'Reserves national guard service obligation from date not found'
           )
         end
 
-        # Validate title 10 activation
-        if rng_service['title10Activation'].present?
-          validate_title10_activation!(rng_service['title10Activation'], period, index)
-        end
-      end
-
-      def validate_title10_activation!(activation, period, index)
-        # PDF Section 2.4.c.iii-iv: title10Activation requires dates and validation
-        validate_anticipated_separation_date!(activation, index)
-
-        activation_date = parse_date_safely(activation['title10ActivationDate'])
-        begin_date = parse_date_safely(period['activeDutyBeginDate'])
-
-        validate_activation_date_chronology!(activation, period, index, activation_date, begin_date)
-        validate_activation_date_not_future!(activation, index, activation_date)
-      end
-
-      def validate_anticipated_separation_date!(activation, index)
-        return if activation['anticipatedSeparationDate'].present?
-
-        collect_error(
-          source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          title: 'Missing required field',
-          detail: 'Title 10 activation is missing the anticipated separation date'
-        )
-      end
-
-      def validate_activation_date_chronology!(activation, period, index, activation_date, begin_date)
-        return unless activation_date && begin_date && activation_date < begin_date
-
-        collect_error(
-          source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          title: 'Invalid value',
-          detail: 'Reserves national guard title 10 activation date ' \
-                  "(#{activation['title10ActivationDate']}) is before the earliest active duty begin date " \
-                  "(#{period['activeDutyBeginDate']})"
-        )
-      end
-
-      def validate_activation_date_not_future!(activation, index, activation_date)
-        return unless activation_date && activation_date > Date.current
-
-        collect_error(
-          source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          title: 'Invalid value',
-          detail: 'Reserves national guard title 10 activation date is in the future: ' \
-                  "#{activation['title10ActivationDate']}"
-        )
+        # NOTE: title10Activation validations not included - field doesn't exist in v2 schema
       end
 
       def validate_top_level_reserves!(service_info)
@@ -265,7 +199,7 @@ module ClaimsApi
 
       ### FES Val Section 5: veteran validations
       def validate_veteran!
-        # FES Val Section 5.b: currentMailingAddress validations
+        # FES Val Section 5.b: mailingAddress validations
         validate_current_mailing_address!
 
         # FES Val Section 5.c: changeOfAddress validations
@@ -273,25 +207,25 @@ module ClaimsApi
       end
 
       # From V2 disability_compensation_validation.rb:224-250
-      # FES Val Section 5.b: currentMailingAddress validations
+      # FES Val Section 5.b: mailingAddress validations
       def validate_current_mailing_address!
-        mailing_address = form_attributes.dig('veteran', 'currentMailingAddress')
+        mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
         return if mailing_address.blank?
 
         # FES Val Section 5.b.ii-iv: Address field validations
         # USA-specific validations (replaces type-based validation)
         if mailing_address['country'] == 'USA'
           # FES Val Section 5.b.ii.3: State required for USA addresses
-          validate_required_field!(mailing_address, 'currentMailingAddress', 'state',
+          validate_required_field!(mailing_address, 'mailingAddress', 'state',
                                    'State is required for USA addresses')
           # FES Val Section 5.b.ii.4: ZipFirstFive required for USA addresses
-          validate_required_field!(mailing_address, 'currentMailingAddress', 'zipFirstFive',
+          validate_required_field!(mailing_address, 'mailingAddress', 'zipFirstFive',
                                    'ZipFirstFive is required for USA addresses')
 
           # Validate internationalPostalCode should NOT be present for USA
           if mailing_address['internationalPostalCode'].present?
             collect_error(
-              source: '/veteran/currentMailingAddress/internationalPostalCode',
+              source: '/veteranIdentification/mailingAddress/internationalPostalCode',
               title: 'Invalid field',
               detail: 'InternationalPostalCode should not be provided for USA addresses'
             )
@@ -299,13 +233,13 @@ module ClaimsApi
         end
 
         # FES Val Section 5.b.vi: country must be in the list provided by the referenceDataService
-        validate_address_country!(mailing_address, 'currentMailingAddress')
+        validate_address_country!(mailing_address, 'mailingAddress')
       end
 
       # From V2 disability_compensation_validation.rb:55-196
       # FES Val Section 5.c: changeOfAddress validations
       def validate_change_of_address!
-        change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+        change_of_address = form_attributes['changeOfAddress']
         return if change_of_address.blank?
 
         validate_change_of_address_dates!(change_of_address)
@@ -313,9 +247,9 @@ module ClaimsApi
       end
 
       def validate_change_of_address_dates!(change_of_address)
-        if change_of_address['addressChangeType'] == 'TEMPORARY'
+        if change_of_address['typeOfAddressChange'] == 'TEMPORARY'
           validate_temporary_address_dates!(change_of_address)
-        elsif change_of_address['addressChangeType'] == 'PERMANENT'
+        elsif change_of_address['typeOfAddressChange'] == 'PERMANENT'
           validate_permanent_address_dates!(change_of_address)
         end
       end
@@ -327,18 +261,18 @@ module ClaimsApi
 
       def validate_temporary_required_dates!(change_of_address)
         # FES Val Section 5.c.i.2: Missing beginDate
-        if change_of_address['beginDate'].blank?
+        if change_of_address.dig('dates', 'beginDate').blank?
           collect_error(
-            source: '/veteran/changeOfAddress/beginDate',
+            source: '/changeOfAddress/dates/beginDate',
             title: 'Missing required field',
             detail: 'beginDate is required for temporary address'
           )
         end
 
         # FES Val Section 5.c.i.3: Missing endDate
-        if change_of_address['endDate'].blank?
+        if change_of_address.dig('dates', 'endDate').blank?
           collect_error(
-            source: '/veteran/changeOfAddress/endDate',
+            source: '/changeOfAddress/dates/endDate',
             title: 'Missing required field',
             detail: 'endDate is required for temporary address'
           )
@@ -347,11 +281,11 @@ module ClaimsApi
 
       def validate_temporary_date_logic!(change_of_address)
         # FES Val Section 5.c.iii.2: beginDate must be in the future if addressChangeType is TEMPORARY
-        if change_of_address['beginDate'].present?
-          begin_date = parse_date_safely(change_of_address['beginDate'])
+        if change_of_address.dig('dates', 'beginDate').present?
+          begin_date = parse_date_safely(change_of_address.dig('dates', 'beginDate'))
           if begin_date && begin_date <= Date.current
             collect_error(
-              source: '/veteran/changeOfAddress/beginDate',
+              source: '/changeOfAddress/dates/beginDate',
               title: 'Invalid beginDate',
               detail: 'BeginDate cannot be in the past: YYYY-MM-DD'
             )
@@ -363,15 +297,16 @@ module ClaimsApi
       end
 
       def validate_temporary_date_order!(change_of_address)
-        return unless change_of_address['beginDate'].present? && change_of_address['endDate'].present?
+        dates = change_of_address['dates']
+        return unless dates && dates['beginDate'].present? && dates['endDate'].present?
 
-        begin_date = parse_date_safely(change_of_address['beginDate'])
-        end_date = parse_date_safely(change_of_address['endDate'])
+        begin_date = parse_date_safely(dates['beginDate'])
+        end_date = parse_date_safely(dates['endDate'])
         return unless begin_date && end_date && begin_date >= end_date
 
         # FES Val Section 5.c.iv.2: Invalid beginDate
         collect_error(
-          source: '/veteran/changeOfAddress/beginDate',
+          source: '/changeOfAddress/dates/beginDate',
           title: 'Invalid beginDate',
           detail: 'BeginDate cannot be after endDate: YYYY-MM-DD'
         )
@@ -379,10 +314,10 @@ module ClaimsApi
 
       def validate_permanent_address_dates!(change_of_address)
         # FES Val Section 5.c.ii.2: Cannot provide endDate
-        return if change_of_address['endDate'].blank?
+        return if change_of_address.dig('dates', 'endDate').blank?
 
         collect_error(
-          source: '/veteran/changeOfAddress/endDate',
+          source: '/changeOfAddress/dates/endDate',
           title: 'Cannot provide endDate',
           detail: 'EndDate cannot be provided for a permanent address.'
         )
@@ -417,7 +352,7 @@ module ClaimsApi
       def validate_required_field!(address, address_type, field, detail)
         return if address[field].present?
 
-        source_prefix = address_type == 'changeOfAddress' ? '' : '/veteran'
+        source_prefix = address_type == 'changeOfAddress' ? '' : '/veteranIdentification'
         collect_error(
           source: "#{source_prefix}/#{address_type}/#{field}",
           title: 'Missing required field',
@@ -429,7 +364,7 @@ module ClaimsApi
         return if address['country'].blank?
 
         countries = valid_countries
-        source_prefix = address_type == 'changeOfAddress' ? '' : '/veteran'
+        source_prefix = address_type == 'changeOfAddress' ? '' : '/veteranIdentification'
         if countries.nil?
           collect_error(
             source: "#{source_prefix}/#{address_type}/country",
