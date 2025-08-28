@@ -153,6 +153,7 @@ check_in:
     tenant_id: fake_template_id
     travel_pay_client_id: fake_travel_pay_client_id
     travel_pay_client_secret: fake_travel_pay_client_secret
+    travel_pay_resource: fake_travel_pay_resource
   vaos:
     mock: false
 chip:

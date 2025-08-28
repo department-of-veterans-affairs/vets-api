@@ -1083,6 +1083,16 @@ describe VAOS::V2::AppointmentsService do
             expect(resp[:show_schedule_link]).to be_nil
           end
         end
+
+        it 'returns a booked cerner appointment without clinic fields' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_booked_cerner',
+                           match_requests_on: %i[method path query]) do
+            resp = subject.get_appointment('180402')
+            expect(resp[:id]).to eq('180402')
+            expect(resp.respond_to?(:service_name)).to be false
+            expect(resp.respond_to?(:physical_location)).to be false
+          end
+        end
       end
 
       context 'when requesting a CnP appointment' do
@@ -1229,6 +1239,16 @@ describe VAOS::V2::AppointmentsService do
             expect(resp[:id]).to eq('180402')
             expect(resp[:requested_periods]).to be_nil
             expect(resp[:show_schedule_link]).to be_nil
+          end
+        end
+
+        it 'returns a booked cerner appointment without clinic fields' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_booked_cerner_vpg',
+                           match_requests_on: %i[method path query]) do
+            resp = subject.get_appointment('180402')
+            expect(resp[:id]).to eq('180402')
+            expect(resp.respond_to?(:service_name)).to be false
+            expect(resp.respond_to?(:physical_location)).to be false
           end
         end
       end
@@ -1867,20 +1887,6 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
-  describe '#cerner?' do
-    it 'raises an ArgumentError if appt is nil' do
-      expect { subject.send(:cerner?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
-    end
-
-    it 'returns true for appointments with a "CERN" prefix' do
-      expect(subject.send(:cerner?, { id: 'CERN99999' })).to be(true)
-    end
-
-    it 'returns false for appointments without a "CERN" prefix' do
-      expect(subject.send(:cerner?, { id: '99999' })).to be(false)
-    end
-  end
-
   describe '#no_service_cat?' do
     it 'raises an ArgumentError if appt is nil' do
       expect { subject.send(:no_service_cat?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
@@ -2343,7 +2349,7 @@ describe VAOS::V2::AppointmentsService do
     it 'sets telehealth visibility to nil if appointment is not a telehealth type' do
       appt = appt_med
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be_nil
+      expect(appt.dig(:telehealth, :display_link)).to be_nil
     end
 
     it 'sets telehealth visibility to true if current time is 30 minutes before start time' do
@@ -2351,7 +2357,7 @@ describe VAOS::V2::AppointmentsService do
       appt[:start] = '2022-09-21T12:30:00+00:00'.to_datetime
       appt[:modality] = 'vaVideoCareAtHome'
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be(true)
+      expect(appt.dig(:telehealth, :display_link)).to be(true)
     end
 
     it 'sets telehealth visibility to true if current time is within 4 hours of start time' do
@@ -2359,7 +2365,7 @@ describe VAOS::V2::AppointmentsService do
       appt[:start] = '2022-09-21T08:00:00+00:00'.to_datetime
       appt[:modality] = 'vaVideoCareAtHome'
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be(true)
+      expect(appt.dig(:telehealth, :display_link)).to be(true)
     end
 
     it 'sets telehealth visibility to false if current time is more than 30 minutes from start time' do
@@ -2367,7 +2373,7 @@ describe VAOS::V2::AppointmentsService do
       appt[:start] = '2022-09-21T12:31:00+00:00'.to_datetime
       appt[:modality] = 'vaVideoCareAtHome'
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be(false)
+      expect(appt.dig(:telehealth, :display_link)).to be(false)
     end
 
     it 'sets telehealth visibility to false if current time is more than 4 hours from start time' do
@@ -2375,7 +2381,7 @@ describe VAOS::V2::AppointmentsService do
       appt[:start] = '2022-09-21T07:59:00+00:00'.to_datetime
       appt[:modality] = 'vaVideoCareAtHome'
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be(false)
+      expect(appt.dig(:telehealth, :display_link)).to be(false)
     end
   end
 
@@ -2590,6 +2596,12 @@ describe VAOS::V2::AppointmentsService do
     it 'has a type of request for Cerner appointments without end dates' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = 'CERN1234'
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
       appt[:end] = nil
       subject.send(:set_type, appt)
       expect(appt[:type]).to eq('REQUEST')
@@ -2598,6 +2610,12 @@ describe VAOS::V2::AppointmentsService do
     it 'is a VA appointment for Cerner appointments with a valid end date' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = 'CERN1234'
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
       appt[:end] = :end_date
       subject.send(:set_type, appt)
       expect(appt[:type]).to eq('VA')
@@ -2644,6 +2662,12 @@ describe VAOS::V2::AppointmentsService do
     it 'is a cc request for Cerner with no start date or requested periods' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = 'CERN1234'
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
       appt[:kind] = 'cc'
       appt[:start] = nil
       appt[:requested_periods] = []
