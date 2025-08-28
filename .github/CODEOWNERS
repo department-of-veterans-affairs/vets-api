@@ -1052,6 +1052,7 @@ rakelib/config_settings.rake @department-of-veterans-affairs/backend-review-grou
 rakelib/connectivity.rake @department-of-veterans-affairs/octo-identity
 rakelib/decision_review_repl.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 rakelib/education_benefits_submission.rake @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
+rakelib/feature_toggles.rake @department-of-veterans-affairs/backend-review-group
 rakelib/form526.rake @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 rakelib/github_stats.rake @department-of-veterans-affairs/backend-review-group
 rakelib/import_disability_contentions.rake @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
