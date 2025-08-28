@@ -8,7 +8,11 @@ module Crm
   class CacheData
     attr_reader :cache_client, :service, :cache_ttl
 
-    DEFAULT_TTL = 86_400
+    # Changing it to roughly 60-minutes (from 24-hours)
+    # to support PATSR CRM migration
+    # See Ticket: https://github.com/department-of-veterans-affairs/ask-va/issues/1900
+
+    DEFAULT_TTL = 3540
 
     def initialize(service: Service.new(icn: nil), cache_client: AskVAApi::RedisClient.new, cache_ttl: DEFAULT_TTL)
       @cache_client = cache_client

@@ -8,7 +8,7 @@ module AccreditedRepresentativePortal
 
     def initialize(profile, poa_requests, active_poa_codes = [])
       @profile = profile
-      @icn = profile.icn
+      @icn = profile&.icn
       @poa_requests = poa_requests
       @active_poa_codes = active_poa_codes
     end

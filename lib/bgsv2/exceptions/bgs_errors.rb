@@ -21,6 +21,10 @@ module BGSV2
       end
 
       def notify_of_service_exception(error, method, attempt = nil, status = :error)
+        # CEST11 errors include PII. Override message to avoid logging sensitive information.
+        if error.message.present? && error.message.include?('CEST11')
+          raise_backend_exception('BGS_686c_SERVICE_403', self.class, error.class.new('CEST11 Error'))
+        end
         msg = "Unable to #{method}: #{error.message}: try #{attempt} of #{MAX_ATTEMPTS}"
         context = { icn: @user[:icn] }
         tags = { team: 'vfs-ebenefits' }

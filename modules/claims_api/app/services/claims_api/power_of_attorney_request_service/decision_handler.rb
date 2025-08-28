@@ -5,6 +5,8 @@ require_relative 'declined_decision_handler'
 module ClaimsApi
   module PowerOfAttorneyRequestService
     class DecisionHandler
+      LOG_TAG = 'decision_handler'
+
       DECISION_HANDLERS = {
         'declined' => ClaimsApi::PowerOfAttorneyRequestService::DeclinedDecisionHandler,
         'accepted' => ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler
@@ -23,10 +25,15 @@ module ClaimsApi
       # rubocop:enable Metrics/ParameterLists
 
       def call
+        ClaimsApi::Logger.log(
+          LOG_TAG, message: "Starting the #{@decision} POA workflow for procID: #{@proc_id}."
+        )
+        # accepted/declined are validated by the schema so we can trust it is one or the other here
         handler_class = DECISION_HANDLERS[@decision]
-        return unless handler_class
 
-        make_call_for_decision(handler_class)
+        data, type = make_call_for_decision(handler_class)
+
+        @decision == 'accepted' ? [data, type] : []
       end
 
       private

@@ -18,8 +18,13 @@ class SignIn::CertificateCheckerJob
   private
 
   def check_certificates(config)
-    log_expired_certs(config) if config.certs.active.blank?
-    log_expiring_certs(config)
+    return if config.certs.active.any?
+
+    if config.certs.expiring.any?
+      log_expiring_certs(config)
+    elsif config.certs.expired.any?
+      log_expired_certs(config)
+    end
   end
 
   def log_expired_certs(config)

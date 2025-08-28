@@ -24,7 +24,7 @@ module ClaimsEvidenceApi
       'ClaimsEvidenceApi'
     end
 
-    # @return [Hash] The basic headers required for any Lighthouse API call
+    # @return [Hash] The basic headers required for any API call
     def self.base_request_headers
       super.merge('Authorization' => "Bearer #{ClaimsEvidenceApi::JwtGenerator.new.encode_jwt}")
     end
@@ -46,6 +46,7 @@ module ClaimsEvidenceApi
         faraday.request :json
 
         faraday.response :betamocks if use_mocks?
+        faraday.response :raise_error, include_request: include_request?
         faraday.response :json
         faraday.adapter Faraday.default_adapter
       end
@@ -54,6 +55,11 @@ module ClaimsEvidenceApi
     # @return [Boolean] Should the service use mock data in lower environments.
     def use_mocks?
       service_settings.mock || false
+    end
+
+    # @return [Boolean] Should the service include the request method and url in error messages.
+    def include_request?
+      service_settings.include_request || false
     end
 
     # breakers will be tripped if error rate exceeds the threshold over a two minute period.

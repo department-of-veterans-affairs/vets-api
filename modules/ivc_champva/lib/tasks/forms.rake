@@ -62,11 +62,13 @@ namespace :ivc_champva do
     File.open(new_model_file, 'w') do |f|
       f.puts '# frozen_string_literal: true'
       f.puts ''
+      f.puts 'require \'vets/model\''
+      f.puts ''
       f.puts 'module IvcChampva'
       f.puts "  class #{form_name.upcase.gsub('_', '')}"
-      f.puts '    include Virtus.model(nullify_blank: true)'
+      f.puts '    include Vets::Model'
       f.puts ''
-      f.puts '    attribute :data'
+      f.puts '    attribute :data, Hash'
 
       # Attributes are not yet needed. Their advantage is that they provide datatypes that can manipulated such as
       # formatting dates. This is also a bit overkill for only central mail

@@ -32,6 +32,23 @@ module TravelClaim
       )
     end
 
+    # v4 system token (BTSSS) stored under a non-PHI cache key provided by caller
+    def v4_token(cache_key:)
+      Rails.cache.read(
+        cache_key,
+        namespace: 'check-in-travel-pay-cache'
+      )
+    end
+
+    def save_v4_token(cache_key:, token:)
+      Rails.cache.write(
+        cache_key,
+        token,
+        namespace: 'check-in-travel-pay-cache',
+        expires_in: redis_token_expiry
+      )
+    end
+
     def icn(uuid:)
       fetch_attribute(uuid:, attribute: :icn)
     end

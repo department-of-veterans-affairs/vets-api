@@ -95,6 +95,45 @@ RSpec.describe SignIn::ServiceAccountConfigsController, type: :controller do
           expect(response_body.dig('errors', 'service_account_id')).to include("can't be blank")
         end
       end
+
+      context 'with certs_attributes' do
+        context 'when a cert with the pem already exists' do
+          let!(:cert) { create(:sign_in_certificate) }
+
+          it 'associates the existing cert with the service account config' do
+            post :create,
+                 params: {
+                   service_account_config: valid_attributes.merge(certs_attributes: [cert.attributes])
+                 }, as: :json
+            expect(response).to have_http_status(:created)
+            expect(response_body['certs']).to include(a_hash_including('id' => cert.id))
+            expect(SignIn::ServiceAccountConfig.last.certs).to include(cert)
+          end
+
+          it 'does not create a new certificate' do
+            expect do
+              post :create,
+                   params: {
+                     service_account_config: valid_attributes.merge(certs_attributes: [cert.attributes])
+                   }, as: :json
+            end.not_to change(SignIn::Certificate, :count)
+          end
+        end
+
+        context 'when a cert with the pem does not exist' do
+          let(:cert) { build(:sign_in_certificate) }
+
+          it 'creates a new certificate for the service account config' do
+            post :create,
+                 params: {
+                   service_account_config: valid_attributes.merge(certs_attributes: [cert.attributes])
+                 }, as: :json
+            expect(response).to have_http_status(:created)
+            expect(response_body['certs']).to include(a_hash_including('pem' => cert.pem))
+            expect(SignIn::Certificate.count).to eq(1)
+          end
+        end
+      end
     end
 
     context 'when not authenticated' do
@@ -126,6 +165,47 @@ RSpec.describe SignIn::ServiceAccountConfigsController, type: :controller do
                        as: :json
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response_body.dig('errors', 'service_account_id')).to include("can't be blank")
+        end
+      end
+
+      context 'with certs_attributes' do
+        let(:cert) { create(:sign_in_certificate) }
+
+        it 'updates the service account config with new certificates' do
+          put :update,
+              params: { service_account_id:,
+                        service_account_config: valid_attributes.merge(certs_attributes: [cert.attributes]) },
+              as: :json
+          expect(response).to have_http_status(:ok)
+          expect(response_body['certs']).to include(a_hash_including('id' => cert.id))
+        end
+
+        context 'when certs_attributes are empty' do
+          it 'does not update the certs' do
+            put :update, params: { service_account_id:,
+                                   service_account_config: valid_attributes.merge(certs_attributes: []) }, as: :json
+            expect(response).to have_http_status(:ok)
+            expect(response_body['certs']).to be_empty
+          end
+        end
+
+        context 'when certs_attributes contains _destroy' do
+          let(:cert_to_destroy) { create(:sign_in_certificate) }
+
+          before do
+            service_account_config.certs << cert_to_destroy
+          end
+
+          it 'destroys the specified certificate' do
+            put :update, params: {
+              service_account_id:,
+              service_account_config: {
+                certs_attributes: [{ id: cert_to_destroy.id, _destroy: '1' }]
+              },
+              as: :json
+            }
+            expect(response).to have_http_status(:ok)
+          end
         end
       end
     end
@@ -173,22 +253,6 @@ RSpec.describe SignIn::ServiceAccountConfigsController, type: :controller do
         delete :destroy, params: { service_account_id: }
         expect(response).to have_http_status(:unauthorized)
       end
-    end
-  end
-
-  describe 'permitted params' do
-    let(:service_account_config) { build(:service_account_config) }
-    let(:attributes) { service_account_config.attributes.symbolize_keys }
-
-    let(:expected_permitted_params) do
-      array_params, params = attributes.excluding(:id, :created_at, :updated_at)
-                                       .partition { |_, v| v.is_a?(Array) }
-      params.to_h.keys << array_params.to_h.transform_values { [] }
-    end
-
-    it 'permits the expected params' do
-      expect(subject).to permit(*expected_permitted_params)
-        .for(:create, params: { service_account_config: attributes })
     end
   end
 end

@@ -38,7 +38,7 @@ module BGSDependentsV2
       @birth_date = @source['birth_date']
       @was_married = @source['was_married']
       @ever_married_ind = formatted_boolean(@was_married)
-      @dependent_income = formatted_boolean(@source['student_income'])
+      @dependent_income = dependent_income
       @first = @full_name['first']
       @middle = @full_name['middle']
       @last = @full_name['last']
@@ -59,6 +59,14 @@ module BGSDependentsV2
     #
     def address
       @source['address']
+    end
+
+    def dependent_income
+      if @source['student_income'] == 'NA'
+        nil
+      else
+        @source['student_income']
+      end
     end
   end
 end

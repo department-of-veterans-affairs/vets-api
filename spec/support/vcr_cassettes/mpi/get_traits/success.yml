@@ -1,0 +1,90 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://int.services.eauth.va.gov:9303/psim_webservice/dev/IdMSSOeWebService
+    body:
+      encoding: UTF-8
+      string: |-
+        <?xml version="1.0" encoding="UTF-8"?>
+          <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.ssoe.acs">
+            <soapenv:Header/>
+            <soapenv:Body>
+              <ws:getSSOeTraitsByCSPID>
+                <ws:cspid>test-cspid</ws:cspid>
+                <ws:firstname>first</ws:firstname>
+                <ws:lastname>last</ws:lastname>
+                <ws:email>mail@gmail.com</ws:email>
+                <ws:uid>12345</ws:uid>
+                <ws:cspbirthDate>19790524</ws:cspbirthDate>
+                <ws:versioncode>1.0.0</ws:versioncode>
+                <ws:pnid>ssn</ws:pnid>
+                <ws:authenticationMethod>http://idmanagement.gov/ns/assurance/aal/2</ws:authenticationMethod>
+                <ws:credAssuranceLevel>3</ws:credAssuranceLevel>
+                <ws:ial>2</ws:ial>
+                <ws:issueInstant>2025-08-14T14:51:59Z</ws:issueInstant>
+                <ws:street1>street 1</ws:street1>
+                <ws:city>city</ws:city>
+                <ws:state>NC</ws:state>
+                <ws:zipcode>27265</ws:zipcode>
+                <ws:phone>(nnn)nnn-nnnn</ws:phone>
+                <ws:cspIdentifier>test-id</ws:cspIdentifier>
+                <ws:cspMethod>IDME</ws:cspMethod>
+                <ws:proofingAuthority>FICAM</ws:proofingAuthority>
+              </ws:getSSOeTraitsByCSPID>
+            </soapenv:Body>
+          </soapenv:Envelope>
+    headers:
+      Content-Type:
+      - application/xml
+      Accept:
+      - text/xml;charset=UTF-8
+      Soapaction:
+      - getSSOeTraitsByCSPID
+      User-Agent:
+      - Vets.gov Agent
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Thu, 14 Aug 2025 14:52:00 GMT
+    body:
+      encoding: UTF-8
+      string: |-
+        <?xml version="1.0" encoding="UTF-8"?>
+        <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+          <soap:Body>
+            <getSSOeTraitsByCSPIDResponse xmlns="http://ws.ssoe.acs">
+              <firstName>first</firstName>
+              <lastName>last</lastName>
+              <middleName>middle</middleName>
+              <icn>123498767V234859</icn>
+              <secId>0002918558</secId>
+              <dodediPnid>1025195910</dodediPnid>
+              <participantId>22536233</participantId>
+              <birlsId>118623344</birlsId>
+              <pnid>ssn</pnid>
+              <mhvien>124922256989</mhvien>
+              <dob>19790524</dob>
+              <gender>M</gender>
+              <personType>PAT|VET</personType>
+              <extemail>mail@GMAIL.COM</extemail>
+              <isDelegate>false</isDelegate>
+              <street_1>street 1</street_1>
+              <city>city</city>
+              <state>NC</state>
+              <postalCode>27265-9477</postalCode>
+              <country>USA</country>
+              <phone>(nnn)nnn-nnnn</phone>
+              <mcid>WSSOE2207220733587901481304737</mcid>
+              <gcids>123498767V234859^NI^200M^USVHA^P|6593117225^PI^659^USVHA^A|124922256989^PI^200MH^USVHA^A|7281335^PI^558^USVHA^A|0002918558^PN^200PROV^USDVA^A|1025195910^NI^200DOD^USDOD^A|22536233^PI^200CORP^USVBA^A|a1c3d000000JSjlAAG_vavsfdc^PI^200DSLF^USDVA^A|1025195910^PI^200CH^USVHA^A|nnnnnnnnn^PI^200BRLS^USVBA^A|24753576^PI^200VETS^USDVA^A|565137890^PI^565^USVHA^A|000000123498767V234859000000^PI^200ESR^USVHA^A|2935848^PI^200^USVHA^A|595264^PI^528^USVHA^A|TKIP6716005184^PI^200IP^USVHA^A|aace23704bb043bab042e0b8af21c98d^PN^200VIDM^USDVA^A|003t000000ZlIX6AAN_vasfdc^PI^200DSLF^USDVA^A|16015218^PI^742V1^USVHA^A</gcids>
+            </getSSOeTraitsByCSPIDResponse>
+          </soap:Body>
+        </soap:Envelope>
+    http_version:
+  recorded_at: Thu, 14 Aug 2025 14:52:00 GMT
+recorded_with: VCR 3.0.3

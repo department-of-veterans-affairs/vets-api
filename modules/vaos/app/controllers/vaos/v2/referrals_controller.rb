@@ -5,8 +5,10 @@ module VAOS
     # ReferralsController provides endpoints for fetching CCRA referrals
     # It uses the Ccra::ReferralService to interact with the underlying CCRA API
     class ReferralsController < VAOS::BaseController
-      REFERRAL_DETAIL_VIEW_METRIC = 'api.vaos.referral_detail.access'
-      REFERRAL_STATIONID_METRIC = 'api.vaos.referral_station_id.access'
+      include VAOS::CommunityCareConstants
+
+      REFERRAL_DETAIL_VIEW_METRIC = "#{STATSD_PREFIX}.referral_detail.access".freeze
+      REFERRAL_STATIONID_METRIC = "#{STATSD_PREFIX}.referral_station_id.access".freeze
       REFERRING_FACILITY_CODE_FIELD = 'referring_facility_code'
       REFERRAL_PROVIDER_NPI_FIELD = 'referral_provider_npi'
 
@@ -18,6 +20,8 @@ module VAOS
           current_user.icn,
           referral_status_param
         )
+
+        log_referral_count(response)
 
         # Filter out expired referrals
         response = filter_expired_referrals(response)
@@ -41,6 +45,16 @@ module VAOS
       end
 
       private
+
+      # Logs the count of referrals returned from CCRA
+      #
+      # @param referrals [Array<Ccra::ReferralListEntry>] The collection of referrals
+      # @return [void]
+      def log_referral_count(referrals)
+        count = referrals&.size || 0
+        Rails.logger.info("CCRA referrals retrieved: #{count}", { referral_count: count }.to_json)
+        StatsD.gauge('api.vaos.referrals.retrieved', count, tags: ["has_referrals:#{count.positive?}"])
+      end
 
       # Adds encrypted UUIDs to referrals for use in URLs to prevent PII in logs
       #
@@ -83,6 +97,7 @@ module VAOS
       # @param referrals [Array<Ccra::ReferralListEntry>] The collection of referrals
       # @return [Array<Ccra::ReferralListEntry>] Filtered collection without expired referrals
       def filter_expired_referrals(referrals)
+        return [] if referrals.nil?
         raise ArgumentError, 'referrals must be an enumerable collection' unless referrals.respond_to?(:each)
 
         today = Date.current
@@ -112,7 +127,7 @@ module VAOS
         station_id = sanitize_log_value(response&.station_id)
 
         StatsD.increment(REFERRAL_DETAIL_VIEW_METRIC, tags: [
-                           'service:community_care_appointments',
+                           COMMUNITY_CARE_SERVICE_TAG,
                            "referring_facility_code:#{referring_facility_code}",
                            "referral_provider_npi:#{provider_npi}",
                            "station_id:#{station_id}"

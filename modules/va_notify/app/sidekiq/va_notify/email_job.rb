@@ -36,6 +36,7 @@ module VANotify
 
     def handle_backend_exception(e, template_id, personalisation)
       if e.status_code == 400
+        # TODO: Refactor to use log_exception_to_rails instead of log_exception_to_sentry
         log_exception_to_sentry(
           e,
           {

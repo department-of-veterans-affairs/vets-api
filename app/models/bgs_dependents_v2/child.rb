@@ -93,8 +93,8 @@ module BGSDependentsV2
       @place_of_birth_city = place_of_birth['city']
       @reason_marriage_ended = reason_marriage_ended
       @ever_married_ind = marriage_indicator
-      @child_income = formatted_boolean(@child_info['income_in_last_year'])
-      @not_self_sufficient = formatted_boolean(@child_info['not_self_sufficient'])
+      @child_income = child_income
+      @not_self_sufficient = formatted_boolean(@child_info['does_child_have_permanent_disability'])
       @first = @child_info['full_name']['first']
       @middle = @child_info['full_name']['middle']
       @last = @child_info['full_name']['last']
@@ -133,6 +133,14 @@ module BGSDependentsV2
 
     def reason_marriage_ended
       @child_info['marriage_end_reason']
+    end
+
+    def child_income
+      if @child_info['income_in_last_year'] == 'NA'
+        nil
+      else
+        @child_info['income_in_last_year']
+      end
     end
   end
 end

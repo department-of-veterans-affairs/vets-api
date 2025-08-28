@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'lighthouse/veterans_health/client'
-require 'lighthouse/veterans_health/models/immunization'
-require 'lighthouse/veterans_health/serializers/immunization_serializer'
 
 RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validation, type: :request do
   let(:default_params) { { start_date: '2015-01-01', end_date: '2015-12-31' } }
@@ -13,10 +10,6 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
   before do
     sign_in_as(current_user)
-    # Enable the feature toggle by default for most tests
-    allow(Flipper).to receive(:enabled?).with(
-      'mhv_accelerated_delivery_vaccines_enabled'
-    ).and_return(true)
   end
 
   describe 'GET /my_health/v2/medical_records/immunizations' do
@@ -29,6 +22,18 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
       it 'returns a successful response' do
         expect(response).to be_successful
+      end
+
+      context 'when date parameters are not provided' do
+        before do
+          VCR.use_cassette(immunizations_cassette) do
+            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: nil
+          end
+        end
+
+        it 'returns a successful response' do
+          expect(response).to be_successful
+        end
       end
 
       it 'tracks metrics in StatsD with exact immunization count' do
@@ -144,28 +149,111 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
         end
       end
     end
+  end
 
-    context 'when feature toggle is disabled' do
+  describe 'GET /my_health/v2/medical_records/immunizations/:id' do
+    let(:immunization_id) { '4-NsaRGtyJ4oKq' }
+    let(:show_path) { "#{path}/#{immunization_id}" }
+    let(:show_params) { default_params }
+
+    context 'happy path' do
       before do
-        # Override the default and disable the feature toggle
-        allow(Flipper).to receive(:enabled?).with(
-          'mhv_accelerated_delivery_vaccines_enabled'
-        ).and_return(false)
-
-        get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+        VCR.use_cassette(immunizations_cassette) do
+          get show_path, headers: { 'X-Key-Inflection' => 'camel' }, params: show_params
+        end
       end
 
-      it 'returns forbidden status' do
-        expect(response).to have_http_status(:forbidden)
-      end
-
-      it 'returns appropriate error message' do
+      it 'returns a successful response' do
+        expect(response).to be_successful
         json_response = JSON.parse(response.body)
-        expect(json_response).to have_key('errors')
-        expect(json_response['errors'].first).to include(
-          'title' => 'Feature Disabled',
-          'detail' => 'The immunizations feature is currently disabled'
-        )
+
+        expect(json_response['data']).to be_a(Hash)
+        expect(json_response['data']['id']).to eq(immunization_id)
+        expect(json_response['data']['type']).to eq('immunization')
+        expect(json_response['data']['attributes']).to have_key('location')
+      end
+    end
+
+    context 'when the date parameters are not provided' do
+      before do
+        VCR.use_cassette(immunizations_cassette) do
+          get show_path, headers: { 'X-Key-Inflection' => 'camel' }
+        end
+      end
+
+      it 'returns a successful response' do
+        expect(response).to be_successful
+        json_response = JSON.parse(response.body)
+
+        expect(json_response['data']).to be_a(Hash)
+        expect(json_response['data']['id']).to eq(immunization_id)
+        expect(json_response['data']['type']).to eq('immunization')
+        expect(json_response['data']['attributes']).to have_key('location')
+      end
+    end
+
+    context 'error cases' do
+      let(:mock_client) { instance_double(Lighthouse::VeteransHealth::Client) }
+
+      before do
+        allow_any_instance_of(MyHealth::V2::ImmunizationsController).to receive(:client).and_return(mock_client)
+      end
+
+      context 'with client error' do
+        before do
+          allow(mock_client).to receive(:get_immunizations)
+            .and_raise(Common::Client::Errors::ClientError.new('FHIR API Error', 500))
+
+          # Expect logger to receive error
+          expect(Rails.logger).to receive(:error).with(/Immunizations FHIR API error/)
+
+          get show_path, headers: { 'X-Key-Inflection' => 'camel' }, params: show_params
+        end
+
+        it 'returns bad_gateway status code' do
+          expect(response).to have_http_status(:bad_gateway)
+        end
+
+        it 'returns formatted error details' do
+          json_response = JSON.parse(response.body)
+          expect(json_response).to have_key('errors')
+          expect(json_response['errors']).to be_an(Array)
+          expect(json_response['errors'].first).to include(
+            'title' => 'FHIR API Error',
+            'detail' => 'FHIR API Error'
+          )
+        end
+      end
+
+      context 'with backend service exception' do
+        before do
+          allow(mock_client).to receive(:get_immunizations)
+            .and_raise(Common::Exceptions::BackendServiceException.new('VA900', detail: 'Backend Service Unavailable'))
+
+          # Expect logger to receive error
+          expect(Rails.logger).to receive(:error).with(/Backend service exception/)
+
+          get show_path, headers: { 'X-Key-Inflection' => 'camel' }, params: show_params
+        end
+
+        it 'returns bad_gateway status code' do
+          expect(response).to have_http_status(:bad_gateway)
+        end
+
+        it 'includes error details in the response' do
+          json_response = JSON.parse(response.body)
+          expect(json_response).to have_key('errors')
+        end
+      end
+
+      context 'when immunization not found' do
+        before do
+          allow(mock_client).to receive(:get_immunizations)
+            .and_raise(Common::Client::Errors::ClientError.new('Not Found', 404))
+
+          # Expect logger to receive error
+          expect(Rails.logger).to receive(:error).with(/Immunization not found/)
+        end
       end
     end
   end

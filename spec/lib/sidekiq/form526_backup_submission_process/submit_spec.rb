@@ -15,9 +15,6 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     allow(Flipper).to receive(:enabled?).with(:form526_send_backup_submission_exhaustion_email_notice).and_return(false)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
       .and_return('access_token')
-
-    # By default, this flag is enabled in test environments, turning this off to avoid using the 2024 template
-    allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
   end
 
   let(:user) { create(:user, :loa3, :legacy_icn) }

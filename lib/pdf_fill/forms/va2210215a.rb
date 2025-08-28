@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/forms/formatters/va2210215'
+
 module PdfFill
   module Forms
     class Va2210215a < FormBase
       include FormHelper
 
+      FORMATTER = PdfFill::Forms::Formatters::Va2210215
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
       KEY = {
@@ -84,32 +87,28 @@ module PdfFill
               limit: 10,
               question_num: 7,
               question_suffix: 'B',
-              question_text: 'SUPPORTED STUDENTS',
-              transform: ->(value) { value.present? ? format('%.2f', value) : value }
+              question_text: 'SUPPORTED STUDENTS'
             },
             'nonSupported' => {
               key: 'numNonSupported%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'C',
-              question_text: 'NON-SUPPORTED STUDENTS',
-              transform: ->(value) { value.present? ? format('%.2f', value) : value }
+              question_text: 'NON-SUPPORTED STUDENTS'
             },
             'totalFTE' => {
               key: 'enrolledFTE%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'D',
-              question_text: 'TOTAL FTE',
-              transform: ->(value) { "#{value}%" }
+              question_text: 'TOTAL FTE'
             },
             'supportedPercentageFTE' => {
               key: 'supportedFTE%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'E',
-              question_text: 'SUPPORTED PERCENTAGE FTE',
-              transform: ->(value) { "#{value}%" }
+              question_text: 'SUPPORTED PERCENTAGE FTE'
             }
           },
           'programDateOfCalculation' => {
@@ -151,37 +150,22 @@ module PdfFill
       }.freeze
 
       def merge_fields(options = {})
-        # Deep copy to avoid modifying original data
         form_data = JSON.parse(JSON.generate(@form_data))
 
-        # Combine first and last name into fullName
-        if form_data['certifyingOfficial']
-          official = form_data['certifyingOfficial']
-          official['fullName'] = "#{official['first']} #{official['last']}" if official['first'] && official['last']
-        end
+        FORMATTER.combine_official_name(form_data)
+        FORMATTER.process_programs(form_data)
+        handle_page_numbering(form_data, options)
 
-        # Process programs array - add programDateOfCalculation for each valid row
-        if form_data['programs'] && form_data['institutionDetails'] &&
-           form_data['institutionDetails']['dateOfCalculations']
-          calculation_date = form_data['institutionDetails']['dateOfCalculations']
+        form_data
+      end
 
-          form_data['programs'].each do |program|
-            # Add programDateOfCalculation to each valid program entry
-            program['programDateOfCalculation'] = calculation_date
+      private
 
-            if program['fte'] && program['fte']['supportedPercentageFTE'].present?
-              program['fte']['supportedPercentageFTE'] = "#{program['fte']['supportedPercentageFTE']}%"
-            end
-          end
-        end
-
-        # Handle page numbering for continuation sheets
+      def handle_page_numbering(form_data, options)
         page_number = options[:page_number] || 1
         total_pages = options[:total_pages] || 1
         form_data['pageNumber'] = page_number.to_s
         form_data['totalPages'] = total_pages.to_s
-
-        form_data
       end
     end
   end

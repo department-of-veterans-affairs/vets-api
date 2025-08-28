@@ -52,25 +52,18 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        if %w[40-0247 20-10207 40-10007].include?(params[:form_id])
-          attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
-          attachment.file = params['file']
-          file_path = params['file'].tempfile.path
-          # Validate the document using BenefitsIntakeService
-          if %w[40-0247 40-10007].include?(params[:form_id]) && File.extname(file_path).downcase == '.pdf'
-            begin
-              service = BenefitsIntakeService::Service.new
-              service.valid_document?(document: file_path)
-            rescue BenefitsIntakeService::Service::InvalidDocumentError => e
-              render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
-              return
-            end
-          end
-          raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+        return unless %w[40-0247 20-10207 40-10007].include?(params[:form_id])
 
-          attachment.save
-          render json: PersistentAttachmentSerializer.new(attachment)
-        end
+        attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
+        attachment.file = params['file']
+        file_path = params['file'].tempfile.path
+
+        return unless validate_document_if_needed(file_path)
+
+        raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+
+        attachment.save
+        render json: PersistentAttachmentSerializer.new(attachment)
       end
 
       def get_intents_to_file
@@ -83,6 +76,29 @@ module SimpleFormsApi
       end
 
       private
+
+      def validate_document_if_needed(file_path)
+        return true unless %w[40-0247 40-10007].include?(params[:form_id]) &&
+                           File.extname(file_path).downcase == '.pdf'
+
+        service = BenefitsIntakeService::Service.new
+        service.valid_document?(document: file_path)
+        true
+      rescue BenefitsIntakeService::Service::InvalidDocumentError => e
+        if params[:form_id] == '40-10007'
+          detail_msg = "We weren't able to upload your file. Make sure the file is in an " \
+                       'accepted format and size before continuing.'
+          render json: {
+            errors: [{
+              detail: detail_msg
+            }]
+          }, status: :unprocessable_entity
+        else
+          msg = "Document validation failed: #{e.message}"
+          render json: { error: msg }, status: :unprocessable_entity
+        end
+        false
+      end
 
       def lighthouse_service
         @lighthouse_service ||= BenefitsIntake::Service.new

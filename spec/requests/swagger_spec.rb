@@ -606,6 +606,20 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         let(:pdf_file) do
           fixture_file_upload('spec/fixtures/pdf_fill/686C-674/tester.pdf', 'application/pdf')
         end
+        let(:metadata_json) do
+          {
+            'disputes' => [
+              {
+                'composite_debt_id' => '71166',
+                'deduction_code' => '71',
+                'original_ar' => 166.67,
+                'current_ar' => 120.4,
+                'benefit_type' => 'CH33 Books, Supplies/MISC EDU',
+                'dispute_reason' => "I don't think I owe this debt to VA"
+              }
+            ]
+          }.to_json
+        end
 
         it 'validates the route' do
           allow_any_instance_of(DebtsApi::V0::DigitalDisputeSubmissionService).to receive(:call).and_return(
@@ -616,7 +630,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             '/debts_api/v0/digital_disputes',
             200,
             headers.merge(
-              '_data' => { files: [pdf_file] }
+              '_data' => { metadata: metadata_json, files: [pdf_file] }
             )
           )
         end
@@ -875,87 +889,41 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         expect(subject).to validate(:post, '/v0/hca_attachments', 400, '')
       end
 
-      context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is enabled" do
-        before do
-          allow(HealthCareApplication).to receive(:user_icn).and_return('123')
-        end
+      it 'supports submitting a health care application', run_at: '2017-01-31' do
+        allow(HealthCareApplication).to receive(:user_icn).and_return('123')
 
-        it 'supports submitting a health care application', run_at: '2017-01-31' do
-          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
-            expect(subject).to validate(
-              :post,
-              '/v0/health_care_applications',
-              200,
-              '_data' => {
-                'form' => test_veteran
-              }
-            )
-          end
-
+        VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
           expect(subject).to validate(
             :post,
             '/v0/health_care_applications',
-            422,
-            '_data' => {
-              'form' => {}.to_json
-            }
-          )
-
-          allow_any_instance_of(HCA::Service).to receive(:submit_form) do
-            raise Common::Client::Errors::HTTPError, 'error message'
-          end
-
-          expect(subject).to validate(
-            :post,
-            '/v0/health_care_applications',
-            400,
+            200,
             '_data' => {
               'form' => test_veteran
             }
           )
         end
-      end
 
-      context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is disabled" do
-        before do
-          Flipper.disable(:va1010_forms_enrollment_system_service_enabled)
-          allow(HealthCareApplication).to receive(:user_icn).and_return('123')
+        expect(subject).to validate(
+          :post,
+          '/v0/health_care_applications',
+          422,
+          '_data' => {
+            'form' => {}.to_json
+          }
+        )
+
+        allow_any_instance_of(HCA::Service).to receive(:submit_form) do
+          raise Common::Client::Errors::HTTPError, 'error message'
         end
 
-        it 'supports submitting a health care application', run_at: '2017-01-31' do
-          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
-            expect(subject).to validate(
-              :post,
-              '/v0/health_care_applications',
-              200,
-              '_data' => {
-                'form' => test_veteran
-              }
-            )
-          end
-
-          expect(subject).to validate(
-            :post,
-            '/v0/health_care_applications',
-            422,
-            '_data' => {
-              'form' => {}.to_json
-            }
-          )
-
-          allow_any_instance_of(HCA::Service).to receive(:post) do
-            raise Common::Client::Errors::HTTPError, 'error message'
-          end
-
-          expect(subject).to validate(
-            :post,
-            '/v0/health_care_applications',
-            400,
-            '_data' => {
-              'form' => test_veteran
-            }
-          )
-        end
+        expect(subject).to validate(
+          :post,
+          '/v0/health_care_applications',
+          400,
+          '_data' => {
+            'form' => test_veteran
+          }
+        )
       end
 
       context ':hca_cache_facilities feature is off' do

@@ -24,6 +24,24 @@ module PdfFill
               "#{facility.station_number} - #{facility.name}"
             end
           end
+
+          # Formats a SSN to be in the format of 123-45-6789
+          def format_ssn(value)
+            return if value.blank?
+
+            digits = value.to_s.gsub(/\D/, '')
+
+            "#{digits[0..2]}-#{digits[3..4]}-#{digits[5..8]}"
+          end
+
+          # Formats a phone number to be in the format of (123) 456-7890
+          def format_phone_number(value)
+            return if value.blank?
+
+            digits = value.to_s.gsub(/\D/, '')
+
+            "(#{digits[0..2]}) #{digits[3..5]}-#{digits[6..9]}"
+          end
         end
       end
     end

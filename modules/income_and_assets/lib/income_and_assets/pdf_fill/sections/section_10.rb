@@ -50,6 +50,8 @@ module IncomeAndAssets
             'cents' => { key: "F[0].ValueOfYourPortionOfProperty4_10[#{ITERATOR}]" }
           },
           'ownedPortionValueOverflow' => {
+            key: "ownedPortionValueOverflow[#{ITERATOR}]", # frozen_string_literal: true
+            limit: 14,
             dollar: true,
             question_num: 10,
             question_suffix: '(3)',
@@ -96,16 +98,16 @@ module IncomeAndAssets
           'otherAssetOwnerRelationshipType' => item['otherAssetOwnerRelationshipType'],
           'recipientName' => item['recipientName'],
           'assetType' => item['assetType'],
-          'ownedPortionValue' => split_currency_amount(item['ownedPortionValue']),
+          'ownedPortionValue' => split_currency_amount_lg(item['ownedPortionValue']),
           'assetLocation' => item['assetLocation']
         }
 
-        overflow = {}
-        expanded.each_key do |fieldname|
-          overflow["#{fieldname}Overflow"] = item[fieldname]
-        end
+        overrides = {
+          'assetOwnerRelationshipOverflow' => item['assetOwnerRelationship'],
+          'ownedPortionValueOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['ownedPortionValue'])
+        }
 
-        expanded.merge(overflow)
+        expanded.merge(overrides)
       end
     end
   end

@@ -24,16 +24,12 @@ module SentryControllerLogging
 
   def tags_context
     { controller_name: }.tap do |tags|
-      # Add defensive checks to avoid nil errors
-      sign_in = if current_user&.respond_to?(:identity) && current_user.identity&.sign_in.present? # rubocop:disable Lint/RedundantSafeNavigation
-                  current_user.identity.sign_in
-                elsif current_user&.sign_in.present?
-                  current_user.sign_in
-                end
+      # identity_sign_in for User, sign_in for AccreditedRepresentativePortal::RepresentativeUser
+      sign_in = current_user.is_a?(User) ? current_user.identity_sign_in : current_user&.sign_in
 
       if sign_in.present?
         tags[:sign_in_method] = sign_in[:service_name]
-        # account_type is filtered by sentry, becasue in other contexts it refers to a bank account type
+        # account_type is filtered by sentry, because in other contexts it refers to a bank account type
         tags[:sign_in_acct_type] = sign_in[:account_type]
       else
         tags[:sign_in_method] = 'not-signed-in'

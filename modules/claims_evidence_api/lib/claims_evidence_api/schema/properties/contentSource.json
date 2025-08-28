@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/properties/contentSource.json",
+  "description" : "String field designating the originating source of the content being uploaded.",
+  "example" : "VBMS",
+  "maximum" : 500,
+  "minimum" : 1,
+  "pattern" : "^[a-zA-Z0-9\\'\\,\\s.\\-\\_\\|\\/@\\(\\)]*$",
+  "$comment": "This property is further checked against a predefined set from `contentsources`, hence the use of enum in addition to pattern",
+  "enum": ["VA.gov"],
+  "title" : "Document content source",
+  "type" : "string"
+}

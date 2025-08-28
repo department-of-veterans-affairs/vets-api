@@ -14,7 +14,6 @@ RSpec.describe SignIn::ClientConfig, type: :model do
            access_token_duration:,
            access_token_audience:,
            refresh_token_duration:,
-           certificates:,
            access_token_attributes:,
            enforced_terms:,
            terms_of_use_url:,
@@ -24,7 +23,6 @@ RSpec.describe SignIn::ClientConfig, type: :model do
   end
   let(:client_id) { 'some-client-id' }
   let(:authentication) { SignIn::Constants::Auth::API }
-  let(:certificates) { [] }
   let(:anti_csrf) { false }
   let(:shared_sessions) { false }
   let(:json_api_compatibility) { false }

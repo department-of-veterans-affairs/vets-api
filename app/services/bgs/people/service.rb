@@ -41,7 +41,7 @@ module BGS
       def external_key
         @external_key ||= begin
           key = common_name.presence || email
-          key.first(Constants::EXTERNAL_KEY_MAX_LENGTH)
+          key&.first(Constants::EXTERNAL_KEY_MAX_LENGTH)
         end
       end
     end

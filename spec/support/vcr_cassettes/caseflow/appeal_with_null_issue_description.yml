@@ -1,0 +1,100 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<CASEFLOW_API_HOST>/api/v2/appeals"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Ssn:
+      - '796127160'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 20 Aug 2025 21:59:18 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - nginx
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Accept
+      Etag:
+      - W/"22599bd631aed604f97f222a46bd3c28:dtagent10317250630095842HD2F"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - 5464736e-1e60-485b-8d41-891e0c5efa73
+      X-Runtime:
+      - '0.090271'
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="1011111467"
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"HLR7970","type":"higherLevelReview","attributes":{"appealIds":["HLR7970"],"updated":"2025-08-20T12:51:51-04:00","incompleteHistory":false,"active":true,"description":"Service
+        connection for Tinnitus is granted with an evaluation of 10 percent effective
+        August 1, 2012. and 3 others","location":"aoj","aoj":"vba","programArea":"compensation","status":{"type":"hlr_received","details":{}},"alerts":[],"issues":[{"active":true,"lastAction":null,"date":null,"description":null,"diagnosticCode":null},{"active":true,"lastAction":null,"date":null,"description":"Service
+        connection for Tinnitus is granted with an evaluation of 10 percent effective
+        August 1, 2012.","diagnosticCode":"6260"}],"events":[{"type":"hlr_request","date":"2024-10-04"}],"evidence":[]}},{"id":"HLR7971","type":"higherLevelReview","attributes":{"appealIds":["HLR7971"],"updated":"2025-08-20T12:51:51-04:00","incompleteHistory":false,"active":true,"description":"Service
+        connection for Tinnitus is granted with an evaluation of 10 percent effective
+        August 1, 2012. and 3 others","location":"aoj","aoj":"vba","programArea":"compensation","status":{"type":"hlr_received","details":{}},"alerts":[],"issues":[{"active":true,"lastAction":null,"date":null,"description":"TEST
+        ADDED AFTER ESTABLISH","diagnosticCode":null},{"active":true,"lastAction":null,"date":null,"description":"TEST
+        ISSUE DELETE","diagnosticCode":null}],"events":[{"type":"hlr_request","date":"2024-10-04"}],"evidence":[]}},{"id":"SC10879","type":"supplementalClaim","attributes":{"appealIds":["SC10879"],"updated":"2025-08-20T12:51:51-04:00","incompleteHistory":false,"active":true,"description":"1
+        compensation issue","location":"aoj","aoj":"vba","programArea":"compensation","status":{"type":"sc_recieved","details":{}},"alerts":[],"issues":[{"active":true,"lastAction":null,"date":null,"description":"Permanent
+        incapacity for self-support is established for BILL E WARREN.","diagnosticCode":null}],"events":[{"type":"sc_request","date":"2024-12-17"}],"evidence":[]}},{"id":"SC10880","type":"supplementalClaim","attributes":{"appealIds":["SC10880"],"updated":"2025-08-20T12:51:51-04:00","incompleteHistory":false,"active":true,"description":"2
+        compensation issues","location":"aoj","aoj":"vba","programArea":"compensation","status":{"type":"sc_recieved","details":{}},"alerts":[],"issues":[{"active":true,"lastAction":null,"date":null,"description":"Entitlement
+        to special monthly compensation based on loss of use of your parts is granted
+        from May 1, 2012 to May 1, 2020.","diagnosticCode":null}],"events":[{"type":"sc_request","date":"2024-12-18"}],"evidence":[]}},{"id":"SC10889","type":"supplementalClaim","attributes":{"appealIds":["SC10889"],"updated":"2025-08-20T12:51:51-04:00","incompleteHistory":false,"active":true,"description":"Service
+        connection for headaches is granted with an evaluation of 30 percent effective
+        November 1, 2011.","location":"aoj","aoj":"vba","programArea":"compensation","status":{"type":"sc_recieved","details":{}},"alerts":[],"issues":[{"active":true,"lastAction":null,"date":null,"description":"Service
+        connection for headaches is granted with an evaluation of 30 percent effective
+        November 1, 2011.","diagnosticCode":"8100"}],"events":[{"type":"sc_request","date":"2024-12-20"}],"evidence":[]}},{"id":"SC10996","type":"supplementalClaim","attributes":{"appealIds":["SC10996"],"updated":"2025-08-20T12:51:51-04:00","incompleteHistory":false,"active":true,"description":"1
+        compensation issue","location":"aoj","aoj":"vba","programArea":"compensation","status":{"type":"sc_recieved","details":{}},"alerts":[],"issues":[{"active":true,"lastAction":null,"date":null,"description":"DEPENDENCY
+        - BILL WARREN, Helpless Child, Rated Helpless, effective 06/01/2012","diagnosticCode":null}],"events":[{"type":"sc_request","date":"2025-02-03"}],"evidence":[]}},{"id":"SC10957","type":"supplementalClaim","attributes":{"appealIds":["SC10957"],"updated":"2025-08-20T12:51:51-04:00","incompleteHistory":false,"active":true,"description":"Service
+        connection for ptsd is granted with an evaluation of 100 percent effective
+        January 1, 2012.","location":"aoj","aoj":"vba","programArea":"compensation","status":{"type":"sc_recieved","details":{}},"alerts":[],"issues":[{"active":true,"lastAction":null,"date":null,"description":"Service
+        connection for ptsd is granted with an evaluation of 100 percent effective
+        January 1, 2012.","diagnosticCode":"9411"}],"events":[{"type":"sc_request","date":"2025-01-14"}],"evidence":[]}},{"id":"A167","type":"appeal","attributes":{"appealIds":["A167"],"type":"Original","updated":"2025-08-20T12:51:51-04:00","incompleteHistory":false,"active":true,"description":"1
+        pension issue","aod":true,"location":"aoj","aoj":"vba","programArea":"pension","status":{"type":"ama_remand","details":{"issues":[{"description":"Eligibility
+        | Veteran Status - Testing pension code","disposition":"remanded"}]}},"alerts":[],"docket":null,"events":[{"type":"ama_nod","date":"2019-03-15"},{"type":"distributed_to_vlj","date":"2023-05-24"},{"type":"bva_decision","date":"2019-03-29"}],"issues":[{"active":true,"lastAction":"remand","date":"2019-03-29","description":"Eligibility
+        | Veteran Status - Testing pension code","diagnosticCode":"5000"}],"evidence":[]}},{"id":"A166","type":"appeal","attributes":{"appealIds":["A166"],"type":"Original","updated":"2025-08-20T12:51:51-04:00","incompleteHistory":false,"active":true,"description":"1
+        pension issue","aod":true,"location":"aoj","aoj":"vba","programArea":"pension","status":{"type":"ama_remand","details":{"issues":[{"description":"Eligibility
+        | Wartime service - Testing the Board Pension Nonrating EP code","disposition":"remanded"}]}},"alerts":[],"docket":null,"events":[{"type":"ama_nod","date":"2019-03-14"},{"type":"bva_decision","date":"2019-03-31"}],"issues":[{"active":true,"lastAction":"remand","date":"2019-03-31","description":"Eligibility
+        | Wartime service - Testing the Board Pension Nonrating EP code","diagnosticCode":"5000"}],"evidence":[]}},{"id":"A245","type":"appeal","attributes":{"appealIds":["A245"],"type":"Original","updated":"2025-08-20T12:51:51-04:00","incompleteHistory":false,"active":true,"description":"1
+        pension issue","aod":true,"location":"bva","aoj":"vba","programArea":"pension","status":{"type":"pending_hearing_scheduling","details":{"type":"video"}},"alerts":[],"docket":{"type":"hearingRequest","month":"2019-12-01","switchDueDate":"2020-03-28","eligibleToSwitch":false},"events":[{"type":"ama_nod","date":"2019-12-30"}],"issues":[],"evidence":[]}},{"id":"A3894","type":"appeal","attributes":{"appealIds":["A3894"],"type":"Original","updated":"2025-08-20T12:51:51-04:00","incompleteHistory":false,"active":true,"description":"1
+        compensation issue","aod":true,"location":"bva","aoj":"vba","programArea":"compensation","status":{"type":"on_docket","details":{}},"alerts":[],"docket":{"type":"hearingRequest","month":"2023-11-01","switchDueDate":"2024-10-30","eligibleToSwitch":false},"events":[{"type":"ama_nod","date":"2023-11-01"}],"issues":[{"active":true,"lastAction":null,"date":null,"description":"Active
+        Duty Adjustments - test","diagnosticCode":null}],"evidence":[]}},{"id":"A3924","type":"appeal","attributes":{"appealIds":["A3924"],"type":"Original","updated":"2025-08-20T12:51:51-04:00","incompleteHistory":false,"active":true,"description":"1
+        compensation issue","aod":true,"location":"bva","aoj":"vba","programArea":"compensation","status":{"type":"pending_hearing_scheduling","details":{"type":"video"}},"alerts":[],"docket":{"type":"hearingRequest","month":"2023-11-01","switchDueDate":"2024-11-14","eligibleToSwitch":false},"events":[{"type":"ama_nod","date":"2023-11-15"}],"issues":[{"active":true,"lastAction":null,"date":null,"description":"Unknown
+        Issue Category - test","diagnosticCode":null}],"evidence":[]}}]}'
+  recorded_at: Wed, 20 Aug 2025 21:59:18 GMT
+recorded_with: VCR 6.3.1

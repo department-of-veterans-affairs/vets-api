@@ -7,5 +7,8 @@ veteranContactInformation:
   phoneNumber: [contact_information, us_phone]
   emailAddress: [contact_information, email]
 nonPrefill:
+  dependents: [dependents_information]
   veteranSsnLastFour: [identity_information, ssn_last_four]
   veteranVaFileNumberLastFour: [va_file_number_last_four]
+  isInReceiptOfPension: [is_in_receipt_of_pension]
+  netWorthLimit: [net_worth_limit]

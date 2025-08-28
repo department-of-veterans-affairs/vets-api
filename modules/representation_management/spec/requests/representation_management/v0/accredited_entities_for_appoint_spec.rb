@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppoint', type: :request do
   let(:path) { '/representation_management/v0/accredited_entities_for_appoint' }
-  let!(:bob_law) { create(:accredited_individual, :with_location, full_name: 'Bob Law') }
-  let!(:bob_smith) { create(:accredited_individual, :with_location, full_name: 'Bob Smith') }
+  let!(:bob_law) { create(:accredited_individual, :with_location, first_name: 'Bob', last_name: 'Law') }
+  let!(:bob_smith) { create(:accredited_individual, :with_location, first_name: 'Bob', last_name: 'Smith') }
   let!(:bob_law_firm) { create(:accredited_organization, :with_location, name: 'Bob Law Firm') }
   let!(:bob_smith_firm) { create(:accredited_organization, :with_location, name: 'Bob Smith Firm') }
 
@@ -52,13 +52,13 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppoint', typ
     end
   end
 
-  context "when the feature flag 'appoint_a_representative_enable_pdf' is disabled" do
+  context "when the feature flag 'find_a_representative_use_accredited_models' is disabled" do
     before do
-      Flipper.disable(:appoint_a_representative_enable_pdf)
+      Flipper.disable(:find_a_representative_use_accredited_models)
     end
 
     after do
-      Flipper.enable(:appoint_a_representative_enable_pdf)
+      Flipper.enable(:find_a_representative_use_accredited_models)
     end
 
     it 'returns a 404' do

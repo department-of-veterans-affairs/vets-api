@@ -64,7 +64,7 @@ RSpec.describe SignIn::CodeValidator do
           context 'and user verification uuid in code container does not match with a user verification' do
             let(:user_verification_id) { 'some-arbitrary-user-verification-uuid' }
             let(:expected_error) { ActiveRecord::RecordNotFound }
-            let(:expected_error_message) { "Couldn't find UserVerification with 'id'=#{user_verification_id}" }
+            let(:expected_error_message) { /Couldn't find UserVerification with 'id'/ }
 
             it 'raises a user verification not found error' do
               expect { subject }.to raise_exception(expected_error, expected_error_message)
@@ -217,7 +217,7 @@ RSpec.describe SignIn::CodeValidator do
                     let(:user_verification_id) { 'some-arbitrary-user-verification-uuid' }
                     let(:expected_error) { ActiveRecord::RecordNotFound }
                     let(:expected_error_message) do
-                      "Couldn't find UserVerification with 'id'=#{user_verification_id}"
+                      /Couldn't find UserVerification with 'id'/
                     end
 
                     it 'raises a user verification not found error' do

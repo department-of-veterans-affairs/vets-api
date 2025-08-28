@@ -4,6 +4,8 @@ module SignIn
   class Certificate < ApplicationRecord
     self.table_name = 'sign_in_certificates'
 
+    EXPIRING_WINDOW = 60.days
+
     has_many :config_certificates, dependent: :destroy
     has_many :client_configs, through: :config_certificates, source: :config, source_type: 'ClientConfig'
     has_many :service_account_configs, through: :config_certificates, source: :config,
@@ -11,9 +13,11 @@ module SignIn
 
     delegate :not_before, :not_after, :subject, :issuer, :serial, to: :certificate
 
-    scope :active, -> { select(&:active?) }
-    scope :expired, -> { select(&:expired?) }
+    scope :active,   -> { select(&:active?) }
+    scope :expired,  -> { select(&:expired?) }
     scope :expiring, -> { select(&:expiring?) }
+
+    normalizes :pem, with: ->(value) { value.present? ? "#{value.chomp}\n" : value }
 
     validates :pem, presence: true
     validate :validate_certificate!
@@ -24,26 +28,34 @@ module SignIn
       nil
     end
 
+    def certificate?
+      certificate.present?
+    end
+
     def public_key
       certificate&.public_key
     end
 
-    def active?
-      return if certificate.blank?
-
-      !expired?
-    end
-
     def expired?
-      return if certificate.blank?
-
-      not_after < Time.current
+      certificate? && not_after < Time.current
     end
 
     def expiring?
-      return if certificate.blank?
+      certificate? && !expired? && not_after < EXPIRING_WINDOW.from_now
+    end
 
-      not_after < 60.days.from_now
+    def active?
+      certificate? && not_after >= EXPIRING_WINDOW.from_now
+    end
+
+    def status
+      if expired?
+        'expired'
+      elsif expiring?
+        'expiring'
+      elsif active?
+        'active'
+      end
     end
 
     private

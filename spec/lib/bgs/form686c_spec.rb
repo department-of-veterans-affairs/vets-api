@@ -252,7 +252,7 @@ RSpec.describe BGS::Form686c do
         let(:form686c) { BGS::Form686c.new(user_struct, saved_claim) }
 
         context 'form_686c_674_kitchen_sink' do
-          let(:payload) { build(:form686c_674_v2) }
+          let(:payload) { build(:form_686c_674_kitchen_sink) }
 
           # @TODO: may want to return something else
           it 'returns a hash with proc information' do
@@ -335,7 +335,7 @@ RSpec.describe BGS::Form686c do
         end
 
         context 'form_686c_add_child_report674' do
-          let(:payload) { build(:form686c_674_v2) }
+          let(:payload) { build(:form_686c_add_child_report674) }
 
           it 'submits a manual claim with the correct BGS note' do
             VCR.use_cassette('bgs/form686c/submit') do
@@ -346,7 +346,7 @@ RSpec.describe BGS::Form686c do
                   expect_any_instance_of(BGS::Service).to receive(:create_note).with(
                     '600210032',
                     'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted ' \
-                    'for removal of a step-child that has left household.'
+                    'along with a 674.'
                   )
 
                   subject
@@ -361,7 +361,7 @@ RSpec.describe BGS::Form686c do
         let(:form686c) { BGS::Form686c.new(user_object, saved_claim) }
 
         context 'form_686c_674_kitchen_sink' do
-          let(:payload) { build(:form686c_674_v2) }
+          let(:payload) { build(:form_686c_674_kitchen_sink) }
 
           # @TODO: may want to return something else
           it 'returns a hash with proc information' do
@@ -444,7 +444,7 @@ RSpec.describe BGS::Form686c do
         end
 
         context 'form_686c_add_child_report674' do
-          let(:payload) { build(:form686c_674_v2) }
+          let(:payload) { build(:form_686c_add_child_report674) }
 
           it 'submits a manual claim with the correct BGS note' do
             VCR.use_cassette('bgs/form686c/submit') do
@@ -455,7 +455,7 @@ RSpec.describe BGS::Form686c do
                   expect_any_instance_of(BGS::Service).to receive(:create_note).with(
                     '600210032',
                     'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted ' \
-                    'for removal of a step-child that has left household.'
+                    'along with a 674.'
                   )
 
                   subject

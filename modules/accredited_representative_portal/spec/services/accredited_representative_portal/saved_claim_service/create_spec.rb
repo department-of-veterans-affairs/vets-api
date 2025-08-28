@@ -170,8 +170,98 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
               )
             end
           end
+
+          context 'with invalid parameters' do
+            let(:attachments) { [form_a, attachment_a, attachment_b] }
+            let(:claimant_representative) do
+              AccreditedRepresentativePortal::ClaimantRepresentative.new(
+                claimant_id: Faker::Internet.uuid,
+                power_of_attorney_holder_type: 'invalid',
+                power_of_attorney_holder_poa_code: 'super-invalid',
+                accredited_individual_registration_number: 'wrong'
+              )
+            end
+
+            it 'raises RecordInvalidError' do
+              expect { perform }.to raise_error described_class::RecordInvalidError
+            end
+          end
+
+          context 'unhandled errors' do
+            it 'raises UnknownError' do
+              allow_any_instance_of(
+                AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob
+              ).to receive(:perform).and_raise(StandardError.new('kaboom'))
+
+              expect { perform }.to raise_error described_class::UnknownError
+            end
+          end
+
+          context 'with any error' do
+            let(:attachments) { [form_a, attachment_a, attachment_b] }
+
+            before do
+              allow_any_instance_of(
+                AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob
+              ).to receive(:perform).and_raise(described_class::WrongAttachmentsError)
+            end
+
+            it 'does not leave any saved claim join objects' do
+              expect do
+                suppress(described_class::WrongAttachmentsError) do
+                  perform
+                end
+              end.not_to(change(AccreditedRepresentativePortal::SavedClaimClaimantRepresentative, :count))
+            end
+
+            it 'does not leave any saved claim objects' do
+              expect do
+                suppress(described_class::WrongAttachmentsError) do
+                  perform
+                end
+              end.not_to(change(AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim, :count))
+            end
+          end
         end
       end
+    end
+  end
+
+  describe '#organize_attachments' do
+    let(:form_a) { create(:persistent_attachment_va_form, form_id: '21-686c') }
+    let(:form_b) { create(:persistent_attachment_va_form, form_id: '21-686c') }
+    let(:attachment_a) { create(:persistent_attachment_va_form_documentation, form_id: '21-686c') }
+    let(:saved_claim) { create(:saved_claim_benefits_intake, persistent_attachments: [form_a, attachment_a]) }
+
+    context 'attachment already belongs to a claim' do
+      it 'raises WrongAttachmentsError' do
+        expect do
+          described_class.send(:organize_attachments!, '21-686c', saved_claim.persistent_attachments.pluck(:guid))
+        end.to raise_error(described_class::WrongAttachmentsError, 'This attachment already belongs to a claim')
+      end
+    end
+
+    context 'attachment is for the wrong claim type' do
+      it 'raises WrongAttachmentsError' do
+        expect do
+          described_class.send(:organize_attachments!, '21-526ez', form_a.guid)
+        end.to raise_error(described_class::WrongAttachmentsError, 'This attachment is for the wrong claim type')
+      end
+    end
+
+    context 'no attachments' do
+      it 'raises WrongAttachmentsError' do
+        expect do
+          described_class.send(:organize_attachments!, '21-686c', [])
+        end.to raise_error(described_class::WrongAttachmentsError,
+                           "Must have 1 form, 0+ documentations, 0 extraneous.\n")
+      end
+    end
+
+    it 'returns form and documentations' do
+      expect(
+        described_class.send(:organize_attachments!, '21-686c', [form_a.guid, attachment_a.guid])
+      ).to eq({ form: form_a, documentations: [attachment_a] })
     end
   end
 end

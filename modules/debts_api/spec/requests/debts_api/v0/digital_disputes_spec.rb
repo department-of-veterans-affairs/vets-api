@@ -9,6 +9,20 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
     fixture_file_upload('spec/fixtures/pdf_fill/686C-674/tester.pdf', 'application/pdf')
   end
   let(:mock_service) { instance_double(DebtsApi::V0::DigitalDisputeSubmissionService) }
+  let(:metadata_json) do
+    {
+      'disputes' => [
+        {
+          'composite_debt_id' => '71166',
+          'deduction_code' => '71',
+          'original_ar' => 166.67,
+          'current_ar' => 120.4,
+          'benefit_type' => 'CH33 Books, Supplies/MISC EDU',
+          'dispute_reason' => "I don't think I owe this debt to VA"
+        }
+      ]
+    }.to_json
+  end
 
   describe '#create' do
     context 'when authenticated' do
@@ -27,7 +41,7 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
         end
 
         it 'returns 200 OK with success message' do
-          post '/debts_api/v0/digital_disputes', params: { files: [pdf_file_one] }
+          post '/debts_api/v0/digital_disputes', params: { metadata: metadata_json, files: [pdf_file_one] }
 
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['message']).to eq('Digital dispute submission received successfully')
@@ -35,9 +49,14 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
 
         it 'tracks success metrics' do
           expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.initiated')
-          expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.success')
+          expect(StatsD).to receive(:increment).with(
+            'api.rack.request',
+            {
+              tags: %w[controller:debts_api/v0/digital_disputes action:create source_app:not_provided status:200]
+            }
+          )
 
-          post '/debts_api/v0/digital_disputes', params: { files: [pdf_file_one] }
+          post '/debts_api/v0/digital_disputes', params: { metadata: metadata_json, files: [pdf_file_one] }
         end
       end
 
@@ -50,7 +69,7 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
         end
 
         it 'returns 422 Unprocessable Entity with error details' do
-          post '/debts_api/v0/digital_disputes', params: { files: [pdf_file_one] }
+          post '/debts_api/v0/digital_disputes', params: { metadata: metadata_json, files: [pdf_file_one] }
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(JSON.parse(response.body)).to eq(
@@ -60,9 +79,14 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
 
         it 'tracks failure metrics' do
           expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.initiated')
-          expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.failure')
+          expect(StatsD).to receive(:increment).with(
+            'api.rack.request',
+            {
+              tags: %w[controller:debts_api/v0/digital_disputes action:create source_app:not_provided status:422]
+            }
+          )
 
-          post '/debts_api/v0/digital_disputes', params: { files: [pdf_file_one] }
+          post '/debts_api/v0/digital_disputes', params: { metadata: metadata_json, files: [pdf_file_one] }
         end
       end
 
@@ -76,7 +100,7 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
           end
           allow(mock_service).to receive(:call).and_return({ success: true, message: 'Success' })
 
-          post '/debts_api/v0/digital_disputes', params: { files: [pdf_file_one] }
+          post '/debts_api/v0/digital_disputes', params: { metadata: metadata_json, files: [pdf_file_one] }
         end
       end
     end

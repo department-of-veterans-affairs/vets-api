@@ -18,7 +18,11 @@ module Mobile
         resource = client.get_all_triage_teams(@current_user.uuid, use_cache?)
         raise Common::Exceptions::ResourceNotFound if resource.blank?
 
+        resource.records = resource.records.reject(&:blocked_status)
+        resource.records = resource.records.select(&:preferred_team)
         resource = resource.sort(params[:sort])
+
+        resource.metadata[:care_systems] = client.get_unique_care_systems(resource.records)
 
         # Even though this is a collection action we are not going to paginate
         options = { meta: resource.metadata }

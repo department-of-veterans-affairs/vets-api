@@ -9,7 +9,7 @@ describe CARMA::Client::MuleSoftConfiguration do
   let(:host) { 'https://www.somesite.gov' }
 
   describe 'connection' do
-    let(:faraday) { double('Faraday::Connection') }
+    let(:faraday) { double('Faraday::Connection', options: double('Faraday::Options')) }
 
     it 'creates a new Faraday connection with the correct base path' do
       allow(Settings.form_10_10cg.carma.mulesoft).to receive(:host).and_return(host)
@@ -19,32 +19,15 @@ describe CARMA::Client::MuleSoftConfiguration do
 
     it 'creates the connection' do
       allow(Faraday).to receive(:new).and_yield(faraday)
+      allow(faraday.options).to receive(:timeout=)
 
       expect(faraday).to receive(:use).once.with(:breakers, { service_name: subject.service_name })
-      expect(faraday).to receive(:request).once.with(:instrumentation, { name: 'CARMA::Client::MuleSoftConfiguration' })
+      expect(faraday).to receive(:request).once.with(:instrumentation,
+                                                     { name: 'CARMA::Client::MuleSoftConfiguration' })
       expect(faraday).to receive(:adapter).once.with(Faraday.default_adapter)
+      expect(faraday.options).to receive(:timeout=).once.with(subject.timeout)
 
       subject.connection
-    end
-  end
-
-  describe 'id and secret' do
-    before do
-      allow(Settings.form_10_10cg.carma.mulesoft).to receive_messages(client_id: fake_id, client_secret: fake_secret)
-    end
-
-    context 'have values' do
-      subject { super().base_request_headers }
-
-      let(:fake_id) { 'BEEFCAFE1234' }
-      let(:fake_secret) { 'C0FFEEFACE4321' }
-
-      describe '#base_request_headers' do
-        it 'contains the configured values' do
-          expect(subject[:client_id]).to eq(fake_id)
-          expect(subject[:client_secret]).to eq(fake_secret)
-        end
-      end
     end
   end
 
@@ -53,7 +36,7 @@ describe CARMA::Client::MuleSoftConfiguration do
   end
 
   describe 'timeout' do
-    subject { super().timeout }
+    let(:timeout) { subject.timeout }
 
     context 'has a configured value' do
       before do
@@ -61,7 +44,7 @@ describe CARMA::Client::MuleSoftConfiguration do
       end
 
       it 'returns the configured value' do
-        expect(subject).to eq(23)
+        expect(timeout).to eq(23)
       end
     end
 
@@ -71,7 +54,7 @@ describe CARMA::Client::MuleSoftConfiguration do
       end
 
       it 'returns the default value' do
-        expect(subject).to eq(10)
+        expect(timeout).to eq(600)
       end
     end
   end

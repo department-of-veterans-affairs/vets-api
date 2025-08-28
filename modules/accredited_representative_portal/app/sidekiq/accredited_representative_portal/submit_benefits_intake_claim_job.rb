@@ -57,6 +57,10 @@ module AccreditedRepresentativePortal
       )
     end
 
+    def stamping_form_class
+      @claim.class::STAMPING_FORM_CLASS
+    end
+
     ##
     # Overrides parent class.
     #
@@ -78,7 +82,7 @@ module AccreditedRepresentativePortal
           # not need.
           #
           SimpleFormsApi::PdfStamper.new(
-            form: SimpleFormsApi::VBA21686C.new({}),
+            form: stamping_form_class.new({}),
             stamped_template_path:,
             current_loa: SignIn::Constants::Auth::LOA_THREE,
             timestamp: @claim.created_at

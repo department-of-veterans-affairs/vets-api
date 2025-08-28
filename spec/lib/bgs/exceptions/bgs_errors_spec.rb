@@ -43,6 +43,18 @@ RSpec.describe BGS::Exceptions::BGSErrors do
       end
     end
 
+    context 'CEST11 errors' do
+      it 'raises an error message without PII' do
+        error_message = 'CEST11 John Smith john@email.com'
+        dummy_error = StandardError.new(error_message)
+
+        expect { dummy_instance.notify_of_service_exception(dummy_error, 'dummy_method') }
+          .to raise_error(BGS::ServiceException) do |exception|
+            expect(exception.original_body).to eq('CEST11 Error')
+          end
+      end
+    end
+
     context 'no error message' do
       it 'raises a BGS::ServiceException' do
         dummy_error = StandardError.new

@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.email       = ['wayne.weibel@adhocteam.us']
   spec.homepage    = 'https://api.va.gov'
   spec.summary     = 'An api.va.gov module'
-  spec.description = 'This module was auto-generated please update this description'
+  spec.description = 'Interaction with the Claims Evidence API - a file service for handling the storage and management of files supporting VA benefit claims. It serves as a modernized point of entry to files previously only accessible through VBMS eFolder. It is designed for easier implementation by consuming systems, but also with the ability to eventually replace the eFolder logic within VBMS.'
   spec.license     = 'CC0-1.0'
 
   spec.files = Dir['{app,config,db,lib}/**/*', 'Rakefile', 'README.md']

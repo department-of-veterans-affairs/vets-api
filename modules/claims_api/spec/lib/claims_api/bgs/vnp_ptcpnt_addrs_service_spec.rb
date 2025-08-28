@@ -94,7 +94,7 @@ describe ClaimsApi::VnpPtcpntAddrsService, metadata do
 
     it 'responds when sent valid params' do
       VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_addrs_service/valid_vnp_ptcpnt_addrs_find_by_primary_key') do
-        response = subject.vnp_ptcpnt_addrs_find_by_primary_key(id)
+        response = subject.vnp_ptcpnt_addrs_find_by_primary_key(id:)
 
         expect(response).to include(
           {

@@ -97,7 +97,7 @@ describe Eps::AppointmentService do
 
       it 'logs the error without PII' do
         expect(Rails.logger).to receive(:warn).with(
-          'EPS appointment error',
+          'Community Care Appointments: EPS appointment error',
           {
             error_type: 'conflict',
             method: 'get_appointment',
@@ -170,7 +170,7 @@ describe Eps::AppointmentService do
 
       it 'logs the error without PII' do
         expect(Rails.logger).to receive(:warn).with(
-          'EPS appointment error',
+          'Community Care Appointments: EPS appointment error',
           {
             error_type: 'conflict',
             method: 'get_appointments',
@@ -247,7 +247,7 @@ describe Eps::AppointmentService do
 
       it 'logs the error without PII' do
         expect(Rails.logger).to receive(:warn).with(
-          'EPS appointment error',
+          'Community Care Appointments: EPS appointment error',
           {
             error_type: 'conflict',
             method: 'create_draft_appointment',
@@ -405,7 +405,7 @@ describe Eps::AppointmentService do
 
       it 'logs the error without PII' do
         expect(Rails.logger).to receive(:warn).with(
-          'EPS appointment error',
+          'Community Care Appointments: EPS appointment error',
           {
             error_type: 'conflict',
             method: 'submit_appointment',

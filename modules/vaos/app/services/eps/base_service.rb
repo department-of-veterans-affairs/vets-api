@@ -8,6 +8,7 @@ module Eps
   class BaseService < VAOS::SessionService
     include Common::Client::Concerns::Monitoring
     include Eps::TokenAuthentication
+    include VAOS::CommunityCareConstants
 
     STATSD_KEY_PREFIX = 'api.eps'
     REDIS_TOKEN_KEY = REDIS_CONFIG[:eps_access_token][:namespace]
@@ -47,7 +48,7 @@ module Eps
 
       # Log the error without PII - only include safe context information
       method_name ||= caller_locations(1, 1)[0].label
-      Rails.logger.warn('EPS appointment error', {
+      Rails.logger.warn("#{CC_APPOINTMENTS}: EPS appointment error", {
                           error_type: error_value,
                           method: method_name,
                           status: response.status || 'unknown'

@@ -42,7 +42,7 @@ module V0
       dependent_service.submit_686c_form(claim)
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-      claim.send_submitted_email(current_user) if Flipper.enabled?(:dependents_submitted_email)
+      claim.send_submitted_email(current_user)
 
       # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
 
@@ -64,6 +64,8 @@ module V0
         :report_death,
         :report_marriage_of_child_under18,
         :report_child18_or_older_is_not_attending_school,
+        :statement_of_truth_signature,
+        :statement_of_truth_certified,
         'view:selectable686_options': {},
         dependents_application: {},
         supporting_documents: []

@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
+require_relative 'reference_range_formatter'
 
 module UnifiedHealthData
   class Service < Common::Client::Base
@@ -54,17 +55,47 @@ module UnifiedHealthData
     end
 
     def filter_records(records)
-      records.select do |record|
-        case record.attributes.test_code
-        when 'CH'
-          Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
-        when 'SP'
-          Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
-        when 'MB'
-          Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
-        else
-          false # Reject any other test codes for now, but we'll log them for analysis
-        end
+      return all_records_response(records) unless filtering_enabled?
+
+      apply_test_code_filtering(records)
+    end
+
+    def filtering_enabled?
+      Flipper.enabled?(:mhv_accelerated_delivery_uhd_filtering_enabled, @user)
+    end
+
+    def all_records_response(records)
+      Rails.logger.info(
+        message: 'UHD filtering disabled - returning all records',
+        total_records: records.size,
+        service: 'unified_health_data'
+      )
+      records
+    end
+
+    def apply_test_code_filtering(records)
+      filtered = records.select { |record| test_code_enabled?(record.attributes.test_code) }
+
+      Rails.logger.info(
+        message: 'UHD filtering enabled - applied test code filtering',
+        total_records: records.size,
+        filtered_records: filtered.size,
+        service: 'unified_health_data'
+      )
+
+      filtered
+    end
+
+    def test_code_enabled?(test_code)
+      case test_code
+      when 'CH'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
+      when 'SP'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
+      when 'MB'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
+      else
+        false # Reject any other test codes for now, but we'll log them for analysis
       end
     end
 
@@ -206,166 +237,13 @@ module UnifiedHealthData
         UnifiedHealthData::Observation.new(
           test_code: obs['code']['text'],
           value: fetch_observation_value(obs),
-          reference_range: fetch_reference_range(obs),
+          reference_range: UnifiedHealthData::ReferenceRangeFormatter.format(obs),
           status: obs['status'],
           comments: obs['note']&.map { |note| note['text'] }&.join(', ') || '',
           sample_tested:,
           body_site:
         )
       end
-    end
-
-    # Main method to fetch reference range from observation
-    def fetch_reference_range(obs)
-      return '' unless obs['referenceRange'].is_a?(Array) && !obs['referenceRange'].empty?
-
-      begin
-        # Process each range element and transform it to a formatted string
-        formatted_ranges = obs['referenceRange'].map do |range|
-          next '' unless range.is_a?(Hash)
-
-          # Use the text directly if available, otherwise format it
-          if range['text'].is_a?(String) && !range['text'].empty?
-            range['text']
-          else
-            format_reference_range(range)
-          end
-        end
-
-        # Filter out empty strings and join the results
-        formatted_ranges.reject(&:empty?).join(', ').strip
-      rescue => e
-        Rails.logger.error("Error processing reference range: #{e.message}")
-        ''
-      end
-    end
-
-    # Format a reference range into a string representation
-    def format_reference_range(range)
-      return '' unless range.is_a?(Hash)
-
-      begin
-        return range['text'] if range['text'].is_a?(String) && !range['text'].empty?
-
-        return format_numeric_range(range) if range['low'].is_a?(Hash) || range['high'].is_a?(Hash)
-
-        ''
-      rescue => e
-        Rails.logger.error("Error processing individual reference range: #{e.message}")
-        ''
-      end
-    end
-
-    # Extract numeric value and unit from range component
-    def extract_range_component(component)
-      # Handle the case where component is not a hash
-      return [nil, ''] unless component.is_a?(Hash)
-
-      value = component&.dig('value')
-      value = nil unless value.is_a?(Numeric)
-      unit = component&.dig('unit').is_a?(String) ? component&.dig('unit') : ''
-      [value, unit]
-    end
-
-    # Determine range type prefix
-    def get_range_type_prefix(range)
-      return '' unless range.is_a?(Hash) && range['type'].present?
-
-      # Handle the case where type is not a hash
-      return '' unless range['type'].is_a?(Hash)
-
-      type_text = range['type']['text'].is_a?(String) ? range['type']['text'] : nil
-
-      # Always return the range type prefix if it exists
-      if type_text
-        "#{type_text}: "
-      else
-        ''
-      end
-    end
-
-    # Format a numeric reference range
-    def format_numeric_range(range)
-      # Extract values safely
-      low_value, low_unit = extract_range_component(range['low'])
-      high_value, high_unit = extract_range_component(range['high'])
-
-      # Get range type prefix
-      range_type = get_range_type_prefix(range)
-
-      # Create params hash for formatting
-      params = {
-        range_type:,
-        low: { value: low_value, unit: low_unit },
-        high: { value: high_value, unit: high_unit },
-        type_text: range['type'].is_a?(Hash) ? range['type']['text'] : nil
-      }
-
-      # Format based on available values
-      format_range_based_on_values(params)
-    rescue => e
-      Rails.logger.error("Error in format_numeric_range: #{e.message}")
-      ''
-    end
-
-    # Helper method to format range based on which values are available
-    def format_range_based_on_values(params)
-      range_type = params[:range_type]
-      low_value = params[:low][:value]
-      low_unit = params[:low][:unit]
-      high_value = params[:high][:value]
-      high_unit = params[:high][:unit]
-
-      if low_value && high_value
-        format_low_high_range(params)
-      elsif low_value
-        unit_str = low_unit.empty? ? '' : " #{low_unit}"
-        "#{range_type}>= #{low_value}#{unit_str}"
-      elsif high_value
-        unit_str = high_unit.empty? ? '' : " #{high_unit}"
-        "#{range_type}<= #{high_value}#{unit_str}"
-      else
-        ''
-      end
-    end
-
-    # Format range with both low and high values
-    def format_low_high_range(params)
-      range_type = params[:range_type]
-      low_value = params[:low][:value]
-      low_unit = params[:low][:unit]
-      high_value = params[:high][:value]
-      high_unit = params[:high][:unit]
-
-      if !low_unit.empty? || !high_unit.empty?
-        format_range_with_units(params)
-      else
-        "#{range_type}#{low_value} - #{high_value}"
-      end
-    end
-
-    # Helper method to format range with units
-    def format_range_with_units(params)
-      range_type = params[:range_type]
-      low_value = params[:low][:value]
-      low_unit = params[:low][:unit]
-      high_value = params[:high][:value]
-      high_unit = params[:high][:unit]
-
-      # Determine which unit to display (prefer high's unit, fall back to low's unit)
-      final_unit = if !high_unit.empty?
-                     high_unit
-                   elsif !low_unit.empty?
-                     low_unit
-                   else
-                     ''
-                   end
-
-      # Only show the unit on the last value
-      unit_str = final_unit.empty? ? '' : " #{final_unit}"
-
-      # Format the range with units only at the end
-      "#{range_type}#{low_value} - #{high_value}#{unit_str}"
     end
 
     def fetch_observation_value(obs)
@@ -449,6 +327,9 @@ module UnifiedHealthData
 
         test_code_counts[test_code] += 1 if test_code.present?
         test_name_counts[test_name] += 1 if test_name.present?
+
+        # Log to PersonalInformationLog when test name is 3 characters or less instead of human-friendly name
+        log_short_test_name_issue(record) if test_name.present? && test_name.length <= 3
       end
 
       [test_code_counts, test_name_counts]
@@ -471,6 +352,31 @@ module UnifiedHealthData
           total_records:,
           service: 'unified_health_data'
         }
+      )
+    end
+
+    # Logs cases where test name is 3 characters or less instead of a human-friendly name to PersonalInformationLog
+    # for secure tracking of patient records with this issue
+    def log_short_test_name_issue(record)
+      data = {
+        icn: @user.icn,
+        test_code: record.attributes.test_code,
+        test_name: record.attributes.display,
+        record_id: record.id,
+        resource_type: record.type,
+        date_completed: record.attributes.date_completed,
+        service: 'unified_health_data'
+      }
+
+      PersonalInformationLog.create!(
+        error_class: 'UHD Short Test Name Issue',
+        data:
+      )
+    rescue => e
+      # Log any errors in creating the PersonalInformationLog without exposing PII
+      Rails.logger.error(
+        "Error creating PersonalInformationLog for short test name issue: #{e.class.name}",
+        { service: 'unified_health_data', backtrace: e.backtrace.first(5) }
       )
     end
   end

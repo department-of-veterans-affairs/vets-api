@@ -103,7 +103,7 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
           tags: ['service:community_care_appointments']
         )
         expect(Rails.logger).to receive(:error).with(
-          'Community Care Appointments: EpsAppointmentJob failed to get appointment status',
+          'Community Care Appointments: Eps::AppointmentStatusJob failed to get appointment status',
           { user_uuid: user.uuid, appointment_id_last4: }
         )
         expect(Eps::AppointmentStatusEmailJob).to receive(:perform_async).with(
@@ -123,7 +123,7 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
 
       it 'logs error and returns early' do
         expect(Rails.logger).to receive(:error).with(
-          'Community Care Appointments: EpsAppointmentJob missing or incomplete Redis data',
+          'Community Care Appointments: Eps::AppointmentStatusJob missing or incomplete Redis data',
           { user_uuid: user.uuid, appointment_id_last4:, appointment_data: nil }.to_json
         )
         expect(StatsD).to receive(:increment).with(

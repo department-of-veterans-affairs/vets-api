@@ -56,6 +56,7 @@ properties:
     type: object
     required:
       - sort
+      - careSystems
     properties:
       sort:
         type: object
@@ -75,3 +76,10 @@ properties:
       friendlyTriageTeamPilotFacilities:
         type:    string
         example: "979,989"
+      careSystems:
+        type: array
+        items:
+          type: object
+          required:
+            - stationNumber
+            - healthCareSystemName

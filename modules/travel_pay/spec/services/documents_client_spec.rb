@@ -12,7 +12,7 @@ describe TravelPay::DocumentsClient do
     conn = Faraday.new do |c|
       c.adapter(:test, @stubs)
       c.response :json
-      c.request :json
+      c.request :multipart # this allows multipart bodies
       c.response :raise_error
     end
 
@@ -98,6 +98,115 @@ describe TravelPay::DocumentsClient do
       expect do
         client.get_document_binary('veis_token', 'btsss_token', { claim_id:, doc_id: })
       end.to raise_error(Faraday::ResourceNotFound)
+    end
+  end
+
+  describe '#add_document' do
+    let(:claim_id) { '73611905-71bf-46ed-b1ec-e790593b8565' }
+    let(:file_path) { 'modules/travel_pay/spec/fixtures/documents/test.pdf' }
+    # Have to set the filename here since Rack::Test::UploadedFile creates a tempfile under /tmp with a unique name
+    let(:file) { Rack::Test::UploadedFile.new(file_path, 'application/pdf', 'test.pdf') }
+
+    it 'sends a POST to the correct URL with headers and Document body' do
+      # Build a Faraday Multipart::FilePart explicitly so we can check the file name
+      file_part = Faraday::Multipart::FilePart.new(
+        file_path,           # path to the fixture file
+        'application/pdf',   # content type
+        'test.pdf'           # explicit filename
+      )
+      @stubs.post("api/v3/claims/#{claim_id}/documents/form-data") do |env|
+        # Check headers
+        expect(env.request_headers['Authorization']).to eq('Bearer veis_token')
+        expect(env.request_headers['BTSSS-Access-Token']).to eq('btsss_token')
+        expect(env.request_headers['X-Correlation-ID']).to be_present
+
+        # Check the multipart body
+        # Normalize keys to symbols
+        body = env.body.is_a?(Hash) ? env.body.transform_keys(&:to_sym) : {}
+        document = body[:Document]
+        expect(document).to be_a(Faraday::Multipart::FilePart)
+        expect(document.original_filename).to eq('test.pdf')
+        expect(document.content_type).to eq('application/pdf')
+
+        [
+          201,
+          { 'Content-Type' => 'application/json' },
+          { data: { documentId: 'abc-123' } }.to_json
+        ]
+      end
+
+      client = TravelPay::DocumentsClient.new
+      response = client.add_document('veis_token', 'btsss_token', claim_id:, document: file_part)
+
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:add_document'])
+      expect(response.status).to eq(201)
+      expect(response.body['data']['documentId']).to eq('abc-123')
+    end
+
+    it 'raises an internal server error when the response is not successful' do
+      @stubs.post("api/v3/claims/#{claim_id}/documents/form-data") do |_env|
+        [500, { 'Content-Type' => 'application/json' }, { error: 'Internal Server Error' }.to_json]
+      end
+
+      client = TravelPay::DocumentsClient.new
+      expect { client.add_document('veis_token', 'btsss_token', claim_id:, document: file) }
+        .to raise_error(Faraday::ServerError)
+    end
+
+    it 'raises an error when the server responds with 400 Bad Request' do
+      @stubs.post("api/v3/claims/#{claim_id}/documents/form-data") do |_env|
+        [
+          400,
+          { 'Content-Type' => 'application/json' },
+          { message: 'Bad Request' }.to_json
+        ]
+      end
+
+      client = TravelPay::DocumentsClient.new
+
+      expect do
+        client.add_document('veis_token', 'btsss_token', claim_id:, document: file)
+      end.to raise_error(Faraday::ClientError) # Faraday raises ClientError for 4xx
+    end
+
+    it 'raises an error when the server responds with 403 Forbidden' do
+      @stubs.post("api/v3/claims/#{claim_id}/documents/form-data") do |_env|
+        [
+          403,
+          { 'Content-Type' => 'application/json' },
+          { message: 'Forbidden' }.to_json
+        ]
+      end
+
+      client = TravelPay::DocumentsClient.new
+
+      expect do
+        client.add_document('veis_token', 'btsss_token', claim_id:, document: file)
+      end.to raise_error(Faraday::ClientError) # Faraday raises ClientError for 4xx responses
+    end
+
+    it 'raises an error when the server responds with 413 Content Too Large' do
+      @stubs.post("api/v3/claims/#{claim_id}/documents/form-data") do |_env|
+        [
+          413,
+          { 'Content-Type' => 'application/json' },
+          { message: 'Content Too Large' }.to_json
+        ]
+      end
+
+      client = TravelPay::DocumentsClient.new
+
+      begin
+        client.add_document('veis_token', 'btsss_token', claim_id:, document: file)
+      rescue Faraday::ClientError => e
+        error = e
+      end
+
+      expect(error.response[:status]).to eq(413)
+      expect(JSON.parse(error.response[:body])['message']).to eq('Content Too Large')
     end
   end
 end

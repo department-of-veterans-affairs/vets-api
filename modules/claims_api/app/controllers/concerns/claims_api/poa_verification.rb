@@ -129,7 +129,8 @@ module ClaimsApi
 
       def handle_not_found(reps, poa_code)
         ClaimsApi::Logger.log 'poa_verification',
-                              detail: "Found #{reps.size} reps for POA code #{poa_code}",
+                              detail: "Found 0 reps for POA code #{poa_code}" \
+                                      " out of #{reps.size} possible matches (found by name).",
                               level: :warn, poa_code:, rep_count: reps.size, current_users_uuid: @current_user.uuid
         raise ::Common::Exceptions::UnprocessableEntity, detail: 'Ambiguous VSO Representative Results' if reps.size > 1
 

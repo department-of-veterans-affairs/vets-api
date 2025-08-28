@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-sm-api/patient/v1/preferences/notification"
+    uri: "<MHV_HOST>/v1/sm/patient/preferences/notification"
     body:
       encoding: UTF-8
       string: '{"emailAddress":"kamyar karshenas@va.gov","notifyMe":0}'
