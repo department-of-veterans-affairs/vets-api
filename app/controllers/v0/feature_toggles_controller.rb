@@ -8,6 +8,12 @@ module V0
     before_action :load_user
 
     def index
+      # Demo CI validation feature - should trigger validation warnings when no tests exist
+      if Flipper.enabled?(:demo_ci_validation_feature, @current_user)
+        # This demonstrates enhanced CI validation detecting backend feature toggle usage
+        Rails.logger.info 'Demo CI validation feature is enabled for enhanced testing'
+      end
+
       if params[:features].present?
         features_params = params[:features].split(',')
         features = feature_toggles_service.get_features(features_params)
