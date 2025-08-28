@@ -43,6 +43,14 @@ class PersistentAttachment < ApplicationRecord
     doctype || 10
   end
 
+  # Determines whether stamped PDF validation is required for the attachment.
+  # @see ClaimDocumentsController#create
+  #
+  # @return [Boolean] subclass should override to trigger validation
+  def requires_stamped_pdf_validation?
+    false
+  end
+
   private
 
   def stamp_text

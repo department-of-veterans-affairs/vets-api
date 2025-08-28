@@ -42,9 +42,9 @@ module VAOS
       ].freeze
 
       # Output format for preferred dates
-      # Example: "Thu, July 18, 2024 in the ..."
-      OUTPUT_FORMAT_AM = '%a, %B %-d, %Y in the morning'
-      OUTPUT_FORMAT_PM = '%a, %B %-d, %Y in the afternoon'
+      # Example: "Thursday, July 8, 2024 in the ..."
+      OUTPUT_FORMAT_AM = '%A, %B %-d, %Y in the morning'
+      OUTPUT_FORMAT_PM = '%A, %B %-d, %Y in the afternoon'
 
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, # rubocop:disable Metrics/ParameterLists
@@ -441,6 +441,7 @@ module VAOS
         get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
       end
 
+      # rubocop:disable Metrics/MethodLength
       def prepare_appointment(appointment, include = {})
         # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
         set_cancellable_false(appointment) if cannot_be_cancelled?(appointment)
@@ -467,7 +468,12 @@ module VAOS
           find_and_merge_provider_name(appointment)
         end
 
-        merge_clinic(appointment) if include[:clinics]
+        if VAOS::AppointmentsHelper.cerner?(appointment)
+          appointment[:is_cerner] = true
+        else
+          appointment[:is_cerner] = false
+          merge_clinic(appointment) if include[:clinics]
+        end
 
         merge_facility(appointment) if include[:facilities]
 
@@ -481,6 +487,7 @@ module VAOS
 
         appointment[:show_schedule_link] = schedulable?(appointment) if appointment[:status] == 'cancelled'
       end
+      # rubocop:enable Metrics/MethodLength
 
       def find_and_merge_provider_name(appointment)
         practitioners_list = appointment[:practitioners]
@@ -655,20 +662,6 @@ module VAOS
       def filter_reason_code_text(request_object_body)
         text = request_object_body&.dig(:reason_code, :text)
         VAOS::Strings.filter_ascii_characters(text) if text.present?
-      end
-
-      # Determines if the appointment is a Cerner (Oracle Health) appointment.
-      # This is determined by the presence of a 'CERN' prefix in the appointment's id.
-      #
-      # @param appt [Hash] the appointment to check
-      # @return [Boolean] true if the appointment is a Cerner appointment, false otherwise
-      #
-      # @raise [ArgumentError] if the appointment is nil
-      #
-      def cerner?(appt)
-        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
-
-        appt[:id].start_with?('CERN')
       end
 
       # Checks if the appointment is booked.
@@ -901,7 +894,7 @@ module VAOS
       end
 
       def set_type(appointment)
-        type = if cerner?(appointment)
+        type = if VAOS::AppointmentsHelper.cerner?(appointment)
                  cerner_type(appointment)
                else
                  non_cerner_type(appointment)
@@ -1013,7 +1006,7 @@ module VAOS
 
       # This should be called after set_type has been called
       def schedulable?(appointment)
-        return false if cerner?(appointment) || cnp?(appointment) || telehealth?(appointment)
+        return false if VAOS::AppointmentsHelper.cerner?(appointment) || cnp?(appointment) || telehealth?(appointment)
         return appointment[:type] == APPOINTMENT_TYPES[:cc_request] if cc?(appointment)
         return true if appointment[:type] == APPOINTMENT_TYPES[:request]
         if appointment[:type] == APPOINTMENT_TYPES[:va] &&

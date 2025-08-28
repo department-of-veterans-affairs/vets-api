@@ -13,7 +13,7 @@ describe ClaimsApi::FesService::Base do
            veteran: double('veteran', participant_id: '600043201'),
            claimant_participant_id: nil)
   end
-  let(:form_data) do
+  let(:invalid_form_data) do
     {
       form526: {
         'veteran' => { 'firstName' => 'John', 'lastName' => 'Doe' },
@@ -21,161 +21,116 @@ describe ClaimsApi::FesService::Base do
       }
     }
   end
-
-  # NOTE: FES service uses betamocks when use_mocks is true (set in test.yml)
-  # This simplifies testing by eliminating the need for auth token mocking
-
-  describe '#initialize' do
-    it 'defaults to using mocks in test environment' do
-      service = described_class.new
-      expect(service.instance_variable_get(:@use_mock)).to be true
-    end
-
-    it 'allows override of mock setting' do
-      service_with_mocks = described_class.new(nil, use_mock: true)
-      expect(service_with_mocks.instance_variable_get(:@use_mock)).to be true
-
-      service_without_mocks = described_class.new(nil, use_mock: false)
-      expect(service_without_mocks.instance_variable_get(:@use_mock)).to be false
-    end
+  let(:fes_auth_headers) do
+    { 'va_eauth_csid' => 'DSLogon', 'va_eauth_authenticationmethod' => 'DSLogon', 'va_eauth_pnidtype' => 'SSN',
+      'va_eauth_assurancelevel' => '3', 'va_eauth_firstName' => 'Pauline', 'va_eauth_lastName' => 'Foster',
+      'va_eauth_issueinstant' => '2025-08-19T13:57:05Z', 'va_eauth_dodedipnid' => '1243413229',
+      'va_eauth_birlsfilenumber' => '123456', 'va_eauth_pid' => '600049703', 'va_eauth_pnid' => '796330625',
+      'va_eauth_birthdate' => '1976-06-09T00:00:00+00:00',
+      'va_eauth_authorization' => '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796330625",' \
+                                  '"edi":"1243413229","firstName":"Pauline","lastName":"Foster", ' \
+                                  '"birthDate":"1976-06-09T00:00:00+00:00",' \
+                                  '"gender":"MALE"}}', 'va_eauth_authenticationauthority' => 'eauth',
+      'va_eauth_service_transaction_id' => '00000000-0000-0000-0000-000000000000' }
   end
+  let(:min_fes_mapped_data) do
+    { data: {
+      serviceTransactionId: 'claims-api-6913cb91-f077-4368-baf3-1bb642ffc0dd-1755612075',
+      claimantParticipantId: '600049703',
+      veteranParticipantId: '600049703',
+      form526: {
+        serviceInformation: {
+          servicePeriods: [{
+            serviceBranch: 'Air Force', activeDutyBeginDate: '2015-11-14', activeDutyEndDate: '2018-11-30'
+          }]
+        },
+        veteran: { currentMailingAddress: {
+          addressLine1: '1234 Couch Street', country: 'USA', zipFirstFive: '12345',
+          addressType: 'DOMESTIC', city: 'Portland', state: 'OR'
+        } },
+        disabilities: [{ name: 'hearing loss', disabilityActionType: 'NEW',
+                         approximateBeginDate: { year: 2017, month: 7 } }],
+        claimDate: '2025-08-19'
+      }
+    } }
+  end
+  let(:fes_claim) do
+    claim = create(:auto_established_claim)
+    claim.transaction_id = '00000000-0000-0000-000000000000'
+    claim.auth_headers = fes_auth_headers
+    claim.save
+    claim
+  end
+  let(:async) { true }
+  let(:not_async) { false }
 
   describe '#validate' do
     context 'successful validation' do
-      before do
-        stub_request(:post, 'https://staging-api.va.gov/form526-establishment-service/v1/validate')
-          .with(body: form_data.to_json)
-          .to_return(
-            status: 200,
-            body: { data: { valid: true, claimId: '600236153' } }.to_json,
-            headers: { 'Content-Type' => 'application/json' }
-          )
-      end
-
       it 'returns validation success' do
-        response = service.validate(claim, form_data)
+        VCR.use_cassette('/claims_api/fes/validate/success') do
+          response = service.validate(fes_claim, min_fes_mapped_data, not_async)
 
-        expect(response).to eq({ valid: true, claimId: '600236153' })
+          expect(response[:valid]).to be(true)
+          expect(response).to have_key(:success)
+        end
       end
     end
 
     context 'validation with errors' do
-      before do
-        stub_request(:post, 'https://staging-api.va.gov/form526-establishment-service/v1/validate')
-          .to_return(
-            status: 200,
-            body: {
-              data: {
-                valid: false,
-                errors: [{ key: 'veteran.phoneAndEmail', detail: 'Required field' }]
-              }
-            }.to_json,
-            headers: { 'Content-Type' => 'application/json' }
+      it 'returns a 400' do
+        VCR.use_cassette('/claims_api/fes/validate/bad_request') do
+          expect do
+            service.validate(claim, invalid_form_data, not_async)
+          end.to raise_error(
+            ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException
           )
-      end
-
-      it 'returns validation errors' do
-        response = service.validate(claim, form_data)
-
-        expect(response[:valid]).to be(false)
-        expect(response[:errors]).to be_present
+        end
       end
     end
 
-    context 'service error' do
-      before do
-        stub_request(:post, 'https://staging-api.va.gov/form526-establishment-service/v1/validate')
-          .to_return(status: 500, body: 'Internal Server Error')
-      end
-
+    context 'invalid data format' do
       it 'raises backend service exception' do
-        expect { service.validate(claim, form_data) }
-          .to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException)
-      end
-    end
-
-    context 'non-JSON response' do
-      before do
-        stub_request(:post, 'https://staging-api.va.gov/form526-establishment-service/v1/validate')
-          .to_return(
-            status: 200,
-            body: '<html>Error page</html>',
-            headers: { 'Content-Type' => 'text/html' }
+        VCR.use_cassette('/claims_api/fes/validate/bad_request') do
+          expect do
+            service.validate(claim, invalid_form_data, not_async)
+          end.to raise_error(
+            ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException
           )
-      end
-
-      it 'raises parsing error' do
-        expect { service.validate(claim, form_data) }
-          .to raise_error(Common::Client::Errors::ParsingError,
-                          'FES service returned an unexpected response format')
+        end
       end
     end
   end
 
   describe '#submit' do
     context 'successful submission' do
-      before do
-        stub_request(:post, 'https://staging-api.va.gov/form526-establishment-service/v1/submit')
-          .with(body: form_data.to_json)
-          .to_return(
-            status: 200,
-            body: {
-              data: {
-                claimId: '600236153',
-                submissionDate: '2025-01-15T12:34:56Z',
-                status: 'ACCEPTED'
-              }
-            }.to_json,
-            headers: { 'Content-Type' => 'application/json' }
-          )
-      end
-
       it 'returns submission success' do
-        response = service.submit(claim, form_data)
+        VCR.use_cassette('/claims_api/fes/submit/success') do
+          response = service.submit(fes_claim, min_fes_mapped_data, not_async)
 
-        expect(response[:claimId]).to eq('600236153')
-        expect(response[:status]).to eq('ACCEPTED')
-        expect(response[:submissionDate]).to be_present
+          expect(response[:claimId]).to eq(600781884) # rubocop:disable Style/NumericLiterals
+          expect(response[:requestId]).not_to be_nil
+        end
       end
     end
 
-    context 'submission error' do
-      before do
-        stub_request(:post, 'https://staging-api.va.gov/form526-establishment-service/v1/submit')
-          .to_return(
-            status: 400,
-            body: {
-              errors: [{
-                status: 400,
-                title: 'Invalid field value',
-                detail: 'Invalid disability code'
-              }]
-            }.to_json,
-            headers: { 'Content-Type' => 'application/json' }
-          )
-      end
+    context 'invalid data values' do
+      it 'returns a 400' do
+        invalid_data = min_fes_mapped_data
+        invalid_data[:data][:form526][:serviceInformation][:servicePeriods][0][:serviceBranch] = 'AIR\n Force'
 
-      it 'raises backend service exception' do
-        expect { service.submit(claim, form_data) }
-          .to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException)
+        VCR.use_cassette('/claims_api/fes/submit/invalid_request') do
+          expect { service.submit(claim, invalid_form_data, not_async) }
+            .to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException)
+        end
       end
     end
 
-    context 'non-JSON response' do
-      before do
-        stub_request(:post, 'https://staging-api.va.gov/form526-establishment-service/v1/submit')
-          .to_return(
-            status: 200,
-            body: '<html><body><h1>503 Service Unavailable</h1>' \
-                  '<p>The server is temporarily unable to service your request.</p></body></html>',
-            headers: { 'Content-Type' => 'text/html' }
-          )
-      end
-
-      it 'raises parsing error' do
-        expect { service.submit(claim, form_data) }
-          .to raise_error(Common::Client::Errors::ParsingError,
-                          'FES service returned an unexpected response format')
+    context 'invalid data format' do
+      it 'returns a 400' do
+        VCR.use_cassette('/claims_api/fes/submit/bad_request') do
+          expect { service.submit(claim, invalid_form_data, not_async) }
+            .to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException)
+        end
       end
     end
   end
