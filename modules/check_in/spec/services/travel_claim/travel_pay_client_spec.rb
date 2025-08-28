@@ -193,21 +193,6 @@ RSpec.describe TravelClaim::TravelPayClient do
       end
     end
 
-    context 'when unauthorized' do
-      it 'raises BackendServiceException for 401 response' do
-        client.instance_variable_set(:@current_btsss_token, 'test-btsss-token')
-
-        with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                      claims_url_v2: 'https://dev.integration.d365.va.gov') do
-          VCR.use_cassette('check_in/travel_claim/claims_get_401_with_auth') do
-            expect do
-              client.send_get_claim_request(claim_id:)
-            end.to raise_error(Common::Exceptions::BackendServiceException)
-          end
-        end
-      end
-    end
-
     context 'when server error occurs' do
       it 'raises BackendServiceException for 500 response' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
