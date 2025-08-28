@@ -6,8 +6,8 @@ require 'vets/shared_logging'
 
 # rubocop:disable ThreadSafety/ClassInstanceVariable
 module VAProfile
-  module V2
-    module ContactInformation
+  module ContactInformation
+    module V2
       class TransactionResponse < VAProfile::Response
         extend Vets::SharedLogging
 

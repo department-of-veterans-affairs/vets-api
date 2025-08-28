@@ -9,8 +9,8 @@ require_relative 'transaction_response'
 require_relative 'person_response'
 
 module VAProfile
-  module V2
-    module ContactInformation
+  module ContactInformation
+    module V2
       class Service < VAProfile::Service
         CONTACT_INFO_CHANGE_TEMPLATE = Settings.vanotify.services.va_gov.template_id.contact_info_change
         VA_PROFILE_ID_POSTFIX = '^PI^200VETS^USDVA'
