@@ -15,7 +15,7 @@
                     "contained": [
                         {
                             "resourceType": "Practitioner",
-                            "id": "130032ee-04c5-48e0-a73a-003921a90d43",
+                            "id": "ex-MHV-practitioner-130032ee-04c5-48e0-a73a-003921a90d43",
                             "meta": {
                                 "profile": [
                                     "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
@@ -109,7 +109,7 @@
                     "date": "2025-01-14T09:18:00.000+00:00",
                     "author": [
                         {
-                            "reference": "Practitioner/130032ee-04c5-48e0-a73a-003921a90d43"
+                            "reference": "#ex-MHV-practitioner-130032ee-04c5-48e0-a73a-003921a90d43"
                         }
                     ],
                     "authenticator": {

@@ -17,6 +17,16 @@ module UnifiedHealthData
           'OTHER' => 'other'
         }.freeze
 
+        FHIR_RESOURCE_TYPES = {
+          BUNDLE: 'Bundle',
+          DIAGNOSTIC_REPORT: 'DiagnosticReport',
+          DOCUMENT_REFERENCE: 'DocumentReference',
+          LOCATION: 'Location',
+          OBSERVATION: 'Observation',
+          ORGANIZATION: 'Organization',
+          PRACTITIONER: 'Practitioner'
+        }.freeze
+
         def parse(note)
           record = note['resource']
           return nil unless record
@@ -60,7 +70,8 @@ module UnifiedHealthData
           # Should work for both VistA and OH formats.
           authenticator = find_contained(
             record,
-            record['authenticator']['reference']
+            record['authenticator']['reference'],
+            FHIR_RESOURCE_TYPES[:PRACTITIONER]
           )
           name = authenticator['name']&.find { |n| n['text'] }
           format_name_first_to_last(name) || nil
@@ -70,7 +81,7 @@ module UnifiedHealthData
           # Should work for both VistA and OH formats.
           if array_and_has_items(record['author'])
             author_ref = record['author'].find { |a| a['reference'] }
-            author = find_contained(record, author_ref['reference'])
+            author = find_contained(record, author_ref['reference'], FHIR_RESOURCE_TYPES[:PRACTITIONER])
             name = author['name']&.find { |n| n['text'] }
             return format_name_first_to_last(name) || nil
           end
@@ -111,7 +122,7 @@ module UnifiedHealthData
             end
           # OH - location is in the custodian field
           elsif record['custodian']['reference']
-            resource = find_contained(record, record['custodian']['reference'])
+            resource = find_contained(record, record['custodian']['reference'], FHIR_RESOURCE_TYPES[:LOCATION])
             return resource['name'] || nil
           end
           nil
@@ -135,15 +146,24 @@ module UnifiedHealthData
           nil
         end
 
-        def find_contained(record, reference)
+        def find_contained(record, reference, type = nil)
           return nil unless reference && record['contained']
 
-          target_id = reference.delete_prefix('#')
-          type_id = target_id.split('/')
-          resource = record['contained'].detect { |res| res['id'] == type_id[1] }
-          return nil unless resource && resource['resourceType'] == type_id[0]
+          if reference.start_with?('#')
+            # Reference is in the format #mhv-resourceType-id
+            target_id = reference.delete_prefix('#')
+            resource = record['contained'].detect { |res| res['id'] == target_id }
+            nil unless resource && resource['resourceType'] == type
+          else
+            # Reference is in the format ResourceType/id
+            type_id = reference.split('/')
+            resource = record['contained'].detect { |res| res['id'] == type_id.last }
+            unless resource && (resource['resourceType'] == type_id.first || resource['resourceType'] == type)
+              return nil
+            end
 
-          resource
+            resource
+          end
         end
       end
     end
