@@ -112,7 +112,7 @@ module RepresentationManagement
     # Updates the given record with the new address and other relevant attributes.
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
-    def build_address_attributes(rep_data, api_response)
+    def build_address_attributes(_rep_data, api_response)
       build_v3_address(api_response['candidate_addresses'].first)
     end
 
