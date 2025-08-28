@@ -25,7 +25,10 @@ RSpec.describe DependentsBenefits::Monitor do
   end
 
   def submission_payload(extras = {})
-    base_payload({ benefits_intake_uuid: lh_service.uuid, user_account_uuid: current_user.user_account_uuid }.merge(extras))
+    base_payload({
+      benefits_intake_uuid: lh_service.uuid,
+      user_account_uuid: current_user.user_account_uuid
+    }.merge(extras))
   end
 
   describe '#service_name' do
