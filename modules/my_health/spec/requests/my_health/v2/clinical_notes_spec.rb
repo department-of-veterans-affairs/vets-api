@@ -5,6 +5,7 @@ require 'support/mr_client_helpers'
 require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
+require 'unified_health_data/service'
 
 RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validation, type: :request do
   let(:user_id) { '11898795' }
@@ -61,6 +62,30 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
         json_response = JSON.parse(response.body)
 
         expect(json_response['data']).to eq([])
+      end
+    end
+
+    context 'error responses' do
+      it 'returns a 500 response when there is a server error' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_care_summaries_and_notes)
+          .and_raise(Common::Exceptions::InternalServerError.new(Faraday::ServerError.new))
+        # This cassette doesn't matter since we're stubbing the service call to raise an error
+        VCR.use_cassette('unified_health_data/get_clinical_notes_200') do
+          get '/my_health/v2/medical_records/clinical_notes',
+              headers: { 'X-Key-Inflection' => 'camel' }
+        end
+        expect(response).to have_http_status(:internal_server_error)
+      end
+
+      it 'returns an error response when there is a client error' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_care_summaries_and_notes)
+          .and_raise(Common::Client::Errors::ClientError.new(Faraday::ClientError.new))
+        # This cassette doesn't matter since we're stubbing the service call to raise an error
+        VCR.use_cassette('unified_health_data/get_clinical_notes_200') do
+          get '/my_health/v2/medical_records/clinical_notes',
+              headers: { 'X-Key-Inflection' => 'camel' }
+        end
+        expect(response).to have_http_status(:bad_gateway)
       end
     end
   end
