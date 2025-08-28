@@ -464,7 +464,6 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
       before do
         validation_service = VAProfile::V3::AddressValidation::Service
-        allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
         allow_any_instance_of(validation_service).to receive(:candidate).and_return(api_response_v3)
       end
 

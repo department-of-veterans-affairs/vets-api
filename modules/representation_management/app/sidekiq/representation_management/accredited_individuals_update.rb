@@ -70,11 +70,7 @@ module RepresentationManagement
     # @param address [Hash] A hash containing the details of the AccreditedIndividual's address.
     # @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
     def build_validation_address(address)
-      validation_model = if Flipper.enabled?(:remove_pciu)
-                           VAProfile::Models::V3::ValidationAddress
-                         else
-                           VAProfile::Models::ValidationAddress
-                         end
+      validation_model = VAProfile::Models::V3::ValidationAddress
 
       validation_model.new(
         address_pou: address['address_pou'],
@@ -93,11 +89,7 @@ module RepresentationManagement
     # @param candidate_address [VAProfile::Models::ValidationAddress] The address to be validated.
     # @return [Hash] The response from the address validation service.
     def validate_address(candidate_address)
-      validation_service = if Flipper.enabled?(:remove_pciu)
-                             VAProfile::V3::AddressValidation::Service.new
-                           else
-                             VAProfile::AddressValidation::Service.new
-                           end
+      validation_service = VAProfile::V3::AddressValidation::Service.new
       validation_service.candidate(candidate_address)
     end
 
@@ -121,14 +113,7 @@ module RepresentationManagement
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
     def build_address_attributes(rep_data, api_response)
-      if Flipper.enabled?(:remove_pciu)
-        build_v3_address(api_response['candidate_addresses'].first)
-      else
-        address = api_response['candidate_addresses'].first['address']
-        geocode = api_response['candidate_addresses'].first['geocode']
-        meta = api_response['candidate_addresses'].first['address_meta_data']
-        build_address(address, geocode, meta).merge({ raw_address: rep_data['address'].to_json })
-      end
+      build_v3_address(api_response['candidate_addresses'].first)
     end
 
     # Builds the attributes for the record update from the address, geocode, and metadata.
