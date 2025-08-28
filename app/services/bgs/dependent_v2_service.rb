@@ -63,8 +63,6 @@ module BGS
       submit_to_central_service(claim:, encrypted_vet_info:)
     rescue => e
       log_bgs_errors(e)
-      log_exception_to_sentry(e, { uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
-
       raise e
     end
 
