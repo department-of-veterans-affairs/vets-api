@@ -281,7 +281,8 @@ module IvcChampva
         if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) && form_id == '10-7959A'
           begin
             # queue Tesseract OCR job for tmpfile
-            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, attachment.id, attachment_id)
+            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, attachment.id, attachment_id,
+                                                            @current_user)
             Rails.logger.info(
               "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
             )
@@ -294,12 +295,9 @@ module IvcChampva
       def launch_llm_job(form_id, attachment, attachment_id)
         if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user) && form_id == '10-7959A'
           begin
-            # create a temp file from the persistent attachment object
-            tmpfile = tempfile_from_attachment(attachment, form_id)
-
-            # queue LLM job for tmpfile
-            pdf_path = Common::ConvertToPdf.new(tmpfile).run
-            IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, pdf_path, attachment_id)
+            # queue LLM job for attachment record
+            IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, attachment.id, attachment_id,
+                                                   @current_user)
             Rails.logger.info(
               "LLM job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
             )
@@ -719,7 +717,7 @@ module IvcChampva
       ##
       # Builds the attachment_ids array for the given form submission.
       # For 10-7959a resubmissions:
-      #  - If Claim control number selected: the main claim sheet is labeled "CVA Reopen",
+      #  - If Control number selected: the main claim sheet is labeled "CVA Reopen",
       #    supporting docs retain original types.
       #  - If PDI selected: use the standard logic because the generated stamped doc
       #    (created in stamp_metadata) is labeled "CVA Bene Response" by the model, and
@@ -737,7 +735,7 @@ module IvcChampva
            parsed_form_data['claim_status'] == 'resubmission'
           selector = parsed_form_data['pdi_or_claim_number']
 
-          if selector == 'Claim control number'
+          if selector == 'Control number'
             # Relabel main claim sheet as CVA Reopen; supporting docs retain original types.
             main = Array.new(applicant_rounded_number) { 'CVA Reopen' }
             main.concat(supporting_document_ids(parsed_form_data))

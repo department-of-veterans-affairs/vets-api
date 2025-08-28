@@ -16,7 +16,11 @@ module Lighthouse
         raise Common::Exceptions::RecordNotFound, "User with UUID #{user_uuid} not found" if user.nil?
 
         prepared_params = ::BenefitsDiscovery::Params.new(user).build_from_service_history(service_history)
-        eligible_benefits = ::BenefitsDiscovery::Service.new.get_eligible_benefits(prepared_params)
+        service = ::BenefitsDiscovery::Service.new(
+          api_key: Settings.lighthouse.benefits_discovery.x_api_key,
+          app_id: Settings.lighthouse.benefits_discovery.x_app_id
+        )
+        eligible_benefits = service.get_eligible_benefits(prepared_params)
         execution_time = Time.current - start_time
         StatsD.measure(self.class.name, execution_time)
         sorted_benefits = sort_benefits(eligible_benefits)
