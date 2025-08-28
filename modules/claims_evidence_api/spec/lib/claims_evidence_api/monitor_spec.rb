@@ -92,7 +92,7 @@ RSpec.describe ClaimsEvidenceApi::Monitor do
           message = "#{uploader.class}: upload #{action}"
           tags = ["action:#{action}"]
 
-          kwargs = { call_location: anything, message: nil, tags:, **context }
+          kwargs = { call_location: anything, error: nil, tags:, **context }
           expect(uploader).to receive(:track_upload).and_call_original
           expect(uploader).to receive(:track_request).with(:info, message, metric, **kwargs)
 
@@ -106,7 +106,7 @@ RSpec.describe ClaimsEvidenceApi::Monitor do
         msg = "#{uploader.class}: upload #{action} - ERROR #{message}"
         tags = ["action:#{action}"]
 
-        kwargs = { call_location: anything, message: "ERROR #{message}", tags:, **context }
+        kwargs = { call_location: anything, error: "ERROR #{message}", tags:, **context }
         expect(uploader).to receive(:track_upload).and_call_original
         expect(uploader).to receive(:track_request).with(:error, msg, metric, **kwargs)
 

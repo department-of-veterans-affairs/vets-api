@@ -152,9 +152,6 @@ features:
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
-  decision_reviews_4142_banner:
-    actor_type: user
-    description: Enables the re-authorization banner on the 4142 legalese page
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -162,6 +159,8 @@ features:
   dv_email_notification:
     actor_type: user
     description: Enables dependents verification emails
+  event_bus_gateway_ep040_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP040 claims"
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -455,14 +454,6 @@ features:
     actor_type: user
     description: When enabled, CST does not show Attorney Fees, Secondary Action Required, or Stage 2 Development on mobile
     enable_in_development: false
-  cst_override_pmr_pending_tracked_items:
-    actor_type: user
-    description: When enabled, CST overrides PMR Pending tracked items to be NEEDED_FROM_OTHERS
-    enable_in_development: true
-  cst_override_reserve_records_website:
-    actor_type: user
-    description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on vets-website
-    enable_in_development: true
   cst_override_reserve_records_mobile:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
@@ -615,9 +606,6 @@ features:
   decision_review_service_common_exceptions_enabled:
     actor_type: user
     description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
-  decision_review_form4142_use_2024_template:
-    actor_type: user
-    description: Enables the use of the 2024 template for form 4142 in decision review applications
   decision_review_form4142_validate_schema:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in decision review applications
@@ -763,6 +751,10 @@ features:
     actor_type: user
     description: Enables duplicate prevention for digital dispute submissions
     enable_in_development: false
+  event_bus_gateway_retry_emails:
+    actor_type: user
+    description: When enabled, vets-api retries event bus gateway emails that VA Notify marks temporary-failure
+    enable_in_development: true
   facilities_autosuggest_vamc_services_enabled:
     actor_type: user
     description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
@@ -1541,6 +1533,9 @@ features:
   profile_show_quick_submit_notification_setting:
     actor_type: user
     description: Show/Hide the quick submit section of notification settings in profile
+  profile_validate_address_when_no_candidate_found:
+    actor_type: user
+    description: When enabled, a NoCandidateFound error will be followed up by a call to the validate endpoint
   profile_show_no_validation_key_address_alert:
     actor_type: user
     description: Show/Hide alert messages when no validationKey is returned from the address_validation endpoint
@@ -1922,9 +1917,6 @@ features:
   vet_status_pdf_logging:
     actor_type: user
     description: Enables the Veteran Status Card to log PDF download events/failures
-  vet_status_stage_1:
-    actor_type: user
-    description: Enables the stage 1 features of the veteran status card
   vre_cutover_notice:
     actor_type: user
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
@@ -2394,4 +2386,9 @@ features:
   accredited_representative_portal_homepage:
     actor_type: user
     description: Enables new homepage redesign for ARP
-  
+  accredited_representative_portal_dashboard_link:
+    actor_type: user
+    description: Enables new dashboard link on nav
+  gi_comparison_tool_cautionary_info_update:
+    actor_type: user
+    description: Enables updated cautionary info student feedback ui for GI Comparison Tool

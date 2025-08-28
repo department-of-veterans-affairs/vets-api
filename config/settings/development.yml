@@ -154,6 +154,7 @@ check_in:
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     travel_pay_client_id: ~
     travel_pay_client_secret: ~
+    travel_pay_resource: ~
   vaos:
     mock: false
 chip:
@@ -1328,6 +1329,7 @@ va_profile:
     enabled: true
     mock: false
     timeout: 30
+valid_va_file_number: false
 vanotify:
   callback_url: https://dev-api.va.gov/va_notify/callbacks
   client_url: http://fakeapi.com
