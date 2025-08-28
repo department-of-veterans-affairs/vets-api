@@ -28,7 +28,7 @@ module VAProfile
       attribute :effective_end_date, Vets::Type::ISO8601Time
       attribute :effective_start_date, Vets::Type::ISO8601Time
       attribute :id, Integer
-      attribute :is_international, Bool
+      attribute :is_international, Bool, default: false
       attribute :is_textable, Bool
       attribute :is_text_permitted, Bool
       attribute :is_tty, Bool
