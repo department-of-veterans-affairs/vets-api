@@ -63,6 +63,8 @@ jobs:
           bundle exec rake feature_toggles:validate_coverage
         env:
           RAILS_ENV: test
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           
       - name: Generate Coverage Report
         if: always() && steps.changes.outputs.has_changes == 'true'
@@ -71,3 +73,5 @@ jobs:
           bundle exec rake feature_toggles:list_coverage || true
         env:
           RAILS_ENV: test
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
