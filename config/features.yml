@@ -162,6 +162,8 @@ features:
   dv_email_notification:
     actor_type: user
     description: Enables dependents verification emails
+  event_bus_gateway_ep040_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP040 claims"
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -1537,6 +1539,9 @@ features:
   profile_show_quick_submit_notification_setting:
     actor_type: user
     description: Show/Hide the quick submit section of notification settings in profile
+  profile_validate_address_when_no_candidate_found:
+    actor_type: user
+    description: When enabled, a NoCandidateFound error will be followed up by a call to the validate endpoint
   profile_show_no_validation_key_address_alert:
     actor_type: user
     description: Show/Hide alert messages when no validationKey is returned from the address_validation endpoint
@@ -1918,9 +1923,6 @@ features:
   vet_status_pdf_logging:
     actor_type: user
     description: Enables the Veteran Status Card to log PDF download events/failures
-  vet_status_stage_1:
-    actor_type: user
-    description: Enables the stage 1 features of the veteran status card
   vre_cutover_notice:
     actor_type: user
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
