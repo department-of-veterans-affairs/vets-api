@@ -162,8 +162,6 @@ module DecisionReviews
     end
 
     def send_secondary_form_emails
-      # CHANGE: Only send emails for permanent errors that require user action
-      # Filter for forms with status: "error" AND final_status: true
       final_errored_forms = errored_secondary_forms.select do |form|
         status_json = JSON.parse(form.status || '{}')
         status_json['status'] == ERROR_STATUS && status_json['final_status'] == true
@@ -171,7 +169,6 @@ module DecisionReviews
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records", final_errored_forms.size)
 
-      # Only send emails for forms that are permanently failed and need user intervention
       final_errored_forms.each do |form|
         appeal_type = form.appeal_submission.type_of_appeal
         reference = "#{appeal_type}-secondary_form-#{form.guid}"

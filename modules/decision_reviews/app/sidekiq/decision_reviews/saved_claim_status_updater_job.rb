@@ -23,7 +23,6 @@ module DecisionReviews
 
     ATTRIBUTES_TO_STORE = %w[status detail createDate updateDate].freeze
 
-    # CHANGE 1: Added final_status to capture LH Benefits Intake API field
     SECONDARY_FORM_ATTRIBUTES_TO_STORE = %w[status detail updated_at final_status].freeze
 
     FINAL_STATUSES = %W[#{FORM_SUCCESSFUL_STATUS} #{UPLOAD_SUCCESSFUL_STATUS} #{ERROR_STATUS} #{NOT_FOUND}].freeze
@@ -155,7 +154,8 @@ module DecisionReviews
       { 'id' => guid, 'status' => NOT_FOUND }
     end
 
-    def get_and_update_secondary_form_statuses(record) # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength
+    def get_and_update_secondary_form_statuses(record)
       return true unless secondary_forms?
 
       all_complete = true
@@ -167,23 +167,15 @@ module DecisionReviews
       secondary_forms.each do |form|
         current_status = JSON.parse(form.status || '{}')
 
-        # CHANGE 2: Stop polling when final_status is true (permanent error/success)
         should_stop_polling = current_status['final_status'] == true
 
-        # Get attributes - either from cache (finalized) or fresh API call (active)
         attributes = if should_stop_polling
-                       # Use cached data - no API call needed for finalized forms
                        current_status.slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE.map(&:to_s))
                      else
-                       # Get fresh data via API call for active forms
-
                        response = benefits_intake_service.get_status(uuid: form.guid).body
                        response.dig('data', 'attributes').slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE)
                      end
 
-        # Common processing for all forms (finalized and active)
-        # Form is complete only when both successful AND final
-        # What's the intended business behavior when some secondary forms permanently fail?
         form_is_complete = attributes['status'] == UPLOAD_SUCCESSFUL_STATUS &&
                            attributes['final_status'] == true
         all_complete = false unless form_is_complete
@@ -194,6 +186,7 @@ module DecisionReviews
 
       all_complete
     end
+    # rubocop:enable Metrics/MethodLength
 
     def handle_form_status_metrics_and_logging(record, status)
       # Skip logging and statsd metrics when there is no status change
@@ -213,8 +206,6 @@ module DecisionReviews
       StatsD.increment("#{statsd_prefix}_secondary_form.status", tags: ["status:#{status}"])
     end
 
-    # CHANGE 3: Check both status and final_status before setting delete_date
-    # The attributes.to_json now includes final_status data in the SecondaryAppealForm record
     def update_secondary_form_status(form, attributes)
       status = attributes['status']
       final_status = attributes['final_status']

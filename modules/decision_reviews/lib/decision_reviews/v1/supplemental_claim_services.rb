@@ -19,11 +19,9 @@ module DecisionReviews
       # @param uuid [uuid] supplemental Claim UUID
       # @return [Faraday::Response]
       #
-      def get_supplemental_claim(uuid, status_simulation: nil)
+      def get_supplemental_claim(uuid)
         with_monitoring_and_error_handling do
-          headers = {}
-          headers['Status-Simulation'] = status_simulation if status_simulation.present?
-          response = perform :get, "supplemental_claims/#{uuid}", nil, headers
+          response = perform :get, "supplemental_claims/#{uuid}", nil
           raise_schema_error_unless_200_status response.status
           validate_against_schema json: response.body, schema: SC_SHOW_RESPONSE_SCHEMA,
                                   append_to_error_class: ' (SC_V1)'
