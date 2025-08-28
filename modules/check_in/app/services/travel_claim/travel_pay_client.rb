@@ -31,7 +31,6 @@ module TravelClaim
       @redis_client = TravelClaim::RedisClient.build
       @current_veis_token = nil
       @current_btsss_token = nil
-      @auth_retry_attempted = false
       super()
     end
 
