@@ -36,6 +36,8 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
   describe '#526', vcr: 'claims_api/disability_comp' do
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+    let(:change_of_address_begin_date) { 30.days.from_now.strftime('%Y-%m-%d') }
+    let(:change_of_address_end_date) { 90.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
       temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
                              'form_526_json_api.json').read
@@ -43,6 +45,12 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
       attributes = temp['data']['attributes']
       attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
       attributes['serviceInformation']['servicePeriods'][-1]['activeDutyEndDate'] = active_duty_end_date
+
+      # Update changeOfAddress dates if present
+      if attributes['changeOfAddress'] && attributes['changeOfAddress']['dates']
+        attributes['changeOfAddress']['dates']['beginDate'] = change_of_address_begin_date
+        attributes['changeOfAddress']['dates']['endDate'] = change_of_address_end_date
+      end
 
       temp.to_json
     end
@@ -4249,6 +4257,8 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
            skip: 'Disabling tests for deactivated /veterans/{veteranId}/526 endpoint' do
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+    let(:change_of_address_begin_date) { 30.days.from_now.strftime('%Y-%m-%d') }
+    let(:change_of_address_end_date) { 90.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
       temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
                              'form_526_json_api.json').read
@@ -4256,6 +4266,12 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
       attributes = temp['data']['attributes']
       attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
       attributes['serviceInformation']['servicePeriods'][-1]['activeDutyEndDate'] = active_duty_end_date
+
+      # Update changeOfAddress dates if present
+      if attributes['changeOfAddress'] && attributes['changeOfAddress']['dates']
+        attributes['changeOfAddress']['dates']['beginDate'] = change_of_address_begin_date
+        attributes['changeOfAddress']['dates']['endDate'] = change_of_address_end_date
+      end
 
       temp.to_json
     end
@@ -4291,6 +4307,8 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
     let(:synchronous_path) { "/services/claims/v2/veterans/#{veteran_id}/526/synchronous" }
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+    let(:change_of_address_begin_date) { 30.days.from_now.strftime('%Y-%m-%d') }
+    let(:change_of_address_end_date) { 90.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
       temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
                              'form_526_json_api.json').read
@@ -4298,6 +4316,12 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
       attributes = temp['data']['attributes']
       attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
       attributes['serviceInformation']['servicePeriods'][-1]['activeDutyEndDate'] = active_duty_end_date
+
+      # Update changeOfAddress dates if present
+      if attributes['changeOfAddress'] && attributes['changeOfAddress']['dates']
+        attributes['changeOfAddress']['dates']['beginDate'] = change_of_address_begin_date
+        attributes['changeOfAddress']['dates']['endDate'] = change_of_address_end_date
+      end
 
       temp.to_json
     end

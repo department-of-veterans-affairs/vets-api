@@ -37,8 +37,8 @@
         "zipFirstFive": "12345",
         "zipLastFour": "9897",
         "dates": {
-          "beginDate": "2023-06-04",
-          "endDate": "2023-12-04"
+          "beginDate": "2025-06-04",
+          "endDate": "2025-12-04"
         }
       },
       "homeless": {
@@ -156,7 +156,7 @@
             "serviceBranch": "Public Health Service",
             "serviceComponent": "Active",
             "activeDutyBeginDate": "2008-11-14",
-            "activeDutyEndDate": "2023-10-30",
+            "activeDutyEndDate": "2025-10-30",
             "separationLocationCode": "98282"
           }
         ],
@@ -176,7 +176,7 @@
           "receivingInactiveDutyTrainingPay": "YES"
         },
         "federalActivation": {
-          "activationDate": "2023-10-01",
+          "activationDate": "2024-10-01",
           "anticipatedSeparationDate": "2025-10-31"
         },
         "confinements": [

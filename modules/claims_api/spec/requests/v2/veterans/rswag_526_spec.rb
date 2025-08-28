@@ -168,6 +168,8 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         describe 'Getting a 404 response' do
           let(:claim_date) { (Time.zone.today - 1.day).to_s }
           let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+          let(:change_of_address_begin_date) { 30.days.from_now.strftime('%Y-%m-%d') }
+          let(:change_of_address_end_date) { 90.days.from_now.strftime('%Y-%m-%d') }
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                    'disability_compensation', 'form_526_json_api.json').read
@@ -175,6 +177,13 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             attributes = temp['data']['attributes']
             attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
               anticipated_separation_date
+
+            # Update changeOfAddress dates if present
+            if attributes['changeOfAddress'] && attributes['changeOfAddress']['dates']
+              attributes['changeOfAddress']['dates']['beginDate'] = change_of_address_begin_date
+              attributes['changeOfAddress']['dates']['endDate'] = change_of_address_end_date
+            end
+
             temp['data']['attributes'] = attributes
             temp.to_json
             temp
@@ -352,6 +361,8 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         response '202', 'Successful response' do
           let(:claim_date) { (Time.zone.today - 1.day).to_s }
           let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+          let(:change_of_address_begin_date) { 30.days.from_now.strftime('%Y-%m-%d') }
+          let(:change_of_address_end_date) { 90.days.from_now.strftime('%Y-%m-%d') }
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                    'disability_compensation', 'form_526_json_api.json').read
@@ -359,6 +370,13 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             attributes = temp['data']['attributes']
             attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
               anticipated_separation_date
+
+            # Update changeOfAddress dates if present
+            if attributes['changeOfAddress'] && attributes['changeOfAddress']['dates']
+              attributes['changeOfAddress']['dates']['beginDate'] = change_of_address_begin_date
+              attributes['changeOfAddress']['dates']['endDate'] = change_of_address_end_date
+            end
+
             temp['data']['attributes'] = attributes
             temp.to_json
             temp
@@ -592,6 +610,8 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
                                             'disability', 'validate.json').read)
           let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+          let(:change_of_address_begin_date) { 30.days.from_now.strftime('%Y-%m-%d') }
+          let(:change_of_address_end_date) { 90.days.from_now.strftime('%Y-%m-%d') }
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                    'disability_compensation', 'form_526_json_api.json').read
@@ -599,6 +619,13 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             attributes = temp['data']['attributes']
             attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
               anticipated_separation_date
+
+            # Update changeOfAddress dates if present
+            if attributes['changeOfAddress'] && attributes['changeOfAddress']['dates']
+              attributes['changeOfAddress']['dates']['beginDate'] = change_of_address_begin_date
+              attributes['changeOfAddress']['dates']['endDate'] = change_of_address_end_date
+            end
+
             temp['data']['attributes'] = attributes
             temp.to_json
             temp

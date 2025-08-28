@@ -169,6 +169,187 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
       end
     end
 
+    # FES Val Section 2.4.a: separation location validation
+    context 'separation location validation' do
+      context 'when separation location code is present' do
+        let(:form_attributes) do
+          base_form_attributes.tap do |attrs|
+            attrs['serviceInformation']['servicePeriods'][0]['separationLocationCode'] = '123'
+          end
+        end
+
+        context 'when reference data service is unavailable' do
+          before do
+            allow_any_instance_of(described_class).to receive(:retrieve_separation_locations).and_return(nil)
+          end
+
+          it 'returns service error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/serviceInformation')
+            expect(errors.first[:title]).to eq('Reference Data Service Error')
+            expect(errors.first[:detail]).to include('unavailable to verify the separation location code')
+          end
+        end
+
+        context 'when separation location code is invalid' do
+          before do
+            allow_any_instance_of(described_class).to receive(:retrieve_separation_locations).and_return(
+              [{ id: '456' }, { id: '789' }]
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/serviceInformation/servicePeriods/0/separationLocationCode')
+            expect(errors.first[:title]).to eq('Invalid separation location code')
+            expect(errors.first[:detail]).to include('not a valid value')
+          end
+        end
+
+        context 'when separation location code is valid' do
+          before do
+            allow_any_instance_of(described_class).to receive(:retrieve_separation_locations).and_return(
+              [{ id: '123' }, { id: '456' }]
+            )
+          end
+
+          it 'returns no errors' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_nil
+          end
+        end
+
+        context 'with multiple service periods having different codes' do
+          let(:form_attributes) do
+            base_form_attributes.tap do |attrs|
+              attrs['serviceInformation']['servicePeriods'] = [
+                {
+                  'activeDutyBeginDate' => '2010-01-01',
+                  'activeDutyEndDate' => '2015-01-01',
+                  'separationLocationCode' => '123'
+                },
+                {
+                  'activeDutyBeginDate' => '2016-01-01',
+                  'activeDutyEndDate' => '2020-01-01',
+                  'separationLocationCode' => 'INVALID'
+                }
+              ]
+            end
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:retrieve_separation_locations).and_return(
+              [{ id: '123' }, { id: '456' }]
+            )
+          end
+
+          it 'validates each separation location code' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.size).to eq(1)
+            expect(errors.first[:source]).to eq('/serviceInformation/servicePeriods/1/separationLocationCode')
+            expect(errors.first[:detail]).to include('(1) for the claimant is not a valid value')
+          end
+        end
+      end
+
+      context 'when no separation location codes are present' do
+        it 'skips validation and returns no errors' do
+          expect_any_instance_of(described_class).not_to receive(:retrieve_separation_locations)
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_nil
+        end
+      end
+    end
+
+    # Federal activation validation (top-level legacy structure)
+    context 'federal activation validation' do
+      context 'when federal activation is missing anticipated separation date' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'serviceInformation' => base_form_attributes['serviceInformation'].merge(
+              'federalActivation' => {
+                'activationDate' => '2020-01-01'
+                # Missing anticipatedSeparationDate
+              }
+            )
+          )
+        end
+
+        it 'returns validation error' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.first[:source]).to eq('/serviceInformation/federalActivation')
+          expect(errors.first[:title]).to eq('Missing required field')
+          expect(errors.first[:detail]).to eq('anticipatedSeparationDate is missing or blank')
+        end
+      end
+
+      context 'when federal activation date is in the future' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'serviceInformation' => base_form_attributes['serviceInformation'].merge(
+              'federalActivation' => {
+                'activationDate' => (Date.current + 30.days).to_s,
+                'anticipatedSeparationDate' => (Date.current + 90.days).to_s
+              }
+            )
+          )
+        end
+
+        it 'returns validation error' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.first[:source]).to eq('/serviceInformation/federalActivation')
+          expect(errors.first[:title]).to eq('Invalid value')
+          expect(errors.first[:detail]).to include('Federal activation date is in the future')
+        end
+      end
+
+      context 'with valid federal activation' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'serviceInformation' => base_form_attributes['serviceInformation'].merge(
+              'federalActivation' => {
+                'activationDate' => '2020-01-01',
+                'anticipatedSeparationDate' => (Date.current + 90.days).to_s
+              }
+            )
+          )
+        end
+
+        it 'returns no errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_nil
+        end
+      end
+
+      context 'with multiple validation errors in federal activation' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'serviceInformation' => base_form_attributes['serviceInformation'].merge(
+              'federalActivation' => {
+                'activationDate' => (Date.current + 30.days).to_s
+                # Missing anticipatedSeparationDate and future activation date
+              }
+            )
+          )
+        end
+
+        it 'returns all validation errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.size).to eq(2)
+
+          error_details = errors.map { |e| e[:detail] }
+          expect(error_details).to include('anticipatedSeparationDate is missing or blank')
+          expect(error_details.any? { |d| d.include?('Federal activation date is in the future') }).to be true
+        end
+      end
+    end
+
     # FES Val Section 5: veteran validations
     context 'veteran validations' do
       # FES Val Section 5.a: homelessness validations - REMOVED (crossed off in FES doc)
