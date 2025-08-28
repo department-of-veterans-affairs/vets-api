@@ -99,7 +99,7 @@ module ClaimsApi
         end
 
         def submit_power_of_attorney(poa_code, form_number)
-          attributes.merge!({ source_data: }) unless token.client_credentials_token?
+          attributes(token).merge!({ source_data: }) unless token.client_credentials_token?
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes(token))
 
