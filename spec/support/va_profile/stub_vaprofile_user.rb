@@ -10,7 +10,7 @@ def stub_vaprofile_user(person = nil)
   service = VAProfile::V2::ContactInformation::Service
   person_response = VAProfile::V2::ContactInformation::PersonResponse
   person ||= FactoryBot.build(
-    :person_v2,
+    :person,
     addresses: [
       FactoryBot.build(:va_profile_v3_address, id: 577_127),
       FactoryBot.build(:va_profile_v3_address, address_pou: VAProfile::Models::V3::Address::CORRESPONDENCE, id: 124)

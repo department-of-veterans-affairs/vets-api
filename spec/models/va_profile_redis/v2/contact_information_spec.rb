@@ -10,7 +10,7 @@ describe VAProfileRedis::V2::ContactInformation do
     VAProfile::V2::ContactInformation::PersonResponse.from(raw_response)
   end
   let(:contact_info) { VAProfileRedis::V2::ContactInformation.for_user(user) }
-  let(:person) { build(:person_v2, telephones:) }
+  let(:person) { build(:person, telephones:) }
   let(:telephones) do
     [
       build(:telephone),
@@ -23,7 +23,7 @@ describe VAProfileRedis::V2::ContactInformation do
 
   before do
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-    allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
+    allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
   end
 
   [404, 400].each do |status|
@@ -104,7 +104,7 @@ describe VAProfileRedis::V2::ContactInformation do
   describe 'contact information attributes' do
     context 'with a successful response' do
       before do
-        allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
+        allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
         allow_any_instance_of(
           VAProfile::V2::ContactInformation::Service
         ).to receive(:get_person).and_return(person_response)
@@ -270,7 +270,7 @@ describe VAProfileRedis::V2::ContactInformation do
       end
 
       before do
-        allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(nil)
+        allow(VAProfile::Models::Person).to receive(:build_from).and_return(nil)
         allow_any_instance_of(
           VAProfile::V2::ContactInformation::Service
         ).to receive(:get_person).and_return(empty_response)
