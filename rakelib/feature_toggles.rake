@@ -13,7 +13,16 @@ namespace :feature_toggles do
     features_config['features'].keys
 
     # Get recently modified features (for PR validation)
-    changed_files_output, status = Open3.capture2('git', 'diff', '--name-only', 'origin/main...HEAD')
+    # Use environment variables if available (for CI), otherwise fallback to git branch detection
+    base_ref = ENV['GITHUB_BASE_SHA'] || 'origin/main'
+    head_ref = ENV['GITHUB_HEAD_SHA'] || 'HEAD'
+    
+    if ENV['GITHUB_BASE_SHA'] && ENV['GITHUB_HEAD_SHA']
+      puts "🔍 Using GitHub PR refs: #{base_ref}...#{head_ref}"
+      changed_files_output, status = Open3.capture2('git', 'diff', '--name-only', "#{base_ref}...#{head_ref}")
+    else
+      changed_files_output, status = Open3.capture2('git', 'diff', '--name-only', 'origin/main...HEAD')
+    end
 
     unless status.success?
       # Fallback to master if main doesn't exist
@@ -36,7 +45,11 @@ namespace :feature_toggles do
       puts '📝 Features configuration file was modified, checking for new/modified features...'
 
       # Get the specific features that were added/modified
-      diff_output, diff_status = Open3.capture2('git', 'diff', 'origin/master...HEAD', '--', 'config/features.yml')
+      if ENV['GITHUB_BASE_SHA'] && ENV['GITHUB_HEAD_SHA']
+        diff_output, diff_status = Open3.capture2('git', 'diff', "#{base_ref}...#{head_ref}", '--', 'config/features.yml')
+      else
+        diff_output, diff_status = Open3.capture2('git', 'diff', 'origin/master...HEAD', '--', 'config/features.yml')
+      end
 
       unless diff_status.success?
         puts '⚠️  origin/master not available, trying master...'
