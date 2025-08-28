@@ -151,6 +151,9 @@ check_in:
     service_name: BTSSS-API
     subscription_key: fake_subscription_key
     tenant_id: fake_template_id
+    travel_pay_client_id: fake_travel_pay_client_id
+    travel_pay_client_secret: fake_travel_pay_client_secret
+    travel_pay_resource: fake_travel_pay_resource
   vaos:
     mock: false
 chip:
@@ -225,6 +228,7 @@ claims_api:
 claims_evidence_api:
   base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
   breakers_error_threshold: 80
+  include_request: false
   jwt_secret: fake-secret
   mock: false
   ssl: false
@@ -622,8 +626,6 @@ ivc_forms:
     missing_form_status_job:
       enabled: true
     old_records_cleanup_job:
-      enabled: true
-    ves_retry_failures_job:
       enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
@@ -1326,7 +1328,9 @@ va_profile:
     enabled: true
     mock: false
     timeout: 30
+valid_va_file_number: false
 vanotify:
+  callback_url: https://test-api.va.gov/va_notify/callbacks
   client_url: http://fakeapi.com
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
@@ -1464,6 +1468,9 @@ vanotify:
     dmc:
       api_key: fake_secret
       template_id:
+        digital_dispute_confirmation_email: fake_template_id
+        digital_dispute_failure_email: fake_template_id
+        digital_dispute_submission_email: fake_template_id
         fsr_confirmation_email: fake_template_id
         fsr_failed_email: fake_template_id
         fsr_step_1_submission_in_progress_email: fake_template_id
@@ -1517,6 +1524,8 @@ vanotify:
     va_gov:
       api_key: fake_secret
       template_id:
+        accredited_representative_portal_poa_request_failure_claimant_email: accredited_representative_portal_poa_request_failure_claimant_email_template_id
+        accredited_representative_portal_poa_request_failure_rep_email: accredited_representative_portal_poa_request_failure_rep_email_template_id
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
         appoint_a_representative_digital_expiration_confirmation_email: appoint_a_representative_digital_expiration_confirmation_email_template_id
         appoint_a_representative_digital_expiration_warning_email: appoint_a_representative_digital_expiration_warning_email_template_id

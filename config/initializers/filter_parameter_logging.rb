@@ -12,10 +12,12 @@ ALLOWLIST = %w[
   class
   code
   confirmation_number
+  consumer_name
   content_type
   controller
   cookie_id
   document_id
+  doctype
   document_type
   endDate
   endpoint_sid
@@ -31,17 +33,22 @@ ALLOWLIST = %w[
   id
   ids
   in_progress_form_id
+  itf_type
   included
   kafka_payload
   line
-  message
   message_id
+  method
   number
   os_name
   page
   persistent_attachment_id
   qqtotalfilesize
+  queue_time
+  reason
   reply_id
+  result
+  root
   saved_claim_id
   service
   showCompleted
@@ -49,11 +56,14 @@ ALLOWLIST = %w[
   sort
   startDate
   startedFormVersion
+  statsd
   status
   submission_id
   tags
   tempfile
+  time_to_transition
   to_date
+  to_state
   type
   useCache
   use_v2

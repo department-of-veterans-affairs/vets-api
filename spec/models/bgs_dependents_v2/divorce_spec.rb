@@ -11,7 +11,7 @@ RSpec.describe BGSDependentsV2::Divorce do
       'full_name' => { 'first' => 'Billy', 'middle' => 'Yohan', 'last' => 'Johnson', 'suffix' => 'Sr.' },
       'divorce_location' => { 'location' => { 'state' => 'FL', 'city' => 'Tampa' } },
       'reason_marriage_ended' => 'Divorce',
-      'spouse_income' => false
+      'spouse_income' => 'N'
     }
   end
   let(:formatted_params_result) do

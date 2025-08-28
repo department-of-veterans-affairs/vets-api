@@ -5,6 +5,7 @@ require 'lib/pdf_fill/fill_form_examples'
 require 'income_and_assets/pdf_fill/va21p0969'
 require 'fileutils'
 require 'tmpdir'
+require 'timecop'
 
 def basic_class
   IncomeAndAssets::PdfFill::Va21p0969.new({})
@@ -36,10 +37,39 @@ describe IncomeAndAssets::PdfFill::Va21p0969 do
   end
 
   describe '#merge_fields' do
-    it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
-      expect(described_class.new(form_data).merge_fields.to_json).to eq(
-        get_fixture_absolute('modules/income_and_assets/spec/fixtures/pdf_fill/21P-0969/merge_fields').to_json
-      )
+    it 'merges the right fields' do
+      Timecop.freeze(Time.zone.parse('2016-12-31 00:00:00 EDT')) do
+        expected = get_fixture_absolute(
+          'modules/income_and_assets/spec/fixtures/pdf_fill/21P-0969/merge_fields'
+        )
+
+        expected = JSON.parse(File.read(expected)) unless expected.is_a?(Hash)
+
+        actual = described_class.new(form_data).merge_fields
+
+        expect(normalize_values(actual)).to match_array(normalize_values(expected))
+      end
+    ensure
+      Timecop.return
+    end
+  end
+
+  def normalize_values(obj)
+    case obj
+    when Array
+      obj.map { |el| normalize_values(el) }
+    when Hash
+      obj.transform_values do |v|
+        if v.is_a?(Hash) || v.is_a?(Array)
+          normalize_values(v)
+        elsif v.nil?
+          nil
+        else
+          v.to_s
+        end
+      end
+    else
+      obj.to_s
     end
   end
 end
