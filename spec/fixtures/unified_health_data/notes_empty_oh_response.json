@@ -699,8 +699,5 @@
             }
         ]
     },
-    "oracle-health": {
-        "resourceType": "Bundle",
-        "entry": []
-    }
+    "oracle-health": {}
 }

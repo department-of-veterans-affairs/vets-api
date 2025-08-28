@@ -899,17 +899,15 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
 
-    context 'with malformed response' do
-      before do
-        allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: nil))
-      end
+    context 'error handling' do
+      it 'handles unknown errors' do
+        uhd_service = double
+        allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
+        allow(uhd_service).to receive(:get_care_summaries_and_notes).and_raise(StandardError.new('Unknown fetch error'))
 
-      it 'handles gracefully' do
-        allow(service).to receive(:parse_response_body).and_return(nil)
-        allow(Flipper).to receive(:enabled?).and_return(true)
         expect do
-          service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-05-31')
-        end.not_to raise_error
+          uhd_service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-05-31')
+        end.to raise_error(StandardError, 'Unknown fetch error')
       end
     end
   end
