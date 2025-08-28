@@ -2395,4 +2395,8 @@ features:
   gi_comparison_tool_cautionary_info_update:
     actor_type: user
     description: Enables updated cautionary info student feedback ui for GI Comparison Tool
+  vaos_add_substance_use_disorder:
+    actor_type: user
+    description: Enables substance use disorder as care related to mental health with new codes
+    enable_in_development: true
 
