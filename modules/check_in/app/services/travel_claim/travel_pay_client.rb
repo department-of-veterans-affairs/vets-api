@@ -152,7 +152,6 @@ module TravelClaim
     # Sends a request to submit a claim for processing.
     #
     # @param claim_id [String] Claim ID
-    # @param icn [String] Patient ICN
     # @return [Faraday::Response] HTTP response containing submission data
     #
     def send_claim_submission_request(claim_id:)
