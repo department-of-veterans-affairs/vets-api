@@ -990,7 +990,16 @@ module VAOS
         appointment[:future] = future?(appointment)
       end
 
-        issue_detected = context[:telehealthUrl].nil? || context[:telehealthUrl].empty?
+      def log_telehealth_issue(appointment)
+        context = {
+          displayLink: appointment.dig(:telehealth, :display_link),
+          kind: appointment[:kind],
+          modality: appointment[:modality],
+          start: appointment[:start],
+          telehealthUrl: appointment.dig(:telehealth, :url),
+          vvsVistaVideoAppt: appointment.dig(:extension, :vvs_vista_video_appt)
+        }
+        issue_detected = context[:telehealthUrl].blank?
         Rails.logger.warn('VAOS video telehealth issue', context.to_json) if issue_detected
       end
 
