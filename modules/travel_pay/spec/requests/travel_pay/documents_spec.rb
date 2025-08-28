@@ -82,7 +82,7 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
         end
       end
 
-      context 'stubbed controller behavior' do
+      context 'stubbed service behavior' do
         before do
           allow(service).to receive(:upload_document)
             .with(claim_id, kind_of(ActionDispatch::Http::UploadedFile))
