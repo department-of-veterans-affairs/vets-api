@@ -999,8 +999,7 @@ module VAOS
           telehealthUrl: appointment.dig(:telehealth, :url),
           vvsVistaVideoAppt: appointment.dig(:extension, :vvs_vista_video_appt)
         }
-        issue_detected = context[:telehealthUrl].blank?
-        Rails.logger.warn('VAOS video telehealth issue', context.to_json) if issue_detected
+        Rails.logger.warn('VAOS video telehealth issue', context.to_json) if context[:telehealthUrl].blank?
       end
 
       def log_modality_failure(appointment)
