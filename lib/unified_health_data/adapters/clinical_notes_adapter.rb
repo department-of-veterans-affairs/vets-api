@@ -74,7 +74,9 @@ module UnifiedHealthData
             FHIR_RESOURCE_TYPES[:PRACTITIONER]
           )
           name = authenticator['name']&.find { |n| n['text'] }
-          format_name_first_to_last(name) || nil
+          format_name_first_to_last(name) if name
+        rescue
+          nil
         end
 
         def extract_author(record)
@@ -83,8 +85,9 @@ module UnifiedHealthData
             author_ref = record['author'].find { |a| a['reference'] }
             author = find_contained(record, author_ref['reference'], FHIR_RESOURCE_TYPES[:PRACTITIONER])
             name = author['name']&.find { |n| n['text'] }
-            return format_name_first_to_last(name) || nil
+            format_name_first_to_last(name) if name
           end
+        rescue
           nil
         end
 
