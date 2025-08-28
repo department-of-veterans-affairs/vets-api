@@ -41,8 +41,7 @@ module ClaimsApi
       return if form_attributes['claimDate'].blank?
       return if DateTime.parse(form_attributes['claimDate']) <= Time.zone.now
 
-      exception_msg = 'The request failed validation, because the claim date was in the future.'
-      raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', exception_msg)
+      raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', form_attributes['claimDate'])
     end
 
     def validate_form_526_location_codes!
