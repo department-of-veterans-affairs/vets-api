@@ -27,7 +27,12 @@ jobs:
         id: changes
         run: |
           # Check if there are any Ruby files or feature config changes
-          if git diff --name-only origin/main...HEAD | grep -E '\.(rb|rake)$|config/features\.yml' > /dev/null; then
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          
+          echo "🔍 Checking for changes between $BASE_SHA and $HEAD_SHA"
+          
+          if git diff --name-only "$BASE_SHA...$HEAD_SHA" | grep -E '\.(rb|rake)$|config/features\.yml' > /dev/null; then
             echo "has_changes=true" >> $GITHUB_OUTPUT
             echo "✅ Found Ruby code or feature config changes"
           else
