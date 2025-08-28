@@ -23,7 +23,7 @@ module ClaimsApi
 
         FORM_NUMBER = '526'
 
-        before_action :shared_validation, :file_number_check, only: %i[submit validate synchronous]
+        before_action :shared_validation, :file_number_check, only: %i[validate synchronous]
         before_action :edipi_check, only: %i[validate synchronous]
 
         before_action only: %i[generate_pdf] do
