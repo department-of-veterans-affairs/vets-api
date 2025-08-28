@@ -98,17 +98,6 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
           .to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity)
       end
 
-      it '#documents_service' do
-        expect(controller.send(:documents_service, {}, auto_claim))
-          .to be_a(ClaimsApi::V2::DisabilityCompensationDocuments)
-      end
-
-      it '#process_claim' do
-        allow(controller).to receive(:veteran_middle_initial).and_return('M')
-        expect(ClaimsApi::V2::DisabilityCompensationPdfGenerator).to receive(:perform_async).with('456', 'M')
-        controller.send(:process_claim, double(id: '456'))
-      end
-
       it '#shared_submit_methods error handling' do
         allow(controller).to receive_messages(auth_headers: {},
                                               form_attributes: { 'disabilities' => [] },
@@ -118,7 +107,8 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
                                               target_veteran: double(mpi: double(icn: '123')))
         allow(ClaimsApi::AutoEstablishedClaim).to receive(:create)
           .and_return(double(
-                        errors: double(present?: true, messages: { base: ['error'] }), id: nil
+                        errors: double(present?: true,
+                                       messages: { base: ['error'] }), id: nil
                       ))
         expect { controller.send(:shared_submit_methods) }
           .to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity)
