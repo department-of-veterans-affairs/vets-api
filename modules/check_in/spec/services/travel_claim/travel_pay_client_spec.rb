@@ -138,12 +138,12 @@ RSpec.describe TravelClaim::TravelPayClient do
     end
 
     context 'when claim creation fails' do
-      it 'raises BackendServiceException for invalid appointment ID' do
+      it 'raises BackendServiceException for duplicate appointment' do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
                       claims_url_v2: 'https://dev.integration.d365.va.gov') do
-          VCR.use_cassette('check_in/travel_claim/claims_create_400') do
+          VCR.use_cassette('check_in/travel_claim/claims_create_400_duplicate') do
             expect do
-              client.send_claim_request(appointment_id: 'invalid-appointment-id')
+              client.send_claim_request(appointment_id: 'duplicate-appt-id')
             end.to raise_error(Common::Exceptions::BackendServiceException)
           end
         end
@@ -173,8 +173,15 @@ RSpec.describe TravelClaim::TravelPayClient do
           response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
           expect(response_body['success']).to be true
           expect(response_body['statusCode']).to eq(200)
-          expect(response_body['message']).to eq('Claim retrieved successfully.')
-          expect(response_body['data']['claimId']).to eq(claim_id)
+          expect(response_body['message']).to eq('Data retrieved successfully.')
+          expect(response_body['data']['claimId']).to be_present
+          expect(response_body['data']['claimNumber']).to eq('TC202508000013890')
+          expect(response_body['data']['claimStatus']).to eq('ClaimSubmitted')
+          expect(response_body['data']['claimantFirstName']).to eq('JUDY')
+          expect(response_body['data']['claimantLastName']).to eq('MORRISON')
+          expect(response_body['data']['appointment']['id']).to be_present
+          expect(response_body['data']['expenses']).to be_an(Array)
+          expect(response_body['data']['expenses'].first['expenseType']).to eq('Mileage')
           expect(response_body['correlationId']).to be_present
         end
       end
@@ -265,7 +272,7 @@ RSpec.describe TravelClaim::TravelPayClient do
           expect(response_body['statusCode']).to eq(200)
           expect(response_body['message']).to eq('Claim submitted successfully.')
           expect(response_body['data']['claimId']).to be_present
-          expect(response_body['data']['status']).to eq('InManualReview')
+          expect(response_body['data']['status']).to eq('ClaimSubmitted')
           expect(response_body['data']['createdOn']).to be_present
           expect(response_body['data']['modifiedOn']).to be_present
           expect(response_body['correlationId']).to be_present

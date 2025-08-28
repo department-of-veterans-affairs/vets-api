@@ -58,15 +58,52 @@ http_interactions:
       encoding: UTF-8
       string: '{
         "correlationId": "e359e352-10d8-4475-a453-9feec6bb8a10",
-        "timeStamp": "2025-08-27T21:54:27.178363Z",
+        "timeStamp": "2025-08-28T18:16:24.8963057Z",
         "statusCode": 200,
-        "message": "Claim retrieved successfully.",
+        "message": "Data retrieved successfully.",
         "success": true,
         "data": {
-            "claimId": "claim-123",
-            "status": "pending",
-            "appointmentId": "appt-123",
-            "createdAt": "2025-08-27T21:54:27.178363Z"
+            "claimId": "c8cddaf3-3a84-f011-b4cc-001dd806c742",
+            "claimNumber": "TC202508000013890",
+            "claimName": "Claim created by BTSSS_PCI for JUDY MORRISON",
+            "claimantFirstName": "JUDY",
+            "claimantMiddleName": "SNOW",
+            "claimantLastName": "MORRISON",
+            "claimStatus": "ClaimSubmitted",
+            "appointmentDate": "2025-08-28T11:00:00Z",
+            "facilityName": "(21st) Century Oncology of Las Vegas (3006)",
+            "totalCostRequested": 0.00,
+            "reimbursementAmount": 0.00,
+            "createdOn": "2025-08-28T18:15:27Z",
+            "modifiedOn": "2025-08-28T18:15:58Z",
+            "appointment": {
+                "id": "0ff7209e-3a84-f011-b4cc-001dd806c7d4",
+                "appointmentSource": "API",
+                "appointmentDateTime": "2025-08-28T11:00:00Z",
+                "appointmentName": "Customer created appointment at (21st) Century Oncology of Las Vegas (3006)",
+                "appointmentType": "Other",
+                "facilityId": "46ac2b1a-20d4-eb11-8235-001dd806c742",
+                "facilityName": "(21st) Century Oncology of Las Vegas (3006)",
+                "serviceConnectedDisability": 0,
+                "currentStatus": null,
+                "appointmentStatus": "",
+                "externalAppointmentId": null,
+                "associatedClaimId": "c8cddaf3-3a84-f011-b4cc-001dd806c742",
+                "associatedClaimNumber": null,
+                "isCompleted": false
+            },
+            "rejectionReason": null,
+            "expenses": [
+                {
+                    "expenseType": "Mileage",
+                    "name": "Mileage Expense",
+                    "dateIncurred": "2025-08-28T18:15:27Z",
+                    "description": "string",
+                    "costRequested": 478.41,
+                    "costSubmitted": 0.00,
+                    "id": "aed3cbff-3a84-f011-b4cc-001dd806c742"
+                }
+            ]
         }
       }'
   recorded_at: Wed, 27 Aug 2025 21:54:27 GMT
