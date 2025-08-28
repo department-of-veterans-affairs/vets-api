@@ -152,9 +152,9 @@ module VSPDanger
 
         OpenStruct.new(
           total_changes: insertions + deletions,
-          insertions: insertions,
-          deletions: deletions,
-          file_name: file_name
+          insertions:,
+          deletions:,
+          file_name:
         )
       end.compact
     end
@@ -398,10 +398,10 @@ module VSPDanger
 
         unless has_enabled_test && has_disabled_test
           missing_coverage << {
-            feature: feature,
+            feature:,
             missing: [],
-            enabled_specs: enabled_specs,
-            disabled_specs: disabled_specs
+            enabled_specs:,
+            disabled_specs:
           }
           missing_coverage.last[:missing] << 'enabled state' unless has_enabled_test
           missing_coverage.last[:missing] << 'disabled state' unless has_disabled_test
