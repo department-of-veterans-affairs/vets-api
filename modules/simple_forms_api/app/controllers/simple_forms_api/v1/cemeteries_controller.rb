@@ -4,7 +4,7 @@ module SimpleFormsApi
   module V1
     class CemeteriesController < ApplicationController
       skip_before_action :authenticate, only: [:index]
-      skip_before_action :verify_authenticity_token, only: [:index]
+      
       def index
         cemeteries = SimpleFormsApi::CemeteryService.all
 
