@@ -10,6 +10,9 @@ module VAProfile
 
     attribute :status, Integer
 
+    alias to_h attributes
+    alias to_hash attributes
+
     def initialize(status, attributes = nil)
       super(attributes) if attributes
       @status = status
