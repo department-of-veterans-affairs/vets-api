@@ -21,6 +21,9 @@ module Vets
 
       # Acts as a "type factory"
       def type
+
+        binding.pry unless @klass.respond_to?(:name)
+
         @type ||= if @array
                     Vets::Type::Array.new(@name, @klass)
                   elsif Vets::Type::Primitive::PRIMITIVE_TYPES.include?(@klass.name)
