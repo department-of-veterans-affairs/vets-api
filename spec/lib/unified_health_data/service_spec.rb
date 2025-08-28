@@ -773,4 +773,285 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
   end
+
+  # Tests for condition methods
+  describe '#get_conditions' do
+    let(:conditions_response) do
+      file_path = Rails.root.join('spec', 'fixtures', 'unified_health_data', 'condition_sample_response.json')
+      JSON.parse(File.read(file_path))
+    end
+
+    context 'with valid condition responses' do
+      before do
+        allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: conditions_response),
+                                           parse_response_body: conditions_response)
+      end
+
+      it 'returns conditions' do
+        conditions = service.get_conditions
+        expect(conditions).to be_an(Array)
+        expect(conditions.size).to be_positive
+        expect(conditions.first).to be_a(UnifiedHealthData::Condition)
+      end
+
+      it 'parses condition attributes correctly' do
+        conditions = service.get_conditions
+        first_condition = conditions.first
+
+        expect(first_condition.id).to eq('2b4de3e7-0ced-43c6-9a8a-336b9171f4df')
+        expect(first_condition.attributes.name).to eq('Major depressive disorder, recurrent, moderate')
+        expect(first_condition.attributes.provider).to eq('BORLAND,VICTORIA A')
+        expect(first_condition.attributes.facility).to eq('CHYSHR TEST LAB')
+      end
+    end
+
+    context 'with malformed response' do
+      it 'handles gracefully' do
+        allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: 'invalid'),
+                                           parse_response_body: nil)
+        expect { service.get_conditions }.not_to raise_error
+        expect(service.get_conditions).to eq([])
+      end
+    end
+  end
+
+  describe '#parse_conditions' do
+    let(:conditions_response) do
+      file_path = Rails.root.join('spec', 'fixtures', 'unified_health_data', 'condition_sample_response.json')
+      JSON.parse(File.read(file_path))
+    end
+
+    it 'parses vista conditions correctly' do
+      vista_entries = conditions_response['vista']['entry']
+      conditions = service.send(:parse_conditions, vista_entries)
+
+      expect(conditions).to be_an(Array)
+      expect(conditions.size).to eq(vista_entries.size)
+      expect(conditions.first).to be_a(UnifiedHealthData::Condition)
+    end
+
+    it 'handles empty records' do
+      conditions = service.send(:parse_conditions, [])
+      expect(conditions).to eq([])
+    end
+
+    it 'handles nil records' do
+      conditions = service.send(:parse_conditions, nil)
+      expect(conditions).to eq([])
+    end
+  end
+
+  describe '#parse_single_condition' do
+    let(:condition_record) do
+      {
+        'resource' => {
+          'resourceType' => 'Condition',
+          'id' => 'test-id-123',
+          'code' => { 'coding' => [{ 'display' => 'Test Condition' }] },
+          'onsetDateTime' => '2024-01-15T00:00:00Z',
+          'contained' => [
+            {
+              'resourceType' => 'Practitioner',
+              'name' => [{ 'text' => 'Dr. Test Provider' }]
+            },
+            {
+              'resourceType' => 'Location',
+              'name' => 'Test Medical Center'
+            }
+          ]
+        }
+      }
+    end
+
+    it 'parses a single condition correctly' do
+      condition = service.send(:parse_single_condition, condition_record)
+
+      expect(condition).to be_a(UnifiedHealthData::Condition)
+      expect(condition.id).to eq('test-id-123')
+      expect(condition.type).to eq('Condition')
+    end
+
+    it 'handles nil record' do
+      condition = service.send(:parse_single_condition, nil)
+      expect(condition).to be_nil
+    end
+
+    it 'handles record with nil resource' do
+      condition = service.send(:parse_single_condition, { 'resource' => nil })
+      expect(condition).to be_nil
+    end
+  end
+
+  describe '#build_condition_attributes' do
+    it 'extracts date from onsetDateTime' do
+      resource = { 'onsetDateTime' => '2024-01-15T00:00:00Z' }
+      attributes = service.send(:build_condition_attributes, resource)
+      expect(attributes.date).to eq('2024-01-15T00:00:00Z')
+    end
+
+    it 'falls back to recordedDate when onsetDateTime is missing' do
+      resource = { 'recordedDate' => '2024-02-20T00:00:00Z' }
+      attributes = service.send(:build_condition_attributes, resource)
+      expect(attributes.date).to eq('2024-02-20T00:00:00Z')
+    end
+
+    it 'extracts name from code coding display' do
+      resource = { 'code' => { 'coding' => [{ 'display' => 'Essential Hypertension' }] } }
+      attributes = service.send(:build_condition_attributes, resource)
+      expect(attributes.name).to eq('Essential Hypertension')
+    end
+
+    it 'falls back to code text when coding display is missing' do
+      resource = { 'code' => { 'text' => 'Essential Hypertension' } }
+      attributes = service.send(:build_condition_attributes, resource)
+      expect(attributes.name).to eq('Essential Hypertension')
+    end
+
+    it 'extracts provider from contained practitioner' do
+      resource = {
+        'contained' => [
+          { 'resourceType' => 'Practitioner', 'name' => [{ 'text' => 'Dr. Jane Smith' }] }
+        ]
+      }
+      attributes = service.send(:build_condition_attributes, resource)
+      expect(attributes.provider).to eq('Dr. Jane Smith')
+    end
+
+    it 'extracts facility from contained location' do
+      resource = {
+        'contained' => [
+          { 'resourceType' => 'Location', 'name' => 'VA Medical Center - Primary Care' }
+        ]
+      }
+      attributes = service.send(:build_condition_attributes, resource)
+      expect(attributes.facility).to eq('VA Medical Center - Primary Care')
+    end
+
+    it 'handles missing fields gracefully' do
+      resource = {}
+      attributes = service.send(:build_condition_attributes, resource)
+
+      expect(attributes.date).to be_nil
+      expect(attributes.name).to eq('')
+      expect(attributes.provider).to eq('')
+      expect(attributes.facility).to eq('')
+      expect(attributes.comments).to eq('')
+    end
+  end
+
+  describe '#extract_condition_comments' do
+    it 'extracts single note text' do
+      resource = { 'note' => [{ 'text' => 'Single comment' }] }
+      comments = service.send(:extract_condition_comments, resource)
+      expect(comments).to eq('Single comment')
+    end
+
+    it 'joins multiple note texts with semicolons' do
+      resource = {
+        'note' => [
+          { 'text' => 'First comment' },
+          { 'text' => 'Second comment' },
+          { 'text' => 'Third comment' }
+        ]
+      }
+      comments = service.send(:extract_condition_comments, resource)
+      expect(comments).to eq('First comment; Second comment; Third comment')
+    end
+
+    it 'handles single note object (not array)' do
+      resource = { 'note' => { 'text' => 'Single note object' } }
+      comments = service.send(:extract_condition_comments, resource)
+      expect(comments).to eq('Single note object')
+    end
+
+    it 'handles missing note field' do
+      resource = {}
+      comments = service.send(:extract_condition_comments, resource)
+      expect(comments).to eq('')
+    end
+
+    it 'handles nil note field' do
+      resource = { 'note' => nil }
+      comments = service.send(:extract_condition_comments, resource)
+      expect(comments).to eq('')
+    end
+
+    it 'filters out notes with missing text' do
+      resource = {
+        'note' => [
+          { 'text' => 'Valid comment' },
+          { 'author' => 'Dr. Smith' }, # missing text field
+          { 'text' => 'Another valid comment' }
+        ]
+      }
+      comments = service.send(:extract_condition_comments, resource)
+      expect(comments).to eq('Valid comment; Another valid comment')
+    end
+
+    it 'handles empty note array' do
+      resource = { 'note' => [] }
+      comments = service.send(:extract_condition_comments, resource)
+      expect(comments).to eq('')
+    end
+  end
+
+  describe '#extract_condition_provider' do
+    it 'extracts provider from contained practitioner' do
+      resource = {
+        'contained' => [
+          { 'resourceType' => 'Practitioner', 'name' => [{ 'text' => 'Dr. Jane Smith' }] }
+        ]
+      }
+      provider = service.send(:extract_condition_provider, resource)
+      expect(provider).to eq('Dr. Jane Smith')
+    end
+
+    it 'falls back to asserter display when contained is missing' do
+      resource = { 'asserter' => { 'display' => 'Dr. Jane Smith' } }
+      provider = service.send(:extract_condition_provider, resource)
+      expect(provider).to eq('Dr. Jane Smith')
+    end
+
+    it 'handles missing contained practitioner' do
+      resource = { 'contained' => [{ 'resourceType' => 'Location', 'name' => 'Test Location' }] }
+      provider = service.send(:extract_condition_provider, resource)
+      expect(provider).to eq('')
+    end
+
+    it 'handles empty contained array' do
+      resource = { 'contained' => [] }
+      provider = service.send(:extract_condition_provider, resource)
+      expect(provider).to eq('')
+    end
+  end
+
+  describe '#extract_condition_facility' do
+    it 'extracts facility from contained location' do
+      resource = {
+        'contained' => [
+          { 'resourceType' => 'Location', 'name' => 'VA Medical Center' }
+        ]
+      }
+      facility = service.send(:extract_condition_facility, resource)
+      expect(facility).to eq('VA Medical Center')
+    end
+
+    it 'falls back to encounter display when contained is missing' do
+      resource = { 'encounter' => { 'display' => 'VA Medical Center - Primary Care' } }
+      facility = service.send(:extract_condition_facility, resource)
+      expect(facility).to eq('VA Medical Center - Primary Care')
+    end
+
+    it 'handles missing contained location' do
+      resource = { 'contained' => [{ 'resourceType' => 'Practitioner', 'name' => [{ 'text' => 'Dr. Smith' }] }] }
+      facility = service.send(:extract_condition_facility, resource)
+      expect(facility).to eq('')
+    end
+
+    it 'handles empty contained array' do
+      resource = { 'contained' => [] }
+      facility = service.send(:extract_condition_facility, resource)
+      expect(facility).to eq('')
+    end
+  end
 end

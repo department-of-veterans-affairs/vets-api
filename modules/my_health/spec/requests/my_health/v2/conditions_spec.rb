@@ -5,7 +5,7 @@ require 'support/mr_client_helpers'
 require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
-require 'unified_health_data/condition_service'
+require 'unified_health_data/service'
 
 RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, type: :request do
   let(:user_id) { '11898795' }
@@ -47,7 +47,7 @@ RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, 
   describe 'GET /my_health/v2/medical_records/conditions' do
     context 'happy path' do
       before do
-        allow_any_instance_of(UnifiedHealthData::ConditionService).to receive(:get_conditions)
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_conditions)
           .and_return(mock_conditions)
 
         get path, headers: { 'X-Key-Inflection' => 'camel' }
@@ -59,12 +59,11 @@ RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, 
 
       it 'returns conditions data in Simple JSON format', :aggregate_failures do
         json_response = JSON.parse(response.body)
-        expect(json_response).to have_key('data')
-        expect(json_response['data']).to be_an(Array)
-        expect(json_response['data'].size).to eq(2)
+        expect(json_response).to be_an(Array)
+        expect(json_response.size).to eq(2)
 
         # Test first condition (with date)
-        first_condition = json_response['data'].first
+        first_condition = json_response.first
         expect(first_condition).to include(
           'id' => 'condition-1',
           'date' => '2025-01-15T10:30:00Z',
@@ -75,7 +74,7 @@ RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, 
         )
 
         # Test second condition (with null date)
-        second_condition = json_response['data'][1]
+        second_condition = json_response[1]
         expect(second_condition).to include(
           'id' => 'condition-2',
           'date' => nil, # This tests our null date handling

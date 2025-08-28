@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
+require_relative 'models/condition'
 require_relative 'reference_range_formatter'
 
 module UnifiedHealthData
@@ -34,6 +35,21 @@ module UnifiedHealthData
         log_test_code_distribution(parsed_records)
 
         filtered_records
+      end
+    end
+
+    def get_conditions
+      with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        patient_id = @user.icn
+        path = "#{config.base_path}conditions?patientId=#{patient_id}"
+        response = perform(:get, path, nil, headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+        parsed_records = parse_conditions(combined_records)
+
+        parsed_records
       end
     end
 
@@ -122,6 +138,16 @@ module UnifiedHealthData
       parsed.compact
     end
 
+    def parse_conditions(records)
+      return [] if records.blank?
+
+      filtered = records.select do |record|
+        record['resource'] && record['resource']['resourceType'] == 'Condition'
+      end
+      parsed = filtered.map { |record| parse_single_condition(record) }
+      parsed.compact
+    end
+
     def parse_single_record(record)
       return nil if record.nil? || record['resource'].nil?
 
@@ -137,6 +163,57 @@ module UnifiedHealthData
         type: record['resource']['resourceType'],
         attributes:
       )
+    end
+
+    def parse_single_condition(record)
+      return nil if record.nil? || record['resource'].nil?
+
+      resource = record['resource']
+      attributes = build_condition_attributes(resource)
+
+      UnifiedHealthData::Condition.new(
+        id: resource['id'],
+        type: resource['resourceType'],
+        attributes:
+      )
+    end
+
+    def build_condition_attributes(resource)
+      UnifiedHealthData::ConditionAttributes.new(
+        date: resource['onsetDateTime'] || resource['recordedDate'],
+        name: resource.dig('code', 'coding', 0, 'display') || resource.dig('code', 'text') || '',
+        provider: extract_condition_provider(resource),
+        facility: extract_condition_facility(resource),
+        comments: extract_condition_comments(resource)
+      )
+    end
+
+    def extract_condition_comments(resource)
+      return '' unless resource['note']
+
+      if resource['note'].is_a?(Array)
+        resource['note'].map { |note| note['text'] }.compact.join('; ')
+      else
+        resource['note']['text'] || ''
+      end
+    end
+
+    def extract_condition_provider(resource)
+      return resource.dig('asserter', 'display') || '' unless resource['contained']
+
+      practitioner = resource['contained'].find { |item| item['resourceType'] == 'Practitioner' }
+      return '' unless practitioner
+
+      practitioner.dig('name', 0, 'text') || ''
+    end
+
+    def extract_condition_facility(resource)
+      return resource.dig('encounter', 'display') || '' unless resource['contained']
+
+      location = resource['contained'].find { |item| item['resourceType'] == 'Location' }
+      return '' unless location
+
+      location['name'] || ''
     end
 
     def build_lab_or_test_attributes(record)
