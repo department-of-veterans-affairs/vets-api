@@ -1,0 +1,13 @@
+{
+  "applicantInformation": {
+    "fullName": {
+      "first": "John",
+      "last": "Doe"
+    },
+    "dateOfBirth": "1980-01-01",
+    "socialSecurityNumber": "123456789"
+  },
+  "benefit": {
+    "type": "chapter33"
+  }
+}

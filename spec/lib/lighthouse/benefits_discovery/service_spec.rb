@@ -4,12 +4,11 @@ require 'rails_helper'
 require 'lighthouse/benefits_discovery/service'
 
 RSpec.describe BenefitsDiscovery::Service do
-  subject { BenefitsDiscovery::Service.new }
-
-  let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
-
-  before do
-    allow_any_instance_of(BenefitsDiscovery::Params).to receive(:prepared_params).and_return(params)
+  subject do
+    described_class.new(
+      api_key: 'test_api_key',
+      app_id: 'test_app_id'
+    )
   end
 
   describe '#get_eligible_benefits' do
@@ -27,7 +26,7 @@ RSpec.describe BenefitsDiscovery::Service do
       it 'returns recommendations' do
         VCR.use_cassette('lighthouse/benefits_discovery/200_response_with_all_params',
                          match_requests_on: %i[method uri body]) do
-          response = subject.get_eligible_benefits(user.uuid)
+          response = subject.get_eligible_benefits(params)
           expect(response).to eq(
             {
               'undetermined' => [],
@@ -54,7 +53,7 @@ RSpec.describe BenefitsDiscovery::Service do
       it 'returns recommendations' do
         VCR.use_cassette('lighthouse/benefits_discovery/200_response_without_params',
                          match_requests_on: %i[method uri body]) do
-          response = subject.get_eligible_benefits(user.uuid)
+          response = subject.get_eligible_benefits(params)
           expect(response).to eq(
             {
               'undetermined' => [
@@ -81,7 +80,7 @@ RSpec.describe BenefitsDiscovery::Service do
         VCR.use_cassette('lighthouse/benefits_discovery/400_response_with_invalid_params',
                          match_requests_on: %i[method uri body]) do
           expect do
-            subject.get_eligible_benefits(user.uuid)
+            subject.get_eligible_benefits(params)
           end.to raise_error(Common::Client::Errors::ClientError)
         end
       end

@@ -24,6 +24,7 @@ require 'pdf_fill/forms/va5655'
 require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
 require 'pdf_fill/forms/va2210215a'
+require 'pdf_fill/forms/va221919'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
 require 'utilities/date_parser'
 require 'forwardable'
@@ -79,7 +80,8 @@ module PdfFill
       '5655' => PdfFill::Forms::Va5655,
       '22-10216' => PdfFill::Forms::Va2210216,
       '22-10215' => PdfFill::Forms::Va2210215,
-      '22-10215a' => PdfFill::Forms::Va2210215a
+      '22-10215a' => PdfFill::Forms::Va2210215a,
+      '22-1919' => PdfFill::Forms::Va221919
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
     end
@@ -97,7 +99,7 @@ module PdfFill
         file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
         extras_path = extras_generator.generate
 
-        PDF_FORMS.cat(old_file_path, extras_path, file_path)
+        merge_pdfs(old_file_path, extras_path, file_path)
 
         File.delete(extras_path)
         File.delete(old_file_path)
@@ -106,6 +108,29 @@ module PdfFill
       else
         old_file_path
       end
+    end
+
+    ##
+    # Merges multiple PDF files into a single PDF file using HexaPDF.
+    #
+    # @param file_paths [Array<String>] The paths of the PDF files to merge.
+    # @param new_file_path [String] The path for the final merged PDF file.
+    #
+    # @return [void]
+    #
+    def merge_pdfs(*file_paths, new_file_path)
+      # Use the first file as the target document so that we get its metadata and
+      # other properties in the merged document without having to do extra steps.
+      target = HexaPDF::Document.open(file_paths.first)
+
+      file_paths.drop(1).each do |file_path|
+        pdf = HexaPDF::Document.open(file_path)
+        pdf.pages.each do |page|
+          target.pages << target.import(page)
+        end
+      end
+
+      target.write(new_file_path)
     end
 
     ##
@@ -163,7 +188,7 @@ module PdfFill
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
       merged_form_data = form_class.new(form_data).merge_fields(fill_options)
       submit_date = Utilities::DateParser.parse(
-        merged_form_data['signatureDate'] || fill_options[:created_at] || Time.now.utc
+        fill_options[:created_at] || merged_form_data['signatureDate'] || Time.now.utc
       )
 
       hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
@@ -177,15 +202,8 @@ module PdfFill
         template_path, file_path, new_hash, flatten: Rails.env.production?
       )
 
-      # If the form is being generated with the overflow redesign, stamp the top and bottom of the document before the
-      # form is combined with the extras overflow pages. This allows the stamps to be placed correctly for the redesign
-      # implemented in lib/pdf_fill/extras_generator_v2.rb.
-      if fill_options.fetch(:extras_redesign, false) && submit_date.present?
-        file_path = stamp_form(file_path, submit_date)
-      end
-      output = combine_extras(file_path, hash_converter.extras_generator)
-      Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
-      output
+      file_path = stamp_form(file_path, submit_date) if should_stamp_form?(form_id, fill_options, submit_date)
+      combine_extras(file_path, hash_converter.extras_generator)
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -225,6 +243,18 @@ module PdfFill
           ExtrasGenerator.new
         end
       HashConverter.new(form_class.date_strftime, extras_generator)
+    end
+
+    def should_stamp_form?(form_id, fill_options, submit_date)
+      return false if fill_options[:omit_esign_stamp]
+
+      # special exception for dependents that isn't in extras_redesign
+      dependents = %w[686C-674 686C-674-V2 21-674 21-674-V2].include?(form_id)
+
+      # If the form is being generated with the overflow redesign, stamp the top and bottom of the document before the
+      # form is combined with the extras overflow pages. This allows the stamps to be placed correctly for the redesign
+      # implemented in lib/pdf_fill/extras_generator_v2.rb.
+      (fill_options[:extras_redesign] || dependents) && submit_date.present?
     end
 
     def stamp_form(file_path, submit_date)

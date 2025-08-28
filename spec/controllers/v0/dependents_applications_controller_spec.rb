@@ -49,8 +49,6 @@ RSpec.describe V0::DependentsApplicationsController do
   describe 'POST create' do
     context 'with valid params v1' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:dependents_separate_confirmation_email).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:dependents_submitted_email).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
         allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)

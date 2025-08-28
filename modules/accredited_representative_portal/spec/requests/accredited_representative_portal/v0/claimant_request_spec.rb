@@ -69,6 +69,17 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
     end
 
     context 'when providing complete search params' do
+      context 'mpi returns no records' do
+        it 'returns a 404 error' do
+          VCR.use_cassette('mpi/find_candidate/icn_not_found') do
+            post('/accredited_representative_portal/v0/claimant/search', params: {
+                   first_name: 'John', last_name: 'Smith', dob: '1980-01-01', ssn: '666-66-6666'
+                 })
+            expect(response).to have_http_status(:not_found)
+          end
+        end
+      end
+
       it 'returns only matching claimant' do
         VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           VCR.use_cassette(
