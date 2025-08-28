@@ -34,9 +34,9 @@ module VAProfile
               # binding.pry
               if Flipper.enabled?(:profile_validate_address_when_no_candidate_found) &&
                  candidate_address_not_found?(e)
-                 validate_res = validate(address)
+                validate_res = validate(address)
 
-                 AddressSuggestionsResponse.new(validate_res, validate: true)
+                AddressSuggestionsResponse.new(validate_res, validate: true)
               else
                 handle_error(e)
               end
@@ -87,7 +87,6 @@ module VAProfile
         end
 
         def candidate_address_not_found?(exception)
-          binding.pry
           details = exception.errors.map { |e| e.instance_variable_get('@detail') } || []
           details.any? { |detail| detail['messages'].any? { |message| message['key'] == 'CandidateAddressNotFound' } }
         end

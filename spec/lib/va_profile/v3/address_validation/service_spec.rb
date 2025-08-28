@@ -31,7 +31,7 @@ describe VAProfile::V3::AddressValidation::Service do
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
   end
 
-  describe '#address_suggestions', focus: true do
+  describe '#address_suggestions' do
     context 'with a found address' do
       it 'returns suggested addresses' do
         VCR.use_cassette(
@@ -94,7 +94,6 @@ describe VAProfile::V3::AddressValidation::Service do
         end
 
         it 'returns original address with validation key' do
-          # allow(Flipper).to receive(:enabled?).with(:profile_validate_address_when_no_candidate_found).and_return(true)
           VCR.use_cassette(
             'va_profile/v3/address_validation/candidate_no_match',
             match_requests_on: [:uri]
@@ -103,7 +102,6 @@ describe VAProfile::V3::AddressValidation::Service do
               'va_profile/v3/address_validation/validate_after_candidate_no_match',
               match_requests_on: [:uri]
             ) do
-              allow_any_instance_of(described_class).to receive(:candidate).and_raise(Common::Client::Errors::ClientError, Common::Exceptions::BackendServiceException)
               res = described_class.new.address_suggestions(invalid_address)
               expect(JSON.parse(res.to_json)).to eq(
                 'addresses' => [
