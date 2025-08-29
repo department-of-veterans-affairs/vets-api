@@ -4,7 +4,7 @@ module SimpleFormsApi
   module V1
     class CemeteriesController < ApplicationController
       skip_before_action :authenticate, only: [:index]
-      
+
       def index
         begin
           cemeteries = SimpleFormsApi::CemeteryService.all
@@ -12,8 +12,10 @@ module SimpleFormsApi
           render json: {
             data: cemeteries.map { |cemetery| format_cemetery(cemetery) }
           }
-        rescue => e
-          render json: { error: "Failed to retrieve cemeteries." }, status: :internal_server_error
+        rescue StandardError => e
+          Rails.logger.error "Cemetery controller error: #{e.message}"
+          Rails.logger.error e.backtrace.join("\n") # Add backtrace for debugging
+          render json: { error: 'Unable to load cemetery data' }, status: :internal_server_error
         end
       end
 
