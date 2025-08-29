@@ -4,8 +4,6 @@ require 'rails_helper'
 
 RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
   let(:user) { build(:user) }
-  # let(:claims_service) { instance_double(TravelPay::ClaimsService) }
-  # let(:appts_service) { instance_double(TravelPay::AppointmentsService) }
   let(:params) do
     {
       'appointment_date_time' => '2024-01-01T16:45:34.465Z',
@@ -93,23 +91,8 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
               'Appointment type is required',
               'The Is complete field is required'
             ]
-byebug
             expect(body['errors'].map { |e| e['detail'] }).to match_array(expected_errors)
           end
-        end
-
-        it 'returns not found when Faraday::ResourceNotFound' do
-          exception = Faraday::ResourceNotFound.new('Not found')
-          allow(exception).to receive(:response).and_return(
-            request: { headers: { 'X-Correlation-ID' => 'abc' } }
-          )
-          allow(service).to receive(:upload_document).and_raise(exception)
-
-          post("/travel_pay/v0/claims/#{claim_id}/documents", params: { Document: valid_document })
-
-          expect(response).to have_http_status(:not_found)
-          expect(JSON.parse(response.body)['error']).to eq('Document not found')
-          expect(JSON.parse(response.body)['correlation_id']).to eq('abc')
         end
 
         it 'returns error json with original status when BackendServiceException' do
@@ -117,7 +100,7 @@ byebug
           allow(error).to receive(:original_status).and_return(503)
           allow(service).to receive(:upload_document).and_raise(error)
 
-          post("/travel_pay/v0/claims/#{claim_id}/documents", params: { Document: valid_document })
+          post('/travel_pay/v0/complex_claims', params:)
 
           expect(response).to have_http_status(:service_unavailable)
           expect(JSON.parse(response.body)['error']).to eq('Error downloading document')
