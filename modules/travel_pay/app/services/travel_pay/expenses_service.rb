@@ -57,8 +57,7 @@ module TravelPay
         'claimId' => params['claim_id'],
         'dateIncurred' => params['purchase_date'],
         'description' => params['description'],
-        'amount' => params['cost_requested'],
-        'expenseType' => params['expense_type']
+        'costRequested' => params['cost_requested']
       }
     end
 

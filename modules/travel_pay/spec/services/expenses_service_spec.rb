@@ -48,8 +48,7 @@ describe TravelPay::ExpensesService do
           'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
           'dateIncurred' => '2024-10-02',
           'description' => 'Hotel stay',
-          'amount' => 125.50,
-          'expenseType' => 'lodging'
+          'costRequested' => 125.50
         }
 
         allow_any_instance_of(TravelPay::ExpensesClient)
@@ -74,8 +73,7 @@ describe TravelPay::ExpensesService do
           'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
           'dateIncurred' => '2024-10-02',
           'description' => 'Lunch during appointment',
-          'amount' => 15.75,
-          'expenseType' => 'meal'
+          'costRequested' => 15.75
         }
 
         allow_any_instance_of(TravelPay::ExpensesClient)
@@ -100,8 +98,7 @@ describe TravelPay::ExpensesService do
           'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
           'dateIncurred' => '2024-10-02',
           'description' => 'Parking fee',
-          'amount' => 10.00,
-          'expenseType' => 'other'
+          'costRequested' => 10.00
         }
 
         allow_any_instance_of(TravelPay::ExpensesClient)
