@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'vets/models'
+require ''
 require 'common/exceptions'
 
 module VAOS

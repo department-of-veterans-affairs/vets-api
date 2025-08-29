@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'vets/models'
+require 'vets/model'
 
 module BB
   class GenerateReportRequestForm
