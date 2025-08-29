@@ -88,14 +88,58 @@ describe VAProfile::V3::AddressValidation::Service do
     end
 
     context 'without a found address' do
-      it 'returns original address with validation key' do
-        VCR.use_cassette(
-          'va_profile/v3/address_validation/candidate_no_match',
-          VCR::MATCH_EVERYTHING
-        ) do
+      context 'when feature flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_validate_address_when_no_candidate_found).and_return(true)
+        end
+
+        it 'returns original address with validation key' do
           VCR.use_cassette(
-            'va_profile/v3/address_validation/validate_after_candidate_no_match',
-            VCR::MATCH_EVERYTHING
+            'va_profile/v3/address_validation/candidate_no_match',
+            match_requests_on: [:uri]
+          ) do
+            VCR.use_cassette(
+              'va_profile/v3/address_validation/validate_after_candidate_no_match',
+              match_requests_on: [:uri]
+            ) do
+              res = described_class.new.address_suggestions(invalid_address)
+              expect(JSON.parse(res.to_json)).to eq(
+                'addresses' => [
+                  {
+                    'address' => {
+                      'address_line1' => 'Sdfdsfsdf',
+                      'address_type' => 'DOMESTIC',
+                      'city' => 'Sparks Glencoe',
+                      'country_name' => 'United States',
+                      'country_code_iso3' => 'USA',
+                      'state_code' => 'MD',
+                      'zip_code' => '21152'
+                    },
+                    'address_meta_data' => {
+                      'confidence_score' => 0.0,
+                      'address_type' => 'Domestic',
+                      'delivery_point_validation' => nil
+                    }
+                  }
+                ],
+                'override_validation_key' => 1_499_210_294,
+                'validation_key' => 1_499_210_294,
+                'validated' => true
+              )
+            end
+          end
+        end
+      end
+
+      context 'when feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_validate_address_when_no_candidate_found).and_return(false)
+        end
+
+        it 'returns a candidate address not found response' do
+          VCR.use_cassette(
+            'va_profile/v3/address_validation/candidate_no_match',
+            match_requests_on: [:uri]
           ) do
             res = described_class.new.address_suggestions(invalid_address)
             expect(JSON.parse(res.to_json)).to eq(
