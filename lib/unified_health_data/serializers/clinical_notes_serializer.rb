@@ -10,6 +10,7 @@ module UnifiedHealthData
     attributes :id,
                :name,
                :type,
+               :loinc_code,
                :date,
                :date_signed,
                :written_by,

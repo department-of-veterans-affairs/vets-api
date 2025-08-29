@@ -29,12 +29,13 @@ module UnifiedHealthData
 
         def parse(note)
           record = note['resource']
-          return nil unless record
+          return nil unless record && get_note(record)
 
           UnifiedHealthData::ClinicalNotes.new({
                                                  id: record['id'],
                                                  name: get_title(record),
                                                  type: get_record_type(record),
+                                                 loinc_code: get_loinc_code(record),
                                                  date: record['date'],
                                                  date_signed: get_date_signed(record),
                                                  written_by: extract_author(record),
@@ -53,16 +54,20 @@ module UnifiedHealthData
           NOTE_TYPES['OTHER']
         end
 
+        def get_loinc_code(record)
+          record['type']['coding']&.find { |coding| coding['system'] == 'http://loinc.org' }&.[]('code') || nil
+        end
+
         def array_and_has_items(item)
           item.is_a?(Array) && !item.empty?
         end
 
         def get_title(record)
           content_item = record['content']&.find { |item| item['attachment'] }
-          return content_item['title'] if content_item['title']
+          return content_item['attachment']['title'] if content_item['attachment']['title']
 
-          return record['type']['text'] if record['type']['text']
-
+          record['type']['text'] if record['type']['text']
+        rescue
           nil
         end
 
@@ -121,13 +126,14 @@ module UnifiedHealthData
             reference = record['context']['related'].find { |r| r['reference'] }['reference']
             if reference
               resource = find_contained(record, reference)
-              return resource['name'] || nil
+              resource['name'] || nil
             end
           # OH - location is in the custodian field
           elsif record['custodian']['reference']
             resource = find_contained(record, record['custodian']['reference'], FHIR_RESOURCE_TYPES[:LOCATION])
-            return resource['name'] || nil
+            resource['name'] || nil
           end
+        rescue
           nil
         end
 
@@ -135,17 +141,18 @@ module UnifiedHealthData
           if array_and_has_items(record['content'])
             content_item = record['content'].find { |item| item['attachment']['contentType'] == 'text/plain' }
 
-            return content_item['attachment']['data'] if content_item['attachment']
+            content_item['attachment']['data'] if content_item['attachment']
           end
+        rescue
           nil
         end
 
         # Signing date does not seem to exist in OH data
         def get_date_signed(record)
           if array_and_has_items(record['authenticator']['extension'])
-            return record['authenticator']['extension'].find { |e| e['valueDateTime'] }['valueDateTime']
+            record['authenticator']['extension'].find { |e| e['valueDateTime'] }['valueDateTime']
           end
-
+        rescue
           nil
         end
 

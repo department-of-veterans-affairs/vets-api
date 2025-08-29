@@ -817,17 +817,32 @@ describe UnifiedHealthData::Service, type: :service do
             'discharge_summary',
             'other'
           )
+          expect(notes[0]).to have_attributes(
+            {
+              'id' => '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
+              'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
+              'loinc_code' => '11506-3',
+              'type' => 'physician_procedure_note',
+              'date' => '2025-01-14T09:18:00.000+00:00',
+              'date_signed' => '2025-01-14T09:29:26+00:00',
+              'written_by' => 'MARCI P MCGUIRE',
+              'signed_by' => 'MARCI P MCGUIRE',
+              'location' => 'CHYSHR TEST LAB',
+              'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBka/i
+            }
+          )
           expect(notes).to all(have_attributes(
                                  {
                                    'id' => be_a(String),
                                    'name' => be_a(String),
                                    'type' => be_a(String),
+                                   'loinc_code' => be_a(String),
                                    'date' => be_a(String),
                                    'date_signed' => be_a(String).or(be_nil),
-                                   'written_by' => be_a(String).or(be_nil),
-                                   'signed_by' => be_a(String).or(be_nil),
-                                   'location' => be_a(String).or(be_nil),
-                                   'note' => be_a(String).or(be_nil)
+                                   'written_by' => be_a(String),
+                                   'signed_by' => be_a(String),
+                                   'location' => be_a(String),
+                                   'note' => be_a(String)
                                  }
                                ))
         end
@@ -851,12 +866,13 @@ describe UnifiedHealthData::Service, type: :service do
                                    'id' => be_a(String),
                                    'name' => be_a(String),
                                    'type' => be_a(String),
+                                   'loinc_code' => be_a(String),
                                    'date' => be_a(String),
                                    'date_signed' => be_a(String).or(be_nil),
                                    'written_by' => be_a(String),
-                                   'signed_by' => be_a(String).or(be_nil),
-                                   'location' => be_a(String).or(be_nil),
-                                   'note' => be_a(String).or(be_nil)
+                                   'signed_by' => be_a(String),
+                                   'location' => be_a(String),
+                                   'note' => be_a(String)
                                  }
                                ))
         end
@@ -877,12 +893,13 @@ describe UnifiedHealthData::Service, type: :service do
                                    'id' => be_a(String),
                                    'name' => be_a(String),
                                    'type' => be_a(String),
+                                   'loinc_code' => be_a(String),
                                    'date' => be_a(String),
                                    'date_signed' => be_a(String).or(be_nil),
                                    'written_by' => be_a(String),
-                                   'signed_by' => be_a(String).or(be_nil),
-                                   'location' => be_a(String).or(be_nil),
-                                   'note' => be_a(String).or(be_nil)
+                                   'signed_by' => be_a(String),
+                                   'location' => be_a(String),
+                                   'note' => be_a(String)
                                  }
                                ))
         end
