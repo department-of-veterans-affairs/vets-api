@@ -9,7 +9,7 @@ module VAProfile
     module V3
       class HealthBenefitBioResponse < VAProfile::Response
         attribute :code, String
-        attribute :contacts, VAProfile::Models::AssociatedPerson, array: true, default: -> { [] }
+        attribute :contacts, VAProfile::Models::AssociatedPerson, array: true, default: []
         attribute :messages, VAProfile::Models::Message, array: true
         attribute :va_profile_tx_audit_id, String
 
