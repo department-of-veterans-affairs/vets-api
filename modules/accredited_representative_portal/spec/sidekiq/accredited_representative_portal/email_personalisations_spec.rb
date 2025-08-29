@@ -254,8 +254,15 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
 
     it 'returns the correct URL' do
       result = personalisation.generate
-      expected_url = "http://localhost:3001/poa_requests/#{poa_request.id}"
-      expect(result['poa_request_url']).to eq(expected_url)
+
+      base = Settings.accredited_representative_portal.frontend_base_url
+      expected = begin
+        u = URI.parse(base)
+        u.path = File.join(u.path.presence || '/', 'poa_requests', poa_request.id.to_s)
+        u.to_s
+      end
+
+      expect(result['poa_request_url']).to eq(expected)
     end
 
     it 'returns the first name' do

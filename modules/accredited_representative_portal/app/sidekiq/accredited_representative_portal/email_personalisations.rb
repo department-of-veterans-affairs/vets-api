@@ -103,10 +103,10 @@ module AccreditedRepresentativePortal
       private
 
       def poa_request_url
-        base_url = Settings.accredited_representative_portal.frontend_base_url
-        request_path = "/poa_requests/#{@notification.power_of_attorney_request.id}"
-
-        base_url + request_path
+        base = Settings.accredited_representative_portal.frontend_base_url
+        uri  = URI.parse(base)
+        uri.path = File.join(uri.path.presence || '/', 'poa_requests', @notification.power_of_attorney_request.id.to_s)
+        uri.to_s
       end
     end
 
