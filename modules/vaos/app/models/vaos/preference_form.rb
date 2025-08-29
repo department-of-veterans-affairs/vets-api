@@ -35,7 +35,7 @@ module VAOS
     end
 
     def patient_id
-      @user.icn
+      @user.try(:icn)
     end
 
     def patient_identifier
