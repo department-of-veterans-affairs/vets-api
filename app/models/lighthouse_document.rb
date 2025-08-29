@@ -7,7 +7,7 @@ require 'common/pdf_helpers'
 class LighthouseDocument
   include Vets::Model
   include ActiveModel::Validations::Callbacks
-  include SentryLogging
+  include Vets::SharedLogging
 
   attribute :first_name, String
   attribute :claim_id, Integer
@@ -99,23 +99,32 @@ class LighthouseDocument
   def convert_to_unlocked_pdf
     return unless file_name.match?(/\.pdf$/i) && password.present?
 
-    tempfile_without_pass = Tempfile.new(['decrypted_lighthouse_claim_document', '.pdf'])
+    tempfile_without_pass = Tempfile.new(%w[decrypted_lighthouse_claim_document .pdf])
+    unlock_succeeded = false
 
-    # choose PDF unlocking Strategy
-    if Flipper.enabled?(:lighthouse_document_convert_to_unlocked_pdf_use_hexapdf)
-      unlock_with_hexapdf(tempfile_without_pass)
-    else
-      unlock_with_pdftk(tempfile_without_pass)
+    begin
+      # Choose PDF unlocking strategy
+      if Flipper.enabled?(:lighthouse_document_convert_to_unlocked_pdf_use_hexapdf)
+        unlock_with_hexapdf(tempfile_without_pass)
+      else
+        unlock_with_pdftk(tempfile_without_pass)
+      end
+
+      unlock_succeeded = true
+
+      # Only swap files if unlock succeeded
+      file_obj.tempfile.unlink
+      file_obj.tempfile = tempfile_without_pass
+    ensure
+      cleanup_after_unlock(tempfile_without_pass, unlock_succeeded)
     end
-
-    cleanup_after_unlock(tempfile_without_pass)
   end
 
   def unlock_with_hexapdf(tempfile_without_pass)
     ::Common::PdfHelpers.unlock_pdf(file_obj.tempfile.path, password, tempfile_without_pass)
     tempfile_without_pass.rewind
   rescue Common::Exceptions::UnprocessableEntity => e
-    log_error_to_sentry(e)
+    log_pdf_unlock_error(e)
     errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
   end
 
@@ -132,22 +141,37 @@ class LighthouseDocument
   end
 
   def handle_pdftk_error(error)
-    log_error_to_sentry(error)
+    log_pdf_unlock_error(error)
     errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
   end
 
-  def log_error_to_sentry(error)
+  def log_pdf_unlock_error(error)
     file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
     password_regex = /(input_pw).*?(output)/
     sanitized_message = error.message.gsub(file_regex, '[FILTERED FILENAME]')
                              .gsub(password_regex, '\1 [FILTERED] \2')
-    log_message_to_sentry(sanitized_message, 'warn')
+    sanitized_error = error.class.new(sanitized_message)
+    sanitized_error.set_backtrace(error.backtrace)
+    log_exception_to_rails(sanitized_error, :warn)
   end
 
-  def cleanup_after_unlock(tempfile_without_pass)
+  def cleanup_after_unlock(tempfile_without_pass, unlock_succeeded)
+    # Always clear password from memory
     @password = nil
-    file_obj.tempfile.unlink
-    file_obj.tempfile = tempfile_without_pass
+
+    # Clean up unused tempfile if unlock failed
+    if tempfile_without_pass && !unlock_succeeded
+      begin
+        tempfile_without_pass.close
+      rescue
+        nil
+      end
+      begin
+        tempfile_without_pass.unlink
+      rescue
+        nil
+      end
+    end
   end
 
   def unencrypted_pdf?
@@ -158,7 +182,7 @@ class LighthouseDocument
     Rails.logger.info("Document for claim #{claim_id} is encrypted") if metadata.encrypted?
     file_obj.tempfile.rewind
   rescue PdfInfo::MetadataReadError => e
-    log_exception_to_sentry(e, nil, nil, 'warn')
+    log_exception_to_rails(e, :warn)
     Rails.logger.info("MetadataReadError: Document for claim #{claim_id}")
     if e.message.include?('Incorrect password')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.locked'))
