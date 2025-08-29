@@ -6,11 +6,15 @@ module SimpleFormsApi
       skip_before_action :authenticate, only: [:index]
       
       def index
-        cemeteries = SimpleFormsApi::CemeteryService.all
+        begin
+          cemeteries = SimpleFormsApi::CemeteryService.all
 
-        render json: {
-          data: cemeteries.map { |cemetery| format_cemetery(cemetery) }
-        }
+          render json: {
+            data: cemeteries.map { |cemetery| format_cemetery(cemetery) }
+          }
+        rescue => e
+          render json: { error: "Failed to retrieve cemeteries." }, status: :internal_server_error
+        end
       end
 
       private
