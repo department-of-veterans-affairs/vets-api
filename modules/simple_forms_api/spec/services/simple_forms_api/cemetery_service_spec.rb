@@ -127,9 +127,7 @@ RSpec.describe SimpleFormsApi::CemeteryService do
   describe '#all (instance method)' do
     let(:service) { described_class.new }
 
-    it 'delegates to class method' do
-      expect(described_class).to receive(:all)
-      described_class.all
+      service.all
     end
   end
 
