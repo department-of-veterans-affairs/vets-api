@@ -124,13 +124,6 @@ RSpec.describe SimpleFormsApi::CemeteryService do
     end
   end
 
-  describe '#all (instance method)' do
-    let(:service) { described_class.new }
-
-      service.all
-    end
-  end
-
   describe 'CEMETERIES_FILE_PATH constant' do
     it 'points to the correct file path' do
       expected_path = Rails.root.join('modules', 'simple_forms_api', 'app', 'json', 'cemeteries.json')
