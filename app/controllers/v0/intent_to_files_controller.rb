@@ -59,7 +59,7 @@ module V0
       render json: IntentToFileSerializer.new(response)
     rescue => e
       Rails.logger.error("Error occurred while processing ITF GET request: #{e.message}")
-      monitor.track_itf_controller_error('get', form_id, type, @current_user.uuid, e.message)
+      monitor.track_itf_controller_error('get', form_id, type, e.message)
       raise e
     end
 
@@ -86,7 +86,7 @@ module V0
       render json: IntentToFileSerializer.new(response)
     rescue => e
       Rails.logger.error("Error occurred while processing ITF submit request: #{e.message}")
-      monitor.track_itf_controller_error('post', form_id, type, @current_user.uuid, e.message)
+      monitor.track_itf_controller_error('post', form_id, type, e.message)
       raise e
     end
 

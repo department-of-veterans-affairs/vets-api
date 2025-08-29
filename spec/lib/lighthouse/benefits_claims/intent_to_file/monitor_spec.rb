@@ -238,14 +238,13 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           error: 'error',
           method: 'post',
           itf_type: 'pension',
-          form_id: '21P-527EZ',
-          user_uuid: current_user.uuid
+          form_id: '21P-527EZ'
         }
 
         expect(StatsD).to receive(:increment).with('v1.itf.error', tags:)
         expect(Rails.logger).to receive(:error).with(log, payload)
 
-        monitor.track_itf_controller_error('post', '21P-527EZ', 'pension', current_user.uuid, 'error')
+        monitor.track_itf_controller_error('post', '21P-527EZ', 'pension', 'error')
       end
     end
 

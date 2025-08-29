@@ -147,10 +147,10 @@ module BenefitsClaims
         Rails.logger.info('IntentToFilesController ITF submit', context)
       end
 
-      def track_itf_controller_error(method, form_id, itf_type, user_uuid, error)
+      def track_itf_controller_error(method, form_id, itf_type, error)
         tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}", 'version:v1']
         StatsD.increment('v1.itf.error', tags:)
-        context = { error:, method:, form_id:, itf_type:, user_uuid: }
+        context = { error:, method:, form_id:, itf_type: }
         Rails.logger.error("IntentToFilesController #{itf_type} ITF controller error", context)
       end
 
