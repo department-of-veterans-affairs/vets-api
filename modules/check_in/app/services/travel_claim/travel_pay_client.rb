@@ -103,6 +103,65 @@ module TravelClaim
       end
     end
 
+    # Sends a request to create a new claim.
+    #
+    # @param appointment_id [String] Appointment ID
+    # @return [Faraday::Response] HTTP response containing claim data
+    #
+    def send_claim_request(appointment_id:)
+      with_auth do
+        body = { appointmentId: appointment_id }
+
+        perform(:post, "#{claims_url_v2}/api/v3/claims", body, headers)
+      end
+    end
+
+    ##
+    # Sends a request to add a mileage expense to a claim.
+    #
+    # @param claim_id [String] Claim ID
+    # @param date_incurred [String] Date expense was incurred (YYYY-MM-DD)
+    # @return [Faraday::Response] HTTP response containing expense data
+    #
+    def send_mileage_expense_request(claim_id:, date_incurred:)
+      with_auth do
+        body = {
+          claimId: claim_id,
+          dateIncurred: date_incurred,
+          description: EXPENSE_DESCRIPTION,
+          tripType: TRIP_TYPE
+        }
+
+        perform(:post, "#{claims_url_v2}/api/v3/expenses/mileage", body, headers)
+      end
+    end
+
+    ##
+    # Sends a request to get a claim by ID.
+    #
+    # @param claim_id [String] Claim ID
+    # @return [Faraday::Response] HTTP response containing claim data
+    #
+    def send_get_claim_request(claim_id:)
+      with_auth do
+        perform(:get, "#{claims_url_v2}/api/v3/claims/#{claim_id}", nil, headers)
+      end
+    end
+
+    ##
+    # Sends a request to submit a claim for processing.
+    #
+    # @param claim_id [String] Claim ID
+    # @return [Faraday::Response] HTTP response containing submission data
+    #
+    def send_claim_submission_request(claim_id:)
+      with_auth do
+        body = { claimId: claim_id }
+
+        perform(:post, "#{claims_url_v2}/api/v3/claims/submit", body, headers)
+      end
+    end
+
     ##
     # Builds environment-specific subscription key headers for API authentication.
     # Production uses separate E and S subscription keys, while other environments
@@ -140,18 +199,20 @@ module TravelClaim
 
     ##
     # Wraps external API calls to ensure proper authentication.
-    # Handles token refresh on unauthorized responses.
+    # Handles token refresh on unauthorized responses with retry limit.
     #
     # @yield Block containing the API call to make
     # @return [Faraday::Response] API response
     #
     def with_auth
+      @auth_retry_attempted = false
       ensure_tokens!
       yield
     rescue Common::Exceptions::BackendServiceException => e
-      if e.original_status == 401
+      if e.original_status == 401 && !@auth_retry_attempted
+        @auth_retry_attempted = true
         refresh_tokens!
-        yield
+        yield # Retry once with fresh tokens
       else
         raise
       end

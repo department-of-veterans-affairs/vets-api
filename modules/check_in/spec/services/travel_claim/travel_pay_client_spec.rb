@@ -12,56 +12,50 @@ RSpec.describe TravelClaim::TravelPayClient do
   describe '#veis_token_request' do
     it 'makes VEIS token request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    auth_url: 'https://auth.example.test',
-                    tenant_id: 'tenant-123',
-                    travel_pay_client_id: 'client-id',
-                    travel_pay_client_secret: 'super-secret-123',
-                    scope: 'scope.read',
-                    travel_pay_resource: 'test-resource') do
-        mock_response = double('Response', body: { 'access_token' => 'test-token' })
+                    auth_url: 'https://dev.integration.d365.va.gov',
+                    tenant_id: 'fake_template_id',
+                    travel_pay_client_id: 'fake_client_id',
+                    travel_pay_client_secret: 'fake_client_secret',
+                    scope: 'fake_scope',
+                    travel_pay_resource: 'fake_resource') do
+        VCR.use_cassette('check_in/travel_claim/veis_token_200') do
+          result = client.veis_token_request
 
-        expect(client).to receive(:perform).with(
-          :post,
-          'https://auth.example.test/tenant-123/oauth2/token',
-          'client_id=client-id&client_secret=super-secret-123&client_type=1&' \
-          'scope=scope.read&grant_type=client_credentials&resource=test-resource',
-          { 'Content-Type' => 'application/x-www-form-urlencoded' }
-        ).and_return(mock_response)
+          expect(result).to respond_to(:status)
+          expect(result).to respond_to(:body)
+          expect(result.status).to eq(200)
 
-        result = client.veis_token_request
-        expect(result).to eq(mock_response)
+          response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
+          expect(response_body['access_token']).to be_present
+          expect(response_body['token_type']).to eq('Bearer')
+          expect(response_body['expires_in']).to be_present
+        end
       end
     end
   end
 
   describe '#system_access_token_request' do
-    let(:client_number) { 'test-client-123' }
-    let(:veis_access_token) { 'veis-token-abc' }
+    let(:client_number) { 'fake_client_number' }
+    let(:veis_access_token) { 'fake_veis_token_123' }
 
     it 'makes system access token request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2: 'https://claims.example.test',
-                    travel_pay_client_secret: 'super-secret-123') do
-        mock_response = double('Response', body: { 'data' => { 'accessToken' => 'v4-token' } })
-
-        expect(client).to receive(:perform).with(
-          :post,
-          'https://claims.example.test/api/v4/auth/system-access-token',
-          { secret: 'super-secret-123', icn: },
-          hash_including(
-            'Content-Type' => 'application/json',
-            'Authorization' => "Bearer #{veis_access_token}",
-            'BTSSS-API-Client-Number' => client_number,
-            'X-Correlation-ID' => anything
+                    claims_url_v2: 'https://dev.integration.d365.va.gov',
+                    travel_pay_client_secret: 'fake_client_secret') do
+        VCR.use_cassette('check_in/travel_claim/system_access_token_200') do
+          result = client.system_access_token_request(
+            client_number:,
+            veis_access_token:,
+            icn:
           )
-        ).and_return(mock_response)
 
-        result = client.system_access_token_request(
-          client_number:,
-          veis_access_token:,
-          icn:
-        )
-        expect(result).to eq(mock_response)
+          expect(result).to respond_to(:status)
+          expect(result).to respond_to(:body)
+          expect(result.status).to eq(200)
+
+          response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
+          expect(response_body['data']['accessToken']).to be_present
+        end
       end
     end
   end
@@ -71,43 +65,218 @@ RSpec.describe TravelClaim::TravelPayClient do
     let(:facility_id) { 'facility-123' }
 
     before do
-      # Mock ensure_tokens! to skip token fetching
-      allow(client).to receive(:ensure_tokens!)
-      # Mock the headers method to return expected headers
-      allow(client).to receive(:headers).and_return({
-                                                      'Content-Type' => 'application/json',
-                                                      'Authorization' => 'Bearer test-veis-token',
-                                                      'X-BTSSS-Token' => 'test-btsss-token',
-                                                      'X-Correlation-ID' =>
-                                                        client.instance_variable_get(:@correlation_id)
-                                                    })
+      allow(client.redis_client).to receive(:token).and_return('fake_veis_token_123')
+      client.instance_variable_set(:@current_veis_token, 'fake_veis_token_123')
+      client.instance_variable_set(:@current_btsss_token, 'fake_btsss_token_456')
     end
 
     it 'makes appointment request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2: 'https://claims.example.test') do
-        mock_response = double('Response', body: { 'data' => { 'id' => 'appt-123' } })
-
-        expect(client).to receive(:perform).with(
-          :post,
-          'https://claims.example.test/api/v3/appointments/find-or-add',
-          {
-            appointmentDateTime: appointment_date_time,
-            facilityStationNumber: facility_id
-          },
-          hash_including(
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer test-veis-token',
-            'X-BTSSS-Token' => 'test-btsss-token',
-            'X-Correlation-ID' => anything
+                    claims_url_v2: 'https://dev.integration.d365.va.gov') do
+        VCR.use_cassette('check_in/travel_claim/appointments_find_or_add_200') do
+          result = client.send_appointment_request(
+            appointment_date_time:,
+            facility_id:
           )
-        ).and_return(mock_response)
 
-        result = client.send_appointment_request(
-          appointment_date_time:,
-          facility_id:
-        )
-        expect(result).to eq(mock_response)
+          expect(result).to respond_to(:status)
+          expect(result).to respond_to(:body)
+          expect(result.status).to eq(200)
+
+          response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
+          expect(response_body['success']).to be true
+          expect(response_body['statusCode']).to eq(200)
+          expect(response_body['data']['id']).to be_present
+        end
+      end
+    end
+
+    context 'when invalid parameters are provided' do
+      it 'raises BackendServiceException for invalid appointment date' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2: 'https://dev.integration.d365.va.gov') do
+          VCR.use_cassette('check_in/travel_claim/appointments_find_or_add_400') do
+            expect do
+              client.send_appointment_request(
+                appointment_date_time: 'invalid-date',
+                facility_id:
+              )
+            end.to raise_error(Common::Exceptions::BackendServiceException)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#send_claim_request' do
+    let(:appointment_id) { 'appt-123' }
+
+    before do
+      allow(client.redis_client).to receive(:token).and_return('fake_veis_token_123')
+      client.instance_variable_set(:@current_veis_token, 'fake_veis_token_123')
+      client.instance_variable_set(:@current_btsss_token, 'fake_btsss_token_456')
+    end
+
+    it 'makes claim request with correct parameters' do
+      with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                    claims_url_v2: 'https://dev.integration.d365.va.gov') do
+        VCR.use_cassette('check_in/travel_claim/claims_create_200') do
+          result = client.send_claim_request(appointment_id:)
+
+          expect(result).to respond_to(:status)
+          expect(result).to respond_to(:body)
+          expect(result.status).to eq(200)
+
+          response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
+          expect(response_body['success']).to be true
+          expect(response_body['statusCode']).to eq(200)
+          expect(response_body['message']).to eq('Claim created successfully.')
+          expect(response_body['data']['claimId']).to be_present
+          expect(response_body['correlationId']).to be_present
+        end
+      end
+    end
+
+    context 'when claim creation fails' do
+      it 'raises BackendServiceException for duplicate appointment' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2: 'https://dev.integration.d365.va.gov') do
+          VCR.use_cassette('check_in/travel_claim/claims_create_400_duplicate') do
+            expect do
+              client.send_claim_request(appointment_id: 'duplicate-appt-id')
+            end.to raise_error(Common::Exceptions::BackendServiceException)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#send_get_claim_request' do
+    let(:claim_id) { 'claim-123' }
+
+    before do
+      allow(client.redis_client).to receive(:token).and_return('fake_veis_token_123')
+      client.instance_variable_set(:@current_veis_token, 'fake_veis_token_123')
+      client.instance_variable_set(:@current_btsss_token, 'fake_btsss_token_456')
+    end
+
+    it 'makes get claim request with correct parameters' do
+      with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                    claims_url_v2: 'https://dev.integration.d365.va.gov') do
+        VCR.use_cassette('check_in/travel_claim/claims_get_200') do
+          result = client.send_get_claim_request(claim_id:)
+
+          expect(result).to respond_to(:status)
+          expect(result).to respond_to(:body)
+          expect(result.status).to eq(200)
+
+          response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
+          expect(response_body['success']).to be true
+          expect(response_body['statusCode']).to eq(200)
+          expect(response_body['message']).to eq('Data retrieved successfully.')
+          expect(response_body['data']['claimId']).to be_present
+          expect(response_body['data']['claimNumber']).to eq('TC202508000013890')
+          expect(response_body['data']['claimStatus']).to eq('ClaimSubmitted')
+          expect(response_body['data']['claimantFirstName']).to eq('JUDY')
+          expect(response_body['data']['claimantLastName']).to eq('MORRISON')
+          expect(response_body['data']['appointment']['id']).to be_present
+          expect(response_body['data']['expenses']).to be_an(Array)
+          expect(response_body['data']['expenses'].first['expenseType']).to eq('Mileage')
+          expect(response_body['correlationId']).to be_present
+        end
+      end
+    end
+
+    context 'when claim is not found' do
+      it 'raises BackendServiceException for 404 response' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2: 'https://dev.integration.d365.va.gov') do
+          VCR.use_cassette('check_in/travel_claim/claims_get_404') do
+            expect do
+              client.send_get_claim_request(claim_id: 'non-existent-claim')
+            end.to raise_error(Common::Exceptions::BackendServiceException)
+          end
+        end
+      end
+    end
+
+    context 'when server error occurs' do
+      it 'raises BackendServiceException for 500 response' do
+        with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                      claims_url_v2: 'https://dev.integration.d365.va.gov') do
+          VCR.use_cassette('check_in/travel_claim/claims_get_500') do
+            expect do
+              client.send_get_claim_request(claim_id:)
+            end.to raise_error(Common::Exceptions::BackendServiceException)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#send_mileage_expense_request' do
+    let(:claim_id) { 'claim-123' }
+    let(:date_incurred) { '2024-01-15' }
+
+    before do
+      allow(client.redis_client).to receive(:token).and_return('fake_veis_token_123')
+      client.instance_variable_set(:@current_veis_token, 'fake_veis_token_123')
+      client.instance_variable_set(:@current_btsss_token, 'fake_btsss_token_456')
+    end
+
+    it 'makes mileage expense request with correct parameters' do
+      with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                    claims_url_v2: 'https://dev.integration.d365.va.gov') do
+        VCR.use_cassette('check_in/travel_claim/expenses_mileage_200') do
+          result = client.send_mileage_expense_request(
+            claim_id:,
+            date_incurred:
+          )
+
+          expect(result).to respond_to(:status)
+          expect(result).to respond_to(:body)
+          expect(result.status).to eq(200)
+
+          response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
+          expect(response_body['success']).to be true
+          expect(response_body['statusCode']).to eq(200)
+          expect(response_body['message']).to eq('Expense added successfully.')
+          expect(response_body['data']['expenseId']).to be_present
+          expect(response_body['correlationId']).to be_present
+        end
+      end
+    end
+  end
+
+  describe '#send_claim_submission_request' do
+    let(:claim_id) { 'claim-123' }
+
+    before do
+      allow(client.redis_client).to receive(:token).and_return('fake_veis_token_123')
+      client.instance_variable_set(:@current_veis_token, 'fake_veis_token_123')
+      client.instance_variable_set(:@current_btsss_token, 'fake_btsss_token_456')
+    end
+
+    it 'makes claim submission request with correct parameters' do
+      with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                    claims_url_v2: 'https://dev.integration.d365.va.gov') do
+        VCR.use_cassette('check_in/travel_claim/claims_submit_200') do
+          result = client.send_claim_submission_request(claim_id:)
+
+          expect(result).to respond_to(:status)
+          expect(result).to respond_to(:body)
+          expect(result.status).to eq(200)
+
+          response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
+          expect(response_body['success']).to be true
+          expect(response_body['statusCode']).to eq(200)
+          expect(response_body['message']).to eq('Claim submitted successfully.')
+          expect(response_body['data']['claimId']).to be_present
+          expect(response_body['data']['status']).to eq('ClaimSubmitted')
+          expect(response_body['data']['createdOn']).to be_present
+          expect(response_body['data']['modifiedOn']).to be_present
+          expect(response_body['correlationId']).to be_present
+        end
       end
     end
   end
@@ -126,7 +295,7 @@ RSpec.describe TravelClaim::TravelPayClient do
   end
 
   describe 'authentication' do
-    it 'handles 401 errors by refreshing tokens and retrying' do
+    it 'handles 401 errors by refreshing tokens and retrying once' do
       # Set up tokens
       client.instance_variable_set(:@current_veis_token, 'test-veis-token')
       client.instance_variable_set(:@current_btsss_token, 'test-btsss-token')
@@ -146,6 +315,44 @@ RSpec.describe TravelClaim::TravelPayClient do
       client.send(:with_auth) do
         client.send(:perform, :get, '/test', {}, {})
       end
+    end
+
+    it 'fails fast when token refresh fails after 401' do
+      # Set up tokens
+      client.instance_variable_set(:@current_veis_token, 'test-veis-token')
+      client.instance_variable_set(:@current_btsss_token, 'test-btsss-token')
+
+      # First call raises 401, token refresh fails
+      allow(client).to receive(:perform).and_raise(
+        Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
+      )
+      allow(client).to receive(:refresh_tokens!).and_raise(
+        Common::Exceptions::BackendServiceException.new('AUTH_FAILED', {}, 500, 'Internal Server Error')
+      )
+
+      expect do
+        client.send(:with_auth) do
+          client.send(:perform, :get, '/test', {}, {})
+        end
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+    end
+
+    it 'does not retry authentication more than once per request' do
+      # Set up tokens
+      client.instance_variable_set(:@current_veis_token, 'test-veis-token')
+      client.instance_variable_set(:@current_btsss_token, 'test-btsss-token')
+
+      # Multiple 401 responses should only trigger one retry
+      allow(client).to receive(:perform).and_raise(
+        Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
+      )
+      expect(client).to receive(:refresh_tokens!).once
+
+      expect do
+        client.send(:with_auth) do
+          client.send(:perform, :get, '/test', {}, {})
+        end
+      end.to raise_error(Common::Exceptions::BackendServiceException)
     end
 
     it 'uses cached VEIS token from Redis when available' do
