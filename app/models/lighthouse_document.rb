@@ -148,9 +148,16 @@ class LighthouseDocument
   def log_pdf_unlock_error(error)
     file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
     password_regex = /(input_pw).*?(output)/
-    sanitized_message = error.message.gsub(file_regex, '[FILTERED FILENAME]')
-                             .gsub(password_regex, '\1 [FILTERED] \2')
-    sanitized_error = error.class.new(sanitized_message)
+    is_va_gov_service_error = error.respond_to?(:errors)
+    message = is_va_gov_service_error ? error.errors&.first&.detail : error.message
+    sanitized_message = message.gsub(file_regex, '[FILTERED FILENAME]')
+                               .gsub(password_regex, '\1 [FILTERED] \2')
+    error_source = is_va_gov_service_error ? error.errors&.first&.source : 'pdftk'
+    sanitized_error = if is_va_gov_service_error
+                        error.class.new({ detail: sanitized_message, source: error_source })
+                      else
+                        error.class.new(sanitized_message)
+                      end
     sanitized_error.set_backtrace(error.backtrace)
     log_exception_to_rails(sanitized_error, :warn)
   end
