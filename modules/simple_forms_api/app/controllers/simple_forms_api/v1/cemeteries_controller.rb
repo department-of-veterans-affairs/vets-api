@@ -24,10 +24,10 @@ module SimpleFormsApi
           id: cemetery_data['id'],
           type: cemetery_data['type'],
           attributes: {
-            cemetery_id: cemetery_data['attributes']['cemetery_id'],
-            name: cemetery_data['attributes']['name'],
-            cemetery_type: cemetery_data['attributes']['cemetery_type'],
-            num: cemetery_data['attributes']['num']
+            cemetery_id: cemetery_data['attributes']&.[]('cemetery_id'),
+            name: cemetery_data['attributes']&.[]('name'),
+            cemetery_type: cemetery_data['attributes']&.[]('cemetery_type'),
+            num: cemetery_data['attributes']&.[]('num')
           }
         }
       end
