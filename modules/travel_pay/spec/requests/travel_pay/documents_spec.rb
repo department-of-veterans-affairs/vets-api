@@ -141,7 +141,7 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
           post("/travel_pay/v0/claims/#{claim_id}/documents", params: { Document: valid_document })
 
           expect(response).to have_http_status(:service_unavailable)
-          expect(JSON.parse(response.body)['error']).to eq('Error downloading document')
+          expect(JSON.parse(response.body)['error']).to eq('Error uploading document')
         end
 
         it 'returns error json with status when Faraday::Error' do
@@ -152,7 +152,7 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
           post("/travel_pay/v0/claims/#{claim_id}/documents", params: { Document: valid_document })
 
           expect(response).to have_http_status(:bad_gateway)
-          expect(JSON.parse(response.body)['error']).to eq('Error downloading document')
+          expect(JSON.parse(response.body)['error']).to eq('Error uploading document')
         end
       end
     end
