@@ -43,8 +43,8 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
 
       it 'processes benefits discovery successfully' do
         expect(StatsD).to receive(:measure).with(described_class.name, be_a(Float))
-        expected_tags = '{not_recommended=>[],recommended=>[Health,LifeInsurance(VALife)],undetermined=>[]}'
-        expect(StatsD).to receive(:increment).with('benefits_discovery.logging', { tags: [expected_tags] })
+        expected_tags = 'eligible_benefits:not_recommended//recommended/Health:Life Insurance (VALife)/undetermined//'
+        expect(StatsD).to receive(:increment).with('benefits_discovery_logging', { tags: [expected_tags] })
         described_class.new.perform(user.uuid, prepared_service_history)
       end
 
@@ -113,14 +113,14 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
             }
           ]
         }
-        expected_tags = '{not_recommended=>[Health,LifeInsurance(VALife)],recommended=>[Childcare,Education],' \
-                        'undetermined=>[JobAssistance,Wealth]}'
+        expected_tags = 'eligible_benefits:not_recommended/Health:Life Insurance (VALife)' \
+                        '/recommended/Childcare:Education/undetermined/Job Assistance:Wealth/'
         allow(service_instance).to receive(:get_eligible_benefits).and_return(benefits)
-        expect(StatsD).to receive(:increment).with('benefits_discovery.logging', { tags: [expected_tags] })
+        expect(StatsD).to receive(:increment).with('benefits_discovery_logging', { tags: [expected_tags] })
         described_class.new.perform(user.uuid, prepared_service_history)
 
         allow(service_instance).to receive(:get_eligible_benefits).and_return(reordered_benefits)
-        expect(StatsD).to receive(:increment).with('benefits_discovery.logging', { tags: [expected_tags] })
+        expect(StatsD).to receive(:increment).with('benefits_discovery_logging', { tags: [expected_tags] })
         described_class.new.perform(user.uuid, prepared_service_history)
       end
     end

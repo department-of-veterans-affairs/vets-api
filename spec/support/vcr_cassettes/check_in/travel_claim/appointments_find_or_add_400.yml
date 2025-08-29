@@ -25,8 +25,8 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: Bad Request
     headers:
       Date:
       - Wed, 27 Aug 2025 21:54:27 GMT
@@ -59,11 +59,9 @@ http_interactions:
       string: '{
         "correlationId": "e359e352-10d8-4475-a453-9feec6bb8a10",
         "timeStamp": "2025-08-27T21:54:27.178363Z",
-        "statusCode": 200,
-        "message": "Appointment found or created successfully",
-        "success": true,
-        "data": {
-          "id": "appt-123"
-        }
+        "statusCode": 400,
+        "message": "Invalid appointment date format",
+        "success": false,
+        "data": null
       }'
   recorded_at: Wed, 27 Aug 2025 21:54:27 GMT
