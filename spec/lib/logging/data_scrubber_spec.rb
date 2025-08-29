@@ -521,7 +521,7 @@ RSpec.describe Logging::DataScrubber do
     describe 'ZIP_CODE_REGEX' do
       it 'matches valid ZIP code formats' do
         %w[12345 12345-6789].each do |zip|
-          expect(described_class.scrub(zip)).to be(redaction)
+          expect(described_class.scrub(zip)).to eq(redaction)
         end
       end
 

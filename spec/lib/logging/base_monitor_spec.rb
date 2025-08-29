@@ -92,13 +92,13 @@ RSpec.describe Logging::BaseMonitor do
         )
       end
 
-      it 'DOES scrub tags field when passed in options' do
+      it 'does not scrub tags field when passed in options' do
         allow(base_monitor).to receive(:track_request)
 
         base_monitor.send(:submit_event, 'info', 'Test message', 'test.stats.key',
                           claim: double(id: 1, confirmation_number: 'ABC123', form_id: '12345'),
                           user_account_uuid: 'clean-uuid',
-                          tags: ['tag-with-ssn-123-45-6789'])
+                          tags: ['service:dependents'])
 
         expect(base_monitor).to have_received(:track_request).with(
           'info',
@@ -109,7 +109,7 @@ RSpec.describe Logging::BaseMonitor do
           user_account_uuid: 'clean-uuid',
           claim_id: 1,
           form_id: '12345',
-          tags: ['tag-with-ssn-[REDACTED]'] # IS scrubbed when in options
+          tags: ['service:dependents']
         )
       end
 
