@@ -22,11 +22,10 @@ module AccreditedRepresentativePortal
       def submit
         ar_monitoring.trace('ar.claims.form_upload.submit') do |span|
           service = SavedClaimService::Create
-          current_form_number = metadata[:formNumber]
 
           # Tags for tracing
-          span.set_tag('form_id', current_form_number)
-          Datadog::Tracing.active_trace&.set_tag('form_id', current_form_number)
+          span.set_tag('form_id', form_id)
+          Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
 
           saved_claim = service.perform(
             type: form_class,
