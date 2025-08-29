@@ -68,7 +68,7 @@ module TravelPay
 
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
       log_to_statsd('documents', 'add_document') do
-        connection(server_url: btsss_url).post("api/v3/claims/#{claim_id}/documents/form-data") do |req|
+        connection(server_url: btsss_url, multipart: true).post("api/v3/claims/#{claim_id}/documents/form-data") do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
