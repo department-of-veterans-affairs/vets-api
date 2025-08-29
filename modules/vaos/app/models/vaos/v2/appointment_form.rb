@@ -1,28 +1,29 @@
 # frozen_string_literal: true
 
-require 'active_model'
-require 'common/models/form'
+require 'vets/models'
 require 'common/exceptions'
 
 module VAOS
   module V2
-    class AppointmentForm < Common::Form
+    class AppointmentForm
+      include Vets::Model
+
       attribute :kind, String
       attribute :status, String
       attribute :location_id, String
-      attribute :practitioner_ids, Array[Hash]
+      attribute :practitioner_ids, Hash, array: true
       attribute :clinic, String
       attribute :reason, String
       attribute :slot, Hash
       attribute :contact, Hash
       attribute :service_type, String
-      attribute :requested_periods, Array[Hash]
+      attribute :requested_periods, Hash, array: true
       attribute :preferred_language, String
       attribute :minutes_duration, Integer
       attribute :reason_code, Hash
       attribute :priority, Integer
-      attribute :practitioners, Array[Hash]
-      attribute :preferred_times_for_phone_call, Array[String]
+      attribute :practitioners, Hash, array: true
+      attribute :preferred_times_for_phone_call, String, array: true
       attribute :preferred_location, Hash
       attribute :cancellation_reason, Hash
       attribute :cancelation_reason, Hash
