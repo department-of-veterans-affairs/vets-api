@@ -17,7 +17,7 @@ module BB
                                 vapathology vaproblemlist varadiology vahth wellness dodmilitaryservice ].freeze
 
     attribute :from_date, Vets::Type::UTCTime
-    attribute :to_date, Vets::Type::::UTCTime
+    attribute :to_date, Vets::Type::UTCTime
     attribute :data_classes, String, array: true
 
     attr_reader :client
