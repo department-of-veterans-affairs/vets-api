@@ -513,7 +513,7 @@ RSpec.describe Logging::DataScrubber do
           '1234567890X123456',  # Wrong separator
           '1234567890v123456'   # Lowercase v
         ].each do |invalid|
-          expect(described_class.scrub(invalid)).to be(invalid)
+          expect(described_class.scrub(invalid)).to eq(invalid)
         end
       end
     end
@@ -527,7 +527,7 @@ RSpec.describe Logging::DataScrubber do
 
       it 'does not match invalid ZIP formats' do
         %w[1234 123456 12345-678].each do |invalid|
-          expect(described_class.scrub(invalid)).to be(invalid)
+          expect(described_class.scrub(invalid)).to eq(invalid)
         end
       end
     end
