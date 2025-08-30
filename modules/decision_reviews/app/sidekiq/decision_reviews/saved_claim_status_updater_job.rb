@@ -23,7 +23,7 @@ module DecisionReviews
 
     ATTRIBUTES_TO_STORE = %w[status detail createDate updateDate].freeze
 
-    SECONDARY_FORM_ATTRIBUTES_TO_STORE = %w[status detail updated_at].freeze
+    SECONDARY_FORM_ATTRIBUTES_TO_STORE = %w[status detail updated_at final_status].freeze
 
     FINAL_STATUSES = %W[#{FORM_SUCCESSFUL_STATUS} #{UPLOAD_SUCCESSFUL_STATUS} #{ERROR_STATUS} #{NOT_FOUND}].freeze
 
@@ -154,6 +154,7 @@ module DecisionReviews
       { 'id' => guid, 'status' => NOT_FOUND }
     end
 
+    # rubocop:disable Metrics/MethodLength
     def get_and_update_secondary_form_statuses(record)
       return true unless secondary_forms?
 
@@ -164,15 +165,28 @@ module DecisionReviews
       secondary_forms = secondary_forms&.filter { |form| form.delete_date.nil? } || []
 
       secondary_forms.each do |form|
-        response = benefits_intake_service.get_status(uuid: form.guid).body
-        attributes = response.dig('data', 'attributes').slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE)
-        all_complete = false unless attributes['status'] == UPLOAD_SUCCESSFUL_STATUS
+        current_status = JSON.parse(form.status || '{}')
+
+        should_stop_polling = current_status['final_status'] == true
+
+        attributes = if should_stop_polling
+                       current_status.slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE.map(&:to_s))
+                     else
+                       response = benefits_intake_service.get_status(uuid: form.guid).body
+                       response.dig('data', 'attributes').slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE)
+                     end
+
+        form_is_complete = attributes['status'] == UPLOAD_SUCCESSFUL_STATUS &&
+                           attributes['final_status'] == true
+        all_complete = false unless form_is_complete
+
         handle_secondary_form_status_metrics_and_logging(form, attributes['status'])
         update_secondary_form_status(form, attributes)
       end
 
       all_complete
     end
+    # rubocop:enable Metrics/MethodLength
 
     def handle_form_status_metrics_and_logging(record, status)
       # Skip logging and statsd metrics when there is no status change
@@ -194,7 +208,9 @@ module DecisionReviews
 
     def update_secondary_form_status(form, attributes)
       status = attributes['status']
-      if status == UPLOAD_SUCCESSFUL_STATUS
+      final_status = attributes['final_status']
+
+      if status == UPLOAD_SUCCESSFUL_STATUS && final_status == true
         StatsD.increment("#{statsd_prefix}_secondary_form.delete_date_update")
         delete_date = (Time.current + RETENTION_PERIOD)
       else

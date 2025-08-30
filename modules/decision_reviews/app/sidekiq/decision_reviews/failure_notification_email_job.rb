@@ -162,8 +162,14 @@ module DecisionReviews
     end
 
     def send_secondary_form_emails
-      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records", errored_secondary_forms.size)
-      errored_secondary_forms.each do |form|
+      final_errored_forms = errored_secondary_forms.select do |form|
+        status_json = JSON.parse(form.status || '{}')
+        status_json['status'] == ERROR_STATUS && status_json['final_status'] == true
+      end
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records", final_errored_forms.size)
+
+      final_errored_forms.each do |form|
         appeal_type = form.appeal_submission.type_of_appeal
         reference = "#{appeal_type}-secondary_form-#{form.guid}"
 
