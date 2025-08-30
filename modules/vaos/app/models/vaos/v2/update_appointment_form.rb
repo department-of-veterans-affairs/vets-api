@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
-require 'active_model'
-require 'common/models/form'
+require 'vets/model'
 require 'common/exceptions'
 
 module VAOS
   module V2
-    class UpdateAppointmentForm < Common::Form
+    class UpdateAppointmentForm
+      include Vets::Model
+
       STATUS_OPTIONS = %w[proposed pending booked arrived noshow fulfilled cancelled].freeze
 
       attribute :status, String
