@@ -22,7 +22,7 @@ module FacilitiesApi
           response = perform(:get, "/services/va_facilities/v1/facilities/#{id}", nil)
           begin
             # Try to get services for facility
-            response_services = perform(:get, "/services/va_facilities/v1/facilities/#{id}/services", nil)
+            response_services = perform(:get, "/services/va_facilities/v1/facilities/#{id}/services?per_page=500", nil)
             V2::Lighthouse::Response.new(response.body, response.status).facility_with_services(response_services.body)
           rescue => _e
             # Handle without services as fallback
