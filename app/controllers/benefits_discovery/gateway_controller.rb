@@ -2,20 +2,22 @@
 
 require 'lighthouse/benefits_discovery/service'
 
-module V0
-  class BdsGatewayController < ApplicationController
+module BenefitsDiscovery
+  class GatewayController < ApplicationController
     service_tag 'bds-gateway'
 
-    skip_before_action :verify_authenticity_token, only: [:recommendations]
-    skip_before_action :authenticate, only: [:recommendations]
-    before_action :check_flipper_enabled, only: [:recommendations]
-    skip_after_action :set_csrf_header, only: [:recommendations]
+    skip_before_action :verify_authenticity_token, only: [:proxy]
+    skip_before_action :authenticate, only: [:proxy]
+    before_action :check_flipper_enabled, only: [:proxy]
+    skip_after_action :set_csrf_header, only: [:proxy]
 
-    def recommendations
+    def proxy
       api_key, app_id = credentials
       service = BenefitsDiscovery::Service.new(api_key:, app_id:)
 
-      response_data = service.get_eligible_benefits(recommendations_params)
+      body = request.request_parameters.presence
+      response_data = service.proxy_request(method: request.method_symbol, path: params[:path], body:)
+
       render json: response_data
     rescue => e
       Rails.logger.error("BDSGateway recommendations error: #{e.message}")
@@ -39,12 +41,6 @@ module V0
       else
         raise StandardError, "Unsupported app_id: #{app_id} does not have a configured API key"
       end
-    end
-
-    def recommendations_params
-      params.permit(:dateOfBirth, :disabilityRating,
-                    dischargeStatus: [], branchOfService: [],
-                    serviceDates: %i[startDate endDate])
     end
 
     def check_flipper_enabled

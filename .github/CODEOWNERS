@@ -4,6 +4,7 @@
 app/concerns/retriable_concern.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 app/controllers/appeals_base_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/application_controller.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
+app/controllers/benefits_discovery/gateway_controller.rb @department-of-veterans-affairs/ves-benefits-discovery-service-devs @department-of-veterans-affairs/backend-review-group
 app/controllers/claims_base_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/concerns/appointment_authorization.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/concerns/authentication_and_sso_concerns.rb @department-of-veterans-affairs/octo-identity
@@ -34,7 +35,6 @@ app/controllers/v0/apps_controller.rb @department-of-veterans-affairs/lighthouse
 app/controllers/v0/ask_va @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/average_days_for_claim_completion_controller.rb @department-of-veterans-affairs/benefits-microservices @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/backend_statuses_controller.rb @department-of-veterans-affairs/backend-review-group
-app/controllers/v0/bds_gateway_controller.rb @department-of-veterans-affairs/ves-benefits-discovery-service-devs @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/banners_controller.rb @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/benefits_claims_controller.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 app/controllers/v0/benefits_documents_controller.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
@@ -1083,13 +1083,13 @@ spec/concerns/retriable_concern_spec.rb @department-of-veterans-affairs/vfs-10-1
 spec/concerns/traceable_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/config/initializers/staccato_spec.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 spec/controllers/application_controller_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
+spec/controllers/benefits_discovery/gateway_controller_spec.rb @department-of-veterans-affairs/ves-benefits-discovery-service-devs @department-of-veterans-affairs/backend-review-group
 spec/controllers/concerns/third_party_transaction_logging_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/controllers/sign_in @department-of-veterans-affairs/octo-identity
 spec/controllers/sts @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/apps_controller_spec.rb @department-of-veterans-affairs/lighthouse-pivot
 spec/controllers/v0/ask_va @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/average_days_for_claim_completion_controller_spec.rb @department-of-veterans-affairs/benefits-microservices @department-of-veterans-affairs/backend-review-group
-spec/controllers/v0/bds_gateway_controller_spec.rb @department-of-veterans-affairs/ves-benefits-discovery-service-devs @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/benefits_claims_controller_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 spec/controllers/v0/benefits_documents_controller_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 spec/controllers/v0/benefits_reference_data_controller_spec.rb @department-of-veterans-affairs/backend-review-group

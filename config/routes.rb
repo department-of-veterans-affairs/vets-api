@@ -41,6 +41,10 @@ Rails.application.routes.draw do
     get '/terms_of_use/current_status', to: 'terms_of_use#current_status'
   end
 
+  namespace :benefits_discovery do
+    match '*path', to: 'gateway#proxy', via: :all
+  end
+
   namespace :v0, defaults: { format: 'json' } do
     resources :onsite_notifications, only: %i[create index update]
 
@@ -192,9 +196,6 @@ Rails.application.routes.draw do
     get 'startup_healthcheck', to: 'example#startup_healthcheck', as: :startup_healthcheck
 
     post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
-
-    # BDS Gateway
-    post 'bds_gateway/recommendations', to: 'bds_gateway#recommendations'
 
     resources :maintenance_windows, only: [:index]
 
