@@ -18,6 +18,11 @@ module BenefitsDiscovery
       response.body
     end
 
+    def proxy_request(method:, path:, body:)
+      response = perform(method.downcase.to_sym, "benefits-discovery-service/#{path}", body.to_json, headers)
+      response.body
+    end
+
     private
 
     attr_reader :api_key, :app_id

@@ -41,6 +41,10 @@ Rails.application.routes.draw do
     get '/terms_of_use/current_status', to: 'terms_of_use#current_status'
   end
 
+  namespace :benefits_discovery do
+    match '*path', to: 'gateway#proxy', via: :all
+  end
+
   namespace :v0, defaults: { format: 'json' } do
     resources :onsite_notifications, only: %i[create index update]
 
