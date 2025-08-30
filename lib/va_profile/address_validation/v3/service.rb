@@ -8,14 +8,14 @@ require 'va_profile/service'
 require 'va_profile/stats'
 
 module VAProfile
-  module V3
-    module AddressValidation
+  module AddressValidation
+    module V3
       # Wrapper for the VA profile address validation/suggestions API
       class Service < VAProfile::Service
         include Common::Client::Concerns::Monitoring
 
         STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.address_validation".freeze
-        configuration VAProfile::V3::AddressValidation::Configuration
+        configuration VAProfile::AddressValidation::V3::Configuration
 
         def initialize; end
 
