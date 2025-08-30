@@ -418,13 +418,6 @@ evss:
   mock_disabilities_form: true
   mock_gi_bill_status: false
   mock_letters: false
-  mock_pciu: true
-  mock_pciu_address: false
-  mock_vso_search: false
-  pciu:
-    timeout: 30
-  pciu_address:
-    timeout: 30
   prefill: true
   root_cert_path: ~
   s3:
