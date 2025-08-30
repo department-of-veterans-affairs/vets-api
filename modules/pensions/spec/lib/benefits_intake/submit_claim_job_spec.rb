@@ -26,6 +26,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     before do
       allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:pension_kafka_event_bus_submission_enabled).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:pension_extras_redesign_enabled).and_return(false)
 
       job.instance_variable_set(:@claim, claim)
       allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
@@ -125,6 +126,40 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     end
 
     # perform
+  end
+
+  describe '#generate_form_pdf' do
+    let(:pdf_path) { 'random/path/to/pdf' }
+
+    before do
+      job.instance_variable_set(:@claim, claim)
+      allow(claim).to receive(:to_pdf).and_return(pdf_path)
+      allow(job).to receive(:process_document).and_return(pdf_path)
+    end
+
+    context 'when pension_extras_redesign_enabled is true' do
+      it 'generates PDF with redesign options' do
+        allow(Flipper).to receive(:enabled?).with(:pension_extras_redesign_enabled).and_return(true)
+
+        expect(claim).to receive(:to_pdf).with(claim.id, { extras_redesign: true, omit_esign_stamp: true })
+        expect(job).to receive(:process_document).with(pdf_path)
+
+        result = job.send(:generate_form_pdf)
+        expect(result).to eq(pdf_path)
+      end
+    end
+
+    context 'when pension_extras_redesign_enabled is false' do
+      it 'generates PDF with default options' do
+        allow(Flipper).to receive(:enabled?).with(:pension_extras_redesign_enabled).and_return(false)
+
+        expect(claim).to receive(:to_pdf).with(no_args)
+        expect(job).to receive(:process_document).with(pdf_path)
+
+        result = job.send(:generate_form_pdf)
+        expect(result).to eq(pdf_path)
+      end
+    end
   end
 
   describe '#lighthouse_submission_pending_or_success' do

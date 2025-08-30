@@ -56,8 +56,7 @@ module Pensions
 
         return if lighthouse_submission_pending_or_success
 
-        # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf)
+        @form_path = generate_form_pdf
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
         @metadata = generate_metadata
 
@@ -97,6 +96,17 @@ module Pensions
         @intake_service = ::BenefitsIntake::Service.new
 
         set_signature_date
+      end
+
+      # Generate form PDF based on feature flag
+      #
+      # @return [String] path to processed PDF document
+      def generate_form_pdf
+        if Flipper.enabled?(:pension_extras_redesign_enabled)
+          process_document(@claim.to_pdf(@claim.id, { extras_redesign: true, omit_esign_stamp: true }))
+        else
+          process_document(@claim.to_pdf)
+        end
       end
 
       # Create a monitor to be used for _this_ job
