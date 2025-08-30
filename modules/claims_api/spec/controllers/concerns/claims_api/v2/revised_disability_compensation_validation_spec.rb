@@ -19,7 +19,6 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
 
   let(:base_form_attributes) do
     {
-      'claimDate' => Date.current.to_s,
       'serviceInformation' => {
         'servicePeriods' => [
           {
@@ -39,32 +38,6 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
       it 'returns nil when no errors' do
         errors = subject.validate_form_526_fes_values
         expect(errors).to be_nil
-      end
-    end
-
-    context 'claim date validation' do
-      context 'when claim date is in the future' do
-        let(:form_attributes) do
-          base_form_attributes.merge('claimDate' => (Date.current + 1.day).to_s)
-        end
-
-        it 'returns validation error' do
-          errors = subject.validate_form_526_fes_values
-          expect(errors).to be_an(Array)
-          expect(errors.first[:detail]).to include('claim date was in the future')
-        end
-      end
-
-      context 'when claim date has invalid format' do
-        let(:form_attributes) do
-          base_form_attributes.merge('claimDate' => 'not-a-date')
-        end
-
-        it 'returns validation error' do
-          errors = subject.validate_form_526_fes_values
-          expect(errors).to be_an(Array)
-          expect(errors.first[:detail]).to include('Invalid date format')
-        end
       end
     end
 
@@ -134,45 +107,42 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
     end
 
     context 'reserves national guard validation' do
-      context 'with missing obligation dates' do
+      context 'with missing obligation dates in v2 structure' do
         let(:form_attributes) do
           base_form_attributes.tap do |attrs|
             attrs['serviceInformation']['servicePeriods'][0]['reservesNationalGuardService'] = {
-              'unitName' => 'Test Unit'
-            }
-          end
-        end
-
-        it 'returns validation errors' do
-          errors = subject.validate_form_526_fes_values
-          expect(errors).to be_an(Array)
-          error_details = errors.map { |e| e[:detail] }
-          expect(error_details).to include(
-            'The service period is missing a required start date for the obligation terms of service'
-          )
-          expect(error_details).to include(
-            'The service period is missing a required end date for the obligation terms of service'
-          )
-        end
-      end
-
-      context 'with title 10 activation missing anticipated separation date' do
-        let(:form_attributes) do
-          base_form_attributes.tap do |attrs|
-            attrs['serviceInformation']['servicePeriods'][0]['reservesNationalGuardService'] = {
-              'obligationTermOfServiceFromDate' => '2010-01-01',
-              'obligationTermOfServiceToDate' => '2020-01-01',
-              'title10Activation' => {
-                'title10ActivationDate' => '2015-01-01'
+              'obligationTermsOfService' => {
+                # Missing beginDate and endDate
               }
             }
           end
         end
 
-        it 'returns validation error' do
+        it 'returns validation errors for missing dates' do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
-          expect(errors.first[:detail]).to eq('Title 10 activation is missing the anticipated separation date')
+          expect(errors.size).to eq(2)
+          error_details = errors.map { |e| e[:detail] }
+          expect(error_details).to include('Reserves national guard service obligation to date not found')
+          expect(error_details).to include('Reserves national guard service obligation from date not found')
+        end
+      end
+
+      context 'with valid obligation dates in v2 structure' do
+        let(:form_attributes) do
+          base_form_attributes.tap do |attrs|
+            attrs['serviceInformation']['servicePeriods'][0]['reservesNationalGuardService'] = {
+              'obligationTermsOfService' => {
+                'beginDate' => '2010-01-01',
+                'endDate' => '2020-01-01'
+              }
+            }
+          end
+        end
+
+        it 'does not return validation errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_nil
         end
       end
     end
@@ -181,7 +151,6 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
       context 'with multiple validation errors' do
         let(:form_attributes) do
           base_form_attributes.tap do |attrs|
-            attrs['claimDate'] = (Date.current + 1.day).to_s # Future date
             attrs['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] = '2020-01-01'
             attrs['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] = '2010-01-01' # Out of order
             # Remove branch to avoid extra error
@@ -192,11 +161,532 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         it 'collects and returns all errors together' do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
+          expect(errors.size).to be >= 1
+
+          error_details = errors.map { |e| e[:detail] }
+          expect(error_details).to include('activeDutyEndDate (0) needs to be after activeDutyBeginDate.')
+        end
+      end
+    end
+
+    # FES Val Section 2.4.a: separation location validation
+    context 'separation location validation' do
+      context 'when separation location code is present' do
+        let(:form_attributes) do
+          base_form_attributes.tap do |attrs|
+            attrs['serviceInformation']['servicePeriods'][0]['separationLocationCode'] = '123'
+          end
+        end
+
+        context 'when reference data service is unavailable' do
+          before do
+            allow_any_instance_of(described_class).to receive(:retrieve_separation_locations).and_return(nil)
+          end
+
+          it 'returns service error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/serviceInformation')
+            expect(errors.first[:title]).to eq('Reference Data Service Error')
+            expect(errors.first[:detail]).to include('unavailable to verify the separation location code')
+          end
+        end
+
+        context 'when separation location code is invalid' do
+          before do
+            allow_any_instance_of(described_class).to receive(:retrieve_separation_locations).and_return(
+              [{ id: '456' }, { id: '789' }]
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/serviceInformation/servicePeriods/0/separationLocationCode')
+            expect(errors.first[:title]).to eq('Invalid separation location code')
+            expect(errors.first[:detail]).to include('not a valid value')
+          end
+        end
+
+        context 'when separation location code is valid' do
+          before do
+            allow_any_instance_of(described_class).to receive(:retrieve_separation_locations).and_return(
+              [{ id: '123' }, { id: '456' }]
+            )
+          end
+
+          it 'returns no errors' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_nil
+          end
+        end
+
+        context 'with multiple service periods having different codes' do
+          let(:form_attributes) do
+            base_form_attributes.tap do |attrs|
+              attrs['serviceInformation']['servicePeriods'] = [
+                {
+                  'activeDutyBeginDate' => '2010-01-01',
+                  'activeDutyEndDate' => '2015-01-01',
+                  'separationLocationCode' => '123'
+                },
+                {
+                  'activeDutyBeginDate' => '2016-01-01',
+                  'activeDutyEndDate' => '2020-01-01',
+                  'separationLocationCode' => 'INVALID'
+                }
+              ]
+            end
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:retrieve_separation_locations).and_return(
+              [{ id: '123' }, { id: '456' }]
+            )
+          end
+
+          it 'validates each separation location code' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.size).to eq(1)
+            expect(errors.first[:source]).to eq('/serviceInformation/servicePeriods/1/separationLocationCode')
+            expect(errors.first[:detail]).to include('(1) for the claimant is not a valid value')
+          end
+        end
+      end
+
+      context 'when no separation location codes are present' do
+        it 'skips validation and returns no errors' do
+          expect_any_instance_of(described_class).not_to receive(:retrieve_separation_locations)
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_nil
+        end
+      end
+    end
+
+    # Federal activation validation (top-level legacy structure)
+    context 'federal activation validation' do
+      context 'when federal activation is missing anticipated separation date' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'serviceInformation' => base_form_attributes['serviceInformation'].merge(
+              'federalActivation' => {
+                'activationDate' => '2020-01-01'
+                # Missing anticipatedSeparationDate
+              }
+            )
+          )
+        end
+
+        it 'returns validation error' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.first[:source]).to eq('/serviceInformation/federalActivation')
+          expect(errors.first[:title]).to eq('Missing required field')
+          expect(errors.first[:detail]).to eq('anticipatedSeparationDate is missing or blank')
+        end
+      end
+
+      context 'when federal activation date is in the future' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'serviceInformation' => base_form_attributes['serviceInformation'].merge(
+              'federalActivation' => {
+                'activationDate' => (Date.current + 30.days).to_s,
+                'anticipatedSeparationDate' => (Date.current + 90.days).to_s
+              }
+            )
+          )
+        end
+
+        it 'returns validation error' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.first[:source]).to eq('/serviceInformation/federalActivation')
+          expect(errors.first[:title]).to eq('Invalid value')
+          expect(errors.first[:detail]).to include('Federal activation date is in the future')
+        end
+      end
+
+      context 'with valid federal activation' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'serviceInformation' => base_form_attributes['serviceInformation'].merge(
+              'federalActivation' => {
+                'activationDate' => '2020-01-01',
+                'anticipatedSeparationDate' => (Date.current + 90.days).to_s
+              }
+            )
+          )
+        end
+
+        it 'returns no errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_nil
+        end
+      end
+
+      context 'with multiple validation errors in federal activation' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'serviceInformation' => base_form_attributes['serviceInformation'].merge(
+              'federalActivation' => {
+                'activationDate' => (Date.current + 30.days).to_s
+                # Missing anticipatedSeparationDate and future activation date
+              }
+            )
+          )
+        end
+
+        it 'returns all validation errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
           expect(errors.size).to eq(2)
 
           error_details = errors.map { |e| e[:detail] }
-          expect(error_details).to include(match(/claim date was in the future/))
-          expect(error_details).to include('activeDutyEndDate (0) needs to be after activeDutyBeginDate.')
+          expect(error_details).to include('anticipatedSeparationDate is missing or blank')
+          expect(error_details.any? { |d| d.include?('Federal activation date is in the future') }).to be true
+        end
+      end
+    end
+
+    # FES Val Section 5: veteran validations
+    context 'veteran validations' do
+      # FES Val Section 5.a: homelessness validations - REMOVED (crossed off in FES doc)
+
+      # FES Val Section 5.b: mailingAddress validations
+      context 'mailingAddress validation' do
+        # USA address validations
+        context 'when USA address missing state' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteranIdentification' => {
+                'mailingAddress' => {
+                  'addressLine1' => '123 Main St',
+                  'country' => 'USA',
+                  'city' => 'Los Angeles',
+                  'zipFirstFive' => '90210'
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/state')
+            expect(errors.first[:detail]).to eq('State is required for USA addresses')
+          end
+        end
+
+        context 'when USA address missing zipFirstFive' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteranIdentification' => {
+                'mailingAddress' => {
+                  'addressLine1' => '123 Main St',
+                  'country' => 'USA',
+                  'city' => 'Los Angeles',
+                  'state' => 'CA'
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/zipFirstFive')
+            expect(errors.first[:detail]).to eq('ZipFirstFive is required for USA addresses')
+          end
+        end
+
+        # Validation for internationalPostalCode when country is USA
+        context 'when USA address has internationalPostalCode' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteranIdentification' => {
+                'mailingAddress' => {
+                  'addressLine1' => '123 Main St',
+                  'country' => 'USA',
+                  'city' => 'Los Angeles',
+                  'state' => 'CA',
+                  'zipFirstFive' => '90210',
+                  'internationalPostalCode' => 'SW1A 1AA'
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/internationalPostalCode')
+            expect(errors.first[:detail]).to eq('InternationalPostalCode should not be provided for USA addresses')
+          end
+        end
+
+        # FES Val Section 5.b.vi.2: country must be valid
+        context 'when country is invalid' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteranIdentification' => {
+                'mailingAddress' => {
+                  'addressLine1' => '123 Main St',
+                  'type' => 'INTERNATIONAL',
+                  'city' => 'London',
+                  'country' => 'INVALID_COUNTRY',
+                  'internationalPostalCode' => 'SW1A 1AA'
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/country')
+            expect(errors.first[:detail]).to eq('Provided country is not valid: INVALID_COUNTRY')
+          end
+        end
+
+        # FES Val Section 5.b.vii.2: BGS service unavailable
+        context 'when BGS service is unavailable' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'veteranIdentification' => {
+                'mailingAddress' => {
+                  'addressLine1' => '123 Main St',
+                  'type' => 'INTERNATIONAL',
+                  'city' => 'London',
+                  'country' => 'GBR',
+                  'internationalPostalCode' => 'SW1A 1AA'
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(nil)
+          end
+
+          it 'returns BGS service error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/country')
+            expect(errors.first[:title]).to eq('Internal Server Error')
+            expect(errors.first[:detail]).to eq('Failed To Obtain Country Types (Request Failed)')
+          end
+        end
+      end
+
+      # FES Val Section 5.c: changeOfAddress validations
+      context 'changeOfAddress validation' do
+        # FES Val Section 5.c.i: TEMPORARY address requires dates
+        context 'when TEMPORARY address missing beginDate' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'TEMPORARY',
+                'country' => 'USA',
+                'city' => 'New York',
+                'state' => 'NY',
+                'zipFirstFive' => '10001',
+                'dates' => {
+                  'endDate' => (Date.current + 30.days).to_s
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.any? { |e| e[:source] == '/changeOfAddress/dates/beginDate' }).to be true
+            matching_error = errors.find { |e| e[:source] == '/changeOfAddress/dates/beginDate' }
+            expect(matching_error[:detail]).to eq('beginDate is required for temporary address')
+          end
+        end
+
+        # FES Val Section 5.c.ii.2: PERMANENT address cannot have endDate
+        context 'when PERMANENT address has endDate' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'PERMANENT',
+                'country' => 'USA',
+                'city' => 'New York',
+                'state' => 'NY',
+                'zipFirstFive' => '10001',
+                'dates' => {
+                  'endDate' => (Date.current + 30.days).to_s
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/changeOfAddress/dates/endDate')
+            expect(errors.first[:title]).to eq('Cannot provide endDate')
+            expect(errors.first[:detail]).to eq('EndDate cannot be provided for a permanent address.')
+          end
+        end
+
+        # FES Val Section 5.c.iii.2: beginningDate must be in future for TEMPORARY
+        context 'when TEMPORARY address beginDate is in past' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'TEMPORARY',
+                'country' => 'USA',
+                'city' => 'New York',
+                'state' => 'NY',
+                'zipFirstFive' => '10001',
+                'dates' => {
+                  'beginDate' => (Date.current - 1.day).to_s,
+                  'endDate' => (Date.current + 30.days).to_s
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            error = errors.find { |e| e[:source] == '/changeOfAddress/dates/beginDate' }
+            expect(error[:title]).to eq('Invalid beginDate')
+            expect(error[:detail]).to eq('BeginDate cannot be in the past: YYYY-MM-DD')
+          end
+        end
+
+        # FES Val Section 5.c.iv.2: dates must be chronological
+        context 'when beginDate is after endDate' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'TEMPORARY',
+                'country' => 'USA',
+                'city' => 'New York',
+                'state' => 'NY',
+                'zipFirstFive' => '10001',
+                'dates' => {
+                  'beginDate' => (Date.current + 60.days).to_s,
+                  'endDate' => (Date.current + 30.days).to_s
+                }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            error = errors.find { |e| e[:source] == '/changeOfAddress/dates/beginDate' }
+            expect(error).not_to be_nil
+            expect(error[:title]).to eq('Invalid beginDate')
+            expect(error[:detail]).to eq('BeginDate cannot be after endDate: YYYY-MM-DD')
+          end
+        end
+
+        # FES Val Section 5.c.v-viii: Address field requirements same as currentMailingAddress
+        context 'when changeOfAddress USA missing required fields' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'PERMANENT',
+                'country' => 'USA',
+                'city' => 'New York'
+                # Missing state and zipFirstFive
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.size).to be >= 2
+
+            error_sources = errors.map { |e| e[:source] }
+            expect(error_sources).to include('/changeOfAddress/state')
+            expect(error_sources).to include('/changeOfAddress/zipFirstFive')
+          end
+        end
+      end
+
+      # Testing error aggregation for veteranIdentification and changeOfAddress validations
+      context 'with multiple veteranIdentification and changeOfAddress validation errors' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'veteranIdentification' => {
+              'mailingAddress' => {
+                'addressLine1' => '123 Main St',
+                'country' => 'USA',
+                'city' => 'Los Angeles'
+                # Missing state and zipFirstFive
+              }
+            },
+            'changeOfAddress' => {
+              'typeOfAddressChange' => 'PERMANENT',
+              'country' => 'USA',
+              'city' => 'New York',
+              'addressLine1' => '456 Oak St',
+              'dates' => {
+                'endDate' => '2025-01-01' # Invalid for permanent
+              }
+            }
+          )
+        end
+
+        before do
+          allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+        end
+
+        it 'collects all veteranIdentification and changeOfAddress validation errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.size).to be >= 3 # At least 3 errors expected
+
+          error_sources = errors.map { |e| e[:source] }
+          expect(error_sources).to include('/veteranIdentification/mailingAddress/state')
+          expect(error_sources).to include('/veteranIdentification/mailingAddress/zipFirstFive')
+          expect(error_sources).to include('/changeOfAddress/dates/endDate')
         end
       end
     end

@@ -6,7 +6,6 @@ module ClaimsApi
       @token_string = token_string
 
       payload = { aud: audience }
-
       response = call_token_validation_service(token_validation_url, payload)
       @validated_token_content = JSON.parse(response.body) if response.status == 200
       @validated_token_data = @validated_token_content['data']
