@@ -35,7 +35,7 @@ You can see all of the targets and an explanation of what they do with:
 make help
 ```
 
-To run vets-api and its redis and postgres dependencies run the following command from within the repo you cloned
+To run vets-api and its valkey and postgres dependencies run the following command from within the repo you cloned
 in the above steps.
 
 ```bash
@@ -86,7 +86,7 @@ directly within the vets-api docker instance you can use the `make bash` command
 $ make bash
 Creating network "vetsapi_default" with the default driver
 Creating vetsapi_postgres_1 ... done
-Creating vetsapi_redis_1    ... done
+Creating vetsapi_valkey_1   ... done
 # then run any command as you would locally e.g.
 root@63aa89d76c17:/src/vets-api# rspec spec/requests/user_request_spec.rb:26
 ```
