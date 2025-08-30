@@ -53,7 +53,7 @@ module VAProfile
         raise Common::Exceptions::Forbidden if error.status == 403
 
         raise_invalid_body(error, self.class) unless error.body.is_a?(Hash)
-        code = parse_messages(error)&.first.try(:[], 'code')
+        code = parse_messages(error)&.first&.code
         raise_backend_exception("VET360_#{code}", self.class, error) if code.present?
         raise_backend_exception('VET360_502', self.class, error)
       else

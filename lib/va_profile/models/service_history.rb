@@ -22,7 +22,7 @@ module VAProfile
       attribute :period_of_service_type_code, String
       attribute :period_of_service_type_text, String
       attribute :branch_of_service_code, String
-      attribute :deployments, Array
+      attribute :deployments, Hash, array: true
       attribute :character_of_discharge_code, String
 
       alias personnel_category_type_code period_of_service_type_code

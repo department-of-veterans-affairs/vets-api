@@ -1054,7 +1054,7 @@ RSpec.describe FormProfile, type: :model do
           # Now that the nested structures are removed from the outputs, compare the rest of the structure.
           expect(output).to eq(expected_output)
           # Compare the nested structures VAProfile::Models::ServiceHistory objects separately.
-          expect(actual_service_histories.map(&:attributes)).to eq(expected_service_histories)
+          expect(actual_service_histories.map(&:attributes)).to match(expected_service_histories)
 
           first_item = actual_guard_reserve_service_history.map(&:attributes).first
           expect(first_item['from'].to_s).to eq(expected_guard_reserve_service_history.first[:from])
@@ -1094,7 +1094,7 @@ RSpec.describe FormProfile, type: :model do
         # Compare service_episodes_by_date separately.
         # Convert each VAProfile::Models::ServiceHistory object to a hash of attributes so it can be
         # compared to the expected output.
-        expect(actual_service_histories.map(&:attributes)).to eq(expected_service_histories)
+        expect(actual_service_histories.map(&:attributes)).to match(expected_service_histories)
       end
     end
   end

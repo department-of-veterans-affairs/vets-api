@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'base'
-require 'common/models/attribute_types/iso8601_time'
 require 'va_profile/concerns/defaultable'
 require 'va_profile/concerns/expirable'
 
@@ -24,24 +23,26 @@ module VAProfile
 
       attribute :area_code, String
       attribute :country_code, String, default: '1'
-      attribute :created_at, Common::ISO8601Time
+      attribute :created_at, Vets::Type::ISO8601Time
       attribute :extension, String
-      attribute :effective_end_date, Common::ISO8601Time
-      attribute :effective_start_date, Common::ISO8601Time
+      attribute :effective_end_date, Vets::Type::ISO8601Time
+      attribute :effective_start_date, Vets::Type::ISO8601Time
       attribute :id, Integer
-      attribute :is_international, Boolean, default: false
-      attribute :is_textable, Boolean
-      attribute :is_text_permitted, Boolean
-      attribute :is_tty, Boolean
-      attribute :is_voicemailable, Boolean
+      attribute :is_international, Bool, default: false
+      attribute :is_textable, Bool
+      attribute :is_text_permitted, Bool
+      attribute :is_tty, Bool
+      attribute :is_voicemailable, Bool
       attribute :phone_number, String
       attribute :phone_type, String
-      attribute :source_date, Common::ISO8601Time
+      attribute :source_date, Vets::Type::ISO8601Time
       attribute :source_system_user, String
       attribute :transaction_id, String
-      attribute :updated_at, Common::ISO8601Time
+      attribute :updated_at, Vets::Type::ISO8601Time
       attribute :vet360_id, String
       attribute :va_profile_id, String
+
+      alias is_international? is_international
 
       validates(
         :area_code,

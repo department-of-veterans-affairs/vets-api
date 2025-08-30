@@ -67,7 +67,7 @@ module VAProfile
     end
 
     class AddressTransactionResponse < TransactionResponse
-      attribute :response_body, String
+      attribute :response_body, Hash
 
       def self.from(*args)
         return_val = super
@@ -152,7 +152,7 @@ module VAProfile
     end
 
     class EmailTransactionResponse < TransactionResponse
-      attribute :response_body, String
+      attribute :response_body, Hash
 
       def self.from(*args)
         return_val = super
@@ -171,7 +171,7 @@ module VAProfile
     end
 
     class TelephoneTransactionResponse < TransactionResponse
-      attribute :response_body, String
+      attribute :response_body, Hash
 
       def self.from(*args)
         return_val = super

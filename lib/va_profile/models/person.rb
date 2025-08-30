@@ -5,19 +5,18 @@ require_relative 'base'
 require_relative 'email'
 require_relative 'telephone'
 require_relative 'permission'
-require 'common/models/attribute_types/iso8601_time'
 
 module VAProfile
   module Models
     class Person < Base
-      attribute :addresses, Array[Address]
-      attribute :created_at, Common::ISO8601Time
-      attribute :emails, Array[Email]
-      attribute :source_date, Common::ISO8601Time
-      attribute :telephones, Array[Telephone]
-      attribute :permissions, Array[Permission]
+      attribute :addresses, Address, array: true
+      attribute :created_at, Vets::Type::ISO8601Time
+      attribute :emails, Email, array: true
+      attribute :source_date, Vets::Type::ISO8601Time
+      attribute :telephones, Telephone, array: true
+      attribute :permissions, Permission, array: true
       attribute :transaction_id, String
-      attribute :updated_at, Common::ISO8601Time
+      attribute :updated_at, Vets::Type::ISO8601Time
       attribute :vet360_id, String
 
       # Converts a decoded JSON response from VAProfile to an instance of the Person model

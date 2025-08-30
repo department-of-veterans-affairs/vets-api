@@ -17,7 +17,7 @@ module VAProfile
             {
               address: VAProfile::Models::ValidationAddress.build_from_address_suggestion(
                 address_suggestion_hash
-              ).to_h.compact,
+              ).attributes.compact,
               address_meta_data: address_suggestion_hash['address_meta_data'].except('validation_key')
             }
           end,

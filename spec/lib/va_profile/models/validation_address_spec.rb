@@ -8,7 +8,7 @@ describe VAProfile::Models::ValidationAddress do
 
   describe '#address_validation_req' do
     it 'formats the address for an address validation request' do
-      expect(address.address_validation_req).to eq(
+      expect(address.address_validation_req).to match(
         requestAddress: { 'addressLine1' => '37 1st st',
                           'city' => 'Brooklyn', :requestCountry => { countryCode: 'USA' },
                           :addressPOU => 'RESIDENCE/CHOICE', :stateProvince => { code: 'NY' },
@@ -19,7 +19,7 @@ describe VAProfile::Models::ValidationAddress do
 
   describe '#build_from_address_suggestion' do
     subject do
-      described_class.build_from_address_suggestion(address_suggestion_hash).to_h.compact
+      described_class.build_from_address_suggestion(address_suggestion_hash).attributes.compact
     end
 
     context 'with a domestic address' do
@@ -54,7 +54,7 @@ describe VAProfile::Models::ValidationAddress do
       end
 
       it 'correctly parses the addresses' do
-        expect(subject).to eq(
+        expect(subject).to match(
           { address_line1: '37 N 1st St',
             address_type: 'DOMESTIC',
             city: 'Brooklyn',
@@ -96,7 +96,7 @@ describe VAProfile::Models::ValidationAddress do
       end
 
       it 'correctly parses international addresses' do
-        expect(subject).to eq(
+        expect(subject).to match(
           { address_line1: '898 Broadway W',
             address_type: 'INTERNATIONAL',
             city: 'Vancouver',

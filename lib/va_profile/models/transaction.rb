@@ -16,7 +16,7 @@ module VAProfile
         COMPLETED_FAILURE
       ].freeze
 
-      attribute :messages, Array[VAProfile::Models::Message]
+      attribute :messages, VAProfile::Models::Message, array: true
       attribute :id, String
       attribute :status, String
 

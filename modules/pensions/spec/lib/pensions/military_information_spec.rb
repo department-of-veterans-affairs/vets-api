@@ -101,11 +101,14 @@ RSpec.describe Pensions::MilitaryInformation do
       military_personnel_stub = instance_double(VAProfile::MilitaryPersonnel::Service)
 
       allow(VAProfile::MilitaryPersonnel::Service).to receive(:new) { military_personnel_stub }
-      allow(military_personnel_stub).to receive(:get_service_history).and_return(
-        VAProfile::MilitaryPersonnel::ServiceHistoryResponse.new(
-          200, episodes: 'This should be an Array'
-        )
+      # Return a fake response with `episodes`
+      bad_response = instance_double(
+        VAProfile::MilitaryPersonnel::ServiceHistoryResponse,
+        status: 200,
+        episodes: ['This should be an Array of Hashes']
       )
+
+      allow(military_personnel_stub).to receive(:get_service_history).and_return(bad_response)
 
       expect(Rails.logger).to receive(:error).with(
         'Error fetching service branches for Pension prefill: ' \
@@ -133,11 +136,14 @@ RSpec.describe Pensions::MilitaryInformation do
       military_personnel_stub = instance_double(VAProfile::MilitaryPersonnel::Service)
 
       allow(VAProfile::MilitaryPersonnel::Service).to receive(:new) { military_personnel_stub }
-      allow(military_personnel_stub).to receive(:get_service_history).and_return(
-        VAProfile::MilitaryPersonnel::ServiceHistoryResponse.new(
-          200, episodes: [army_episode], uniformed_service_initial_entry_date: ['2000-18-11']
-        )
+      # Return a fake response with `uniformed_service_initial_entry_date`
+      bad_response = instance_double(
+        VAProfile::MilitaryPersonnel::ServiceHistoryResponse,
+        status: 200,
+        episodes: [army_episode], uniformed_service_initial_entry_date: ['2000-18-11']
       )
+
+      allow(military_personnel_stub).to receive(:get_service_history).and_return(bad_response)
 
       expect(Rails.logger).to receive(:error).with(
         "Error fetching service number for Pension prefill: undefined method `to_i' for an instance of Array"

@@ -6,7 +6,7 @@ module VAProfile
   module Models
     module V3
       class Address < V3::BaseAddress
-        attribute :bad_address, Boolean
+        attribute :bad_address, Bool
 
         validates(:source_date, presence: true)
 
