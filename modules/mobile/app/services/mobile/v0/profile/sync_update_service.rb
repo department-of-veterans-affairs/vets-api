@@ -61,7 +61,7 @@ module Mobile
         end
 
         def build_record(type, params)
-          if type == :address && Flipper.enabled?(:remove_pciu, @user)
+          if type == :address
             'VAProfile::Models::V3::Address'
               .constantize
               .new(params)
@@ -132,11 +132,7 @@ module Mobile
         end
 
         def contact_information_service
-          if Flipper.enabled?(:remove_pciu, @user)
-            VAProfile::V2::ContactInformation::Service.new @user
-          else
-            VAProfile::ContactInformation::Service.new @user
-          end
+          VAProfile::V2::ContactInformation::Service.new @user
         end
 
         def raise_timeout_error(_elapsed, _try)

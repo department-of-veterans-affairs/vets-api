@@ -187,24 +187,12 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   def initialize_veteran_contact_information
-    if Flipper.enabled?(:remove_pciu, user)
-      return {} unless user.authorize :va_profile, :access_to_v2?
+    return {} unless user.authorize :va_profile, :access_to_v2?
 
-      contact_info = initialize_vets360_contact_info
-    else
-      return {} unless user.authorize :evss, :access?
-
-      contact_info = initialize_vets360_contact_info.merge(
-        mailing_address: get_common_address,
-        email_address: extract_pciu_data(:pciu_email),
-        primary_phone: pciu_us_phone
-      ) { |_, old_val, new_val| old_val.presence || new_val }
-
-    end
+    contact_info = initialize_vets360_contact_info
     # Logging was added below to contrast/compare completeness of contact information returned
     # from VA Profile alone versus VA Profile + PCIU. This logging will be removed when the Flipper flag is.
-    Rails.logger.info("remove_pciu=#{Flipper.enabled?(:remove_pciu, user)}," \
-                      "mailing_address=#{contact_info[:mailing_address].present?}," \
+    Rails.logger.info("mailing_address=#{contact_info[:mailing_address].present?}," \
                       "email_address=#{contact_info[:email_address].present?}," \
                       "primary_phone=#{contact_info[:primary_phone].present?}")
 

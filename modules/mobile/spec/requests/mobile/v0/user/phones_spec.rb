@@ -12,7 +12,6 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
   end
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.012Z'))
   end
 

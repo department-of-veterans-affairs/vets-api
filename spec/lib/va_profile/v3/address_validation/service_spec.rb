@@ -27,10 +27,6 @@ describe VAProfile::V3::AddressValidation::Service do
     build(:va_profile_v3_validation_address, :multiple_matches)
   end
 
-  before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-  end
-
   describe '#address_suggestions' do
     context 'with a found address' do
       it 'returns suggested addresses' do
