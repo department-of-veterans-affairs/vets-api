@@ -87,9 +87,9 @@ module VAProfile
             Rails.logger.info("AddressTransactionResponse CHANGED FIELD ADDRESS POU: #{address_pou}")
           end
           case address_pou
-          when VAProfile::Models::V3::BaseAddress::RESIDENCE
+          when VAProfile::Models::BaseAddress::RESIDENCE
             :residence_address
-          when VAProfile::Models::V3::BaseAddress::CORRESPONDENCE
+          when VAProfile::Models::BaseAddress::CORRESPONDENCE
             :correspondence_address
           else
             :address

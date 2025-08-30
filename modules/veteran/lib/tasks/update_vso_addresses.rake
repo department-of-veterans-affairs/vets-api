@@ -2,7 +2,7 @@
 
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
-require 'va_profile/models/v3/validation_address'
+require 'va_profile/models/validation_address'
 require 'va_profile/v3/address_validation/service'
 
 ADDRESS_BATCH1 = [
@@ -905,7 +905,7 @@ ADDRESS_BATCH5 = [
 # @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
 def build_validation_address(org)
   validation_model = if Flipper.enabled?(:remove_pciu)
-                       VAProfile::Models::V3::ValidationAddress
+                       VAProfile::Models::ValidationAddress
                      else
                        VAProfile::Models::ValidationAddress
                      end

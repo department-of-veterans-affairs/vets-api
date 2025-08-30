@@ -62,7 +62,7 @@ module Mobile
 
         def build_record(type, params)
           if type == :address && Flipper.enabled?(:remove_pciu, @user)
-            'VAProfile::Models::V3::Address'
+            'VAProfile::Models::Address'
               .constantize
               .new(params)
               .set_defaults(@user)

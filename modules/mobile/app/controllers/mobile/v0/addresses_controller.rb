@@ -27,7 +27,7 @@ module Mobile
 
       def validate # rubocop:disable Metrics/MethodLength
         validated_address_params = if Flipper.enabled?(:remove_pciu)
-                                     VAProfile::Models::V3::ValidationAddress.new(address_params)
+                                     VAProfile::Models::ValidationAddress.new(address_params)
                                    else
                                      VAProfile::Models::ValidationAddress.new(address_params)
                                    end

@@ -1906,7 +1906,7 @@ RSpec.describe FormProfile, type: :model do
         allow_any_instance_of(BGS::People::Service).to(
           receive(:find_person_by_participant_id).and_return(BGS::People::Response.new({ file_nbr: '1234567890' }))
         )
-        allow_any_instance_of(VAProfile::Models::V3::Address).to(
+        allow_any_instance_of(VAProfile::Models::Address).to(
           receive(:address_line3).and_return('suite 500')
         )
       end
@@ -1945,7 +1945,7 @@ RSpec.describe FormProfile, type: :model do
         allow_any_instance_of(BGS::People::Service).to(
           receive(:find_person_by_participant_id).and_return(BGS::People::Response.new({ file_nbr: '1234567890' }))
         )
-        allow_any_instance_of(VAProfile::Models::V3::Address).to(
+        allow_any_instance_of(VAProfile::Models::Address).to(
           receive(:address_line3).and_return('suite 500')
         )
       end
