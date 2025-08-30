@@ -245,8 +245,6 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
                                                           })
 
       allow(user_account).to receive(:registration_numbers).and_return({ 'veteran_service_officer' => '1234' })
-      AccreditedRepresentativePortal::Engine.routes.default_url_options[:host] = 'http://test.host'
-
       AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_declination!(
         creator: user_account,
         power_of_attorney_request: poa_request,
@@ -256,11 +254,15 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
 
     it 'returns the correct URL' do
       result = personalisation.generate
-      expected_url = AccreditedRepresentativePortal::Engine
-                     .routes
-                     .url_helpers
-                     .v0_power_of_attorney_request_url(poa_request)
-      expect(result['poa_request_url']).to eq(expected_url)
+
+      base = Settings.accredited_representative_portal.frontend_base_url
+      expected = begin
+        u = URI.parse(base)
+        u.path = File.join(u.path.presence || '/', 'poa_requests', poa_request.id.to_s)
+        u.to_s
+      end
+
+      expect(result['poa_request_url']).to eq(expected)
     end
 
     it 'returns the first name' do
