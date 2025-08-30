@@ -16,7 +16,8 @@ RSpec.describe BGSDependentsV2::AdultChildAttendingSchool do
       'middle' => 'middle',
       'last' => 'student',
       'suffix' => nil,
-      'dependent_income' => 'Y'
+      'dependent_income' => 'Y',
+      'is_parent' => true
     }
   end
   let(:address_response_v2) do
