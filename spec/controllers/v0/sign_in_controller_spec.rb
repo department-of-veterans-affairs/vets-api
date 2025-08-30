@@ -1283,14 +1283,17 @@ RSpec.describe V0::SignInController, type: :controller do
                     aud:,
                     sub:,
                     jti:,
-                    exp:
+                    exp:,
+                    iat:
                   }
                 end
+
                 let(:iss) { client_id }
                 let(:aud) { "https://#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
                 let(:sub) { client_id }
                 let(:jti) { 'some-jti' }
                 let(:exp) { 1.month.since.to_i }
+                let(:iat) { Time.current.to_i }
                 let(:client_assertion_encode_algorithm) { SignIn::Constants::Auth::ASSERTION_ENCODE_ALGORITHM }
                 let(:client_assertion_value) do
                   JWT.encode(client_assertion_payload, private_key, client_assertion_encode_algorithm)
