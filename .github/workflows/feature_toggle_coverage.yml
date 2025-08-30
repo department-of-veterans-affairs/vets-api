@@ -1,0 +1,77 @@
+name: Feature Toggle Coverage Check
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  id-token: write
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  check-toggle-coverage:
+    name: Feature Toggle Test Coverage
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for git diff
+      
+      - name: Check for relevant changes
+        id: changes
+        run: |
+          # Check if there are any Ruby files or feature config changes
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          
+          echo "🔍 Checking for changes between $BASE_SHA and $HEAD_SHA"
+          
+          if git diff --name-only "$BASE_SHA...$HEAD_SHA" | grep -E '\.(rb|rake)$|config/features\.yml' > /dev/null; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "✅ Found Ruby code or feature config changes"
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT  
+            echo "ℹ️  No Ruby code or feature config changes detected"
+          fi
+      
+      - name: Install pdftk
+        run: sudo apt-get update && sudo apt-get install -y pdftk-java
+      
+      - name: Setup Ruby
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.6'
+          bundler-cache: true
+      
+      - name: Setup Rails environment
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          bundle config --local build.nokogiri --use-system-libraries
+          bundle install --retry 3
+          
+      - name: Check Feature Toggle Test Coverage
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          echo "🔍 Checking feature toggle test coverage..."
+          bundle exec rake feature_toggles:validate_coverage
+        env:
+          RAILS_ENV: test
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          
+      - name: Generate Coverage Report
+        if: always() && steps.changes.outputs.has_changes == 'true'
+        run: |
+          echo "📊 Generating coverage report..."
+          bundle exec rake feature_toggles:list_coverage || true
+        env:
+          RAILS_ENV: test
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
