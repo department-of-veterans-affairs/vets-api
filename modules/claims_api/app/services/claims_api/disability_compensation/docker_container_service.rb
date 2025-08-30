@@ -10,6 +10,7 @@ module ClaimsApi
   module DisabilityCompensation
     class DockerContainerService < ServiceBase
       LOG_TAG = '526_v2_Docker_Container_service'
+      ASYNC = false
 
       def upload(claim_id) # rubocop:disable Metrics/MethodLength
         auto_claim = get_claim(claim_id)
@@ -21,7 +22,7 @@ module ClaimsApi
         if Flipper.enabled?(:lighthouse_claims_api_v2_enable_FES)
           fes_data = get_fes_data(auto_claim)
           log_job_progress(claim_id, 'Submitting mapped data to FES', auto_claim.transaction_id)
-          fes_res = fes_service.submit(auto_claim, fes_data)
+          fes_res = fes_service.submit(auto_claim, fes_data, ASYNC)
           log_job_progress(claim_id, "Successfully submitted to FES with response: #{fes_res}",
                            auto_claim.transaction_id)
           # update with the evss_id returned
@@ -29,7 +30,7 @@ module ClaimsApi
         else
           evss_data = get_evss_data(auto_claim)
           log_job_progress(claim_id, 'Submitting mapped data to Docker container', auto_claim.transaction_id)
-          evss_res = evss_service.submit(auto_claim, evss_data, false)
+          evss_res = evss_service.submit(auto_claim, evss_data, ASYNC)
           log_job_progress(claim_id, "Successfully submitted to Docker container with response: #{evss_res}",
                            auto_claim.transaction_id)
           # update with the evss_id returned
