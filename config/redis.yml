@@ -226,6 +226,9 @@ development: &defaults
   travel_pay_store:
     namespace: travel-pay-store
     each_ttl: 3300 # 55 minutes
+  unique_user_metrics:
+    namespace: mhv-uum
+    each_ttl: 86400  # 1 day cache for event existence checks
 test:
   <<: *defaults
   redis:
