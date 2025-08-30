@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module ClaimLetters
   module Responses
     DOCTYPE_TO_TYPE_DESCRIPTION = {
@@ -46,8 +48,7 @@ module ClaimLetters
     end
 
     class ClaimLetterResponse
-      include ActiveModel::Serialization
-      include Virtus.model
+      include Vets::Model
 
       attribute :document_id, String
       attribute :series_id, String
@@ -65,8 +66,7 @@ module ClaimLetters
     end
 
     class ClaimLetterDownloadResponse
-      include ActiveModel::Serialization
-      include Virtus.model
+      include Vets::Model
     end
   end
 end
