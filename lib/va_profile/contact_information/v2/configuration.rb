@@ -3,8 +3,8 @@
 require 'va_profile/configuration'
 
 module VAProfile
-  module V2
-    module ContactInformation
+  module ContactInformation
+    module V2
       class Configuration < VAProfile::Configuration
         self.read_timeout = VAProfile::Configuration::SETTINGS.contact_information.timeout || 30
 

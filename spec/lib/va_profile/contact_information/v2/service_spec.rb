@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'va_profile/v2/contact_information/service'
+require 'va_profile/contact_information/v2/service'
 
-describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
+describe VAProfile::ContactInformation::V2::Service, :skip_vet360 do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3, :legacy_icn) }
@@ -349,7 +349,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
           it 'makes a post request' do
             expect_any_instance_of(
-              VAProfile::V2::ContactInformation::Service
+              VAProfile::ContactInformation::V2::Service
             ).to receive("post_#{spec_data[:model_name]}").with(model)
             subject.public_send("update_#{spec_data[:model_name]}", model)
           end
@@ -359,7 +359,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
           it 'makes a put request' do
             expect(model).to receive(:id=).with(spec_data[:id]).and_call_original
             expect_any_instance_of(
-              VAProfile::V2::ContactInformation::Service
+              VAProfile::ContactInformation::V2::Service
             ).to receive("put_#{spec_data[:model_name]}").with(model)
             subject.public_send("update_#{spec_data[:model_name]}", model)
           end

@@ -6,8 +6,8 @@ require 'vets/shared_logging'
 
 # rubocop:disable ThreadSafety/ClassInstanceVariable
 module VAProfile
-  module V2
-    module ContactInformation
+  module ContactInformation
+    module V2
       class TransactionResponse < VAProfile::Response
         extend Vets::SharedLogging
 
@@ -99,7 +99,7 @@ module VAProfile
         def self.log_error
           if error?
             PersonalInformationLog.create(
-              error_class: 'VAProfile::V2::ContactInformation::AddressTransactionResponseError',
+              error_class: 'VAProfile::ContactInformation::V2::AddressTransactionResponseError',
               data:
                 {
                   address: @response_body['tx_push_input'].except(

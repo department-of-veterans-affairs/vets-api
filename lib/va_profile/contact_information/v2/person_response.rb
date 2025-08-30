@@ -4,8 +4,8 @@ require 'va_profile/response'
 require 'va_profile/models/v3/person'
 
 module VAProfile
-  module V2
-    module ContactInformation
+  module ContactInformation
+    module V2
       class PersonResponse < VAProfile::Response
         attribute :person, VAProfile::Models::V3::Person
 

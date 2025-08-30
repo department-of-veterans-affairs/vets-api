@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'va_profile/v2/contact_information/transaction_response'
+require 'va_profile/contact_information/v2/transaction_response'
 
-describe VAProfile::V2::ContactInformation::TransactionResponse do
+describe VAProfile::ContactInformation::V2::TransactionResponse do
   before do
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
   end
@@ -13,7 +13,7 @@ describe VAProfile::V2::ContactInformation::TransactionResponse do
 
     let(:raw_response) { OpenStruct.new(body:) }
 
-    describe VAProfile::V2::ContactInformation::AddressTransactionResponse do
+    describe VAProfile::ContactInformation::V2::AddressTransactionResponse do
       let(:body) do
         {
           'tx_audit_id' => 'a2af8cd1-472c-4e6f-bd5a-f95e31e351b7',
@@ -48,7 +48,7 @@ describe VAProfile::V2::ContactInformation::TransactionResponse do
       end
     end
 
-    describe VAProfile::V2::ContactInformation::TelephoneTransactionResponse do
+    describe VAProfile::ContactInformation::V2::TelephoneTransactionResponse do
       let(:body) do
         {
           'tx_audit_id' => 'a2af8cd1-472c-4e6f-bd5a-f95e31e351b7',
@@ -93,7 +93,7 @@ describe VAProfile::V2::ContactInformation::TransactionResponse do
       end
     end
 
-    describe VAProfile::V2::ContactInformation::EmailTransactionResponse do
+    describe VAProfile::ContactInformation::V2::EmailTransactionResponse do
       let(:body) do
         { 'tx_audit_id' => 'cb99a754-9fa9-4f3c-be93-ede12c14b68e',
           'status' => 'COMPLETED_SUCCESS',
@@ -138,7 +138,7 @@ describe VAProfile::V2::ContactInformation::TransactionResponse do
       end
     end
 
-    describe VAProfile::V2::ContactInformation::PersonTransactionResponse do
+    describe VAProfile::ContactInformation::V2::PersonTransactionResponse do
       context 'with a MVI201 response error' do
         let(:body) do
           {

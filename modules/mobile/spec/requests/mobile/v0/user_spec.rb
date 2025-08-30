@@ -7,7 +7,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
 
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
   let(:contact_information_service) do
-    VAProfile::V2::ContactInformation::Service
+    VAProfile::ContactInformation::V2::Service
   end
 
   before do

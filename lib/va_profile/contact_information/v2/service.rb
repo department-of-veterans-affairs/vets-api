@@ -9,8 +9,8 @@ require_relative 'transaction_response'
 require_relative 'person_response'
 
 module VAProfile
-  module V2
-    module ContactInformation
+  module ContactInformation
+    module V2
       class Service < VAProfile::Service
         CONTACT_INFO_CHANGE_TEMPLATE = Settings.vanotify.services.va_gov.template_id.contact_info_change
         VA_PROFILE_ID_POSTFIX = '^PI^200VETS^USDVA'
@@ -27,11 +27,11 @@ module VAProfile
 
         include Common::Client::Concerns::Monitoring
 
-        configuration VAProfile::V2::ContactInformation::Configuration
+        configuration VAProfile::ContactInformation::V2::Configuration
 
         # GET's a Person bio from the VAProfile API
         # If a user is not found in VAProfile, an empty PersonResponse with a 404 status will be returned
-        # @return [VAProfile::V2::ContactInformation::PersonResponse] wrapper around an person object
+        # @return [VAProfile::ContactInformation::V2::PersonResponse] wrapper around an person object
         def get_person
           with_monitoring do
             verify_vet360_id!
@@ -99,7 +99,7 @@ module VAProfile
 
         # POSTs a new address to the VAProfile API
         # @param address [VAProfile::Models::Address] the address to create
-        # @return [VAProfile::V2::ContactInformation::AddressTransactionResponse] wrapper around
+        # @return [VAProfile::ContactInformation::V2::AddressTransactionResponse] wrapper around
         #   an transaction object
         def post_address(address)
           post_or_put_data(:post, address, 'addresses', AddressTransactionResponse)
@@ -107,14 +107,14 @@ module VAProfile
 
         # PUTs an updated address to the VAProfile API
         # @param address [VAProfile::Models::Address] the address to update
-        # @return [VAProfile::V2::ContactInformation::AddressTransactionResponse] wrapper around a transaction object
+        # @return [VAProfile::ContactInformation::V2::AddressTransactionResponse] wrapper around a transaction object
         def put_address(address)
           post_or_put_data(:put, address, 'addresses', AddressTransactionResponse)
         end
 
         # GET's the status of an address transaction from the VAProfile api
         # @param transaction_id [int] the transaction_id to check
-        # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around a transaction object
+        # @return [VAProfile::ContactInformation::V2::EmailTransactionResponse] wrapper around a transaction object
         def get_address_transaction_status(transaction_id)
           route = "addresses/status/#{transaction_id}"
           Rails.logger.info("ContactInformationV2 Address Transaction_ID: #{transaction_id}") if log_transaction_id?
@@ -128,14 +128,14 @@ module VAProfile
 
         # POSTs a new address to the VAProfile API
         # @param email [VAProfile::Models::Email] the email to create
-        # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around an transaction object
+        # @return [VAProfile::ContactInformation::V2::EmailTransactionResponse] wrapper around an transaction object
         def post_email(email)
           post_or_put_data(:post, email, 'emails', EmailTransactionResponse)
         end
 
         # PUTs an updated address to the VAProfile API
         # @param email [VAProfile::Models::Email] the email to update
-        # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around a transaction object
+        # @return [VAProfile::ContactInformation::V2::EmailTransactionResponse] wrapper around a transaction object
         def put_email(email)
           old_email =
             begin
@@ -157,7 +157,7 @@ module VAProfile
 
         # GET's the status of an email transaction from the VAProfile api
         # @param transaction_id [int] the transaction_id to check
-        # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around a transaction object
+        # @return [VAProfile::ContactInformation::V2::EmailTransactionResponse] wrapper around a transaction object
         def get_email_transaction_status(transaction_id)
           route = "emails/status/#{transaction_id}"
           Rails.logger.info("ContactInformationV2 Email Transaction_ID: #{transaction_id}") if log_transaction_id?
@@ -170,21 +170,21 @@ module VAProfile
 
         # POSTs a new telephone to the VAProfile API
         # @param telephone [VAProfile::Models::Telephone] the telephone to create
-        # @return [VAProfile::V2::ContactInformation::TelephoneUpdateResponse] wrapper around a transaction object
+        # @return [VAProfile::ContactInformation::V2::TelephoneUpdateResponse] wrapper around a transaction object
         def post_telephone(telephone)
           post_or_put_data(:post, telephone, 'telephones', TelephoneTransactionResponse)
         end
 
         # PUTs an updated telephone to the VAProfile API
         # @param telephone [VAProfile::Models::Telephone] the telephone to update
-        # @return [VAProfile::V2::ContactInformation::TelephoneUpdateResponse] wrapper around a transaction object
+        # @return [VAProfile::ContactInformation::V2::TelephoneUpdateResponse] wrapper around a transaction object
         def put_telephone(telephone)
           post_or_put_data(:put, telephone, 'telephones', TelephoneTransactionResponse)
         end
 
         # GET's the status of a telephone transaction from the VAProfile api
         # @param transaction_id [int] the transaction_id to check
-        # @return [VAProfile::V2::ContactInformation::TelephoneTransactionResponse] wrapper around
+        # @return [VAProfile::ContactInformation::V2::TelephoneTransactionResponse] wrapper around
         #   a transaction object
         def get_telephone_transaction_status(transaction_id)
           route = "telephones/status/#{transaction_id}"
@@ -201,7 +201,7 @@ module VAProfile
         # user's icn before making the service call, as POSTing a person initializes a icn.
         #
         # @param transaction_id [String] the transaction_id to check
-        # @return [VAProfile::V2::ContactInformation::PersonTransactionResponse] wrapper around a transaction object
+        # @return [VAProfile::ContactInformation::V2::PersonTransactionResponse] wrapper around a transaction object
         #
         def get_person_transaction_status(transaction_id)
           with_monitoring do
@@ -209,7 +209,7 @@ module VAProfile
             raw_response = perform(:get, "status/#{transaction_id}")
             VAProfile::Stats.increment_transaction_results(raw_response, 'init_va_profile')
 
-            VAProfile::V2::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
+            VAProfile::ContactInformation::V2::PersonTransactionResponse.from(raw_response, @user)
           end
         rescue => e
           handle_error(e)
