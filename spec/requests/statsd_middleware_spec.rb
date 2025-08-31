@@ -111,6 +111,7 @@ RSpec.describe StatsdMiddleware, type: :request do
   end
 
   it 'emits distribution metric with the same tags as the measure metric' do
+    expected_tags = %w[controller:statsd action:statsd_test source_app:not_provided]
     tags_from_measure = nil
     tags_from_distribution = nil
 
@@ -127,9 +128,9 @@ RSpec.describe StatsdMiddleware, type: :request do
     get '/statsd_test'
 
     expect(StatsD).to have_received(:measure)
-      .with(StatsdMiddleware::DURATION_KEY, kind_of(Numeric), tags: kind_of(Array))
+      .with(StatsdMiddleware::DURATION_KEY, kind_of(Numeric), tags: expected_tags)
     expect(StatsD).to have_received(:distribution)
-      .with(StatsdMiddleware::DURATION_DISTRIBUTION_KEY, kind_of(Numeric), tags: kind_of(Array))
+      .with(StatsdMiddleware::DURATION_DISTRIBUTION_KEY, kind_of(Numeric), tags: expected_tags)
     expect(tags_from_distribution).to match_array(tags_from_measure)
   end
 end
