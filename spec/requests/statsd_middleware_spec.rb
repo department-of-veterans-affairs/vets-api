@@ -43,7 +43,7 @@ RSpec.describe StatsdMiddleware, type: :request do
   it 'sends duration distribution data to statsd' do
     tags = %w[controller:statsd action:statsd_test source_app:not_provided]
     expect(StatsD).to receive(:distribution)
-      .with(StatsdMiddleware::DURATION_DISTRIBUTION_KEY, 0.0, tags: tags)
+      .with(StatsdMiddleware::DURATION_DISTRIBUTION_KEY, 0.0, tags:)
     get '/statsd_test'
   end
 
@@ -78,7 +78,7 @@ RSpec.describe StatsdMiddleware, type: :request do
   it 'provides duration distribution for missing routes' do
     tags = %w[controller:application action:routing_error source_app:not_provided]
     expect(StatsD).to receive(:distribution)
-      .with(StatsdMiddleware::DURATION_DISTRIBUTION_KEY, 0.0, tags: tags)
+      .with(StatsdMiddleware::DURATION_DISTRIBUTION_KEY, 0.0, tags:)
     get '/v0/blahblah'
   end
 
