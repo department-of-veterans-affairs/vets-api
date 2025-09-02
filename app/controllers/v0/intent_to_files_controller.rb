@@ -57,6 +57,10 @@ module V0
         response = intent_to_file_provider.get_intent_to_file(type, nil, nil)
       end
       render json: IntentToFileSerializer.new(response)
+    rescue => e
+      Rails.logger.error("Error occurred while processing ITF GET request: #{e.message}")
+      monitor.track_itf_controller_error('get', form_id, type, e.message)
+      raise e
     end
 
     def submit
@@ -80,6 +84,10 @@ module V0
         response = intent_to_file_provider.create_intent_to_file(type, nil, nil)
       end
       render json: IntentToFileSerializer.new(response)
+    rescue => e
+      Rails.logger.error("Error occurred while processing ITF submit request: #{e.message}")
+      monitor.track_itf_controller_error('post', form_id, type, e.message)
+      raise e
     end
 
     private

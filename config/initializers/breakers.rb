@@ -37,7 +37,7 @@ require 'search_click_tracking/configuration'
 require 'va_profile/address_validation/configuration'
 require 'va_profile/v3/address_validation/configuration'
 require 'va_profile/contact_information/configuration'
-require 'va_profile/v2/contact_information/configuration'
+require 'va_profile/contact_information/v2/configuration'
 require 'va_profile/communication/configuration'
 require 'va_profile/demographics/configuration'
 require 'va_profile/military_personnel/configuration'
@@ -79,7 +79,7 @@ Rails.application.reloader.to_prepare do
     VAProfile::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::V3::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::ContactInformation::Configuration.instance.breakers_service,
-    VAProfile::V2::ContactInformation::Configuration.instance.breakers_service,
+    VAProfile::ContactInformation::V2::Configuration.instance.breakers_service,
     VAProfile::Communication::Configuration.instance.breakers_service,
     VAProfile::Demographics::Configuration.instance.breakers_service,
     VAProfile::MilitaryPersonnel::Configuration.instance.breakers_service,

@@ -34,22 +34,29 @@ describe VAOS::V2::EpsAppointment do
   end
 
   describe '#serializable_hash' do
-    it 'returns a hash with the correct attributes' do
-      expected_hash = {
-        id: '1',
-        status: 'booked',
-        patient_icn: '1234567890V123456',
-        created: '2023-10-01T00:00:00Z',
-        location_id: 'network_1',
-        clinic: 'clinic_1',
-        start: '2023-10-10T10:00:00Z',
-        contact: 'contact_info',
-        referral_id: '12345',
-        referral: { referral_number: '12345' },
-        provider_service_id: 'clinic_1',
-        provider_name: 'unknown'
-      }
-      expect(subject.serializable_hash).to eq(expected_hash)
+    it 'returns a hash with the correct attributes including derived fields' do
+      Timecop.freeze(Time.zone.parse('2023-10-10T12:00:00Z')) do
+        expected_hash = {
+          id: '1',
+          status: 'booked',
+          patient_icn: '1234567890V123456',
+          created: '2023-10-01T00:00:00Z',
+          location_id: 'network_1',
+          clinic: 'clinic_1',
+          start: '2023-10-10T10:00:00Z',
+          contact: 'contact_info',
+          referral_id: '12345',
+          referral: { referral_number: '12345' },
+          provider_service_id: 'clinic_1',
+          provider_name: 'unknown',
+          kind: 'cc',
+          type: 'COMMUNITY_CARE_APPOINTMENT',
+          pending: false,
+          past: true,
+          future: false
+        }
+        expect(subject.serializable_hash).to eq(expected_hash)
+      end
     end
   end
 

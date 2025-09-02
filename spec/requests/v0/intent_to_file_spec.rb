@@ -128,6 +128,7 @@ RSpec.describe 'V0::IntentToFile', type: :request do
 
         def test_error(cassette_path, status, headers)
           VCR.use_cassette(cassette_path) do
+            expect(monitor).to receive(:track_itf_controller_error)
             get('/v0/intent_to_file', params: nil, headers:)
             expect(response).to have_http_status(status)
             expect(response).to match_response_schema('evss_errors', strict: false)
