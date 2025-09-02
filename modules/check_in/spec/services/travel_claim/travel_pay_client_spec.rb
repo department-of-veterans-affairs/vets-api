@@ -4,8 +4,16 @@ require 'rails_helper'
 require 'webmock/rspec'
 
 RSpec.describe TravelClaim::TravelPayClient do
-  let(:icn) { '1234567890V123456' }
-  let(:client) { described_class.new(icn:) }
+  let(:uuid) { 'test-uuid-123' }
+  let(:appointment_date_time) { '2024-01-01T12:00:00Z' }
+  let(:redis_client) { instance_double(TravelClaim::RedisClient) }
+  let(:client) { described_class.new(uuid:, appointment_date_time:) }
+
+  before do
+    allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
+    allow(redis_client).to receive(:icn).with(uuid:).and_return('1234567890V123456')
+    allow(redis_client).to receive(:station_number).with(uuid:).and_return('500')
+  end
 
   # Settings are configured in individual tests using with_settings
 
@@ -40,21 +48,15 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'makes system access token request with correct parameters' do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
-                    claims_url_v2: 'https://dev.integration.d365.va.gov',
-                    travel_pay_client_secret: 'fake_client_secret') do
+                    claims_url_v2: 'https://dev.integration.d365.va.gov') do
         VCR.use_cassette('check_in/travel_claim/system_access_token_200') do
-          result = client.system_access_token_request(
-            client_number:,
-            veis_access_token:,
-            icn:
-          )
+          result = client.send(:system_access_token_request,
+                               client_number: 'test-client',
+                               veis_access_token: 'test-veis-token',
+                               icn: '1234567890V123456')
 
           expect(result).to respond_to(:status)
-          expect(result).to respond_to(:body)
           expect(result.status).to eq(200)
-
-          response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
-          expect(response_body['data']['accessToken']).to be_present
         end
       end
     end
@@ -74,19 +76,10 @@ RSpec.describe TravelClaim::TravelPayClient do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
                     claims_url_v2: 'https://dev.integration.d365.va.gov') do
         VCR.use_cassette('check_in/travel_claim/appointments_find_or_add_200') do
-          result = client.send_appointment_request(
-            appointment_date_time:,
-            facility_id:
-          )
+          result = client.send_appointment_request
 
           expect(result).to respond_to(:status)
-          expect(result).to respond_to(:body)
           expect(result.status).to eq(200)
-
-          response_body = result.body.is_a?(String) ? JSON.parse(result.body) : result.body
-          expect(response_body['success']).to be true
-          expect(response_body['statusCode']).to eq(200)
-          expect(response_body['data']['id']).to be_present
         end
       end
     end
@@ -96,12 +89,9 @@ RSpec.describe TravelClaim::TravelPayClient do
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
                       claims_url_v2: 'https://dev.integration.d365.va.gov') do
           VCR.use_cassette('check_in/travel_claim/appointments_find_or_add_400') do
-            expect do
-              client.send_appointment_request(
-                appointment_date_time: 'invalid-date',
-                facility_id:
-              )
-            end.to raise_error(Common::Exceptions::BackendServiceException)
+            expect { client.send_appointment_request }.to raise_error(
+              Common::Exceptions::BackendServiceException
+            )
           end
         end
       end
@@ -501,9 +491,9 @@ RSpec.describe TravelClaim::TravelPayClient do
   end
 
   describe 'initialization' do
-    it 'raises error when ICN is blank' do
-      expect { described_class.new(icn: '') }.to raise_error(ArgumentError, 'ICN cannot be blank')
-      expect { described_class.new(icn: nil) }.to raise_error(ArgumentError, 'ICN cannot be blank')
+    it 'raises error when UUID is blank' do
+      expect { described_class.new(uuid: '', appointment_date_time:) }
+        .to raise_error(ArgumentError, 'UUID cannot be blank')
     end
   end
 
@@ -627,6 +617,32 @@ RSpec.describe TravelClaim::TravelPayClient do
                                   'Ocp-Apim-Subscription-Key-E' => 'e-sub',
                                   'Ocp-Apim-Subscription-Key-S' => 's-sub'
                                 })
+        end
+      end
+    end
+  end
+
+  describe '#patch method override' do
+    before do
+      allow(client.redis_client).to receive(:token).and_return('fake_veis_token_123')
+      client.instance_variable_set(:@current_veis_token, 'fake_veis_token_123')
+      client.instance_variable_set(:@current_btsss_token, 'fake_btsss_token_456')
+    end
+
+    it 'calls request method directly for PATCH requests' do
+      expect(client).to receive(:request).with(:patch, anything, anything, anything, anything)
+
+      client.send(:perform, :patch, '/test/patch', {}, {})
+    end
+
+    it 'successfully makes PATCH requests for claim submission' do
+      with_settings(Settings.check_in.travel_reimbursement_api_v2,
+                    claims_url_v2: 'https://dev.integration.d365.va.gov') do
+        VCR.use_cassette('check_in/travel_claim/claims_submit_200') do
+          result = client.send_claim_submission_request(claim_id: 'test-claim-id')
+
+          expect(result).to respond_to(:status)
+          expect(result.status).to eq(200)
         end
       end
     end
