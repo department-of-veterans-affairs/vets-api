@@ -545,6 +545,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     let(:mock_user) { double('User', loa: { current: 3 }) }
 
     before do
+      allow(Flipper).to receive(:enabled?).with(:champva_form_versioning, anything).and_return(false)
       allow(controller).to receive_messages(
         params: { form_number: '10-10D' },
         current_user: mock_user
@@ -707,7 +708,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           {
             'form_number' => '10-7959A',
             'claim_status' => 'resubmission',
-            'pdi_or_claim_number' => 'Claim control number',
+            'pdi_or_claim_number' => 'Control number',
             'identifying_number' => 'CLAIM789',
             'claims' => [
               { 'provider_name' => 'Test Provider' }
@@ -1462,7 +1463,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             form_id,
             attachment_guid,
             attachment.id,
-            'EOB'
+            'EOB',
+            anything
           )
 
           controller.send(:launch_background_job, attachment, form_id, 'EOB')
@@ -1473,16 +1475,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           expect(llm_job).to receive(:perform_async).with(
             form_id,
             attachment_guid,
-            match(%r{^/.*\.pdf$}), # PDF path after conversion
-            'EOB'
+            attachment.id, # attachment record ID instead of PDF path
+            'EOB',
+            anything
           )
-          # Mock the tempfile_from_attachment method to return a temp file
-          allow(controller).to receive(:tempfile_from_attachment).and_return(double(path: '/tmp/test_file.pdf'))
-          # Mock the Common::ConvertToPdf class to avoid loading issues
-          converter_double = double('ConvertToPdf')
-          allow(converter_double).to receive(:run).and_return('/tmp/converted.pdf')
-          stub_const('Common::ConvertToPdf', double('Class'))
-          allow(Common::ConvertToPdf).to receive(:new).and_return(converter_double)
 
           controller.send(:launch_background_job, attachment, form_id, 'EOB')
         end
