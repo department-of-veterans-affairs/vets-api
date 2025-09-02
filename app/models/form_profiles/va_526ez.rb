@@ -190,12 +190,6 @@ class FormProfiles::VA526ez < FormProfile
     return {} unless user.authorize :va_profile, :access_to_v2?
 
     contact_info = initialize_vets360_contact_info
-    # Logging was added below to contrast/compare completeness of contact information returned
-    # from VA Profile alone versus VA Profile + PCIU. This logging will be removed when the Flipper flag is.
-    Rails.logger.info("mailing_address=#{contact_info[:mailing_address].present?}," \
-                      "email_address=#{contact_info[:email_address].present?}," \
-                      "primary_phone=#{contact_info[:primary_phone].present?}")
-
     contact_info = VA526ez::FormContactInformation.new(contact_info)
 
     VA526ez::FormVeteranContactInformation.new(
