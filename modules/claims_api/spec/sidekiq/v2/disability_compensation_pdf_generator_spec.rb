@@ -39,6 +39,14 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
     claim
   end
 
+  let(:pending_claim) do
+    claim = create(:auto_established_claim, form_data:)
+    claim.status = ClaimsApi::AutoEstablishedClaim::PENDING
+    claim.auth_headers = auth_headers
+    claim.save
+    claim
+  end
+
   let(:errored_claim) do
     claim = create(:auto_established_claim, form_data:)
     claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
@@ -59,13 +67,36 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
         end.to change(subject.jobs, :size).by(1)
       end
 
-      it 'sets the claim status to pending when starting/rerunning' do
-        VCR.use_cassette('claims_api/disability_comp') do
-          expect(errored_claim.status).to eq('errored')
+      context 'sets the status on the claim as expected' do
+        it 'does not set status when claim.status is PENDING' do
+          VCR.use_cassette('claims_api/disability_comp') do
+            expect_any_instance_of(subject).not_to receive(:set_pending_state_on_claim)
 
-          service.perform(errored_claim.id, middle_initial)
-          errored_claim.reload
-          expect(errored_claim.status).to eq('pending')
+            service.perform(pending_claim.id, middle_initial)
+          end
+        end
+
+        it 'sets the claim status to pending when starting/rerunning' do
+          VCR.use_cassette('claims_api/disability_comp') do
+            expect(errored_claim.status).to eq('errored')
+
+            service.perform(errored_claim.id, middle_initial)
+            errored_claim.reload
+            expect(errored_claim.status).to eq('pending')
+          end
+        end
+      end
+
+      context 'mocking' do
+        it 'calls the Docker Container Job up front when mocking is enabled' do
+          allow(Settings.claims_api.benefits_documents).to receive(:use_mocks).and_return(true)
+
+          expect_any_instance_of(described_class).not_to receive(:set_pending_state_on_claim)
+          expect_any_instance_of(described_class).not_to receive(:pdf_mapper_service)
+          expect_any_instance_of(described_class).not_to receive(:generate_526_pdf)
+          expect_any_instance_of(described_class).to receive(:start_docker_container_job).with(claim.id).once
+
+          service.perform(claim.id, middle_initial)
         end
       end
     end
@@ -91,6 +122,103 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
           claim.reload
           expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
           expect(service).not_to receive(:start_docker_container_job)
+        end
+      end
+
+      context 'when an error is raised' do
+        context 'Faraday::ParsingError' do
+          let(:errors) do
+            [{ 'title' => 'Operation failed', 'detail' => 'Operation failed', 'code' => 'VA900', 'status' => '400' }]
+          end
+
+          before do
+            allow(Settings.claims_api.benefits_documents).to receive(:use_mocks).and_return(true)
+          end
+
+          it 'set the errored state, saves the response and logs the progress, in that order' do
+            allow(service).to receive(:set_errored_state_on_claim)
+            allow(service).to receive(:set_evss_response)
+            allow(service).to receive(:get_error_status_code)
+            allow(service).to receive(:log_job_progress)
+            allow(service).to receive(:start_docker_container_job).and_raise(
+              Faraday::ParsingError.new(errors)
+            )
+
+            expect do
+              service.perform(claim.id, middle_initial)
+            end.to raise_error(Faraday::ParsingError)
+            # this order matters, we need to set the state first thing in case anything else errors out
+            expect(service).to have_received(:set_errored_state_on_claim).with(claim).ordered
+            expect(service).to have_received(:set_evss_response).with(claim, kind_of(
+                                                                               Faraday::ParsingError
+                                                                             )).ordered
+            expect(service).to have_received(:get_error_status_code).with(kind_of(
+                                                                            Faraday::ParsingError
+                                                                          )).ordered
+            expect(service).to have_received(:log_job_progress).twice
+          end
+        end
+
+        context '::Common::Exceptions::BackendServiceException' do
+          let(:errors) do
+            [{ 'title' => 'Operation failed', 'detail' => 'Operation failed', 'code' => 'VA900', 'status' => '400' }]
+          end
+
+          before do
+            allow(Settings.claims_api.benefits_documents).to receive(:use_mocks).and_return(true)
+          end
+
+          it 'set the errored state, saves the response and logs the progress, in that order' do
+            allow(service).to receive(:set_errored_state_on_claim)
+            allow(service).to receive(:set_evss_response)
+            allow(service).to receive(:get_error_status_code)
+            allow(service).to receive(:log_job_progress)
+            allow(service).to receive(:start_docker_container_job).and_raise(
+              Common::Exceptions::BackendServiceException.new(errors)
+            )
+
+            expect do
+              service.perform(claim.id, middle_initial)
+            end.to raise_error(Common::Exceptions::BackendServiceException)
+            # this order matters, we need to set the state first thing in case anything else errors out
+            expect(service).to have_received(:set_errored_state_on_claim).with(claim).ordered
+            expect(service).to have_received(:set_evss_response).with(claim, kind_of(
+                                                                               Common::Exceptions::BackendServiceException
+                                                                             )).ordered
+            expect(service).to have_received(:get_error_status_code).with(kind_of(
+                                                                            Common::Exceptions::BackendServiceException
+                                                                          )).ordered
+            expect(service).to have_received(:log_job_progress).twice
+          end
+        end
+
+        context 'General Rescue' do
+          let(:errors) do
+            [{ 'title' => 'Operation failed', 'detail' => 'Operation failed', 'code' => 'VA900', 'status' => '400' }]
+          end
+
+          before do
+            allow(Settings.claims_api.benefits_documents).to receive(:use_mocks).and_return(true)
+          end
+
+          it 'set the errored state, saves the response and logs the progress, in that order' do
+            allow(service).to receive(:set_errored_state_on_claim)
+            allow(service).to receive(:set_evss_response)
+            allow(service).to receive(:log_job_progress)
+            allow(service).to receive(:start_docker_container_job).and_raise(
+              NoMethodError.new(errors)
+            )
+
+            expect do
+              service.perform(claim.id, middle_initial)
+            end.to raise_error(NoMethodError)
+            # this order matters, we need to set the state first thing in case anything else errors out
+            expect(service).to have_received(:set_errored_state_on_claim).with(claim).ordered
+            expect(service).to have_received(:set_evss_response).with(claim, kind_of(
+                                                                               NoMethodError
+                                                                             )).ordered
+            expect(service).to have_received(:log_job_progress).twice
+          end
         end
       end
     end

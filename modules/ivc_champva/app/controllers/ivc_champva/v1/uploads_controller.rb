@@ -281,7 +281,8 @@ module IvcChampva
         if Flipper.enabled?(:champva_enable_ocr_on_submit, @current_user) && form_id == '10-7959A'
           begin
             # queue Tesseract OCR job for tmpfile
-            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, attachment.id, attachment_id)
+            IvcChampva::TesseractOcrLoggerJob.perform_async(form_id, attachment.guid, attachment.id, attachment_id,
+                                                            @current_user)
             Rails.logger.info(
               "Tesseract OCR job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
             )
@@ -294,12 +295,9 @@ module IvcChampva
       def launch_llm_job(form_id, attachment, attachment_id)
         if Flipper.enabled?(:champva_enable_llm_on_submit, @current_user) && form_id == '10-7959A'
           begin
-            # create a temp file from the persistent attachment object
-            tmpfile = tempfile_from_attachment(attachment, form_id)
-
-            # queue LLM job for tmpfile
-            pdf_path = Common::ConvertToPdf.new(tmpfile).run
-            IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, pdf_path, attachment_id)
+            # queue LLM job for attachment record
+            IvcChampva::LlmLoggerJob.perform_async(form_id, attachment.guid, attachment.id, attachment_id,
+                                                   @current_user)
             Rails.logger.info(
               "LLM job queued for form_id: #{form_id}, attachment_id: #{attachment.guid}"
             )
@@ -356,6 +354,7 @@ module IvcChampva
         tmpfile.binmode
         tmpfile.write(attachment.file.read)
         tmpfile.flush
+        tmpfile.rewind
 
         content_type = if attachment.file.respond_to?(:content_type)
                          attachment.file.content_type
@@ -668,8 +667,11 @@ module IvcChampva
       end
 
       def get_attachment_ids_and_form(parsed_form_data)
-        form_id = get_form_id
-        form_class = "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize
+        base_form_id = get_form_id
+        form_id = IvcChampva::FormVersionManager.resolve_form_version(base_form_id, @current_user)
+        form = IvcChampva::FormVersionManager.create_form_instance(form_id, parsed_form_data, @current_user)
+
+        form_class = form.class
         additional_pdf_count = form_class.const_defined?(:ADDITIONAL_PDF_COUNT) ? form_class::ADDITIONAL_PDF_COUNT : 1
         applicant_key = form_class.const_defined?(:ADDITIONAL_PDF_KEY) ? form_class::ADDITIONAL_PDF_KEY : 'applicants'
 
@@ -679,8 +681,6 @@ module IvcChampva
         # `form_id` even on forms that don't have an `applicants` array (e.g. FMP2)
         applicant_rounded_number = total_applicants_count.ceil.zero? ? 1 : total_applicants_count.ceil
 
-        form = form_class.new(parsed_form_data)
-
         # Optionally add a supporting document with arbitrary form-defined values.
         add_blank_doc_and_stamp(form, parsed_form_data)
 
@@ -689,8 +689,8 @@ module IvcChampva
         form.track_current_user_loa(@current_user)
         form.track_email_usage
 
-        attachment_ids = build_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
-        attachment_ids = [form_id] if attachment_ids.empty?
+        attachment_ids = build_attachment_ids(base_form_id, parsed_form_data, applicant_rounded_number)
+        attachment_ids = [base_form_id] if attachment_ids.empty?
 
         [attachment_ids.compact, form]
       end
@@ -718,7 +718,7 @@ module IvcChampva
       ##
       # Builds the attachment_ids array for the given form submission.
       # For 10-7959a resubmissions:
-      #  - If Claim control number selected: the main claim sheet is labeled "CVA Reopen",
+      #  - If Control number selected: the main claim sheet is labeled "CVA Reopen",
       #    supporting docs retain original types.
       #  - If PDI selected: use the standard logic because the generated stamped doc
       #    (created in stamp_metadata) is labeled "CVA Bene Response" by the model, and
@@ -736,7 +736,7 @@ module IvcChampva
            parsed_form_data['claim_status'] == 'resubmission'
           selector = parsed_form_data['pdi_or_claim_number']
 
-          if selector == 'Claim control number'
+          if selector == 'Control number'
             # Relabel main claim sheet as CVA Reopen; supporting docs retain original types.
             main = Array.new(applicant_rounded_number) { 'CVA Reopen' }
             main.concat(supporting_document_ids(parsed_form_data))
@@ -787,14 +787,22 @@ module IvcChampva
       def get_file_paths_and_metadata(parsed_form_data)
         attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
 
-        filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
+        # Use the actual form ID for PDF generation, but legacy form ID for S3/metadata
+        actual_form_id = form.form_id
+        legacy_form_id = IvcChampva::FormVersionManager.get_legacy_form_id(actual_form_id)
+
+        filler = IvcChampva::PdfFiller.new(form_number: actual_form_id, form:, uuid: form.uuid, name: legacy_form_id)
 
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
                     else
                       filler.generate
                     end
+
+        # Get validated metadata and ensure docType uses legacy form ID for backwards compatibility
         metadata = IvcChampva::MetadataValidator.validate(form.metadata)
+        metadata['docType'] = legacy_form_id if IvcChampva::FormVersionManager.versioned_form?(actual_form_id)
+
         file_paths = form.handle_attachments(file_path)
 
         [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]

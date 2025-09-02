@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'mhv_ac/configuration'
 
-# rubocop:disable Rspec/SpecFilePathFormat
+# rubocop:disable RSpec/SpecFilePathFormat
 RSpec.describe MHVAC::Configuration do
   let(:configuration) { described_class.instance }
 
@@ -33,4 +33,4 @@ RSpec.describe MHVAC::Configuration do
     end
   end
 end
-# rubocop:enable Rspec/SpecFilePathFormat
+# rubocop:enable RSpec/SpecFilePathFormat
