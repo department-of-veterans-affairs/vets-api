@@ -13,6 +13,8 @@ MyHealth::Engine.routes.draw do
 
     resources :aal, only: %i[create], controller: 'aal', defaults: { format: :json }
 
+    resources :unique_user_metrics, only: %i[create], controller: 'unique_user_metrics', defaults: { format: :json }
+
     scope :medical_records do
       resources :vaccines, only: %i[index show], defaults: { format: :json } do
         get :pdf, on: :collection
