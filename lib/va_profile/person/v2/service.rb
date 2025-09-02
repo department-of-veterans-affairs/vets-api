@@ -2,33 +2,33 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
-require 'va_profile/v2/contact_information/configuration'
-require 'va_profile/v2/contact_information/transaction_response'
+require 'va_profile/contact_information/v2/configuration'
+require 'va_profile/contact_information/v2/transaction_response'
 require 'va_profile/service'
 require 'va_profile/stats'
 require 'identity/parsers/gc_ids_constants'
 
 module VAProfile
-  module V2
-    module Person
+  module Person
+    module V2
       class Service < VAProfile::Service
         include Common::Client::Concerns::Monitoring
         include ERB::Util
 
         STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.person".freeze
-        configuration VAProfile::V2::ContactInformation::Configuration
+        configuration VAProfile::ContactInformation::V2::Configuration
 
         # Initializes a VAProfile_ID for a user that does not have one. Can be used when a current user
         # is present, or through a rake task when no user is present (through passing in their ICN).
         # This is an asynchronous process for VAProfile, so it returns VAProfile transaction information.
         #
-        # @return [VAProfile::V2::ContactInformation::PersonTransactionResponse]
+        # @return [VAProfile::ContactInformation::V2::PersonTransactionResponse]
         # response wrapper around a transaction object
         #
         def init_vet360_id(icn = nil)
           with_monitoring do
             raw_response = perform(:post, encode_url!(icn), empty_body)
-            VAProfile::V2::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
+            VAProfile::ContactInformation::V2::PersonTransactionResponse.from(raw_response, @user)
           end
         rescue => e
           handle_error(e)

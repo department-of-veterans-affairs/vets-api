@@ -283,6 +283,12 @@ features:
   champva_foreign_address_fix:
     actor_type: user
     description: Enables the fix for foreign address fields on form submissions
+  champva_form_versioning:
+    actor_type: user
+    description: Enables the form versioning for IVC CHAMPVA form submissions
+  champva_form_10_10d_2027:
+    actor_type: user
+    description: If enabled uses the 2027 version of form 10-10d with expiration 12/31/2027
   champva_ves_retry_failures_job:
     actor_type: user
     description: Enables the sidekiq job to retry VES submissions that failed
@@ -2399,4 +2405,8 @@ features:
   gi_comparison_tool_cautionary_info_update:
     actor_type: user
     description: Enables updated cautionary info student feedback ui for GI Comparison Tool
+  va_online_scheduling_add_substance_use_disorder:
+    actor_type: user
+    description: Enables substance use disorder as care related to mental health appointments with new codes
+    enable_in_development: true
 
