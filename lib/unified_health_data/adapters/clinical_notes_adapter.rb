@@ -34,7 +34,7 @@ module UnifiedHealthData
           UnifiedHealthData::ClinicalNotes.new({
                                                  id: record['id'],
                                                  name: get_title(record),
-                                                 note_type: get_record_type(record), # send both pre-mapped type and codes
+                                                 note_type: get_record_type(record),
                                                  loinc_code: get_loinc_code(record),
                                                  date: record['date'],
                                                  date_signed: get_date_signed(record),
