@@ -37,6 +37,29 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
           }
         )
       end
+
+      context 'when VES associations are missing name and relationship' do
+        it 'returns the form associations array with default values' do
+          reconciled_associations = described_class.new(
+            associations_missing_relationship_and_name,
+            primary_next_of_kin
+          ).reconcile_associations
+
+          expect(reconciled_associations.count).to eq(2)
+          # The data is in the EZR schema format
+          expect(reconciled_associations.find { |a| a['contactType'] == 'Emergency Contact' }).to eq(
+            {
+              'contactType' => 'Emergency Contact',
+              'fullName' => {
+                'first' => described_class::UNKNOWN_NAME,
+                'last' => described_class::UNKNOWN_NAME
+              },
+              'relationship' => described_class::UNKNOWN_RELATION,
+              'deleteIndicator' => true
+            }
+          )
+        end
+      end
     end
 
     context 'when no associations were deleted on the frontend' do
