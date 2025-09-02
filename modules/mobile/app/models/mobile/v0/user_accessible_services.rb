@@ -34,7 +34,9 @@ module Mobile
           prescriptions: access?(mhv_prescriptions: :access?),
           scheduleAppointments: access?(schedule_appointment: :access?),
           secureMessaging: access?(mhv_messaging: :mobile_access?),
-          userProfileUpdate: access?(va_profile: :access_to_v2?)
+          userProfileUpdate: access?(va_profile: :access_to_v2?),
+          secureMessagingOHEnabled: Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, @user),
+          medicationsOHEnabled: false, # Once RX cerner flipper is added this will need to be updated
         }
       end
 
