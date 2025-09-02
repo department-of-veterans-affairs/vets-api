@@ -76,7 +76,6 @@ Rails.application.reloader.to_prepare do
     SM::Configuration.instance.breakers_service,
     VeteranEnrollmentSystem::Associations::Configuration.instance.breakers_service,
     VeteranEnrollmentSystem::BaseConfiguration.instance.breakers_service,
-    VAProfile::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::AddressValidation::V3::Configuration.instance.breakers_service,
     VAProfile::ContactInformation::Configuration.instance.breakers_service,
     VAProfile::ContactInformation::V2::Configuration.instance.breakers_service,
