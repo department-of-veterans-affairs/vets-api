@@ -22,10 +22,10 @@ module Apps
 
       def initialize(status, body, schema_name)
         @body = if status == 204
-                      nil
-                    else
-                      json_format_is_valid?(body, schema_name) ? body : {}
-                    end
+                  nil
+                else
+                  json_format_is_valid?(body, schema_name) ? body : {}
+                end
         @status = status
         super()
       end
