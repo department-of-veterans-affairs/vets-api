@@ -68,7 +68,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
       end
     end
 
-    context 'with a 400 response' do
+    context 'with a 400 response id error' do
       it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('va_profile/v2/contact_information/post_email_w_id_error') do
           post('/v0/profile/email_addresses',

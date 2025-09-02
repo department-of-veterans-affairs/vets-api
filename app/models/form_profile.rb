@@ -347,10 +347,11 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    # look into init_vet360_id if Vet360_id is null
-    @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
-
-    @vet360_contact_info
+    if user.icn.present? || user.vet360_id.present?
+      @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
+    else
+      Rails.logger.info('Vet360 Contact Info Null')
+    end
   end
 
   def vet360_mailing_address

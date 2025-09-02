@@ -22,14 +22,14 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
   def create_accredited_individual
     create(:accredited_individual,
-            { id:,
-              first_name: 'Bob',
-              last_name: 'Law',
-              lat: '39',
-              long: '-75',
-              email: 'email@example.com',
-              location: 'POINT(-75 39)',
-              phone: '111-111-1111' }.merge(address_attributes))
+           { id:,
+             first_name: 'Bob',
+             last_name: 'Law',
+             lat: '39',
+             long: '-75',
+             email: 'email@example.com',
+             location: 'POINT(-75 39)',
+             phone: '111-111-1111' }.merge(address_attributes))
   end
   describe '#perform' do
     let(:json_data) do
@@ -301,8 +301,8 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
         before do
           allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero,
-                                                                    api_response_with_zero,
-                                                                    api_response2)
+                                                                   api_response_with_zero,
+                                                                   api_response2)
         end
 
         it 'does not update the representative address' do
@@ -323,9 +323,9 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
         before do
           allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero,
-                                                                    api_response_with_zero,
-                                                                    api_response_with_zero,
-                                                                    api_response3)
+                                                                   api_response_with_zero,
+                                                                   api_response_with_zero,
+                                                                   api_response3)
         end
 
         it 'updates the representative address' do
