@@ -486,6 +486,8 @@ module VAOS
         set_derived_appointment_date_fields(appointment)
 
         appointment[:show_schedule_link] = schedulable?(appointment) if appointment[:status] == 'cancelled'
+
+        log_telehealth_issue(appointment) if appointment[:modality] == 'vaVideoCareAtHome'
       end
       # rubocop:enable Metrics/MethodLength
 
@@ -946,8 +948,8 @@ module VAOS
         if appointment[:telehealth] && appointment[:modality] == 'vaVideoCareAtHome' && appointment[:start]
           # if current time is between 30 minutes prior to appointment.start and 4 hours after appointment.start, set
           # telehealth_visible to true
-          appointment[:telehealth][:displayLink] = (appointment[:start].to_datetime - 30.minutes) <= Time.now.utc &&
-                                                   (appointment[:start].to_datetime + 4.hours) >= Time.now.utc
+          appointment[:telehealth][:display_link] = (appointment[:start].to_datetime - 30.minutes) <= Time.now.utc &&
+                                                    (appointment[:start].to_datetime + 4.hours) >= Time.now.utc
         end
       end
 
@@ -977,6 +979,18 @@ module VAOS
         appointment[:pending] = request?(appointment)
         appointment[:past] = past?(appointment)
         appointment[:future] = future?(appointment)
+      end
+
+      def log_telehealth_issue(appointment)
+        context = {
+          displayLink: appointment.dig(:telehealth, :display_link),
+          kind: appointment[:kind],
+          modality: appointment[:modality],
+          start: appointment[:start],
+          telehealthUrl: appointment.dig(:telehealth, :url),
+          vvsVistaVideoAppt: appointment.dig(:extension, :vvs_vista_video_appt)
+        }
+        Rails.logger.warn('VAOS video telehealth issue', context.to_json) if context[:telehealthUrl].blank?
       end
 
       def log_modality_failure(appointment)
