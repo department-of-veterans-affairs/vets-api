@@ -9,8 +9,8 @@ require 'va_profile/stats'
 require 'identity/parsers/gc_ids_constants'
 
 module VAProfile
-  module V2
-    module Person
+  module Person
+    module V2
       class Service < VAProfile::Service
         include Common::Client::Concerns::Monitoring
         include ERB::Util

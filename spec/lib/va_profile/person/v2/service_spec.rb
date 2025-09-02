@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'va_profile/v2/person/service'
+require 'va_profile/person/v2/service'
 
-describe VAProfile::V2::Person::Service, :skip_vet360 do
+describe VAProfile::Person::V2::Service, :skip_vet360 do
   before { Timecop.freeze('2024-09-16T16:09:37.000Z') }
 
   after  { Timecop.return }
