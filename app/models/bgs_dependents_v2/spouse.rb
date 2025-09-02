@@ -66,7 +66,7 @@ module BGSDependentsV2
       @martl_status_type_cd = marital_status
       @vet_ind = spouse_is_veteran
       @address = spouse_address
-      @spouse_income = formatted_boolean(@dependents_application['does_live_with_spouse']['spouse_income'])
+      @spouse_income = spouse_income
       @first = @spouse_information['full_name']['first']
       @middle = @spouse_information['full_name']['middle']
       @last = @spouse_information['full_name']['last']
@@ -84,6 +84,14 @@ module BGSDependentsV2
 
     def marital_status
       lives_with_vet ? 'Married' : 'Separated'
+    end
+
+    def spouse_income
+      if @dependents_application['does_live_with_spouse']['spouse_income'] == 'NA'
+        nil
+      else
+        @dependents_application['does_live_with_spouse']['spouse_income']
+      end
     end
 
     def spouse_address

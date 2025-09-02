@@ -22,7 +22,7 @@ module RepresentationManagement
       private
 
       def feature_enabled
-        routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
+        routing_error unless Flipper.enabled?(:find_a_representative_use_accredited_models)
       end
     end
   end
