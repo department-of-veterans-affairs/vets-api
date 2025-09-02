@@ -11,13 +11,13 @@ RSpec.shared_examples 'a organization email or phone update process' do |flag_ty
     let(:address_exists) { true }
 
     before do
-      allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::V3::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
+      allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(double('VAProfile::AddressValidation::V3::Service', candidate: nil)) # rubocop:disable Layout/LineLength
     end
 
     it 'does not call validate_address' do
       subject.perform(json_data)
 
-      expect(VAProfile::V3::AddressValidation::Service).not_to have_received(:new)
+      expect(VAProfile::AddressValidation::V3::Service).not_to have_received(:new)
     end
   end
 end
@@ -105,7 +105,7 @@ RSpec.describe Organizations::Update do
     end
 
     before do
-      address_validation_service = VAProfile::V3::AddressValidation::Service
+      address_validation_service = VAProfile::AddressValidation::V3::Service
       allow_any_instance_of(address_validation_service).to receive(:candidate).and_return(api_response_v3)
     end
 
@@ -168,7 +168,7 @@ RSpec.describe Organizations::Update do
       let(:address_exists) { true }
       let(:address_changed) { true }
       let!(:organization) { create_organization }
-      let(:validation_stub) { instance_double(VAProfile::V3::AddressValidation::Service) }
+      let(:validation_stub) { instance_double(VAProfile::AddressValidation::V3::Service) }
       let(:api_response_with_zero_v2) do
         {
           'candidate_addresses' => [
@@ -312,7 +312,7 @@ RSpec.describe Organizations::Update do
 
       context 'when the first retry has non-zero coordinates' do
         before do
-          allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response1_v3)
         end
 
@@ -332,7 +332,7 @@ RSpec.describe Organizations::Update do
 
       context 'when the second retry has non-zero coordinates' do
         before do
-          allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2,
                                                                    api_response_with_zero_v2,
                                                                    api_response2_v3)
@@ -354,7 +354,7 @@ RSpec.describe Organizations::Update do
 
       context 'when the third retry has non-zero coordinates' do
         before do
-          allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2,
                                                                    api_response_with_zero_v2,
                                                                    api_response_with_zero_v2,
@@ -377,7 +377,7 @@ RSpec.describe Organizations::Update do
 
       context 'when the retry coordinates are all zero' do
         before do
-          allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2,
                                                                    api_response_with_zero_v2,
                                                                    api_response_with_zero_v2,

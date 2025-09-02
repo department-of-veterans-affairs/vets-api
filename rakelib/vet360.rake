@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'va_profile/v2/contact_information/service'
+require 'va_profile/contact_information/v2/service'
 require 'va_profile/exceptions/builder'
 require 'va_profile/models/email'
 require 'va_profile/models/telephone'
-require 'va_profile/v2/person/service'
+require 'va_profile/person/v2/service'
 
 namespace :vet360 do
   ###########
@@ -18,7 +18,7 @@ namespace :vet360 do
   desc 'Request Vet360 person contact information'
   task :get_person, [:vet360_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
-    trx = VAProfile::V2::ContactInformation::Service.new(user_struct(args[:vet360_id])).get_person
+    trx = VAProfile::ContactInformation::V2::Service.new(user_struct(args[:vet360_id])).get_person
     pp trx.to_h
   end
 
@@ -26,7 +26,7 @@ namespace :vet360 do
   task :get_email_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::V2::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(args[:vet360_id]))
           .get_email_transaction_status(args[:tx_audit_id])
     pp trx.to_h
@@ -36,7 +36,7 @@ namespace :vet360 do
   task :get_address_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::V2::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(args[:vet360_id]))
           .get_address_transaction_status(args[:tx_audit_id])
     pp trx.to_h
@@ -46,7 +46,7 @@ namespace :vet360 do
   task :get_telephone_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::V2::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(args[:vet360_id]))
           .get_telephone_transaction_status(args[:tx_audit_id])
     pp trx.to_h
@@ -56,7 +56,7 @@ namespace :vet360 do
   task :get_permission_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::V2::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(args[:vet360_id]))
           .get_permission_transaction_status(args[:tx_audit_id])
     pp trx.to_h
@@ -82,7 +82,7 @@ namespace :vet360 do
     vet360_id = data['vet360_id']
 
     email = VAProfile::Models::Email.build_from(data)
-    trx = VAProfile::V2::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(vet360_id))
           .put_email(email)
     pp trx.to_h
@@ -105,7 +105,7 @@ namespace :vet360 do
     vet360_id = body['vet360_id']
 
     telephone = VAProfile::Models::Telephone.build_from(body)
-    trx = VAProfile::V2::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(vet360_id))
           .put_telephone(telephone)
     pp trx.to_h
@@ -130,7 +130,7 @@ namespace :vet360 do
     vet360_id = body['vet360_id']
 
     address = VAProfile::Models::V3::Address.build_from(body)
-    trx = VAProfile::V2::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(vet360_id))
           .put_address(address)
     pp trx.to_h
@@ -155,7 +155,7 @@ namespace :vet360 do
     vet360_id = body['vet360_id']
 
     email = VAProfile::Models::Email.build_from(body)
-    trx = VAProfile::V2::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(vet360_id))
           .post_email(email)
     pp trx.to_h
@@ -180,7 +180,7 @@ namespace :vet360 do
     vet360_id = body['vet360_id']
 
     telephone = VAProfile::Models::Telephone.build_from(body)
-    trx = VAProfile::V2::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(vet360_id))
           .post_telephone(telephone)
     pp trx.to_h
@@ -203,7 +203,7 @@ namespace :vet360 do
     vet360_id = body['vet360_id']
 
     address = VAProfile::Models::V3::Address.build_from(body)
-    trx = VAProfile::V2::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(vet360_id))
           .post_address(address)
     pp trx.to_h
@@ -221,7 +221,7 @@ namespace :vet360 do
     Note: There *cannot* be any spaces around the commas (i.e. [123456, 1312312, 134234234, 4234234])
   DESCRIPTION
   task :init_vet360_id, [:icns] => [:environment] do |_, args|
-    service = VAProfile::V2::Person::Service.new('rake_user')
+    service = VAProfile::Person::V2::Service.new('rake_user')
     icns    = args.extras.prepend(args[:icns])
     results = []
 

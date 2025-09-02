@@ -18,7 +18,7 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
     Timecop.return
   end
 
-  describe 'POST /v0/profile/initialize_vet360_id v2' do
+  describe 'POST /v0/profile/initialize_vet360_id' do
     let(:empty_body) do
       {
         bio: {
@@ -86,7 +86,7 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
     end
   end
 
-  describe 'GET /v0/profile/person/status/:transaction_id v2' do
+  describe 'GET /v0/profile/person/status/:transaction_id' do
     context 'with an ok response' do
       let(:transaction) do
         create(:initialize_person_transaction,

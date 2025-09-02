@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'va_profile/models/validation_address'
-require 'va_profile/address_validation/service'
 require 'va_profile/models/v3/validation_address'
-require 'va_profile/v3/address_validation/service'
+require 'va_profile/address_validation/v3/service'
 
 module Representatives
   # Processes updates for representative records based on provided JSON data.
@@ -95,7 +93,7 @@ module Representatives
     # @param candidate_address [VAProfile::Models::ValidationAddress] The address to be validated.
     # @return [Hash] The response from the address validation service.
     def validate_address(candidate_address)
-      validation_service = VAProfile::V3::AddressValidation::Service.new
+      validation_service = VAProfile::AddressValidation::V3::Service.new
       validation_service.candidate(candidate_address)
     end
 
@@ -220,7 +218,7 @@ module Representatives
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values
     #   for DualAddressError warnings we see with some P.O. Box addresses the validator struggles with
-    # @param candidate_address [Hash] an address hash object returned by [VAProfile::AddressValidation::Service]
+    # @param candidate_address [Hash] an address hash object returned by [VAProfile::AddressValidation::V3::Service]
     # @return [Boolean]
     def lat_long_zero?(candidate_address)
       address = candidate_address['candidate_addresses']&.first

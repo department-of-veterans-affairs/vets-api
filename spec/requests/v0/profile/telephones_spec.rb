@@ -14,7 +14,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
     sign_in_as(user)
   end
 
-  describe 'POST /v0/profile/telephones v2' do
+  describe 'POST /v0/profile/telephones' do
     let(:telephone) { build(:telephone, :contact_info_v2, vet360_id: user.vet360_id) }
 
     context 'with a 200 response' do
@@ -102,7 +102,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
     end
   end
 
-  describe 'PUT /v0/profile/telephones v2' do
+  describe 'PUT /v0/profile/telephones' do
     let(:telephone) { build(:telephone, :contact_info_v2, id: 42) }
 
     context 'with a 200 response' do
@@ -196,7 +196,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
     end
   end
 
-  describe 'POST /v0/profile/telephones/create_or_update v2' do
+  describe 'POST /v0/profile/telephones/create_or_update' do
     before do
       Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.000Z'))
     end
@@ -208,7 +208,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
     let(:telephone) { build(:telephone, :contact_info_v2, id: 42) }
 
     it 'calls update_telephone' do
-      expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:update_telephone)
+      expect_any_instance_of(VAProfile::ContactInformation::V2::Service).to receive(:update_telephone)
         .and_call_original
       VCR.use_cassette('va_profile/v2/contact_information/put_telephone_success') do
         post('/v0/profile/telephones/create_or_update', params: telephone.to_json, headers:)
@@ -218,7 +218,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
     end
   end
 
-  describe 'DELETE /v0/profile/telephones v2' do
+  describe 'DELETE /v0/profile/telephones' do
     before do
       Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.000Z'))
     end

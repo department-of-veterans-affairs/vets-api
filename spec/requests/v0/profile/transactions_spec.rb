@@ -13,7 +13,7 @@ RSpec.describe 'transactions' do
     sign_in_as(user)
   end
 
-  describe 'GET /v0/profile/status/:transaction_id v2' do
+  describe 'GET /v0/profile/status/:transaction_id' do
     before do
       Timecop.freeze('2024-08-28T18:51:06Z')
     end
@@ -93,7 +93,7 @@ RSpec.describe 'transactions' do
     end
   end
 
-  describe 'GET /v0/profile/status/ v2' do
+  describe 'GET /v0/profile/status/' do
     let(:user) { build(:user, :loa3) }
 
     context 'when transaction(s) exists' do

@@ -19,7 +19,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
     Timecop.return
   end
 
-  describe 'POST /v0/profile/addresses v2' do
+  describe 'POST /v0/profile/addresses' do
     let(:address) { build(:va_profile_v3_address) }
 
     context 'with a 200 response' do
@@ -51,7 +51,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
     end
   end
 
-  describe 'POST /v0/profile/addresses 400 v2' do
+  describe 'POST /v0/profile/addresses 400' do
     let(:address) { build(:va_profile_address, :id_error, vet360_id: user.vet360_id) }
     let(:frozen_time) { Time.zone.parse('2024-08-27T18:51:06.012Z') }
 
@@ -146,7 +146,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
     end
   end
 
-  describe 'PUT /v0/profile/addresses v2' do
+  describe 'PUT /v0/profile/addresses' do
     let(:address) { build(:va_profile_v3_address) }
 
     context 'with a 200 response' do
@@ -228,7 +228,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
       end
 
       it 'effective_end_date is NOT included in the request body', :aggregate_failures do
-        expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:put_address) do |_, address|
+        expect_any_instance_of(VAProfile::ContactInformation::V2::Service).to receive(:put_address) do |_, address|
           expect(address.effective_end_date).to be_nil
         end
 
@@ -249,7 +249,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
     end
   end
 
-  describe 'DELETE /v0/profile/addresses v2' do
+  describe 'DELETE /v0/profile/addresses' do
     context 'when the method is DELETE' do
       let(:frozen_time) { Time.zone.parse('2020-02-13T20:47:45.000Z') }
       let(:address) do

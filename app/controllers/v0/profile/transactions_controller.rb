@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'va_profile/v2/contact_information/service'
+require 'va_profile/contact_information/v2/service'
 
 module V0
   module Profile
@@ -28,7 +28,7 @@ module V0
       end
 
       def service
-        VAProfile::V2::ContactInformation::Service.new @current_user
+        VAProfile::ContactInformation::V2::Service.new @current_user
       end
     end
   end

@@ -31,19 +31,6 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
              location: 'POINT(-75 39)',
              phone: '111-111-1111' }.merge(address_attributes))
   end
-
-  def create_accredited_individual
-    create(:accredited_individual,
-            { id:,
-              first_name: 'Bob',
-              last_name: 'Law',
-              lat: '39',
-              long: '-75',
-              email: 'email@example.com',
-              location: 'POINT(-75 39)',
-              phone: '111-111-1111' }.merge(address_attributes))
-  end
-
   describe '#perform' do
     let(:json_data) do
       [
@@ -67,7 +54,7 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
         }
       ].to_json
     end
-    let(:api_response_v3) do
+    let(:api_response) do
       {
         'candidate_addresses' => [
           {
@@ -104,8 +91,8 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
     end
 
     before do
-      validation_service = VAProfile::V3::AddressValidation::Service
-      allow_any_instance_of(validation_service).to receive(:candidate).and_return(api_response_v3)
+      validation_service = VAProfile::AddressValidation::V3::Service
+      allow_any_instance_of(validation_service).to receive(:candidate).and_return(api_response)
     end
 
     context 'when JSON parsing fails' do
@@ -148,8 +135,8 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
     context 'address validation retries' do
       let(:id) { SecureRandom.uuid }
       let!(:representative) { create_accredited_individual }
-      let(:validation_stub) { instance_double(VAProfile::V3::AddressValidation::Service) }
-      let(:api_response_with_zero_v3) do
+      let(:validation_stub) { instance_double(VAProfile::AddressValidation::V3::Service) }
+      let(:api_response_with_zero) do
         {
           'candidate_addresses' => [
             {
@@ -254,7 +241,7 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
           ]
         }
       end
-      let(:api_response3_v3) do
+      let(:api_response3) do
         {
           'candidate_addresses' => [
             {
@@ -292,8 +279,8 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
       context 'when the first retry has non-zero coordinates' do
         before do
-          allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3, api_response1)
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response1)
         end
 
         it 'does not update the representative address' do
@@ -312,10 +299,10 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
       context 'when the second retry has non-zero coordinates' do
         before do
-          allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
-                                                                    api_response_with_zero_v3,
-                                                                    api_response2)
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero,
+                                                                   api_response_with_zero,
+                                                                   api_response2)
         end
 
         it 'does not update the representative address' do
@@ -334,11 +321,11 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
       context 'when the third retry has non-zero coordinates' do
         before do
-          allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
-                                                                    api_response_with_zero_v3,
-                                                                    api_response_with_zero_v3,
-                                                                    api_response3_v3)
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero,
+                                                                   api_response_with_zero,
+                                                                   api_response_with_zero,
+                                                                   api_response3)
         end
 
         it 'updates the representative address' do
@@ -357,11 +344,8 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
       context 'when the retry coordinates are all zero' do
         before do
-          allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
-                                                                    api_response_with_zero_v3,
-                                                                    api_response_with_zero_v3,
-                                                                    api_response_with_zero_v3)
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero)
         end
 
         it 'does not update the representative address' do
