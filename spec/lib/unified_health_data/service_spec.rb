@@ -889,10 +889,10 @@ describe UnifiedHealthData::Service, type: :service do
     it 'extracts single note text' do
       resource = { 'note' => [{ 'text' => 'Single comment' }] }
       comments = service.send(:extract_condition_comments, resource)
-      expect(comments).to eq('Single comment')
+      expect(comments).to eq(['Single comment'])
     end
 
-    it 'joins multiple note texts with semicolons' do
+    it 'extracts multiple note texts as array' do
       resource = {
         'note' => [
           { 'text' => 'First comment' },
@@ -901,25 +901,25 @@ describe UnifiedHealthData::Service, type: :service do
         ]
       }
       comments = service.send(:extract_condition_comments, resource)
-      expect(comments).to eq('First comment; Second comment; Third comment')
+      expect(comments).to eq(['First comment', 'Second comment', 'Third comment'])
     end
 
     it 'handles single note object (not array)' do
       resource = { 'note' => { 'text' => 'Single note object' } }
       comments = service.send(:extract_condition_comments, resource)
-      expect(comments).to eq('Single note object')
+      expect(comments).to eq(['Single note object'])
     end
 
     it 'handles missing note field' do
       resource = {}
       comments = service.send(:extract_condition_comments, resource)
-      expect(comments).to eq('')
+      expect(comments).to eq([])
     end
 
     it 'handles nil note field' do
       resource = { 'note' => nil }
       comments = service.send(:extract_condition_comments, resource)
-      expect(comments).to eq('')
+      expect(comments).to eq([])
     end
 
     it 'filters out notes with missing text' do
@@ -931,13 +931,13 @@ describe UnifiedHealthData::Service, type: :service do
         ]
       }
       comments = service.send(:extract_condition_comments, resource)
-      expect(comments).to eq('Valid comment; Another valid comment')
+      expect(comments).to eq(['Valid comment', 'Another valid comment'])
     end
 
     it 'handles empty note array' do
       resource = { 'note' => [] }
       comments = service.send(:extract_condition_comments, resource)
-      expect(comments).to eq('')
+      expect(comments).to eq([])
     end
   end
 

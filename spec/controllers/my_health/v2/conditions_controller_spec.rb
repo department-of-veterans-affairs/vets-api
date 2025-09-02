@@ -22,7 +22,7 @@ RSpec.describe MyHealth::V2::ConditionsController, type: :controller do
           name: 'Test Condition',
           provider: 'Dr. Test',
           facility: 'Test Facility',
-          comments: 'Test comments'
+          comments: ['Test comments', 'Follow-up needed']
         )
       ]
     end
@@ -54,7 +54,7 @@ RSpec.describe MyHealth::V2::ConditionsController, type: :controller do
         'name' => 'Test Condition',
         'provider' => 'Dr. Test',
         'facility' => 'Test Facility',
-        'comments' => 'Test comments'
+        'comments' => ['Test comments', 'Follow-up needed']
       )
     end
 

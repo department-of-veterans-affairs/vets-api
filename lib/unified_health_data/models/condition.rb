@@ -11,6 +11,6 @@ module UnifiedHealthData
     attribute :name, String
     attribute :provider, String
     attribute :facility, String
-    attribute :comments, String
+    attribute :comments, Array
   end
 end

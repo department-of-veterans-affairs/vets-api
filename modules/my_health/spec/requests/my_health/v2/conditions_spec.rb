@@ -21,7 +21,7 @@ RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, 
         name: 'Essential hypertension',
         provider: 'Dr. Smith, John',
         facility: 'VA Medical Center',
-        comments: 'Well-controlled with medication.'
+        comments: ['Well-controlled with medication.', 'Patient adherent to treatment plan.']
       ),
       UnifiedHealthData::Condition.new(
         id: 'condition-2',
@@ -29,7 +29,7 @@ RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, 
         name: 'Major depressive disorder, recurrent, moderate',
         provider: 'BORLAND,VICTORIA A',
         facility: 'CHYSHR TEST LAB',
-        comments: nil
+        comments: []
       )
     ]
   end
@@ -65,7 +65,7 @@ RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, 
           'name' => 'Essential hypertension',
           'provider' => 'Dr. Smith, John',
           'facility' => 'VA Medical Center',
-          'comments' => 'Well-controlled with medication.'
+          'comments' => ['Well-controlled with medication.', 'Patient adherent to treatment plan.']
         )
 
         # Test second condition (with null date)
@@ -77,7 +77,7 @@ RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, 
           'name' => 'Major depressive disorder, recurrent, moderate',
           'provider' => 'BORLAND,VICTORIA A',
           'facility' => 'CHYSHR TEST LAB',
-          'comments' => nil
+          'comments' => []
         )
       end
     end

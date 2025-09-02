@@ -12,7 +12,7 @@ RSpec.describe UnifiedHealthData::Serializers::ConditionSerializer do
       name: 'Essential hypertension',
       provider: 'Dr. Smith, John',
       facility: 'VA Medical Center',
-      comments: 'Well-controlled with medication.'
+      comments: ['Well-controlled with medication.', 'Patient adherent to treatment plan.']
     )
   end
 
@@ -28,7 +28,7 @@ RSpec.describe UnifiedHealthData::Serializers::ConditionSerializer do
           name: 'Essential hypertension',
           provider: 'Dr. Smith, John',
           facility: 'VA Medical Center',
-          comments: 'Well-controlled with medication.'
+          comments: ['Well-controlled with medication.', 'Patient adherent to treatment plan.']
         )
       end
 
@@ -48,11 +48,11 @@ RSpec.describe UnifiedHealthData::Serializers::ConditionSerializer do
           name: 'Essential hypertension',
           provider: nil,
           facility: '',
-          comments: '   '
+          comments: []
         )
       end
 
-      it 'returns empty strings for missing optional fields' do
+      it 'returns empty array for missing optional fields' do
         result = described_class.new(minimal_condition).serializable_hash[:data]
 
         expect(result[:id]).to eq('condition-456')
@@ -61,8 +61,8 @@ RSpec.describe UnifiedHealthData::Serializers::ConditionSerializer do
           date: '2025-01-15T10:30:00Z',
           name: 'Essential hypertension',
           provider: nil,
-          facility: '', # JSONAPI serializer returns empty string, not nil
-          comments: '   ' # JSONAPI serializer returns whitespace as-is
+          facility: '',
+          comments: []
         )
       end
     end

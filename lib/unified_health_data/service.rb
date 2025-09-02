@@ -181,12 +181,12 @@ module UnifiedHealthData
     end
 
     def extract_condition_comments(resource)
-      return '' unless resource['note']
+      return [] unless resource['note']
 
       if resource['note'].is_a?(Array)
-        resource['note'].map { |note| note['text'] }.compact.join('; ')
+        resource['note'].map { |note| note['text'] }.compact
       else
-        resource['note']['text'] || ''
+        [resource['note']['text']].compact
       end
     end
 
