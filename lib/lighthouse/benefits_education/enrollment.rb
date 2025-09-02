@@ -46,7 +46,7 @@ module BenefitsEducation
     attribute :end_date, DateTime
     attribute :facility_code, String
     attribute :facility_name, String
-    attribute :participant_id, String
+    attribute :participant_id, Integer
     attribute :training_type, String
     attribute :term_id, String
     attribute :hour_type, String

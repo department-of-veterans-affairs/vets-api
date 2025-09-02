@@ -7,7 +7,7 @@ module Mobile
         def parse(facility, id)
           Mobile::V0::Location.new(
             id:,
-            name: facility['name'],
+            name: facility.name,
             address: Mobile::FacilitiesHelper.address_from_facility(facility),
             phone: Mobile::FacilitiesHelper.phone_from_facility(facility),
             lat: facility.lat,
