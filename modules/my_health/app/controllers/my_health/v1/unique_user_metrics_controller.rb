@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'unique_user_events'
+
 module MyHealth
   module V1
     ##

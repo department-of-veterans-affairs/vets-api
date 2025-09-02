@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'unique_user_events'
 
 RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
   let(:user_account) { create(:user_account) }
