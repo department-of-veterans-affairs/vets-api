@@ -24,7 +24,7 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
         create(:auto_established_claim,
                form_data: form_data['data']['attributes'],
                auth_headers: { 'va_eauth_pid' => '600061742',
-                               'va_eauth_service_transaction_id' => 'vagov-6db8f189-9529-400f-ab6f-3272155c3683' })
+                               'va_eauth_service_transaction_id' => '00000000-0000-0000-0000-000000000000' })
       end
       let(:fes_data) do
         ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
