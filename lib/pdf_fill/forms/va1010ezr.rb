@@ -43,18 +43,16 @@ module PdfFill
         'exposureToWarfareAgents' => 2
       }.freeze
 
-      MARITAL_STATUS = [
-        'DIVORCED',
-        'MARRIED',
-        'NEVER MARRIED',
-        'SEPARATED',
-        'WIDOWED'
-      ].freeze
+      MARITAL_STATUS = {
+        'Married' => 0,
+        'Never Married' => 1,
+        'Separated' => 2,
+        'Widowed' => 3,
+        'Divorced' => 4
+      }.freeze
 
-      # These are the options for the `Sex field on the 10-10EZR`
-      # "options": ["1", "FEMALE", "Off"],
       SEX = {
-        'F' => 'FEMALE',
+        'F' => 0,
         'M' => 1
       }.freeze
 
@@ -165,12 +163,7 @@ module PdfFill
       end
 
       def merge_marital_status
-        uppercase_marital_status = @form_data['maritalStatus']&.upcase
-        @form_data['maritalStatus'] = if MARITAL_STATUS.include?(uppercase_marital_status)
-                                        uppercase_marital_status
-                                      else
-                                        OFF
-                                      end
+        @form_data['maritalStatus'] = MARITAL_STATUS[@form_data['maritalStatus']] || OFF
       end
 
       def merge_dependent_relationship(relationship)

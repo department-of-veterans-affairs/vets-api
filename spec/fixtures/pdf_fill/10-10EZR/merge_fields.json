@@ -2,7 +2,7 @@
   "veteranFullName": "Jones, Indiana, Bill II",
   "veteranSocialSecurityNumber": "234-22-1243",
   "veteranDateOfBirth": "01/01/1980",
-  "gender": 1,
+  "gender": 0,
   "veteranAddress": {
     "street": "321 Elm St, Unit 4, Apt 4",
     "street2": "Unit 4",
@@ -23,7 +23,7 @@
   "homePhone": "(123) 124-1234",
   "mobilePhone": "(123) 555-1234",
   "email": "foo@example.com",
-  "maritalStatus": "NEVER MARRIED",
+  "maritalStatus": 1,
   "providers": [
     {
       "insuranceName": "MyInsurance",

@@ -33,13 +33,13 @@ describe PdfFill::Forms::Va1010ezr do
     end
 
     describe '#merge_marital_status' do
-      ['Divorced', 'Married', 'Never Married', 'Separated', 'Widowed'].each do |status|
+      described_class::MARITAL_STATUS.each do |status, value|
         context "when marital status is #{status}" do
           let(:form_data) { { 'maritalStatus' => status } }
 
-          it "merges marital status to uppercase #{status.upcase}" do
+          it "merges marital status to #{value}" do
             expect(merged_fields).to include(
-              'maritalStatus' => status.upcase
+              'maritalStatus' => value
             )
           end
         end
@@ -51,6 +51,34 @@ describe PdfFill::Forms::Va1010ezr do
         it 'defaults to Off' do
           expect(merged_fields).to include(
             'maritalStatus' => described_class::OFF
+          )
+        end
+      end
+    end
+
+    describe '#merge_sex' do
+      described_class::SEX.each do |sex, value|
+        context "when gender is #{sex}" do
+          let(:form_data) { { 'gender' => sex } }
+
+          it "merges gender to #{value}" do
+            expect(merged_fields).to include(
+              'gender' => value
+            )
+          end
+        end
+      end
+
+      context 'handles value not found in the map options' do
+        let(:form_data) { get_fixture('pdf_fill/10-10EZR/kitchen_sink').merge('gender' => 'invalid') }
+
+        it 'sets gender to nil and logs key and value' do
+          expect(Rails.logger).to receive(:error)
+            .with('Invalid gender value when filling out 10-10EZR pdf.',
+                  { type: 'gender', value: form_data['gender'] })
+
+          expect(merged_fields).to include(
+            'gender' => nil
           )
         end
       end
