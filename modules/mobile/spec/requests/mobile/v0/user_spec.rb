@@ -205,11 +205,13 @@ RSpec.describe 'Mobile::V0::User', type: :request do
             genderIdentity
             lettersAndDocuments
             militaryServiceHistory
+            medicationsOracleHealthEnabled
             paymentHistory
             preferredName
             prescriptions
             scheduleAppointments
             secureMessaging
+            secureMessagingOracleHealthEnabled
             userProfileUpdate
           ]
         )
