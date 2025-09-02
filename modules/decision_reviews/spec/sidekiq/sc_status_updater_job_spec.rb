@@ -226,7 +226,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
 
         context 'when enhanced secondary form polling is ENABLED' do
           before do
-            # FEATURE FLAG: Enable enhanced secondary form polling
             allow(Flipper).to receive(:enabled?).with(:decision_review_final_status_polling)
                                                 .and_return(true)
           end
@@ -243,7 +242,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
 
             before do
               secondary_form.update!(status: stored_final_status.to_json)
-              # FIX: Need to allow the service to be created but not expect get_status to be called
+
               allow(benefits_intake_service).to receive(:get_status)
             end
 
@@ -442,7 +441,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
                 'final_status' => true
               }
               secondary_form.update!(status: stored_final_status.to_json)
-              # FIX: Allow service to receive get_status
+
               allow(benefits_intake_service).to receive(:get_status)
 
               # Flag changes during execution (simulated) - FIX: This doesn't actually test caching since the method calls Flipper each time

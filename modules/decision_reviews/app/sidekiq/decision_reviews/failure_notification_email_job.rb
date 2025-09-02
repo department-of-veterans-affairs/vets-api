@@ -162,7 +162,7 @@ module DecisionReviews
     end
 
     def send_secondary_form_emails
-      if final_status_enhanced_secondary_form_failure_notifications_enabled?
+      if final_status_secondary_form_failure_notifications_enabled?
         send_secondary_form_emails_enhanced
       else
         send_secondary_form_emails_legacy
