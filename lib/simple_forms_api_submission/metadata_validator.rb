@@ -14,7 +14,7 @@ module SimpleFormsApiSubmission
     def self.validate_first_name(metadata)
       validate_presence_and_stringiness(metadata['veteranFirstName'], 'veteran first name')
       metadata['veteranFirstName'] =
-        I18n.transliterate(metadata['veteranFirstName']).gsub(%r{[^a-zA-Z\-\/\s]}, '').strip.first(50)
+        I18n.transliterate(metadata['veteranFirstName']).gsub(%r{[^a-zA-Z\-/\s]}, '').strip.first(50)
 
       metadata
     end
@@ -22,7 +22,7 @@ module SimpleFormsApiSubmission
     def self.validate_last_name(metadata)
       validate_presence_and_stringiness(metadata['veteranLastName'], 'veteran last name')
       metadata['veteranLastName'] =
-        I18n.transliterate(metadata['veteranLastName']).gsub(%r{[^a-zA-Z\-\/\s]}, '').strip.first(50)
+        I18n.transliterate(metadata['veteranLastName']).gsub(%r{[^a-zA-Z\-/\s]}, '').strip.first(50)
 
       metadata
     end

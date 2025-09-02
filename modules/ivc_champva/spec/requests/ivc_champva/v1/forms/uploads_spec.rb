@@ -1556,7 +1556,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
 
         expect(tmpfile).to be_a(Tempfile)
-        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w\-]+\.gif$/)
+        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w-]+\.gif$/)
         tmpfile.rewind
         expect(tmpfile.read).to eq(file_content)
         tmpfile.close
@@ -1579,7 +1579,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
 
         expect(tmpfile).to be_a(Tempfile)
-        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w\-]+\.png$/)
+        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w-]+\.png$/)
         tmpfile.rewind
         expect(tmpfile.read).to eq(file_content)
         tmpfile.close
