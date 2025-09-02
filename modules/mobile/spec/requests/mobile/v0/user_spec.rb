@@ -204,8 +204,8 @@ RSpec.describe 'Mobile::V0::User', type: :request do
             disabilityRating
             genderIdentity
             lettersAndDocuments
-            militaryServiceHistory
             medicationsOracleHealthEnabled
+            militaryServiceHistory
             paymentHistory
             preferredName
             prescriptions
