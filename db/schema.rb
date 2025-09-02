@@ -709,7 +709,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_27_155102) do
     t.uuid "user_uuid", null: false
     t.jsonb "debt_identifiers", default: [], null: false
     t.jsonb "summary_data", default: {}
-    t.string "current_state"
+    t.string "state"
     t.string "external_reference_id"
     t.datetime "transaction_started_at", null: false
     t.datetime "transaction_completed_at"
@@ -717,7 +717,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_27_155102) do
     t.datetime "updated_at", null: false
     t.index ["debt_identifiers"], name: "index_debt_transaction_logs_on_debt_identifiers", using: :gin
     t.index ["transaction_started_at"], name: "index_debt_transaction_logs_on_transaction_started_at"
-    t.index ["transactionable_type", "transactionable_id"], name: "idx_on_transactionable_type_transactionable_id_52a8eee11c"
     t.index ["transactionable_type", "transactionable_id"], name: "index_debt_transaction_logs_on_transactionable"
     t.index ["user_uuid", "transaction_type"], name: "index_debt_transaction_logs_on_user_uuid_and_transaction_type"
   end

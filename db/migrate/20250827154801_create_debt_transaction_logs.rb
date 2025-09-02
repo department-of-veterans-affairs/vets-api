@@ -6,7 +6,7 @@ class CreateDebtTransactionLogs < ActiveRecord::Migration[7.2]
       t.uuid :user_uuid, null: false
       t.jsonb :debt_identifiers, null: false, default: []
       t.jsonb :summary_data, default: {}
-      t.string :current_state
+      t.string :state
       t.string :external_reference_id
       t.datetime :transaction_started_at, null: false
       t.datetime :transaction_completed_at
