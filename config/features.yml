@@ -2135,6 +2135,10 @@ features:
   pension_kafka_event_bus_submission_enabled:
     actor_type: user
     description: Enable the EventBusSubmissionJob for Kafka
+  pension_extras_redesign_enabled:
+    actor_type: user
+    description: Enable the new overflow design
+    enable_in_development: true
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form

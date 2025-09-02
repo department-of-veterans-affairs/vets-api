@@ -3,7 +3,7 @@
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
 require 'va_profile/models/v3/validation_address'
-require 'va_profile/v3/address_validation/service'
+require 'va_profile/address_validation/v3/service'
 
 module V0
   module Profile
@@ -51,7 +51,7 @@ module V0
 
       def service
         @service ||= if Flipper.enabled?(:remove_pciu)
-                       VAProfile::V3::AddressValidation::Service.new
+                       VAProfile::AddressValidation::V3::Service.new
                      else
                        VAProfile::AddressValidation::Service.new
                      end
