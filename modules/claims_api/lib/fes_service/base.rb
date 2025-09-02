@@ -14,7 +14,9 @@ module ClaimsApi
         @use_mock = use_mock.nil? ? Rails.env.test? : use_mock
       end
 
-      def validate(claim, claim_data)
+      #  rubocop:disable Style/OptionalBooleanParameter
+      def validate(claim, claim_data, async = false)
+        @async = async
         @auth_headers = claim.auth_headers
         request_body = claim_data
 
@@ -32,8 +34,11 @@ module ClaimsApi
           error_handler(e, detail)
         end
       end
+      # rubocop:enable Style/OptionalBooleanParameter
 
-      def submit(claim, claim_data)
+      # rubocop:disable Style/OptionalBooleanParameter
+      def submit(claim, claim_data, async = false)
+        @async = async
         @auth_headers = claim.auth_headers
         request_body = claim_data
 
@@ -51,6 +56,7 @@ module ClaimsApi
           error_handler(e, detail)
         end
       end
+      # rubocop:enable Style/OptionalBooleanParameter
 
       private
 
@@ -95,7 +101,7 @@ module ClaimsApi
       end
 
       def error_handler(error, detail)
-        ClaimsApi::CustomError.new(error, detail, true).build_error
+        ClaimsApi::CustomError.new(error, detail, @async).build_error
       end
 
       def get_error_message(error)
