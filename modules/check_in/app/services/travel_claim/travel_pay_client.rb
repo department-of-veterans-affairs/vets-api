@@ -166,7 +166,7 @@ module TravelClaim
     def send_claim_submission_request(claim_id:)
       with_auth do
         body = { claimId: claim_id }
-        perform(:post, "#{claims_url_v2}/api/v3/claims/submit", body, headers)
+        perform(:patch, "#{claims_url_v2}/api/v3/claims/submit", body, headers)
       end
     end
 
