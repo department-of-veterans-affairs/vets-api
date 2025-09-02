@@ -15,6 +15,7 @@ module UnifiedHealthData
                :date_signed,
                :written_by,
                :signed_by,
+               :discharge_date,
                :location,
                :note # base64 encoded
   end

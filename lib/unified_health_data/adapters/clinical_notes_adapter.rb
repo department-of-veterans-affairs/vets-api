@@ -41,6 +41,7 @@ module UnifiedHealthData
                                                  written_by: extract_author(record),
                                                  signed_by: extract_authenticator(record),
                                                  location: extract_location(record),
+                                                 discharge_date: record['context']&.dig('period', 'end') || nil,
                                                  note: get_note(record)
                                                })
         end
@@ -55,6 +56,7 @@ module UnifiedHealthData
         end
 
         def get_loinc_code(record)
+          # TODO: Does this need to be an array? or the single code?
           record['type']['coding']&.find { |coding| coding['system'] == 'http://loinc.org' }&.[]('code') || nil
         end
 

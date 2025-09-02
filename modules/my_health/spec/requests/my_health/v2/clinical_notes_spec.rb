@@ -49,6 +49,7 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
           'dateSigned',
           'writtenBy',
           'signedBy',
+          'dischargeDate',
           'location',
           'note'
         )
