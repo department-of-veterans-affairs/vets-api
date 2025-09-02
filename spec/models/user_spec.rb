@@ -1621,30 +1621,19 @@ RSpec.describe User, type: :model do
   end
 
   describe '#cerner_eligible?' do
-    let(:user) { build(:user, :loa3, cerner_id:, cerner_facility_ids:) }
+    let(:user) { build(:user, :loa3, cerner_id:) }
 
     context 'when the user is loa3' do
       context 'when the user has a cerner_id' do
         let(:cerner_id) { 'some-cerner-id' }
-        let(:cerner_facility_ids) { [] }
 
         it 'returns true' do
           expect(user.cerner_eligible?).to be true
         end
       end
 
-      context 'when the user has cerner_facility_ids' do
+      context 'when the user does not have a cerner_id' do
         let(:cerner_id) { nil }
-        let(:cerner_facility_ids) { ['some-cerner-facility-id'] }
-
-        it 'returns true' do
-          expect(user.cerner_eligible?).to be true
-        end
-      end
-
-      context 'when the user does not have a cerner_id nor cerner_facility_ids' do
-        let(:cerner_id) { nil }
-        let(:cerner_facility_ids) { [] }
 
         it 'returns false' do
           expect(user.cerner_eligible?).to be false

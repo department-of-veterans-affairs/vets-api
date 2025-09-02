@@ -28,6 +28,10 @@ module ClaimsApi
       validate_form_526_change_of_address!
       # ensure no more than 150 disabilities are provided
       # ensure any provided 'disability.classificationCode' is a known value in BGS
+      # ensure any provided 'disability.approximateBeginDate' is in the past
+      # ensure a 'disability.specialIssue' of 'HEPC' has a `disability.name` of 'hepatitis'
+      # ensure a 'disability.specialIssue' of 'POW' has a valid 'serviceInformation.confinement'
+      # ensure any provided 'disability.name' is unique across all disabilities
       validate_form_526_disabilities!
     end
 
@@ -223,9 +227,7 @@ module ClaimsApi
       validate_form_526_disability_classification_code!
       validate_form_526_disability_approximate_begin_date!
       validate_form_526_special_issues!
-      # TODO: These will be added in a followup
-      # validate_form_526_disability_unique_names!
-      # validate_form_526_disability_names!
+      validate_form_526_disability_unique_names!
     end
 
     def validate_form_526_fewer_than_150_disabilities!
@@ -335,6 +337,29 @@ module ClaimsApi
       # if 'specialIssues' includes 'EMP' or 'RRD', then EVSS allows the disability to be submitted with a type of
       # INCREASE otherwise, the disability must not have any special issues
       !(special_issues.include?('EMP') || special_issues.include?('RRD'))
+    end
+
+    def validate_form_526_disability_unique_names!
+      disabilities = form_attributes['disabilities']
+      return if disabilities.blank?
+
+      names = disabilities.map { |d| d['name'].downcase }
+      duplicates = names.select { |name| names.count(name) > 1 }.uniq
+      masked_duplicates = duplicates.map { |name| mask_all_but_first_character(name) }
+
+      unless duplicates.empty?
+        raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.name',
+                                                          'Duplicate disability name found: ' \
+                                                          "#{masked_duplicates.join(', ')}")
+      end
+    end
+
+    def mask_all_but_first_character(value)
+      return value if value.blank?
+      return value unless value.is_a? String
+
+      # Mask all but the first character of the string
+      value[0] + ('*' * (value.length - 1))
     end
   end
 end

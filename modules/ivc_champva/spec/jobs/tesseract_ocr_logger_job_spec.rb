@@ -2,10 +2,12 @@
 
 require 'rails_helper'
 require 'ivc_champva/supporting_document_validator'
+require_relative '../../lib/ivc_champva/monitor'
 
 RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
   let(:job) { described_class.new }
   let(:validator) { instance_double(IvcChampva::SupportingDocumentValidator) }
+  let(:monitor) { instance_double(IvcChampva::Monitor) }
   let(:mock_file) { double('file', original_filename: 'test.pdf', rewind: true) }
   let(:attachment) do
     instance_double(
@@ -38,16 +40,23 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
     allow(Rails.logger).to receive(:error)
     allow(Rails.logger).to receive(:warn)
     allow(mock_file).to receive(:read).and_return('file content', nil) # It's important to return nil after the content
+
+    # Mock the monitor and its methods
+    allow(IvcChampva::Monitor).to receive(:new).and_return(monitor)
+    allow(monitor).to receive(:track_experiment_sample_size)
+    allow(monitor).to receive(:track_experiment_processing_time)
+    allow(monitor).to receive(:track_experiment_metric)
+    allow(monitor).to receive(:track_experiment_error)
   end
 
   describe '#perform' do
     context 'when champva_enable_ocr_on_submit is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(false)
       end
 
       it 'does not perform OCR validation' do
-        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id')
+        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id', 'current_user')
         expect(validator).not_to have_received(:process)
         expect(Rails.logger).not_to have_received(:info).with(a_string_including('Beginning job for'))
       end
@@ -55,27 +64,29 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
 
     context 'when champva_enable_ocr_on_submit is enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(true)
       end
 
       it 'performs OCR validation' do
-        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id')
+        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id', 'current_user')
         expect(validator).to have_received(:process).once
       end
 
-      it 'logs validator results' do
-        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id')
-        expect(Rails.logger).to have_received(:info).with(a_string_including('the validator type'))
-        expect(Rails.logger).to have_received(:info).with(a_string_including('the document type'))
-        expect(Rails.logger).to have_received(:info).with(a_string_including('is_valid: true'))
-        expect(Rails.logger).to have_received(:info).with(a_string_including('0.8675309'))
-        expect(Rails.logger).to have_received(:info).with(a_string_including('ssn: type=String, length=11'))
-        expect(Rails.logger).to have_received(:info).with(a_string_including('name: type=String, length=8'))
-        expect(Rails.logger).to have_received(:info).with(a_string_including('age: type=Integer'))
+      it 'tracks experiment metrics' do
+        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id', 'current_user')
+        expect(monitor).to have_received(:track_experiment_sample_size).with('tesseract_ocr_validator', 'uuid')
+        expect(monitor).to have_received(:track_experiment_processing_time).with('tesseract_ocr_validator', anything,
+                                                                                 'uuid')
+        expect(monitor).to have_received(:track_experiment_metric).with('tesseract_ocr_validator', 'confidence',
+                                                                        0.8675309, 'uuid')
+        expect(monitor).to have_received(:track_experiment_metric).with('tesseract_ocr_validator', 'validity', true,
+                                                                        'uuid')
+        expect(monitor).to have_received(:track_experiment_metric).with('tesseract_ocr_validator',
+                                                                        'missing_fields_count', anything, 'uuid')
       end
 
       it 'does not log values from extracted fields which may contain PII' do
-        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id')
+        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id', 'current_user')
         extracted_fields.each_value do |value|
           expect(Rails.logger).not_to have_received(:info).with(a_string_including(value.to_s))
         end
@@ -84,10 +95,13 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
       it 'raises an error if the file does not exist' do
         allow(File).to receive(:exist?).and_return(false)
 
-        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id')
+        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id', 'current_user')
         expect(Rails.logger).to have_received(:error).with(
           a_string_including('failed with error: No such file or directory - File not found')
         )
+        expect(monitor).to have_received(:track_experiment_error).with('tesseract_ocr_validator', 'Errno::ENOENT',
+                                                                       'uuid',
+                                                                       'No such file or directory - File not found')
         expect(Rails.logger).not_to have_received(:error).with(a_string_including('file_path')) # path may contain PII
       end
 
@@ -95,10 +109,13 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
         tempfile = double('tempfile', path: nil, close!: true)
         allow(IvcChampva::TempfileHelper).to receive(:tempfile_from_attachment).and_return(tempfile)
 
-        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id')
+        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id', 'current_user')
         expect(Rails.logger).to have_received(:error).with(
           a_string_including('File path is nil')
         )
+        expect(monitor).to have_received(:track_experiment_error).with('tesseract_ocr_validator', 'Errno::ENOENT',
+                                                                       'uuid',
+                                                                       'No such file or directory - File path is nil')
       end
 
       it 'logs a warning and returns early when attachment record is not found' do
@@ -106,7 +123,7 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
           .with(id: attachment_record_id)
           .and_return(nil)
 
-        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id')
+        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id', 'current_user')
         expect(Rails.logger).to have_received(:warn).with(
           a_string_including("Attachment record not found for ID: #{attachment_record_id}")
         )
@@ -116,7 +133,7 @@ RSpec.describe IvcChampva::TesseractOcrLoggerJob, type: :job do
       it 'logs a warning and returns early when attachment has no file data' do
         allow(attachment).to receive(:file).and_return(nil)
 
-        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id')
+        job.perform('form_id', 'uuid', attachment_record_id, 'attachment_id', 'current_user')
         expect(Rails.logger).to have_received(:warn).with(
           a_string_including("Attachment #{attachment_record_id} has no file data")
         )
