@@ -140,7 +140,7 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
     end
   end
 
-  describe 'DELETE /mobile/v0/user/phones v2' do
+  describe 'DELETE /mobile/v0/user/phones' do
     let(:telephone) { build(:telephone, :contact_info_v2, source_system_user: user.icn, id: 42) }
 
     context 'with a valid phone number' do

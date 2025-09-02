@@ -16,7 +16,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     sign_in_as(user)
   end
 
-  describe 'POST /v0/profile/email_addresses/create_or_update v2' do
+  describe 'POST /v0/profile/email_addresses/create_or_update' do
     let(:email) { build(:email, :contact_info_v2) }
 
     it 'calls update_email' do
@@ -28,7 +28,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
   end
 
-  describe 'POST /v0/profile/email_addresses v2' do
+  describe 'POST /v0/profile/email_addresses' do
     let(:email) { build(:email, :contact_info_v2) }
 
     context 'with a 200 response' do
@@ -68,7 +68,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
       end
     end
 
-    context 'with a 400 response v2' do
+    context 'with a 400 response' do
       it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('va_profile/v2/contact_information/post_email_w_id_error') do
           post('/v0/profile/email_addresses',
@@ -129,7 +129,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
   end
 
-  describe 'PUT /v0/profile/email_addresses v2' do
+  describe 'PUT /v0/profile/email_addresses' do
     let(:email) { build(:email, :contact_info_v2) }
 
     context 'with a 200 response' do
@@ -210,7 +210,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
   end
 
-  describe 'DELETE /v0/profile/email_addresses v2' do
+  describe 'DELETE /v0/profile/email_addresses' do
     let(:email) do
       build(:email, email_address: 'person42@example.com')
     end

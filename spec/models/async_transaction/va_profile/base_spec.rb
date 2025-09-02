@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
-  describe '.refresh_transaction_status() v2' do
+  describe '.refresh_transaction_status()' do
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
       create(:address_transaction,
@@ -81,7 +81,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     end
   end
 
-  describe '.start v2' do
+  describe '.start' do
     let(:user) { build(:user, :loa3) }
     let(:address) { build(:va_profile_v3_address, :mobile) }
 
@@ -96,7 +96,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     end
   end
 
-  describe '.fetch_transaction v2' do
+  describe '.fetch_transaction' do
     it 'raises an error if passed unrecognized transaction' do
       # Instead of simply calling Struct.new('Surprise'), we need to check that it hasn't been defined already
       # in order to prevent the following warning:
@@ -109,7 +109,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     end
   end
 
-  describe '.refresh_transaction_statuses() v2' do
+  describe '.refresh_transaction_statuses()' do
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
       create(:address_transaction,
