@@ -133,7 +133,7 @@ module Mobile
 
         def contact_information_service
           if Flipper.enabled?(:remove_pciu, @user)
-            VAProfile::V2::ContactInformation::Service.new @user
+            VAProfile::ContactInformation::V2::Service.new @user
           else
             VAProfile::ContactInformation::Service.new @user
           end

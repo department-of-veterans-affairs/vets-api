@@ -10009,6 +10009,11 @@
                 "type": "boolean",
                 "nullable": true,
                 "example": true
+              },
+              "isCerner": {
+                "type": "boolean",
+                "nullable": true,
+                "example": true
               }
             }
           }
