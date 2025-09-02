@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 require 'claims_api/v2/disability_compensation_shared_service_module'
+require_relative '../pdf_mapper_base'
 
 module ClaimsApi
   module V2
     class DisabilityCompensationPdfMapper # rubocop:disable Metrics/ClassLength
       include DisabilityCompensationSharedServiceModule
+      include PdfMapperBase
 
       NATIONAL_GUARD_COMPONENTS = {
         'National Guard' => 'NATIONAL_GUARD',
@@ -388,11 +390,6 @@ module ClaimsApi
         abbr_country = country == 'USA' ? 'US' : country
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:country] = abbr_country
         zip
-      end
-
-      def concatenate_address(address_line_one, address_line_two, address_line_three)
-        concatted = "#{address_line_one || ''} #{address_line_two || ''} #{address_line_three || ''}"
-        concatted.strip
       end
 
       def zip
