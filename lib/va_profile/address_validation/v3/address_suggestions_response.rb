@@ -4,8 +4,8 @@ require 'va_profile/models/v3/validation_address'
 require_relative 'service'
 
 module VAProfile
-  module V3
-    module AddressValidation
+  module AddressValidation
+    module V3
       # Wrapper for response from VA profile address validation API.
       # Contains address suggestions and validation key used to ignore suggested addresses
       # and use original address.
@@ -26,7 +26,7 @@ module VAProfile
               {
                 address: VAProfile::Models::V3::ValidationAddress.build_from_address_suggestion(
                   address_suggestion_hash
-                ).to_h.compact,
+                ).attributes.compact,
                 address_meta_data: VAProfile::Models::V3::ValidationAddress.build_address_metadata(
                   address_suggestion_hash
                 ).to_h
@@ -44,7 +44,7 @@ module VAProfile
               {
                 address: VAProfile::Models::V3::ValidationAddress.build_from_address_suggestion(
                   address_suggestion_hash
-                ).to_h.compact,
+                ).attributes.compact,
                 address_meta_data: VAProfile::Models::V3::ValidationAddress.build_address_metadata(
                   address_suggestion_hash
                 ).to_h
