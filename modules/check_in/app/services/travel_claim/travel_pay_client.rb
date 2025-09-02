@@ -14,6 +14,8 @@ module TravelClaim
     TRIP_TYPE = 'RoundTrip'
     GRANT_TYPE = 'client_credentials'
     CLIENT_TYPE = '1'
+    CLAIM_NAME = 'Travel Reimbursement'
+    CLAIMANT_TYPE = 'Veteran'
 
     attr_reader :redis_client, :settings
 
@@ -22,15 +24,20 @@ module TravelClaim
                    :scope, :claims_url_v2, :subscription_key, :e_subscription_key, :s_subscription_key,
                    :travel_pay_client_number, :travel_pay_resource
 
-    def initialize(icn:)
-      raise ArgumentError, 'ICN cannot be blank' if icn.blank?
+    def initialize(uuid:, appointment_date_time:)
+      raise ArgumentError, 'UUID cannot be blank' if uuid.blank?
 
-      @current_icn = icn
+      @uuid = uuid
+      @redis_client = TravelClaim::RedisClient.build
       @settings = Settings.check_in.travel_reimbursement_api_v2
       @correlation_id = SecureRandom.uuid
-      @redis_client = TravelClaim::RedisClient.build
       @current_veis_token = nil
       @current_btsss_token = nil
+      @appointment_date_time = appointment_date_time
+      @icn = @redis_client.icn(uuid: @uuid)
+      @station_number = @redis_client.station_number(uuid: @uuid)
+
+      validate_required_arguments
       super()
     end
 
@@ -88,15 +95,13 @@ module TravelClaim
     ##
     # Sends a request to find or create an appointment.
     #
-    # @param appointment_date_time [String] ISO 8601 formatted appointment date/time
-    # @param facility_id [String] VA facility identifier
     # @return [Faraday::Response] HTTP response containing appointment data
     #
-    def send_appointment_request(appointment_date_time:, facility_id:)
+    def send_appointment_request
       with_auth do
         body = {
-          appointmentDateTime: appointment_date_time,
-          facilityStationNumber: facility_id
+          appointmentDateTime: @appointment_date_time,
+          facilityStationNumber: @station_number
         }
 
         perform(:post, "#{claims_url_v2}/api/v3/appointments/find-or-add", body, headers)
@@ -110,7 +115,11 @@ module TravelClaim
     #
     def send_claim_request(appointment_id:)
       with_auth do
-        body = { appointmentId: appointment_id }
+        body = {
+          appointmentId: appointment_id,
+          claimName: CLAIM_NAME,
+          claimantType: CLAIMANT_TYPE
+        }
 
         perform(:post, "#{claims_url_v2}/api/v3/claims", body, headers)
       end
@@ -157,7 +166,6 @@ module TravelClaim
     def send_claim_submission_request(claim_id:)
       with_auth do
         body = { claimId: claim_id }
-
         perform(:post, "#{claims_url_v2}/api/v3/claims/submit", body, headers)
       end
     end
@@ -181,6 +189,16 @@ module TravelClaim
     end
 
     private
+
+    def validate_required_arguments
+      missing_args = []
+      missing_args << 'UUID' if @uuid.blank?
+      missing_args << 'appointment date time' if @appointment_date_time.blank?
+      missing_args << 'ICN' if @icn.blank?
+      missing_args << 'station number' if @station_number.blank?
+
+      raise ArgumentError, "Missing required arguments: #{missing_args.join(', ')}" unless missing_args.empty?
+    end
 
     def production_environment?
       Settings.vsp_environment == 'production'
@@ -257,7 +275,7 @@ module TravelClaim
       btsss_response = system_access_token_request(
         client_number: nil,
         veis_access_token: @current_veis_token,
-        icn: @current_icn
+        icn: @icn
       )
 
       unless btsss_response.body&.dig('data', 'accessToken')
@@ -280,6 +298,26 @@ module TravelClaim
 
     def raise_backend_error(detail)
       raise Common::Exceptions::BackendServiceException.new('CheckIn travel claim submission error', { detail: })
+    end
+
+    ##
+    # Custom PATCH method to support claim submission endpoint
+    # The base configuration only supports GET, POST, PUT, DELETE
+    #
+    def patch(path, params, headers, options)
+      request(:patch, path, params, headers, options)
+    end
+
+    ##
+    # Override perform method to handle PATCH requests
+    # The base configuration doesn't support PATCH, so we handle it specially
+    #
+    def perform(method, path, params, headers = nil, options = nil)
+      if method == :patch
+        request(:patch, path, params || {}, headers || {}, options || {})
+      else
+        super
+      end
     end
   end
 end
