@@ -301,14 +301,6 @@ module TravelClaim
     end
 
     ##
-    # Custom PATCH method to support claim submission endpoint
-    # The base configuration only supports GET, POST, PUT, DELETE
-    #
-    def patch(path, params, headers, options)
-      request(:patch, path, params, headers, options)
-    end
-
-    ##
     # Override perform method to handle PATCH requests
     # The base configuration doesn't support PATCH, so we handle it specially
     #
