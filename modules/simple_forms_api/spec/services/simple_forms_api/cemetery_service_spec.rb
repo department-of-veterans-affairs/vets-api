@@ -37,23 +37,11 @@ RSpec.describe SimpleFormsApi::CemeteryService do
         allow(File).to receive(:read).with(described_class::CEMETERIES_FILE_PATH).and_return(mock_json_data.to_json)
       end
 
-    #   This test is currently commented out because it's failing
-    #   but I kept it here for future work because it would be good to have eventually
-
-    #   it 'returns parsed cemetery data from real file' do
-    #     result = described_class.all
-
-    #     expect(result).to be_an(Array)
-    #     expect(result.length).to eq(330)
-    #     expect(result.first).to have_key('attributes')
-    #     expect(result.first['attributes']).to have_key('name')
-    #   end
-
       it 'memoizes the result' do
         service_instance = described_class.new
-        
+
         expect(File).to receive(:read).once
-        
+
         service_instance.all
         service_instance.all # Second call should use memoized result
       end

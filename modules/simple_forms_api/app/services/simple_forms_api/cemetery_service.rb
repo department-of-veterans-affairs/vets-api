@@ -22,7 +22,7 @@ module SimpleFormsApi
     rescue JSON::ParserError => e
       Rails.logger.error "Failed to parse cemeteries JSON: #{e.message}"
       []
-    rescue StandardError => e
+    rescue => e
       Rails.logger.error "Failed to load cemeteries: #{e.message}"
       []
     end
