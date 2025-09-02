@@ -14,8 +14,8 @@ module VAOS
       attribute :practitioner_ids, Hash, array: true
       attribute :clinic, String
       attribute :reason, String
-      attribute :slot, Hash, default: {}
-      attribute :contact, Hash, default: {}
+      attribute :slot, Hash, default: -> { {} }
+      attribute :contact, Hash, default: -> { {} }
       attribute :service_type, String
       attribute :requested_periods, Hash, array: true
       attribute :preferred_language, String
