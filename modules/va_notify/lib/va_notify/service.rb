@@ -28,8 +28,11 @@ module VaNotify
       @template_id = args[:template_id]
       if Flipper.enabled?(:va_notify_notification_creation)
         response = with_monitoring do
-          args[:callback_url] = "#{Settings.vanotify.callback_url}/va_notify/callbacks"
-          notify_client.send_email(args)
+          if Flipper.enabled?(:va_notify_request_level_callbacks)
+            notify_client.send_email(append_callback_url(args))
+          else
+            notify_client.send_email(args)
+          end
         end
         create_notification(response)
         response
@@ -46,8 +49,11 @@ module VaNotify
       @template_id = args[:template_id]
       if Flipper.enabled?(:va_notify_notification_creation)
         response = with_monitoring do
-          args[:callback_url] = "#{Settings.vanotify.callback_url}/va_notify/callbacks"
-          notify_client.send_sms(args)
+          if Flipper.enabled?(:va_notify_request_level_callbacks)
+            notify_client.send_sms(append_callback_url(args))
+          else
+            notify_client.send_sms(args)
+          end
         end
         create_notification(response)
         response
@@ -108,13 +114,17 @@ module VaNotify
       )
     end
 
-    def create_notification(response) # rubocop:disable Metrics/MethodLength
+    def append_callback_url(args)
+      args[:callback_url] = Settings.vanotify.callback_url
+      args
+    end
+
+    def create_notification(response)
       if response.nil?
         Rails.logger.error('VANotify - no response')
         return
       end
 
-      service_api_key_path = retrieve_service_api_key_path
       # when the class is used directly we can pass symbols as keys
       # when it comes from a sidekiq job all the keys get converted to strings (because sidekiq serializes it's args)
       notification = VANotify::Notification.new(
@@ -123,7 +133,7 @@ module VaNotify
         callback_klass: callback_options[:callback_klass] || callback_options['callback_klass'],
         callback_metadata: callback_options[:callback_metadata] || callback_options['callback_metadata'],
         template_id:,
-        service_api_key_path:
+        service_api_key_path: retrieve_service_api_key_path
       )
 
       if notification.save
