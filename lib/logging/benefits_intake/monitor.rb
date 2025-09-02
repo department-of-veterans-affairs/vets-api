@@ -73,7 +73,7 @@ module Logging
           claim:,
           user_account_uuid:,
           benefits_intake_uuid: lighthouse_service&.uuid,
-          message: e&.message,
+          error: e&.message,
           call_location: caller_locations.second
         )
       end
@@ -93,7 +93,7 @@ module Logging
           "#{submission_stats_key}.exhausted",
           claim: claim || msg['args'].first,
           user_account_uuid:,
-          message: msg,
+          error: msg,
           call_location: caller_locations.second
         )
 
@@ -125,7 +125,7 @@ module Logging
           claim:,
           user_account_uuid:,
           benefits_intake_uuid: lighthouse_service&.uuid,
-          message: e&.message
+          error: e&.message
         )
       end
 
