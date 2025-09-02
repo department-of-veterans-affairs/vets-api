@@ -84,6 +84,34 @@ describe PdfFill::Forms::Va1010ezr do
       end
     end
 
+    describe 'dependentRelation for one dependent' do
+      described_class::DEPENDENT_RELATIONSHIP.each do |relationship, value|
+        context "when dependent relationship is #{relationship}" do
+          let(:form_data) { { 'dependents' => [{ 'dependentRelation' => relationship }] } }
+
+          it "merges relationship to #{value}" do
+            expect(merged_fields['dependents'].first).to include(
+              'dependentRelation' => value
+            )
+          end
+        end
+      end
+
+      context 'when relation is unknown' do
+        let(:form_data) do
+          get_fixture('pdf_fill/10-10EZR/kitchen_sink').merge(
+            { 'dependents' => [{ 'dependentRelation' => 'invalid' }] }
+          )
+        end
+
+        it 'defaults to OFF' do
+          expect(merged_fields['dependents'].first).to include(
+            'dependentRelation' => described_class::OFF
+          )
+        end
+      end
+    end
+
     context 'when veteran personal information is missing' do
       let(:form_data) do
         get_fixture('pdf_fill/10-10EZR/simple_with_invalid_values')

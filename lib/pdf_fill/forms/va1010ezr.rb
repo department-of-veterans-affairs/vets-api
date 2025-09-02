@@ -13,12 +13,20 @@ module PdfFill
       FORMATTER = PdfFill::Forms::Formatters::Va1010ez
       KEY = PdfFill::Forms::FieldMappings::Va1010ezr::KEY
 
-      DEPENDENT_RELATIONSHIP = %w[
-        STEPDAUGHTER
-        STEPSON
-        DAUGHTER
-        SON
-      ].freeze
+      DEPENDENT_RELATIONSHIP = {
+        'Son' => 3,
+        'Daughter' => 2,
+        'Stepson' => 1,
+        'Stepdaughter' => 0
+      }.freeze
+
+      MARITAL_STATUS = {
+        'Step' => 0,
+        'Never Married' => 1,
+        'Separated' => 2,
+        'Widowed' => 3,
+        'Divorced' => 4
+      }.freeze
 
       ETHNICITY_MAP = {
         'hasDemographicNoAnswer' => 6,
@@ -166,15 +174,6 @@ module PdfFill
         @form_data['maritalStatus'] = MARITAL_STATUS[@form_data['maritalStatus']] || OFF
       end
 
-      def merge_dependent_relationship(relationship)
-        uppercase_dependent_relationship = relationship&.upcase
-        if DEPENDENT_RELATIONSHIP.include?(uppercase_dependent_relationship)
-          uppercase_dependent_relationship
-        else
-          OFF
-        end
-      end
-
       def merge_exposure
         EXPOSURE_MAP.each do |key, value|
           @form_data[key] = map_value_for_checkbox(@form_data[key], value)
@@ -200,7 +199,7 @@ module PdfFill
         dependent['dateOfBirth'] = FORMATTER.format_date(dependent['dateOfBirth'])
         dependent['becameDependent'] = FORMATTER.format_date(dependent['becameDependent'])
 
-        dependent['dependentRelation'] = merge_dependent_relationship(dependent['dependentRelation'])
+        dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[dependent['dependentRelation']] || OFF
         dependent['attendedSchoolLastYear'] = map_select_value(dependent['attendedSchoolLastYear'])
         dependent['disabledBefore18'] = map_select_value(dependent['disabledBefore18'])
         dependent['cohabitedLastYear'] = map_select_value(dependent['cohabitedLastYear'])

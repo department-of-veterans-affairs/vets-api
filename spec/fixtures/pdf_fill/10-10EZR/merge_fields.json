@@ -46,7 +46,7 @@
   "dependents": [
     {
       "fullName": "LastChildA, FirstChildA, MiddleChildA Jr.",
-      "dependentRelation": "SON",
+      "dependentRelation": 3,
       "socialSecurityNumber": "111229876",
       "becameDependent": "04/07/1992",
       "dateOfBirth": "05/05/1982",
