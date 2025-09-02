@@ -336,9 +336,6 @@ class FormProfile
   def initialize_contact_information
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
-    Rails.logger.info("VAProfile Contact Info: Address? #{opt[:address].present?},
-      Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
-
     opt[:address] ||= user_address_hash
 
     format_for_schema_compatibility(opt)
