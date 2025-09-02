@@ -2034,7 +2034,7 @@ features:
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
   virtual_agent_show_ai_disclaimer:
     actor_type: user
-    description: Enables a dislaimer for ai generated content - managed by virtual agent team
+    description: Enables a disclaimer for ai generated content - managed by virtual agent team
   virtual_agent_show_floating_chatbot:
     actor_type: user
     description: Enables a floating chatbot on the chatbot page - managed by virtual agent team
