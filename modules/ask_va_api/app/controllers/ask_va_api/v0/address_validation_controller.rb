@@ -3,7 +3,7 @@
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
 require 'va_profile/models/v3/validation_address'
-require 'va_profile/v3/address_validation/service'
+require 'va_profile/address_validation/v3/service'
 
 module AskVAApi
   module V0
@@ -44,7 +44,7 @@ module AskVAApi
       end
 
       def service
-        @service ||= VAProfile::V3::AddressValidation::Service.new
+        @service ||= VAProfile::AddressValidation::V3::Service.new
       end
     end
   end

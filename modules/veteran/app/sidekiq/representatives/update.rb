@@ -4,7 +4,7 @@ require 'sidekiq'
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
 require 'va_profile/models/v3/validation_address'
-require 'va_profile/v3/address_validation/service'
+require 'va_profile/address_validation/v3/service'
 
 module Representatives
   # Processes updates for representative records based on provided JSON data.
@@ -95,7 +95,7 @@ module Representatives
     # @param candidate_address [VAProfile::Models::ValidationAddress] The address to be validated.
     # @return [Hash] The response from the address validation service.
     def validate_address(candidate_address)
-      validation_service = VAProfile::V3::AddressValidation::Service.new
+      validation_service = VAProfile::AddressValidation::V3::Service.new
       validation_service.candidate(candidate_address)
     end
 

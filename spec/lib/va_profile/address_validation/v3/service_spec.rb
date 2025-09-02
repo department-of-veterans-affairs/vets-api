@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'va_profile/v3/address_validation/service'
+require 'va_profile/address_validation/v3/service'
 
-describe VAProfile::V3::AddressValidation::Service do
+describe VAProfile::AddressValidation::V3::Service do
   let(:base_address) { build(:va_profile_v3_validation_address) }
 
   let(:address) do

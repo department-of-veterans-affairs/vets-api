@@ -14,7 +14,7 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
 
     before do
       create_flagged_records(flag_type)
-      allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::V3::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
+      allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(double('VAProfile::AddressValidation::V3::Service', candidate: nil)) # rubocop:disable Layout/LineLength
     end
 
     it "updates the #{flag_type} and the associated flagged records" do
@@ -37,10 +37,10 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
       end
     end
 
-    it 'does not call validate_address or VAProfile::V3::AddressValidation::Service.new' do
+    it 'does not call validate_address or VAProfile::AddressValidation::V3::Service.new' do
       subject.perform(json_data)
 
-      expect(VAProfile::V3::AddressValidation::Service).not_to have_received(:new)
+      expect(VAProfile::AddressValidation::V3::Service).not_to have_received(:new)
     end
   end
 end
@@ -147,7 +147,7 @@ RSpec.describe Representatives::Update do
     end
 
     before do
-      validation_service = VAProfile::V3::AddressValidation::Service
+      validation_service = VAProfile::AddressValidation::V3::Service
       allow_any_instance_of(validation_service).to receive(:candidate).and_return(api_response_v3)
     end
 
@@ -297,7 +297,7 @@ RSpec.describe Representatives::Update do
       let(:email_changed) { false }
       let(:phone_number_changed) { false }
       let!(:representative) { create_representative }
-      let(:validation_stub) { instance_double(VAProfile::V3::AddressValidation::Service) }
+      let(:validation_stub) { instance_double(VAProfile::AddressValidation::V3::Service) }
       let(:api_response_with_zero_v3) do
         {
           'candidate_addresses' => [
@@ -441,7 +441,7 @@ RSpec.describe Representatives::Update do
 
       context 'when the first retry has non-zero coordinates' do
         before do
-          allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3, api_response1_v3)
         end
 
@@ -461,7 +461,7 @@ RSpec.describe Representatives::Update do
 
       context 'when the second retry has non-zero coordinates' do
         before do
-          allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
                                                                    api_response_with_zero_v3,
                                                                    api_response2_v3)
@@ -483,7 +483,7 @@ RSpec.describe Representatives::Update do
 
       context 'when the third retry has non-zero coordinates' do
         before do
-          allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
                                                                    api_response_with_zero_v3,
                                                                    api_response_with_zero_v3,
@@ -506,7 +506,7 @@ RSpec.describe Representatives::Update do
 
       context 'when the retry coordinates are all zero' do
         before do
-          allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
                                                                    api_response_with_zero_v3,
                                                                    api_response_with_zero_v3,

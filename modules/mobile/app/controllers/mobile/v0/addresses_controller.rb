@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'va_profile/v3/address_validation/service'
+require 'va_profile/address_validation/v3/service'
 
 module Mobile
   module V0
@@ -77,7 +77,7 @@ module Mobile
       end
 
       def validation_service
-        VAProfile::V3::AddressValidation::Service.new
+        VAProfile::AddressValidation::V3::Service.new
       end
     end
   end
