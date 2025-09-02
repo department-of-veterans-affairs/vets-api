@@ -20,14 +20,6 @@ module PdfFill
         'Stepdaughter' => 0
       }.freeze
 
-      MARITAL_STATUS = {
-        'Step' => 0,
-        'Never Married' => 1,
-        'Separated' => 2,
-        'Widowed' => 3,
-        'Divorced' => 4
-      }.freeze
-
       ETHNICITY_MAP = {
         'hasDemographicNoAnswer' => 6,
         'isAmericanIndianOrAlaskanNative' => 2,
