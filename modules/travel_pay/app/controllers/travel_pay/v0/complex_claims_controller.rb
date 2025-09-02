@@ -8,17 +8,22 @@ module TravelPay
       def create
         verify_feature_flag_enabled!
         validate_params_exist!(params)
+        validate_datetime_format!(params[:appointment_date_time])
         appt_id = get_appt!(params)
         claim_id = create_claim(appt_id)
         render json: { claimId: claim_id }, status: :created
-      rescue Faraday::ResourceNotFound => e
-        handle_resource_not_found_error(e)
-      rescue Faraday::Error => e
-        Rails.logger.error("Faraday error creating complex claim: #{e.message}")
-        render json: { error: 'Error creating complex claim' }, status: e.response[:status]
+      rescue Common::Exceptions::ResourceNotFound => e
+        Rails.logger.error("Appointment not found: #{e.message}")
+        render json: { error: e.message }, status: :not_found
       rescue Common::Exceptions::ServiceUnavailable => e
         Rails.logger.error("Feature flag disabled: #{e.message}")
         render json: { error: e.message }, status: :service_unavailable
+      rescue Faraday::Error => e
+        Rails.logger.error("Faraday error creating complex claim: #{e.message}")
+        # Some Faraday errors may not have a response object (e.response can be nil),
+        # so we fall back to :internal_server_error
+        status_code = (e.respond_to?(:response) && e.response && e.response[:status]) || :internal_server_error
+        render json: { error: 'Error creating complex claim' }, status: status_code
       rescue Common::Exceptions::BackendServiceException => e
         Rails.logger.error("Backend service error creating complex claim: #{e.message}")
         render json: { error: 'Error creating complex claim' }, status: e.original_status
@@ -67,6 +72,14 @@ module TravelPay
         raise Common::Exceptions::BadRequest.new(errors:) unless errors.empty?
       end
 
+      def validate_datetime_format!(datetime_str)
+        DateTime.iso8601(datetime_str)
+      rescue ArgumentError
+        raise Common::Exceptions::BadRequest.new(
+          errors: [{ 'detail' => 'Appointment date time must be a valid datetime' }]
+        )
+      end
+
       def auth_manager
         @auth_manager ||= TravelPay::AuthManager.new(Settings.travel_pay.client_number, @current_user)
       end
@@ -83,13 +96,19 @@ module TravelPay
         Rails.logger.info(message: "Get appt by date time: #{params['appointment_date_time']}")
         appt = appts_service.find_or_create_appointment(params)
 
-        appt[:data]&.dig('id')
+        return nil if appt.nil? || appt[:data].nil?
+
+        appt[:data]['id']
       end
 
       def get_appt!(params = {})
         get_appt(params) ||
-          raise(Common::Exceptions::ResourceNotFound,
-                detail: "No appointment found for #{params['appointment_date_time']}")
+          raise(
+            Common::Exceptions::ResourceNotFound.new(
+              resource: 'Appointment',
+              id: params['appointment_date_time']
+            )
+          )
       end
 
       def create_claim(appt_id)

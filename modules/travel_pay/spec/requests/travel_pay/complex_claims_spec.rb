@@ -40,81 +40,150 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
             end
           end
         end
+
+        it 'returns a BadRequest response if an invalid appointment date time is given' do
+          VCR.use_cassette('travel_pay/submit/200_find_or_create_appt', match_requests_on: %i[method path]) do
+            VCR.use_cassette('travel_pay/submit/200_create_claim', match_requests_on: %i[method path]) do
+              bad_params = {
+                'appointment_date_time' => 'My birthday, 4 years ago',
+                'facility_station_number' => '123',
+                'appointment_type' => 'Other',
+                'is_complete' => false
+              }
+              post('/travel_pay/v0/complex_claims', params: bad_params, as: :json)
+
+              expect(response).to have_http_status(:bad_request)
+              expect(JSON.parse(response.body)['errors'].first['detail'])
+                .to eq('Appointment date time must be a valid datetime')
+            end
+          end
+        end
       end
 
       context 'stubbed controller behavior' do
-        before do
-          # Stub the appointment service
-          appts_service_double = instance_double(TravelPay::AppointmentsService)
-          allow(appts_service_double).to receive(:find_or_create_appointment)
-            .with(hash_including('appointment_date_time' => params['appointment_date_time']))
-            .and_return({ data: { 'id' => appointment_id } })
-
-          # Stub the claims service
-          claims_service_double = instance_double(TravelPay::ClaimsService)
-          allow(claims_service_double).to receive(:create_new_claim)
-            .with({ 'btsss_appt_id' => appointment_id })
-            .and_return({ 'claimId' => claim_id })
-
-          # Inject stubs into controller
-          allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
-            .to receive(:appts_service).and_return(appts_service_double)
-          allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
-            .to receive(:claims_service).and_return(claims_service_double)
-        end
-
-        it 'creates complex claim and returns claimId' do
-          post('/travel_pay/v0/complex_claims', params:)
-
-          expect(response).to have_http_status(:created)
-          expect(JSON.parse(response.body)).to eq('claimId' => claim_id)
-        end
-
-        context 'when params are missing' do
-          it 'returns bad request when all params are missing' do
-            post('/travel_pay/v0/complex_claims', params: { complex_claim: {} }, as: :json)
-
-            expect(response).to have_http_status(:bad_request)
-            body = JSON.parse(response.body)
-            expect(body['errors'].first['detail']).to eq('Appointment date time is required')
+        context 'when claim and appointment services dont error' do
+          before do
+            # Stub the appointment service
+            appts_service_double = instance_double(TravelPay::AppointmentsService)
+            allow(appts_service_double).to receive(:find_or_create_appointment)
+              .with(hash_including('appointment_date_time' => params['appointment_date_time']))
+              .and_return({ data: { 'id' => appointment_id } })
+            # Stub the claims service
+            claims_service_double = instance_double(TravelPay::ClaimsService)
+            allow(claims_service_double).to receive(:create_new_claim)
+              .with({ 'btsss_appt_id' => appointment_id })
+              .and_return({ 'claimId' => claim_id })
+            # Inject stubs into controller
+            allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
+              .to receive(:appts_service).and_return(appts_service_double)
+            allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
+              .to receive(:claims_service).and_return(claims_service_double)
           end
 
-          it 'returns bad request when all required params are missing' do
-            post('/travel_pay/v0/complex_claims', params: { complex_claim: {} }, as: :json)
+          it 'successfully creates complex claim and returns claimId' do
+            post('/travel_pay/v0/complex_claims', params:)
 
-            expect(response).to have_http_status(:bad_request)
-            body = JSON.parse(response.body)
+            expect(response).to have_http_status(:created)
+            expect(JSON.parse(response.body)).to eq('claimId' => claim_id)
+          end
 
-            expected_errors = [
-              'Appointment date time is required',
-              'Facility station number is required',
-              'Appointment type is required',
-              'The Is complete field is required'
-            ]
-            expect(body['errors'].map { |e| e['detail'] }).to match_array(expected_errors)
+          context 'when params are missing' do
+            it 'returns bad request when all params are missing' do
+              post('/travel_pay/v0/complex_claims', params: { complex_claim: {} }, as: :json)
+
+              expect(response).to have_http_status(:bad_request)
+              body = JSON.parse(response.body)
+              expect(body['errors'].first['detail']).to eq('Appointment date time is required')
+            end
+
+            it 'returns bad request when all required params are missing' do
+              post('/travel_pay/v0/complex_claims', params: { complex_claim: {} }, as: :json)
+
+              expect(response).to have_http_status(:bad_request)
+              body = JSON.parse(response.body)
+
+              expected_errors = [
+                'Appointment date time is required',
+                'Facility station number is required',
+                'Appointment type is required',
+                'The Is complete field is required'
+              ]
+              expect(body['errors'].map { |e| e['detail'] }).to match_array(expected_errors)
+            end
           end
         end
 
-        it 'returns error json with original status when BackendServiceException' do
-          error = Common::Exceptions::BackendServiceException.new('ERROR')
-          allow(error).to receive(:original_status).and_return(503)
-          allow(service).to receive(:upload_document).and_raise(error)
+        context 'when appointment service errors' do
+          before do
+            # Stub the appointment service to return nil
+            allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
+              .to receive(:appts_service)
+              .and_return(double(find_or_create_appointment: nil))
+          end
 
-          post('/travel_pay/v0/complex_claims', params:)
+          it 'returns resource not found when appointment does not exist' do
+            post('/travel_pay/v0/complex_claims', params:)
 
-          expect(response).to have_http_status(:service_unavailable)
-          expect(JSON.parse(response.body)['error']).to eq('Error downloading document')
+            expect(response).to have_http_status(:not_found)
+            expect(JSON.parse(response.body)['error']).to match(/Resource not found/)
+          end
         end
 
-        it 'returns error json with status when Faraday::Error' do
-          error = Faraday::Error.new('ERROR')
-          allow(error).to receive(:response).and_return({ status: 502 }) # 502 = bad_gateway error
-          allow(service).to receive(:upload_document).and_raise(error)
+        context 'when claims service errors with a BackendServiceException' do
+          let(:error) { Common::Exceptions::BackendServiceException.new('Some backend error') }
 
-          post("/travel_pay/v0/claims/#{claim_id}/documents", params: { Document: valid_document })
+          before do
+            # Stub the appointment service
+            appts_service_double = instance_double(TravelPay::AppointmentsService)
+            allow(appts_service_double).to receive(:find_or_create_appointment)
+              .with(hash_including('appointment_date_time' => params['appointment_date_time']))
+              .and_return({ data: { 'id' => appointment_id } })
+            # Stub the claims service to return an error
+            claims_service_double = instance_double(TravelPay::ClaimsService)
+            allow(error).to receive(:original_status).and_return(:internal_server_error)
+            allow(claims_service_double).to receive(:create_new_claim).and_raise(error)
+            # Inject stubs into controller
+            allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
+              .to receive(:appts_service).and_return(appts_service_double)
+            allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
+              .to receive(:claims_service).and_return(claims_service_double)
+          end
 
-          expect(response).to have_http_status(:bad_gateway)
-          expect(JSON.parse(response.body)['error']).to eq('Error downloading document')
+          it 'returns error json with original status' do
+            post('/travel_pay/v0/complex_claims', params:)
+
+            expect(response).to have_http_status(:internal_server_error)
+            body = JSON.parse(response.body)
+            expect(body['error']).to eq('Error creating complex claim')
+          end
+        end
+
+        context 'when claims service errors with a Faraday::Error' do
+          before do
+            # Stub the appointment service
+            appts_service_double = instance_double(TravelPay::AppointmentsService)
+            allow(appts_service_double).to receive(:find_or_create_appointment)
+              .with(hash_including('appointment_date_time' => params['appointment_date_time']))
+              .and_return({ data: { 'id' => appointment_id } })
+            # Stub the claims service to return a Faraday error
+            claims_service_double = instance_double(TravelPay::ClaimsService)
+            faraday_error = Faraday::ServerError.new('502 Bad Gateway')
+            allow(faraday_error).to receive(:response).and_return({ status: 502 })
+            allow(claims_service_double).to receive(:create_new_claim).and_raise(faraday_error)
+            # Inject stubs into controller
+            allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
+              .to receive(:appts_service).and_return(appts_service_double)
+            allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
+              .to receive(:claims_service).and_return(claims_service_double)
+          end
+
+          it 'returns a 500 error with generic error message' do
+            post('/travel_pay/v0/complex_claims', params:)
+
+            expect(response).to have_http_status(:bad_gateway)
+            body = JSON.parse(response.body)
+            expect(body['error']).to eq('Error creating complex claim')
+          end
         end
       end
     end
