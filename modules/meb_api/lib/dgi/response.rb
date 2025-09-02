@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/concerns/service_status'
-require 'common/models/base'
+require 'vets/model'
 module MebApi
   module DGI
     ##
@@ -16,8 +16,8 @@ module MebApi
       attribute :status, Integer
 
       def initialize(status, attributes = nil)
+        @status = status
         super(attributes) if attributes
-        self.status = status
       end
 
       def ok?
