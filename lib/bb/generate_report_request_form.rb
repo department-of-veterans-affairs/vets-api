@@ -18,7 +18,7 @@ module BB
 
     attribute :from_date, Vets::Type::UTCTime
     attribute :to_date, Vets::Type::UTCTime
-    attribute :data_classes, String, array: true
+    attribute :data_classes, String, array: true, default: []
 
     attr_reader :client
 

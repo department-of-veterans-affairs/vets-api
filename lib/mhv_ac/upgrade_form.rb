@@ -38,7 +38,7 @@ module MHVAC
     def mhv_params
       raise Common::Exceptions::ValidationErrors, self unless valid?
 
-      attribute_set.map do |attribute|
+      self.class.attribute_set.map do |attribute|
         value = send(attribute.name)
         [attribute.name, value] unless value.nil?
       end.compact.to_h
