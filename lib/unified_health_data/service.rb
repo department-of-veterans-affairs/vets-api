@@ -44,7 +44,13 @@ module UnifiedHealthData
         headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
         patient_id = @user.icn
 
-        path = "#{config.base_path}notes?patientId=#{patient_id}"
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
+        start_date = '1900-01-01'
+        # End date defaults to today
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
         response = perform(:get, path, nil, headers)
         body = parse_response_body(response.body)
 

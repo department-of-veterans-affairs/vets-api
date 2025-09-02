@@ -19,15 +19,20 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
   let(:current_user) { build(:user, :mhv) }
 
   before do
+    Timecop.freeze('2025-06-02T08:00:00Z')
     sign_in_as(current_user)
     allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(notes_flipper, instance_of(User)).and_return(true)
   end
 
+  after do
+    Timecop.return
+  end
+
   describe 'GET /my_health/v2/medical_records/notes#index' do
     context 'happy path' do
       it 'returns a successful response' do
-        VCR.use_cassette('unified_health_data/get_clinical_notes_200') do
+        VCR.use_cassette('unified_health_data/get_clinical_notes_200', match_requests_on: %i[method path]) do
           get '/my_health/v2/medical_records/clinical_notes', headers: { 'X-Key-Inflection' => 'camel' }
         end
         expect(response).to be_successful
@@ -56,7 +61,7 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
       end
 
       it 'returns a successful response with an empty data array' do
-        VCR.use_cassette('unified_health_data/get_clinical_notes_no_records') do
+        VCR.use_cassette('unified_health_data/get_clinical_notes_no_records', match_requests_on: %i[method path]) do
           get '/my_health/v2/medical_records/clinical_notes',
               headers: { 'X-Key-Inflection' => 'camel' }
         end
