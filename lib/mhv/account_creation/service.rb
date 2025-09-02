@@ -67,8 +67,8 @@ module MHV
         {
           'Authorization' => "Bearer #{config.sts_token(user_identifier: icn)}",
           'x-api-key' => config.access_key,
-          'mhvapi-idempotency-key' => icn
-        }
+          'mhvapi-idempotency-key' => Settings.vsp_environment == 'production' ? nil : icn
+        }.compact
       end
 
       def normalize_response_body(response_body)

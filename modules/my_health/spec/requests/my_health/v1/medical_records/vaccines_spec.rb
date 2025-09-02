@@ -15,7 +15,6 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vaccines', type: :request do
   let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_support_new_model_vaccine).and_return(false)
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
@@ -69,8 +68,11 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vaccines', type: :request do
         get '/my_health/v1/medical_records/vaccines'
       end
 
+      body = JSON.parse(response.body)
       expect(response).to be_successful
-      expect(response.body).to be_a(String)
+      expect(body['entry']).to be_a(Array)
+      expect(body['entry'][0]['resource']['resourceType']).to eq('Immunization')
+      expect(body['entry'][0]['resource']['vaccineCode']['coding'][0]['display']).to eq('SARSCOV2 VAC 5X1010VP/.5MLIM')
     end
 
     it 'responds to GET #show' do
@@ -79,7 +81,9 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vaccines', type: :request do
       end
 
       expect(response).to be_successful
-      expect(response.body).to be_a(String)
+      body = JSON.parse(response.body)
+      expect(body['resourceType']).to eq('Immunization')
+      expect(body['vaccineCode']['coding'][0]['display']).to eq('SMALLPOX&MONKEYPOX VAC 0.5ML')
     end
 
     context 'when the patient is not found' do

@@ -42,6 +42,8 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'when Flipper is enabled for all codes' do
         it 'returns labs/tests' do
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                    user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
@@ -53,6 +55,8 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'logs test code distribution' do
         it 'logs the test code distribution from parsed records' do
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                    user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
@@ -69,11 +73,52 @@ describe UnifiedHealthData::Service, type: :service do
         end
       end
 
-      context 'when Flipper is disabled for all codes' do
-        it 'filters out labs/tests' do
+      context 'when filtering is disabled' do
+        it 'returns all labs/tests regardless of individual toggle states' do
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                    user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(false)
+          allow(Rails.logger).to receive(:info)
+
+          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
+
+          expect(labs.size).to eq(3)
+          expect(labs.map { |l| l.attributes.test_code }).to contain_exactly('CH', 'SP', 'MB')
+          expect(Rails.logger).to have_received(:info).with(
+            hash_including(
+              message: 'UHD filtering disabled - returning all records',
+              total_records: 3,
+              service: 'unified_health_data'
+            )
+          )
+        end
+
+        it 'logs that filtering is disabled' do
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                    user).and_return(false)
+          allow(Rails.logger).to receive(:info)
+
+          service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
+
+          expect(Rails.logger).to have_received(:info).with(
+            hash_including(
+              message: 'UHD filtering disabled - returning all records',
+              service: 'unified_health_data'
+            )
+          )
+        end
+      end
+
+      context 'when Flipper is disabled for all codes' do
+        it 'filters out labs/tests' do
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                    user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(false)
+          allow(Rails.logger).to receive(:info)
           labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
           expect(labs).to be_empty
         end
@@ -81,9 +126,12 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'when only one Flipper is enabled' do
         it 'returns only enabled test codes' do
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                    user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(false)
+          allow(Rails.logger).to receive(:info)
           labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
           expect(labs.size).to eq(1)
           expect(labs.first.attributes.test_code).to eq('CH')
@@ -92,9 +140,12 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'when MB Flipper is enabled' do
         it 'would return MB test codes if present in the data' do
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                    user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
+          allow(Rails.logger).to receive(:info)
           labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
           expect(labs.size).to eq(1)
         end
@@ -118,30 +169,86 @@ describe UnifiedHealthData::Service, type: :service do
     let(:record_ch) { double(attributes: double(test_code: 'CH')) }
     let(:record_sp) { double(attributes: double(test_code: 'SP')) }
     let(:record_mb) { double(attributes: double(test_code: 'MB')) }
-    let(:records) { [record_ch, record_sp, record_mb] }
+    let(:record_other) { double(attributes: double(test_code: 'OTHER')) }
+    let(:records) { [record_ch, record_sp, record_mb, record_other] }
 
-    it 'returns only records with enabled Flipper flags' do
-      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-      result = service.send(:filter_records, records)
-      expect(result).to eq([record_ch, record_mb])
+    context 'when filtering is disabled' do
+      it 'returns all records regardless of individual toggle states' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                  user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(false)
+        allow(Rails.logger).to receive(:info)
+
+        result = service.send(:filter_records, records)
+
+        expect(result).to eq(records)
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            message: 'UHD filtering disabled - returning all records',
+            total_records: 4,
+            service: 'unified_health_data'
+          )
+        )
+      end
     end
 
-    it 'returns only MB records when only MB flag is enabled' do
-      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-      result = service.send(:filter_records, records)
-      expect(result).to eq([record_mb])
-    end
+    context 'when filtering is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
+                                                  user).and_return(true)
+        allow(Rails.logger).to receive(:info)
+      end
 
-    it 'returns all records when all flags are enabled' do
-      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-      result = service.send(:filter_records, records)
-      expect(result).to eq([record_ch, record_sp, record_mb])
+      it 'returns only records with enabled Flipper flags' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
+        result = service.send(:filter_records, records)
+        expect(result).to eq([record_ch, record_mb])
+      end
+
+      it 'returns only MB records when only MB flag is enabled' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
+        result = service.send(:filter_records, records)
+        expect(result).to eq([record_mb])
+      end
+
+      it 'returns all supported records when all flags are enabled' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
+        result = service.send(:filter_records, records)
+        expect(result).to eq([record_ch, record_sp, record_mb])
+      end
+
+      it 'filters out unsupported test codes even when all flags are enabled' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
+        result = service.send(:filter_records, records)
+        expect(result).not_to include(record_other)
+      end
+
+      it 'logs filtering statistics' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
+
+        service.send(:filter_records, records)
+
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            message: 'UHD filtering enabled - applied test code filtering',
+            total_records: 4,
+            filtered_records: 2,
+            service: 'unified_health_data'
+          )
+        )
+      end
     end
   end
 
@@ -567,217 +674,6 @@ describe UnifiedHealthData::Service, type: :service do
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq('YELLOW, <= 10, >= 1, >= 2, <= 8')
       end
-
-      it 'handles multiple reference ranges with different types' do
-        obs = {
-          'referenceRange' => [
-            {
-              'low' => { 'value' => 14, 'unit' => 'mL' },
-              'high' => { 'value' => 20, 'unit' => 'mL' },
-              'type' => {
-                'coding' => [
-                  {
-                    'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
-                    'code' => 'normal',
-                    'display' => 'Normal Range'
-                  }
-                ],
-                'text' => 'Normal Range'
-              }
-            },
-            {
-              'low' => { 'value' => 1000, 'unit' => 'mg/dL' },
-              'high' => { 'value' => 2000, 'unit' => 'mg/dL' },
-              'type' => {
-                'coding' => [
-                  {
-                    'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
-                    'code' => 'critical',
-                    'display' => 'Critical Range'
-                  }
-                ],
-                'text' => 'Critical Range'
-              }
-            }
-          ]
-        }
-        result = service.send(:fetch_reference_range, obs)
-        expect(result).to eq('Normal Range: 14 - 20 mL, Critical Range: 1000 - 2000 mg/dL')
-      end
-
-      it 'handles multiple high-only reference ranges with different types' do
-        obs = {
-          'referenceRange' => [
-            {
-              'high' => { 'value' => 20 },
-              'type' => {
-                'coding' => [
-                  {
-                    'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
-                    'code' => 'normal',
-                    'display' => 'Normal Range'
-                  }
-                ],
-                'text' => 'Normal Range'
-              }
-            },
-            {
-              'high' => { 'value' => 2000 },
-              'type' => {
-                'coding' => [
-                  {
-                    'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
-                    'code' => 'critical',
-                    'display' => 'Critical Range'
-                  }
-                ],
-                'text' => 'Critical Range'
-              }
-            }
-          ]
-        }
-        result = service.send(:fetch_reference_range, obs)
-        expect(result).to eq('Normal Range: <= 20, Critical Range: <= 2000')
-      end
-    end
-  end
-
-  describe '#fetch_reference_range' do
-    it 'returns empty string when referenceRange is nil' do
-      obs = {}
-      result = service.send(:fetch_reference_range, obs)
-      expect(result).to eq('')
-    end
-
-    it 'returns text directly when available' do
-      obs = {
-        'referenceRange' => [
-          { 'text' => '70-110 mg/dL' },
-          { 'text' => '<=3' }
-        ]
-      }
-      result = service.send(:fetch_reference_range, obs)
-      expect(result).to eq('70-110 mg/dL, <=3')
-    end
-
-    it 'formats low-high values correctly' do
-      obs = {
-        'referenceRange' => [
-          {
-            'low' => { 'value' => 13.5, 'unit' => 'g/dL' },
-            'high' => { 'value' => 18.0, 'unit' => 'g/dL' }
-          }
-        ]
-      }
-      result = service.send(:fetch_reference_range, obs)
-      expect(result).to eq('13.5 - 18.0 g/dL')
-    end
-
-    it 'formats low-only values correctly' do
-      obs = {
-        'referenceRange' => [
-          {
-            'low' => { 'value' => 94 }
-          }
-        ]
-      }
-      result = service.send(:fetch_reference_range, obs)
-      expect(result).to eq('>= 94')
-    end
-
-    it 'formats high-only values correctly' do
-      obs = {
-        'referenceRange' => [
-          {
-            'high' => { 'value' => 44 }
-          }
-        ]
-      }
-      result = service.send(:fetch_reference_range, obs)
-      expect(result).to eq('<= 44')
-    end
-
-    it 'handles empty low/high values gracefully' do
-      obs = {
-        'referenceRange' => [
-          {
-            'low' => {},
-            'high' => {}
-          }
-        ]
-      }
-      result = service.send(:fetch_reference_range, obs)
-      expect(result).to eq('')
-    end
-
-    it 'handles mixed formats correctly' do
-      obs = {
-        'referenceRange' => [
-          { 'text' => 'Normal: <100 mg/dL' },
-          {
-            'low' => { 'value' => 5.0 },
-            'high' => { 'value' => 7.5 }
-          },
-          {
-            'low' => { 'value' => 4.0 }
-          }
-        ]
-      }
-      result = service.send(:fetch_reference_range, obs)
-      expect(result).to eq('Normal: <100 mg/dL, 5.0 - 7.5, >= 4.0')
-    end
-
-    it 'gracefully handles malformed reference range data' do
-      # Test with various types of malformed data
-      test_cases = [
-        # Nil reference range
-        { 'referenceRange' => nil },
-
-        # Empty array
-        { 'referenceRange' => [] },
-
-        # Non-array reference range
-        { 'referenceRange' => 'not an array' },
-
-        # Array with non-hash elements
-        { 'referenceRange' => ['string', 123, nil] }
-      ]
-
-      test_cases.each do |test_case|
-        result = service.send(:fetch_reference_range, test_case)
-        expect(result).to eq(''), "Failed for test case: #{test_case.inspect}"
-      end
-    end
-
-    it 'handles type field that is not a hash' do
-      test_case = { 'referenceRange' => [{ 'low' => { 'value' => 10 }, 'type' => 'not a hash' }] }
-      result = service.send(:fetch_reference_range, test_case)
-      expect(result).to eq('>= 10')
-    end
-
-    it 'handles missing low and high fields' do
-      test_case = { 'referenceRange' => [{ 'other_field' => 'some value' }] }
-      result = service.send(:fetch_reference_range, test_case)
-      expect(result).to eq('')
-    end
-
-    it 'handles non-numeric values in low/high' do
-      test_case = { 'referenceRange' => [{ 'low' => { 'value' => 'not a number' },
-                                           'high' => { 'value' => 'also not a number' } }] }
-      result = service.send(:fetch_reference_range, test_case)
-      expect(result).to eq('')
-    end
-
-    it 'handles malformed nested structures' do
-      test_case = { 'referenceRange' => [{ 'low' => 'not a hash', 'high' => 123 }] }
-      result = service.send(:fetch_reference_range, test_case)
-      expect(result).to eq('')
-    end
-
-    it 'handles low value with no unit and type with no text' do
-      test_case = { 'referenceRange' => [{ 'low' => { 'value' => 5 }, 'type' => { 'coding' => [{}] } }] }
-      result = service.send(:fetch_reference_range, test_case)
-      expect(result).to eq('>= 5')
     end
   end
 

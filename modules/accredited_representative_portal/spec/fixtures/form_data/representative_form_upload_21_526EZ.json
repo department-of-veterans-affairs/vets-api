@@ -1,0 +1,17 @@
+{
+  "form_id": "21-526EZ",
+  "representative_form_upload": {
+    "formName": "APPLICATION FOR DISABILITY COMPENSATION AND RELATED COMPENSATION BENEFITS",
+    "formData": {
+      "veteranSsn": "796126859",
+      "postalCode": "12345",
+      "veteranDateOfBirth": "1932-02-05",
+      "formNumber": "21-526EZ",
+      "email": "john@veteran.com",
+      "veteranFullName": {
+        "first": "Hector",
+        "last": "Allen"
+      }
+    }
+  }
+}

@@ -138,7 +138,8 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             end
 
             it 'sends confirmation email' do
-              expect(claim).to receive(:send_vbms_confirmation_email).with(user_object)
+              expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
+                .with('VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
 
               claim.send_to_vre(user_object)
             end
@@ -163,7 +164,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           it 'PDF is sent to Central Mail and not VBMS' do
             expect(claim).to receive(:process_attachments!)
             expect(claim).to receive(:send_to_lighthouse!).with(user_object).once.and_call_original
-            expect(claim).to receive(:send_lighthouse_confirmation_email)
+            expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
             expect(claim).not_to receive(:upload_to_vbms)
             expect(VeteranReadinessEmploymentMailer).to receive(:build).with(
               user_object.participant_id, 'VRE.VBAPIT@va.gov', true
@@ -184,40 +185,36 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       end
     end
 
-    describe '#send_vbms_confirmation_email' do
-      context "with #{form_type}" do
-        let(:claim) { create_claim(form_type) }
+    describe '#send_vbms_lighthouse_confirmation_email' do
+      let(:user) do
+        OpenStruct.new(
+          edipi: '1007697216',
+          participant_id: '600061742',
+          first_name: 'WESLEY',
+          va_profile_email: 'test@example.com',
+          flipper_id: 'test-user-id'
+        )
+      end
+      let(:claim) { create_claim(form_type) }
+
+      context 'Legacy notification strategy' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:vre_use_new_vfs_notification_library)
+            .and_return(false)
+        end
 
         it 'calls the VA notify email job' do
           expect(VANotify::EmailJob).to receive(:perform_async).with(
-            user.va_profile_email,
+            claim.email,
             'ch31_vbms_fake_template_id',
             {
               'date' => Time.zone.today.strftime('%B %d, %Y'),
-              'first_name' => user.first_name.upcase.presence
+              'first_name' => claim.parsed_form['veteranInformation']['fullName']['first']
             }
           )
 
-          claim.send_vbms_confirmation_email(user)
-        end
-      end
-    end
-
-    describe '#send_lighthouse_confirmation_email' do
-      context "with #{form_type}" do
-        let(:claim) { create_claim(form_type) }
-
-        it 'calls the VA notify email job' do
-          expect(VANotify::EmailJob).to receive(:perform_async).with(
-            user.va_profile_email,
-            'ch31_central_mail_fake_template_id',
-            {
-              'date' => Time.zone.today.strftime('%B %d, %Y'),
-              'first_name' => user.first_name.upcase.presence
-            }
-          )
-
-          subject.send_lighthouse_confirmation_email(user)
+          claim.send_vbms_lighthouse_confirmation_email('VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
         end
       end
     end
@@ -423,7 +420,8 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         it 'fails validation' do
           claim = build(:new_veteran_readiness_employment_claim, email: invalid_input, is_moving: invalid_input,
                                                                  years_of_ed: invalid_input, first: invalid_input,
-                                                                 last: invalid_input, dob: invalid_input)
+                                                                 last: invalid_input, dob: invalid_input,
+                                                                 privacyAgreementAccepted: invalid_input)
 
           expect(claim).not_to be_valid
           expect(claim.errors.attribute_names).to include(:'/email')
@@ -540,6 +538,17 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           expect(claim).not_to be_valid
           expect(claim.errors.attribute_names).to include(:'/veteranInformation/dob')
         end
+      end
+    end
+  end
+
+  ['true', 1, 0, [], nil].each do |invalid_type|
+    context "when privacyAgreementAccepted receives #{invalid_type} data type" do
+      it 'fails validation' do
+        claim = build(:new_veteran_readiness_employment_claim, privacyAgreementAccepted: invalid_type)
+
+        expect(claim).not_to be_valid
+        expect(claim.errors.attribute_names).to include(:'/privacyAgreementAccepted')
       end
     end
   end
