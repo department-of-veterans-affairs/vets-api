@@ -27,8 +27,6 @@ module UniqueUserEvents
   # @example
   #   UniqueUserEvents.log_event(user_id: user.uuid, event_name: 'appointments_viewed')
   def self.log_event(user_id:, event_name:)
-    return false unless Flipper.enabled?(:unique_user_metrics_logging)
-
     start_time = Time.current
     result = Service.log_event(user_id:, event_name:)
     duration = (Time.current - start_time) * 1000.0 # Convert to milliseconds
@@ -52,8 +50,6 @@ module UniqueUserEvents
   #     # User has already accessed MHV landing page
   #   end
   def self.event_logged?(user_id:, event_name:)
-    return false unless Flipper.enabled?(:unique_user_metrics_logging)
-
     Service.event_logged?(user_id:, event_name:)
   end
 end

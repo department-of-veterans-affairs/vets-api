@@ -11,7 +11,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
   end
 
   let(:contact_information_service) do
-    VAProfile::V2::ContactInformation::Service
+    VAProfile::ContactInformation::V2::Service
   end
 
   describe 'GET /mobile/v1/user' do
