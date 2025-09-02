@@ -11,6 +11,18 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
   let(:primary_next_of_kin) do
     associations.select { |association| association['contactType'] == 'Primary Next of Kin' }
   end
+  let(:associations_missing_relationship_and_name) do
+    associations = get_fixture('veteran_enrollment_system/associations/associations_primary_nok_and_ec')
+    associations.each do |association|
+      association['name'] = {
+        givenName: '',
+        middleName: '',
+        familyName: '',
+        suffix: ''
+      }
+      association['relationType'] = nil
+    end
+  end
 
   describe '#reconcile_associations' do
     context 'when associations were deleted on the frontend' do
