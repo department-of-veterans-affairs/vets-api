@@ -78,7 +78,8 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
             expect(response).to have_http_status(:bad_request)
             json = JSON.parse(response.body)
             expect(json['errors'].first['title']).to eq('Invalid field value')
-            expect(json['errors'].first['detail']).to eq('"must contain non-empty strings" is not a valid value for "event_names"')
+            expect(json['errors'].first['detail'])
+              .to eq('"must contain non-empty strings" is not a valid value for "event_names"')
           end
 
           it 'returns 400 when event_names contains empty strings' do
@@ -88,7 +89,8 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
             expect(response).to have_http_status(:bad_request)
             json = JSON.parse(response.body)
             expect(json['errors'].first['title']).to eq('Invalid field value')
-            expect(json['errors'].first['detail']).to eq('"must contain non-empty strings" is not a valid value for "event_names"')
+            expect(json['errors'].first['detail'])
+              .to eq('"must contain non-empty strings" is not a valid value for "event_names"')
           end
         end
 
