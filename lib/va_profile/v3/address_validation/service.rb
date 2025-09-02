@@ -31,7 +31,6 @@ module VAProfile
 
               AddressSuggestionsResponse.new(candidate_res)
             rescue Common::Exceptions::BackendServiceException => e
-              # binding.pry
               if Flipper.enabled?(:profile_validate_address_when_no_candidate_found) &&
                  candidate_address_not_found?(e)
                 validate_res = validate(address)
