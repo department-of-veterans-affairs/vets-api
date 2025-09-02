@@ -142,7 +142,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       before do
         allow(ClaimsApi::BRD).to receive(:new).and_return(brd_client)
         allow(brd_client).to receive(:intake_sites).and_raise(
-          StandardError.new('Failed to retrieve intake sites')
+          Common::Exceptions::ServiceUnavailable
         )
       end
 
