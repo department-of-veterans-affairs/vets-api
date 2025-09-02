@@ -23,7 +23,7 @@ describe VAProfile::V2::Person::Service, :skip_vet360 do
           response = subject.init_vet360_id
 
           expect(response).to be_ok
-          expect(response).to be_a(VAProfile::V2::ContactInformation::PersonTransactionResponse)
+          expect(response).to be_a(VAProfile::ContactInformation::V2::PersonTransactionResponse)
         end
       end
 
