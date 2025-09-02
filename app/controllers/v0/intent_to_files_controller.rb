@@ -130,8 +130,8 @@ module V0
       end
 
       if user.participant_id.blank?
-        error_message = 'ITF request failed. No veteran participant ID provided'
-        monitor.track_missing_user_pid_itf_controller(method, form_id, itf_type, user_uuid, error_message)
+        info_message = 'User missing participant ID which will be created by Lighthouse within MPI'
+        monitor.track_missing_user_pid_itf_controller(method, form_id, itf_type, user_uuid, info_message)
       end
 
       if form_id.blank?
