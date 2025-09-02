@@ -2,7 +2,7 @@
 
 require 'common/exceptions/validation_errors'
 require 'va_profile/contact_information/service'
-require 'va_profile/v2/contact_information/service'
+require 'va_profile/contact_information/v2/service'
 
 module Vet360
   module Writeable
@@ -81,7 +81,7 @@ module Vet360
 
     def service
       if Flipper.enabled?(:remove_pciu, @current_user)
-        VAProfile::V2::ContactInformation::Service.new @current_user
+        VAProfile::ContactInformation::V2::Service.new @current_user
       else
         VAProfile::ContactInformation::Service.new @current_user
       end
