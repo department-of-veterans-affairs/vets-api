@@ -143,7 +143,11 @@ module Form526ClaimFastTrackingConcern
 
   def classify_vagov_contentions(params)
     cc_client = ContentionClassification::Client.new
-    response = cc_client.classify_vagov_contentions_expanded(params)
+    if Flipper.enabled?(:contention_classification_ml_classifier, @current_user)
+      response = cc_client.classify_vagov_contentions_hybrid(params)
+    else
+      response = cc_client.classify_vagov_contentions_expanded(params)
+    end
     response.body
   end
 
