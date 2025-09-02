@@ -32,8 +32,8 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
           'scheduleAppointments' => true,
           'secureMessaging' => false,
           'userProfileUpdate' => true,
-          'secureMessagingOHEnabled' => false,
-          'medicationsOHEnabled' => false }
+          'secureMessagingOracleHealthEnabled' => false,
+          'medicationsOracleHealthEnabled' => false }
       )
     end
   end
