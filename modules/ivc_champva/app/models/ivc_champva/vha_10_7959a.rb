@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module IvcChampva
   class VHA107959a
     ADDITIONAL_PDF_KEY = 'claims'
     ADDITIONAL_PDF_COUNT = 1
     STATS_KEY = 'api.ivc_champva_form.10_7959a'
 
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
     include Attachments
 
-    attribute :data
+    attribute :data, Hash
     attr_reader :form_id
 
     def initialize(data)
@@ -120,7 +122,7 @@ module IvcChampva
 
       {
         'pdi_number' => pdi_or_claim == 'PDI number' ? identifying_number : '',
-        'claim_number' => pdi_or_claim == 'Claim control number' ? identifying_number : ''
+        'claim_number' => pdi_or_claim == 'Control number' ? identifying_number : ''
       }.compact_blank
     end
   end

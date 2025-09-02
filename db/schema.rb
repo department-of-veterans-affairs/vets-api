@@ -1287,6 +1287,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_19_181750) do
     t.index ["start_time"], name: "index_maintenance_windows_on_start_time"
   end
 
+  create_table "mhv_metrics_unique_user_events", id: false, force: :cascade do |t|
+    t.uuid "user_id", null: false, comment: "Unique user identifier"
+    t.string "event_name", limit: 50, null: false, comment: "Event type name"
+    t.datetime "created_at", precision: nil
+    t.index ["user_id", "event_name"], name: "index_mhv_metrics_unique_user_events_on_user_id_and_event_name", unique: true
+  end
+
   create_table "mhv_opt_in_flags", force: :cascade do |t|
     t.uuid "user_account_id"
     t.string "feature", null: false
