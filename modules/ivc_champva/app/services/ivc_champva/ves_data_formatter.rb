@@ -3,7 +3,7 @@
 module IvcChampva
   class VesDataFormatter
     CHILDTYPES = %w[ADOPTED STEPCHILD NATURAL].freeze
-    RELATIONSHIPS = %w[SPOUSE CHILD].freeze
+    RELATIONSHIPS = %w[SPOUSE EX_SPOUSE CAREGIVER CHILD].freeze
     GENDERS = %w[MALE FEMALE].freeze
     VALID_RELATIONSHIPS_LOOKUP = RELATIONSHIPS.index_by(&:downcase).freeze
     VALID_GENDER_LOOKUP = { 'm' => 'MALE', 'male' => 'MALE', 'f' => 'FEMALE', 'female' => 'FEMALE' }.freeze
