@@ -339,7 +339,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
   #   let(:address) { build(:va_profile_v3_address, vet360_id: user.vet360_id) }
 
   #   it 'calls update_address' do
-  #     expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:update_address).and_call_original
+  #     expect_any_instance_of(VAProfile::ContactInformation::V2::Service).to receive(:update_address).and_call_original
   #     VCR.use_cassette("va_profile/v2/contact_information/put_address_success") do
   #       post('/v0/profile/addresses/create_or_update', params: address.to_json, headers:)
   #     end
@@ -563,7 +563,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
         end
 
         it 'effective_end_date is NOT included in the request body', :aggregate_failures do
-          expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:put_address) do |_, address|
+          expect_any_instance_of(VAProfile::ContactInformation::V2::Service).to receive(:put_address) do |_, address|
             expect(address.effective_end_date).to be_nil
           end
 
