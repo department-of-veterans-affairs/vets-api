@@ -36,8 +36,8 @@ module AsyncTransaction
       # Creates an initial AsyncTransaction record for ongoing tracking
       #
       # @param user [User] The user associated with the transaction
-      # @param response [VAProfile::ContactInformation::TransactionResponse] An instance of
-      #   a VAProfile::ContactInformation::TransactionResponse class, be it Email, Address, etc.
+      # @param response [VAProfile::ContactInformation::V2::TransactionResponse] An instance of
+      #   a VAProfile::ContactInformation::V2::TransactionResponse class, be it Email, Address, etc.
       # @return [AsyncTransaction::VAProfile::Base] A AsyncTransaction::VAProfile::Base record,
       #   be it Email, Address, etc.
       #

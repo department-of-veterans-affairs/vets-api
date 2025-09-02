@@ -181,7 +181,7 @@ module Organizations
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values
     #   for DualAddressError warnings we see with some P.O. Box addresses the validator struggles with
-    # @param candidate_address [Hash] an address hash object returned by [VAProfile::AddressValidation::Service]
+    # @param candidate_address [Hash] an address hash object returned by [VAProfile::AddressValidation::V3::Service]
     # @return [Boolean]
     def lat_long_zero?(candidate_address)
       address = candidate_address['candidate_addresses']&.first
