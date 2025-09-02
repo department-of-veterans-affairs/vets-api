@@ -14,7 +14,7 @@ describe 'vet360 rake tasks' do
     ENV['VET360_RAKE_DATA'] = nil
   end
 
-  service = VAProfile::V2::ContactInformation::Service
+  service = VAProfile::ContactInformation::V2::Service
   cassette_path = 'va_profile/v2/contact_information'
 
   describe 'rake vet360:get_person' do

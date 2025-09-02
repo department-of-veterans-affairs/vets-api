@@ -20,7 +20,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     let(:email) { build(:email, :contact_info_v2) }
 
     it 'calls update_email' do
-      expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:update_email).and_call_original
+      expect_any_instance_of(VAProfile::ContactInformation::V2::Service).to receive(:update_email).and_call_original
       VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
         post('/v0/profile/email_addresses/create_or_update', params: email.to_json, headers:)
       end

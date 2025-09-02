@@ -17,7 +17,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
              user_uuid: user.uuid,
              transaction_status: 'RECEIVED')
     end
-    let(:service) { VAProfile::V2::ContactInformation::Service.new(user) }
+    let(:service) { VAProfile::ContactInformation::V2::Service.new(user) }
 
     before do
       # vet360_id appears in the API request URI so we need it to match the cassette
@@ -87,7 +87,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
 
     it 'returns an instance with the user uuid', :aggregate_failures do
       VCR.use_cassette('va_profile/v2/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
-        service = VAProfile::V2::ContactInformation::Service.new(user)
+        service = VAProfile::ContactInformation::V2::Service.new(user)
         response = service.post_address(address)
         transaction = AsyncTransaction::VAProfile::Base.start(user, response)
         expect(transaction.user_uuid).to eq(user.uuid)
@@ -117,7 +117,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
              user_uuid: user.uuid,
              status: AsyncTransaction::VAProfile::Base::COMPLETED)
     end
-    let(:service) { VAProfile::V2::ContactInformation::Service.new(user) }
+    let(:service) { VAProfile::ContactInformation::V2::Service.new(user) }
 
     before do
       # vet360_id appears in the API request URI so we need it to match the cassette

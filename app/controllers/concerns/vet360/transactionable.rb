@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/exceptions/record_not_found'
-require 'va_profile/v2/contact_information/service'
+require 'va_profile/contact_information/v2/service'
 
 module Vet360
   module Transactionable
@@ -22,7 +22,7 @@ module Vet360
     private
 
     def service
-      VAProfile::V2::ContactInformation::Service.new @current_user
+      VAProfile::ContactInformation::V2::Service.new @current_user
     end
   end
 end
