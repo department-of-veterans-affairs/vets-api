@@ -117,7 +117,7 @@ RSpec.describe ContentionClassification::Client do
 
   describe 'making classification contention requests to hybrid classifier' do
     subject { client.classify_vagov_contentions_hybrid(classification_contention_params) }
-    
+
     context 'valid requests' do
       let(:generic_response) do
         {
