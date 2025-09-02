@@ -71,11 +71,11 @@ class SavedClaim::EducationBenefits < SavedClaim
 
   def determine_first_name_key
     case self.class.name.split('::').last
-    when 'VA1990E', 'VA5490', 'VA5495'
+    when 'VA0994', 'VA1990E', 'VA5490', 'VA5495'
       'relativeFullName'
-    when 'VA0994', 'VA10297'
+    when 'VA10297'
       'applicantFullName'
-    else # 1995, 10203
+    else
       'veteranFullName'
     end
   end

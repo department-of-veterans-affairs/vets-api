@@ -70,23 +70,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   end
 
   def remaining_entitlement
-    if Settings.vsp_environment != 'production'
-      service = BenefitsEducation::Service.new(@user.icn)
-      Rails.logger.info '#### 10203 Lighthouse ##########'
-      Rails.logger.info "#### User Info ########## \n #{@user.to_json}"
-      Rails.logger.info @user.to_json
-      Rails.logger.info "#### Request Info ########## \n #{service.inspect}"
-
-      if @gi_bill_status == {} || @gi_bill_status.remaining_entitlement.blank?
-        Rails.logger.info '#### remaining_entitlement data: none ##########'
-      end
-
-      return nil if @gi_bill_status == {} || @gi_bill_status.remaining_entitlement.blank?
-
-      Rails.logger.info "#### remaining_entitlement data ########## \n @gi_bill_status.to_json"
-    elsif @gi_bill_status == {} || @gi_bill_status.remaining_entitlement.blank?
-      return nil
-    end
+    return nil if @gi_bill_status == {} || @gi_bill_status.remaining_entitlement.blank?
 
     months = @gi_bill_status.remaining_entitlement.months
     days = @gi_bill_status.remaining_entitlement.days
@@ -102,14 +86,24 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
 
   def send_confirmation_email
     parsed_form = JSON.parse(form)
-    # Use the user's profile email if available (logged in). Otherwise, use the form email.
-    # The email's more likely to be deliverable if the profile email is available. Users
-    # can fat finger their email on the form or it might not be their primary email.
-    # If they're not logged in, we have to use the form email
-    email = @user&.email || parsed_form['email']
+    email = parsed_form['email']
     return if email.blank?
 
-    send_education_benefits_confirmation_email(email, parsed_form, {})
+    if Flipper.enabled?(:form1995_confirmation_email_with_silent_failure_processing)
+      # this method is in the parent class
+      send_education_benefits_confirmation_email(email, parsed_form, {})
+    else
+      VANotify::EmailJob.perform_async(
+        email,
+        Settings.vanotify.services.va_gov.template_id.form21_10203_confirmation_email,
+        {
+          'first_name' => parsed_form.dig('veteranFullName', 'first')&.upcase.presence,
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'confirmation_number' => education_benefits_claim.confirmation_number,
+          'regional_office_address' => regional_office_address
+        }
+      )
+    end
   end
 
   def template_id
