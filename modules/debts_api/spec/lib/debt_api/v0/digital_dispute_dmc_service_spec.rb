@@ -26,7 +26,6 @@ RSpec.describe DebtsApi::V0::DigitalDisputeDmcService do
     end
   end
 
-
   describe '#call!' do
     context 'with valid attachments' do
       it 'posts expected payload and marks submission as submitted' do
@@ -84,9 +83,9 @@ RSpec.describe DebtsApi::V0::DigitalDisputeDmcService do
           .with(:post, 'dispute-debt', kind_of(Hash))
           .and_raise(StandardError, 'DMC blew up')
 
-        expect {
+        expect do
           described_class.new(user, submission).call!
-        }.to raise_error(StandardError, 'DMC blew up')
+        end.to raise_error(StandardError, 'DMC blew up')
 
         expect(submission.reload).to be_pending
       end

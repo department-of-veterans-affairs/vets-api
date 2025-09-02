@@ -33,8 +33,7 @@ module DebtsApi
           )
           render json: { errors: errors_hash }, status: :unprocessable_entity
         rescue => e
-          submission.files.each(&:purge)
-          submission.destroy
+          submission.clean_up_failure
 
           Rails.logger.error("DigitalDisputeController#create error: #{e.message} #{e.backtrace&.take(12)&.join("\n")}")
 
@@ -42,6 +41,8 @@ module DebtsApi
           render json: { errors: { base: [e.message] } }, status: :unprocessable_entity
         end
       end
+
+      d
 
       def in_progress_form
         InProgressForm.form_for_user('DISPUTE-DEBT', current_user)
@@ -59,6 +60,7 @@ module DebtsApi
       end
 
       def initialize_submission
+        StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.initiated")
         DebtsApi::V0::DigitalDisputeSubmission.new(
           user_uuid: current_user.uuid,
           user_account: current_user.user_account,

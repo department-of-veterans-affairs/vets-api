@@ -66,12 +66,10 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
       describe 'failed validation' do
         before do
           allow(mock_service).to receive(:call)
-                                   .and_return(
-                                     {
-                                       success: false,
-                                       errors: { files: ['File 1 must be a PDF'] }
-                                     }
-                                   )
+            .and_return(
+              success: false,
+              errors: { files: ['File 1 must be a PDF'] }
+            )
         end
 
         it 'returns 422 Unprocessable Entity with error details' do
@@ -125,11 +123,12 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
 
       describe 'successful submission' do
         before do
-          allow(mock_service).to receive(:call!).and_return({
-                                                             success: true,
-                                                             message: 'Digital dispute submission received successfully'
-                                                           })
+          allow(mock_service).to receive(:call!).and_return(
+            success: true,
+            message: 'Digital dispute submission received successfully'
+          )
         end
+
         it 'returns 200 OK with success message' do
           post '/debts_api/v0/digital_disputes', params: { metadata: metadata_json, files: [pdf_file_one] }
 
@@ -158,8 +157,8 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(JSON.parse(response.body)).to eq(
-                                                 'errors' => { 'files' => ['at least one file is required'] }
-                                               )
+            'errors' => { 'files' => ['at least one file is required'] }
+          )
         end
 
         it 'tracks failure metrics' do
