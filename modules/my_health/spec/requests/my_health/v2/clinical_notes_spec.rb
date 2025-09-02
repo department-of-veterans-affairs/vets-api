@@ -43,7 +43,7 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
         expect(json_response['data'].first['attributes']).to include(
           'id',
           'name',
-          'type',
+          'noteType',
           'loincCode',
           'date',
           'dateSigned',

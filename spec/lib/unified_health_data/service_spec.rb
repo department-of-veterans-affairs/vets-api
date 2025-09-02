@@ -809,7 +809,7 @@ describe UnifiedHealthData::Service, type: :service do
 
           notes = service.get_care_summaries_and_notes
           expect(notes.size).to eq(6)
-          expect(notes.map(&:type)).to contain_exactly(
+          expect(notes.map(&:note_type)).to contain_exactly(
             'physician_procedure_note',
             'physician_procedure_note',
             'consult_result',
@@ -821,8 +821,8 @@ describe UnifiedHealthData::Service, type: :service do
             {
               'id' => '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
               'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
-              'loinc_code' => '11506-3',
-              'type' => 'physician_procedure_note',
+              'loinc_code' => ['11506-3'],
+              'note_type' => 'physician_procedure_note',
               'date' => '2025-01-14T09:18:00.000+00:00',
               'date_signed' => '2025-01-14T09:29:26+00:00',
               'written_by' => 'MARCI P MCGUIRE',
@@ -836,8 +836,8 @@ describe UnifiedHealthData::Service, type: :service do
                                  {
                                    'id' => be_a(String),
                                    'name' => be_a(String),
-                                   'type' => be_a(String),
-                                   'loinc_code' => be_a(String),
+                                   'note_type' => be_a(String),
+                                   'loinc_code' => be_an(Array),
                                    'date' => be_a(String),
                                    'date_signed' => be_a(String).or(be_nil),
                                    'written_by' => be_a(String),
@@ -857,7 +857,7 @@ describe UnifiedHealthData::Service, type: :service do
 
           notes = service.get_care_summaries_and_notes
           expect(notes.size).to eq(4)
-          expect(notes.map(&:type)).to contain_exactly(
+          expect(notes.map(&:note_type)).to contain_exactly(
             'physician_procedure_note',
             'physician_procedure_note',
             'consult_result',
@@ -867,8 +867,8 @@ describe UnifiedHealthData::Service, type: :service do
                                  {
                                    'id' => be_a(String),
                                    'name' => be_a(String),
-                                   'type' => be_a(String),
-                                   'loinc_code' => be_a(String),
+                                   'note_type' => be_a(String),
+                                   'loinc_code' => be_an(Array),
                                    'date' => be_a(String),
                                    'date_signed' => be_a(String).or(be_nil),
                                    'written_by' => be_a(String),
@@ -887,7 +887,7 @@ describe UnifiedHealthData::Service, type: :service do
 
           notes = service.get_care_summaries_and_notes
           expect(notes.size).to eq(2)
-          expect(notes.map(&:type)).to contain_exactly(
+          expect(notes.map(&:note_type)).to contain_exactly(
             'discharge_summary',
             'other'
           )
@@ -895,8 +895,8 @@ describe UnifiedHealthData::Service, type: :service do
                                  {
                                    'id' => be_a(String),
                                    'name' => be_a(String),
-                                   'type' => be_a(String),
-                                   'loinc_code' => be_a(String),
+                                   'note_type' => be_a(String),
+                                   'loinc_code' => be_an(Array),
                                    'date' => be_a(String),
                                    'date_signed' => be_a(String).or(be_nil),
                                    'written_by' => be_a(String),

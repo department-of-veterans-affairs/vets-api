@@ -34,7 +34,7 @@ module UnifiedHealthData
           UnifiedHealthData::ClinicalNotes.new({
                                                  id: record['id'],
                                                  name: get_title(record),
-                                                 type: get_record_type(record),
+                                                 note_type: get_record_type(record), # send both pre-mapped type and codes
                                                  loinc_code: get_loinc_code(record),
                                                  date: record['date'],
                                                  date_signed: get_date_signed(record),
@@ -56,8 +56,7 @@ module UnifiedHealthData
         end
 
         def get_loinc_code(record)
-          # TODO: Does this need to be an array? or the single code?
-          record['type']['coding']&.find { |coding| coding['system'] == 'http://loinc.org' }&.[]('code') || nil
+          record['type']['coding']&.map { |coding| coding['code'] if coding['code'] }
         end
 
         def array_and_has_items(item)
