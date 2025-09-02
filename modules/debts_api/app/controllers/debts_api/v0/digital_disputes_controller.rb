@@ -42,8 +42,6 @@ module DebtsApi
         end
       end
 
-      d
-
       def in_progress_form
         InProgressForm.form_for_user('DISPUTE-DEBT', current_user)
       end
