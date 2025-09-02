@@ -2,7 +2,7 @@
 
 require 'sidekiq'
 require 'va_profile/person/service'
-require 'va_profile/v2/person/service'
+require 'va_profile/person/v2/service'
 
 # This job is run when a user does not have a vet360_id, which indicates that the user does not have an account on the
 # VAProfile service. The mobile app depends on the VAProfile service for user contact data, and mobile features
@@ -39,7 +39,7 @@ module Mobile
         end
 
         result = if Flipper.enabled?(:remove_pciu)
-                   VAProfile::V2::Person::Service.new(user).init_vet360_id
+                   VAProfile::Person::V2::Service.new(user).init_vet360_id
                  else
                    VAProfile::Person::Service.new(user).init_vet360_id
                  end
