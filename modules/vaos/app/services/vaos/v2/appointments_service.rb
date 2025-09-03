@@ -982,15 +982,23 @@ module VAOS
       end
 
       def log_telehealth_issue(appointment)
-        context = {
-          displayLink: appointment.dig(:telehealth, :display_link),
-          kind: appointment[:kind],
-          modality: appointment[:modality],
-          start: appointment[:start],
-          telehealthUrl: appointment.dig(:telehealth, :url),
-          vvsVistaVideoAppt: appointment.dig(:extension, :vvs_vista_video_appt)
-        }
-        Rails.logger.warn('VAOS video telehealth issue', context.to_json) if context[:telehealthUrl].blank?
+        if appointment[:start]
+          fifteen_before = appointment[:start].to_datetime - 15.minutes
+          fifteen_after = appointment[:start].to_datetime + 15.minutes
+          context = {
+            displayLink: appointment.dig(:telehealth, :display_link),
+            kind: appointment[:kind],
+            modality: appointment[:modality],
+            telehealthUrl: appointment.dig(:telehealth, :url),
+            vvsVistaVideoAppt: appointment.dig(:extension, :vvs_vista_video_appt),
+            facilityId: appointment[:location_id],
+            clinicId: appointment[:clinic],
+            afterFiveBeforeStart: Time.now.utc >= appointment[:start].to_datetime - 5.minutes
+          }
+          Rails.logger.warn('VAOS video telehealth issue', context.to_json) if context[:telehealthUrl].blank? &&
+                                                                               Time.now.utc >= fifteen_before &&
+                                                                               Time.now.utc <= fifteen_after
+        end
       end
 
       def log_modality_failure(appointment)
