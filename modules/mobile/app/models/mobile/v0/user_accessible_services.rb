@@ -29,7 +29,7 @@ module Mobile
           genderIdentity: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           lettersAndDocuments: access?(lighthouse: :access?),
           militaryServiceHistory: access?(vet360: :military_access?),
-          medicationsOracleHealthEnabled: false, # Once RX cerner flipper is added this will need to be updated
+          medicationsOracleHealthEnabled: Flipper.enabled?(:mhv_medications_cerner_pilot, @user),
           paymentHistory: access?(bgs: :access?),
           preferredName: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           prescriptions: access?(mhv_prescriptions: :access?),
