@@ -81,8 +81,8 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
     allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
-    # FIXED: Corrected feature flag name to match the main code
-    allow(Flipper).to receive(:enabled?).with(:decision_review_final_status_secondary_form_failure_notifications).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:decision_review_final_status_secondary_form_failure_notifications)
+                                        .and_return(false)
   end
 
   describe '#get_callback_config' do
@@ -473,7 +473,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             detail: 'Legacy error without final_status',
             createDate: 10.days.ago,
             updateDate: 5.days.ago
-            # Note: no final_status field
+            # NOTE: no final_status field
           }.to_json
         end
 
@@ -495,9 +495,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
 
         context 'when final status secondary form failure notifications flag is ENABLED' do
           before do
-            # FEATURE FLAG: Enable the final status secondary form failure notifications feature
-            allow(Flipper).to receive(:enabled?).with(:decision_review_final_status_secondary_form_failure_notifications)
-                                                .and_return(true)
+            allow(Flipper).to receive(:enabled?)
+              .with(:decision_review_final_status_secondary_form_failure_notifications)
+              .and_return(true)
           end
 
           context 'with forms having different final_status values' do
@@ -565,9 +565,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
 
         context 'when final status secondary form failure notifications flag is DISABLED (legacy behavior)' do
           before do
-            # FEATURE FLAG: Disable the final status secondary form failure notifications feature (legacy mode)
-            allow(Flipper).to receive(:enabled?).with(:decision_review_final_status_secondary_form_failure_notifications)
-                                                .and_return(false)
+            allow(Flipper).to receive(:enabled?)
+              .with(:decision_review_final_status_secondary_form_failure_notifications)
+              .and_return(false)
           end
 
           context 'with same forms as enhanced test' do
@@ -618,11 +618,13 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           end
 
           it 'calls the feature flag helper method' do
-            allow(Flipper).to receive(:enabled?).with(:decision_review_final_status_secondary_form_failure_notifications)
-                                                .and_return(true)
+            allow(Flipper).to receive(:enabled?)
+              .with(:decision_review_final_status_secondary_form_failure_notifications)
+              .and_return(true)
 
             job_instance = subject.new
-            expect(job_instance).to receive(:final_status_secondary_form_failure_notifications_enabled?).and_call_original
+            expect(job_instance).to receive(:final_status_secondary_form_failure_notifications_enabled?)
+              .and_call_original
 
             job_instance.perform
           end

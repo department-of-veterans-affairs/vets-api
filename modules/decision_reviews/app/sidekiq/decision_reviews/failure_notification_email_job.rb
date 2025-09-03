@@ -162,6 +162,7 @@ module DecisionReviews
     end
 
     def send_secondary_form_emails
+      # Branch to separate implementations for clean feature flag removal
       if final_status_secondary_form_failure_notifications_enabled?
         send_secondary_form_emails_enhanced
       else
