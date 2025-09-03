@@ -2349,7 +2349,7 @@ describe VAOS::V2::AppointmentsService do
     it 'sets telehealth visibility to nil if appointment is not a telehealth type' do
       appt = appt_med
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be_nil
+      expect(appt.dig(:telehealth, :display_link)).to be_nil
     end
 
     it 'sets telehealth visibility to true if current time is 30 minutes before start time' do
@@ -2357,7 +2357,7 @@ describe VAOS::V2::AppointmentsService do
       appt[:start] = '2022-09-21T12:30:00+00:00'.to_datetime
       appt[:modality] = 'vaVideoCareAtHome'
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be(true)
+      expect(appt.dig(:telehealth, :display_link)).to be(true)
     end
 
     it 'sets telehealth visibility to true if current time is within 4 hours of start time' do
@@ -2365,7 +2365,7 @@ describe VAOS::V2::AppointmentsService do
       appt[:start] = '2022-09-21T08:00:00+00:00'.to_datetime
       appt[:modality] = 'vaVideoCareAtHome'
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be(true)
+      expect(appt.dig(:telehealth, :display_link)).to be(true)
     end
 
     it 'sets telehealth visibility to false if current time is more than 30 minutes from start time' do
@@ -2373,7 +2373,7 @@ describe VAOS::V2::AppointmentsService do
       appt[:start] = '2022-09-21T12:31:00+00:00'.to_datetime
       appt[:modality] = 'vaVideoCareAtHome'
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be(false)
+      expect(appt.dig(:telehealth, :display_link)).to be(false)
     end
 
     it 'sets telehealth visibility to false if current time is more than 4 hours from start time' do
@@ -2381,7 +2381,7 @@ describe VAOS::V2::AppointmentsService do
       appt[:start] = '2022-09-21T07:59:00+00:00'.to_datetime
       appt[:modality] = 'vaVideoCareAtHome'
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be(false)
+      expect(appt.dig(:telehealth, :display_link)).to be(false)
     end
   end
 
