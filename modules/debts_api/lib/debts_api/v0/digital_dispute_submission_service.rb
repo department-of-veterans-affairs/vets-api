@@ -16,6 +16,8 @@ module DebtsApi
       FAILURE_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_failure_email
 
       def initialize(user, files, metadata = nil)
+        user = OpenStruct.new(uuid: user['uuid'], ssn: user['ssn'], participant_id: user['participant_id'])
+
         super(user)
         @files = files
         @metadata = metadata
@@ -25,6 +27,7 @@ module DebtsApi
         submission = create_submission_record
         return duplicate_submission_result(submission) if check_duplicate?(submission)
 
+        DebtsApi::V0::DigitalDisputeJob.perform(user, base_64_files)
         send_to_dmc
         send_submission_email if email_notifications_enabled?
         submission.register_success
@@ -35,7 +38,6 @@ module DebtsApi
         failure_result(e)
       rescue => e
         submission&.register_failure(e.message)
-        failure_result(e)
       end
 
       private
@@ -65,12 +67,32 @@ module DebtsApi
         InProgressForm.form_for_user('DISPUTE-DEBT', @user)
       end
 
-      def validate_files_present
-        if files.blank? || !files.is_a?(Array) || files.empty?
-          raise NoFilesProvidedError,
-                'at least one file is required'
-        end
-      end
+      # def validate_files_present
+      #   if files.blank? || !files.is_a?(Array) || files.empty?
+      #     raise NoFilesProvidedError,
+      #           'at least one file is required'
+      #   end
+      # end
+      #
+      # def validate_files
+      #   errors = []
+      #
+      #   files.each_with_index do |file, index|
+      #     file_index = index + 1
+      #
+      #     errors << "File #{file_index} must be a PDF" unless file.content_type == ACCEPTED_CONTENT_TYPE
+      #
+      #     errors << "File #{file_index} is too large (maximum is 1MB)" if file.size > MAX_FILE_SIZE
+      #   end
+      #
+      #   raise InvalidFileTypeError, errors.join(', ') if errors.any?
+      # end
+      #
+      # def sanitize_filename(filename)
+      #   name = File.basename(filename)
+      #   name = name.tr(':', '_')
+      #   name.gsub(/[.](?=.*[.])/, '')
+      # end
 
       def sanitize_filename(filename)
         name = File.basename(filename)
@@ -169,6 +191,27 @@ module DebtsApi
           }
         )
       end
+
+      # def failure_result(error)
+      #   Rails.logger.error("DigitalDisputeSubmissionService error: #{error.message}\n#{error.backtrace&.join("\n")}")
+      #   case error
+      #   when NoFilesProvidedError
+      #     {
+      #       success: false,
+      #       errors: { files: [error.message] }
+      #     }
+      #   when InvalidFileTypeError
+      #     {
+      #       success: false,
+      #       errors: { files: error.message.split(', ') }
+      #     }
+      #   else
+      #     {
+      #       success: false,
+      #       errors: { base: ['An error occurred processing your submission'] }
+      #     }
+      #   end
+      # end
     end
   end
 end
