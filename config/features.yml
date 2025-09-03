@@ -2032,6 +2032,9 @@ features:
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
+  virtual_agent_show_ai_disclaimer:
+    actor_type: user
+    description: Enables a disclaimer for ai generated content - managed by virtual agent team
   virtual_agent_show_floating_chatbot:
     actor_type: user
     description: Enables a floating chatbot on the chatbot page - managed by virtual agent team
@@ -2413,4 +2416,3 @@ features:
     actor_type: user
     description: Enables substance use disorder as care related to mental health appointments with new codes
     enable_in_development: true
-
