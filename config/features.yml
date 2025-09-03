@@ -340,6 +340,10 @@ features:
     actor_type: user
     description: Enables VA Notify delivery status callbacks for travel claim notifications
     enable_in_development: true
+  check_in_experience_travel_claim_logging:
+    actor_type: user
+    description: Enables detailed logging for travel claim submission operations
+    enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
     description: Enables browser monitoring for check-in applications.
@@ -757,6 +761,10 @@ features:
     actor_type: user
     description: Enables duplicate prevention for digital dispute submissions
     enable_in_development: false
+  digital_dmc_dispute_service:
+    actor_type: user
+    description: Enables the Digital DMC Dispute Service
+    enable_in_development: true
   event_bus_gateway_retry_emails:
     actor_type: user
     description: When enabled, vets-api retries event bus gateway emails that VA Notify marks temporary-failure
@@ -1545,7 +1553,7 @@ features:
     description: Show/Hide the quick submit section of notification settings in profile
   profile_validate_address_when_no_candidate_found:
     actor_type: user
-    description: When enabled, a NoCandidateFound error will be followed up by a call to the validate endpoint
+    description: When enabled, a CandidateAddressNotFound error will be followed up by a call to the validate endpoint
   profile_show_no_validation_key_address_alert:
     actor_type: user
     description: Show/Hide alert messages when no validationKey is returned from the address_validation endpoint
