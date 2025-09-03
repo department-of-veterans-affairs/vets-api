@@ -2341,5 +2341,8 @@ features:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
   calculator_constants_versioning:
-    actor_type: 
+    actor_type:
     description: (gibct-data-service) If enabled, updates GIDS UI and includes calculator constants in GIDS version generation
+  vre_eligibility_status_updates:
+    actor_type: user
+    description: If enabled, show VRE eligibility content and status updates
