@@ -22,7 +22,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
     before do
       allow(redis_client).to receive_messages(
         icn:,
-        token: 'fake_veis_token_123',
+        token: 'test_veis_token_123',
         save_token: nil
       )
       allow(redis_client).to receive(:station_number).with(uuid: 'test-uuid').and_return('500')
