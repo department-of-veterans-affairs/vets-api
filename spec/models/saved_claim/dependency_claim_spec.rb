@@ -308,7 +308,7 @@ RSpec.describe SavedClaim::DependencyClaim do
 
       it 'rejects the bad payload' do
         subject.validate
-        expect(subject).to be_valid
+        expect(subject).not_to be_valid
       end
     end
   end
