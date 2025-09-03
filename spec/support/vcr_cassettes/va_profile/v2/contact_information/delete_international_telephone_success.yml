@@ -62,5 +62,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"txAuditId":"72705f30-7bfa-40a9-a781-d0af0f2ff90c","status":"RECEIVED"}'
-  recorded_at: Tue, 02 Sep 2025 18:51:06 GMT
+  recorded_at: Tue, 02 Sep 2025 23:02:59 GMT
 recorded_with: VCR 6.3.1
