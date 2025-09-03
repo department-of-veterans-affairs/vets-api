@@ -352,6 +352,7 @@ class FormProfile
     else
       Rails.logger.info('Vet360 Contact Info Null')
     end
+    @vet360_contact_info
   end
 
   def vet360_mailing_address
