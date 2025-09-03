@@ -533,7 +533,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
 
     describe 'POST /v0/profile/telephones/create_or_update v2' do
       before do
-        Timecop.freeze(Time.zone.parse('2025-09-02T18:51:06.000Z'))
+        Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.000Z'))
       end
 
       after do
@@ -576,7 +576,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
 
     describe 'DELETE /v0/profile/telephones v2' do
       before do
-        Timecop.freeze(Time.zone.parse('2025-09-02T18:51:06.000Z'))
+        Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.000Z'))
       end
 
       after do
@@ -608,6 +608,11 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
       end
 
       context 'with international phone number' do
+        # Override the date just for international tests
+        before do
+          Timecop.freeze(Time.zone.parse('2025-09-02T18:51:06.000Z'))
+        end
+        
         let(:international_telephone) do
           build(:telephone, :contact_info_v2,
                 source_system_user: user.icn,
