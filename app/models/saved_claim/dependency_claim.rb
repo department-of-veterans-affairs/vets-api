@@ -309,7 +309,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
     { college_student_data:, dependent_data: }
   end
-  
+
   def validate_form(schema)
     camelized_data = deep_camelize_keys(parsed_form)
 

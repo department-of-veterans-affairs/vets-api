@@ -99,8 +99,9 @@ RSpec.describe V0::DependentsApplicationsController do
           .with(instance_of(SavedClaim::DependencyClaim))
 
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-          post(:create, params: test_form_v2)
+          post(:create, params: test_form_v2, as: :json)
         end
+
         expect(response).to have_http_status(:ok)
       end
     end
