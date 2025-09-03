@@ -995,6 +995,8 @@ module VAOS
             vvsVistaVideoAppt: appointment.dig(:extension, :vvs_vista_video_appt),
             facilityId: appointment[:location_id],
             clinicId: appointment[:clinic],
+            primaryStopCode: appointment.dig(:extension, :clinic, :primary_stop_code),
+            secondaryStopCode: appointment.dig(:extension, :clinic, :secondary_stop_code),
             afterFiveBeforeStart: time_now >= start_time - 5.minutes
           }
           Rails.logger.warn('VAOS video telehealth issue', context.to_json) if context[:telehealthUrl].blank? &&
