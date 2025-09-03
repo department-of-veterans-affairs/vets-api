@@ -30,12 +30,13 @@ RSpec.describe 'ClinicalNotesAdapter' do
         {
           'id' => '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
           'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
-          'type' => 'physician_procedure_note',
-          'loinc_code' => '11506-3',
+          'note_type' => 'physician_procedure_note',
+          'loinc_code' => ['11506-3'],
           'date' => '2025-01-14T09:18:00.000+00:00',
           'date_signed' => '2025-01-14T09:29:26+00:00',
           'written_by' => 'MARCI P MCGUIRE',
           'signed_by' => 'MARCI P MCGUIRE',
+          'discharge_date' => nil, # vista records do not have the context.period.end field
           'location' => 'CHYSHR TEST LAB',
           'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBka/i
         }
@@ -49,12 +50,13 @@ RSpec.describe 'ClinicalNotesAdapter' do
         {
           'id' => '15249697279',
           'name' => 'Clinical Summary',
-          'type' => 'discharge_summary',
-          'loinc_code' => '18842-5',
+          'note_type' => 'discharge_summary',
+          'loinc_code' => %w[4189665 18842-5],
           'date' => '2025-07-29T17:48:51Z',
           'date_signed' => nil, # OH records do not have a date signed field
           'written_by' => 'Victoria A Borland',
           'signed_by' => 'Victoria A Borland',
+          'discharge_date' => '2025-07-29T17:48:41Z',
           'location' => '668 Mann-Grandstaff WA VA Medical Center',
           'note' => /Q2xpbmljYWwgU3VtbWFyeSAqIEZpbmFsIFJlcG9/i
         }
@@ -68,14 +70,15 @@ RSpec.describe 'ClinicalNotesAdapter' do
         {
           'id' => '15249697279',
           'name' => 'Inpatient Clinical Summary', # type['text'] fallback
-          'type' => 'discharge_summary', # based on LOINC code
-          'loinc_code' => '18842-5',
+          'note_type' => 'discharge_summary', # based on LOINC code
+          'loinc_code' => %w[4189665 18842-5],
           'date' => '2025-07-29T17:48:51Z',
           'date_signed' => nil,
           # name['text'] fallback (OH has a space after the , in name['text'], vista does not))
           'written_by' => ' Victoria A Borland',
           # name['text'] fallback (OH has a space after the , in name['text'], vista does not))
           'signed_by' => ' Victoria A Borland',
+          'discharge_date' => '2025-07-29T17:48:41Z',
           'location' => '668 Mann-Grandstaff WA VA Medical Center',
           'note' => /Q2xpbmljYWwgU3VtbWFyeSAqIEZpbmFsIFJlcG9/i
         }
@@ -89,12 +92,13 @@ RSpec.describe 'ClinicalNotesAdapter' do
         {
           'id' => '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
           'name' => nil,
-          'type' => 'other', # based on LOINC code
-          'loinc_code' => nil,
+          'note_type' => 'other', # based on LOINC code
+          'loinc_code' => [],
           'date' => nil,
           'date_signed' => nil,
           'written_by' => 'MARCI P MCGUIRE', # alternate #mhv-practitioner-name format
           'signed_by' => nil, # name['text'] fallback
+          'discharge_date' => nil,
           'location' => nil,
           'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBk/i
         }
