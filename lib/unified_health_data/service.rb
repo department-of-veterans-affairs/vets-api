@@ -5,7 +5,10 @@ require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
 require_relative 'models/clinical_notes'
+require_relative 'models/prescription'
+require_relative 'models/prescription_attributes'
 require_relative 'adapters/clinical_notes_adapter'
+require_relative 'adapters/prescriptions_adapter'
 require_relative 'reference_range_formatter'
 
 module UnifiedHealthData
@@ -54,6 +57,54 @@ module UnifiedHealthData
 
         parse_notes(filtered)
       end
+    end
+
+    def get_prescriptions
+      with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        patient_id = @user.icn
+        path = "#{config.base_path}prescriptions?patientId=#{patient_id}"
+        
+        response = perform(:get, path, nil, headers)
+        body = parse_response_body(response.body)
+        
+        adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new
+        prescriptions = adapter.parse(body)
+        
+        Rails.logger.info(
+          message: 'UHD prescriptions retrieved',
+          total_prescriptions: prescriptions.size,
+          service: 'unified_health_data'
+        )
+        
+        prescriptions
+      end
+    end
+
+    def refill_prescription(prescription_ids)
+      with_monitoring do
+        headers = { 
+          'Authorization' => fetch_access_token, 
+          'x-api-key' => config.x_api_key,
+          'Content-Type' => 'application/json'
+        }
+        
+        path = "#{config.base_path}prescriptions/refill"
+        
+        # Format the request body
+        request_body = {
+          prescriptions: prescription_ids.map { |id| { orderId: id.to_s } }
+        }
+        
+        response = perform(:post, path, request_body.to_json, headers)
+        parse_refill_response(response)
+      end
+    rescue => e
+      Rails.logger.error("Error submitting prescription refill: #{e.message}")
+      {
+        success: [],
+        failed: prescription_ids.map { |id| { id: id, error: 'Service unavailable' } }
+      }
     end
 
     private
@@ -410,6 +461,41 @@ module UnifiedHealthData
       # Parse using the adapter
       parsed = records.map { |record| clinical_notes_adapter.parse(record) }
       parsed.compact
+    end
+
+    # Prescription refill helper methods
+    def parse_refill_response(response)
+      body = parse_response_body(response.body)
+      
+      # Parse successful refills
+      successes = extract_successful_refills(body)
+      
+      # Parse failed refills
+      failures = extract_failed_refills(body)
+      
+      {
+        success: successes,
+        failed: failures
+      }
+    end
+
+    def extract_successful_refills(body)
+      # Assuming the API returns a list of successful prescription IDs
+      # Adjust based on actual API response format
+      successful_ids = body['successfulRefills'] || []
+      successful_ids.map { |id| { id: id, status: 'submitted' } }
+    end
+
+    def extract_failed_refills(body)
+      # Assuming the API returns detailed error info for failures
+      # Adjust based on actual API response format
+      failed_refills = body['failedRefills'] || []
+      failed_refills.map do |failure|
+        {
+          id: failure['prescriptionId'],
+          error: failure['reason'] || 'Unable to process refill'
+        }
+      end
     end
   end
 end
