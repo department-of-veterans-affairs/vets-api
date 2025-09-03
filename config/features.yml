@@ -164,14 +164,6 @@ features:
     description: Enables dependents verification emails
   event_bus_gateway_ep040_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP040 claims"
-  faceted_search_sync_forms:
-    actor_type: user
-    description: Controls on/off status for a cron job that queries the Forms API and saves its results to a Kendra search index
-    enable_in_development: false
-  faceted_search_sync_research_and_support:
-    actor_type: user
-    description: Controls on/off status for an API endpoint that receives a call to add R&S data to a Kendra search index
-    enable_in_development: false
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -1811,6 +1803,14 @@ features:
     actor_type: user
     description: Form 526 subforms for unemployability & connected employment information
     enable_in_development: true
+  unified_search_enable_sync_endpoint:
+    actor_type: user
+    description: When enabled, the api endpoint to sync data to Kendra is turned on
+    enable_in_development: false
+  unified_search_sync_research_and_support:
+    actor_type: user
+    description: Controls on/off status for a redis job that syncs R&S data to Kendra data source
+    enable_in_development: false
   use_veteran_models_for_appoint:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
