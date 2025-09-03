@@ -2036,6 +2036,9 @@ features:
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
+  virtual_agent_show_ai_disclaimer:
+    actor_type: user
+    description: Enables a disclaimer for ai generated content - managed by virtual agent team
   virtual_agent_show_floating_chatbot:
     actor_type: user
     description: Enables a floating chatbot on the chatbot page - managed by virtual agent team
@@ -2139,18 +2142,6 @@ features:
   pension_kafka_event_bus_submission_enabled:
     actor_type: user
     description: Enable the EventBusSubmissionJob for Kafka
-  pension_itf_enabled:
-    actor_type: user
-    description: Enable the Intent to File for Pension
-    enable_in_development: true
-  pension_itf_skip_missing_person_error_enabled:
-    actor_type: user
-    description: Enable ability to skip the missing person error when creating an ITF for Pension
-    enable_in_development: true
-  pension_itf_show_alert:
-    actor_type: user
-    description: Show the alert on frontend for the Intent to File for Pension
-    enable_in_development: true
   pension_extras_redesign_enabled:
     actor_type: user
     description: Enable the new overflow design
@@ -2176,9 +2167,6 @@ features:
   income_and_assets_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
-  intent_to_file_synchronous_enabled:
-    actor_type: user
-    description: Enable ITF synchronous call logic
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
