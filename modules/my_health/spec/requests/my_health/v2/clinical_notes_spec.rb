@@ -49,7 +49,7 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
           'id',
           'name',
           'noteType',
-          'loincCode',
+          'loincCodes',
           'date',
           'dateSigned',
           'writtenBy',

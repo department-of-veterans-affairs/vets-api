@@ -9,7 +9,7 @@ module UnifiedHealthData
     attribute :id, String
     attribute :name, String
     attribute :note_type, String
-    attribute :loinc_code, Array
+    attribute :loinc_codes, Array
     attribute :date, String
     attribute :date_signed, String
     attribute :written_by, String

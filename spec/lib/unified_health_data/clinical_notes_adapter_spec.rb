@@ -31,7 +31,7 @@ RSpec.describe 'ClinicalNotesAdapter' do
           'id' => '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
           'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
           'note_type' => 'physician_procedure_note',
-          'loinc_code' => ['11506-3'],
+          'loinc_codes' => ['11506-3'],
           'date' => '2025-01-14T09:18:00.000+00:00',
           'date_signed' => '2025-01-14T09:29:26+00:00',
           'written_by' => 'MARCI P MCGUIRE',
@@ -51,7 +51,7 @@ RSpec.describe 'ClinicalNotesAdapter' do
           'id' => '15249697279',
           'name' => 'Clinical Summary',
           'note_type' => 'discharge_summary',
-          'loinc_code' => %w[4189665 18842-5],
+          'loinc_codes' => %w[4189665 18842-5],
           'date' => '2025-07-29T17:48:51Z',
           'date_signed' => nil, # OH records do not have a date signed field
           'written_by' => 'Victoria A Borland',
@@ -71,7 +71,7 @@ RSpec.describe 'ClinicalNotesAdapter' do
           'id' => '15249697279',
           'name' => 'Inpatient Clinical Summary', # type['text'] fallback
           'note_type' => 'discharge_summary', # based on LOINC code
-          'loinc_code' => %w[4189665 18842-5],
+          'loinc_codes' => %w[4189665 18842-5],
           'date' => '2025-07-29T17:48:51Z',
           'date_signed' => nil,
           # name['text'] fallback (OH has a space after the , in name['text'], vista does not))
@@ -93,7 +93,7 @@ RSpec.describe 'ClinicalNotesAdapter' do
           'id' => '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
           'name' => nil,
           'note_type' => 'other', # based on LOINC code
-          'loinc_code' => [],
+          'loinc_codes' => [],
           'date' => nil,
           'date_signed' => nil,
           'written_by' => 'MARCI P MCGUIRE', # alternate #mhv-practitioner-name format

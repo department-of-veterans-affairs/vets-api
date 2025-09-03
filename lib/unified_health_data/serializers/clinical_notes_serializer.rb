@@ -10,7 +10,7 @@ module UnifiedHealthData
     attributes :id,
                :name,
                :note_type, # TODO: rename type to note_type
-               :loinc_code,
+               :loinc_codes,
                :date,
                :date_signed,
                :written_by,

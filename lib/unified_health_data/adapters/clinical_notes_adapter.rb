@@ -35,7 +35,7 @@ module UnifiedHealthData
                                                  id: record['id'],
                                                  name: get_title(record),
                                                  note_type: get_record_type(record),
-                                                 loinc_code: get_loinc_code(record),
+                                                 loinc_codes: get_loinc_codes(record),
                                                  date: record['date'],
                                                  date_signed: get_date_signed(record),
                                                  written_by: extract_author(record),
@@ -55,7 +55,7 @@ module UnifiedHealthData
           NOTE_TYPES['OTHER']
         end
 
-        def get_loinc_code(record)
+        def get_loinc_codes(record)
           record['type']['coding']&.map { |coding| coding['code'] if coding['code'] } || []
         end
 
