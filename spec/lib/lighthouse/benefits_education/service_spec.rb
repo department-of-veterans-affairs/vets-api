@@ -31,9 +31,9 @@ RSpec.describe BenefitsEducation::Service do
             response = service.get_gi_bill_status
 
             # assertions that the data returned will match our test user
-            expect(response['first_name']).to eq('Tamara')
-            expect(response['last_name']).to eq('Ellis')
-            expect(response['date_of_birth']).to start_with('1967-06-19')
+            expect(response.first_name).to eq('Tamara')
+            expect(response.last_name).to eq('Ellis')
+            expect(response.date_of_birth).to start_with('1967-06-19')
           end
         end
       end
