@@ -185,28 +185,36 @@ module PdfFill
       end
 
       def merge_single_dependent
-        dependent = @form_data['dependents'].first
+        dependent_copy = @form_data['dependents'][0].deep_dup
 
-        dependent['fullName'] = FORMATTER.format_full_name(dependent['fullName'])
-        dependent['dateOfBirth'] = FORMATTER.format_date(dependent['dateOfBirth'])
-        dependent['becameDependent'] = FORMATTER.format_date(dependent['becameDependent'])
+        dependent_copy['fullName'] = FORMATTER.format_full_name(dependent_copy['fullName'])
+        dependent_copy['dateOfBirth'] = FORMATTER.format_date(dependent_copy['dateOfBirth'])
+        dependent_copy['becameDependent'] = FORMATTER.format_date(dependent_copy['becameDependent'])
 
-        dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[dependent['dependentRelation']] || OFF
-        dependent['attendedSchoolLastYear'] = map_select_value(dependent['attendedSchoolLastYear'])
-        dependent['disabledBefore18'] = map_select_value(dependent['disabledBefore18'])
-        dependent['cohabitedLastYear'] = map_select_value(dependent['cohabitedLastYear'])
+        dependent_copy['dependentRelation'] = DEPENDENT_RELATIONSHIP[dependent_copy['dependentRelation']] || OFF
+        dependent_copy['attendedSchoolLastYear'] = map_select_value(dependent_copy['attendedSchoolLastYear'])
+        dependent_copy['disabledBefore18'] = map_select_value(dependent_copy['disabledBefore18'])
+        dependent_copy['cohabitedLastYear'] = map_select_value(dependent_copy['cohabitedLastYear'])
+
+        @form_data['dependents'][0] = dependent_copy
       end
 
       def merge_multiple_dependents
-        @form_data['dependents'].each do |dependent|
-          dependent['fullName'] = FORMATTER.format_full_name(dependent['fullName'])
-          dependent['dateOfBirth'] = FORMATTER.format_date(dependent['dateOfBirth'])
-          dependent['becameDependent'] = FORMATTER.format_date(dependent['becameDependent'])
+        @form_data['dependents'] = @form_data['dependents'].map do |dependent|
+          dependent_copy = dependent.deep_dup
 
-          dependent['dependentEducationExpenses'] = FORMATTER.format_currency(dependent['dependentEducationExpenses'])
-          dependent['grossIncome'] = FORMATTER.format_currency(dependent['grossIncome'])
-          dependent['netIncome'] = FORMATTER.format_currency(dependent['netIncome'])
-          dependent['otherIncome'] = FORMATTER.format_currency(dependent['otherIncome'])
+          dependent_copy['fullName'] = FORMATTER.format_full_name(dependent_copy['fullName'])
+          dependent_copy['dateOfBirth'] = FORMATTER.format_date(dependent_copy['dateOfBirth'])
+          dependent_copy['becameDependent'] = FORMATTER.format_date(dependent_copy['becameDependent'])
+
+          dependent_copy['dependentEducationExpenses'] = FORMATTER.format_currency(
+            dependent_copy['dependentEducationExpenses']
+          )
+          dependent_copy['grossIncome'] = FORMATTER.format_currency(dependent_copy['grossIncome'])
+          dependent_copy['netIncome'] = FORMATTER.format_currency(dependent_copy['netIncome'])
+          dependent_copy['otherIncome'] = FORMATTER.format_currency(dependent_copy['otherIncome'])
+
+          dependent_copy
         end
       end
 
@@ -228,10 +236,13 @@ module PdfFill
       def merge_associations(type)
         return if @form_data[type].blank?
 
-        @form_data[type].each do |association|
-          association['fullName'] = FORMATTER.format_full_name(association['fullName'])
-          association['address'] = combine_full_address(association['address'])
-          association['primaryPhone'] = format_phone_number(association['primaryPhone'])
+        @form_data[type] = @form_data[type].map do |association|
+          association_copy = association.deep_dup
+          association_copy['fullName'] = FORMATTER.format_full_name(association_copy['fullName'])
+          association_copy['address'] = combine_full_address(association_copy['address'])
+          association_copy['primaryPhone'] = format_phone_number(association_copy['primaryPhone'])
+
+          association_copy
         end
       end
 
