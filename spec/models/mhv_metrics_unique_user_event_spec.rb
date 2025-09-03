@@ -169,7 +169,7 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
           expect(result).to be(true)
           expect(described_class).to have_received(:create!).with(user_id:, event_name:)
           expect(described_class).to have_received(:mark_key_cached).with(cache_key)
-          expect(Rails.logger).to have_received(:info)
+          expect(Rails.logger).to have_received(:debug)
             .with('UUM: New unique event recorded', { user_id:, event_name: })
         end
       end

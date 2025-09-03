@@ -979,6 +979,8 @@ lib/tasks @department-of-veterans-affairs/backend-review-group
 lib/terms_of_use/exceptions.rb @department-of-veterans-affairs/octo-identity
 lib/token_validation @department-of-veterans-affairs/backend-review-group
 lib/unified_health_data @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
+lib/unique_user_events @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
+lib/unique_user_events.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 lib/user_profile_attribute_service.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
 lib/utilities @department-of-veterans-affairs/backend-review-group
 lib/va_profile @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
@@ -1481,6 +1483,8 @@ spec/lib/string_helpers_spec.rb @department-of-veterans-affairs/backend-review-g
 spec/lib/tasks/support/schema_camelizer_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/token_validation @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/backend-review-group
 spec/lib/unified_health_data/ @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
+spec/lib/unique_user_events @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
+spec/lib/unique_user_events_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/user_profile_attribute_service_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
 spec/lib/utilities @department-of-veterans-affairs/backend-review-group
 spec/lib/va_profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
