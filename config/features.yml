@@ -340,6 +340,10 @@ features:
     actor_type: user
     description: Enables VA Notify delivery status callbacks for travel claim notifications
     enable_in_development: true
+  check_in_experience_travel_claim_logging:
+    actor_type: user
+    description: Enables detailed logging for travel claim submission operations
+    enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
     description: Enables browser monitoring for check-in applications.
@@ -2413,4 +2417,3 @@ features:
     actor_type: user
     description: Enables substance use disorder as care related to mental health appointments with new codes
     enable_in_development: true
-

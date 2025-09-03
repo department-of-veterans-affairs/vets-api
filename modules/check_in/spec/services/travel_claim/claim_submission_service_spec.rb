@@ -12,6 +12,9 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
   before do
     allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
     allow(TravelClaim::TravelPayClient).to receive(:new).and_return(travel_pay_client)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+    # Enable travel claim logging for tests
+    allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(true)
   end
 
   describe '#submit_claim' do
@@ -239,6 +242,44 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
             Common::Exceptions::BackendServiceException
           )
         end
+      end
+    end
+  end
+
+  describe '#log_message' do
+    let(:uuid) { 'test-uuid' }
+    let(:service) { described_class.new(check_in: check_in_session, appointment_date:, facility_type:, uuid:) }
+
+    context 'when check_in_experience_travel_claim_logging feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(true)
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'logs the message with proper formatting' do
+        service.send(:log_message, :info, 'Test message', { extra: 'data' })
+
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            message: 'CIE Travel Claim Submission: Test message',
+            facility_type: 'oh',
+            check_in_uuid: 'test-uuid',
+            extra: 'data'
+          )
+        )
+      end
+    end
+
+    context 'when check_in_experience_travel_claim_logging feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(false)
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'does not log anything' do
+        service.send(:log_message, :info, 'Test message', { extra: 'data' })
+
+        expect(Rails.logger).not_to have_received(:info)
       end
     end
   end

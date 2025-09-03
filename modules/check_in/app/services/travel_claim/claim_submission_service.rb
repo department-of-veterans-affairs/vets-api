@@ -166,6 +166,8 @@ module TravelClaim
     # @param additional_data [Hash] additional data to include in log
     #
     def log_message(level, message, additional_data = {})
+      return unless Flipper.enabled?(:check_in_experience_travel_claim_logging)
+
       log_data = {
         message: "CIE Travel Claim Submission: #{message}",
         facility_type: @facility_type,
