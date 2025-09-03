@@ -106,6 +106,10 @@ module DecisionReviews
       @service ||= DecisionReviews::V1::Service.new
     end
 
+    def log_if_not_final_status_after_30_days(status, created_date, guid, message)
+      Rails.logger.error(message, { guid: }) if FINAL_STATUSES.exclude?(status) && created_date < 30.days.ago.iso8601
+    end
+
     def get_status_and_attributes(record)
       # return existing status if in one of the final status states
       metadata = JSON.parse(record.metadata || '{}')
@@ -114,12 +118,11 @@ module DecisionReviews
 
       response = get_record_status(record.guid)
       attributes = response.dig('data', 'attributes')
-      status = attributes['status']
-      created_date = attributes['createdAt']
+      status = attributes&.dig('status')
+      created_date = attributes&.dig('createdAt')
 
-      if FINAL_STATUSES.exclude?(status) && created_date < 30.days.ago.iso8601
-        Rails.logger.error('SavedClaim not in final status after 30+ days', { guid: record.guid })
-      end
+      log_if_not_final_status_after_30_days(status, created_date, record.guid,
+                                            'SavedClaim not in final status after 30+ days')
 
       [status, attributes]
     rescue DecisionReviews::V1::ServiceException => e
@@ -146,12 +149,18 @@ module DecisionReviews
 
     def handle_evidence_status(guid, metadata)
       # return existing metadata if in one of the final status states
-      status = metadata['status']
-      return metadata if FINAL_STATUSES.include? status
+      old_status = metadata['status']
+      return metadata if FINAL_STATUSES.include? old_status
 
       response = get_evidence_status(guid)
       attributes = response.dig('data', 'attributes').slice(*ATTRIBUTES_TO_STORE)
       attributes.merge('id' => guid)
+
+      created_date = attributes&.dig('createDate')
+      status = attributes&.dig('status')
+
+      log_if_not_final_status_after_30_days(status, created_date, guid, 'Evidence not in final status after 30+ days')
+      attributes
     rescue DecisionReviews::V1::ServiceException => e
       raise e unless e.key == NOT_FOUND
 
