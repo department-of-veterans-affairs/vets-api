@@ -73,27 +73,39 @@ module BGS
     end
 
     def log_bgs_errors(error)
-      if Flipper.enabled?(:va_dependents_bgs_extra_error_logging)
-        error_messages = ['HTTP error (302)', 'HTTP error (500)', 'HTTP error (502)', 'HTTP error (504)']
-        error_type_map = {
-          'HTTP error (302)' => '302',
-          'HTTP error (500)' => '500',
-          'HTTP error (502)' => '502',
-          'HTTP error (504)' => '504'
+      increment_non_validation_error(error) if Flipper.enabled?(:va_dependents_bgs_extra_error_logging)
+
+      # Temporarily logging a few iterations of status code to see what BGS returns in the error
+      @monitor.track_event(
+        'warn', 'BGS::DependentService#submit_686c_form method failed!',
+        "#{STATS_KEY}.failure",
+        {
+          error: error.message,
+          status: error.try(:status) || 'no status',
+          status_code: error.try(:status_code) || 'no status code',
+          code: error.try(:code) || 'no code'
         }
-        nested_error_message = error.cause&.message
+      )
+    end
 
-        error_type = error_messages.select do |et|
-          nested_error_message&.include?(et)
-        end
+    def increment_non_validation_error(error)
+      error_messages = ['HTTP error (302)', 'HTTP error (500)', 'HTTP error (502)', 'HTTP error (504)']
+      error_type_map = {
+        'HTTP error (302)' => '302',
+        'HTTP error (500)' => '500',
+        'HTTP error (502)' => '502',
+        'HTTP error (504)' => '504'
+      }
+      nested_error_message = error.cause&.message
 
-        if error_type.present?
-          error_status = error_type_map[error_type.first]
-          StatsD.increment("#{STATS_KEY}.non_validation_error.#{error_status}", tags: ["form_id:#{BGS::SubmitForm686cV2Job::FORM_ID}"])
-        end
+      error_type = error_messages.find do |et|
+        nested_error_message&.include?(et)
       end
-      @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
-                           "#{STATS_KEY}.failure", { error: error.message })
+
+      if error_type.present?
+        error_status = error_type_map[error_type]
+        StatsD.increment("#{STATS_KEY}.non_validation_error.#{error_status}", tags: ["form_id:#{BGS::SubmitForm686cV2Job::FORM_ID}"])
+      end
     end
 
     def folder_identifier

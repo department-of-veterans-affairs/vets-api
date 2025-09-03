@@ -207,7 +207,7 @@ RSpec.describe BGS::DependentV2Service do
           allow(Flipper).to receive(:enabled?).with(:va_dependents_bgs_extra_error_logging).and_return(true)
         end
 
-        it 'logs increments StatsD for certain errors - 302,500,502,504' do
+        it 'increments StatsD for certain errors - 302,500,502,504' do
           VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
             error_cause = double('ErrorCause')
             allow(error_cause).to receive(:message).and_return('HTTP error (302)')
@@ -238,7 +238,7 @@ RSpec.describe BGS::DependentV2Service do
           end
         end
 
-        it 'does not log increments StatsD for other errors' do
+        it 'does not increment StatsD for other errors' do
           VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
             error_cause = double('ErrorCause')
             allow(error_cause).to receive(:message).and_return('Some other error')
