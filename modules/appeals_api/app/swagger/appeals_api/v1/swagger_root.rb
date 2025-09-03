@@ -2,7 +2,7 @@
 
 module AppealsApi::V1::SwaggerRoot
   include Swagger::Blocks
-  DESCRIPTION_FILE_NAME = Flipper.enabled?(:evidence_submission_final_status_field) ? 'description_with_final_status.md' : 'api_description.md'
+  DESCRIPTION_FILE_NAME = Flipper.enabled?(:decision_reviews_evidence_final_status_field) ? 'description_with_final_status.md' : 'api_description.md'
   read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
   read_file_from_same_dir = ->(filename) { read_file.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
 
