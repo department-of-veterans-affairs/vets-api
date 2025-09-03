@@ -2147,6 +2147,10 @@ features:
     actor_type: user
     description: Show the alert on frontend for the Intent to File for Pension
     enable_in_development: true
+  pension_extras_redesign_enabled:
+    actor_type: user
+    description: Enable the new overflow design
+    enable_in_development: true
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
@@ -2405,4 +2409,8 @@ features:
   gi_comparison_tool_cautionary_info_update:
     actor_type: user
     description: Enables updated cautionary info student feedback ui for GI Comparison Tool
+  va_online_scheduling_add_substance_use_disorder:
+    actor_type: user
+    description: Enables substance use disorder as care related to mental health appointments with new codes
+    enable_in_development: true
 
