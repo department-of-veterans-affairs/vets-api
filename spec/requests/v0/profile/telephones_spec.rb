@@ -307,6 +307,42 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
         end
       end
 
+      context 'with international phone number' do
+        let(:international_telephone) do
+          build(:telephone, :contact_info_v2,
+                vet360_id: user.vet360_id,
+                is_international: true,
+                country_code: '44',
+                phone_number: '2045675000')
+        end
+
+        it 'matches the telephone schema', :aggregate_failures do
+          VCR.use_cassette('va_profile/v2/contact_information/post_international_telephone_success') do
+            post('/v0/profile/telephones', params: international_telephone.to_json, headers:)
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('va_profile/transaction_response')
+          end
+        end
+
+        it 'matches the telephone camel-inflected schema', :aggregate_failures do
+          VCR.use_cassette('va_profile/v2/contact_information/post_international_telephone_success') do
+            post('/v0/profile/telephones', params: international_telephone.to_json, headers: headers_with_camel)
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('va_profile/transaction_response')
+          end
+        end
+
+        it 'creates a new AsyncTransaction::VAProfile::TelephoneTransaction db record' do
+          VCR.use_cassette('va_profile/v2/contact_information/post_international_telephone_success') do
+            expect do
+              post('/v0/profile/telephones', params: international_telephone.to_json, headers:)
+            end.to change(AsyncTransaction::VAProfile::TelephoneTransaction, :count).from(0).to(1)
+          end
+        end
+      end
+
       context 'with a 400 response' do
         it 'matches the errors schema', :aggregate_failures do
           telephone.id = 42
@@ -395,6 +431,43 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
         end
       end
 
+      context 'with international phone number' do
+        let(:international_telephone) do
+          build(:telephone, :contact_info_v2,
+                vet360_id: user.vet360_id,
+                is_international: true,
+                country_code: '44',
+                phone_number: '2045675003',
+                id: 42)
+        end
+
+        it 'matches the telephone schema', :aggregate_failures do
+          VCR.use_cassette('va_profile/v2/contact_information/put_international_telephone_success') do
+            put('/v0/profile/telephones', params: international_telephone.to_json, headers:)
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('va_profile/transaction_response')
+          end
+        end
+
+        it 'matches the telephone camel-inflected schema', :aggregate_failures do
+          VCR.use_cassette('va_profile/v2/contact_information/put_international_telephone_success') do
+            put('/v0/profile/telephones', params: international_telephone.to_json, headers: headers_with_camel)
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('va_profile/transaction_response')
+          end
+        end
+
+        it 'creates a new AsyncTransaction::VAProfile::TelephoneTransaction db record' do
+          VCR.use_cassette('va_profile/v2/contact_information/put_international_telephone_success') do
+            expect do
+              put('/v0/profile/telephones', params: international_telephone.to_json, headers:)
+            end.to change(AsyncTransaction::VAProfile::TelephoneTransaction, :count).from(0).to(1)
+          end
+        end
+      end
+
       context 'with a validation issue' do
         it 'matches the errors schema', :aggregate_failures do
           telephone.phone_number = ''
@@ -478,6 +551,27 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
 
         expect(response).to have_http_status(:ok)
       end
+
+      context 'with international phone number' do
+        let(:international_telephone) do
+          build(:telephone, :contact_info_v2,
+                vet360_id: user.vet360_id,
+                is_international: true,
+                country_code: '44',
+                phone_number: '2045675005',
+                id: 42)
+        end
+
+        it 'calls update_telephone' do
+          expect_any_instance_of(VAProfile::ContactInformation::V2::Service).to receive(:update_telephone)
+            .and_call_original
+          VCR.use_cassette('va_profile/v2/contact_information/put_international_telephone_success') do
+            post('/v0/profile/telephones/create_or_update', params: international_telephone.to_json, headers:)
+          end
+
+          expect(response).to have_http_status(:ok)
+        end
+      end
     end
 
     describe 'DELETE /v0/profile/telephones v2' do
@@ -507,6 +601,46 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
             # The cassette we're using includes the effectiveEndDate in the body.
             # So this test will not pass if it's missing
             delete('/v0/profile/telephones', params: telephone.to_json, headers: headers_with_camel)
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('va_profile/transaction_response')
+          end
+        end
+      end
+
+      context 'with international phone number' do
+        # Override the date just for international tests
+        before do
+          Timecop.freeze(Time.zone.parse('2025-09-02T18:51:06.000Z'))
+        end
+
+        let(:international_telephone) do
+          build(:telephone, :contact_info_v2,
+                source_system_user: user.icn,
+                vet360_id: user.vet360_id,
+                is_international: true,
+                country_code: '44',
+                area_code: nil,
+                phone_number: '2045675000',
+                id: 42)
+        end
+
+        it 'effective_end_date gets appended to the request body', :aggregate_failures do
+          VCR.use_cassette('va_profile/v2/contact_information/delete_international_telephone_success',
+                           VCR::MATCH_EVERYTHING) do
+            # The cassette we're using includes the effectiveEndDate in the body.
+            # So this test will not pass if it's missing
+            delete('/v0/profile/telephones', params: international_telephone.to_json, headers:)
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('va_profile/transaction_response')
+          end
+        end
+
+        it 'effective_end_date gets appended to the request body when camel-inflected', :aggregate_failures do
+          VCR.use_cassette('va_profile/v2/contact_information/delete_international_telephone_success',
+                           VCR::MATCH_EVERYTHING) do
+            # The cassette we're using includes the effectiveEndDate in the body.
+            # So this test will not pass if it's missing
+            delete('/v0/profile/telephones', params: international_telephone.to_json, headers: headers_with_camel)
             expect(response).to have_http_status(:ok)
             expect(response).to match_camelized_response_schema('va_profile/transaction_response')
           end

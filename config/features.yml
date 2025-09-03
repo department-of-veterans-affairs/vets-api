@@ -761,6 +761,10 @@ features:
     actor_type: user
     description: Enables duplicate prevention for digital dispute submissions
     enable_in_development: false
+  digital_dmc_dispute_service:
+    actor_type: user
+    description: Enables the Digital DMC Dispute Service
+    enable_in_development: true
   event_bus_gateway_retry_emails:
     actor_type: user
     description: When enabled, vets-api retries event bus gateway emails that VA Notify marks temporary-failure
