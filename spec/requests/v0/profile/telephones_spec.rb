@@ -612,7 +612,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
         before do
           Timecop.freeze(Time.zone.parse('2025-09-02T18:51:06.000Z'))
         end
-        
+
         let(:international_telephone) do
           build(:telephone, :contact_info_v2,
                 source_system_user: user.icn,
