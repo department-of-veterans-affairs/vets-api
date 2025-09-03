@@ -58,7 +58,6 @@ module DebtsApi
       end
 
       def initialize_submission
-        StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.initiated")
         DebtsApi::V0::DigitalDisputeSubmission.new(
           user_uuid: current_user.uuid,
           user_account: current_user.user_account,

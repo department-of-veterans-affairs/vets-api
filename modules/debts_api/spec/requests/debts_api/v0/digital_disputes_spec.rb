@@ -117,8 +117,6 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
         allow(StatsD).to receive(:increment)
         allow(Flipper).to receive(:enabled?).with(:digital_dmc_dispute_service).and_return(true)
         allow(DebtsApi::V0::DigitalDisputeDmcService).to receive(:new).and_return(mock_service)
-        # allow(Flipper).to receive(:enabled?).with(:digital_dispute_duplicate_prevention).and_return(false)
-        # allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(false)
       end
 
       describe 'successful submission' do
