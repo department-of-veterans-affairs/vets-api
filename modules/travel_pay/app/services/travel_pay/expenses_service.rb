@@ -44,6 +44,25 @@ module TravelPay
       end
     end
 
+    # Method to retrieve an expense by ID via the API
+    def get_expense(expense_type, expense_id)
+      @auth_manager.authorize => { veis_token:, btsss_token: }
+
+      # Validate required params
+      raise ArgumentError, 'You must provide an expense type to get an expense.' if expense_type.blank?
+      raise ArgumentError, 'You must provide an expense ID to get an expense.' if expense_id.blank?
+
+      Rails.logger.info("Getting expense of type: #{expense_type} with ID: #{expense_id}")
+
+      begin
+        response = client.get_expense(veis_token, btsss_token, expense_type, expense_id)
+        response.body['data']
+      rescue Faraday::Error => e
+        Rails.logger.error("Failed to get expense via API: #{e.message}")
+        raise TravelPay::ServiceError.raise_mapped_error(e)
+      end
+    end
+
     private
 
     ##

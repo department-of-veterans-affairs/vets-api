@@ -5,6 +5,32 @@ module TravelPay
     class ExpensesController < ApplicationController
       before_action :validate_claim_id
       before_action :validate_expense_type
+      before_action :validate_expense_id, only: [:show]
+
+      def show
+        validate_feature_flag_enabled
+
+        begin
+          Rails.logger.info(message: 'Travel Pay expense retrieval START')
+          Rails.logger.info(
+            message:
+              "Getting expense of type '#{params[:expense_type]}' with ID #{params[:expense_id].slice(0,
+                                                                                                      8)} for claim #{params[:claim_id].slice(
+                                                                                                        0, 8
+                                                                                                      )}"
+          )
+
+          expense = expense_service.get_expense(params[:expense_type], params[:expense_id])
+
+          Rails.logger.info(message: 'Travel Pay expense retrieval END')
+        rescue ArgumentError => e
+          raise Common::Exceptions::BadRequest, detail: e.message
+        rescue Faraday::ClientError, Faraday::ServerError => e
+          TravelPay::ServiceError.raise_mapped_error(e)
+        end
+
+        render json: expense, status: :ok
+      end
 
       def create
         validate_feature_flag_enabled
@@ -68,8 +94,12 @@ module TravelPay
         end
       end
 
+      def validate_expense_id
+        raise Common::Exceptions::BadRequest, detail: 'Expense ID is required' if params[:expense_id].blank?
+      end
+
       def valid_expense_types
-        %w[mileage lodging meal other]
+        %w[mileage lodging meal other parking toll airtravel commoncarrier]
       end
 
       def build_expense_from_params

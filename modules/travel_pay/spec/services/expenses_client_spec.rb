@@ -138,4 +138,123 @@ describe TravelPay::ExpensesClient do
       expect(client.send(:expense_endpoint_for_type, 'unknown')).to eq('api/v1/expenses/other')
     end
   end
+
+  describe '#get_expense' do
+    let(:expense_id) { 'test-expense-id' }
+    let(:mock_response) do
+      instance_double(Faraday::Response, body: { 'data' => { 'id' => expense_id } })
+    end
+
+    before do
+      allow(client).to receive_messages(connection: instance_double(Faraday::Connection, get: mock_response),
+                                        claim_headers: {})
+      allow(client).to receive(:log_to_statsd).and_yield
+    end
+
+    context 'for different expense types' do
+      let(:connection_double) { instance_double(Faraday::Connection) }
+      let(:request_double) { instance_double(Faraday::Request, headers: {}) }
+
+      before do
+        allow(client).to receive(:connection).and_return(connection_double)
+        allow(connection_double).to receive(:get).and_yield(request_double).and_return(mock_response)
+        allow(request_double).to receive(:headers=)
+      end
+
+      it 'routes mileage expenses to the correct endpoint' do
+        expect(connection_double).to receive(:get).with("api/v2/expenses/mileage/#{expense_id}")
+
+        client.get_expense(veis_token, btsss_token, 'mileage', expense_id)
+      end
+
+      it 'routes parking expenses to the correct endpoint' do
+        expect(connection_double).to receive(:get).with("api/v1/expenses/parking/#{expense_id}")
+
+        client.get_expense(veis_token, btsss_token, 'parking', expense_id)
+      end
+
+      it 'routes meal expenses to the correct endpoint' do
+        expect(connection_double).to receive(:get).with("api/v1/expenses/meal/#{expense_id}")
+
+        client.get_expense(veis_token, btsss_token, 'meal', expense_id)
+      end
+
+      it 'routes lodging expenses to the correct endpoint' do
+        expect(connection_double).to receive(:get).with("api/v1/expenses/lodging/#{expense_id}")
+
+        client.get_expense(veis_token, btsss_token, 'lodging', expense_id)
+      end
+
+      it 'routes toll expenses to the correct endpoint' do
+        expect(connection_double).to receive(:get).with("api/v1/expenses/toll/#{expense_id}")
+
+        client.get_expense(veis_token, btsss_token, 'toll', expense_id)
+      end
+
+      it 'routes airtravel expenses to the correct endpoint' do
+        expect(connection_double).to receive(:get).with("api/v1/expenses/airtravel/#{expense_id}")
+
+        client.get_expense(veis_token, btsss_token, 'airtravel', expense_id)
+      end
+
+      it 'routes commoncarrier expenses to the correct endpoint' do
+        expect(connection_double).to receive(:get).with("api/v1/expenses/commoncarrier/#{expense_id}")
+
+        client.get_expense(veis_token, btsss_token, 'commoncarrier', expense_id)
+      end
+
+      it 'routes unknown expense types to the other endpoint' do
+        expect(connection_double).to receive(:get).with("api/v1/expenses/other/#{expense_id}")
+
+        client.get_expense(veis_token, btsss_token, 'unknown_type', expense_id)
+      end
+    end
+
+    it 'sets the correct headers' do
+      connection_double = instance_double(Faraday::Connection)
+      request_double = instance_double(Faraday::Request)
+      headers_hash = {}
+
+      allow(connection_double).to receive(:get).and_yield(request_double).and_return(mock_response)
+      allow(client).to receive_messages(connection: connection_double, claim_headers: { 'Custom-Header' => 'test' })
+      allow(request_double).to receive(:headers).and_return(headers_hash)
+
+      client.get_expense(veis_token, btsss_token, 'meal', expense_id)
+
+      expect(headers_hash['Authorization']).to eq("Bearer #{veis_token}")
+      expect(headers_hash['BTSSS-Access-Token']).to eq(btsss_token)
+      expect(headers_hash['X-Correlation-ID']).to be_present
+    end
+
+    it 'logs the expense type in statsd' do
+      expect(client).to receive(:log_to_statsd).with('expense', 'get_meal')
+
+      client.get_expense(veis_token, btsss_token, 'meal', expense_id)
+    end
+  end
+
+  describe '#expense_get_endpoint_for_type' do
+    let(:expense_id) { 'test-expense-id' }
+
+    it 'returns correct GET endpoints for each expense type' do
+      expect(client.send(:expense_get_endpoint_for_type, 'mileage',
+                         expense_id)).to eq("api/v2/expenses/mileage/#{expense_id}")
+      expect(client.send(:expense_get_endpoint_for_type, 'parking',
+                         expense_id)).to eq("api/v1/expenses/parking/#{expense_id}")
+      expect(client.send(:expense_get_endpoint_for_type, 'meal',
+                         expense_id)).to eq("api/v1/expenses/meal/#{expense_id}")
+      expect(client.send(:expense_get_endpoint_for_type, 'lodging',
+                         expense_id)).to eq("api/v1/expenses/lodging/#{expense_id}")
+      expect(client.send(:expense_get_endpoint_for_type, 'toll',
+                         expense_id)).to eq("api/v1/expenses/toll/#{expense_id}")
+      expect(client.send(:expense_get_endpoint_for_type, 'airtravel',
+                         expense_id)).to eq("api/v1/expenses/airtravel/#{expense_id}")
+      expect(client.send(:expense_get_endpoint_for_type, 'commoncarrier',
+                         expense_id)).to eq("api/v1/expenses/commoncarrier/#{expense_id}")
+      expect(client.send(:expense_get_endpoint_for_type, 'other',
+                         expense_id)).to eq("api/v1/expenses/other/#{expense_id}")
+      expect(client.send(:expense_get_endpoint_for_type, 'unknown',
+                         expense_id)).to eq("api/v1/expenses/other/#{expense_id}")
+    end
+  end
 end

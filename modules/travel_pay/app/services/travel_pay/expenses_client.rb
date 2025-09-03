@@ -36,6 +36,35 @@ module TravelPay
     end
 
     ##
+    # Generic HTTP GET call to the BTSSS 'expenses' endpoints to retrieve an expense by ID
+    # Routes to appropriate endpoint based on expense type
+    #
+    # @param veis_token [String] VEIS authentication token
+    # @param btsss_token [String] BTSSS access token
+    # @param expense_type [String] Type of expense ('mileage', 'lodging', 'meal', 'other', 'parking', 'toll', 'airtravel', 'commoncarrier')
+    # @param expense_id [String] UUID of the expense to retrieve
+    #
+    # @return [Faraday::Response] API response with expense details
+    #
+    def get_expense(veis_token, btsss_token, expense_type, expense_id)
+      btsss_url = Settings.travel_pay.base_url
+      correlation_id = SecureRandom.uuid
+      endpoint = expense_get_endpoint_for_type(expense_type, expense_id)
+
+      Rails.logger.info(message: 'Correlation ID', correlation_id:)
+      Rails.logger.info(message: "Getting #{expense_type} expense from endpoint: #{endpoint}")
+
+      log_to_statsd('expense', "get_#{expense_type}") do
+        connection(server_url: btsss_url).get(endpoint) do |req|
+          req.headers['Authorization'] = "Bearer #{veis_token}"
+          req.headers['BTSSS-Access-Token'] = btsss_token
+          req.headers['X-Correlation-ID'] = correlation_id
+          req.headers.merge!(claim_headers)
+        end
+      end
+    end
+
+    ##
     # HTTP POST call to the BTSSS 'expenses' endpoint to add a new mileage expense
     # API responds with an expenseId
     #
@@ -94,6 +123,35 @@ module TravelPay
       else
         # Default to a generic expenses endpoint
         'api/v1/expenses/other'
+      end
+    end
+
+    ##
+    # Returns the appropriate API GET endpoint for retrieving an expense by ID
+    #
+    # @param expense_type [String] The type of expense
+    # @param expense_id [String] The expense ID
+    # @return [String] The API endpoint path with expense ID
+    #
+    def expense_get_endpoint_for_type(expense_type, expense_id)
+      case expense_type
+      when 'mileage'
+        "api/v2/expenses/mileage/#{expense_id}"
+      when 'parking'
+        "api/v1/expenses/parking/#{expense_id}"
+      when 'meal'
+        "api/v1/expenses/meal/#{expense_id}"
+      when 'lodging'
+        "api/v1/expenses/lodging/#{expense_id}"
+      when 'toll'
+        "api/v1/expenses/toll/#{expense_id}"
+      when 'airtravel'
+        "api/v1/expenses/airtravel/#{expense_id}"
+      when 'commoncarrier'
+        "api/v1/expenses/commoncarrier/#{expense_id}"
+      else
+        # Default to other expenses endpoint for unknown types
+        "api/v1/expenses/other/#{expense_id}"
       end
     end
   end
