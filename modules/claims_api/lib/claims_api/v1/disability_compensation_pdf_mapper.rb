@@ -31,7 +31,13 @@ module ClaimsApi
       def any_service_end_dates_in_future_window?
         @auto_claim['serviceInformation']['servicePeriods'].each do |sp|
           end_date = sp['activeDutyEndDate'].to_date
-          return true if end_date >= 90.days.from_now && end_date <= 180.days.from_now
+          if end_date >= 90.days.from_now.to_date && end_date <= 180.days.from_now.to_date
+            set_pdf_data_for_section_one
+
+            future_date = make_date_string_month_first(sp['activeDutyEndDate'], sp['activeDutyEndDate'].length)
+            @pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty] = future_date
+            return true
+          end
         end
 
         false
@@ -72,10 +78,14 @@ module ClaimsApi
       end
 
       def set_pdf_data_for_section_one
+        return if @pdf_data[:data][:attributes].key?(:identificationInformation)
+
         @pdf_data[:data][:attributes][:identificationInformation] = {}
       end
 
       def set_pdf_data_for_mailing_address
+        return if @pdf_data[:data][:attributes][:identificationInformation].key?(:mailingAddress)
+
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress] = {}
       end
     end

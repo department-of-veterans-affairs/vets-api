@@ -22,5 +22,25 @@ module ClaimsApi
         zip_first_five
       end
     end
+
+    def make_date_string_month_first(date, date_length)
+      year, month, day = regex_date_conversion(date)
+      return if year.nil? || date_length.nil?
+
+      if date_length == 4
+        year.to_s
+      elsif date_length == 7
+        "#{month}/#{year}"
+      else
+        "#{month}/#{day}/#{year}"
+      end
+    end
+
+    def regex_date_conversion(date)
+      if date.present?
+        date_match = date.match(/^(?:(?<year>\d{4})(?:-(?<month>\d{2}))?(?:-(?<day>\d{2}))*|(?<month>\d{2})?(?:-(?<day>\d{2}))?-?(?<year>\d{4}))$/) # rubocop:disable Layout/LineLength
+        date_match&.values_at(:year, :month, :day)
+      end
+    end
   end
 end
