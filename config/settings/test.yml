@@ -9,6 +9,7 @@ accredited_representative_portal:
       base_uri: https://not.real.com
       path: not_real.csv
       repo: faked/fakeness
+  frontend_base_url: http://localhost:3001/representative
 adapted_housing:
   prefill: true
 argocd:
@@ -153,6 +154,7 @@ check_in:
     tenant_id: fake_template_id
     travel_pay_client_id: fake_travel_pay_client_id
     travel_pay_client_secret: fake_travel_pay_client_secret
+    travel_pay_resource: fake_travel_pay_resource
   vaos:
     mock: false
 chip:

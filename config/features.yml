@@ -152,9 +152,6 @@ features:
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
-  decision_reviews_4142_banner:
-    actor_type: user
-    description: Enables the re-authorization banner on the 4142 legalese page
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -162,6 +159,8 @@ features:
   dv_email_notification:
     actor_type: user
     description: Enables dependents verification emails
+  event_bus_gateway_ep040_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP040 claims"
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -284,6 +283,12 @@ features:
   champva_foreign_address_fix:
     actor_type: user
     description: Enables the fix for foreign address fields on form submissions
+  champva_form_versioning:
+    actor_type: user
+    description: Enables the form versioning for IVC CHAMPVA form submissions
+  champva_form_10_10d_2027:
+    actor_type: user
+    description: If enabled uses the 2027 version of form 10-10d with expiration 12/31/2027
   champva_ves_retry_failures_job:
     actor_type: user
     description: Enables the sidekiq job to retry VES submissions that failed
@@ -607,9 +612,6 @@ features:
   decision_review_service_common_exceptions_enabled:
     actor_type: user
     description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
-  decision_review_form4142_use_2024_template:
-    actor_type: user
-    description: Enables the use of the 2024 template for form 4142 in decision review applications
   decision_review_form4142_validate_schema:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in decision review applications
@@ -1244,6 +1246,10 @@ features:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
     enable_in_development: true
+  mhv_medical_records_ccd_extended_file_types:
+    actor_type: user
+    description: Allows users to download CCD (health summary) in PDF and HTML formats
+    enable_in_development: true
   mhv_medical_records_display_conditions:
     actor_type: user
     description: Show/hide content related to Health Conditions in Medical Records
@@ -1543,6 +1549,9 @@ features:
   profile_show_quick_submit_notification_setting:
     actor_type: user
     description: Show/Hide the quick submit section of notification settings in profile
+  profile_validate_address_when_no_candidate_found:
+    actor_type: user
+    description: When enabled, a NoCandidateFound error will be followed up by a call to the validate endpoint
   profile_show_no_validation_key_address_alert:
     actor_type: user
     description: Show/Hide alert messages when no validationKey is returned from the address_validation endpoint
@@ -1924,9 +1933,6 @@ features:
   vet_status_pdf_logging:
     actor_type: user
     description: Enables the Veteran Status Card to log PDF download events/failures
-  vet_status_stage_1:
-    actor_type: user
-    description: Enables the stage 1 features of the veteran status card
   vre_cutover_notice:
     actor_type: user
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
@@ -2146,6 +2152,10 @@ features:
   pension_itf_show_alert:
     actor_type: user
     description: Show the alert on frontend for the Intent to File for Pension
+    enable_in_development: true
+  pension_extras_redesign_enabled:
+    actor_type: user
+    description: Enable the new overflow design
     enable_in_development: true
   income_and_assets_form_enabled:
     actor_type: user
@@ -2393,6 +2403,9 @@ features:
   gi_feedback_tool_vet_tec_education_benefit:
     actor_type: user
     description: Includes the (VET TEC 2.0) option for selection under the Education Benefits question in the GI Bill® School Feedback Tool
+  discover_your_benefits_browser_monitoring_enabled:
+    actor_type: user
+    description: Discover Your Benefits Datadog RUM monitoring
   accredited_representative_portal_homepage:
     actor_type: user
     description: Enables new homepage redesign for ARP
@@ -2402,3 +2415,8 @@ features:
   gi_comparison_tool_cautionary_info_update:
     actor_type: user
     description: Enables updated cautionary info student feedback ui for GI Comparison Tool
+  va_online_scheduling_add_substance_use_disorder:
+    actor_type: user
+    description: Enables substance use disorder as care related to mental health appointments with new codes
+    enable_in_development: true
+
