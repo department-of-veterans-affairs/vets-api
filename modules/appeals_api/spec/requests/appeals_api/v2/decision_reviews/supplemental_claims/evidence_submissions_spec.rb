@@ -39,9 +39,9 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSub
         it 'shows finalStatus field' do
           stub_upload_location
           post(path, params: { sc_uuid: supplemental_claim.id }, headers:)
-          
-          data = JSON.parse(response.body)["data"]
-          expect(data["attributes"]["finalStatus"]).to be false
+
+          data = JSON.parse(response.body)['data']
+          expect(data['attributes']['finalStatus']).to be false
         end
 
         it "returns an error if request 'headers['X-VA-SSN'] and SC record SSNs do not match" do
