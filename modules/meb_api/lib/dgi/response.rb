@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/concerns/service_status'
-require 'vets/model'
+require 'common/models/base'
 module MebApi
   module DGI
     ##
@@ -10,15 +10,14 @@ module MebApi
     # @param status [Integer] The HTTP status code from the service
     # @param attributes [Hash] Additional response attributes
     #
-    class Response
-      include Vets::Model
+    class Response < Common::Base
       include Common::Client::Concerns::ServiceStatus
 
       attribute :status, Integer
 
       def initialize(status, attributes = nil)
-        @status = status
         super(attributes) if attributes
+        self.status = status
       end
 
       def ok?

@@ -49,7 +49,7 @@ module Vye
     class ClaimantStatusResponse < Response
       attribute :claimant_id, Integer
       attribute :delimiting_date, String
-      attribute :verified_details, Hash, array: true
+      attribute :verified_details, Hash
       attribute :payment_on_hold, Bool
 
       def initialize(status, response = nil)
@@ -78,7 +78,7 @@ module Vye
       attribute :claimant_id, Integer
       attribute :delimiting_date, String
       attribute :enrollment_verifications, Hash, array: true
-      attribute :verified_details, Hash, array: true
+      attribute :verified_details, Hash
       attribute :payment_on_hold, Bool
 
       def initialize(status, response = nil)
@@ -97,7 +97,7 @@ module Vye
     class VerifyClaimantResponse < Response
       attribute :claimant_id, Integer
       attribute :delimiting_date, String
-      attribute :verified_details, Hash, array: true
+      attribute :verified_details, Hash
       attribute :payment_on_hold, Bool
 
       def initialize(status, response = nil)
