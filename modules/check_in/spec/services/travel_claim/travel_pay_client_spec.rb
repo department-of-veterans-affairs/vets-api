@@ -35,11 +35,69 @@ RSpec.describe TravelClaim::TravelPayClient do
 
   before do
     allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
+    # Default Redis behavior - can be overridden in individual tests
     allow(redis_client).to receive(:icn).with(uuid:).and_return(test_icn)
     allow(redis_client).to receive(:station_number).with(uuid:).and_return(test_station_number)
   end
 
   # Settings are configured in individual tests using with_settings
+
+  describe '#load_redis_data' do
+    context 'when Redis operations succeed' do
+      it 'loads ICN and station number successfully' do
+        expect(redis_client).to receive(:icn).with(uuid:).and_return(test_icn)
+        expect(redis_client).to receive(:station_number).with(uuid:).and_return(test_station_number)
+
+        client = described_class.new(uuid:, appointment_date_time:)
+
+        expect(client.instance_variable_get(:@icn)).to eq(test_icn)
+        expect(client.instance_variable_get(:@station_number)).to eq(test_station_number)
+      end
+    end
+
+    context 'when Redis ICN lookup fails' do
+      it 'raises ArgumentError with clear error message' do
+        allow(redis_client).to receive(:icn).with(uuid:).and_raise(Redis::ConnectionError, 'Connection refused')
+
+        expect do
+          described_class.new(uuid:, appointment_date_time:)
+        end.to raise_error(ArgumentError, "Failed to load data from Redis for UUID #{uuid}: Connection refused")
+      end
+    end
+
+    context 'when Redis station number lookup fails' do
+      it 'raises ArgumentError with clear error message' do
+        allow(redis_client).to receive(:icn).with(uuid:).and_return(test_icn)
+        allow(redis_client).to receive(:station_number).with(uuid:).and_raise(Redis::TimeoutError,
+                                                                              'Operation timed out')
+
+        expect do
+          described_class.new(uuid:, appointment_date_time:)
+        end.to raise_error(ArgumentError, "Failed to load data from Redis for UUID #{uuid}: Operation timed out")
+      end
+    end
+
+    context 'when Redis returns nil values' do
+      it 'raises ArgumentError with clear error message' do
+        allow(redis_client).to receive(:icn).with(uuid:).and_return(nil)
+        allow(redis_client).to receive(:station_number).with(uuid:).and_return(nil)
+
+        expect do
+          described_class.new(uuid:, appointment_date_time:)
+        end.to raise_error(ArgumentError, 'Missing required arguments: ICN, station number')
+      end
+    end
+
+    context 'when Redis client is unavailable' do
+      it 'raises ArgumentError with clear error message' do
+        allow(TravelClaim::RedisClient).to receive(:build).and_raise(StandardError, 'Redis server not available')
+
+        expect do
+          described_class.new(uuid:, appointment_date_time:)
+        end.to raise_error(StandardError, 'Redis server not available')
+      end
+    end
+  end
 
   describe '#veis_token_request' do
     it 'makes VEIS token request with correct parameters' do

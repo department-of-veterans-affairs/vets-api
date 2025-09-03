@@ -34,8 +34,8 @@ module TravelClaim
       @current_veis_token = nil
       @current_btsss_token = nil
       @appointment_date_time = appointment_date_time
-      @icn = @redis_client.icn(uuid: @uuid)
-      @station_number = @redis_client.station_number(uuid: @uuid)
+
+      load_redis_data
 
       validate_required_arguments
       super()
@@ -189,6 +189,17 @@ module TravelClaim
     end
 
     private
+
+    ##
+    # Loads required data from Redis with error handling.
+    # Provides clear error messages for Redis failures or missing data.
+    #
+    def load_redis_data
+      @icn = @redis_client.icn(uuid: @uuid)
+      @station_number = @redis_client.station_number(uuid: @uuid)
+    rescue => e
+      raise ArgumentError, "Failed to load data from Redis for UUID #{@uuid}: #{e.message}"
+    end
 
     def validate_required_arguments
       missing_args = []
