@@ -29,7 +29,7 @@ sudo apt-get update
 sudo apt-get install -y redis-tools=6:6.2* redis-server=6:6.2*
 
 # Install other dependencies
-sudo apt-get install -y libpq-dev pdftk shared-mime-info postgresql-15-postgis-3 tmux xclip
+sudo apt-get install -y libpq-dev pdftk shared-mime-info postgresql-15-postgis-3 tmux xclip poppler-utils
 
 # Configure and start Redis
 sudo sed -i 's/bind 127.0.0.1/bind 0.0.0.0/g' /etc/redis/redis.conf
