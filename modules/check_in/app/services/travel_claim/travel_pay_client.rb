@@ -197,7 +197,7 @@ module TravelClaim
     def load_redis_data
       @icn = @redis_client.icn(uuid: @uuid)
       @station_number = @redis_client.station_number(uuid: @uuid)
-    rescue => e
+    rescue Redis::BaseError => e
       raise ArgumentError, "Failed to load data from Redis for UUID #{@uuid}: #{e.message}"
     end
 
