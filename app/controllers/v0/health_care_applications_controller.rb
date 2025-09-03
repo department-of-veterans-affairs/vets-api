@@ -43,17 +43,15 @@ module V0
       health_care_application.google_analytics_client_id = params[:ga_client_id]
       health_care_application.user = current_user
 
+      log_in_progress_form if current_user
+
       begin
         result = health_care_application.process!
       rescue HCA::SOAPParser::ValidationError
         raise Common::Exceptions::BackendServiceException.new('HCA422', status: 422)
       end
 
-      begin
-        clear_saved_form(FORM_ID) if current_user
-      rescue => e
-        Rails.logger.warn("[10-10EZ] - Failed to clear saved form: #{e.message}")
-      end
+      clear_in_progress_form if current_user
 
       if result[:id]
         render json: HealthCareApplicationSerializer.new(result)
@@ -109,6 +107,33 @@ module V0
     end
 
     private
+
+    def log_in_progress_form
+      return unless Flipper.enabled?(:hca_in_progress_form_logging)
+
+      in_progress_form = InProgressForm.form_for_user(FORM_ID, current_user)
+      Rails.logger.info("[10-10EZ] - HealthCareApplication has InProgressForm: #{!in_progress_form.nil?}")
+    end
+
+    def clear_in_progress_form
+      if Flipper.enabled?(:hca_in_progress_form_logging)
+        in_progress_form_before = InProgressForm.form_for_user(FORM_ID, current_user)
+        Rails.logger.info("[10-10EZ][HCA id: #{health_care_application.id}, " \
+                          "form_submission_id: #{health_care_application.form_submission_id_string}] - " \
+                          "InProgressForm exists before attempted delete: #{!in_progress_form_before.nil?}")
+
+      end
+
+      clear_saved_form(FORM_ID)
+
+      if Flipper.enabled?(:hca_in_progress_form_logging) && in_progress_form_before
+        in_progress_form_after = InProgressForm.form_for_user(FORM_ID, current_user)
+        Rails.logger.info("[10-10EZ][HCA id: #{health_care_application.id}] - " \
+                          "InProgressForm successfully deleted: #{!in_progress_form_after}")
+      end
+    rescue => e
+      Rails.logger.warn("[10-10EZ][HCA id: #{health_care_application.id}] - Failed to clear saved form: #{e.message}")
+    end
 
     def health_care_application
       @health_care_application ||= HealthCareApplication.new(params.permit(:form))
