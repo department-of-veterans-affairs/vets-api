@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'base'
-require 'common/models/attribute_types/iso8601_time'
 require 'va_profile/concerns/defaultable'
 
 module VAProfile
@@ -12,7 +11,7 @@ module VAProfile
 
       attribute :text, String
       attribute :source_system_user, String
-      attribute :source_date, Common::ISO8601Time
+      attribute :source_date, Vets::Type::ISO8601Time
 
       before_validation :strip_blanks
       validates :text, presence: true

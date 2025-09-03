@@ -283,6 +283,12 @@ features:
   champva_foreign_address_fix:
     actor_type: user
     description: Enables the fix for foreign address fields on form submissions
+  champva_form_versioning:
+    actor_type: user
+    description: Enables the form versioning for IVC CHAMPVA form submissions
+  champva_form_10_10d_2027:
+    actor_type: user
+    description: If enabled uses the 2027 version of form 10-10d with expiration 12/31/2027
   champva_ves_retry_failures_job:
     actor_type: user
     description: Enables the sidekiq job to retry VES submissions that failed
@@ -1234,6 +1240,10 @@ features:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
     enable_in_development: true
+  mhv_medical_records_ccd_extended_file_types:
+    actor_type: user
+    description: Allows users to download CCD (health summary) in PDF and HTML formats
+    enable_in_development: true
   mhv_medical_records_display_conditions:
     actor_type: user
     description: Show/hide content related to Health Conditions in Medical Records
@@ -2137,6 +2147,10 @@ features:
     actor_type: user
     description: Show the alert on frontend for the Intent to File for Pension
     enable_in_development: true
+  pension_extras_redesign_enabled:
+    actor_type: user
+    description: Enable the new overflow design
+    enable_in_development: true
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
@@ -2395,4 +2409,8 @@ features:
   gi_comparison_tool_cautionary_info_update:
     actor_type: user
     description: Enables updated cautionary info student feedback ui for GI Comparison Tool
+  va_online_scheduling_add_substance_use_disorder:
+    actor_type: user
+    description: Enables substance use disorder as care related to mental health appointments with new codes
+    enable_in_development: true
 
