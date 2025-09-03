@@ -2,6 +2,7 @@
 
 require 'common/client/concerns/service_status'
 require 'vets/model'
+
 module MebApi
   module DGI
     ##
