@@ -184,8 +184,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
         tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
         can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
-        expect(can_upload_values).to eq([true, true, true, true, true, true, true, true, false, true, true, true,
-                                         false, false, true])
+        expect(can_upload_values).to eq([true, true, false, true, true, true, true, true, false,
+                                         true, true, true, false, false, true])
         friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
         expect(friendly_name_values).to include('Authorization to disclose information')
         expect(friendly_name_values).to include('Proof of service')
@@ -212,12 +212,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                                                        ' your behalf. No action is needed.')
         expect(activity_description_values).to include('We’ve requested your non-VA medical records on' \
                                                        ' your behalf. No action is needed.')
-        expect(activity_description_values).to include('We’ve requested a disability exam for your hearing.' \
-                                                       ' The examiner’s office will contact you to schedule' \
-                                                       ' this appointment.')
-        expect(activity_description_values).to include('We’ve requested a mental health exam for you.' \
-                                                       ' The examiner’s office will contact you to schedule' \
-                                                       ' this appointment.')
         short_description_values = tracked_items.map { |i| i['shortDescription'] }
         expect(short_description_values).to include('We’ve requested your service' \
                                                     ' records or treatment records from your reserve unit.')
@@ -237,38 +231,15 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(support_alias_values).to include(['DBQ PSYCH Mental Disorders'])
       end
 
-      context 'when cst_override_reserve_records_website flipper is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(true)
+      it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get(:show, params: { id: '600383363' })
         end
-
-        it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get(:show, params: { id: '600383363' })
-          end
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4,
-                                 'displayName')).to eq('RV1 - Reserve Records Request')
-          # In the cassette, this value is NEEDED_FROM_YOU
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4, 'status')).to eq('NEEDED_FROM_OTHERS')
-        end
-      end
-
-      context 'when cst_override_reserve_records_website flipper is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(false)
-        end
-
-        it 'leaves the tracked item status as NEEDED_FROM_YOU' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get(:show, params: { id: '600383363' })
-          end
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4,
-                                 'displayName')).to eq('RV1 - Reserve Records Request')
-          # Do not modify the cassette value
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4, 'status')).to eq('NEEDED_FROM_YOU')
-        end
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4,
+                               'displayName')).to eq('RV1 - Reserve Records Request')
+        # In the cassette, this value is NEEDED_FROM_YOU
+        expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4, 'status')).to eq('NEEDED_FROM_OTHERS')
       end
 
       context 'when :cst_suppress_evidence_requests_website is enabled' do

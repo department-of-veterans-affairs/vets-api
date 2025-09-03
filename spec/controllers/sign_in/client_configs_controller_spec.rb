@@ -73,14 +73,49 @@ RSpec.describe SignIn::ClientConfigsController, type: :controller do
     end
 
     context 'with certs_attributes' do
-      let(:cert) { create(:sign_in_certificate) }
+      context 'when a cert with the pem already exists' do
+        let!(:cert) { create(:sign_in_certificate) }
 
-      it 'creates a new certificate for the client config' do
-        post :create, params: { client_config: valid_attributes.merge(certs_attributes: [cert.attributes]) }, as: :json
+        it 'associates the existing cert with the client config' do
+          post :create, params: { client_config: valid_attributes.merge(certs_attributes: [cert.attributes]) },
+                        as: :json
 
-        expect(response).to have_http_status(:created)
-        expect(response_body['certs']).to include(a_hash_including('id' => cert.id))
-        expect(SignIn::ClientConfig.last.certs).to include(cert)
+          expect(response).to have_http_status(:created)
+          expect(response_body['certs']).to include(a_hash_including('id' => cert.id))
+          expect(SignIn::ClientConfig.last.certs).to include(cert)
+        end
+
+        it 'does not create a new cert' do
+          expect do
+            post :create, params: { client_config: valid_attributes.merge(certs_attributes: [cert.attributes]) },
+                          as: :json
+          end.not_to change(SignIn::Certificate, :count)
+        end
+      end
+
+      context 'when a cert with the pem does not exist' do
+        let(:cert) { build(:sign_in_certificate) }
+
+        it 'creates a new certificate and associates it with the client config' do
+          post :create, params: { client_config: valid_attributes.merge(certs_attributes: [cert.attributes]) },
+                        as: :json
+
+          expect(response).to have_http_status(:created)
+          expect(response_body['certs']).to include(a_hash_including('pem' => cert.pem))
+          expect(SignIn::Certificate.count).to eq(1)
+        end
+      end
+
+      context 'when a cert has a validation error' do
+        let(:cert) { build(:sign_in_certificate, pem: 'bad_pem') }
+
+        it 'does not create the cert and returns an error' do
+          post :create, params: { client_config: valid_attributes.merge(certs_attributes: [cert.attributes]) },
+                        as: :json
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response_body.dig('errors',
+                                   'config_certificates[0].cert.pem')).to include('not a valid X.509 certificate')
+        end
       end
     end
   end

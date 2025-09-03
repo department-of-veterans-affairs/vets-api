@@ -64,12 +64,12 @@ module Mobile
           if type == :address && Flipper.enabled?(:remove_pciu, @user)
             'VAProfile::Models::V3::Address'
               .constantize
-              .new(params)
+              .new(params.to_h)
               .set_defaults(@user)
           else
             "VAProfile::Models::#{type.capitalize}"
               .constantize
-              .new(params)
+              .new(params.to_h)
               .set_defaults(@user)
           end
         end
@@ -133,7 +133,7 @@ module Mobile
 
         def contact_information_service
           if Flipper.enabled?(:remove_pciu, @user)
-            VAProfile::V2::ContactInformation::Service.new @user
+            VAProfile::ContactInformation::V2::Service.new @user
           else
             VAProfile::ContactInformation::Service.new @user
           end

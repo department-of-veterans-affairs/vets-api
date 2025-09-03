@@ -14,21 +14,18 @@ module AccreditedRepresentativePortal
         upload_scanned_form
         upload_supporting_documents
       ]
-      before_action :deny_access_unless_686c_enabled, only: %i[
-        submit
-        upload_scanned_form
-        upload_supporting_documents
-      ]
+      before_action only: %i[submit upload_scanned_form upload_supporting_documents] do
+        deny_access_unless_form_enabled(form_id)
+      end
 
       # rubocop:disable Metrics/MethodLength
       def submit
         ar_monitoring.trace('ar.claims.form_upload.submit') do |span|
           service = SavedClaimService::Create
-          current_form_number = metadata[:formNumber]
 
           # Tags for tracing
-          span.set_tag('form_id', current_form_number)
-          Datadog::Tracing.active_trace&.set_tag('form_id', current_form_number)
+          span.set_tag('form_id', form_id)
+          Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
 
           saved_claim = service.perform(
             type: form_class,

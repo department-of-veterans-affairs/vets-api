@@ -1,0 +1,1138 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/bluebutton/healthsummary/2025-05-06T09:26:08.000-0400/fileFormat/HTML/ccdType/HTML"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - "<MHV_MR_X_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 26 Aug 2025 01:07:13 GMT
+      Content-Type:
+      - text/html
+      Transfer-Encoding:
+      - chunked
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-711957365", dtSInfo;desc="0"
+      Expires:
+      - "-1"
+      Cache-Control:
+      - no-cache
+      Content-Disposition:
+      - inline; filename=mhv_VA_CCD_CASEY_20250506_0926.html
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n<html
+        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:sdtc=\"urn:hl7-org:sdtc\"
+        xmlns:n1=\"urn:hl7-org:v3\" lang=\"en-US\">\n<head>\n<META http-equiv=\"Content-Type\"
+        content=\"text/html; charset=ISO-8859-1\">\n<meta charset=\"utf-8\">\n<meta
+        content=\"IE=edge\" http-equiv=\"X-UA-Compatible\">\n<title>Veterans Affairs</title>\n<meta
+        content=\"\" name=\"description\">\n<meta content=\"width=device-width, initial-scale=1\"
+        name=\"viewport\">\n<script type=\"text/javascript\" src=\"/mhvapi/v1/bluebutton/ruxitagentjs_ICA7NVfgqrux_10317250630095842.js\"
+        data-dtconfig=\"app=ea7c4b59f27d43eb|cuc=n9c99z0y|ssc=1|coo=1|owasp=1|mel=100000|featureHash=ICA7NVfgqrux|dpvc=1|lastModification=1756160233849|tp=500,50,0|rdnt=1|uxrgce=1|agentUri=/mhvapi/v1/bluebutton/ruxitagentjs_ICA7NVfgqrux_10317250630095842.js|reportUrl=/mhvapi/v1/bluebutton/rb_72874c19-c296-4b5f-86cd-a3ba91f5e8e2|rid=RID_-1381787725|rpid=-711957365|domain=va.gov\"></script><link
+        href=\"http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,300,400,600,700\"
+        rel=\"stylesheet\">\n<style>\n\n\t\t\t\t\t*,\n\t\t\t\t\t*::before,\n\t\t\t\t\t*::after
+        {\n\t\t\t\t\t\tbox-sizing: border-box;\n\t\t\t\t\t}\n\n\t\t\t\t\tbody {\n\t\t\t\t\t\tbackground:
+        #fff;\n\t\t\t\t\t\tcolor: #000;\n\t\t\t\t\t\tfont: 14px/1.5 'Open Sans', Helvetica,
+        Arial, Verdana, sans-serif;\n\t\t\t\t\t\tmargin: 0;\n\t\t\t\t\t/*\tpadding:
+        140px 0 0;*/\n\t\t\t\t\t\tpadding: 0;\n\t\t\t\t\t}\n\n\t\t\t\t\th1, h2, h3,
+        h4, h5 {\n\t\t\t\t\t\tfont-weight: normal;\n\t\t\t\t\t\tfont-weight: 400;\n\t\t\t\t\t}\n\n\t\t\t\t\t.columns
+        {\n\t\t\t\t\t\toverflow: hidden;\n\t\t\t\t\t\twidth: 100%;\n\t\t\t\t\t}\n\n\t\t\t\t\t.col-2
+        {\n\t\t\t\t\t\tfloat: left;\n\t\t\t\t\t\twidth: 47.45%;\n\t\t\t\t\t}\n\n\t\t\t\t\t.col-2
+        + .col-2 {\n\t\t\t\t\t\tmargin-left: 4.95%;\n\t\t\t\t\t}\n\n\t\t\t\t\t.col-3
+        {\n\t\t\t\t\t\tfloat: left;\n\t\t\t\t\t\twidth: 29.95%;\n\t\t\t\t\t}\n\n\t\t\t\t\t.col-3
+        + .col-3 {\n\t\t\t\t\t\tmargin-left: 4.95%;\n\t\t\t\t\t}\n\n\t\t\t\t\t.episode-note-container,\n\t\t\t\t\t.titlebar
+        {\n\t\t\t\t\t\tmax-width: 960px;\n\t\t\t\t\t\tmargin: 0 auto;\n\t\t\t\t\t\twidth:
+        100%;\n\t\t\t\t\t}\n\n\t\t\t\t\t.titlebar-container.fixed {\n\t\t\t\t\t\tleft:
+        0;\n\t\t\t\t\t\tposition: fixed;\n\t\t\t\t\t\ttop: 0;\n\t\t\t\t\t\twidth:
+        100%;\n\t\t\t\t\t}\n\n\t\t\t\t\t.titlebar {\n\t\t\t\t\t\tbackground: #fff;\n\t\t\t\t\t\tborder-bottom:
+        2px solid #222;\n\t\t\t\t\t\tpadding: 10px;\n\t\t\t\t\t}\n\n\t\t\t\t\t.titlebar
+        h1,\n\t\t\t\t\t.titlebar h2 {\n\t\t\t\t\t\tfont-size: 2em;\n\t\t\t\t\t}\n\n\t\t\t\t\t.titlebar
+        span.cell {\n\t\t\t\t\t\tdisplay: inline-block;\n\t\t\t\t\t\ttext-align: right;\n\t\t\t\t\t\twidth:
+        120px;\n\t\t\t\t\t}\n\n\t\t\t\t\t.titlebar p {\n\t\t\t\t\t\tmargin-bottom:
+        0;\n\t\t\t\t\t}\n\n\t\t\t\t\t.infobar {\n\t\t\t\t\t\t/*padding: 20px;*/\n\t\t\t\t\t}\n\n\t\t\t\t\t.titlebar
+        h1,\n\t\t\t\t\t.titlebar h2,\n\t\t\t\t\t.infobar h1,\n\t\t\t\t\t.infobar h2
+        {\n\t\t\t\t\t\tmargin: 0;\n\t\t\t\t\t}\n\n\t\t\t\t\t.backtotop {\n\t\t\t\t\t\tbackground:
+        #fff;\n\t\t\t\t\t\tborder: 2px solid #222;\n\t\t\t\t\t\tborder-top: none;\n\t\t\t\t\t\tborder-radius:
+        0 0 3px 3px;\n\t\t\t\t\t\tcolor: #222;\n\t\t\t\t\t\tcursor: pointer;\n\t\t\t\t\t\tdisplay:
+        inline-block;\n\t\t\t\t\t\tfont-size: 12px;\n\t\t\t\t\t\tleft: 50%;\n\t\t\t\t\t\tline-height:
+        1;\n\t\t\t\t\t\toutline: none;\n\t\t\t\t\t\tmargin: 0 0 0 -55px;\n\t\t\t\t\t\tpadding:
+        6px 0;\n\t\t\t\t\t\tposition: absolute;\n\t\t\t\t\t\ttext-align: center;\n\t\t\t\t\t\ttop:
+        -28px;\n\t\t\t\t\t\twidth: 110px;\n\t\t\t\t\t\t-webkit-transition: top 500ms
+        cubic-bezier(0.770, 0.000, 0.175, 1.000);\n\t\t\t\t\t\t-moz-transition: top
+        500ms cubic-bezier(0.770, 0.000, 0.175, 1.000);\n\t\t\t\t\t\t-ms-transition:
+        top 500ms cubic-bezier(0.770, 0.000, 0.175, 1.000);\n\t\t\t\t\t\t-o-transition:
+        top 500ms cubic-bezier(0.770, 0.000, 0.175, 1.000);\n\t\t\t\t\t\ttransition:
+        top 500ms cubic-bezier(0.770, 0.000, 0.175, 1.000);\n\t\t\t\t\t}\n\n\n\t\t\t\t\t.backtotop.active
+        {\n\t\t\t\t\t\ttop: 0;\n\t\t\t\t\t}\n\n\t\t\t\t\t.backtotop:hover {\n\t\t\t\t\t\tbackground:
+        #222;\n\t\t\t\t\t\tcolor: #fff;\n\t\t\t\t\t\tpadding: 12px 0 6px;\n\t\t\t\t\t}\n\n\t\t\t\t\t.toc
+        {\n\t\t\t\t\t\ttext-align: center;\n\t\t\t\t\t}\n\n\t\t\t\t\t.toc p {\n\t\t\t\t\t\tmargin:
+        0 auto .5em;\n\t\t\t\t\t}\n\n\t\t\t\t\t.toc ul {\n\t\t\t\t\t\tfont-size: 0;
+        /* fix for whitespace bug */\n\t\t\t\t\t\tlist-style: none;\n\t\t\t\t\t\t/*
+        margin: 16px 0 0; */\n\t\t\t\t\t\tpadding: 0;\n\t\t\t\t\t}\n\n\t\t\t\t\t.toc
+        li {\n\t\t\t\t\t\tdisplay: inline;\n\t\t\t\t\t}\n\n\t\t\t\t\t.toc a {\n\t\t\t\t\t\tbackground:
+        #fff;\n\t\t\t\t\t\tborder-radius: 3px;\n\t\t\t\t\t\tborder: 2px solid #222;\n\t\t\t\t\t\tcolor:
+        #222;\n\t\t\t\t\t\tdisplay: inline-block;\n\t\t\t\t\t\tfont-size: 12px;\n\t\t\t\t\t\tmargin:
+        4px 2px 0;\n\t\t\t\t\t\tpadding: 6px 12px;\n\t\t\t\t\t\ttext-decoration: none;\n\t\t\t\t\t}\n\n\t\t\t\t\t.toc
+        a:hover {\n\t\t\t\t\t\tbackground: #222;\n\t\t\t\t\t\tcolor: #fff;\n\t\t\t\t\t}\n\n\t\t\t\t\t.toc
+        a.disabled,\n\t\t\t\t\t.toc a.disabled:hover {\n\t\t\t\t\t\tbackground: #fff;\n\t\t\t\t\t\tborder-color:
+        #ccc;\n\t\t\t\t\t\tcolor: #aaa;\n\t\t\t\t\t}\n\n\t\t\t\t\tsection {\n\t\t\t\t\t\tpadding:
+        5px 5px 5px 5px;\n\t\t\t\t\t}\n\n\t\t\t\t\tsection + section {\n\t\t\t\t\t\tborder-top:
+        2px solid #222;\n\t\t\t\t\t}\n\n\t\t\t\t\tsection header p {\n\t\t\t\t\t\tcolor:
+        #999;\n\t\t\t\t\t\tfont-size: .9285714286em;\n\t\t\t\t\t\tline-height: 1.2;\n\t\t\t\t\t}\n\n\t\t\t\t\tsection
+        header p strong {\n\t\t\t\t\t\tfont-weight: normal;\n\t\t\t\t\t}\n\n\t\t\t\t\tsection
+        header h2 {\n\t\t\t\t\t\tmargin: 0 auto .5em;\n\t\t\t\t\t}\n\n\t\t\t\t\tsection
+        header h2 + p {\n\t\t\t\t\t\tmargin-top: 0;\n\t\t\t\t\t}\n\n\t\t\t\t\tsection
+        header h2 span {\n\t\t\t\t\t\tcolor: #ccc;\n\t\t\t\t\t\tcolor: rgba(0,0,0,.35);\n\t\t\t\t\t\tdisplay:
+        inline-block;\n\t\t\t\t\t\tfont-size: .75em;\n\t\t\t\t\t\tpadding-left: .5em;\n\t\t\t\t\t}\n\n\t\t\t\t\tspan.count
+        {\n\t\t\t\t\t\tbackground-color: #222;\n\t\t\t\t\t\tborder-radius: 5px;\n\t\t\t\t\t\tcolor:
+        #fff;\n\t\t\t\t\t\tdisplay: inline-block;\n\t\t\t\t\t\tfont-weight: normal;\n\t\t\t\t\t\tmargin-left:
+        .5em;\n\t\t\t\t\t\tpadding: 0 5px;\n\t\t\t\t\t}\n\n\t\t\t\t\tspan.badge {\n\t\t\t\t\t\tbackground-color:
+        #222;\n\t\t\t\t\t\tborder-radius: 5px;\n\t\t\t\t\t\tcolor: #fff;\n\t\t\t\t\t\tdisplay:
+        inline-block;\n\t\t\t\t\t\tfont-size: 11px;\n\t\t\t\t\t\tpadding: 2px 5px;\n\t\t\t\t\t}\n\n\t\t\t\t\ttable
+        {\n\t\t\t\t\t\tbackground: #fff;\n\t\t\t\t\t\tborder-collapse: collapse;\n\t\t\t\t\t\tfont-size:
+        12px;\n\t\t\t\t\t\ttext-align: left;\n\t\t\t\t\t\twidth: 100%;\n\t\t\t\t\t}\n\n\t\t\t\t\ttable
+        td,\n\t\t\t\t\ttable th {\n\t\t\t\t\t\tpadding: 8px 6px;\n\t\t\t\t\t}\n\n\t\t\t\t\ttable
+        th {\n\t\t\t\t\t\tfont-weight: normal;\n\t\t\t\t\t}\n\n\t\t\t\t\ttable thead
+        tr th {\n\t\t\t\t\t\tbackground: #222;\n\t\t\t\t\t\tborder-right: 1px solid
+        rgba(255,255,255,.5);\n\t\t\t\t\t\tcolor: #fff;\n\t\t\t\t\t}\n\t\t\t\t\ttable
+        thead tr th:last-child {\n\t\t\t\t\t\tborder-right: 1px solid #ccc;\n\t\t\t\t\t}\n\n\t\t\t\t\ttable
+        tbody tr td,\n\t\t\t\t\ttable tbody tr th {\n\t\t\t\t\t\tborder-bottom: 1px
+        solid #ccc;\n\t\t\t\t\t\tborder-right: 1px solid #ccc;\n\t\t\t\t\t\tvertical-align:
+        top;\n\t\t\t\t\t\ttext-align: left;\n\t\t\t\t\t}\n\n\t\t\t\t\ttable tbody
+        em {\n\t\t\t\t\t\tcolor: rgba(0,0,0,.4);\n\t\t\t\t\t}\n\n\t\t\t\t\ttable tbody
+        tr > *:first-child {\n\t\t\t\t\t\tborder-left: 1px solid #ccc;\n\t\t\t\t\t}\n\n\t\t\t\t\ttable.sectioned
+        tbody tr td,\n\t\t\t\t\ttable.sectioned tbody tr th {\n\t\t\t\t\t\tbackground:
+        none;\n\t\t\t\t\t}\n\n\t\t\t\t\ttable tbody tr:hover td,\n\t\t\t\t\ttable
+        tbody tr:hover th {\n\t\t\t\t\t\tbackground: #fffff0 !important;\n\t\t\t\t\t}\n\n\t\t\t\t\ttable
+        tbody tr td:hover,\n\t\t\t\t\ttable tbody tr th:hover {\n\t\t\t\t\t\tbackground:
+        #fffac7 !important;\n\t\t\t\t\t}\n\n\t\t\t\t\t.narr_tr {\n\t\t\t\t\t\tvertical-align:
+        top;\n\t\t\t\t\t\ttext-align: left;\n\t\t\t\t\t}\n\t\t\t\t</style>\n</head>\n<body>\n<div
+        class=\"episode-note-container\" id=\"top\">\n<div class=\"titlebar-container\"
+        id=\"titlebar-container\">\n<header class=\"titlebar\" id=\"titlebar\">\n<div
+        class=\"columns\">\n<div class=\"col-3\">\n<p>VA Continuity of Care Document
+        (CCD)<br>\n\t\t\t\t\t\t\t\t\t\tcreated on\n\t\t\t\t\t\t\t\t\t\t<strong>May
+        6, 2025, 07:50:55  </strong>\n</p>\n</div>\n<div style=\"text-align: center;word-wrap:
+        break-word;\" class=\"col-3\">\n<h1>Department of Veterans Affairs (VA)</h1>\n</div>\n<div
+        style=\"text-align: left;word-wrap: break-word;\" class=\"col-3\">\n<p>\n\t\t\t\t\t\t\t\t
+        \   \tPatient:\n\n\t\t\t\t\t\t\t\t\t\tVETERAN CASEY<br>\n\t\t\t\t\t\t\t\t\t\tDOB:\n\n\t\t\t\t\t\t\t\t\t\t\tJanuary
+        3, 1953, 00:00:00  <br>\n\t\t\t\t\t\t\t\t\t\tGender:\n\t\t\t\t\t\t\t\t\t\t\tMale</p>\n</div>\n</div>\n<nav
+        class=\"toc infobar\">\n<p>\n<label onclick=\"javascript:toggle('open','TOC')\"
+        id=\"plus.TOC\">[+]  </label><label onclick=\"javascript:toggle('close','TOC')\"
+        id=\"minus.TOC\">[-]  </label><strong>Table of Contents</strong>\n</p>\n<div
+        id=\"section.TOC\">\n<ul>\n<li>\n<a href=\"#patient-information\" data-target=\"patient-information\">Patient
+        Information</a><a class=\"disabled\" href=\"#Insurance Providers\" data-target=\"Insurance
+        Providers\">Insurance Providers</a><a class=\"disabled\" href=\"#Advance Directives\"
+        data-target=\"Advance Directives\">Advance Directives</a><a href=\"#Allergies\"
+        data-target=\"Allergies\">Allergies</a><a href=\"#Encounters\" data-target=\"Encounters\">Encounters</a><a
+        class=\"disabled\" href=\"#Functional Status\" data-target=\"Functional Status\">Functional
+        Status</a><a class=\"disabled\" href=\"#Medications\" data-target=\"Medications\">Medications</a><a
+        href=\"#Immunizations\" data-target=\"Immunizations\">Immunizations</a><a
+        class=\"disabled\" href=\"#Procedures\" data-target=\"Procedures\">Procedures</a><a
+        class=\"disabled\" href=\"#Plan of Care\" data-target=\"Plan of Care\">Plan
+        of Care</a><a href=\"#Problems\" data-target=\"Problems\">Problems</a><a href=\"#Results\"
+        data-target=\"Results\">Results</a><a class=\"disabled\" href=\"#Social History\"
+        data-target=\"Social History\">Social History</a><a class=\"disabled\" href=\"#Vital
+        Signs\" data-target=\"Vital Signs\">Vital Signs</a><a href=\"#Consultation
+        Notes\" data-target=\"Consultation Notes\">Consultation Notes</a><a class=\"disabled\"
+        href=\"#History and Physical\" data-target=\"History and Physical\">History
+        and Physical</a><a class=\"disabled\" href=\"#Procedure Note\" data-target=\"Procedure
+        Note\">Procedure Note</a><a href=\"#Healthcare Providers\" data-target=\"Healthcare
+        Providers\">Healthcare Providers</a><a href=\"#Contact Information\" data-target=\"Contact
+        Information\">Contact Information</a>\n</li>\n</ul>\n</div>\n</nav>\n<button
+        class=\"backtotop\" id=\"backtotop\">&uarr; Back To Top</button>\n</header>\n</div>\n<div
+        class=\"sections\">\n<section id=\"Patient Information\">\n<header>\n<h2>\n<label
+        onclick=\"javascript:toggle('open','Patient Information')\" id=\"plus.Patient
+        Information\">[+]  </label><label onclick=\"javascript:toggle('close','Patient
+        Information')\" id=\"minus.Patient Information\">[-]  </label>\n\t\t\t\t\t\t\t\tPatient
+        Information</h2>\n</header>\n<div id=\"section.Patient Information\">\n<div
+        class=\"columns\">\n<div class=\"col-1\">\n<table>\n<thead>\n<tr>\n<th colspan=\"2\">Patient
+        Information</th>\n</tr>\n</thead>\n<tbody>\n<tr valign=\"top\">\n<th>Address</th><td>
+        Primary Home:<br>123 TEST STREET;TEST<br>FAIRFAX,&nbsp;VA&nbsp;20151,&nbsp;United
+        States<br>Tel:  7030000000<br>\n</td>\n</tr>\n<tr valign=\"top\">\n<th>Marital
+        status</th><td>Married</td>\n</tr>\n<tr valign=\"top\">\n<th>Religious Affiliation</th><td>UNIVERSAL
+        LIFE CHURCH</td>\n</tr>\n<tr valign=\"top\">\n<th>Race</th><td></td>\n</tr>\n<tr
+        valign=\"top\">\n<th>Ethnicity</th><td>Hispanic or Latino</td>\n</tr>\n<tr
+        valign=\"top\">\n<th>Language(s)</th><td>Speaks English</td>\n</tr>\n<tr valign=\"top\">\n<th>Preferred
+        Language</th><td></td>\n</tr>\n</tbody>\n</table>\n</div>\n</div>\n</div>\n</section>\n<section
+        id=\"Insurance Providers\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','Insurance
+        Providers')\" id=\"plus.Insurance Providers\">[+]  </label><label onclick=\"javascript:toggle('close','Insurance
+        Providers')\" id=\"minus.Insurance Providers\">[-]  </label>Insurance Providers</h2>\n</header>\n<div
+        id=\"section.Insurance Providers\">No Data Provided for This Section</div>\n</section>\n<section
+        id=\"Advance Directives\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','Advance
+        Directives')\" id=\"plus.Advance Directives\">[+]  </label><label onclick=\"javascript:toggle('close','Advance
+        Directives')\" id=\"minus.Advance Directives\">[-]  </label>Advance Directives</h2>\n</header>\n<div
+        id=\"section.Advance Directives\">No Data Provided for This Section</div>\n</section>\n<section
+        id=\"Allergies\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','Allergies')\"
+        id=\"plus.Allergies\">[+]  </label><label onclick=\"javascript:toggle('close','Allergies')\"
+        id=\"minus.Allergies\">[-]  </label>Allergies</h2>\n</header>\n<div id=\"section.Allergies\">\n<p>Section
+        Date Range: From patient's date of birth to the date document was created.</p>\n<p>\n
+        \                     This section includes Allergies and Adverse Reactions
+        (ADRs) on record with VA for the patient.\n                      The data
+        comes from all VA treatment facilities. It does not list Allergies/ADRs that
+        were removed or entered in error.\n                      Some allergies/ADRs
+        may be reported in the Immunization section. Allergies and Adverse Reactions
+        (ADRs) from the new VA electronic health record are not included.\n\t\t\t\t\t\t\t\t\t\t</p>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Allergen</th><th
+        class=\"narr_th\">Event Date</th><th class=\"narr_th\">Event Type</th><th
+        class=\"narr_th\">Reaction(s)</th><th class=\"narr_th\">Severity</th><th class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\" ID=\"ALLERGYROW_1\">\n<td ID=\"andAllergy1\">MENINGOCOCCAL
+        POLYSACCHARIDE</td><td>Nov 02, 2023</td><td ID=\"andEventType1\">Propensity
+        to adverse reactions to drug (finding)</td><td>\n<ul>\n<li>Urticaria</li>\n<li>CONFUSION</li>\n<li>Xerostomia</li>\n<li>DRY
+        NOSE</li>\n</ul>\n</td><td ID=\"andSeverity1\">SEVERE</td><td ID=\"andSource1\">DAYTSHR
+        TEST LAB</td>\n</tr>\n<tr class=\"narr_tr\" ID=\"ALLERGYROW_2\">\n<td ID=\"andAllergy2\">POLLEN</td><td>Aug
+        18, 2022</td><td ID=\"andEventType2\">Propensity to adverse reaction (finding)</td><td>\n<ul>\n<li>Eruption</li>\n</ul>\n</td><td
+        ID=\"andSeverity2\"></td><td ID=\"andSource2\">DAYTSHR TEST LAB</td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"ALLERGYROW_3\">\n<td ID=\"andAllergy3\">RED DYES</td><td>Aug
+        04, 2023</td><td ID=\"andEventType3\">Propensity to adverse reactions to substance
+        (finding)</td><td>\n<ul>\n<li>Eruption</li>\n</ul>\n</td><td ID=\"andSeverity3\">SEVERE</td><td
+        ID=\"andSource3\">DAYTSHR TEST LAB</td>\n</tr>\n<tr class=\"narr_tr\" ID=\"ALLERGYROW_4\">\n<td
+        ID=\"andAllergy4\">WHITE FISH</td><td>Aug 18, 2022</td><td ID=\"andEventType4\">Propensity
+        to adverse reactions to substance (finding)</td><td>\n<ul>\n<li>Eruption</li>\n</ul>\n</td><td
+        ID=\"andSeverity4\">SEVERE</td><td ID=\"andSource4\">DAYTSHR TEST LAB</td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"ALLERGYROW_5\">\n<td ID=\"andAllergy5\">YELLOW FEVER
+        VACCINE</td><td>Oct 30, 2023</td><td ID=\"andEventType5\">Propensity to adverse
+        reactions to drug (finding)</td><td>\n<ul>\n<li>Eruption</li>\n<li>HIVES</li>\n<li>Xerostomia</li>\n</ul>\n</td><td
+        ID=\"andSeverity5\">SEVERE</td><td ID=\"andSource5\">DAYTSHR TEST LAB</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n<section
+        id=\"Encounters\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','Encounters')\"
+        id=\"plus.Encounters\">[+]  </label><label onclick=\"javascript:toggle('close','Encounters')\"
+        id=\"minus.Encounters\">[-]  </label>Encounters</h2>\n</header>\n<div id=\"section.Encounters\">\n<p>\n
+        \                       This section contains a list of completed VA Outpatient
+        Encounters for the patient and a list of Encounter Notes for the patient.
+        The data comes from all VA treatment facilities. Consult Notes, History &amp;
+        Physical Notes, and Discharge Summaries are provided separately, in subsequent
+        sections.\n\t\t\t\t\t\t\t\t\t\t\t</p>\n<p>\n<b>Outpatient Encounters with
+        Notes</b>\n</p>\n<p>\n                      This section includes a list of
+        VA Outpatient Encounters from the last 18 months and includes a maximum of
+        the 10 most recent encounters. Follow-up visits related to the VA Encounter
+        are not included. The data comes from all VA treatment facilities. Outpatient
+        Encounters and Encounter Notes from the new VA electronic health record are
+        not included.\n\t\t\t\t\t\t\t\t\t\t</p>\n<b>Encounter</b>\n<table class=\"narr_table\">\n<thead>\n<tr
+        class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th class=\"narr_th\">Encounter
+        Type</th><th class=\"narr_th\">Encounter Description</th><th class=\"narr_th\">Reason</th><th
+        class=\"narr_th\">Provider</th><th class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\" ID=\"ENCOUNTERROW_1\">\n<td>Mar 05, 2024 02:16 PM</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterType1\">OFFICE O/P NEW MOD 45 MIN</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterDescription1\">SUBSTANCE USE DISORDER
+        IND</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"endReason1\">ICD-10-CM
+        R07.0 Pain in throat</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"endProvider1\">AHMED,MARUF</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"endSource1\">DAYTSHR TEST LAB</content></td>\n</tr>\n</tbody>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td></td><td colspan=\"5\">\n<content xmlns=\"urn:hl7-org:v3\"
+        styleCode=\"Bold\">Encounter Notes</content>\n<p>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</p>\n<ul>\n<li>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Note</th><th class=\"narr_th\">Provider</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteDateTime1-1\">Mar
+        05, 2024 02:16 PM</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteEncounterDescription1-1\">
+        LOCAL TITLE: ADHC CONSULT RESULTS                               <br/>DATE
+        OF NOTE: MAR 05, 2024@14:16:05  ENTRY DATE: MAR 05, 2024@14:16:05      <br/>
+        \     AUTHOR: AHMED,MARUF          EXP COSIGNER:                           <br/>
+        \    URGENCY:                            STATUS: COMPLETED                     <br/>\n<br/>test
+        text in the quotation \"The Consults package communicates with CPRS <br/>through
+        HL7 messages. Order Checking <br/>receives information from the Consults package
+        through CPRS. <br/>Notifications is the only <br/>major package that Consults
+        communicates with directly. When the <br/>requesting clinician <br/>signs
+        the order, Consults sends a notification to the consulting <br/>physician
+        and when the <br/>consulting physician signs the final report, Consults sends
+        a <br/>notification to the requesting <br/>physician. \"<br/> <br/>/es/ MARUF
+        AHMED<br/>PHYSICIAN<br/>Signed: 03/05/2024 14:16</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"anNoteProvider1-1\">AHMED,MARUF</content></td>\n</tr>\n</tbody>\n</table>\n</li>\n</ul>\n</td>\n</tr>\n</tbody>\n</table>\n<b>Encounter</b>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Type</th><th class=\"narr_th\">Encounter Description</th><th
+        class=\"narr_th\">Reason</th><th class=\"narr_th\">Provider</th><th class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\" ID=\"ENCOUNTERROW_2\">\n<td>Feb 22, 2024 12:35 PM</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterType2\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"endEncounterDescription2\">GENERAL INTERNAL MEDICINE</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endReason2\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"endProvider2\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"endSource2\">DAYTSHR
+        TEST LAB</content></td>\n</tr>\n</tbody>\n<tbody>\n<tr class=\"narr_tr\">\n<td></td><td
+        colspan=\"5\">\n<content xmlns=\"urn:hl7-org:v3\" styleCode=\"Bold\">Encounter
+        Notes</content>\n<p>\n                                    The included Outpatient
+        Encounter Notes are available thirty-six (36) hours after completion and include
+        a maximum of the 5 most recent notes associated with the Outpatient Encounter.
+        The data comes from all VA treatment facilities. Note that Compensation &amp;
+        Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</p>\n<ul>\n<li>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Note</th><th class=\"narr_th\">Provider</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteDateTime2-1\">Feb
+        22, 2024 12:35 PM</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteEncounterDescription2-1\">
+        LOCAL TITLE: C&amp;P EXAM NOTE                                      <br/>DATE
+        OF NOTE: FEB 22, 2024@12:35     ENTRY DATE: FEB 22, 2024@12:35:30      <br/>
+        \     AUTHOR: AHMED,MARUF          EXP COSIGNER:                           <br/>
+        \    URGENCY:                            STATUS: COMPLETED                     <br/>\n<br/>cnp
+        exam note, validating  muazzam's changes <br/> <br/>/es/ MARUF AHMED<br/>PHYSICIAN<br/>Signed:
+        02/22/2024 12:37</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteProvider2-1\">AHMED,MARUF</content></td>\n</tr>\n</tbody>\n</table>\n</li>\n</ul>\n</td>\n</tr>\n</tbody>\n</table>\n<b>Encounter</b>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Type</th><th class=\"narr_th\">Encounter Description</th><th
+        class=\"narr_th\">Reason</th><th class=\"narr_th\">Provider</th><th class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\" ID=\"ENCOUNTERROW_3\">\n<td>Feb 20, 2024 01:57 PM</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterType3\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"endEncounterDescription3\">CIED DEVICES</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endReason3\">ICD-10-CM R94.120 Abnormal auditory
+        function study</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"endProvider3\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endSource3\">MIDDLETOWN</content></td>\n</tr>\n</tbody>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td></td><td colspan=\"5\">\n<content xmlns=\"urn:hl7-org:v3\"
+        styleCode=\"Bold\">Encounter Notes</content>\n<p>\n                                    There
+        are no associated notes for this encounter.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</p>\n</td>\n</tr>\n</tbody>\n</table>\n<b>Encounter</b>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Type</th><th class=\"narr_th\">Encounter Description</th><th
+        class=\"narr_th\">Reason</th><th class=\"narr_th\">Provider</th><th class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\" ID=\"ENCOUNTERROW_4\">\n<td>Jan 08, 2024 03:47 PM</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterType4\">OFF/OP CNSLTJ NEW/EST MOD
+        40</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterDescription4\">SUBSTANCE
+        USE DISORDER IND</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"endReason4\">ICD-10-CM
+        Z02.83 Encounter for blood-alcohol and blood-drug test</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endProvider4\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endSource4\">DAYTSHR TEST LAB</content></td>\n</tr>\n</tbody>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td></td><td colspan=\"5\">\n<content xmlns=\"urn:hl7-org:v3\"
+        styleCode=\"Bold\">Encounter Notes</content>\n<p>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</p>\n<ul>\n<li>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Note</th><th class=\"narr_th\">Provider</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteDateTime4-1\">Jan
+        08, 2024 03:47 PM</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteEncounterDescription4-1\">
+        LOCAL TITLE: ADTP TREATMENT TEAM                                <br/>DATE
+        OF NOTE: JAN 08, 2024@15:47:17  ENTRY DATE: JAN 08, 2024@15:47:17      <br/>
+        \     AUTHOR: AHMED,MARUF          EXP COSIGNER:                           <br/>
+        \    URGENCY:                            STATUS: COMPLETED                     <br/>\n<br/>this
+        is a test note<br/> <br/>/es/ MARUF AHMED<br/>PHYSICIAN<br/>Signed: 01/08/2024
+        15:47</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteProvider4-1\">AHMED,MARUF</content></td>\n</tr>\n</tbody>\n</table>\n</li>\n</ul>\n</td>\n</tr>\n</tbody>\n</table>\n<b>Encounter</b>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Type</th><th class=\"narr_th\">Encounter Description</th><th
+        class=\"narr_th\">Reason</th><th class=\"narr_th\">Provider</th><th class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\" ID=\"ENCOUNTERROW_5\">\n<td>Jan 04, 2024 03:40 PM</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterType5\">OFF/OP CNSLTJ NEW/EST MOD
+        40</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterDescription5\">SUBSTANCE
+        USE DISORDER IND</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"endReason5\">ICD-10-CM
+        R07.2 Precordial pain</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"endProvider5\">BURNETT,SANDRA J</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"endSource5\">DAYTSHR TEST LAB</content></td>\n</tr>\n</tbody>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td></td><td colspan=\"5\">\n<content xmlns=\"urn:hl7-org:v3\"
+        styleCode=\"Bold\">Encounter Notes</content>\n<p>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</p>\n<ul>\n<li>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Note</th><th class=\"narr_th\">Provider</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteDateTime5-1\">Jan
+        04, 2024 03:40 PM</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteEncounterDescription5-1\">
+        LOCAL TITLE: ADTP NURSING ADMISSION NOTE                        <br/>DATE
+        OF NOTE: JAN 04, 2024@15:40:47  ENTRY DATE: JAN 04, 2024@15:40:47      <br/>
+        \     AUTHOR: AHMED,MARUF          EXP COSIGNER:                           <br/>
+        \    URGENCY:                            STATUS: COMPLETED                     <br/>\n<br/>THIS
+        IS  A TEST NOTE WITH CINDY AND MOSTAFA<br/> <br/>/es/ MARUF AHMED<br/>PHYSICIAN<br/>Signed:
+        01/04/2024 15:41</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteProvider5-1\">AHMED,MARUF</content></td>\n</tr>\n</tbody>\n</table>\n</li>\n</ul>\n</td>\n</tr>\n</tbody>\n</table>\n<b>Encounter</b>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Type</th><th class=\"narr_th\">Encounter Description</th><th
+        class=\"narr_th\">Reason</th><th class=\"narr_th\">Provider</th><th class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\" ID=\"ENCOUNTERROW_6\">\n<td>Dec 11, 2023 09:51 AM</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterType6\">OFFICE O/P NEW SF 15-29
+        MIN</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterDescription6\">ADMITTING/SCREENING</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endReason6\">ICD-10-CM Z23 Encounter for immunization</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endProvider6\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endSource6\">DAYTSHR TEST LAB</content></td>\n</tr>\n</tbody>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td></td><td colspan=\"5\">\n<content xmlns=\"urn:hl7-org:v3\"
+        styleCode=\"Bold\">Encounter Notes</content>\n<p>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</p>\n<ul>\n<li>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Note</th><th class=\"narr_th\">Provider</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteDateTime6-1\">Dec
+        11, 2023 10:05 AM</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteEncounterDescription6-1\">
+        LOCAL TITLE: C&amp;P EXAM NOTE                                      <br/>DATE
+        OF NOTE: DEC 11, 2023@10:05     ENTRY DATE: DEC 11, 2023@10:28:26      <br/>
+        \     AUTHOR: AHMED,MARUF          EXP COSIGNER:                           <br/>
+        \    URGENCY:                            STATUS: COMPLETED                     <br/>\n<br/>test<br/>
+        <br/>/es/ MARUF AHMED<br/>PHYSICIAN<br/>Signed: 12/13/2023 10:37</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"anNoteProvider6-1\">AHMED,MARUF</content></td>\n</tr>\n<tr
+        class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteDateTime6-2\">Dec
+        11, 2023 09:52 AM</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteEncounterDescription6-2\">
+        LOCAL TITLE: NEUROLOGY EMG                                      <br/>DATE
+        OF NOTE: DEC 11, 2023@09:52     ENTRY DATE: DEC 11, 2023@09:53:08      <br/>
+        \     AUTHOR: AHMED,MARUF          EXP COSIGNER:                           <br/>
+        \    URGENCY:                            STATUS: COMPLETED                     <br/>\n<br/>C&amp;P
+        EMG REPORT<br/> <br/>Patient Name: CASEY,VETERAN<br/>Date of Test:<br/>Examiner:<br/>Age:
+        70<br/>Referred by:<br/>Reason for Referral:<br/> <br/>NERVE CONDUCTION VELOCITY
+        STUDY<br/> <br/>side/nerve               DML CMAP MCV1 MCV2 MCV3  DSL SCV1
+        SCV2 SNAP<br/>                          ms   mV  m/s  m/s  m/s   ms  m/s  m/s
+        \  uV<br/> <br/>ELECTROMYOGRAPHY<br/> <br/>side/muscle                                      l
+        \ motor unit potential<br/>                         ia       psw       crd
+        \ l    dur       rec<br/>                             fib       fas       lamp
+        \     poly     str<br/> <br/>ADDITIONAL FINDINGS AND EXPLANATION:<br/> <br/>INTERPRETATION:<br/>
+        <br/>REMARK:<br/> <br/>/es/ MARUF AHMED<br/>PHYSICIAN<br/>Signed: 12/13/2023
+        10:42</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteProvider6-2\">AHMED,MARUF</content></td>\n</tr>\n</tbody>\n</table>\n</li>\n</ul>\n</td>\n</tr>\n</tbody>\n</table>\n<b>Encounter</b>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Type</th><th class=\"narr_th\">Encounter Description</th><th
+        class=\"narr_th\">Reason</th><th class=\"narr_th\">Provider</th><th class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\" ID=\"ENCOUNTERROW_7\">\n<td>Dec 08, 2023 02:35 PM</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterType7\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"endEncounterDescription7\">COMMUNITY CARE CONSULT</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endReason7\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"endProvider7\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"endSource7\">ZZDAYTSHR</content></td>\n</tr>\n</tbody>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td></td><td colspan=\"5\">\n<content xmlns=\"urn:hl7-org:v3\"
+        styleCode=\"Bold\">Encounter Notes</content>\n<p>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</p>\n<ul>\n<li>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Note</th><th class=\"narr_th\">Provider</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteDateTime7-1\">Dec
+        08, 2023 02:35 PM</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteEncounterDescription7-1\">
+        LOCAL TITLE: C&amp;P EXAM NOTE                                      <br/>DATE
+        OF NOTE: DEC 08, 2023@14:35     ENTRY DATE: DEC 08, 2023@14:35:46      <br/>
+        \     AUTHOR: AHMED,MARUF          EXP COSIGNER:                           <br/>
+        \    URGENCY:                            STATUS: COMPLETED                     <br/>\n<br/>this
+        is a c%p exam note <br/>to test hold period in MHV<br/> <br/>/es/ MARUF AHMED<br/>PHYSICIAN<br/>Signed:
+        12/08/2023 14:36</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"anNoteProvider7-1\">AHMED,MARUF</content></td>\n</tr>\n</tbody>\n</table>\n</li>\n</ul>\n</td>\n</tr>\n</tbody>\n</table>\n<b>Encounter</b>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Type</th><th class=\"narr_th\">Encounter Description</th><th
+        class=\"narr_th\">Reason</th><th class=\"narr_th\">Provider</th><th class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\" ID=\"ENCOUNTERROW_8\">\n<td>Dec 07, 2023 08:43 AM</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterType8\">IMMUNIZATION ADMIN</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterDescription8\">PRIMARY CARE/MEDICINE</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endReason8\">ICD-10-CM Z23 Encounter for immunization</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endProvider8\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endSource8\">DAYTON</content></td>\n</tr>\n</tbody>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td></td><td colspan=\"5\">\n<content xmlns=\"urn:hl7-org:v3\"
+        styleCode=\"Bold\">Encounter Notes</content>\n<p>\n                                    There
+        are no associated notes for this encounter.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</p>\n</td>\n</tr>\n</tbody>\n</table>\n<b>Encounter</b>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Type</th><th class=\"narr_th\">Encounter Description</th><th
+        class=\"narr_th\">Reason</th><th class=\"narr_th\">Provider</th><th class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\" ID=\"ENCOUNTERROW_9\">\n<td>Nov 27, 2023 10:43 AM</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterType9\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"endEncounterDescription9\">SUBSTANCE USE DISORDER IND</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endReason9\">ICD-10-CM Z23 Encounter for immunization</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endProvider9\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endSource9\">DAYTSHR TEST LAB</content></td>\n</tr>\n</tbody>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td></td><td colspan=\"5\">\n<content xmlns=\"urn:hl7-org:v3\"
+        styleCode=\"Bold\">Encounter Notes</content>\n<p>\n                                    There
+        are no associated notes for this encounter.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</p>\n</td>\n</tr>\n</tbody>\n</table>\n<b>Encounter</b>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Encounter Type</th><th class=\"narr_th\">Encounter Description</th><th
+        class=\"narr_th\">Reason</th><th class=\"narr_th\">Provider</th><th class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\" ID=\"ENCOUNTERROW_10\">\n<td>Nov 27, 2023 10:43 AM</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endEncounterType10\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"endEncounterDescription10\">SUBSTANCE USE DISORDER IND</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"endReason10\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"endProvider10\">AHMED,MARUF</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"endSource10\">DAYTSHR TEST LAB</content></td>\n</tr>\n</tbody>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td></td><td colspan=\"5\">\n<content xmlns=\"urn:hl7-org:v3\"
+        styleCode=\"Bold\">Encounter Notes</content>\n<p>\n                                    There
+        are no associated notes for this encounter.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</p>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n<section
+        id=\"Functional Status\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','Functional
+        Status')\" id=\"plus.Functional Status\">[+]  </label><label onclick=\"javascript:toggle('close','Functional
+        Status')\" id=\"minus.Functional Status\">[-]  </label>Functional Status</h2>\n</header>\n<div
+        id=\"section.Functional Status\">No Data Provided for This Section</div>\n</section>\n<section
+        id=\"Medications\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','Medications')\"
+        id=\"plus.Medications\">[+]  </label><label onclick=\"javascript:toggle('close','Medications')\"
+        id=\"minus.Medications\">[-]  </label>Medications</h2>\n</header>\n<div id=\"section.Medications\">No
+        Data Provided for This Section</div>\n</section>\n<section id=\"Immunizations\">\n<header>\n<h2>\n<label
+        onclick=\"javascript:toggle('open','Immunizations')\" id=\"plus.Immunizations\">[+]
+        \ </label><label onclick=\"javascript:toggle('close','Immunizations')\" id=\"minus.Immunizations\">[-]
+        \ </label>Immunizations</h2>\n</header>\n<div id=\"section.Immunizations\">\n<p>Section
+        Date Range: From patient's date of birth to the date document was created.</p>\n<p>This
+        section includes Immunizations on record with VA for the patient. The data
+        comes from all VA treatment facilities. A reaction to an immunization may
+        also be reported in the Allergy section. Immunization information from the
+        new VA electronic health record is not included.</p>\n<table class=\"narr_table\">\n<thead>\n<tr
+        class=\"narr_tr\">\n<th class=\"narr_th\">Immunization</th><th class=\"narr_th\">Series</th><th
+        class=\"narr_th\">Date Issued</th><th class=\"narr_th\">Administered By</th><th
+        class=\"narr_th\">Site</th><th class=\"narr_th\">Reaction</th><th class=\"narr_th\">Lot
+        Number</th><th class=\"narr_th\">CVX Code</th><th class=\"narr_th\">Drug Manufacturer</th><th
+        class=\"narr_th\">Comment(s)</th><th class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indImmunization1\">INFLUENZA,
+        HIGH-DOSE, QUADRIVALENT</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSeries1\"/></td><td>Dec 07, 2023</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indAdminBy1\">AHMED,MARUF</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSite1\">LEFT UPPER ARM</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indReaction1\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indLotNum1\">458MF231</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indCVXCode1\">197</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indDrugManu1\">SANOFI PASTEUR</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indComments1\">Completed Series, ADMINISTERED
+        AT VA, to be deleted</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSource1\">DAYTON</content></td>\n</tr>\n<tr class=\"narr_tr\">\n<td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indImmunization2\">COVID-19 (PFIZER), MRNA,
+        LNP-S, BIVALENT, PF, 30 MCG/0.3 ML DOSE</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSeries2\"/></td><td>Nov 27, 2023</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indAdminBy2\">AHMED,MARUF</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSite2\">LEFT DELTOID</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indReaction2\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indLotNum2\">437GM332</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indCVXCode2\">300</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indDrugManu2\">PFIZER, INC</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indComments2\">Booster for Series, ADMINISTERED
+        AT VA, completed series @#$$%&amp;* )</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSource2\">DAYTSHR TEST LAB</content></td>\n</tr>\n<tr class=\"narr_tr\">\n<td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indImmunization3\">HPV9</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indSeries3\"/></td><td>Oct 31, 2023</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indAdminBy3\">KHAN,MUAZZAM</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indSite3\">LEFT DELTOID</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indReaction3\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indLotNum3\">495HR2343</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indCVXCode3\">165</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indDrugManu3\">MERCK AND CO., INC.</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indComments3\">Booster for Series, ADMINISTERED AT VA, Entered Booster
+        as series </content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indSource3\">DAYTSHR
+        TEST LAB</content></td>\n</tr>\n<tr class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indImmunization4\">ZOSTER RECOMBINANT</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSeries4\">1</content></td><td>Oct 13, 2023</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indAdminBy4\">KHAN,MUAZZAM</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSite4\">RIGHT DELTOID</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indReaction4\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indLotNum4\">833FJ4738</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indCVXCode4\">187</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indDrugManu4\">GLAXOSMITHKLINE</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indComments4\">ADMINISTERED AT VA, test series
+        1</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indSource4\">DAYTSHR
+        TEST LAB</content></td>\n</tr>\n<tr class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indImmunization5\">YELLOW FEVER</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSeries5\"/></td><td>Aug 04, 2023</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indAdminBy5\">AHMED,MARUF</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSite5\">LEFT LOWER FOREARM</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indReaction5\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indLotNum5\">384KD4353</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indCVXCode5\">37</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indDrugManu5\">SANOFI PASTEUR</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indComments5\">Completed Series, ADMINISTERED
+        AT VA, </content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indSource5\">DAYTSHR
+        TEST LAB</content></td>\n</tr>\n<tr class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indImmunization6\">COVID-19 (MODERNA), MRNA, LNP-S, PF, 100 MCG/0.5ML
+        DOSE OR 50 MCG/0.25ML DOSE</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSeries6\"/></td><td>Aug 18, 2022</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indAdminBy6\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indSite6\"/></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indReaction6\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indLotNum6\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indCVXCode6\">207</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indDrugManu6\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indComments6\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indSource6\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indImmunization7\">DENGUE
+        FEVER</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indSeries7\"/></td><td>Aug
+        18, 2022</td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indAdminBy7\"/></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indSite7\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indReaction7\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indLotNum7\"/></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indCVXCode7\">56</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indDrugManu7\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indComments7\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indSource7\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indImmunization8\">HEP
+        B, ADULT</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indSeries8\"/></td><td>Aug
+        18, 2022</td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indAdminBy8\"/></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indSite8\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indReaction8\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indLotNum8\"/></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indCVXCode8\">43</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indDrugManu8\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indComments8\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indSource8\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indImmunization9\">MMR</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indSeries9\"/></td><td>Aug 18, 2022</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indAdminBy9\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSite9\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indReaction9\"/></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indLotNum9\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indCVXCode9\">03</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indDrugManu9\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indComments9\"/></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indSource9\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indImmunization10\">HEP
+        A-HEP B</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indSeries10\"/></td><td>Jul
+        01, 2021</td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indAdminBy10\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indSite10\">LEFT ARM</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indReaction10\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indLotNum10\">154FL954</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indCVXCode10\">104</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indDrugManu10\">GLAXOSMITHKLINE</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indComments10\">ADMINISTERED AT VA, Ordered and administered by, ahmed,maruf</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indSource10\">DAYTSHR TEST LAB</content></td>\n</tr>\n<tr
+        class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indImmunization11\">HIB
+        (PRP-T)</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indSeries11\"/></td><td>Jul
+        01, 2021</td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indAdminBy11\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indSite11\">BILATERAL NARES</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indReaction11\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indLotNum11\">342DH932</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indCVXCode11\">48</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indDrugManu11\">SANOFI PASTEUR</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indComments11\">Completed Series, ADMINISTERED AT VA, </content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indSource11\">DAYTSHR TEST LAB</content></td>\n</tr>\n<tr
+        class=\"narr_tr\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indImmunization12\">INFLUENZA,
+        HIGH-DOSE, QUADRIVALENT</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSeries12\"/></td><td>Jul 01, 2021</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indAdminBy12\">AHMED,MARUF</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSite12\">RIGHT UPPER ARM</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indReaction12\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"indLotNum12\">458MF231</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indCVXCode12\">197</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indDrugManu12\">SANOFI PASTEUR</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"indComments12\">Completed Series, ADMINISTERED
+        AT VA, Ordered by Khan, Muazzam Dosage: 2 </content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"indSource12\">DAYTSHR TEST LAB</content></td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n<section
+        id=\"Procedures\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','Procedures')\"
+        id=\"plus.Procedures\">[+]  </label><label onclick=\"javascript:toggle('close','Procedures')\"
+        id=\"minus.Procedures\">[-]  </label>Procedures</h2>\n</header>\n<div id=\"section.Procedures\">No
+        Data Provided for This Section</div>\n</section>\n<section id=\"Plan of Care\">\n<header>\n<h2>\n<label
+        onclick=\"javascript:toggle('open','Plan of Care')\" id=\"plus.Plan of Care\">[+]
+        \ </label><label onclick=\"javascript:toggle('close','Plan of Care')\" id=\"minus.Plan
+        of Care\">[-]  </label>Plan of Care</h2>\n</header>\n<div id=\"section.Plan
+        of Care\">No Data Provided for This Section</div>\n</section>\n<section id=\"Problems\">\n<header>\n<h2>\n<label
+        onclick=\"javascript:toggle('open','Problems')\" id=\"plus.Problems\">[+]
+        \ </label><label onclick=\"javascript:toggle('close','Problems')\" id=\"minus.Problems\">[-]
+        \ </label>Problems</h2>\n</header>\n<div id=\"section.Problems\">\n<p>Section
+        Date Range: From patient's date of birth to the date document was created.</p>\n<p>\n
+        \                     This section includes a list of all active and inactive
+        Problems/Conditions known to VA for the patient. New problems/conditions are
+        available thirty-six (36) hours after entry. The data comes from all VA treatment
+        facilities. Problems (Conditions) from the new VA electronic health record
+        are not included.\n\t\t\t\t\t\t\t\t\t\t</p>\n<table class=\"narr_table\">\n<thead>\n<tr
+        class=\"narr_tr\">\n<th class=\"narr_th\">Problem</th><th class=\"narr_th\">Status</th><th
+        class=\"narr_th\">Problem Code</th><th class=\"narr_th\">Date of Onset</th><th
+        class=\"narr_th\">Date of Resolution</th><th class=\"narr_th\">Comment(s)</th><th
+        class=\"narr_th\">Provider</th><th class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_1\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem1\">Abnormal cardiotochogram tracing</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus1\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode1\">735205007</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset1\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndDateOfResolution1\"/></td><td>\n<ul>\n<li>Feb 20, 2024 Entered By:
+        AHMED,MARUF Comment: diagnosis</li>\n</ul>\n</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProvider1\">AHMED,MARUF</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndSource1\">DAYTON</content></td>\n</tr>\n<tr class=\"narr_tr\" ID=\"PROBLEMROW_2\">\n<td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblem2\">Acute Deep Vein Thrombosis Of
+        Lower Limb (SCT 651000119108)</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndStatus2\">Active</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblemCode2\">651000119108</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndDateOfOnset2\">Jan 01, 2020</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndDateOfResolution2\"/></td><td>\n<ul>\n<li>Feb 13, 2024 Entered By:
+        AHMED,MARUF Comment: will sign thsi problem </li>\n</ul>\n</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider2\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource2\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_3\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem3\">Acute posttraumatic stress disorder following military
+        combat</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus3\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode3\">446175003</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset3\">Jan 01, 1997</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution3\"/></td><td>\n<ul>\n<li>Feb
+        13, 2024 Entered By: AHMED,MARUF Comment: Problem added from other problem
+        under military </li>\n</ul>\n</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProvider3\">AHMED,MARUF</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndSource3\">DAYTON</content></td>\n</tr>\n<tr class=\"narr_tr\" ID=\"PROBLEMROW_4\">\n<td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblem4\">AF- Atrial Fibrillation (SCT 49436004)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus4\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode4\">49436004</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset4\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndDateOfResolution4\"/></td><td>\n<ul>\n<li>Feb 15, 2024 Entered By:
+        AHMED,MARUF Comment: Comment -1 of 4</li>\n<li>Feb 15, 2024 Entered By: AHMED,MARUF
+        Comment: Comment - 2 of 4</li>\n<li>Feb 15, 2024 Entered By: AHMED,MARUF Comment:
+        Comment - 3 of 4</li>\n<li>Feb 15, 2024 Entered By: AHMED,MARUF Comment: Comment
+        - 4 of 4</li>\n</ul>\n</td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider4\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource4\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_5\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem5\">Asthma (SCT 195967001)</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndStatus5\">Active</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblemCode5\">195967001</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndDateOfOnset5\">Feb 01, 2022</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndDateOfResolution5\"/></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProvider5\">AHMED,MARUF</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndSource5\">DAYTON</content></td>\n</tr>\n<tr class=\"narr_tr\" ID=\"PROBLEMROW_6\">\n<td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblem6\">Benign Neoplasm of Skin (SCT 92384009)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus6\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode6\">92384009</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset6\">Apr 18, 2005</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution6\"/></td><td>\n<ul>\n<li>Dec
+        20, 2023 Entered By: AHMED,MARUF Comment: Problem Catagories -Dental, Status
+        -dermotology, Immediacy - Acute</li>\n</ul>\n</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProvider6\">AHMED,MARUF</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndSource6\">DAYTON</content></td>\n</tr>\n<tr class=\"narr_tr\" ID=\"PROBLEMROW_7\">\n<td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblem7\">CAD - Coronary Artery Disease
+        (SCT 53741008)</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus7\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode7\">53741008</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset7\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndDateOfResolution7\"/></td><td>\n<ul>\n<li>Feb 20, 2024 Entered By:
+        NOBLE,PAMELA J Comment: test</li>\n</ul>\n</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProvider7\">AHMED,A III DR</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndSource7\">DAYTON</content></td>\n</tr>\n<tr class=\"narr_tr\" ID=\"PROBLEMROW_8\">\n<td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblem8\">Cardiomegaly (SCT 8186001)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus8\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode8\">8186001</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset8\">Jan 01, 2020</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution8\"/></td><td>\n<ul>\n<li>Aug
+        18, 2022 Entered By: AHMED,MARUF Comment: test</li>\n</ul>\n</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider8\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource8\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_9\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem9\">Chest Pain (SCT 29857009)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus9\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode9\">29857009</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset9\">Jan 01, 1999</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution9\"/></td><td>\n<ul>\n<li>Feb
+        13, 2024 Entered By: AHMED,MARUF Comment: treatment factor service connected
+        with date of onset YYYY01</li>\n</ul>\n</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProvider9\">AHMED,MARUF</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndSource9\">DAYTON</content></td>\n</tr>\n<tr class=\"narr_tr\" ID=\"PROBLEMROW_10\">\n<td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblem10\">Chronic Ischemic Heart Disease
+        (SCT 413838009)</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus10\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode10\">413838009</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset10\">Jan 01, 2022</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution10\"/></td><td>\n<ul>\n<li>Apr
+        29, 2024 Entered By: AHMED,MARUF Comment: test</li>\n</ul>\n</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider10\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource10\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_11\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem11\">Chronic Kidney Disease Stage 2 (SCT 431856006)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus11\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode11\">431856006</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset11\">Aug 09, 2022</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution11\"/></td><td></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider11\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource11\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_12\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem12\">Chronic Pain in Coccyx for More Than Three Months (SCT
+        129511000119105)</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus12\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode12\">129511000119105</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset12\">Jan 31, 2021</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution12\"/></td><td></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider12\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource12\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_13\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem13\">Chronic Rhinitis (SCT 86094006)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus13\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode13\">86094006</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset13\">Feb 01, 2024</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution13\"/></td><td></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider13\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource13\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_14\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem14\">CLL - Chronic Lymphocytic Leukemia (SCT 92814006)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus14\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode14\">92814006</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset14\">Feb 01, 2023</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution14\"/></td><td></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider14\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource14\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_15\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem15\">Defective Dental Restoration (SCT 109728009)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus15\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode15\">109728009</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset15\">Jul 01, 2011</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution15\"/></td><td>\n<ul>\n<li>Dec
+        20, 2023 Entered By: AHMED,MARUF Comment: Problem Catagories -Dental, Status
+        -Active, Immediacy - chronic</li>\n</ul>\n</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProvider15\">AHMED,MARUF</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndSource15\">DAYTON</content></td>\n</tr>\n<tr class=\"narr_tr\" ID=\"PROBLEMROW_16\">\n<td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblem16\">Dementia (SCT 52448006)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus16\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode16\">52448006</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset16\">Jan 01, 2025</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution16\"/></td><td>\n<ul>\n<li>Jan
+        29, 2025 Entered By: AHMED,MARUF Comment: Testing with Muazzam Khan</li>\n<li>Jan
+        29, 2025 Entered By: AHMED,MARUF Comment: 2nd comment_Testing with Muazzam
+        </li>\n</ul>\n</td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider16\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource16\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_17\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem17\">Exposure to Agent Orange</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus17\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode17\">718016003</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset17\">Feb 02, 2024</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution17\"/></td><td>\n<ul>\n<li>Feb
+        13, 2024 Entered By: AHMED,MARUF Comment: Problem added from other problem
+        list </li>\n</ul>\n</td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider17\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource17\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_18\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem18\">Generalized Anxiety Disorder (SCT 21897009)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus18\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode18\">21897009</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset18\">Oct 01, 2010</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution18\"/></td><td>\n<ul>\n<li>Apr
+        29, 2024 Entered By: AHMED,MARUF Comment: 2010</li>\n</ul>\n</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider18\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource18\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_19\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem19\">History of Alcohol Abuse (SCT 371434005)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus19\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode19\">371434005</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset19\">Dec 31, 2005</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution19\"/></td><td>\n<ul>\n<li>Dec
+        20, 2023 Entered By: AHMED,MARUF Comment: Problem Catagories -Active, Status
+        -Active, Immediacy - Acute</li>\n</ul>\n</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProvider19\">AHMED,MARUF</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndSource19\">DAYTON</content></td>\n</tr>\n<tr class=\"narr_tr\" ID=\"PROBLEMROW_20\">\n<td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblem20\">Rash</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus20\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode20\">271807003</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset20\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndDateOfResolution20\"/></td><td>\n<ul>\n<li>Oct 30, 2023 Entered By:
+        AHMED,MARUF Comment: Problem list test Comment , Muazzam Khan </li>\n</ul>\n</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider20\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource20\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_21\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem21\">Retained Dental Root (SCT 66569006)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus21\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode21\">66569006</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset21\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndDateOfResolution21\"/></td><td>\n<ul>\n<li>Oct 31, 2024 Entered By:
+        AHMED,MARUF Comment: re-testing health summary 10/31/2024</li>\n</ul>\n</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider21\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource21\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_22\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem22\">Shoulder Pain (SCT 45326000)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus22\">Active</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode22\">45326000</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset22\">Oct 25, 2023</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution22\"/></td><td></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider22\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource22\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_23\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem23\">Alcohol Abuse (SCT 15167005)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus23\">Inactive</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode23\">15167005</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset23\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndDateOfResolution23\">Apr 29, 2024</content></td><td>\n<ul>\n<li>Feb
+        20, 2024 Entered By: NOBLE,PAMELA J Comment: test</li>\n</ul>\n</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider23\">MARCUS OPURUM,MAUREEN N</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource23\">DAYTON</content></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"PROBLEMROW_24\">\n<td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProblem24\">Angina Pectoris (SCT 194828000)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus24\">Inactive</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode24\">194828000</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset24\">Jan 01, 2002</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution24\">Feb 13, 2024</content></td><td>\n<ul>\n<li>Feb
+        13, 2024 Entered By: AHMED,MARUF Comment: Test with John_Maruf Ahmed</li>\n<li>Feb
+        13, 2024 Entered By: AHMED,MARUF Comment: Test 2 with John_Maruf Ahmed</li>\n<li>Feb
+        13, 2024 Entered By: AHMED,MARUF Comment: test3</li>\n<li>Feb 13, 2024 Entered
+        By: AHMED,MARUF Comment: test4</li>\n</ul>\n</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndProvider24\">AHMED,MARUF</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"pndSource24\">DAYTON</content></td>\n</tr>\n<tr class=\"narr_tr\" ID=\"PROBLEMROW_25\">\n<td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblem25\">Proliferative Diabetic Retinopathy
+        (SCT 59276001)</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"pndStatus25\">Inactive</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProblemCode25\">59276001</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfOnset25\">Jan 09, 2019</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndDateOfResolution25\">Feb 13, 2024</content></td><td>\n<ul>\n<li>Aug
+        18, 2022 Entered By: AHMED,MARUF Comment: test</li>\n</ul>\n</td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndProvider25\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"pndSource25\">DAYTON</content></td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n<section
+        id=\"Results\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','Results')\"
+        id=\"plus.Results\">[+]  </label><label onclick=\"javascript:toggle('close','Results')\"
+        id=\"minus.Results\">[-]  </label>Results</h2>\n</header>\n<div id=\"section.Results\">\n<p>\n
+        \                       This section contains the Chemistry and Hematology
+        Lab Results on record with VA for the patient. The data comes from all VA
+        treatment facilities. Radiology Reports and Pathology Reports are provided
+        separately, in subsequent sections.\n\t\t\t\t\t\t\t\t\t\t\t</p>\n<p>\n<b>Lab
+        Results</b>\n</p>\n<p>\n                      The included Chemistry/Hematology
+        Results are from the last 24 months, are available thirty-six (36) hours after
+        verification, and include a maximum of the 10 most recent sets of tests. Your
+        reports may be available prior to your VA Provider having an opportunity to
+        review them. Note: COVID-19 results are available immediately after receipt
+        by VA. For some tests, results slightly outside the reference range are not
+        unusual. In addition, not all results are significant. If you have any concerns
+        about your results, contact your health care team. The data comes from all
+        VA treatment facilities. Chemistry and Hematology results from the new VA
+        electronic health record are not included.\n\t\t\t\t\t\t\t\t\t\t</p>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Source</th><th class=\"narr_th\">Result Type</th><th class=\"narr_th\">Result
+        - Unit</th><th class=\"narr_th\">Interpretation</th><th class=\"narr_th\">Reference
+        Range</th><th class=\"narr_th\">Specimen Type</th><th class=\"narr_th\">Comment</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td>Apr 30, 2024 03:47 PM</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"lndSource1\">DAYTSHR TEST LAB</content></td><td colspan=\"4\">\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"lndResultType1\">CYTOMEGALOVIRUS SEROLOGY</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"lndSpecimenType1\">SERUM</content></td><td>\n<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tSpecimen
+        Type:  SERUM<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tComment:  LAB TEST<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tOrdering
+        Provider:  AHMED,MARUF<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tReport Released
+        Date/Time: Apr 30, 2024 03:46 PM<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tReporting
+        Lab:  DAYTON<br>4100 W. THIRD STREET DAYTON OH 45428<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tPerforming
+        Lab:  DAYTON<br>4100 W. THIRD STREET DAYTON OH 45428</td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_1-1\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues1-1\">CMV IGG</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues1-1\">556 </content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues1-1\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"rangeLabValues1-1\">NEGATIVE</content></td><td></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"RESULTROW_1-2\">\n<td></td><td></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"loincLabValues1-2\">CMV IGM</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"resultLabValues1-2\">441 </content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"interpLabValues1-2\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues1-2\">NEGATIVE</content></td><td></td>\n</tr>\n</tbody>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td>Apr 30, 2024 03:37 PM</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"lndSource2\">DAYTSHR TEST LAB</content></td><td colspan=\"4\">\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"lndResultType2\">GLUCOSE</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"lndSpecimenType2\">SERUM</content></td><td>\n<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tSpecimen
+        Type:  SERUM<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tComment:  Fasting glucose,
+        Maruf Ahmed<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tOrdering Provider:  AHMED,MARUF<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tReport
+        Released Date/Time: Dec 04, 2023 05:46 PM<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tReporting
+        Lab:  DAYTON<br>4100 W. THIRD STREET DAYTON OH 45428<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tPerforming
+        Lab:  DAYTON<br>4100 W. THIRD STREET DAYTON OH 45428</td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_2-1\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues2-1\">GLUCOSE</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues2-1\">130 mg/dL</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues2-1\">H</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues2-1\">65-110</content></td><td></td>\n</tr>\n</tbody>\n<tbody>\n<tr
+        class=\"narr_tr\">\n<td>Apr 30, 2024 03:30 PM</td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"lndSource3\">DAYTSHR TEST LAB</content></td><td colspan=\"4\">\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"lndResultType3\">CBC (INC. MACHINE DIFF)</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"lndSpecimenType3\">BLOOD</content></td><td>\n<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tSpecimen
+        Type:  BLOOD<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tComment:  TEST- ENTERED
+        RANDOM NUMBER<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tOrdering Provider:
+        \ AHMED,MARUF<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tReport Released Date/Time:
+        Apr 30, 2024 03:22 PM<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tReporting Lab:
+        \ DAYTON<br>4100 W. THIRD STREET DAYTON OH 45428<br>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tPerforming
+        Lab:  DAYTON<br>4100 W. THIRD STREET DAYTON OH 45428</td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-1\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-1\">MPV</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues3-1\">40 fL</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues3-1\">H</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-1\">7.4-10.4</content></td><td></td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-2\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-2\">LYMPH %</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues3-2\">20 </content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues3-2\">L</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-2\">20.5-51.1</content></td><td></td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-3\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-3\">GRANULOCYTE %</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues3-3\">10 </content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues3-3\">L</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-3\">42.2-75.2</content></td><td></td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-4\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-4\">MONOCYTE %</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues3-4\">30 </content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues3-4\">H</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-4\">1.7-9.3</content></td><td></td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-5\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-5\">GRANULOCYTE,ABSOLUTE</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"resultLabValues3-5\">30 10*3/uL</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"interpLabValues3-5\">H</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"rangeLabValues3-5\">1.4-6.5</content></td><td></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"RESULTROW_3-6\">\n<td></td><td></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"loincLabValues3-6\">MONOCYTE,ABSOLUTE</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"resultLabValues3-6\">50 10*3/uL</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"interpLabValues3-6\">H</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"rangeLabValues3-6\">.11-.59</content></td><td></td>\n</tr>\n<tr
+        class=\"narr_tr\" ID=\"RESULTROW_3-7\">\n<td></td><td></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"loincLabValues3-7\">NEW MCH</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"resultLabValues3-7\">30 pg</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"interpLabValues3-7\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-7\">27-31</content></td><td></td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-8\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-8\">NEW MCHC</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues3-8\">20 g/dL</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues3-8\">L</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-8\">33-37</content></td><td></td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-9\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-9\">NEW MCV</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues3-9\">50 fL</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues3-9\">L</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-9\">80-94</content></td><td></td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-10\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-10\">PLT</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues3-10\">60 10*3/uL</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues3-10\">L</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-10\">130-400</content></td><td></td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-11\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-11\">NEW RBC</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues3-11\">1200 10*6/uL</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues3-11\">H</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-11\">4.7-6.1</content></td><td></td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-12\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-12\">NEW RDW</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues3-12\">10 </content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues3-12\">L</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-12\">11.5-14.5</content></td><td></td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-13\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-13\">EOSINO, ABSOLUTE</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues3-13\">20 10*3/uL</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues3-13\">H</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-13\">0-.7</content></td><td></td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-14\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-14\">BASO, ABSOLUTE</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues3-14\">20 10*3/uL</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues3-14\">H</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-14\">0-.2</content></td><td></td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-15\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-15\">NEW WBC</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues3-15\">1500 10*3/uL</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues3-15\">HH</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-15\">4.8-10.8</content></td><td></td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-16\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-16\">EOSIN %</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues3-16\">10 </content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues3-16\">H</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-16\">0.0-3.0</content></td><td></td>\n</tr>\n<tr class=\"narr_tr\"
+        ID=\"RESULTROW_3-17\">\n<td></td><td></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"loincLabValues3-17\">BASO %</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"resultLabValues3-17\">10 </content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"interpLabValues3-17\">H</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"rangeLabValues3-17\">0.0-1.0</content></td><td></td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n<section
+        id=\"Social History\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','Social
+        History')\" id=\"plus.Social History\">[+]  </label><label onclick=\"javascript:toggle('close','Social
+        History')\" id=\"minus.Social History\">[-]  </label>Social History</h2>\n</header>\n<div
+        id=\"section.Social History\">No Data Provided for This Section</div>\n</section>\n<section
+        id=\"Vital Signs\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','Vital
+        Signs')\" id=\"plus.Vital Signs\">[+]  </label><label onclick=\"javascript:toggle('close','Vital
+        Signs')\" id=\"minus.Vital Signs\">[-]  </label>Vital Signs</h2>\n</header>\n<div
+        id=\"section.Vital Signs\">No Data Provided for This Section</div>\n</section>\n<section
+        id=\"Consultation Notes\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','Consultation
+        Notes')\" id=\"plus.Consultation Notes\">[+]  </label><label onclick=\"javascript:toggle('close','Consultation
+        Notes')\" id=\"minus.Consultation Notes\">[-]  </label>Consultation Notes</h2>\n</header>\n<div
+        id=\"section.Consultation Notes\">\n<p>\n<b>Consult Notes</b>\n</p>\n<p>\n
+        \                     The included Consult Notes are from the last 18 months,
+        are available thirty-six (36) hours after completion, and include a maximum
+        of the 5 most recent notes. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.
+        Consult Notes (including Compensation and Pension exam notes) from the new
+        VA electronic health record are not included.\n\t\t\t\t\t\t\t\t\t\t</p>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Consult Note with Text</th><th class=\"narr_th\">Provider</th><th
+        class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr class=\"narr_tr\">\n<td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"noteDateTime1\">Mar 05, 2024 02:16 PM</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"noteEncounterDescription1\"> LOCAL TITLE: ADHC
+        CONSULT RESULTS                               <br/>DATE OF NOTE: MAR 05, 2024@14:16:05
+        \ ENTRY DATE: MAR 05, 2024@14:16:05      <br/>      AUTHOR: AHMED,MARUF          EXP
+        COSIGNER:                           <br/>     URGENCY:                            STATUS:
+        COMPLETED                     <br/>\n<br/>test text in the quotation \"The
+        Consults package communicates with CPRS <br/>through HL7 messages. Order Checking
+        <br/>receives information from the Consults package through CPRS. <br/>Notifications
+        is the only <br/>major package that Consults communicates with directly. When
+        the <br/>requesting clinician <br/>signs the order, Consults sends a notification
+        to the consulting <br/>physician and when the <br/>consulting physician signs
+        the final report, Consults sends a <br/>notification to the requesting <br/>physician.
+        \"<br/> <br/>/es/ MARUF AHMED<br/>PHYSICIAN<br/>Signed: 03/05/2024 14:16</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"noteProvider1\">AHMED,MARUF</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"noteSource1\">DAYTON</content></td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n<section
+        id=\"History and Physical\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','History
+        and Physical')\" id=\"plus.History and Physical\">[+]  </label><label onclick=\"javascript:toggle('close','History
+        and Physical')\" id=\"minus.History and Physical\">[-]  </label>History and
+        Physical</h2>\n</header>\n<div id=\"section.History and Physical\">No Data
+        Provided for This Section</div>\n</section>\n<section id=\"\">\n<header>\n<h2>\n<label
+        onclick=\"javascript:toggle('open','')\" id=\"plus.\">[+]  </label><label
+        onclick=\"javascript:toggle('close','')\" id=\"minus.\">[-]  </label>\n</h2>\n</header>\n<div
+        id=\"section.\">No Data Provided for This Section</div>\n</section>\n<section
+        id=\"\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','')\"
+        id=\"plus.\">[+]  </label><label onclick=\"javascript:toggle('close','')\"
+        id=\"minus.\">[-]  </label>\n</h2>\n</header>\n<div id=\"section.\">No Data
+        Provided for This Section</div>\n</section>\n<section id=\"\">\n<header>\n<h2>\n<label
+        onclick=\"javascript:toggle('open','')\" id=\"plus.\">[+]  </label><label
+        onclick=\"javascript:toggle('close','')\" id=\"minus.\">[-]  </label>\n</h2>\n</header>\n<div
+        id=\"section.\">\n<p>\n<b>Pathology Reports</b>\n</p>\n<p>\n                      The
+        included Pathology Reports are from the last 24 months, are available thirty-six
+        (36) hours after completion, and include a maximum of the 5 most recent reports.
+        Your provider may not have had a chance to read your VA pathology reports.
+        If you have any concerns about your reports, contact your health care team.
+        The data comes from all VA treatment facilities. Pathology Reports from the
+        new VA electronic health record are not included.\n\t\t\t\t\t\t\t\t\t\t</p>\n<table
+        class=\"narr_table\">\n<thead>\n<tr class=\"narr_tr\">\n<th class=\"narr_th\">Date/Time</th><th
+        class=\"narr_th\">Pathology Report</th><th class=\"narr_th\">Provider</th><th
+        class=\"narr_th\">Source</th>\n</tr>\n</thead>\n<tbody>\n<tr class=\"narr_tr\">\n<td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"panoteDateTime1\">Apr 30, 2024 03:52 PM</content></td><td>\n<content
+        xmlns=\"urn:hl7-org:v3\" ID=\"panoteEncounterDescription1\">LR MICROBIOLOGY
+        REPORT:<br/>Accession [UID]: MICRO 24 1 [1224000001]    Received: Apr 30,
+        2024@15:52<br/>Collection sample: BACTEC BOTTLE       Collection date: Apr
+        30, 2024 15:52<br/>Site/Specimen: BLOOD<br/>Provider: AHMED,MARUF<br/>Comment
+        on specimen: TEST <br/>                                                                               <br/>
+        \                                                                              <br/>
+        Test(s) ordered: BLOOD CULTURE................. completed: Apr 30, 2024 15:56<br/>\n<br/>*
+        BACTERIOLOGY FINAL REPORT =&gt; Apr 30, 2024 15:55   TECH CODE: 36556<br/>GRAM
+        STAIN: NEW B12 NORMAL RANGE = 220-1140 pg/mL <br/>                                                                               <br/>
+        \                                                                              <br/>=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--<br/>Performing
+        Laboratory:<br/>Bacteriology Report Performed By: <br/>DAYTON, OH VAMC<br/>4100
+        W. THIRD STREET DAYTON, OH 45428<br/>\n</content></td><td>\n<content xmlns=\"urn:hl7-org:v3\"
+        ID=\"panoteProvider1\"/></td><td>\n<content xmlns=\"urn:hl7-org:v3\" ID=\"panoteSource1\">DAYTON</content></td>\n</tr>\n</tbody>\n</table>\n</div>\n</section>\n<section
+        id=\"Procedure Note\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','Procedure
+        Note')\" id=\"plus.Procedure Note\">[+]  </label><label onclick=\"javascript:toggle('close','Procedure
+        Note')\" id=\"minus.Procedure Note\">[-]  </label>Procedure Note</h2>\n</header>\n<div
+        id=\"section.Procedure Note\">No Data Provided for This Section</div>\n</section>\n<section
+        id=\"Healthcare Providers\">\n<header>\n<h2>\n<label onclick=\"javascript:toggle('open','Healthcare
+        Providers')\" id=\"plus.Healthcare Providers\">[+]</label><label onclick=\"javascript:toggle('close','Healthcare
+        Providers')\" id=\"minus.Healthcare Providers\">[-]</label>\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\tHealthcare
+        Providers</h2>\n</header>\n<div id=\"section.Healthcare Providers\">No data
+        provided for this section.</div>\n</section>\n<section id=\"Contact Information\">\n<header>\n<h2>\n<label
+        onclick=\"javascript:toggle('open','Contact Information')\" id=\"plus.Contact
+        Information\">[+]</label><label onclick=\"javascript:toggle('close','Contact
+        Information')\" id=\"minus.Contact Information\">[-]</label>\n\t\t\t\t\t\t\t\tContact
+        Information</h2>\n</header>\n<div class=\"col-2\">\n<div id=\"section.Contact
+        Information\">\n<table>\n<thead>\n<tr>\n<th colspan=\"2\">Contact Information</th>\n</tr>\n</thead>\n<tbody>\n<tr
+        valign=\"top\">\n<th>Next of kin</th><td>TEST GEORGE<br> Primary Home:<br>123
+        TEST STREET;TEST<br>FAIRFAX,&nbsp;VA&nbsp;20151,&nbsp;United States<br>Tel:
+        \ 5711234567<br>\n</td>\n</tr>\n<tr valign=\"top\">\n<th>Emergency contact</th><td>TEST
+        GEORGE<br> Primary Home:<br>123 TEST STREET;TEST<br>FAIRFAX,&nbsp;VA&nbsp;20151,&nbsp;United
+        States<br>Tel:  5711234567<br>\n</td>\n</tr>\n<tr valign=\"top\">\n<th>Next
+        of kin</th><td>DAUGTHER TEST<br> Primary Home:<br>123 TEST STREET;TEST<br>FAIRFAX,&nbsp;VA&nbsp;20151,&nbsp;United
+        States<br>Tel:  7039876543<br>\n</td>\n</tr>\n<tr valign=\"top\">\n<th>Emergency
+        contact</th><td>TEST JOHN<br> Primary Home:<br>123 Nephew street<br>New york,&nbsp;NY&nbsp;10035,&nbsp;United
+        States<br>Tel:  212333626<br>\n</td>\n</tr>\n</tbody>\n</table>\n</div>\n</div>\n</section>\n</div>\n</div>\n<script
+        DEFER=\"true\" LANGUAGE=\"javascript\">\n<!--\n\t\t\t\t\t\n\t\t\tdocument.onreadystatechange
+        = function()\n\t\t\t{\n\t\t\t\tif(document.readyState === 'complete')\n\t\t\t\t{\n\t\t\t\t\tvar
+        count = 0;\n\t\t\t\t\tvar sections = document.getElementsByTagName(\"section\");\n\t\t\t\t\twhile
+        (count<sections.length)\n\t\t\t\t\t{\n\t\t\t\t\t\tvar s = sections[count++].id;\n\t\t\t\t\t\ttoggle(\"open\",
+        s);\n\t\t\t\t\t}\n\t\t\t\t\t\n\t\t\t\t\ttoggle(\"open\",\"TOC\")\n\t\t\t\t}\n\t\t\t};\n\n\t\t\t\t\t\n\t\t\tfunction
+        toggle(state, elemId) {\n\t\t\t\tvar plus = document.getElementById(\"plus.\"
+        + elemId);\n\t\t\t\tvar minus = document.getElementById(\"minus.\" + elemId);\n\t\t\t\tvar
+        info = document.getElementById(\"section.\" + elemId);\n\t\t\t\tif (state
+        == \"open\")\n\t\t\t\t{\n\t\t\t\t\tinfo.style.display=\"inline\";\n\t\t\t\t\tplus.style.display=\"none\";\n\t\t\t\t\tminus.style.display=\"inline\";\n\t\t\t\t}\n\t\t\t\telse\n\t\t\t\t{\n\t\t\t\t\tinfo.style.display=\"none\";\n\t\t\t\t\tplus.style.display=\"inline\";\n\t\t\t\t\tminus.style.display=\"none\";\n\t\t\t\t}\t\t\t\t\n\t\t\t}\n\t\t\t\n\t\t\tvar
+        hasClass = function(elem, className){\n\t\t\t\treturn new RegExp(' ' + className
+        + ' ').test(' ' + elem.className + ' ');\n\t\t\t}\n\n\t\t\tvar addClass =
+        function(elem, className){\n\t\t\t\tif (!hasClass(elem, className)) {\n\t\t\t\t\telem.className
+        += ' ' + className;\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tvar removeClass = function(elem,
+        className){\n\t\t\t\tvar newClass = ' ' + elem.className.replace( /[\\t\\r\\n]/g,
+        ' ') + ' ';\n\t\t\t\tif (hasClass(elem, className)) {\n\t\t\t\t\twhile (newClass.indexOf('
+        ' + className + ' ') >= 0 ) {\n\t\t\t\t\t\tnewClass = newClass.replace(' '
+        + className + ' ', ' ');\n\t\t\t\t\t}\n\t\t\t\t\telem.className = newClass.replace(/^\\s+|\\s+$/g,
+        '');\n\t\t\t\t}\n\t\t\t}\n\t\t\n\t\t\tfunction getOffset(el) {\n\t\t\t\tvar
+        _x = 0,\n\t\t\t\t\t_y = 0;\n\t\t\t\twhile( el && !isNaN( el.offsetLeft ) &&
+        !isNaN( el.offsetTop ) ) {\n\t\t\t\t\t_x += el.offsetLeft - el.scrollLeft;\n\t\t\t\t\t_y
+        += el.offsetTop - el.scrollTop;\n\t\t\t\t\tel = el.offsetParent;\n\t\t\t\t}\n\t\t\t\treturn
+        { top: _y, left: _x };\n\t\t\t}\n\t\t\t\n\t\t\t\n\t\t\tvar easing = {\n\t\t\t\tlinear:
+        function (t) { return t },\n\t\t\t\teaseInQuad: function (t) { return t*t
+        },\n\t\t\t\teaseOutQuad: function (t) { return t*(2-t) },\n\t\t\t\teaseInOutQuad:
+        function (t) { return t<.5 ? 2*t*t : -1+(4-2*t)*t },\n\t\t\t\teaseInCubic:
+        function (t) { return t*t*t },\n\t\t\t\teaseOutCubic: function (t) { return
+        (- -t)*t*t+1 },\n\t\t\t\teaseInOutCubic: function (t) { return t<.5 ? 4*t*t*t
+        : (t-1)*(2*t-2)*(2*t-2)+1 },\n\t\t\t\teaseInQuart: function (t) { return t*t*t*t
+        },\n\t\t\t\teaseOutQuart: function (t) { return 1-(- -t)*t*t*t },\n\t\t\t\teaseInOutQuart:
+        function (t) { return t<.5 ? 8*t*t*t*t : 1-8*(- -t)*t*t*t },\n\t\t\t\teaseInQuint:
+        function (t) { return t*t*t*t*t },\n\t\t\t\teaseOutQuint: function (t) { return
+        1+(- -t)*t*t*t*t },\n\t\t\t\teaseInOutQuint: function (t) { return t<.5 ?
+        16*t*t*t*t*t : 1+16*(- -t)*t*t*t*t }\n\t\t\t};\n\t\t\t\n\t\t\tif ('querySelector'
+        in document && 'addEventListener' in window && Array.prototype.forEach){\n\t\t\t\twindow.addEventListener('load',
+        function(){\n\t\t\t\n\t\t\t\t\tvar backtotop = document.getElementById('backtotop'),\n\t\t\t\t\t\ttitlebar
+        = document.getElementById('titlebar'),\n\t\t\t\t\t\ttitlebar_container = document.getElementById('titlebar-container'),\n\t\t\t\t\t\ttitlebar_height
+        = titlebar_container.offsetHeight;\n\t\t\t\t\t\n\t\t\t\t\t// titlebar isn't
+        fixed without javascript\n\t\t\t\t\t// we know we have javascript enabled
+        now, so set the titlebar as fixed, and offset the body with padding to match\n\t\t\t\t\taddClass(titlebar_container,
+        'fixed');\n\t\t\t\t\tdocument.body.style.padding = titlebar_height+\"px 0
+        0\";\n\t\t\t\n\t\t\t\t\t// jumplinks\n\t\t\t\t\tvar subnavlinks = document.querySelectorAll('.toc
+        a');\n\t\t\t\t\t[].forEach.call(subnavlinks, function(l){\n\t\t\t\t\t\tl.addEventListener('click',
+        function(e){\n\t\t\t\t\t\t\te.preventDefault();\n\t\t\t\t\t\t\tvar target
+        = l.getAttribute('data-target');\n\t\t\t\t\t\t\tgoToJumpLink(target);\n\t\t\t\t\t\t},
+        false);\n\t\t\t\t\t});\n\t\t\t\t\t\n\t\t\t\t\t// if the user comes to this
+        screen with a hash in the url, attempt to jump to that section\n\t\t\t\t\tvar
+        url = location.href;\n\t\t\t\t\tvar anchorPos = url.indexOf(\"#\");\n\t\t\t\t\tif
+        (anchorPos != -1){\n\t\t\t\t\t\ttarget = url.substr(anchorPos+1);\n\t\t\t\t\t\tgoToJumpLink(target);\n\t\t\t\t\t}\n\t\t\t\t\t\n\t\t\t\t\t//
+        back-to-top button\n\t\t\t\t\tbacktotop.addEventListener('click', function(e){\n\t\t\t\t\t\tgoToJumpLink('top');\n\t\t\t\t\t},
+        false);\n\t\t\t\t\t\n\t\t\t\t\tvar listener = function () {\n\t\t\t\t\t\tvar
+        y = window.pageYOffset;\n\n\t\t\t\t\t\tif (y >= titlebar_height) {\n\t\t\t\t\t\t\taddClass(backtotop,
+        'active');\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tremoveClass(backtotop, 'active');\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\t\t\t\t\twindow.addEventListener('scroll',
+        listener, false);\n\t\t\t\t\t\n\t\t\t\t\t// animate to a particualr anchor
+        on the page\n\t\t\t\t\tfunction goToJumpLink(el){\n\t\t\t\t\t\tvar jump =
+        document.getElementById(el),\n\t\t\t\t\t\t\tt = getOffset(jump).top,\n\t\t\t\t\t\t\tscrolltop
+        = document.body.scrollTop,\n\t\t\t\t\t\t\tnewscrolltop = (t-(titlebar_height-2))+scrolltop;\n\n\t\t\t\t\t\twindow.scroll(0,
+        newscrolltop);\n\t\t\t\t\t}\n\t\t\t\t});\t\n\t\t\t}\n\t\t\t\t\t\n\t\t\t\t\t--></script>\n</body>\n</html>\n"
+  recorded_at: Tue, 26 Aug 2025 01:07:13 GMT
+recorded_with: VCR 6.3.1

@@ -138,8 +138,8 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             end
 
             it 'sends confirmation email' do
-              expect(claim).to receive(:send_confirmation_email)
-                .with(user_object, 'VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
+              expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
+                .with('VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
 
               claim.send_to_vre(user_object)
             end
@@ -164,7 +164,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           it 'PDF is sent to Central Mail and not VBMS' do
             expect(claim).to receive(:process_attachments!)
             expect(claim).to receive(:send_to_lighthouse!).with(user_object).once.and_call_original
-            expect(claim).to receive(:send_confirmation_email)
+            expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
             expect(claim).not_to receive(:upload_to_vbms)
             expect(VeteranReadinessEmploymentMailer).to receive(:build).with(
               user_object.participant_id, 'VRE.VBAPIT@va.gov', true
@@ -185,7 +185,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       end
     end
 
-    describe '#send_confirmation_email' do
+    describe '#send_vbms_lighthouse_confirmation_email' do
       let(:user) do
         OpenStruct.new(
           edipi: '1007697216',
@@ -206,15 +206,15 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
         it 'calls the VA notify email job' do
           expect(VANotify::EmailJob).to receive(:perform_async).with(
-            user.va_profile_email,
+            claim.email,
             'ch31_vbms_fake_template_id',
             {
               'date' => Time.zone.today.strftime('%B %d, %Y'),
-              'first_name' => user.first_name.upcase.presence
+              'first_name' => claim.parsed_form['veteranInformation']['fullName']['first']
             }
           )
 
-          claim.send_confirmation_email(user, 'VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
+          claim.send_vbms_lighthouse_confirmation_email('VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
         end
       end
     end
