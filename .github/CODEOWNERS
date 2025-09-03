@@ -1038,7 +1038,7 @@ modules/vaos @department-of-veterans-affairs/vfs-vaos @department-of-veterans-af
 modules/vaos/app/services/vaos/v2 @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
 modules/vba_documents @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/backend-review-group
 modules/veteran @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/accredited-representatives-admin
-modules/vre @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-iir
+modules/vre @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 modules/vye @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 postman/Dockerfile @department-of-veterans-affairs/backend-review-group
 postman/vets-api.pm-collection.json @department-of-veterans-affairs/backend-review-group
