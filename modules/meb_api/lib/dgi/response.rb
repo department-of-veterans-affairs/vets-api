@@ -10,7 +10,8 @@ module MebApi
     # @param status [Integer] The HTTP status code from the service
     # @param attributes [Hash] Additional response attributes
     #
-    class Response < Common::Base
+    class Response
+      include Vets::Model
       include Common::Client::Concerns::ServiceStatus
 
       attribute :status, Integer
