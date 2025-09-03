@@ -28,10 +28,7 @@ namespace :vre do
     task :connect, %i[payload url] => :environment do |_cmd, args|
       client = Ch31Eligibility.new(args[:url])
       response = client.send_to_res(payload: args[:payload])
-      puts 'RES response:'
       puts response
-      puts "\nVeteran profile:"
-      puts JSON.parse(response.response_body)
     end
   end
 end
