@@ -17,7 +17,7 @@ module ClaimsApi
         auto_claim = get_claim(claim_id)
 
         if Settings.claims_api.benefits_documents.use_mocks
-          start_docker_container_job(auto_claim&.id, perform_async)
+          start_docker_container_job(auto_claim&.id)
           return
         end
 

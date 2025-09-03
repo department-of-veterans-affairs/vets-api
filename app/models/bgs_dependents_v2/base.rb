@@ -161,11 +161,15 @@ module BGSDependentsV2
     # rubocop:disable Metrics/MethodLength
     def create_address_params(proc_id, participant_id, payload)
       address = generate_address(payload)
-      frgn_postal_code = if address['military_postal_code'].present? || address['country'] == 'USA'
-                           nil
-                         else
-                           address['postal_code']
-                         end
+      if address['military_postal_code'].present? || address['country'] == 'USA'
+        frgn_postal_code = nil
+        state = address['state']
+        zip_prefix_nbr = address['postal_code']
+      else
+        frgn_postal_code = address['postal_code']
+        state = nil
+        zip_prefix_nbr = nil
+      end
       {
         efctv_dt: Time.current.iso8601,
         vnp_ptcpnt_id: participant_id,
@@ -177,11 +181,11 @@ module BGSDependentsV2
         addrs_three_txt: address['address_line3'],
         city_nm: address['city'],
         cntry_nm: address['country'],
-        postal_cd: address['state'],
+        postal_cd: state,
         frgn_postal_cd: frgn_postal_code,
         mlty_postal_type_cd: address['military_postal_code'],
         mlty_post_office_type_cd: address['military_post_office_type_code'],
-        zip_prefix_nbr: address['postal_code'],
+        zip_prefix_nbr:,
         prvnc_nm: address['state'],
         email_addrs_txt: payload['email_address']
       }

@@ -73,6 +73,21 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       end
     end
 
+    context 'when POA request is withdrawn' do
+      let!(:withdrawn_request) do
+        resolution = create(:power_of_attorney_request_resolution, :replacement)
+        resolution.power_of_attorney_request
+      end
+
+      it 'returns 404 Not Found and does not process a decision' do
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{withdrawn_request.id}/decision",
+             params: { decision: { type: 'acceptance' } }
+
+        expect(response).to have_http_status(:not_found)
+        expect(response.parsed_body).to eq({ 'errors' => ['Record not found'] })
+      end
+    end
+
     context "when user's VSO does accept digital POAs but isn't associated" do
       it 'returns 404 Not Found' do
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{other_poa_request.id}/decision",

@@ -1,16 +1,15 @@
 # frozen_string_literal: true
 
 require 'claims_evidence_api/exceptions/service'
-require 'claims_evidence_api/exceptions/x_folder_uri'
+require 'claims_evidence_api/exceptions/folder_identifier'
 
 module ClaimsEvidenceApi
-  # collection of module exceptions
   module Exceptions
     include ClaimsEvidenceApi::Exceptions::Service
-    include ClaimsEvidenceApi::Exceptions::XFolderUri
+    include ClaimsEvidenceApi::Exceptions::FolderIdentifier
 
     # ClaimsEvidence API possible error codes
-    # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html
+    # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html
     class VefsError < StandardError
       # rubocop:disable Layout/LineLength
       CURRENT_VERSION_NOT_FOUND = 'VEFSERR40402'          # Current Version not found for UUID %s.

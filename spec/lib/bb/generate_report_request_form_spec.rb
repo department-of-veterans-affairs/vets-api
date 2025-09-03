@@ -25,7 +25,6 @@ describe BB::GenerateReportRequestForm do
   let(:attributes) { {} }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     allow(subject).to receive(:eligible_data_classes).and_return(eligible_data_classes)
   end
 
