@@ -6,37 +6,45 @@ module UnifiedHealthData
       def parse(resource)
         return nil if resource.nil? || resource['id'].nil?
 
-        attributes = UnifiedHealthData::PrescriptionAttributes.new({
-          refill_status: extract_refill_status(resource),
-          refill_submit_date: nil, # Not available in FHIR
-          refill_date: extract_refill_date(resource),
-          refill_remaining: extract_refill_remaining(resource),
-          facility_name: extract_facility_name(resource),
-          ordered_date: resource['authoredOn'],
-          quantity: extract_quantity(resource),
-          expiration_date: extract_expiration_date(resource),
-          prescription_number: extract_prescription_number(resource),
-          prescription_name: extract_prescription_name(resource),
-          dispensed_date: extract_dispensed_date(resource),
-          station_number: extract_station_number(resource),
-          is_refillable: extract_is_refillable(resource),
-          is_trackable: false, # Default for Oracle Health
-          instructions: extract_instructions(resource),
-          facility_phone_number: nil, # Not typically in FHIR
-          data_source_system: 'ORACLE_HEALTH'
-        })
-
+        attributes = build_prescription_attributes(resource)
         UnifiedHealthData::Prescription.new({
-          id: resource['id'],
-          type: 'Prescription',
-          attributes: attributes
-        })
+                                              id: resource['id'],
+                                              type: 'Prescription',
+                                              attributes:
+                                            })
       rescue => e
         Rails.logger.error("Error parsing Oracle Health prescription: #{e.message}")
         nil
       end
 
       private
+
+      # rubocop:disable Metrics/MethodLength
+      def build_prescription_attributes(resource)
+        UnifiedHealthData::PrescriptionAttributes.new({
+                                                        refill_status: extract_refill_status(resource),
+                                                        refill_submit_date: nil, # Not available in FHIR
+                                                        refill_date: extract_refill_date(resource),
+                                                        refill_remaining:
+                                                          extract_refill_remaining(resource),
+                                                        facility_name: extract_facility_name(resource),
+                                                        ordered_date: resource['authoredOn'],
+                                                        quantity: extract_quantity(resource),
+                                                        expiration_date: extract_expiration_date(resource),
+                                                        prescription_number:
+                                                          extract_prescription_number(resource),
+                                                        prescription_name:
+                                                          extract_prescription_name(resource),
+                                                        dispensed_date: extract_dispensed_date(resource),
+                                                        station_number: extract_station_number(resource),
+                                                        is_refillable: extract_is_refillable(resource),
+                                                        is_trackable: false, # Default for Oracle Health
+                                                        instructions: extract_instructions(resource),
+                                                        facility_phone_number: nil, # Not typically in FHIR
+                                                        data_source_system: 'ORACLE_HEALTH'
+                                                      })
+      end
+      # rubocop:enable Metrics/MethodLength
 
       def extract_refill_status(resource)
         status = resource['status']
@@ -91,7 +99,7 @@ module UnifiedHealthData
       def extract_is_refillable(resource)
         status = resource['status']
         refills_remaining = extract_refill_remaining(resource)
-        status == 'active' && refills_remaining > 0
+        status == 'active' && refills_remaining.positive?
       end
 
       def extract_instructions(resource)
@@ -106,7 +114,8 @@ module UnifiedHealthData
         parts = []
         parts << instruction.dig('timing', 'code', 'text') if instruction.dig('timing', 'code', 'text')
         parts << instruction.dig('route', 'text') if instruction.dig('route', 'text')
-        parts << instruction.dig('doseAndRate', 0, 'doseQuantity', 'value') if instruction.dig('doseAndRate', 0, 'doseQuantity', 'value')
+        parts << instruction.dig('doseAndRate', 0, 'doseQuantity', 'value') if instruction.dig('doseAndRate', 0,
+                                                                                               'doseQuantity', 'value')
         parts.join(' ')
       end
     end

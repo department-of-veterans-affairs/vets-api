@@ -63,11 +63,11 @@ module UnifiedHealthData
       attributes&.station_number
     end
 
-    def is_refillable
+    def refillable?
       attributes&.is_refillable
     end
 
-    def is_trackable
+    def trackable?
       attributes&.is_trackable
     end
 
