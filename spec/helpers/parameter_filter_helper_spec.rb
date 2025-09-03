@@ -69,4 +69,9 @@ RSpec.describe ParameterFilterHelper do
       expect(filtered[:controller]).to eq('mycontroller')
     end
   end
+  describe '.simple_test' do
+    it 'does nothing' do
+      expect(true).to eq(true)
+    end
+  end
 end
