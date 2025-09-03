@@ -981,6 +981,7 @@ module VAOS
         appointment[:future] = future?(appointment)
       end
 
+      # rubocop:disable Metrics/MethodLength
       def log_telehealth_issue(appointment)
         if appointment[:start]
           start_time = appointment[:start].to_datetime
@@ -1004,6 +1005,7 @@ module VAOS
                                                                                time_now <= fifteen_after
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def log_modality_failure(appointment)
         context = {
