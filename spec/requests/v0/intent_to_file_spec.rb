@@ -128,6 +128,7 @@ RSpec.describe 'V0::IntentToFile', type: :request do
 
         def test_error(cassette_path, status, headers)
           VCR.use_cassette(cassette_path) do
+            expect(monitor).to receive(:track_itf_controller_error)
             get('/v0/intent_to_file', params: nil, headers:)
             expect(response).to have_http_status(status)
             expect(response).to match_response_schema('evss_errors', strict: false)
@@ -152,11 +153,11 @@ RSpec.describe 'V0::IntentToFile', type: :request do
           expect(monitor).to have_received(:track_missing_user_icn_itf_controller)
         end
 
-        it 'raises MissingParticipantIDError' do
+        it 'tracks missing participant ID' do
           user_no_pid = build(:disabilities_compensation_user, participant_id: nil)
 
           expect { subject.send(:validate_data, user_no_pid, 'get', 'form_id', 'survivor') }
-            .to raise_error V0::IntentToFilesController::MissingParticipantIDError
+            .not_to raise_error
 
           expect(monitor).to have_received(:track_missing_user_pid_itf_controller)
         end

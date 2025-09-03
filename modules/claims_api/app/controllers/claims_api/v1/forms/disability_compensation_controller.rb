@@ -12,7 +12,10 @@ module ClaimsApi
   module V1
     module Forms
       class DisabilityCompensationController < ClaimsApi::V1::Forms::Base
-        include ClaimsApi::DisabilityCompensationValidations
+        # Commenting out the below validation inclusion so it is clearer that
+        # we expect validate_form_526_submission_values! to be dynamically
+        # included via the lighthouse_claims_api_v1_enable_FES FF check:
+        # include ClaimsApi::DisabilityCompensationValidations
         include ClaimsApi::PoaVerification
         include ClaimsApi::DocumentValidations
 
@@ -36,7 +39,19 @@ module ClaimsApi
           ClaimsApi::Logger.log('526', detail: '526 - Request Started')
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
-          validate_form_526_submission_values!
+          # Choose the appropriate validator module based on FF status - using self.extend
+          # so that if validator (instance) methods call other instance methods within the module
+          # they all have access to the the same instance
+          # rubocop:disable Style/IdenticalConditionalBranches
+          if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+            extend(ClaimsApi::RevisedDisabilityCompensationValidations)
+            validate_form_526_submission_values!
+          else
+            extend(ClaimsApi::DisabilityCompensationValidations)
+            validate_form_526_submission_values!
+          end
+          # rubocop:enable Style/IdenticalConditionalBranches
+
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526 - Controller Actions Completed')
@@ -151,7 +166,17 @@ module ClaimsApi
           add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
-          validate_form_526_submission_values!
+
+          # rubocop:disable Style/IdenticalConditionalBranches
+          if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+            extend(ClaimsApi::RevisedDisabilityCompensationValidations)
+            validate_form_526_submission_values!
+          else
+            extend(ClaimsApi::DisabilityCompensationValidations)
+            validate_form_526_submission_values!
+          end
+          # rubocop:enable Style/IdenticalConditionalBranches
+
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526/validate - Controller Actions Completed')

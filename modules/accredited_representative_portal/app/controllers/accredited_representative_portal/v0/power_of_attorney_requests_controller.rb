@@ -4,6 +4,8 @@ module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
       include PowerOfAttorneyRequests
+      include AccreditedRepresentativePortal::V0::WithdrawalGuard
+
       before_action do
         authorize PowerOfAttorneyRequest
       end
@@ -11,6 +13,7 @@ module AccreditedRepresentativePortal
         before_action do
           id = params[:id]
           set_poa_request(id)
+          render_404_if_withdrawn!(@poa_request)
         end
       end
 
@@ -43,7 +46,14 @@ module AccreditedRepresentativePortal
                           .then { |it| filter_by_current_user(it) }
                           .unredacted
                           .preload(scope_includes)
-                          .then { |it| sort_params.present? ? it.sorted_by(sort_params[:by], sort_params[:order]) : it }
+                          .then do |it|
+          if sort_params.present?
+            it.sorted_by(sort_params[:by],
+                         sort_params[:order])
+          else
+            it
+          end
+        end
                           .paginate(page:, per_page:)
       end
 

@@ -121,6 +121,12 @@ class SavedClaim < ApplicationRecord
     ''
   end
 
+  # the VBMS document type for _this_ claim type
+  # @see modules/claims_evidence_api/documentation/doctypes.json
+  def document_type
+    10 # Unknown
+  end
+
   def email
     nil
   end

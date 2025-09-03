@@ -118,7 +118,8 @@ module Mobile
             best_time_to_call: appointment[:preferred_times_for_phone_call],
             friendly_location_name:,
             service_category_name: appointment.dig(:service_category, 0, :text),
-            show_schedule_link: appointment[:show_schedule_link]
+            show_schedule_link: appointment[:show_schedule_link],
+            is_cerner: appointment[:is_cerner]
           }
 
           if appointment[:travelPayClaim]
@@ -309,7 +310,8 @@ module Mobile
           elsif VIDEO_CONNECT_AT_VA.include?(vvs_kind)
             APPOINTMENT_TYPES[:va_video_connect_onsite]
           else
-            APPOINTMENT_TYPES[:va]
+            vvs_video_appt = appointment.dig(:extension, :vvs_vista_video_appt)
+            vvs_video_appt.to_s.downcase == 'true' ? APPOINTMENT_TYPES[:va_video_connect_home] : APPOINTMENT_TYPES[:va]
           end
         end
 

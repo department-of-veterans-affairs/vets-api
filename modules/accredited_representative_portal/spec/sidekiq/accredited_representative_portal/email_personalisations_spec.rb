@@ -150,4 +150,124 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
       expect(personalisation.send(:representative_name)).to eq(expected_name)
     end
   end
+
+  describe 'FailedClaimant subclass' do
+    let(:organization) { create(:organization, name: 'Org Name') }
+    let(:individual) { create(:representative) }
+
+    let(:poa_request) do
+      create(
+        :power_of_attorney_request,
+        id: 123,
+        accredited_organization: organization,
+        accredited_individual: individual,
+        power_of_attorney_holder_poa_code: organization.poa
+      )
+    end
+
+    let(:poa_form) do
+      poa_request.power_of_attorney_form
+    end
+
+    let(:notification) do
+      create(
+        :power_of_attorney_request_notification,
+        type: 'enqueue_failed',
+        recipient_type: 'claimant',
+        power_of_attorney_request: poa_request
+      )
+    end
+
+    let(:personalisation) { described_class::FailedClaimant.new(notification) }
+
+    before do
+      allow(poa_form).to receive(:parsed_data).and_return({
+                                                            'veteran' => {
+                                                              'name' => { 'first' => 'Jane', 'last' => 'Doe' },
+                                                              'email' => 'jane@example.com'
+                                                            }
+                                                          })
+
+      allow(Flipper).to receive(:enabled?).with(:ar_poa_request_failure_claimant_notification).and_return(true)
+      AccreditedRepresentativePortal::Engine.routes.default_url_options[:host] = 'http://test.host'
+    end
+
+    it 'returns the first name' do
+      result = personalisation.generate
+      expect(result['first_name']).to eq('Jane')
+    end
+  end
+
+  describe 'FailedRep subclass' do
+    let!(:organization) { create(:organization, name: 'Org Name') }
+    let!(:individual) { create(:representative) }
+    let!(:user_account) do
+      AccreditedRepresentativePortal::RepresentativeUserAccount.find(create(:user_account).id).tap do |memo|
+        memo.set_email('email@email.com')
+        memo.set_all_emails(['email@email.com'])
+      end
+    end
+
+    let(:poa_request) do
+      create(
+        :power_of_attorney_request,
+        id: 123,
+        accredited_organization: organization,
+        accredited_individual: individual,
+        power_of_attorney_holder_poa_code: organization.poa
+      )
+    end
+
+    let(:poa_form) do
+      poa_request.power_of_attorney_form
+    end
+
+    let(:notification) do
+      create(
+        :power_of_attorney_request_notification,
+        type: 'enqueue_failed',
+        recipient_type: 'resolver',
+        power_of_attorney_request: poa_request
+      )
+    end
+
+    let(:personalisation) { described_class::FailedRep.new(notification) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:ar_poa_request_failure_rep_notification).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_self_service_auth)
+                                          .and_return(true)
+      allow(poa_form).to receive(:parsed_data).and_return({
+                                                            'veteran' => {
+                                                              'name' => { 'first' => 'Jane', 'last' => 'Doe' },
+                                                              'email' => 'jane@example.com'
+                                                            }
+                                                          })
+
+      allow(user_account).to receive(:registration_numbers).and_return({ 'veteran_service_officer' => '1234' })
+      AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_declination!(
+        creator: user_account,
+        power_of_attorney_request: poa_request,
+        declination_reason: :OTHER
+      )
+    end
+
+    it 'returns the correct URL' do
+      result = personalisation.generate
+
+      base = Settings.accredited_representative_portal.frontend_base_url
+      expected = begin
+        u = URI.parse(base)
+        u.path = File.join(u.path.presence || '/', 'poa_requests', poa_request.id.to_s)
+        u.to_s
+      end
+
+      expect(result['poa_request_url']).to eq(expected)
+    end
+
+    it 'returns the first name' do
+      result = personalisation.generate
+      expect(result['first_name']).to eq('Bob')
+    end
+  end
 end

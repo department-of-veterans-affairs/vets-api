@@ -15,7 +15,6 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::LabsAndTests', type: :request do
   let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
@@ -65,11 +64,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::LabsAndTests', type: :request do
 
     it 'responds to GET #index' do
       VCR.use_cassette('mr_client/get_a_list_of_chemhem_labs') do
-        VCR.use_cassette('mr_client/get_a_list_of_diagreport_labs') do
-          VCR.use_cassette('mr_client/get_a_list_of_docref_labs') do
-            get '/my_health/v1/medical_records/labs_and_tests'
-          end
-        end
+        get '/my_health/v1/medical_records/labs_and_tests'
       end
 
       expect(response).to be_successful

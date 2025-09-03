@@ -7,11 +7,13 @@ module Eps
   # This callback tracks delivery success/failure and provides observability
   # through StatsD metrics and structured logging.
   class AppointmentStatusNotificationCallback
-    STATSD_KEY = 'api.vaos.appointment_status_notification'
+    include VAOS::CommunityCareConstants
+
+    STATSD_KEY = "#{STATSD_PREFIX}.appointment_status_notification".freeze
     STATSD_NOTIFY_SILENT_FAILURE = 'silent_failure'
     STATSD_CC_SILENT_FAILURE_TAGS = [
-      'service:vaos',
-      'function: Community Care Appointment Status Notification Failure'
+      COMMUNITY_CARE_SERVICE_TAG,
+      'function:appointment_status_notification'
     ].freeze
     FAILURE_STATUSES = %w[permanent-failure temporary-failure technical-failure].freeze
     FAILURE_TYPE_MAP = {
@@ -45,14 +47,14 @@ module Eps
       # Log warning if metadata is missing or incomplete
       if metadata.empty? || metadata['user_uuid'].blank? || metadata['appointment_id_last4'].blank?
         Rails.logger.warn(
-          'Community Care Appointments: Eps::AppointmentNotificationCallback received missing or incomplete metadata',
+          "#{CC_APPOINTMENTS}: Eps::AppointmentNotificationCallback received missing or incomplete metadata",
           notification_id: notification.notification_id,
           metadata_present: !metadata.empty?,
           user_uuid_present: metadata['user_uuid'].present?,
           appointment_id_present: metadata['appointment_id_last4'].present?,
           status: notification.status
         )
-        StatsD.increment("#{STATSD_KEY}.missing_metadata", tags: ['Community Care Appointments'])
+        StatsD.increment("#{STATSD_KEY}.missing_metadata", tags: ['service:community_care_appointments'])
       end
 
       metadata
@@ -85,7 +87,7 @@ module Eps
 
       case status.downcase
       when 'delivered'
-        StatsD.increment("#{STATSD_KEY}.success", tags: ['Community Care Appointments'])
+        StatsD.increment("#{STATSD_KEY}.success", tags: [COMMUNITY_CARE_SERVICE_TAG])
       when *FAILURE_STATUSES
         handle_failure(notification, base_data)
       else
@@ -99,7 +101,7 @@ module Eps
     # @param base_data [Hash] Base data for logging and metrics
     # @return [void]
     def self.handle_failure(notification, base_data)
-      StatsD.increment("#{STATSD_KEY}.failure", tags: ['Community Care Appointments'])
+      StatsD.increment("#{STATSD_KEY}.failure", tags: [COMMUNITY_CARE_SERVICE_TAG])
       StatsD.increment(STATSD_NOTIFY_SILENT_FAILURE, tags: STATSD_CC_SILENT_FAILURE_TAGS)
 
       failure_type = FAILURE_TYPE_MAP[notification.status&.downcase] || 'unknown'
@@ -109,7 +111,7 @@ module Eps
       )
 
       Rails.logger.error(
-        'Community Care Appointments: Eps::AppointmentNotificationCallback delivery failed',
+        "#{CC_APPOINTMENTS}: Eps::AppointmentNotificationCallback delivery failed",
         failure_data
       )
     end
@@ -120,14 +122,14 @@ module Eps
     # @param base_data [Hash] Base data for logging and metrics
     # @return [void]
     def self.handle_unknown_status(notification, base_data)
-      StatsD.increment("#{STATSD_KEY}.unknown_status", tags: ['Community Care Appointments'])
+      StatsD.increment("#{STATSD_KEY}.unknown_status", tags: [COMMUNITY_CARE_SERVICE_TAG])
 
       unknown_data = base_data.merge(
         status_reason: notification.status_reason
       )
 
       Rails.logger.warn(
-        'Community Care Appointments: Eps::AppointmentNotificationCallback received unknown status',
+        "#{CC_APPOINTMENTS}: Eps::AppointmentNotificationCallback received unknown status",
         unknown_data
       )
     end
@@ -159,21 +161,16 @@ module Eps
       }
 
       Rails.logger.error(
-        'Community Care Appointments: Eps::AppointmentNotificationCallback error processing callback',
+        "#{CC_APPOINTMENTS}: Eps::AppointmentNotificationCallback error processing callback",
         error_data
       )
     end
 
     # Build StatsD tags for metrics
     #
-    # @param base_data [Hash] Base data containing user and appointment info
     # @return [Array<String>] Array of StatsD tags
-    def self.build_statsd_tags(base_data)
-      [
-        'Community Care Appointments',
-        "user_uuid:#{base_data[:user_uuid]}",
-        "appointment_id_last4:#{base_data[:appointment_id_last4]}"
-      ]
+    def self.build_statsd_tags
+      [COMMUNITY_CARE_SERVICE_TAG]
     end
   end
 end

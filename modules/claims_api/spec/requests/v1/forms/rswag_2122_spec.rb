@@ -697,7 +697,7 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
       ]
       produces 'application/json'
       active_description = <<~VERBIAGE
-        Returns the last active POA for a Veteran.
+        Returns the last active POA for a claimant.
         To check the status of new POA submissions, use the GET /forms/2122/{id} endpoint.\n
       VERBIAGE
       description active_description

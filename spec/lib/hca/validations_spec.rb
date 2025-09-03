@@ -71,6 +71,7 @@ describe HCA::Validations, run_at: frozen_time do
     'validate_name',
     [
       [{ data: 'foo' }, 'FOO'],
+      [{ data: 'foo', all_caps: false }, 'Foo'],
       [{ data: 'foo', count: 2 }, 'FO'],
       [{ data: 1 }, '']
     ]

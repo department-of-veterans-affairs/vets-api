@@ -103,7 +103,7 @@ RSpec.describe User, type: :model do
       it 'returns VAProfileRedis::V2::ContactInformation info' do
         contact_info = user.vet360_contact_info
         expect(contact_info.class).to eq(VAProfileRedis::V2::ContactInformation)
-        expect(contact_info.response.class).to eq(VAProfile::V2::ContactInformation::PersonResponse)
+        expect(contact_info.response.class).to eq(VAProfile::ContactInformation::V2::PersonResponse)
         expect(contact_info.mailing_address.class).to eq(VAProfile::Models::V3::Address)
         expect(contact_info.email.email_address).to eq(user.va_profile_email)
       end
@@ -1580,8 +1580,9 @@ RSpec.describe User, type: :model do
   end
 
   describe '#provision_cerner_async' do
-    let(:user) { build(:user, :loa3, cerner_id:) }
+    let(:user) { build(:user, :loa3, cerner_id:, cerner_facility_ids:) }
     let(:cerner_id) { 'some-cerner-id' }
+    let(:cerner_facility_ids) { ['some-cerner-facility-id'] }
 
     before do
       allow(Identity::CernerProvisionerJob).to receive(:perform_async)
@@ -1596,8 +1597,9 @@ RSpec.describe User, type: :model do
         end
       end
 
-      context 'when the user does not have a cerner_id' do
+      context 'when the user does not have a cerner_id nor cerner_facility_ids' do
         let(:cerner_id) { nil }
+        let(:cerner_facility_ids) { [] }
 
         it 'does not enqueue a job to provision the Cerner account' do
           user.provision_cerner_async
@@ -1620,10 +1622,11 @@ RSpec.describe User, type: :model do
 
   describe '#cerner_eligible?' do
     let(:user) { build(:user, :loa3, cerner_id:) }
-    let(:cerner_id) { 'some-cerner-id' }
 
     context 'when the user is loa3' do
       context 'when the user has a cerner_id' do
+        let(:cerner_id) { 'some-cerner-id' }
+
         it 'returns true' do
           expect(user.cerner_eligible?).to be true
         end
