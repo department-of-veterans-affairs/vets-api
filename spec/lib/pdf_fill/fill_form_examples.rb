@@ -88,13 +88,16 @@ RSpec.shared_examples 'a form filler' do |options|
               fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign_extras.pdf' : '_extras.pdf')
               expect(extras_path).to match_file_exactly(fixture_pdf)
 
-              File.delete(extras_path)
+              # File.delete(extras_path)
             end
 
             fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign.pdf' : '.pdf')
+            # Ensure that the fixture PDF actually exists as match_pdf_fields will give vague errors
+            # (IOError) if the fixture file can't be found
+            expect(Pathname.new(fixture_pdf)).to exist
             expect(file_path).to match_pdf_fields(fixture_pdf)
 
-            File.delete(file_path)
+            # File.delete(file_path)
           end
         end
       end
