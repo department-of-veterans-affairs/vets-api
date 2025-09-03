@@ -20,17 +20,6 @@ describe UnifiedHealthData::Service, type: :service do
       ).read)
     end
 
-  describe '#get_labs' do
-    let(:labs_response) do
-      file_path = Rails.root.join('spec', 'fixtures', 'unified_health_data', 'labs_response.json')
-      JSON.parse(File.read(file_path))
-    end
-    let(:sample_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'sample_response.json'
-      ).read)
-    end
-
     context 'with defensive nil checks' do
       it 'handles missing contained sections' do
         # Simulate missing contained by modifying the response
