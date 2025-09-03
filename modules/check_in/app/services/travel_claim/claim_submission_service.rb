@@ -72,22 +72,13 @@ module TravelClaim
     ##
     # Validates required parameters are present and not blank.
     #
-    # @raise [ArgumentError] if any required parameter is missing
+    # @raise [Common::Exceptions::BackendServiceException] if any required parameter is missing
     #
     def validate_parameters
-      Rails.logger.debug do
-        "Validating parameters: check_in=#{@check_in.inspect}, " \
-          "appointment_date=#{@appointment_date.inspect}, " \
-          "facility_type=#{@facility_type.inspect}, " \
-          "uuid=#{@uuid.inspect}"
-      end
-
-      raise ArgumentError, 'CheckIn object is required' if @check_in.nil?
-      raise ArgumentError, 'Appointment date is required' if @appointment_date.blank?
-      raise ArgumentError, 'Facility type is required' if @facility_type.blank?
-      raise ArgumentError, 'Uuid is required' if @uuid.blank?
-
-      Rails.logger.debug('Validation passed')
+      raise_backend_service_exception('CheckIn object is required', 400, 'VA901') if @check_in.nil?
+      raise_backend_service_exception('Appointment date is required', 400, 'VA902') if @appointment_date.blank?
+      raise_backend_service_exception('Facility type is required', 400, 'VA903') if @facility_type.blank?
+      raise_backend_service_exception('Uuid is required', 400, 'VA904') if @uuid.blank?
     end
 
     ##
@@ -134,7 +125,7 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if expense addition fails
     #
     def add_expense_to_claim(claim_id)
-      log_message(:info, 'Add expense to claim', claim_id: claim_id&.slice(0, 8), uuid: @uuid)
+      log_message(:info, 'Add expense to claim', uuid: @uuid)
 
       response = client.send_mileage_expense_request(claim_id:, date_incurred: @appointment_date)
 
@@ -148,7 +139,7 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if submission fails
     #
     def submit_claim_for_processing(claim_id)
-      log_message(:info, 'Submit claim', claim_id: claim_id&.slice(0, 8), uuid: @uuid)
+      log_message(:info, 'Submit claim', uuid: @uuid)
 
       response = client.send_claim_submission_request(claim_id:)
 
