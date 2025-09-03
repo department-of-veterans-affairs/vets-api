@@ -71,7 +71,7 @@ RSpec.describe ParameterFilterHelper do
   end
   describe '.simple_test' do
     it 'does nothing' do
-      expect(true).to eq(true)
+      expect(true).to be(true)
     end
   end
 end
