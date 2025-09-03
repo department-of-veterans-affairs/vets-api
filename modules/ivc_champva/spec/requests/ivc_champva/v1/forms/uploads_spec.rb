@@ -276,6 +276,68 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
       expect(response).to have_http_status(:internal_server_error)
     end
+
+    it 'creates correct metadata with OHI form attachment_ids when applicants have health insurance' do
+      # Enable the non-production environment setting (required for submit_champva_app_merged)
+      allow(Settings).to receive(:vsp_environment).and_return('development')
+
+      # Mock supporting document records
+
+      # Mock S3 uploads
+      allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+        double('response',
+               context: double('context', http_response: double('http_response', status_code: 200)))
+      )
+
+      # Mock PDF generation for OHI forms
+      mock_pdf_filler = double('IvcChampva::PdfFiller')
+      allow(IvcChampva::PdfFiller).to receive(:new).and_return(mock_pdf_filler)
+      allow(mock_pdf_filler).to receive(:generate).and_return('/tmp/test_ohi_form.pdf')
+
+      # Mock file operations for OHI form generation
+      allow(File).to receive(:open).and_call_original
+      allow(File).to receive(:open).with('/tmp/test_ohi_form.pdf', 'rb').and_yield(StringIO.new('test pdf content'))
+      allow(FileUtils).to receive(:rm_f)
+
+      # Mock PersistentAttachment save process
+      mock_attachment = double('PersistentAttachments::MilitaryRecords')
+      allow(PersistentAttachments::MilitaryRecords).to receive_messages(
+        find_by: double('Record', created_at: 1.day.ago, id: 'some_uuid',
+                                  file: double(id: 'file0')), new: mock_attachment
+      )
+      allow(mock_attachment).to receive(:file=)
+      allow(mock_attachment).to receive(:save)
+      allow(mock_attachment).to receive(:guid).and_return('test-ohi-guid')
+
+      # Mock attachment serialization
+      allow(IvcChampva::Attachments).to receive(:serialize_attachment)
+                                    .and_return({
+                                                  'name' => 'test_ohi_form.pdf',
+                                                  'confirmation_code' => 'test-ohi-guid',
+                                                  'attachment_id' => 'vha_10_7959c'
+                                                })
+
+      # Track the metadata that gets passed to FileUploader
+      captured_metadata = nil
+      allow_any_instance_of(IvcChampva::FileUploader).to receive(:handle_uploads).and_wrap_original do |method|
+        captured_metadata = method.receiver.metadata
+        [200]
+      end
+
+      # Make the request with data that has applicants with health insurance
+      post '/ivc_champva/v1/forms/10-10d-ext', params: data
+
+      expect(response).to have_http_status(:ok)
+
+      # Verify metadata contains correct attachment_ids
+      expect(captured_metadata).to be_present
+      expect(captured_metadata['attachment_ids']).to be_an(Array)
+      expect(captured_metadata['attachment_ids']).to include('vha_10_10d') # Main form
+      expect(captured_metadata['attachment_ids']).to include('vha_10_7959c') # OHI form
+
+      # Verify the main form docType uses the original form_number from user submission
+      expect(captured_metadata['docType']).to eq('10-10D-EXTENDED')
+    end
   end
 
   describe 'stored ves data is encrypted' do

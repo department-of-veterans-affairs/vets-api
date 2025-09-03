@@ -111,7 +111,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
 
         # Verify OHI forms were added as supporting documents
         expect(submitted_data['supporting_docs']).not_to be_empty
-        expect(submitted_data['supporting_docs'].any? { |doc| doc['attachment_id'] == 'VA form 10-7959c' }).to be true
+        expect(submitted_data['supporting_docs'].any? { |doc| doc['attachment_id'] == 'vha_10_7959c' }).to be true
       end
 
       it 'handles errors during OHI form generation' do
@@ -165,12 +165,12 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
           allow(controller).to receive(:fill_ohi_and_return_path).with(form).and_return(path)
 
           # Call the private method
-          attachment_data = controller.send(:create_custom_attachment, form, path, 'VA form 10-7959c')
+          attachment_data = controller.send(:create_custom_attachment, form, path, 'vha_10_7959c')
 
           # Verify the attachment was created with expected data
           expect(attachment_data).not_to be_nil
           expect(attachment_data).to include('name')
-          expect(attachment_data).to include('attachment_id' => 'VA form 10-7959c')
+          expect(attachment_data).to include('attachment_id' => 'vha_10_7959c')
         end
       end
     end
