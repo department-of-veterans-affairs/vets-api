@@ -5,8 +5,8 @@ require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
 require_relative 'models/clinical_notes'
-require_relative 'models/prescription'
 require_relative 'models/prescription_attributes'
+require_relative 'models/prescription'
 require_relative 'adapters/clinical_notes_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'reference_range_formatter'
@@ -480,10 +480,14 @@ module UnifiedHealthData
     end
 
     def extract_successful_refills(body)
-      # Assuming the API returns a list of successful prescription IDs
-      # Adjust based on actual API response format
-      successful_ids = body['successfulRefills'] || []
-      successful_ids.map { |id| { id: id, status: 'submitted' } }
+      # Parse successful refills from API response
+      successful_refills = body['successfulRefills'] || []
+      successful_refills.map do |refill|
+        {
+          id: refill['prescriptionId'],
+          status: refill['status'] || 'submitted'
+        }
+      end
     end
 
     def extract_failed_refills(body)

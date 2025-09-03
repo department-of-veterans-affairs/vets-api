@@ -911,4 +911,227 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
   end
+
+  # Prescriptions
+  describe '#get_prescriptions' do
+    let(:prescriptions_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'prescriptions_response.json'
+      ).read)
+    end
+
+    context 'with valid prescription responses' do
+      before do
+        allow(service).to receive_messages(fetch_access_token: 'token', 
+                                           perform: double(body: prescriptions_response),
+                                           parse_response_body: prescriptions_response)
+      end
+
+      it 'returns prescriptions from both VistA and Oracle Health' do
+        prescriptions = service.get_prescriptions
+        expect(prescriptions.size).to eq(5) # 3 VistA + 2 Oracle Health
+        
+        # Check that prescriptions are UnifiedHealthData::Prescription objects
+        expect(prescriptions).to all(be_a(UnifiedHealthData::Prescription))
+        
+        # Verify delegation methods work
+        expect(prescriptions.map(&:prescription_id)).to include('28148665', '28148545', '5098027', '15208365735', '15209317771')
+        expect(prescriptions.map(&:prescription_name)).to include('COAL TAR 2.5% TOP SOLN', 'BACITRACIN 500 UNT/GM OPH OINT')
+      end
+
+      it 'properly maps VistA prescription fields' do
+        prescriptions = service.get_prescriptions
+        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
+        
+        expect(vista_prescription.refill_status).to eq('active')
+        expect(vista_prescription.refill_remaining).to eq(11)
+        expect(vista_prescription.facility_name).to eq('SLC4')
+        expect(vista_prescription.prescription_name).to eq('COAL TAR 2.5% TOP SOLN')
+        expect(vista_prescription.sig).to eq('APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY')
+        expect(vista_prescription.is_refillable).to be true
+        expect(vista_prescription.station_number).to eq('991')
+        expect(vista_prescription.prescription_number).to eq('3636485')
+      end
+
+      it 'properly maps Oracle Health prescription fields' do
+        prescriptions = service.get_prescriptions
+        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
+        
+        expect(oracle_prescription.refill_status).to eq('active')
+        expect(oracle_prescription.refill_remaining).to eq(0)
+        expect(oracle_prescription.prescription_name).to eq('amLODIPine (amLODIPine 5 mg tablet)')
+        expect(oracle_prescription.sig).to eq('See Instructions, daily, 1 EA, 0 Refill(s)')
+        expect(oracle_prescription.is_refillable).to be false # 0 refills remaining
+        expect(oracle_prescription.ordered_date).to eq('2025-01-29T19:41:43Z')
+      end
+
+      it 'handles different refill statuses correctly' do
+        prescriptions = service.get_prescriptions
+        
+        active_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
+        submitted_prescription = prescriptions.find { |p| p.prescription_id == '28148545' }
+        expired_prescription = prescriptions.find { |p| p.prescription_id == '5098027' }
+        
+        expect(active_prescription.refill_status).to eq('active')
+        expect(submitted_prescription.refill_status).to eq('submitted')
+        expect(expired_prescription.refill_status).to eq('expired')
+      end
+
+      it 'logs prescription retrieval information' do
+        allow(Rails.logger).to receive(:info)
+        
+        service.get_prescriptions
+        
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            message: 'UHD prescriptions retrieved',
+            total_prescriptions: 5,
+            service: 'unified_health_data'
+          )
+        )
+      end
+    end
+
+    context 'with malformed response' do
+      before do
+        allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: nil))
+      end
+
+      it 'handles gracefully' do
+        allow(service).to receive(:parse_response_body).and_return(nil)
+        expect { service.get_prescriptions }.not_to raise_error
+      end
+
+      it 'returns empty array for nil response' do
+        allow(service).to receive(:parse_response_body).and_return(nil)
+        result = service.get_prescriptions
+        expect(result).to eq([])
+      end
+    end
+
+    context 'with partial data' do
+      let(:vista_only_response) do
+        {
+          'vista' => prescriptions_response['vista'],
+          'oracle-health' => nil
+        }
+      end
+
+      let(:oracle_only_response) do
+        {
+          'vista' => nil,
+          'oracle-health' => prescriptions_response['oracle-health']
+        }
+      end
+
+      it 'handles VistA-only data' do
+        allow(service).to receive_messages(fetch_access_token: 'token',
+                                           perform: double(body: vista_only_response),
+                                           parse_response_body: vista_only_response)
+        
+        prescriptions = service.get_prescriptions
+        expect(prescriptions.size).to eq(3)
+        expect(prescriptions.map(&:prescription_id)).to contain_exactly('28148665', '28148545', '5098027')
+      end
+
+      it 'handles Oracle Health-only data' do
+        allow(service).to receive_messages(fetch_access_token: 'token',
+                                           perform: double(body: oracle_only_response),
+                                           parse_response_body: oracle_only_response)
+        
+        prescriptions = service.get_prescriptions
+        expect(prescriptions.size).to eq(2)
+        expect(prescriptions.map(&:prescription_id)).to contain_exactly('15208365735', '15209317771')
+      end
+    end
+  end
+
+  describe '#refill_prescription' do
+    let(:refill_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'refill_response.json'
+      ).read)
+    end
+
+    context 'with valid refill request' do
+      before do
+        allow(service).to receive_messages(fetch_access_token: 'token',
+                                           perform: double(body: refill_response, status: 200),
+                                           parse_response_body: refill_response)
+      end
+
+      it 'submits refill requests and returns success/failure breakdown' do
+        prescription_ids = ['28148665', '28148545']
+        result = service.refill_prescription(prescription_ids)
+        
+        expect(result).to have_key(:success)
+        expect(result).to have_key(:failed)
+        
+        expect(result[:success]).to contain_exactly(
+          { id: '28148665', status: 'submitted' }
+        )
+        
+        expect(result[:failed]).to contain_exactly(
+          { id: '28148545', error: 'Prescription already has pending refill request' }
+        )
+      end
+
+      it 'formats request body correctly' do
+        prescription_ids = ['12345', '67890']
+        expected_body = {
+          prescriptions: [
+            { orderId: '12345' },
+            { orderId: '67890' }
+          ]
+        }.to_json
+
+        expect(service).to receive(:perform).with(
+          :post,
+          anything,
+          expected_body,
+          hash_including('Content-Type' => 'application/json')
+        ).and_return(double(body: refill_response))
+
+        service.refill_prescription(prescription_ids)
+      end
+    end
+
+    context 'with service errors' do
+      it 'handles network errors gracefully' do
+        allow(service).to receive(:fetch_access_token).and_raise(StandardError.new('Network error'))
+        
+        prescription_ids = ['12345']
+        result = service.refill_prescription(prescription_ids)
+        
+        expect(result[:success]).to eq([])
+        expect(result[:failed]).to contain_exactly(
+          { id: '12345', error: 'Service unavailable' }
+        )
+      end
+
+      it 'logs error when refill fails' do
+        allow(service).to receive(:fetch_access_token).and_raise(StandardError.new('API error'))
+        allow(Rails.logger).to receive(:error)
+        
+        service.refill_prescription(['12345'])
+        
+        expect(Rails.logger).to have_received(:error).with('Error submitting prescription refill: API error')
+      end
+    end
+
+    context 'with malformed response' do
+      before do
+        allow(service).to receive_messages(fetch_access_token: 'token',
+                                           perform: double(body: '{}'),
+                                           parse_response_body: {})
+      end
+
+      it 'handles empty response gracefully' do
+        result = service.refill_prescription(['12345'])
+        
+        expect(result[:success]).to eq([])
+        expect(result[:failed]).to eq([])
+      end
+    end
+  end
 end
