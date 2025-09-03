@@ -235,8 +235,8 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
   describe '#representative_email_address' do
     let(:notification) { build(:power_of_attorney_request_notification, power_of_attorney_request:) }
 
-    it 'returns accredited individual email if present' do
-      individual = double('AccreditedIndividual', email: 'ind@example.com')
+    it 'returns representative email if present' do
+      individual = double('Veteran::Service::Representative', email: 'ind@example.com')
       allow(notification).to receive(:accredited_individual).and_return(individual)
       expect(notification.representative_email_address).to eq('ind@example.com')
     end
@@ -251,7 +251,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
     let(:notification) { build(:power_of_attorney_request_notification, power_of_attorney_request:) }
 
     it 'returns resolver email if present' do
-      resolver_individual = double('AccreditedIndividual', email: 'resolver@example.com')
+      resolver_individual = double('Veteran::Service::Representative', email: 'resolver@example.com')
       resolution = double('Resolution', resolving: double(accredited_individual: resolver_individual))
       allow(notification.power_of_attorney_request).to receive(:resolution).and_return(resolution)
 

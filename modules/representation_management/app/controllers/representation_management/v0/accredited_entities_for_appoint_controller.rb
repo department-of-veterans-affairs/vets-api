@@ -10,9 +10,9 @@ module RepresentationManagement
       def index
         data = RepresentationManagement::AccreditedEntityQuery.new(params[:query]).results
         json_response = data.map do |record|
-          if record.is_a?(AccreditedIndividual)
+          if record.is_a?(Veteran::Service::Representative)
             RepresentationManagement::AccreditedEntities::IndividualSerializer.new(record).serializable_hash
-          elsif record.is_a?(AccreditedOrganization)
+          elsif record.is_a?(Veteran::Service::Organization)
             RepresentationManagement::AccreditedIndividuals::OrganizationSerializer.new(record).serializable_hash
           end
         end

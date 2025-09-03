@@ -8,7 +8,7 @@ module AccreditedRepresentativePortal
 
       # @note For the 21-22 pilot:
       #   1. poa_code is required and it is associated with a Veteran::Service::Organization record
-      #   2. the holder_type is always an AccreditedOrganization
+      #   2. the holder_type is always a Veteran::Service::Organization
       def initialize(claimant:, form_data:, poa_code:, registration_number: nil)
         @claimant = claimant
         @form_data = form_data

@@ -14,7 +14,7 @@ module RepresentationManagement
 
     # Executes the query and returns the results as an array of objects.
     #
-    # @return [Array<AccreditedIndividual, AccreditedOrganization>] an array of accredited entities
+    # @return [Array<Veteran::Service::Representative, Veteran::Service::Organization>] an array of accredited entities
     #   that match the query string, sorted by their similarity distance. The array will be empty
     #   if the query string is blank.
     def results
@@ -39,19 +39,19 @@ module RepresentationManagement
     # rubocop:disable Metrics/MethodLength
     # Generates the SQL query used to search for accredited entities.
     #
-    # @return [String] the SQL query string. The query retrieves both accredited individuals and
+    # @return [String] the SQL query string. The query retrieves both representatives and
     #   organizations that have a name similar to the query string, using the Levenshtein distance
     #   for sorting results.
     def sql_query_to_select_and_sort_accredited_entities
       <<-SQL.squish
         WITH combined AS (
           SELECT
-            id,
-            full_name AS name,
-            'AccreditedIndividual' AS model_type,
+      representative_id AS id,
+      full_name AS name,
+      'Veteran::Service::Representative' AS model_type,
             levenshtein(full_name, :query_string) AS distance
           FROM
-            accredited_individuals
+      veteran_representatives
           WHERE
             word_similarity(:query_string, full_name) >= :threshold
             AND location IS NOT NULL
@@ -59,12 +59,12 @@ module RepresentationManagement
           UNION ALL
 
           SELECT
-            id,
+      poa AS id,
             name AS name,
-            'AccreditedOrganization' AS model_type,
+      'Veteran::Service::Organization' AS model_type,
             levenshtein(name, :query_string) AS distance
           FROM
-            accredited_organizations
+      veteran_organizations
           WHERE
             word_similarity(:query_string, name) >= :threshold
         )
@@ -86,22 +86,22 @@ module RepresentationManagement
     #
     # @param array_results [Array<Hash>] an array of hashes representing the raw results from the SQL query.
     #   Each hash contains an `id`, `model_type`, and `distance`.
-    # @return [Array<AccreditedIndividual, AccreditedOrganization>] an array of instantiated objects
-    #   corresponding to the IDs in the raw results. Each object is either an `AccreditedIndividual`
-    #   or an `AccreditedOrganization` based on the `model_type` in the result.
+    # @return [Array<Veteran::Service::Representative, Veteran::Service::Organization>] an array of instantiated objects
+    #   corresponding to the IDs in the raw results. Each object is either a `Veteran::Service::Representative`
+    #   or a `Veteran::Service::Organization` based on the `model_type` in the result.
     def transform_results_to_objects(array_results)
       grouped_results = array_results.group_by { |result| result['model_type'] }
 
-      individual_ids = grouped_results['AccreditedIndividual']&.pluck('id') || []
-      organization_ids = grouped_results['AccreditedOrganization']&.pluck('id') || []
+      individual_ids = grouped_results['Veteran::Service::Representative']&.pluck('id') || []
+      organization_ids = grouped_results['Veteran::Service::Organization']&.pluck('id') || []
 
-      individuals = AccreditedIndividual.where(id: individual_ids).index_by(&:id)
-      organizations = AccreditedOrganization.where(id: organization_ids).index_by(&:id)
+      individuals = Veteran::Service::Representative.where(representative_id: individual_ids).index_by(&:representative_id)
+      organizations = Veteran::Service::Organization.where(poa: organization_ids).index_by(&:poa)
 
       array_results.map do |result|
         model_type = result['model_type']
         id = result['id']
-        model_type == 'AccreditedIndividual' ? individuals[id] : organizations[id]
+        model_type == 'Veteran::Service::Representative' ? individuals[id] : organizations[id]
       end
     end
   end
