@@ -10,6 +10,7 @@ accredited_representative_portal:
       base_uri: https://api.github.com
       path: <%= ENV['accredited_representative_portal__allow_list__github__path'] %>
       repo: department-of-veterans-affairs/va.gov-team-sensitive
+  frontend_base_url: <%= ENV['accredited_representative_portal__frontend_base_url'] %>
 adapted_housing:
   prefill: true
 argocd:
@@ -154,6 +155,7 @@ check_in:
     tenant_id: <%= ENV['check_in__travel_reimbursement_api_v2__tenant_id'] %>
     travel_pay_client_id: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_id'] %>
     travel_pay_client_secret: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_secret'] %>
+    travel_pay_resource: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_resource'] %>
   vaos:
     mock: <%= ENV['check_in__vaos__mock'] %>
 chip:
@@ -228,6 +230,7 @@ claims_api:
 claims_evidence_api:
   base_url: <%= ENV['claims_evidence_api__base_url'] %>
   breakers_error_threshold: 80
+  include_request: false
   jwt_secret: <%= ENV['claims_evidence_api__jwt_secret'] %>
   mock: false
   ssl: true
@@ -1308,6 +1311,7 @@ va_profile:
     enabled: <%= ENV['va_profile__veteran_status__enabled'] %>
     mock: <%= ENV['va_profile__veteran_status__mock'] %>
     timeout: 30
+valid_va_file_number: false
 vanotify:
   callback_url: <%= ENV['vanotify__callback_url'] %>
   client_url: <%= ENV['vanotify__client_url'] %>
@@ -1503,6 +1507,8 @@ vanotify:
     va_gov:
       api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
       template_id:
+        accredited_representative_portal_poa_request_failure_claimant_email: <%= ENV['vanotify__services__va_gov__template_id__accredited_representative_portal_poa_request_failure_claimant_email'] %>
+        accredited_representative_portal_poa_request_failure_rep_email: <%= ENV['vanotify__services__va_gov__template_id__accredited_representative_portal_poa_request_failure_rep_email'] %>
         appoint_a_representative_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_confirmation_email'] %>
         appoint_a_representative_digital_expiration_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_expiration_confirmation_email'] %>
         appoint_a_representative_digital_expiration_warning_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_expiration_warning_email'] %>

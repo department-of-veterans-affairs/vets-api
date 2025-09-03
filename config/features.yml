@@ -73,6 +73,12 @@ features:
   arm_use_datadog_real_user_monitoring:
     actor_type: user
     description: Enables Datadog Real User Monitoring for ARM apps (Find a Rep, Appoint a Rep)
+  ar_poa_request_failure_claimant_notification:
+    actor_type: user
+    description: Enables sending POA failure notifications to claimants
+  ar_poa_request_failure_rep_notification:
+    actor_type: user
+    description: Enables sending POA failure notifications to representatives
   ask_va_announcement_banner:
     actor_type: cookie_id
     description: >
@@ -146,9 +152,6 @@ features:
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
-  decision_reviews_4142_banner:
-    actor_type: user
-    description: Enables the re-authorization banner on the 4142 legalese page
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -156,6 +159,8 @@ features:
   dv_email_notification:
     actor_type: user
     description: Enables dependents verification emails
+  event_bus_gateway_ep040_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP040 claims"
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -278,6 +283,12 @@ features:
   champva_foreign_address_fix:
     actor_type: user
     description: Enables the fix for foreign address fields on form submissions
+  champva_form_versioning:
+    actor_type: user
+    description: Enables the form versioning for IVC CHAMPVA form submissions
+  champva_form_10_10d_2027:
+    actor_type: user
+    description: If enabled uses the 2027 version of form 10-10d with expiration 12/31/2027
   champva_ves_retry_failures_job:
     actor_type: user
     description: Enables the sidekiq job to retry VES submissions that failed
@@ -401,10 +412,6 @@ features:
     actor_type: user
     description: Use new Form526 Establishment Service (FES) for v2 disability compensation claims
     enable_in_development: true
-  lighthouse_claims_api_run_header_hash_filler_job:
-    actor_type: user
-    description: When enabled, will allow for the header hash to be filled in by the HeaderHashFillerJob
-    enable_in_development: true
   confirmation_page_new:
     actor_type: user
     description: Enables the 2024 version of the confirmation page view in simple forms
@@ -453,14 +460,6 @@ features:
     actor_type: user
     description: When enabled, CST does not show Attorney Fees, Secondary Action Required, or Stage 2 Development on mobile
     enable_in_development: false
-  cst_override_pmr_pending_tracked_items:
-    actor_type: user
-    description: When enabled, CST overrides PMR Pending tracked items to be NEEDED_FROM_OTHERS
-    enable_in_development: true
-  cst_override_reserve_records_website:
-    actor_type: user
-    description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on vets-website
-    enable_in_development: true
   cst_override_reserve_records_mobile:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
@@ -613,9 +612,6 @@ features:
   decision_review_service_common_exceptions_enabled:
     actor_type: user
     description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
-  decision_review_form4142_use_2024_template:
-    actor_type: user
-    description: Enables the use of the 2024 template for form 4142 in decision review applications
   decision_review_form4142_validate_schema:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in decision review applications
@@ -627,6 +623,10 @@ features:
   dependents_enqueue_with_user_struct:
     actor_type: user
     description: Manage whether the enqueued job for 686c and 674 will be with a User model or the new User struct
+    enable_in_development: true
+  dependents_module_enabled:
+    actor_type: user
+    description: Enables new Dependents module
     enable_in_development: true
   dependents_pension_check:
     actor_type: user
@@ -645,7 +645,7 @@ features:
     description: Enable using the ClaimsEvidenceAPI module to upload 686/674 documents to VBMS
   dependents_bypass_schema_validation:
     actor_type: user
-    description: Bypasses vets_json_schema validation for dependency claims 
+    description: Bypasses vets_json_schema validation for dependency claims
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -757,6 +757,10 @@ features:
     actor_type: user
     description: Enables duplicate prevention for digital dispute submissions
     enable_in_development: false
+  event_bus_gateway_retry_emails:
+    actor_type: user
+    description: When enabled, vets-api retries event bus gateway emails that VA Notify marks temporary-failure
+    enable_in_development: true
   facilities_autosuggest_vamc_services_enabled:
     actor_type: user
     description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
@@ -1236,6 +1240,10 @@ features:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
     enable_in_development: true
+  mhv_medical_records_ccd_extended_file_types:
+    actor_type: user
+    description: Allows users to download CCD (health summary) in PDF and HTML formats
+    enable_in_development: true
   mhv_medical_records_display_conditions:
     actor_type: user
     description: Show/hide content related to Health Conditions in Medical Records
@@ -1311,6 +1319,10 @@ features:
   mhv_medical_records_milestone_two:
     actor_type: user
     description: Enables/disables Medical Records new Milestone 2 changes
+    enable_in_development: true
+  mhv_medical_records_retry_next_page:
+    actor_type: user
+    description: Enables/disables with_retries when getting the next page
     enable_in_development: true
   mhv_medical_records_support_backend_pagination_allergy:
     actor_type: user
@@ -1531,6 +1543,9 @@ features:
   profile_show_quick_submit_notification_setting:
     actor_type: user
     description: Show/Hide the quick submit section of notification settings in profile
+  profile_validate_address_when_no_candidate_found:
+    actor_type: user
+    description: When enabled, a NoCandidateFound error will be followed up by a call to the validate endpoint
   profile_show_no_validation_key_address_alert:
     actor_type: user
     description: Show/Hide alert messages when no validationKey is returned from the address_validation endpoint
@@ -1912,9 +1927,6 @@ features:
   vet_status_pdf_logging:
     actor_type: user
     description: Enables the Veteran Status Card to log PDF download events/failures
-  vet_status_stage_1:
-    actor_type: user
-    description: Enables the stage 1 features of the veteran status card
   vre_cutover_notice:
     actor_type: user
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
@@ -2135,6 +2147,10 @@ features:
     actor_type: user
     description: Show the alert on frontend for the Intent to File for Pension
     enable_in_development: true
+  pension_extras_redesign_enabled:
+    actor_type: user
+    description: Enable the new overflow design
+    enable_in_development: true
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
@@ -2185,6 +2201,13 @@ features:
       A frontend-focused switch that toggles visibility of and access to the Travel Pay claim details page and entry point (features toggled together).
       Enabled - Entry point link and claim details page are viewable.
       Disabled - Entry point link and claim details page are not viewable.
+  travel_pay_enable_complex_claims:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the availability of the expense and document submission features for travel pay claims. This feature flag can be retired when the feature is deployed to 100% of logged-in users in production for > 30 days.
+      Enabled - Requests are handled as normal. Users can submit various types of expenses (mileage, lodging, meal, other) to their travel pay claims. Users can upload documents to their travel claims.
+      Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
   travel_pay_submit_mileage_expense:
     actor_type: user
     enable_in_development: true
@@ -2374,6 +2397,23 @@ features:
   gi_feedback_tool_vet_tec_education_benefit:
     actor_type: user
     description: Includes the (VET TEC 2.0) option for selection under the Education Benefits question in the GI Bill® School Feedback Tool
+  discover_your_benefits_browser_monitoring_enabled:
+    actor_type: user
+    description: Discover Your Benefits Datadog RUM monitoring
+  accredited_representative_portal_homepage:
+    actor_type: user
+    description: Enables new homepage redesign for ARP
+  accredited_representative_portal_dashboard_link:
+    actor_type: user
+    description: Enables new dashboard link on nav
+  gi_comparison_tool_cautionary_info_update:
+    actor_type: user
+    description: Enables updated cautionary info student feedback ui for GI Comparison Tool
+  va_online_scheduling_add_substance_use_disorder:
+    actor_type: user
+    description: Enables substance use disorder as care related to mental health appointments with new codes
+    enable_in_development: true
+
   form1995_confirmation_email_with_silent_failure_processing:
     actor_type: user
     description: If enabled, confirmation email will be sent with silent failure processing

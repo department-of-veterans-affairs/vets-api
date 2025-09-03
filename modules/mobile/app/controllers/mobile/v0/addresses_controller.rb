@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'va_profile/address_validation/service'
-require 'va_profile/v3/address_validation/service'
+require 'va_profile/address_validation/v3/service'
 
 module Mobile
   module V0
@@ -83,7 +83,7 @@ module Mobile
 
       def validation_service
         if Flipper.enabled?(:remove_pciu)
-          VAProfile::V3::AddressValidation::Service.new
+          VAProfile::AddressValidation::V3::Service.new
         else
           VAProfile::AddressValidation::Service.new
         end
