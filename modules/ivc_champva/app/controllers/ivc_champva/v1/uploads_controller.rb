@@ -75,7 +75,7 @@ module IvcChampva
           ohi_forms = generate_ohi_form(app, parsed_form_data)
           ohi_forms.each do |f|
             ohi_path = fill_ohi_and_return_path(f)
-            ohi_supporting_doc = create_custom_attachment(f, ohi_path, 'VA form 10-7959c')
+            ohi_supporting_doc = create_custom_attachment(f, ohi_path, 'vha_10_7959c')
             add_supporting_doc(parsed_form_data, ohi_supporting_doc)
           end
         end
