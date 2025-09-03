@@ -115,6 +115,11 @@ module DecisionReviews
       response = get_record_status(record.guid)
       attributes = response.dig('data', 'attributes')
       status = attributes['status']
+      created_date = attributes['createdAt']
+
+      if FINAL_STATUSES.exclude?(status) && created_date < 30.days.ago.iso8601
+        Rails.logger.error('SavedClaim not in final status after 30+ days', { guid: record.guid })
+      end
 
       [status, attributes]
     rescue DecisionReviews::V1::ServiceException => e
