@@ -983,8 +983,10 @@ module VAOS
 
       def log_telehealth_issue(appointment)
         if appointment[:start]
-          fifteen_before = appointment[:start].to_datetime - 15.minutes
-          fifteen_after = appointment[:start].to_datetime + 15.minutes
+          start_time = appointment[:start].to_datetime
+          time_now = Time.now.utc
+          fifteen_before = start_time - 15.minutes
+          fifteen_after = start_time + 15.minutes
           context = {
             displayLink: appointment.dig(:telehealth, :display_link),
             kind: appointment[:kind],
@@ -993,11 +995,11 @@ module VAOS
             vvsVistaVideoAppt: appointment.dig(:extension, :vvs_vista_video_appt),
             facilityId: appointment[:location_id],
             clinicId: appointment[:clinic],
-            afterFiveBeforeStart: Time.now.utc >= appointment[:start].to_datetime - 5.minutes
+            afterFiveBeforeStart: time_now >= start_time - 5.minutes
           }
           Rails.logger.warn('VAOS video telehealth issue', context.to_json) if context[:telehealthUrl].blank? &&
-                                                                               Time.now.utc >= fifteen_before &&
-                                                                               Time.now.utc <= fifteen_after
+                                                                               time_now >= fifteen_before &&
+                                                                               time_now <= fifteen_after
         end
       end
 
