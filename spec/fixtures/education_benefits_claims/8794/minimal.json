@@ -1,0 +1,70 @@
+  {
+    "designatingOfficial": {
+        "fullName": "Joe Official",
+        "title": "President", 
+        "phoneNumber": "5555555555",
+        "emailAddress": "joe@example.com"
+    },
+    "institutionDetails": {
+      "hasVaFacilityCode": true,
+      "facilityCode":  "01234567",
+      "institutionName": "Test University",
+      "institutionAddress" :{
+        "street": "123 Test St",
+        "street2": "Apt B",
+        "city": "Test",
+        "state": "TN",
+        "postalCode": "12345",
+        "country": "USA"
+      }
+    },
+    "primaryOfficialDetails": {
+      "fullName": "Joe Official",
+      "title": "Vice President",
+      "phoneNumber": "5555555555",
+      "emailAddress": "joe@example.com"
+    },
+    "primaryOfficialTraining": {
+      "trainingCompletionDate": "2025-01-01",
+      "trainingExempt": true
+    },
+    "primaryOfficialBenefitStatus": {
+      "hasVaEducationBenefits": true
+    },
+    "additionalCertifyingOfficials": [
+      {
+        "additionalCertifyingOfficialsDetails": {
+          "fullName": "Other Official1",
+          "title": "Manager",
+          "phoneNumber": "5555551234",
+          "emailAddress": "other1@example.com",
+          "trainingCompletionDate": "2025-01-01",
+          "hasVaEducationBenefits": false,
+          "trainingExempt": false
+        }
+      },
+      {
+        "additionalCertifyingOfficialsDetails": {
+          "fullName": "Other Official2",
+          "title": "Vice Manager",
+          "phoneNumber": "5555551235",
+          "emailAddress": "other2@example.com",
+          "trainingCompletionDate": "2025-01-01",
+          "hasVaEducationBenefits": false,
+          "trainingExempt": false
+        }
+      }
+    ],
+    "hasReadOnlyCertifyingOfficial": true,
+    "readOnlyCertifyingOfficial": [
+      {
+        "fullName": "James Nobody"
+      },
+      {
+        "fullName": "Jane Nobody"
+      }
+    ],
+    "remarks": "No remarks at this time",
+    "statementOfTruthSignature": "John Hancock",
+    "dateSigned": "2025-01-01"
+  }
