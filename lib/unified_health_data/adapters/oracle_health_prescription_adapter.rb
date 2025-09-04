@@ -40,7 +40,7 @@ module UnifiedHealthData
                                                         is_refillable: extract_is_refillable(resource),
                                                         is_trackable: false, # Default for Oracle Health
                                                         instructions: extract_instructions(resource),
-                                                        facility_phone_number: nil, # Not typically in FHIR
+                                                        facility_phone_number: extract_facility_phone_number(resource),
                                                         data_source_system: 'ORACLE_HEALTH'
                                                       })
       end
@@ -51,7 +51,7 @@ module UnifiedHealthData
         case status
         when 'active' then 'active'
         when 'completed' then 'expired'
-        when 'stopped', 'cancelled' then 'discontinued'
+        when 'stopped', 'cancelled', 'entered-in-error' then 'discontinued'
         else status
         end
       end
@@ -65,11 +65,33 @@ module UnifiedHealthData
       end
 
       def extract_facility_name(resource)
-        resource.dig('dispenseRequest', 'performer', 'display')
+        # Primary: dispenseRequest.performer
+        performer_display = resource.dig('dispenseRequest', 'performer', 'display')
+        return performer_display if performer_display
+
+        # Fallback: check contained MedicationDispense for location
+        if resource['contained']
+          dispense = find_medication_dispense(resource['contained'])
+          location = dispense&.dig('location', 'display')
+          return location if location
+        end
+
+        # Final fallback: requester
+        resource.dig('requester', 'display')
       end
 
       def extract_quantity(resource)
-        resource.dig('dispenseRequest', 'quantity', 'value')
+        # Primary: dispenseRequest.quantity.value
+        quantity = resource.dig('dispenseRequest', 'quantity', 'value')
+        return quantity if quantity
+
+        # Fallback: check contained MedicationDispense
+        if resource['contained']
+          dispense = find_medication_dispense(resource['contained'])
+          return dispense.dig('quantity', 'value') if dispense
+        end
+
+        nil
       end
 
       def extract_expiration_date(resource)
@@ -89,6 +111,13 @@ module UnifiedHealthData
       end
 
       def extract_dispensed_date(resource)
+        # Check for contained MedicationDispense resources
+        if resource['contained']
+          dispense = find_medication_dispense(resource['contained'])
+          return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
+        end
+
+        # Fallback to initial fill date
         resource.dig('dispenseRequest', 'initialFill', 'date')
       end
 
@@ -99,6 +128,8 @@ module UnifiedHealthData
       def extract_is_refillable(resource)
         status = resource['status']
         refills_remaining = extract_refill_remaining(resource)
+
+        # Only active prescriptions with remaining refills are refillable
         status == 'active' && refills_remaining.positive?
       end
 
@@ -107,16 +138,46 @@ module UnifiedHealthData
         return nil if dosage_instructions.empty?
 
         first_instruction = dosage_instructions.first
-        first_instruction['text'] || build_instruction_text(first_instruction)
+
+        # Use patientInstruction if available (more user-friendly)
+        return first_instruction['patientInstruction'] if first_instruction['patientInstruction']
+
+        # Otherwise use text
+        return first_instruction['text'] if first_instruction['text']
+
+        # Build from components
+        build_instruction_text(first_instruction)
+      end
+
+      def extract_facility_phone_number(resource)
+        # Try to extract from performer contact info if available
+        performer = resource.dig('dispenseRequest', 'performer')
+        return nil unless performer
+
+        # This might be in an extension or contained Organization resource
+        # For now, return nil as it's not typically in standard FHIR
+        nil
       end
 
       def build_instruction_text(instruction)
         parts = []
         parts << instruction.dig('timing', 'code', 'text') if instruction.dig('timing', 'code', 'text')
         parts << instruction.dig('route', 'text') if instruction.dig('route', 'text')
-        parts << instruction.dig('doseAndRate', 0, 'doseQuantity', 'value') if instruction.dig('doseAndRate', 0,
-                                                                                               'doseQuantity', 'value')
+
+        dose_and_rate = instruction.dig('doseAndRate', 0)
+        if dose_and_rate
+          dose_quantity = dose_and_rate.dig('doseQuantity', 'value')
+          dose_unit = dose_and_rate.dig('doseQuantity', 'unit')
+          parts << "#{dose_quantity} #{dose_unit}" if dose_quantity
+        end
+
         parts.join(' ')
+      end
+
+      def find_medication_dispense(contained_resources)
+        return nil unless contained_resources.is_a?(Array)
+
+        contained_resources.find { |c| c['resourceType'] == 'MedicationDispense' }
       end
     end
   end

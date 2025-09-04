@@ -315,89 +315,14 @@
         "resource": {
           "resourceType": "MedicationRequest",
           "id": "15209317771",
-          "meta": {
-            "versionId": "0",
-            "lastUpdated": "2025-02-11T19:36:45Z"
-          },
-          "text": {
-            "status": "generated",
-            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Medication Request</b></p><p><b>Status</b>: Active</p><p><b>Intent</b>: Order</p><p><b>Medication</b>: amLODIPine (amLODIPine 2.5 mg oral tablet)</p><p><b>Dosage Instructions</b>: 1 tab(s), Oral, Daily, 90 tab(s), 3 Refill(s)</p><p><b>Patient</b>: BEARDEDIPO, VANCE J</p><p><b>Authored On</b>: Feb 11, 2025  1:35 P.M. CST</p></div>"
-          },
           "status": "active",
-          "intent": "order",
-          "category": [
-            {
-              "coding": [
-                {
-                  "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
-                  "code": "outpatient",
-                  "display": "Outpatient",
-                  "userSelected": false
-                }
-              ]
-            }
-          ],
-          "reportedBoolean": false,
           "medicationCodeableConcept": {
-            "coding": [
-              {
-                "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
-                "code": "197358",
-                "display": "Amlodipine 2.5 MG Oral Tablet",
-                "userSelected": false
-              },
-              {
-                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/synonym",
-                "code": "108684829",
-                "display": "amLODIPine 2.5 mg oral tablet",
-                "userSelected": true
-              }
-            ],
             "text": "amLODIPine (amLODIPine 2.5 mg oral tablet)"
           },
-          "subject": {
-            "reference": "Patient/66235560",
-            "display": "BEARDEDIPO, VANCE J"
-          },
-          "encounter": {
-            "reference": "Encounter/248399649"
-          },
           "authoredOn": "2025-02-11T19:35:27Z",
-          "requester": {
-            "reference": "Practitioner/109410156",
-            "display": "CERNER, CERNER, Cerner Managed Acct"
-          },
-          "courseOfTherapyType": {
-            "coding": [
-              {
-                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4009",
-                "code": "2337",
-                "display": "Maintenance",
-                "userSelected": true
-              },
-              {
-                "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
-                "code": "continuous",
-                "display": "Continuous long term therapy",
-                "userSelected": false
-              }
-            ],
-            "text": "Maintenance"
-          },
           "dosageInstruction": [
             {
-              "extension": [
-                {
-                  "url": "https://fhir-ehr.cerner.com/r4/StructureDefinition/clinical-instruction",
-                  "valueString": "1 tab(s), Oral, Daily, # 90 tab(s), 3 total refill(s), Maintenance"
-                }
-              ],
               "text": "1 tab(s), Oral, Daily, 90 tab(s), 3 Refill(s)",
-              "additionalInstruction": [
-                {
-                  "text": "Daily"
-                }
-              ],
               "patientInstruction": "1 tab(s). Oral. Daily. Refills: 3.",
               "timing": {
                 "repeat": {
@@ -430,14 +355,6 @@
             }
           ],
           "dispenseRequest": {
-            "initialFill": {
-              "quantity": {
-                "value": 90,
-                "unit": "tab(s)",
-                "system": "http://unitsofmeasure.org",
-                "code": "1"
-              }
-            },
             "numberOfRepeatsAllowed": 3,
             "quantity": {
               "value": 90,
@@ -445,19 +362,73 @@
               "system": "http://unitsofmeasure.org",
               "code": "1"
             },
-            "expectedSupplyDuration": {
-              "value": 90,
-              "unit": "days",
-              "system": "http://unitsofmeasure.org",
-              "code": "d"
+            "performer": {
+              "display": "WALLA WALLA VAMC PHARMACY",
+              "identifier": {
+                "value": "687"
+              }
+            },
+            "validityPeriod": {
+              "start": "2025-02-11T19:35:27Z",
+              "end": "2026-02-11T19:35:27Z"
             }
           },
-          "substitution": {
-            "allowedBoolean": true
+          "contained": [
+            {
+              "resourceType": "MedicationDispense",
+              "id": "dispense-1",
+              "whenHandedOver": "2025-02-12T10:30:00Z",
+              "quantity": {
+                "value": 90,
+                "unit": "tab(s)"
+              },
+              "location": {
+                "display": "WALLA WALLA VAMC PHARMACY"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MedicationRequest",
+          "id": "15210000001",
+          "status": "completed",
+          "medicationCodeableConcept": {
+            "text": "BACITRACIN 500 UNT/GM OPH OINT"
           },
-          "priorPrescription": {
-            "reference": "MedicationRequest/15208622081"
-          }
+          "authoredOn": "2025-01-15T14:20:00Z",
+          "dosageInstruction": [
+            {
+              "text": "Apply to affected area twice daily",
+              "patientInstruction": "Apply a small amount to the affected eye area twice daily as needed."
+            }
+          ],
+          "dispenseRequest": {
+            "numberOfRepeatsAllowed": 0,
+            "quantity": {
+              "value": 15,
+              "unit": "gm"
+            },
+            "performer": {
+              "display": "COLUMBUS VAMC PHARMACY"
+            },
+            "validityPeriod": {
+              "start": "2025-01-15T14:20:00Z",
+              "end": "2025-07-15T14:20:00Z"
+            }
+          },
+          "contained": [
+            {
+              "resourceType": "MedicationDispense",
+              "id": "dispense-2",
+              "whenHandedOver": "2025-01-16T09:15:00Z",
+              "quantity": {
+                "value": 15,
+                "unit": "gm"
+              }
+            }
+          ]
         }
       }
     ]

@@ -929,14 +929,14 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'returns prescriptions from both VistA and Oracle Health' do
         prescriptions = service.get_prescriptions
-        expect(prescriptions.size).to eq(5) # 3 VistA + 2 Oracle Health
+        expect(prescriptions.size).to eq(6) # 3 VistA + 3 Oracle Health
 
         # Check that prescriptions are UnifiedHealthData::Prescription objects
         expect(prescriptions).to all(be_a(UnifiedHealthData::Prescription))
 
         # Verify delegation methods work
         expect(prescriptions.map(&:prescription_id)).to include('28148665', '28148545', '5098027', '15208365735',
-                                                                '15209317771')
+                                                                '15209317771', '15210000001')
         expect(prescriptions.map(&:prescription_name)).to include('COAL TAR 2.5% TOP SOLN',
                                                                   'BACITRACIN 500 UNT/GM OPH OINT')
       end
@@ -962,7 +962,7 @@ describe UnifiedHealthData::Service, type: :service do
         expect(oracle_prescription.refill_status).to eq('active')
         expect(oracle_prescription.refill_remaining).to eq(0)
         expect(oracle_prescription.prescription_name).to eq('amLODIPine (amLODIPine 5 mg tablet)')
-        expect(oracle_prescription.sig).to eq('See Instructions, daily, 1 EA, 0 Refill(s)')
+        expect(oracle_prescription.sig).to eq('See Instructions. daily. Refills: 0.')
         expect(oracle_prescription.refillable?).to be false # 0 refills remaining
         expect(oracle_prescription.ordered_date).to eq('2025-01-29T19:41:43Z')
       end
@@ -979,6 +979,22 @@ describe UnifiedHealthData::Service, type: :service do
         expect(expired_prescription.refill_status).to eq('expired')
       end
 
+      it 'properly handles Oracle Health FHIR features' do
+        prescriptions = service.get_prescriptions
+
+        # Test prescription with patientInstruction (should prefer over text)
+        oracle_prescription_with_patient_instruction = prescriptions.find { |p| p.prescription_id == '15209317771' }
+        expect(oracle_prescription_with_patient_instruction.sig).to eq('1 tab(s). Oral. Daily. Refills: 3.')
+        expect(oracle_prescription_with_patient_instruction.facility_name).to eq('WALLA WALLA VAMC PHARMACY')
+        expect(oracle_prescription_with_patient_instruction.dispensed_date).to eq('2025-02-12T10:30:00Z')
+
+        # Test prescription with completed status mapping
+        completed_prescription = prescriptions.find { |p| p.prescription_id == '15210000001' }
+        expect(completed_prescription.refill_status).to eq('expired')
+        expect(completed_prescription.refillable?).to be false
+        expect(completed_prescription.dispensed_date).to eq('2025-01-16T09:15:00Z')
+      end
+
       it 'logs prescription retrieval information' do
         allow(Rails.logger).to receive(:info)
 
@@ -987,7 +1003,7 @@ describe UnifiedHealthData::Service, type: :service do
         expect(Rails.logger).to have_received(:info).with(
           hash_including(
             message: 'UHD prescriptions retrieved',
-            total_prescriptions: 5,
+            total_prescriptions: 6,
             service: 'unified_health_data'
           )
         )
@@ -1042,8 +1058,8 @@ describe UnifiedHealthData::Service, type: :service do
                                            parse_response_body: oracle_only_response)
 
         prescriptions = service.get_prescriptions
-        expect(prescriptions.size).to eq(2)
-        expect(prescriptions.map(&:prescription_id)).to contain_exactly('15208365735', '15209317771')
+        expect(prescriptions.size).to eq(3)
+        expect(prescriptions.map(&:prescription_id)).to contain_exactly('15208365735', '15209317771', '15210000001')
       end
     end
   end
