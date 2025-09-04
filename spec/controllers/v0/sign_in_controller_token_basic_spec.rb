@@ -8,6 +8,7 @@ RSpec.describe V0::SignInController, type: :controller do
   describe 'POST token' do
     context 'when grant_type param is not given' do
       let(:grant_type) { {} }
+      let(:grant_type_value) { nil }
       let(:expected_error) { 'Grant type is not valid' }
 
       it_behaves_like 'token_error_response'
