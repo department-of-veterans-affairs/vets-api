@@ -117,6 +117,7 @@ module V0
     end
 
     def clear_in_progress_form
+      in_progress_form_before = nil
       if Flipper.enabled?(:hca_in_progress_form_logging)
         in_progress_form_before = InProgressForm.form_for_user(FORM_ID, current_user)
         Rails.logger.info("[10-10EZ][#{log_user_uuid}][#{log_hca_id}, " \
@@ -130,7 +131,7 @@ module V0
       if Flipper.enabled?(:hca_in_progress_form_logging) && in_progress_form_before
         in_progress_form_after = InProgressForm.form_for_user(FORM_ID, current_user)
         Rails.logger.info("[10-10EZ][#{log_user_uuid}][#{log_hca_id}] - " \
-                          "InProgressForm successfully deleted: #{!in_progress_form_after}")
+                          "InProgressForm successfully deleted: #{in_progress_form_after.nil?}")
       end
     rescue => e
       Rails.logger.warn("[10-10EZ][#{log_user_uuid}][#{log_hca_id}] - Failed to clear saved form: #{e.message}")
