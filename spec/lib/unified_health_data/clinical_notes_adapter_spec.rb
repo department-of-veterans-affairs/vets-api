@@ -93,7 +93,7 @@ RSpec.describe 'ClinicalNotesAdapter' do
           'id' => '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
           'name' => nil,
           'note_type' => 'other', # based on LOINC code
-          'loinc_codes' => [],
+          'loinc_codes' => nil,
           'date' => nil,
           'date_signed' => nil,
           'written_by' => 'MARCI P MCGUIRE', # alternate #mhv-practitioner-name format

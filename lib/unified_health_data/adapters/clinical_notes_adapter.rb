@@ -56,7 +56,7 @@ module UnifiedHealthData
         end
 
         def get_loinc_codes(record)
-          record['type']['coding']&.map { |coding| coding['code'] if coding['code'] } || []
+          record['type']['coding']&.map { |coding| coding['code'] if coding['code'] }
         end
 
         def array_and_has_items(item)
