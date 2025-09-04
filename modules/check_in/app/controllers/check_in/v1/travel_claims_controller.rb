@@ -29,14 +29,14 @@ module CheckIn
         render json: { success: false, errors: ['Internal server error'] }, status: :internal_server_error
       end
 
+      def permitted_params
+        params.require(:travel_claims).permit(:uuid, :appointment_date, :facility_type, :time_to_complete)
+      end
+
       private
 
       def authorize_travel_reimbursement
         routing_error unless Flipper.enabled?('check_in_experience_travel_reimbursement')
-      end
-
-      def permitted_params
-        params.require(:travel_claims).permit(:uuid, :appointment_date, :facility_type, :time_to_complete)
       end
 
       def submit_travel_claim(check_in_session)
