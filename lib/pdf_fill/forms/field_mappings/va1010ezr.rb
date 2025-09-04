@@ -8,7 +8,7 @@ module PdfFill
           'veteranFullName' => {
             key: ['F[0].P3[0].VeteransName[0]', 'F[0].P4[0].VeteransName[0]', 'F[0].P5[0].VeteransName[0]'],
             limit: 40,
-            question_num: 1.1,
+            question_num: 1.01,
             question_suffix: 'A',
             question_text: "VETERAN'S NAME (Last, First, Middle Name)"
           },
@@ -31,16 +31,16 @@ module PdfFill
             'street' => {
               key: 'F[0].P3[0].MailingAddress_Street[0]',
               limit: 27,
-              question_num: 1.6,
+              question_num: 1.06,
               question_suffix: 'A',
-              question_text: 'STREET'
+              question_text: 'MAILING ADDRESS - STREET'
             },
             'city' => {
               key: 'F[0].P3[0].MailingAddress_City[0]',
               limit: 18,
-              question_num: 1.6,
+              question_num: 1.06,
               question_suffix: 'B',
-              question_text: 'CITY'
+              question_text: 'MAILING ADDRESS - CITY'
             },
             'state' => {
               key: 'F[0].P3[0].MailingAddress_State[0]'
@@ -53,16 +53,16 @@ module PdfFill
             'street' => {
               key: 'F[0].P3[0].Street[0]',
               limit: 27,
-              question_num: 1.7,
+              question_num: 1.07,
               question_suffix: 'A',
-              question_text: 'STREET'
+              question_text: 'HOME ADDRESS - STREET'
             },
             'city' => {
               key: 'F[0].P3[0].City[0]',
               limit: 18,
-              question_num: 1.7,
+              question_num: 1.07,
               question_suffix: 'B',
-              question_text: 'CITY'
+              question_text: 'HOME ADDRESS - CITY'
             },
             'state' => {
               key: 'F[0].P3[0].State[0]'
@@ -96,9 +96,15 @@ module PdfFill
               question_text: 'NEXT OF KIN ADDRESS.'
             },
             'relationship' => {
+              question_num: 1.10,
+              question_suffix: 'C',
+              question_text: 'NEXT OF KIN RELATIONSHIP',
               key: 'F[0].P3[0].KinRelationship[0]'
             },
             'primaryPhone' => {
+              question_num: 1.10,
+              question_suffix: 'D',
+              question_text: 'NEXT OF KIN TELEPHONE NUMBER',
               key: 'F[0].P3[0].KinPhone[0]'
             }
           },
@@ -113,7 +119,16 @@ module PdfFill
               question_text: 'EMERGENCY CONTACT NAME.'
             },
             'primaryPhone' => {
-              key: 'F[0].P3[0].ECPhone[0]'
+              question_num: 1.11,
+              question_suffix: 'B',
+              key: 'F[0].P3[0].ECPhone[0]',
+              question_text: 'EMERGENCY CONTACT TELEPHONE NUMBER.'
+            },
+            'address' => {
+              limit: 1,
+              question_num: 1.11,
+              question_suffix: 'C',
+              question_text: 'EMERGENCY CONTACT ADDRESS.'
             }
           },
           'providers' => {
