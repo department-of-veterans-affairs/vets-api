@@ -3,10 +3,17 @@
 module TravelPay
   module V0
     class ExpensesController < ApplicationController
+      include AuthHelper
+
       before_action :validate_claim_id
       before_action :validate_expense_type
 
       def create
+        verify_feature_flag!(
+          :travel_pay_enable_complex_claims,
+          current_user,
+          error_message: 'Travel Pay expense submission unavailable per feature toggle'
+        )
         validate_feature_flag_enabled
 
         begin
@@ -36,14 +43,6 @@ module TravelPay
 
       def expense_service
         @expense_service ||= TravelPay::ExpensesService.new(auth_manager)
-      end
-
-      def validate_feature_flag_enabled
-        return if Flipper.enabled?(:travel_pay_enable_complex_claims, @current_user)
-
-        message = 'Travel Pay expense submission unavailable per feature toggle'
-        Rails.logger.error(message:)
-        raise Common::Exceptions::ServiceUnavailable, message:
       end
 
       def create_and_validate_expense
