@@ -39,9 +39,7 @@ module TravelPay
         validate_claim_id_exists!(claim_id)
         validate_document_exists!(document)
 
-        Rails.logger.info(
-          message: "Creating attachment for claim #{claim_id.slice(0, 8)}"
-        )
+        Rails.logger.info(message: "Creating attachment for claim #{claim_id.slice(0, 8)}")
         response_data = service.upload_document(claim_id, document)
         render json: { documentId: response_data['documentId'] }, status: :created
       rescue Faraday::ResourceNotFound => e
