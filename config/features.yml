@@ -695,10 +695,6 @@ features:
     actor_type: user
     description: enables confirmation modal when removing toxic exposure data from Form 526
     enable_in_development: true
-  disability_compensation_toxic_exposure_opt_out_data_purge:
-    actor_type: user
-    description: enables function that removes toxic exposure data if user has opted out form condition on Form 526 submission
-    enable_in_development: true
   disability_compensation_form4142_supplemental:
     actor_type: user
     description: Use Lighthouse API to submit supplemental Form 21-4142 from Form 526EZ submissions
@@ -741,6 +737,10 @@ features:
   disability_526_form4142_use_2024_version:
     actor_type: user
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
+    enable_in_development: true
+  disability_526_toxic_exposure_opt_out_data_purge:
+    actor_type: user
+    description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
     enable_in_development: true
   disability_526_track_saved_claim_error:
     actor_type: user
