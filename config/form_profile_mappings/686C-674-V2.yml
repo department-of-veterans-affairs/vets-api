@@ -1,5 +1,8 @@
 veteranInformation:
-  fullName: [identity_information, full_name]
+  fullName:
+    first: [identity_information, full_name, first]
+    last: [identity_information, full_name, last]
+    middle: [identity_information, full_name, middle]
   ssn: [identity_information, ssn]
   birthDate: [identity_information, date_of_birth]
 veteranContactInformation:

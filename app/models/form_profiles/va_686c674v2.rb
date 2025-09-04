@@ -17,15 +17,13 @@ class FormProfiles::VA686c674v2 < FormProfile
   class FormAddress
     include Vets::Model
 
-    attribute :country_name, String
-    attribute :address_line1, String
-    attribute :address_line2, String
-    attribute :address_line3, String
+    attribute :country, String
+    attribute :street, String
+    attribute :street2, String
+    attribute :street3, String
     attribute :city, String
-    attribute :state_code, String
-    attribute :province, String
-    attribute :zip_code, String
-    attribute :international_postal_code, String
+    attribute :state, String
+    attribute :postal_code, String
   end
 
   attribute :form_address, FormAddress
@@ -63,10 +61,10 @@ class FormProfiles::VA686c674v2 < FormProfile
 
     @form_address = FormAddress.new(
       mailing_address.to_h.slice(
-        :address_line1, :address_line2, :address_line3,
-        :city, :state_code, :province,
-        :zip_code, :international_postal_code
-      ).merge(country_name: mailing_address.country_code_iso3)
+        :street, :street2, :street3,
+        :city, :state,
+        :postal_code
+      ).merge(country: mailing_address.country_code_iso3)
     )
   end
 
@@ -143,8 +141,7 @@ class FormProfiles::VA686c674v2 < FormProfile
       full_name: FormFullName.new({
                                     first: person[:first_name],
                                     middle: person[:middle_name],
-                                    last: person[:last_name],
-                                    suffix: person[:suffix]
+                                    last: person[:last_name]
                                   }),
       date_of_birth: parsed_date,
       ssn: person[:ssn],

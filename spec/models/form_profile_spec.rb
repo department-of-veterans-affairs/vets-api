@@ -173,11 +173,8 @@ RSpec.describe FormProfile, type: :model do
     {
       'veteranContactInformation' => {
         'veteranAddress' => {
-          'addressLine1' => '140 Rock Creek Rd',
-          'countryName' => 'USA',
-          'city' => 'Washington',
-          'stateCode' => 'DC',
-          'zipCode' => '20011'
+          'country' => 'USA',
+          'city' => 'Washington'
         },
         'phoneNumber' => us_phone,
         'emailAddress' => user.va_profile_email
@@ -191,8 +188,7 @@ RSpec.describe FormProfile, type: :model do
       'veteranInformation' => {
         'fullName' => {
           'first' => user.first_name.capitalize,
-          'last' => user.last_name.capitalize,
-          'suffix' => 'Jr.'
+          'last' => user.last_name.capitalize
         },
         'ssn' => '796111863',
         'birthDate' => '1809-02-12'
@@ -1619,6 +1615,7 @@ RSpec.describe FormProfile, type: :model do
             it 'omits address fields in 686c-674-V2 form' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                allow_playback_repeats: true) do
+
                 expect_prefilled('686C-674-V2')
               end
             end
