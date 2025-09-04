@@ -86,25 +86,17 @@ describe TravelPay::ExpensesClient do
         allow(request_double).to receive(:body=)
       end
 
-      it 'routes mileage expenses to the correct endpoint' do
-        mileage_expense = { 'claimId' => 'fake_claim_id',
-                            'dateIncurred' => '2024-10-02T14:36:38.043Z',
-                            'tripType' => 'RoundTrip' }
-        expect(connection_double).to receive(:post).with('api/v2/expenses/mileage')
-
-        client.add_mileage_expense(veis_token, btsss_token, mileage_expense)
-      end
-
       it 'routes other expenses to the correct endpoint' do
         expect(connection_double).to receive(:post).with('api/v1/expenses/other')
 
         client.add_expense(veis_token, btsss_token, 'other', expense_body)
       end
 
-      it 'routes unknown expense types to the other endpoint' do
-        expect(connection_double).to receive(:post).with('api/v1/expenses/other')
-
-        client.add_expense(veis_token, btsss_token, 'unknown_type', expense_body)
+      it 'raises error for unsupported expense types' do
+        expect do
+          client.add_expense(veis_token, btsss_token, 'unknown_type',
+                             expense_body)
+        end.to raise_error(ArgumentError, /Unsupported expense type/)
       end
     end
 
@@ -118,7 +110,7 @@ describe TravelPay::ExpensesClient do
       allow(request_double).to receive(:headers).and_return(headers_hash)
       allow(request_double).to receive(:body=)
 
-      client.add_expense(veis_token, btsss_token, 'meal', expense_body)
+      client.add_expense(veis_token, btsss_token, 'other', expense_body)
 
       expect(headers_hash['Authorization']).to eq("Bearer #{veis_token}")
       expect(headers_hash['BTSSS-Access-Token']).to eq(btsss_token)
@@ -126,16 +118,21 @@ describe TravelPay::ExpensesClient do
     end
 
     it 'logs the expense type in statsd' do
-      expect(client).to receive(:log_to_statsd).with('expense', 'add_meal')
+      expect(client).to receive(:log_to_statsd).with('expense', 'add_other')
 
-      client.add_expense(veis_token, btsss_token, 'meal', expense_body)
+      client.add_expense(veis_token, btsss_token, 'other', expense_body)
     end
   end
 
   describe '#expense_endpoint_for_type' do
-    it 'returns correct endpoints for each expense type' do
+    it 'returns correct endpoints for other expense type' do
       expect(client.send(:expense_endpoint_for_type, 'other')).to eq('api/v1/expenses/other')
-      expect(client.send(:expense_endpoint_for_type, 'unknown')).to eq('api/v1/expenses/other')
+    end
+
+    it 'raises ArgumentError for unsupported expense types' do
+      expect do
+        client.send(:expense_endpoint_for_type, 'unknown')
+      end.to raise_error(ArgumentError, /Unsupported expense type/)
     end
   end
 
@@ -161,52 +158,17 @@ describe TravelPay::ExpensesClient do
         allow(request_double).to receive(:headers=)
       end
 
-      it 'routes mileage expenses to the correct endpoint' do
-        expect(connection_double).to receive(:get).with("api/v2/expenses/mileage/#{expense_id}")
-
-        client.get_expense(veis_token, btsss_token, 'mileage', expense_id)
-      end
-
-      it 'routes parking expenses to the correct endpoint' do
-        expect(connection_double).to receive(:get).with("api/v1/expenses/parking/#{expense_id}")
-
-        client.get_expense(veis_token, btsss_token, 'parking', expense_id)
-      end
-
-      it 'routes meal expenses to the correct endpoint' do
-        expect(connection_double).to receive(:get).with("api/v1/expenses/meal/#{expense_id}")
-
-        client.get_expense(veis_token, btsss_token, 'meal', expense_id)
-      end
-
-      it 'routes lodging expenses to the correct endpoint' do
-        expect(connection_double).to receive(:get).with("api/v1/expenses/lodging/#{expense_id}")
-
-        client.get_expense(veis_token, btsss_token, 'lodging', expense_id)
-      end
-
-      it 'routes toll expenses to the correct endpoint' do
-        expect(connection_double).to receive(:get).with("api/v1/expenses/toll/#{expense_id}")
-
-        client.get_expense(veis_token, btsss_token, 'toll', expense_id)
-      end
-
-      it 'routes airtravel expenses to the correct endpoint' do
-        expect(connection_double).to receive(:get).with("api/v1/expenses/airtravel/#{expense_id}")
-
-        client.get_expense(veis_token, btsss_token, 'airtravel', expense_id)
-      end
-
-      it 'routes commoncarrier expenses to the correct endpoint' do
-        expect(connection_double).to receive(:get).with("api/v1/expenses/commoncarrier/#{expense_id}")
-
-        client.get_expense(veis_token, btsss_token, 'commoncarrier', expense_id)
-      end
-
-      it 'routes unknown expense types to the other endpoint' do
+      it 'routes other expenses to the correct endpoint' do
         expect(connection_double).to receive(:get).with("api/v1/expenses/other/#{expense_id}")
 
-        client.get_expense(veis_token, btsss_token, 'unknown_type', expense_id)
+        client.get_expense(veis_token, btsss_token, 'other', expense_id)
+      end
+
+      it 'raises error for unsupported expense types' do
+        expect do
+          client.get_expense(veis_token, btsss_token, 'unknown_type',
+                             expense_id)
+        end.to raise_error(ArgumentError, /Unsupported expense type/)
       end
     end
 
@@ -219,7 +181,7 @@ describe TravelPay::ExpensesClient do
       allow(client).to receive_messages(connection: connection_double, claim_headers: { 'Custom-Header' => 'test' })
       allow(request_double).to receive(:headers).and_return(headers_hash)
 
-      client.get_expense(veis_token, btsss_token, 'meal', expense_id)
+      client.get_expense(veis_token, btsss_token, 'other', expense_id)
 
       expect(headers_hash['Authorization']).to eq("Bearer #{veis_token}")
       expect(headers_hash['BTSSS-Access-Token']).to eq(btsss_token)
@@ -227,34 +189,25 @@ describe TravelPay::ExpensesClient do
     end
 
     it 'logs the expense type in statsd' do
-      expect(client).to receive(:log_to_statsd).with('expense', 'get_meal')
+      expect(client).to receive(:log_to_statsd).with('expense', 'get_other')
 
-      client.get_expense(veis_token, btsss_token, 'meal', expense_id)
+      client.get_expense(veis_token, btsss_token, 'other', expense_id)
     end
   end
 
   describe '#expense_get_endpoint_for_type' do
     let(:expense_id) { 'test-expense-id' }
 
-    it 'returns correct GET endpoints for each expense type' do
-      expect(client.send(:expense_get_endpoint_for_type, 'mileage',
-                         expense_id)).to eq("api/v2/expenses/mileage/#{expense_id}")
-      expect(client.send(:expense_get_endpoint_for_type, 'parking',
-                         expense_id)).to eq("api/v1/expenses/parking/#{expense_id}")
-      expect(client.send(:expense_get_endpoint_for_type, 'meal',
-                         expense_id)).to eq("api/v1/expenses/meal/#{expense_id}")
-      expect(client.send(:expense_get_endpoint_for_type, 'lodging',
-                         expense_id)).to eq("api/v1/expenses/lodging/#{expense_id}")
-      expect(client.send(:expense_get_endpoint_for_type, 'toll',
-                         expense_id)).to eq("api/v1/expenses/toll/#{expense_id}")
-      expect(client.send(:expense_get_endpoint_for_type, 'airtravel',
-                         expense_id)).to eq("api/v1/expenses/airtravel/#{expense_id}")
-      expect(client.send(:expense_get_endpoint_for_type, 'commoncarrier',
-                         expense_id)).to eq("api/v1/expenses/commoncarrier/#{expense_id}")
+    it 'returns correct GET endpoint for other expense type' do
       expect(client.send(:expense_get_endpoint_for_type, 'other',
                          expense_id)).to eq("api/v1/expenses/other/#{expense_id}")
-      expect(client.send(:expense_get_endpoint_for_type, 'unknown',
-                         expense_id)).to eq("api/v1/expenses/other/#{expense_id}")
+    end
+
+    it 'raises ArgumentError for unsupported expense types' do
+      expect do
+        client.send(:expense_get_endpoint_for_type, 'unknown',
+                    expense_id)
+      end.to raise_error(ArgumentError, /Unsupported expense type/)
     end
   end
 end

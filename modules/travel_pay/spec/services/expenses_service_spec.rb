@@ -176,24 +176,22 @@ describe TravelPay::ExpensesService do
     it 'returns expense details when passed valid expense type and ID' do
       allow_any_instance_of(TravelPay::ExpensesClient)
         .to receive(:get_expense)
-        .with(tokens[:veis_token], tokens[:btsss_token], 'mileage', expense_id)
+        .with(tokens[:veis_token], tokens[:btsss_token], 'other', expense_id)
         .and_return(get_expense_response)
 
-      result = service.get_expense('mileage', expense_id)
+      result = service.get_expense('other', expense_id)
 
       expect(result).to eq(get_expense_data['data'])
     end
 
     it 'handles different expense types' do
-      %w[mileage lodging meal other parking toll airtravel commoncarrier].each do |expense_type|
-        allow_any_instance_of(TravelPay::ExpensesClient)
-          .to receive(:get_expense)
-          .with(tokens[:veis_token], tokens[:btsss_token], expense_type, expense_id)
-          .and_return(get_expense_response)
+      allow_any_instance_of(TravelPay::ExpensesClient)
+        .to receive(:get_expense)
+        .with(tokens[:veis_token], tokens[:btsss_token], 'other', expense_id)
+        .and_return(get_expense_response)
 
-        result = service.get_expense(expense_type, expense_id)
-        expect(result).to eq(get_expense_data['data'])
-      end
+      result = service.get_expense('other', expense_id)
+      expect(result).to eq(get_expense_data['data'])
     end
 
     it 'raises ArgumentError when expense_type is blank' do
@@ -204,7 +202,7 @@ describe TravelPay::ExpensesService do
 
     it 'raises ArgumentError when expense_id is blank' do
       expect do
-        service.get_expense('mileage', '')
+        service.get_expense('other', '')
       end.to raise_error(ArgumentError, 'You must provide an expense ID to get an expense.')
     end
 
@@ -220,7 +218,7 @@ describe TravelPay::ExpensesService do
                                                                       Common::Exceptions::RecordNotFound.new(expense_id)
                                                                     )
 
-      expect { service.get_expense('mileage', expense_id) }.to raise_error(Common::Exceptions::RecordNotFound)
+      expect { service.get_expense('other', expense_id) }.to raise_error(Common::Exceptions::RecordNotFound)
     end
   end
 

@@ -139,20 +139,18 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
     end
 
     context 'for different expense types' do
-      %w[mileage lodging meal other parking toll airtravel commoncarrier].each do |expense_type|
-        it "accepts #{expense_type} expense type" do
-          allow(expenses_service).to receive(:create_expense).and_return({
-                                                                           'id' => SecureRandom.uuid,
-                                                                           'expense_type' => expense_type,
-                                                                           'status' => 'created'
-                                                                         })
+      it 'accepts other expense type' do
+        allow(expenses_service).to receive(:create_expense).and_return({
+                                                                         'id' => SecureRandom.uuid,
+                                                                         'expense_type' => 'other',
+                                                                         'status' => 'created'
+                                                                       })
 
-          post "/travel_pay/v0/claims/#{claim_id}/expenses/#{expense_type}",
-               params: expense_params,
-               headers: { 'Authorization' => 'Bearer vagov_token' }
+        post "/travel_pay/v0/claims/#{claim_id}/expenses/other",
+             params: expense_params,
+             headers: { 'Authorization' => 'Bearer vagov_token' }
 
-          expect(response).to have_http_status(:created)
-        end
+        expect(response).to have_http_status(:created)
       end
     end
   end
@@ -171,9 +169,9 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
       let(:expected_response) do
         {
           'id' => expense_id,
-          'expense_type' => 'mileage',
+          'expense_type' => 'other',
           'claim_id' => claim_id,
-          'description' => 'Test mileage expense',
+          'description' => 'Test other expense',
           'cost_requested' => 45.25,
           'status' => 'approved'
         }
@@ -184,27 +182,27 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
       end
 
       it 'retrieves an expense successfully' do
-        get "/travel_pay/v0/claims/#{claim_id}/expenses/mileage/#{expense_id}",
+        get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{expense_id}",
             headers: { 'Authorization' => 'Bearer vagov_token' }
 
         expect(response).to have_http_status(:ok)
         response_body = JSON.parse(response.body)
         expect(response_body['id']).to eq(expense_id)
-        expect(response_body['expense_type']).to eq('mileage')
+        expect(response_body['expense_type']).to eq('other')
         expect(response_body['claim_id']).to eq(claim_id)
       end
 
       it 'calls the expenses service with correct parameters' do
-        expect(expenses_service).to receive(:get_expense).with('mileage', expense_id)
+        expect(expenses_service).to receive(:get_expense).with('other', expense_id)
 
-        get "/travel_pay/v0/claims/#{claim_id}/expenses/mileage/#{expense_id}",
+        get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{expense_id}",
             headers: { 'Authorization' => 'Bearer vagov_token' }
       end
     end
 
     context 'when expense_id is blank' do
       it 'returns bad request status' do
-        get "/travel_pay/v0/claims/#{claim_id}/expenses/mileage/%20",
+        get "/travel_pay/v0/claims/#{claim_id}/expenses/other/%20",
             headers: { 'Authorization' => 'Bearer vagov_token' }
 
         expect(response).to have_http_status(:bad_request)
@@ -231,7 +229,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
       end
 
       it 'returns service unavailable status' do
-        get "/travel_pay/v0/claims/#{claim_id}/expenses/mileage/#{expense_id}",
+        get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{expense_id}",
             headers: { 'Authorization' => 'Bearer vagov_token' }
 
         expect(response).to have_http_status(:service_unavailable)
@@ -239,19 +237,17 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
     end
 
     context 'for different expense types' do
-      %w[mileage lodging meal other parking toll airtravel commoncarrier].each do |expense_type|
-        it "accepts #{expense_type} expense type" do
-          allow(expenses_service).to receive(:get_expense).and_return({
-                                                                        'id' => expense_id,
-                                                                        'expense_type' => expense_type,
-                                                                        'status' => 'approved'
-                                                                      })
+      it 'accepts other expense type' do
+        allow(expenses_service).to receive(:get_expense).and_return({
+                                                                      'id' => expense_id,
+                                                                      'expense_type' => 'other',
+                                                                      'status' => 'approved'
+                                                                    })
 
-          get "/travel_pay/v0/claims/#{claim_id}/expenses/#{expense_type}/#{expense_id}",
-              headers: { 'Authorization' => 'Bearer vagov_token' }
+        get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{expense_id}",
+            headers: { 'Authorization' => 'Bearer vagov_token' }
 
-          expect(response).to have_http_status(:ok)
-        end
+        expect(response).to have_http_status(:ok)
       end
     end
 
@@ -263,7 +259,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
       end
 
       it 'returns not found status' do
-        get "/travel_pay/v0/claims/#{claim_id}/expenses/mileage/#{expense_id}",
+        get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{expense_id}",
             headers: { 'Authorization' => 'Bearer vagov_token' }
 
         expect(response).to have_http_status(:not_found)
