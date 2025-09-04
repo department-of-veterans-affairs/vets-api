@@ -1,0 +1,16 @@
+type: object
+required:
+  - event_names
+properties:
+  event_names:
+    type: array
+    description: Array of event names to log for the authenticated user
+    items:
+      type: string
+      minLength: 1
+      maxLength: 50
+    minItems: 1
+    example:
+      - "mhv_landing_page_accessed"
+      - "secure_messaging_accessed"
+      - "prescriptions_accessed"
