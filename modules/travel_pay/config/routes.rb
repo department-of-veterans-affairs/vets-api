@@ -9,6 +9,10 @@ TravelPay::Engine.routes.draw do
       post 'expenses/:expense_type', to: 'expenses#create', constraints: { expense_type: %r{[^/]+} }
     end
 
-    resources :complex_claims, only: %i[create]
+    resources :complex_claims, only: %i[create] do
+      member do
+        post :submit
+      end
+    end
   end
 end
