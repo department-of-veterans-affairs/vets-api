@@ -23,19 +23,11 @@ module AccreditedRepresentativePortal
           return @claimant_representative
 
         @claimant_representative =
-          if claimant_icn.present?
-            ClaimantRepresentative.find do |finder|
-              finder.for_claimant(
-                icn: claimant_icn
-              )
-
-              finder.for_representative(
-                icn: current_user.icn,
-                email: current_user.email,
-                all_emails: current_user.all_emails
-              )
-            end
-          end
+          claimant_icn.presence &&
+          ClaimantRepresentative.find(
+            claimant_icn:, power_of_attorney_holder_memberships:
+              current_user.power_of_attorney_holder_memberships
+          )
       end
 
       def claimant_icn
