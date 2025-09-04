@@ -106,7 +106,7 @@ RSpec.describe VRE::VREMonitor do
           form_id: claim.form_id,
           errors: []
         )
-        payload.delete(:message)
+        payload.delete(:error)
         monitor_fn = -> { monitor.track_process_attachment_error(ipf, claim, current_user) }
         statsd_message = "#{claim_stats_key}.process_attachment_error"
       when 'send_confirmation_email failed'
