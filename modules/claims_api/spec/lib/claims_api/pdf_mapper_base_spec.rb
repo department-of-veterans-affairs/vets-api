@@ -122,7 +122,7 @@ describe ClaimsApi::PdfMapperBase do
         expect(result).to eq(['2024', '12', nil])
       end
 
-      it 'parses day-year format (MM-YYYY)' do
+      it 'parses month-year format (MM-YYYY)' do
         result = subject.regex_date_conversion('12-2024')
 
         expect(result).to eq(['2024', '12', nil])
