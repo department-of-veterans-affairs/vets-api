@@ -7,9 +7,11 @@ module ClaimsApi
     class DisabilityCompensationPdfMapper
       include PdfMapperBase
 
-      def initialize(auto_claim, pdf_data)
+      def initialize(auto_claim, pdf_data, auth_headers, middle_initial)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
+        @auth_headers = auth_headers&.deep_symbolize_keys
+        @middle_initial = middle_initial
       end
 
       def map_claim
@@ -45,8 +47,13 @@ module ClaimsApi
 
       def section_1_veteran_identification
         set_pdf_data_for_section_one
+
         mailing_address
         va_employee_status
+        veteran_ssn
+        veteran_file_number
+        veteran_name
+        veteran_birth_date
 
         @pdf_data
       end
@@ -56,6 +63,7 @@ module ClaimsApi
         return if mailing_addr.blank?
 
         set_pdf_data_for_mailing_address
+
         address_base = @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress]
 
         address_data = {
@@ -77,6 +85,34 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:identificationInformation][:currentVaEmployee] = employee_status
       end
 
+      def veteran_ssn
+        ssn = @auth_headers[:va_eauth_pnid]
+        @pdf_data[:data][:attributes][:identificationInformation][:ssn] = format_ssn(ssn) if ssn.present?
+      end
+
+      def veteran_file_number
+        file_number = @auth_headers[:va_eauth_birlsfilenumber]
+        @pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber] = file_number
+      end
+
+      def veteran_name
+        set_veteran_name
+
+        fname = @auth_headers[:va_eauth_firstName]
+        lname = @auth_headers[:va_eauth_lastName]
+
+        @pdf_data[:data][:attributes][:identificationInformation][:name][:firstName] = fname
+        @pdf_data[:data][:attributes][:identificationInformation][:name][:lastName] = lname
+        @pdf_data[:data][:attributes][:identificationInformation][:name][:middleInitial] = @middle_initial
+      end
+
+      def veteran_birth_date
+        birth_date_data = @auth_headers[:va_eauth_birthdate]
+        birth_date = format_birth_date(birth_date_data) if birth_date_data
+
+        @pdf_data[:data][:attributes][:identificationInformation][:dateOfBirth] = birth_date
+      end
+
       def set_pdf_data_for_section_one
         return if @pdf_data[:data][:attributes].key?(:identificationInformation)
 
@@ -87,6 +123,10 @@ module ClaimsApi
         return if @pdf_data[:data][:attributes][:identificationInformation].key?(:mailingAddress)
 
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress] = {}
+      end
+
+      def set_veteran_name
+        @pdf_data[:data][:attributes][:identificationInformation][:name] = {}
       end
     end
   end

@@ -71,6 +71,22 @@ describe ClaimsApi::PdfMapperBase do
     end
   end
 
+  describe '#format_ssn' do
+    it 'formats an SSN string' do
+      ssn = '123456789'
+      result = subject.format_ssn(ssn)
+      expect(result).to eq('123-45-6789')
+    end
+  end
+
+  describe '#format_birth_date' do
+    it 'extracts month, day, and year correctly' do
+      result = subject.format_birth_date('1948-10-30T00:00:00+00:00') # birth date format from auth_header
+      expected = { month: '10', day: '30', year: '1948' }
+      expect(result).to eq(expected)
+    end
+  end
+
   describe '#make_date_string_month_first' do
     before do
       allow_any_instance_of(test_pdf_mapper_class)
