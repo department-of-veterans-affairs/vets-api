@@ -549,7 +549,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         validate_field(
           'reservesNationalGuardService.obligationTermsOfService.beginDate',
           'beginDate is missing or blank',
-          'serviceInformation/reservesNationalGuardService/obligationTermsOfService/'
+          'serviceInformation/reservesNationalGuardServce/obligationTermsOfService/'
         )
       end
 
@@ -557,7 +557,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         validate_field(
           'reservesNationalGuardService.obligationTermsOfService.endDate',
           'endDate is missing or blank',
-          'serviceInformation/reservesNationalGuardService/obligationTermsOfService/'
+          'serviceInformation/reservesNationalGuardServce/obligationTermsOfService/'
         )
       end
 
@@ -565,7 +565,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         validate_field(
           'reservesNationalGuardService.unitName',
           'unitName is missing or blank',
-          'serviceInformation/reservesNationalGuardService/'
+          'serviceInformation/reservesNationalGuardServce/'
         )
       end
       # rubocop:enable RSpec/NoExpectationExample
