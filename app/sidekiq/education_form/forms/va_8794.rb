@@ -28,7 +28,7 @@ module EducationForm::Forms
       @applicant['institutionDetails']['facilityCode']
     end
 
-    def has_va_facility_code
+    def va_facility_code?
       @applicant['institutionDetails']['hasVaFacilityCode']
     end
 
@@ -52,7 +52,7 @@ module EducationForm::Forms
       @applicant['primaryOfficialTraining']['trainingExempt']
     end
 
-    def has_va_education_benefits
+    def va_education_benefits?
       @applicant['primaryOfficialBenefitStatus']['hasVaEducationBenefits']
     end
 
@@ -60,7 +60,7 @@ module EducationForm::Forms
       @applicant['additionalCertifyingOfficials'] || []
     end
 
-    def has_read_only_certifying_official
+    def read_only_certifying_official?
       @applicant['hasReadOnlyCertifyingOfficial']
     end
 
