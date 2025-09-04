@@ -47,7 +47,11 @@ module EducationForm::Forms
     end
 
     def applicant_ssn
-      @applicant.applicantFileNumber
+      @applicant.ssn
+    end
+
+    def applicant_va_file_number
+      @applicant.vaFileNumber
     end
 
     def new_bank_info?
