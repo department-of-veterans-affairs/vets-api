@@ -1827,6 +1827,10 @@ features:
     actor_type: user
     description: Form 526 subforms for unemployability & connected employment information
     enable_in_development: true
+  unified_search_sync_research_and_support:
+    actor_type: user
+    description: Controls on/off status for a redis job that syncs R&S data to Kendra data source
+    enable_in_development: false
   use_veteran_models_for_appoint:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
