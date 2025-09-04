@@ -903,8 +903,10 @@ lib/lighthouse/benefits_claims/monitor.rb @department-of-veterans-affairs/benefi
 lib/lighthouse/benefits_claims/utilities/helpers.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_discovery @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_documents/ @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
+lib/lighthouse/benefits_education @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_intake @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_reference_data/response_strategy.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
+lib/lighthouse/facilities @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/letters_generator @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 lib/logging @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 lib/mail_automation @department-of-veterans-affairs/backend-review-group
@@ -1131,7 +1133,10 @@ spec/controllers/v0/sign_in_controller_authorize_basic_spec.rb @department-of-ve
 spec/controllers/v0/sign_in_controller_authorize_idme_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_authorize_logingov_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_authorize_sso_spec.rb @department-of-veterans-affairs/octo-identity
-spec/controllers/v0/sign_in_controller_shared_examples_spec.rb @department-of-veterans-affairs/octo-identity
+spec/controllers/v0/sign_in_controller_callback_basic_spec.rb @department-of-veterans-affairs/octo-identity
+spec/controllers/v0/sign_in_controller_callback_dslogon_spec.rb @department-of-veterans-affairs/octo-identity
+spec/controllers/v0/sign_in_controller_callback_idme_spec.rb @department-of-veterans-affairs/octo-identity
+spec/controllers/v0/sign_in_controller_callback_logingov_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/terms_of_use_agreements_controller_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/upload_supporting_evidences_controller_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
@@ -1419,6 +1424,7 @@ spec/lib/lighthouse/benefits_documents @department-of-veterans-affairs/backend-r
 spec/lib/lighthouse/benefits_documents/service_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 spec/lib/lighthouse/benefits_documents/update_documents_status_service_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 spec/lib/lighthouse/benefits_documents/upload_status_updater_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
+spec/lib/lighthouse/benefits_education @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/benefits_intake @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/direct_deposit @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/direct_deposit/payment_account_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
@@ -2044,6 +2050,7 @@ spec/support/serializer_spec_helper.rb @department-of-veterans-affairs/backend-r
 spec/support/shared_examples_for_mhv.rb @department-of-veterans-affairs/octo-identity
 spec/support/sidekiq/batch.rb @department-of-veterans-affairs/backend-review-group
 spec/support/sign_in @department-of-veterans-affairs/octo-identity
+spec/support/sign_in.rb @department-of-veterans-affairs/octo-identity
 spec/support/silence_stream.rb @department-of-veterans-affairs/backend-review-group
 spec/support/sm_client_helpers.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/support/sm_spec_helper.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group

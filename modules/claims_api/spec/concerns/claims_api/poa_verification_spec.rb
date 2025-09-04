@@ -12,6 +12,14 @@ class FakeController < ApplicationController
     @current_user.middle_name = 'Alexander'
     @current_user.suffix = 'III'
   end
+
+  def token
+    @token ||= double('Token', client_credentials_token?: false)
+  end
+
+  def target_veteran
+    @target_veteran ||= {}
+  end
 end
 
 describe FakeController do
@@ -112,6 +120,49 @@ describe FakeController do
       it 'finds the rep and returns true' do
         res = subject.valid_poa_code_for_current_user?(poa_code)
         expect(res).to be(true)
+      end
+    end
+
+    describe '#verify_power_of_attorney!' do
+      before do
+        allow_any_instance_of(FakeController).to receive(:token).and_return(double(client_credentials_token?: false))
+        veteran_user = double('Veteran::User')
+        allow(Veteran::User).to receive(:new).and_return(veteran_user)
+        allow(veteran_user).to receive(:power_of_attorney).and_return(double(try: 'some_code'))
+      end
+
+      it 'handles an Unauthorized error' do
+        allow_any_instance_of(FakeController).to receive(:valid_poa_code_for_current_user?).and_raise(Common::Exceptions::Unauthorized)
+
+        expect do
+          subject.verify_power_of_attorney!
+        end.to raise_error(Common::Exceptions::Unauthorized)
+      end
+
+      context 'breakers outage' do
+        let(:mock_service) do
+          instance_double(
+            Breakers::Service,
+            name: 'Test Service'
+          )
+        end
+        let(:mock_outage) do
+          instance_double(
+            Breakers::Outage,
+            start_time: Time.zone.now,
+            end_time: nil,
+            service: mock_service
+          )
+        end
+        let(:mock_exception) { Breakers::OutageException.new(mock_outage, mock_service) }
+
+        it 'handles an Breakers Outage error' do
+          allow_any_instance_of(FakeController).to receive(:valid_poa_code_for_current_user?).and_raise(mock_exception)
+
+          expect do
+            subject.verify_power_of_attorney!
+          end.to raise_error(Breakers::OutageException)
+        end
       end
     end
   end
