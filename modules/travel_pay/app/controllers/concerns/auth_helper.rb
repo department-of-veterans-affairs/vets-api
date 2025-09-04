@@ -6,7 +6,7 @@ module AuthHelper
   def verify_feature_flag!(flag, user = @current_user, error_message: nil)
     return if Flipper.enabled?(flag, user)
 
-    message = error_message || "#{flag} is disabled for user"
+    message = error_message || "Travel Pay #{flag} is disabled for user"
     Rails.logger.error(message:)
     raise Common::Exceptions::ServiceUnavailable, message:
   end
