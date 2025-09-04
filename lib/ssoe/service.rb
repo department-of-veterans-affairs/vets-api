@@ -11,9 +11,9 @@ module SSOe
     configuration SSOe::Configuration
 
     STATSD_KEY_PREFIX = 'api.ssoe'
-
     CONNECTION_ERRORS = [
       Faraday::ConnectionFailed,
+      Faraday::TimeoutError,
       Common::Client::Errors::ClientError,
       Common::Exceptions::GatewayTimeout,
       Breakers::OutageException
@@ -29,15 +29,29 @@ module SSOe
         )
         parse_response(raw_response.body)
       end
+    rescue Common::Client::Errors::ClientError => e
+      error_response(e, :client, e.status)
     rescue *CONNECTION_ERRORS => e
-      Rails.logger.error("[SSOe::Service::get_traits] Connection error: #{e.class} - #{e.message}")
-      nil
+      return parse_response(e.response.body) if e.respond_to?(:response) && e.response&.body
+
+      error_response(e, :connection, 502)
     rescue => e
-      Rails.logger.error("[SSOe::Service::get_traits] Unexpected error: #{e.class} - #{e.message}")
-      nil
+      error_response(e, :unknown, 500)
     end
 
     private
+
+    def error_response(e, type, code)
+      Rails.logger.error("[SSOe::Service::get_traits] #{type} error: #{e.class} - #{e.message}")
+
+      {
+        success: false,
+        error: {
+          code:,
+          message: e.message
+        }
+      }
+    end
 
     def build_message(credential_method, credential_id, user, address)
       SSOe::GetSSOeTraitsByCspidMessage.new(
@@ -57,59 +71,24 @@ module SSOe
     end
 
     def parse_response(response_body)
-      parsed = Hash.from_xml(response_body)
-
-      if parsed.dig('Envelope', 'Body', 'getSSOeTraitsByCSPIDResponse', 'icn')
-        icn = parsed['Envelope']['Body']['getSSOeTraitsByCSPIDResponse']['icn']
-        return { success: true, icn: } if icn.present?
-      end
+      parsed = Hash.from_xml(Ox.dump(response_body))
+      icn = parsed.dig('Envelope', 'Body', 'getSSOeTraitsByCSPIDResponse', 'icn')
+      return { success: true, icn: } if icn.present?
 
       if parsed.dig('Envelope', 'Body', 'Fault')
-        fault_code = parsed.dig('Envelope', 'Body', 'Fault', 'faultcode')
-        fault_string = parsed.dig('Envelope', 'Body', 'Fault', 'faultstring')
+        fault_code = parsed.dig('Envelope', 'Body', 'Fault', 'faultcode') || 'UnknownError'
+        fault_string = parsed.dig('Envelope', 'Body', 'Fault', 'faultstring') || 'Unable to parse SOAP response'
 
         return {
           success: false,
           error: {
-            code: fault_code || 'UnknownError',
-            message: fault_string || 'Unable to parse SOAP response'
+            code: fault_code,
+            message: fault_string
           }
         }
       end
 
-      unknown_error
-    rescue => e
-      Rails.logger.error("[SSOe::Service::parse_response] Error parsing response: #{e.class} - #{e.message}")
-      unknown_error
-    end
-
-    def extract_icn(doc)
-      doc.at_xpath('//getSSOeTraitsByCSPIDResponse/icn')&.text
-    end
-
-    def extract_fault(doc)
-      fault = doc.at_xpath('//Fault')
-      return unless fault
-
-      fault_code = fault.at_xpath('faultcode')&.text
-      fault_string = fault.at_xpath('faultstring')&.text
-      {
-        success: false,
-        error: {
-          code: fault_code,
-          message: fault_string
-        }
-      }
-    end
-
-    def unknown_error
-      {
-        success: false,
-        error: {
-          code: 'UnknownError',
-          message: 'Unable to parse SOAP response'
-        }
-      }
+      raise StandardError, 'Unable to parse SOAP response'
     end
   end
 end

@@ -71,8 +71,8 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       expect(appt[:contact][:telecom][1]).to eq({ type: 'email', value: 'myemail72585885@unattended.com' })
       expect(appt[:patient_comments]).to eq('colon:in:comment')
       expect(appt[:reason_for_appointment]).to eq('Routine/Follow-up')
-      expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
-                                            'Wed, June 26, 2024 in the afternoon'])
+      expect(appt[:preferred_dates]).to eq(['Wednesday, June 26, 2024 in the morning',
+                                            'Wednesday, June 26, 2024 in the afternoon'])
       expect(appt[:preferred_modality]).to eq('In person')
     end
 
@@ -84,8 +84,8 @@ describe VAOS::V2::AppointmentsReasonCodeService do
         expect(appt[:contact][:telecom][1]).to eq({ type: 'email', value: 'myemail72585885@unattended.com' })
         expect(appt[:patient_comments]).to be_nil
         expect(appt[:reason_for_appointment]).to be_nil
-        expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
-                                              'Wed, June 26, 2024 in the afternoon'])
+        expect(appt[:preferred_dates]).to eq(['Wednesday, June 26, 2024 in the morning',
+                                              'Wednesday, June 26, 2024 in the afternoon'])
         expect(appt[:preferred_modality]).to eq('In person')
       end
     end
@@ -148,10 +148,11 @@ describe VAOS::V2::AppointmentsReasonCodeService do
   describe '#extract_preferred_dates' do
     [
       ['', nil],
-      ['06/26/2024 AM', ['Wed, June 26, 2024 in the morning']],
-      ['06/26/2024 PM', ['Wed, June 26, 2024 in the afternoon']],
-      ['06/26/2024 AM,06/26/2024 PM', ['Wed, June 26, 2024 in the morning', 'Wed, June 26, 2024 in the afternoon']],
-      ['09/06/2024 PM', ['Fri, September 6, 2024 in the afternoon']]
+      ['06/26/2024 AM', ['Wednesday, June 26, 2024 in the morning']],
+      ['06/26/2024 PM', ['Wednesday, June 26, 2024 in the afternoon']],
+      ['06/26/2024 AM,06/26/2024 PM',
+       ['Wednesday, June 26, 2024 in the morning', 'Wednesday, June 26, 2024 in the afternoon']],
+      ['09/06/2024 PM', ['Friday, September 6, 2024 in the afternoon']]
     ].each do |input, output|
       it "#{input} returns #{output}" do
         input_hash = {}

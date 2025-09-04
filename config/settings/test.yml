@@ -9,6 +9,7 @@ accredited_representative_portal:
       base_uri: https://not.real.com
       path: not_real.csv
       repo: faked/fakeness
+  frontend_base_url: http://localhost:3001/representative
 adapted_housing:
   prefill: true
 argocd:
@@ -151,6 +152,9 @@ check_in:
     service_name: BTSSS-API
     subscription_key: fake_subscription_key
     tenant_id: fake_template_id
+    travel_pay_client_id: fake_travel_pay_client_id
+    travel_pay_client_secret: fake_travel_pay_client_secret
+    travel_pay_resource: fake_travel_pay_resource
   vaos:
     mock: false
 chip:
@@ -225,6 +229,7 @@ claims_api:
 claims_evidence_api:
   base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
   breakers_error_threshold: 80
+  include_request: false
   jwt_secret: fake-secret
   mock: false
   ssl: false
@@ -623,8 +628,6 @@ ivc_forms:
       enabled: true
     old_records_cleanup_job:
       enabled: true
-    ves_retry_failures_job:
-      enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: 'arn:aws:iam::123456789012:role/role-name' # this is an example
@@ -800,6 +803,7 @@ maintenance:
     1010ezr: ~
     appeals: P9S4RFU
     arcgis: P45YBFA
+    askva: ~
     avs: ~
     bgs: P5Q2OCZ
     carma: P6XLE0T
@@ -1325,7 +1329,9 @@ va_profile:
     enabled: true
     mock: false
     timeout: 30
+valid_va_file_number: false
 vanotify:
+  callback_url: https://test-api.va.gov/va_notify/callbacks
   client_url: http://fakeapi.com
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
@@ -1407,8 +1413,12 @@ vanotify:
     accredited_representative_portal:
       api_key: fake_secret
       email:
+        confirmation:
+          template_id: arp_confirmation_email_template_id
         error:
           template_id: arp_error_email_template_id
+        received:
+          template_id: arp_received_email_template_id
     benefits_decision_review:
       api_key: fake_secret
       template_id:
@@ -1459,6 +1469,9 @@ vanotify:
     dmc:
       api_key: fake_secret
       template_id:
+        digital_dispute_confirmation_email: fake_template_id
+        digital_dispute_failure_email: fake_template_id
+        digital_dispute_submission_email: fake_template_id
         fsr_confirmation_email: fake_template_id
         fsr_failed_email: fake_template_id
         fsr_step_1_submission_in_progress_email: fake_template_id
@@ -1512,6 +1525,8 @@ vanotify:
     va_gov:
       api_key: fake_secret
       template_id:
+        accredited_representative_portal_poa_request_failure_claimant_email: accredited_representative_portal_poa_request_failure_claimant_email_template_id
+        accredited_representative_portal_poa_request_failure_rep_email: accredited_representative_portal_poa_request_failure_rep_email_template_id
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
         appoint_a_representative_digital_expiration_confirmation_email: appoint_a_representative_digital_expiration_confirmation_email_template_id
         appoint_a_representative_digital_expiration_warning_email: appoint_a_representative_digital_expiration_warning_email_template_id
@@ -1642,7 +1657,6 @@ vba_documents:
   slack:
     api_key: ''
     channel_id: ''
-    daily_notification_hour: 7
     default_alert_email: ''
     enabled: false
     in_flight_notification_hung_time_in_days: 14
@@ -1659,8 +1673,6 @@ vba_documents:
   webhooks:
     registration_max_retries: 3
     registration_next_run_in_minutes: 15
-    registration_next_run_minutes: 15
-    registration_rescue_in_minutes: 60
 vbms:
   ca_cert: VBMS-Client-Signing-CA.crt
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
@@ -1720,6 +1732,7 @@ veteran_enrollment_system:
 veteran_onboarding:
   onboarding_threshold_days: ~
 veteran_readiness_and_employment:
+  api_key: ~
   auth_endpoint: https://fake_url.com/auth/oauth/token
   base_url: https://fake_url.com
   credentials: fake_auth
@@ -1785,6 +1798,13 @@ veteran_readiness_and_employment:
       - VRE.VBAANC@va.gov
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
+  email:
+    confirmation_lighthouse:
+      template_id: 'confirmation_lighthouse'
+    confirmation_vbms:
+      template_id: 'confirmation_vbms'
+    error:
+      template_id: 'error'
 vetext:
   mock: ~
 vetext_push:

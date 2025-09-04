@@ -8,10 +8,6 @@ require 'claims_evidence_api/folder_identifier'
 require 'common/client/base'
 
 module ClaimsEvidenceApi
-  # Proxy Service for the ClaimsEvidence API
-  #
-  # @see https://depo-platform-documentation.scrollhelp.site/developer-docs/endpoint-monitoring
-  # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html
   module Service
     # Base service class for API
     class Base < Common::Client::Base
@@ -44,7 +40,7 @@ module ClaimsEvidenceApi
       # @see ClaimsEvidenceApi::FolderIdentifier#validate
       # @param folder_identifier [String] x_folder_uri header value
       def folder_identifier=(folder_identifier)
-        @folder_identifier = ClaimsEvidenceApi::FolderIdentifier.validate(folder_identifier)
+        @folder_identifier = validate_folder_identifier(folder_identifier)
       end
 
       # set the folder identifier that the file will be associated to

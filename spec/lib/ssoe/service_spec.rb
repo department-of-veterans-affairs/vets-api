@@ -34,169 +34,121 @@ RSpec.describe SSOe::Service, type: :service do
     let(:credential_method) { 'idme' }
     let(:credential_id) { '12345' }
 
+    shared_examples 'responds with 502' do
+      it 'logs the error and returns the error response' do
+        expect(Rails.logger).to receive(:error).with(
+          a_string_starting_with(
+            '[SSOe::Service::get_traits] connection error:'
+          )
+        )
+
+        response = service.get_traits(
+          credential_method:,
+          credential_id:,
+          user:,
+          address:
+        )
+
+        expect(response[:success]).to be false
+        expect(response[:error][:code]).to eq(502)
+        expect(response[:error][:message]).to be_a(String)
+      end
+    end
+
     context 'when the response is successful' do
-      context 'parse_response' do
-        it 'parses ICN response' do
-          body = <<~XML
-            <Envelope>
-              <Body>
-                <getSSOeTraitsByCSPIDResponse>
-                  <icn>123498767V234859</icn>
-                </getSSOeTraitsByCSPIDResponse>
-              </Body>
-            </Envelope>
-          XML
+      it 'returns the parsed ICN response' do
+        VCR.use_cassette('mpi/get_traits/success') do
+          expected_response = {
+            success: true,
+            icn: '123498767V234859'
+          }
 
-          result = service.send(:parse_response, body)
-          expect(result).to eq({ success: true, icn: '123498767V234859' })
-        end
+          response = service.get_traits(
+            credential_method:,
+            credential_id:,
+            user:,
+            address:
+          )
 
-        it 'parses fault response' do
-          body = <<~XML
-            <Envelope>
-              <Body>
-                <Fault>
-                  <faultcode>soap:Client</faultcode>
-                  <faultstring>Error</faultstring>
-                </Fault>
-              </Body>
-            </Envelope>
-          XML
-
-          result = service.send(:parse_response, body)
-          expect(result).to eq({ success: false, error: { code: 'soap:Client', message: 'Error' } })
-        end
-
-        it 'handles unknown response format' do
-          body = '<unexpected>response</unexpected>'
-
-          result = service.send(:parse_response, body)
-          expect(result).to eq({
-                                 success: false,
-                                 error: {
-                                   code: 'UnknownError',
-                                   message: 'Unable to parse SOAP response'
-                                 }
-                               })
+          expect(response).to eq(expected_response)
         end
       end
     end
 
-    context 'when the response contains a valid ICN' do
-      it 'parses the ICN from the response' do
-        response = service.send(:parse_response, <<~XML)
-          <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-            <soap:Body>
-              <getSSOeTraitsByCSPIDResponse>
-                <icn>123498767V234859</icn>
-              </getSSOeTraitsByCSPIDResponse>
-            </soap:Body>
-          </soap:Envelope>
-        XML
+    context 'when the response has a SOAP fault (client error)' do
+      it 'returns the error response and logs the error' do
+        VCR.use_cassette('mpi/get_traits/error') do
+          expected_response = {
+            success: false,
+            error: {
+              code: 400,
+              message: 'SOAP HTTP call failed'
+            }
+          }
 
-        expect(response).to eq({ success: true, icn: '123498767V234859' })
-      end
-    end
+          response = service.get_traits(
+            credential_method:,
+            credential_id:,
+            user:,
+            address:
+          )
 
-    context 'when the response contains a fault' do
-      it 'parses the fault from the response' do
-        response = service.send(:parse_response, <<~XML)
-          <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-            <soap:Body>
-              <soap:Fault>
-                <faultcode>soap:Client</faultcode>
-                <faultstring>Invalid CSPID</faultstring>
-              </soap:Fault>
-            </soap:Body>
-          </soap:Envelope>
-        XML
-
-        expect(response).to eq({
-                                 success: false,
-                                 error: {
-                                   code: 'soap:Client',
-                                   message: 'Invalid CSPID'
-                                 }
-                               })
+          expect(response).to eq(expected_response)
+        end
       end
     end
 
     context 'when the response is unexpected' do
-      it 'returns an unknown error' do
-        response = service.send(:parse_response, '<unexpected>response</unexpected>')
-
-        expect(response).to eq({
-                                 success: false,
-                                 error: {
-                                   code: 'UnknownError',
-                                   message: 'Unable to parse SOAP response'
-                                 }
-                               })
+      it 'raises an error' do
+        body = '<unexpected>response</unexpected>'
+        expect { service.send(:parse_response, body) }.to raise_error(StandardError, 'Unable to parse SOAP response')
       end
     end
 
     context 'when there is a connection error' do
       before do
-        VCR.configure { |c| c.allow_http_connections_when_no_cassette = true }
-        allow(Faraday).to receive(:post).and_raise(Faraday::ConnectionFailed, 'Connection error')
+        allow_any_instance_of(SSOe::Service).to receive(:perform).and_raise(Faraday::ConnectionFailed.new(
+                                                                              'Connection error'
+                                                                            ))
       end
 
-      after do
-        VCR.configure { |c| c.allow_http_connections_when_no_cassette = false }
-      end
-
-      it 'logs the error and returns nil' do
-        expect(Rails.logger).to receive(:error).with(/Connection error/)
-
-        response = service.get_traits(
-          credential_method:,
-          credential_id:,
-          user:,
-          address:
-        )
-
-        expect(response).to be_nil
-      end
+      it_behaves_like 'responds with 502'
     end
 
     context 'when there is a timeout error' do
       before do
-        VCR.configure { |c| c.allow_http_connections_when_no_cassette = true }
-        allow(Faraday).to receive(:post).and_raise(Faraday::TimeoutError, 'Timeout error')
+        allow_any_instance_of(SSOe::Service).to receive(:perform).and_raise(Faraday::TimeoutError.new(
+                                                                              'Timeout error'
+                                                                            ))
       end
 
-      after do
-        VCR.configure { |c| c.allow_http_connections_when_no_cassette = false }
-      end
-
-      it 'logs the error and returns nil' do
-        expect(Rails.logger).to receive(:error).with(/Connection error: Common::Client::Errors::ClientError/)
-
-        response = service.get_traits(
-          credential_method:,
-          credential_id:,
-          user:,
-          address:
-        )
-
-        expect(response).to be_nil
-      end
+      it_behaves_like 'responds with 502'
     end
 
-    context 'when an unexpected error occurs' do
+    context 'when an unexpected error occurs', vcr: false do
       before do
-        allow(Faraday).to receive(:post).and_raise(StandardError, 'Unexpected error')
+        allow_any_instance_of(Common::Client::Base).to receive(:perform).and_raise(StandardError, 'Unexpected error')
       end
 
-      it 'logs the error and returns nil' do
-        expect(Rails.logger).to receive(:error).with(/Unexpected error/)
+      it 'logs the error and returns an unknown error response' do
+        expect(Rails.logger).to receive(:error).with(
+          '[SSOe::Service::get_traits] unknown error: StandardError - Unexpected error'
+        )
+
         response = service.get_traits(
           credential_method:,
           credential_id:,
           user:,
           address:
         )
-        expect(response).to be_nil
+
+        expect(response).to eq({
+                                 success: false,
+                                 error: {
+                                   code: 500,
+                                   message: 'Unexpected error'
+                                 }
+                               })
       end
     end
   end
