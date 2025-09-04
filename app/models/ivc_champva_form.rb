@@ -8,4 +8,6 @@ class IvcChampvaForm < ApplicationRecord
   has_encrypted :first_name, migrating: true, key: :kms_key, **lockbox_options
   has_encrypted :last_name, migrating: true, key: :kms_key, **lockbox_options
   has_encrypted :email, migrating: true, key: :kms_key, **lockbox_options
+
+  blind_index :email
 end
