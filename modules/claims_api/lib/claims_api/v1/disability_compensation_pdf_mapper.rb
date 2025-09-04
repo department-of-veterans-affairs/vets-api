@@ -25,15 +25,21 @@ module ClaimsApi
 
       def section_0_claim_attributes
         claim_process_type = @auto_claim['standardClaim'] ? 'STANDARD_CLAIM_PROCESS' : 'FDC_PROGRAM'
-        claim_process_type = 'BDD_PROGRAM' if any_service_end_dates_in_future_window?
+        claim_process_type = 'BDD_PROGRAM' if any_service_end_dates_in_bdd_window?
 
         @pdf_data[:data][:attributes][:claimProcessType] = claim_process_type
       end
 
-      def any_service_end_dates_in_future_window?
+      def any_service_end_dates_in_bdd_window?
         @auto_claim['serviceInformation']['servicePeriods'].each do |sp|
           end_date = sp['activeDutyEndDate'].to_date
-          return true if end_date >= 90.days.from_now && end_date <= 180.days.from_now
+          if end_date >= 90.days.from_now.to_date && end_date <= 180.days.from_now.to_date
+            set_pdf_data_for_section_one
+
+            future_date = make_date_string_month_first(sp['activeDutyEndDate'], sp['activeDutyEndDate'].length)
+            @pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty] = future_date
+            return true
+          end
         end
 
         false
@@ -108,10 +114,14 @@ module ClaimsApi
       end
 
       def set_pdf_data_for_section_one
+        return if @pdf_data[:data][:attributes].key?(:identificationInformation)
+
         @pdf_data[:data][:attributes][:identificationInformation] = {}
       end
 
       def set_pdf_data_for_mailing_address
+        return if @pdf_data[:data][:attributes][:identificationInformation].key?(:mailingAddress)
+
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress] = {}
       end
 
