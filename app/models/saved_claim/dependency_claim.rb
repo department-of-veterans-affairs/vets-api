@@ -196,7 +196,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     schema_errors = validate_schema(schema)
     unless schema_errors.empty?
       Rails.logger.error('SavedClaim schema failed validation.',
-                          { form_id:, errors: schema_errors })
+                         { form_id:, errors: schema_errors })
     end
 
     validation_errors = validate_form(schema)
