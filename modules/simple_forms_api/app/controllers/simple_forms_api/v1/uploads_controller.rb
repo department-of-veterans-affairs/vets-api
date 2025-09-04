@@ -6,6 +6,7 @@ require 'lgy/service'
 require 'lighthouse/benefits_intake/service'
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 require 'benefits_intake_service/service'
+require 'simple_forms_api/supporting_document_service'
 
 module SimpleFormsApi
   module V1
@@ -51,17 +52,30 @@ module SimpleFormsApi
         raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
       end
 
+      def submit_supporting_documents_with_conversion
+        return unless %w[40-0247 20-10207 40-10007 31-4159].include?(params[:form_id])
+
+        service = SimpleFormsApi::SupportingDocumentService.new(params)
+        result = service.process_upload
+
+        if result.success?
+          render json: PersistentAttachmentSerializer.new(result.attachment)
+        else
+          render json: { errors: result.errors }, status: result.status
+        end
+      end
+
       def submit_supporting_documents
-        return unless %w[40-0247 20-10207 40-10007].include?(params[:form_id])
+        return unless %w[40-0247 20-10207 40-10007 31-4159].include?(params[:form_id])
 
         attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
         attachment.file = params['file']
         file_path = params['file'].tempfile.path
+        ## upload immediately 
 
         return unless validate_document_if_needed(file_path)
-
+        
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
-
         attachment.save
         render json: PersistentAttachmentSerializer.new(attachment)
       end
