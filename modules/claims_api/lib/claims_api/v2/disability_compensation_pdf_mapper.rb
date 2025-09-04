@@ -830,16 +830,9 @@ module ClaimsApi
           middleInitial: @middle_initial
         }
         birth_date_data = @auth_headers[:va_eauth_birthdate]
-        if birth_date_data
-          birth_date =
-            {
-              month: birth_date_data[5..6].to_s,
-              day: birth_date_data[8..9].to_s,
-              year: birth_date_data[0..3].to_s
-            }
-        end
-        ssn = @auth_headers[:va_eauth_pnid]
-        formated_ssn = "#{ssn[0..2]}-#{ssn[3..4]}-#{ssn[5..8]}"
+        birth_date = format_birth_date(birth_date_data) if birth_date_data
+
+        formated_ssn = format_ssn(@auth_headers[:va_eauth_pnid]) if @auth_headers[:va_eauth_pnid].present?
         @pdf_data[:data][:attributes][:identificationInformation][:name] = name
         @pdf_data[:data][:attributes][:identificationInformation][:ssn] = formated_ssn
         @pdf_data[:data][:attributes][:identificationInformation][:dateOfBirth] = birth_date
