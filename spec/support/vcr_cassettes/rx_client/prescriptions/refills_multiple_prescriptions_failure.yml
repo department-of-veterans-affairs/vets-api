@@ -1,11 +1,11 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: "<MHV_HOST>/v1/usermgmt/auth/session"
+    method: post
+    uri: "<MHV_HOST>/v1/pharmacy/ess/rxrefill"
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: "[13650545,13650546]"
     headers:
       Accept:
       - application/json
@@ -13,10 +13,7 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Apptoken:
-      - "<APP_TOKEN>"
-      Mhvcorrelationid:
-      - '16955936'
+      Token: "<SESSION_TOKEN>"
       X-Api-Key:
       - "<X_API_KEY>"
       Accept-Encoding:
@@ -31,28 +28,26 @@ http_interactions:
       Content-Type:
       - application/json
       Content-Length:
-      - '0'
+      - '388'
       X-Amzn-Requestid:
-      - 450947d3-55cf-4391-9b1d-e9c911c35872
-      X-Amzn-Remapped-Content-Length:
-      - '0'
+      - cfa50487-0c9d-4def-b2d8-a4468fb3febb
       X-Oneagent-Js-Injection:
       - 'true'
       X-Amzn-Remapped-Connection:
       - keep-alive
       X-Amz-Apigw-Id:
-      - QZgewEK8vHMFi8A=
-      Expires:
-      - Thu, 04 Sep 2025 22:46:14 GMT+00:00
+      - QZge2Ha4vHMFRig=
       Server-Timing:
-      - dtRpid;desc="1166809323", dtSInfo;desc="0"
-      Token: "<SESSION_TOKEN>"
+      - dtRpid;desc="2059899444", dtSInfo;desc="0"
       X-Amzn-Remapped-Date:
       - Thu, 04 Sep 2025 22:36:14 GMT
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
-      encoding: UTF-8
-      string: ''
+      encoding: ASCII-8BIT
+      string: '{"failedStationList":"","successfulStationList":"","lastUpdatedTime":"Thu,
+        04 Sep 2025 17:27:36 EDT","prescriptionList":null,"errors":[{"errorCode":138,"developerMessage":"Prescription
+        not found for id: 13650545","message":"Prescription is not Found"},{"errorCode":138,"developerMessage":"Prescription
+        not found for id: 13650546","message":"Prescription is not Found"}],"infoMessages":[]}'
   recorded_at: Thu, 04 Sep 2025 22:36:14 GMT
 recorded_with: VCR 6.3.1

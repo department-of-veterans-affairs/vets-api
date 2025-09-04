@@ -15,7 +15,7 @@ end
 describe Rx::Client do
   before do
     VCR.use_cassette 'rx_client/session' do
-      @client = Rx::Client.new(session: { user_id: '12210827' },
+      @client = Rx::Client.new(session: { user_id: '16955936' },
                                upstream_request: UpstreamRequest)
       @client.authenticate
     end
@@ -125,6 +125,27 @@ describe Rx::Client do
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY_PREFIX}.refills.requested", ids.size, tags: ['source_app:myapp']
         ).exactly(:once)
+      end
+    end
+
+    it 'handles failures when refilling multiple prescriptions' do
+      VCR.use_cassette('rx_client/prescriptions/refills_multiple_prescriptions_failure') do
+        ids = [13650545, 13650546]
+        client_response = client.post_refill_rxs(ids)
+        expect(client_response.status).to equal 200
+        expect(StatsD).to have_received(:increment).with(
+          "#{described_class::STATSD_KEY_PREFIX}.refills.requested", ids.size, tags: ['source_app:myapp']
+        ).exactly(:once)
+        expect(client_response.body).to include(
+          :failed_station_list,
+          :successful_station_list,
+          :last_updated_time,
+          :prescription_list,
+          :errors,
+          :info_messages
+        )
+        expect(client_response.body[:errors]).to be_an(Array)
+        expect(client_response.body[:errors]).not_to be_empty
       end
     end
 
