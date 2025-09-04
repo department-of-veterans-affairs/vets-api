@@ -289,6 +289,9 @@ features:
   champva_form_10_10d_2027:
     actor_type: user
     description: If enabled uses the 2027 version of form 10-10d with expiration 12/31/2027
+  champva_form_10_7959f_2_2025:
+    actor_type: user
+    description: If enabled uses the 2025 version of form 10-7959f-2 with expiration 12/31/2027
   champva_ves_retry_failures_job:
     actor_type: user
     description: Enables the sidekiq job to retry VES submissions that failed
