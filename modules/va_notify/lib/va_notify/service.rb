@@ -185,15 +185,19 @@ module VaNotify
     end
 
     def retrieve_service_api_key_path
-      service_config = Settings.vanotify.services.find do |_service, options|
-        options.api_key == @notify_client.secret_token
-      end
+      if Flipper.enabled?(:va_notify_custom_errors)
+        service_config = Settings.vanotify.services.find do |_service, options|
+          options.api_key == @notify_client.secret_token
+        end
 
-      if service_config.blank?
-        Rails.logger.error("api key path not found for template #{@template_id}")
-        nil
+        if service_config.blank?
+          Rails.logger.error("api key path not found for template #{@template_id}")
+          nil
+        else
+          "Settings.vanotify.services.#{service_config[0]}.api_key"
+        end
       else
-        "Settings.vanotify.services.#{service_config[0]}.api_key"
+        nil
       end
     end
   end
