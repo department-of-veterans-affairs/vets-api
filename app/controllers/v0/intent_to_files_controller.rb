@@ -57,6 +57,10 @@ module V0
         response = intent_to_file_provider.get_intent_to_file(type, nil, nil)
       end
       render json: IntentToFileSerializer.new(response)
+    rescue => e
+      Rails.logger.error("Error occurred while processing ITF GET request: #{e.message}")
+      monitor.track_itf_controller_error('get', form_id, type, e.message)
+      raise e
     end
 
     def submit
@@ -80,6 +84,10 @@ module V0
         response = intent_to_file_provider.create_intent_to_file(type, nil, nil)
       end
       render json: IntentToFileSerializer.new(response)
+    rescue => e
+      Rails.logger.error("Error occurred while processing ITF submit request: #{e.message}")
+      monitor.track_itf_controller_error('post', form_id, type, e.message)
+      raise e
     end
 
     private
@@ -130,14 +138,8 @@ module V0
       end
 
       if user.participant_id.blank?
-        error_message = 'ITF request failed. No veteran participant ID provided'
-        monitor.track_missing_user_pid_itf_controller(method, form_id, itf_type, user_uuid, error_message)
-
-        # Skip raise to allow request through to attempt to create ITF
-        # V2 Logic will internally call IAM's Add Person service to try to get the Participant ID for those users.
-        unless Flipper.enabled?(:pension_itf_skip_missing_person_error_enabled, user)
-          raise MissingParticipantIDError, error_message
-        end
+        info_message = 'User missing participant ID which will be created by Lighthouse within MPI'
+        monitor.track_missing_user_pid_itf_controller(method, form_id, itf_type, user_uuid, info_message)
       end
 
       if form_id.blank?

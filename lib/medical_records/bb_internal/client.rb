@@ -182,17 +182,20 @@ module BBInternal
     end
 
     ##
-    # @param date - receieved from get_generate_ccd call property dateGenerated (e.g. 2024-10-18T09:55:58.000-0400)
-    # @return - Continuity of Care Document in XML format
+    # @param date - received from get_generate_ccd call property dateGenerated (e.g. 2024-10-18T09:55:58.000-0400)
+    # @param format - the format to return; one of XML, HTML, PDF
+    # @return - Continuity of Care Document in the specified format
     #
-    def get_download_ccd(date)
+    def get_download_ccd(date:, format: :xml)
+      fmt = format.to_s.upcase # XML | HTML | PDF
       modified_headers = token_headers.dup
-      modified_headers['Accept'] = 'application/xml'
-      response = config.connection_non_gateway.get(
-        "bluebutton/healthsummary/#{date}/fileFormat/XML/ccdType/XML",
-        nil,
-        modified_headers
-      )
+
+      # The backend returns a 406 for 'application/pdf' and 'text/html' so we just use '*/*'
+      modified_headers['Accept'] = '*/*'
+
+      path = "bluebutton/healthsummary/#{date}/fileFormat/#{fmt}/ccdType/#{fmt}"
+
+      response = config.connection_non_gateway.get(path, nil, modified_headers)
       response.body
     end
 

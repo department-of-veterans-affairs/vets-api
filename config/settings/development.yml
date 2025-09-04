@@ -10,6 +10,7 @@ accredited_representative_portal:
       base_uri: ~
       path: ~
       repo: ~
+  frontend_base_url: http://localhost:3001/representative
 adapted_housing:
   prefill: true
 argocd:
@@ -154,6 +155,7 @@ check_in:
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     travel_pay_client_id: ~
     travel_pay_client_secret: ~
+    travel_pay_resource: ~
   vaos:
     mock: false
 chip:
