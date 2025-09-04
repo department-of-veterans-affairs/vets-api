@@ -491,13 +491,15 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
               .with('1010ez')
               .and_raise(StandardError, 'Database connection failed')
 
-            # Expect the warning to be logged
-            expect(Rails.logger).to receive(:warn)
-              .with(
-                a_string_matching(
-                  /\[10-10EZ\]\[HCA id: \d+\] - Failed to clear saved form: Database connection failed/
-                )
-              )
+            logger_regex = [
+              /\[10-10EZ\]/,
+              /\[User uuid: #{current_user.uuid}, UserAccount id: none\]/,
+              /\[HCA id: \d+\]/,
+              /  - Failed to clear saved form: Database connection failed/
+            ]
+            expect(Rails.logger).to receive(:warn).with(
+              a_string_matching(Regexp.union(logger_regex))
+            )
 
             subject
             expect(JSON.parse(response.body)).to eq(body)
@@ -516,10 +518,12 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
                 allow(Rails.logger).to receive(:info)
                 expect(Rails.logger).to receive(:info)
-                  .with('[10-10EZ] - HealthCareApplication has InProgressForm: false')
+                  .with("[10-10EZ][User uuid: #{current_user.uuid}, UserAccount id: none]" \
+                        ' - HealthCareApplication has InProgressForm: false')
 
                 logger_regex = [
                   /\[10-10EZ\]/,
+                  /\[User uuid: #{current_user.uuid}, UserAccount id: none\]/,
                   /\[HCA id: \d+, form_submission_id: 436426340\]/,
                   / - InProgressForm exists before attempted delete: false/
                 ]
@@ -539,13 +543,15 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                   .with('1010ez')
                   .and_raise(StandardError, 'Database connection failed')
 
-                # Expect the warning to be logged
-                expect(Rails.logger).to receive(:warn)
-                  .with(
-                    a_string_matching(
-                      /\[10-10EZ\]\[HCA id: \d+\] - Failed to clear saved form: Database connection failed/
-                    )
-                  )
+                logger_regex = [
+                  /\[10-10EZ\]/,
+                  /\[User uuid: #{current_user.uuid}, UserAccount id: none\]/,
+                  /\[HCA id: \d+\]/,
+                  / - Failed to clear saved form: Database connection failed/
+                ]
+                expect(Rails.logger).to receive(:warn).with(
+                  a_string_matching(Regexp.union(logger_regex))
+                )
 
                 subject
                 expect(JSON.parse(response.body)).to eq(body)
@@ -562,18 +568,29 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
                 allow(Rails.logger).to receive(:info)
                 expect(Rails.logger).to receive(:info)
-                  .with('[10-10EZ] - HealthCareApplication has InProgressForm: true')
+                  .with("[10-10EZ][User uuid: #{current_user.uuid}, UserAccount id: none]" \
+                        ' - HealthCareApplication has InProgressForm: true')
 
-                logger_regex = [
+                logger_regex_before = [
                   /\[10-10EZ\]/,
+                  /\[User uuid: #{current_user.uuid}, UserAccount id: none\]/,
                   /\[HCA id: \d+, form_submission_id: 436426340\]/,
                   / - InProgressForm exists before attempted delete: true/
                 ]
                 expect(Rails.logger).to receive(:info).with(
-                  a_string_matching(Regexp.union(logger_regex))
+                  a_string_matching(Regexp.union(logger_regex_before))
                 )
-                expect(Rails.logger).to receive(:info)
-                  .with(a_string_matching(/\[10-10EZ\]\[HCA id: \d+\] - InProgressForm successfully deleted: true/))
+
+                logger_regex_after = [
+                  /\[10-10EZ\]/,
+                  /\[User uuid: #{current_user.uuid}, UserAccount id: none\]/,
+                  /\[HCA id: \d+\]/,
+                  / - InProgressForm successfully deleted: true/
+                ]
+
+                expect(Rails.logger).to receive(:info).with(
+                  a_string_matching(Regexp.union(logger_regex_after))
+                )
 
                 subject
                 expect(JSON.parse(response.body)).to eq(body)
@@ -587,13 +604,17 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                   .with('1010ez')
                   .and_raise(StandardError, 'Database connection failed')
 
-                # Expect the warning to be logged
-                expect(Rails.logger).to receive(:warn)
-                  .with(
-                    a_string_matching(
-                      /\[10-10EZ\]\[HCA id: \d+\] - Failed to clear saved form: Database connection failed/
-                    )
-                  )
+                logger_regex = [
+                  /\[10-10EZ\]/,
+                  /\[User uuid: #{current_user.uuid}, UserAccount id: none\]/,
+                  /\[HCA id: \d+\]/,
+                  / - Failed to clear saved form: Database connection failed/
+                ]
+
+                expect(Rails.logger).to receive(:warn).with(
+                  a_string_matching(Regexp.union(logger_regex))
+                )
+
                 subject
                 expect(JSON.parse(response.body)).to eq(body)
               end
