@@ -25,22 +25,18 @@ module TravelClaim
                    :travel_pay_client_number, :travel_pay_resource
 
     def initialize(uuid:, check_in_uuid:, appointment_date_time:)
-      raise ArgumentError, 'UUID cannot be blank' if uuid.blank?
-      raise ArgumentError, 'Appointment date time cannot be blank' if appointment_date_time.blank?
-      raise ArgumentError, 'Check-in UUID cannot be blank' if check_in_uuid.blank?
-
       @uuid = uuid
       @check_in_uuid = check_in_uuid
+      @appointment_date_time = appointment_date_time
       @redis_client = TravelClaim::RedisClient.build
       @settings = Settings.check_in.travel_reimbursement_api_v2
       @correlation_id = SecureRandom.uuid
       @current_veis_token = nil
       @current_btsss_token = nil
-      @appointment_date_time = appointment_date_time
-
-      load_redis_data
 
       validate_required_arguments
+      load_redis_data
+      validate_redis_data
       super()
     end
 
@@ -205,9 +201,13 @@ module TravelClaim
     end
 
     def validate_required_arguments
+      raise ArgumentError, 'UUID cannot be blank' if @uuid.blank?
+      raise ArgumentError, 'Check-in UUID cannot be blank' if @check_in_uuid.blank?
+      raise ArgumentError, 'appointment date time cannot be blank' if @appointment_date_time.blank?
+    end
+
+    def validate_redis_data
       missing_args = []
-      missing_args << 'UUID' if @uuid.blank?
-      missing_args << 'appointment date time' if @appointment_date_time.blank?
       missing_args << 'ICN' if @icn.blank?
       missing_args << 'station number' if @station_number.blank?
 
