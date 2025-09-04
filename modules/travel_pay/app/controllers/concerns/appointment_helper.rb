@@ -12,7 +12,7 @@ module AppointmentHelper
       Rails.logger.error(message: msg)
       raise Common::Exceptions::ResourceNotFound, detail: msg
     end
-    
+
     appt[:data]['id']
   end
 end
