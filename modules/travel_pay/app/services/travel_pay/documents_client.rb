@@ -73,11 +73,13 @@ module TravelPay
             req.headers['Authorization'] = "Bearer #{veis_token}"
             req.headers['BTSSS-Access-Token'] = btsss_token
             req.headers['X-Correlation-ID'] = correlation_id
-            req.headers.merge!(claim_headers)
-
+            # Remove the content-type from the claim_headers so that we dont override the multipart/form-data header
+            req.headers.merge!(claim_headers.except('Content-Type'))
             # Use capital 'Document' key for Swagger compliance
             req.body = {
-              'Document' => Faraday::Multipart::FilePart.new(document.path, document.content_type)
+              'Document' => Faraday::Multipart::FilePart.new(
+                document.path, document.content_type, document.original_filename
+              )
             }
           end
       end
