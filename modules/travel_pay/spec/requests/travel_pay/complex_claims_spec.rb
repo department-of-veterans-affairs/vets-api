@@ -43,7 +43,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
 
         it 'returns a server error response if a request to the Travel Pay API fails' do
           allow_any_instance_of(TravelPay::ClaimsService).to receive(:submit_claim)
-            .and_raise(Faraday::ServerError.new("500 Internal Server Error"))
+            .and_raise(Faraday::ServerError.new('500 Internal Server Error'))
           VCR.use_cassette('travel_pay/submit/500_submit_claim', match_requests_on: %i[method path]) do
             post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
 
