@@ -14,7 +14,8 @@ module CheckIn
         )
 
         unless check_in_session.authorized?
-          render json: check_in_session.unauthorized_message, status: :unauthorized and return
+          render json: check_in_session.unauthorized_message, status: :unauthorized
+          return
         end
 
         submit_travel_claim(check_in_session)
