@@ -33,13 +33,13 @@ describe PdfFill::Filler, type: :model do
 
                 expect(
                   FileUtils.compare_file(extras_path,
-                                         "modules/burials/spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
+                                         "modules/burials/spec/fixtures/pdf_fill/#{form_id}/overflow_redesign_extras.pdf")
                 ).to be(true)
 
                 File.delete(extras_path)
               end
 
-              expect(file_path).to match_pdf_fields("modules/burials/spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
+              expect(file_path).to match_pdf_fields("modules/burials/spec/fixtures/pdf_fill/#{form_id}/#{type}_redesign.pdf")
 
               File.delete(file_path)
             end
