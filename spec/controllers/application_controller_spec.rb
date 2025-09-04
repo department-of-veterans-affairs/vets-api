@@ -538,6 +538,7 @@ RSpec.describe ApplicationController, type: :controller do
           'clientId' => 'vaweb'
         },
         'credential_used' => 'idme',
+        'credential_uuid' => user.idme_uuid,
         'session_uuid' => token,
         'expirationTime' => expiration_time
       }
