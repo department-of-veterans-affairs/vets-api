@@ -201,7 +201,7 @@ module TravelClaim
       @icn = @redis_client.icn(uuid: @check_in_uuid)
       @station_number = @redis_client.station_number(uuid: @uuid)
     rescue Redis::BaseError => e
-      raise ArgumentError, "Failed to load data from Redis for UUID #{@uuid}: #{e.message}"
+      raise ArgumentError, "Failed to load data from Redis for check_in_session UUID #{@check_in_uuid}: #{e.message}"
     end
 
     def validate_required_arguments

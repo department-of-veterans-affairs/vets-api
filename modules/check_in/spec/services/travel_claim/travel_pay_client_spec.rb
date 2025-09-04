@@ -64,7 +64,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
         expect do
           described_class.new(uuid:, appointment_date_time:, check_in_uuid:)
-        end.to raise_error(ArgumentError, "Failed to load data from Redis for UUID #{uuid}: Connection refused")
+        end.to raise_error(ArgumentError, "Failed to load data from Redis for check_in_session UUID #{check_in_uuid}: Connection refused")
       end
     end
 
@@ -76,7 +76,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
         expect do
           described_class.new(uuid:, appointment_date_time:, check_in_uuid:)
-        end.to raise_error(ArgumentError, "Failed to load data from Redis for UUID #{uuid}: Operation timed out")
+        end.to raise_error(ArgumentError, "Failed to load data from Redis for check_in_session UUID #{check_in_uuid}: Operation timed out")
       end
     end
 
