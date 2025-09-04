@@ -20,6 +20,17 @@ module Mobile
                status:
       end
 
+      def show
+        claim = claims_service.get_claim_details(params[:id])
+
+        raise Common::Exceptions::ResourceNotFound, detail: "Claim not found. ID provided: #{params[:id]}" if claim.nil?
+
+        normalized_claim = normalize_claim_summary(claim)
+        render json: Mobile::V0::TravelPayClaimSummarySerializer.new(normalized_claim), status: :ok
+      rescue ArgumentError => e
+        raise Common::Exceptions::BadRequest, detail: e.message
+      end
+
       # rubocop:disable Metrics/MethodLength
       def create
         appt_params = {
@@ -57,11 +68,11 @@ module Mobile
 
       def normalize_claim_summary(claim)
         Mobile::V0::TravelPayClaimSummary.new(
-          id: claim['id'],
+          id: claim['id'] || claim['claimId'],
           claimNumber: claim['claimNumber'],
           claimStatus: claim['claimStatus'],
-          appointmentDateTime: claim['appointmentDateTime'],
-          facilityId: claim['facilityId'],
+          appointmentDateTime: claim['appointmentDateTime'] || claim['appointmentDate'],
+          facilityId: claim['facilityId'] || claim.dig('appointment', 'facilityId'),
           facilityName: claim['facilityName'],
           totalCostRequested: claim['totalCostRequested'],
           reimbursementAmount: claim['reimbursementAmount'],
