@@ -33,8 +33,7 @@ module AccreditedRepresentativePortal
     def user_account
       @user_account ||=
         RepresentativeUserAccount.find(user_account_uuid).tap do |account|
-          account.set_email(email)
-          account.set_all_emails(all_emails) if Flipper.enabled?(:accredited_representative_portal_self_service_auth)
+          account.set_all_emails(all_emails)
         end
     end
 
