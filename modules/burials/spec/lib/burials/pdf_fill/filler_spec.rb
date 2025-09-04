@@ -36,12 +36,12 @@ describe PdfFill::Filler, type: :model do
                                          "modules/burials/spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
                 ).to be(true)
 
-                # File.delete(extras_path)
+                File.delete(extras_path)
               end
 
               expect(file_path).to match_pdf_fields("modules/burials/spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
 
-              # File.delete(file_path)
+              File.delete(file_path)
             end
           end
         end

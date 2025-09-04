@@ -362,6 +362,7 @@ module Burials
           'toursOfDuty' => {
             limit: 3,
             first_key: 'rank',
+            item_label: 'Service period',
             'dateRangeStart' => {
               key: "form1[0].#subform[82].DATE_ENTERED_SERVICE[#{ITERATOR}]",
               question_num: 14,
