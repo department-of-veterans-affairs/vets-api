@@ -118,7 +118,7 @@ module V0
     def clear_in_progress_form
       if Flipper.enabled?(:hca_in_progress_form_logging)
         in_progress_form_before = InProgressForm.form_for_user(FORM_ID, current_user)
-        Rails.logger.info("[10-10EZ][HCA id: #{health_care_application.id}, " \
+        Rails.logger.info("[10-10EZ][#{log_hca_id}, " \
                           "form_submission_id: #{health_care_application.form_submission_id_string}] - " \
                           "InProgressForm exists before attempted delete: #{!in_progress_form_before.nil?}")
 
@@ -128,11 +128,15 @@ module V0
 
       if Flipper.enabled?(:hca_in_progress_form_logging) && in_progress_form_before
         in_progress_form_after = InProgressForm.form_for_user(FORM_ID, current_user)
-        Rails.logger.info("[10-10EZ][HCA id: #{health_care_application.id}] - " \
+        Rails.logger.info("[10-10EZ][#{log_hca_id}] - " \
                           "InProgressForm successfully deleted: #{!in_progress_form_after}")
       end
     rescue => e
-      Rails.logger.warn("[10-10EZ][HCA id: #{health_care_application.id}] - Failed to clear saved form: #{e.message}")
+      Rails.logger.warn("[10-10EZ][#{log_hca_id}] - Failed to clear saved form: #{e.message}")
+    end
+
+    def log_hca_id
+      "HCA id: #{health_care_application.id}"
     end
 
     def health_care_application
