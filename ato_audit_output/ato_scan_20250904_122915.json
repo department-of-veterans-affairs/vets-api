@@ -1,0 +1,33 @@
+{
+  "authentication": {
+    "devise_configured": false,
+    "mfa_indicators": [
+
+    ],
+    "session_config": true
+  },
+  "encryption": {
+    "credentials_encrypted": false,
+    "master_key": false,
+    "ssl_configured": true
+  },
+  "dependencies": {
+    "gemfile_present": true,
+    "gemfile_lock": true,
+    "security_gems": [
+      "jwt",
+      "rack-attack",
+      "brakeman",
+      "bundler-audit"
+    ]
+  },
+  "logging": {
+    "filter_parameters": false,
+    "log_level": "info"
+  },
+  "api_security": {
+    "rack_attack": true,
+    "cors_configured": false,
+    "routes_count": 118
+  }
+}
