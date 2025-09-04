@@ -96,7 +96,7 @@ module V0
       response_body = SignIn::TokenResponseGenerator.new(params: token_params,
                                                          cookies: token_cookies,
                                                          request_attributes:).perform
-      sign_in_logger.info('token', { grant_type: token_params[:grant_type] })
+      sign_in_logger.info('token')
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
 
       render json: response_body, status: :ok
@@ -203,13 +203,13 @@ module V0
     rescue SignIn::Errors::LogoutAuthorizationError,
            SignIn::Errors::SessionNotAuthorizedError,
            SignIn::Errors::SessionNotFoundError => e
-      sign_in_logger.info('logout error', { errors: e.message })
+      sign_in_logger.info('logout error', { errors: e.message, client_id: })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
       logout_redirect = SignIn::LogoutRedirectGenerator.new(client_config: client_config(client_id)).perform
 
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
     rescue => e
-      sign_in_logger.info('logout error', { errors: e.message })
+      sign_in_logger.info('logout error', { errors: e.message, client_id: })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
 
       render json: { errors: e }, status: :bad_request
@@ -302,7 +302,6 @@ module V0
       user_code_map = SignIn::UserCodeMapCreator.new(
         user_attributes:, state_payload:, verified_icn:, request_ip: request.remote_ip
       ).perform
-      user_account_id = UserAccount.find_by(icn: verified_icn)&.id
 
       context = {
         type: state_payload.type,
@@ -310,7 +309,6 @@ module V0
         ial: credential_level.current_ial,
         acr: state_payload.acr,
         icn: verified_icn,
-        user_uuid: user_account_id,
         credential_uuid: user_info.sub,
         authentication_time: Time.zone.now.to_i - state_payload.created_at
       }
