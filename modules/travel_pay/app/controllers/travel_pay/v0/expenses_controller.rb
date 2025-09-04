@@ -14,7 +14,6 @@ module TravelPay
           current_user,
           error_message: 'Travel Pay expense submission unavailable per feature toggle'
         )
-        validate_feature_flag_enabled
 
         begin
           Rails.logger.info(message: 'Travel Pay expense submission START')

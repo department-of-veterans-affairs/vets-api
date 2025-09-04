@@ -24,7 +24,7 @@ module TravelPay
         submitted_claim = claims_service.submit_claim(claim_id)
 
         render json: submitted_claim, status: :created
-      rescue ArgumentError => e
+      rescue ArgumentError => ep
         raise Common::Exceptions::BadRequest.new(detail: e.message)
       rescue Faraday::ClientError, Faraday::ServerError => e
         Rails.logger.error("Faraday error submitting complex claim: #{e.message}")
