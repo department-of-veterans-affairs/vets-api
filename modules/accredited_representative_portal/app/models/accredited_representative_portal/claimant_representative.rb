@@ -30,15 +30,9 @@ module AccreditedRepresentativePortal
           return nil
 
         common_membership =
-          @power_of_attorney_holder_memberships.load.find do |membership|
-            ##
-            # Might be nice to instead have a `PowerOfAttorneyHolder#==` method
-            # with a semantics that matches what is needed here.
-            #
-            holder = membership.power_of_attorney_holder
-            holder.poa_code == @claimant.power_of_attorney_holder.poa_code &&
-              holder.type == @claimant.power_of_attorney_holder.type
-          end
+          @power_of_attorney_holder_memberships.for_power_of_attorney_holder(
+            @claimant.power_of_attorney_holder
+          )
 
         common_membership.present? or
           return nil

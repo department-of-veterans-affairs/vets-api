@@ -43,7 +43,12 @@ module AccreditedRepresentativePortal
       private
 
       def process_acceptance
-        PowerOfAttorneyRequestService::Accept.new(@poa_request, creator).call
+        PowerOfAttorneyRequestService::Accept.new(
+          @poa_request,
+          current_user.user_account_uuid,
+          current_user.power_of_attorney_holder_memberships
+        ).call
+
         render json: {}, status: :ok
       end
 
@@ -55,7 +60,12 @@ module AccreditedRepresentativePortal
           return
         end
 
-        @poa_request.mark_declined!(creator, declination_key)
+        @poa_request.mark_declined!(
+          current_user.user_account_uuid,
+          current_user.power_of_attorney_holder_memberships,
+          declination_key
+        )
+
         send_declination_email(@poa_request)
         track_declination_metrics
 
@@ -75,10 +85,6 @@ module AccreditedRepresentativePortal
 
       def decision_params
         params.require(:decision).permit(:type, :declinationReason, :key)
-      end
-
-      def creator
-        current_user.user_account
       end
 
       def send_declination_email(poa_request)
