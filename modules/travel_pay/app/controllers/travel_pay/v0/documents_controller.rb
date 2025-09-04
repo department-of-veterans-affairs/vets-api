@@ -27,7 +27,11 @@ module TravelPay
       end
 
       def create
-        verify_feature_flag!(:travel_pay_enable_complex_claims, current_user, error_message: 'Travel Pay create document unavailable per feature toggle' )
+        verify_feature_flag!(
+          :travel_pay_enable_complex_claims,
+          current_user,
+          error_message: 'Travel Pay create document unavailable per feature toggle'
+        )
 
         claim_id = params[:claim_id]
         document = params[:document] || params[:Document] # accept capital D from API
@@ -80,14 +84,6 @@ module TravelPay
           },
           status: :not_found
         )
-      end
-
-      def verify_feature_flag_enabled!
-        return if Flipper.enabled?(:travel_pay_enable_complex_claims, @current_user)
-
-        message = 'Travel Pay create document unavailable per feature toggle'
-        Rails.logger.error(message:)
-        raise Common::Exceptions::ServiceUnavailable, message:
       end
 
       def validate_document_exists!(document)
