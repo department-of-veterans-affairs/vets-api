@@ -274,6 +274,12 @@ module ClaimsApi
 
         # FES Val Section 5.b.ii-iv: Address field validations for USA
         validate_usa_mailing_address!(mailing_address) if mailing_address['country'] == 'USA'
+
+        # FES Val Section 5.b.vi: Validate country against reference data
+        validate_address_country!(mailing_address, 'mailingAddress')
+
+        # FES Val Section 5.b.v: Validate internationalPostalCode for non-USA countries
+        validate_international_postal_code!(mailing_address)
       end
 
       def validate_usa_mailing_address!(mailing_address)
@@ -303,6 +309,45 @@ module ClaimsApi
           title: 'Invalid field',
           detail: 'InternationalPostalCode should not be provided for USA addresses'
         )
+      end
+
+      def validate_address_country!(address, address_type)
+        return if address['country'].blank?
+
+        countries = valid_countries
+        source_prefix = address_type == 'changeOfAddress' ? '' : '/veteranIdentification'
+        if countries.nil?
+          # FES Val Section 5.b.vii-viii: BGS service error
+          collect_error(
+            source: "#{source_prefix}/#{address_type}/country",
+            title: 'Internal Server Error',
+            detail: 'Failed To Obtain Country Types (Request Failed)'
+          )
+          return
+        end
+
+        # FES Val Section 5.b.vi: Invalid country
+        return if countries.include?(address['country'])
+
+        collect_error(
+          source: "#{source_prefix}/#{address_type}/country",
+          title: 'Invalid country',
+          detail: "Provided country is not valid: #{address['country']}"
+        )
+      end
+
+      def validate_international_postal_code!(mailing_address)
+        country = mailing_address['country']
+        return if country.blank?
+
+        # FES Val Section 5.b.v: internationalPostalCode required for non-USA countries
+        if country != 'USA' && mailing_address['internationalPostalCode'].blank?
+          collect_error(
+            source: '/veteranIdentification/mailingAddress/internationalPostalCode',
+            title: 'Missing internationalPostalCode',
+            detail: 'InternationalPostalCode is required for non-USA addresses'
+          )
+        end
       end
 
       # Utility methods grouped at the bottom
