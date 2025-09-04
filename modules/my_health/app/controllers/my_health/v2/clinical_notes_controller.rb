@@ -19,6 +19,17 @@ module MyHealth
         handle_error(e)
       end
 
+      def show
+        care_note = service.get_single_summary_or_note(params['id'])
+        serialized_note = UnifiedHealthData::ClinicalNotesSerializer.new(care_note)
+        render json: serialized_note,
+               status: :ok
+      rescue Common::Client::Errors::ClientError,
+             Common::Exceptions::BackendServiceException,
+             StandardError => e
+        handle_error(e)
+      end
+
       private
 
       def handle_error(error)
@@ -59,7 +70,7 @@ module MyHealth
       end
 
       def service
-        UnifiedHealthData::Service.new(@current_user)
+        @service ||= UnifiedHealthData::Service.new(@current_user)
       end
     end
   end
