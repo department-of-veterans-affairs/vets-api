@@ -6,13 +6,14 @@ module TravelPay
       include AuthHelper
 
       rescue_from Common::Exceptions::BadRequest, with: :render_bad_request
+      rescue_from Common::Exceptions::ServiceUnavailable, with: :render_service_unavailable
 
       def create
         verify_feature_flag!(
           :travel_pay_enable_complex_claims,
           current_user,
           error_message: 'Travel Pay create complex claim unavailable per feature toggle'
-        )        
+        )
         validate_params_exist!(params)
         validate_datetime_format!(params[:appointment_date_time])
         appt_id = get_appt!(params)
@@ -21,13 +22,8 @@ module TravelPay
       rescue Common::Exceptions::ResourceNotFound => e
         Rails.logger.error("Appointment not found: #{e.message}")
         render json: { error: e.message }, status: :not_found
-      rescue Common::Exceptions::ServiceUnavailable => e
-        Rails.logger.error("Feature flag disabled: #{e.message}")
-        render json: { error: e.message }, status: :service_unavailable
       rescue Faraday::Error => e
         Rails.logger.error("Faraday error creating complex claim: #{e.message}")
-        # Some Faraday errors may not have a response object (e.response can be nil),
-        # so we fall back to :internal_server_error
         status_code = (e.respond_to?(:response) && e.response && e.response[:status]) || :internal_server_error
         render json: { error: 'Error creating complex claim' }, status: status_code
       rescue Common::Exceptions::BackendServiceException => e
@@ -77,6 +73,11 @@ module TravelPay
                    [{ detail: 'Bad request' }]
                  end
         render json: { errors: }, status: :bad_request
+      end
+
+      def render_service_unavailable(e)
+        Rails.logger.error("Service unavailable: #{e.message}")
+        render json: { error: e.message }, status: :service_unavailable
       end
 
       def validate_params_exist!(params = {})
