@@ -138,7 +138,6 @@ module AccreditedRepresentativePortal
       def representative_user_account
         @representative_user_account ||=
           RepresentativeUserAccount.find_by!(icn: @icn).tap do |account|
-            account.set_email(@email)
             account.set_all_emails(@all_emails)
           end
       end
