@@ -4,6 +4,8 @@ module TravelPay
   module V0
     class ComplexClaimsController < ApplicationController
       include AuthHelper
+      include AppointmentHelper
+      include ClaimHelper
 
       rescue_from Common::Exceptions::BadRequest, with: :render_bad_request
       rescue_from Common::Exceptions::ServiceUnavailable, with: :render_service_unavailable
@@ -16,8 +18,8 @@ module TravelPay
         )
         validate_params_exist!(params)
         validate_datetime_format!(params[:appointment_date_time])
-        appt_id = get_appt!(params)
-        claim_id = create_claim(appt_id)
+        appt_id = find_or_create_appt_id!(params)
+        claim_id = create_claim(appt_id, 'complex')
         render json: { claimId: claim_id }, status: :created
       rescue Common::Exceptions::ResourceNotFound => e
         Rails.logger.error("Appointment not found: #{e.message}")
@@ -105,15 +107,6 @@ module TravelPay
         @appts_service ||= TravelPay::AppointmentsService.new(auth_manager)
       end
 
-      def get_appt(params = {})
-        Rails.logger.info(message: "Get appt by date time: #{params['appointment_date_time']}")
-        appt = appts_service.find_or_create_appointment(params)
-
-        return nil if appt.nil? || appt[:data].nil?
-
-        appt[:data]['id']
-      end
-
       def get_appt!(params = {})
         get_appt(params) ||
           raise(
@@ -122,13 +115,6 @@ module TravelPay
               id: params['appointment_date_time']
             )
           )
-      end
-
-      def create_claim(appt_id)
-        Rails.logger.info(message: 'Create complex claim')
-        claim = claims_service.create_new_claim({ 'btsss_appt_id' => appt_id })
-
-        claim['claimId']
       end
     end
   end
