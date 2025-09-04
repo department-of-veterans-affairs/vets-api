@@ -14,6 +14,7 @@ module UnifiedHealthData
     attribute :date_signed, String
     attribute :written_by, String
     attribute :signed_by, String
+    attribute :admission_date, String
     attribute :discharge_date, String
     attribute :location, String
     attribute :note, String

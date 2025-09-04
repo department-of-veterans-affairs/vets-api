@@ -827,6 +827,7 @@ describe UnifiedHealthData::Service, type: :service do
               'date_signed' => '2025-01-14T09:29:26+00:00',
               'written_by' => 'MARCI P MCGUIRE',
               'signed_by' => 'MARCI P MCGUIRE',
+              'admission_date' => nil,
               'discharge_date' => nil,
               'location' => 'CHYSHR TEST LAB',
               'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBka/i
@@ -842,6 +843,7 @@ describe UnifiedHealthData::Service, type: :service do
                                    'date_signed' => be_a(String).or(be_nil),
                                    'written_by' => be_a(String),
                                    'signed_by' => be_a(String),
+                                   'admission_date' => be_a(String).or(be_nil),
                                    'discharge_date' => be_a(String).or(be_nil),
                                    'location' => be_a(String),
                                    'note' => be_a(String)
@@ -873,6 +875,7 @@ describe UnifiedHealthData::Service, type: :service do
                                    'date_signed' => be_a(String).or(be_nil),
                                    'written_by' => be_a(String),
                                    'signed_by' => be_a(String),
+                                   'admission_date' => be_a(String).or(be_nil),
                                    'discharge_date' => be_a(String).or(be_nil),
                                    'location' => be_a(String),
                                    'note' => be_a(String)
@@ -901,6 +904,7 @@ describe UnifiedHealthData::Service, type: :service do
                                    'date_signed' => be_a(String).or(be_nil),
                                    'written_by' => be_a(String),
                                    'signed_by' => be_a(String),
+                                   'admission_date' => be_a(String).or(be_nil),
                                    'discharge_date' => be_a(String).or(be_nil),
                                    'location' => be_a(String),
                                    'note' => be_a(String)

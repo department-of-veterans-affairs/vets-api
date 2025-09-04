@@ -56,6 +56,7 @@ RSpec.describe 'ClinicalNotesAdapter' do
           'date_signed' => nil, # OH records do not have a date signed field
           'written_by' => 'Victoria A Borland',
           'signed_by' => 'Victoria A Borland',
+          'admission_date' => nil,
           'discharge_date' => '2025-07-29T17:48:41Z',
           'location' => '668 Mann-Grandstaff WA VA Medical Center',
           'note' => /Q2xpbmljYWwgU3VtbWFyeSAqIEZpbmFsIFJlcG9/i
@@ -78,6 +79,8 @@ RSpec.describe 'ClinicalNotesAdapter' do
           'written_by' => ' Victoria A Borland',
           # name['text'] fallback (OH has a space after the , in name['text'], vista does not))
           'signed_by' => ' Victoria A Borland',
+          # So far this doesn't exist in any sample data
+          'admission_date' => nil,
           'discharge_date' => '2025-07-29T17:48:41Z',
           'location' => '668 Mann-Grandstaff WA VA Medical Center',
           'note' => /Q2xpbmljYWwgU3VtbWFyeSAqIEZpbmFsIFJlcG9/i
@@ -98,6 +101,7 @@ RSpec.describe 'ClinicalNotesAdapter' do
           'date_signed' => nil,
           'written_by' => 'MARCI P MCGUIRE', # alternate #mhv-practitioner-name format
           'signed_by' => nil, # name['text'] fallback
+          'admission_date' => nil,
           'discharge_date' => nil,
           'location' => nil,
           'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBk/i

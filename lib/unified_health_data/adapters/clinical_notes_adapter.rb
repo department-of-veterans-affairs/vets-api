@@ -41,6 +41,7 @@ module UnifiedHealthData
                                                  written_by: extract_author(record),
                                                  signed_by: extract_authenticator(record),
                                                  location: extract_location(record),
+                                                 admission_date: record['context']&.dig('period', 'start') || nil,
                                                  discharge_date: record['context']&.dig('period', 'end') || nil,
                                                  note: get_note(record)
                                                })
