@@ -41,7 +41,7 @@ module TravelPay
     #
     # @param veis_token [String] VEIS authentication token
     # @param btsss_token [String] BTSSS access token
-    # @param expense_type [String] Type of expense ('mileage', 'lodging', 'meal', 'other', 'parking', 'toll', 'airtravel', 'commoncarrier')
+    # @param expense_type [String] Type of expense ('other')
     # @param expense_id [String] UUID of the expense to retrieve
     #
     # @return [Faraday::Response] API response with expense details
@@ -114,15 +114,10 @@ module TravelPay
     #
     def expense_endpoint_for_type(expense_type)
       case expense_type
-      when 'mileage'
-        'api/v2/expenses/mileage'
-      when 'parking'
-        'api/v1/expenses/parking'
-      when 'meal'
-        'api/v1/expenses/meal'
-      else
-        # Default to a generic expenses endpoint
+      when 'other'
         'api/v1/expenses/other'
+      else
+        raise ArgumentError, "Unsupported expense type: #{expense_type}. Only 'other' is currently supported."
       end
     end
 
@@ -134,25 +129,7 @@ module TravelPay
     # @return [String] The API endpoint path with expense ID
     #
     def expense_get_endpoint_for_type(expense_type, expense_id)
-      case expense_type
-      when 'mileage'
-        "api/v2/expenses/mileage/#{expense_id}"
-      when 'parking'
-        "api/v1/expenses/parking/#{expense_id}"
-      when 'meal'
-        "api/v1/expenses/meal/#{expense_id}"
-      when 'lodging'
-        "api/v1/expenses/lodging/#{expense_id}"
-      when 'toll'
-        "api/v1/expenses/toll/#{expense_id}"
-      when 'airtravel'
-        "api/v1/expenses/airtravel/#{expense_id}"
-      when 'commoncarrier'
-        "api/v1/expenses/commoncarrier/#{expense_id}"
-      else
-        # Default to other expenses endpoint for unknown types
-        "api/v1/expenses/other/#{expense_id}"
-      end
+      "#{expense_endpoint_for_type(expense_type)}/#{expense_id}"
     end
   end
 end
