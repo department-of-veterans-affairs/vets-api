@@ -24,8 +24,14 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
     )
   end
   let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
+  let(:user) { create(:user, :loa3) }
+  let(:auth_headers) do
+    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+  end
+  let(:middle_initial) { 'L' }
+
   let(:mapper) do
-    ClaimsApi::V1::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data)
+    ClaimsApi::V1::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, auth_headers, middle_initial)
   end
 
   context '526 section 0, claim attributes' do
@@ -57,8 +63,13 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
   end
 
   context '526 section 1, veteran identification' do
+    let(:birls_file_number) { auth_headers['va_eauth_birlsfilenumber'] }
+    let(:first_name) { auth_headers['va_eauth_firstName'] }
+    let(:last_name) { auth_headers['va_eauth_lastName'] }
+
     it 'maps the mailing address' do
       mapper.map_claim
+
       address_base = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress]
 
       expect(address_base[:numberAndStreet]).to eq('1234 Couch Street Apt. 22')
@@ -68,11 +79,20 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       expect(address_base[:zip]).to eq('12345-6789')
     end
 
-    it 'maps the currentVAEmployee status' do
+    it 'maps the veteran personal information' do
       mapper.map_claim
+
       employee_status = pdf_data[:data][:attributes][:identificationInformation][:currentVaEmployee]
+      veteran_ssn = pdf_data[:data][:attributes][:identificationInformation][:ssn]
+      va_file_number = pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber]
+      veteran_name = pdf_data[:data][:attributes][:identificationInformation][:name]
+      birth_date = pdf_data[:data][:attributes][:identificationInformation][:dateOfBirth]
 
       expect(employee_status).to be(false)
+      expect(veteran_ssn).to eq('796-11-1863')
+      expect(va_file_number).to eq(birls_file_number)
+      expect(veteran_name).to eq({ lastName: 'lincoln', middleInitial: 'L', firstName: 'abraham' })
+      expect(birth_date).to eq({ month: '02', day: '12', year: '1809' })
     end
   end
 end

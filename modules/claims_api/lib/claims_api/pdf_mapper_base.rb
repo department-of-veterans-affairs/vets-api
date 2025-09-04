@@ -22,5 +22,17 @@ module ClaimsApi
         zip_first_five
       end
     end
+
+    def format_ssn(ssn)
+      "#{ssn[0..2]}-#{ssn[3..4]}-#{ssn[5..8]}"
+    end
+
+    def format_birth_date(birth_date_data)
+      {
+        month: birth_date_data[5..6].to_s,
+        day: birth_date_data[8..9].to_s,
+        year: birth_date_data[0..3].to_s
+      }
+    end
   end
 end
