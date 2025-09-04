@@ -3,6 +3,8 @@
 module TravelPay
   module V0
     class ComplexClaimsController < ApplicationController
+      include AuthHelper
+
       rescue_from Common::Exceptions::BadRequest, with: :render_bad_request
       rescue_from Common::Exceptions::ServiceUnavailable, with: :render_service_unavailable
 
