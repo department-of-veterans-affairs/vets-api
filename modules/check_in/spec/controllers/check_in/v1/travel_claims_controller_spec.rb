@@ -95,9 +95,9 @@ RSpec.describe CheckIn::V1::TravelClaimsController, type: :controller do
           }
         end
 
-        it 'returns internal server error due to missing travel_claims key' do
+        it 'returns bad request due to missing travel_claims key' do
           post :create, params: invalid_params
-          expect(response).to have_http_status(:internal_server_error)
+          expect(response).to have_http_status(:bad_request)
           expect(JSON.parse(response.body)['errors']).to be_present
         end
       end
