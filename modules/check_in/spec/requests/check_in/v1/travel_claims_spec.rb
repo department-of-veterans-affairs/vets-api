@@ -81,8 +81,8 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           expect(response.content_type).to include('application/json')
 
           json_response = JSON.parse(response.body)
-          expect(json_response).to include('success' => false)
           expect(json_response).to include('errors')
+          expect(json_response['errors']).to be_an(Array)
         end
       end
 
@@ -120,11 +120,11 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
             }
           end
 
-          it 'returns internal server error status' do
+          it 'returns bad request status' do
             post '/check_in/v1/travel_claims', params: invalid_params,
                                                headers: { 'Authorization' => "Bearer #{low_auth_token}" }
 
-            expect(response).to have_http_status(:internal_server_error)
+            expect(response).to have_http_status(:bad_request)
           end
 
           it 'returns error message about missing travel_claims key' do
@@ -132,8 +132,8 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
                                                headers: { 'Authorization' => "Bearer #{low_auth_token}" }
 
             json_response = JSON.parse(response.body)
-            expect(json_response).to include('success' => false)
             expect(json_response).to include('errors')
+            expect(json_response['errors']).to be_an(Array)
             expect(json_response['errors']).to be_present
           end
         end
@@ -160,8 +160,8 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
                                                headers: { 'Authorization' => "Bearer #{low_auth_token}" }
 
             json_response = JSON.parse(response.body)
-            expect(json_response).to include('success' => false)
             expect(json_response).to include('errors')
+            expect(json_response['errors']).to be_an(Array)
           end
         end
 
@@ -259,8 +259,8 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           end
 
           json_response = JSON.parse(response.body)
-          expect(json_response).to include('success' => false)
           expect(json_response).to include('errors')
+          expect(json_response['errors']).to be_an(Array)
           expect(json_response['errors']).to be_present
         end
       end

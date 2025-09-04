@@ -18,15 +18,6 @@ module CheckIn
         end
 
         submit_travel_claim(check_in_session)
-      rescue Common::Exceptions::BackendServiceException => e
-        render json: { success: false, errors: [e.message] }, status: e.status_code
-      rescue Common::Exceptions::BadRequest => e
-        render json: { success: false, errors: [e.message] }, status: :bad_request
-      rescue JSON::ParserError
-        render json: { success: false, errors: ['Invalid JSON format'] }, status: :bad_request
-      rescue => e
-        Rails.logger.error("Unexpected error in travel claims controller: #{e.class.name}")
-        render json: { success: false, errors: ['Internal server error'] }, status: :internal_server_error
       end
 
       def permitted_params
