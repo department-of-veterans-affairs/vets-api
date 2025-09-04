@@ -1240,6 +1240,10 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging Custom Folders Redesign
     enable_in_development: true
+  mhv_secure_messaging_curated_list_flow:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Curated List Flow
+    enable_in_development: true
   mhv_bypass_downtime_notification:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
