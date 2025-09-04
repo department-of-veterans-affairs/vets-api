@@ -18,8 +18,8 @@ module TravelPay
         claim_id = params[:id]
         validate_claim_id_exists!(claim_id)
 
-        # TODO add validation to verify there is a document associated to a given expense
-        # TODO possibly add validation to verify the claim id is valid
+        # TODO: add validation to verify there is a document associated to a given expense
+        # TODO: possibly add validation to verify the claim id is valid
         Rails.logger.info(message: 'Submit complex claim')
         submitted_claim = claims_service.submit_claim(claim_id)
 
