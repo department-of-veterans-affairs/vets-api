@@ -24,10 +24,13 @@ module TravelClaim
                    :scope, :claims_url_v2, :subscription_key, :e_subscription_key, :s_subscription_key,
                    :travel_pay_client_number, :travel_pay_resource
 
-    def initialize(uuid:, appointment_date_time:)
+    def initialize(uuid:, check_in_uuid:, appointment_date_time:)
       raise ArgumentError, 'UUID cannot be blank' if uuid.blank?
+      raise ArgumentError, 'Appointment date time cannot be blank' if appointment_date_time.blank?
+      raise ArgumentError, 'Check-in UUID cannot be blank' if check_in_uuid.blank?
 
       @uuid = uuid
+      @check_in_uuid = check_in_uuid
       @redis_client = TravelClaim::RedisClient.build
       @settings = Settings.check_in.travel_reimbursement_api_v2
       @correlation_id = SecureRandom.uuid
@@ -195,7 +198,7 @@ module TravelClaim
     # Provides clear error messages for Redis failures or missing data.
     #
     def load_redis_data
-      @icn = @redis_client.icn(uuid: @uuid)
+      @icn = @redis_client.icn(uuid: @check_in_uuid)
       @station_number = @redis_client.station_number(uuid: @uuid)
     rescue Redis::BaseError => e
       raise ArgumentError, "Failed to load data from Redis for UUID #{@uuid}: #{e.message}"
