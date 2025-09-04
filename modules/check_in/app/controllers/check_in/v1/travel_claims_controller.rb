@@ -33,9 +33,9 @@ module CheckIn
       def submit_travel_claim(check_in_session)
         result = TravelClaim::ClaimSubmissionService.new(
           check_in: check_in_session,
-          appointment_date: params[:travel_claims][:appointment_date],
-          facility_type: params[:travel_claims][:facility_type],
-          uuid: params[:travel_claims][:uuid]
+          appointment_date: permitted_params[:appointment_date],
+          facility_type: permitted_params[:facility_type],
+          uuid: permitted_params[:uuid]
         ).submit_claim
 
         render json: result, status: :ok
