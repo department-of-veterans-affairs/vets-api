@@ -24,20 +24,19 @@ module TravelClaim
                    :scope, :claims_url_v2, :subscription_key, :e_subscription_key, :s_subscription_key,
                    :travel_pay_client_number, :travel_pay_resource
 
-    def initialize(uuid:, appointment_date_time:)
-      raise ArgumentError, 'UUID cannot be blank' if uuid.blank?
-
+    def initialize(uuid:, check_in_uuid:, appointment_date_time:)
       @uuid = uuid
+      @check_in_uuid = check_in_uuid
+      @appointment_date_time = appointment_date_time
       @redis_client = TravelClaim::RedisClient.build
       @settings = Settings.check_in.travel_reimbursement_api_v2
       @correlation_id = SecureRandom.uuid
       @current_veis_token = nil
       @current_btsss_token = nil
-      @appointment_date_time = appointment_date_time
-
-      load_redis_data
 
       validate_required_arguments
+      load_redis_data
+      validate_redis_data
       super()
     end
 
@@ -195,16 +194,22 @@ module TravelClaim
     # Provides clear error messages for Redis failures or missing data.
     #
     def load_redis_data
-      @icn = @redis_client.icn(uuid: @uuid)
+      @icn = @redis_client.icn(uuid: @check_in_uuid)
       @station_number = @redis_client.station_number(uuid: @uuid)
-    rescue Redis::BaseError => e
-      raise ArgumentError, "Failed to load data from Redis for UUID #{@uuid}: #{e.message}"
+    rescue Redis::BaseError
+      raise ArgumentError,
+            "Failed to load data from Redis for check_in_session UUID #{@check_in_uuid} and " \
+            "station number #{@station_number}"
     end
 
     def validate_required_arguments
+      raise ArgumentError, 'UUID cannot be blank' if @uuid.blank?
+      raise ArgumentError, 'Check-in UUID cannot be blank' if @check_in_uuid.blank?
+      raise ArgumentError, 'appointment date time cannot be blank' if @appointment_date_time.blank?
+    end
+
+    def validate_redis_data
       missing_args = []
-      missing_args << 'UUID' if @uuid.blank?
-      missing_args << 'appointment date time' if @appointment_date_time.blank?
       missing_args << 'ICN' if @icn.blank?
       missing_args << 'station number' if @station_number.blank?
 
