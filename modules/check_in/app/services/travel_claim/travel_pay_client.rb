@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'forwardable'
+require 'digest'
 
 module TravelClaim
   ##
@@ -198,7 +199,8 @@ module TravelClaim
       @icn = @redis_client.icn(uuid: @uuid)
       @station_number = @redis_client.station_number(uuid: @uuid)
     rescue Redis::BaseError => e
-      raise ArgumentError, "Failed to load data from Redis for UUID #{@uuid}: #{e.message}"
+      log_redis_error('load_user_data')
+      raise ArgumentError, "Failed to load data from Redis for UUID #{safe_uuid_reference}"
     end
 
     def validate_required_arguments
@@ -208,7 +210,10 @@ module TravelClaim
       missing_args << 'ICN' if @icn.blank?
       missing_args << 'station number' if @station_number.blank?
 
-      raise ArgumentError, "Missing required arguments: #{missing_args.join(', ')}" unless missing_args.empty?
+      unless missing_args.empty?
+        log_initialization_error(missing_args)
+        raise ArgumentError, "Missing required arguments: #{missing_args.join(', ')}"
+      end
     end
 
     def production_environment?
@@ -240,9 +245,11 @@ module TravelClaim
     rescue Common::Exceptions::BackendServiceException => e
       if e.original_status == 401 && !@auth_retry_attempted
         @auth_retry_attempted = true
+        log_auth_retry
         refresh_tokens!
         yield # Retry once with fresh tokens
       else
+        log_auth_error(e.class.name, e.respond_to?(:original_status) ? e.original_status : nil)
         raise
       end
     end
@@ -271,7 +278,10 @@ module TravelClaim
     def fetch_tokens!
       veis_response = veis_token_request
 
-      raise_backend_error('VEIS response missing access_token') unless veis_response.body&.[]('access_token')
+      unless veis_response.body&.[]('access_token')
+        log_token_error('VEIS', 'missing_access_token')
+        raise_backend_error('VEIS response missing access_token')
+      end
 
       @current_veis_token = veis_response.body['access_token']
       fetch_btsss_token!
@@ -290,6 +300,7 @@ module TravelClaim
       )
 
       unless btsss_response.body&.dig('data', 'accessToken')
+        log_token_error('BTSSS', 'missing_access_token')
         raise_backend_error('BTSSS response missing accessToken in data')
       end
 
@@ -308,7 +319,7 @@ module TravelClaim
     end
 
     def raise_backend_error(detail)
-      raise Common::Exceptions::BackendServiceException.new('CheckIn travel claim submission error', { detail: })
+      raise Common::Exceptions::BackendServiceException.new('CheckIn travel claim submission error', { detail: detail })
     end
 
     ##
@@ -321,6 +332,64 @@ module TravelClaim
       else
         super
       end
+    end
+
+    ##
+    # Logging helper methods for errors and state information only
+    #
+
+    def safe_uuid_reference
+      Digest::SHA256.hexdigest(@uuid)[0, 8]
+    end
+
+    def log_initialization_error(missing_args)
+      Rails.logger.error('TravelPayClient initialization failed', {
+        correlation_id: @correlation_id,
+        uuid_hash: safe_uuid_reference,
+        missing_arguments: missing_args,
+        redis_data_loaded: @icn.present? && @station_number.present?
+      })
+    end
+
+    def log_redis_error(operation)
+      Rails.logger.error('TravelPayClient Redis error', {
+        correlation_id: @correlation_id,
+        uuid_hash: safe_uuid_reference,
+        operation: operation,
+        icn_present: @icn.present?,
+        station_number_present: @station_number.present?
+      })
+    end
+
+    def log_auth_retry
+      Rails.logger.error('TravelPayClient 401 error - retrying authentication', {
+        correlation_id: @correlation_id,
+        uuid_hash: safe_uuid_reference,
+        veis_token_present: @current_veis_token.present?,
+        btsss_token_present: @current_btsss_token.present?
+      })
+    end
+
+    def log_auth_error(error_type, status_code)
+      Rails.logger.error('TravelPayClient authentication failed', {
+        correlation_id: @correlation_id,
+        uuid_hash: safe_uuid_reference,
+        error_type: error_type,
+        status_code: status_code,
+        veis_token_present: @current_veis_token.present?,
+        btsss_token_present: @current_btsss_token.present?
+      })
+    end
+
+    def log_token_error(service, issue)
+      Rails.logger.error('TravelPayClient token error', {
+        correlation_id: @correlation_id,
+        uuid_hash: safe_uuid_reference,
+        service: service,
+        issue: issue,
+        veis_token_present: @current_veis_token.present?,
+        btsss_token_present: @current_btsss_token.present?
+      })
     end
   end
 end
