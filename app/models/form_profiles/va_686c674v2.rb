@@ -60,6 +60,7 @@ class FormProfiles::VA686c674v2 < FormProfile
     end
 
     return if mailing_address.blank?
+
     @form_address = FormAddress.new(
       mailing_address.to_h.slice(
         :address_line1, :address_line2, :address_line3,

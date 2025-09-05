@@ -1618,7 +1618,6 @@ RSpec.describe FormProfile, type: :model do
             it 'omits address fields in 686c-674-V2 form' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                allow_playback_repeats: true) do
-
                 expect_prefilled('686C-674-V2')
               end
             end
