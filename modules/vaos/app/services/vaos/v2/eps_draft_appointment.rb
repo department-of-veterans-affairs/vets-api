@@ -296,12 +296,6 @@ module VAOS
       def fetch_provider_slots(referral, provider, draft_appointment_id)
         appointment_type_id = get_provider_appointment_type_id(provider)
         
-        Rails.logger.info("#{CC_APPOINTMENT_ERROR_TAG}: Fetching provider slots", {
-          draft_appointment_id: draft_appointment_id,
-          start_date: [Date.parse(referral.referral_date), Date.current].max.to_time(:utc).iso8601,
-          end_date: Date.parse(referral.expiration_date).to_time(:utc).iso8601
-        }.to_json)
-        
         slots = eps_provider_service.get_provider_slots(
           provider.id,
           {
