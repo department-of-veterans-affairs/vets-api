@@ -63,6 +63,7 @@ module UnifiedHealthData
     end
 
     def get_single_summary_or_note(note_id)
+      # TODO: refactor out common bits into a client type method - most of this is repeated from above
       with_monitoring do
         headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
         patient_id = @user.icn
@@ -77,10 +78,8 @@ module UnifiedHealthData
         response = perform(:get, path, nil, headers)
         body = parse_response_body(response.body)
 
-        # TODO: do we need to combine them before filtering?
         combined_records = fetch_combined_records(body)
 
-        # TODO: filter for note_id - not sure if this is the correct location of the ID
         filtered = combined_records.select { |record| record['resource']['id'] == note_id }
 
         parse_single_note(filtered[0])
