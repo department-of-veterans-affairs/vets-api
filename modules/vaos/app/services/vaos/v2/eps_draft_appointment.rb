@@ -295,9 +295,14 @@ module VAOS
       # @return [Array<Hash>, nil] Available appointment slots, or nil if unavailable
       def fetch_provider_slots(referral, provider, draft_appointment_id)
         appointment_type_id = get_provider_appointment_type_id(provider)
-        return nil if appointment_type_id.nil?
-
-        eps_provider_service.get_provider_slots(
+        
+        Rails.logger.info("#{CC_APPOINTMENT_ERROR_TAG}: Fetching provider slots", {
+          draft_appointment_id: draft_appointment_id,
+          start_date: [Date.parse(referral.referral_date), Date.current].max.to_time(:utc).iso8601,
+          end_date: Date.parse(referral.expiration_date).to_time(:utc).iso8601
+        }.to_json)
+        
+        slots = eps_provider_service.get_provider_slots(
           provider.id,
           {
             appointmentTypeId: appointment_type_id,
@@ -306,13 +311,19 @@ module VAOS
             appointmentId: draft_appointment_id
           }
         )
+        
+        Rails.logger.info("#{CC_APPOINTMENT_ERROR_TAG}: Provider slots retrieved", {
+          draft_appointment_id: draft_appointment_id,
+          slots_count: slots&.length || 0,
+          slots_available: slots&.any? || false
+        }.to_json)
+        
+        slots
       rescue ArgumentError => e
-        error_data = {
-          error_class: e.class.name,
-          error_message: e.message,
-          user_uuid: @current_user&.uuid
-        }
-        Rails.logger.error("#{CC_APPOINTMENTS}: Error fetching provider slots", error_data)
+        Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: Error fetching provider slots", {
+          draft_appointment_id: draft_appointment_id,
+          error: e.message
+        }.to_json)
         nil
       end
 
