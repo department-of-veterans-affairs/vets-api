@@ -201,11 +201,7 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
   describe 'FailedRep subclass' do
     let!(:organization) { create(:organization, name: 'Org Name') }
     let!(:individual) { create(:representative) }
-    let!(:user_account) do
-      AccreditedRepresentativePortal::RepresentativeUserAccount.find(create(:user_account).id).tap do |memo|
-        memo.set_all_emails(['email@email.com'])
-      end
-    end
+    let!(:user_account) { create(:user_account) }
 
     let(:poa_request) do
       create(

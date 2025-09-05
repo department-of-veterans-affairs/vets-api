@@ -10,11 +10,12 @@ module AccreditedRepresentativePortal
     let(:record_class) { AccreditedRepresentativePortal::SavedClaimClaimantRepresentative }
 
     let(:power_of_attorney_holders) { [] }
-    let(:registrations)             { [] }
+    let(:registration_numbers) { [] }
 
     before do
-      allow(user.user_account).to receive_messages(power_of_attorney_holders:,
-                                                   registrations:)
+      allow_any_instance_of(PowerOfAttorneyHolderMemberships).to(
+        receive_messages(power_of_attorney_holders:, registration_numbers:)
+      )
     end
 
     describe '#index?' do
@@ -79,7 +80,7 @@ module AccreditedRepresentativePortal
         let!(:registration) do
           create(:user_account_accredited_individual, accredited_individual_registration_number: 'AIRN-MATCH')
         end
-        let(:registrations) { [registration] }
+        let(:registration_numbers) { [registration.accredited_individual_registration_number] }
 
         before do
           allow(scope)

@@ -19,6 +19,15 @@ module AccreditedRepresentativePortal
       @ogc_client = OgcClient.new
     end
 
+    def active_power_of_attorney_holders
+      power_of_attorney_holders
+        .select(&:accepts_digital_power_of_attorney_requests?)
+    end
+
+    def power_of_attorney_holders
+      all.map(&:power_of_attorney_holder)
+    end
+
     def for_power_of_attorney_holder(power_of_attorney_holder)
       ##
       # Might be nice to instead have a `PowerOfAttorneyHolder#==` method with a
@@ -30,6 +39,12 @@ module AccreditedRepresentativePortal
           holder.type == power_of_attorney_holder.type
       end
     end
+
+    def registration_numbers
+      all.map(&:registration_number).uniq
+    end
+
+    private
 
     ##
     # `#load` always returns an `Array` of `Membership` objects with:
@@ -101,8 +116,6 @@ module AccreditedRepresentativePortal
           end
         end
     end
-
-    private
 
     def get_registrations
       registrations = get_upstream_registrations

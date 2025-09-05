@@ -259,9 +259,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       end
 
       before do
-        allow_any_instance_of(AccreditedRepresentativePortal::RepresentativeUserAccount)
-          .to receive(:get_registration_number).with('veteran_service_organization')
-          .and_return(accredited_individual.accredited_individual_registration_number)
+        allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships)
+          .to receive(:registration_numbers)
+          .and_return([accredited_individual.accredited_individual_registration_number])
       end
 
       it 'returns the filtered list for the logged-in user' do
