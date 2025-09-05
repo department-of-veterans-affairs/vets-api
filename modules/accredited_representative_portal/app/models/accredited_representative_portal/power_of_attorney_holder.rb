@@ -7,7 +7,6 @@ module AccreditedRepresentativePortal
       :poa_code,
       :can_accept_digital_poa_requests
     )
-
     module Types
       ALL = [
         ##
