@@ -36,7 +36,7 @@ module ClaimsApi
                 poa_code: poa[:current_poa]
               },
               status: poa[:status],
-              errors: poa.errors,
+              errors: poa.process_errors,
               steps: poa.steps
             }
           end
