@@ -200,7 +200,7 @@ module TravelClaim
       @station_number = @redis_client.station_number(uuid: @uuid)
     rescue Redis::BaseError => e
       log_redis_error('load_user_data')
-      raise ArgumentError, "Failed to load data from Redis for UUID #{safe_uuid_reference}"
+      raise ArgumentError, "Failed to load data from Redis for UUID #{@uuid}: #{e.message}"
     end
 
     def validate_required_arguments
