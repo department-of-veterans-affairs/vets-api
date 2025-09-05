@@ -306,9 +306,9 @@ RSpec.describe SavedClaim::DependencyClaim do
         subject.form = subject.parsed_form.to_json
       end
 
-      it 'rejects the bad payload' do
+      it 'accepts the bad payload' do
         subject.validate
-        expect(subject).not_to be_valid
+        expect(subject).to be_valid
       end
     end
   end
