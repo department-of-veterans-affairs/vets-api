@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_27_155102) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_05_195344) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -717,6 +717,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_27_155102) do
     t.datetime "updated_at", null: false
     t.index ["debt_identifiers"], name: "index_debt_transaction_logs_on_debt_identifiers", using: :gin
     t.index ["transaction_started_at"], name: "index_debt_transaction_logs_on_transaction_started_at"
+    t.index ["transactionable_type", "transactionable_id"], name: "idx_on_transactionable_type_transactionable_id_52a8eee11c"
     t.index ["transactionable_type", "transactionable_id"], name: "index_debt_transaction_logs_on_transactionable"
     t.index ["user_uuid", "transaction_type"], name: "index_debt_transaction_logs_on_user_uuid_and_transaction_type"
   end
@@ -1225,9 +1226,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_27_155102) do
   end
 
   create_table "ivc_champva_forms", force: :cascade do |t|
-    t.string "email"
-    t.string "first_name"
-    t.string "last_name"
     t.string "form_number"
     t.string "file_name"
     t.uuid "form_uuid"
@@ -1239,9 +1237,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_27_155102) do
     t.boolean "email_sent", default: false, null: false
     t.uuid "application_uuid"
     t.string "ves_status"
-    t.text "ves_request_data_ciphertext"
+    t.text "ves_data_ciphertext"
     t.text "encrypted_kms_key"
+    t.text "ves_request_data_ciphertext"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.string "email"
+    t.string "last_name"
+    t.string "first_name"
+    t.text "first_name_ciphertext"
+    t.text "last_name_ciphertext"
+    t.text "email_ciphertext"
+    t.string "email_bidx"
+    t.index ["email_bidx"], name: "index_ivc_champva_forms_on_email_bidx"
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
     t.index ["needs_kms_rotation"], name: "index_ivc_champva_forms_on_needs_kms_rotation"
   end
