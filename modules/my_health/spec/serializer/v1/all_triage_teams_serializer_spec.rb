@@ -73,4 +73,8 @@ describe MyHealth::V1::AllTriageTeamsSerializer, type: :serializer do
   it 'includes :sub_group_type_patient_display' do
     expect(attributes['sub_group_type_patient_display']).to eq triage_team.sub_group_type_patient_display
   end
+
+  it 'includes :oh_triage_group' do
+    expect(attributes['oh_triage_group']).to eq triage_team.oh_triage_group
+  end
 end
