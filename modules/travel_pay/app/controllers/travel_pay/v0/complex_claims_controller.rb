@@ -104,18 +104,6 @@ module TravelPay
         )
       end
 
-      def auth_manager
-        @auth_manager ||= TravelPay::AuthManager.new(Settings.travel_pay.client_number, @current_user)
-      end
-
-      def claims_service
-        @claims_service ||= TravelPay::ClaimsService.new(auth_manager, @current_user)
-      end
-
-      def appts_service
-        @appts_service ||= TravelPay::AppointmentsService.new(auth_manager)
-      end
-
       def get_appt!(params = {})
         get_appt(params) ||
           raise(

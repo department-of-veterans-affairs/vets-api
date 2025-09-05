@@ -15,4 +15,14 @@ module AppointmentHelper
 
     appt[:data]['id']
   end
+
+  private
+
+  def auth_manager
+    @auth_manager ||= TravelPay::AuthManager.new(Settings.travel_pay.client_number, @current_user)
+  end
+
+  def appts_service
+    @appts_service ||= TravelPay::AppointmentsService.new(auth_manager)
+  end
 end
