@@ -709,6 +709,18 @@ lighthouse:
     url: <%= ENV['lighthouse__facilities__url'] %>
     veterans_health:
       url: <%= ENV['lighthouse__facilities__veterans_health__url'] %>
+  healthcare_cost_and_coverage:
+    timeout: 30
+    host: <%= ENV['lighthouse__healthcare_cost_and_coverage__host'] %>
+    use_mocks: false
+    scopes:
+      - system/ChargeItem.read
+      - system/Invoice.read
+      - launch
+    access_token:
+      client_id: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__client_id'] %>
+      rsa_key:   <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__rsa_key'] %>
+      aud_claim_url: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__aud_claim_url'] %>
   letters_generator:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__letters_generator__access_token__aud_claim_url'] %>
