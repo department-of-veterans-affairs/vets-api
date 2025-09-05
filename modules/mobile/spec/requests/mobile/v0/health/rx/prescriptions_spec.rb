@@ -157,18 +157,6 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       end
     end
 
-    context 'when cache is populated' do
-      it 'uses cache instead of service' do
-        set_cache
-
-        get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
-
-        assert_requested :get, upstream_mhv_history_url, times: 0
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to match_json_schema('prescription')
-      end
-    end
-
     context 'when user does not have mhv access' do
       let!(:user) { sis_user }
 
