@@ -43,22 +43,29 @@ module TravelPay
       end
 
       def render_bad_request(e)
-        # If the error has a list of messages, use those
-        errors = if e.respond_to?(:errors) && e.errors.present?
-                   e.errors.map do |err|
-                     if err.is_a?(Hash)
-                       err
-                     elsif err.respond_to?(:detail)
-                       { detail: err.detail, title: err.try(:title), code: err.try(:code), status: err.try(:status) }
-                     else
-                       { detail: err.to_s }
-                     end
-                   end
-                 else
-                   # If nothing special came through, just send a basic message
-                   [{ detail: 'Bad request' }]
-                 end
-        render json: { errors: }, status: :bad_request
+        # Early return if there are no detailed errors
+        unless e.respond_to?(:errors) && e.errors.present?
+          return render json: { errors: [{ detail: 'Bad request' }] }, status: :bad_request
+        end
+
+        render json: { errors: mapped_errors_list(e.errors) }, status: :bad_request
+      end
+
+      def mapped_errors_list(errors)
+        errors.map do |err|
+          if err.is_a?(Hash)
+            err
+          elsif err.respond_to?(:detail)
+            {
+              detail: err.detail,
+              title: err.try(:title),
+              code: err.try(:code),
+              status: err.try(:status)
+            }.compact
+          else
+            { detail: err.to_s }
+          end
+        end
       end
 
       def render_service_unavailable(e)
