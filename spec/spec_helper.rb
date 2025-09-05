@@ -135,7 +135,7 @@ RSpec.configure do |config|
     $redis.flushdb
   end
 
-  config.before(:each) do
+  config.before do
     Flipper.features.each(&:disable)
   end
 end

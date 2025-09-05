@@ -196,8 +196,6 @@ module VaNotify
         else
           "Settings.vanotify.services.#{service_config[0]}.api_key"
         end
-      else
-        nil
       end
     end
   end
