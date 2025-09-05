@@ -306,7 +306,7 @@ module VAOS
           }
         )
         
-        Rails.logger.info("#{CC_APPOINTMENT_ERROR_TAG}: Provider slots retrieved", {
+        Rails.logger.info("#{CC_APPOINTMENTS}: Provider slots retrieved", {
           draft_appointment_id: draft_appointment_id,
           slots_count: slots&.length || 0,
           slots_available: slots&.any? || false
@@ -314,7 +314,7 @@ module VAOS
         
         slots
       rescue ArgumentError => e
-        Rails.logger.error("#{CC_APPOINTMENT_ERROR_TAG}: Error fetching provider slots", {
+        Rails.logger.error("#{CC_APPOINTMENTS}: Error fetching provider slots", {
           draft_appointment_id: draft_appointment_id,
           error: e.message
         }.to_json)
