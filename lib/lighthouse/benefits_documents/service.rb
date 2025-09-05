@@ -241,22 +241,23 @@ module BenefitsDocuments
 
     # To avoid logging PII, this method filters out sensitive data while keeping other pertinent data unchanged
     def filter_sensitive_params(params, multi_file: false)
-      unfiltered_params = params.to_unsafe_h.except(*DISALLOWED_PARAMS)
+      unfiltered_params = params.is_a?(Hash) ? params : params.to_unsafe_h
+      allowed_params = unfiltered_params.except(*DISALLOWED_PARAMS)
       # If the 'files' key is present, it means multiple files are being uploaded
       # so we need to filter all the file data
       filtered_params =
         if multi_file
-          files = unfiltered_params.slice(:files)
-          nested_files = unfiltered_params[:claims_and_appeal]&.slice(:files)
+          files = allowed_params.slice(:files)
+          nested_files = allowed_params[:claims_and_appeal]&.slice(:files)
           # Merge the files and nested files into a single hash
           all_file_data = files.merge(claims_and_appeal: nested_files).compact
           # Filter all file data
           ParameterFilterHelper.filter_params(all_file_data)
         else
-          ParameterFilterHelper.filter_params(unfiltered_params.slice(:file))
+          ParameterFilterHelper.filter_params(allowed_params.slice(:file))
         end
-      # Return everything except the disallowed params plus the filtered file
-      unfiltered_params.merge(filtered_params)
+      # Return everything except the disallowed params plus the filtered params
+      allowed_params.merge(filtered_params)
     end
   end
 end
