@@ -103,9 +103,10 @@ module AccreditedRepresentativePortal
       private
 
       def poa_request_url
-        AccreditedRepresentativePortal::Engine.routes.url_helpers.v0_power_of_attorney_request_url(
-          @notification.power_of_attorney_request
-        )
+        base = Settings.accredited_representative_portal.frontend_base_url
+        uri  = URI.parse(base)
+        uri.path = File.join(uri.path.presence || '/', 'poa_requests', @notification.power_of_attorney_request.id.to_s)
+        uri.to_s
       end
     end
 
