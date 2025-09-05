@@ -17,13 +17,13 @@ module AccreditedRepresentativePortal
     private
 
     def authorize
-      @user.user_account.active_power_of_attorney_holders.size.positive?
+      @user.active_power_of_attorney_holders.size.positive?
     end
 
     class Scope < ApplicationPolicy::Scope
       def resolve
         @scope.unredacted.for_power_of_attorney_holders(
-          @user.user_account.active_power_of_attorney_holders
+          @user.active_power_of_attorney_holders
         )
       end
     end

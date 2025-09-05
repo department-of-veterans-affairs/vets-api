@@ -117,7 +117,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       )
     end
     let!(:representative_user_account) do
-      AccreditedRepresentativePortal::RepresentativeUserAccount.create!(icn: representative_user.icn)
+      UserAccount.create!(icn: representative_user.icn)
     end
 
     before do

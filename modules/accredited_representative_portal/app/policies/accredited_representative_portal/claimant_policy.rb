@@ -12,7 +12,7 @@ module AccreditedRepresentativePortal
     end
 
     def search?
-      @user.user_account.active_power_of_attorney_holders.size.positive?
+      @user.active_power_of_attorney_holders.size.positive?
     end
 
     def claimant_poa_code

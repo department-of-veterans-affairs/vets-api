@@ -11,7 +11,9 @@ module AccreditedRepresentativePortal
 
     before do
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('<TOKEN>')
-      allow(user.user_account).to receive(:power_of_attorney_holders).and_return(power_of_attorney_holders)
+      allow_any_instance_of(PowerOfAttorneyHolderMemberships).to(
+        receive(:power_of_attorney_holders).and_return(power_of_attorney_holders)
+      )
     end
 
     around do |example|

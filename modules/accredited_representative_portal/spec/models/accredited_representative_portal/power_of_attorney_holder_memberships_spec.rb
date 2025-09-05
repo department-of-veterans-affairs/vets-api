@@ -5,7 +5,7 @@ require 'rails_helper'
 module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
   RSpec.describe PowerOfAttorneyHolderMemberships do
     describe '#all' do
-      subject(:all) { described_class.new(icn: 'some_icn', emails:).all }
+      subject(:all) { described_class.new(icn: 'some_icn', emails:).send(:all) }
 
       let(:emails) { [] }
 
@@ -225,7 +225,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
       end
     end
 
-    describe '#for_power_of_attorney_holder' do
+    context 'given a full setup' do
       let(:put_upstream_registration_result) { true }
       let(:upstream_registrations) { [] }
 
@@ -275,29 +275,95 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         )
       end
 
-      subject(:for_power_of_attorney_holder) do
-        memberships = described_class.new(icn: 'some_icn', emails:)
-        memberships.for_power_of_attorney_holder(
-          PowerOfAttorneyHolder.new(
-            type: 'veteran_service_organization',
-            poa_code: 'P13',
-            can_accept_digital_poa_requests: nil
-          )
-        )
+      describe '#registration_numbers' do
+        subject(:registration_numbers) do
+          memberships = described_class.new(icn: 'some_icn', emails:)
+          memberships.registration_numbers
+        end
+
+        it 'returns registration_numbers' do
+          expect(registration_numbers).to eq(%w[R1000 R1001 R1002])
+        end
       end
 
-      it 'finds the membership that matches the provided poa holder' do
-        expect(for_power_of_attorney_holder).to eq(
-          described_class::Membership.new(
-            registration_number: 'R1002',
-            power_of_attorney_holder:
+      describe '#active_power_of_attorney_holders' do
+        subject(:active_power_of_attorney_holders) do
+          memberships = described_class.new(icn: 'some_icn', emails:)
+          memberships.active_power_of_attorney_holders
+        end
+
+        it 'returns active_power_of_attorney_holders' do
+          expect(active_power_of_attorney_holders).to eq(
+            [
               PowerOfAttorneyHolder.new(
-                poa_code: 'P13',
                 type: 'veteran_service_organization',
+                poa_code: 'P13',
                 can_accept_digital_poa_requests: true
               )
+            ]
           )
-        )
+        end
+      end
+
+      describe '#power_of_attorney_holders' do
+        subject(:power_of_attorney_holders) do
+          memberships = described_class.new(icn: 'some_icn', emails:)
+          memberships.power_of_attorney_holders
+        end
+
+        it 'returns power_of_attorney_holders' do
+          expect(power_of_attorney_holders).to eq(
+            [
+              PowerOfAttorneyHolder.new(
+                type: 'attorney',
+                poa_code: 'P10',
+                can_accept_digital_poa_requests: false
+              ),
+              PowerOfAttorneyHolder.new(
+                type: 'claims_agent',
+                poa_code: 'P11',
+                can_accept_digital_poa_requests: false
+              ),
+              PowerOfAttorneyHolder.new(
+                type: 'veteran_service_organization',
+                poa_code: 'P12',
+                can_accept_digital_poa_requests: false
+              ),
+              PowerOfAttorneyHolder.new(
+                type: 'veteran_service_organization',
+                poa_code: 'P13',
+                can_accept_digital_poa_requests: true
+              )
+            ]
+          )
+        end
+      end
+
+      describe '#for_power_of_attorney_holder' do
+        subject(:for_power_of_attorney_holder) do
+          memberships = described_class.new(icn: 'some_icn', emails:)
+          memberships.for_power_of_attorney_holder(
+            PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization',
+              poa_code: 'P13',
+              can_accept_digital_poa_requests: nil
+            )
+          )
+        end
+
+        it 'finds the membership that matches the provided poa holder' do
+          expect(for_power_of_attorney_holder).to eq(
+            described_class::Membership.new(
+              registration_number: 'R1002',
+              power_of_attorney_holder:
+                PowerOfAttorneyHolder.new(
+                  poa_code: 'P13',
+                  type: 'veteran_service_organization',
+                  can_accept_digital_poa_requests: true
+                )
+            )
+          )
+        end
       end
     end
   end

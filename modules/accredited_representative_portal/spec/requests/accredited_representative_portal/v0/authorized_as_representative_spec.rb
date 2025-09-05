@@ -20,13 +20,6 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::AuthorizeAsRepresentative', 
 
       context 'and user is an accredited representative' do
         before do
-          prepared_account = AccreditedRepresentativePortal::RepresentativeUserAccount.find(user.user_account.id)
-
-          allow(AccreditedRepresentativePortal::RepresentativeUserAccount)
-            .to receive(:find)
-            .with(user.user_account.id)
-            .and_return(prepared_account)
-
           vso_type =
             AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION
 
@@ -37,7 +30,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::AuthorizeAsRepresentative', 
               can_accept_digital_poa_requests: true
             )
 
-          allow(prepared_account)
+          allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships)
             .to receive(:power_of_attorney_holders)
             .and_return([holder])
         end
@@ -51,14 +44,9 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::AuthorizeAsRepresentative', 
 
       context 'and user is not an accredited representative' do
         before do
-          prepared_account = AccreditedRepresentativePortal::RepresentativeUserAccount.find(user.user_account.id)
-
-          allow(AccreditedRepresentativePortal::RepresentativeUserAccount)
-            .to receive(:find)
-            .with(user.user_account.id)
-            .and_return(prepared_account)
-
-          allow(prepared_account).to receive(:power_of_attorney_holders).and_return([])
+          allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships)
+            .to receive(:power_of_attorney_holders)
+            .and_return([])
         end
 
         it 'returns 403 Forbidden' do
@@ -69,14 +57,8 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::AuthorizeAsRepresentative', 
 
       context 'and RepresentativeUserAccount raises Forbidden (e.g., OGC conflict/none)' do
         before do
-          prepared_account = AccreditedRepresentativePortal::RepresentativeUserAccount.find(user.user_account.id)
-
-          allow(AccreditedRepresentativePortal::RepresentativeUserAccount)
-            .to receive(:find)
-            .with(user.user_account.id)
-            .and_return(prepared_account)
-
-          allow(prepared_account).to receive(:power_of_attorney_holders).and_raise(Common::Exceptions::Forbidden)
+          allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships)
+            .to receive(:power_of_attorney_holders).and_raise(Common::Exceptions::Forbidden)
         end
 
         it 'returns 403 Forbidden' do
