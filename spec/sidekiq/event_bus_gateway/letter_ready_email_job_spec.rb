@@ -78,7 +78,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
     let(:message_detail) { 'StandardError' }
     let(:tags) { EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"] }
 
-    it 'does not send an email, logs the error, and increments the statsd metric' do
+    it 'does not send an email, logs the error, increments the statsd metric, and re-raises for retry' do
       expect(va_notify_service).not_to receive(:send_email)
       expect(Rails.logger)
         .to receive(:error)
@@ -86,7 +86,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
       expect(StatsD).to receive(:increment).with("#{described_class::STATSD_METRIC_PREFIX}.failure", tags:)
       expect do
         subject.new.perform(participant_id, template_id)
-      end.not_to change(EventBusGatewayNotification, :count)
+      end.to raise_error(StandardError).and not_change(EventBusGatewayNotification, :count)
     end
   end
 
@@ -105,7 +105,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
     let(:message_detail) { 'Participant ID cannot be found in BGS' }
     let(:tags) { EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"] }
 
-    it 'does not send the email, logs the error, and increments the statsd metric' do
+    it 'does not send the email, logs the error, increments the statsd metric, and re-raises for retry' do
       expect(va_notify_service).not_to receive(:send_email)
       expect(Rails.logger)
         .to receive(:error)
@@ -113,7 +113,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
       expect(StatsD).to receive(:increment).with("#{described_class::STATSD_METRIC_PREFIX}.failure", tags:)
       expect do
         subject.new.perform(participant_id, template_id)
-      end.not_to change(EventBusGatewayNotification, :count)
+      end.to raise_error(StandardError, message_detail).and not_change(EventBusGatewayNotification, :count)
     end
   end
 
@@ -132,7 +132,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
     let(:message_detail) { 'Failed to fetch MPI profile' }
     let(:tags) { EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"] }
 
-    it 'does not send the email, logs the error, and increments the statsd metric' do
+    it 'does not send the email, logs the error, increments the statsd metric, and re-raises for retry' do
       expect(va_notify_service).not_to receive(:send_email)
       expect(Rails.logger)
         .to receive(:error)
@@ -140,7 +140,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
       expect(StatsD).to receive(:increment).with("#{described_class::STATSD_METRIC_PREFIX}.failure", tags:)
       expect do
         subject.new.perform(participant_id, template_id)
-      end.not_to change(EventBusGatewayNotification, :count)
+      end.to raise_error(RuntimeError, message_detail).and not_change(EventBusGatewayNotification, :count)
     end
   end
 
