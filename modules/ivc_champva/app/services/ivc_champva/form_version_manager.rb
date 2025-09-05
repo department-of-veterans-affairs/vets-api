@@ -7,17 +7,23 @@ module IvcChampva
       'vha_10_10d' => {
         current: 'vha_10_10d',
         '2027' => 'vha_10_10d_2027'
+      },
+      'vha_10_7959f_2' => {
+        current: 'vha_10_7959f_2',
+        '2025' => 'vha_10_7959f_2_2025'
       }
     }.freeze
 
     # Feature flags for form versions
     FORM_VERSION_FLAGS = {
-      'vha_10_10d_2027' => 'champva_form_10_10d_2027'
+      'vha_10_10d_2027' => 'champva_form_10_10d_2027',
+      'vha_10_7959f_2_2025' => 'champva_form_10_7959f_2_2025'
     }.freeze
 
     # Mapping of new form IDs back to legacy form IDs for S3/metadata compatibility
     LEGACY_MAPPING = {
-      'vha_10_10d_2027' => 'vha_10_10d'
+      'vha_10_10d_2027' => 'vha_10_10d',
+      'vha_10_7959f_2_2025' => 'vha_10_7959f_2'
     }.freeze
 
     class << self
