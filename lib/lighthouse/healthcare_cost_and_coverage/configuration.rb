@@ -9,8 +9,8 @@ module Lighthouse
       self.read_timeout = Settings.lighthouse.healthcare_cost_and_coverage.timeout || 30
 
       # Paths relative to Settings.lighthouse.healthcare_cost_and_coverage.host
-      API_PATH   = 'services/health-care-costs-coverage/v0'.freeze
-      TOKEN_PATH = 'oauth2/health-care-costs-coverage/system/v1/token'.freeze
+      API_PATH   = 'services/health-care-costs-coverage/v0'
+      TOKEN_PATH = 'oauth2/health-care-costs-coverage/system/v1/token'
 
       ##
       # Settings block for convenience
@@ -88,7 +88,7 @@ module Lighthouse
         raise ArgumentError, 'icn is required to mint a HCCC token' if icn.blank?
 
         launch = Base64.strict_encode64({ patient: icn }.to_json)
-        { launch: launch }
+        { launch: }
       end
 
       # Construct the Auth::ClientCredentials::Service using settings (or caller overrides)
@@ -97,11 +97,10 @@ module Lighthouse
         host ||= base_path
         url  = "#{host}/#{TOKEN_PATH}"
 
-        client_id    ||= s.access_token.client_id
-        rsa_key      ||= s.access_token.rsa_key
+        client_id ||= s.access_token.client_id
+        rsa_key ||= s.access_token.rsa_key
         aud_claim_url ||= s.access_token.aud_claim_url
-        scopes       ||= Array(s.scopes)
-
+        scopes ||= Array(s.scopes)
         # Reuse/cached by service_name (includes scopes so ChargeItem+Invoice can share)
         @token_service ||= Auth::ClientCredentials::Service.new(
           url, scopes, client_id, aud_claim_url, rsa_key, 'hccc'
