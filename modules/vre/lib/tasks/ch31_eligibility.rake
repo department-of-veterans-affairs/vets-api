@@ -2,7 +2,6 @@
 
 require_relative '../../app/services/vre/service'
 require_relative '../../app/services/vre/configuration'
-require 'byebug'
 
 class Ch31Eligibility < VRE::Service
   configuration VRE::Configuration
