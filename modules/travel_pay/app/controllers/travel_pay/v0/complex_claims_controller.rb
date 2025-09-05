@@ -27,9 +27,6 @@ module TravelPay
         # so we fall back to :internal_server_error
         status_code = (e.respond_to?(:response) && e.response && e.response[:status]) || :internal_server_error
         render json: { error: 'Error creating complex claim' }, status: status_code
-      rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.error("Backend service error creating complex claim: #{e.message}")
-        render json: { error: 'Error creating complex claim' }, status: e.original_status
       end
 
       private

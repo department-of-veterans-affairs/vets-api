@@ -43,9 +43,6 @@ module TravelPay
       rescue Faraday::Error => e
         Rails.logger.error("Error uploading document: #{e.message}")
         render json: { error: 'Error uploading document' }, status: e.response[:status]
-      rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.error("Error uploading document: #{e.message}")
-        render json: { error: 'Error uploading document' }, status: e.original_status
       end
 
       private
