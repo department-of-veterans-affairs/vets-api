@@ -84,7 +84,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
                 else
                   expect(processed_file[:file].length).to eq("#{unique_path}.#{processed_file['name']}".length)
                 end
-                expect(processed_file[:file]).to match(%r{^tmp/[a-zA-Z0-9_\-\.]+\.pdf$})
+                expect(processed_file[:file]).to match(%r{^tmp/[a-zA-Z0-9_\-.]+\.pdf$})
                 expect(processed_file[:file].length).to be <= 255
               end
             end

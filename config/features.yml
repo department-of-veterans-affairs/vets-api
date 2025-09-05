@@ -746,6 +746,10 @@ features:
     actor_type: user
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
     enable_in_development: true
+  disability_526_toxic_exposure_opt_out_data_purge:
+    actor_type: user
+    description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
+    enable_in_development: true
   disability_526_track_saved_claim_error:
     actor_type: user
     description: enables improved logging of SavedClaim::DisabilityCompensation::Form526AllClaim save failures
@@ -1124,6 +1128,8 @@ features:
     actor_type: user
     description: Lighthouse Benefits Claims API uses MPI birls_id as filenumber parameter to BDS search
     enable_in_development: true
+  lighthouse_document_convert_to_unlocked_pdf_use_hexapdf:
+    description: Enables the LighthouseDocument class's convert_to_unlocked_pdf method to use hexapdf to unlock encrypted pdfs
   log_eligible_benefits:
     actor_type: user
     description: Allows log_eligible_benefits_job.rb to run in background.
