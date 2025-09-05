@@ -43,7 +43,7 @@ module SM
         end
 
         def parsed_presigned_s3_url
-          @parsed_json if @parsed_json.is_a?(String) && @parsed_json.match?(%r{\Ahttps?://[\S]+\z})
+          @parsed_json if @parsed_json.is_a?(String) && @parsed_json.match?(%r{\Ahttps?://\S+\z})
         end
 
         def parsed_threads

@@ -24,7 +24,7 @@ module IvcChampva
             provider_name: extract_with_patterns(text, [/provider[:\s]*([A-Za-z\s]+)/i]),
             date_of_service: extract_with_patterns(text, [%r{date of service[:\s]*([\d/]+)}i]),
             procedure_code: extract_with_patterns(text, [/procedure code[:\s]*([A-Za-z0-9]+)/i]),
-            amount_charged: extract_with_patterns(text, [/amount charged[:\s]*\$?([\d\.]+)/i])
+            amount_charged: extract_with_patterns(text, [/amount charged[:\s]*\$?([\d.]+)/i])
           }
         end
 
