@@ -635,7 +635,7 @@ features:
   dependents_module_enabled:
     actor_type: user
     description: Enables new Dependents module
-    enable_in_development: true
+    enable_in_development: false
   dependents_pension_check:
     actor_type: user
     description: Manage whether or not Pension check is enabled for the 686/674
