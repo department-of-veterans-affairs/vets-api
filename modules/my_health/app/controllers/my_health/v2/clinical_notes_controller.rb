@@ -21,6 +21,12 @@ module MyHealth
 
       def show
         care_note = service.get_single_summary_or_note(params['id'])
+        unless care_note
+          render_error('Record Not Found',
+                       'The requested record was not found',
+                       '404', 404, :not_found)
+          return
+        end
         serialized_note = UnifiedHealthData::ClinicalNotesSerializer.new(care_note)
         render json: serialized_note,
                status: :ok

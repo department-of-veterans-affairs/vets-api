@@ -129,15 +129,12 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
       end
 
       # TODO: Probably this should return a 404? Maybe?
-      it 'returns a successful response but data: nil if not found' do
+      it 'returns a 404 not found' do
         VCR.use_cassette('unified_health_data/get_clinical_notes_no_records', match_requests_on: %i[method path]) do
           get '/my_health/v2/medical_records/clinical_notes/12345',
               headers: { 'X-Key-Inflection' => 'camel' }
         end
-        expect(response).to be_successful
-        json_response = JSON.parse(response.body)
-
-        expect(json_response['data']).to be_nil
+        expect(response).to have_http_status(:not_found)
       end
     end
 
