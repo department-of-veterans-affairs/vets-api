@@ -127,13 +127,31 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
         allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
           .to receive(:new)
-          .with(poa_request, anything)
+          .with(poa_request, anything, anything)
           .and_return(accept_service)
+
+        memberships =
+          AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
+            icn: '1234', emails: []
+          )
+
+        allow(memberships).to(
+          receive(:all).and_return(
+            [
+              AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
+                registration_number: '1234',
+                power_of_attorney_holder:
+                  poa_request.power_of_attorney_holder
+              )
+            ]
+          )
+        )
 
         allow(accept_service).to receive(:call) do
           # Create the decision directly as a side effect
           AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
-            creator: test_user.user_account,
+            creator_id: test_user.user_account_uuid,
+            power_of_attorney_holder_memberships: memberships,
             power_of_attorney_request: poa_request
           )
         end
@@ -199,7 +217,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
         allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
           .to receive(:new)
-          .with(poa_request, anything)
+          .with(poa_request, anything, anything)
           .and_return(accept_service)
 
         allow(accept_service).to receive(:call)
@@ -250,12 +268,30 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
       allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
         .to receive(:new)
-        .with(poa_request, anything)
+        .with(poa_request, anything, anything)
         .and_return(accept_service)
+
+      memberships =
+        AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
+          icn: '1234', emails: []
+        )
+
+      allow(memberships).to(
+        receive(:all).and_return(
+          [
+            AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
+              registration_number: '1234',
+              power_of_attorney_holder:
+                poa_request.power_of_attorney_holder
+            )
+          ]
+        )
+      )
 
       allow(accept_service).to receive(:call) do
         AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
-          creator: test_user.user_account,
+          creator_id: test_user.user_account_uuid,
+          power_of_attorney_holder_memberships: memberships,
           power_of_attorney_request: poa_request
         )
       end
@@ -295,7 +331,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
       allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
         .to receive(:new)
-        .with(poa_request, anything)
+        .with(poa_request, anything, anything)
         .and_return(accept_service)
 
       allow(accept_service).to receive(:call)
@@ -326,7 +362,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
       allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
         .to receive(:new)
-        .with(poa_request, anything)
+        .with(poa_request, anything, anything)
         .and_return(accept_service)
 
       allow(accept_service).to receive(:call)
