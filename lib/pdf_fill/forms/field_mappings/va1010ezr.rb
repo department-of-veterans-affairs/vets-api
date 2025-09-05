@@ -299,6 +299,10 @@ module PdfFill
               question_text: 'EXPENSES PAID BY YOUR DEPENDENT CHILD WITH REPORTABLE INCOME FOR COLLEGE, ' \
                              'VOCATIONAL REHABILITATION OR TRAINING (e.g., tuition, books, materials). '
             },
+            'receivedSupportLastYear' => {
+              question_num: 5.1,
+              question_text: 'IF YOUR DEPENDENT DID NOT LIVE WITH YOU LAST YEAR, DID YOU PROVIDE SUPPORT?'
+            },
             'grossIncome' => {
               key: 'F[0].P5[0].Table1[0].#subform[1].Amount[2]',
               question_num: 5.1,
