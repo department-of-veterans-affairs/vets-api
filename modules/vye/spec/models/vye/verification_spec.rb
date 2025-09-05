@@ -48,7 +48,7 @@ RSpec.describe Vye::Verification, type: :model do
         described_class.write_report(io)
       end.not_to raise_error
 
-      stub_nm_list = io.string.split(/[\n]/).map { |x| x.slice(0, 7) }.flatten
+      stub_nm_list = io.string.split(/\n/).map { |x| x.slice(0, 7) }.flatten
 
       expect(stub_nm_list.all? { |x| x.start_with?(/\S/) }).to be(true)
     end
@@ -58,7 +58,7 @@ RSpec.describe Vye::Verification, type: :model do
 
       described_class.write_report(io)
 
-      stub_td_list = io.string.split(/[\n]/).map { |x| x.slice(7, 9) }.flatten
+      stub_td_list = io.string.split(/\n/).map { |x| x.slice(7, 9) }.flatten
 
       expect(stub_td_list.all? { |x| x.eql?('891234567') }).to be(true)
     end
