@@ -6,7 +6,6 @@ require 'lgy/service'
 require 'lighthouse/benefits_intake/service'
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 require 'benefits_intake_service/service'
-require 'simple_forms_api/supporting_document_service'
 
 module SimpleFormsApi
   module V1
