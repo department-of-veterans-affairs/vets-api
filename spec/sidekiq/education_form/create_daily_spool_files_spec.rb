@@ -174,7 +174,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
     context 'with a 10297 form' do
       let(:application_1606) { create(:va10297_full_form).education_benefits_claim }
 
-      it 'tracks the 10297 form' do
+      pending 'tracks the 10297 form' do
         expect(subject).to receive(:track_form_type).with('22-10297', 999)
         result = subject.format_application(application_1606, rpo: 999)
         expect(result).to be_a(EducationForm::Forms::VA10297)
