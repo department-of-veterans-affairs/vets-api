@@ -13,14 +13,19 @@ module BenefitsDiscovery
 
     def proxy
       api_key, app_id = credentials
-      service = BenefitsDiscovery::Service.new(api_key:, app_id:)
+      service = ::BenefitsDiscovery::Service.new(api_key:, app_id:)
 
-      body = request.request_parameters.presence
-      response_data = service.proxy_request(method: request.method_symbol, path: params[:path], body:)
-
+      response_data = service.proxy_request(method: request.method_symbol, path: params[:path],
+                                            body: request.raw_post.presence)
       render json: response_data
+    rescue Common::Client::Errors::ClientError => e
+      log_proxy_error(e, path: params[:path])
+      render json: e.body, status: e.status
+    rescue Common::Exceptions::Unauthorized => e
+      log_proxy_error(e, path: params[:path])
+      render json: { error: e.message }, status: :unauthorized
     rescue => e
-      Rails.logger.error("BDSGateway recommendations error: #{e.message}")
+      log_proxy_error(e, path: params[:path])
       render json: { error: e.message }, status: :internal_server_error
     end
 
@@ -28,19 +33,23 @@ module BenefitsDiscovery
 
     def credentials
       app_id = request.headers['x-app-id']
-      api_key = request.headers['x-api-key'] || api_key_for_app_id(app_id)
+      api_key = request.headers['x-api-key'] || fetch_api_key(app_id)
 
       [api_key, app_id]
     end
 
-    def api_key_for_app_id(app_id)
+    def fetch_api_key(app_id)
       # Map specific app IDs to their API keys from settings
       case app_id
       when Settings.lighthouse.benefits_discovery.transition_experience_app_id
         Settings.lighthouse.benefits_discovery.transition_experience_api_key
       else
-        raise StandardError, "Unsupported app_id: #{app_id} does not have a configured API key"
+        raise Common::Exceptions::Unauthorized
       end
+    end
+
+    def log_proxy_error(error, path:)
+      Rails.logger.error("Benefits Discovery Gateway proxy error: #{error.message}", path:)
     end
 
     def check_flipper_enabled

@@ -33,7 +33,6 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
   describe 'GET #proxy' do
     before do
       allow(service_instance).to receive(:proxy_request).and_return(response_data)
-      allow(Flipper).to receive(:enabled?).with(:bds_gateway_enabled).and_return(true)
     end
 
     it 'proxies GET requests to /benefits_discovery/v0/benefits' do
@@ -79,7 +78,7 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
       end
     end
 
-    context 'without custom api key but with valid app_id' do
+    context 'with an app_id that has a mapped api key' do
       let(:headers) do
         { 'x-app-id' => Settings.lighthouse.benefits_discovery.transition_experience_app_id }
       end
@@ -101,7 +100,7 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
       end
     end
 
-    context 'with unsupported app_id' do
+    context 'with only an app_id' do
       let(:headers) do
         { 'x-app-id' => 'unsupported-app' }
       end
@@ -109,13 +108,13 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
       it 'returns error for unsupported app_id' do
         post('/benefits_discovery/v0/recommendations', params: request_params, headers:)
 
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:unauthorized)
         response_body = JSON.parse(response.body)
-        expect(response_body['error']).to include('Unsupported app_id')
+        expect(response_body['error']).to include('Not authorized')
       end
 
       it 'logs the error' do
-        expect(Rails.logger).to receive(:error).with(/BDSGateway recommendations error/)
+        expect(Rails.logger).to receive(:error).with(/Not authorized/, path: 'v0/recommendations')
         post '/benefits_discovery/v0/recommendations', params: request_params, headers:
       end
     end
@@ -156,9 +155,9 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
       it 'passes parameters to service' do
         expect(service_instance).to receive(:proxy_request).with(method: :post,
                                                                  path: 'v0/recommendations',
-                                                                 body: params)
+                                                                 body: params.to_json)
 
-        post '/benefits_discovery/v0/recommendations', params:, headers:
+        post '/benefits_discovery/v0/recommendations', params:, headers:, as: :json
       end
     end
 
@@ -182,7 +181,8 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
       end
 
       it 'logs the error' do
-        expect(Rails.logger).to receive(:error).with('BDSGateway recommendations error: Service error')
+        expect(Rails.logger).to receive(:error).with('Benefits Discovery Gateway proxy error: Service error',
+                                                     path: 'v0/recommendations')
 
         post '/benefits_discovery/v0/recommendations', params: request_params
       end
@@ -208,35 +208,6 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
 
       it 'does not call the service' do
         expect(BenefitsDiscovery::Service).not_to receive(:new)
-
-        post '/benefits_discovery/v0/recommendations', params: request_params, headers:
-      end
-    end
-
-    context 'when flipper is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:bds_gateway_enabled).and_return(true)
-      end
-
-      let(:headers) do
-        {
-          'x-api-key' => 'test-api-key',
-          'x-app-id' => 'test-app'
-        }
-      end
-
-      it 'allows the request to proceed' do
-        post('/benefits_discovery/v0/recommendations', params: request_params, headers:)
-
-        expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)).to eq(response_data)
-      end
-
-      it 'calls the service' do
-        expect(BenefitsDiscovery::Service).to receive(:new).with(
-          api_key: 'test-api-key',
-          app_id: 'test-app'
-        )
 
         post '/benefits_discovery/v0/recommendations', params: request_params, headers:
       end

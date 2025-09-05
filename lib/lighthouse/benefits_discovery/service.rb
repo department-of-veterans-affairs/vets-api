@@ -19,7 +19,7 @@ module BenefitsDiscovery
     end
 
     def proxy_request(method:, path:, body:)
-      response = perform(method.downcase.to_sym, "benefits-discovery-service/#{path}", body.to_json, headers)
+      response = perform(method.downcase.to_sym, path, body, headers)
       response.body
     end
 
