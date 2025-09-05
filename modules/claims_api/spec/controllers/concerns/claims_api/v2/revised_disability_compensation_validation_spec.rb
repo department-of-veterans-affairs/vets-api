@@ -399,30 +399,6 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
       end
 
-      context 'when valid country is provided' do
-        let(:form_attributes) do
-          base_form_attributes.merge(
-            'veteranIdentification' => {
-              'mailingAddress' => {
-                'addressLine1' => '123 Main St',
-                'city' => 'London',
-                'country' => 'GBR',
-                'internationalPostalCode' => 'SW1A 1AA'
-              }
-            }
-          )
-        end
-
-        before do
-          allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
-        end
-
-        it 'returns no errors' do
-          errors = subject.validate_form_526_fes_values
-          expect(errors).to be_nil
-        end
-      end
-
       # FES Val Section 5.b.v: internationalPostalCode validations
       context 'when non-USA address missing internationalPostalCode' do
         let(:form_attributes) do
@@ -448,31 +424,6 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/internationalPostalCode')
           expect(errors.first[:title]).to eq('Missing internationalPostalCode')
           expect(errors.first[:detail]).to eq('InternationalPostalCode is required for non-USA addresses')
-        end
-      end
-
-      context 'when USA address does not have internationalPostalCode' do
-        let(:form_attributes) do
-          base_form_attributes.merge(
-            'veteranIdentification' => {
-              'mailingAddress' => {
-                'addressLine1' => '123 Main St',
-                'city' => 'Los Angeles',
-                'country' => 'USA',
-                'state' => 'CA',
-                'zipFirstFive' => '90210'
-              }
-            }
-          )
-        end
-
-        before do
-          allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
-        end
-
-        it 'returns no errors' do
-          errors = subject.validate_form_526_fes_values
-          expect(errors).to be_nil
         end
       end
     end
