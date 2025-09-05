@@ -19,7 +19,7 @@ module Logging
           claim_stats_key,
           user_account_uuid: current_user&.user_account_uuid,
           confirmation_number:,
-          message: e&.message
+          error: e&.message
         )
       end
 
@@ -39,7 +39,7 @@ module Logging
           claim: nil,
           user_account_uuid: current_user&.user_account_uuid,
           confirmation_number:,
-          message: e&.message
+          error: e&.message
         )
       end
 
@@ -97,7 +97,7 @@ module Logging
           user_account_uuid: current_user&.user_account_uuid,
           in_progress_form_id: in_progress_form&.id,
           errors: claim&.errors&.errors,
-          message: e&.message
+          error: e&.message
         )
       end
 

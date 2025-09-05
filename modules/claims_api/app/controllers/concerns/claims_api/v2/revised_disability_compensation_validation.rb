@@ -19,10 +19,11 @@ module ClaimsApi
         # Validate service information
         validate_service_information!
 
+        # Validate veteran information
+        validate_veteran!
+
         # Return collected errors
         error_collection if @errors
-
-        # TODO: Future PRs will add more validations here
       end
 
       private
@@ -256,6 +257,95 @@ module ClaimsApi
             source: '/serviceInformation/federalActivation',
             title: 'Invalid value',
             detail: "Federal activation date is in the future: #{federal_activation['activationDate']}"
+          )
+        end
+      end
+
+      ### FES Val Section 5: veteran validations
+      def validate_veteran!
+        # FES Val Section 5.b: mailingAddress validations
+        validate_current_mailing_address!
+      end
+
+      # FES Val Section 5.b: mailingAddress validations
+      def validate_current_mailing_address!
+        mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
+        return if mailing_address.blank?
+
+        # FES Val Section 5.b.ii-iv: Address field validations for USA
+        validate_usa_mailing_address!(mailing_address) if mailing_address['country'] == 'USA'
+
+        # FES Val Section 5.b.vi: Validate country against reference data
+        validate_address_country!(mailing_address, 'mailingAddress')
+
+        # FES Val Section 5.b.v: Validate internationalPostalCode for non-USA countries
+        validate_international_postal_code!(mailing_address)
+      end
+
+      def validate_usa_mailing_address!(mailing_address)
+        # FES Val Section 5.b.ii.3: State required for USA addresses
+        if mailing_address['state'].blank?
+          collect_error(
+            source: '/veteranIdentification/mailingAddress/state',
+            title: 'Missing state',
+            detail: 'State is required for USA addresses'
+          )
+        end
+
+        # FES Val Section 5.b.ii.4: ZipFirstFive required for USA addresses
+        if mailing_address['zipFirstFive'].blank?
+          collect_error(
+            source: '/veteranIdentification/mailingAddress/zipFirstFive',
+            title: 'Missing zipFirstFive',
+            detail: 'ZipFirstFive is required for USA addresses'
+          )
+        end
+
+        # Validate internationalPostalCode should NOT be present for USA
+        return if mailing_address['internationalPostalCode'].blank?
+
+        collect_error(
+          source: '/veteranIdentification/mailingAddress/internationalPostalCode',
+          title: 'Invalid field',
+          detail: 'InternationalPostalCode should not be provided for USA addresses'
+        )
+      end
+
+      def validate_address_country!(address, address_type)
+        return if address['country'].blank?
+
+        countries = valid_countries
+        source_prefix = address_type == 'changeOfAddress' ? '' : '/veteranIdentification'
+        if countries.nil?
+          # FES Val Section 5.b.vii-viii: BRD service error
+          collect_error(
+            source: "#{source_prefix}/#{address_type}/country",
+            title: 'Internal Server Error',
+            detail: 'Failed To Obtain Country Types (Request Failed)'
+          )
+          return
+        end
+
+        # FES Val Section 5.b.vi: Invalid country
+        return if countries.include?(address['country'])
+
+        collect_error(
+          source: "#{source_prefix}/#{address_type}/country",
+          title: 'Invalid country',
+          detail: "Provided country is not valid: #{address['country']}"
+        )
+      end
+
+      def validate_international_postal_code!(mailing_address)
+        country = mailing_address['country']
+        return if country.blank?
+
+        # FES Val Section 5.b.v: internationalPostalCode required for non-USA countries
+        if country != 'USA' && mailing_address['internationalPostalCode'].blank?
+          collect_error(
+            source: '/veteranIdentification/mailingAddress/internationalPostalCode',
+            title: 'Missing internationalPostalCode',
+            detail: 'InternationalPostalCode is required for non-USA addresses'
           )
         end
       end
