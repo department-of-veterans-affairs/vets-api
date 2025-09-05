@@ -10,12 +10,9 @@ module TravelPay
       rescue_from Common::Exceptions::BadRequest, with: :render_bad_request
       rescue_from Common::Exceptions::ServiceUnavailable, with: :render_service_unavailable
 
+      before_action :check_feature_flag, only: [:create]
+
       def create
-        verify_feature_flag!(
-          :travel_pay_enable_complex_claims,
-          current_user,
-          error_message: 'Travel Pay create complex claim unavailable per feature toggle'
-        )
         validate_params_exist!(params)
         validate_datetime_format!(params[:appointment_date_time])
         appt_id = find_or_create_appt_id!(params)
@@ -36,6 +33,14 @@ module TravelPay
       end
 
       private
+
+      def check_feature_flag
+        verify_feature_flag!(
+          :travel_pay_enable_complex_claims,
+          current_user,
+          error_message: 'Travel Pay create complex claim unavailable per feature toggle'
+        )
+      end
 
       def render_bad_request(e)
         # If the error has a list of messages, use those
