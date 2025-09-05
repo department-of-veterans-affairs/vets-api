@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'claims_api/v2/disability_compensation_pdf_mapper'
+require 'claims_api/v1/disability_compensation_pdf_mapper'
 require 'pdf_generator_service/pdf_client'
 
 module ClaimsApi
-  module V2
+  module V1
     class DisabilityCompensationPdfGenerator < ClaimsApi::ServiceBase
       EVSS_DOCUMENT_TYPE = 'L023'
       LOG_TAG = '526_v2_PDF_Generator_job'
@@ -23,9 +23,8 @@ module ClaimsApi
 
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
-
-        mapped_claim = pdf_mapper_service(auto_claim.form_data, get_pdf_data, auto_claim.auth_headers,
-                                          middle_initial, auto_claim.created_at).map_claim
+        mapped_claim = pdf_mapper_service(auto_claim.form_data, pdf_mapper_inital_object, auto_claim.auth_headers,
+                                          middle_initial).map_claim
         pdf_string = generate_526_pdf(mapped_claim)
 
         if pdf_string.empty?
@@ -94,9 +93,8 @@ module ClaimsApi
         ClaimsApi::V2::DisabilityCompensationDockerContainerUpload
       end
 
-      def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial, created_at)
-        ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_data, pdf_data, auth_headers, middle_initial,
-                                                           created_at)
+      def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial)
+        ClaimsApi::V1::DisabilityCompensationPdfMapper.new(form_data, pdf_data, auth_headers, middle_initial)
       end
 
       # Docker container wants data: but not attributes:
@@ -110,6 +108,15 @@ module ClaimsApi
       def get_pdf_data
         {
           data: {}
+        }
+      end
+
+      def pdf_mapper_inital_object
+        {
+          data: {
+            attributes:
+              {}
+          }
         }
       end
     end

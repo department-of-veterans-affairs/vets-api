@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../rails_helper'
-require 'claims_api/disability_compensation_pdf_generator'
+require_relative '../../rails_helper'
+require 'claims_api/v1/disability_compensation_pdf_generator'
 
-RSpec.describe ClaimsApi::DisabilityCompensationPdfGenerator, type: :job do
+RSpec.describe ClaimsApi::V1::DisabilityCompensationPdfGenerator, type: :job do
   subject { described_class }
 
   before do
@@ -18,16 +18,10 @@ RSpec.describe ClaimsApi::DisabilityCompensationPdfGenerator, type: :job do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
 
-  let(:claim_date) { (Time.zone.today - 1.day).to_s }
-  let(:anticipated_separation_date) { 2.days.from_now.strftime('%m-%d-%Y') }
-
   let(:form_data) do
-    temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
-                           'form_526_json_api.json').read
+    temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json').read
     temp = JSON.parse(temp)
-    attributes = temp['data']['attributes']
-    attributes['claimDate'] = claim_date
-    attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
+    temp['data']['attributes']
 
     temp['data']['attributes']
   end
@@ -81,6 +75,7 @@ RSpec.describe ClaimsApi::DisabilityCompensationPdfGenerator, type: :job do
             expect(errored_claim.status).to eq('errored')
 
             service.perform(errored_claim.id, middle_initial)
+
             errored_claim.reload
             expect(errored_claim.status).to eq('pending')
           end
@@ -88,15 +83,19 @@ RSpec.describe ClaimsApi::DisabilityCompensationPdfGenerator, type: :job do
       end
 
       context 'mocking' do
-        it 'calls the Docker Container Job up front when mocking is enabled' do
+        before do
           allow(Settings.claims_api.benefits_documents).to receive(:use_mocks).and_return(true)
+        end
 
-          expect_any_instance_of(described_class).not_to receive(:set_pending_state_on_claim)
-          expect_any_instance_of(described_class).not_to receive(:pdf_mapper_service)
-          expect_any_instance_of(described_class).not_to receive(:generate_526_pdf)
-          expect_any_instance_of(described_class).to receive(:start_docker_container_job).with(claim.id).once
+        it 'calls the Docker Container Job up front when mocking is enabled' do
+          job_instance = described_class.new
 
-          service.perform(claim.id, middle_initial)
+          expect(job_instance).not_to receive(:set_pending_state_on_claim)
+          expect(job_instance).not_to receive(:pdf_mapper_service)
+          expect(job_instance).not_to receive(:generate_526_pdf)
+          expect(job_instance).to receive(:start_docker_container_job).with(claim.id).once
+
+          job_instance.perform(claim.id, middle_initial)
         end
       end
     end
@@ -122,6 +121,18 @@ RSpec.describe ClaimsApi::DisabilityCompensationPdfGenerator, type: :job do
           claim.reload
           expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
           expect(service).not_to receive(:start_docker_container_job)
+        end
+      end
+
+      it 'calls the next job when the claim.status is not errored' do
+        VCR.use_cassette('claims_api/disability_comp') do
+          allow(service).to receive(:generate_526_pdf).and_return('This is a pdf string value')
+          expect_any_instance_of(described_class).to receive(:start_docker_container_job).with(claim.id).once
+
+          service.perform(claim.id, middle_initial)
+
+          claim.reload
+          expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::PENDING)
         end
       end
 

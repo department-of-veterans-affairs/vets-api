@@ -63,7 +63,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         ).to receive(:validate_veteran_identifiers).with(anything).and_return(nil) # valid veteran
         allow(ClaimsApi::AutoEstablishedClaim).to receive(:create).with(any_args).and_return(claim)
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(true)
-        allow(ClaimsApi::DisabilityCompensationPdfGenerator).to receive(:perform_async)
+        allow(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to receive(:perform_async)
         allow(ClaimsApi::AutoEstablishedClaimSerializer).to receive(:new).with(claim).and_return(double(as_json: {}))
         allow_any_instance_of(
           described_class
@@ -74,7 +74,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
       it 'calls the PDF Generator Sidekiq job with the expected params when the flipper is enabled' do
         subject.send(:submit_form_526) # rubocop:disable Naming/VariableNumber
 
-        expect(ClaimsApi::DisabilityCompensationPdfGenerator).to have_received(:perform_async)
+        expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_async)
           .with(claim.id, 'W') # 'W' here mimics the method call in the controller to pass just the middle initial
       end
     end

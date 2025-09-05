@@ -22,7 +22,7 @@ module ClaimsApi
                             detail: "Job retries exhausted for #{message['class']}",
                             error: message['error_message'])
 
-      classes = %w[ClaimsApi::DisabilityCompensationPdfGenerator
+      classes = %w[ClaimsApi::V1:DisabilityCompensationPdfGenerator
                    ClaimApi::V2::DisabilityCompensationDockerContainerUpload
                    ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader].freeze
 

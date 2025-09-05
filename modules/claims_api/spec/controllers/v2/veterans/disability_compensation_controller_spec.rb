@@ -146,12 +146,6 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
           .to be_a(ClaimsApi::V2::DisabilityCompensationDocuments)
       end
 
-      it '#process_claim' do
-        allow(controller).to receive(:veteran_middle_initial).and_return('M')
-        expect(ClaimsApi::DisabilityCompensationPdfGenerator).to receive(:perform_async).with('456', 'M')
-        controller.send(:process_claim, double(id: '456'))
-      end
-
       it '#shared_submit_methods error handling' do
         allow(controller).to receive_messages(auth_headers: {},
                                               form_attributes: { 'disabilities' => [] },

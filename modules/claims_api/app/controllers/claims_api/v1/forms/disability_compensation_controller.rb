@@ -7,7 +7,7 @@ require 'evss/error_middleware'
 require 'common/exceptions'
 require 'jsonapi/parser'
 require 'evss_service/base' # docker container
-require 'claims_api/disability_compensation_pdf_generator'
+require 'claims_api/v1/disability_compensation_pdf_generator'
 
 module ClaimsApi
   module V1
@@ -95,7 +95,7 @@ module ClaimsApi
 
           unless form_attributes['autoCestPDFGenerationDisabled'] == true
             if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
-              ClaimsApi::DisabilityCompensationPdfGenerator.perform_async(auto_claim.id, veteran_middle_initial)
+              ClaimsApi::V1::DisabilityCompensationPdfGenerator.perform_async(auto_claim.id, veteran_middle_initial)
             else
               ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
             end
