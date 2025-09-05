@@ -11,13 +11,25 @@ module AccreditedRepresentativePortal
     Error = Class.new(RuntimeError)
     InvalidRegistrationsError = Class.new(Error)
 
+    Types = PowerOfAttorneyHolder::Types
+
     def initialize(icn:, emails:)
       @icn = icn
       @emails = emails
       @ogc_client = OgcClient.new
     end
 
-    Types = PowerOfAttorneyHolder::Types
+    def for_power_of_attorney_holder(power_of_attorney_holder)
+      ##
+      # Might be nice to instead have a `PowerOfAttorneyHolder#==` method with a
+      # semantics that matches what is needed here.
+      #
+      all.find do |membership|
+        holder = membership.power_of_attorney_holder
+        holder.poa_code == power_of_attorney_holder.poa_code &&
+          holder.type == power_of_attorney_holder.type
+      end
+    end
 
     ##
     # `#load` always returns an `Array` of `Membership` objects with:
@@ -34,7 +46,7 @@ module AccreditedRepresentativePortal
     # No unsupported user types are included, and duplicate or empty
     # registration sets raise `InvalidRegistrationsError`.
     #
-    def load # rubocop:disable Metrics/MethodLength
+    def all # rubocop:disable Metrics/MethodLength
       @memberships ||=
         get_registrations.flat_map do |registration|
           case registration.user_type

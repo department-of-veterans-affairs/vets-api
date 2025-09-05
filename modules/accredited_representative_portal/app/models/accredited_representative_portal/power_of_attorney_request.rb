@@ -87,9 +87,10 @@ module AccreditedRepresentativePortal
       )
     end
 
-    def mark_declined!(creator, declination_reason)
+    def mark_declined!(creator_id, power_of_attorney_holder_memberships, declination_reason)
       PowerOfAttorneyRequestDecision.create_declination!(
-        creator:,
+        creator_id:,
+        power_of_attorney_holder_memberships:,
         power_of_attorney_request: self,
         declination_reason:
       )
@@ -221,6 +222,14 @@ module AccreditedRepresentativePortal
     scope :for_accredited_individual, lambda { |accredited_individual_registration_number|
       where(accredited_individual_registration_number:)
     }
+
+    def power_of_attorney_holder
+      PowerOfAttorneyHolder.new(
+        type: power_of_attorney_holder_type,
+        poa_code: power_of_attorney_holder_poa_code,
+        can_accept_digital_poa_requests: nil
+      )
+    end
 
     private
 

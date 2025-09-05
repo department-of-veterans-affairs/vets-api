@@ -49,21 +49,34 @@ module AccreditedRepresentativePortal
     validates :type, inclusion: { in: Types::ALL }
 
     class << self
-      def create_acceptance!(creator:, power_of_attorney_request:, **attrs)
+      def create_acceptance!(
+        creator_id:,
+        power_of_attorney_holder_memberships:,
+        power_of_attorney_request:,
+        **attrs
+      )
         create_with_resolution!(
           type: Types::ACCEPTANCE,
-          creator:,
+          creator_id:,
+          power_of_attorney_holder_memberships:,
           power_of_attorney_request:,
           **attrs
         )
       end
 
-      def create_declination!(creator:, power_of_attorney_request:, declination_reason:, **attrs)
+      def create_declination!(
+        creator_id:,
+        power_of_attorney_holder_memberships:,
+        power_of_attorney_request:,
+        declination_reason:,
+        **attrs
+      )
         reason_key = declination_reason.to_s.gsub('DECLINATION_', '')
 
         create_with_resolution!(
           type: Types::DECLINATION,
-          creator:,
+          creator_id:,
+          power_of_attorney_holder_memberships:,
           power_of_attorney_request:,
           declination_reason: reason_key,
           **attrs
@@ -72,27 +85,28 @@ module AccreditedRepresentativePortal
 
       private
 
-      def create_with_resolution!(
-        creator:,
+      def create_with_resolution!( # rubocop:disable Metrics/ParameterLists
         type:,
+        creator_id:,
+        power_of_attorney_holder_memberships:,
         power_of_attorney_request:,
         declination_reason: nil,
         **attrs
       )
         PowerOfAttorneyRequestResolution.transaction do
+          membership =
+            power_of_attorney_holder_memberships.for_power_of_attorney_holder(
+              power_of_attorney_request.power_of_attorney_holder
+            )
+
+          holder = membership.power_of_attorney_holder
           decision = build_decision(
-            creator:,
+            creator_id:,
             type:,
             declination_reason:,
-            power_of_attorney_holder_type: power_of_attorney_request.power_of_attorney_holder_type,
-            power_of_attorney_holder_poa_code:
-              creator&.active_power_of_attorney_holders&.find do |h|
-                h.poa_code == power_of_attorney_request.power_of_attorney_holder_poa_code
-              end&.poa_code,
-            accredited_individual_registration_number:
-              creator&.get_registration_number(
-                power_of_attorney_request.power_of_attorney_holder_type
-              )
+            power_of_attorney_holder_type: holder.type,
+            power_of_attorney_holder_poa_code: holder.poa_code,
+            accredited_individual_registration_number: membership.registration_number
           )
 
           create_resolution(decision:, power_of_attorney_request:, **attrs)
