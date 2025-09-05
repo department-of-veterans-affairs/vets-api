@@ -19,15 +19,20 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
   let(:current_user) { build(:user, :mhv) }
 
   before do
+    Timecop.freeze('2025-06-02T08:00:00Z')
     sign_in_as(current_user)
     allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(notes_flipper, instance_of(User)).and_return(true)
   end
 
+  after do
+    Timecop.return
+  end
+
   describe 'GET /my_health/v2/medical_records/notes#index' do
     context 'happy path' do
       it 'returns a successful response' do
-        VCR.use_cassette('unified_health_data/get_clinical_notes_200') do
+        VCR.use_cassette('unified_health_data/get_clinical_notes_200', match_requests_on: %i[method path]) do
           get '/my_health/v2/medical_records/clinical_notes', headers: { 'X-Key-Inflection' => 'camel' }
         end
         expect(response).to be_successful
@@ -43,18 +48,21 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
         expect(json_response['data'].first['attributes']).to include(
           'id',
           'name',
-          'type',
+          'noteType',
+          'loincCodes',
           'date',
           'dateSigned',
           'writtenBy',
           'signedBy',
+          'admissionDate',
+          'dischargeDate',
           'location',
           'note'
         )
       end
 
       it 'returns a successful response with an empty data array' do
-        VCR.use_cassette('unified_health_data/get_clinical_notes_no_records') do
+        VCR.use_cassette('unified_health_data/get_clinical_notes_no_records', match_requests_on: %i[method path]) do
           get '/my_health/v2/medical_records/clinical_notes',
               headers: { 'X-Key-Inflection' => 'camel' }
         end
@@ -83,6 +91,71 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
         # This cassette doesn't matter since we're stubbing the service call to raise an error
         VCR.use_cassette('unified_health_data/get_clinical_notes_200') do
           get '/my_health/v2/medical_records/clinical_notes',
+              headers: { 'X-Key-Inflection' => 'camel' }
+        end
+        expect(response).to have_http_status(:bad_gateway)
+      end
+    end
+  end
+
+  describe 'GET /my_health/v2/medical_records/notes#show' do
+    context 'happy path' do
+      it 'returns a successful response for a single note' do
+        VCR.use_cassette('unified_health_data/get_clinical_notes_200', match_requests_on: %i[method path]) do
+          get '/my_health/v2/medical_records/clinical_notes/15249697279', headers: { 'X-Key-Inflection' => 'camel' }
+        end
+        expect(response).to be_successful
+        json_response = JSON.parse(response.body)
+        expect(json_response['data']['type']).to eq('clinical_note')
+        expect(json_response['data']).to include(
+          'id',
+          'type',
+          'attributes'
+        )
+        expect(json_response['data']['attributes']).to include(
+          'id',
+          'name',
+          'noteType',
+          'loincCodes',
+          'date',
+          'dateSigned',
+          'writtenBy',
+          'signedBy',
+          'admissionDate',
+          'dischargeDate',
+          'location',
+          'note'
+        )
+      end
+
+      # TODO: Probably this should return a 404? Maybe?
+      it 'returns a 404 not found' do
+        VCR.use_cassette('unified_health_data/get_clinical_notes_no_records', match_requests_on: %i[method path]) do
+          get '/my_health/v2/medical_records/clinical_notes/12345',
+              headers: { 'X-Key-Inflection' => 'camel' }
+        end
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'error responses' do
+      it 'returns a 500 response when there is a server error' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_single_summary_or_note)
+          .and_raise(Common::Exceptions::InternalServerError.new(Faraday::ServerError.new))
+        # This cassette doesn't matter since we're stubbing the service call to raise an error
+        VCR.use_cassette('unified_health_data/get_clinical_notes_200') do
+          get '/my_health/v2/medical_records/clinical_notes/12345',
+              headers: { 'X-Key-Inflection' => 'camel' }
+        end
+        expect(response).to have_http_status(:internal_server_error)
+      end
+
+      it 'returns an error response when there is a client error' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_single_summary_or_note)
+          .and_raise(Common::Client::Errors::ClientError.new(Faraday::ClientError.new))
+        # This cassette doesn't matter since we're stubbing the service call to raise an error
+        VCR.use_cassette('unified_health_data/get_clinical_notes_200') do
+          get '/my_health/v2/medical_records/clinical_notes/12345',
               headers: { 'X-Key-Inflection' => 'camel' }
         end
         expect(response).to have_http_status(:bad_gateway)
