@@ -243,13 +243,7 @@ module PdfFill
           return
         end
 
-        dependent_provided_support = false
-        @form_data['dependents'].map do |dependent|
-          if dependent['receivedSupportLastYear']
-            dependent_provided_support = true
-            break
-          end
-        end
+        dependent_provided_support = @form_data['dependents'].any? { |dependent| dependent['receivedSupportLastYear'] }
 
         @form_data['provideSupportLastYear'] =
           map_select_value(@form_data['provideSupportLastYear'] || dependent_provided_support)
