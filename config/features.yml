@@ -152,6 +152,10 @@ features:
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
+  disability_compensation_new_conditions_workflow:
+    actor_type: user
+    description: enables new Conditions/Rated Disabilities workflow in 526EZ
+    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -1240,6 +1244,14 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging Custom Folders Redesign
     enable_in_development: true
+  mhv_secure_messaging_curated_list_flow:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Curated List Flow
+    enable_in_development: true
+  mhv_secure_messaging_recent_recipients:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Recent Recipients
+    enable_in_development: true
   mhv_bypass_downtime_notification:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
@@ -1815,6 +1827,10 @@ features:
     actor_type: user
     description: Form 526 subforms for unemployability & connected employment information
     enable_in_development: true
+  unified_search_sync_research_and_support:
+    actor_type: user
+    description: Controls on/off status for a redis job that syncs R&S data to Kendra data source
+    enable_in_development: false
   use_veteran_models_for_appoint:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
