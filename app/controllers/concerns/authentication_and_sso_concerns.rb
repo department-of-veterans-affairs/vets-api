@@ -18,12 +18,11 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
   protected
 
   def authenticate
-    validate_session
-    # if cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME]
-    #   super
-    # else
-    #   validate_session || render_unauthorized
-    # end
+    if cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME]
+      super
+    else
+      validate_session || render_unauthorized
+    end
   end
 
   def render_unauthorized
