@@ -198,7 +198,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
       end
     end
 
-    # FES Val Section 5.b: mailingAddress validations - PR 1
+    # FES Val Section 5.b: mailingAddress USA field validations
     context 'mailingAddress USA validation' do
       before do
         allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
@@ -343,7 +343,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
       end
     end
 
-    # FES Val Section 5.b: mailingAddress validations - PR 2 Country Validation
+    # FES Val Section 5.b: mailingAddress country and postal code validations
     context 'mailingAddress country validation' do
       context 'when country is invalid' do
         let(:form_attributes) do
@@ -372,7 +372,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
       end
 
-      context 'when BGS service is unavailable' do
+      context 'when BRD service is unavailable' do
         let(:form_attributes) do
           base_form_attributes.merge(
             'veteranIdentification' => {
@@ -390,7 +390,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           allow_any_instance_of(described_class).to receive(:valid_countries).and_return(nil)
         end
 
-        it 'returns BGS service error' do
+        it 'returns BRD service error' do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/country')

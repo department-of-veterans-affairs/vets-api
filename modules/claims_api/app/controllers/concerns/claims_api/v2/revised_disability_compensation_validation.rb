@@ -317,7 +317,7 @@ module ClaimsApi
         countries = valid_countries
         source_prefix = address_type == 'changeOfAddress' ? '' : '/veteranIdentification'
         if countries.nil?
-          # FES Val Section 5.b.vii-viii: BGS service error
+          # FES Val Section 5.b.vii-viii: BRD service error
           collect_error(
             source: "#{source_prefix}/#{address_type}/country",
             title: 'Internal Server Error',
