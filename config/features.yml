@@ -1088,6 +1088,10 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
+  kendra_enabled_for_resources_and_support_search:
+    actor_type: user
+    description: Enable/disable Amazon Kendra for Resources and Support search
+    enable_in_development: true 
   letters_page_new_design:
     actor_type: user
     description: Enables ability to show updated letter page design
