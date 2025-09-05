@@ -3,7 +3,7 @@
 module TravelPay
   module V0
     class ComplexClaimsController < ApplicationController
-      include AuthHelper
+      include FeatureFlagHelper
       include AppointmentHelper
       include ClaimHelper
 
