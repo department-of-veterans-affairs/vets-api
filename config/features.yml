@@ -178,6 +178,10 @@ features:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
     enable_in_development: true
+  hca_in_progress_form_logging:
+    actor_type: user
+    description: Add logging for the 10-10EZ around cleaning up InProgressForms after submission
+    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -635,7 +639,7 @@ features:
   dependents_module_enabled:
     actor_type: user
     description: Enables new Dependents module
-    enable_in_development: true
+    enable_in_development: false
   dependents_pension_check:
     actor_type: user
     description: Manage whether or not Pension check is enabled for the 686/674
@@ -1403,10 +1407,6 @@ features:
   mhv_medications_display_documentation_content:
     actor_type: user
     description: Enables/disables documentation-related content for Medications on VA.gov
-    enable_in_development: true
-  mhv_medications_display_allergies:
-    actor_type: user
-    description: Enables/disables allergies and reactions data
     enable_in_development: true
   mhv_medications_display_filter:
     actor_type: user
