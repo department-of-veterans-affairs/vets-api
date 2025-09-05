@@ -203,16 +203,16 @@ module IvcChampva
       end
 
       # Modified from claim_documents_controller.rb:
-      def unlock_file(file, file_password) # rubocop:disable Metrics/MethodLength
+      def unlock_file(file, file_password)
         return file unless File.extname(file) == '.pdf' && file_password
 
         tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
 
-        if Flipper.enabled?(:champva_use_hexapdf_for_pdf_unlock, @current_user)
-          tmpf = unlock_with_hexapdf(file, file_password, tmpf)
-        else
-          tmpf = unlock_with_pdftk(file, file_password, tmpf)
-        end
+        tmpf = if Flipper.enabled?(:champva_use_hexapdf_for_pdf_unlock, @current_user)
+                 unlock_with_hexapdf(file, file_password, tmpf)
+               else
+                 unlock_with_pdftk(file, file_password, tmpf)
+               end
 
         file.tempfile.unlink
         file.tempfile = tmpf
