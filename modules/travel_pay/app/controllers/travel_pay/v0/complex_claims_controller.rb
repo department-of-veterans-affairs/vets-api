@@ -103,16 +103,6 @@ module TravelPay
           errors: [{ 'detail' => 'Appointment date time must be a valid datetime' }]
         )
       end
-
-      def get_appt!(params = {})
-        get_appt(params) ||
-          raise(
-            Common::Exceptions::ResourceNotFound.new(
-              resource: 'Appointment',
-              id: params['appointment_date_time']
-            )
-          )
-      end
     end
   end
 end
