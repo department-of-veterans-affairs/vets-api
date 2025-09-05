@@ -2,7 +2,8 @@
 
 # Be sure to restart your server when you modify this file.
 
-# Configure sensitive parameters which will be filtered from the log file.
+# Adding a key here unfilters ALL params with that name across ALL of vets-api.
+# Do NOT add keys that can contain PII/PHI/secrets.
 ALLOWLIST = %w[
   action
   benefits_intake_uuid
@@ -70,6 +71,7 @@ ALLOWLIST = %w[
   user_account_uuid
 ].freeze
 
+# Configure sensitive parameters which will be filtered from the log file.
 Rails.application.config.filter_parameters = [
   lambda do |k, v|
     case v

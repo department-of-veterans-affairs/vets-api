@@ -19,10 +19,11 @@ module ClaimsApi
         # Validate service information
         validate_service_information!
 
+        # Validate veteran information
+        validate_veteran!
+
         # Return collected errors
         error_collection if @errors
-
-        # TODO: Future PRs will add more validations here
       end
 
       private
@@ -258,6 +259,50 @@ module ClaimsApi
             detail: "Federal activation date is in the future: #{federal_activation['activationDate']}"
           )
         end
+      end
+
+      ### FES Val Section 5: veteran validations
+      def validate_veteran!
+        # FES Val Section 5.b: mailingAddress validations
+        validate_current_mailing_address!
+      end
+
+      # FES Val Section 5.b: mailingAddress validations
+      def validate_current_mailing_address!
+        mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
+        return if mailing_address.blank?
+
+        # FES Val Section 5.b.ii-iv: Address field validations for USA
+        validate_usa_mailing_address!(mailing_address) if mailing_address['country'] == 'USA'
+      end
+
+      def validate_usa_mailing_address!(mailing_address)
+        # FES Val Section 5.b.ii.3: State required for USA addresses
+        if mailing_address['state'].blank?
+          collect_error(
+            source: '/veteranIdentification/mailingAddress/state',
+            title: 'Missing state',
+            detail: 'State is required for USA addresses'
+          )
+        end
+
+        # FES Val Section 5.b.ii.4: ZipFirstFive required for USA addresses
+        if mailing_address['zipFirstFive'].blank?
+          collect_error(
+            source: '/veteranIdentification/mailingAddress/zipFirstFive',
+            title: 'Missing zipFirstFive',
+            detail: 'ZipFirstFive is required for USA addresses'
+          )
+        end
+
+        # Validate internationalPostalCode should NOT be present for USA
+        return if mailing_address['internationalPostalCode'].blank?
+
+        collect_error(
+          source: '/veteranIdentification/mailingAddress/internationalPostalCode',
+          title: 'Invalid field',
+          detail: 'InternationalPostalCode should not be provided for USA addresses'
+        )
       end
 
       # Utility methods grouped at the bottom
