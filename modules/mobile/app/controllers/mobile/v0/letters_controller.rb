@@ -25,7 +25,6 @@ module Mobile
         medicare_partd
         minimum_essential_coverage
       ].freeze
-      COE_STATUS = %w[AVAILABLE ELIGIBLE].freeze
       COE_LETTER_TYPE = 'certificate_of_eligibility_home_loan'
 
       before_action { authorize :lighthouse, :access? }
@@ -47,7 +46,7 @@ module Mobile
           begin
             coe_status = lgy_service.coe_status
 
-            if COE_STATUS.include?(coe_status[:status])
+            if coe_status[:status] == 'AVAILABLE'
               response.append(Mobile::V0::Letter.new(
                                 letter_type: COE_LETTER_TYPE, name: 'Certificate of Eligibility for Home Loan Letter'
                               ))
