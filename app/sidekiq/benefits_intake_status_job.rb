@@ -47,8 +47,8 @@ class BenefitsIntakeStatusJob
       batch_uuids = batch.map(&:benefits_intake_uuid)
       response = intake_service.bulk_status(uuids: batch_uuids)
 
-      # Log a lightweight summary of the response to limit noise in logs
-      Rails.logger.debug('Received bulk status response', size: response.body.to_s.bytesize)
+      # Log bulk status response for operational visibility
+      Rails.logger.info('Received bulk status response', batch_size: batch_uuids.size, response_size: response.body.to_s.bytesize)
 
       errors << response.body unless response.success?
 
@@ -88,8 +88,8 @@ class BenefitsIntakeStatusJob
       # https://developer.va.gov/explore/api/benefits-intake/docs
       status = submission.dig('attributes', 'status')
 
-      # Log the status at debug level to reduce log noise
-      Rails.logger.debug('Processing submission', uuid:, status:)
+      # Log submission processing for operational visibility
+      Rails.logger.info('Processing submission', uuid:, status:, form_id:)
 
       lighthouse_updated_at = submission.dig('attributes', 'updated_at')
       if status == 'expired'
@@ -122,16 +122,14 @@ class BenefitsIntakeStatusJob
         # no change being tracked
         log_result('pending', form_id, uuid)
         increment_vff_status(form_id, 'pending')
-        Rails.logger.debug(
-          'Submission still pending', uuid:, status:, time_to_transition:
+        Rails.logger.info(
+          'Submission still pending', uuid:, status:, time_to_transition:, form_id:
         )
       end
 
       # Record queue time as a distribution for SLO/SLA monitoring (seconds)
-      if VFF::Monitor.vff_form?(form_id)
-        StatsD.distribution('vff.benefits_intake.queue_time_seconds', time_to_transition,
-                            tags: ["form_id:#{form_id}", 'service:veteran-facing-forms'])
-      end
+      StatsD.distribution("#{STATS_KEY}.queue_time_seconds", time_to_transition,
+                          tags: ["form_id:#{form_id}"])
 
       total_handled += 1
     end
@@ -151,13 +149,8 @@ class BenefitsIntakeStatusJob
   end
 
   def increment_vff_status(form_id, result)
-    return unless VFF::Monitor.vff_form?(form_id)
-
-    # Optional VFF-scoped status metric to simplify dashboards
-    StatsD.increment(
-      "vff.benefits_intake.status.#{result}",
-      tags: ["form_id:#{form_id}", 'service:veteran-facing-forms']
-    )
+    # Removed redundant VFF-specific metrics - reusing existing api.benefits_intake.submission_status metrics
+    # which already track all forms including VFF forms with form_id tags
   end
 
   def monitor_failure(form_id, saved_claim_id, bi_uuid)
