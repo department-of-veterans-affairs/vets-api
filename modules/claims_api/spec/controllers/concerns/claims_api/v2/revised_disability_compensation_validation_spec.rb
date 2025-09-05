@@ -200,5 +200,147 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
       end
     end
+
+    # FES Val Section 5.b: mailingAddress validations
+    context 'mailingAddress validation' do
+      # USA address validations
+      context 'when USA address missing state' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'veteranIdentification' => {
+              'mailingAddress' => {
+                'addressLine1' => '123 Main St',
+                'country' => 'USA',
+                'city' => 'Los Angeles',
+                'zipFirstFive' => '90210'
+              }
+            }
+          )
+        end
+
+        it 'returns validation error' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/state')
+          expect(errors.first[:title]).to eq('Missing state')
+          expect(errors.first[:detail]).to eq('State is required for USA addresses')
+        end
+      end
+
+      context 'when USA address missing zipFirstFive' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'veteranIdentification' => {
+              'mailingAddress' => {
+                'addressLine1' => '123 Main St',
+                'country' => 'USA',
+                'city' => 'Los Angeles',
+                'state' => 'CA'
+              }
+            }
+          )
+        end
+
+        it 'returns validation error' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/zipFirstFive')
+          expect(errors.first[:title]).to eq('Missing zipFirstFive')
+          expect(errors.first[:detail]).to eq('ZipFirstFive is required for USA addresses')
+        end
+      end
+
+      context 'when USA address has internationalPostalCode' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'veteranIdentification' => {
+              'mailingAddress' => {
+                'addressLine1' => '123 Main St',
+                'country' => 'USA',
+                'city' => 'Los Angeles',
+                'state' => 'CA',
+                'zipFirstFive' => '90210',
+                'internationalPostalCode' => 'SW1A 1AA'
+              }
+            }
+          )
+        end
+
+        it 'returns validation error' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/internationalPostalCode')
+          expect(errors.first[:title]).to eq('Invalid field')
+          expect(errors.first[:detail]).to eq('InternationalPostalCode should not be provided for USA addresses')
+        end
+      end
+
+      context 'when USA address has all required fields' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'veteranIdentification' => {
+              'mailingAddress' => {
+                'addressLine1' => '123 Main St',
+                'country' => 'USA',
+                'city' => 'Los Angeles',
+                'state' => 'CA',
+                'zipFirstFive' => '90210'
+              }
+            }
+          )
+        end
+
+        it 'returns no errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_nil
+        end
+      end
+
+      context 'when non-USA address does not require state or zip' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'veteranIdentification' => {
+              'mailingAddress' => {
+                'addressLine1' => '123 Main St',
+                'country' => 'GBR',
+                'city' => 'London',
+                'internationalPostalCode' => 'SW1A 1AA'
+              }
+            }
+          )
+        end
+
+        it 'returns no errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_nil
+        end
+      end
+
+      context 'when USA address missing multiple required fields' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'veteranIdentification' => {
+              'mailingAddress' => {
+                'addressLine1' => '123 Main St',
+                'country' => 'USA',
+                'city' => 'Los Angeles',
+                'internationalPostalCode' => 'SW1A 1AA'
+              }
+            }
+          )
+        end
+
+        it 'returns all validation errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.size).to eq(3)
+
+          error_sources = errors.map { |e| e[:source] }
+          expect(error_sources).to include('/veteranIdentification/mailingAddress/state')
+          expect(error_sources).to include('/veteranIdentification/mailingAddress/zipFirstFive')
+          expect(error_sources).to include('/veteranIdentification/mailingAddress/internationalPostalCode')
+        end
+      end
+    end
   end
 end
