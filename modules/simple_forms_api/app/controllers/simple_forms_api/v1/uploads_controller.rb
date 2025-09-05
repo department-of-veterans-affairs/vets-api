@@ -60,13 +60,18 @@ module SimpleFormsApi
         file_path = params['file'].tempfile.path
 
         if params['file'].content_type != 'application/pdf'
-          pdf_path = attachment.to_pdf
-          # Update the file_path to point to converted PDF for validation
-          file_path = pdf_path
+          begin
+            pdf_path = attachment.to_pdf
+            file_path = pdf_path
+          rescue IOError => e
+            handle_upload_error("PDF conversion failed: #{e.message}")
+            return
+          end
         end
 
-        return unless validate_document_if_needed(file_path)
-        
+        validation_result = validate_document_if_needed(file_path)
+        return if validation_result == false  # Explicitly return if validation failed and rendered response
+
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
         attachment.save
         render json: PersistentAttachmentSerializer.new(attachment)
@@ -84,12 +89,20 @@ module SimpleFormsApi
       private
 
       def validate_document_if_needed(file_path)
-        return true unless %w[40-0247 40-10007 31-4159].include?(params[:form_id]) &&
-        File.extname(file_path).downcase == '.pdf'
+        return true unless %w[40-0247 40-10007 31-4159].include?(params[:form_id])
+
         service = BenefitsIntakeService::Service.new
         service.valid_document?(document: file_path)
         true
       rescue BenefitsIntakeService::Service::InvalidDocumentError => e
+        handle_upload_error("Document validation failed: #{e.message}")
+        false
+      rescue IOError => e
+        handle_upload_error("PDF conversion failed: #{e.message}")
+        false
+      end
+
+      def handle_upload_error(message)
         if params[:form_id] == '40-10007'
           detail_msg = "We weren't able to upload your file. Make sure the file is in an " \
                        'accepted format and size before continuing.'
@@ -99,10 +112,8 @@ module SimpleFormsApi
             }]
           }, status: :unprocessable_entity
         else
-          msg = "Document validation failed: #{e.message}"
-          render json: { error: msg }, status: :unprocessable_entity
+          render json: { error: message }, status: :unprocessable_entity
         end
-        false
       end
 
       def lighthouse_service
