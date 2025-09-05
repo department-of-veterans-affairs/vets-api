@@ -8,17 +8,18 @@ describe UnifiedHealthData::Service, type: :service do
 
   let(:user) { build(:user, :loa3) }
   let(:service) { described_class.new(user) }
-  let(:labs_response) do
-    file_path = Rails.root.join('spec', 'fixtures', 'unified_health_data', 'labs_response.json')
-    JSON.parse(File.read(file_path))
-  end
-  let(:sample_response) do
-    JSON.parse(Rails.root.join(
-      'spec', 'fixtures', 'unified_health_data', 'sample_response.json'
-    ).read)
-  end
 
   describe '#get_labs' do
+    let(:labs_response) do
+      file_path = Rails.root.join('spec', 'fixtures', 'unified_health_data', 'labs_response.json')
+      JSON.parse(File.read(file_path))
+    end
+    let(:sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'sample_response.json'
+      ).read)
+    end
+
     context 'with defensive nil checks' do
       it 'handles missing contained sections' do
         # Simulate missing contained by modifying the response
@@ -770,6 +771,143 @@ describe UnifiedHealthData::Service, type: :service do
           }
         }
         expect(service.send(:fetch_display, record)).to eq('')
+      end
+    end
+  end
+
+  # Clinical Notes
+  describe '#get_care_summaries_and_notes' do
+    let(:notes_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'notes_sample_response.json'
+      ).read)
+    end
+
+    let(:notes_no_vista_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'notes_empty_vista_response.json'
+      ).read)
+    end
+
+    let(:notes_no_oh_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'notes_empty_oh_response.json'
+      ).read)
+    end
+
+    let(:notes_empty_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'notes_empty_response.json'
+      ).read)
+    end
+
+    context 'happy path' do
+      context 'when data exists for both VistA + OH' do
+        it 'returns care summaries and notes' do
+          allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_sample_response),
+                                             parse_response_body: notes_sample_response)
+
+          notes = service.get_care_summaries_and_notes
+          expect(notes.size).to eq(6)
+          expect(notes.map(&:type)).to contain_exactly(
+            'physician_procedure_note',
+            'physician_procedure_note',
+            'consult_result',
+            'physician_procedure_note',
+            'discharge_summary',
+            'other'
+          )
+          expect(notes).to all(have_attributes(
+                                 {
+                                   'id' => be_a(String),
+                                   'name' => be_a(String),
+                                   'type' => be_a(String),
+                                   'date' => be_a(String),
+                                   'date_signed' => be_a(String).or(be_nil),
+                                   'written_by' => be_a(String).or(be_nil),
+                                   'signed_by' => be_a(String).or(be_nil),
+                                   'location' => be_a(String).or(be_nil),
+                                   'note' => be_a(String).or(be_nil)
+                                 }
+                               ))
+        end
+      end
+
+      context 'when data exists for only VistA or OH' do
+        it 'returns care summaries and notes for VistA only' do
+          allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_no_oh_response),
+                                             parse_response_body: notes_no_oh_response)
+
+          notes = service.get_care_summaries_and_notes
+          expect(notes.size).to eq(4)
+          expect(notes.map(&:type)).to contain_exactly(
+            'physician_procedure_note',
+            'physician_procedure_note',
+            'consult_result',
+            'physician_procedure_note'
+          )
+          expect(notes).to all(have_attributes(
+                                 {
+                                   'id' => be_a(String),
+                                   'name' => be_a(String),
+                                   'type' => be_a(String),
+                                   'date' => be_a(String),
+                                   'date_signed' => be_a(String).or(be_nil),
+                                   'written_by' => be_a(String),
+                                   'signed_by' => be_a(String).or(be_nil),
+                                   'location' => be_a(String).or(be_nil),
+                                   'note' => be_a(String).or(be_nil)
+                                 }
+                               ))
+        end
+
+        it 'returns care summaries and notes for OH only' do
+          allow(service).to receive_messages(fetch_access_token: 'token',
+                                             perform: double(body: notes_no_vista_response),
+                                             parse_response_body: notes_no_vista_response)
+
+          notes = service.get_care_summaries_and_notes
+          expect(notes.size).to eq(2)
+          expect(notes.map(&:type)).to contain_exactly(
+            'discharge_summary',
+            'other'
+          )
+          expect(notes).to all(have_attributes(
+                                 {
+                                   'id' => be_a(String),
+                                   'name' => be_a(String),
+                                   'type' => be_a(String),
+                                   'date' => be_a(String),
+                                   'date_signed' => be_a(String).or(be_nil),
+                                   'written_by' => be_a(String),
+                                   'signed_by' => be_a(String).or(be_nil),
+                                   'location' => be_a(String).or(be_nil),
+                                   'note' => be_a(String).or(be_nil)
+                                 }
+                               ))
+        end
+      end
+
+      context 'when there are no records in VistA or OH' do
+        it 'returns care summaries and notes' do
+          allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_empty_response),
+                                             parse_response_body: notes_empty_response)
+
+          notes = service.get_care_summaries_and_notes
+          expect(notes.size).to eq(0)
+        end
+      end
+    end
+
+    context 'error handling' do
+      it 'handles unknown errors' do
+        uhd_service = double
+        allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
+        allow(uhd_service).to receive(:get_care_summaries_and_notes).and_raise(StandardError.new('Unknown fetch error'))
+
+        expect do
+          uhd_service.get_care_summaries_and_notes
+        end.to raise_error(StandardError, 'Unknown fetch error')
       end
     end
   end
