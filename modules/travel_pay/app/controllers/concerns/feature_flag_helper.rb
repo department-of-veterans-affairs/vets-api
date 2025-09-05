@@ -8,6 +8,6 @@ module FeatureFlagHelper
 
     message = error_message || "Travel Pay #{flag} is disabled for user"
     Rails.logger.error(message:)
-    raise Common::Exceptions::ServiceUnavailable, message:
+    raise Common::Exceptions::ServiceUnavailable.new(detail: message)
   end
 end
