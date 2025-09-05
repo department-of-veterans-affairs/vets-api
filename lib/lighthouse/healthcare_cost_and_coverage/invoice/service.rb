@@ -34,9 +34,7 @@ module Lighthouse
           params[:_id] = id if id
 
           config.get(endpoint, params:, icn: @icn).body
-        rescue Faraday::TimeoutError => e
-           handle_error(e, endpoint)
-        rescue Faraday::ClientError, Faraday::ServerError => e
+        rescue Faraday::TimeoutError, Faraday::ClientError, Faraday::ServerError => e
           handle_error(e, endpoint)
         end
 
