@@ -52,26 +52,18 @@ module SimpleFormsApi
         raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
       end
 
-      def submit_supporting_documents_with_conversion
-        return unless %w[40-0247 20-10207 40-10007 31-4159].include?(params[:form_id])
-
-        service = SimpleFormsApi::SupportingDocumentService.new(params)
-        result = service.process_upload
-
-        if result.success?
-          render json: PersistentAttachmentSerializer.new(result.attachment)
-        else
-          render json: { errors: result.errors }, status: result.status
-        end
-      end
-
       def submit_supporting_documents
         return unless %w[40-0247 20-10207 40-10007 31-4159].include?(params[:form_id])
 
         attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
         attachment.file = params['file']
         file_path = params['file'].tempfile.path
-        ## upload immediately 
+
+        if params['file'].content_type != 'application/pdf'
+          pdf_path = attachment.to_pdf
+          # Update the file_path to point to converted PDF for validation
+          file_path = pdf_path
+        end
 
         return unless validate_document_if_needed(file_path)
         
@@ -92,9 +84,8 @@ module SimpleFormsApi
       private
 
       def validate_document_if_needed(file_path)
-        return true unless %w[40-0247 40-10007].include?(params[:form_id]) &&
-                           File.extname(file_path).downcase == '.pdf'
-
+        return true unless %w[40-0247 40-10007 31-4159].include?(params[:form_id]) &&
+        File.extname(file_path).downcase == '.pdf'
         service = BenefitsIntakeService::Service.new
         service.valid_document?(document: file_path)
         true
