@@ -173,8 +173,11 @@ RSpec.describe FormProfile, type: :model do
     {
       'veteranContactInformation' => {
         'veteranAddress' => {
+          'street' => '140 Rock Creek Rd',
           'country' => 'USA',
-          'city' => 'Washington'
+          'city' => 'Washington',
+          'state' => 'DC',
+          'postalCode' => '20011'
         },
         'phoneNumber' => us_phone,
         'emailAddress' => user.va_profile_email
