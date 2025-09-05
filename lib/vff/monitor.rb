@@ -20,8 +20,9 @@ module VFF
       21-0845
     ].freeze
 
-    # StatsD key for benefits intake failures
-    BENEFITS_INTAKE_STATS_KEY = 'vff.benefits_intake'
+    # Note: StatsD metrics are handled by existing patterns:
+    # - api.benefits_intake.submission_status (BenefitsIntakeStatusJob)
+    # - api.simple_forms.email.* (SendNotificationEmailJob)
 
     def initialize
       super('veteran-facing-forms')
@@ -49,8 +50,9 @@ module VFF
         log_silent_failure(additional_context, nil, call_location: caller_locations.first)
       end
 
-      # Simple StatsD metric following established pattern
-      StatsD.increment("#{BENEFITS_INTAKE_STATS_KEY}.failure", tags: ["form_id:#{form_id}", "service:#{service}"])
+      # Use existing benefits intake metrics pattern instead of creating new VFF-specific metrics
+      # The failure tracking is already handled by BenefitsIntakeStatusJob via api.benefits_intake.submission_status
+      # This monitor focuses on ZSF tracking only
 
       Rails.logger.error(
         "VFF Benefits Intake failure for form #{form_id}",
@@ -80,10 +82,8 @@ module VFF
         **additional_context
       }
 
-      StatsD.increment(
-        "#{BENEFITS_INTAKE_STATS_KEY}.email_failure",
-        tags: ["form_id:#{form_type}", "service:#{service}"]
-      )
+      # Use existing simple forms email metrics pattern
+      # Email failure tracking is already handled by SendNotificationEmailJob via api.simple_forms.email.failed
       Rails.logger.error('VFF email notification failed', { service:, **context })
     end
 

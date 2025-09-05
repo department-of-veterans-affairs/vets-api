@@ -146,8 +146,8 @@ class FormSubmissionAttempt < ApplicationRecord
     jid = SimpleFormsApi::Notification::SendNotificationEmailJob.perform_async(benefits_intake_uuid, form_number)
     if jid
       StatsD.increment(
-        'vff.benefits_intake.email_enqueued',
-        tags: ["form_id:#{form_submission.form_type}", 'service:veteran-facing-forms']
+        'api.simple_forms.email.enqueued',
+        tags: ["form_id:#{form_submission.form_type}"]
       )
     end
     Rails.logger.info(
