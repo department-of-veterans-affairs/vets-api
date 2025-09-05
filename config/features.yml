@@ -1032,6 +1032,7 @@ features:
   form1010d_extended:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-10d merged with form 10-7959c
+    enable_in_development: true
   form1010d_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for form 10-10d (IVC CHAMPVA)
@@ -1047,12 +1048,15 @@ features:
   form107959c:
     actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
+    enable_in_development: true
   form107959a:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959a (IVC CHAMPVA claim form)
+    enable_in_development: true
   form107959f2:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959f-2 (Foreign Medical Program claim form)
+    enable_in_development: true
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
