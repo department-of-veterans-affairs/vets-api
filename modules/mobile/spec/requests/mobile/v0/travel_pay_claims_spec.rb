@@ -136,7 +136,7 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
 
           json = response.parsed_body
           claim_data = json['data']['attributes']
-          
+
           expect(claim_data['id']).to eq(claim_id)
           expect(claim_data['claimNumber']).to be_present
           expect(claim_data['claimStatus']).to be_present
