@@ -152,6 +152,10 @@ features:
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
+  disability_compensation_new_conditions_workflow:
+    actor_type: user
+    description: enables new Conditions/Rated Disabilities workflow in 526EZ
+    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -339,6 +343,10 @@ features:
   check_in_experience_travel_claim_notification_callback:
     actor_type: user
     description: Enables VA Notify delivery status callbacks for travel claim notifications
+    enable_in_development: true
+  check_in_experience_travel_claim_logging:
+    actor_type: user
+    description: Enables detailed logging for travel claim submission operations
     enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
@@ -757,6 +765,10 @@ features:
     actor_type: user
     description: Enables duplicate prevention for digital dispute submissions
     enable_in_development: false
+  digital_dmc_dispute_service:
+    actor_type: user
+    description: Enables the Digital DMC Dispute Service
+    enable_in_development: true
   event_bus_gateway_retry_emails:
     actor_type: user
     description: When enabled, vets-api retries event bus gateway emails that VA Notify marks temporary-failure
@@ -1232,6 +1244,14 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging Custom Folders Redesign
     enable_in_development: true
+  mhv_secure_messaging_curated_list_flow:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Curated List Flow
+    enable_in_development: true
+  mhv_secure_messaging_recent_recipients:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Recent Recipients
+    enable_in_development: true
   mhv_bypass_downtime_notification:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
@@ -1545,7 +1565,7 @@ features:
     description: Show/Hide the quick submit section of notification settings in profile
   profile_validate_address_when_no_candidate_found:
     actor_type: user
-    description: When enabled, a NoCandidateFound error will be followed up by a call to the validate endpoint
+    description: When enabled, a CandidateAddressNotFound error will be followed up by a call to the validate endpoint
   profile_show_no_validation_key_address_alert:
     actor_type: user
     description: Show/Hide alert messages when no validationKey is returned from the address_validation endpoint
@@ -1807,6 +1827,10 @@ features:
     actor_type: user
     description: Form 526 subforms for unemployability & connected employment information
     enable_in_development: true
+  unified_search_sync_research_and_support:
+    actor_type: user
+    description: Controls on/off status for a redis job that syncs R&S data to Kendra data source
+    enable_in_development: false
   use_veteran_models_for_appoint:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
@@ -1862,6 +1886,9 @@ features:
   va_dependents_v2_banner:
     actor_type: user
     description: Allows us to toggle a form maintenance banner on the V1 form for pre-launch.
+  va_dependents_bgs_extra_error_logging:
+    actor_type: user
+    description: Allows us to toggle extra error logging for BGS in 686C-674
   va_dependents_browser_monitoring_enabled:
     actor_type: user
     description: Allows us to toggle Datadog RUM/LOG monitoring for the 686C-674
@@ -2032,6 +2059,9 @@ features:
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
+  virtual_agent_show_ai_disclaimer:
+    actor_type: user
+    description: Enables a disclaimer for ai generated content - managed by virtual agent team
   virtual_agent_show_floating_chatbot:
     actor_type: user
     description: Enables a floating chatbot on the chatbot page - managed by virtual agent team
@@ -2135,18 +2165,6 @@ features:
   pension_kafka_event_bus_submission_enabled:
     actor_type: user
     description: Enable the EventBusSubmissionJob for Kafka
-  pension_itf_enabled:
-    actor_type: user
-    description: Enable the Intent to File for Pension
-    enable_in_development: true
-  pension_itf_skip_missing_person_error_enabled:
-    actor_type: user
-    description: Enable ability to skip the missing person error when creating an ITF for Pension
-    enable_in_development: true
-  pension_itf_show_alert:
-    actor_type: user
-    description: Show the alert on frontend for the Intent to File for Pension
-    enable_in_development: true
   pension_extras_redesign_enabled:
     actor_type: user
     description: Enable the new overflow design
@@ -2172,9 +2190,6 @@ features:
   income_and_assets_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
-  intent_to_file_synchronous_enabled:
-    actor_type: user
-    description: Enable ITF synchronous call logic
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
@@ -2413,4 +2428,3 @@ features:
     actor_type: user
     description: Enables substance use disorder as care related to mental health appointments with new codes
     enable_in_development: true
-
