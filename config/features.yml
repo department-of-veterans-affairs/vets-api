@@ -152,6 +152,10 @@ features:
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
+  disability_compensation_new_conditions_workflow:
+    actor_type: user
+    description: enables new Conditions/Rated Disabilities workflow in 526EZ
+    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -173,6 +177,10 @@ features:
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
+    enable_in_development: true
+  hca_in_progress_form_logging:
+    actor_type: user
+    description: Add logging for the 10-10EZ around cleaning up InProgressForms after submission
     enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
@@ -631,7 +639,7 @@ features:
   dependents_module_enabled:
     actor_type: user
     description: Enables new Dependents module
-    enable_in_development: true
+    enable_in_development: false
   dependents_pension_check:
     actor_type: user
     description: Manage whether or not Pension check is enabled for the 686/674
@@ -1084,6 +1092,10 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
+  kendra_enabled_for_resources_and_support_search:
+    actor_type: user
+    description: Enable/disable Amazon Kendra for Resources and Support search
+    enable_in_development: true 
   letters_page_new_design:
     actor_type: user
     description: Enables ability to show updated letter page design
@@ -1395,10 +1407,6 @@ features:
   mhv_medications_display_documentation_content:
     actor_type: user
     description: Enables/disables documentation-related content for Medications on VA.gov
-    enable_in_development: true
-  mhv_medications_display_allergies:
-    actor_type: user
-    description: Enables/disables allergies and reactions data
     enable_in_development: true
   mhv_medications_display_filter:
     actor_type: user
@@ -1823,6 +1831,10 @@ features:
     actor_type: user
     description: Form 526 subforms for unemployability & connected employment information
     enable_in_development: true
+  unified_search_sync_research_and_support:
+    actor_type: user
+    description: Controls on/off status for a redis job that syncs R&S data to Kendra data source
+    enable_in_development: false
   use_veteran_models_for_appoint:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
