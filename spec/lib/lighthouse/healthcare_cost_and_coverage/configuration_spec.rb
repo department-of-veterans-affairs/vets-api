@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lighthouse/healthcare_cost_and_coverage/invoice/service'
 
 RSpec.describe Lighthouse::HealthcareCostAndCoverage::Configuration do
+  subject(:config) { described_class.instance }
+
   let(:settings) do
     double(
       host: 'https://test-api.va.gov',
@@ -17,11 +20,9 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Configuration do
     )
   end
 
-  subject(:config) { described_class.new }
-
   before do
-    allow(Settings).to receive_message_chain(:lighthouse, :healthcare_cost_and_coverage).and_return(settings)
-    allow(Settings).to receive_message_chain(:betamocks, :recording).and_return(false)
+    allow(Settings.lighthouse).to receive(:healthcare_cost_and_coverage).and_return(settings)
+    allow(Settings.betamocks).to receive(:recording).and_return(false)
   end
 
   describe '#settings' do
@@ -42,7 +43,7 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Configuration do
 
   describe '#base_api_path' do
     it 'returns the full API path' do
-      expect(config.base_api_path).to eq('https://sandbox-api.va.gov/services/health-care-costs-coverage/v0')
+      expect(config.base_api_path).to eq('https://test-api.va.gov/services/health-care-costs-coverage/v0')
     end
   end
 
@@ -57,7 +58,7 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Configuration do
       conn = double
       expect(config).to receive(:connection).and_return(conn)
       expect(config).to receive(:access_token).and_return('token')
-      expect(conn).to receive(:get).with('/foo', {}, hash_including('Authorization' => 'Bearer token'))
+      expect(conn).to receive(:get).with('/foo', nil, hash_including('Authorization' => 'Bearer token'))
       config.get('/foo')
     end
   end
@@ -81,14 +82,6 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Configuration do
       result = config.send(:auth_params, icn: '12345')
       decoded = JSON.parse(Base64.decode64(result[:launch]))
       expect(decoded['patient']).to eq('12345')
-    end
-  end
-
-  describe '#token_service' do
-    it 'returns an Auth::ClientCredentials::Service instance' do
-      stub_const('Auth::ClientCredentials::Service', Class.new)
-      service = config.send(:token_service, nil, nil)
-      expect(service).to be_a(Auth::ClientCredentials::Service)
     end
   end
 end

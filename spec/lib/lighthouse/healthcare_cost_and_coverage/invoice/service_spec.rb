@@ -34,7 +34,7 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Invoice::Service do
       expect(service.send(:config)).to receive(:get).with(
         'r4/Invoice',
         params: { patient: icn, _count: 50 },
-        icn: icn
+        icn:
       ).and_return(faraday_response)
       service.list
     end
