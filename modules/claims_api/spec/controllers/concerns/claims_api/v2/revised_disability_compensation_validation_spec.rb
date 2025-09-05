@@ -427,5 +427,157 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
       end
     end
+
+    context 'changeOfAddress validations (Section 5.c)' do
+      before do
+        allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA CAN MEX])
+      end
+
+      context 'date validations' do
+        it 'validates TEMPORARY address dates' do
+          # Past beginDate error
+          errors = subject.tap do |s|
+            s.form_attributes = base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'TEMPORARY',
+                'addressLine1' => '123 Main St',
+                'city' => 'Portland',
+                'country' => 'USA',
+                'dates' => {
+                  'beginDate' => (Date.current - 10.days).to_s,
+                  'endDate' => (Date.current + 30.days).to_s
+                }
+              }
+            )
+          end.validate_form_526_fes_values
+          expect(errors.first[:source]).to eq('/changeOfAddress/dates/beginDate')
+          expect(errors.first[:detail]).to include('BeginningDate cannot be in the past')
+
+          # Date order error
+          errors = subject.tap do |s|
+            s.form_attributes = base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'TEMPORARY',
+                'addressLine1' => '123 Main St',
+                'city' => 'Portland',
+                'country' => 'USA',
+                'dates' => {
+                  'beginDate' => (Date.current + 30.days).to_s,
+                  'endDate' => (Date.current + 10.days).to_s
+                }
+              }
+            )
+          end.validate_form_526_fes_values
+          expect(errors.any? { |e| e[:detail].include?('BeginningDate cannot be after endingDate') }).to be true
+        end
+      end
+
+      context 'DOMESTIC address validations' do
+        it 'validates USA address required fields' do
+          errors = subject.tap do |s|
+            s.form_attributes = base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'PERMANENT',
+                'addressLine1' => '123 Main St',
+                'country' => 'USA'
+              }
+            )
+          end.validate_form_526_fes_values
+
+          expect(errors.find { |e| e[:source] == '/changeOfAddress/city' }[:title]).to eq('Missing city')
+          expect(errors.find { |e| e[:source] == '/changeOfAddress/state' }[:title]).to eq('Missing state')
+          zip_error = errors.find { |e| e[:source] == '/changeOfAddress/zipFirstFive' }
+          expect(zip_error[:title]).to eq('Missing zipFirstFive')
+        end
+
+        it 'passes with valid USA address' do
+          errors = subject.tap do |s|
+            s.form_attributes = base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'PERMANENT',
+                'addressLine1' => '123 Main St',
+                'city' => 'Portland',
+                'state' => 'OR',
+                'zipFirstFive' => '97201',
+                'country' => 'USA'
+              }
+            )
+          end.validate_form_526_fes_values
+          expect(errors || []).to be_empty
+        end
+      end
+
+      context 'INTERNATIONAL address validations' do
+        it 'validates required fields for international' do
+          errors = subject.tap do |s|
+            s.form_attributes = base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'PERMANENT',
+                'addressLine1' => '123 Main St',
+                'country' => 'CAN',
+                'internationalPostalCode' => 'M5V 3A8'
+              }
+            )
+          end.validate_form_526_fes_values
+
+          expect(errors.find { |e| e[:source] == '/changeOfAddress/city' }[:title]).to eq('Missing city')
+        end
+
+        it 'passes with valid international address' do
+          errors = subject.tap do |s|
+            s.form_attributes = base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'PERMANENT',
+                'addressLine1' => '123 Main St',
+                'city' => 'Toronto',
+                'country' => 'CAN',
+                'internationalPostalCode' => 'M5V 3A8'
+              }
+            )
+          end.validate_form_526_fes_values
+          expect(errors || []).to be_empty
+        end
+      end
+
+      context 'country validation' do
+        it 'validates against reference data' do
+          allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA CAN])
+
+          errors = subject.tap do |s|
+            s.form_attributes = base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'PERMANENT',
+                'addressLine1' => '123 Main St',
+                'city' => 'London',
+                'country' => 'INVALID',
+                'internationalPostalCode' => 'SW1A 1AA'
+              }
+            )
+          end.validate_form_526_fes_values
+
+          country_error = errors.find { |e| e[:source] == '/changeOfAddress/country' }
+          expect(country_error[:detail]).to eq('Provided country is not valid: INVALID')
+        end
+
+        it 'handles BRD service unavailability' do
+          allow_any_instance_of(described_class).to receive(:valid_countries).and_return(nil)
+
+          errors = subject.tap do |s|
+            s.form_attributes = base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'PERMANENT',
+                'addressLine1' => '123 Main St',
+                'city' => 'Toronto',
+                'country' => 'CAN',
+                'internationalPostalCode' => 'M5V 3A8'
+              }
+            )
+          end.validate_form_526_fes_values
+
+          service_error = errors.find { |e| e[:source] == '/changeOfAddress/country' }
+          expect(service_error[:title]).to eq('Internal Server Error')
+        end
+      end
+    end
   end
 end
