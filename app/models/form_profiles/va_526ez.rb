@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'evss/disability_compensation_form/service'
-require 'evss/pciu_address/service'
 require 'evss/ppiu/service'
 require 'disability_compensation/factories/api_provider_factory'
 require 'vets/model'
@@ -209,24 +208,6 @@ class FormProfiles::VA526ez < FormProfile
       state: address.state_code || address.province,
       zip_code: address.zip_plus_four || address.international_postal_code
     }.compact
-  end
-
-  # Convert PCIU address to a Common address type
-  def get_common_address
-    service = EVSS::PCIUAddress::Service.new(user)
-    response = service.get_address
-    case response.address
-    when EVSS::PCIUAddress::DomesticAddress
-      prefill_domestic_address(response.address)
-    when EVSS::PCIUAddress::InternationalAddress
-      prefill_international_address(response.address)
-    when EVSS::PCIUAddress::MilitaryAddress
-      prefill_military_address(response.address)
-    else
-      {}
-    end
-  rescue
-    {}
   end
 
   def prefill_domestic_address(address)

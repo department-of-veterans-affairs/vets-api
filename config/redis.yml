@@ -114,9 +114,6 @@ development: &defaults
   debt_store:
     namespace: debt
     each_ttl: 3600 # 1 hour
-  pciu_address_dependencies:
-    namespace: pciu-address-dependencies
-    each_ttl: 604800
   va_profile_contact_info_response:
     namespace: va-profile-contact-info-response
     each_ttl: 3600 # 1 hour

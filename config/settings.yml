@@ -420,13 +420,6 @@ evss:
   mock_disabilities_form: <%= ENV['evss__mock_disabilities_form'] %>
   mock_gi_bill_status: <%= ENV['evss__mock_gi_bill_status'] %>
   mock_letters: <%= ENV['evss__mock_letters'] %>
-  mock_pciu: <%= ENV['evss__mock_pciu'] %>
-  mock_pciu_address: <%= ENV['evss__mock_pciu_address'] %>
-  mock_vso_search: <%= ENV['evss__mock_vso_search'] %>
-  pciu:
-    timeout: 30
-  pciu_address:
-    timeout: 30
   prefill: true
   root_cert_path: <%= ENV['evss__root_cert_path'] %>
   s3:
