@@ -70,9 +70,10 @@ module SimpleFormsApi
         end
 
         validation_result = validate_document_if_needed(file_path)
-        return if validation_result == false  # Explicitly return if validation failed and rendered response
+        return if validation_result == false # Explicitly return if validation failed and rendered response
 
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+
         attachment.save
         render json: PersistentAttachmentSerializer.new(attachment)
       end
