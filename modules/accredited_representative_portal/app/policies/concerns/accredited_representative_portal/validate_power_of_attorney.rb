@@ -16,7 +16,7 @@ module AccreditedRepresentativePortal
     end
 
     def representative_poa_codes
-      @user.user_account.active_power_of_attorney_holders.map(&:poa_code)
+      @user.active_power_of_attorney_holders.map(&:poa_code)
     end
   end
 end
