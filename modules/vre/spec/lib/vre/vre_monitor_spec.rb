@@ -55,7 +55,7 @@ RSpec.describe VRE::VREMonitor do
       expected_payload = base_payload.merge(
         case status
         when 'error'
-          { errors: [], message: nil }
+          { errors: [], error: nil }
         when 'validation_error'
           { errors: [] }
         else
@@ -87,7 +87,7 @@ RSpec.describe VRE::VREMonitor do
         claim_id: nil,
         confirmation_number: claim.confirmation_number,
         form_id: nil,
-        message: monitor_error.message,
+        error: monitor_error.message,
         tags: monitor.tags,
         user_account_uuid: current_user.user_account_uuid
       }
@@ -106,7 +106,7 @@ RSpec.describe VRE::VREMonitor do
           form_id: claim.form_id,
           errors: []
         )
-        payload.delete(:message)
+        payload.delete(:error)
         monitor_fn = -> { monitor.track_process_attachment_error(ipf, claim, current_user) }
         statsd_message = "#{claim_stats_key}.process_attachment_error"
       when 'send_confirmation_email failed'
@@ -212,7 +212,7 @@ RSpec.describe VRE::VREMonitor do
                  when 'failure'
                    log_level = :warn
                    log_message += ' submission to LH failed, retrying'
-                   [base_payload.except(:attachments, :file).merge(message: monitor_error.message), nil]
+                   [base_payload.except(:attachments, :file).merge(error: monitor_error.message), nil]
                  when 'exhausted'
                    log_level = :error
                    log_message += ' submission to LH exhausted!'
@@ -223,7 +223,7 @@ RSpec.describe VRE::VREMonitor do
                                  user_account_uuid: current_user.user_account_uuid,
                                  form_id: claim.form_id,
                                  claim_id: claim.id,
-                                 message: msg,
+                                 error: msg,
                                  tags: monitor.tags
                                }
                              else
@@ -232,7 +232,7 @@ RSpec.describe VRE::VREMonitor do
                                  user_account_uuid: current_user.user_account_uuid,
                                  form_id: nil,
                                  claim_id: claim.id,
-                                 message: msg,
+                                 error: msg,
                                  tags: monitor.tags
                                }
                              end
