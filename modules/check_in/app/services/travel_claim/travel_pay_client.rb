@@ -355,7 +355,7 @@ module TravelClaim
       Rails.logger.error('TravelPayClient Redis error', {
         correlation_id: @correlation_id,
         uuid_hash: safe_uuid_reference,
-        operation: operation,
+        operation:,
         icn_present: @icn.present?,
         station_number_present: @station_number.present?
       })
@@ -374,8 +374,8 @@ module TravelClaim
       Rails.logger.error('TravelPayClient authentication failed', {
         correlation_id: @correlation_id,
         uuid_hash: safe_uuid_reference,
-        error_type: error_type,
-        status_code: status_code,
+        error_type:,
+        status_code:,
         veis_token_present: @current_veis_token.present?,
         btsss_token_present: @current_btsss_token.present?
       })
@@ -385,8 +385,8 @@ module TravelClaim
       Rails.logger.error('TravelPayClient token error', {
         correlation_id: @correlation_id,
         uuid_hash: safe_uuid_reference,
-        service: service,
-        issue: issue,
+        service:,
+        issue:,
         veis_token_present: @current_veis_token.present?,
         btsss_token_present: @current_btsss_token.present?
       })
