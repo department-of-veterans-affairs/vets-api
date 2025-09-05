@@ -24,7 +24,8 @@ RSpec.describe SavedClaim::EducationBenefits::VA10297 do
         expect(VANotify::EmailJob).not_to have_received(:perform_async)
       end
 
-      it 'sends an email when they have applied for VA education benefits previously', pending: 'temporarily wait on schema change' do
+      it 'sends an email when they have applied for VA education benefits previously',
+         pending: 'temporarily wait on schema change' do
         allow(Flipper).to receive(:enabled?).with(:form22_10297_confirmation_email).and_return(true)
         allow(VANotify::EmailJob).to receive(:perform_async)
 
