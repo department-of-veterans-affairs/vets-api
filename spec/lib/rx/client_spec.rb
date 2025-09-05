@@ -117,11 +117,21 @@ describe Rx::Client do
 
     it 'refills multiple prescriptions' do
       VCR.use_cassette('rx_client/prescriptions/refills_multiple_prescriptions') do
-        ids = [13_650_545, 13_650_546]
+        ids = [25664832, 25658010]
         client_response = client.post_refill_rxs(ids)
         expect(client_response.status).to equal 200
-        # This is what MHV returns, even though we don't care
-        expect(client_response.body).to eq(status: 'success')
+        # This is what MHV returns for successful multiple refills
+        expect(client_response.body).to include(
+          :failed_station_list,
+          :successful_station_list,
+          :last_updated_time,
+          :prescription_list,
+          :errors,
+          :info_messages
+        )
+        # Verify successful refill indicators
+        expect(client_response.body[:successful_station_list]).to be_present
+        expect(client_response.body[:errors]).to be_an(Array)
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY_PREFIX}.refills.requested", ids.size, tags: ['source_app:myapp']
         ).exactly(:once)

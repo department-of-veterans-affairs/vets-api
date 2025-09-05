@@ -27,13 +27,13 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 04 Sep 2025 22:36:14 GMT
+      - Fri, 05 Sep 2025 14:48:20 GMT
       Content-Type:
       - application/json
       Content-Length:
       - '0'
       X-Amzn-Requestid:
-      - 450947d3-55cf-4391-9b1d-e9c911c35872
+      - 80240ee2-888d-4be8-a1e2-ef3e2df533ef
       X-Amzn-Remapped-Content-Length:
       - '0'
       X-Oneagent-Js-Injection:
@@ -41,18 +41,18 @@ http_interactions:
       X-Amzn-Remapped-Connection:
       - keep-alive
       X-Amz-Apigw-Id:
-      - QZgewEK8vHMFi8A=
+      - Qbu4RH81PHMFhYA=
       Expires:
-      - Thu, 04 Sep 2025 22:46:14 GMT+00:00
+      - Fri, 05 Sep 2025 14:58:20 GMT+00:00
       Server-Timing:
-      - dtRpid;desc="1166809323", dtSInfo;desc="0"
+      - dtRpid;desc="-587319424", dtSInfo;desc="0"
       Token: "<SESSION_TOKEN>"
       X-Amzn-Remapped-Date:
-      - Thu, 04 Sep 2025 22:36:14 GMT
+      - Fri, 05 Sep 2025 14:48:20 GMT
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
       string: ''
-  recorded_at: Thu, 04 Sep 2025 22:36:14 GMT
+  recorded_at: Fri, 05 Sep 2025 14:48:20 GMT
 recorded_with: VCR 6.3.1
