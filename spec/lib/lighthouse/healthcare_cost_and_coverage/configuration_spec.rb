@@ -53,23 +53,41 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Configuration do
     end
   end
 
-  describe '#get' do
-    it 'calls connection.get with correct headers' do
-      conn = double
-      expect(config).to receive(:connection).and_return(conn)
-      expect(config).to receive(:access_token).and_return('token')
-      expect(conn).to receive(:get).with('/foo', nil, hash_including('Authorization' => 'Bearer token'))
-      config.get('/foo')
-    end
-  end
+  context 'requests' do
+    before do
+      allow(Settings.lighthouse).to receive(:healthcare_cost_and_coverage).and_return(settings)
+      allow(Settings.betamocks).to receive(:recording).and_return(false)
 
-  describe '#post' do
-    it 'calls connection.post with correct headers' do
-      conn = double
-      expect(config).to receive(:connection).and_return(conn)
-      expect(config).to receive(:access_token).and_return('token')
-      expect(conn).to receive(:post).with('/foo', { bar: 1 }, hash_including('Authorization' => 'Bearer token'))
-      config.post('/foo', { bar: 1 })
+      config.instance_variable_set(:@token_service, nil)
+      config.instance_variable_set(:@conn, nil)
+    end
+
+    describe '#get' do
+      it 'calls connection.get with correct headers' do
+        # fresh token service per example
+        svc = double('Auth::ClientCredentials::Service', get_token: 'token')
+        allow(Auth::ClientCredentials::Service).to receive(:new).and_return(svc)
+
+        # fresh Faraday connection per example
+        conn = double('Faraday::Connection')
+        config.instance_variable_set(:@conn, conn)
+
+        expect(conn).to receive(:get).with('/foo', nil, hash_including('Authorization' => 'Bearer token'))
+        config.get('/foo', icn: '43000199')
+      end
+    end
+
+    describe '#post' do
+      it 'calls connection.post with correct headers' do
+        svc = double('Auth::ClientCredentials::Service', get_token: 'token')
+        allow(Auth::ClientCredentials::Service).to receive(:new).and_return(svc)
+
+        conn = double('Faraday::Connection')
+        config.instance_variable_set(:@conn, conn)
+
+        expect(conn).to receive(:post).with('/foo', { bar: 1 }, hash_including('Authorization' => 'Bearer token'))
+        config.post('/foo', { bar: 1 }, icn: '43000199')
+      end
     end
   end
 
