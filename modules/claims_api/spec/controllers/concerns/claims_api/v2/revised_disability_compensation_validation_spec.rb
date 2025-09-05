@@ -427,5 +427,136 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
       end
     end
+
+    # FES Val Section 5.c: changeOfAddress date validations
+    context 'changeOfAddress date validations' do
+      # FES Val Section 5.c.i: TEMPORARY address requires dates
+      context 'when TEMPORARY address missing beginDate' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'changeOfAddress' => {
+              'typeOfAddressChange' => 'TEMPORARY',
+              'addressLine1' => '456 New St',
+              'city' => 'New York',
+              'country' => 'USA',
+              'state' => 'NY',
+              'zipFirstFive' => '10001',
+              'dates' => {
+                'endDate' => '2025-12-31'
+              }
+            }
+          )
+        end
+
+        it 'returns validation error' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.first[:source]).to eq('/changeOfAddress/dates/beginDate')
+          expect(errors.first[:title]).to eq('Missing beginningDate')
+          expect(errors.first[:detail]).to eq('beginningDate is required for temporary address')
+        end
+      end
+
+      context 'when TEMPORARY address missing endDate' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'changeOfAddress' => {
+              'typeOfAddressChange' => 'TEMPORARY',
+              'addressLine1' => '456 New St',
+              'city' => 'New York',
+              'country' => 'USA',
+              'state' => 'NY',
+              'zipFirstFive' => '10001',
+              'dates' => {
+                'beginDate' => '2025-01-01'
+              }
+            }
+          )
+        end
+
+        it 'returns validation error' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.first[:source]).to eq('/changeOfAddress/dates/endDate')
+          expect(errors.first[:title]).to eq('Missing endingDate')
+          expect(errors.first[:detail]).to eq('EndingDate is required for temporary address')
+        end
+      end
+
+      # FES Val Section 5.c.ii: PERMANENT address cannot have endDate
+      context 'when PERMANENT address has endDate' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'changeOfAddress' => {
+              'typeOfAddressChange' => 'PERMANENT',
+              'addressLine1' => '456 New St',
+              'city' => 'New York',
+              'country' => 'USA',
+              'state' => 'NY',
+              'zipFirstFive' => '10001',
+              'dates' => {
+                'beginDate' => '2025-01-01',
+                'endDate' => '2025-12-31'
+              }
+            }
+          )
+        end
+
+        it 'returns validation error' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.first[:source]).to eq('/changeOfAddress/dates/endDate')
+          expect(errors.first[:title]).to eq('Cannot provide endingDate')
+          expect(errors.first[:detail]).to eq('EndingDate cannot be provided for a permanent address')
+        end
+      end
+
+      context 'when PERMANENT address has no endDate' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'changeOfAddress' => {
+              'typeOfAddressChange' => 'PERMANENT',
+              'addressLine1' => '456 New St',
+              'city' => 'New York',
+              'country' => 'USA',
+              'state' => 'NY',
+              'zipFirstFive' => '10001',
+              'dates' => {
+                'beginDate' => '2025-01-01'
+              }
+            }
+          )
+        end
+
+        it 'returns no errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_nil
+        end
+      end
+
+      context 'when TEMPORARY address has both dates' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'changeOfAddress' => {
+              'typeOfAddressChange' => 'TEMPORARY',
+              'addressLine1' => '456 New St',
+              'city' => 'New York',
+              'country' => 'USA',
+              'state' => 'NY',
+              'zipFirstFive' => '10001',
+              'dates' => {
+                'beginDate' => '2025-01-01',
+                'endDate' => '2025-12-31'
+              }
+            }
+          )
+        end
+
+        it 'returns no errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_nil
+        end
+      end
+    end
   end
 end
