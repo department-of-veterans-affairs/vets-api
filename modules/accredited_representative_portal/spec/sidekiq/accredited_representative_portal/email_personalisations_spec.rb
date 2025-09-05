@@ -241,9 +241,26 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
                                                             }
                                                           })
 
-      allow(user_account).to receive(:registration_numbers).and_return({ 'veteran_service_officer' => '1234' })
+      memberships =
+        AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
+          icn: '1234', emails: []
+        )
+
+      allow(memberships).to(
+        receive(:all).and_return(
+          [
+            AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
+              registration_number: '1234',
+              power_of_attorney_holder:
+                poa_request.power_of_attorney_holder
+            )
+          ]
+        )
+      )
+
       AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_declination!(
-        creator: user_account,
+        creator_id: user_account.id,
+        power_of_attorney_holder_memberships: memberships,
         power_of_attorney_request: poa_request,
         declination_reason: :OTHER
       )
