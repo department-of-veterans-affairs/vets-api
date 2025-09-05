@@ -105,9 +105,8 @@ describe Rx::Client do
           expect(Vets::Collection).not_to receive(:bust).with([nil, nil])
         end
 
-        client_response = client.post_refill_rx(13_650_545)
+        client_response = client.post_refill_rx(25_567_989)
         expect(client_response.status).to equal 200
-        # This is what MHV returns, even though we don't care
         expect(client_response.body).to eq(status: 'success')
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY_PREFIX}.refills.requested", 1, tags: ['source_app:myapp']
@@ -117,7 +116,7 @@ describe Rx::Client do
 
     it 'refills multiple prescriptions' do
       VCR.use_cassette('rx_client/prescriptions/refills_multiple_prescriptions') do
-        ids = [25664832, 25658010]
+        ids = [25_664_832, 25_658_010]
         client_response = client.post_refill_rxs(ids)
         expect(client_response.status).to equal 200
         # This is what MHV returns for successful multiple refills
@@ -140,7 +139,7 @@ describe Rx::Client do
 
     it 'handles failures when refilling multiple prescriptions' do
       VCR.use_cassette('rx_client/prescriptions/refills_multiple_prescriptions_failure') do
-        ids = [13650545, 13650546]
+        ids = [13_650_545, 13_650_546]
         client_response = client.post_refill_rxs(ids)
         expect(client_response.status).to equal 200
         expect(StatsD).to have_received(:increment).with(
