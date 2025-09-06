@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# The CallbackSignatureGenerator is responsible for generating HMAC-SHA256 signatures
+# for payloads sent to VANotify callbacks. These signatures are used to verify the
+# authenticity and integrity of the payloads.
+
 require 'va_notify/default_callback'
 require 'va_notify/callback_signature_generator'
 
@@ -106,9 +110,11 @@ module VANotify
     end
 
     def get_api_key_value(path_string)
+      # Extract the last 36 characters from the secret token, which represent the UUID
+      UUID_LENGTH = 36
       keys = path_string.sub(/^Settings\./, '').split('.')
       secret_token = Settings.dig(*keys)
-      secret_token[(secret_token.length - 36)..secret_token.length]
+      secret_token[(secret_token.length - UUID_LENGTH)..secret_token.length]
     end
   end
 end

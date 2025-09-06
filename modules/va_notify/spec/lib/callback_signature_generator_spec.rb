@@ -5,7 +5,6 @@ require 'va_notify/callback_signature_generator'
 
 describe VANotify::CallbackSignatureGenerator do
   describe '#call' do
-    # code here
     it 'creates a signature' do
       payload = {
         id: '123',
