@@ -73,7 +73,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:expected_error_json) { { 'errors' => expected_error } }
       let(:statsd_token_failure) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE }
       let(:expected_error_log) { '[SignInService] [V0::SignInController] token error' }
-      let(:expected_error_context) { { errors: expected_error.to_s } }
+      let(:expected_error_context) { { errors: expected_error.to_s, grant_type: grant_type_value } }
 
       it 'renders expected error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
@@ -95,6 +95,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
     context 'when grant_type param is not given' do
       let(:grant_type) { {} }
+      let(:grant_type_value) { nil }
       let(:expected_error) { 'Grant type is not valid' }
 
       it_behaves_like 'error response'
@@ -1283,7 +1284,7 @@ RSpec.describe V0::SignInController, type: :controller do
     shared_context 'error response' do
       let(:statsd_failure) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE }
       let(:expected_error_log) { '[SignInService] [V0::SignInController] logout error' }
-      let(:expected_error_context) { { errors: expected_error_message } }
+      let(:expected_error_context) { { errors: expected_error_message, client_id: client_id_value } }
       let(:expected_error_status) { :bad_request }
       let(:expected_error_json) { { 'errors' => expected_error_message } }
 
@@ -1308,7 +1309,7 @@ RSpec.describe V0::SignInController, type: :controller do
     shared_context 'authorization error response' do
       let(:statsd_failure) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE }
       let(:expected_error_log) { '[SignInService] [V0::SignInController] logout error' }
-      let(:expected_error_context) { { errors: expected_error_message } }
+      let(:expected_error_context) { { errors: expected_error_message, client_id: client_id_value } }
 
       it 'triggers statsd increment for failed call' do
         expect { subject }.to trigger_statsd_increment(statsd_failure)
@@ -1471,7 +1472,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
         it 'logs a logout error' do
           expect(Rails.logger).to receive(:info).with('[SignInService] [V0::SignInController] logout error',
-                                                      { errors: expected_error })
+                                                      { errors: expected_error, client_id: client_id_value })
           subject
         end
 

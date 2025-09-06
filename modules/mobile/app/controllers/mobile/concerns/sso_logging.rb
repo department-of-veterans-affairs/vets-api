@@ -32,11 +32,23 @@ module Mobile::Concerns::SSOLogging
       { 'patientIcn' => @current_user.icn,
         'signIn' => @current_user.identity.sign_in.deep_transform_keys { |key| key.to_s.camelize(:lower) },
         'credential_used' => @current_user.identity.sign_in[:service_name],
+        'credential_uuid' => credential_uuid,
         'expirationTime' => if sis_authentication?
                               sign_in_expiration_time
                             else
                               @current_user.identity.expiration_timestamp
                             end }
+    end
+
+    def credential_uuid
+      case @current_user.identity.sign_in[:service_name]
+      when SAML::User::IDME_CSID
+        @current_user.identity.idme_uuid
+      when SAML::User::LOGINGOV_CSID
+        @current_user.identity.logingov_uuid
+      when SAML::User::DSLOGON_CSID
+        @current_user.identity.edipi
+      end
     end
 
     def sign_in_expiration_time
