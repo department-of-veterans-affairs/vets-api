@@ -84,6 +84,71 @@ describe PdfFill::Forms::Va1010ezr do
       end
     end
 
+    describe '#merge_provide_support_last_year' do
+      context 'spouse as dependent' do
+        let(:form_data) { { 'provideSupportLastYear' => true } }
+
+        it 'merges based on provideSupportLastYear value' do
+          expect(merged_fields).to include(
+            'provideSupportLastYear' => 'YES'
+          )
+        end
+
+        context 'and one child dependent' do
+          let(:form_data) do
+            { 'dependents' => [{ 'receivedSupportLastYear' => false }], 'provideSupportLastYear' => true }
+          end
+
+          it 'merges based on provideSupportLastYear value and dependent receivedSupportLastYear' do
+            expect(merged_fields).to include(
+              'provideSupportLastYear' => 'YES'
+            )
+            expect(merged_fields['dependents'].first).to include(
+              'receivedSupportLastYear' => 'NO'
+            )
+          end
+        end
+
+        context 'and more than one child dependent' do
+          let(:form_data) do
+            { 'dependents' => [
+              { 'receivedSupportLastYear' => false },
+              { 'receivedSupportLastYear' => false }
+            ], 'provideSupportLastYear' => false }
+          end
+
+          it 'merges based on provideSupportLastYear value and dependent receivedSupportLastYear' do
+            expect(merged_fields).to include(
+              'provideSupportLastYear' => 'NO'
+            )
+            expect(merged_fields['dependents'].first).to include(
+              'receivedSupportLastYear' => 'NO'
+            )
+            expect(merged_fields['dependents'].second).to include(
+              'receivedSupportLastYear' => 'NO'
+            )
+          end
+        end
+      end
+
+      context 'only child as dependent' do
+        let(:form_data) do
+          { 'dependents' => [
+            { 'receivedSupportLastYear' => true }
+          ] }
+        end
+
+        it 'merges based on dependent receivedSupportLastYear' do
+          expect(merged_fields).to include(
+            'provideSupportLastYear' => 'YES'
+          )
+          expect(merged_fields['dependents'].first).to include(
+            'receivedSupportLastYear' => 'YES'
+          )
+        end
+      end
+    end
+
     describe 'dependentRelation for one dependent' do
       described_class::DEPENDENT_RELATIONSHIP.each do |relationship, value|
         context "when dependent relationship is #{relationship}" do
