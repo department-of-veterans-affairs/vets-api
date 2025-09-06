@@ -206,6 +206,112 @@ describe TravelPay::ClaimAssociationService do
         expect(appt['travelPayClaim']['metadata']['success']).to be(false)
       end
     end
+
+    it 'logs user information when claims call returns 403 Forbidden' do
+      correlation_id = 'test-correlation-id-123'
+      veteran_status = double('VeteranStatus', veteran?: true)
+
+      # Mock the 403 response with correlation ID in headers
+      forbidden_response = Faraday::Response.new(
+        response_body: { 'statusCode' => 403, 'message' => 'Forbidden' },
+        status: 403,
+        response_headers: { 'X-Correlation-ID' => correlation_id }
+      )
+
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_return(forbidden_response)
+
+      # Mock user methods
+      allow(user).to receive(:veteran_status).and_return(veteran_status)
+      allow(user).to receive(:user_account_uuid).and_return('test-user-uuid-456')
+
+      # Expect the warning log to be called twice: first with user object, then with hash
+      expect(Rails.logger).to receive(:warn).with(user)
+      expect(Rails.logger).to receive(:warn).with(
+        message: 'Travel Pay claims request returned 403 Forbidden',
+        user_uuid: 'test-user-uuid-456',
+        is_veteran: true,
+        correlation_id:
+      )
+
+      association_service = TravelPay::ClaimAssociationService.new(user, 'mobile')
+      association_service.associate_appointments_to_claims({
+                                                             'appointments' => appointments,
+                                                             'start_date' => '2024-10-17T09:00:00Z',
+                                                             'end_date' => '2024-12-15T16:45:00Z'
+                                                           })
+    end
+
+    it 'handles 403 logging gracefully when veteran_status is nil' do
+      correlation_id = 'test-correlation-id-789'
+
+      # Mock the 403 response with correlation ID in headers
+      forbidden_response = Faraday::Response.new(
+        response_body: { 'statusCode' => 403, 'message' => 'Forbidden' },
+        status: 403,
+        response_headers: { 'X-Correlation-ID' => correlation_id }
+      )
+
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_return(forbidden_response)
+
+      # Mock user methods with nil veteran_status
+      allow(user).to receive(:user_account_uuid).and_return('test-user-uuid-789')
+      allow(user).to receive(:veteran_status).and_return(nil)
+
+      # Expect the warning log to be called twice: first with user object, then with hash
+      expect(Rails.logger).to receive(:warn).with(user)
+      expect(Rails.logger).to receive(:warn).with(
+        message: 'Travel Pay claims request returned 403 Forbidden',
+        user_uuid: 'test-user-uuid-789',
+        is_veteran: nil,
+        correlation_id:
+      )
+
+      association_service = TravelPay::ClaimAssociationService.new(user, 'mobile')
+      association_service.associate_appointments_to_claims({
+                                                             'appointments' => appointments,
+                                                             'start_date' => '2024-10-17T09:00:00Z',
+                                                             'end_date' => '2024-12-15T16:45:00Z'
+                                                           })
+    end
+
+    it 'handles 403 logging when correlation_id is missing from headers' do
+      veteran_status = double('VeteranStatus', veteran?: false)
+
+      # Mock the 403 response without correlation ID in headers
+      forbidden_response = Faraday::Response.new(
+        response_body: { 'statusCode' => 403, 'message' => 'Forbidden' },
+        status: 403,
+        response_headers: {}
+      )
+
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_return(forbidden_response)
+
+      # Mock user methods
+      allow(user).to receive(:user_account_uuid).and_return('test-user-uuid-999')
+      allow(user).to receive(:veteran_status).and_return(veteran_status)
+
+      # Expect the warning log to be called twice: first with user object, then with hash
+      expect(Rails.logger).to receive(:warn).with(user)
+      expect(Rails.logger).to receive(:warn).with(
+        message: 'Travel Pay claims request returned 403 Forbidden',
+        user_uuid: 'test-user-uuid-999',
+        is_veteran: false,
+        correlation_id: nil
+      )
+
+      association_service = TravelPay::ClaimAssociationService.new(user, 'mobile')
+      association_service.associate_appointments_to_claims({
+                                                             'appointments' => appointments,
+                                                             'start_date' => '2024-10-17T09:00:00Z',
+                                                             'end_date' => '2024-12-15T16:45:00Z'
+                                                           })
+    end
   end
 
   context 'associate_single_appointment_to_claim' do
