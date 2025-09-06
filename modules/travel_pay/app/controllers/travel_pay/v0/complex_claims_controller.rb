@@ -1,0 +1,108 @@
+# frozen_string_literal: true
+
+module TravelPay
+  module V0
+    class ComplexClaimsController < ApplicationController
+      include FeatureFlagHelper
+      include AppointmentHelper
+      include ClaimHelper
+
+      rescue_from Common::Exceptions::BadRequest, with: :render_bad_request
+      rescue_from Common::Exceptions::ServiceUnavailable, with: :render_service_unavailable
+
+      before_action :check_feature_flag, only: [:create]
+
+      def create
+        validate_params_exist!(params)
+        validate_datetime_format!(params[:appointment_date_time])
+        appt_id = find_or_create_appt_id!(params)
+        claim_id = create_claim(appt_id, 'complex')
+        render json: { claimId: claim_id }, status: :created
+      rescue Common::Exceptions::ResourceNotFound => e
+        Rails.logger.error("Appointment not found: #{e.message}")
+        render json: { error: e.message }, status: :not_found
+      rescue Faraday::Error => e
+        Rails.logger.error("Faraday error creating complex claim: #{e.message}")
+        # Some Faraday errors may not have a response object (e.response can be nil),
+        # so we fall back to :internal_server_error
+        status_code = (e.respond_to?(:response) && e.response && e.response[:status]) || :internal_server_error
+        render json: { error: 'Error creating complex claim' }, status: status_code
+      end
+
+      private
+
+      def check_feature_flag
+        verify_feature_flag!(
+          :travel_pay_enable_complex_claims,
+          current_user,
+          error_message: 'Travel Pay create complex claim unavailable per feature toggle'
+        )
+      end
+
+      def render_bad_request(e)
+        # Early return if there are no detailed errors
+        unless e.respond_to?(:errors) && e.errors.present?
+          return render json: { errors: [{ detail: 'Bad request' }] }, status: :bad_request
+        end
+
+        render json: { errors: mapped_errors_list(e.errors) }, status: :bad_request
+      end
+
+      def mapped_errors_list(errors)
+        errors.map do |err|
+          if err.is_a?(Hash)
+            err
+          elsif err.respond_to?(:detail)
+            {
+              detail: err.detail,
+              title: err.try(:title),
+              code: err.try(:code),
+              status: err.try(:status)
+            }.compact
+          else
+            { detail: err.to_s }
+          end
+        end
+      end
+
+      def render_service_unavailable(e)
+        Rails.logger.error("Service unavailable: #{e.message}")
+        render json: { error: e.message }, status: :service_unavailable
+      end
+
+      def verify_feature_flag_enabled!
+        return if Flipper.enabled?(:travel_pay_enable_complex_claims, @current_user)
+
+        message = 'Travel Pay create complex claim unavailable per feature toggle'
+        Rails.logger.error(message:)
+        raise Common::Exceptions::ServiceUnavailable, message:
+      end
+
+      def validate_params_exist!(params = {})
+        required_fields = {
+          'appointment_date_time' => 'Appointment date time is required',
+          'facility_station_number' => 'Facility station number is required',
+          'appointment_type' => 'Appointment type is required',
+          'is_complete' => 'The Is complete field is required'
+        }
+
+        errors = required_fields.each_with_object([]) do |(key, message), arr|
+          value = params[key]
+          missing = key == 'is_complete' ? value.nil? : value.blank?
+          arr << { 'detail' => message } if missing
+        end
+
+        # raise only if there are missing fields
+        raise Common::Exceptions::BadRequest.new(errors:) unless errors.empty?
+      end
+
+      def validate_datetime_format!(datetime_str)
+        DateTime.iso8601(datetime_str)
+      rescue ArgumentError
+        raise Common::Exceptions::BadRequest.new(
+          errors: [{ 'detail' => 'Appointment date time must be a valid datetime' }]
+        )
+      end
+    end
+  end
+end

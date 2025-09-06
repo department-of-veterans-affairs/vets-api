@@ -8,5 +8,7 @@ TravelPay::Engine.routes.draw do
       resources :documents, only: %i[index show create]
       post 'expenses/:expense_type', to: 'expenses#create', constraints: { expense_type: %r{[^/]+} }
     end
+
+    resources :complex_claims, only: %i[create]
   end
 end
