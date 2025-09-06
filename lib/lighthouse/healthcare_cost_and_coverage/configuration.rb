@@ -76,13 +76,12 @@ module Lighthouse
       end
 
       def token_service(client_id, rsa_key, aud_claim_url = nil, host = nil, scopes = nil)
-        s = settings
         host ||= base_path
-        url  = "#{host}/#{TOKEN_PATH}"
-        client_id ||= s.access_token.client_id
-        rsa_key ||= s.access_token.rsa_key
-        aud_claim_url ||= s.access_token.aud_claim_url
-        scopes ||= Array(s.scopes)
+        url = "#{host}/#{TOKEN_PATH}"
+        client_id ||= settings.access_token.client_id
+        rsa_key ||= settings.access_token.rsa_key
+        aud_claim_url ||= settings.access_token.aud_claim_url
+        scopes ||= Array(settings.scopes)
         @token_service ||= Auth::ClientCredentials::Service.new(
           url, scopes, client_id, aud_claim_url, rsa_key, 'hccc'
         )
