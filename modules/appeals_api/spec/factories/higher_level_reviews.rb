@@ -21,6 +21,8 @@ FactoryBot.define do
 
     trait :status_error do
       status { 'error' }
+      code { 'DOC202' }
+      detail { 'Image failed to process' }
     end
   end
 
