@@ -79,7 +79,6 @@ module Lighthouse
         s = settings
         host ||= base_path
         url  = "#{host}/#{TOKEN_PATH}"
-
         client_id ||= s.access_token.client_id
         rsa_key ||= s.access_token.rsa_key
         aud_claim_url ||= s.access_token.aud_claim_url

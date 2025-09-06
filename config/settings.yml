@@ -725,6 +725,7 @@ lighthouse:
     scopes:
       - system/ChargeItem.read
       - system/Invoice.read
+      - system/PaymentReconciliation.read
       - launch
     timeout: 30
     use_mocks: false
