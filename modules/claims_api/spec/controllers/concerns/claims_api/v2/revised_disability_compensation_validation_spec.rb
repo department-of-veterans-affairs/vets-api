@@ -545,8 +545,8 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
               'state' => 'NY',
               'zipFirstFive' => '10001',
               'dates' => {
-                'beginDate' => '2025-01-01',
-                'endDate' => '2025-12-31'
+                'beginDate' => (Date.current + 10.days).to_s,
+                'endDate' => (Date.current + 30.days).to_s
               }
             }
           )
@@ -555,6 +555,61 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         it 'returns no errors' do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_nil
+        end
+      end
+
+      # FES Val Section 5.c.iii-iv: Date logic validations
+      context 'when TEMPORARY address has beginDate in the past' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'changeOfAddress' => {
+              'typeOfAddressChange' => 'TEMPORARY',
+              'addressLine1' => '123 Main St',
+              'city' => 'Portland',
+              'country' => 'USA',
+              'state' => 'OR',
+              'zipFirstFive' => '97201',
+              'dates' => {
+                'beginDate' => (Date.current - 10.days).to_s,
+                'endDate' => (Date.current + 30.days).to_s
+              }
+            }
+          )
+        end
+
+        it 'returns validation error for past beginDate' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.any? do |e|
+            e[:source] == '/changeOfAddress/dates/beginDate' &&
+              e[:title] == 'Invalid beginningDate' &&
+              e[:detail].include?('BeginningDate cannot be in the past')
+          end).to be true
+        end
+      end
+
+      context 'when TEMPORARY address dates are not in chronological order' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'changeOfAddress' => {
+              'typeOfAddressChange' => 'TEMPORARY',
+              'addressLine1' => '123 Main St',
+              'city' => 'Portland',
+              'country' => 'USA',
+              'state' => 'OR',
+              'zipFirstFive' => '97201',
+              'dates' => {
+                'beginDate' => (Date.current + 30.days).to_s,
+                'endDate' => (Date.current + 10.days).to_s
+              }
+            }
+          )
+        end
+
+        it 'returns validation error for invalid date order' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.any? { |e| e[:detail].include?('BeginningDate cannot be after endingDate') }).to be true
         end
       end
     end
