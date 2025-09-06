@@ -90,7 +90,7 @@ RSpec.describe AccreditedRepresentativePortal::AllowListSyncJob, type: :job do
         let(:csv_content) do
           data = <<~CSV
             accredited_individual_registration_number,power_of_attorney_holder_type,user_account_email
-            REG001,attorney,rep1@vso.org
+            REG001,not_a_real_type,rep1@vso.org
             REG002,veteran_service_organization,rep2@vso.org
           CSV
 
