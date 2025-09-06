@@ -5,4 +5,9 @@ class IvcChampvaForm < ApplicationRecord
 
   has_kms_key
   has_encrypted :ves_request_data, key: :kms_key, **lockbox_options
+  has_encrypted :first_name, key: :kms_key, **lockbox_options
+  has_encrypted :last_name, key: :kms_key, **lockbox_options
+  has_encrypted :email, key: :kms_key, **lockbox_options
+
+  blind_index :email
 end
