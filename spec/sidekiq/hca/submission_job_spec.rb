@@ -60,6 +60,10 @@ RSpec.describe HCA::SubmissionJob, type: :job do
     end
   end
 
+  it 'returns an array of integers from retry_limits_for_notification' do
+    expect(described_class.new.retry_limits_for_notification).to eq([10])
+  end
+
   describe 'when job has failed' do
     let(:msg) do
       {
