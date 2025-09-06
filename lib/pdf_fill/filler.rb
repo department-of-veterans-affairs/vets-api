@@ -102,7 +102,7 @@ module PdfFill
 
         merge_pdfs(old_file_path, extras_path, file_path)
         # Adds links and destinations to the combined PDF
-        if extras_generator.try(:section_coordinates)
+        if extras_generator.try(:section_coordinates) && !extras_generator.section_coordinates.empty?
           pdf_post_processor = PdfPostProcessor.new(old_file_path, file_path, extras_generator.section_coordinates,
                                                     form_class)
           pdf_post_processor.process!

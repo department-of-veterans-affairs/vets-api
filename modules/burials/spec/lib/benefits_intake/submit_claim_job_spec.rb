@@ -285,6 +285,40 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     end
   end
 
+  describe '#generate_form_pdf' do
+    let(:pdf_path) { 'random/path/to/pdf' }
+
+    before do
+      job.instance_variable_set(:@claim, claim)
+      allow(claim).to receive(:to_pdf).and_return(pdf_path)
+      allow(job).to receive(:process_document).and_return(pdf_path)
+    end
+
+    context 'when burial_extras_redesign_enabled is true' do
+      it 'generates PDF with redesign options' do
+        allow(Flipper).to receive(:enabled?).with(:burial_extras_redesign_enabled).and_return(true)
+
+        expect(claim).to receive(:to_pdf).with(claim.id, { extras_redesign: true, omit_esign_stamp: true })
+        expect(job).to receive(:process_document).with(pdf_path)
+
+        result = job.send(:generate_form_pdf)
+        expect(result).to eq(pdf_path)
+      end
+    end
+
+    context 'when burial_extras_redesign_enabled is false' do
+      it 'generates PDF with default options' do
+        allow(Flipper).to receive(:enabled?).with(:burial_extras_redesign_enabled).and_return(false)
+
+        expect(claim).to receive(:to_pdf).with(no_args)
+        expect(job).to receive(:process_document).with(pdf_path)
+
+        result = job.send(:generate_form_pdf)
+        expect(result).to eq(pdf_path)
+      end
+    end
+  end
+
   describe 'sidekiq_retries_exhausted block' do
     let(:exhaustion_msg) do
       { 'args' => [], 'class' => 'Burials::BenefitsIntake::SubmitClaimJob', 'error_message' => 'An error occurred',

@@ -44,7 +44,7 @@ module Burials
         return if lighthouse_submission_pending_or_success
 
         # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf)
+        @form_path = generate_form_pdf
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
         @metadata = generate_metadata
 
@@ -153,6 +153,17 @@ module Burials
         monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, payload)
         response = @intake_service.perform_upload(**payload)
         raise BurialsBenefitIntakeError, response.to_s unless response.success?
+      end
+
+      # Generate form PDF based on feature flag
+      #
+      # @return [String] path to processed PDF document
+      def generate_form_pdf
+        if Flipper.enabled?(:burial_extras_redesign_enabled)
+          process_document(@claim.to_pdf(@claim.id, { extras_redesign: true, omit_esign_stamp: true }))
+        else
+          process_document(@claim.to_pdf)
+        end
       end
 
       # Generate form metadata to send in upload to Benefits Intake API
