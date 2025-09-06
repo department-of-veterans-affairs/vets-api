@@ -4098,9 +4098,9 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         describe 'with binary params' do
           let(:binary_params) do
             { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-                                                                          .split('/')).to_s),
+                                                                           .split('/')).to_s),
               attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-                                                                          .split('/')).to_s) }
+                                                                           .split('/')).to_s) }
           end
 
           it 'responds with a 202' do
@@ -4132,27 +4132,27 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         describe 'with more then 10 attachments' do
           let(:binary_params) do
             { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-              .split('/')).to_s),
+                                                                           .split('/')).to_s),
               attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-              .split('/')).to_s),
+                                                                           .split('/')).to_s),
               attachment3: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-              .split('/')).to_s),
+                                                                           .split('/')).to_s),
               attachment4: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-              .split('/')).to_s),
+                                                                           .split('/')).to_s),
               attachment5: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-              .split('/')).to_s),
+                                                                           .split('/')).to_s),
               attachment7: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-              .split('/')).to_s),
+                                                                           .split('/')).to_s),
               attachment6: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-              .split('/')).to_s),
+                                                                           .split('/')).to_s),
               attachment8: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-              .split('/')).to_s),
+                                                                           .split('/')).to_s),
               attachment9: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-              .split('/')).to_s),
+                                                                           .split('/')).to_s),
               attachment10: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-              .split('/')).to_s),
+                                                                            .split('/')).to_s),
               attachment11: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-              .split('/')).to_s) }
+                                                                            .split('/')).to_s) }
           end
 
           it 'responds with a 422' do

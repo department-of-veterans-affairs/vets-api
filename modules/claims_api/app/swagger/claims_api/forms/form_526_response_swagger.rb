@@ -1131,11 +1131,6 @@ module ClaimsApi
               key :type, :string
               key :example, nil
               key :description, 'The type of claim originally submitted'
-              key :enum, [
-                'Compensation',
-                'Compensation and Pension',
-                'Dependency'
-              ]
             end
 
             property :updated_at do

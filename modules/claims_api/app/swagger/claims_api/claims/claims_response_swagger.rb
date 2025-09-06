@@ -106,11 +106,6 @@ module ClaimsApi
               key :type, :string
               key :example, 'Compensation'
               key :description, 'The type of claim originally submitted'
-              key :enum, [
-                'Compensation',
-                'Compensation and Pension',
-                'Dependency'
-              ]
             end
           end
         end
@@ -201,11 +196,6 @@ module ClaimsApi
               key :type, :string
               key :example, 'Compensation'
               key :description, 'The type of claim originally submitted'
-              key :enum, [
-                'Compensation',
-                'Compensation and Pension',
-                'Dependency'
-              ]
             end
 
             property :contention_list do
