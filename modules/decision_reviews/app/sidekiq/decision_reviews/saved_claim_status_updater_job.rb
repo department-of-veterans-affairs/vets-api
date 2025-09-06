@@ -23,7 +23,7 @@ module DecisionReviews
 
     ATTRIBUTES_TO_STORE = %w[status detail createDate updateDate].freeze
 
-    SECONDARY_FORM_ATTRIBUTES_TO_STORE = %w[status detail updated_at].freeze
+    SECONDARY_FORM_ATTRIBUTES_TO_STORE = %w[status detail updated_at final_status].freeze
 
     FINAL_STATUSES = %W[#{FORM_SUCCESSFUL_STATUS} #{UPLOAD_SUCCESSFUL_STATUS} #{ERROR_STATUS} #{NOT_FOUND}].freeze
 
@@ -156,19 +156,56 @@ module DecisionReviews
 
     def get_and_update_secondary_form_statuses(record)
       return true unless secondary_forms?
-
-      all_complete = true
-      return all_complete unless Flipper.enabled?(:decision_review_track_4142_submissions)
+      return true unless Flipper.enabled?(:decision_review_track_4142_submissions)
 
       secondary_forms = record.appeal_submission&.secondary_appeal_forms
       secondary_forms = secondary_forms&.filter { |form| form.delete_date.nil? } || []
 
+      # Branch to separate implementations for clean feature flag removal
+      if decision_review_final_status_polling_enabled?
+        process_secondary_forms_enhanced(secondary_forms)
+      else
+        process_secondary_forms_legacy(secondary_forms)
+      end
+    end
+
+    # NEW FUNCTIONALITY: Enhanced secondary form processing with final_status support
+    def process_secondary_forms_enhanced(secondary_forms)
+      all_complete = true
+
+      secondary_forms.each do |form|
+        current_status = JSON.parse(form.status || '{}')
+        should_stop_polling = current_status['final_status'] == true
+
+        attributes = if should_stop_polling
+                       current_status.slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE.map(&:to_s))
+                     else
+                       response = benefits_intake_service.get_status(uuid: form.guid).body
+                       response.dig('data', 'attributes').slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE)
+                     end
+
+        form_is_complete = attributes['status'] == UPLOAD_SUCCESSFUL_STATUS &&
+                           attributes['final_status'] == true
+        all_complete = false unless form_is_complete
+
+        handle_secondary_form_status_metrics_and_logging(form, attributes['status'])
+        update_secondary_form_status_enhanced(form, attributes)
+      end
+
+      all_complete
+    end
+
+    # LEGACY FUNCTIONALITY: Original secondary form processing without final_status
+    def process_secondary_forms_legacy(secondary_forms)
+      all_complete = true
+
       secondary_forms.each do |form|
         response = benefits_intake_service.get_status(uuid: form.guid).body
-        attributes = response.dig('data', 'attributes').slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE)
+        legacy_attributes = %w[status detail updated_at]
+        attributes = response.dig('data', 'attributes').slice(*legacy_attributes)
         all_complete = false unless attributes['status'] == UPLOAD_SUCCESSFUL_STATUS
         handle_secondary_form_status_metrics_and_logging(form, attributes['status'])
-        update_secondary_form_status(form, attributes)
+        update_secondary_form_status_legacy(form, attributes)
       end
 
       all_complete
@@ -192,7 +229,22 @@ module DecisionReviews
       StatsD.increment("#{statsd_prefix}_secondary_form.status", tags: ["status:#{status}"])
     end
 
-    def update_secondary_form_status(form, attributes)
+    # Enhanced version with final_status support
+    def update_secondary_form_status_enhanced(form, attributes)
+      status = attributes['status']
+      final_status = attributes['final_status']
+
+      if status == UPLOAD_SUCCESSFUL_STATUS && final_status == true
+        StatsD.increment("#{statsd_prefix}_secondary_form.delete_date_update")
+        delete_date = (Time.current + RETENTION_PERIOD)
+      else
+        delete_date = nil
+      end
+      form.update!(status: attributes.to_json, status_updated_at: Time.current, delete_date:)
+    end
+
+    # Legacy version without final_status support
+    def update_secondary_form_status_legacy(form, attributes)
       status = attributes['status']
       if status == UPLOAD_SUCCESSFUL_STATUS
         StatsD.increment("#{statsd_prefix}_secondary_form.delete_date_update")
@@ -256,6 +308,11 @@ module DecisionReviews
       else
         'unknown'
       end
+    end
+
+    # Feature flag helpers for clean removal later
+    def decision_review_final_status_polling_enabled?
+      Flipper.enabled?(:decision_review_final_status_polling)
     end
   end
 end
