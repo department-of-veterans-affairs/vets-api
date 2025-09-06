@@ -60,7 +60,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   end
 
   def get_facility_code
-    return {} if @gi_bill_status == {} || @gi_bill_status.enrollments.blank?
+    return {} if @gi_bill_status.blank? || @gi_bill_status.enrollments.blank?
 
     most_recent = @gi_bill_status.enrollments.max_by(&:begin_date)
 
@@ -70,7 +70,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   end
 
   def remaining_entitlement
-    return nil if @gi_bill_status == {} || @gi_bill_status.remaining_entitlement.blank?
+    return nil if @gi_bill_status.blank? || @gi_bill_status.remaining_entitlement.blank?
 
     months = @gi_bill_status.remaining_entitlement.months
     days = @gi_bill_status.remaining_entitlement.days
