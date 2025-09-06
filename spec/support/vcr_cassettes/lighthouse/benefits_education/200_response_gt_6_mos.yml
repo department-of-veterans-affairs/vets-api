@@ -1,0 +1,103 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/oauth2/benefits-education/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FzM2diNDlvWFhGWkVmazJwNyIsInN1YiI6IjBvYXMzZ2I0OW9YWEZaRWZrMnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzbG4ybW80akNBWVJybFIycDcvdjEvdG9rZW4iLCJpYXQiOjE3MDg2MzM2NTYsImV4cCI6MTcwODYzMzk1Nn0.eWQcGTardknSqJYY39N6_Lf824HnQAzxyIsnEuMpGTr2xmb-yti5AxH6XmdchI6LcVAWV8QFidsdeXmviTVMYqh_7BdG8YIfF5VQ1CyaAnbhrtcwkWBt0CH3FBs5JjyJI5o3hqPiFNc2pK5a5j64SpOCtk2YhsXcB6CmemnxFsqBd-MhZrT0IKz2Yl18zcKH2ZraoxgtFCZ4C6fWVnbyadyqVCLnjKKSbec3KDaJg6GqJL8aupQBSLMkAtA-iEB7vmalKimhqAvsO3zhObsbGex-VAdq-pWzzK4YtJVwW_Kx5gH-0zoUjuaJrz7HJA3q-_Lq5RsaXoeRZsfZRByiSw&scope=education.read
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 22 Feb 2024 20:27:36 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Vary:
+      - Origin
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Etag:
+      - W/"3e5-gJgrFmfgEjW10Lb/zH7UHK0WKfs"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"eyJraWQiOiJkRFlXN0dQSG82M3FZYk5yNGJkZGZWcUNFQk95TnhjT1k5YWIwRGtOY0I0IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULjlqSGpSVU1FS2pwSnRpTmFWODJ5elFRaW85WjYzUFBMNVlaT0VvdGhvemsiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNsbjJtbzRqQ0FZUnJsUjJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2JlbmVmaXRzLWVkdWNhdGlvbiIsImlhdCI6MTcwODYzMzY1NiwiZXhwIjoxNzA4NjMzOTU2LCJjaWQiOiIwb2FzM2diNDlvWFhGWkVmazJwNyIsInNjcCI6WyJlZHVjYXRpb24ucmVhZCJdLCJzdWIiOiIwb2FzM2diNDlvWFhGWkVmazJwNyIsImxhYmVsIjoiVkEuZ292IElJUiBQcm9kdWN0IFRlYW0gLSBLeWxlIn0.ltdO3Mkk3WTPPNKhNKOsBzuYqsMtOUUtrsdWbz7mdn_5BZObSgzy5nAYWCRhwviWuY0hdQJsPQ0abFdx_swI_ycfI3_3oz0ELKqxK9B-kU0_9pMzrWhFVHnNamV1Jt39W6r3-6qhg16nGSRS3ayhfFE4ColDk37pHflAxSfcNMryNOVOm-mDLiefUY559umUMsA06RcqgXSm5i91XT5xbzZUDPyuCrWmgHiPj_7who67IiZRIbe-SUyQDoik5F9VS8WXPuuwe3KIJrRptNrYObpIHA74ib4SYdZot-iZ_boVdnLLVDuv9wL_xr1jBUVwAy8RUzRdx-D8yq0XlQ1nUA","token_type":"Bearer","scope":"education.read","expires_in":300,"state":null}'
+  recorded_at: Thu, 22 Feb 2024 20:27:36 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/benefits-education/v1/education/chapter33?icn=1012667145V762142
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 22 Feb 2024 20:27:38 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Reset:
+      - '23'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      X-Frame-Options:
+      - SAMEORIGIN
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"messages":[{"key":"chapter33Education.response.info","text":"Chapter33Education
+        Response info for veteran from chapter33 endpoint.","severity":"INFO"}],"chapter33EducationInfo":{"firstName":"Tamara","lastName":"Ellis","nameSuffix":"","dateTimeOfBirth":"1967-06-19T06:00:00Z","vaFileNumber":"796130115","activeDuty":false,"veteranIsEligible":true,"regionalProcessingOffice":"Northern
+        Office Boston, MA","eligibilityDateTime":"2005-08-01T04:00:00Z","delimitingDateTime":"2016-08-01T04:00:00Z","percentageBenefit":100,"originalEntitlement":{"months":0,"days":21},"usedEntitlement":{"months":0,"days":11},"remainingEntitlement":{"months":6,"days":10},"enrollments":[{"beginDateTime":"2015-08-01T04:00:00Z","endDateTime":"2015-12-01T05:00:00Z","facilityCode":11902614,"facilityName":"University
+        of Virginia","participantId":11179999,"trainingType":null,"termId":"","hourType":"Semester","fullTimeHours":12,"fullTimeCreditHourUnderGrad":null,"vacationDayCount":0,"onCampusHours":12.0,"onlineHours":0.0,"yellowRibbonAmount":2999.0,"status":"Approved","amendments":[]},{"beginDateTime":"2015-01-01T04:00:00Z","endDateTime":"2015-08-01T05:00:00Z","facilityCode":11902614,"facilityName":"University
+        of Virginia","participantId":11179999,"trainingType":null,"termId":"","hourType":"Semester","fullTimeHours":12,"fullTimeCreditHourUnderGrad":null,"vacationDayCount":0,"onCampusHours":12.0,"onlineHours":3.0,"yellowRibbonAmount":2999.0,"status":"Approved","amendments":[{"residenceHours":0.0,"distanceHours":3.0,"yellowRibbonAmount":0.0,"amendmentType":"CourseDrop","amendmentStatus":"Approved","amendmentEffectiveDate":"2015-01-02T05:00:00Z"}]},{"beginDateTime":"2014-08-01T04:00:00Z","endDateTime":"2013-05-01T04:00:00Z","facilityCode":25047343,"facilityName":"University
+        of Virginia","participantId":11180666,"trainingType":null,"termId":"","hourType":"Semester","fullTimeHours":12,"fullTimeCreditHourUnderGrad":null,"vacationDayCount":null,"onCampusHours":1.0,"onlineHours":0.0,"yellowRibbonAmount":0.0,"status":"Approved","amendments":[]}]}}'
+  recorded_at: Thu, 22 Feb 2024 20:27:38 GMT
+recorded_with: VCR 6.2.0
