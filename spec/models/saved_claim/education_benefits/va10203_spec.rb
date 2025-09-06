@@ -39,7 +39,9 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
       it 'sets the gi_bill_status instance variable' do
         # Load the VCR cassette response
-        cassette_data = YAML.load_file('spec/support/vcr_cassettes/lighthouse/benefits_education/200_response_gt_6_mos.yml')
+        cassette_data =
+          YAML.load_file('spec/support/vcr_cassettes/lighthouse/benefits_education/200_response_gt_6_mos.yml')
+
         # There are 2 interactions and the second one is the one we want
         response_body_string = cassette_data['http_interactions'][1]['response']['body']['string']
         response_status = cassette_data['http_interactions'][1]['response']['status']['code']
@@ -153,7 +155,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
                   callback_metadata: {
                     notification_type: 'confirmation',
                     form_number: '22-10203',
-                    statsd_tags: { 
+                    statsd_tags: {
                       service: 'submit-10203-form', function: 'form_10203_failure_confirmation_email_sending'
                     }
                   }
@@ -190,7 +192,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       # we don't have to test the user because we're on the logged in path
       context 'sending the school certifying officials email' do
         context 'when the send_email? FeatureFlipper is false' do
-          before { allow(FeatureFlipper).to receive(:send_email?).and_return(false)}
+          before { allow(FeatureFlipper).to receive(:send_email?).and_return(false) }
 
           it 'does not call SendSchoolCertifyingOfficialsEmail' do
             expect { instance.after_submit(user) }
@@ -199,7 +201,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         end
 
         context 'when the send_email? FeatureFlipper is true' do
-          before { allow(FeatureFlipper).to receive(:send_email?).and_return(true)}
+          before { allow(FeatureFlipper).to receive(:send_email?).and_return(true) }
 
           context 'unauthorized' do
             before do
@@ -245,7 +247,8 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
             it 'calls SendSchoolCertifyingOfficialsEmail (remaining entitlement < 6 months)' do
               # Load the VCR cassette response
-              cassette_data = YAML.load_file('spec/support/vcr_cassettes/lighthouse/benefits_education/200_response.yml')
+              cassette_data =
+                YAML.load_file('spec/support/vcr_cassettes/lighthouse/benefits_education/200_response.yml')
               # There are 2 interactions and the second one is the one we want
               response_body_string = cassette_data['http_interactions'][1]['response']['body']['string']
               response_status = cassette_data['http_interactions'][1]['response']['status']['code']
@@ -270,7 +273,8 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
             it 'calls SendSchoolCertifyingOfficialsEmail (remaining entitlement >= 6 months)' do
               # Load the VCR cassette response
-              cassette_data = YAML.load_file('spec/support/vcr_cassettes/lighthouse/benefits_education/200_response_gt_6_mos.yml')
+              cassette_data =
+                YAML.load_file('spec/support/vcr_cassettes/lighthouse/benefits_education/200_response_gt_6_mos.yml')
               # There are 2 interactions and the second one is the one we want
               response_body_string = cassette_data['http_interactions'][1]['response']['body']['string']
               response_status = cassette_data['http_interactions'][1]['response']['status']['code']
