@@ -914,6 +914,8 @@ lib/lighthouse/benefits_education @department-of-veterans-affairs/va-iir @depart
 lib/lighthouse/benefits_intake @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_reference_data/response_strategy.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/facilities @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
+lib/lighthouse/healthcare_cost_and_coverage/charge_item/service.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+lib/lighthouse/healthcare_cost_and_coverage/configuration.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/letters_generator @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 lib/logging @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 lib/mail_automation @department-of-veterans-affairs/backend-review-group
@@ -1447,6 +1449,7 @@ spec/lib/lighthouse/veteran_verification @department-of-veterans-affairs/backend
 spec/lib/lighthouse/veterans_health @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/healthcare_cost_and_coverage/configuration_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/healthcare_cost_and_coverage/invoice/service_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+spec/lib/lighthouse/healthcare_cost_and_coverage/charge_item/service_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/lib/logging @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 spec/lib/mail_automation @department-of-veterans-affairs/backend-review-group
 spec/lib/map @department-of-veterans-affairs/octo-identity
