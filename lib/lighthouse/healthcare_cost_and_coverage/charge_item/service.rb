@@ -7,9 +7,6 @@ require 'lighthouse/service_exception'
 module Lighthouse
   module HealthcareCostAndCoverage
     module ChargeItem
-      # HCCC ChargeItem resource client (FHIR R4)
-      # Endpoints:
-      #   GET /r4/ChargeItem?patient=<ICN>[&_count=N][&_id=<ChargeItemId>]
       class Service < Common::Client::Base
         configuration Lighthouse::HealthcareCostAndCoverage::Configuration
         STATSD_KEY_PREFIX = 'api.lighthouse.hccc.charge_item'
@@ -20,13 +17,6 @@ module Lighthouse
           super()
         end
 
-        # List/search ChargeItems for a patient
-        #
-        # @param count [Integer] page size (_count)
-        # @param id [String, nil] filter by a specific charge item id via search (_id)
-        # @param extra [Hash] any additional FHIR search params
-        #
-        # @return [Hash] FHIR Bundle
         def list(count: 50, id: nil, **extra)
           endpoint = 'r4/ChargeItem'
           params   = { patient: @icn, _count: count }.merge(extra)
