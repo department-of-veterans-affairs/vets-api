@@ -3,14 +3,10 @@
 require 'rails_helper'
 require 'va_profile/contact_information/v2/service'
 
-describe VAProfile::ContactInformation::V2::Service, :skip_vet360 do
+describe VAProfile::ContactInformation::V2::Service do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3, :legacy_icn) }
-
-  before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-  end
 
   describe '#get_person' do
     context 'when successful' do
@@ -142,10 +138,12 @@ describe VAProfile::ContactInformation::V2::Service, :skip_vet360 do
   end
 
   describe '#put_email when vet360_id is null' do
+    let(:user) { build(:user, :loa3, vet360_id: nil, icn: '123498767V234859') }
+
     let(:email) do
       build(
         :email, :contact_info_v2, id: 318_927, email_address: 'person43@example.com',
-                                  source_system_user: user.icn
+                                  source_system_user: '123498767V234859'
       )
     end
 
@@ -158,7 +156,6 @@ describe VAProfile::ContactInformation::V2::Service, :skip_vet360 do
             allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
             old_email = user.va_profile_email
             expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
-
             response = subject.put_email(email)
             expect(OldEmail.find(response.transaction.id).email).to eq(old_email)
           end
@@ -434,7 +431,7 @@ describe VAProfile::ContactInformation::V2::Service, :skip_vet360 do
     end
   end
 
-  describe '#send_contact_change_notification', :skip_vet360 do
+  describe '#send_contact_change_notification' do
     let(:transaction) { double }
     let(:transaction_status) do
       OpenStruct.new(

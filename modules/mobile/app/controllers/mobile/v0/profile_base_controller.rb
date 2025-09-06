@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'va_profile/address_validation/service'
 require_relative '../concerns/sso_logging'
 require 'va_profile/address_validation/v3/service'
 

@@ -20,7 +20,7 @@ module VAProfile
         def initialize; end
 
         # Get address suggestions and override key from the VA profile API
-        # @return [VAProfile::AddressValidation::AddressSuggestionsResponse] response wrapper around address
+        # @return [VAProfile::AddressValidation::V3::AddressSuggestionsResponse] response wrapper around address
         #   suggestions data
         def address_suggestions(address)
           with_monitoring do

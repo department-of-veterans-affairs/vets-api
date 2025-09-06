@@ -9,7 +9,6 @@ describe Common::CacheAside do
   let(:person) { build(:person_v2) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
     allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
   end
 

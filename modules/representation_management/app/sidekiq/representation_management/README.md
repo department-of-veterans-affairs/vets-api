@@ -169,13 +169,13 @@ This job will automatically queue the necessary `AccreditedIndividualsUpdate` jo
 - GCLAWS API access credentials
 
 ### Feature Flags:
-- `remove_pciu`: Toggles between V2 and V3 VAProfile address validation services
+
 
 ## Troubleshooting
 
 ### Common Issues:
 
-1. **Count validation failures**: 
+1. **Count validation failures**:
    - Check GCLAWS API for data issues
    - Use force update if decrease is expected
    - Remember: Representatives and VSOs must be processed together
