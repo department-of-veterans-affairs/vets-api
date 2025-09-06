@@ -131,7 +131,7 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
   end
 
   describe 'GET /meb_api/v0/forms_claim_letter' do
-    let(:claimant_response) { double('claimant_response', :[] => 600_000_001, status: 200) }
+    let(:claimant_response) { double('claimant_response', claimant_id: 600_000_001, status: 200) }
     let(:claim_status_response) { double('claim_status_response', claim_status: 'ELIGIBLE') }
     let(:letter_response) { double('letter_response', body: 'PDF content here', status: 200) }
     let(:claimant_service) { instance_double(MebApi::DGI::Claimant::Service) }
@@ -172,7 +172,7 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
     end
 
     context 'when claimant response is invalid' do
-      let(:claimant_response) { double('claimant_response', :[] => nil, status: 404, body: 'Error content') }
+      let(:claimant_response) { double('claimant_response', claimant_id: nil, status: 404, body: 'Error content') }
 
       it 'returns claimant error response' do
         get '/meb_api/v0/forms_claim_letter', params: { type: 'ToeSubmission' }
@@ -276,7 +276,7 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
       let(:claimant_response) do
         double(
           'claimant_response',
-          :[] => 600_000_001,
+          claimant_id: 600_000_001,
           status: 500,
           body: { error: 'Internal error' },
           claimant: nil,

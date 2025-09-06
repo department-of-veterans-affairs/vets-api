@@ -6,7 +6,7 @@ module MebApi
   module DGI
     module ExclusionPeriod
       class Response < MebApi::DGI::Response
-        attribute :exclusion_periods, Array
+        attribute :exclusion_periods, String, array: true
 
         def initialize(response = nil)
           attributes = {
