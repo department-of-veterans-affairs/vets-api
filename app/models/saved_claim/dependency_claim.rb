@@ -191,9 +191,25 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
     return unless form_is_string
 
-    JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[form_id], parsed_form).each do |v|
-      errors.add(:form, v.to_s)
+    schema = VetsJsonSchema::SCHEMAS[form_id]
+
+    schema_errors = validate_schema(schema)
+    unless schema_errors.empty?
+      Rails.logger.error('SavedClaim schema failed validation.',
+                         { form_id:, errors: schema_errors })
     end
+
+    validation_errors = validate_form(schema)
+    validation_errors.each do |e|
+      errors.add(e[:fragment], e[:message])
+      e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
+    end
+
+    unless validation_errors.empty?
+      Rails.logger.error('SavedClaim form did not pass validation', { form_id:, guid:, errors: validation_errors })
+    end
+
+    schema_errors.empty? && validation_errors.empty?
   end
 
   def to_pdf(form_id: FORM, student: nil)
@@ -294,5 +310,26 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     college_student_data = { 'dependents_application' => student_data.merge!(veteran_data) }
 
     { college_student_data:, dependent_data: }
+  end
+
+  def validate_form(schema)
+    camelized_data = deep_camelize_keys(parsed_form)
+
+    errors = JSONSchemer.schema(schema).validate(camelized_data).to_a
+    return [] if errors.empty?
+
+    reformatted_schemer_errors(errors)
+  end
+
+  def deep_camelize_keys(data)
+    case data
+    when Hash
+      data.transform_keys { |key| key.to_s.camelize(:lower) }
+          .transform_values { |value| deep_camelize_keys(value) }
+    when Array
+      data.map { |item| deep_camelize_keys(item) }
+    else
+      data
+    end
   end
 end
