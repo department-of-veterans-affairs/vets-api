@@ -65,8 +65,7 @@ module TravelClaim
                                  })
 
       headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
-
-      perform(:post, "#{auth_url}/#{tenant_id}/oauth2/token", body, headers)
+      perform(:post, "#{tenant_id}/oauth2/token", body, headers, { server_url: auth_url })
     end
 
     ##
@@ -88,7 +87,7 @@ module TravelClaim
         'Authorization' => "Bearer #{veis_access_token}"
       }.merge(subscription_key_headers)
 
-      perform(:post, "#{claims_url_v2}/api/v4/auth/system-access-token", body, headers)
+      perform(:post, 'api/v4/auth/system-access-token', body, headers)
     end
 
     ##
@@ -103,7 +102,7 @@ module TravelClaim
           facilityStationNumber: @station_number
         }
 
-        perform(:post, "#{claims_url_v2}/api/v3/appointments/find-or-add", body, headers)
+        perform(:post, 'api/v3/appointments/find-or-add', body, headers)
       end
     end
 
@@ -120,7 +119,7 @@ module TravelClaim
           claimantType: CLAIMANT_TYPE
         }
 
-        perform(:post, "#{claims_url_v2}/api/v3/claims", body, headers)
+        perform(:post, 'api/v3/claims', body, headers)
       end
     end
 
@@ -140,7 +139,7 @@ module TravelClaim
           tripType: TRIP_TYPE
         }
 
-        perform(:post, "#{claims_url_v2}/api/v3/expenses/mileage", body, headers)
+        perform(:post, 'api/v3/expenses/mileage', body, headers)
       end
     end
 
@@ -152,7 +151,7 @@ module TravelClaim
     #
     def send_get_claim_request(claim_id:)
       with_auth do
-        perform(:get, "#{claims_url_v2}/api/v3/claims/#{claim_id}", nil, headers)
+        perform(:get, "api/v3/claims/#{claim_id}", nil, headers)
       end
     end
 
@@ -165,7 +164,7 @@ module TravelClaim
     def send_claim_submission_request(claim_id:)
       with_auth do
         body = { claimId: claim_id }
-        perform(:patch, "#{claims_url_v2}/api/v3/claims/submit", body, headers)
+        perform(:patch, 'api/v3/claims/submit', body, headers)
       end
     end
 
@@ -317,12 +316,21 @@ module TravelClaim
     end
 
     ##
-    # Override perform method to handle PATCH requests
+    # Override perform method to handle PATCH requests and optional server_url
     # The base configuration doesn't support PATCH, so we handle it specially
+    # Also allows overriding the server URL for authentication requests via options
     #
     def perform(method, path, params, headers = nil, options = nil)
+      server_url = options&.delete(:server_url)
+
       if method == :patch
         request(:patch, path, params || {}, headers || {}, options || {})
+      elsif server_url
+        custom_connection = config.connection(server_url:)
+        custom_connection.send(method.to_sym, path, params || {}) do |request|
+          request.headers.update(headers || {})
+          (options || {}).each { |option, value| request.options.send("#{option}=", value) }
+        end.env
       else
         super
       end
