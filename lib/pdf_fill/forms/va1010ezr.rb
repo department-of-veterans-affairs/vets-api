@@ -191,6 +191,8 @@ module PdfFill
         dependent_copy['dateOfBirth'] = FORMATTER.format_date(dependent_copy['dateOfBirth'])
         dependent_copy['becameDependent'] = FORMATTER.format_date(dependent_copy['becameDependent'])
 
+        dependent_copy['receivedSupportLastYear'] =
+          map_select_value(dependent_copy['receivedSupportLastYear'])
         dependent_copy['dependentRelation'] = DEPENDENT_RELATIONSHIP[dependent_copy['dependentRelation']] || OFF
         dependent_copy['attendedSchoolLastYear'] = map_select_value(dependent_copy['attendedSchoolLastYear'])
         dependent_copy['disabledBefore18'] = map_select_value(dependent_copy['disabledBefore18'])
@@ -210,6 +212,7 @@ module PdfFill
           dependent_copy['dependentEducationExpenses'] = FORMATTER.format_currency(
             dependent_copy['dependentEducationExpenses']
           )
+          dependent_copy['receivedSupportLastYear'] = map_select_value(dependent_copy['receivedSupportLastYear'])
           dependent_copy['grossIncome'] = FORMATTER.format_currency(dependent_copy['grossIncome'])
           dependent_copy['netIncome'] = FORMATTER.format_currency(dependent_copy['netIncome'])
           dependent_copy['otherIncome'] = FORMATTER.format_currency(dependent_copy['otherIncome'])
@@ -219,7 +222,7 @@ module PdfFill
       end
 
       def merge_dependents
-        merge_value('provideSupportLastYear', :map_select_value)
+        merge_provide_support_last_year
 
         return if @form_data['dependents'].blank?
 
@@ -231,6 +234,21 @@ module PdfFill
           # we display them all on the additional info section
           merge_multiple_dependents
         end
+      end
+
+      # True if either `provideSupportLastYear` (spouse) or any of dependents `receivedSupportLastYear` is true
+      def merge_provide_support_last_year
+        if @form_data['dependents'].blank?
+          merge_value('provideSupportLastYear', :map_select_value)
+          return
+        end
+
+        dependent_provided_support = @form_data['dependents'].any? do |dependent|
+          dependent['receivedSupportLastYear'] == true
+        end
+
+        @form_data['provideSupportLastYear'] =
+          map_select_value(@form_data['provideSupportLastYear'] || dependent_provided_support)
       end
 
       def merge_associations(type)
