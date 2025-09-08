@@ -54,7 +54,7 @@ RSpec.describe Vye::DirectDepositChange, type: :model do
         described_class.write_report(io)
       end.not_to raise_error
 
-      nineth_index_of_lines = io.string.split(/[\n]/).map { |x| x.split(/[,]/)[9] }.join
+      nineth_index_of_lines = io.string.split(/\n/).map { |x| x.split(/,/)[9] }.join
 
       expect(nineth_index_of_lines.match?(/[CS]{7}/)).to be(true)
     end
@@ -69,12 +69,12 @@ RSpec.describe Vye::DirectDepositChange, type: :model do
       phone_numbers_in_lines =
         io
         .string
-        .split(/[\n]/)
-        .map { |x| x.split(/[,]/).values_at(5, 6, 13) }
+        .split(/\n/)
+        .map { |x| x.split(/,/).values_at(5, 6, 13) }
         .flatten
 
       expect(phone_numbers_in_lines.all? do |x|
-        x == ' ' || x.match?(/\d{3}[-]\d{3}[-]\d{4}/)
+        x == ' ' || x.match?(/\d{3}-\d{3}-\d{4}/)
       end).to be(true)
     end
 
@@ -85,7 +85,7 @@ RSpec.describe Vye::DirectDepositChange, type: :model do
         described_class.write_report(io)
       end.not_to raise_error
 
-      fields_across_all_lines = io.string.split(/[\n]/).map { |x| x.split(/[,]/) }.flatten
+      fields_across_all_lines = io.string.split(/\n/).map { |x| x.split(/,/) }.flatten
 
       expect(fields_across_all_lines.all? { |x| x == ' ' || x.start_with?(/\S/) }).to be(true)
     end

@@ -395,17 +395,9 @@ class User < Common::RedisStore
   delegate :show_onboarding_flow_on_login, to: :onboarding, allow_nil: true
 
   def vet360_contact_info
-    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled &&
-                      (
-                        (!Flipper.enabled?(:remove_pciu, self) && vet360_id.present?) ||
-                        (Flipper.enabled?(:remove_pciu, self) && icn.present?)
-                      )
+    return nil unless vet360_id.present? || icn.present?
 
-    @vet360_contact_info ||= if Flipper.enabled?(:remove_pciu, self) && icn.present?
-                               VAProfileRedis::V2::ContactInformation.for_user(self)
-                             elsif !Flipper.enabled?(:remove_pciu, self) && vet360_id.present?
-                               VAProfileRedis::ContactInformation.for_user(self)
-                             end
+    @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 
   def va_profile_email
@@ -473,7 +465,7 @@ class User < Common::RedisStore
   end
 
   def cerner_eligible?
-    loa3? && (cerner_id.present? || cerner_facility_ids.present?)
+    loa3? && cerner_id.present?
   end
 
   def can_create_mhv_account?

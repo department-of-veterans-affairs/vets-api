@@ -57,7 +57,7 @@ module BenefitsIntake
     def self.validate_first_name(metadata)
       validate_presence_and_stringiness(metadata['veteranFirstName'], 'veteran first name')
 
-      first_name = I18n.transliterate(metadata['veteranFirstName']).gsub(%r{[^a-zA-Z\-\/\s]}, '').strip.first(50)
+      first_name = I18n.transliterate(metadata['veteranFirstName']).gsub(%r{[^a-zA-Z\-/\s]}, '').strip.first(50)
       validate_nonblank(first_name, 'veteran first name')
 
       metadata['veteranFirstName'] = first_name
@@ -67,7 +67,7 @@ module BenefitsIntake
     def self.validate_last_name(metadata)
       validate_presence_and_stringiness(metadata['veteranLastName'], 'veteran last name')
 
-      last_name = I18n.transliterate(metadata['veteranLastName']).gsub(%r{[^a-zA-Z\-\/\s]}, '').strip.first(50)
+      last_name = I18n.transliterate(metadata['veteranLastName']).gsub(%r{[^a-zA-Z\-/\s]}, '').strip.first(50)
       validate_nonblank(last_name, 'veteran last name')
 
       metadata['veteranLastName'] = last_name

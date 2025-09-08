@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative 'sign_in_controller_shared_examples_spec'
 
 RSpec.describe V0::SignInController, type: :controller do
-  include_context 'sign_in_controller_shared_setup'
   include_context 'authorize_setup'
 
   describe 'GET authorize' do
@@ -16,7 +14,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:expected_error_status) { :bad_request }
       let(:statsd_auth_failure) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE }
 
-      it_behaves_like 'api based error response'
+      it_behaves_like 'authorize_api_error_response'
     end
 
     context 'when client_id is an arbitrary value' do
@@ -26,7 +24,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:expected_error_status) { :bad_request }
       let(:statsd_auth_failure) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE }
 
-      it_behaves_like 'api based error response'
+      it_behaves_like 'authorize_api_error_response'
     end
 
     context 'when client_id maps to a client configuration' do
@@ -38,7 +36,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:type_value) { nil }
         let(:expected_error) { 'Type is not valid' }
 
-        it_behaves_like 'error response'
+        it_behaves_like 'authorize_error_response'
       end
 
       context 'when type param is given but not in client credential_service_providers' do
@@ -47,7 +45,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:credential_service_providers) { ['logingov'] }
         let(:expected_error) { 'Type is not valid' }
 
-        it_behaves_like 'error response'
+        it_behaves_like 'authorize_error_response'
       end
     end
   end
