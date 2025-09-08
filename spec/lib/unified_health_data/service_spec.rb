@@ -780,224 +780,123 @@ describe UnifiedHealthData::Service, type: :service do
       file_path = Rails.root.join('spec', 'fixtures', 'unified_health_data', 'condition_sample_response.json')
       JSON.parse(File.read(file_path))
     end
+    let(:mock_adapter) { instance_double(UnifiedHealthData::Adapters::ConditionsAdapter) }
+    let(:mock_conditions) { [double(UnifiedHealthData::Condition)] }
+
+    before do
+      allow(service).to receive(:conditions_adapter).and_return(mock_adapter)
+    end
 
     context 'with valid condition responses' do
       before do
         allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: conditions_response),
                                            parse_response_body: conditions_response)
+        allow(mock_adapter).to receive(:parse).and_return(mock_conditions)
       end
 
-      it 'returns conditions' do
-        conditions = service.get_conditions
-        expect(conditions).to be_an(Array)
-        expect(conditions.size).to be_positive
-        expect(conditions.first).to be_a(UnifiedHealthData::Condition)
+      it 'calls the conditions adapter with combined records' do
+        service.get_conditions
+
+        expect(mock_adapter).to have_received(:parse).with(
+          conditions_response['vista']['entry'] + (conditions_response['oracle-health']['entry'] || [])
+        )
       end
 
-      it 'parses condition attributes correctly' do
+      it 'returns the result from the adapter' do
         conditions = service.get_conditions
-        first_condition = conditions.first
+        expect(conditions).to eq(mock_conditions)
+      end
 
-        expect(first_condition.id).to eq('2b4de3e7-0ced-43c6-9a8a-336b9171f4df')
-        expect(first_condition.name).to eq('Major depressive disorder, recurrent, moderate')
-        expect(first_condition.provider).to eq('BORLAND,VICTORIA A')
-        expect(first_condition.facility).to eq('CHYSHR TEST LAB')
+      it 'makes the correct API call' do
+        expect(service).to receive(:perform).with(
+          :get,
+          a_string_matching(/conditions\?patientId=.*&startDate=1900-01-01&endDate=\d{4}-\d{2}-\d{2}/),
+          nil,
+          hash_including('Authorization' => 'token', 'x-api-key' => anything)
+        )
+
+        service.get_conditions
       end
     end
 
     context 'with malformed response' do
-      it 'handles gracefully' do
+      before do
         allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: 'invalid'),
                                            parse_response_body: nil)
-        expect { service.get_conditions }.not_to raise_error
-        expect(service.get_conditions).to eq([])
+        allow(mock_adapter).to receive(:parse).and_return([])
+      end
+
+      it 'handles gracefully and delegates to adapter' do
+        result = nil
+        expect { result = service.get_conditions }.not_to raise_error
+        expect(result).to eq([])
+        expect(mock_adapter).to have_received(:parse).with([]).once
       end
     end
   end
 
-  describe '#parse_conditions' do
+  describe '#get_single_condition' do
+    let(:condition_id) { 'test-condition-123' }
     let(:conditions_response) do
       file_path = Rails.root.join('spec', 'fixtures', 'unified_health_data', 'condition_sample_response.json')
       JSON.parse(File.read(file_path))
     end
+    let(:mock_adapter) { instance_double(UnifiedHealthData::Adapters::ConditionsAdapter) }
+    let(:mock_condition) { double(UnifiedHealthData::Condition) }
+    let(:matching_record) { { 'resource' => { 'id' => condition_id, 'resourceType' => 'Condition' } } }
+    let(:combined_records_with_match) { [matching_record] }
+    let(:combined_records_without_match) { [] }
 
-    it 'parses vista conditions correctly' do
-      vista_entries = conditions_response['vista']['entry']
-      conditions = service.send(:parse_conditions, vista_entries)
-
-      expect(conditions).to be_an(Array)
-      expect(conditions.size).to eq(vista_entries.size)
-      expect(conditions.first).to be_a(UnifiedHealthData::Condition)
+    before do
+      allow(service).to receive(:conditions_adapter).and_return(mock_adapter)
+      allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: conditions_response),
+                                         parse_response_body: conditions_response)
     end
 
-    it 'handles empty records' do
-      conditions = service.send(:parse_conditions, [])
-      expect(conditions).to eq([])
+    context 'when condition is found' do
+      before do
+        allow(service).to receive(:fetch_combined_records).and_return(combined_records_with_match)
+        allow(mock_adapter).to receive(:parse_single_condition).and_return(mock_condition)
+      end
+
+      it 'filters records by condition_id and calls adapter' do
+        service.get_single_condition(condition_id)
+
+        expect(mock_adapter).to have_received(:parse_single_condition).with(matching_record)
+      end
+
+      it 'returns the condition from adapter' do
+        result = service.get_single_condition(condition_id)
+        expect(result).to eq(mock_condition)
+      end
+
+      it 'makes the correct API call' do
+        expect(service).to receive(:perform).with(
+          :get,
+          a_string_matching(/conditions\?patientId=.*&startDate=1900-01-01&endDate=\d{4}-\d{2}-\d{2}/),
+          nil,
+          hash_including('Authorization' => 'token', 'x-api-key' => anything)
+        )
+
+        service.get_single_condition(condition_id)
+      end
     end
 
-    it 'handles nil records' do
-      conditions = service.send(:parse_conditions, nil)
-      expect(conditions).to eq([])
-    end
-  end
+    context 'when condition is not found' do
+      before do
+        allow(service).to receive(:fetch_combined_records).and_return(combined_records_without_match)
+        allow(mock_adapter).to receive(:parse_single_condition)
+      end
 
-  describe '#parse_single_condition' do
-    let(:condition_record) do
-      {
-        'resource' => {
-          'resourceType' => 'Condition',
-          'id' => 'test-id-123',
-          'code' => { 'coding' => [{ 'display' => 'Test Condition' }] },
-          'onsetDateTime' => '2024-01-15T00:00:00Z',
-          'contained' => [
-            {
-              'resourceType' => 'Practitioner',
-              'name' => [{ 'text' => 'Dr. Test Provider' }]
-            },
-            {
-              'resourceType' => 'Location',
-              'name' => 'Test Medical Center'
-            }
-          ]
-        }
-      }
-    end
+      it 'returns nil when no matching records' do
+        result = service.get_single_condition('non-existent-id')
+        expect(result).to be_nil
+      end
 
-    it 'parses a single condition correctly' do
-      condition = service.send(:parse_single_condition, condition_record)
-
-      expect(condition).to be_a(UnifiedHealthData::Condition)
-      expect(condition.id).to eq('test-id-123')
-      expect(condition.date).to eq('2024-01-15T00:00:00Z')
-      expect(condition.name).to eq('Test Condition')
-      expect(condition.provider).to eq('Dr. Test Provider')
-      expect(condition.facility).to eq('Test Medical Center')
-    end
-
-    it 'handles nil record' do
-      condition = service.send(:parse_single_condition, nil)
-      expect(condition).to be_nil
-    end
-
-    it 'handles record with nil resource' do
-      condition = service.send(:parse_single_condition, { 'resource' => nil })
-      expect(condition).to be_nil
-    end
-  end
-
-  describe '#extract_condition_comments' do
-    it 'extracts single note text' do
-      resource = { 'note' => [{ 'text' => 'Single comment' }] }
-      comments = service.send(:extract_condition_comments, resource)
-      expect(comments).to eq(['Single comment'])
-    end
-
-    it 'extracts multiple note texts as array' do
-      resource = {
-        'note' => [
-          { 'text' => 'First comment' },
-          { 'text' => 'Second comment' },
-          { 'text' => 'Third comment' }
-        ]
-      }
-      comments = service.send(:extract_condition_comments, resource)
-      expect(comments).to eq(['First comment', 'Second comment', 'Third comment'])
-    end
-
-    it 'handles single note object (not array)' do
-      resource = { 'note' => { 'text' => 'Single note object' } }
-      comments = service.send(:extract_condition_comments, resource)
-      expect(comments).to eq(['Single note object'])
-    end
-
-    it 'handles missing note field' do
-      resource = {}
-      comments = service.send(:extract_condition_comments, resource)
-      expect(comments).to eq([])
-    end
-
-    it 'handles nil note field' do
-      resource = { 'note' => nil }
-      comments = service.send(:extract_condition_comments, resource)
-      expect(comments).to eq([])
-    end
-
-    it 'filters out notes with missing text' do
-      resource = {
-        'note' => [
-          { 'text' => 'Valid comment' },
-          { 'author' => 'Dr. Smith' }, # missing text field
-          { 'text' => 'Another valid comment' }
-        ]
-      }
-      comments = service.send(:extract_condition_comments, resource)
-      expect(comments).to eq(['Valid comment', 'Another valid comment'])
-    end
-
-    it 'handles empty note array' do
-      resource = { 'note' => [] }
-      comments = service.send(:extract_condition_comments, resource)
-      expect(comments).to eq([])
-    end
-  end
-
-  describe '#extract_condition_provider' do
-    it 'extracts provider from contained practitioner' do
-      resource = {
-        'contained' => [
-          { 'resourceType' => 'Practitioner', 'name' => [{ 'text' => 'Dr. Jane Smith' }] }
-        ]
-      }
-      provider = service.send(:extract_condition_provider, resource)
-      expect(provider).to eq('Dr. Jane Smith')
-    end
-
-    it 'falls back to asserter display when contained is missing' do
-      resource = { 'asserter' => { 'display' => 'Dr. Jane Smith' } }
-      provider = service.send(:extract_condition_provider, resource)
-      expect(provider).to eq('Dr. Jane Smith')
-    end
-
-    it 'handles missing contained practitioner' do
-      resource = { 'contained' => [{ 'resourceType' => 'Location', 'name' => 'Test Location' }] }
-      provider = service.send(:extract_condition_provider, resource)
-      expect(provider).to eq('')
-    end
-
-    it 'handles empty contained array' do
-      resource = { 'contained' => [] }
-      provider = service.send(:extract_condition_provider, resource)
-      expect(provider).to eq('')
-    end
-  end
-
-  describe '#extract_condition_facility' do
-    it 'extracts facility from contained location' do
-      resource = {
-        'contained' => [
-          { 'resourceType' => 'Location', 'name' => 'VA Medical Center' }
-        ]
-      }
-      facility = service.send(:extract_condition_facility, resource)
-      expect(facility).to eq('VA Medical Center')
-    end
-
-    it 'falls back to encounter display when contained is missing' do
-      resource = { 'encounter' => { 'display' => 'VA Medical Center - Primary Care' } }
-      facility = service.send(:extract_condition_facility, resource)
-      expect(facility).to eq('VA Medical Center - Primary Care')
-    end
-
-    it 'handles missing contained location' do
-      resource = { 'contained' => [{ 'resourceType' => 'Practitioner', 'name' => [{ 'text' => 'Dr. Smith' }] }] }
-      facility = service.send(:extract_condition_facility, resource)
-      expect(facility).to eq('')
-    end
-
-    it 'handles empty contained array' do
-      resource = { 'contained' => [] }
-      facility = service.send(:extract_condition_facility, resource)
-      expect(facility).to eq('')
+      it 'does not call the adapter when no matching records found' do
+        service.get_single_condition('non-existent-id')
+        expect(mock_adapter).not_to have_received(:parse_single_condition)
+      end
     end
   end
 end
