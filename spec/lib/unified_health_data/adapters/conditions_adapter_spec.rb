@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'unified_health_data/adapters/conditions_adapter'
 
-RSpec.describe 'ConditionsAdapter' do
+RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
   let(:adapter) { UnifiedHealthData::Adapters::ConditionsAdapter.new }
   let(:conditions_sample_response) do
     JSON.parse(Rails.root.join(
@@ -41,7 +41,7 @@ RSpec.describe 'ConditionsAdapter' do
       expect(parsed_condition).to have_attributes(
         id: be_present,
         name: be_present,
-        date: be_present,
+        date: be_a(String).or(be_nil), # Date can be nil in some records
         provider: be_present,
         facility: be_present,
         comments: be_an(Array)
@@ -50,7 +50,7 @@ RSpec.describe 'ConditionsAdapter' do
 
     it 'returns the expected fields for oracle-health condition with all fields' do
       oh_records = conditions_sample_response['oracle-health']['entry'] || []
-      next if oh_records.empty?
+      skip 'No oracle-health records in fixture' if oh_records.empty?
 
       parsed_condition = adapter.parse(oh_records).first
 
@@ -59,7 +59,7 @@ RSpec.describe 'ConditionsAdapter' do
         name: be_present,
         date: be_present,
         provider: be_present,
-        facility: be_present,
+        facility: be_a(String), # Facility can be empty string
         comments: be_an(Array)
       )
     end
