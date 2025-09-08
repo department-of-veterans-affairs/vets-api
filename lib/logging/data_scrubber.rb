@@ -25,45 +25,46 @@ module Logging
   #
   module DataScrubber
     # Regular expressions for detecting various types of PII and sensitive data
+    REGEX = {
+      # Social Security Numbers: 123-45-6789, 123456789, 123 45 6789
+      SSN: /\b\d{3}[-\s]?\d{2}[-\s]?\d{4}\b/,
 
-    # Social Security Numbers: 123-45-6789, 123456789, 123 45 6789
-    SSN_REGEX = /\b\d{3}[-\s]?\d{2}[-\s]?\d{4}\b/
+      # Email addresses: user@example.com, test.email+tag@domain.co.uk
+      EMAIL: /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i,
 
-    # Email addresses: user@example.com, test.email+tag@domain.co.uk
-    EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
+      # ICN (Integration Control Number): 1234567890V123456 (most specific, check first)
+      ICN: /\b\d{10}V\d{6}\b/,
 
-    # ICN (Integration Control Number): 1234567890V123456 (most specific, check first)
-    ICN_REGEX = /\b\d{10}V\d{6}\b/
+      # EDIPI (DoD Electronic Data Interchange Person Identifier): 1234567890 (10 digits exactly)
+      EDIPI: /\b\d{10}\b(?!V\d{6})/,
 
-    # EDIPI (DoD Electronic Data Interchange Person Identifier): 1234567890 (10 digits exactly)
-    EDIPI_REGEX = /\b\d{10}\b(?!V\d{6})/
+      # Bank routing numbers: 123456789 (9 digits exactly, not 8 or 10+)
+      ROUTING_NUMBER: /\b\d{9}\b(?!\d)/,
 
-    # Bank routing numbers: 123456789 (9 digits exactly, not 8 or 10+)
-    ROUTING_NUMBER_REGEX = /\b\d{9}\b(?!\d)/
+      # VA Participant ID: 12345678 (8 digits exactly)
+      PARTICIPANT_ID: /\b\d{8}\b(?!\d)/,
 
-    # VA Participant ID: 12345678 (8 digits exactly)
-    PARTICIPANT_ID_REGEX = /\b\d{8}\b(?!\d)/
+      # VA file numbers: C12345678, C-12345678 (must have C prefix)
+      VA_FILE_NUMBER: /\bC-?\d{8,9}\b/,
 
-    # VA file numbers: C12345678, C-12345678 (must have C prefix)
-    VA_FILE_NUMBER_REGEX = /\bC-?\d{8,9}\b/
+      # Phone numbers: (555) 123-4567, 555-123-4567, +1-555-123-4567, 5551234567, 555-1234
+      PHONE: /
+        \(\d{3}\)\s\d{3}-\d{4}|     # (555) 123-4567
+        \+?1?\s?\d{3}\s\d{3}\s\d{4}| # +1 555 123 4567, 555 123 4567
+        \+?1?-?\d{3}-\d{3}-\d{4}|    # +1-555-123-4567, 555-123-4567
+        \b\d{3}-\d{4}\b|             # 555-1234
+        \b\d{10}\b                   # 5551234567
+      /x,
 
-    # Phone numbers: (555) 123-4567, 555-123-4567, +1-555-123-4567, 5551234567, 555-1234
-    PHONE_REGEX = /
-      \(\d{3}\)\s\d{3}-\d{4}|     # (555) 123-4567
-      \+?1?\s?\d{3}\s\d{3}\s\d{4}| # +1 555 123 4567, 555 123 4567
-      \+?1?-?\d{3}-\d{3}-\d{4}|    # +1-555-123-4567, 555-123-4567
-      \b\d{3}-\d{4}\b|             # 555-1234
-      \b\d{10}\b                   # 5551234567
-    /x
+      # Credit card numbers: 4444-4444-4444-4444, 4444 4444 4444 4444, 4444444444444444
+      CREDIT_CARD: /\b\d{4}[-\s]\d{4}[-\s]\d{4}[-\s]\d{4}\b|\b\d{16}\b/,
 
-    # Credit card numbers: 4444-4444-4444-4444, 4444 4444 4444 4444, 4444444444444444
-    CREDIT_CARD_REGEX = /\b\d{4}[-\s]\d{4}[-\s]\d{4}[-\s]\d{4}\b|\b\d{16}\b/
+      # ZIP codes: 12345, 12345-6789 (but not order numbers like "Order #12345" or credit card digits)
+      ZIP_CODE: /\b(?<!#)(?<!-)(?:\d{5}-\d{4}\b|\d{5}(?!-\d))\b/,
 
-    # ZIP codes: 12345, 12345-6789 (but not order numbers like "Order #12345" or credit card digits)
-    ZIP_CODE_REGEX = /\b(?<!#)(?<!-)(?:\d{5}-\d{4}\b|\d{5}(?![-]\d))\b/
-
-    # Birth dates: 01/15/1985, 1-15-1985, 01.15.1985, 12/31/2000
-    BIRTH_DATE_REGEX = %r{\b(?:0?[1-9]|1[0-2])[/\-.](?:0?[1-9]|[12][0-9]|3[01])[/\-.](?:19|20)\d{2}\b}
+      # Birth dates: 01/15/1985, 1-15-1985, 01.15.1985, 12/31/2000
+      BIRTH_DATE: %r{\b(?:0?[1-9]|1[0-2])[/\-.](?:0?[1-9]|[12][0-9]|3[01])[/\-.](?:19|20)\d{2}\b}
+    }.freeze
 
     # The string used to replace detected PII
     REDACTION = '[REDACTED]'
@@ -135,21 +136,15 @@ module Logging
     def scrub_string(message)
       return message if message.blank?
 
-      # Combined regex pattern for all PII types
+      # Build combined regex pattern from all REGEX patterns
       # Order matters: most specific patterns first to avoid conflicts
-      combined_regex = /
-        #{ICN_REGEX}|
-        #{SSN_REGEX}|
-        #{EMAIL_REGEX}|
-        #{PHONE_REGEX}|
-        #{CREDIT_CARD_REGEX}|
-        #{BIRTH_DATE_REGEX}|
-        #{VA_FILE_NUMBER_REGEX}|
-        #{EDIPI_REGEX}|
-        #{ROUTING_NUMBER_REGEX}|
-        #{PARTICIPANT_ID_REGEX}|
-        #{ZIP_CODE_REGEX}
-      /x
+      pattern_order = %i[ICN SSN EMAIL PHONE CREDIT_CARD BIRTH_DATE VA_FILE_NUMBER EDIPI ROUTING_NUMBER
+                         PARTICIPANT_ID ZIP_CODE]
+
+      combined_regex = Regexp.new(
+        pattern_order.map { |key| REGEX[key] }.join('|'),
+        Regexp::EXTENDED
+      )
 
       # Apply all PII detection patterns and replace matches with REDACTION
       message.gsub(combined_regex, REDACTION)
