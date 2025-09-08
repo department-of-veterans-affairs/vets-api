@@ -716,7 +716,6 @@ lighthouse:
     url: <%= ENV['lighthouse__facilities__url'] %>
     veterans_health:
       url: <%= ENV['lighthouse__facilities__veterans_health__url'] %>
-      workd: <%= ENV['lighthouse__facilities__veterans_health__workd'] %>
   letters_generator:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__letters_generator__access_token__aud_claim_url'] %>
