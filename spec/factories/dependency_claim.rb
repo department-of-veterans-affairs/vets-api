@@ -10,7 +10,6 @@ FactoryBot.define do
           add_child: true,
           report674: true
         },
-        add_child: true,
         privacy_agreementAccepted: true,
         veteran_information: {
           full_name: {
@@ -152,7 +151,6 @@ FactoryBot.define do
         'view:selectable686_options': {
           report674: true
         },
-        add_child: false,
         privacy_agreementAccepted: true,
         veteran_information: {
           full_name: {

@@ -7,7 +7,6 @@ describe Mobile::V0::Profile::SyncUpdateService do
   let(:service) { Mobile::V0::Profile::SyncUpdateService.new(user) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     Timecop.freeze(Time.zone.parse('2024-09-16T16:09:37.000Z'))
   end
 
