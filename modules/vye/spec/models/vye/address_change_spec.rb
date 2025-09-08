@@ -75,7 +75,7 @@ RSpec.describe Vye::AddressChange, type: :model do
         described_class.write_report(io)
       end.not_to raise_error
 
-      fields_across_all_lines = io.string.split(/[\n]/).map { |x| x.split(/[,]/) }.flatten
+      fields_across_all_lines = io.string.split(/\n/).map { |x| x.split(/,/) }.flatten
 
       expect(fields_across_all_lines.all? { |x| x == ' ' || x.start_with?(/\S/) }).to be(true)
     end
