@@ -10,7 +10,6 @@ RSpec.describe FormProfile, type: :model do
 
   before do
     allow(Flipper).to receive(:enabled?).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, anything).and_return(false)
     described_class.instance_variable_set(:@mappings, nil)
   end
@@ -1053,7 +1052,7 @@ RSpec.describe FormProfile, type: :model do
           # Now that the nested structures are removed from the outputs, compare the rest of the structure.
           expect(output).to eq(expected_output)
           # Compare the nested structures VAProfile::Models::ServiceHistory objects separately.
-          expect(actual_service_histories.map(&:attributes)).to eq(expected_service_histories)
+          expect(actual_service_histories.map(&:attributes)).to match(expected_service_histories)
 
           first_item = actual_guard_reserve_service_history.map(&:attributes).first
           expect(first_item['from'].to_s).to eq(expected_guard_reserve_service_history.first[:from])
@@ -1093,7 +1092,7 @@ RSpec.describe FormProfile, type: :model do
         # Compare service_episodes_by_date separately.
         # Convert each VAProfile::Models::ServiceHistory object to a hash of attributes so it can be
         # compared to the expected output.
-        expect(actual_service_histories.map(&:attributes)).to eq(expected_service_histories)
+        expect(actual_service_histories.map(&:attributes)).to match(expected_service_histories)
       end
     end
   end
@@ -1162,11 +1161,22 @@ RSpec.describe FormProfile, type: :model do
         }
       end
 
-      context 'with a user with financial data, insurance data, dependents, and contacts' do
+      context 'when the ee service is down' do
+        let(:v10_10_ezr_expected) { ezr_prefilled_data_without_ee_data.merge('nonPrefill' => {}) }
+
+        it 'prefills the rest of the data and logs exception to sentry' do
+          expect_any_instance_of(FormProfiles::VA1010ezr).to receive(:log_exception_to_sentry).with(
+            instance_of(VCR::Errors::UnhandledHTTPRequestError)
+          )
+          expect_prefilled('10-10EZR')
+        end
+      end
+
+      context 'with a user with financial data, insurance data, and dependents',
+              run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
         before do
           allow(user).to receive(:icn).and_return('1012829228V424035')
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:remove_pciu, anything).and_return(true)
         end
 
         context "when the 'ezr_form_prefill_with_providers_and_dependents' flipper is enabled" do
@@ -1266,6 +1276,20 @@ RSpec.describe FormProfile, type: :model do
               end
             end
           end
+        end
+      end
+    end
+
+    context 'with a user that can prefill mdot' do
+      before do
+        expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
+        expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
+        expect(user.authorize(:mdot, :access?)).to be(true)
+      end
+
+      it 'returns a prefilled MDOT form', :skip_va_profile do
+        VCR.use_cassette('mdot/get_supplies_200') do
+          expect_prefilled('MDOT')
         end
       end
     end

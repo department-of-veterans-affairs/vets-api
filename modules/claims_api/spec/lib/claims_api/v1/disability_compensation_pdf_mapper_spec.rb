@@ -24,11 +24,17 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
     )
   end
   let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
+  let(:user) { create(:user, :loa3) }
+  let(:auth_headers) do
+    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+  end
+  let(:middle_initial) { 'L' }
+
   let(:mapper) do
-    ClaimsApi::V1::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data)
+    ClaimsApi::V1::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, auth_headers, middle_initial)
   end
 
-  context '526 section 0, claim attributes' do
+  context '526 section 0, claim attributes', run_at: '2025-09-03 11:57:45.709631 -0500' do
     it 'set claimProcessType as STANDARD_CLAIM_PROCESS when standardClaim is true' do
       form_attributes['standardClaim'] = true
       mapper.map_claim
@@ -46,13 +52,117 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       expect(claim_process_type).to eq('FDC_PROGRAM')
     end
 
-    it 'set claimProcessType as BDD_PROGRAM when activeDutyEndDate is between 90 -180 days in the future' do
-      form_attributes['serviceInformation']['servicePeriods'][1]['activeDutyEndDate'] = 91.days.from_now
+    it 'set claimProcessType as BDD_PROGRAM when activeDutyEndDate is between 90 - 180 days in the future' do
+      form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] = '2025-12-03' # 91 days
       mapper.map_claim
 
       claim_process_type = pdf_data[:data][:attributes][:claimProcessType]
 
       expect(claim_process_type).to eq('BDD_PROGRAM')
+    end
+
+    it 'set claimProcessType as BDD_PROGRAM when activeDutyEndDate is exactly 90 days in the future' do
+      form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] = '2025-12-02' # 90 days
+      mapper.map_claim
+
+      claim_process_type = pdf_data[:data][:attributes][:claimProcessType]
+
+      expect(claim_process_type).to eq('BDD_PROGRAM')
+    end
+
+    it 'set claimProcessType as BDD_PROGRAM when activeDutyEndDate is exactly 180 days in the future' do
+      form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] = '2026-03-02' # 180 days
+      mapper.map_claim
+
+      claim_process_type = pdf_data[:data][:attributes][:claimProcessType]
+
+      expect(claim_process_type).to eq('BDD_PROGRAM')
+    end
+  end
+
+  context '526 section 1, veteran identification' do
+    let(:birls_file_number) { auth_headers['va_eauth_birlsfilenumber'] }
+    let(:first_name) { auth_headers['va_eauth_firstName'] }
+    let(:last_name) { auth_headers['va_eauth_lastName'] }
+
+    it 'maps the mailing address' do
+      mapper.map_claim
+
+      address_base = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress]
+
+      expect(address_base[:numberAndStreet]).to eq('1234 Couch Street Apt. 22')
+      expect(address_base[:city]).to eq('Portland')
+      expect(address_base[:state]).to eq('OR')
+      expect(address_base[:country]).to eq('USA')
+      expect(address_base[:zip]).to eq('12345-6789')
+    end
+
+    it 'maps the veteran personal information' do
+      mapper.map_claim
+
+      employee_status = pdf_data[:data][:attributes][:identificationInformation][:currentVaEmployee]
+      veteran_ssn = pdf_data[:data][:attributes][:identificationInformation][:ssn]
+      va_file_number = pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber]
+      veteran_name = pdf_data[:data][:attributes][:identificationInformation][:name]
+      birth_date = pdf_data[:data][:attributes][:identificationInformation][:dateOfBirth]
+
+      expect(employee_status).to be(false)
+      expect(veteran_ssn).to eq('796-11-1863')
+      expect(va_file_number).to eq(birls_file_number)
+      expect(veteran_name).to eq({ lastName: 'lincoln', middleInitial: 'L', firstName: 'abraham' })
+      expect(birth_date).to eq({ month: '02', day: '12', year: '1809' })
+    end
+  end
+
+  describe '#set_pdf_data_for_section_one' do
+    context 'when identificationInformation key does not exist' do
+      it 'sets the identificationInformation key to an empty hash' do
+        res = mapper.send(:set_pdf_data_for_section_one)
+
+        expect(res).to eq({})
+      end
+    end
+
+    context 'when identificationInformation key already exists' do
+      before do
+        @pdf_data = pdf_data
+        @pdf_data[:data][:attributes][:identificationInformation] = {}
+      end
+
+      it 'returns early without modifying the existing data' do
+        res = mapper.send(:set_pdf_data_for_section_one)
+
+        expect(res).to be_nil
+      end
+    end
+  end
+
+  describe '#set_pdf_data_for_mailing_address' do
+    context 'when mailingAddress key does not exist' do
+      before do
+        @pdf_data = pdf_data
+        @pdf_data[:data][:attributes][:identificationInformation] = {}
+      end
+
+      it 'sets the mailingAddress key to an empty hash' do
+        res = mapper.send(:set_pdf_data_for_mailing_address)
+
+        expect(res).to eq({})
+      end
+    end
+
+    context 'when mailingAddress key already exists' do
+      before do
+        @pdf_data = pdf_data
+        @pdf_data[:data][:attributes][:identificationInformation] = {}
+        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress] = {}
+      end
+
+      it 'returns early without modifying the existing data' do
+        res = mapper.send(:set_pdf_data_for_mailing_address)
+
+        expect(res).to be_nil
+      end
     end
   end
 end
