@@ -39,10 +39,10 @@ RSpec.describe DebtTransactionLog, type: :model do
 
     it 'has correct state transitions' do
       expect(log.pending?).to be true
-      
+
       log.submitted!
       expect(log.submitted?).to be true
-      
+
       log.completed!
       expect(log.completed?).to be true
     end

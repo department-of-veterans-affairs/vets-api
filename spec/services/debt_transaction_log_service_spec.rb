@@ -15,17 +15,17 @@ RSpec.describe DebtTransactionLogService do
 
   describe '.track_dispute' do
     before do
-      allow(digital_dispute_submission).to receive(:debt_identifiers).and_return(['debt123', 'debt456'])
+      allow(digital_dispute_submission).to receive(:debt_identifiers).and_return(%w[debt123 debt456])
     end
 
     it 'creates a transaction log with correct attributes' do
       log = DebtTransactionLogService.track_dispute(digital_dispute_submission, user)
-      
+
       expect(log).to be_persisted
       expect(log.transactionable).to eq(digital_dispute_submission)
       expect(log.transaction_type).to eq('dispute')
       expect(log.user_uuid).to eq(user.uuid)
-      expect(log.debt_identifiers).to eq(['debt123', 'debt456'])
+      expect(log.debt_identifiers).to eq(%w[debt123 debt456])
       expect(log.state).to eq('pending')
     end
 
@@ -36,9 +36,9 @@ RSpec.describe DebtTransactionLogService do
 
     it 'returns nil on creation failure' do
       allow(DebtTransactionLog).to receive(:create!).and_raise(StandardError, 'DB error')
-      
+
       log = DebtTransactionLogService.track_dispute(digital_dispute_submission, user)
-      
+
       expect(log).to be_nil
       expect(StatsD).to have_received(:increment).with('api.debt_transaction_log.dispute.creation_failed')
     end
@@ -51,7 +51,7 @@ RSpec.describe DebtTransactionLogService do
 
     it 'creates a transaction log with correct attributes' do
       log = DebtTransactionLogService.track_waiver(form5655_submission, user)
-      
+
       expect(log).to be_persisted
       expect(log.transactionable).to eq(form5655_submission)
       expect(log.transaction_type).to eq('waiver')
@@ -67,9 +67,9 @@ RSpec.describe DebtTransactionLogService do
 
     it 'returns nil on creation failure' do
       allow(DebtTransactionLog).to receive(:create!).and_raise(StandardError, 'DB error')
-      
+
       log = DebtTransactionLogService.track_waiver(form5655_submission, user)
-      
+
       expect(log).to be_nil
       expect(StatsD).to have_received(:increment).with('api.debt_transaction_log.waiver.creation_failed')
     end
@@ -80,14 +80,14 @@ RSpec.describe DebtTransactionLogService do
 
     it 'updates state to submitted' do
       result = DebtTransactionLogService.mark_submitted(log)
-      
+
       expect(result).to be true
       expect(log.reload.state).to eq('submitted')
     end
 
     it 'updates external_reference_id when provided' do
       DebtTransactionLogService.mark_submitted(log, external_reference_id: 'ref123')
-      
+
       expect(log.reload.external_reference_id).to eq('ref123')
     end
 
@@ -107,7 +107,7 @@ RSpec.describe DebtTransactionLogService do
 
     it 'updates state to completed' do
       result = DebtTransactionLogService.mark_completed(log)
-      
+
       expect(result).to be true
       expect(log.reload.state).to eq('completed')
       expect(log.transaction_completed_at).to be_present
@@ -124,7 +124,7 @@ RSpec.describe DebtTransactionLogService do
 
     it 'updates state to failed' do
       result = DebtTransactionLogService.mark_failed(log)
-      
+
       expect(result).to be true
       expect(log.reload.state).to eq('failed')
       expect(log.transaction_completed_at).to be_present
@@ -137,9 +137,9 @@ RSpec.describe DebtTransactionLogService do
 
     it 'returns false on update failure' do
       allow(log).to receive(:update!).and_raise(StandardError, 'DB error')
-      
+
       result = DebtTransactionLogService.mark_failed(log)
-      
+
       expect(result).to be false
       expect(StatsD).to have_received(:increment).with('api.debt_transaction_log.state_update_failed')
     end
