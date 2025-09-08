@@ -76,8 +76,7 @@ RSpec.describe Logging::BaseMonitor do
         allow(base_monitor).to receive(:track_request)
 
         base_monitor.send(:submit_event, 'info', 'Test message', 'test.stats.key',
-                          claim: claim_with_pii,
-                          user_account_uuid: user_uuid_with_pii)
+                          claim: claim_with_pii, user_account_uuid: user_uuid_with_pii)
 
         expect(base_monitor).to have_received(:track_request).with(
           'info',
@@ -169,10 +168,7 @@ RSpec.describe Logging::BaseMonitor do
                           claim: double(id: 1, confirmation_number: 'ABC123', form_id: '12345'),
                           user_account_uuid: 'clean-uuid',
                           response_data: {
-                            user_info: {
-                              email: 'test@example.com',
-                              phone: '555-123-4567'
-                            },
+                            user_info: { email: 'test@example.com', phone: '555-123-4567' },
                             validation_errors: ['Invalid SSN: 123-45-6789']
                           })
 
@@ -187,11 +183,8 @@ RSpec.describe Logging::BaseMonitor do
           form_id: '12345',
           tags: anything,
           response_data: {
-            user_info: {
-              email: '[REDACTED]',                     # Scrubbed
-              phone: '[REDACTED]'                      # Scrubbed
-            },
-            validation_errors: ['Invalid SSN: [REDACTED]'] # Scrubbed
+            user_info: { email: '[REDACTED]', phone: '[REDACTED]' },
+            validation_errors: ['Invalid SSN: [REDACTED]']
           }
         )
       end

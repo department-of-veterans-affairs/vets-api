@@ -86,16 +86,16 @@ RSpec.describe Logging::DataScrubber do
         end
 
         it 'handles mixed data types in hash values' do
-          mixed_input = { string_with_pii: 'SSN: 123-45-6789', number: 42, boolean: true, nil_value: nil }
-          expected = { string_with_pii: "SSN: #{redaction}", number: 42, boolean: true, nil_value: nil }
+          mixed_input = { string_with_pii: 'SSN: 123-45-6789', number: '42', boolean: true, nil_value: nil }
+          expected = { string_with_pii: "SSN: #{redaction}", number: '42', boolean: true, nil_value: nil }
           expect(described_class.scrub(mixed_input)).to eq(expected)
         end
       end
 
       context 'with array data' do
         it 'scrubs PII in array elements and nested structures' do
-          input = ['Contact: john@example.com', 'Safe data', 42, [['email@test.com'], [123, 'ssn: 123-45-6789']]]
-          expected = ["Contact: #{redaction}", 'Safe data', 42, [[redaction], [123, "ssn: #{redaction}"]]]
+          input = ['Contact: john@example.com', 'Safe data', '42', [['email@test.com'], [123, 'ssn: 123-45-6789']]]
+          expected = ["Contact: #{redaction}", 'Safe data', '42', [[redaction], ['123', "ssn: #{redaction}"]]]
           expect(described_class.scrub(input)).to eq(expected)
         end
 
@@ -132,10 +132,26 @@ RSpec.describe Logging::DataScrubber do
       end
 
       context 'with non-string, non-collection types' do
-        [42, 3.14, true, false, nil, :symbol].each do |value|
-          it "returns #{value.class} unchanged" do
-            expect(described_class.scrub(value)).to eq(value)
-          end
+        it 'preserves nil, true, false unchanged' do
+          expect(described_class.scrub(nil)).to be_nil
+          expect(described_class.scrub(true)).to be(true)
+          expect(described_class.scrub(false)).to be(false)
+        end
+
+        it 'converts other types to strings and scrubs for PII' do
+          # Numbers that look like PII should be scrubbed
+          expect(described_class.scrub(123_456_789)).to eq('[REDACTED]') # SSN without dashes
+          expect(described_class.scrub(5_551_234_567)).to eq('[REDACTED]') # Phone number
+          expect(described_class.scrub(4_444_444_444_444_444)).to eq('[REDACTED]') # Credit card
+          expect(described_class.scrub(12_345)).to eq('[REDACTED]') # ZIP code
+
+          # Numbers that don't look like PII should remain as strings
+          expect(described_class.scrub(42)).to eq('42')
+          expect(described_class.scrub(3.14)).to eq('3.14')
+
+          # Symbols should be converted to strings and scrubbed if they contain PII
+          expect(described_class.scrub(:symbol)).to eq('symbol')
+          expect(described_class.scrub(:'123-45-6789')).to eq('[REDACTED]')
         end
       end
     end

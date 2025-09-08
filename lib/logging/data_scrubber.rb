@@ -69,7 +69,7 @@ module Logging
     # The string used to replace detected PII
     REDACTION = '[REDACTED]'
 
-    SAFE_KEYS = %w[confirmation_number user_account_uuid claim_id form_id tags id].freeze
+    SAFE_KEYS = %w[confirmation_number user_account_uuid claim_id form_id tags id response_code].freeze
 
     module_function
 
@@ -115,9 +115,13 @@ module Logging
       when Array
         # Recursively scrub each array element
         value.map { |item| scrub_value(item) }
-      else
-        # Return non-string, non-collection types unchanged (numbers, booleans, nil, etc.)
+      when NilClass, TrueClass, FalseClass
+        # Preserve nil and boolean values as-is
         value
+      else
+        # Cast all other leaf nodes to string and scrub to catch numeric PII
+        # This ensures SSNs, credit cards, phone numbers stored as integers are caught
+        scrub_string(value.to_s)
       end
     end
 
