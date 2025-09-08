@@ -15,8 +15,8 @@ module TravelPay
       def create
         params.require([:appointment_date_time, :facility_station_number, :appointment_type, :is_complete ])
         validate_datetime_format!(params[:appointment_date_time])
-        appt_id = find_or_create_appt_id!(params)
-        claim_id = create_claim(appt_id, 'complex')
+        appt_id = find_or_create_appt_id!(params, 'Complex')
+        claim_id = create_claim(appt_id, 'Complex')
         render json: { claimId: claim_id }, status: :created
       rescue Common::Exceptions::ResourceNotFound => e
         Rails.logger.error("Appointment not found: #{e.message}")
