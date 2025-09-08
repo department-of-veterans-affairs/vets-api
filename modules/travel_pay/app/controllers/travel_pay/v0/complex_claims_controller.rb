@@ -15,7 +15,7 @@ module TravelPay
       def create
         params.require([:appointment_date_time, :facility_station_number, :appointment_type, :is_complete ])
         validate_datetime_format!(params[:appointment_date_time])
-        appt_id = find_or_create_appt_id!(params, 'Complex')
+        appt_id = find_or_create_appt_id!('Complex', params)
         claim_id = create_claim(appt_id, 'Complex')
         render json: { claimId: claim_id }, status: :created
       rescue Common::Exceptions::ResourceNotFound => e
@@ -68,14 +68,6 @@ module TravelPay
       def render_service_unavailable(e)
         Rails.logger.error("Service unavailable: #{e.message}")
         render json: { error: e.message }, status: :service_unavailable
-      end
-
-      def verify_feature_flag_enabled!
-        return if Flipper.enabled?(:travel_pay_enable_complex_claims, @current_user)
-
-        message = 'Travel Pay create complex claim unavailable per feature toggle'
-        Rails.logger.error(message:)
-        raise Common::Exceptions::ServiceUnavailable, message:
       end
 
       def validate_datetime_format!(datetime_str)

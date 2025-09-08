@@ -52,7 +52,7 @@ module TravelPay
         begin
           Rails.logger.info(message: 'SMOC transaction START')
 
-          appt_id = find_or_create_appt_id!(params, 'SMOC')
+          appt_id = find_or_create_appt_id!('SMOC', params)
           claim_id = create_claim(appt_id, 'SMOC')
           Rails.logger.info(message: "SMOC transaction: Add expense to claim #{claim_id.slice(0, 8)}")
           expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointment_date_time'] })
