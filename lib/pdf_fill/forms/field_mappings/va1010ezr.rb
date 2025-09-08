@@ -8,7 +8,7 @@ module PdfFill
           'veteranFullName' => {
             key: ['F[0].P3[0].VeteransName[0]', 'F[0].P4[0].VeteransName[0]', 'F[0].P5[0].VeteransName[0]'],
             limit: 40,
-            question_num: 1.1,
+            question_num: 1.01,
             question_suffix: 'A',
             question_text: "VETERAN'S NAME (Last, First, Middle Name)"
           },
@@ -31,16 +31,16 @@ module PdfFill
             'street' => {
               key: 'F[0].P3[0].MailingAddress_Street[0]',
               limit: 27,
-              question_num: 1.6,
+              question_num: 1.06,
               question_suffix: 'A',
-              question_text: 'STREET'
+              question_text: 'MAILING ADDRESS - STREET'
             },
             'city' => {
               key: 'F[0].P3[0].MailingAddress_City[0]',
               limit: 18,
-              question_num: 1.6,
+              question_num: 1.06,
               question_suffix: 'B',
-              question_text: 'CITY'
+              question_text: 'MAILING ADDRESS - CITY'
             },
             'state' => {
               key: 'F[0].P3[0].MailingAddress_State[0]'
@@ -53,16 +53,16 @@ module PdfFill
             'street' => {
               key: 'F[0].P3[0].Street[0]',
               limit: 27,
-              question_num: 1.7,
+              question_num: 1.07,
               question_suffix: 'A',
-              question_text: 'STREET'
+              question_text: 'HOME ADDRESS - STREET'
             },
             'city' => {
               key: 'F[0].P3[0].City[0]',
               limit: 18,
-              question_num: 1.7,
+              question_num: 1.07,
               question_suffix: 'B',
-              question_text: 'CITY'
+              question_text: 'HOME ADDRESS - CITY'
             },
             'state' => {
               key: 'F[0].P3[0].State[0]'
@@ -96,9 +96,15 @@ module PdfFill
               question_text: 'NEXT OF KIN ADDRESS.'
             },
             'relationship' => {
+              question_num: 1.10,
+              question_suffix: 'C',
+              question_text: 'NEXT OF KIN RELATIONSHIP',
               key: 'F[0].P3[0].KinRelationship[0]'
             },
             'primaryPhone' => {
+              question_num: 1.10,
+              question_suffix: 'D',
+              question_text: 'NEXT OF KIN TELEPHONE NUMBER',
               key: 'F[0].P3[0].KinPhone[0]'
             }
           },
@@ -113,7 +119,16 @@ module PdfFill
               question_text: 'EMERGENCY CONTACT NAME.'
             },
             'primaryPhone' => {
-              key: 'F[0].P3[0].ECPhone[0]'
+              question_num: 1.11,
+              question_suffix: 'B',
+              key: 'F[0].P3[0].ECPhone[0]',
+              question_text: 'EMERGENCY CONTACT TELEPHONE NUMBER.'
+            },
+            'address' => {
+              limit: 1,
+              question_num: 1.11,
+              question_suffix: 'C',
+              question_text: 'EMERGENCY CONTACT ADDRESS.'
             }
           },
           'providers' => {
@@ -249,22 +264,22 @@ module PdfFill
               key: 'F[0].P4[0].ChildName[0]',
               limit: 42,
               question_num: 4.07,
-              question_text: "CHILD'S NAME (Last, First, Middle Name)."
+              question_text: 'NAME (Last, First, Middle Name).'
             },
             'dateOfBirth' => {
               key: 'F[0].P4[0].ChildDateofBirth[0]',
               question_num: 4.08,
-              question_text: "CHILD'S DATE OF BIRTH."
+              question_text: 'DATE OF BIRTH.'
             },
             'socialSecurityNumber' => {
               key: 'F[0].P4[0].ChildSSN[0]',
               question_num: 4.09,
-              question_text: "CHILD'S SOCIAL SECURITY NUMBER."
+              question_text: 'SOCIAL SECURITY NUMBER.'
             },
             'becameDependent' => {
               key: 'F[0].P4[0].DateDependent[0]',
               question_num: 4.10,
-              question_text: 'DATE CHILD BECAME YOUR DEPENDENT.'
+              question_text: 'DATE BECAME YOUR DEPENDENT.'
             },
             'dependentRelation' => {
               key: 'F[0].P4[0].Relationship[0]',
@@ -284,20 +299,24 @@ module PdfFill
               question_text: 'EXPENSES PAID BY YOUR DEPENDENT CHILD WITH REPORTABLE INCOME FOR COLLEGE, ' \
                              'VOCATIONAL REHABILITATION OR TRAINING (e.g., tuition, books, materials). '
             },
+            'receivedSupportLastYear' => {
+              question_num: 5.1,
+              question_text: 'IF YOUR DEPENDENT DID NOT LIVE WITH YOU LAST YEAR, DID YOU PROVIDE SUPPORT?'
+            },
             'grossIncome' => {
               key: 'F[0].P5[0].Table1[0].#subform[1].Amount[2]',
               question_num: 5.1,
-              question_text: 'CHILD GROSS ANNUAL INCOME. Enter dollar amount.'
+              question_text: 'GROSS ANNUAL INCOME. Enter dollar amount.'
             },
             'netIncome' => {
               key: 'F[0].P5[0].Table1[0].#subform[2].Amount[5]',
               question_num: 5.2,
-              question_text: 'CHILD NET INCOME. Enter dollar amount.'
+              question_text: 'NET INCOME. Enter dollar amount.'
             },
             'otherIncome' => {
               key: 'F[0].P5[0].Table1[0].#subform[3].Amount[8]',
               question_num: 5.3,
-              question_text: 'CHILD OTHER INCOME. Enter dollar amount.'
+              question_text: 'OTHER INCOME. Enter dollar amount.'
             }
           },
           'provideSupportLastYear' => {
