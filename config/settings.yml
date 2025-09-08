@@ -711,8 +711,6 @@ lighthouse:
     use_mocks: <%= ENV['lighthouse__direct_deposit__use_mocks'] %>
   facilities:
     api_key: <%= ENV['lighthouse__facilities__api_key'] %>
-    hqva_mobile:
-      url: <%= ENV['hqva_mobile__url'] %>
     url: <%= ENV['lighthouse__facilities__url'] %>
   letters_generator:
     access_token:
