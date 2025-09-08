@@ -709,6 +709,11 @@ lighthouse:
       rsa_key: <%= ENV['lighthouse__direct_deposit__access_token__rsa_key'] %>
     host: <%= ENV['lighthouse__direct_deposit__host'] %>
     use_mocks: <%= ENV['lighthouse__direct_deposit__use_mocks'] %>
+  facilities:
+    api_key: <%= ENV['lighthouse__facilities__api_key'] %>
+    hqva_mobile:
+      url: <%= ENV['hqva_mobile__url'] %>
+    url: <%= ENV['lighthouse__facilities__url'] %>
   letters_generator:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__letters_generator__access_token__aud_claim_url'] %>
