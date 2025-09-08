@@ -15,7 +15,7 @@ end
 describe Rx::Client do
   before do
     VCR.use_cassette 'rx_client/session' do
-      @client = Rx::Client.new(session: { user_id: '12210827' },
+      @client = Rx::Client.new(session: { user_uuid: '12345', user_id: '12210827' },
                                upstream_request: UpstreamRequest)
       @client.authenticate
     end

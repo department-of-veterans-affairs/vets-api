@@ -20,7 +20,7 @@ describe 'bb client' do
   before do
     VCR.use_cassette 'bb_client/session' do
       @client ||= begin
-        client = BB::Client.new(session: { user_id: '21207668' })
+        client = BB::Client.new(session: { user_uuid: '12345', user_id: '21207668' })
         client.authenticate
         client
       end

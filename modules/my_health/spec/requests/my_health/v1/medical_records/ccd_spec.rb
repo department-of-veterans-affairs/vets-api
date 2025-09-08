@@ -24,6 +24,7 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
 
     bb_internal_client = BBInternal::Client.new(
       session: {
+        user_uuid: '12345',
         user_id:,
         icn: '1012740022V620959',
         patient_id: '11382904',

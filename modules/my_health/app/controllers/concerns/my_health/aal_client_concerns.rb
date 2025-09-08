@@ -89,7 +89,7 @@ module MyHealth
     end
 
     def aal_client_session
-      { user_id: current_user&.mhv_correlation_id }
+      { user_uuid: current_user&.uuid, user_id: current_user&.mhv_correlation_id }
     end
 
     ##

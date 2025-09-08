@@ -12,7 +12,7 @@ module MyHealth
 
     def client
       @client ||= Rx::Client.new(
-        session: { user_id: current_user.mhv_correlation_id },
+        session: { user_uuid: current_user.uuid, user_id: current_user.mhv_correlation_id },
         upstream_request: request
       )
     end

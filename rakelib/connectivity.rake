@@ -113,7 +113,7 @@ namespace :connectivity do
   desc 'Check Rx'
   task rx: :environment do
     check 'Rx', Settings.mhv.rx.host do
-      Rx::Client.new(session: { user_id: '12210827' }).authenticate
+      Rx::Client.new(session: { user_uuid: '12345', user_id: '12210827' }).authenticate
     end
   end
 

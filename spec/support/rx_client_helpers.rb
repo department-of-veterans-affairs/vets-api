@@ -10,7 +10,8 @@ module Rx
     TOKEN = 'GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88='
 
     def authenticated_client
-      Rx::Client.new(session: { user_id: 123,
+      Rx::Client.new(session: { user_uuid: '12345',
+                                user_id: 123,
                                 expires_at: Time.current + (60 * 60),
                                 token: TOKEN },
                      upstream_request: instance_double(ActionDispatch::Request,

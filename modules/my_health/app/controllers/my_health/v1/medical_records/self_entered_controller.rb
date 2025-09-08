@@ -76,7 +76,8 @@ module MyHealth
         protected
 
         def client
-          @client ||= BBInternal::Client.new(session: { user_id: current_user.mhv_correlation_id,
+          @client ||= BBInternal::Client.new(session: { user_uuid: current_user.uuid,
+                                                        user_id: current_user.mhv_correlation_id,
                                                         icn: current_user.icn })
         end
 

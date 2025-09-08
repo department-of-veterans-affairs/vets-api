@@ -23,7 +23,7 @@ module Common
         attr_reader :session
 
         def user_key
-          session.user_id
+          session.user_uuid
         end
 
         def invalid?(session)

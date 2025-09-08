@@ -25,7 +25,7 @@ RSpec.describe AAL::Client do
   before do
     VCR.use_cassette 'mr_client/bb_internal/session_auth' do
       @client ||= begin
-        client = AAL::MRClient.new(session: { user_id: })
+        client = AAL::MRClient.new(session: { user_uuid: '12345', user_id: })
         client.authenticate
         client
       end
