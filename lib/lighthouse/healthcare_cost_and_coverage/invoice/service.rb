@@ -7,9 +7,6 @@ require 'lighthouse/service_exception'
 module Lighthouse
   module HealthcareCostAndCoverage
     module Invoice
-      # HCCC Invoice resource client (FHIR R4)
-      # Endpoints:
-      #   GET /r4/Invoice?patient=<ICN>[&_count=N][&_id=<InvoiceId>]
       class Service < Common::Client::Base
         configuration Lighthouse::HealthcareCostAndCoverage::Configuration
         STATSD_KEY_PREFIX = 'api.lighthouse.hccc.invoice'
@@ -21,13 +18,6 @@ module Lighthouse
           super()
         end
 
-        # List/search Invoices for a patient
-        #
-        # @param count [Integer] page size (_count)
-        # @param id [String, nil] filter by a specific invoice id via search (_id)
-        # @param extra [Hash] any additional FHIR search params (e.g., date/status if added later)
-        #
-        # @return [Hash] FHIR Bundle
         def list(count: 50, id: nil, **extra)
           endpoint = 'r4/Invoice'
           params = { patient: @icn, _count: count }.merge(extra)
