@@ -11,6 +11,8 @@ module VANotify
   class CallbacksController < VANotify::ApplicationController
     include ActionController::HttpAuthentication::Token::ControllerMethods
 
+    UUID_LENGTH = 36
+
     service_tag 'va-notify'
 
     skip_before_action :verify_authenticity_token, only: [:create]
@@ -110,8 +112,6 @@ module VANotify
     end
 
     def get_api_key_value(path_string)
-      # Extract the last 36 characters from the secret token, which represent the UUID
-      UUID_LENGTH = 36
       keys = path_string.sub(/^Settings\./, '').split('.')
       secret_token = Settings.dig(*keys)
       secret_token[(secret_token.length - UUID_LENGTH)..secret_token.length]
