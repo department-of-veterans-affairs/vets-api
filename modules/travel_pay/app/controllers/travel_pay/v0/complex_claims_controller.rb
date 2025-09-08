@@ -13,7 +13,7 @@ module TravelPay
       before_action :check_feature_flag, only: [:create]
 
       def create
-        params.require([:appointment_date_time, :facility_station_number, :appointment_type, :is_complete ])
+        params.require(%i[appointment_date_time facility_station_number appointment_type is_complete])
         validate_datetime_format!(params[:appointment_date_time])
         appt_id = find_or_create_appt_id!('Complex', params)
         claim_id = create_claim(appt_id, 'Complex')

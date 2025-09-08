@@ -42,7 +42,8 @@ RSpec.describe FeatureFlagHelper do
         allow(Flipper).to receive(:enabled?).with(feature_flag, instance_of(User)).and_return(false)
         custom_message = 'Custom feature flag error message'
 
-        expect { instance.verify_feature_flag!(feature_flag, user, error_message: custom_message) }.to raise_error do |error|
+        expect { instance.verify_feature_flag!(feature_flag, user, error_message: custom_message) }
+          .to raise_error do |error|
           expect(error).to be_a(Common::Exceptions::ServiceUnavailable)
           expect(error.errors.first[:detail]).to eq(custom_message)
         end
