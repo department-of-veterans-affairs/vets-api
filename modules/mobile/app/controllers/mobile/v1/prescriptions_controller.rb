@@ -74,6 +74,38 @@ module Mobile
         }, status: :not_implemented
       end
 
+      def show
+        Rails.logger.info(
+          message: 'Mobile v1 prescription show via UHD',
+          user_icn: @current_user.icn,
+          prescription_id: params[:id],
+          service: 'mobile_v1_prescriptions'
+        )
+
+        uhd_prescription = uhd_service.get_prescription(
+          user_icn: @current_user.icn,
+          prescription_id: params[:id]
+        )
+
+        mobile_prescription = transformer.transform([uhd_prescription]).first
+
+        render json: Mobile::V1::PrescriptionsSerializer.new(mobile_prescription, {
+          meta: {
+            data_source: 'unified_health_data',
+            pilot_version: 'v1_uhd'
+          }
+        })
+      rescue StandardError => e
+        Rails.logger.error(
+          message: 'Mobile v1 prescription show error',
+          user_icn: @current_user.icn,
+          prescription_id: params[:id],
+          error: e.message,
+          service: 'mobile_v1_prescriptions'
+        )
+        render json: { errors: [{ title: 'Bad Gateway', detail: e.message }] }, status: :bad_gateway
+      end
+
       private
 
       def check_cerner_pilot_access
