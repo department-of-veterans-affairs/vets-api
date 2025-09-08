@@ -178,6 +178,10 @@ features:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
     enable_in_development: true
+  hca_in_progress_form_logging:
+    actor_type: user
+    description: Add logging for the 10-10EZ around cleaning up InProgressForms after submission
+    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -293,6 +297,9 @@ features:
   champva_form_10_10d_2027:
     actor_type: user
     description: If enabled uses the 2027 version of form 10-10d with expiration 12/31/2027
+  champva_form_10_7959f_2_2025:
+    actor_type: user
+    description: If enabled uses the 2025 version of form 10-7959f-2 with expiration 12/31/2027
   champva_ves_retry_failures_job:
     actor_type: user
     description: Enables the sidekiq job to retry VES submissions that failed
@@ -635,7 +642,7 @@ features:
   dependents_module_enabled:
     actor_type: user
     description: Enables new Dependents module
-    enable_in_development: true
+    enable_in_development: false
   dependents_pension_check:
     actor_type: user
     description: Manage whether or not Pension check is enabled for the 686/674
@@ -741,6 +748,10 @@ features:
   disability_526_form4142_use_2024_version:
     actor_type: user
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
+    enable_in_development: true
+  disability_526_toxic_exposure_opt_out_data_purge:
+    actor_type: user
+    description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
     enable_in_development: true
   disability_526_track_saved_claim_error:
     actor_type: user
@@ -1088,6 +1099,10 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
+  kendra_enabled_for_resources_and_support_search:
+    actor_type: user
+    description: Enable/disable Amazon Kendra for Resources and Support search
+    enable_in_development: true 
   letters_page_new_design:
     actor_type: user
     description: Enables ability to show updated letter page design
@@ -1116,6 +1131,8 @@ features:
     actor_type: user
     description: Lighthouse Benefits Claims API uses MPI birls_id as filenumber parameter to BDS search
     enable_in_development: true
+  lighthouse_document_convert_to_unlocked_pdf_use_hexapdf:
+    description: Enables the LighthouseDocument class's convert_to_unlocked_pdf method to use hexapdf to unlock encrypted pdfs
   log_eligible_benefits:
     actor_type: user
     description: Allows log_eligible_benefits_job.rb to run in background.
@@ -1399,10 +1416,6 @@ features:
   mhv_medications_display_documentation_content:
     actor_type: user
     description: Enables/disables documentation-related content for Medications on VA.gov
-    enable_in_development: true
-  mhv_medications_display_allergies:
-    actor_type: user
-    description: Enables/disables allergies and reactions data
     enable_in_development: true
   mhv_medications_display_filter:
     actor_type: user
