@@ -208,7 +208,7 @@ module IvcChampva
 
         tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
 
-        tmpf = if Flipper.enabled?(:champva_use_hexapdf_for_pdf_unlock, @current_user)
+        tmpf = if Flipper.enabled?(:champva_use_hexapdf_to_unlock_pdfs, @current_user)
                  unlock_with_hexapdf(file, file_password, tmpf)
                else
                  unlock_with_pdftk(file, file_password, tmpf)
@@ -256,6 +256,7 @@ module IvcChampva
         begin
           ::Common::PdfHelpers.unlock_pdf(source_file.tempfile.path, file_password, destination_file.path)
         rescue Common::Exceptions::UnprocessableEntity => e
+          byebug
           file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
           password_regex = /(input_pw).*?(output)/
           sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')

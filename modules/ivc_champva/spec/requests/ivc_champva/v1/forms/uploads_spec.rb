@@ -488,7 +488,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:champva_use_hexapdf_for_pdf_unlock, @current_user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:champva_use_hexapdf_to_unlock_pdfs, @current_user).and_return(true)
     end
 
     context 'with locked PDF and no provided password' do
@@ -531,7 +531,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:champva_use_hexapdf_for_pdf_unlock, @current_user).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:champva_use_hexapdf_to_unlock_pdfs, @current_user).and_return(false)
     end
 
     context 'with locked PDF and no provided password' do
