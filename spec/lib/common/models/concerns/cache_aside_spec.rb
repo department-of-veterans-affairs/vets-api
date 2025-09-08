@@ -9,13 +9,12 @@ describe Common::CacheAside do
   let(:person) { build(:person_v2) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
     allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
   end
 
   describe '#do_cached_with' do
     let(:person_response) do
-      VAProfile::V2::ContactInformation::PersonResponse.from(
+      VAProfile::ContactInformation::V2::PersonResponse.from(
         OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
       )
     end

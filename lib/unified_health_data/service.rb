@@ -65,6 +65,7 @@ module UnifiedHealthData
         end_date = Time.zone.today.to_s
 
         path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+
         response = perform(:get, path, nil, headers)
         body = parse_response_body(response.body)
 
@@ -80,6 +81,7 @@ module UnifiedHealthData
 
     private
 
+    # Shared
     def fetch_access_token
       with_monitoring do
         response = connection.post(config.token_path) do |req|
@@ -95,6 +97,20 @@ module UnifiedHealthData
       end
     end
 
+    def parse_response_body(body)
+      # FIXME: workaround for testing
+      body.is_a?(String) ? JSON.parse(body) : body
+    end
+
+    def fetch_combined_records(body)
+      return [] if body.nil?
+
+      vista_records = body.dig('vista', 'entry') || []
+      oracle_health_records = body.dig('oracle-health', 'entry') || []
+      vista_records + oracle_health_records
+    end
+
+    # Labs and Tests methods
     def filter_records(records)
       return all_records_response(records) unless filtering_enabled?
 
@@ -138,19 +154,6 @@ module UnifiedHealthData
       else
         false # Reject any other test codes for now, but we'll log them for analysis
       end
-    end
-
-    def parse_response_body(body)
-      # FIXME: workaround for testing
-      body.is_a?(String) ? JSON.parse(body) : body
-    end
-
-    def fetch_combined_records(body)
-      return [] if body.nil?
-
-      vista_records = body.dig('vista', 'entry') || []
-      oracle_health_records = body.dig('oracle-health', 'entry') || []
-      vista_records + oracle_health_records
     end
 
     def parse_labs(records)
@@ -423,6 +426,17 @@ module UnifiedHealthData
         "Error creating PersonalInformationLog for short test name issue: #{e.class.name}",
         { service: 'unified_health_data', backtrace: e.backtrace.first(5) }
       )
+    end
+
+    # Care Summaries and Notes methods
+    def parse_notes(records)
+      return [] if records.blank?
+
+      clinical_notes_adapter = UnifiedHealthData::V2::Adapters::ClinicalNotesAdapter.new
+
+      # Parse using the adapter
+      parsed = records.map { |record| clinical_notes_adapter.parse(record) }
+      parsed.compact
     end
   end
 end
