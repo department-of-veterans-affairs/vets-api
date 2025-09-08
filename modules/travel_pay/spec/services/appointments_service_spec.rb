@@ -79,7 +79,7 @@ describe TravelPay::AppointmentsService do
 
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
     let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens) }
-    let(:service) { TravelPay::AppointmentsService.new(auth_manager) }
+    let(:service) { TravelPay::AppointmentsService.new(auth_manager, user) }
 
     before do
       allow_any_instance_of(TravelPay::AppointmentsClient)
@@ -141,16 +141,17 @@ describe TravelPay::AppointmentsService do
 
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
     let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens) }
-    let(:service) { TravelPay::AppointmentsService.new(auth_manager) }
+    let(:service) { TravelPay::AppointmentsService.new(auth_manager, user) }
 
     before do
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, user).and_return(false)
       allow_any_instance_of(TravelPay::AppointmentsClient)
         .to receive(:find_or_create)
         .with(tokens[:veis_token], tokens[:btsss_token],
               { 'appointment_date_time' => '2024-01-01T12:45:00',
                 'facility_station_number' => '123',
                 'appointment_type' => 'Other',
-                'is_complete' => false })
+                'is_complete' => false }, false)
         .and_return(add_appointment_response)
     end
 
@@ -183,6 +184,33 @@ describe TravelPay::AppointmentsService do
                                              'is_complete' => false })
       end
         .to raise_error(ArgumentError, /Invalid appointment time/i)
+    end
+
+    context 'when travel_pay_appt_add_v4_upgrade feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, user).and_return(true)
+        allow_any_instance_of(TravelPay::AppointmentsClient)
+          .to receive(:find_or_create)
+          .with(tokens[:veis_token], tokens[:btsss_token],
+                { 'appointment_date_time' => '2024-01-01T12:45:00',
+                  'facility_station_number' => '123',
+                  'appointment_type' => 'Other',
+                  'is_complete' => false }, true)
+          .and_return(add_appointment_response)
+      end
+
+      it 'calls find_or_create with use_v4_api = true' do
+        date_string = '2024-01-01T12:45:00'
+
+        params = { 'appointment_date_time' => date_string,
+                   'facility_station_number' => '123',
+                   'appointment_type' => 'Other',
+                   'is_complete' => false }
+
+        appt = service.find_or_create_appointment(params)
+
+        expect(appt[:data]['id']).to eq('uuid1')
+      end
     end
   end
 end
