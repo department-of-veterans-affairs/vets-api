@@ -9,6 +9,8 @@ describe VBADocuments::UploadSubmission, type: :model do
   let(:upload_received) { create(:upload_submission, status: 'received') }
   let(:upload_processing) { create(:upload_submission, status: 'processing') }
   let(:upload_success) { create(:upload_submission, status: 'success') }
+  let(:upload_emms_error_new) { create(:upload_submission, :status_emms_error) }
+  let(:upload_emms_error_old) { create(:upload_submission, :status_emms_error, created_at: 15.days.ago) }
   let(:upload_final_success) do
     create(:upload_submission, status: 'success', metadata: { final_success_status: Time.now.to_i })
   end
@@ -524,6 +526,15 @@ describe VBADocuments::UploadSubmission, type: :model do
   end
 
   describe '#in_final_status?' do
+
+    it 'returns true when status is DOC202 error and the age exceeds the error polling age limit' do
+      expect(upload_emms_error_old.in_final_status?).to be(true)
+    end
+
+    it 'returns false when status is DOC202 error and the age is still less than the error polling age limit' do
+      expect(upload_emms_error_new.in_final_status?).to be(false)
+    end
+
     it 'returns false when status is pending' do
       expect(upload_pending.in_final_status?).to be(false)
     end
