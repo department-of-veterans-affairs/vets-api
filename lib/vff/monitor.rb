@@ -20,15 +20,13 @@ module VFF
       21-0845
     ].freeze
 
-    # Note: StatsD metrics are handled by existing patterns:
+    # NOTE: StatsD metrics are handled by existing patterns:
     # - api.benefits_intake.submission_status (BenefitsIntakeStatusJob)
     # - api.simple_forms.email.* (SendNotificationEmailJob)
 
     def initialize
       super('veteran-facing-forms')
     end
-
-
 
     # Track benefits intake failures following established ZSF pattern
     # Similar to PCPG::Monitor#track_submission_exhaustion and VRE::Monitor#track_submission_exhaustion
@@ -60,7 +58,7 @@ module VFF
           service:,
           benefits_intake_uuid:,
           form_id:,
-          email_sent: email_sent,
+          email_sent:,
           email_notification_expected: email_sent
         }
       )

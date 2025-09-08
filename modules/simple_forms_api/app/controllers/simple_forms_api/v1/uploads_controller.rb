@@ -36,7 +36,7 @@ module SimpleFormsApi
         # Track submission initiation
         StatsD.increment('api.simple_forms.submission.initiated', tags: ["form_id:#{params[:form_number]}"])
         Rails.logger.info('Simple forms submission initiated', form_id: params[:form_number])
-        
+
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
         response = if intent_service.use_intent_api?
@@ -52,8 +52,10 @@ module SimpleFormsApi
       rescue Prawn::Errors::IncompatibleStringEncoding
         raise
       rescue => e
-        StatsD.increment('api.simple_forms.submission.error', tags: ["form_id:#{params[:form_number]}", "error_class:#{e.class.name}"])
-        Rails.logger.error('Simple forms submission failed', form_id: params[:form_number], error_class: e.class.name, error_message: e.message)
+        StatsD.increment('api.simple_forms.submission.error',
+                         tags: ["form_id:#{params[:form_number]}", "error_class:#{e.class.name}"])
+        Rails.logger.error('Simple forms submission failed', form_id: params[:form_number], error_class: e.class.name,
+                                                             error_message: e.message)
         raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
       end
 
@@ -193,7 +195,7 @@ module SimpleFormsApi
 
       def get_file_paths_and_metadata(parsed_form_data)
         pdf_start_time = Time.zone.now
-        
+
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
         # This path can come about if the user is authenticated and, for some reason, doesn't have a participant_id
         if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN' && @current_user
@@ -208,10 +210,11 @@ module SimpleFormsApi
                     end
         # Track PDF generation success and timing
         pdf_duration_ms = ((Time.zone.now - pdf_start_time) * 1000).to_i
-        StatsD.timing('api.simple_forms.pdf_generation.duration', pdf_duration_ms, tags: ["form_id:#{params[:form_number]}"])
+        StatsD.timing('api.simple_forms.pdf_generation.duration', pdf_duration_ms,
+                      tags: ["form_id:#{params[:form_number]}"])
         StatsD.increment('api.simple_forms.pdf_generation.success', tags: ["form_id:#{params[:form_number]}"])
         Rails.logger.info('PDF generation completed', form_id: params[:form_number], duration_ms: pdf_duration_ms)
-        
+
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
                                                                         zip_code_is_us_based: form.zip_code_is_us_based)
 
@@ -273,19 +276,23 @@ module SimpleFormsApi
 
         upload_start_time = Time.zone.now
         response = lighthouse_service.perform_upload(**upload_params)
-        
+
         # Track Lighthouse upload response and timing
         upload_duration_ms = ((Time.zone.now - upload_start_time) * 1000).to_i
-        StatsD.timing('api.simple_forms.lighthouse_upload.duration', upload_duration_ms, tags: ["form_id:#{params[:form_number]}"])
-        
+        StatsD.timing('api.simple_forms.lighthouse_upload.duration', upload_duration_ms,
+                      tags: ["form_id:#{params[:form_number]}"])
+
         if response.status == 200
-          StatsD.increment('api.simple_forms.lighthouse_upload.success', tags: ["form_id:#{params[:form_number]}", "status_code:#{response.status}"])
+          StatsD.increment('api.simple_forms.lighthouse_upload.success',
+                           tags: ["form_id:#{params[:form_number]}", "status_code:#{response.status}"])
         else
-          StatsD.increment('api.simple_forms.lighthouse_upload.failure', tags: ["form_id:#{params[:form_number]}", "status_code:#{response.status}"])
+          StatsD.increment('api.simple_forms.lighthouse_upload.failure',
+                           tags: ["form_id:#{params[:form_number]}", "status_code:#{response.status}"])
         end
-        
-        Rails.logger.info('Lighthouse upload completed', form_id: params[:form_number], status: response.status, duration_ms: upload_duration_ms)
-        
+
+        Rails.logger.info('Lighthouse upload completed', form_id: params[:form_number], status: response.status,
+                                                         duration_ms: upload_duration_ms)
+
         response
       end
 
