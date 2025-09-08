@@ -48,7 +48,8 @@ class BenefitsIntakeStatusJob
       response = intake_service.bulk_status(uuids: batch_uuids)
 
       # Log bulk status response for operational visibility
-      Rails.logger.info('Received bulk status response', batch_size: batch_uuids.size, response_size: response.body.to_s.bytesize)
+      Rails.logger.info('Received bulk status response', batch_size: batch_uuids.size,
+                                                         response_size: response.body.to_s.bytesize)
 
       errors << response.body unless response.success?
 
@@ -236,7 +237,7 @@ class BenefitsIntakeStatusJob
     end
   end
 
-  def monitor_vff_failure(form_id, saved_claim_id, bi_uuid)
+  def monitor_vff_failure(form_id, _saved_claim_id, bi_uuid)
     # Look up the form submission attempt to determine if email notification is expected
     form_submission_attempt = FormSubmissionAttempt.find_by(benefits_intake_uuid: bi_uuid)
     email_notification_expected = form_submission_attempt&.send(:should_send_simple_forms_email) || false

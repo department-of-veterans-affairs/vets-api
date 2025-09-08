@@ -85,14 +85,14 @@ module SimpleFormsApi
 
         # Track email send success for all forms
         email.send(at: time_to_send)
-        
+
         # Record email sent successfully
-        StatsD.increment('api.simple_forms.email.sent', 
-                        tags: ["form_id:#{form_submission.form_type}", "type:#{notification_type}"])
-        Rails.logger.info('Simple forms email notification sent successfully', 
-                         form_id: form_submission.form_type, 
-                         notification_type: notification_type,
-                         benefits_intake_uuid: @benefits_intake_uuid)
+        StatsD.increment('api.simple_forms.email.sent',
+                         tags: ["form_id:#{form_submission.form_type}", "type:#{notification_type}"])
+        Rails.logger.info('Simple forms email notification sent successfully',
+                          form_id: form_submission.form_type,
+                          notification_type:,
+                          benefits_intake_uuid: @benefits_intake_uuid)
       end
 
       def statsd_tags
@@ -109,9 +109,10 @@ module SimpleFormsApi
         )
 
         # Track email failure for all forms
-        StatsD.increment('api.simple_forms.email.failed', 
-                        tags: ["form_id:#{form_submission&.form_type}", "type:#{notification_type}", "error_class:#{e.class.name}"])
-        
+        StatsD.increment('api.simple_forms.email.failed',
+                         tags: ["form_id:#{form_submission&.form_type}", "type:#{notification_type}",
+                                "error_class:#{e.class.name}"])
+
         StatsD.increment('silent_failure', tags: statsd_tags) if notification_type == :error
 
         # Track VFF email notification failure if this is a VFF form

@@ -7,8 +7,8 @@ require 'support/shared_examples/monitor_shared_examples'
 RSpec.describe VFF::Monitor do
   let(:monitor) { described_class.new }
   let(:user_account) { create(:user_account) }
-  let(:form_submission) { create(:form_submission, form_type: '21-0966', user_account: user_account) }
-  let(:form_submission_attempt) { create(:form_submission_attempt, form_submission: form_submission) }
+  let(:form_submission) { create(:form_submission, form_type: '21-0966', user_account:) }
+  let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
 
   describe 'constants' do
     it 'defines VFF_FORM_IDS with all expected form types' do
@@ -17,11 +17,12 @@ RSpec.describe VFF::Monitor do
       expect(described_class::VFF_FORM_IDS).to be_frozen
     end
 
-    it 'defines StatsD key constant' do
-      expect(described_class::BENEFITS_INTAKE_STATS_KEY).to eq('vff.benefits_intake')
+    it 'does not define StatsD key constant (delegated to existing patterns)' do
+      expect(described_class).not_to be_const_defined(:BENEFITS_INTAKE_STATS_KEY)
     end
 
-    it_behaves_like 'detects form types correctly', [%w[21-0966 21-4142 21-10210 21-0972 21P-0847 20-10206 20-10207 21-0845]]
+    it_behaves_like 'detects form types correctly',
+                    [%w[21-0966 21-4142 21-10210 21-0972 21P-0847 20-10206 20-10207 21-0845]]
   end
 
   describe '#initialize' do
@@ -29,15 +30,15 @@ RSpec.describe VFF::Monitor do
       expect(monitor).to be_a(ZeroSilentFailures::Monitor)
     end
 
-    it 'uses correct service name in StatsD tags' do
+    it 'uses correct service name in ZSF tracking' do
       allow(StatsD).to receive(:increment)
       allow(Rails.logger).to receive(:error)
 
       monitor.track_benefits_intake_failure('test-uuid', '21-0966', false)
 
       expect(StatsD).to have_received(:increment).with(
-        'vff.benefits_intake.failure',
-        tags: ['form_id:21-0966', 'service:veteran-facing-forms']
+        'silent_failure',
+        tags: ['service:veteran-facing-forms', 'function:<top (required)>']
       )
     end
 
@@ -60,8 +61,8 @@ RSpec.describe VFF::Monitor do
     context 'when no email sent' do
       it 'logs silent failure' do
         expected_context = {
-          benefits_intake_uuid: benefits_intake_uuid,
-          form_id: form_id
+          benefits_intake_uuid:,
+          form_id:
         }
 
         expect(monitor).to receive(:log_silent_failure).with(
@@ -73,10 +74,10 @@ RSpec.describe VFF::Monitor do
         monitor.track_benefits_intake_failure(benefits_intake_uuid, form_id, false)
       end
 
-      it 'increments StatsD metrics' do
+      it 'increments ZSF silent failure metrics' do
         expect(StatsD).to receive(:increment).with(
-          'vff.benefits_intake.failure',
-          tags: ['form_id:21-0966', 'service:veteran-facing-forms']
+          'silent_failure',
+          tags: ['service:veteran-facing-forms', 'function:<top (required)>']
         )
 
         monitor.track_benefits_intake_failure(benefits_intake_uuid, form_id, false)
@@ -87,8 +88,8 @@ RSpec.describe VFF::Monitor do
           'VFF Benefits Intake failure for form 21-0966',
           hash_including(
             service: 'veteran-facing-forms',
-            benefits_intake_uuid: benefits_intake_uuid,
-            form_id: form_id,
+            benefits_intake_uuid:,
+            form_id:,
             email_sent: false
           )
         )
@@ -100,8 +101,8 @@ RSpec.describe VFF::Monitor do
     context 'when email sent' do
       it 'logs silent failure no confirmation' do
         expected_context = {
-          benefits_intake_uuid: benefits_intake_uuid,
-          form_id: form_id
+          benefits_intake_uuid:,
+          form_id:
         }
 
         expect(monitor).to receive(:log_silent_failure_no_confirmation).with(
@@ -113,10 +114,10 @@ RSpec.describe VFF::Monitor do
         monitor.track_benefits_intake_failure(benefits_intake_uuid, form_id, true)
       end
 
-      it 'increments StatsD metrics' do
+      it 'increments ZSF silent failure avoided metrics' do
         expect(StatsD).to receive(:increment).with(
-          'vff.benefits_intake.failure',
-          tags: ['form_id:21-0966', 'service:veteran-facing-forms']
+          'silent_failure_avoided_no_confirmation',
+          tags: ['service:veteran-facing-forms', 'function:<top (required)>']
         )
 
         monitor.track_benefits_intake_failure(benefits_intake_uuid, form_id, true)
@@ -127,8 +128,8 @@ RSpec.describe VFF::Monitor do
           'VFF Benefits Intake failure for form 21-0966',
           hash_including(
             service: 'veteran-facing-forms',
-            benefits_intake_uuid: benefits_intake_uuid,
-            form_id: form_id,
+            benefits_intake_uuid:,
+            form_id:,
             email_sent: true
           )
         )
@@ -136,7 +137,6 @@ RSpec.describe VFF::Monitor do
         monitor.track_benefits_intake_failure(benefits_intake_uuid, form_id, true)
       end
     end
-
   end
 
   describe '#track_email_notification_failure' do
@@ -149,11 +149,8 @@ RSpec.describe VFF::Monitor do
       allow(Rails.logger).to receive(:error)
     end
 
-    it 'increments failure metric' do
-      expect(StatsD).to receive(:increment).with(
-        'vff.benefits_intake.email_failure',
-        tags: ['form_id:21-0966', 'service:veteran-facing-forms']
-      )
+    it 'does not increment StatsD metrics (delegated to existing patterns)' do
+      expect(StatsD).not_to receive(:increment)
 
       monitor.track_email_notification_failure(form_type, confirmation_number, error)
     end
@@ -182,7 +179,7 @@ RSpec.describe VFF::Monitor do
     end
 
     it 'returns false for non-VFF form IDs' do
-      non_vff_forms = ['686C-674', '28-8832', '28-1900', 'UNKNOWN-FORM']
+      non_vff_forms = %w[686C-674 28-8832 28-1900 UNKNOWN-FORM]
       non_vff_forms.each do |form_id|
         expect(described_class.vff_form?(form_id)).to be false
       end
