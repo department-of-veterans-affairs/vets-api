@@ -23,7 +23,7 @@ module IvcChampva
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
         'veteranMiddleName' => @data.dig('veteran', 'full_name', 'middle'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
-        'veteranEmail' => @data.dig('veteran', 'email_address'),
+        'veteranEmail' => @data.dig('veteran', 'email'),
         'sponsorFirstName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'first'),
         'sponsorMiddleName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'middle'),
         'sponsorLastName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'last'),
