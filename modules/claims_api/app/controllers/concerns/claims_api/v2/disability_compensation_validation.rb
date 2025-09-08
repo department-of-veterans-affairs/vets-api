@@ -1013,8 +1013,8 @@ module ClaimsApi
       # rubocop:disable Metrics/MethodLength
       def validate_required_values_for_federal_activation(activation_date, separation_date)
         activation_form_obj_desc = 'serviceInformation/federalActivation/'
-        reserves_dates_form_obj_desc = 'serviceInformation/reservesNationalGuardServce/obligationTermsOfService/'
-        reserves_unit_form_obj_desc = 'serviceInformation/reservesNationalGuardServce/'
+        reserves_dates_form_obj_desc = 'serviceInformation/reservesNationalGuardService/obligationTermsOfService/'
+        reserves_unit_form_obj_desc = 'serviceInformation/reservesNationalGuardService/'
 
         reserves = form_attributes.dig('serviceInformation', 'reservesNationalGuardService')
         tos_start_date = reserves&.dig('obligationTermsOfService', 'beginDate')
