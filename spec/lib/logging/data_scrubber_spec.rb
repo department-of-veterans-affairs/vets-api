@@ -95,7 +95,7 @@ RSpec.describe Logging::DataScrubber do
       context 'with array data' do
         it 'scrubs PII in array elements and nested structures' do
           input = ['Contact: john@example.com', 'Safe data', '42', [['email@test.com'], [123, 'ssn: 123-45-6789']]]
-          expected = ["Contact: #{redaction}", 'Safe data', '42', [[redaction], ['123', "ssn: #{redaction}"]]]
+          expected = ["Contact: #{redaction}", 'Safe data', '42', [[redaction], [123, "ssn: #{redaction}"]]]
           expect(described_class.scrub(input)).to eq(expected)
         end
 
@@ -145,12 +145,12 @@ RSpec.describe Logging::DataScrubber do
           expect(described_class.scrub(4_444_444_444_444_444)).to eq('[REDACTED]') # Credit card
           expect(described_class.scrub(12_345)).to eq('[REDACTED]') # ZIP code
 
-          # Numbers that don't look like PII should remain as strings
-          expect(described_class.scrub(42)).to eq('42')
-          expect(described_class.scrub(3.14)).to eq('3.14')
+          # Numbers that don't look like PII should remain as numbers
+          expect(described_class.scrub(42)).to eq(42)
+          expect(described_class.scrub(3.14)).to eq(3.14)
 
-          # Symbols should be converted to strings and scrubbed if they contain PII
-          expect(described_class.scrub(:symbol)).to eq('symbol')
+          # Symbols should be converted to strings and scrubbed only if they contain PII
+          expect(described_class.scrub(:symbol)).to eq(:symbol)
           expect(described_class.scrub(:'123-45-6789')).to eq('[REDACTED]')
         end
       end
@@ -171,6 +171,43 @@ RSpec.describe Logging::DataScrubber do
       it 'returns all data unchanged when flipper is disabled' do
         test_inputs.each do |input|
           expect(described_class.scrub(input)).to eq(input)
+        end
+      end
+    end
+
+    context 'with UUID preservation' do
+      let(:test_uuid) { '65ad9cdf-4a1a-45a5-8526-4e36b2fb92a1' }
+      let(:all_digit_uuid) { '12345678-1234-1234-1234-123456789012' }
+
+      it 'preserves UUIDs even when segments match PII patterns' do
+        uuid_test_cases = [
+          # UUIDs with segments that could match PII patterns
+          ["User ID: #{test_uuid}", "User ID: #{test_uuid}"],
+          ["Processing #{all_digit_uuid} for claim", "Processing #{all_digit_uuid} for claim"],
+          ["UUID: #{test_uuid} - SSN: 123-45-6789", "UUID: #{test_uuid} - SSN: [REDACTED]"],
+          # Multiple UUIDs with other PII
+          ["UUIDs #{test_uuid} and #{all_digit_uuid}, email: john@test.com",
+           "UUIDs #{test_uuid} and #{all_digit_uuid}, email: [REDACTED]"],
+          # UUID in data structures
+          [{ user_uuid: test_uuid, ssn: '123-45-6789' },
+           { user_uuid: test_uuid, ssn: '[REDACTED]' }]
+        ]
+
+        uuid_test_cases.each do |input, expected|
+          expect(described_class.scrub(input)).to eq(expected)
+        end
+      end
+
+      it 'still scrubs standalone numeric patterns that are not part of UUIDs' do
+        standalone_cases = [
+          ['Standalone SSN: 123-45-6789', 'Standalone SSN: [REDACTED]'],
+          ['Phone: 555-123-4567', 'Phone: [REDACTED]'],
+          ['EDIPI: 1234567890', 'EDIPI: [REDACTED]'],
+          ['ZIP: 12345', 'ZIP: [REDACTED]']
+        ]
+
+        standalone_cases.each do |input, expected|
+          expect(described_class.scrub(input)).to eq(expected)
         end
       end
     end

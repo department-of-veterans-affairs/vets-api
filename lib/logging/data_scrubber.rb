@@ -24,6 +24,8 @@ module Logging
   #   # => { ssn: "123-45-6789" } (unchanged)
   #
   module DataScrubber
+    UUID_REGEX = /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i
+
     # Regular expressions for detecting various types of PII and sensitive data
     REGEX = {
       # Social Security Numbers: 123-45-6789, 123456789, 123 45 6789
@@ -65,6 +67,9 @@ module Logging
       # Birth dates: 01/15/1985, 1-15-1985, 01.15.1985, 12/31/2000
       BIRTH_DATE: %r{\b(?:0?[1-9]|1[0-2])[/\-.](?:0?[1-9]|[12][0-9]|3[01])[/\-.](?:19|20)\d{2}\b}
     }.freeze
+
+    # Patterns that could match UUID segments and need exclusion
+    UUID_SENSITIVE_PATTERNS = %i[SSN EDIPI ROUTING_NUMBER PARTICIPANT_ID PHONE CREDIT_CARD ZIP_CODE].freeze
 
     # The string used to replace detected PII
     REDACTION = '[REDACTED]'
@@ -122,7 +127,10 @@ module Logging
       else
         # Cast all other leaf nodes to string and scrub to catch numeric PII
         # This ensures SSNs, credit cards, phone numbers stored as integers are caught
-        scrub_string(value.to_s)
+        result = scrub_string(value.to_s)
+
+        # If no PII was found in the string representation, return the original value
+        result.include?(REDACTION) ? result : value
       end
     end
 
@@ -137,7 +145,6 @@ module Logging
     # @example
     #   scrub_string("My SSN is 123-45-6789 and email is test@example.com")
     #   # => "My SSN is [REDACTED] and email is [REDACTED]"
-    #
     def scrub_string(message)
       return message if message.blank?
 
@@ -152,7 +159,23 @@ module Logging
       )
 
       # Apply all PII detection patterns and replace matches with REDACTION
-      message.gsub(combined_regex, REDACTION)
+      message.gsub(combined_regex) do |match|
+        # Get match position from MatchData
+        match_data = Regexp.last_match
+        match_start = match_data.offset(0)[0]
+        match_end = match_data.offset(0)[1]
+
+        # Extract context around the match to check for UUID pattern
+        before_match = message[0...match_start] || ''
+        after_match = message[match_end..] || ''
+        context = before_match[-40..].to_s + match + after_match[0..40].to_s
+
+        if context.match?(UUID_REGEX)
+          match # Keep original if it's part of a UUID
+        else
+          REDACTION # Replace if not part of a UUID
+        end
+      end
     end
   end
 end
