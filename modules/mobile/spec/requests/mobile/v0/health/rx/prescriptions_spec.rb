@@ -13,7 +13,6 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
   let(:mhv_account_type) { 'Premium' }
   let(:upstream_mhv_history_url) { 'https://mhv-api.example.com/v1/pharmacy/ess/medications' }
 
-
   before do
     allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(true)
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
