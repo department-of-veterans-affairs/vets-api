@@ -333,25 +333,9 @@ class FormProfile
     return_val
   end
 
-  def pciu_disabled?
-    Flipper.enabled?(:remove_pciu, user)
-  end
-
   def initialize_contact_information
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
-    if pciu_disabled?
-      # Monitor logs to validate the presence of Contact Information V2 user data
-      Rails.logger.info("VAProfile Contact Info: Address? #{opt[:address].present?},
-        Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
-    else
-      # The following pciu lines need to removed when tearing down the EVSS PCIU service.
-      opt[:email] ||= extract_pciu_data(:pciu_email)
-      if opt[:home_phone].nil?
-        opt[:home_phone] = pciu_primary_phone
-        opt[:us_phone] = pciu_us_phone
-      end
-    end
     opt[:address] ||= user_address_hash
 
     format_for_schema_compatibility(opt)
@@ -363,10 +347,8 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    if pciu_disabled?
+    if user.icn.present? || user.vet360_id.present?
       @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
-    elsif VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
-      @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
     else
       Rails.logger.info('Vet360 Contact Info Null')
     end
@@ -423,11 +405,6 @@ class FormProfile
 
     home = vet360_contact_info&.home_phone
     return home if home&.area_code && home.phone_number
-
-    if pciu_disabled?
-      # Track precense of home and mobile
-      Rails.logger.info("VAProfile Phone Object: Home? #{home.present?}, Mobile? #{mobile.present?}")
-    end
 
     phone_struct = Struct.new(:area_code, :phone_number)
 

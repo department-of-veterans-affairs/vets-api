@@ -76,6 +76,7 @@
       "disabledBefore18": true,
       "attendedSchoolLastYear": true,
       "dependentEducationExpenses": 45.2,
+      "receivedSupportLastYear": false,
       "grossIncome": 991.9,
       "netIncome": 981.2,
       "otherIncome": 91.9

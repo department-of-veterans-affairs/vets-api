@@ -6,10 +6,6 @@ require 'common/client/errors'
 RSpec.describe 'Mobile::V1::User', type: :request do
   include JsonSchemaMatchers
 
-  before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-  end
-
   let(:contact_information_service) do
     VAProfile::ContactInformation::V2::Service
   end

@@ -656,24 +656,16 @@ GEM
       base64
     jwt (2.10.2)
       base64
-    karafka-core (2.5.6)
-      karafka-rdkafka (>= 0.20.0)
+    karafka-core (2.5.5)
+      karafka-rdkafka (>= 0.19.2, < 0.21.0)
       logger (>= 1.6.0)
-    karafka-rdkafka (0.21.0)
+    karafka-rdkafka (0.20.1)
       ffi (~> 1.15)
-      json (> 2.0)
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
-    karafka-rdkafka (0.21.0-aarch64-linux-gnu)
+    karafka-rdkafka (0.20.1-x86_64-linux-gnu)
       ffi (~> 1.15)
-      json (> 2.0)
-      logger
-      mini_portile2 (~> 2.6)
-      rake (> 12)
-    karafka-rdkafka (0.21.0-x86_64-linux-gnu)
-      ffi (~> 1.15)
-      json (> 2.0)
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
@@ -824,7 +816,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pg (1.6.1)
+    pg (1.6.2)
     pg_query (6.1.0)
       google-protobuf (>= 3.25.3)
     pg_search (2.3.7)
@@ -863,9 +855,9 @@ GEM
       date
       jar-dependencies (>= 0.1.7)
     public_suffix (6.0.2)
-    puma (6.6.1)
+    puma (7.0.0)
       nio4r (~> 2.0)
-    puma (6.6.1-java)
+    puma (7.0.0-java)
       nio4r (~> 2.0)
     pundit (2.5.0)
       activesupport (>= 3.0.0)
@@ -1045,7 +1037,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.44.0, < 2.0)
-    rubocop-rspec (3.6.0)
+    rubocop-rspec (3.7.0)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     rubocop-rspec_rails (2.31.0)
@@ -1181,7 +1173,7 @@ GEM
       addressable
       faraday (>= 1.9, < 3)
       nokogiri (>= 1.13.9)
-    waterdrop (2.8.7)
+    waterdrop (2.8.6)
       karafka-core (>= 2.4.9, < 3.0.0)
       karafka-rdkafka (>= 0.20.0)
       zeitwerk (~> 2.3)
@@ -1324,6 +1316,7 @@ DEPENDENCIES
   jsonapi-serializer
   jwe
   jwt
+  karafka-core (= 2.5.5)
   kms_encrypted
   liquid
   lockbox
@@ -1436,7 +1429,7 @@ DEPENDENCIES
   vre!
   vye!
   warden-github
-  waterdrop
+  waterdrop (= 2.8.6)
   web-console
   webmock
   webrick

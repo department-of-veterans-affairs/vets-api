@@ -297,6 +297,9 @@ features:
   champva_form_10_10d_2027:
     actor_type: user
     description: If enabled uses the 2027 version of form 10-10d with expiration 12/31/2027
+  champva_form_10_7959f_2_2025:
+    actor_type: user
+    description: If enabled uses the 2025 version of form 10-7959f-2 with expiration 12/31/2027
   champva_ves_retry_failures_job:
     actor_type: user
     description: Enables the sidekiq job to retry VES submissions that failed
@@ -2294,10 +2297,6 @@ features:
   search_use_v2_gsa:
     actor_type: cookie_id
     description: Swaps the Search Service's for one with an updated api.gsa.gov address
-    enable_in_development: true
-  remove_pciu:
-    actor_type: user
-    description: If enabled, VA Profile is used to populate contact information with PCIU backup calls
     enable_in_development: true
   override_address_pou:
     actor_type: user
