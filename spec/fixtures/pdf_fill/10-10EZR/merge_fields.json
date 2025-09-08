@@ -2,7 +2,7 @@
   "veteranFullName": "Jones, Indiana, Bill II",
   "veteranSocialSecurityNumber": "234-22-1243",
   "veteranDateOfBirth": "01/01/1980",
-  "gender": 1,
+  "gender": 0,
   "veteranAddress": {
     "street": "321 Elm St, Unit 4, Apt 4",
     "street2": "Unit 4",
@@ -53,6 +53,7 @@
       "disabledBefore18": "YES",
       "attendedSchoolLastYear": "YES",
       "dependentEducationExpenses": 45.2,
+      "receivedSupportLastYear": "NO",
       "grossIncome": 991.9,
       "netIncome": 981.2,
       "otherIncome": 91.9,

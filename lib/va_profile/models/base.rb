@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
-require 'common/models/attribute_types/iso8601_time'
+require 'vets/model'
 
 module VAProfile
   module Models
     class Base
-      include ActiveModel::Validations
-      include ActiveModel::Serialization
-      include Virtus.model(nullify_blank: true)
+      include Vets::Model
 
       SOURCE_SYSTEM = 'VETSGOV'
+
+      alias to_h attributes
+      alias to_hash attributes
     end
   end
 end
