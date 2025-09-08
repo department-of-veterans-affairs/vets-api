@@ -57,7 +57,6 @@ RSpec.describe DependentsVerification::FormProfiles::VA210538, type: :model do
 
   before do
     Timecop.freeze(Time.zone.local(2020, 1, 1))
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     allow(FormProfile).to receive(:prefill_enabled_forms).and_return([form_id])
   end
 

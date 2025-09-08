@@ -37,6 +37,7 @@ module EventBusGateway
       end
     rescue => e
       record_email_send_failure(e)
+      raise
     end
 
     private
