@@ -60,20 +60,26 @@ module AccreditedRepresentativePortal
       # rubocop:enable Metrics/MethodLength
 
       def upload_scanned_form
-        ar_monitoring.trace('ar.claims.form_upload.upload_scanned_form') do |_span|
+        ar_monitoring.trace('ar.claims.form_upload.upload_scanned_form') do |span|
           handle_attachment_upload(
             PersistentAttachments::VAForm,
             PersistentAttachmentVAFormSerializer
           )
+
+          span.set_tag('form_id', form_id)
+          Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
         end
       end
 
       def upload_supporting_documents
-        ar_monitoring.trace('ar.claims.form_upload.upload_supporting_documents') do |_span|
+        ar_monitoring.trace('ar.claims.form_upload.upload_supporting_documents') do |span|
           handle_attachment_upload(
             PersistentAttachments::VAFormDocumentation,
             PersistentAttachmentSerializer
           )
+
+          span.set_tag('form_id', form_id)
+          Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
         end
       end
 
