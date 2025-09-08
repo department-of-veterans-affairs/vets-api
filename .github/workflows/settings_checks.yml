@@ -44,8 +44,13 @@ jobs:
         with:
           number: ${{ github.event.pull_request.number }}
           labels: settings-failure
+
   check-parameters:
     runs-on: ubuntu-32-cores-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
 
     steps:
       - name: Checkout repository
@@ -102,7 +107,7 @@ jobs:
             exit 0
           fi
       
-          # Mask the keys themselves (belt & suspenders—even though these are names, not values)
+          # Mask the keys themselves
           for k in $new_env_keys; do
             echo "::add-mask::$k"
           done
@@ -110,7 +115,6 @@ jobs:
           invalid_parameters=()
       
           for key in $new_env_keys; do
-            # format to SSM path and mask those paths too
             formatted_key=$(echo "$key" | sed 's/__/\//g')
             for p in \
               "/dsva-vagov/vets-api/dev/env_vars/$formatted_key" \
@@ -129,18 +133,15 @@ jobs:
             )
       
             set +e
-            # We only query InvalidParameters; we never request values/decryption
             ssm_output=$(aws ssm get-parameters --names "${names[@]}" --query "InvalidParameters" --output json 2>&1)
             ec=$?
             set -e
       
             if [[ $ec -ne 0 ]]; then
-              # Do not echo AWS output to avoid any accidental leakage
               echo "Warning: AWS SSM query failed for one key (skipping)."
               continue
             fi
       
-            # Collect invalid parameter names silently
             if [[ "$ssm_output" != "[]" && "$ssm_output" != "null" ]]; then
               while read -r param; do
                 [[ -n "$param" ]] && invalid_parameters+=("$param")
@@ -149,7 +150,6 @@ jobs:
           done
       
           if [[ ${#invalid_parameters[@]} -gt 0 ]]; then
-            # Also mask invalid parameter names before exporting
             for p in "${invalid_parameters[@]}"; do
               echo "::add-mask::$p"
             done
@@ -164,23 +164,26 @@ jobs:
             echo "INVALID_PARAMETERS=" >> "$GITHUB_ENV"
             echo "No invalid parameters found."
           fi
+
       - name: Respond to PR if invalid parameters are found
-        if: env.INVALID_PARAMETERS != ''
+        if: ${{ env.INVALID_PARAMETERS != '' }}
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           message: |
             :warning: The following Parameter Store values are invalid. Please make sure the values are correct and exist in AWS Parameter Store before merging:
             ${{ env.INVALID_PARAMETERS }}
           github-token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          pr_number: ${{ github.event.pull_request.number }}
 
       - name: Fail if invalid parameters are found
-        if: env.INVALID_PARAMETERS != ''
+        if: ${{ env.INVALID_PARAMETERS != '' }}
         run: exit 1
 
       - name: Respond to PR if no invalid parameters are found
-        if: env.INVALID_PARAMETERS == ''
+        if: ${{ env.INVALID_PARAMETERS == '' }}
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           message: |
             :+1: All Parameter Store values in this PR are valid
           github-token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          pr_number: ${{ github.event.pull_request.number }}
