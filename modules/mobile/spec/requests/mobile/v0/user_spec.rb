@@ -10,10 +10,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     VAProfile::ContactInformation::V2::Service
   end
 
-  before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-  end
-
   describe 'GET /mobile/v0/user' do
     let!(:user) do
       sis_user(
