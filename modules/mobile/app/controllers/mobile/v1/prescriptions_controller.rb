@@ -93,7 +93,7 @@ module Mobile
 
       def apply_filters(prescriptions)
         filter_params_hash = filter_params.to_h
-        
+
         prescriptions.select do |prescription|
           filter_params_hash.all? do |key, value|
             case key.to_sym
@@ -113,7 +113,7 @@ module Mobile
       def apply_sorting(prescriptions)
         # Default sort by prescription_name if no sort specified
         sort_param = params[:sort] || 'prescription_name'
-        
+
         case sort_param
         when 'prescription_name'
           prescriptions.sort_by { |p| p.prescription_name || '' }
@@ -148,7 +148,7 @@ module Mobile
       def filter_params
         @filter_params ||= begin
           return {} unless params[:filter]
-          
+
           valid_filter_params = params.require(:filter).permit(:refill_status, :is_refillable, :is_trackable)
           valid_filter_params.empty? ? {} : valid_filter_params
         end
@@ -156,7 +156,7 @@ module Mobile
 
       def ids
         ids = params.require(:ids)
-        raise Common::Exceptions::InvalidFieldValue.new('ids', ids) unless ids.is_a? Array
+        raise Common::Exceptions::InvalidFieldValue.new('ids', ids) unless ids.is_a?(Array)
 
         ids.map(&:to_i)
       end
