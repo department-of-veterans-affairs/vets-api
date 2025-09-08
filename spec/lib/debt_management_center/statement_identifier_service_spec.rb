@@ -3,8 +3,7 @@
 require 'rails_helper'
 require 'debt_management_center/statement_identifier_service'
 
-RSpec.describe DebtManagementCenter::StatementIdentifierService, :skip_vet360,
-               type: :service do
+RSpec.describe DebtManagementCenter::StatementIdentifierService, type: :service do
   describe '#get_mpi_data' do
     context 'given edipi statement' do
       edipi = '492031291'
@@ -192,10 +191,6 @@ RSpec.describe DebtManagementCenter::StatementIdentifierService, :skip_vet360,
   end
 
   describe '#get_mpi_data v2' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-    end
-
     context 'given edipi statement' do
       edipi = '492031291'
       let(:verification) { build(:dslogon_user_verification) }
