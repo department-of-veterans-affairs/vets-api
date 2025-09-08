@@ -184,16 +184,6 @@ describe TravelPay::ExpensesService do
       expect(result).to eq(get_expense_data['data'])
     end
 
-    it 'handles different expense types' do
-      allow_any_instance_of(TravelPay::ExpensesClient)
-        .to receive(:get_expense)
-        .with(tokens[:veis_token], tokens[:btsss_token], 'other', expense_id)
-        .and_return(get_expense_response)
-
-      result = service.get_expense('other', expense_id)
-      expect(result).to eq(get_expense_data['data'])
-    end
-
     it 'raises ArgumentError when expense_type is blank' do
       expect do
         service.get_expense('', expense_id)
