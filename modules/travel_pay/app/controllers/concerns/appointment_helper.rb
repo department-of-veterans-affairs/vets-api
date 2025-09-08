@@ -3,8 +3,8 @@
 module AppointmentHelper
   extend ActiveSupport::Concern
 
-  def find_or_create_appt_id!(params = {})
-    Rails.logger.info(message: "Get appt by date time: #{params['appointment_date_time']}")
+  def find_or_create_appt_id!(claim_type, params = {})
+    Rails.logger.info(message: "#{claim_type} claim: Get appt by date time: #{params['appointment_date_time']}")
     appt = appts_service.find_or_create_appointment(params)
 
     if appt.nil? || appt[:data].nil?

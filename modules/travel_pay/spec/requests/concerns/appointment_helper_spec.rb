@@ -25,7 +25,7 @@ RSpec.describe AppointmentHelper do
 
         instance.appts_service = service_double
 
-        expect(instance.find_or_create_appt_id!(params)).to eq(appointment_id)
+        expect(instance.find_or_create_appt_id!('Complex', params)).to eq(appointment_id)
       end
     end
 
@@ -36,7 +36,7 @@ RSpec.describe AppointmentHelper do
 
         instance.appts_service = service_double
 
-        expect { instance.find_or_create_appt_id!(params) }.to raise_error do |error|
+        expect { instance.find_or_create_appt_id!('Complex', params) }.to raise_error do |error|
           expect(error).to be_a(Common::Exceptions::ResourceNotFound)
           expect(error.errors.first[:detail]).to eq("No appointment found for #{params['appointment_date_time']}")
         end
@@ -52,7 +52,7 @@ RSpec.describe AppointmentHelper do
 
         instance.appts_service = service_double
 
-        expect { instance.find_or_create_appt_id!(params) }.to raise_error do |error|
+        expect { instance.find_or_create_appt_id!('Complex', params) }.to raise_error do |error|
           expect(error).to be_a(Common::Exceptions::ResourceNotFound)
           expect(error.errors.first[:detail]).to eq("No appointment found for #{params['appointment_date_time']}")
         end
