@@ -8,7 +8,6 @@ module AccreditedRepresentativePortal
       :power_of_attorney_holder_poa_code,
       :accredited_individual_registration_number
     )
-
     class << self
       def find(&)
         Finder.new.tap(&).perform
