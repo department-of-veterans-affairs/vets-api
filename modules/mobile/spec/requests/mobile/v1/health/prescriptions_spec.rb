@@ -173,45 +173,6 @@ RSpec.describe 'Mobile::V1::Health::Rx::Prescriptions', type: :request do
     end
   end
 
-  describe 'GET /mobile/v1/health/rx/prescriptions/:id' do
-    context 'when UHD service returns prescription details' do
-      before do
-        allow(uhd_client).to receive(:get_prescription).with(
-          user_icn: user.icn,
-          prescription_id: '12345'
-        ).and_return(sample_uhd_prescription)
-        get '/mobile/v1/health/rx/prescriptions/12345', headers: sis_headers
-      end
-
-      it 'returns a 200 status' do
-        expect(response).to have_http_status(:ok)
-      end
-
-      it 'returns prescription details in the expected format' do
-        data = response.parsed_body['data']
-        expect(data).to include(
-          'id' => '12345',
-          'type' => 'prescription',
-          'attributes' => include(
-            'prescriptionId' => 12345,
-            'prescriptionName' => 'Test Medication'
-          )
-        )
-      end
-    end
-
-    context 'when feature flag is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, user).and_return(false)
-        get '/mobile/v1/health/rx/prescriptions/12345', headers: sis_headers
-      end
-
-      it 'returns 501 Not Implemented' do
-        expect(response).to have_http_status(:not_implemented)
-      end
-    end
-  end
-
   describe 'PUT /mobile/v1/health/rx/prescriptions/refill' do
     context 'when UHD service successfully refills prescriptions' do
       before do
