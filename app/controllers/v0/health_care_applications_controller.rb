@@ -120,7 +120,7 @@ module V0
       in_progress_form_before = nil
       if Flipper.enabled?(:hca_in_progress_form_logging)
         in_progress_form_before = InProgressForm.form_for_user(FORM_ID, current_user)
-        Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}][#{log_hca_id}, " \
+        Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}][#{hca_id}, " \
                           "form_submission_id: #{health_care_application.form_submission_id_string}] - " \
                           "InProgressForm exists before attempted delete: #{!in_progress_form_before.nil?}")
 
@@ -130,13 +130,13 @@ module V0
 
       if Flipper.enabled?(:hca_in_progress_form_logging) && in_progress_form_before
         in_progress_form_after = InProgressForm.form_for_user(FORM_ID, current_user)
-        Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}][#{log_hca_id}] - " \
+        Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}][#{hca_id}] - " \
                           "InProgressForm successfully deleted: #{in_progress_form_after.nil?}")
 
         increment_in_progress_metric(in_progress_form_after)
       end
     rescue => e
-      Rails.logger.warn("[10-10EZ][#{user_uuid},#{user_account_id}][#{log_hca_id}] - " \
+      Rails.logger.warn("[10-10EZ][#{user_uuid},#{user_account_id}][#{hca_id}] - " \
                         "Failed to clear saved form: #{e.message}")
     end
 
@@ -147,10 +147,10 @@ module V0
                       'in_progress_form_not_deleted'
                     end
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.#{metric_text}",
-                       tags: ["health_care_application_id:#{health_care_application.id}"])
+                       tags: [hca_id])
     end
 
-    def log_hca_id
+    def hca_id
       "health_care_application_id:#{health_care_application.id}"
     end
 

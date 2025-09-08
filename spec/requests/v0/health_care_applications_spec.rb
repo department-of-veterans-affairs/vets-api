@@ -494,7 +494,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             logger_regex = [
               /\[10-10EZ\]/,
               /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-              /\[helath_care_application_id:\d+\]/,
+              /\[health_care_application_id:\d+\]/,
               /  - Failed to clear saved form: Database connection failed/
             ]
             expect(Rails.logger).to receive(:warn).with(
@@ -524,7 +524,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                 logger_regex = [
                   /\[10-10EZ\]/,
                   /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                  /\[helath_care_application_id:\d+, form_submission_id: 436426340\]/,
+                  /\[health_care_application_id:\d+, form_submission_id: 436426340\]/,
                   / - InProgressForm exists before attempted delete: false/
                 ]
                 expect(Rails.logger).to receive(:info).with(
@@ -546,7 +546,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                 logger_regex = [
                   /\[10-10EZ\]/,
                   /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                  /\[helath_care_application_id:\d+\]/,
+                  /\[health_care_application_id:\d+\]/,
                   / - Failed to clear saved form: Database connection failed/
                 ]
                 expect(Rails.logger).to receive(:warn).with(
@@ -576,7 +576,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                 logger_regex_before = [
                   /\[10-10EZ\]/,
                   /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                  /\[helath_care_application_id:\d+, form_submission_id: 436426340\]/,
+                  /\[health_care_application_id:\d+, form_submission_id: 436426340\]/,
                   / - InProgressForm exists before attempted delete: true/
                 ]
                 expect(Rails.logger).to receive(:info).with(
@@ -586,7 +586,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                 logger_regex_after = [
                   /\[10-10EZ\]/,
                   /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                  /\[helath_care_application_id:\d+\]/,
+                  /\[health_care_application_id:\d+\]/,
                   / - InProgressForm successfully deleted: true/
                 ]
 
@@ -620,7 +620,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                   logger_regex_before = [
                     /\[10-10EZ\]/,
                     /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                    /\[helath_care_application_id:\d+, form_submission_id: 436426340\]/,
+                    /\[health_care_application_id:\d+, form_submission_id: 436426340\]/,
                     / - InProgressForm exists before attempted delete: true/
                   ]
                   expect(Rails.logger).to receive(:info).with(
@@ -630,7 +630,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                   logger_regex_after = [
                     /\[10-10EZ\]/,
                     /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                    /\[helath_care_application_id:\d+\]/,
+                    /\[health_care_application_id:\d+\]/,
                     / - InProgressForm successfully deleted: false/
                   ]
 
@@ -657,7 +657,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                 logger_regex = [
                   /\[10-10EZ\]/,
                   /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                  /\[helath_care_application_id:\d+\]/,
+                  /\[health_care_application_id:\d+\]/,
                   / - Failed to clear saved form: Database connection failed/
                 ]
 
