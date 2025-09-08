@@ -4,9 +4,7 @@ require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
-require_relative 'models/condition'
 require_relative 'reference_range_formatter'
-require_relative 'adapters/conditions_adapter'
 
 module UnifiedHealthData
   class Service < Common::Client::Base
@@ -36,45 +34,6 @@ module UnifiedHealthData
         log_test_code_distribution(parsed_records)
 
         filtered_records
-      end
-    end
-
-    def get_conditions
-      with_monitoring do
-        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
-        patient_id = @user.icn
-
-        start_date = '1900-01-01'
-        end_date = Time.zone.today.to_s
-
-        path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, headers)
-        body = parse_response_body(response.body)
-
-        combined_records = fetch_combined_records(body)
-        conditions_adapter.parse(combined_records)
-      end
-    end
-
-    def get_single_condition(condition_id)
-      with_monitoring do
-        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
-        patient_id = @user.icn
-
-        start_date = '1900-01-01'
-        end_date = Time.zone.today.to_s
-
-        path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, headers)
-        body = parse_response_body(response.body)
-
-        combined_records = fetch_combined_records(body)
-
-        filtered = combined_records.select { |record| record['resource']['id'] == condition_id }
-
-        return nil if filtered.empty?
-
-        conditions_adapter.parse_single_condition(filtered[0])
       end
     end
 
@@ -398,9 +357,6 @@ module UnifiedHealthData
 
     # Logs cases where test name is 3 characters or less instead of a human-friendly name to PersonalInformationLog
     # for secure tracking of patient records with this issue
-    def conditions_adapter
-      @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
-    end
 
     def log_short_test_name_issue(record)
       data = {
