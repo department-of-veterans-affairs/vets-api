@@ -49,7 +49,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
             ),
             create(
               :representative,
-              user_types: ['claims_agent'],
+              user_types: ['claim_agents'],
               representative_id: 'R1001',
               poa_codes: ['P11']
             )
@@ -144,7 +144,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
             )
             create(
               :representative,
-              user_types: ['claims_agent'],
+              user_types: ['claim_agents'],
               representative_id: 'R1001',
               poa_codes: ['P11'],
               email: emails.last
@@ -246,7 +246,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         )
         create(
           :representative,
-          user_types: ['claims_agent'],
+          user_types: ['claim_agents'],
           representative_id: 'R1001',
           poa_codes: ['P11'],
           email: emails.last
