@@ -24,19 +24,19 @@ module Mobile
             prescription_number: uhd_prescription.prescription_number,
             prescription_name: uhd_prescription.prescription_name,
             refill_status: uhd_prescription.refill_status,
-            refill_submit_date: parse_date(uhd_prescription.refill_submit_date),
-            refill_date: parse_date(uhd_prescription.refill_date),
+            refill_submit_date: uhd_prescription.refill_submit_date,
+            refill_date: uhd_prescription.refill_date,
             refill_remaining: uhd_prescription.refill_remaining,
             facility_name: uhd_prescription.facility_name,
             is_refillable: uhd_prescription.refillable?,
             is_trackable: uhd_prescription.trackable?,
-            ordered_date: parse_date(uhd_prescription.ordered_date),
+            ordered_date: uhd_prescription.ordered_date,
             quantity: uhd_prescription.quantity,
-            expiration_date: parse_date(uhd_prescription.expiration_date),
-            prescribed_date: parse_date(uhd_prescription.prescribed_date),
+            expiration_date: uhd_prescription.expiration_date,
+            prescribed_date: uhd_prescription.prescribed_date,
             station_number: uhd_prescription.station_number,
             instructions: uhd_prescription.sig,
-            dispensed_date: parse_date(uhd_prescription.dispensed_date),
+            dispensed_date: uhd_prescription.dispensed_date,
             sig: uhd_prescription.sig,
             ndc_number: uhd_prescription.ndc_number,
             facility_phone_number: uhd_prescription.cmop_division_phone,
@@ -50,22 +50,6 @@ module Mobile
           return nil if id.nil?
 
           id.is_a?(String) ? id.to_i : id
-        end
-
-        def parse_date(date_string)
-          return nil if date_string.blank?
-
-          # Handle various date formats that might come from UHD
-          case date_string
-          when String
-            Time.zone.parse(date_string)
-          when Time, DateTime
-            date_string
-          else
-            nil
-          end
-        rescue ArgumentError
-          nil
         end
       end
     end
