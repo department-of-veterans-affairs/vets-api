@@ -31,7 +31,7 @@ RSpec.describe SimpleFormsApi::VBA214138 do
       expect(result.first[:coords]).to eq([460, 710])
       expect(result.first[:page]).to eq(0)
       expect(result.first[:font_size]).to eq(12)
-      
+
       expect(result.last[:text]).to eq('10:30 UTC 2023-05-15')
       expect(result.last[:coords]).to eq([460, 690])
       expect(result.last[:page]).to eq(0)

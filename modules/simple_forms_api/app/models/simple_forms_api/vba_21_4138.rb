@@ -22,7 +22,7 @@ module SimpleFormsApi
         },
         {
           coords: [460, 690],
-          text: timestamp.utc.strftime('%H:%M UTC %Y-%m-%d'), 
+          text: timestamp.utc.strftime('%H:%M UTC %Y-%m-%d'),
           page: 0,
           font_size: 12
         }
