@@ -9,6 +9,7 @@ module V0
   class HealthCareApplicationsController < ApplicationController
     include IgnoreNotFound
     include RetriableConcern
+    include PdfFilenameGenerator
 
     service_tag 'healthcare-application'
     FORM_ID = '1010ez'
@@ -42,17 +43,15 @@ module V0
       health_care_application.google_analytics_client_id = params[:ga_client_id]
       health_care_application.user = current_user
 
+      log_in_progress_form if current_user
+
       begin
         result = health_care_application.process!
       rescue HCA::SOAPParser::ValidationError
         raise Common::Exceptions::BackendServiceException.new('HCA422', status: 422)
       end
 
-      begin
-        clear_saved_form(FORM_ID) if current_user
-      rescue => e
-        Rails.logger.warn("[10-10EZ] - Failed to clear saved form: #{e.message}")
-      end
+      clear_in_progress_form if current_user
 
       if result[:id]
         render json: HealthCareApplicationSerializer.new(result)
@@ -99,7 +98,7 @@ module V0
         PdfFill::Filler.fill_form(health_care_application, file_name)
       end
 
-      client_file_name = file_name_for_pdf(health_care_application.parsed_form)
+      client_file_name = file_name_for_pdf(health_care_application.parsed_form, 'veteranFullName', '10-10EZ')
       file_contents    = File.read(source_file_path)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
@@ -109,11 +108,44 @@ module V0
 
     private
 
-    def file_name_for_pdf(parsed_form)
-      veteran_name = parsed_form.try(:[], 'veteranFullName')
-      first_name = veteran_name.try(:[], 'first') || 'First'
-      last_name = veteran_name.try(:[], 'last') || 'Last'
-      "10-10EZ_#{first_name}_#{last_name}.pdf"
+    def log_in_progress_form
+      return unless Flipper.enabled?(:hca_in_progress_form_logging)
+
+      in_progress_form = InProgressForm.form_for_user(FORM_ID, current_user)
+      Rails.logger.info("[10-10EZ][#{log_user_uuid}] " \
+                        "- HealthCareApplication has InProgressForm: #{!in_progress_form.nil?}")
+    end
+
+    def clear_in_progress_form
+      in_progress_form_before = nil
+      if Flipper.enabled?(:hca_in_progress_form_logging)
+        in_progress_form_before = InProgressForm.form_for_user(FORM_ID, current_user)
+        Rails.logger.info("[10-10EZ][#{log_user_uuid}][#{log_hca_id}, " \
+                          "form_submission_id: #{health_care_application.form_submission_id_string}] - " \
+                          "InProgressForm exists before attempted delete: #{!in_progress_form_before.nil?}")
+
+      end
+
+      clear_saved_form(FORM_ID)
+
+      if Flipper.enabled?(:hca_in_progress_form_logging) && in_progress_form_before
+        in_progress_form_after = InProgressForm.form_for_user(FORM_ID, current_user)
+        Rails.logger.info("[10-10EZ][#{log_user_uuid}][#{log_hca_id}] - " \
+                          "InProgressForm successfully deleted: #{in_progress_form_after.nil?}")
+      end
+    rescue => e
+      Rails.logger.warn("[10-10EZ][#{log_user_uuid}][#{log_hca_id}] - Failed to clear saved form: #{e.message}")
+    end
+
+    def log_hca_id
+      "HCA id: #{health_care_application.id}"
+    end
+
+    def log_user_uuid
+      user_uuid = current_user.uuid || 'none'
+      user_account_id = current_user&.user_account&.id || 'none'
+
+      "User uuid: #{user_uuid}, UserAccount id: #{user_account_id}"
     end
 
     def health_care_application

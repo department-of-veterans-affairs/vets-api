@@ -52,6 +52,10 @@
       :path: "/veis/api/btsss/travelclaim/api/v2/appointments"
       :file_path: "/travel_pay/appointments/default"
       :response_delay: 0.3
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v2/appointments/find-or-add"
+      :file_path: "/travel_pay/appointments/default"
+      :response_delay: 0.3
     - :method: :patch
       :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/submit"
       :file_path: "/travel_pay/claims/submit"
@@ -63,16 +67,21 @@
       :path: "/veis/api/btsss/travelclaim/api/v2/claims"
       :file_path: "/travel_pay/claims/create/default"
       :response_delay: 0.3
-    - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v2/expenses/mileage"
-      :file_path: "/travel_pay/expenses/default"
-      :response_delay: 0.3
     - :method: :get
       :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/documents/*"
       :file_path: "/travel_pay/documents"
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents\/(.+)'
+      :response_delay: 0.3
+    ## Expenses
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v2/expenses/mileage"
+      :file_path: "/travel_pay/expenses/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v1/expenses/other"
+      :file_path: "/travel_pay/expenses/other/create"
       :response_delay: 0.3
 
 #CRM Token post

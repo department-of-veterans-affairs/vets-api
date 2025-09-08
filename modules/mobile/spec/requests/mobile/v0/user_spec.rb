@@ -7,11 +7,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
 
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
   let(:contact_information_service) do
-    VAProfile::V2::ContactInformation::Service
-  end
-
-  before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
+    VAProfile::ContactInformation::V2::Service
   end
 
   describe 'GET /mobile/v0/user' do
