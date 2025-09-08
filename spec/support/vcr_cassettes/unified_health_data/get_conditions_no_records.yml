@@ -1,0 +1,63 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://staging-api.va.gov/mhvapi/security/v1/login
+    body:
+      encoding: UTF-8
+      string: '{"appId":"MHV","appToken":"test-token","subject":"MHV","userType":"PATIENT"}'
+    headers:
+      Content-Type:
+      - application/json
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer test-access-token
+    body:
+      encoding: UTF-8
+      string: '{"access_token":"test-access-token"}'
+  recorded_at: Thu, 08 Sep 2025 14:00:00 GMT
+- request:
+    method: get
+    uri: https://staging-api.va.gov/v1/medicalrecords/conditions?patientId=1014135410V826374
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Authorization:
+      - Bearer test-access-token
+      X-Api-Key:
+      - test-api-key
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: |
+        {
+          "vista": {
+            "entry": []
+          },
+          "oracle-health": {
+            "entry": []
+          }
+        }
+  recorded_at: Thu, 08 Sep 2025 14:00:00 GMT
+recorded_with: VCR 6.1.0

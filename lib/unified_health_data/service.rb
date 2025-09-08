@@ -6,6 +6,7 @@ require_relative 'configuration'
 require_relative 'models/lab_or_test'
 require_relative 'models/condition'
 require_relative 'reference_range_formatter'
+require_relative 'adapters/conditions_adapter'
 
 module UnifiedHealthData
   class Service < Common::Client::Base
@@ -47,9 +48,25 @@ module UnifiedHealthData
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)
-        parsed_records = parse_conditions(combined_records)
+        conditions_adapter.parse(combined_records)
+      end
+    end
 
-        parsed_records
+    def get_single_condition(condition_id)
+      with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        patient_id = @user.icn
+        path = "#{config.base_path}conditions?patientId=#{patient_id}"
+        response = perform(:get, path, nil, headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+
+        filtered = combined_records.select { |record| record['resource']['id'] == condition_id }
+
+        return nil if filtered.empty?
+
+        conditions_adapter.parse_single_condition(filtered[0])
       end
     end
 
@@ -138,16 +155,6 @@ module UnifiedHealthData
       parsed.compact
     end
 
-    def parse_conditions(records)
-      return [] if records.blank?
-
-      filtered = records.select do |record|
-        record['resource'] && record['resource']['resourceType'] == 'Condition'
-      end
-      parsed = filtered.map { |record| parse_single_condition(record) }
-      parsed.compact
-    end
-
     def parse_single_record(record)
       return nil if record.nil? || record['resource'].nil?
 
@@ -163,49 +170,6 @@ module UnifiedHealthData
         type: record['resource']['resourceType'],
         attributes:
       )
-    end
-
-    def parse_single_condition(record)
-      return nil if record.nil? || record['resource'].nil?
-
-      resource = record['resource']
-
-      UnifiedHealthData::Condition.new(
-        id: resource['id'],
-        date: resource['onsetDateTime'] || resource['recordedDate'],
-        name: resource.dig('code', 'coding', 0, 'display') || resource.dig('code', 'text') || '',
-        provider: extract_condition_provider(resource),
-        facility: extract_condition_facility(resource),
-        comments: extract_condition_comments(resource)
-      )
-    end
-
-    def extract_condition_comments(resource)
-      return [] unless resource['note']
-
-      if resource['note'].is_a?(Array)
-        resource['note'].map { |note| note['text'] }.compact
-      else
-        [resource['note']['text']].compact
-      end
-    end
-
-    def extract_condition_provider(resource)
-      return resource.dig('asserter', 'display') || '' unless resource['contained']
-
-      practitioner = resource['contained'].find { |item| item['resourceType'] == 'Practitioner' }
-      return '' unless practitioner
-
-      practitioner.dig('name', 0, 'text') || ''
-    end
-
-    def extract_condition_facility(resource)
-      return resource.dig('encounter', 'display') || '' unless resource['contained']
-
-      location = resource['contained'].find { |item| item['resourceType'] == 'Location' }
-      return '' unless location
-
-      location['name'] || ''
     end
 
     def build_lab_or_test_attributes(record)
@@ -426,6 +390,10 @@ module UnifiedHealthData
 
     # Logs cases where test name is 3 characters or less instead of a human-friendly name to PersonalInformationLog
     # for secure tracking of patient records with this issue
+    def conditions_adapter
+      @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
+    end
+
     def log_short_test_name_issue(record)
       data = {
         icn: @user.icn,

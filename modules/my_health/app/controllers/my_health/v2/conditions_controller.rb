@@ -7,11 +7,28 @@ module MyHealth
   module V2
     class ConditionsController < ApplicationController
       service_tag 'mhv-medical-records'
-      # skip_before_action :authenticate # TODO: Uncomment for local testing
 
       def index
         conditions = service.get_conditions
-        render json: UnifiedHealthData::Serializers::ConditionSerializer.new(conditions).serializable_hash[:data],
+        render json: UnifiedHealthData::Serializers::ConditionSerializer.new(conditions),
+               status: :ok
+      rescue Common::Client::Errors::ClientError,
+             Common::Exceptions::BackendServiceException,
+             StandardError => e
+        handle_error(e)
+      end
+
+      def show
+        condition = service.get_single_condition(params['id'])
+        unless condition
+          render_error('Record Not Found',
+                       'The requested condition was not found',
+                       '404', 404, :not_found)
+          return
+        end
+
+        serialized_condition = UnifiedHealthData::Serializers::ConditionSerializer.new(condition)
+        render json: serialized_condition,
                status: :ok
       rescue Common::Client::Errors::ClientError,
              Common::Exceptions::BackendServiceException,
@@ -59,8 +76,6 @@ module MyHealth
       end
 
       def service
-        # test_user = OpenStruct.new(icn: '1014135410V826374')
-        # UnifiedHealthData::Service.new(test_user)
         UnifiedHealthData::Service.new(@current_user)
       end
     end

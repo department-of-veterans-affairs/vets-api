@@ -5,8 +5,9 @@ module UnifiedHealthData
     class ConditionSerializer
       include JSONAPI::Serializer
 
+      set_id :id
       set_type :condition
-      attributes :date, :name, :provider, :facility, :comments
+      attributes :id, :date, :name, :provider, :facility, :comments
     end
   end
 end
