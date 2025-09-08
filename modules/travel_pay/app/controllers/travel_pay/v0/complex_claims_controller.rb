@@ -40,29 +40,14 @@ module TravelPay
       end
 
       def render_bad_request(e)
-        # Early return if there are no detailed errors
-        unless e.respond_to?(:errors) && e.errors.present?
-          return render json: { errors: [{ detail: 'Bad request' }] }, status: :bad_request
-        end
+        # Extract the first detail from errors array, fallback to generic
+        error_detail = if e.respond_to?(:errors) && e.errors.any?
+                         e.errors.first[:detail] || 'Bad request'
+                       else
+                         'Bad request'
+                       end
 
-        render json: { errors: mapped_errors_list(e.errors) }, status: :bad_request
-      end
-
-      def mapped_errors_list(errors)
-        errors.map do |err|
-          if err.is_a?(Hash)
-            err
-          elsif err.respond_to?(:detail)
-            {
-              detail: err.detail,
-              title: err.try(:title),
-              code: err.try(:code),
-              status: err.try(:status)
-            }.compact
-          else
-            { detail: err.to_s }
-          end
-        end
+        render json: { errors: [{ detail: error_detail }] }, status: :bad_request
       end
 
       def render_service_unavailable(e)
@@ -74,7 +59,7 @@ module TravelPay
         DateTime.iso8601(datetime_str)
       rescue ArgumentError
         raise Common::Exceptions::BadRequest.new(
-          errors: [{ 'detail' => 'Appointment date time must be a valid datetime' }]
+          detail: 'Appointment date time must be a valid datetime'
         )
       end
     end
