@@ -10,6 +10,7 @@ require 'lighthouse/veterans_health/jwt_wrapper'
 # with a set ICN, consider creating/using another client
 module Lighthouse
   module VeteransHealth
+    # test
     # Documentation located at:
     # https://developer.va.gov/explore/health/docs/fhir?version=current
     class Client < Common::Client::Base
