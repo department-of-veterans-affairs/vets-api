@@ -47,7 +47,7 @@ module AccreditedRepresentativePortal
     private
 
     ##
-    # `#load` always returns an `Array` of `Membership` objects with:
+    # `#all` always returns an `Array` of `Membership` objects with:
     #   - a unique `registration_number`
     #   - a `power_of_attorney_holder` having a type that is one of:
     #     - `VETERAN_SERVICE_ORGANIZATION`
