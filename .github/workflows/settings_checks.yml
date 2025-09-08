@@ -54,7 +54,7 @@ jobs:
           fetch-depth: 0
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: us-gov-west-1
@@ -102,13 +102,15 @@ jobs:
             exit 0
           fi
       
+          # Mask the keys themselves (belt & suspenders—even though these are names, not values)
           for k in $new_env_keys; do
             echo "::add-mask::$k"
           done
-
+      
           invalid_parameters=()
       
           for key in $new_env_keys; do
+            # format to SSM path and mask those paths too
             formatted_key=$(echo "$key" | sed 's/__/\//g')
             for p in \
               "/dsva-vagov/vets-api/dev/env_vars/$formatted_key" \
@@ -127,15 +129,18 @@ jobs:
             )
       
             set +e
+            # We only query InvalidParameters; we never request values/decryption
             ssm_output=$(aws ssm get-parameters --names "${names[@]}" --query "InvalidParameters" --output json 2>&1)
             ec=$?
             set -e
       
             if [[ $ec -ne 0 ]]; then
+              # Do not echo AWS output to avoid any accidental leakage
               echo "Warning: AWS SSM query failed for one key (skipping)."
               continue
             fi
       
+            # Collect invalid parameter names silently
             if [[ "$ssm_output" != "[]" && "$ssm_output" != "null" ]]; then
               while read -r param; do
                 [[ -n "$param" ]] && invalid_parameters+=("$param")
@@ -144,6 +149,7 @@ jobs:
           done
       
           if [[ ${#invalid_parameters[@]} -gt 0 ]]; then
+            # Also mask invalid parameter names before exporting
             for p in "${invalid_parameters[@]}"; do
               echo "::add-mask::$p"
             done
@@ -159,7 +165,7 @@ jobs:
             echo "No invalid parameters found."
           fi
       - name: Respond to PR if invalid parameters are found
-        if: ${{ env.INVALID_PARAMETERS != '' }}
+        if: env.INVALID_PARAMETERS != ''
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           message: |
@@ -168,11 +174,11 @@ jobs:
           github-token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Fail if invalid parameters are found
-        if: ${{ env.INVALID_PARAMETERS != '' }}
+        if: env.INVALID_PARAMETERS != ''
         run: exit 1
 
       - name: Respond to PR if no invalid parameters are found
-        if: ${{ env.INVALID_PARAMETERS == '' }}
+        if: env.INVALID_PARAMETERS == ''
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           message: |
