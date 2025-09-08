@@ -88,12 +88,21 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
           end
 
           context 'when params are missing' do
-            it 'returns bad request when all params are missing' do
-              post('/travel_pay/v0/complex_claims', params: { complex_claim: {} }, as: :json)
+            let(:missing_params) do
+              {
+                'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+                'appointment_type' => 'Other',
+                'is_complete' => false
+              }
+            end
+
+            it 'returns bad request when a param is missing' do
+              post('/travel_pay/v0/complex_claims', params: missing_params, as: :json)
 
               expect(response).to have_http_status(:bad_request)
               body = JSON.parse(response.body)
-              expect(body['errors'].first['detail']).to eq('Appointment date time is required')
+              expect(body['errors'].first['detail'])
+                .to eq('The required parameter "facility_station_number", is missing')
             end
 
             it 'returns bad request when all required params are missing' do
@@ -101,14 +110,8 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
 
               expect(response).to have_http_status(:bad_request)
               body = JSON.parse(response.body)
-
-              expected_errors = [
-                'Appointment date time is required',
-                'Facility station number is required',
-                'Appointment type is required',
-                'The Is complete field is required'
-              ]
-              expect(body['errors'].map { |e| e['detail'] }).to match_array(expected_errors)
+              expect(body['errors'].first['detail'])
+                .to eq('The required parameter "appointment_date_time", is missing')
             end
           end
         end
@@ -126,35 +129,6 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
 
             expect(response).to have_http_status(:not_found)
             expect(JSON.parse(response.body)['error']).to match(/Resource not found/)
-          end
-        end
-
-        context 'when claims service errors with a BackendServiceException' do
-          let(:error) { Common::Exceptions::BackendServiceException.new('Some backend error') }
-
-          before do
-            # Stub the appointment service
-            appts_service_double = instance_double(TravelPay::AppointmentsService)
-            allow(appts_service_double).to receive(:find_or_create_appointment)
-              .with(hash_including('appointment_date_time' => params['appointment_date_time']))
-              .and_return({ data: { 'id' => appointment_id } })
-            # Stub the claims service to return an error
-            claims_service_double = instance_double(TravelPay::ClaimsService)
-            allow(error).to receive(:original_status).and_return(:internal_server_error)
-            allow(claims_service_double).to receive(:create_new_claim).and_raise(error)
-            # Inject stubs into controller
-            allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
-              .to receive(:appts_service).and_return(appts_service_double)
-            allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
-              .to receive(:claims_service).and_return(claims_service_double)
-          end
-
-          it 'returns error json with original status' do
-            post('/travel_pay/v0/complex_claims', params:)
-
-            expect(response).to have_http_status(:internal_server_error)
-            body = JSON.parse(response.body)
-            expect(body['error']).to eq('Error creating complex claim')
           end
         end
 

@@ -13,7 +13,7 @@ module TravelPay
       before_action :check_feature_flag, only: [:create]
 
       def create
-        validate_params_exist!(params)
+        params.require([:appointment_date_time, :facility_station_number, :appointment_type, :is_complete ])
         validate_datetime_format!(params[:appointment_date_time])
         appt_id = find_or_create_appt_id!(params)
         claim_id = create_claim(appt_id, 'complex')
@@ -76,24 +76,6 @@ module TravelPay
         message = 'Travel Pay create complex claim unavailable per feature toggle'
         Rails.logger.error(message:)
         raise Common::Exceptions::ServiceUnavailable, message:
-      end
-
-      def validate_params_exist!(params = {})
-        required_fields = {
-          'appointment_date_time' => 'Appointment date time is required',
-          'facility_station_number' => 'Facility station number is required',
-          'appointment_type' => 'Appointment type is required',
-          'is_complete' => 'The Is complete field is required'
-        }
-
-        errors = required_fields.each_with_object([]) do |(key, message), arr|
-          value = params[key]
-          missing = key == 'is_complete' ? value.nil? : value.blank?
-          arr << { 'detail' => message } if missing
-        end
-
-        # raise only if there are missing fields
-        raise Common::Exceptions::BadRequest.new(errors:) unless errors.empty?
       end
 
       def validate_datetime_format!(datetime_str)
