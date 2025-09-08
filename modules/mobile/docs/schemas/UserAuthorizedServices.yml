@@ -39,3 +39,5 @@ properties:
           scheduleAppointments: true
           secureMessaging: false
           userProfileUpdate: true
+          secureMessagingOracleHealthEnabled: false
+          medicationsOracleHealthEnabled: false
