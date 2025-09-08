@@ -830,27 +830,13 @@ module ClaimsApi
           middleInitial: @middle_initial
         }
         birth_date_data = @auth_headers[:va_eauth_birthdate]
-        if birth_date_data
-          birth_date =
-            {
-              month: birth_date_data[5..6].to_s,
-              day: birth_date_data[8..9].to_s,
-              year: birth_date_data[0..3].to_s
-            }
-        end
-        ssn = @auth_headers[:va_eauth_pnid]
-        formated_ssn = "#{ssn[0..2]}-#{ssn[3..4]}-#{ssn[5..8]}"
+        birth_date = format_birth_date(birth_date_data) if birth_date_data
+
+        formated_ssn = format_ssn(@auth_headers[:va_eauth_pnid]) if @auth_headers[:va_eauth_pnid].present?
         @pdf_data[:data][:attributes][:identificationInformation][:name] = name
         @pdf_data[:data][:attributes][:identificationInformation][:ssn] = formated_ssn
         @pdf_data[:data][:attributes][:identificationInformation][:dateOfBirth] = birth_date
         @pdf_data
-      end
-
-      def regex_date_conversion(date)
-        if date.present?
-          date_match = date.match(/^(?:(?<year>\d{4})(?:-(?<month>\d{2}))?(?:-(?<day>\d{2}))*|(?<month>\d{2})?(?:-(?<day>\d{2}))?-?(?<year>\d{4}))$/) # rubocop:disable Layout/LineLength
-          date_match&.values_at(:year, :month, :day)
-        end
       end
 
       def make_date_object(date, date_length)
@@ -863,19 +849,6 @@ module ClaimsApi
           { month:, year: }
         else
           { year:, month:, day: }
-        end
-      end
-
-      def make_date_string_month_first(date, date_length)
-        year, month, day = regex_date_conversion(date)
-        return if year.nil? || date_length.nil?
-
-        if date_length == 4
-          year.to_s
-        elsif date_length == 7
-          "#{month}/#{year}"
-        else
-          "#{month}/#{day}/#{year}"
         end
       end
     end

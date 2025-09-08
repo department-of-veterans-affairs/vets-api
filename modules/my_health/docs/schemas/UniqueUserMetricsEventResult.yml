@@ -1,0 +1,26 @@
+type: object
+required:
+  - event_name
+  - status
+  - new_event
+properties:
+  event_name:
+    type: string
+    description: The name of the event that was processed
+    example: "mhv_landing_page_accessed"
+  status:
+    type: string
+    description: The processing status of the event
+    enum:
+      - "created"
+      - "exists" 
+      - "error"
+    example: "created"
+  new_event:
+    type: boolean
+    description: Whether this was a new unique event (true) or already existed (false)
+    example: true
+  error:
+    type: string
+    description: Error message if status is 'error' (only present when status is 'error')
+    example: "Failed to process event"
