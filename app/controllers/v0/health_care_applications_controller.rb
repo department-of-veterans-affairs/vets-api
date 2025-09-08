@@ -147,7 +147,7 @@ module V0
                       'in_progress_form_not_deleted'
                     end
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.#{metric_text}",
-                       tags: [hca_id])
+                       tags: [hca_id, user_uuid, user_account_id])
     end
 
     def hca_id
