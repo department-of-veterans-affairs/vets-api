@@ -2143,13 +2143,20 @@ features:
     actor_type: user
     description: This determines whether a user is redirected to the Terms of Use page
     enable_in_development: true
-  burial_form_enabled:
+  burial_browser_monitoring_enabled:
     actor_type: user
-    description: Enable the burial form
+    description: Burial Datadog RUM monitoring
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
     enable_in_development: true
+  burial_extras_redesign_enabled:
+    actor_type: user
+    description: Enable the new overflow design
+    enable_in_development: true
+  burial_form_enabled:
+    actor_type: user
+    description: Enable the burial form
   burial_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -2162,9 +2169,6 @@ features:
   burial_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
-  burial_browser_monitoring_enabled:
-    actor_type: user
-    description: Burial Datadog RUM monitoring
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
