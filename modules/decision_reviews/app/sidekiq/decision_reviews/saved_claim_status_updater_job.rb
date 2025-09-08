@@ -163,19 +163,28 @@ module DecisionReviews
 
       # Branch to separate implementations for clean feature flag removal
       if decision_review_final_status_polling_enabled?
-        process_secondary_forms_enhanced(secondary_forms)
+        process_secondary_forms_enhanced(secondary_forms, record.guid)
       else
-        process_secondary_forms_legacy(secondary_forms)
+        process_secondary_forms_legacy(secondary_forms, record.guid)
       end
     end
 
-    # NEW FUNCTIONALITY: Enhanced secondary form processing with final_status support
-    def process_secondary_forms_enhanced(secondary_forms)
+    # rubocop:disable Metrics/MethodLength
+    def process_secondary_forms_enhanced(secondary_forms, record_guid)
+      Rails.logger.info("#{log_prefix} using enhanced secondary form processing", {
+                          record_guid:,
+                          secondary_forms_count: secondary_forms.count,
+                          processing_type: 'enhanced_with_final_status'
+                        })
+
       all_complete = true
+      forms_stopped_polling = 0
 
       secondary_forms.each do |form|
         current_status = JSON.parse(form.status || '{}')
         should_stop_polling = current_status['final_status'] == true
+
+        forms_stopped_polling += 1 if should_stop_polling
 
         attributes = if should_stop_polling
                        current_status.slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE.map(&:to_s))
@@ -192,11 +201,25 @@ module DecisionReviews
         update_secondary_form_status_enhanced(form, attributes)
       end
 
+      Rails.logger.info("#{log_prefix} enhanced secondary form processing complete", {
+                          record_guid:,
+                          total_forms: secondary_forms.count,
+                          forms_stopped_polling:,
+                          all_forms_complete: all_complete,
+                          polling_efficiency_percent: secondary_forms.count.zero? ? 0 : (forms_stopped_polling.to_f / secondary_forms.count * 100).round(2) # rubocop:disable Layout/LineLength
+                        })
+
       all_complete
     end
+    # rubocop:enable Metrics/MethodLength
 
-    # LEGACY FUNCTIONALITY: Original secondary form processing without final_status
-    def process_secondary_forms_legacy(secondary_forms)
+    def process_secondary_forms_legacy(secondary_forms, record_guid)
+      Rails.logger.info("#{log_prefix} using legacy secondary form processing", {
+                          record_guid:,
+                          secondary_forms_count: secondary_forms.count,
+                          processing_type: 'legacy_without_final_status'
+                        })
+
       all_complete = true
 
       secondary_forms.each do |form|
@@ -207,6 +230,12 @@ module DecisionReviews
         handle_secondary_form_status_metrics_and_logging(form, attributes['status'])
         update_secondary_form_status_legacy(form, attributes)
       end
+
+      Rails.logger.info("#{log_prefix} legacy secondary form processing complete", {
+                          record_guid:,
+                          total_forms: secondary_forms.count,
+                          all_forms_complete: all_complete
+                        })
 
       all_complete
     end
@@ -229,7 +258,6 @@ module DecisionReviews
       StatsD.increment("#{statsd_prefix}_secondary_form.status", tags: ["status:#{status}"])
     end
 
-    # Enhanced version with final_status support
     def update_secondary_form_status_enhanced(form, attributes)
       status = attributes['status']
       final_status = attributes['final_status']
@@ -243,7 +271,6 @@ module DecisionReviews
       form.update!(status: attributes.to_json, status_updated_at: Time.current, delete_date:)
     end
 
-    # Legacy version without final_status support
     def update_secondary_form_status_legacy(form, attributes)
       status = attributes['status']
       if status == UPLOAD_SUCCESSFUL_STATUS

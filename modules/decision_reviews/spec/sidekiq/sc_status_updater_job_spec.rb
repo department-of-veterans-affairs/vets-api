@@ -437,7 +437,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           let(:response_error_final) do
             response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json'))
             response['data']['attributes']['status'] = 'error'
-            response['data']['attributes']['final_status'] = true
+            response['data']['attributes']['final_status'] = false
             response['data']['attributes']['detail'] = 'Invalid PDF'
             instance_double(Faraday::Response, body: response)
           end
@@ -454,7 +454,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
 
             expect(secondary_form.reload.delete_date).to be_nil
             parsed_status = JSON.parse(secondary_form.reload.status)
-            expect(parsed_status['final_status']).to be(true)
+            expect(parsed_status['final_status']).to be(false)
           end
         end
       end

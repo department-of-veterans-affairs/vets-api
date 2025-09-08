@@ -166,6 +166,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
                                             .and_return(true)
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:error)
+        allow(Rails.logger).to receive(:warn)
         allow(StatsD).to receive(:increment)
       end
 
@@ -446,6 +447,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
         let(:appeal_submission3) do
           create(:appeal_submission, user_account:, submitted_appeal_uuid: guid3, type_of_appeal: 'SC')
         end
+        let(:appeal_submission4) do
+          create(:appeal_submission, user_account:, submitted_appeal_uuid: guid4, type_of_appeal: 'SC')
+        end
 
         let(:secondary_form_final_error) do
           {
@@ -457,10 +461,20 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           }.to_json
         end
 
-        let(:secondary_form_recoverable_error) do
+        let(:secondary_form_temp_error_old) do
           {
             status: 'error',
-            detail: 'Temporary recoverable error',
+            detail: 'Temporary error over threshold',
+            final_status: false,
+            createDate: 20.days.ago,
+            updateDate: 18.days.ago
+          }.to_json
+        end
+
+        let(:secondary_form_temp_error_recent) do
+          {
+            status: 'error',
+            detail: 'Recent temporary error under threshold',
             final_status: false,
             createDate: 10.days.ago,
             updateDate: 5.days.ago
@@ -477,20 +491,11 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           }.to_json
         end
 
-        let(:secondary_form_success) do
-          {
-            status: 'vbms',
-            detail: nil,
-            final_status: true,
-            createDate: 10.days.ago,
-            updateDate: 5.days.ago
-          }.to_json
-        end
-
         before do
           SavedClaim::SupplementalClaim.create(guid: guid1, form:)
           SavedClaim::SupplementalClaim.create(guid: guid2, form:)
           SavedClaim::SupplementalClaim.create(guid: guid3, form:)
+          SavedClaim::SupplementalClaim.create(guid: guid4, form:)
         end
 
         context 'when final status secondary form failure notifications flag is ENABLED' do
@@ -506,14 +511,23 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
                      appeal_submission: appeal_submission1,
                      status: secondary_form_final_error)
             end
-            let!(:recoverable_error_form) do
+            let!(:temp_error_form_old) do
               create(:secondary_appeal_form4142,
                      appeal_submission: appeal_submission2,
-                     status: secondary_form_recoverable_error)
+                     status: secondary_form_temp_error_old,
+                     created_at: 20.days.ago,
+                     status_updated_at: 18.days.ago)
+            end
+            let!(:temp_error_form_recent) do
+              create(:secondary_appeal_form4142,
+                     appeal_submission: appeal_submission3,
+                     status: secondary_form_temp_error_recent,
+                     created_at: 10.days.ago,
+                     status_updated_at: 5.days.ago)
             end
             let!(:legacy_error_form) do
               create(:secondary_appeal_form4142,
-                     appeal_submission: appeal_submission3,
+                     appeal_submission: appeal_submission4,
                      status: secondary_form_legacy_error)
             end
 
@@ -527,17 +541,59 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
               # Should update notification sent timestamp for final error form
               expect(final_error_form.reload.failure_notification_sent_at).not_to be_nil
 
-              # Should NOT update notification timestamp for recoverable error form
-              expect(recoverable_error_form.reload.failure_notification_sent_at).to be_nil
+              # Should NOT update notification timestamp for temporary error forms
+              expect(temp_error_form_old.reload.failure_notification_sent_at).to be_nil
+              expect(temp_error_form_recent.reload.failure_notification_sent_at).to be_nil
 
               # Should NOT update notification timestamp for legacy error form (no final_status)
               expect(legacy_error_form.reload.failure_notification_sent_at).to be_nil
             end
 
+            it 'logs warnings for temporary error forms exceeding threshold' do
+              frozen_time = Time.current
+              Timecop.freeze(frozen_time) do
+                subject.new.perform
+
+                # Should log warning for temp_error_form_old (over 16 days)
+                expected_log_data = hash_including(
+                  secondary_form_uuid: temp_error_form_old.guid,
+                  appeal_submission_uuid: appeal_submission2.submitted_appeal_uuid,
+                  appeal_type: 'SC',
+                  alert_type: 'secondary_form_temp_error_threshold_exceeded',
+                  requires_investigation: true
+                )
+                expect(Rails.logger).to have_received(:warn)
+                  .with('DecisionReviews::FailureNotificationEmailJob secondary form stuck in temporary error',
+                        expected_log_data)
+
+                # Should NOT log warning for temp_error_form_recent (under 16 days)
+                recent_log_data = hash_including(
+                  secondary_form_uuid: temp_error_form_recent.guid
+                )
+                expect(Rails.logger).not_to have_received(:warn)
+                  .with('DecisionReviews::FailureNotificationEmailJob secondary form stuck in temporary error',
+                        recent_log_data)
+              end
+            end
+
+            it 'increments StatsD metrics for temporary error monitoring' do
+              subject.new.perform
+
+              # Should increment metric for temp_error_form_old
+              expect(StatsD).to have_received(:increment)
+                .with('worker.decision_review.failure_notification_email.secondary_form.temp_error_threshold_exceeded',
+                      tags: array_including('appeal_type:SC'))
+
+              # Should increment only once (for the one form over threshold)
+              expect(StatsD).to have_received(:increment)
+                .with('worker.decision_review.failure_notification_email.secondary_form.temp_error_threshold_exceeded',
+                      anything).once
+            end
+
             it 'increments correct metrics for enhanced filtering' do
               subject.new.perform
 
-              # Should process only 1 final errored form (out of 3 total errored forms)
+              # Should process only 1 final errored form (out of 4 total errored forms)
               expect(StatsD).to have_received(:increment)
                 .with('worker.decision_review.failure_notification_email.secondary_forms.processing_records', 1)
             end
@@ -547,7 +603,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             let!(:recoverable_error_form_only) do
               create(:secondary_appeal_form4142,
                      appeal_submission: appeal_submission1,
-                     status: secondary_form_recoverable_error)
+                     status: secondary_form_temp_error_recent)
             end
 
             it 'sends no emails' do
@@ -576,36 +632,56 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
                      appeal_submission: appeal_submission1,
                      status: secondary_form_final_error)
             end
-            let!(:recoverable_error_form) do
+            let!(:temp_error_form_old) do
               create(:secondary_appeal_form4142,
                      appeal_submission: appeal_submission2,
-                     status: secondary_form_recoverable_error)
+                     status: secondary_form_temp_error_old)
+            end
+            let!(:temp_error_form_recent) do
+              create(:secondary_appeal_form4142,
+                     appeal_submission: appeal_submission3,
+                     status: secondary_form_temp_error_recent)
             end
             let!(:legacy_error_form) do
               create(:secondary_appeal_form4142,
-                     appeal_submission: appeal_submission3,
+                     appeal_submission: appeal_submission4,
                      status: secondary_form_legacy_error)
             end
 
             it 'sends emails for ALL error forms regardless of final_status (legacy behavior)' do
               subject.new.perform
 
-              # Should send emails for ALL THREE error forms in legacy mode
+              # Should send emails for ALL FOUR error forms in legacy mode
               expected_hash = hash_including(template_id: 'fake_sc_secondary_form_template_id')
-              expect(vanotify_service).to have_received(:send_email).with(expected_hash).exactly(3).times
+              expect(vanotify_service).to have_received(:send_email).with(expected_hash).exactly(4).times
 
               # All forms should get notification timestamps
               expect(final_error_form.reload.failure_notification_sent_at).not_to be_nil
-              expect(recoverable_error_form.reload.failure_notification_sent_at).not_to be_nil
+              expect(temp_error_form_old.reload.failure_notification_sent_at).not_to be_nil
+              expect(temp_error_form_recent.reload.failure_notification_sent_at).not_to be_nil
               expect(legacy_error_form.reload.failure_notification_sent_at).not_to be_nil
             end
 
             it 'processes all errored forms in legacy mode' do
               subject.new.perform
 
-              # Should process ALL 3 errored forms in legacy mode
+              # Should process ALL 4 errored forms in legacy mode
               expect(StatsD).to have_received(:increment)
-                .with('worker.decision_review.failure_notification_email.secondary_forms.processing_records', 3)
+                .with('worker.decision_review.failure_notification_email.secondary_forms.processing_records', 4)
+            end
+
+            it 'does not perform temporary error monitoring in legacy mode' do
+              subject.new.perform
+
+              # Should NOT log any temporary error warnings in legacy mode
+              expect(Rails.logger).not_to have_received(:warn)
+                .with('DecisionReviews::FailureNotificationEmailJob secondary form stuck in temporary error',
+                      anything)
+
+              # Should NOT increment temporary error threshold metrics in legacy mode
+              expect(StatsD).not_to have_received(:increment)
+                .with('worker.decision_review.failure_notification_email.secondary_form.temp_error_threshold_exceeded',
+                      anything)
             end
           end
         end
@@ -627,6 +703,63 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
               .and_call_original
 
             job_instance.perform
+          end
+        end
+
+        # NEW TESTS: For the temporary error monitoring functionality we added
+        context 'temporary error monitoring edge cases' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:decision_review_final_status_secondary_form_failure_notifications)
+              .and_return(true)
+          end
+
+          context 'when form has status_updated_at timestamp' do
+            let!(:temp_error_form_with_status_timestamp) do
+              create(:secondary_appeal_form4142,
+                     appeal_submission: appeal_submission1,
+                     status: secondary_form_temp_error_old,
+                     created_at: 10.days.ago,
+                     updated_at: 15.days.ago,
+                     status_updated_at: 18.days.ago) # This should be used for calculation
+            end
+
+            it 'uses status_updated_at for error duration calculation' do
+              frozen_time = Time.current
+              Timecop.freeze(frozen_time) do
+                subject.new.perform
+
+                expected_duration = ((frozen_time - 18.days.ago) / 1.day).round(2)
+                expected_log_data = hash_including(
+                  error_duration_days: expected_duration,
+                  days_over_threshold: (expected_duration - 16).round(2)
+                )
+
+                expect(Rails.logger).to have_received(:warn)
+                  .with('DecisionReviews::FailureNotificationEmailJob secondary form stuck in temporary error',
+                        expected_log_data)
+              end
+            end
+          end
+
+          context 'when no forms exceed the temporary error threshold' do
+            let!(:temp_error_form_under_threshold) do
+              create(:secondary_appeal_form4142,
+                     appeal_submission: appeal_submission1,
+                     status: secondary_form_temp_error_recent)
+            end
+
+            it 'does not log any warnings or increment metrics' do
+              subject.new.perform
+
+              expect(Rails.logger).not_to have_received(:warn)
+                .with('DecisionReviews::FailureNotificationEmailJob secondary form stuck in temporary error',
+                      anything)
+
+              expect(StatsD).not_to have_received(:increment)
+                .with('worker.decision_review.failure_notification_email.secondary_form.temp_error_threshold_exceeded',
+                      anything)
+            end
           end
         end
       end

@@ -23,6 +23,8 @@ module DecisionReviews
 
     VANOTIFY_API_KEY = Settings.vanotify.services.benefits_decision_review.api_key
 
+    SECONDARY_FORM_TEMP_ERROR_THRESHOLD_DAYS = 16
+
     def perform
       return unless should_perform?
 
@@ -170,21 +172,29 @@ module DecisionReviews
       end
     end
 
-    # NEW FUNCTIONALITY: Enhanced filtering based on final_status when feature flag is enabled
     def send_secondary_form_emails_enhanced
-      final_errored_forms = errored_secondary_forms.select do |form|
+      permanent_error_forms = []
+      temp_error_forms_to_monitor = []
+
+      errored_secondary_forms.each do |form|
         status_json = JSON.parse(form.status || '{}')
-        status_json['status'] == ERROR_STATUS && status_json['final_status'] == true
+
+        if status_json['final_status'] == true
+          permanent_error_forms << form
+        elsif should_monitor_temporary_error?(form, status_json)
+          temp_error_forms_to_monitor << form
+        end
       end
 
-      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records", final_errored_forms.size)
+      monitor_temporary_error_forms(temp_error_forms_to_monitor)
 
-      final_errored_forms.each do |form|
+      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records", permanent_error_forms.size)
+
+      permanent_error_forms.each do |form|
         send_secondary_form_email(form)
       end
     end
 
-    # LEGACY FUNCTIONALITY: Process all errored forms without final_status filtering
     def send_secondary_form_emails_legacy
       StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records", errored_secondary_forms.size)
 
@@ -192,6 +202,46 @@ module DecisionReviews
         send_secondary_form_email(form)
       end
     end
+
+    def should_monitor_temporary_error?(form, status_json)
+      return false unless status_json['final_status'] == false
+
+      error_timestamp = form.status_updated_at || form.updated_at || form.created_at
+      days_in_error = (Time.current - error_timestamp) / 1.day
+
+      days_in_error > SECONDARY_FORM_TEMP_ERROR_THRESHOLD_DAYS
+    end
+
+    # rubocop:disable Metrics/MethodLength
+    def monitor_temporary_error_forms(forms)
+      return if forms.empty?
+
+      forms.each do |form|
+        error_timestamp = form.status_updated_at || form.updated_at || form.created_at
+        error_duration_days = ((Time.current - error_timestamp) / 1.day).round(2)
+
+        Rails.logger.warn(
+          'DecisionReviews::FailureNotificationEmailJob secondary form stuck in temporary error',
+          {
+            secondary_form_uuid: form.guid,
+            appeal_submission_uuid: form.appeal_submission&.submitted_appeal_uuid,
+            appeal_type: form.appeal_submission&.type_of_appeal,
+            error_duration_days:,
+            days_over_threshold: (error_duration_days - SECONDARY_FORM_TEMP_ERROR_THRESHOLD_DAYS).round(2),
+            alert_type: 'secondary_form_temp_error_threshold_exceeded'
+          }
+        )
+
+        StatsD.increment(
+          "#{STATSD_KEY_PREFIX}.secondary_form.temp_error_threshold_exceeded",
+          tags: [
+            "appeal_type:#{form.appeal_submission&.type_of_appeal || 'unknown'}",
+            "error_duration_days:#{error_duration_days.to_i}"
+          ]
+        )
+      end
+    end
+    # rubocop:enable Metrics/MethodLength
 
     def send_secondary_form_email(form)
       appeal_type = form.appeal_submission.type_of_appeal
