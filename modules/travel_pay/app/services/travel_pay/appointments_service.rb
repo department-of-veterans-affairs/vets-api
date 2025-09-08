@@ -2,8 +2,9 @@
 
 module TravelPay
   class AppointmentsService
-    def initialize(auth_manager)
+    def initialize(auth_manager, user = nil)
       @auth_manager = auth_manager
+      @user = user
     end
 
     ##
@@ -62,7 +63,11 @@ module TravelPay
         DateUtils.try_parse_date(params['appointment_date_time'])
 
         @auth_manager.authorize => { veis_token:, btsss_token: }
-        faraday_response = client.find_or_create(veis_token, btsss_token, params)
+
+        # Use feature flag to determine API version
+        use_v4_api = @user && Flipper.enabled?(:travel_pay_appt_add_v4_upgrade, @user)
+
+        faraday_response = client.find_or_create(veis_token, btsss_token, params, use_v4_api)
         appointments = faraday_response.body['data']
 
         {

@@ -79,7 +79,7 @@ module TravelPay
       end
 
       def appts_service
-        @appts_service ||= TravelPay::AppointmentsService.new(auth_manager)
+        @appts_service ||= TravelPay::AppointmentsService.new(auth_manager, @current_user)
       end
 
       def expense_service
