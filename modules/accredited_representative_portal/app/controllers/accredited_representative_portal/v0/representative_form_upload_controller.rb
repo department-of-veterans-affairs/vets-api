@@ -88,7 +88,7 @@ module AccreditedRepresentativePortal
       def send_confirmation_email(saved_claim)
         AccreditedRepresentativePortal::NotificationEmail.new(saved_claim.id).deliver(:confirmation)
       rescue => e
-        monitor(saved_claim).track_send_email_failure(saved_claim, intake_service, user_account_id, 'confirmation', e)
+        monitor(saved_claim).track_send_email_failure(saved_claim, intake_service, current_user.user_account_uuid, 'confirmation', e)
       end
 
       def monitor(claim)
@@ -97,22 +97,6 @@ module AccreditedRepresentativePortal
 
       def intake_service
         @intake_service ||= ::BenefitsIntake::Service.new
-      end
-
-      def user_account_id
-        return @user_account_id if defined?(@user_account_id)
-
-        unless current_user&.icn
-          @user_account_id = nil
-          return @user_account_id
-        end
-
-        user_account = UserAccount.find_by(icn: current_user.icn)
-        @user_account_id = user_account&.id
-
-        Rails.logger.warn("UserAccount not found for ICN: #{current_user.icn}") unless @user_account_id
-
-        @user_account_id
       end
 
       def authorize_attachment_upload
