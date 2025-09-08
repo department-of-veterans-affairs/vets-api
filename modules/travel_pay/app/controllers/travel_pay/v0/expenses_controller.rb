@@ -12,9 +12,11 @@ module TravelPay
 
         begin
           Rails.logger.info(message: 'Travel Pay expense retrieval START')
-          Rails.logger.info(message: "Getting expense of type '#{params[:expense_type]}'")
-          Rails.logger.info(message: "with ID #{params[:expense_id].slice(0, 8)}")
-          Rails.logger.info(message: "for claim #{params[:claim_id].slice(0, 8)}")
+          Rails.logger.info(message: <<~LOG_MESSAGE.strip)
+            Getting expense of type '#{params[:expense_type]}'
+            with ID #{params[:expense_id].slice(0, 8)}
+            for claim #{params[:claim_id].slice(0, 8)}
+          LOG_MESSAGE
 
           expense = expense_service.get_expense(params[:expense_type], params[:expense_id])
 
