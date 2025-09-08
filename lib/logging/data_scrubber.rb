@@ -69,7 +69,8 @@ module Logging
     # The string used to replace detected PII
     REDACTION = '[REDACTED]'
 
-    SAFE_KEYS = %w[confirmation_number user_account_uuid claim_id form_id tags id response_code].freeze
+    SAFE_KEYS = %w[confirmation_number user_account_uuid claim_id form_id tags id response_code
+                   in_progress_form_id].freeze
 
     module_function
 
