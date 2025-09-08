@@ -11,8 +11,6 @@ module AccreditedRepresentativePortal
     Error = Class.new(RuntimeError)
     InvalidRegistrationsError = Class.new(Error)
 
-    Types = PowerOfAttorneyHolder::Types
-
     def initialize(icn:, emails:)
       @icn = icn
       @emails = emails
@@ -34,9 +32,13 @@ module AccreditedRepresentativePortal
       # semantics that matches what is needed here.
       #
       all.find do |membership|
-        holder = membership.power_of_attorney_holder
-        holder.poa_code == power_of_attorney_holder.poa_code &&
-          holder.type == power_of_attorney_holder.type
+        ##
+        # We might redundantly insist that POA holder type matches as well. But
+        # currently the claimant POA fetched from Lighthouse API doesn't
+        # distinguish the same types for individuals as we do internally.
+        #
+        membership.power_of_attorney_holder.poa_code ==
+          power_of_attorney_holder.poa_code
       end
     end
 
@@ -78,21 +80,21 @@ module AccreditedRepresentativePortal
 
                 power_of_attorney_holder:
                   PowerOfAttorneyHolder.new(
-                    type: Types::VETERAN_SERVICE_ORGANIZATION,
+                    type: PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
                     poa_code: organization.poa,
                     can_accept_digital_poa_requests:
                       organization.can_accept_digital_poa_requests
                   )
               )
             end
-          when 'claims_agent'
+          when 'claim_agents'
             Membership.new(
               registration_number:
                 registration.representative_id,
 
               power_of_attorney_holder:
                 PowerOfAttorneyHolder.new(
-                  type: Types::CLAIMS_AGENT,
+                  type: PowerOfAttorneyHolder::Types::CLAIMS_AGENT,
                   poa_code: registration.poa_codes.first,
                   can_accept_digital_poa_requests:
                     false
@@ -105,7 +107,7 @@ module AccreditedRepresentativePortal
 
               power_of_attorney_holder:
                 PowerOfAttorneyHolder.new(
-                  type: Types::ATTORNEY,
+                  type: PowerOfAttorneyHolder::Types::ATTORNEY,
                   poa_code: registration.poa_codes.first,
                   can_accept_digital_poa_requests:
                     false

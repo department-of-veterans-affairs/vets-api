@@ -29,15 +29,15 @@ module AccreditedRepresentativePortal
         @claimant.power_of_attorney_holder.present? or
           return nil
 
-        common_membership =
+        membership =
           @power_of_attorney_holder_memberships.for_power_of_attorney_holder(
             @claimant.power_of_attorney_holder
           )
 
-        common_membership.present? or
+        membership.present? or
           return nil
 
-        build(common_membership)
+        build(membership)
       rescue
         raise Error
       end
@@ -82,18 +82,32 @@ module AccreditedRepresentativePortal
             service = BenefitsClaims::Service.new(identifier.icn)
             response = service.get_power_of_attorney['data'].to_h
 
+            type =
+              case response['type']
+              when 'organization'
+                PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION
+
+              ##
+              # Lighthouse API does not currently distinguish between claims
+              # agents and attorneys like we do internally.
+              #
+              when 'individual'
+                'individual'
+              end
+
             ##
-            # FYI, the API does not fully distinguish types like we do.
-            # The value 'individual' is returned for both claims agents and
-            # attorneys.
+            # For now we'll build an incomplete `PowerOfAttorneyHolder` object
+            # for the claimant from the API response:
+            # - Unknown `can_accept_digital_poa_requests`
+            # - Undifferentiated `individual` type
             #
-            if response['type'] == 'organization'
+            # Call sites are fine with this currently.
+            #
+            type.presence &&
               PowerOfAttorneyHolder.new(
-                type: PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
-                poa_code: response.dig('attributes', 'code'),
+                type:, poa_code: response.dig('attributes', 'code'),
                 can_accept_digital_poa_requests: nil
               )
-            end
           end
       end
 
