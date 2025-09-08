@@ -713,8 +713,6 @@ lighthouse:
     hqva_mobile:
       url: https://veteran.apps.va.gov
     url: https://sandbox-api.va.gov
-    veterans_health:
-      url: ~
   letters_generator:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token
