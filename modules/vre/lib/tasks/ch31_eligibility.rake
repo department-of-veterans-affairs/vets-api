@@ -20,7 +20,7 @@ class Ch31Eligibility < VRE::Service
   end
 end
 
-# e.g. bundle exec rake 'vre:ch31_eligibility:connect[{"icn":"1018616478V531227"}]'
+# e.g. bundle exec rake 'vre:ch31_eligibility:connect[{"icn":"1234567890V123456"}]'
 namespace :vre do
   namespace :ch31_eligibility do
     desc 'Tests connection to ch31 eligibility details endpoint in RES'
