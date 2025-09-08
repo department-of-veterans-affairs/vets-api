@@ -207,7 +207,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
 
       it 'blocks updates when decrease exceeds threshold' do
-        # 75 attorneys is a 25% decrease, which exceeds 20% threshold
+        # 45 attorneys is a 55% decrease, which exceeds 50% threshold
         expect(reloader.send(:valid_count?, :attorneys, 45)).to be false
       end
 
