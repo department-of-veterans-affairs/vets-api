@@ -72,7 +72,8 @@ FactoryBot.define do
     end
 
     # VFF Form traits
-    trait :vff_21_0966 do
+    # rubocop:disable Naming/VariableNumber
+    trait :vff_21966 do
       form_type { '21-0966' }
       form_data do
         {
@@ -87,7 +88,7 @@ FactoryBot.define do
       end
     end
 
-    trait :vff_21_4142 do
+    trait :vff_214142 do # rubocop:disable Naming/VariableNumber
       form_type { '21-4142' }
       form_data do
         {
@@ -100,7 +101,7 @@ FactoryBot.define do
       end
     end
 
-    trait :vff_21_10210 do
+    trait :vff_2110210 do # rubocop:disable Naming/VariableNumber
       form_type { '21-10210' }
       form_data do
         {
@@ -112,7 +113,7 @@ FactoryBot.define do
       end
     end
 
-    trait :vff_21_0972 do
+    trait :vff_21972 do # rubocop:disable Naming/VariableNumber
       form_type { '21-0972' }
       form_data do
         {
@@ -124,7 +125,7 @@ FactoryBot.define do
       end
     end
 
-    trait :vff_21p_0847 do
+    trait :vff_21p847 do
       form_type { '21P-0847' }
       form_data do
         {
@@ -136,7 +137,7 @@ FactoryBot.define do
       end
     end
 
-    trait :vff_20_10206 do
+    trait :vff_2010206 do # rubocop:disable Naming/VariableNumber
       form_type { '20-10206' }
       form_data do
         {
@@ -148,7 +149,7 @@ FactoryBot.define do
       end
     end
 
-    trait :vff_20_10207 do
+    trait :vff_2010207 do # rubocop:disable Naming/VariableNumber
       form_type { '20-10207' }
       form_data do
         {
@@ -160,7 +161,7 @@ FactoryBot.define do
       end
     end
 
-    trait :vff_21_0845 do
+    trait :vff_21845 do # rubocop:disable Naming/VariableNumber
       form_type { '21-0845' }
       form_data do
         {
@@ -171,14 +172,16 @@ FactoryBot.define do
         }.to_json
       end
     end
+    # rubocop:enable Naming/VariableNumber
 
     # Generic VFF trait that randomly selects a VFF form type
     trait :vff_form do
-      vff_forms = %w[vff_21_0966 vff_21_4142 vff_21_10210 vff_21_0972 vff_21p_0847 vff_20_10206 vff_20_10207 vff_21_0845]
+      vff_forms = %w[vff_21966 vff_214142 vff_2110210 vff_21972 vff_21p847 vff_2010206 vff_2010207
+                     vff_21845]
       transient do
         vff_form_type { vff_forms.sample }
       end
-      
+
       after(:build) do |form_submission, evaluator|
         form_submission.send(evaluator.vff_form_type)
       end

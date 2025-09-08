@@ -255,7 +255,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
 
   describe '#monitor_failure with existing form types' do
     let(:job) { BenefitsIntakeStatusJob.new }
-    let(:saved_claim_id) { 12345 }
+    let(:saved_claim_id) { 12_345 }
     let(:benefits_intake_uuid) { 'test-uuid-456' }
 
     describe 'Dependents form monitoring (686C-674)' do
@@ -272,14 +272,13 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         let(:email) { 'veteran@example.com' }
 
         before do
-          allow(dependency_claim).to receive(:present?).and_return(true)
-          allow(dependency_claim).to receive(:parsed_form).and_return({
-            'dependents_application' => {
-              'veteran_contact_information' => {
-                'email_address' => email
-              }
-            }
-          })
+          allow(dependency_claim).to receive_messages(present?: true, parsed_form: {
+                                                        'dependents_application' => {
+                                                          'veteran_contact_information' => {
+                                                            'email_address' => email
+                                                          }
+                                                        }
+                                                      })
         end
 
         it 'sends failure email and logs silent failure no confirmation' do
@@ -295,8 +294,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
 
       context 'when claim exists without email' do
         before do
-          allow(dependency_claim).to receive(:present?).and_return(true)
-          allow(dependency_claim).to receive(:parsed_form).and_return({})
+          allow(dependency_claim).to receive_messages(present?: true, parsed_form: {})
         end
 
         it 'logs silent failure without sending email' do
@@ -341,10 +339,9 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         let(:email) { 'claimant@example.com' }
 
         before do
-          allow(pcpg_claim).to receive(:present?).and_return(true)
-          allow(pcpg_claim).to receive(:parsed_form).and_return({
-            'claimantInformation' => { 'emailAddress' => email }
-          })
+          allow(pcpg_claim).to receive_messages(present?: true, parsed_form: {
+                                                  'claimantInformation' => { 'emailAddress' => email }
+                                                })
         end
 
         it 'sends failure email and logs silent failure no confirmation' do
@@ -360,8 +357,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
 
       context 'when claim exists without email' do
         before do
-          allow(pcpg_claim).to receive(:present?).and_return(true)
-          allow(pcpg_claim).to receive(:parsed_form).and_return({})
+          allow(pcpg_claim).to receive_messages(present?: true, parsed_form: {})
         end
 
         it 'logs silent failure without sending email' do
@@ -405,8 +401,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         let(:email) { 'veteran@example.com' }
 
         before do
-          allow(vre_claim).to receive(:present?).and_return(true)
-          allow(vre_claim).to receive(:parsed_form).and_return({ 'email' => email })
+          allow(vre_claim).to receive_messages(present?: true, parsed_form: { 'email' => email })
         end
 
         it 'sends failure email and logs silent failure no confirmation' do
@@ -422,8 +417,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
 
       context 'when claim exists without email' do
         before do
-          allow(vre_claim).to receive(:present?).and_return(true)
-          allow(vre_claim).to receive(:parsed_form).and_return({})
+          allow(vre_claim).to receive_messages(present?: true, parsed_form: {})
         end
 
         it 'logs silent failure without sending email' do
@@ -523,7 +517,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
   describe '#monitor_failure with VFF forms' do
     let(:job) { BenefitsIntakeStatusJob.new }
     let(:vff_monitor) { instance_double(VFF::Monitor) }
-    let(:saved_claim_id) { 12345 }
+    let(:saved_claim_id) { 12_345 }
     let(:benefits_intake_uuid) { 'test-uuid-456' }
 
     before do
@@ -536,11 +530,11 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         it "detects #{form_id} as a VFF form" do
           form_submission = create(:form_submission, form_type: form_id)
           form_submission_attempt = create(:form_submission_attempt,
-                                         form_submission: form_submission,
-                                         benefits_intake_uuid: benefits_intake_uuid)
+                                           form_submission:,
+                                           benefits_intake_uuid:)
           allow(form_submission_attempt).to receive(:should_send_simple_forms_email).and_return(false)
           allow(FormSubmissionAttempt).to receive(:find_by)
-            .with(benefits_intake_uuid: benefits_intake_uuid)
+            .with(benefits_intake_uuid:)
             .and_return(form_submission_attempt)
 
           expect(VFF::Monitor.vff_form?(form_id)).to be true
@@ -573,11 +567,11 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         it 'passes true for email_sent parameter' do
           form_submission = create(:form_submission, form_type: form_id)
           form_submission_attempt = create(:form_submission_attempt,
-                                         form_submission: form_submission,
-                                         benefits_intake_uuid: benefits_intake_uuid)
+                                           form_submission:,
+                                           benefits_intake_uuid:)
           allow(form_submission_attempt).to receive(:should_send_simple_forms_email).and_return(true)
           allow(FormSubmissionAttempt).to receive(:find_by)
-            .with(benefits_intake_uuid: benefits_intake_uuid)
+            .with(benefits_intake_uuid:)
             .and_return(form_submission_attempt)
 
           expect(vff_monitor).to receive(:track_benefits_intake_failure).with(
@@ -592,11 +586,11 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         it 'passes false for email_sent parameter' do
           form_submission = create(:form_submission, form_type: form_id)
           form_submission_attempt = create(:form_submission_attempt,
-                                         form_submission: form_submission,
-                                         benefits_intake_uuid: benefits_intake_uuid)
+                                           form_submission:,
+                                           benefits_intake_uuid:)
           allow(form_submission_attempt).to receive(:should_send_simple_forms_email).and_return(false)
           allow(FormSubmissionAttempt).to receive(:find_by)
-            .with(benefits_intake_uuid: benefits_intake_uuid)
+            .with(benefits_intake_uuid:)
             .and_return(form_submission_attempt)
 
           expect(vff_monitor).to receive(:track_benefits_intake_failure).with(
@@ -658,7 +652,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         # Test VFF form still works
         expect(VFF::Monitor).to receive(:new).and_return(vff_monitor)
         expect(vff_monitor).to receive(:track_benefits_intake_failure)
-        
+
         job.send(:monitor_failure, '21-0966', saved_claim_id, benefits_intake_uuid)
       end
 
@@ -673,7 +667,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         # Test VFF form still works
         expect(VFF::Monitor).to receive(:new).and_return(vff_monitor)
         expect(vff_monitor).to receive(:track_benefits_intake_failure)
-        
+
         job.send(:monitor_failure, '21-4142', saved_claim_id, benefits_intake_uuid)
       end
 
@@ -688,7 +682,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         # Test VFF form still works
         expect(VFF::Monitor).to receive(:new).and_return(vff_monitor)
         expect(vff_monitor).to receive(:track_benefits_intake_failure)
-        
+
         job.send(:monitor_failure, '21-10210', saved_claim_id, benefits_intake_uuid)
       end
     end
@@ -718,7 +712,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
       it 'performs efficient FormSubmissionAttempt lookup' do
         # Test that we do a direct find_by for the FormSubmissionAttempt
         expect(FormSubmissionAttempt).to receive(:find_by)
-          .with(benefits_intake_uuid: benefits_intake_uuid)
+          .with(benefits_intake_uuid:)
           .once
           .and_return(nil)
 

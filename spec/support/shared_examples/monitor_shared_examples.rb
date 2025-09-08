@@ -94,7 +94,7 @@ RSpec.shared_examples 'handles email scenarios correctly' do |method_name, base_
   context 'when no email attempted' do
     it 'logs silent failure' do
       expect(monitor).to receive(:log_silent_failure)
-      
+
       monitor.send(method_name, *base_args, email_attempted: false, email_success: false)
     end
   end
@@ -102,7 +102,7 @@ RSpec.shared_examples 'handles email scenarios correctly' do |method_name, base_
   context 'when email attempted and succeeded' do
     it 'logs silent failure avoided' do
       expect(monitor).to receive(:log_silent_failure_avoided)
-      
+
       monitor.send(method_name, *base_args, email_attempted: true, email_success: true)
     end
   end
@@ -110,7 +110,7 @@ RSpec.shared_examples 'handles email scenarios correctly' do |method_name, base_
   context 'when email attempted but failed' do
     it 'logs silent failure no confirmation' do
       expect(monitor).to receive(:log_silent_failure_no_confirmation)
-      
+
       monitor.send(method_name, *base_args, email_attempted: true, email_success: false)
     end
   end
@@ -120,7 +120,7 @@ end
 RSpec.shared_examples 'builds comprehensive context' do |required_keys = []|
   it 'includes all required context keys' do
     result = subject
-    
+
     required_keys.each do |key|
       expect(result).to have_key(key)
     end
@@ -145,10 +145,10 @@ RSpec.shared_examples 'increments service-specific metrics' do |metric_prefix, f
       )
     else
       expect(StatsD).to receive(:increment).with(
-        hash_including("#{metric_prefix}")
+        hash_including(metric_prefix.to_s)
       )
     end
-    
+
     subject
   end
 
@@ -157,7 +157,7 @@ RSpec.shared_examples 'increments service-specific metrics' do |metric_prefix, f
       "#{metric_prefix}.failure.all_forms",
       tags: ["service:#{monitor.service}"]
     )
-    
+
     subject
   end
 end
@@ -170,13 +170,13 @@ RSpec.shared_examples 'handles monitor errors gracefully' do |method_name, args 
 
   it 'does not raise errors when StatsD fails' do
     allow(StatsD).to receive(:increment).and_raise(StandardError, 'StatsD error')
-    
+
     expect { monitor.send(method_name, *args) }.not_to raise_error
   end
 
   it 'does not raise errors when logging fails' do
     allow(Rails.logger).to receive(:error).and_raise(StandardError, 'Logging error')
-    
+
     expect { monitor.send(method_name, *args) }.not_to raise_error
   end
 end
@@ -196,7 +196,7 @@ RSpec.shared_examples 'detects form types correctly' do |form_ids, detection_met
   end
 
   context 'with invalid form IDs' do
-    let(:invalid_forms) { ['686C-674', '28-8832', '28-1900', 'UNKNOWN-FORM'] }
+    let(:invalid_forms) { %w[686C-674 28-8832 28-1900 UNKNOWN-FORM] }
 
     it 'does not detect non-VFF form types' do
       invalid_forms.each do |form_id|
@@ -218,7 +218,7 @@ RSpec.shared_examples 'performs efficient database queries' do |expected_query_m
     else
       expect(FormSubmission).to receive(expected_query_method).and_call_original
     end
-    
+
     subject
   end
 
@@ -226,13 +226,13 @@ RSpec.shared_examples 'performs efficient database queries' do |expected_query_m
     # This would typically be tested with a query counter gem like bullet
     # For now, we'll just ensure the query is called only once
     expect(FormSubmission).to receive(:joins).once.and_call_original if expected_query_method == :joins
-    
+
     subject
   end
 end
 
 # Shared examples for testing monitor integration with external services
-RSpec.shared_examples 'integrates with external services' do |services = [:statsd, :rails_logger]|
+RSpec.shared_examples 'integrates with external services' do |services = %i[statsd rails_logger]|
   before do
     allow(StatsD).to receive(:increment) if services.include?(:statsd)
     allow(Rails.logger).to receive(:error) if services.include?(:rails_logger)

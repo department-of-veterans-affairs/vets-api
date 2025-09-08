@@ -155,6 +155,12 @@ class BenefitsIntakeStatusJob
   end
 
   def monitor_failure(form_id, saved_claim_id, bi_uuid)
+    monitor_form_specific_failure(form_id, saved_claim_id, bi_uuid)
+  rescue => e
+    log_monitoring_error(form_id, saved_claim_id, bi_uuid, e)
+  end
+
+  def monitor_form_specific_failure(form_id, saved_claim_id, bi_uuid)
     case form_id
     when '686C-674'
       monitor_dependents_failure(form_id, saved_claim_id, bi_uuid)
@@ -166,7 +172,9 @@ class BenefitsIntakeStatusJob
       # Check if it's a VFF form and monitor if so
       monitor_vff_failure(form_id, saved_claim_id, bi_uuid) if VFF::Monitor.vff_form?(form_id)
     end
-  rescue => e
+  end
+
+  def log_monitoring_error(form_id, saved_claim_id, bi_uuid, error)
     # Swallow monitoring errors by design - monitoring failures should not break the main job
     Rails.logger.warn(
       'Form failure monitoring error - continuing job execution',
@@ -174,8 +182,8 @@ class BenefitsIntakeStatusJob
         form_id:,
         saved_claim_id:,
         benefits_intake_uuid: bi_uuid,
-        error_class: e.class.name,
-        error_message: e.message
+        error_class: error.class.name,
+        error_message: error.message
       }
     )
   end

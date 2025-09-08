@@ -267,21 +267,36 @@ module SimpleFormsApi
       end
 
       def perform_pdf_upload(location, file_path, metadata, form)
-        upload_params = {
+        upload_params = build_upload_params(location, file_path, metadata, form)
+
+        upload_start_time = Time.zone.now
+        response = lighthouse_service.perform_upload(**upload_params)
+
+        track_upload_metrics(response, upload_start_time)
+
+        response
+      end
+
+      def build_upload_params(location, file_path, metadata, form)
+        {
           metadata: metadata.to_json,
           document: file_path,
           upload_url: location,
           attachments: form_id == 'vba_20_10207' ? form.get_attachments : nil
         }.compact
+      end
 
-        upload_start_time = Time.zone.now
-        response = lighthouse_service.perform_upload(**upload_params)
-
-        # Track Lighthouse upload response and timing
+      def track_upload_metrics(response, upload_start_time)
         upload_duration_ms = ((Time.zone.now - upload_start_time) * 1000).to_i
+
         StatsD.timing('api.simple_forms.lighthouse_upload.duration', upload_duration_ms,
                       tags: ["form_id:#{params[:form_number]}"])
 
+        track_upload_outcome(response)
+        log_upload_completion(response, upload_duration_ms)
+      end
+
+      def track_upload_outcome(response)
         if response.status == 200
           StatsD.increment('api.simple_forms.lighthouse_upload.success',
                            tags: ["form_id:#{params[:form_number]}", "status_code:#{response.status}"])
@@ -289,11 +304,11 @@ module SimpleFormsApi
           StatsD.increment('api.simple_forms.lighthouse_upload.failure',
                            tags: ["form_id:#{params[:form_number]}", "status_code:#{response.status}"])
         end
+      end
 
+      def log_upload_completion(response, upload_duration_ms)
         Rails.logger.info('Lighthouse upload completed', form_id: params[:form_number], status: response.status,
                                                          duration_ms: upload_duration_ms)
-
-        response
       end
 
       def upload_pdf_to_s3(id, file_path, metadata, submission, form)
