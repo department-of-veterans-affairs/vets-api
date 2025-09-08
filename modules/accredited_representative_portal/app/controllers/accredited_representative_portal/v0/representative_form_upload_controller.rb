@@ -88,7 +88,8 @@ module AccreditedRepresentativePortal
       def send_confirmation_email(saved_claim)
         AccreditedRepresentativePortal::NotificationEmail.new(saved_claim.id).deliver(:confirmation)
       rescue => e
-        monitor(saved_claim).track_send_email_failure(saved_claim, intake_service, current_user.user_account_uuid, 'confirmation', e)
+        monitor(saved_claim).track_send_email_failure(saved_claim, intake_service, current_user.user_account_uuid,
+                                                      'confirmation', e)
       end
 
       def monitor(claim)
