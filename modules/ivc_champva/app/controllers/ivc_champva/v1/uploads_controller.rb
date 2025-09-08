@@ -256,7 +256,6 @@ module IvcChampva
         begin
           ::Common::PdfHelpers.unlock_pdf(source_file.tempfile.path, file_password, destination_file.path)
         rescue Common::Exceptions::UnprocessableEntity => e
-          byebug
           file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
           password_regex = /(input_pw).*?(output)/
           sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
