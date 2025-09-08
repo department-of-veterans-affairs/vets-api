@@ -32,7 +32,7 @@ module MyHealth
       #   }
       #
       def create
-        user_id = current_user.uuid
+        user_id = current_user.user_account_uuid
         event_names = metrics_params[:event_names]
 
         # Process all events and collect results
