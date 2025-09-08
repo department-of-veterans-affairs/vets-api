@@ -32,10 +32,7 @@ module Mobile
         
         # Add UHD-specific metadata
         page_meta_data[:meta].merge!(
-          data_source: 'unified_health_data',
-          vista_count: count_by_source(mobile_prescriptions, 'vista'),
-          oracle_health_count: count_by_source(mobile_prescriptions, 'oracle-health'),
-          pilot_version: 'v1_uhd'
+          data_source: 'unified_health_data'
         )
 
         render json: Mobile::V1::PrescriptionsSerializer.new(page_resource, page_meta_data)
@@ -133,10 +130,6 @@ module Mobile
         else
           prescriptions.sort_by { |p| p.prescription_name || '' }
         end
-      end
-
-      def count_by_source(prescriptions, source)
-        prescriptions.count { |p| p.data_source_system&.downcase&.include?(source) }
       end
 
       def paginate(records)
