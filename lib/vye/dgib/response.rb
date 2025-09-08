@@ -1,19 +1,18 @@
 # frozen_string_literal: true
 
 require 'common/client/concerns/service_status'
-require 'vets/model'
+require 'common/models/base'
 
 module Vye
   module DGIB
-    class Response
-      include Vets::Model
+    class Response < Common::Base
       include Common::Client::Concerns::ServiceStatus
 
       attribute :status, Integer
 
       def initialize(status, attributes = nil)
-        @status = status
         super(attributes) if attributes
+        self.status = status
       end
 
       def ok?
@@ -49,8 +48,8 @@ module Vye
     class ClaimantStatusResponse < Response
       attribute :claimant_id, Integer
       attribute :delimiting_date, String
-      attribute :verified_details, Hash
-      attribute :payment_on_hold, Bool
+      attribute :verified_details, Array
+      attribute :payment_on_hold, Boolean
 
       def initialize(status, response = nil)
         attributes = {
@@ -77,9 +76,9 @@ module Vye
     class VerificationRecordResponse < Response
       attribute :claimant_id, Integer
       attribute :delimiting_date, String
-      attribute :enrollment_verifications, Hash, array: true
-      attribute :verified_details, Hash
-      attribute :payment_on_hold, Bool
+      attribute :enrollment_verifications, Array
+      attribute :verified_details, Array
+      attribute :payment_on_hold, Boolean
 
       def initialize(status, response = nil)
         attributes = {
@@ -97,8 +96,8 @@ module Vye
     class VerifyClaimantResponse < Response
       attribute :claimant_id, Integer
       attribute :delimiting_date, String
-      attribute :verified_details, Hash
-      attribute :payment_on_hold, Bool
+      attribute :verified_details, Array
+      attribute :payment_on_hold, Boolean
 
       def initialize(status, response = nil)
         attributes = {
