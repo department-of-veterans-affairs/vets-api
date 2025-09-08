@@ -14,7 +14,9 @@ module ClaimsApi
         @use_mock = use_mock.nil? ? Rails.env.test? : use_mock
       end
 
-      def validate(claim, claim_data)
+      #  rubocop:disable Style/OptionalBooleanParameter
+      def validate(claim, claim_data, async = false)
+        @async = async
         @auth_headers = claim.auth_headers
         request_body = claim_data
 
@@ -32,8 +34,11 @@ module ClaimsApi
           error_handler(e, detail)
         end
       end
+      # rubocop:enable Style/OptionalBooleanParameter
 
-      def submit(claim, claim_data)
+      # rubocop:disable Style/OptionalBooleanParameter
+      def submit(claim, claim_data, async = false)
+        @async = async
         @auth_headers = claim.auth_headers
         request_body = claim_data
 
@@ -51,6 +56,7 @@ module ClaimsApi
           error_handler(e, detail)
         end
       end
+      # rubocop:enable Style/OptionalBooleanParameter
 
       private
 
@@ -59,7 +65,9 @@ module ClaimsApi
 
         raise StandardError, 'FES host URL missing' if Settings.claims_api.fes.host.blank?
 
-        Faraday.new(base_url, headers:) do |f|
+        Faraday.new(base_url,
+                    ssl: { verify: Settings.claims_api&.fes&.ssl != false },
+                    headers:) do |f|
           f.request :json
           f.response :betamocks if @use_mock
           f.response :raise_custom_error
@@ -93,7 +101,7 @@ module ClaimsApi
       end
 
       def error_handler(error, detail)
-        ClaimsApi::CustomError.new(error, detail, true).build_error
+        ClaimsApi::CustomError.new(error, detail, @async).build_error
       end
 
       def get_error_message(error)

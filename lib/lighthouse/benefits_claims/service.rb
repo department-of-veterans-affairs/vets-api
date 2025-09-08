@@ -45,7 +45,7 @@ module BenefitsClaims
       # Manual status override for certain tracked items
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
       # This should be removed when the items are re-categorized by BGS
-      override_tracked_items(claim['data']) if Flipper.enabled?(:cst_override_pmr_pending_tracked_items)
+      override_tracked_items(claim['data'])
       apply_friendlier_language(claim['data'])
       claim
     rescue Faraday::TimeoutError

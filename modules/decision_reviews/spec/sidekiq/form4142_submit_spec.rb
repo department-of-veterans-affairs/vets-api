@@ -109,7 +109,6 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
 
       it 'generates a 4142 PDF and sends it to Lighthouse API' do
         allow(Flipper).to receive(:enabled?).and_call_original
-        allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
 
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
