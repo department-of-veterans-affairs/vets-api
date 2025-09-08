@@ -94,11 +94,4 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
       expect(parsed_conditions.first.id).to eq('condition-1')
     end
   end
-
-  describe '#parse_single_condition' do
-    it 'returns nil if record is invalid' do
-      expect(adapter.parse_single_condition(nil)).to be_nil
-      expect(adapter.parse_single_condition({ 'resource' => nil })).to be_nil
-    end
-  end
 end

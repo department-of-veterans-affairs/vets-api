@@ -46,37 +46,4 @@ RSpec.describe MyHealth::V2::ConditionsController, type: :controller do
       expect(json_response).to have_key('errors')
     end
   end
-
-  describe '#show' do
-    it 'returns single condition successfully' do
-      VCR.use_cassette('unified_health_data/get_conditions_200', match_requests_on: %i[method path]) do
-        get :show, params: { id: 'condition-1' }
-      end
-
-      expect(response).to have_http_status(:ok)
-      json_response = JSON.parse(response.body)
-      expect(json_response).to have_key('data')
-    end
-
-    it 'returns 404 when condition not found' do
-      VCR.use_cassette('unified_health_data/get_conditions_no_records', match_requests_on: %i[method path]) do
-        get :show, params: { id: 'nonexistent-id' }
-      end
-
-      expect(response).to have_http_status(:not_found)
-      json_response = JSON.parse(response.body)
-      expect(json_response).to have_key('errors')
-    end
-
-    it 'handles service errors gracefully' do
-      allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_single_condition)
-        .and_raise(StandardError.new('Service unavailable'))
-
-      get :show, params: { id: 'condition-1' }
-
-      expect(response).to have_http_status(:internal_server_error)
-      json_response = JSON.parse(response.body)
-      expect(json_response).to have_key('errors')
-    end
-  end
 end

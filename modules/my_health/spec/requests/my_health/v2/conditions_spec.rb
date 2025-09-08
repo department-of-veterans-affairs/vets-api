@@ -37,26 +37,4 @@ RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, 
       expect(parsed_response['data']).to eq([])
     end
   end
-
-  describe 'GET /my_health/v2/medical_records/conditions/:id' do
-    it 'returns single condition successfully' do
-      VCR.use_cassette('unified_health_data/get_conditions_200', match_requests_on: %i[method path]) do
-        get "#{path}/condition-1", headers: { 'X-Key-Inflection' => 'camel' }
-      end
-
-      expect(response).to have_http_status(:ok)
-      parsed_response = JSON.parse(response.body)
-      expect(parsed_response).to have_key('data')
-    end
-
-    it 'returns 404 when condition not found' do
-      VCR.use_cassette('unified_health_data/get_conditions_no_records', match_requests_on: %i[method path]) do
-        get "#{path}/nonexistent-id", headers: { 'X-Key-Inflection' => 'camel' }
-      end
-
-      expect(response).to have_http_status(:not_found)
-      parsed_response = JSON.parse(response.body)
-      expect(parsed_response).to have_key('errors')
-    end
-  end
 end
