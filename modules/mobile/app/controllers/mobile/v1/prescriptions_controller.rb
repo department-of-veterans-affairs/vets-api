@@ -29,7 +29,7 @@ module Mobile
 
         # Paginate results
         page_resource, page_meta_data = paginate(mobile_prescriptions)
-        
+
         # Add UHD-specific metadata
         page_meta_data[:meta].merge!(
           data_source: 'unified_health_data'
