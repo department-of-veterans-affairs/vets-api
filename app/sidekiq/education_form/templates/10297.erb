@@ -26,6 +26,8 @@ Mobile Telephone Number: <%= @applicant.contactInfo.mobilePhone %>
 
 Home Telephone Number: <%= @applicant.contactInfo.homePhone %>
 
+Are you a veteran who has completed 3 years (36 months) of active duty?: <%= yesno_or_blank(@applicant.veteranStatus) %>
+
 Enter the date you expect to be released from active duty: <%= @applicant.dateReleasedFromActiveDuty %>
 
 Do you expect to be called to active duty while enrolled
