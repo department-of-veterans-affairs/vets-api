@@ -139,8 +139,7 @@ class FormProfiles::VA686c674v2 < FormProfile
       full_name: FormFullName.new({
                                     first: person[:first_name],
                                     middle: person[:middle_name],
-                                    last: person[:last_name],
-                                    suffix: person[:suffix]
+                                    last: person[:last_name]
                                   }),
       date_of_birth: parsed_date,
       ssn: person[:ssn],
