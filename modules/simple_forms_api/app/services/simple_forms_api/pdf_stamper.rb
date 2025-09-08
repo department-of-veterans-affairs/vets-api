@@ -161,7 +161,7 @@ module SimpleFormsApi
     end
 
     def get_auth_text_stamp
-      current_time = "#{Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')} "
+      current_time = "#{Time.current.utc.strftime('%H:%M UTC %Y-%m-%d')}. "
       coords = [10, 10]
       submission_text = form ? SUBMISSION_TEXT : FORM_UPLOAD_SUBMISSION_TEXT
       text = submission_text + current_time
