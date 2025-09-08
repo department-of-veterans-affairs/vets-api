@@ -481,7 +481,7 @@ features:
     enable_in_development: true
   cst_filter_ep_290:
     actor_type: user
-    description:  When enabled, benefits_claims/get_claims service filters 290 EP code claims from the response
+    description: When enabled, benefits_claims/get_claims service filters 290 EP code claims from the response
   cst_filter_ep_960:
     actor_type: user
     description: When enabled, benefits_claims/get_claims service filters 960 EP code claims from the response
