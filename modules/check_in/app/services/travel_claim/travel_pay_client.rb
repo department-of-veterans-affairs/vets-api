@@ -321,7 +321,7 @@ module TravelClaim
     end
 
     def raise_backend_error(detail)
-      raise Common::Exceptions::BackendServiceException.new('CheckIn travel claim submission error', { detail: detail })
+      raise Common::Exceptions::BackendServiceException.new('CheckIn travel claim submission error', { detail: })
     end
 
     ##
@@ -355,52 +355,52 @@ module TravelClaim
 
     def log_initialization_error(missing_args)
       Rails.logger.error('TravelPayClient initialization failed', {
-        correlation_id: @correlation_id,
-        uuid_hash: safe_uuid_reference,
-        missing_arguments: missing_args,
-        redis_data_loaded: @icn.present? && @station_number.present?
-      })
+                           correlation_id: @correlation_id,
+                           uuid_hash: safe_uuid_reference,
+                           missing_arguments: missing_args,
+                           redis_data_loaded: @icn.present? && @station_number.present?
+                         })
     end
 
     def log_redis_error(operation)
       Rails.logger.error('TravelPayClient Redis error', {
-        correlation_id: @correlation_id,
-        uuid_hash: safe_uuid_reference,
-        operation:,
-        icn_present: @icn.present?,
-        station_number_present: @station_number.present?
-      })
+                           correlation_id: @correlation_id,
+                           uuid_hash: safe_uuid_reference,
+                           operation:,
+                           icn_present: @icn.present?,
+                           station_number_present: @station_number.present?
+                         })
     end
 
     def log_auth_retry
       Rails.logger.error('TravelPayClient 401 error - retrying authentication', {
-        correlation_id: @correlation_id,
-        uuid_hash: safe_uuid_reference,
-        veis_token_present: @current_veis_token.present?,
-        btsss_token_present: @current_btsss_token.present?
-      })
+                           correlation_id: @correlation_id,
+                           uuid_hash: safe_uuid_reference,
+                           veis_token_present: @current_veis_token.present?,
+                           btsss_token_present: @current_btsss_token.present?
+                         })
     end
 
     def log_auth_error(error_type, status_code)
       Rails.logger.error('TravelPayClient authentication failed', {
-        correlation_id: @correlation_id,
-        uuid_hash: safe_uuid_reference,
-        error_type:,
-        status_code:,
-        veis_token_present: @current_veis_token.present?,
-        btsss_token_present: @current_btsss_token.present?
-      })
+                           correlation_id: @correlation_id,
+                           uuid_hash: safe_uuid_reference,
+                           error_type:,
+                           status_code:,
+                           veis_token_present: @current_veis_token.present?,
+                           btsss_token_present: @current_btsss_token.present?
+                         })
     end
 
     def log_token_error(service, issue)
       Rails.logger.error('TravelPayClient token error', {
-        correlation_id: @correlation_id,
-        uuid_hash: safe_uuid_reference,
-        service:,
-        issue:,
-        veis_token_present: @current_veis_token.present?,
-        btsss_token_present: @current_btsss_token.present?
-      })
+                           correlation_id: @correlation_id,
+                           uuid_hash: safe_uuid_reference,
+                           service:,
+                           issue:,
+                           veis_token_present: @current_veis_token.present?,
+                           btsss_token_present: @current_btsss_token.present?
+                         })
     end
   end
 end
