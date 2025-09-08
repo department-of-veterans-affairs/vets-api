@@ -20,7 +20,7 @@ RSpec.describe BGSV2::Exceptions::BGSErrors do
         expect(dummy_instance).to receive(:log_message_to_sentry).with(
           'ORA-12899: value too large for column "CORPPROD"."VNP_PERSON"."MIDDLE_NM" (actual: 52, maximum: 30)',
           :error,
-          nil,
+          {},
           { team: 'vfs-ebenefits' }
         )
         expect do

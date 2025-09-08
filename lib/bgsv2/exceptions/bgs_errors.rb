@@ -28,10 +28,10 @@ module BGSV2
         msg = "Unable to #{method}: #{error.message}: try #{attempt} of #{MAX_ATTEMPTS}"
         tags = { team: 'vfs-ebenefits' }
 
-        return log_message_to_sentry(msg, :warn, nil, tags) if status == :warn
+        return log_message_to_sentry(msg, :warn, {}, tags) if status == :warn
 
         log_oracle_errors!(error:)
-        log_exception_to_sentry(error, nil, tags)
+        log_exception_to_sentry(error, {}, tags)
         raise_backend_exception('BGS_686c_SERVICE_403', self.class, error)
       end
 
@@ -59,7 +59,7 @@ module BGSV2
           log_message_to_sentry(
             oracle_error_match_data[0],
             :error,
-            nil,
+            {},
             { team: 'vfs-ebenefits' }
           )
         end
