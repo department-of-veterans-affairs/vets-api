@@ -78,7 +78,7 @@ describe VAProfile::ContactInformation::V2::Service do
   end
 
   describe '#post_email' do
-    let(:email) { build(:email, :contact_info_v2, source_system_user: user.icn) }
+    let(:email) { build(:email, source_system_user: user.icn) }
 
     context 'when successful' do
       it 'returns a status of 200' do
@@ -108,8 +108,8 @@ describe VAProfile::ContactInformation::V2::Service do
   describe '#put_email' do
     let(:email) do
       build(
-        :email, :contact_info_v2, id: 318_927, email_address: 'person43@example.com',
-                                  source_system_user: user.icn
+        :email, id: 318_927, email_address: 'person43@example.com',
+                source_system_user: user.icn
       )
     end
 
@@ -142,8 +142,8 @@ describe VAProfile::ContactInformation::V2::Service do
 
     let(:email) do
       build(
-        :email, :contact_info_v2, id: 318_927, email_address: 'person43@example.com',
-                                  source_system_user: '123498767V234859'
+        :email, id: 318_927, email_address: 'person43@example.com',
+                source_system_user: '123498767V234859'
       )
     end
 
@@ -230,7 +230,7 @@ describe VAProfile::ContactInformation::V2::Service do
   end
 
   describe '#put_telephone' do
-    let(:telephone) { build(:telephone, :contact_info_v2, source_system_user: user.icn) }
+    let(:telephone) { build(:telephone, source_system_user: user.icn) }
 
     context 'when successful' do
       it 'returns a status of 200' do
@@ -247,7 +247,7 @@ describe VAProfile::ContactInformation::V2::Service do
 
   describe '#post_telephone' do
     let(:telephone) do
-      build(:telephone, :contact_info_v2, id: nil, source_system_user: user.icn)
+      build(:telephone, id: nil, source_system_user: user.icn)
     end
 
     context 'when successful' do
@@ -319,7 +319,6 @@ describe VAProfile::ContactInformation::V2::Service do
       {
         model_name: 'address',
         factory: 'va_profile_address',
-        trait: 'contact_info_v2',
         attr: 'residential_address',
         id: 577_127
       },

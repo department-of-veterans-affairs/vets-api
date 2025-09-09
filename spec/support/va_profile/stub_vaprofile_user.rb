@@ -16,15 +16,15 @@ def stub_vaprofile_user(person = nil)
       FactoryBot.build(:va_profile_address, address_pou: VAProfile::Models::Address::CORRESPONDENCE, id: 124)
     ],
     emails: [
-      FactoryBot.build(:email, :contact_info_v2, id: 318_927)
+      FactoryBot.build(:email, id: 318_927)
     ],
     telephones: [
-      FactoryBot.build(:telephone, :contact_info_v2, :home, id: 458_781),
-      FactoryBot.build(:telephone, :contact_info_v2_mobile, phone_type: VAProfile::Models::Telephone::MOBILE, id: 790),
-      FactoryBot.build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::WORK, id: 791),
-      FactoryBot.build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::FAX, id: 792),
-      FactoryBot.build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::TEMPORARY,
-                                                            id: 793)
+      FactoryBot.build(:telephone, :home, id: 458_781),
+      FactoryBot.build(:telephone, :mobile, phone_type: VAProfile::Models::Telephone::MOBILE, id: 790),
+      FactoryBot.build(:telephone, :home, phone_type: VAProfile::Models::Telephone::WORK, id: 791),
+      FactoryBot.build(:telephone, :home, phone_type: VAProfile::Models::Telephone::FAX, id: 792),
+      FactoryBot.build(:telephone, :home, phone_type: VAProfile::Models::Telephone::TEMPORARY,
+                                          id: 793)
     ]
   )
 
