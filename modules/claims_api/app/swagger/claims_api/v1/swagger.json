@@ -1786,10 +1786,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "564dc89b-3ff6-423a-9039-a3a1410f9ab8",
+                    "id": "da56d0a7-663c-4f41-9994-ab4eb59b0cc5",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-07-30",
+                      "date_request_accepted": "2025-08-29",
                       "previous_poa": null,
                       "representative": {
                         "service_organization": {
@@ -2665,10 +2665,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "352b054f-5a5d-47d0-8277-fa0771686e9b",
+                    "id": "02317651-17d8-4bae-afec-f9ba56836243",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-07-30",
+                      "date_request_accepted": "2025-08-29",
                       "previous_poa": "074",
                       "representative": {
                         "service_organization": {
@@ -3181,17 +3181,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b72d0496-d34a-4c2b-8537-4765ca9bba3d",
+                    "id": "fdba864d-956d-41a4-b294-35d18076dbe0",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-07-30",
+                      "date_request_accepted": "2025-08-29",
                       "previous_poa": "074",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
                         }
                       },
-                      "status": "errored"
+                      "status": "pending"
                     }
                   }
                 },
@@ -6039,7 +6039,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "409ae7f1-b75d-48ed-8326-61afcdc3deaa",
+                    "id": "3d69f3bd-c99f-4aa5-ac14-5ffa430f5335",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6047,7 +6047,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-07-30T15:21:16.876Z",
+                      "updated_at": "2025-08-29T18:34:26.092Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -6061,7 +6061,7 @@
                       "phase_change_date": null,
                       "ever_phase_back": null,
                       "current_phase_back": null,
-                      "token": "409ae7f1-b75d-48ed-8326-61afcdc3deaa",
+                      "token": "3d69f3bd-c99f-4aa5-ac14-5ffa430f5335",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -7914,7 +7914,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "50ae6f6b-e132-4c8b-a468-31a52c312726",
+                    "id": "9756c410-7302-4fa9-aff3-2c79a1026bc7",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -7922,7 +7922,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-07-30T15:21:17.973Z",
+                      "updated_at": "2025-08-29T18:34:26.505Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -7936,7 +7936,7 @@
                       "phase_change_date": null,
                       "ever_phase_back": null,
                       "current_phase_back": null,
-                      "token": "50ae6f6b-e132-4c8b-a468-31a52c312726",
+                      "token": "9756c410-7302-4fa9-aff3-2c79a1026bc7",
                       "status": "pending",
                       "flashes": []
                     }
@@ -10165,7 +10165,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "95c8c3cb-a096-4488-a890-8abe86cebffe",
+                    "id": "ade33ecb-fd71-4612-bdd0-65bf72c21be0",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -10173,7 +10173,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-07-30T15:21:20.230Z",
+                      "updated_at": "2025-08-29T18:34:27.362Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -10186,7 +10186,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "46aa1740-5690-4f13-b7a9-d93d9ec22548",
+                          "id": "89fde3d4-5f58-4b00-883c-276ef73d26e0",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "header_hash": null,
@@ -10797,12 +10797,6 @@
                               "claim_type": {
                                 "type": "string",
                                 "description": "The type of claim originally submitted",
-                                "enum": [
-                                  "Compensation",
-                                  "Compensation and Pension",
-                                  "Dependency",
-                                  "Administrative Review"
-                                ],
                                 "example": "Compensation"
                               }
                             }
@@ -11025,7 +11019,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c43db3c9-7ac4-4a8f-a44b-5b1cc0f4fda6",
+                    "id": "022a8662-6265-4268-831c-f26ce1f46e99",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -11058,12 +11052,12 @@
                       "status": "Complete",
                       "supporting_documents": [
                         {
-                          "id": "98b37d3e-090f-4b66-afcf-c2d660425166",
+                          "id": "3a88d026-7415-4f04-b2ac-d04eb55a7663",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "header_hash": "bf4ac599b081869634566fdc561a0f8db17dd2e09b199a8c674ed08a6b6e113f",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2025-07-30T15:21:21.884Z"
+                          "uploaded_at": "2025-08-29T18:34:28.007Z"
                         }
                       ]
                     }
@@ -11178,12 +11172,7 @@
                             },
                             "claim_type": {
                               "type": "string",
-                              "description": "The type of claim originally submitted",
-                              "enum": [
-                                "Compensation",
-                                "Compensation and Pension",
-                                "Dependency"
-                              ]
+                              "description": "The type of claim originally submitted"
                             },
                             "contention_list": {
                               "type": "array",
