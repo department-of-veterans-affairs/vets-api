@@ -86,19 +86,19 @@ RSpec.describe DebtTransactionLog, type: :model do
 
     it 'delegates mark_submitted to service' do
       expect(DebtTransactionLogService).to receive(:mark_submitted)
-        .with(log, external_reference_id: 'ref123')
+        .with(transaction_log: log, external_reference_id: 'ref123')
       log.mark_submitted(external_reference_id: 'ref123')
     end
 
     it 'delegates mark_completed to service' do
       expect(DebtTransactionLogService).to receive(:mark_completed)
-        .with(log, external_reference_id: nil)
+        .with(transaction_log: log, external_reference_id: nil)
       log.mark_completed
     end
 
     it 'delegates mark_failed to service' do
       expect(DebtTransactionLogService).to receive(:mark_failed)
-        .with(log, external_reference_id: nil)
+        .with(transaction_log: log, external_reference_id: nil)
       log.mark_failed
     end
   end

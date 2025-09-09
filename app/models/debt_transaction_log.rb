@@ -20,14 +20,14 @@ class DebtTransactionLog < ApplicationRecord
   end
 
   def mark_submitted(external_reference_id: nil)
-    DebtTransactionLogService.mark_submitted(self, external_reference_id:)
+    DebtTransactionLogService.mark_submitted(transaction_log: self, external_reference_id:)
   end
 
   def mark_completed(external_reference_id: nil)
-    DebtTransactionLogService.mark_completed(self, external_reference_id:)
+    DebtTransactionLogService.mark_completed(transaction_log: self, external_reference_id:)
   end
 
   def mark_failed(external_reference_id: nil)
-    DebtTransactionLogService.mark_failed(self, external_reference_id:)
+    DebtTransactionLogService.mark_failed(transaction_log: self, external_reference_id:)
   end
 end

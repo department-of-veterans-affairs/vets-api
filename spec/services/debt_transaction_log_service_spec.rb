@@ -79,25 +79,25 @@ RSpec.describe DebtTransactionLogService do
     let(:log) { create(:debt_transaction_log, transactionable: form5655_submission, state: 'pending') }
 
     it 'updates state to submitted' do
-      result = DebtTransactionLogService.mark_submitted(log)
+      result = DebtTransactionLogService.mark_submitted(transaction_log: log)
 
       expect(result).to be true
       expect(log.reload.state).to eq('submitted')
     end
 
     it 'updates external_reference_id when provided' do
-      DebtTransactionLogService.mark_submitted(log, external_reference_id: 'ref123')
+      DebtTransactionLogService.mark_submitted(transaction_log: log, external_reference_id: 'ref123')
 
       expect(log.reload.external_reference_id).to eq('ref123')
     end
 
     it 'fires StatsD metrics on state change' do
-      DebtTransactionLogService.mark_submitted(log)
+      DebtTransactionLogService.mark_submitted(transaction_log: log)
       expect(StatsD).to have_received(:increment).with('api.debt_transaction_log.waiver.state.submitted')
     end
 
     it 'returns false when log is nil' do
-      result = DebtTransactionLogService.mark_submitted(nil)
+      result = DebtTransactionLogService.mark_submitted(transaction_log: nil)
       expect(result).to be false
     end
   end
@@ -106,7 +106,7 @@ RSpec.describe DebtTransactionLogService do
     let(:log) { create(:debt_transaction_log, transactionable: form5655_submission, state: 'submitted') }
 
     it 'updates state to completed' do
-      result = DebtTransactionLogService.mark_completed(log)
+      result = DebtTransactionLogService.mark_completed(transaction_log: log)
 
       expect(result).to be true
       expect(log.reload.state).to eq('completed')
@@ -114,7 +114,7 @@ RSpec.describe DebtTransactionLogService do
     end
 
     it 'fires StatsD metrics on state change' do
-      DebtTransactionLogService.mark_completed(log)
+      DebtTransactionLogService.mark_completed(transaction_log: log)
       expect(StatsD).to have_received(:increment).with('api.debt_transaction_log.waiver.state.completed')
     end
   end
@@ -123,7 +123,7 @@ RSpec.describe DebtTransactionLogService do
     let(:log) { create(:debt_transaction_log, transactionable: form5655_submission, state: 'submitted') }
 
     it 'updates state to failed' do
-      result = DebtTransactionLogService.mark_failed(log)
+      result = DebtTransactionLogService.mark_failed(transaction_log: log)
 
       expect(result).to be true
       expect(log.reload.state).to eq('failed')
@@ -131,14 +131,14 @@ RSpec.describe DebtTransactionLogService do
     end
 
     it 'fires StatsD metrics on state change' do
-      DebtTransactionLogService.mark_failed(log)
+      DebtTransactionLogService.mark_failed(transaction_log: log)
       expect(StatsD).to have_received(:increment).with('api.debt_transaction_log.waiver.state.failed')
     end
 
     it 'returns false on update failure' do
       allow(log).to receive(:update!).and_raise(StandardError, 'DB error')
 
-      result = DebtTransactionLogService.mark_failed(log)
+      result = DebtTransactionLogService.mark_failed(transaction_log: log)
 
       expect(result).to be false
       expect(StatsD).to have_received(:increment).with('api.debt_transaction_log.state_update_failed')

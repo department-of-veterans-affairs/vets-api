@@ -23,15 +23,15 @@ class DebtTransactionLogService
     )
   end
 
-  def self.mark_submitted(transaction_log, external_reference_id: nil)
+  def self.mark_submitted(transaction_log:, external_reference_id: nil)
     update_state(transaction_log, 'submitted', external_reference_id:)
   end
 
-  def self.mark_completed(transaction_log, external_reference_id: nil)
+  def self.mark_completed(transaction_log:, external_reference_id: nil)
     update_state(transaction_log, 'completed', external_reference_id:, completed_at: Time.current)
   end
 
-  def self.mark_failed(transaction_log, external_reference_id: nil)
+  def self.mark_failed(transaction_log:, external_reference_id: nil)
     update_state(transaction_log, 'failed', external_reference_id:, completed_at: Time.current)
   end
 
