@@ -79,6 +79,15 @@ RSpec.describe 'Mobile::V1::Health::Rx::Prescriptions', type: :request do
           )
         )
       end
+
+      it 'includes required metadata fields' do
+        meta = response.parsed_body['meta']
+        expect(meta).to include(
+          'prescriptionStatusCount' => be_a(Hash),
+          'hasNonVaMeds' => false,
+          'dataSource' => 'unified_health_data'
+        )
+      end
     end
 
     context 'when feature flag is disabled' do
@@ -130,6 +139,38 @@ RSpec.describe 'Mobile::V1::Health::Rx::Prescriptions', type: :request do
       it 'includes pagination metadata' do
         meta = response.parsed_body['meta']
         expect(meta).to include('pagination')
+      end
+    end
+
+    context 'when non-VA medications are present' do
+      let(:non_va_prescription) do
+        sample_uhd_prescription.merge(
+          prescription_id: '67890',
+          medication_name: 'Non-VA Medication'
+        )
+      end
+
+      before do
+        # Mock transformer to return prescription with NV source
+        transformed_prescription = double(
+          prescription_id: 67890,
+          prescription_name: 'Non-VA Medication',
+          prescription_source: 'NV',
+          refill_status: 'active',
+          is_refillable: false,
+          is_trackable: false
+        )
+        
+        allow(uhd_client).to receive(:get_prescriptions).and_return([non_va_prescription])
+        allow_any_instance_of(Mobile::V1::Prescriptions::Transformer)
+          .to receive(:transform).and_return([transformed_prescription])
+        
+        get '/mobile/v1/health/rx/prescriptions', headers: sis_headers
+      end
+
+      it 'sets hasNonVaMeds to true' do
+        meta = response.parsed_body['meta']
+        expect(meta['hasNonVaMeds']).to be true
       end
     end
   end

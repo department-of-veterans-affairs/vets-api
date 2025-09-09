@@ -22,7 +22,9 @@ module Mobile
         # Paginate results
         page_resource, page_meta_data = paginate(mobile_prescriptions)
 
-        # Add UHD-specific metadata
+        # Add metadata matching v0 API expectations
+        page_meta_data[:meta].merge!(status_meta(mobile_prescriptions))
+        page_meta_data[:meta].merge!(has_non_va_meds: non_va_meds?(mobile_prescriptions))
         page_meta_data[:meta].merge!(
           data_source: 'unified_health_data'
         )
@@ -99,6 +101,25 @@ module Mobile
         raise Common::Exceptions::InvalidFieldValue.new('ids', ids) unless ids.is_a?(Array)
 
         ids.map(&:to_i)
+      end
+
+      def status_meta(prescriptions)
+        {
+          prescription_status_count: prescriptions.each_with_object(Hash.new(0)) do |obj, hash|
+            hash['isRefillable'] += 1 if obj.is_refillable
+
+            if obj.is_trackable || %w[active submitted providerHold activeParked
+                                      refillinprocess].include?(obj.refill_status)
+              hash['active'] += 1
+            else
+              hash[obj.refill_status] += 1
+            end
+          end
+        }
+      end
+
+      def non_va_meds?(prescriptions)
+        prescriptions.any? { |item| item.prescription_source == 'NV' }
       end
     end
   end
