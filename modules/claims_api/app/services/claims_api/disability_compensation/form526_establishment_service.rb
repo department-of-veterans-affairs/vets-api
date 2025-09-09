@@ -19,7 +19,7 @@ module ClaimsApi
 
         auto_claim = get_claim(claim_id)
 
-        log_job_progress(claim_id, 'Docker container service started', auto_claim.transaction_id)
+        log_job_progress(claim_id, 'Form526 Establishment service started', auto_claim.transaction_id)
 
         update_auth_headers(auto_claim) if auto_claim.transaction_id.present?
 
