@@ -135,7 +135,7 @@ module ClaimsApi
           @auto_claim&.dig('changeOfAddress')&.deep_symbolize_keys
 
         country = @pdf_data[:data][:attributes][:changeOfAddress][:country]
-        abbr_country = country == 'USA' ? 'US' : country
+        abbr_country = format_country(country)
         @pdf_data[:data][:attributes][:changeOfAddress].merge!(
           newAddress: { country: abbr_country }
         )
@@ -190,16 +190,7 @@ module ClaimsApi
       end
 
       def chg_addr_zip
-        zip_first_five = @auto_claim&.dig('changeOfAddress', 'zipFirstFive') || ''
-        zip_last_four = @auto_claim&.dig('changeOfAddress', 'zipLastFour') || ''
-        international_zip = @auto_claim&.dig('changeOfAddress', 'internationalPostalCode')
-        zip = if zip_last_four.present?
-                "#{zip_first_five}-#{zip_last_four}"
-              elsif international_zip.present?
-                international_zip
-              else
-                zip_first_five
-              end
+        zip = concatenate_zip_code(@auto_claim&.dig('changeOfAddress'))
         addr = @pdf_data&.dig(:data, :attributes, :identificationInformation, :mailingAddress).present?
         @pdf_data[:data][:attributes][:changeOfAddress][:newAddress].merge!(zip:) if addr
         @pdf_data[:data][:attributes][:changeOfAddress].delete(:internationalPostalCode)
