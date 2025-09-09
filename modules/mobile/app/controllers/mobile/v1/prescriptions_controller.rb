@@ -46,20 +46,6 @@ module Mobile
         render json: Mobile::V1::PrescriptionsRefillsSerializer.new(@current_user.uuid, transformed_response)
       end
 
-      def tracking
-        Rails.logger.info(
-          message: 'Mobile v1 prescription tracking requested - not yet implemented',
-          service: 'mobile_v1_prescriptions'
-        )
-
-        render json: {
-          errors: [{
-            code: 'not_implemented',
-            detail: 'Prescription tracking will be available in a future update'
-          }]
-        }, status: :not_implemented
-      end
-
       private
 
       def check_cerner_pilot_access

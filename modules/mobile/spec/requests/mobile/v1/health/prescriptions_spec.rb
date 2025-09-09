@@ -18,7 +18,9 @@ RSpec.describe 'Mobile::V1::Health::Rx::Prescriptions', type: :request do
       status: 'active',
       prescriber_name: 'Dr. Smith',
       pharmacy_name: 'VA Pharmacy',
-      rx_number: 'RX12345'
+      rx_number: 'RX12345',
+      tracking_number: 'TRACK123456789',
+      shipper: 'UPS'
     }
   end
   let(:sample_uhd_refill_response) do
@@ -74,7 +76,9 @@ RSpec.describe 'Mobile::V1::Health::Rx::Prescriptions', type: :request do
             'expirationDate' => nil,
             'facilityName' => 'VA Pharmacy',
             'orderedDate' => nil,
-            'prescriptionSource' => 'UHD'
+            'prescriptionSource' => 'UHD',
+            'trackingNumber' => 'TRACK123456789',
+            'shipper' => 'UPS'
           )
         )
       end
@@ -95,6 +99,17 @@ RSpec.describe 'Mobile::V1::Health::Rx::Prescriptions', type: :request do
         expected_v0_attributes.each do |attr|
           expect(prescription_attributes).to have_key(attr), "Missing attribute: #{attr}"
         end
+      end
+
+      it 'includes v1-specific tracking attributes' do
+        data = response.parsed_body['data']
+        prescription_attributes = data.first['attributes']
+        
+        # Verify v1-specific attributes are present
+        expect(prescription_attributes).to have_key('trackingNumber')
+        expect(prescription_attributes).to have_key('shipper')
+        expect(prescription_attributes).to have_key('prescriptionSource')
+        expect(prescription_attributes).to have_key('dataSourceSystem')
       end
 
       it 'includes required metadata fields' do
@@ -275,24 +290,6 @@ RSpec.describe 'Mobile::V1::Health::Rx::Prescriptions', type: :request do
 
       it 'returns 400 Bad Request' do
         expect(response).to have_http_status(:bad_request)
-      end
-    end
-  end
-
-  describe 'GET /mobile/v1/health/rx/prescriptions/:id/tracking' do
-    context 'when endpoint is called' do
-      before do
-        get '/mobile/v1/health/rx/prescriptions/12345/tracking', headers: sis_headers
-      end
-
-      it 'returns 501 Not Implemented' do
-        expect(response).to have_http_status(:not_implemented)
-      end
-
-      it 'returns appropriate error message' do
-        error = response.parsed_body['errors'].first
-        expect(error['title']).to eq('Not Implemented')
-        expect(error['detail']).to eq('Tracking is not yet implemented for mobile v1 prescriptions')
       end
     end
   end

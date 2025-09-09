@@ -8,6 +8,8 @@ module Mobile
       
       attribute :data_source_system
       attribute :prescription_source
+      attribute :tracking_number
+      attribute :shipper
 
       # Override type to maintain consistency
       set_type :Prescription

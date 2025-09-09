@@ -41,7 +41,9 @@ module Mobile
             ndc_number: uhd_prescription.ndc_number,
             facility_phone_number: uhd_prescription.cmop_division_phone,
             data_source_system: uhd_prescription.attributes&.data_source_system,
-            prescription_source: 'UHD'
+            prescription_source: 'UHD',
+            tracking_number: uhd_prescription.tracking_number,
+            shipper: uhd_prescription.shipper
           )
         end
 

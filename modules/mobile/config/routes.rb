@@ -124,7 +124,6 @@ Mobile::Engine.routes.draw do
     # V1 Prescriptions routes - UHD integration
     get '/health/rx/prescriptions', to: 'prescriptions#index'
     put '/health/rx/prescriptions/refill', to: 'prescriptions#refill'
-    get '/health/rx/prescriptions/:id/tracking', to: 'prescriptions#tracking'
   end
 
   namespace :v2 do
