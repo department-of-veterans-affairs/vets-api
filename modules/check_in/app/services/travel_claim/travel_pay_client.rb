@@ -24,20 +24,19 @@ module TravelClaim
                    :scope, :claims_url_v2, :subscription_key, :e_subscription_key, :s_subscription_key,
                    :travel_pay_client_number, :travel_pay_resource
 
-    def initialize(uuid:, appointment_date_time:)
-      raise ArgumentError, 'UUID cannot be blank' if uuid.blank?
-
+    def initialize(uuid:, check_in_uuid:, appointment_date_time:)
       @uuid = uuid
+      @check_in_uuid = check_in_uuid
+      @appointment_date_time = appointment_date_time
       @redis_client = TravelClaim::RedisClient.build
       @settings = Settings.check_in.travel_reimbursement_api_v2
       @correlation_id = SecureRandom.uuid
       @current_veis_token = nil
       @current_btsss_token = nil
-      @appointment_date_time = appointment_date_time
-
-      load_redis_data
 
       validate_required_arguments
+      load_redis_data
+      validate_redis_data
       super()
     end
 
@@ -66,8 +65,7 @@ module TravelClaim
                                  })
 
       headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
-
-      perform(:post, "#{auth_url}/#{tenant_id}/oauth2/token", body, headers)
+      perform(:post, "#{tenant_id}/oauth2/token", body, headers, { server_url: auth_url })
     end
 
     ##
@@ -89,7 +87,7 @@ module TravelClaim
         'Authorization' => "Bearer #{veis_access_token}"
       }.merge(subscription_key_headers)
 
-      perform(:post, "#{claims_url_v2}/api/v4/auth/system-access-token", body, headers)
+      perform(:post, 'api/v4/auth/system-access-token', body, headers)
     end
 
     ##
@@ -104,7 +102,7 @@ module TravelClaim
           facilityStationNumber: @station_number
         }
 
-        perform(:post, "#{claims_url_v2}/api/v3/appointments/find-or-add", body, headers)
+        perform(:post, 'api/v3/appointments/find-or-add', body, headers)
       end
     end
 
@@ -121,7 +119,7 @@ module TravelClaim
           claimantType: CLAIMANT_TYPE
         }
 
-        perform(:post, "#{claims_url_v2}/api/v3/claims", body, headers)
+        perform(:post, 'api/v3/claims', body, headers)
       end
     end
 
@@ -141,7 +139,7 @@ module TravelClaim
           tripType: TRIP_TYPE
         }
 
-        perform(:post, "#{claims_url_v2}/api/v3/expenses/mileage", body, headers)
+        perform(:post, 'api/v3/expenses/mileage', body, headers)
       end
     end
 
@@ -153,7 +151,7 @@ module TravelClaim
     #
     def send_get_claim_request(claim_id:)
       with_auth do
-        perform(:get, "#{claims_url_v2}/api/v3/claims/#{claim_id}", nil, headers)
+        perform(:get, "api/v3/claims/#{claim_id}", nil, headers)
       end
     end
 
@@ -166,7 +164,7 @@ module TravelClaim
     def send_claim_submission_request(claim_id:)
       with_auth do
         body = { claimId: claim_id }
-        perform(:patch, "#{claims_url_v2}/api/v3/claims/submit", body, headers)
+        perform(:patch, 'api/v3/claims/submit', body, headers)
       end
     end
 
@@ -195,16 +193,22 @@ module TravelClaim
     # Provides clear error messages for Redis failures or missing data.
     #
     def load_redis_data
-      @icn = @redis_client.icn(uuid: @uuid)
+      @icn = @redis_client.icn(uuid: @check_in_uuid)
       @station_number = @redis_client.station_number(uuid: @uuid)
-    rescue Redis::BaseError => e
-      raise ArgumentError, "Failed to load data from Redis for UUID #{@uuid}: #{e.message}"
+    rescue Redis::BaseError
+      raise ArgumentError,
+            "Failed to load data from Redis for check_in_session UUID #{@check_in_uuid} and " \
+            "station number #{@station_number}"
     end
 
     def validate_required_arguments
+      raise ArgumentError, 'UUID cannot be blank' if @uuid.blank?
+      raise ArgumentError, 'Check-in UUID cannot be blank' if @check_in_uuid.blank?
+      raise ArgumentError, 'appointment date time cannot be blank' if @appointment_date_time.blank?
+    end
+
+    def validate_redis_data
       missing_args = []
-      missing_args << 'UUID' if @uuid.blank?
-      missing_args << 'appointment date time' if @appointment_date_time.blank?
       missing_args << 'ICN' if @icn.blank?
       missing_args << 'station number' if @station_number.blank?
 
@@ -312,12 +316,21 @@ module TravelClaim
     end
 
     ##
-    # Override perform method to handle PATCH requests
+    # Override perform method to handle PATCH requests and optional server_url
     # The base configuration doesn't support PATCH, so we handle it specially
+    # Also allows overriding the server URL for authentication requests via options
     #
     def perform(method, path, params, headers = nil, options = nil)
+      server_url = options&.delete(:server_url)
+
       if method == :patch
         request(:patch, path, params || {}, headers || {}, options || {})
+      elsif server_url
+        custom_connection = config.connection(server_url:)
+        custom_connection.send(method.to_sym, path, params || {}) do |request|
+          request.headers.update(headers || {})
+          (options || {}).each { |option, value| request.options.send("#{option}=", value) }
+        end.env
       else
         super
       end
