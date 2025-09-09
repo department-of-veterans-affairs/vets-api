@@ -587,6 +587,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                   /\[10-10EZ\]/,
                   /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
                   /\[health_care_application_id:\d+\]/,
+                  /\[ipf_id_before:\d+,ipf_id_after:\d+\]/,
                   / - InProgressForm successfully deleted: true/
                 ]
 
@@ -631,6 +632,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                     /\[10-10EZ\]/,
                     /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
                     /\[health_care_application_id:\d+\]/,
+                    /\[ipf_id_before:\d+,ipf_id_after:\d+\]/,
                     / - InProgressForm successfully deleted: false/
                   ]
 

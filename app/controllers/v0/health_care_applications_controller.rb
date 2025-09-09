@@ -130,9 +130,9 @@ module V0
 
       if Flipper.enabled?(:hca_in_progress_form_logging) && in_progress_form_before
         in_progress_form_after = InProgressForm.form_for_user(FORM_ID, current_user)
-        Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}][#{hca_id}] - " \
-                          "InProgressForm successfully deleted: #{in_progress_form_after.nil?}")
-
+        Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}][#{hca_id}]" \
+                          "[ipf_id_before:#{in_progress_form_before&.id}, ipf_id_after:#{in_progress_form_after&.id}]" \
+                          " - InProgressForm successfully deleted: #{in_progress_form_after.nil?}")
         increment_in_progress_metric(in_progress_form_after)
       end
     rescue => e
