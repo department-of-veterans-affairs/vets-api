@@ -122,6 +122,9 @@ module TravelClaim
 
         perform(:post, 'api/v3/claims', body, headers)
       end
+    rescue Common::Client::Errors::ClientError => e
+      log_existing_claim_error if e.status == 400
+      raise
     end
 
     ##
@@ -196,9 +199,11 @@ module TravelClaim
     def load_redis_data
       @icn = @redis_client.icn(uuid: @check_in_uuid)
       @station_number = @redis_client.station_number(uuid: @uuid)
-    rescue Redis::BaseError => e
+    rescue Redis::BaseError
       log_redis_error('load_user_data')
-      raise ArgumentError, "Failed to load data from Redis for UUID #{@uuid}: #{e.message}"
+      raise ArgumentError,
+            "Failed to load data from Redis for check_in_session UUID #{@check_in_uuid} " \
+            "and station number #{@station_number}"
     end
 
     def validate_required_arguments
@@ -400,6 +405,14 @@ module TravelClaim
                            issue:,
                            veis_token_present: @current_veis_token.present?,
                            btsss_token_present: @current_btsss_token.present?
+                         })
+    end
+
+    def log_existing_claim_error
+      Rails.logger.error('TravelPayClient existing claim error', {
+                           correlation_id: @correlation_id,
+                           uuid_hash: safe_uuid_reference,
+                           message: 'Validation failed: A claim has already been created for this appointment.'
                          })
     end
   end
