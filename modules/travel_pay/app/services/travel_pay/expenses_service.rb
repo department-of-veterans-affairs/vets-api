@@ -35,13 +35,11 @@ module TravelPay
       # Build the request body for the API
       request_body = build_expense_request_body(params)
 
-      begin
-        response = client.add_expense(veis_token, btsss_token, params['expense_type'], request_body)
-        response.body['data']
-      rescue Faraday::Error => e
-        Rails.logger.error("Failed to create expense via API: #{e.message}")
-        raise TravelPay::ServiceError.raise_mapped_error(e)
-      end
+      response = client.add_expense(veis_token, btsss_token, params['expense_type'], request_body)
+      response.body['data']
+    rescue Faraday::Error => e
+      Rails.logger.error("Failed to create expense via API: #{e.message}")
+      TravelPay::ServiceError.raise_mapped_error(e)
     end
 
     # Method to retrieve an expense by ID via the API
@@ -54,13 +52,11 @@ module TravelPay
 
       Rails.logger.info("Getting expense of type: #{expense_type} with ID: #{expense_id}")
 
-      begin
-        response = client.get_expense(veis_token, btsss_token, expense_type, expense_id)
-        response.body['data']
-      rescue Faraday::Error => e
-        Rails.logger.error("Failed to get expense via API: #{e.message}")
-        raise TravelPay::ServiceError.raise_mapped_error(e)
-      end
+      response = client.get_expense(veis_token, btsss_token, expense_type, expense_id)
+      response.body['data']
+    rescue Faraday::Error => e
+      Rails.logger.error("Failed to get expense via API: #{e.message}")
+      TravelPay::ServiceError.raise_mapped_error(e)
     end
 
     private
