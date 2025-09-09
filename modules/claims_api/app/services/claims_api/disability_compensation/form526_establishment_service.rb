@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/MethodLength
 require 'pdf_generator_service/pdf_client'
 require 'claims_api/v2/disability_compensation_evss_mapper'
 require 'claims_api/v2/disability_compensation_fes_mapper'
@@ -13,6 +14,7 @@ module ClaimsApi
       ASYNC = false
 
       def upload(claim_id)
+        # rubocop:enable Metrics/MethodLength
         auto_claim = get_claim(claim_id)
 
         log_job_progress(claim_id, 'Docker container service started', auto_claim.transaction_id)
