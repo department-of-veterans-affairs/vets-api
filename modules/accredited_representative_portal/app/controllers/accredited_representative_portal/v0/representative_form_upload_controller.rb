@@ -186,15 +186,10 @@ module AccreditedRepresentativePortal
       end
 
       def organization
-        return @organization if defined?(@organization)
-
-        poa = claimant_representative&.to_h&.[](:power_of_attorney_holder_poa_code)
-        return (@organization = nil) if poa.blank?
-
-        @organization = Veteran::Service::Organization.find_by(poa:)&.name
+        claimant_representative&.to_h&.[](:power_of_attorney_holder_poa_code)
       rescue => e
         Rails.logger.warn("Org lookup failed: #{e.class} #{e.message}")
-        @organization = nil
+        nil
       end
 
       def trace_key_tags(span, **tags)
