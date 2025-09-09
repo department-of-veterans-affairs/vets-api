@@ -75,6 +75,7 @@ describe ClaimsApi::PdfMapperBase do
     it 'formats an SSN string' do
       ssn = '123456789'
       result = subject.format_ssn(ssn)
+
       expect(result).to eq('123-45-6789')
     end
   end
@@ -82,7 +83,9 @@ describe ClaimsApi::PdfMapperBase do
   describe '#format_birth_date' do
     it 'extracts month, day, and year correctly' do
       result = subject.format_birth_date('1948-10-30T00:00:00+00:00') # birth date format from auth_header
+
       expected = { month: '10', day: '30', year: '1948' }
+
       expect(result).to eq(expected)
     end
   end
@@ -160,6 +163,40 @@ describe ClaimsApi::PdfMapperBase do
     context 'when date is invalid or does not match pattern' do
       it 'returns nil for partial invalid format' do
         result = subject.regex_date_conversion('24-12-01') # 2-digit year
+
+        expect(result).to be_nil
+      end
+    end
+  end
+
+  describe '#make_date_object' do
+    context 'when date_length is 4 (year only)' do
+      it 'returns a hash with only year' do
+        result = subject.make_date_object('2023', 4)
+
+        expect(result).to eq({ year: '2023' })
+      end
+    end
+
+    context 'when date_length is 7 (year and month)' do
+      it 'returns a hash with year and month' do
+        result = subject.make_date_object('2023-12', 7)
+
+        expect(result).to eq({ month: '12', year: '2023' })
+      end
+    end
+
+    context 'when date_length is neither 4 nor 7 (full date)' do
+      it 'returns a hash with year, month, and day' do
+        result = subject.make_date_object('2023-12-25', 10)
+
+        expect(result).to eq({ year: '2023', month: '12', day: '25' })
+      end
+    end
+
+    context 'when year is nil (invalid date)' do
+      it 'returns nil' do
+        result = subject.make_date_object('invalid-date', 10)
 
         expect(result).to be_nil
       end
