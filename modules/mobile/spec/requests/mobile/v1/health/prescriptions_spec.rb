@@ -8,7 +8,7 @@ RSpec.describe 'Mobile::V1::Health::Rx::Prescriptions', type: :request do
   let!(:user) { sis_user(icn: '9000682') }
   let(:uhd_client) { instance_double(UnifiedHealthData::Service) }
   let(:sample_uhd_prescription) do
-    {
+    OpenStruct.new(
       prescription_id: '12345',
       medication_name: 'Test Medication',
       instructions: 'Take once daily',
@@ -21,7 +21,7 @@ RSpec.describe 'Mobile::V1::Health::Rx::Prescriptions', type: :request do
       rx_number: 'RX12345',
       tracking_number: 'TRACK123456789',
       shipper: 'UPS'
-    }
+    )
   end
   let(:sample_uhd_refill_response) do
     {
@@ -110,6 +110,17 @@ RSpec.describe 'Mobile::V1::Health::Rx::Prescriptions', type: :request do
         expect(prescription_attributes).to have_key('shipper')
         expect(prescription_attributes).to have_key('prescriptionSource')
         expect(prescription_attributes).to have_key('dataSourceSystem')
+        
+        # Verify new tracking_info array structure
+        expect(prescription_attributes).to have_key('trackingInfo')
+        expect(prescription_attributes['trackingInfo']).to be_an(Array)
+        
+        # Verify tracking info contains expected structure
+        if prescription_attributes['trackingInfo'].any?
+          tracking_item = prescription_attributes['trackingInfo'].first
+          expect(tracking_item).to have_key('trackingNumber')
+          expect(tracking_item).to have_key('shipper')
+        end
       end
 
       it 'includes required metadata fields' do
@@ -119,6 +130,60 @@ RSpec.describe 'Mobile::V1::Health::Rx::Prescriptions', type: :request do
           'hasNonVaMeds' => false,
           'dataSource' => 'unified_health_data'
         )
+      end
+    end
+
+    context 'with multiple tracking info objects' do
+      let(:sample_uhd_prescription_with_multiple_tracking) do
+        OpenStruct.new(
+          prescription_id: '12345',
+          medication_name: 'Test Medication',
+          instructions: 'Take once daily',
+          fill_date: '2024-01-15',
+          quantity: 30,
+          refills_remaining: 2,
+          status: 'active',
+          prescriber_name: 'Dr. Smith',
+          pharmacy_name: 'VA Pharmacy',
+          rx_number: 'RX12345',
+          tracking_info: [
+            { tracking_number: 'TRACK123456789', shipper: 'UPS' },
+            { tracking_number: 'TRACK987654321', shipper: 'FedEx' }
+          ]
+        )
+      end
+
+      before do
+        allow(uhd_client).to receive(:get_prescriptions).and_return([sample_uhd_prescription_with_multiple_tracking])
+        get '/mobile/v1/health/rx/prescriptions', headers: sis_headers
+      end
+
+      it 'returns multiple tracking info objects in array' do
+        data = response.parsed_body['data']
+        prescription_attributes = data.first['attributes']
+        tracking_info = prescription_attributes['trackingInfo']
+
+        expect(tracking_info).to be_an(Array)
+        expect(tracking_info.length).to eq(2)
+
+        expect(tracking_info[0]).to include(
+          'trackingNumber' => 'TRACK123456789',
+          'shipper' => 'UPS'
+        )
+
+        expect(tracking_info[1]).to include(
+          'trackingNumber' => 'TRACK987654321',
+          'shipper' => 'FedEx'
+        )
+      end
+
+      it 'provides backward compatibility with first tracking info as top-level attributes' do
+        data = response.parsed_body['data']
+        prescription_attributes = data.first['attributes']
+
+        # Should use first tracking info for backward compatibility
+        expect(prescription_attributes['trackingNumber']).to eq('TRACK123456789')
+        expect(prescription_attributes['shipper']).to eq('UPS')
       end
     end
 

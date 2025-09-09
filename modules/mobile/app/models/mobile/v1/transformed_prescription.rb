@@ -27,8 +27,7 @@ module Mobile
       attribute :facility_phone_number, Types::String.optional
       attribute :data_source_system, Types::String.optional
       attribute :prescription_source, Types::String.optional.default('UHD')
-      attribute :tracking_number, Types::String.optional
-      attribute :shipper, Types::String.optional
+      attribute :tracking_info, Types::Array.optional.default([])
 
       # Ensure compatibility with existing serializer expectations
       alias_method :cmop_division_phone, :facility_phone_number

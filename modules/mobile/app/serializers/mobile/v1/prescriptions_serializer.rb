@@ -8,8 +8,16 @@ module Mobile
       
       attribute :data_source_system
       attribute :prescription_source
-      attribute :tracking_number
-      attribute :shipper
+      attribute :tracking_info
+
+      # Backward compatibility: provide first tracking info as top-level attributes
+      attribute :tracking_number do |object|
+        object.tracking_info&.first&.dig(:tracking_number) || object.tracking_info&.first&.dig('tracking_number')
+      end
+
+      attribute :shipper do |object|
+        object.tracking_info&.first&.dig(:shipper) || object.tracking_info&.first&.dig('shipper')
+      end
 
       # Override type to maintain consistency
       set_type :Prescription
