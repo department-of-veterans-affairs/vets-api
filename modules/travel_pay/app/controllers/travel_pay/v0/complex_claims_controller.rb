@@ -10,7 +10,7 @@ module TravelPay
       rescue_from Common::Exceptions::BadRequest, with: :render_bad_request
       rescue_from Common::Exceptions::ServiceUnavailable, with: :render_service_unavailable
 
-      before_action :check_feature_flag, only: [:create, :submit]
+      before_action :check_feature_flag
 
       def submit
         verify_feature_flag!(
@@ -19,7 +19,7 @@ module TravelPay
           error_message: 'Travel Pay submit complex claim unavailable per feature toggle'
         )
 
-        claim_id = params[:id]
+        claim_id = params[:claim_id]
         validate_claim_id_exists!(claim_id)
 
         # TODO: add validation to verify there is a document associated to a given expense
