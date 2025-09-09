@@ -265,6 +265,9 @@ module ClaimsApi
       def validate_veteran!
         # FES Val Section 5.b: mailingAddress validations
         validate_current_mailing_address!
+
+        # FES Val Section 5.c: changeOfAddress validations
+        validate_change_of_address!
       end
 
       # FES Val Section 5.b: mailingAddress validations
@@ -274,6 +277,12 @@ module ClaimsApi
 
         # FES Val Section 5.b.ii-iv: Address field validations for USA
         validate_usa_mailing_address!(mailing_address) if mailing_address['country'] == 'USA'
+
+        # FES Val Section 5.b.vi: Validate country against reference data
+        validate_address_country!(mailing_address, 'mailingAddress')
+
+        # FES Val Section 5.b.v: Validate internationalPostalCode for non-USA countries
+        validate_international_postal_code!(mailing_address)
       end
 
       def validate_usa_mailing_address!(mailing_address)
@@ -302,6 +311,93 @@ module ClaimsApi
           source: '/veteranIdentification/mailingAddress/internationalPostalCode',
           title: 'Invalid field',
           detail: 'InternationalPostalCode should not be provided for USA addresses'
+        )
+      end
+
+      def validate_address_country!(address, address_type)
+        return if address['country'].blank?
+
+        countries = valid_countries
+        source_prefix = address_type == 'changeOfAddress' ? '' : '/veteranIdentification'
+        if countries.nil?
+          # FES Val Section 5.b.vii-viii: BRD service error
+          collect_error(
+            source: "#{source_prefix}/#{address_type}/country",
+            title: 'Internal Server Error',
+            detail: 'Failed To Obtain Country Types (Request Failed)'
+          )
+          return
+        end
+
+        # FES Val Section 5.b.vi: Invalid country
+        return if countries.include?(address['country'])
+
+        collect_error(
+          source: "#{source_prefix}/#{address_type}/country",
+          title: 'Invalid country',
+          detail: "Provided country is not valid: #{address['country']}"
+        )
+      end
+
+      def validate_international_postal_code!(mailing_address)
+        country = mailing_address['country']
+        return if country.blank?
+
+        # FES Val Section 5.b.v: internationalPostalCode required for non-USA countries
+        if country != 'USA' && mailing_address['internationalPostalCode'].blank?
+          collect_error(
+            source: '/veteranIdentification/mailingAddress/internationalPostalCode',
+            title: 'Missing internationalPostalCode',
+            detail: 'InternationalPostalCode is required for non-USA addresses'
+          )
+        end
+      end
+
+      # FES Val Section 5.c: changeOfAddress validations
+      def validate_change_of_address!
+        change_of_address = form_attributes['changeOfAddress']
+        return if change_of_address.blank?
+
+        validate_change_of_address_dates!(change_of_address)
+      end
+
+      def validate_change_of_address_dates!(change_of_address)
+        if change_of_address['typeOfAddressChange'] == 'TEMPORARY'
+          validate_temporary_address_dates!(change_of_address)
+        elsif change_of_address['typeOfAddressChange'] == 'PERMANENT'
+          validate_permanent_address_dates!(change_of_address)
+        end
+      end
+
+      def validate_temporary_address_dates!(change_of_address)
+        # FES Val Section 5.c.i: TEMPORARY requires beginDate and endDate
+        dates = change_of_address['dates'] || {}
+
+        if dates['beginDate'].blank?
+          collect_error(
+            source: '/changeOfAddress/dates/beginDate',
+            title: 'Missing beginningDate',
+            detail: 'beginningDate is required for temporary address'
+          )
+        end
+
+        if dates['endDate'].blank?
+          collect_error(
+            source: '/changeOfAddress/dates/endDate',
+            title: 'Missing endingDate',
+            detail: 'EndingDate is required for temporary address'
+          )
+        end
+      end
+
+      def validate_permanent_address_dates!(change_of_address)
+        # FES Val Section 5.c.ii: PERMANENT cannot have endDate
+        return if change_of_address.dig('dates', 'endDate').blank?
+
+        collect_error(
+          source: '/changeOfAddress/dates/endDate',
+          title: 'Cannot provide endingDate',
+          detail: 'EndingDate cannot be provided for a permanent address'
         )
       end
 
