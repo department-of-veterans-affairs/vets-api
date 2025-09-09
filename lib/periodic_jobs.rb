@@ -184,7 +184,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('45 * * * *', 'VBADocuments::UploadStatusBatch')
 
   # Request updated statuses for benefits intake submissions with upstream processing errors
-  mgr.register('13 */6 * * *', 'VBADocuments::UploadUpstreamProcessingErrorBatch')
+  mgr.register('13 */6 * * *', 'VBADocuments::UploadStatusErrorBatch')
 
   # Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status
   mgr.register('5 */2 * * *', 'VBADocuments::RunUnsuccessfulSubmissions')

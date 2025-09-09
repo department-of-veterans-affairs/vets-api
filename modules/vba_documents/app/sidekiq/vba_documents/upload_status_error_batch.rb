@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-# Job polls EMMS for status updates for UploadSubmission that hit an EMMS internal procession error.  EMMS seems
+# Job polls EMMS for status updates for UploadSubmission that hit a Central Mail internal procession error.  EMMS seems
 # to have re-processing capacitity and some EMMS errors self recover
 
 require 'sidekiq'
 
 module VBADocuments
-  class UploadUpstreamProcessingErrorBatch
+  class UploadStatusErrorBatch
     include Sidekiq::Job
 
     # No need to retry since the schedule will run this every hour
-    sidekiq_options retry: false, unique_for: 1.hour
+    sidekiq_options retry: 9, unique_for: 6.hours
 
     BATCH_SIZE = 100
 
@@ -31,7 +31,7 @@ module VBADocuments
     private
 
     def filtered_submission_guids
-      ups = VBADocuments::UploadSubmission.emms_internal_processing_error
+      ups = VBADocuments::UploadSubmission.upstream_processing_error
       ups = ups.where('created_at >= ?', UploadSubmission::MAX_UPSTREAM_ERROR_AGE_DAYS.days.ago)
       ups.order(created_at: :asc).pluck(:guid)
     end

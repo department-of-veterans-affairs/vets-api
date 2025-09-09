@@ -51,10 +51,10 @@ FactoryBot.define do
       detail { 'Upload rejected' }
     end
 
-    trait :status_emms_error do
+    trait :upstream_error_upload do
       status { 'error' }
       code { 'DOC202' }
-      detail { 'image failed to process' }
+      detail { 'Upstream status: Errors: ERR-EMMS-FAILED, Corrupted File detected.' }
     end
 
     trait :status_final_success do

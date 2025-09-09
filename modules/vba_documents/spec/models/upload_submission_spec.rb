@@ -9,8 +9,11 @@ describe VBADocuments::UploadSubmission, type: :model do
   let(:upload_received) { create(:upload_submission, status: 'received') }
   let(:upload_processing) { create(:upload_submission, status: 'processing') }
   let(:upload_success) { create(:upload_submission, status: 'success') }
-  let(:upload_emms_error_new) { create(:upload_submission, :status_emms_error) }
-  let(:upload_emms_error_old) { create(:upload_submission, :status_emms_error, created_at: 15.days.ago) }
+  let(:upload_cm_error_new) { create(:upload_submission, :upstream_error_upload) }
+  let(:upload_cm_error_old) { 
+    create(:upload_submission, :upstream_error_upload, 
+           created_at: (VBADocuments::UploadSubmission::MAX_UPSTREAM_ERROR_AGE_DAYS + 1).days.ago)
+    }
   let(:upload_final_success) do
     create(:upload_submission, status: 'success', metadata: { final_success_status: Time.now.to_i })
   end
@@ -528,11 +531,11 @@ describe VBADocuments::UploadSubmission, type: :model do
   describe '#in_final_status?' do
 
     it 'returns true when status is DOC202 error and the age exceeds the error polling age limit' do
-      expect(upload_emms_error_old.in_final_status?).to be(true)
+      expect(upload_cm_error_old.in_final_status?).to be(true)
     end
 
     it 'returns false when status is DOC202 error and the age is still less than the error polling age limit' do
-      expect(upload_emms_error_new.in_final_status?).to be(false)
+      expect(upload_cm_error_new.in_final_status?).to be(false)
     end
 
     it 'returns false when status is pending' do
@@ -575,7 +578,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(upload_error_upstream.in_final_status?).to be(false)
     end
 
-    it 'returns true when status is error and the error code is DOC2XX (upstream error) and 14 days or older' do
+    it 'returns true when status is error and the error code is DOC202 and older than MAX_UPSTREAM_ERROR_AGE_DAYS' do
       expect(upload_error_upstream_old.in_final_status?).to be(true)
     end
   end
