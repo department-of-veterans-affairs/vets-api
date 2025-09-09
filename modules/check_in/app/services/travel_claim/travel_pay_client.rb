@@ -22,7 +22,7 @@ module TravelClaim
     # Delegate settings methods directly to the settings object
     def_delegators :settings, :auth_url, :tenant_id, :travel_pay_client_id, :travel_pay_client_secret,
                    :scope, :claims_url_v2, :subscription_key, :e_subscription_key, :s_subscription_key,
-                   :travel_pay_client_number, :travel_pay_resource
+                   :travel_pay_client_number, :travel_pay_resource, :client_secret
 
     def initialize(uuid:, check_in_uuid:, appointment_date_time:)
       @uuid = uuid
@@ -57,7 +57,7 @@ module TravelClaim
     def veis_token_request
       body = URI.encode_www_form({
                                    client_id: travel_pay_client_id,
-                                   client_secret: travel_pay_client_secret,
+                                   client_secret:,
                                    client_type: CLIENT_TYPE,
                                    scope:,
                                    grant_type: GRANT_TYPE,
