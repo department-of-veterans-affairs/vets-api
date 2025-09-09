@@ -78,7 +78,6 @@ module VAProfile
           country_name: body.dig('country', 'country_name'),
           country_code_iso2: body.dig('country', 'country_code_iso2'),
           country_code_iso3: body.dig('country', 'country_code_iso3'),
-          fips_code: body.dig('country', 'country_code_fips'),
           county_code: body.dig('county', 'county_code'),
           county_name: body.dig('county', 'county_name'),
           created_at: body['create_date'],
