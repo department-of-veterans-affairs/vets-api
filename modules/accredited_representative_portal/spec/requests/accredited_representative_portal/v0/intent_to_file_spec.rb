@@ -8,20 +8,13 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
   let!(:test_user) do
     create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov'])
   end
-  let!(:accredited_individual) do
-    create(:user_account_accredited_individual,
-           user_account_email: test_user.email,
-           user_account_icn: test_user.icn,
-           accredited_individual_registration_number: '357458',
-           poa_code:)
-  end
-  let!(:vso) { create(:organization, poa: poa_code, can_accept_digital_poa_requests: true) }
+  let!(:vso) { create(:organization, poa: poa_code) }
 
   let!(:representative) do
     create(:representative,
            :vso,
            email: test_user.email,
-           representative_id: accredited_individual.accredited_individual_registration_number,
+           representative_id: '357458',
            poa_codes: [poa_code])
   end
   let(:feature_flag_state) { true }
