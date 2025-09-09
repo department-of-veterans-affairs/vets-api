@@ -62,7 +62,7 @@ RSpec.describe V0::SignInController, type: :controller do
           token = SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
           split_token = token.split('.')
           split_token[0] = 'some-modified-encrypted-component'
-          split_token.join
+          split_token.join('.')
         end
         let(:expected_error) { 'Refresh token cannot be decrypted' }
 
