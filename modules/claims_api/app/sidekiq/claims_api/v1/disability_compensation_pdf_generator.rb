@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/MethodLength
+
 require 'claims_api/v1/disability_compensation_pdf_mapper'
 require 'pdf_generator_service/pdf_client'
 
@@ -11,6 +13,8 @@ module ClaimsApi
       sidekiq_options expires_in: 48.hours, retry: true
 
       def perform(claim_id, middle_initial)
+        # rubocop:enable Metrics/MethodLength
+
         log_job_progress(claim_id,
                          "526EZ PDF generator started for claim #{claim_id}")
 
