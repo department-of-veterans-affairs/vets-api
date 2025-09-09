@@ -121,7 +121,7 @@ namespace :connectivity do
   task sm: :environment do
     require 'sm/client'
     check 'SM', Settings.mhv.sm.host do
-      SM::Client.new(session: { user_id: '12210827' }).authenticate
+      SM::Client.new(session: { user_uuid: '12345', user_id: '12210827' }).authenticate
     end
   end
 

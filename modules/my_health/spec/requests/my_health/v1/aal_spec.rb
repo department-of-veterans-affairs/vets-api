@@ -48,6 +48,7 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
 
       aal_client = AAL::MRClient.new(
         session: {
+          user_uuid: '12345',
           user_id:,
           expires_at: 1.hour.from_now,
           token: '<SESSION_TOKEN>'
