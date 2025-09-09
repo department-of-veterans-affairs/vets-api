@@ -23,7 +23,7 @@ module TravelClaim
     # Delegate settings methods directly to the settings object
     def_delegators :settings, :auth_url, :tenant_id, :travel_pay_client_id, :travel_pay_client_secret,
                    :scope, :claims_url_v2, :subscription_key, :e_subscription_key, :s_subscription_key,
-                   :travel_pay_client_number, :travel_pay_resource, :client_secret
+                   :client_number, :travel_pay_resource, :client_secret
 
     def initialize(uuid:, check_in_uuid:, appointment_date_time:)
       @uuid = uuid
@@ -79,7 +79,6 @@ module TravelClaim
     #
     def system_access_token_request(client_number:, veis_access_token:, icn:)
       body = { secret: travel_pay_client_secret, icn: }
-      client_number ||= travel_pay_client_number
 
       headers = {
         'Content-Type' => 'application/json',
@@ -193,6 +192,23 @@ module TravelClaim
       end
     end
 
+    ##
+    # Ensures valid tokens are available.
+    # Fetches tokens from Redis cache or fetches new ones if needed.
+    #
+    def ensure_tokens!
+      return if @current_veis_token && @current_btsss_token
+
+      cached_veis = @redis_client.token
+      if cached_veis
+        @current_veis_token = cached_veis
+        fetch_btsss_token! if @current_btsss_token.nil?
+        return
+      end
+
+      fetch_tokens!
+    end
+
     private
 
     ##
@@ -262,23 +278,6 @@ module TravelClaim
         log_auth_error(e.class.name, e.respond_to?(:original_status) ? e.original_status : nil)
         raise
       end
-    end
-
-    ##
-    # Ensures valid tokens are available.
-    # Fetches tokens from Redis cache or fetches new ones if needed.
-    #
-    def ensure_tokens!
-      return if @current_veis_token && @current_btsss_token
-
-      cached_veis = @redis_client.token
-      if cached_veis
-        @current_veis_token = cached_veis
-        fetch_btsss_token! if @current_btsss_token.nil?
-        return
-      end
-
-      fetch_tokens!
     end
 
     ##
