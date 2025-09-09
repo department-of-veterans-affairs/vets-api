@@ -91,7 +91,7 @@ module TravelClaim
       log_message(:info, 'Get appointment ID', uuid: @uuid)
 
       response = client.send_appointment_request
-      appointment_id = response.body.dig('data', 'id')
+      appointment_id = response.body.dig('data', 0, 'id')
 
       unless appointment_id
         raise_backend_service_exception('Appointment could not be found or created', response.status)
