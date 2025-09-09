@@ -2,17 +2,19 @@
 http_interactions:
 - request:
     method: post
-    uri: https://staging-api.va.gov/mhvapi/security/v1/login
+    uri: "<MHV_UHD_SECURITY_HOST>/mhvapi/security/v1/login"
     body:
       encoding: UTF-8
-      string: '{"appId":"MHV","appToken":"test-token","subject":"MHV","userType":"PATIENT"}'
+      string: '{"appId":"test-app","appToken":"test-token","subject":"test-subject","userType":"test-user-type"}'
     headers:
       Content-Type:
       - application/json
+      User-Agent:
+      - Faraday v2.13.4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
-      User-Agent:
-      - Ruby
   response:
     status:
       code: 200
@@ -21,26 +23,28 @@ http_interactions:
       Content-Type:
       - application/json
       Authorization:
-      - Bearer test-access-token
+      - Bearer test-access-token-12345
     body:
       encoding: UTF-8
-      string: '{"access_token":"test-access-token"}'
-  recorded_at: Thu, 08 Sep 2025 14:00:00 GMT
+      string: '{"access_token":"test-access-token-12345","token_type":"Bearer","expires_in":3600}'
+  recorded_at: Mon, 25 Aug 2025 19:00:00 GMT
 - request:
     method: get
-    uri: https://staging-api.va.gov/v1/medicalrecords/conditions?patientId=1014135410V826374
+    uri: "<MHV_UHD_HOST>/v1/medicalrecords/conditions?patientId=123456789V012345&startDate=2024-01-01&endDate=2025-05-31"
     body:
       encoding: US-ASCII
       string: ''
     headers:
       Authorization:
-      - Bearer test-access-token
+      - Bearer test-access-token-12345
       X-Api-Key:
       - test-api-key
+      User-Agent:
+      - Faraday v2.13.4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
-      User-Agent:
-      - Ruby
   response:
     status:
       code: 200
@@ -56,28 +60,43 @@ http_interactions:
             "entry": [
               {
                 "resource": {
-                  "id": "condition-1",
                   "resourceType": "Condition",
-                  "onsetDateTime": "2025-01-15T10:30:00Z",
+                  "id": "condition-12345",
                   "code": {
-                    "coding": [
-                      {
-                        "display": "Test Condition"
-                      }
-                    ]
+                    "text": "Essential Hypertension"
                   },
+                  "onsetDateTime": "2023-01-15T00:00:00Z",
                   "asserter": {
-                    "display": "Dr. Test"
+                    "display": "Dr. Jane Smith"
                   },
                   "encounter": {
-                    "display": "Test Facility"
+                    "display": "VA Medical Center - Primary Care"
                   },
                   "note": [
                     {
-                      "text": "Test comments"
-                    },
+                      "text": "Well controlled with medication"
+                    }
+                  ]
+                }
+              },
+              {
+                "resource": {
+                  "resourceType": "Condition",
+                  "id": "condition-67890",
+                  "code": {
+                    "text": "Type 2 Diabetes Mellitus"
+                  },
+                  "onsetDateTime": "2022-06-10T00:00:00Z",
+                  "recordedDate": "2022-06-10T00:00:00Z",
+                  "asserter": {
+                    "display": "Dr. Robert Johnson"
+                  },
+                  "encounter": {
+                    "display": "VA Medical Center - Endocrinology"
+                  },
+                  "note": [
                     {
-                      "text": "Follow-up needed"
+                      "text": "Patient managing well with metformin and lifestyle changes"
                     }
                   ]
                 }
@@ -88,5 +107,5 @@ http_interactions:
             "entry": []
           }
         }
-  recorded_at: Thu, 08 Sep 2025 14:00:00 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Mon, 25 Aug 2025 19:00:00 GMT
+recorded_with: VCR 6.3.1
