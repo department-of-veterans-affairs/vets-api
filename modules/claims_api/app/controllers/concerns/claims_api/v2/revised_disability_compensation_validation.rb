@@ -129,8 +129,8 @@ module ClaimsApi
 
         validate_service_period_dates!(period, index, begin_date, end_date)
 
-        # Skip service branch validation - it requires external service calls
-        # This will be validated downstream in the submission process
+        # FES Val Section 2.4.b.vii: Validate service branch
+        validate_service_branch!(period, index)
 
         # Validate reserves/national guard specific fields
         validate_reserves_national_guard!(period, index) if period['reservesNationalGuardService'].present?
@@ -158,6 +158,35 @@ module ClaimsApi
           source: "/serviceInformation/servicePeriods/#{index}/activeDutyEndDate",
           title: 'Invalid end service period duty date',
           detail: 'The active duty end date for this service period is more than 180 days in the future'
+        )
+      end
+
+      # FES Val Section 2.4.b.vii-viii: Validate service branch
+      def validate_service_branch!(period, index)
+        service_branch = period['serviceBranch']
+        return if service_branch.blank?
+
+        # Retrieve valid service branches from BRD
+        service_branches = brd_service_branches
+
+        # FES Val Section 2.4.b.viii: Handle BRD service errors
+        if service_branches.nil?
+          collect_error(
+            source: "/serviceInformation/servicePeriods/#{index}/serviceBranch",
+            title: 'Internal Server Error',
+            detail: 'Failed To Obtain Service Branches (Request Failed)'
+          )
+          return
+        end
+
+        # FES Val Section 2.4.b.vii: Validate service branch name
+        valid_branch_names = service_branches.pluck(:description)
+        return if valid_branch_names.include?(service_branch)
+
+        collect_error(
+          source: "/serviceInformation/servicePeriods/#{index}/serviceBranch",
+          title: 'Invalid service period branch name',
+          detail: "Provided service period branch name is not valid: #{service_branch}"
         )
       end
 
@@ -235,30 +264,8 @@ module ClaimsApi
       def validate_top_level_reserves!(service_info)
         # Handle backward compatibility with reserves at top level of serviceInformation
         # Note: Top-level reserves/federal activation is legacy structure
-        # We only validate federal activation here, not reserves obligation dates
-        validate_top_level_federal_activation!(service_info['federalActivation'])
-      end
-
-      def validate_top_level_federal_activation!(federal_activation)
-        return if federal_activation.blank?
-
-        if federal_activation['anticipatedSeparationDate'].blank?
-          collect_error(
-            source: '/serviceInformation/federalActivation',
-            title: 'Missing required field',
-            detail: 'anticipatedSeparationDate is missing or blank'
-          )
-        end
-
-        # Validate activation date if present
-        activation_date = parse_date_safely(federal_activation['activationDate'])
-        if activation_date && activation_date > Date.current
-          collect_error(
-            source: '/serviceInformation/federalActivation',
-            title: 'Invalid value',
-            detail: "Federal activation date is in the future: #{federal_activation['activationDate']}"
-          )
-        end
+        # FES Val Section 2.4d and 2.4e are CROSSED OUT - no validation needed
+        # Previously validated federal activation but this has been removed per FES document
       end
 
       ### FES Val Section 5: veteran validations
@@ -319,8 +326,19 @@ module ClaimsApi
         mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
         return if mailing_address.blank?
 
-        # FES Val Section 5.b.ii-iv: Address field validations for USA
-        validate_usa_mailing_address!(mailing_address) if mailing_address['country'] == 'USA'
+        # Determine address type and validate accordingly
+        country = mailing_address['country']
+
+        if country == 'USA'
+          # FES Val Section 5.b.ii: Address field validations for USA/DOMESTIC
+          validate_usa_mailing_address!(mailing_address)
+        elsif mailing_address['militaryPostOfficeTypeCode'].present? || mailing_address['militaryStateCode'].present?
+          # FES Val Section 5.b.iv: Military address validations
+          validate_military_mailing_address!(mailing_address)
+        elsif country.present? && country != 'USA'
+          # FES Val Section 5.b.iii: International address validations
+          validate_international_mailing_address!(mailing_address)
+        end
 
         # FES Val Section 5.b.vi: Validate country against reference data
         validate_address_country!(mailing_address, 'mailingAddress')
@@ -330,24 +348,40 @@ module ClaimsApi
       end
 
       def validate_usa_mailing_address!(mailing_address)
+        validate_usa_required_fields!(mailing_address)
+        validate_usa_no_international_postal_code!(mailing_address)
+      end
+
+      def validate_usa_required_fields!(mailing_address)
+        # FES Val Section 5.b.ii.2: City required for DOMESTIC/USA addresses
+        if mailing_address['city'].blank?
+          collect_error(
+            source: '/veteranIdentification/mailingAddress/city',
+            title: 'Missing city',
+            detail: 'City is required'
+          )
+        end
+
         # FES Val Section 5.b.ii.3: State required for USA addresses
         if mailing_address['state'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/state',
             title: 'Missing state',
-            detail: 'State is required for USA addresses'
+            detail: 'State is required'
           )
         end
 
         # FES Val Section 5.b.ii.4: ZipFirstFive required for USA addresses
-        if mailing_address['zipFirstFive'].blank?
-          collect_error(
-            source: '/veteranIdentification/mailingAddress/zipFirstFive',
-            title: 'Missing zipFirstFive',
-            detail: 'ZipFirstFive is required for USA addresses'
-          )
-        end
+        return if mailing_address['zipFirstFive'].present?
 
+        collect_error(
+          source: '/veteranIdentification/mailingAddress/zipFirstFive',
+          title: 'Missing zipFirstFive',
+          detail: 'ZipFirstFive is required'
+        )
+      end
+
+      def validate_usa_no_international_postal_code!(mailing_address)
         # Validate internationalPostalCode should NOT be present for USA
         return if mailing_address['internationalPostalCode'].blank?
 
@@ -355,6 +389,64 @@ module ClaimsApi
           source: '/veteranIdentification/mailingAddress/internationalPostalCode',
           title: 'Invalid field',
           detail: 'InternationalPostalCode should not be provided for USA addresses'
+        )
+      end
+
+      # FES Val Section 5.b.iii: International address validations
+      def validate_international_mailing_address!(mailing_address)
+        # City required for INTERNATIONAL addresses
+        if mailing_address['city'].blank?
+          collect_error(
+            source: '/veteranIdentification/mailingAddress/city',
+            title: 'Missing city',
+            detail: 'City is required'
+          )
+        end
+
+        # Country required for INTERNATIONAL addresses (should already be present)
+        if mailing_address['country'].blank?
+          collect_error(
+            source: '/veteranIdentification/mailingAddress/country',
+            title: 'Missing country',
+            detail: 'Country is required'
+          )
+        end
+      end
+
+      # FES Val Section 5.b.iv: Military address validations
+      def validate_military_mailing_address!(mailing_address)
+        validate_military_state_code!(mailing_address)
+        validate_military_post_office_type!(mailing_address)
+        validate_military_zip!(mailing_address)
+      end
+
+      def validate_military_state_code!(mailing_address)
+        return if mailing_address['militaryStateCode'].present?
+
+        collect_error(
+          source: '/veteranIdentification/mailingAddress/militaryStateCode',
+          title: 'Missing militaryStateCode',
+          detail: 'MilitaryStateCode is required'
+        )
+      end
+
+      def validate_military_post_office_type!(mailing_address)
+        return if mailing_address['militaryPostOfficeTypeCode'].present?
+
+        collect_error(
+          source: '/veteranIdentification/mailingAddress/militaryPostOfficeTypeCode',
+          title: 'Missing militaryPostOfficeTypeCode',
+          detail: 'MilitaryPostOfficeTypeCode is required'
+        )
+      end
+
+      def validate_military_zip!(mailing_address)
+        return if mailing_address['zipFirstFive'].present?
+
+        collect_error(
+          source: '/veteranIdentification/mailingAddress/zipFirstFive',
+          title: 'Missing zipFirstFive',
+          detail: 'ZipFirstFive is required'
         )
       end
 

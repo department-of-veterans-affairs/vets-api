@@ -223,7 +223,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/state')
           expect(errors.first[:title]).to eq('Missing state')
-          expect(errors.first[:detail]).to eq('State is required for USA addresses')
+          expect(errors.first[:detail]).to eq('State is required')
         end
       end
 
@@ -246,7 +246,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/zipFirstFive')
           expect(errors.first[:title]).to eq('Missing zipFirstFive')
-          expect(errors.first[:detail]).to eq('ZipFirstFive is required for USA addresses')
+          expect(errors.first[:detail]).to eq('ZipFirstFive is required')
         end
       end
 
