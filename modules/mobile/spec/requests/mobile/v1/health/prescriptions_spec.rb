@@ -67,17 +67,34 @@ RSpec.describe 'Mobile::V1::Health::Rx::Prescriptions', type: :request do
             'prescriptionId' => 12345,
             'prescriptionName' => 'Test Medication',
             'instructions' => 'Take once daily',
-            'fillDate' => '2024-01-15',
+            'refillDate' => '2024-01-15',
             'quantity' => 30,
             'refillRemaining' => 2,
             'refillStatus' => 'active',
-            'prescribedDate' => nil,
             'expirationDate' => nil,
             'facilityName' => 'VA Pharmacy',
             'orderedDate' => nil,
             'prescriptionSource' => 'UHD'
           )
         )
+      end
+
+      it 'includes all v0 API compatible attributes' do
+        data = response.parsed_body['data']
+        prescription_attributes = data.first['attributes']
+
+        # Verify all v0 serializer attributes are present
+        expected_v0_attributes = %w[
+          refillStatus refillSubmitDate refillDate refillRemaining
+          facilityName orderedDate quantity expirationDate
+          prescriptionNumber prescriptionName dispensedDate
+          stationNumber isRefillable isTrackable instructions
+          facilityPhoneNumber
+        ]
+
+        expected_v0_attributes.each do |attr|
+          expect(prescription_attributes).to have_key(attr), "Missing attribute: #{attr}"
+        end
       end
 
       it 'includes required metadata fields' do

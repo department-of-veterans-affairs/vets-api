@@ -7,6 +7,7 @@ module Mobile
       # Add UHD-specific attributes
       
       attribute :data_source_system
+      attribute :prescription_source
 
       # Override type to maintain consistency
       set_type :Prescription
