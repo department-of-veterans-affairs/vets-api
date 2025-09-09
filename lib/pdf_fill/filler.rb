@@ -2,6 +2,7 @@
 
 require 'pdf_fill/extras_generator'
 require 'pdf_fill/extras_generator_v2'
+require 'pdf_fill/pdf_post_processor'
 require 'pdf_fill/forms/va214142'
 require 'pdf_fill/forms/va2141422024'
 require 'pdf_fill/forms/va210781a'
@@ -94,12 +95,18 @@ module PdfFill
     #
     # @return [String] The path to the final combined PDF.
     #
-    def combine_extras(old_file_path, extras_generator)
+    def combine_extras(old_file_path, extras_generator, form_class)
       if extras_generator.text?
         file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
         extras_path = extras_generator.generate
 
         merge_pdfs(old_file_path, extras_path, file_path)
+        # Adds links and destinations to the combined PDF
+        if extras_generator.try(:section_coordinates) && !extras_generator.section_coordinates.empty?
+          pdf_post_processor = PdfPostProcessor.new(old_file_path, file_path, extras_generator.section_coordinates,
+                                                    form_class)
+          pdf_post_processor.process!
+        end
 
         File.delete(extras_path)
         File.delete(old_file_path)
@@ -178,6 +185,10 @@ module PdfFill
     #
     # rubocop:disable Metrics/MethodLength
     def process_form(form_id, form_data, form_class, file_name_extension, fill_options = {})
+      unless fill_options.key?(:show_jumplinks)
+        fill_options[:show_jumplinks] = Flipper.enabled?(:pdf_fill_redesign_overflow_jumplinks)
+      end
+
       # Handle 22-10215 overflow with continuation sheets
       if form_id == '22-10215' && form_data['programs'] && form_data['programs'].length > 16
         return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options)
@@ -203,7 +214,7 @@ module PdfFill
       )
 
       file_path = stamp_form(file_path, submit_date) if should_stamp_form?(form_id, fill_options, submit_date)
-      combine_extras(file_path, hash_converter.extras_generator)
+      combine_extras(file_path, hash_converter.extras_generator, form_class)
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -237,7 +248,8 @@ module PdfFill
             question_key: form_class::QUESTION_KEY,
             start_page: form_class::START_PAGE,
             sections: form_class::SECTIONS,
-            label_width: form_class::DEFAULT_LABEL_WIDTH
+            label_width: form_class::DEFAULT_LABEL_WIDTH,
+            show_jumplinks: fill_options.fetch(:show_jumplinks, false)
           )
         else
           ExtrasGenerator.new

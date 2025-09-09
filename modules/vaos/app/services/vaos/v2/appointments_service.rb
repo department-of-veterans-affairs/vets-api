@@ -486,6 +486,8 @@ module VAOS
         set_derived_appointment_date_fields(appointment)
 
         appointment[:show_schedule_link] = schedulable?(appointment) if appointment[:status] == 'cancelled'
+
+        log_telehealth_issue(appointment) if appointment[:modality] == 'vaVideoCareAtHome'
       end
       # rubocop:enable Metrics/MethodLength
 
@@ -572,7 +574,7 @@ module VAOS
       # or nil if the input ICN was nil.
       #
       def normalize_icn(icn)
-        icn&.gsub(/V[\d]{6}$/, '')
+        icn&.gsub(/V\d{6}$/, '')
       end
 
       # Checks equality between two ICNs (Integration Control Numbers)
@@ -946,8 +948,8 @@ module VAOS
         if appointment[:telehealth] && appointment[:modality] == 'vaVideoCareAtHome' && appointment[:start]
           # if current time is between 30 minutes prior to appointment.start and 4 hours after appointment.start, set
           # telehealth_visible to true
-          appointment[:telehealth][:displayLink] = (appointment[:start].to_datetime - 30.minutes) <= Time.now.utc &&
-                                                   (appointment[:start].to_datetime + 4.hours) >= Time.now.utc
+          appointment[:telehealth][:display_link] = (appointment[:start].to_datetime - 30.minutes) <= Time.now.utc &&
+                                                    (appointment[:start].to_datetime + 4.hours) >= Time.now.utc
         end
       end
 
@@ -978,6 +980,32 @@ module VAOS
         appointment[:past] = past?(appointment)
         appointment[:future] = future?(appointment)
       end
+
+      # rubocop:disable Metrics/MethodLength
+      def log_telehealth_issue(appointment)
+        if appointment[:start]
+          start_time = appointment[:start].to_datetime
+          time_now = Time.now.utc
+          fifteen_before = start_time - 15.minutes
+          fifteen_after = start_time + 15.minutes
+          context = {
+            displayLink: appointment.dig(:telehealth, :display_link),
+            kind: appointment[:kind],
+            modality: appointment[:modality],
+            telehealthUrl: appointment.dig(:telehealth, :url),
+            vvsVistaVideoAppt: appointment.dig(:extension, :vvs_vista_video_appt),
+            facilityId: appointment[:location_id],
+            clinicId: appointment[:clinic],
+            primaryStopCode: appointment.dig(:extension, :clinic, :primary_stop_code),
+            secondaryStopCode: appointment.dig(:extension, :clinic, :secondary_stop_code),
+            afterFiveBeforeStart: time_now >= start_time - 5.minutes
+          }
+          Rails.logger.warn('VAOS video telehealth issue', context.to_json) if context[:telehealthUrl].blank? &&
+                                                                               time_now >= fifteen_before &&
+                                                                               time_now <= fifteen_after
+        end
+      end
+      # rubocop:enable Metrics/MethodLength
 
       def log_modality_failure(appointment)
         context = {

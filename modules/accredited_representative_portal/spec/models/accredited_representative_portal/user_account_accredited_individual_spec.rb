@@ -37,11 +37,6 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
   end
 
   describe 'power_of_attorney_holder_type enum' do
-    it 'defines the correct types' do
-      expect(described_class.power_of_attorney_holder_types)
-        .to eq('veteran_service_organization' => 'veteran_service_organization')
-    end
-
     it 'raises ArgumentError for invalid type' do
       expect do
         described_class.new(

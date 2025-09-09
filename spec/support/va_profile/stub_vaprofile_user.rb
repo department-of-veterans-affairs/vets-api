@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require 'va_profile/v2/contact_information/service'
-require 'va_profile/v2/contact_information/person_response'
+require 'va_profile/contact_information/v2/service'
+require 'va_profile/contact_information/v2/person_response'
 require 'va_profile/models/v3/address'
 require 'va_profile/models/telephone'
 
 # rubocop:disable Metrics/MethodLength
 def stub_vaprofile_user(person = nil)
-  service = VAProfile::V2::ContactInformation::Service
-  person_response = VAProfile::V2::ContactInformation::PersonResponse
+  service = VAProfile::ContactInformation::V2::Service
+  person_response = VAProfile::ContactInformation::V2::PersonResponse
   person ||= FactoryBot.build(
     :person,
     addresses: [
