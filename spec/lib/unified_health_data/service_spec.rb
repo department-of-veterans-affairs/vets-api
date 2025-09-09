@@ -940,8 +940,11 @@ describe UnifiedHealthData::Service, type: :service do
 
     context 'happy path' do
       it 'returns conditions from both VistA and Oracle Health' do
-        allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: conditions_sample_response),
-                                           parse_response_body: conditions_sample_response)
+        allow(service).to receive_messages(
+          fetch_access_token: 'token',
+          perform: double(body: conditions_sample_response),
+          parse_response_body: conditions_sample_response
+        )
 
         conditions = service.get_conditions
         expect(conditions.size).to eq(17)
@@ -960,8 +963,11 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'when data exists for only VistA or Oracle Health' do
         it 'returns conditions for VistA only' do
-          allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: conditions_vista_fallback_response),
-                                             parse_response_body: conditions_vista_fallback_response)
+          allow(service).to receive_messages(
+            fetch_access_token: 'token',
+            perform: double(body: conditions_vista_fallback_response),
+            parse_response_body: conditions_vista_fallback_response
+          )
 
           conditions = service.get_conditions
           expect(conditions.size).to eq(1)
@@ -979,8 +985,11 @@ describe UnifiedHealthData::Service, type: :service do
         end
 
         it 'returns conditions for Oracle Health only' do
-          allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: conditions_oracle_health_fallback_response),
-                                             parse_response_body: conditions_oracle_health_fallback_response)
+          allow(service).to receive_messages(
+            fetch_access_token: 'token',
+            perform: double(body: conditions_oracle_health_fallback_response),
+            parse_response_body: conditions_oracle_health_fallback_response
+          )
 
           conditions = service.get_conditions
           expect(conditions.size).to eq(1)
@@ -1000,8 +1009,11 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'when no data exists' do
         it 'returns an empty array' do
-          allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: conditions_empty_response),
-                                             parse_response_body: conditions_empty_response)
+          allow(service).to receive_messages(
+            fetch_access_token: 'token',
+            perform: double(body: conditions_empty_response),
+            parse_response_body: conditions_empty_response
+          )
 
           conditions = service.get_conditions
           expect(conditions).to eq([])
@@ -1016,8 +1028,11 @@ describe UnifiedHealthData::Service, type: :service do
           modified_response['vista']['entry'].first['resource']['contained'] =
             nil
         end
-        allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: conditions_sample_response),
-                                           parse_response_body: modified_response)
+        allow(service).to receive_messages(
+          fetch_access_token: 'token',
+          perform: double(body: conditions_sample_response),
+          parse_response_body: modified_response
+        )
 
         expect do
           conditions = service.get_conditions
@@ -1028,8 +1043,11 @@ describe UnifiedHealthData::Service, type: :service do
       it 'handles missing vista section' do
         modified_response = JSON.parse(conditions_sample_response.to_json)
         modified_response['vista'] = nil
-        allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: conditions_sample_response),
-                                           parse_response_body: modified_response)
+        allow(service).to receive_messages(
+          fetch_access_token: 'token',
+          perform: double(body: conditions_sample_response),
+          parse_response_body: modified_response
+        )
 
         expect do
           conditions = service.get_conditions
@@ -1040,8 +1058,11 @@ describe UnifiedHealthData::Service, type: :service do
       it 'handles missing oracle-health section' do
         modified_response = JSON.parse(conditions_sample_response.to_json)
         modified_response['oracle-health'] = nil
-        allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: conditions_sample_response),
-                                           parse_response_body: modified_response)
+        allow(service).to receive_messages(
+          fetch_access_token: 'token',
+          perform: double(body: conditions_sample_response),
+          parse_response_body: modified_response
+        )
 
         expect do
           conditions = service.get_conditions
