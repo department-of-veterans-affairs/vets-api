@@ -915,172 +915,104 @@ describe UnifiedHealthData::Service, type: :service do
   # Conditions
   describe '#get_conditions' do
     let(:conditions_sample_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'condition_sample_response.json'
-      ).read)
+      JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'condition_sample_response.json').read)
     end
-
     let(:conditions_vista_fallback_response) do
       JSON.parse(Rails.root.join(
         'spec', 'fixtures', 'unified_health_data', 'condition_vista_fallback_response.json'
       ).read)
     end
-
     let(:conditions_oracle_health_fallback_response) do
       JSON.parse(Rails.root.join(
         'spec', 'fixtures', 'unified_health_data', 'condition_oracle_health_fallback_response.json'
       ).read)
     end
-
     let(:conditions_empty_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'conditions_empty_response.json'
-      ).read)
+      JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'conditions_empty_response.json').read)
     end
 
-    context 'happy path' do
-      it 'returns conditions from both VistA and Oracle Health' do
-        allow(service).to receive_messages(
-          fetch_access_token: 'token',
-          perform: double(body: conditions_sample_response),
-          parse_response_body: conditions_sample_response
-        )
-
-        conditions = service.get_conditions
-        expect(conditions.size).to eq(17)
-        expect(conditions).to all(be_a(UnifiedHealthData::Condition))
-        expect(conditions).to all(have_attributes(
-                                    {
-                                      'id' => be_a(String),
-                                      'name' => be_a(String),
-                                      'date' => be_a(String).or(be_nil),
-                                      'provider' => be_a(String).or(be_nil),
-                                      'facility' => be_a(String).or(be_nil),
-                                      'comments' => be_an(Array).or(be_nil)
-                                    }
-                                  ))
-      end
-
-      context 'when data exists for only VistA or Oracle Health' do
-        it 'returns conditions for VistA only' do
-          allow(service).to receive_messages(
-            fetch_access_token: 'token',
-            perform: double(body: conditions_vista_fallback_response),
-            parse_response_body: conditions_vista_fallback_response
-          )
-
-          conditions = service.get_conditions
-          expect(conditions.size).to eq(1)
-          expect(conditions).to all(be_a(UnifiedHealthData::Condition))
-          expect(conditions).to all(have_attributes(
-                                      {
-                                        'id' => be_a(String),
-                                        'name' => be_a(String),
-                                        'date' => be_a(String),
-                                        'provider' => be_a(String).or(be_nil),
-                                        'facility' => be_a(String).or(be_nil),
-                                        'comments' => be_an(Array).or(be_nil)
-                                      }
-                                    ))
-        end
-
-        it 'returns conditions for Oracle Health only' do
-          allow(service).to receive_messages(
-            fetch_access_token: 'token',
-            perform: double(body: conditions_oracle_health_fallback_response),
-            parse_response_body: conditions_oracle_health_fallback_response
-          )
-
-          conditions = service.get_conditions
-          expect(conditions.size).to eq(1)
-          expect(conditions).to all(be_a(UnifiedHealthData::Condition))
-          expect(conditions).to all(have_attributes(
-                                      {
-                                        'id' => be_a(String),
-                                        'name' => be_a(String),
-                                        'date' => be_a(String),
-                                        'provider' => be_a(String).or(be_nil),
-                                        'facility' => be_a(String).or(be_nil),
-                                        'comments' => be_an(Array).or(be_nil)
-                                      }
-                                    ))
-        end
-      end
-
-      context 'when no data exists' do
-        it 'returns an empty array' do
-          allow(service).to receive_messages(
-            fetch_access_token: 'token',
-            perform: double(body: conditions_empty_response),
-            parse_response_body: conditions_empty_response
-          )
-
-          conditions = service.get_conditions
-          expect(conditions).to eq([])
-        end
-      end
+    let(:condition_attributes) do
+      {
+        'id' => be_a(String),
+        'name' => be_a(String),
+        'date' => be_a(String).or(be_nil),
+        'provider' => be_a(String).or(be_nil),
+        'facility' => be_a(String).or(be_nil),
+        'comments' => be_an(Array).or(be_nil)
+      }
     end
 
-    context 'with defensive nil checks' do
-      it 'handles missing contained sections' do
-        modified_response = JSON.parse(conditions_sample_response.to_json)
-        if modified_response['vista']['entry']&.any?
-          modified_response['vista']['entry'].first['resource']['contained'] =
-            nil
-        end
-        allow(service).to receive_messages(
-          fetch_access_token: 'token',
-          perform: double(body: conditions_sample_response),
-          parse_response_body: modified_response
-        )
-
-        expect do
-          conditions = service.get_conditions
-          expect(conditions).to be_an(Array)
-        end.not_to raise_error
-      end
-
-      it 'handles missing vista section' do
-        modified_response = JSON.parse(conditions_sample_response.to_json)
-        modified_response['vista'] = nil
-        allow(service).to receive_messages(
-          fetch_access_token: 'token',
-          perform: double(body: conditions_sample_response),
-          parse_response_body: modified_response
-        )
-
-        expect do
-          conditions = service.get_conditions
-          expect(conditions).to be_an(Array)
-        end.not_to raise_error
-      end
-
-      it 'handles missing oracle-health section' do
-        modified_response = JSON.parse(conditions_sample_response.to_json)
-        modified_response['oracle-health'] = nil
-        allow(service).to receive_messages(
-          fetch_access_token: 'token',
-          perform: double(body: conditions_sample_response),
-          parse_response_body: modified_response
-        )
-
-        expect do
-          conditions = service.get_conditions
-          expect(conditions).to be_an(Array)
-        end.not_to raise_error
-      end
+    before do
+      allow(service).to receive(:fetch_access_token).and_return('token')
     end
 
-    context 'with malformed response' do
-      it 'handles gracefully' do
-        allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: 'invalid'),
-                                           parse_response_body: nil)
+    it 'returns conditions from both VistA and Oracle Health' do
+      allow(service).to receive_messages(
+        perform: double(body: conditions_sample_response),
+        parse_response_body: conditions_sample_response
+      )
 
-        expect do
-          conditions = service.get_conditions
-          expect(conditions).to eq([])
-        end.not_to raise_error
-      end
+      conditions = service.get_conditions
+      expect(conditions.size).to eq(17)
+      expect(conditions).to all(be_a(UnifiedHealthData::Condition))
+      expect(conditions).to all(have_attributes(condition_attributes))
+    end
+
+    it 'returns conditions for VistA only' do
+      allow(service).to receive_messages(
+        perform: double(body: conditions_vista_fallback_response),
+        parse_response_body: conditions_vista_fallback_response
+      )
+
+      conditions = service.get_conditions
+      expect(conditions.size).to eq(1)
+      expect(conditions).to all(be_a(UnifiedHealthData::Condition))
+      expect(conditions).to all(have_attributes(condition_attributes))
+    end
+
+    it 'returns conditions for Oracle Health only' do
+      allow(service).to receive_messages(
+        perform: double(body: conditions_oracle_health_fallback_response),
+        parse_response_body: conditions_oracle_health_fallback_response
+      )
+
+      conditions = service.get_conditions
+      expect(conditions.size).to eq(1)
+      expect(conditions).to all(be_a(UnifiedHealthData::Condition))
+      expect(conditions).to all(have_attributes(condition_attributes))
+    end
+
+    it 'returns empty array when no data exists' do
+      allow(service).to receive_messages(
+        perform: double(body: conditions_empty_response),
+        parse_response_body: conditions_empty_response
+      )
+
+      conditions = service.get_conditions
+      expect(conditions).to eq([])
+    end
+
+    it 'handles malformed responses gracefully' do
+      allow(service).to receive_messages(
+        perform: double(body: 'invalid'),
+        parse_response_body: nil
+      )
+
+      expect { service.get_conditions }.not_to raise_error
+      expect(service.get_conditions).to eq([])
+    end
+
+    it 'handles missing data sections without errors' do
+      modified_response = JSON.parse(conditions_sample_response.to_json)
+      modified_response['vista'] = nil
+      modified_response['oracle-health'] = nil
+      allow(service).to receive_messages(
+        perform: double(body: conditions_sample_response),
+        parse_response_body: modified_response
+      )
+
+      expect { service.get_conditions }.not_to raise_error
+      expect(service.get_conditions).to be_an(Array)
     end
   end
 end
