@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'va_profile/person/service'
 require 'va_profile/person/v2/service'
 
 module V0
@@ -12,11 +11,7 @@ module V0
       after_action :invalidate_mpi_cache
 
       def initialize_vet360_id
-        response = if Flipper.enabled?(:remove_pciu, @current_user)
-                     VAProfile::Person::V2::Service.new(@current_user).init_vet360_id
-                   else
-                     VAProfile::Person::Service.new(@current_user).init_vet360_id
-                   end
+        response = VAProfile::Person::V2::Service.new(@current_user).init_vet360_id
         transaction = AsyncTransaction::VAProfile::InitializePersonTransaction.start(@current_user, response)
 
         render json: AsyncTransaction::BaseSerializer.new(transaction).serializable_hash
