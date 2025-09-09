@@ -23,5 +23,9 @@ module UnifiedHealthData
     attribute :instructions, String
     attribute :facility_phone_number, String
     attribute :data_source_system, String
+    attribute :tracking_info, Array[Hash]
+    attribute :prescription_source, String
+    attribute :ndc_number, String
+    attribute :prescribed_date, String
   end
 end

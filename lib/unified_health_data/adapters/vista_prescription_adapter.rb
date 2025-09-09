@@ -41,10 +41,38 @@ module UnifiedHealthData
                                                         facility_phone_number:
                                                           medication['cmopDivisionPhone'],
                                                         data_source_system:
-                                                          medication['dataSourceSystem'] || 'VISTA'
+                                                          medication['dataSourceSystem'] || 'VISTA',
+                                                        ndc_number: medication['ndcNumber'],
+                                                        prescribed_date: medication['prescribedDate'],
+                                                        tracking_info: build_tracking_info(medication),
+                                                        prescription_source: 'VISTA'
                                                       })
       end
       # rubocop:enable Metrics/MethodLength
+
+      def build_tracking_info(medication)
+        tracking_info = []
+
+        # Handle single tracking info from Vista
+        if medication['trackingNumber'].present? || medication['shipper'].present?
+          tracking_info << {
+            'tracking_number' => medication['trackingNumber'],
+            'shipper' => medication['shipper']
+          }.compact
+        end
+
+        # Handle array of tracking info if Vista provides it
+        if medication['trackingInfo'].is_a?(Array)
+          medication['trackingInfo'].each do |tracking|
+            tracking_info << {
+              'tracking_number' => tracking['trackingNumber'] || tracking['tracking_number'],
+              'shipper' => tracking['shipper']
+            }.compact
+          end
+        end
+
+        tracking_info
+      end
     end
   end
 end
