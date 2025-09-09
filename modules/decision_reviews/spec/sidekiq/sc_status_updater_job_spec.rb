@@ -325,7 +325,9 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
       end
 
       context 'when forms have nil status' do
-        let!(:secondary_form_nil_status) { create(:secondary_appeal_form4142_module, guid: SecureRandom.uuid, status: nil) }
+        let!(:secondary_form_nil_status) do
+          create(:secondary_appeal_form4142_module, guid: SecureRandom.uuid, status: nil)
+        end
         let!(:saved_claim_nil) do
           SavedClaim::SupplementalClaim.create(
             guid: secondary_form_nil_status.appeal_submission.submitted_appeal_uuid,

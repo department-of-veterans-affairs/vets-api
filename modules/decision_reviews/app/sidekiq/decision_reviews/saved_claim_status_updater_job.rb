@@ -216,7 +216,6 @@ module DecisionReviews
 
       all_complete
     end
-    # rubocop:enable Metrics/MethodLength
 
     def process_secondary_forms_legacy(secondary_forms, record_guid)
       log_context = {
@@ -247,6 +246,7 @@ module DecisionReviews
 
       all_complete
     end
+    # rubocop:enable Metrics/MethodLength
 
     def handle_form_status_metrics_and_logging(record, status)
       # Skip logging and statsd metrics when there is no status change
