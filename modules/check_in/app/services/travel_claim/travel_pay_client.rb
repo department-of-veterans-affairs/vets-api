@@ -125,6 +125,9 @@ module TravelClaim
     rescue Common::Client::Errors::ClientError => e
       log_existing_claim_error if e.status == 400
       raise
+    rescue Common::Exceptions::BackendServiceException => e
+      log_existing_claim_error if e.original_status == 400
+      raise
     end
 
     ##
