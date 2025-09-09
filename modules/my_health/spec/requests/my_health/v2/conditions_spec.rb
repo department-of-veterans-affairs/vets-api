@@ -36,5 +36,16 @@ RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, 
       parsed_response = JSON.parse(response.body)
       expect(parsed_response['data']).to eq([])
     end
+
+    it 'handles service errors gracefully' do
+      allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_conditions)
+        .and_raise(StandardError.new('Service unavailable'))
+
+      get path, headers: { 'X-Key-Inflection' => 'camel' }
+
+      expect(response).to have_http_status(:internal_server_error)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response).to have_key('errors')
+    end
   end
 end
