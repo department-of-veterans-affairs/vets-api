@@ -229,15 +229,6 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber] = convert_phone(phone_number)
       end
 
-      def convert_phone(phone)
-        phone&.gsub!(/[^0-9]/, '')
-        return nil if phone.nil? || (phone.length < 10)
-
-        return "#{phone[0..2]}-#{phone[3..5]}-#{phone[6..9]}" if phone.length == 10
-
-        "#{phone[0..1]}-#{phone[2..3]}-#{phone[4..7]}-#{phone[8..11]}" if phone.length > 10
-      end
-
       # if "currentlyHomeless" is present "homelessSituationType", "otherLivingSituation" are required by the schema
       def currently_homeless
         currently_homeless_info = @auto_claim&.dig('veteran', 'homelessness', 'currentlyHomeless')
