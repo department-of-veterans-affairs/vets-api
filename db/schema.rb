@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_09_204906) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_09_221715) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -646,6 +646,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_09_204906) do
     t.uuid "record_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["record_type", "record_id"], name: "index_record_metadata_on_type_and_id"
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
