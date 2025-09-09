@@ -72,7 +72,6 @@ module SignIn
     end
 
     def add_mpi_user
-      sign_in_logger.info('add_mpi_user', { idme_uuid:, logingov_uuid:}.compact)
       add_person_response = mpi_service.add_person_implicit_search(first_name:,
                                                                    last_name:,
                                                                    ssn:,
@@ -92,7 +91,6 @@ module SignIn
       return if auto_uplevel
 
       user_attribute_mismatch_checks
-      sign_in_logger.info('update_mpi_correlation_record', { icn: verified_icn, idme_uuid:, logingov_uuid:}.compact)
       update_profile_response = mpi_service.update_profile(last_name:,
                                                            ssn:,
                                                            birth_date:,
@@ -182,7 +180,6 @@ module SignIn
 
     def mpi_response_profile
       @mpi_response_profile ||=
-        sign_in_logger.info('mpi_response_profile', { icn: mhv_icn, idme_uuid:, logingov_uuid:}.compact)
         if mhv_credential_uuid
           mpi_service.find_profile_by_identifier(identifier: mhv_credential_uuid,
                                                  identifier_type: MPI::Constants::MHV_UUID)&.profile
