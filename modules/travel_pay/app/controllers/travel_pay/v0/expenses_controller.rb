@@ -10,46 +10,42 @@ module TravelPay
       def show
         validate_feature_flag_enabled
 
-        begin
-          Rails.logger.info(message: 'Travel Pay expense retrieval START')
-          Rails.logger.info(message: <<~LOG_MESSAGE.strip)
-            Getting expense of type '#{params[:expense_type]}'
-            with ID #{params[:expense_id].slice(0, 8)}
-            for claim #{params[:claim_id].slice(0, 8)}
-          LOG_MESSAGE
+        Rails.logger.info(message: 'Travel Pay expense retrieval START')
+        Rails.logger.info(message: <<~LOG_MESSAGE.strip)
+          Getting expense of type '#{params[:expense_type]}'
+          with ID #{params[:expense_id].slice(0, 8)}
+          for claim #{params[:claim_id].slice(0, 8)}
+        LOG_MESSAGE
 
-          expense = expense_service.get_expense(params[:expense_type], params[:expense_id])
+        expense = expense_service.get_expense(params[:expense_type], params[:expense_id])
 
-          Rails.logger.info(message: 'Travel Pay expense retrieval END')
-        rescue ArgumentError => e
-          raise Common::Exceptions::BadRequest, detail: e.message
-        rescue Faraday::ClientError, Faraday::ServerError => e
-          TravelPay::ServiceError.raise_mapped_error(e)
-        end
+        Rails.logger.info(message: 'Travel Pay expense retrieval END')
 
         render json: expense, status: :ok
+      rescue ArgumentError => e
+        raise Common::Exceptions::BadRequest, detail: e.message
+      rescue Faraday::ClientError, Faraday::ServerError => e
+        TravelPay::ServiceError.raise_mapped_error(e)
       end
 
       def create
         validate_feature_flag_enabled
 
-        begin
-          Rails.logger.info(message: 'Travel Pay expense submission START')
-          Rails.logger.info(
-            message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
-          )
+        Rails.logger.info(message: 'Travel Pay expense submission START')
+        Rails.logger.info(
+          message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
+        )
 
-          expense = create_and_validate_expense
-          created_expense = expense_service.create_expense(expense_params_for_service(expense))
+        expense = create_and_validate_expense
+        created_expense = expense_service.create_expense(expense_params_for_service(expense))
 
-          Rails.logger.info(message: 'Travel Pay expense submission END')
-        rescue ArgumentError => e
-          raise Common::Exceptions::BadRequest, detail: e.message
-        rescue Faraday::ClientError, Faraday::ServerError => e
-          TravelPay::ServiceError.raise_mapped_error(e)
-        end
+        Rails.logger.info(message: 'Travel Pay expense submission END')
 
         render json: created_expense, status: :created
+      rescue ArgumentError => e
+        raise Common::Exceptions::BadRequest, detail: e.message
+      rescue Faraday::ClientError, Faraday::ServerError => e
+        TravelPay::ServiceError.raise_mapped_error(e)
       end
 
       private
