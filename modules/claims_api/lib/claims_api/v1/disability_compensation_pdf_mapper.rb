@@ -18,6 +18,7 @@ module ClaimsApi
         section_0_claim_attributes
         section_1_veteran_identification
         section_2_change_of_address
+        section_3_homeless_information
 
         @pdf_data
       end
@@ -195,6 +196,43 @@ module ClaimsApi
 
       def change_of_address_type(address_info)
         @pdf_data[:data][:attributes][:changeOfAddress][:typeOfAddressChange] = address_info&.dig('addressChangeType')
+      end
+
+      def section_3_homeless_information
+        homeless_info = @auto_claim&.dig('veteran','homelessness')
+        return if homeless_info.blank?
+
+        set_pdf_data_for_homeless_information
+
+        point_of_contact
+      end
+
+      def set_pdf_data_for_homeless_information
+        return if @pdf_data[:data][:attributes].key?(:homelessInformation)
+
+        @pdf_data[:data][:attributes][:homelessInformation] = {}
+      end
+
+      # If "pointOfContact" is included on the form then "pointOfContactName", "primaryPhone" are required via the schema
+      # "primaryPhone" requires both "areaCode" and "phoneNumber" via the schema
+      def point_of_contact
+        point_of_contact_info = @auto_claim&.dig('veteran','homelessness','pointOfContact')
+        return if point_of_contact_info.blank?
+
+        @pdf_data[:data][:attributes][:homelessInformation][:pointOfContact] = point_of_contact_info&.dig('pointOfContactName')
+        phone_object = point_of_contact_info&.dig('primaryPhone')
+        phone_number = phone_object.values.join
+
+        @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber] = convert_phone(phone_number)
+      end
+
+      def convert_phone(phone)
+        phone&.gsub!(/[^0-9]/, '')
+        return nil if phone.nil? || (phone.length < 10)
+
+        return "#{phone[0..2]}-#{phone[3..5]}-#{phone[6..9]}" if phone.length == 10
+
+        "#{phone[0..1]}-#{phone[2..3]}-#{phone[4..7]}-#{phone[8..11]}" if phone.length > 10
       end
     end
   end
