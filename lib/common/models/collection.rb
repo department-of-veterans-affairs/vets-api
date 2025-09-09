@@ -19,6 +19,9 @@ module Common
     alias to_h attributes
     alias to_hash attributes
 
+    CACHE_NAMESPACE = 'common_collection'
+    CACHE_DEFAULT_TTL = 3600 # defaul
+
     OPERATIONS_MAP = {
       'eq' => '==',
       'lteq' => '<=',
