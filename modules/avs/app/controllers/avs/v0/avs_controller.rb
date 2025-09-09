@@ -92,7 +92,7 @@ module Avs
       end
 
       def normalize_icn(icn)
-        icn&.gsub(/V[\d]{6}$/, '')
+        icn&.gsub(/V\d{6}$/, '')
       end
 
       def icns_match?(icn_a, icn_b)

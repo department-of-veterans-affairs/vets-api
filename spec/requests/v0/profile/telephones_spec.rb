@@ -249,6 +249,46 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
           expect(response).to match_camelized_response_schema('va_profile/transaction_response')
         end
       end
+
+      context 'with international phone number' do
+        # Override the date just for international tests
+        before do
+          Timecop.freeze(Time.zone.parse('2025-09-02T18:51:06.000Z'))
+        end
+
+        let(:international_telephone) do
+          build(:telephone, :contact_info_v2,
+                source_system_user: user.icn,
+                vet360_id: user.vet360_id,
+                is_international: true,
+                country_code: '44',
+                area_code: nil,
+                phone_number: '2045675000',
+                id: 42)
+        end
+
+        it 'effective_end_date gets appended to the request body', :aggregate_failures do
+          VCR.use_cassette('va_profile/v2/contact_information/delete_international_telephone_success',
+                           VCR::MATCH_EVERYTHING) do
+            # The cassette we're using includes the effectiveEndDate in the body.
+            # So this test will not pass if it's missing
+            delete('/v0/profile/telephones', params: international_telephone.to_json, headers:)
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('va_profile/transaction_response')
+          end
+        end
+
+        it 'effective_end_date gets appended to the request body when camel-inflected', :aggregate_failures do
+          VCR.use_cassette('va_profile/v2/contact_information/delete_international_telephone_success',
+                           VCR::MATCH_EVERYTHING) do
+            # The cassette we're using includes the effectiveEndDate in the body.
+            # So this test will not pass if it's missing
+            delete('/v0/profile/telephones', params: international_telephone.to_json, headers: headers_with_camel)
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('va_profile/transaction_response')
+          end
+        end
+      end
     end
   end
 end

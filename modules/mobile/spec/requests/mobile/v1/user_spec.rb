@@ -9,6 +9,8 @@ RSpec.describe 'Mobile::V1::User', type: :request do
   before do
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_letters, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_claims, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
   end
 
   let(:contact_information_service) do
@@ -201,12 +203,14 @@ RSpec.describe 'Mobile::V1::User', type: :request do
             disabilityRating
             genderIdentity
             lettersAndDocuments
+            medicationsOracleHealthEnabled
             militaryServiceHistory
             paymentHistory
             preferredName
             prescriptions
             scheduleAppointments
             secureMessaging
+            secureMessagingOracleHealthEnabled
             userProfileUpdate
           ]
         )

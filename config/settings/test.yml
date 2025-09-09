@@ -9,6 +9,7 @@ accredited_representative_portal:
       base_uri: https://not.real.com
       path: not_real.csv
       repo: faked/fakeness
+  frontend_base_url: http://localhost:3001/representative
 adapted_housing:
   prefill: true
 argocd:
@@ -787,7 +788,7 @@ maintenance:
     bucket: ~
     region: ~
     secret_access_key: ~
-  pagerduty_api_token: FAKE
+  pagerduty_api_token: <%= ENV['maintenance__pagerduty_api_token'] || 'FAKE_PAGER_DUTY_API_TOKEN' %>
   pagerduty_api_url: https://api.pagerduty.com
   service_query_prefix: 'External: '
   services:

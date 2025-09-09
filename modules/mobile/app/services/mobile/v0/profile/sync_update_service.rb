@@ -64,12 +64,12 @@ module Mobile
           if type == :address
             'VAProfile::Models::V3::Address'
               .constantize
-              .new(params)
+              .new(params.to_h)
               .set_defaults(@user)
           else
             "VAProfile::Models::#{type.capitalize}"
               .constantize
-              .new(params)
+              .new(params.to_h)
               .set_defaults(@user)
           end
         end

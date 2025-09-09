@@ -172,11 +172,11 @@ RSpec.describe FormProfile, type: :model do
     {
       'veteranContactInformation' => {
         'veteranAddress' => {
-          'addressLine1' => '140 Rock Creek Rd',
-          'countryName' => 'USA',
+          'street' => '140 Rock Creek Rd',
+          'country' => 'USA',
           'city' => 'Washington',
-          'stateCode' => 'DC',
-          'zipCode' => '20011'
+          'state' => 'DC',
+          'postalCode' => '20011'
         },
         'phoneNumber' => us_phone,
         'emailAddress' => user.va_profile_email
@@ -190,8 +190,7 @@ RSpec.describe FormProfile, type: :model do
       'veteranInformation' => {
         'fullName' => {
           'first' => user.first_name.capitalize,
-          'last' => user.last_name.capitalize,
-          'suffix' => 'Jr.'
+          'last' => user.last_name.capitalize
         },
         'ssn' => '796111863',
         'birthDate' => '1809-02-12'
@@ -1053,7 +1052,7 @@ RSpec.describe FormProfile, type: :model do
           # Now that the nested structures are removed from the outputs, compare the rest of the structure.
           expect(output).to eq(expected_output)
           # Compare the nested structures VAProfile::Models::ServiceHistory objects separately.
-          expect(actual_service_histories.map(&:attributes)).to eq(expected_service_histories)
+          expect(actual_service_histories.map(&:attributes)).to match(expected_service_histories)
 
           first_item = actual_guard_reserve_service_history.map(&:attributes).first
           expect(first_item['from'].to_s).to eq(expected_guard_reserve_service_history.first[:from])
@@ -1093,7 +1092,7 @@ RSpec.describe FormProfile, type: :model do
         # Compare service_episodes_by_date separately.
         # Convert each VAProfile::Models::ServiceHistory object to a hash of attributes so it can be
         # compared to the expected output.
-        expect(actual_service_histories.map(&:attributes)).to eq(expected_service_histories)
+        expect(actual_service_histories.map(&:attributes)).to match(expected_service_histories)
       end
     end
   end

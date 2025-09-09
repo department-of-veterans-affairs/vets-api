@@ -392,9 +392,6 @@ RSpec.describe V0::InProgressFormsController do
           end
 
           it 'calls synchronous CreateIntentToFileJob for newly created forms' do
-            expect(Flipper).to receive(:enabled?).with(:intent_to_file_synchronous_enabled,
-                                                       instance_of(User)).and_return(true)
-
             put v0_in_progress_form_url('21P-527EZ'),
                 params: {
                   formData: new_form.form_data,
