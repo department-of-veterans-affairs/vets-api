@@ -8,11 +8,11 @@ require 'fes_service/base'
 
 module ClaimsApi
   module DisabilityCompensation
-    class DockerContainerService < ServiceBase
-      LOG_TAG = '526_v2_Docker_Container_service'
+    class Form526EstablishmentService < ServiceBase
+      LOG_TAG = '526_v2_form526_establishment_service'
       ASYNC = false
 
-      def upload(claim_id) # rubocop:disable Metrics/MethodLength
+      def upload(claim_id)
         auto_claim = get_claim(claim_id)
 
         log_job_progress(claim_id, 'Docker container service started', auto_claim.transaction_id)
@@ -41,7 +41,7 @@ module ClaimsApi
         auto_claim.evss_response = e.errors if e.methods.include?(:errors)
         auto_claim.save
         raise e
-      end # rubocop:enable Metrics/MethodLength
+      end
 
       private
 
