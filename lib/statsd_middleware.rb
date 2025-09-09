@@ -3,6 +3,7 @@
 class StatsdMiddleware
   STATUS_KEY   = 'api.rack.request'
   DURATION_KEY = 'api.rack.request.duration'
+  DURATION_DISTRIBUTION_KEY = 'api.rack.request.duration.distribution' # Issue 23869
 
   def initialize(app)
     @app = app
@@ -43,10 +44,10 @@ class StatsdMiddleware
   def instrument_statsd(status, duration, controller, action, source_app)
     duration_tags = ["controller:#{controller}", "action:#{action}", "source_app:#{source_app}"]
     status_tags = duration_tags + ["status:#{status}"]
-
-    # rubocop:disable Style/RescueModifier
+    # rubocop:disable Style/RescueModifier,Lint/RedundantCopDisableDirective
     StatsD.increment(STATUS_KEY, tags: status_tags) rescue nil
     StatsD.measure(DURATION_KEY, duration, tags: duration_tags) rescue nil
-    # rubocop:enable Style/RescueModifier
+    StatsD.distribution(DURATION_DISTRIBUTION_KEY, duration, tags: duration_tags) rescue nil
+    # rubocop:enable Style/RescueModifier,Lint/RedundantCopDisableDirective
   end
 end
