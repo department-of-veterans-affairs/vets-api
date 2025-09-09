@@ -322,6 +322,58 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
           expect(homeless_base).not_to have_key(:currentlyHomeless)
         end
       end
+
+      context 'riskOfBecomingHomeless attributes' do
+        describe '#set_pdf_data_for_homelessness_risk_information' do
+          context 'when riskOfBecomingHomeless key does not exist' do
+            before do
+              @pdf_data = pdf_data
+              @pdf_data[:data][:attributes][:homelessInformation] = {}
+            end
+
+            it 'sets the riskOfBecomingHomeless key to an empty hash' do
+              res = mapper.send(:set_pdf_data_for_homelessness_risk_information)
+
+              expect(res).to eq({})
+            end
+          end
+
+          context 'when riskOfBecomingHomeless key already exists' do
+            before do
+              @pdf_data = pdf_data
+              @pdf_data[:data][:attributes][:homelessInformation] = {}
+              @pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless] = {}
+            end
+
+            it 'returns early without modifying the existing data' do
+              res = mapper.send(:set_pdf_data_for_homelessness_risk_information)
+
+              expect(res).to be_nil
+            end
+          end
+        end
+
+        it 'maps the attributes if included' do
+          form_attributes['veteran']['homelessness']['homelessnessRisk'] = {}
+          form_attributes['veteran']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType'] = 'other'
+          form_attributes['veteran']['homelessness']['homelessnessRisk']['otherLivingSituation'] = 'Other situation'
+          mapper.map_claim
+
+          risk_of_homeless_base = pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
+
+          expect(risk_of_homeless_base[:livingSituationOptions]).to eq('other')
+          expect(risk_of_homeless_base[:otherDescription]).to eq('Other situation')
+        end
+
+        it 'does not map anything if not included' do
+          form_attributes['veteran']['homelessness']['homelessnessRisk'] = nil
+          mapper.map_claim
+
+          homeless_base = pdf_data[:data][:attributes][:homelessInformation]
+
+          expect(homeless_base).not_to have_key(:riskOfBecomingHomeless)
+        end
+      end
     end
 
     context 'when homeless information is not included in the submission' do

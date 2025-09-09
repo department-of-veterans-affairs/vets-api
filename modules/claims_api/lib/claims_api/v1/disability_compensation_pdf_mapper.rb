@@ -206,6 +206,7 @@ module ClaimsApi
 
         point_of_contact
         currently_homeless
+        homelessness_risk
       end
 
       def set_pdf_data_for_homeless_information
@@ -253,6 +254,24 @@ module ClaimsApi
         return if @pdf_data[:data][:attributes][:homelessInformation]&.key?(:currentlyHomeless)
 
         @pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless] = {}
+      end
+
+      # if "homelessnessRisk" is on the submission "homelessnessRiskSituationType", "otherLivingSituation" are required
+      def homelessness_risk
+        homelessness_risk_info = @auto_claim&.dig('veteran', 'homelessness', 'homelessnessRisk')
+        return if homelessness_risk_info.blank?
+
+        set_pdf_data_for_homelessness_risk_information
+        risk_of_homeless_base = @pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
+
+        risk_of_homeless_base[:livingSituationOptions] = homelessness_risk_info['homelessnessRiskSituationType']
+        risk_of_homeless_base[:otherDescription] = homelessness_risk_info['otherLivingSituation']
+      end
+
+      def set_pdf_data_for_homelessness_risk_information
+        return if @pdf_data[:data][:attributes][:homelessInformation]&.key?(:riskOfBecomingHomeless)
+
+        @pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless] = {}
       end
     end
   end
