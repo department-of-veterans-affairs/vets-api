@@ -2,7 +2,7 @@
 
 require 'va_profile/contact_information/v2/service'
 require 'va_profile/contact_information/v2/person_response'
-require 'va_profile/models/v3/address'
+require 'va_profile/models/address'
 require 'va_profile/models/telephone'
 
 # rubocop:disable Metrics/MethodLength
@@ -10,10 +10,10 @@ def stub_vaprofile_user(person = nil)
   service = VAProfile::ContactInformation::V2::Service
   person_response = VAProfile::ContactInformation::V2::PersonResponse
   person ||= FactoryBot.build(
-    :person_v2,
+    :person,
     addresses: [
-      FactoryBot.build(:va_profile_v3_address, id: 577_127),
-      FactoryBot.build(:va_profile_v3_address, address_pou: VAProfile::Models::V3::Address::CORRESPONDENCE, id: 124)
+      FactoryBot.build(:va_profile_address, id: 577_127),
+      FactoryBot.build(:va_profile_address, address_pou: VAProfile::Models::Address::CORRESPONDENCE, id: 124)
     ],
     emails: [
       FactoryBot.build(:email, :contact_info_v2, id: 318_927)

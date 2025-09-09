@@ -62,7 +62,7 @@ module Mobile
 
         def build_record(type, params)
           if type == :address
-            'VAProfile::Models::V3::Address'
+            'VAProfile::Models::Address'
               .constantize
               .new(params.to_h)
               .set_defaults(@user)

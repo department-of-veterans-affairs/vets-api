@@ -14,7 +14,7 @@ describe VAProfile::ContactInformation::V2::Service do
         VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).to be_ok
-          expect(response.person).to be_a(VAProfile::Models::V3::Person)
+          expect(response.person).to be_a(VAProfile::Models::Person)
         end
       end
 
@@ -40,7 +40,7 @@ describe VAProfile::ContactInformation::V2::Service do
         VCR.use_cassette('va_profile/v2/contact_information/person_without_data', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).to be_ok
-          expect(response.person).to be_a(VAProfile::Models::V3::Person)
+          expect(response.person).to be_a(VAProfile::Models::Person)
         end
       end
     end
@@ -54,7 +54,7 @@ describe VAProfile::ContactInformation::V2::Service do
         VCR.use_cassette('va_profile/v2/contact_information/person_icn', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).to be_ok
-          expect(response.person).to be_a(VAProfile::Models::V3::Person)
+          expect(response.person).to be_a(VAProfile::Models::Person)
         end
       end
 
@@ -71,7 +71,7 @@ describe VAProfile::ContactInformation::V2::Service do
         VCR.use_cassette('va_profile/v2/contact_information/verified_person_without_data', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).to be_ok
-          expect(response.person).to be_a(VAProfile::Models::V3::Person)
+          expect(response.person).to be_a(VAProfile::Models::Person)
         end
       end
     end
@@ -173,7 +173,7 @@ describe VAProfile::ContactInformation::V2::Service do
   end
 
   describe '#post_address' do
-    let(:address) { build(:va_profile_v3_address, :mobile) }
+    let(:address) { build(:va_profile_address, :mobile) }
 
     context 'when successful' do
       it 'returns a status of 200' do
@@ -185,7 +185,7 @@ describe VAProfile::ContactInformation::V2::Service do
     end
 
     context 'when an ID is included' do
-      let(:address) { build(:va_profile_v3_address, :mobile, id: 42, effective_start_date: nil) }
+      let(:address) { build(:va_profile_address, :mobile, id: 42, effective_start_date: nil) }
       let(:frozen_time) { Time.zone.parse('2024-08-27T18:51:06.012Z') }
 
       it 'raises an exception' do
@@ -201,7 +201,7 @@ describe VAProfile::ContactInformation::V2::Service do
   end
 
   describe '#put_address' do
-    let(:address) { build(:va_profile_v3_address, :override, id: 577_127) }
+    let(:address) { build(:va_profile_address, :override, id: 577_127) }
 
     context 'when successful' do
       it 'returns a status of 200' do
@@ -215,7 +215,7 @@ describe VAProfile::ContactInformation::V2::Service do
 
     context 'with a validation key' do
       let(:address) do
-        build(:va_profile_v3_address, :override, country_name: nil)
+        build(:va_profile_address, :override, country_name: nil)
       end
 
       it 'overrides the address error', run_at: '2020-02-14T00:19:15.000Z' do
@@ -318,7 +318,7 @@ describe VAProfile::ContactInformation::V2::Service do
     [
       {
         model_name: 'address',
-        factory: 'va_profile_v3_address',
+        factory: 'va_profile_address',
         trait: 'contact_info_v2',
         attr: 'residential_address',
         id: 577_127
