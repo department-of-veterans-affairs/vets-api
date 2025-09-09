@@ -9,10 +9,10 @@ RSpec.describe VBADocuments::UploadStatusErrorBatch, type: :job do
   let!(:emms_error_upload) { create(:upload_submission, :upstream_error_upload) }
 
   # Old errored record, job should not pick up since it's older than MAX_UPSTREAM_ERROR_AGE_DAYS
-  let!(:old_error_upload) {
-    create(:upload_submission, :upstream_error_upload, 
-    created_at: (VBADocuments::UploadSubmission::MAX_UPSTREAM_ERROR_AGE_DAYS + 1).days.ago)
-  }
+  let!(:old_error_upload) do
+    create(:upload_submission, :upstream_error_upload,
+           created_at: (VBADocuments::UploadSubmission::MAX_UPSTREAM_ERROR_AGE_DAYS + 1).days.ago)
+  end
 
   # DOC104 error, error not from Central Mail, job should not pick up
   let!(:error_upload) { create(:upload_submission, :status_error) }
@@ -33,7 +33,7 @@ RSpec.describe VBADocuments::UploadStatusErrorBatch, type: :job do
       allow(Rails.logger).to receive(:info)
       expect(Rails.logger).to receive(:info).with(
         'VBADocuments::UploadSubmission upstream processing error resolved',
-        { guid: emms_error_upload.guid, code: 'DOC202', 
+        { guid: emms_error_upload.guid, code: 'DOC202',
           detail: 'Upstream status: Errors: ERR-EMMS-FAILED, Corrupted File detected.' }
       )
       expect(CentralMail::Service).to receive(:new) { client_stub }
