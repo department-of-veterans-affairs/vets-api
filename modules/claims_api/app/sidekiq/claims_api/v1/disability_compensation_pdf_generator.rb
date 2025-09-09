@@ -114,6 +114,15 @@ module ClaimsApi
           data: {}
         }
       end
+
+      def pdf_mapper_initial_object
+        {
+          data: {
+            attributes:
+              {}
+          }
+        }
+      end
     end
   end
 end

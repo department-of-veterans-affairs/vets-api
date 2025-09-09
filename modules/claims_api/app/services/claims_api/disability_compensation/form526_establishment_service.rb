@@ -43,7 +43,7 @@ module ClaimsApi
         auto_claim.evss_response = e.errors if e.methods.include?(:errors)
         auto_claim.save
         raise e
-      end
+      end # rubocop:enable Metrics/MethodLength
 
       private
 
