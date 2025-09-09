@@ -7,7 +7,7 @@ RSpec.describe TravelClaim::Configuration do
 
   describe '#service_name' do
     it 'has a service name' do
-      expect(subject.service_name).to eq('TravelClaim')
+      expect(subject.service_name).to eq('BTSSS-API')
     end
   end
 
