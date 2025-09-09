@@ -104,10 +104,7 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
                 expect(subject).to have_attributes(
                   claimant_id: be_a(String),
                   accredited_individual_registration_number: be_a(String),
-                  power_of_attorney_holder_poa_code: claimant_poa_code,
-                  power_of_attorney_holder_type:
-                    AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::
-                      VETERAN_SERVICE_ORGANIZATION
+                  power_of_attorney_holder: be_a(AccreditedRepresentativePortal::PowerOfAttorneyHolder)
                 )
               end
             end

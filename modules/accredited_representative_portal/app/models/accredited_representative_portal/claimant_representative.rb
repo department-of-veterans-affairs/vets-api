@@ -4,9 +4,8 @@ module AccreditedRepresentativePortal
   class ClaimantRepresentative <
     Data.define(
       :claimant_id,
-      :power_of_attorney_holder_type,
-      :power_of_attorney_holder_poa_code,
-      :accredited_individual_registration_number
+      :accredited_individual_registration_number,
+      :power_of_attorney_holder
     )
     class << self
       def find(...)
@@ -37,24 +36,15 @@ module AccreditedRepresentativePortal
         membership.present? or
           return nil
 
-        build(membership)
-      rescue
-        raise Error
-      end
-
-      private
-
-      def build(membership)
-        holder =
-          membership.power_of_attorney_holder
-
         ClaimantRepresentative.new(
           claimant_id: @claimant.id,
-          power_of_attorney_holder_type: holder.type,
-          power_of_attorney_holder_poa_code: holder.poa_code,
           accredited_individual_registration_number:
-            membership.registration_number
+            membership.registration_number,
+          power_of_attorney_holder:
+            membership.power_of_attorney_holder
         )
+      rescue
+        raise Error
       end
     end
 

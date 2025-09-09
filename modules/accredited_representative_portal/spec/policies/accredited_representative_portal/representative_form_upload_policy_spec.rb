@@ -34,9 +34,8 @@ module AccreditedRepresentativePortal
         let(:claimant_representative) do
           ClaimantRepresentative.new(
             claimant_id: nil,
-            power_of_attorney_holder_type: nil,
-            power_of_attorney_holder_poa_code: nil,
-            accredited_individual_registration_number: nil
+            accredited_individual_registration_number: nil,
+            power_of_attorney_holder: nil
           )
         end
 
