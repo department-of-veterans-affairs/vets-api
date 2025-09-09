@@ -265,6 +265,9 @@ module ClaimsApi
       def validate_veteran!
         # FES Val Section 5.b: mailingAddress validations
         validate_current_mailing_address!
+
+        # FES Val Section 5.c: changeOfAddress validations
+        validate_change_of_address!
       end
 
       # FES Val Section 5.b: mailingAddress validations
@@ -348,6 +351,54 @@ module ClaimsApi
             detail: 'InternationalPostalCode is required for non-USA addresses'
           )
         end
+      end
+
+      # FES Val Section 5.c: changeOfAddress validations
+      def validate_change_of_address!
+        change_of_address = form_attributes['changeOfAddress']
+        return if change_of_address.blank?
+
+        validate_change_of_address_dates!(change_of_address)
+      end
+
+      def validate_change_of_address_dates!(change_of_address)
+        if change_of_address['typeOfAddressChange'] == 'TEMPORARY'
+          validate_temporary_address_dates!(change_of_address)
+        elsif change_of_address['typeOfAddressChange'] == 'PERMANENT'
+          validate_permanent_address_dates!(change_of_address)
+        end
+      end
+
+      def validate_temporary_address_dates!(change_of_address)
+        # FES Val Section 5.c.i: TEMPORARY requires beginDate and endDate
+        dates = change_of_address['dates'] || {}
+
+        if dates['beginDate'].blank?
+          collect_error(
+            source: '/changeOfAddress/dates/beginDate',
+            title: 'Missing beginningDate',
+            detail: 'beginningDate is required for temporary address'
+          )
+        end
+
+        if dates['endDate'].blank?
+          collect_error(
+            source: '/changeOfAddress/dates/endDate',
+            title: 'Missing endingDate',
+            detail: 'EndingDate is required for temporary address'
+          )
+        end
+      end
+
+      def validate_permanent_address_dates!(change_of_address)
+        # FES Val Section 5.c.ii: PERMANENT cannot have endDate
+        return if change_of_address.dig('dates', 'endDate').blank?
+
+        collect_error(
+          source: '/changeOfAddress/dates/endDate',
+          title: 'Cannot provide endingDate',
+          detail: 'EndingDate cannot be provided for a permanent address'
+        )
       end
 
       # Utility methods grouped at the bottom

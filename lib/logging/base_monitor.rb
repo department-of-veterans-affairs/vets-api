@@ -2,11 +2,13 @@
 
 require 'logging/controller/monitor'
 require 'logging/benefits_intake/monitor'
+require 'logging/data_scrubber'
 
 module Logging
   class BaseMonitor < ::ZeroSilentFailures::Monitor
     include Logging::Controller::Monitor
     include Logging::BenefitsIntake::Monitor
+    include Logging::DataScrubber
 
     private
 
@@ -50,7 +52,7 @@ module Logging
       claim = options[:claim]
       user_account_uuid = options[:user_account_uuid]
       call_location = options[:call_location] || caller_locations.first
-      additional_context = options.except(:claim, :user_account_uuid, :call_location)
+      additional_context = Logging::DataScrubber.scrub(options.except(:claim, :user_account_uuid, :call_location))
 
       claim_id = claim.respond_to?(:id) ? claim.id : claim
       confirmation_number = claim.respond_to?(:confirmation_number) ? claim.confirmation_number : nil
