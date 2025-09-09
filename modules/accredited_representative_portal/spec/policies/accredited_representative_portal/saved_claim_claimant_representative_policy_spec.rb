@@ -77,10 +77,7 @@ module AccreditedRepresentativePortal
       context 'when user has POA holders and a matching registration AIRN' do
         let(:power_of_attorney_holders) { [build(:power_of_attorney_holder, type: 'veteran_service_organization')] }
 
-        let!(:registration) do
-          create(:user_account_accredited_individual, accredited_individual_registration_number: 'AIRN-MATCH')
-        end
-        let(:registration_numbers) { [registration.accredited_individual_registration_number] }
+        let(:registration_numbers) { ['AIRN-MATCH'] }
 
         before do
           allow(scope)
