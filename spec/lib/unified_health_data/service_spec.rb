@@ -917,14 +917,9 @@ describe UnifiedHealthData::Service, type: :service do
     let(:conditions_sample_response) do
       JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'condition_sample_response.json').read)
     end
-    let(:conditions_vista_fallback_response) do
+    let(:conditions_fallback_response) do
       JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'condition_vista_fallback_response.json'
-      ).read)
-    end
-    let(:conditions_oracle_health_fallback_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'condition_oracle_health_fallback_response.json'
+        'spec', 'fixtures', 'unified_health_data', 'condition_fallback_response.json'
       ).read)
     end
     let(:conditions_empty_response) do
@@ -958,28 +953,30 @@ describe UnifiedHealthData::Service, type: :service do
       expect(conditions).to all(have_attributes(condition_attributes))
     end
 
-    it 'returns conditions for VistA only' do
+    it 'returns conditions from both VistA and Oracle Health fallback scenarios' do
       allow(service).to receive_messages(
-        perform: double(body: conditions_vista_fallback_response),
-        parse_response_body: conditions_vista_fallback_response
+        perform: double(body: conditions_fallback_response),
+        parse_response_body: conditions_fallback_response
       )
 
       conditions = service.get_conditions
-      expect(conditions.size).to eq(1)
+      expect(conditions.size).to eq(2)
       expect(conditions).to all(be_a(UnifiedHealthData::Condition))
       expect(conditions).to all(have_attributes(condition_attributes))
-    end
+      vista_condition = conditions.find { |c| c.id == 'fallback-test-id' }
+      oh_condition = conditions.find { |c| c.id == 'oh-fallback-test-id' }
 
-    it 'returns conditions for Oracle Health only' do
-      allow(service).to receive_messages(
-        perform: double(body: conditions_oracle_health_fallback_response),
-        parse_response_body: conditions_oracle_health_fallback_response
+      expect(vista_condition).to have_attributes(
+        name: 'Condition from text field',
+        provider: 'Dr. Simple Provider',
+        facility: 'Simple Medical Center'
       )
 
-      conditions = service.get_conditions
-      expect(conditions.size).to eq(1)
-      expect(conditions).to all(be_a(UnifiedHealthData::Condition))
-      expect(conditions).to all(have_attributes(condition_attributes))
+      expect(oh_condition).to have_attributes(
+        name: 'Oracle Health Condition from text field',
+        provider: 'Dr. OH Provider',
+        facility: 'Oracle Health Medical Center'
+      )
     end
 
     it 'returns empty array when no data exists' do

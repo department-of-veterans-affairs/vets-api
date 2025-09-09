@@ -11,15 +11,9 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
     ).read)
   end
 
-  let(:conditions_vista_fallback_response) do
+  let(:conditions_fallback_response) do
     JSON.parse(Rails.root.join(
-      'spec', 'fixtures', 'unified_health_data', 'condition_vista_fallback_response.json'
-    ).read)
-  end
-
-  let(:conditions_oracle_health_fallback_response) do
-    JSON.parse(Rails.root.join(
-      'spec', 'fixtures', 'unified_health_data', 'condition_oracle_health_fallback_response.json'
+      'spec', 'fixtures', 'unified_health_data', 'condition_fallback_response.json'
     ).read)
   end
 
@@ -59,7 +53,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
     end
 
     it 'returns the expected fields with VistA fallback values' do
-      fallback_records = conditions_vista_fallback_response['vista']['entry']
+      fallback_records = conditions_fallback_response['vista']['entry']
       parsed_condition = adapter.parse(fallback_records).first
 
       expect(parsed_condition).to have_attributes(
@@ -73,7 +67,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
     end
 
     it 'returns the expected fields with Oracle Health fallback values' do
-      fallback_records = conditions_oracle_health_fallback_response['oracle-health']['entry']
+      fallback_records = conditions_fallback_response['oracle-health']['entry']
       parsed_condition = adapter.parse(fallback_records).first
 
       expect(parsed_condition).to have_attributes(

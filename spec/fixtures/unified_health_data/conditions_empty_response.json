@@ -1,4 +1,6 @@
 {
-    "vista": {},
+    "vista": {
+        "resourceType": "Bundle"
+    },
     "oracle-health": {}
 }
