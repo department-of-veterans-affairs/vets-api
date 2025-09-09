@@ -20582,7 +20582,8 @@
               "Civil Service Preference Letter",
               "Benefit Summary Letter",
               "Dependent Benefit Summary Letter",
-              "Benefit Verification Letter"
+              "Benefit Verification Letter",
+              "Certificate of Eligibility for Home Loan Letter"
             ]
           },
           "letterType": {
@@ -20597,7 +20598,8 @@
               "benefit_summary",
               "benefit_summary_dependent",
               "benefit_verification",
-              "certificate_of_eligibility"
+              "certificate_of_eligibility",
+              "certificate_of_eligibility_home_loan"
             ]
           }
         }
@@ -23133,7 +23135,8 @@
           "meta": {
             "type": "object",
             "required": [
-              "sort"
+              "sort",
+              "careSystems"
             ],
             "properties": {
               "sort": {
@@ -23163,6 +23166,16 @@
               "friendlyTriageTeamPilotFacilities": {
                 "type": "string",
                 "example": "979,989"
+              },
+              "careSystems": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "stationNumber",
+                    "healthCareSystemName"
+                  ]
+                }
               }
             }
           }
