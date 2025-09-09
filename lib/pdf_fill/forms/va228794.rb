@@ -135,7 +135,7 @@ module PdfFill
         (@form_data['additionalCertifyingOfficials'] || []).each_with_index do |data, i|
           details = data['additionalCertifyingOfficialsDetails']
           full_name = combine_full_name(details['fullName'])
-          @form_data["additionalCertifyingOfficials_#{i}"] =
+          @form_data["additionalCertifyingOfficials_#{i}"] =  
             {
               'fullName' => full_name,
               'title' => details['title'],

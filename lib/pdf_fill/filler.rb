@@ -28,6 +28,7 @@ require 'pdf_fill/forms/va2210215a'
 require 'pdf_fill/forms/va221919'
 require 'pdf_fill/forms/va228794'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
+require 'pdf_fill/processors/va228794_processor'
 require 'utilities/date_parser'
 require 'forwardable'
 
@@ -194,6 +195,11 @@ module PdfFill
       # Handle 22-10215 overflow with continuation sheets
       if form_id == '22-10215' && form_data['programs'] && form_data['programs'].length > 16
         return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options)
+      end
+
+      # Handle 22-8794 has the potential to overflow a lot and require special overflow handling
+      if form_id == '22-8794'
+        return PdfFill::Processors::VA228794Processor.new(form_data, self).process
       end
 
       folder = 'tmp/pdfs'
