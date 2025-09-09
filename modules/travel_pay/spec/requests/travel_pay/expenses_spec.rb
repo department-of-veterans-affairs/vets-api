@@ -200,12 +200,23 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
       end
     end
 
-    context 'when expense_id is blank' do
+    context 'when expense_id is malformed' do
       it 'returns bad request status' do
         get "/travel_pay/v0/claims/#{claim_id}/expenses/other/%20",
             headers: { 'Authorization' => 'Bearer vagov_token' }
 
+        expect(expenses_service).not_to receive(:get_expense)
         expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'when expense_id is missing' do
+      it 'returns bad request status' do
+        get "/travel_pay/v0/claims/#{claim_id}/expenses/other",
+            headers: { 'Authorization' => 'Bearer vagov_token' }
+
+        expect(expenses_service).not_to receive(:get_expense)
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -216,6 +227,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{invalid_expense_id}",
             headers: { 'Authorization' => 'Bearer vagov_token' }
 
+        expect(expenses_service).not_to receive(:get_expense)
         expect(response).to have_http_status(:bad_request)
         response_body = JSON.parse(response.body)
         expect(response_body['errors'].first['detail']).to eq('Expense ID is invalid')
