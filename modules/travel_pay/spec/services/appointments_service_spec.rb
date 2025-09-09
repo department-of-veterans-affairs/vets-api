@@ -151,7 +151,7 @@ describe TravelPay::AppointmentsService do
               { 'appointment_date_time' => '2024-01-01T12:45:00',
                 'facility_station_number' => '123',
                 'appointment_type' => 'Other',
-                'is_complete' => false }, false)
+                'is_complete' => false }, use_v4_api: false)
         .and_return(add_appointment_response)
     end
 
@@ -195,7 +195,7 @@ describe TravelPay::AppointmentsService do
                 { 'appointment_date_time' => '2024-01-01T12:45:00',
                   'facility_station_number' => '123',
                   'appointment_type' => 'Other',
-                  'is_complete' => false }, true)
+                  'is_complete' => false }, use_v4_api: true)
           .and_return(add_appointment_response)
       end
 

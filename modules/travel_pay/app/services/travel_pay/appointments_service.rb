@@ -67,7 +67,7 @@ module TravelPay
         # Use feature flag to determine API version
         use_v4_api = @user && Flipper.enabled?(:travel_pay_appt_add_v4_upgrade, @user)
 
-        faraday_response = client.find_or_create(veis_token, btsss_token, params, use_v4_api)
+        faraday_response = client.find_or_create(veis_token, btsss_token, params, use_v4_api:)
         appointments = faraday_response.body['data']
 
         {

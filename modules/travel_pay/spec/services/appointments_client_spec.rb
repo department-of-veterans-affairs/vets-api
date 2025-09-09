@@ -187,7 +187,7 @@ describe TravelPay::AppointmentsClient do
         end
 
         client = TravelPay::AppointmentsClient.new
-        response = client.find_or_create(*tokens, appointment_params, false)
+        response = client.find_or_create(*tokens, appointment_params, use_v4_api: false)
 
         expect(response.body['data']).to eq(expected_response_data)
         expect(StatsD).to have_received(:measure)
@@ -210,7 +210,7 @@ describe TravelPay::AppointmentsClient do
         end
 
         client = TravelPay::AppointmentsClient.new
-        response = client.find_or_create(*tokens, appointment_params, true)
+        response = client.find_or_create(*tokens, appointment_params, use_v4_api: true)
 
         expect(response.body['data']).to eq(expected_response_data)
         expect(StatsD).to have_received(:measure)
