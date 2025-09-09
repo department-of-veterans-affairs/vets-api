@@ -343,7 +343,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "2c506c3c-ace4-48c4-9993-4af24a36c6aa",
+                        "id": "38b89ea0-092e-4877-b4ab-bbee14bf21d2",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -528,7 +528,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-08-31"
+                              "anticipatedSeparationDate": "2025-09-11"
                             },
                             "confinements": [
                               {
@@ -574,7 +574,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "68e30077-bb44-4a63-86e7-6ae39f88414d",
+                        "id": "aeb9ad47-f924-4c50-8f6b-e26c62fecb6c",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -738,7 +738,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2025-08-31",
+                                "activeDutyEndDate": "2025-09-11",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -759,7 +759,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-08-31"
+                              "anticipatedSeparationDate": "2025-09-11"
                             },
                             "confinements": [
                               {
@@ -1801,6 +1801,31 @@
                                     }
                                   }
                                 }
+                              },
+                              "if": {
+                                "required": [
+                                  "federalActivation"
+                                ]
+                              },
+                              "then": {
+                                "required": [
+                                  "reservesNationalGuardService"
+                                ],
+                                "properties": {
+                                  "reservesNationalGuardService": {
+                                    "required": [
+                                      "obligationTermsOfService"
+                                    ],
+                                    "properties": {
+                                      "obligationTermsOfService": {
+                                        "required": [
+                                          "beginDate",
+                                          "endDate"
+                                        ]
+                                      }
+                                    }
+                                  }
+                                }
                               }
                             },
                             "servicePay": {
@@ -2148,6 +2173,28 @@
                           "detail": "The request body is not a valid JSON object: This is not valid JSON",
                           "source": {
                             "pointer": null
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "when federalActivation is present but obligationTermsOfService is missing": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Unprocessable entity",
+                          "detail": "The property /serviceInformation/reservesNationalGuardService/obligationTermsOfService did not contain the required key beginDate",
+                          "status": "422",
+                          "source": {
+                            "pointer": "data/attributes/serviceInformation/reservesNationalGuardService/obligationTermsOfService"
+                          }
+                        },
+                        {
+                          "title": "Unprocessable entity",
+                          "detail": "The property /serviceInformation/reservesNationalGuardService/obligationTermsOfService did not contain the required key endDate",
+                          "status": "422",
+                          "source": {
+                            "pointer": "data/attributes/serviceInformation/reservesNationalGuardService/obligationTermsOfService"
                           }
                         }
                       ]
@@ -3185,6 +3232,31 @@
                                   }
                                 }
                               }
+                            },
+                            "if": {
+                              "required": [
+                                "federalActivation"
+                              ]
+                            },
+                            "then": {
+                              "required": [
+                                "reservesNationalGuardService"
+                              ],
+                              "properties": {
+                                "reservesNationalGuardService": {
+                                  "required": [
+                                    "obligationTermsOfService"
+                                  ],
+                                  "properties": {
+                                    "obligationTermsOfService": {
+                                      "required": [
+                                        "beginDate",
+                                        "endDate"
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
                             }
                           },
                           "servicePay": {
@@ -4002,7 +4074,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2025-08-31",
+                              "activeDutyEndDate": "2025-09-11",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -4023,7 +4095,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2025-08-31"
+                            "anticipatedSeparationDate": "2025-09-11"
                           },
                           "confinements": [
                             {
@@ -5335,6 +5407,31 @@
                                       "nullable": false,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                       "example": "2018-06-06 or 2018-06"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "if": {
+                              "required": [
+                                "federalActivation"
+                              ]
+                            },
+                            "then": {
+                              "required": [
+                                "reservesNationalGuardService"
+                              ],
+                              "properties": {
+                                "reservesNationalGuardService": {
+                                  "required": [
+                                    "obligationTermsOfService"
+                                  ],
+                                  "properties": {
+                                    "obligationTermsOfService": {
+                                      "required": [
+                                        "beginDate",
+                                        "endDate"
+                                      ]
                                     }
                                   }
                                 }
@@ -10283,7 +10380,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6b70cc16-f35b-4877-8e97-7f998e09fd1c",
+                    "id": "f2a4eb07-b52a-45cc-a557-1597f5bf638c",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -11780,7 +11877,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "730d2ac5-180d-4fff-a130-56183d37ad29",
+                    "id": "1c610f00-f608-4019-aede-df6d694b6fab",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -12628,10 +12725,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e570f849-8a91-4ed4-9ddb-2d030a28410f",
+                    "id": "0c591742-a5fd-43bd-a657-b1dbde3a3dff",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2025-08-29 18:34:47 UTC",
+                      "createdAt": "2025-09-09 03:25:33 UTC",
                       "representative": {
                         "poaCode": "074"
                       },
