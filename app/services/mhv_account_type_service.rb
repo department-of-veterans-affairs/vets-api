@@ -69,7 +69,7 @@ class MHVAccountTypeService
                                                                         errors: json[:errors])
       collection.records.map(&:name)
     else
-      bb_client = BB::Client.new(session: { user_uuid: @user.uuid, user_id: @user.mhv_correlation_id })
+      bb_client = BB::Client.new(session: { user_uuid: @user.user_account_uuid, user_id: @user.mhv_correlation_id })
       bb_client.authenticate
       bb_client.get_eligible_data_classes.members.map(&:name)
     end
