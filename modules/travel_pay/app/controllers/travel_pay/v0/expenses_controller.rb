@@ -90,6 +90,14 @@ module TravelPay
 
       def validate_expense_id
         raise Common::Exceptions::BadRequest, detail: 'Expense ID is required' if params[:expense_id].blank?
+
+        uuid_all_version_format = /\A[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}\z/i
+
+        unless uuid_all_version_format.match?(params[:expense_id])
+          raise Common::Exceptions::BadRequest.new(
+            detail: 'Expense ID is invalid'
+          )
+        end
       end
 
       def valid_expense_types
