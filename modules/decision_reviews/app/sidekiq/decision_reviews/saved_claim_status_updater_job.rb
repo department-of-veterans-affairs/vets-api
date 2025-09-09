@@ -161,6 +161,8 @@ module DecisionReviews
       secondary_forms = record.appeal_submission&.secondary_appeal_forms
       secondary_forms = secondary_forms&.filter { |form| form.delete_date.nil? } || []
 
+      return true if secondary_forms.empty?
+
       # Branch to separate implementations for clean feature flag removal
       if decision_review_final_status_polling_enabled?
         process_secondary_forms_enhanced(secondary_forms, record.guid)

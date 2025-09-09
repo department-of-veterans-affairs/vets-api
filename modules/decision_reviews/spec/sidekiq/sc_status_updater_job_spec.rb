@@ -324,6 +324,59 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
         end
       end
 
+      context 'when forms have nil status' do
+        let!(:secondary_form_nil_status) { create(:secondary_appeal_form4142_module, guid: SecureRandom.uuid, status: nil) }
+        let!(:saved_claim_nil) do
+          SavedClaim::SupplementalClaim.create(
+            guid: secondary_form_nil_status.appeal_submission.submitted_appeal_uuid,
+            form: '{}'
+          )
+        end
+
+        let(:response_processing) do
+          response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json'))
+          response['data']['attributes']['status'] = 'processing'
+          response['data']['attributes']['final_status'] = false
+          instance_double(Faraday::Response, body: response)
+        end
+
+        before do
+          allow(service).to receive(:get_supplemental_claim)
+            .with(saved_claim_nil.guid).and_return(response_complete)
+          allow(benefits_intake_service).to receive(:get_status)
+            .with(uuid: secondary_form_nil_status.guid).and_return(response_processing)
+        end
+
+        it 'makes API call for forms with nil status (treats as non-final)' do
+          Timecop.freeze(frozen_time) do
+            subject.new.perform
+          end
+
+          expect(benefits_intake_service).to have_received(:get_status)
+            .with(uuid: secondary_form_nil_status.guid)
+        end
+
+        it 'updates status from nil to API response' do
+          Timecop.freeze(frozen_time) do
+            subject.new.perform
+          end
+
+          secondary_form_nil_status.reload
+          parsed_status = JSON.parse(secondary_form_nil_status.status)
+          expect(parsed_status['status']).to eq('processing')
+          expect(parsed_status['final_status']).to be(false)
+          expect(secondary_form_nil_status.status_updated_at).to eq(frozen_time)
+        end
+
+        it 'does not set delete_date for forms transitioning from nil to processing' do
+          Timecop.freeze(frozen_time) do
+            subject.new.perform
+          end
+
+          expect(secondary_form_nil_status.reload.delete_date).to be_nil
+        end
+      end
+
       context 'when forms have no stored final_status (legacy data)' do
         let!(:secondary_form) { create(:secondary_appeal_form4142_module, guid: SecureRandom.uuid) }
         let!(:saved_claim) do
@@ -454,6 +507,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
 
             expect(secondary_form.reload.delete_date).to be_nil
             parsed_status = JSON.parse(secondary_form.reload.status)
+
             expect(parsed_status['final_status']).to be(false)
           end
         end
