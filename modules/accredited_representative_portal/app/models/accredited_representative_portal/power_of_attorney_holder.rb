@@ -9,9 +9,14 @@ module AccreditedRepresentativePortal
     )
     module Types
       ALL = [
-        VETERAN_SERVICE_ORGANIZATION = 'veteran_service_organization',
-        CLAIMS_AGENT = 'claims_agent',
-        ATTORNEY = 'attorney'
+        ##
+        # Future types:
+        # ```
+        # ATTORNEY = 'attorney',
+        # CLAIMS_AGENT = 'claims_agent',
+        # ```
+        #
+        VETERAN_SERVICE_ORGANIZATION = 'veteran_service_organization'
       ].freeze
     end
 

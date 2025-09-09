@@ -17,7 +17,6 @@ module ClaimsApi
       def map_claim
         section_0_claim_attributes
         section_1_veteran_identification
-        section_2_change_of_address
 
         @pdf_data
       end
@@ -128,73 +127,6 @@ module ClaimsApi
 
       def set_veteran_name
         @pdf_data[:data][:attributes][:identificationInformation][:name] = {}
-      end
-
-      def section_2_change_of_address
-        address_info = @auto_claim&.dig('veteran', 'changeOfAddress')
-        return if address_info.blank?
-
-        set_pdf_data_for_section_two
-
-        change_of_address_dates(address_info)
-        change_of_address_location(address_info)
-        change_of_address_type(address_info)
-      end
-
-      def set_pdf_data_for_section_two
-        @pdf_data[:data][:attributes][:changeOfAddress] = {}
-      end
-
-      def change_of_address_dates(address_info)
-        set_pdf_data_for_change_of_address_dates
-
-        start_date = address_info&.dig('beginningDate')
-        end_date = address_info&.dig('endingDate')
-
-        if start_date.present? # This is required but checking to be safe anyways
-          @pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates][:start] =
-            make_date_object(start_date, start_date.length)
-        end
-        if end_date.present?
-          @pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates][:end] =
-            make_date_object(end_date, end_date.length)
-        end
-      end
-
-      def set_pdf_data_for_change_of_address_dates
-        return if @pdf_data[:data][:attributes][:changeOfAddress]&.key?(:effectiveDates)
-
-        @pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates] = {}
-      end
-
-      def change_of_address_location(address_info)
-        set_pdf_data_for_change_of_address_location
-
-        number_and_street = concatenate_address(address_info['addressLine1'], address_info['addressLine2'])
-        @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:numberAndStreet] = number_and_street
-
-        city = address_info&.dig('city')
-        @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:city] = city if city.present?
-
-        state = address_info&.dig('state')
-        @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:state] = state if state.present?
-
-        zip = concatenate_zip_code(address_info)
-        @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:zip] = zip if zip.present?
-
-        # required
-        country = address_info&.dig('country')
-        @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:country] = format_country(country)
-      end
-
-      def set_pdf_data_for_change_of_address_location
-        return if @pdf_data[:data][:attributes][:changeOfAddress]&.key?(:newAddress)
-
-        @pdf_data[:data][:attributes][:changeOfAddress][:newAddress] = {}
-      end
-
-      def change_of_address_type(address_info)
-        @pdf_data[:data][:attributes][:changeOfAddress][:typeOfAddressChange] = address_info&.dig('addressChangeType')
       end
     end
   end
