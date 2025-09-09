@@ -199,12 +199,13 @@ module ClaimsApi
       end
 
       def section_3_homeless_information
-        homeless_info = @auto_claim&.dig('veteran','homelessness')
+        homeless_info = @auto_claim&.dig('veteran', 'homelessness')
         return if homeless_info.blank?
 
         set_pdf_data_for_homeless_information
 
         point_of_contact
+        currently_homeless
       end
 
       def set_pdf_data_for_homeless_information
@@ -213,13 +214,14 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:homelessInformation] = {}
       end
 
-      # If "pointOfContact" is included on the form then "pointOfContactName", "primaryPhone" are required via the schema
+      # If "pointOfContact" is on the form "pointOfContactName", "primaryPhone" are required via the schema
       # "primaryPhone" requires both "areaCode" and "phoneNumber" via the schema
       def point_of_contact
-        point_of_contact_info = @auto_claim&.dig('veteran','homelessness','pointOfContact')
+        point_of_contact_info = @auto_claim&.dig('veteran', 'homelessness', 'pointOfContact')
         return if point_of_contact_info.blank?
 
-        @pdf_data[:data][:attributes][:homelessInformation][:pointOfContact] = point_of_contact_info&.dig('pointOfContactName')
+        @pdf_data[:data][:attributes][:homelessInformation][:pointOfContact] =
+          point_of_contact_info&.dig('pointOfContactName')
         phone_object = point_of_contact_info&.dig('primaryPhone')
         phone_number = phone_object.values.join
 
@@ -233,6 +235,24 @@ module ClaimsApi
         return "#{phone[0..2]}-#{phone[3..5]}-#{phone[6..9]}" if phone.length == 10
 
         "#{phone[0..1]}-#{phone[2..3]}-#{phone[4..7]}-#{phone[8..11]}" if phone.length > 10
+      end
+
+      # if "currentlyHomeless" is present "homelessSituationType", "otherLivingSituation" are required by the schema
+      def currently_homeless
+        currently_homeless_info = @auto_claim&.dig('veteran', 'homelessness', 'currentlyHomeless')
+        return if currently_homeless_info.blank?
+
+        set_pdf_data_for_currently_homeless_information
+        currently_homeless_base = @pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+        currently_homeless_base[:homelessSituationOptions] = currently_homeless_info['homelessSituationType']
+        currently_homeless_base[:otherDescription] = currently_homeless_info['otherLivingSituation']
+      end
+
+      def set_pdf_data_for_currently_homeless_information
+        return if @pdf_data[:data][:attributes][:homelessInformation]&.key?(:currentlyHomeless)
+
+        @pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless] = {}
       end
     end
   end

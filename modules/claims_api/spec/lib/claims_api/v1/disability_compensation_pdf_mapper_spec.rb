@@ -225,7 +225,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
   end
 
   describe 'section 3, homeless information' do
-    context '#set_pdf_data_for_homeless_information' do
+    describe '#set_pdf_data_for_homeless_information' do
       context 'when homelessInformation key does not exist' do
         before do
           @pdf_data = pdf_data
@@ -252,7 +252,6 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       end
     end
 
-# {"currentlyHomeless"=>{"homelessSituationType"=>"fleeing", "otherLivingSituation"=>"none"}, "pointOfContact"=>{"pointOfContactName"=>"Firstname Lastname", "primaryPhone"=>{"areaCode"=>"123", "phoneNumber"=>"5551234"}}}
     context 'when homeless information is included in the submission' do
       context 'pointOfContact attributes' do
         it 'maps the attributes if included' do
@@ -260,8 +259,8 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
 
           homeless_base = pdf_data[:data][:attributes][:homelessInformation]
 
-          expect(homeless_base[:pointOfContact]).to eq("Firstname Lastname")
-          expect(homeless_base[:pointOfContactNumber]).to eq("123-555-1234")
+          expect(homeless_base[:pointOfContact]).to eq('Firstname Lastname')
+          expect(homeless_base[:pointOfContactNumber]).to eq('123-555-1234')
         end
 
         it 'does not map anything if not included' do
@@ -272,6 +271,55 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
 
           expect(homeless_base).not_to have_key(:pointOfContact)
           expect(homeless_base).not_to have_key(:pointOfContactNumber)
+        end
+      end
+
+      context 'currentlyHomeless attributes' do
+        describe '#set_pdf_data_for_currently_homeless_information' do
+          context 'when currentlyHomeless key does not exist' do
+            before do
+              @pdf_data = pdf_data
+              @pdf_data[:data][:attributes][:homelessInformation] = {}
+            end
+
+            it 'sets the currentlyHomeless key to an empty hash' do
+              res = mapper.send(:set_pdf_data_for_currently_homeless_information)
+
+              expect(res).to eq({})
+            end
+          end
+
+          context 'when currentlyHomeless key already exists' do
+            before do
+              @pdf_data = pdf_data
+              @pdf_data[:data][:attributes][:homelessInformation] = {}
+              @pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless] = {}
+            end
+
+            it 'returns early without modifying the existing data' do
+              res = mapper.send(:set_pdf_data_for_currently_homeless_information)
+
+              expect(res).to be_nil
+            end
+          end
+        end
+
+        it 'maps the attributes if included' do
+          mapper.map_claim
+
+          currently_homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+          expect(currently_homeless_base[:homelessSituationOptions]).to eq('fleeing')
+          expect(currently_homeless_base[:otherDescription]).to eq('none')
+        end
+
+        it 'does not map anything if not included' do
+          form_attributes['veteran']['homelessness']['currentlyHomeless'] = nil
+          mapper.map_claim
+
+          homeless_base = pdf_data[:data][:attributes][:homelessInformation]
+
+          expect(homeless_base).not_to have_key(:currentlyHomeless)
         end
       end
     end
