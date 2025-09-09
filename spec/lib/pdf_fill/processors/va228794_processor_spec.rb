@@ -17,7 +17,7 @@ describe PdfFill::Processors::VA228794Processor do
   end
 
   def get_field_value(fields, name)
-    fields.find{|f| f.name == name}&.value
+    fields.find { |f| f.name == name }&.value
   end
 
   describe '#process' do
@@ -26,7 +26,7 @@ describe PdfFill::Processors::VA228794Processor do
 
       it 'creates the pdf correctly' do
         described_class.new(form_data, filler).process
-        expect(File.exist?('tmp/pdfs/22-8794.pdf'))
+        expect(File.exist?('tmp/pdfs/22-8794.pdf')).to be(true)
       end
 
       it 'fills in the form fields' do
@@ -43,7 +43,7 @@ describe PdfFill::Processors::VA228794Processor do
       it 'creates the pdf correctly' do
         expect(filler).to receive(:combine_extras).once.and_call_original
         described_class.new(form_data, filler).process
-        expect(File.exist?('tmp/pdfs/22-8794_final.pdf'))
+        expect(File.exist?('tmp/pdfs/22-8794_final.pdf')).to be(true)
       end
 
       it 'fills in the form fields' do
