@@ -33,9 +33,10 @@ module ClaimsApi
           auto_claim.update!(evss_id: fes_res[:claimId])
         else
           evss_data = get_evss_data(auto_claim)
-          log_job_progress(claim_id, 'Submitting mapped data to Docker container', auto_claim.transaction_id)
+          log_job_progress(claim_id, 'Submitting mapped data to Form526 Establishment service',
+                           auto_claim.transaction_id)
           evss_res = evss_service.submit(auto_claim, evss_data, ASYNC)
-          log_job_progress(claim_id, "Successfully submitted to Docker container with response: #{evss_res}",
+          log_job_progress(claim_id, "Successfully submitted to Form526 Establishment service with response: #{evss_res}",
                            auto_claim.transaction_id)
           # update with the evss_id returned
           auto_claim.update!(evss_id: evss_res[:claimId])

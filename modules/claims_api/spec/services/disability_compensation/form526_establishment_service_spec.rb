@@ -162,13 +162,13 @@ describe ClaimsApi::DisabilityCompensation::Form526EstablishmentService do
 
       it 'has a upload method that returns a claim id' do
         VCR.use_cassette('/claims_api/fes/submit') do
-          expect(docker_container_service.send(:upload, fes_claim.id)).to be(true)
+          expect(form526_establishment_service.send(:upload, fes_claim.id)).to be(true)
         end
       end
 
       it 'adds the transaction_id to the headers' do
         VCR.use_cassette('/claims_api/fes/submit') do
-          docker_container_service.send(:upload, claim_with_transaction_id.id)
+          form526_establishment_service.send(:upload, claim_with_transaction_id.id)
           claim_with_transaction_id.reload
           expect(claim_with_transaction_id.auth_headers['va_eauth_service_transaction_id'])
             .to eq(claim_with_transaction_id.transaction_id)
@@ -178,7 +178,7 @@ describe ClaimsApi::DisabilityCompensation::Form526EstablishmentService do
       it 'logs the transaction_id' do
         VCR.use_cassette('/claims_api/fes/submit') do
           expect(Rails.logger).to receive(:info).with(/#{claim_with_transaction_id.transaction_id}/).at_least(:once)
-          docker_container_service.send(:upload, claim_with_transaction_id.id)
+          form526_establishment_service.send(:upload, claim_with_transaction_id.id)
         end
       end
 
