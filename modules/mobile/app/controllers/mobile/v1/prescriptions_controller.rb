@@ -19,14 +19,6 @@ module Mobile
         # Transform UHD data to mobile format
         mobile_prescriptions = transformer.transform(uhd_prescriptions)
 
-        # Apply filtering if provided
-        if params[:filter].present?
-          mobile_prescriptions = apply_filters(mobile_prescriptions)
-        end
-
-        # Apply sorting
-        mobile_prescriptions = apply_sorting(mobile_prescriptions)
-
         # Paginate results
         page_resource, page_meta_data = paginate(mobile_prescriptions)
 
@@ -91,47 +83,6 @@ module Mobile
         @refill_transformer ||= Mobile::V1::Prescriptions::RefillTransformer.new
       end
 
-      def apply_filters(prescriptions)
-        filter_params_hash = filter_params.to_h
-
-        prescriptions.select do |prescription|
-          filter_params_hash.all? do |key, value|
-            case key.to_sym
-            when :refill_status
-              prescription.refill_status == value
-            when :is_refillable
-              prescription.is_refillable == (value == 'true')
-            when :is_trackable
-              prescription.is_trackable == (value == 'true')
-            else
-              true
-            end
-          end
-        end
-      end
-
-      def apply_sorting(prescriptions)
-        # Default sort by prescription_name if no sort specified
-        sort_param = params[:sort] || 'prescription_name'
-
-        case sort_param
-        when 'prescription_name'
-          prescriptions.sort_by { |p| p.prescription_name || '' }
-        when '-prescription_name'
-          prescriptions.sort_by { |p| p.prescription_name || '' }.reverse
-        when 'ordered_date'
-          prescriptions.sort_by { |p| p.ordered_date || '' }
-        when '-ordered_date'
-          prescriptions.sort_by { |p| p.ordered_date || '' }.reverse
-        when 'refill_date'
-          prescriptions.sort_by { |p| p.refill_date || '' }
-        when '-refill_date'
-          prescriptions.sort_by { |p| p.refill_date || '' }.reverse
-        else
-          prescriptions.sort_by { |p| p.prescription_name || '' }
-        end
-      end
-
       def paginate(records)
         Mobile::PaginationHelper.paginate(list: records, validated_params: pagination_params)
       end
@@ -139,19 +90,8 @@ module Mobile
       def pagination_params
         @pagination_params ||= Mobile::V0::Contracts::Prescriptions.new.call(
           page_number: params.dig(:page, :number),
-          page_size: params.dig(:page, :size),
-          filter: params[:filter].present? ? filter_params.to_h : nil,
-          sort: params[:sort]
+          page_size: params.dig(:page, :size)
         )
-      end
-
-      def filter_params
-        @filter_params ||= begin
-          return {} unless params[:filter]
-
-          valid_filter_params = params.require(:filter).permit(:refill_status, :is_refillable, :is_trackable)
-          valid_filter_params.empty? ? {} : valid_filter_params
-        end
       end
 
       def ids

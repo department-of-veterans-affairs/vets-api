@@ -123,52 +123,13 @@ RSpec.describe 'Mobile::V1::Health::Rx::Prescriptions', type: :request do
             params: { page: { number: 1, size: 10 } }
       end
 
-      it 'passes pagination to UHD service' do
-        expect(uhd_client).to have_received(:get_prescriptions).with(
-          user_icn: user.icn,
-          page: 1,
-          per_page: 10,
-          sort: nil,
-          filter: nil
-        )
-      end
-    end
-
-    context 'with sort parameter' do
-      before do
-        allow(uhd_client).to receive(:get_prescriptions).and_return([sample_uhd_prescription])
-        get '/mobile/v1/health/rx/prescriptions', 
-            headers: sis_headers,
-            params: { sort: 'medication_name' }
+      it 'returns a 200 status' do
+        expect(response).to have_http_status(:ok)
       end
 
-      it 'passes sort to UHD service' do
-        expect(uhd_client).to have_received(:get_prescriptions).with(
-          user_icn: user.icn,
-          page: 1,
-          per_page: 20,
-          sort: 'medication_name',
-          filter: nil
-        )
-      end
-    end
-
-    context 'with filter parameter' do
-      before do
-        allow(uhd_client).to receive(:get_prescriptions).and_return([sample_uhd_prescription])
-        get '/mobile/v1/health/rx/prescriptions', 
-            headers: sis_headers,
-            params: { filter: { status: 'active' } }
-      end
-
-      it 'passes filter to UHD service' do
-        expect(uhd_client).to have_received(:get_prescriptions).with(
-          user_icn: user.icn,
-          page: 1,
-          per_page: 20,
-          sort: nil,
-          filter: { status: 'active' }
-        )
+      it 'includes pagination metadata' do
+        meta = response.parsed_body['meta']
+        expect(meta).to include('pagination')
       end
     end
   end
