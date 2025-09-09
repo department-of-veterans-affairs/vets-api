@@ -55,6 +55,7 @@ module BGS
     end
 
     def handle_filtered_errors!(e:, encrypted_vet_info:)
+      # If it's a known error that should reroute to backup path, skip retries and send to backup path
       filter = FILTERED_ERRORS.any? { |filtered| e.message.include?(filtered) || e.cause&.message&.include?(filtered) }
       return unless filter
 

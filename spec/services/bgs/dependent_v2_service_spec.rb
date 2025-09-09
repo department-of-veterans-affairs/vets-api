@@ -34,7 +34,6 @@ RSpec.describe BGS::DependentV2Service do
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:dependents_claims_evidence_api_upload).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:va_dependents_bgs_extra_error_logging).and_return(false)
   end
