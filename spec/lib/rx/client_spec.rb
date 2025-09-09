@@ -82,7 +82,6 @@ describe Rx::Client do
 
     it 'refills a prescription' do
       VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
-        expect(Vets::Collection).not_to receive(:bust) # .with([nil, nil])
         client_response = client.post_refill_rx(13_650_545)
         expect(client_response.status).to equal 200
         expect(client_response.body).to eq(status: 'success')

@@ -41,6 +41,54 @@ module Common
       end
     end
 
+    def self.redis_namespace
+      @redis_namespace ||= Redis::Namespace.new(CACHE_NAMESPACE, redis: $redis)
+    end
+
+    def redis_namespace
+      @redis_namespace ||= self.class.redis_namespace
+    end
+
+    def self.fetch(klass, cache_key: nil, ttl: CACHE_DEFAULT_TTL)
+      raise 'No Block Given' unless block_given?
+
+      if cache_key
+        json_string = redis_namespace.get(cache_key)
+        if json_string.nil?
+          collection = new(klass, **yield.merge(cache_key:))
+          cache(collection.serialize, cache_key, ttl)
+          collection
+        else
+          json_hash = Oj.load(json_string)
+          new(klass, **json_hash.merge('cache_key' => cache_key).symbolize_keys)
+        end
+      else
+        new(klass, **yield)
+      end
+    end
+
+    def self.cache(json_hash, cache_key, ttl)
+      redis_namespace.set(cache_key, json_hash)
+      redis_namespace.expire(cache_key, ttl)
+    end
+
+    def self.bust(cache_keys)
+      cache_keys = Array.wrap(cache_keys)
+      cache_keys.map { |cache_key| redis_namespace.del(cache_key) }
+    end
+
+    def bust
+      self.class.bust(@cache_key) if cached?
+    end
+
+    def cached?
+      @cache_key.present?
+    end
+
+    def ttl
+      @cache_key.present? ? redis_namespace.ttl(@cache_key) : nil
+    end
+
     def find_by(filter = {})
       verify_filter_keys!(filter)
       result = @data.select { |item| finder(item, filter) }
