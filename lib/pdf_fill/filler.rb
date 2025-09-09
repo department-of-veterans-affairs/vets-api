@@ -198,9 +198,7 @@ module PdfFill
       end
 
       # Handle 22-8794 has the potential to overflow a lot and require special overflow handling
-      if form_id == '22-8794'
-        return PdfFill::Processors::VA228794Processor.new(form_data, self).process
-      end
+      return PdfFill::Processors::VA228794Processor.new(form_data, self).process if form_id == '22-8794'
 
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
