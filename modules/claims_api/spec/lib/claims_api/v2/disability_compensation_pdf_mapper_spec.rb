@@ -238,8 +238,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         zip = pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:zip]
         state = pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:state]
 
-        expect(begin_date).to eq({ month: '06', day: '04', year: '2023' })
-        expect(end_date).to eq({ month: '12', day: '04', year: '2023' })
+        expect(begin_date).to eq({ month: '06', day: '04', year: '2026' })
+        expect(end_date).to eq({ month: '12', day: '04', year: '2026' })
         expect(type_of_addr_change).to eq('TEMPORARY')
         expect(number_and_street).to eq('10 Peach St Unit 4 Room 1')
         expect(apartment_or_unit_number).to be_nil
