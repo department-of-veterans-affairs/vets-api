@@ -10,12 +10,11 @@ module TravelPay
       before_action :check_feature_flag, only: [:create]
 
       def create
+        Rails.logger.info(message: 'Travel Pay expense submission START')
+        Rails.logger.info(
+          message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
+        )
         begin
-          Rails.logger.info(message: 'Travel Pay expense submission START')
-          Rails.logger.info(
-            message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
-          )
-
           expense = create_and_validate_expense
           created_expense = expense_service.create_expense(expense_params_for_service(expense))
 
