@@ -23,7 +23,7 @@ module ClaimsApi
 
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
-        mapped_claim = pdf_mapper_service(auto_claim.form_data, pdf_mapper_inital_object, auto_claim.auth_headers,
+        mapped_claim = pdf_mapper_service(auto_claim.form_data, pdf_mapper_initial_object, auto_claim.auth_headers,
                                           middle_initial).map_claim
         pdf_string = generate_526_pdf(mapped_claim)
 
@@ -111,7 +111,7 @@ module ClaimsApi
         }
       end
 
-      def pdf_mapper_inital_object
+      def pdf_mapper_initial_object
         {
           data: {
             attributes:
