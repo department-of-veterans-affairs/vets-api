@@ -45,6 +45,15 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::Evidence
           expect(response.body).to include notice_of_disagreement.id
         end
 
+        it 'shows finalStatus field' do
+          stub_upload_location
+          notice_of_disagreement.update(board_review_option: 'evidence_submission')
+          post(path, params: { nod_uuid: notice_of_disagreement.id }, headers:)
+
+          data = JSON.parse(response.body)['data']
+          expect(data['attributes']['finalStatus']).to be false
+        end
+
         it "returns an error if request 'headers['X-VA-File-Number'] and NOD record File Number does not match" do
           stub_upload_location
           notice_of_disagreement.update(board_review_option: 'evidence_submission')
