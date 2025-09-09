@@ -39,7 +39,7 @@ Rspec.describe MebApi::DGI::Forms::Claimant::Service do
           VCR.use_cassette('dgi/forms/claimant_info') do
             response = service.get_claimant_info('fry')
             expect(response.status).to eq(201)
-            expect(response['claimant']['claimant_id']).to eq(600_010_259)
+            expect(response.claimant['claimant_id']).to eq(600_010_259)
           end
         end
       end
