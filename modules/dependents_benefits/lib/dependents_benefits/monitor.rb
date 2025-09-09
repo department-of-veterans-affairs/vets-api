@@ -28,6 +28,14 @@ module DependentsBenefits
       @tags = ["form_id:#{form_id}"]
     end
 
+    def track_error_event(message, stats_key, options = {})
+      submit_event('error', message, stats_key, options)
+    end
+
+    def track_info_event(message, stats_key, options = {})
+      submit_event('info', message, stats_key, options)
+    end
+
     private
 
     ##
