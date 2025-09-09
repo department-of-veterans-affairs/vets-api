@@ -92,7 +92,7 @@
               },
               "quantity": {
                 "type": [
-                  "integer",
+                  "string",
                   "null"
                 ]
               },

@@ -14,13 +14,9 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
   let(:associations_missing_relationship_and_name) do
     associations = get_fixture('veteran_enrollment_system/associations/associations_primary_nok_and_ec')
     associations.each do |association|
-      association['name'] = {
-        givenName: '',
-        middleName: '',
-        familyName: '',
-        suffix: ''
-      }
+      association['name'] = nil
       association['relationType'] = nil
+      association['role'] = nil
     end
   end
 
@@ -50,18 +46,18 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
         )
       end
 
-      context 'when VES associations are missing name and relationship' do
+      context 'when VES associations are missing name, role, and relationship' do
         it 'returns the form associations array with default values' do
           reconciled_associations = described_class.new(
             associations_missing_relationship_and_name,
             primary_next_of_kin
           ).reconcile_associations
 
-          expect(reconciled_associations.count).to eq(2)
+          expect(reconciled_associations.count).to eq(3)
           # The data is in the EZR schema format
-          expect(reconciled_associations.find { |a| a['contactType'] == 'Emergency Contact' }).to eq(
+          expect(reconciled_associations.find { |a| a['contactType'] == described_class::UNKNOWN_ROLE }).to eq(
             {
-              'contactType' => 'Emergency Contact',
+              'contactType' => described_class::UNKNOWN_ROLE,
               'fullName' => {
                 'first' => described_class::UNKNOWN_NAME,
                 'last' => described_class::UNKNOWN_NAME

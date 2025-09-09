@@ -265,9 +265,53 @@ module ClaimsApi
       def validate_veteran!
         # FES Val Section 5.b: mailingAddress validations
         validate_current_mailing_address!
-
         # FES Val Section 5.c: changeOfAddress validations
         validate_change_of_address!
+      end
+
+      # FES Val Section 5.c: changeOfAddress validations
+      def validate_change_of_address!
+        change_of_address = form_attributes['changeOfAddress']
+        return if change_of_address.blank?
+
+        # FES Val Section 5.c.i-ii: Validate date requirements
+        validate_change_of_address_dates!(change_of_address)
+        # FES Val Section 5.c.iii-iv: Validate date logic
+        validate_change_of_address_date_logic!(change_of_address)
+      end
+
+      # FES Val Section 5.c.iii-iv: Date validation logic
+      def validate_change_of_address_date_logic!(change_of_address)
+        return if change_of_address['typeOfAddressChange'] != 'TEMPORARY'
+
+        begin_date = parse_date_safely(change_of_address.dig('dates', 'beginDate'))
+        end_date = parse_date_safely(change_of_address.dig('dates', 'endDate'))
+
+        # FES Val Section 5.c.iii: beginningDate must be in the future if TEMPORARY
+        validate_temporary_begin_date_future!(begin_date)
+
+        # FES Val Section 5.c.iv: beginningDate and endingDate must be in chronological order
+        validate_dates_chronological_order!(begin_date, end_date)
+      end
+
+      def validate_temporary_begin_date_future!(begin_date)
+        return if begin_date.blank? || begin_date > Date.current
+
+        collect_error(
+          source: '/changeOfAddress/dates/beginDate',
+          title: 'Invalid beginningDate',
+          detail: "BeginningDate cannot be in the past: #{begin_date}"
+        )
+      end
+
+      def validate_dates_chronological_order!(begin_date, end_date)
+        return if begin_date.blank? || end_date.blank? || begin_date <= end_date
+
+        collect_error(
+          source: '/changeOfAddress/dates/beginDate',
+          title: 'Invalid beginningDate',
+          detail: "BeginningDate cannot be after endingDate: #{begin_date}"
+        )
       end
 
       # FES Val Section 5.b: mailingAddress validations
@@ -353,14 +397,7 @@ module ClaimsApi
         end
       end
 
-      # FES Val Section 5.c: changeOfAddress validations
-      def validate_change_of_address!
-        change_of_address = form_attributes['changeOfAddress']
-        return if change_of_address.blank?
-
-        validate_change_of_address_dates!(change_of_address)
-      end
-
+      # FES Val Section 5.c.i-ii: Date requirements validation
       def validate_change_of_address_dates!(change_of_address)
         if change_of_address['typeOfAddressChange'] == 'TEMPORARY'
           validate_temporary_address_dates!(change_of_address)
