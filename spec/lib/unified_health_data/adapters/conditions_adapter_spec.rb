@@ -11,22 +11,16 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
     ).read)
   end
 
-  let(:conditions_fallback_response) do
-    {
-      'vista' => {
-        'entry' => [{
-          'resource' => {
-            'resourceType' => 'Condition',
-            'id' => 'fallback-test-id',
-            'code' => { 'text' => 'Condition from text field' },
-            'recordedDate' => '2024-02-20T00:00:00Z',
-            'asserter' => { 'display' => 'Dr. Simple Provider' },
-            'encounter' => { 'display' => 'Simple Medical Center' },
-            'note' => { 'text' => 'Single note text' }
-          }
-        }]
-      }
-    }
+  let(:conditions_vista_fallback_response) do
+    JSON.parse(Rails.root.join(
+      'spec', 'fixtures', 'unified_health_data', 'condition_vista_fallback_response.json'
+    ).read)
+  end
+
+  let(:conditions_oracle_health_fallback_response) do
+    JSON.parse(Rails.root.join(
+      'spec', 'fixtures', 'unified_health_data', 'condition_oracle_health_fallback_response.json'
+    ).read)
   end
 
   before do
@@ -64,8 +58,8 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
       )
     end
 
-    it 'returns the expected fields with fallback values' do
-      fallback_records = conditions_fallback_response['vista']['entry']
+    it 'returns the expected fields with VistA fallback values' do
+      fallback_records = conditions_vista_fallback_response['vista']['entry']
       parsed_condition = adapter.parse(fallback_records).first
 
       expect(parsed_condition).to have_attributes(
@@ -75,6 +69,20 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         provider: 'Dr. Simple Provider',
         facility: 'Simple Medical Center',
         comments: ['Single note text']
+      )
+    end
+
+    it 'returns the expected fields with Oracle Health fallback values' do
+      fallback_records = conditions_oracle_health_fallback_response['oracle-health']['entry']
+      parsed_condition = adapter.parse(fallback_records).first
+
+      expect(parsed_condition).to have_attributes(
+        id: 'oh-fallback-test-id',
+        name: 'Oracle Health Condition from text field',
+        date: '2024-02-20T00:00:00Z',
+        provider: 'Dr. OH Provider',
+        facility: 'Oracle Health Medical Center',
+        comments: ['Oracle Health note text']
       )
     end
 

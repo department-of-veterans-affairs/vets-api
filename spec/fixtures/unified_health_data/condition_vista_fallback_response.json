@@ -1,0 +1,25 @@
+{
+  "vista": {
+    "entry": [
+      {
+        "resource": {
+          "resourceType": "Condition",
+          "id": "fallback-test-id",
+          "code": {
+            "text": "Condition from text field"
+          },
+          "recordedDate": "2024-02-20T00:00:00Z",
+          "asserter": {
+            "display": "Dr. Simple Provider"
+          },
+          "encounter": {
+            "display": "Simple Medical Center"
+          },
+          "note": {
+            "text": "Single note text"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "oracle-health": {
+    "entry": [
+      {
+        "resource": {
+          "resourceType": "Condition",
+          "id": "oh-fallback-test-id",
+          "code": {
+            "text": "Oracle Health Condition from text field"
+          },
+          "recordedDate": "2024-02-20T00:00:00Z",
+          "asserter": {
+            "display": "Dr. OH Provider"
+          },
+          "encounter": {
+            "display": "Oracle Health Medical Center"
+          },
+          "note": {
+            "text": "Oracle Health note text"
+          }
+        }
+      }
+    ]
+  }
+}
