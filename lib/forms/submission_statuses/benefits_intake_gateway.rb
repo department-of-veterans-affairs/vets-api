@@ -6,7 +6,7 @@ require_relative 'error_handler'
 
 module Forms
   module SubmissionStatuses
-    class Gateway
+    class BenefitsIntakeGateway
       attr_accessor :dataset
 
       def initialize(user_account:, allowed_forms:)
