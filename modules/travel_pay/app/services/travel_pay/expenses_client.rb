@@ -49,7 +49,7 @@ module TravelPay
     def get_expense(veis_token, btsss_token, expense_type, expense_id)
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      endpoint = expense_get_endpoint_for_type(expense_type, expense_id)
+      endpoint = "#{expense_endpoint_for_type(expense_type)}/#{expense_id}"
 
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       Rails.logger.info(message: "Getting #{expense_type} expense from endpoint: #{endpoint}")
@@ -119,17 +119,6 @@ module TravelPay
       else
         raise ArgumentError, "Unsupported expense type: #{expense_type}. Only 'other' is currently supported."
       end
-    end
-
-    ##
-    # Returns the appropriate API GET endpoint for retrieving an expense by ID
-    #
-    # @param expense_type [String] The type of expense
-    # @param expense_id [String] The expense ID
-    # @return [String] The API endpoint path with expense ID
-    #
-    def expense_get_endpoint_for_type(expense_type, expense_id)
-      "#{expense_endpoint_for_type(expense_type)}/#{expense_id}"
     end
   end
 end

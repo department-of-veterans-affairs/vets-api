@@ -194,20 +194,4 @@ describe TravelPay::ExpensesClient do
       client.get_expense(veis_token, btsss_token, 'other', expense_id)
     end
   end
-
-  describe '#expense_get_endpoint_for_type' do
-    let(:expense_id) { 'test-expense-id' }
-
-    it 'returns correct GET endpoint for other expense type' do
-      expect(client.send(:expense_get_endpoint_for_type, 'other',
-                         expense_id)).to eq("api/v1/expenses/other/#{expense_id}")
-    end
-
-    it 'raises ArgumentError for unsupported expense types' do
-      expect do
-        client.send(:expense_get_endpoint_for_type, 'unknown',
-                    expense_id)
-      end.to raise_error(ArgumentError, /Unsupported expense type/)
-    end
-  end
 end
