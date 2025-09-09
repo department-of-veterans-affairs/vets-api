@@ -253,7 +253,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
 
         context 'with a lot of VA Facility Treatments' do
           let(:parsed_payload) { JSON.parse(all_claims_form) }
-          let(:large_array_of_treatments) { Array.new(149, 'treatment') }
+          let(:large_array_of_treatments) { Array.new(149) { |i| "treatment_#{i + 1}" } }
 
           it 'does not fail to submit' do
             parsed_payload['form526']['vaTreatmentFacilities'][0]['treatedDisabilityNames'] = large_array_of_treatments
