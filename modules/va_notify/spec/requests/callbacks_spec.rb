@@ -43,8 +43,13 @@ RSpec.describe 'VANotify Callbacks', type: :request do
 
           expect(Rails.logger).to have_received(:info).with(
             "va_notify callbacks - Updating notification: #{notification.id}",
-            { notification_id: notification.id, source_location: 'some_location', template_id:, callback_metadata: 'some_callback_metadata',
-              status_reason: '', status: 'delivered' }
+            {
+              notification_id: notification.id,
+              source_location: 'some_location',
+              template_id:,
+              callback_metadata: 'some_callback_metadata',
+              status_reason: '', status: 'delivered'
+            }
           )
           expect(response.body).to include('success')
           notification.reload
