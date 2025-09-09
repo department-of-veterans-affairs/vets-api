@@ -4,7 +4,7 @@ require 'va_profile/contact_information/v2/service'
 require 'va_profile/exceptions/builder'
 require 'va_profile/models/email'
 require 'va_profile/models/telephone'
-require 'va_profile/person/v2/service'
+require 'va_profile/person/service'
 
 namespace :vet360 do
   ###########
@@ -221,7 +221,7 @@ namespace :vet360 do
     Note: There *cannot* be any spaces around the commas (i.e. [123456, 1312312, 134234234, 4234234])
   DESCRIPTION
   task :init_vet360_id, [:icns] => [:environment] do |_, args|
-    service = VAProfile::Person::V2::Service.new('rake_user')
+    service = VAProfile::Person::Service.new('rake_user')
     icns    = args.extras.prepend(args[:icns])
     results = []
 
