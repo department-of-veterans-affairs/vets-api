@@ -23,6 +23,8 @@ class ApplicationController < ActionController::API
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
   skip_before_action :verify_authenticity_token, only: :routing_error
 
+  around_action :tag_with_service_tag
+
   VERSION_STATUS = {
     draft: 'Draft Version',
     current: 'Current Version',
@@ -60,5 +62,12 @@ class ApplicationController < ActionController::API
 
   def render_job_id(jid)
     render json: { job_id: jid }, status: :accepted
+  end
+
+  def tag_with_service_tag(&)
+    service_tag = trace_service_tag
+    return yield if service_tag.blank?
+
+    SemanticLogger.named_tagged(service_tag:, &)
   end
 end
