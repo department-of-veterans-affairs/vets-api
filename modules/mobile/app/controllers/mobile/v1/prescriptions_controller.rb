@@ -9,7 +9,6 @@ module Mobile
       def index
         Rails.logger.info(
           message: 'Mobile v1 prescriptions accessed via UHD',
-          user_icn: @current_user.icn,
           service: 'mobile_v1_prescriptions'
         )
 
@@ -35,8 +34,6 @@ module Mobile
       def refill
         Rails.logger.info(
           message: 'Mobile v1 prescription refill via UHD',
-          user_icn: @current_user.icn,
-          prescription_ids: ids,
           service: 'mobile_v1_prescriptions'
         )
 
@@ -52,8 +49,6 @@ module Mobile
       def tracking
         Rails.logger.info(
           message: 'Mobile v1 prescription tracking requested - not yet implemented',
-          user_icn: @current_user.icn,
-          prescription_id: params[:id],
           service: 'mobile_v1_prescriptions'
         )
 
