@@ -56,6 +56,21 @@ module UnifiedHealthData
       end
     end
 
+    def get_care_summaries_and_notes
+      with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        patient_id = @user.icn
+
+        path = "#{config.base_path}notes?patientId=#{patient_id}"
+        response = perform(:get, path, nil, headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+        filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
+        parse_notes(filtered)
+      end
+    end
+
     private
 
     # Shared
