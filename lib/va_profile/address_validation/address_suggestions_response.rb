@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'va_profile/models/validation_address'
-require 'va_profile/address_validation/service'
+require_relative 'service'
 
 module VAProfile
   module AddressValidation
@@ -9,19 +9,49 @@ module VAProfile
     # Contains address suggestions and validation key used to ignore suggested addresses
     # and use original address.
     class AddressSuggestionsResponse
-      def initialize(candidate_res)
-        validation_key = candidate_res['candidate_addresses'][0]['address_meta_data']['validation_key']
+      def initialize(candidate_res, validate: false)
+        override_validation_key = candidate_res['override_validation_key']
+        candidate_res['validation_key'] = override_validation_key
+        if validate
+          validation_response(candidate_res)
+        else
+          candidate_response(candidate_res)
+        end
+      end
 
+      def candidate_response(response)
         @response = {
-          addresses: candidate_res['candidate_addresses'].map do |address_suggestion_hash|
+          addresses: response['candidate_addresses'].map do |address_suggestion_hash|
             {
               address: VAProfile::Models::ValidationAddress.build_from_address_suggestion(
                 address_suggestion_hash
               ).attributes.compact,
-              address_meta_data: address_suggestion_hash['address_meta_data'].except('validation_key')
+              address_meta_data: VAProfile::Models::ValidationAddress.build_address_metadata(
+                address_suggestion_hash
+              ).to_h
             }
           end,
-          validation_key:
+          override_validation_key: response['override_validation_key'],
+          validation_key: response['validation_key']
+        }
+      end
+
+      def validation_response(response)
+        address_suggestion_hash = response['address']
+        @response = {
+          addresses: [
+            {
+              address: VAProfile::Models::ValidationAddress.build_from_address_suggestion(
+                address_suggestion_hash
+              ).attributes.compact,
+              address_meta_data: VAProfile::Models::ValidationAddress.build_address_metadata(
+                address_suggestion_hash
+              ).to_h
+            }
+          ],
+          override_validation_key: response['override_validation_key'],
+          validation_key: response['validation_key'],
+          validated: true
         }
       end
 

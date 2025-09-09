@@ -129,7 +129,7 @@ namespace :vet360 do
     body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
 
-    address = VAProfile::Models::V3::Address.build_from(body)
+    address = VAProfile::Models::Address.build_from(body)
     trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(vet360_id))
           .put_address(address)
@@ -202,7 +202,7 @@ namespace :vet360 do
     body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
 
-    address = VAProfile::Models::V3::Address.build_from(body)
+    address = VAProfile::Models::Address.build_from(body)
     trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(vet360_id))
           .post_address(address)

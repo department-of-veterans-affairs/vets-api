@@ -9,11 +9,11 @@ require 'common/models/attribute_types/iso8601_time'
 module VAProfile
   module Models
     class Person < Base
-      attribute :addresses, Array[Address]
-      attribute :created_at, Common::ISO8601Time
-      attribute :emails, Array[Email]
-      attribute :source_date, Common::ISO8601Time
-      attribute :telephones, Array[Telephone]
+      attribute :addresses, Address, array: true
+      attribute :created_at, Vets::Type::ISO8601Time
+      attribute :emails, Email, array: true
+      attribute :source_date, Vets::Type::ISO8601Time
+      attribute :telephones, Telephone, array: true
       attribute :transaction_id, String
       attribute :updated_at, Vets::Type::ISO8601Time
       attribute :vet360_id, String
@@ -24,7 +24,7 @@ module VAProfile
       # @return [VAProfile::Models::Person] the model built from the response body
       def self.build_from(body)
         body ||= {}
-        addresses = body['addresses']&.map { |a| VAProfile::Models::V3::Address.build_from(a) }
+        addresses = body['addresses']&.map { |a| VAProfile::Models::Address.build_from(a) }
         emails = body['emails']&.map { |e| VAProfile::Models::Email.build_from(e) }
         telephones = body['telephones']&.map { |t| VAProfile::Models::Telephone.build_from(t) }
 

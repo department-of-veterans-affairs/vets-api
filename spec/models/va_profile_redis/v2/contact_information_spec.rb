@@ -120,20 +120,20 @@ describe VAProfileRedis::V2::ContactInformation do
 
       describe '#residential_address' do
         it 'returns the users residential address object', :aggregate_failures do
-          residence = address_for VAProfile::Models::V3::Address::RESIDENCE
+          residence = address_for VAProfile::Models::Address::RESIDENCE
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             expect(contact_info.residential_address).to eq residence
-            expect(contact_info.residential_address.class).to eq VAProfile::Models::V3::Address
+            expect(contact_info.residential_address.class).to eq VAProfile::Models::Address
           end
         end
       end
 
       describe '#mailing_address' do
         it 'returns the users mailing address object', :aggregate_failures do
-          correspondence = address_for VAProfile::Models::V3::Address::CORRESPONDENCE
+          correspondence = address_for VAProfile::Models::Address::CORRESPONDENCE
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             expect(contact_info.mailing_address).to eq correspondence
-            expect(contact_info.mailing_address.class).to eq VAProfile::Models::V3::Address
+            expect(contact_info.mailing_address.class).to eq VAProfile::Models::Address
           end
         end
       end

@@ -11,7 +11,7 @@ describe VAProfile::Models::Address do
       expect(address.latitude).to eq(38.901)
       expect(address.longitude).to eq(-77.0347)
       expect(address.geocode_precision).to eq(100.0)
-      expect(address.geocode_date).to eq(Time.zone.parse('2018-04-13 17:01:18 UTC'))
+      expect(address.geocode_date).to eq(Time.zone.parse('2024-08-27T18:51:06.012Z'))
     end
   end
 
@@ -239,7 +239,7 @@ describe VAProfile::Models::Address do
 
       it 'bad address is false' do
         address.address_pou = VAProfile::Models::Address::CORRESPONDENCE
-        json = JSON.parse(address.in_json)
+        json = JSON.parse(address.in_json_v2)
         expect(json['bio']['badAddress']).to be(false)
       end
     end
@@ -252,7 +252,7 @@ describe VAProfile::Models::Address do
 
       it 'bad address is nil' do
         address.address_pou = VAProfile::Models::Address::RESIDENCE
-        json = JSON.parse(address.in_json)
+        json = JSON.parse(address.in_json_v2)
         expect(json['bio']['badAddress']).to be_nil
       end
     end
