@@ -63,11 +63,4 @@ class ApplicationController < ActionController::API
   def render_job_id(jid)
     render json: { job_id: jid }, status: :accepted
   end
-
-  def tag_with_service_tag(&)
-    service_tag = trace_service_tag
-    return yield if service_tag.blank?
-
-    SemanticLogger.named_tagged(service_tag:, &)
-  end
 end

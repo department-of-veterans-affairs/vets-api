@@ -25,12 +25,5 @@ module SignIn
     private
 
     attr_reader :current_user
-
-    def tag_with_service_tag(&)
-      service_tag = trace_service_tag
-      return yield if service_tag.blank?
-
-      SemanticLogger.named_tagged(service_tag:, &)
-    end
   end
 end
