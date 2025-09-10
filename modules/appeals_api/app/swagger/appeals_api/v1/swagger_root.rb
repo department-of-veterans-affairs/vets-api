@@ -11,7 +11,7 @@ module AppealsApi::V1::SwaggerRoot
     info do
       key :title, 'Decision Reviews'
       key :version, '1.0.0'
-      key :description, read_file_from_same_dir[DESCRIPTION_FILE_NAME]
+      key :description, read_file(`../../decision_reviews/v2/#{DESCRIPTION_FILE_NAME}`)
       key :termsOfService, 'https://developer.va.gov/terms-of-service'
       contact do
         key :name, 'VA API Benefits Team'
