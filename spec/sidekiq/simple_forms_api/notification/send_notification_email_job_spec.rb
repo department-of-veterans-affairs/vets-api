@@ -28,9 +28,12 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
           allow(StatsD).to receive(:increment)
         end
 
-        it 'increments StatsD' do
+        it 'logs email failure and silent failure for error notifications' do
+          expect(Rails.logger).to receive(:error).with('Error sending simple forms notification email',
+                                                       hash_including(notification_type: :error))
+          expect(Rails.logger).to receive(:error).with('Silent failure - VFF email notification failed',
+                                                       hash_including(notification_type: :error))
           perform
-          expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
         end
       end
     end

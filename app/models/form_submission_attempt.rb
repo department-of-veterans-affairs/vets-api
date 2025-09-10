@@ -80,11 +80,13 @@ class FormSubmissionAttempt < ApplicationRecord
     when :fail!
       log_level = :error
       log_hash[:message] = 'Form Submission Attempt failed'
+      log_hash[:failure_type] = 'benefits_intake_failure'
     when :manual!
       log_level = :warn
       log_hash[:message] = 'Form Submission Attempt is being manually remediated'
     when :vbms!
       log_hash[:message] = 'Form Submission Attempt went to vbms'
+      log_hash[:success_type] = 'vbms_upload_success'
     else
       log_hash[:message] = 'Form Submission Attempt State change'
     end
@@ -144,17 +146,12 @@ class FormSubmissionAttempt < ApplicationRecord
     form_number = simple_forms_form_number
     Rails.logger.info('Queuing SimpleFormsAPI notification email to VaNotify', form_number:, benefits_intake_uuid:)
     jid = SimpleFormsApi::Notification::SendNotificationEmailJob.perform_async(benefits_intake_uuid, form_number)
-    if jid
-      StatsD.increment(
-        'api.simple_forms.email.enqueued',
-        tags: ["form_id:#{form_submission.form_type}"]
-      )
-    end
     Rails.logger.info(
       'Queuing SimpleFormsAPI notification email to VaNotify completed',
       jid:,
       form_number:,
-      benefits_intake_uuid:
+      benefits_intake_uuid:,
+      email_enqueued: jid.present?
     )
   end
 

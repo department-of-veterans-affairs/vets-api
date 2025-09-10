@@ -99,7 +99,6 @@ class BenefitsIntakeStatusJob
         form_submission_attempt.update(error_message:, lighthouse_updated_at:)
         form_submission_attempt.fail!
         log_result('failure', form_id, uuid, time_to_transition, error_message)
-        increment_vff_status(form_id, 'failure')
         monitor_failure(form_id, saved_claim_id, uuid)
       elsif status == 'error'
         # Error - Indicates that there was an error. Refer to the error code and detail for further information.
@@ -107,30 +106,24 @@ class BenefitsIntakeStatusJob
         form_submission_attempt.update(error_message:, lighthouse_updated_at:)
         form_submission_attempt.fail!
         log_result('failure', form_id, uuid, time_to_transition, error_message)
-        increment_vff_status(form_id, 'failure')
         monitor_failure(form_id, saved_claim_id, uuid)
       elsif status == 'vbms'
         # submission was successfully uploaded into a Veteran's eFolder within VBMS
         form_submission_attempt.update(lighthouse_updated_at:)
         form_submission_attempt.vbms!
         log_result('success', form_id, uuid, time_to_transition)
-        increment_vff_status(form_id, 'success')
       elsif time_to_transition > STALE_SLA.days
         # exceeds SLA (service level agreement) days for submission completion
         log_result('stale', form_id, uuid, time_to_transition)
-        increment_vff_status(form_id, 'stale')
       else
         # no change being tracked
         log_result('pending', form_id, uuid)
-        increment_vff_status(form_id, 'pending')
         Rails.logger.info(
           'Submission still pending', uuid:, status:, time_to_transition:, form_id:
         )
       end
 
-      # Record queue time as a distribution for SLO/SLA monitoring (seconds)
-      StatsD.distribution("#{STATS_KEY}.queue_time_seconds", time_to_transition,
-                          tags: ["form_id:#{form_id}"])
+      # Queue time available in logs for log-based metrics
 
       total_handled += 1
     end
@@ -140,8 +133,6 @@ class BenefitsIntakeStatusJob
   # rubocop:enable Metrics/MethodLength
 
   def log_result(result, form_id, uuid, time_to_transition = nil, error_message = nil)
-    StatsD.increment("#{STATS_KEY}.#{form_id}.#{result}")
-    StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
     if result == 'failure'
       Rails.logger.error('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:, error_message:)
     else
@@ -149,10 +140,6 @@ class BenefitsIntakeStatusJob
     end
   end
 
-  def increment_vff_status(form_id, result)
-    # Removed redundant VFF-specific metrics - reusing existing api.benefits_intake.submission_status metrics
-    # which already track all forms including VFF forms with form_id tags
-  end
 
   def monitor_failure(form_id, saved_claim_id, bi_uuid)
     monitor_form_specific_failure(form_id, saved_claim_id, bi_uuid)

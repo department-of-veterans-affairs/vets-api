@@ -33,8 +33,6 @@ module SimpleFormsApi
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
 
       def submit
-        # Track submission initiation
-        StatsD.increment('api.simple_forms.submission.initiated', tags: ["form_id:#{params[:form_number]}"])
         Rails.logger.info('Simple forms submission initiated', form_id: params[:form_number])
 
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
@@ -52,8 +50,6 @@ module SimpleFormsApi
       rescue Prawn::Errors::IncompatibleStringEncoding
         raise
       rescue => e
-        StatsD.increment('api.simple_forms.submission.error',
-                         tags: ["form_id:#{params[:form_number]}", "error_class:#{e.class.name}"])
         Rails.logger.error('Simple forms submission failed', form_id: params[:form_number], error_class: e.class.name,
                                                              error_message: e.message)
         raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
@@ -208,11 +204,8 @@ module SimpleFormsApi
                     else
                       filler.generate
                     end
-        # Track PDF generation success and timing
+        # Track PDF generation timing for log-based metrics
         pdf_duration_ms = ((Time.zone.now - pdf_start_time) * 1000).to_i
-        StatsD.timing('api.simple_forms.pdf_generation.duration', pdf_duration_ms,
-                      tags: ["form_id:#{params[:form_number]}"])
-        StatsD.increment('api.simple_forms.pdf_generation.success', tags: ["form_id:#{params[:form_number]}"])
         Rails.logger.info('PDF generation completed', form_id: params[:form_number], duration_ms: pdf_duration_ms)
 
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
@@ -272,7 +265,10 @@ module SimpleFormsApi
         upload_start_time = Time.zone.now
         response = lighthouse_service.perform_upload(**upload_params)
 
-        track_upload_metrics(response, upload_start_time)
+        # Log upload completion with timing for log-based metrics
+        upload_duration_ms = ((Time.zone.now - upload_start_time) * 1000).to_i
+        Rails.logger.info('Lighthouse upload completed', form_id: params[:form_number], status: response.status,
+                                                         duration_ms: upload_duration_ms)
 
         response
       end
@@ -284,31 +280,6 @@ module SimpleFormsApi
           upload_url: location,
           attachments: form_id == 'vba_20_10207' ? form.get_attachments : nil
         }.compact
-      end
-
-      def track_upload_metrics(response, upload_start_time)
-        upload_duration_ms = ((Time.zone.now - upload_start_time) * 1000).to_i
-
-        StatsD.timing('api.simple_forms.lighthouse_upload.duration', upload_duration_ms,
-                      tags: ["form_id:#{params[:form_number]}"])
-
-        track_upload_outcome(response)
-        log_upload_completion(response, upload_duration_ms)
-      end
-
-      def track_upload_outcome(response)
-        if response.status == 200
-          StatsD.increment('api.simple_forms.lighthouse_upload.success',
-                           tags: ["form_id:#{params[:form_number]}", "status_code:#{response.status}"])
-        else
-          StatsD.increment('api.simple_forms.lighthouse_upload.failure',
-                           tags: ["form_id:#{params[:form_number]}", "status_code:#{response.status}"])
-        end
-      end
-
-      def log_upload_completion(response, upload_duration_ms)
-        Rails.logger.info('Lighthouse upload completed', form_id: params[:form_number], status: response.status,
-                                                         duration_ms: upload_duration_ms)
       end
 
       def upload_pdf_to_s3(id, file_path, metadata, submission, form)

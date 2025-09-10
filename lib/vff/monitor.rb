@@ -4,8 +4,8 @@ require 'zero_silent_failures/monitor'
 
 module VFF
   ##
-  # Monitor functions for VFF (Veterans Facing Forms) Rails logging and StatsD
-  # Provides tracking for silent failures in VFF form submissions
+  # Monitor for VFF (Veterans Facing Forms) silent failure detection
+  # Focuses on Zero Silent Failures tracking with structured logging for log-based metrics
   #
   class Monitor < ::ZeroSilentFailures::Monitor
     # VFF form identifiers that use this monitoring
@@ -20,9 +20,9 @@ module VFF
       21-0845
     ].freeze
 
-    # NOTE: StatsD metrics are handled by existing patterns:
-    # - api.benefits_intake.submission_status (BenefitsIntakeStatusJob)
-    # - api.simple_forms.email.* (SendNotificationEmailJob)
+    # NOTE: Operational metrics are available via log-based metrics from structured logs:
+    # - Submission tracking via UploadsController and BenefitsIntakeStatusJob logs
+    # - Email tracking via SendNotificationEmailJob logs
 
     def initialize
       super('veteran-facing-forms')
@@ -48,9 +48,8 @@ module VFF
         log_silent_failure(additional_context, nil, call_location: caller_locations.first)
       end
 
-      # Use existing benefits intake metrics pattern instead of creating new VFF-specific metrics
-      # The failure tracking is already handled by BenefitsIntakeStatusJob via api.benefits_intake.submission_status
-      # This monitor focuses on ZSF tracking only
+      # Operational metrics available via log-based metrics from BenefitsIntakeStatusJob logs
+      # This monitor focuses on Zero Silent Failures tracking
 
       Rails.logger.error(
         "VFF Benefits Intake failure for form #{form_id}",
@@ -80,8 +79,7 @@ module VFF
         **additional_context
       }
 
-      # Use existing simple forms email metrics pattern
-      # Email failure tracking is already handled by SendNotificationEmailJob via api.simple_forms.email.failed
+      # Email failure metrics available via log-based metrics from SendNotificationEmailJob logs
       Rails.logger.error('VFF email notification failed', { service:, **context })
     end
 

@@ -242,9 +242,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
   end
 
   describe '#log_result' do
-    it 'increments StatsD and logs result' do
-      expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.FORM_ID.RESULT")
-      expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.all_forms.RESULT")
+    it 'logs result with structured data for log-based metrics' do
       expect(Rails.logger).to receive(:info).with('BenefitsIntakeStatusJob',
                                                   hash_including(result: 'RESULT', form_id: 'FORM_ID', uuid: 'UUID',
                                                                  time_to_transition: nil))

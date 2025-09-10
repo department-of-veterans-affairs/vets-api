@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vff/monitor'
+
 module SimpleFormsApi
   module Notification
     class SendNotificationEmailJob
@@ -83,12 +85,8 @@ module SimpleFormsApi
       def send_email
         email = form_upload_supported? ? form_upload_notification_email : notification_email
 
-        # Track email send success for all forms
         email.send(at: time_to_send)
 
-        # Record email sent successfully
-        StatsD.increment('api.simple_forms.email.sent',
-                         tags: ["form_id:#{form_submission.form_type}", "type:#{notification_type}"])
         Rails.logger.info('Simple forms email notification sent successfully',
                           form_id: form_submission.form_type,
                           notification_type:,
@@ -108,12 +106,14 @@ module SimpleFormsApi
           form_id: form_submission&.form_type
         )
 
-        # Track email failure for all forms
-        StatsD.increment('api.simple_forms.email.failed',
-                         tags: ["form_id:#{form_submission&.form_type}", "type:#{notification_type}",
-                                "error_class:#{e.class.name}"])
-
-        StatsD.increment('silent_failure', tags: statsd_tags) if notification_type == :error
+        # Log silent failure for error notifications (for log-based metrics)
+        if notification_type == :error
+          Rails.logger.error('Silent failure - VFF email notification failed',
+                             form_id: form_submission&.form_type,
+                             notification_type:,
+                             benefits_intake_uuid: @benefits_intake_uuid,
+                             error_class: e.class.name)
+        end
 
         # Track VFF email notification failure if this is a VFF form
         track_vff_email_failure(e) if vff_form?
