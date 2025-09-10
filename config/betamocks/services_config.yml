@@ -708,11 +708,11 @@
       :response_delay: 0.3
     - :method: :post
       :path: "/api/v4/auth/system-access-token"
-      :file_path: "/travel_pay/btsss_token/default"
+      :file_path: "/travel_claim/btsss_token/default"
       :response_delay: 0.3
     - :method: :get
       :path: "/api/v3/claims"
-      :file_path: "/travel_pay/claims/index/default"
+      :file_path: "/travel_claim/claims/index/default"
       :response_delay: 0.3
     - :method: :post
       :path: "/api/v3/appointments/find-or-add"
@@ -720,18 +720,18 @@
       :response_delay: 0.3
     - :method: :patch
       :path: "/api/v3/claims/*/submit"
-      :file_path: "/travel_pay/claims/submit"
+      :file_path: "/travel_claim/claims/submit"
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/api\/v3\/claims\/(.+)\/submit'
     - :method: :post
       :path: "/api/v3/claims"
-      :file_path: "/travel_pay/claims/create/default"
+      :file_path: "/travel_claim/claims/create/default"
       :response_delay: 0.3
     - :method: :post
       :path: "/api/v3/expenses/mileage"
-      :file_path: "/travel_pay/expenses/default"
+      :file_path: "/travel_claim/expenses/default"
       :response_delay: 0.3
 
 #CHIP
