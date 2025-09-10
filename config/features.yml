@@ -165,6 +165,10 @@ features:
     description: Enables dependents verification emails
   event_bus_gateway_ep040_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP040 claims"
+  event_bus_gateway_ep120_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP120 reopened pension claims"
+  event_bus_gateway_ep180_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP180 initial pension claims"
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -303,6 +307,9 @@ features:
   champva_ves_retry_failures_job:
     actor_type: user
     description: Enables the sidekiq job to retry VES submissions that failed
+  champva_use_hexapdf_to_unlock_pdfs:
+    actor_type: user
+    description: Enables the the use of hexapdf instead of pdftk to unlock password-protected PDFs on form submission
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -1487,6 +1494,10 @@ features:
     actor_type: user
     description: Logs decision letter info on both claims and decision letter endpoint
     enable_in_development: true
+  mobile_coe_letter_use_lgy_service:
+    actor_type: user
+    description: Use LGY service for retrieving COE letters in the mobile app
+    enable_in_development: false
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
@@ -2402,6 +2413,9 @@ features:
   disable_bdn_processing:
     actor_type: user
     description: If enabled, skip all BDN-related processing for VYE
+  my_auth_exp_redesign_available_to_opt_in:
+    actor_type: user
+    description: When enabled, a user will see the option to switch to the redesigned experience of MyVA.
   my_va_auth_exp_redesign_enabled:
     actor_type: user
     description: When enabled, a user will see the redesigned experience of MyVA.
@@ -2455,6 +2469,9 @@ features:
     actor_type: user
     description: Enables substance use disorder as care related to mental health appointments with new codes
     enable_in_development: true
+  form10203_confirmation_email_with_silent_failure_processing:
+    actor_type: user
+    description: If enabled, confirmation email will be sent with silent failure processing
   unique_user_metrics_logging:
     # System level feature flag
     actor_type:
