@@ -250,7 +250,6 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
             it 'returns 400 Bad Request' do
               post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
               expect(response).to have_http_status(:bad_request)
-              byebug
               expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Invalid request for complex claim')
             end
           end
