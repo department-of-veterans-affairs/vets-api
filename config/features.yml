@@ -303,6 +303,9 @@ features:
   champva_ves_retry_failures_job:
     actor_type: user
     description: Enables the sidekiq job to retry VES submissions that failed
+  champva_use_hexapdf_to_unlock_pdfs:
+    actor_type: user
+    description: Enables the the use of hexapdf instead of pdftk to unlock password-protected PDFs on form submission
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -1487,6 +1490,10 @@ features:
     actor_type: user
     description: Logs decision letter info on both claims and decision letter endpoint
     enable_in_development: true
+  mobile_coe_letter_use_lgy_service:
+    actor_type: user
+    description: Use LGY service for retrieving COE letters in the mobile app
+    enable_in_development: false
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
@@ -2461,4 +2468,12 @@ features:
   va_online_scheduling_add_substance_use_disorder:
     actor_type: user
     description: Enables substance use disorder as care related to mental health appointments with new codes
+    enable_in_development: true
+  form10203_confirmation_email_with_silent_failure_processing:
+    actor_type: user
+    description: If enabled, confirmation email will be sent with silent failure processing
+  unique_user_metrics_logging:
+    # System level feature flag
+    actor_type:
+    description: Enables unique user metrics logging for MHV Portal analytics. When disabled, no events will be recorded to database or sent to StatsD.
     enable_in_development: true
