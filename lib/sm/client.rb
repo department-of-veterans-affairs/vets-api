@@ -481,13 +481,14 @@ module SM
 
     ##
     # Retrieve a message attachment
-    # Endpoint returns either a binary file response or a AWS S3 URL depending on attachment upload method.
-    # If the response is a URL, it will fetch the file from that URL.
+    # Endpoint returns either a binary file response, an AWS S3 URL, or an object with attachment details
+    # depending on attachment upload method. If the response is a URL or object, it will fetch the file from that URL.
+    # Supports object responses with url, mimeType, and name attributes where filename is taken from name attribute.
     # 10MB limit of the MHV API gateway.
     #
     # @param message_id [Fixnum] the message id
     # @param attachment_id [Fixnum] the attachment id
-    # @return [Hash] an object with attachment response details
+    # @return [Hash] an object with attachment response details containing :body and :filename
     #
     def get_attachment(message_id, attachment_id)
       path = "message/#{message_id}/attachment/#{attachment_id}"
