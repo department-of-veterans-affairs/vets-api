@@ -48,8 +48,8 @@ describe TravelPay::SmocService do
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
     before do
-      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user:)
-      @smoc_service = TravelPay::SmocService.new(auth_manager, 'VAGOV')
+      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+      @smoc_service = TravelPay::SmocService.new(auth_manager, user, 'VAGOV')
 
       @params = { 'appointment_date_time' => '2024-01-01T16:45:34',
                   'facility_station_number' => '123',
@@ -192,7 +192,7 @@ describe TravelPay::SmocService do
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
     before do
-      @auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user:)
+      @auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
 
       @params = { 'appointment_date_time' => '2024-01-01T16:45:34',
                   'facility_station_number' => '123',
@@ -216,7 +216,7 @@ describe TravelPay::SmocService do
     end
 
     it 'logs [VAGOV] for VA.gov client use' do
-      smoc_service = TravelPay::SmocService.new(@auth_manager, 'VAGOV')
+      smoc_service = TravelPay::SmocService.new(@auth_manager, user, 'VAGOV')
 
       actual_claim_response = smoc_service.submit_mileage_expense(@params)
 
@@ -228,7 +228,7 @@ describe TravelPay::SmocService do
     end
 
     it 'logs [VAHB] for Mobile client use' do
-      smoc_service = TravelPay::SmocService.new(@auth_manager, 'VAHB')
+      smoc_service = TravelPay::SmocService.new(@auth_manager, user, 'VAHB')
 
       actual_claim_response = smoc_service.submit_mileage_expense(@params)
 
@@ -240,7 +240,7 @@ describe TravelPay::SmocService do
     end
 
     it 'logs [any client] for new client use' do
-      smoc_service = TravelPay::SmocService.new(@auth_manager, 'any client')
+      smoc_service = TravelPay::SmocService.new(@auth_manager, user, 'any client')
 
       actual_claim_response = smoc_service.submit_mileage_expense(@params)
 

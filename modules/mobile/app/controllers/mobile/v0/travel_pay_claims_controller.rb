@@ -102,11 +102,11 @@ module Mobile
       end
 
       def smoc_service
-        @smoc_service ||= TravelPay::SmocService.new(auth_manager, 'VAHB')
+        @smoc_service ||= TravelPay::SmocService.new(auth_manager, @current_user, 'VAHB')
       end
 
       def claims_service
-        @claims_service ||= TravelPay::ClaimsService.new(auth_manager)
+        @claims_service ||= TravelPay::ClaimsService.new(auth_manager, @current_user)
       end
     end
   end

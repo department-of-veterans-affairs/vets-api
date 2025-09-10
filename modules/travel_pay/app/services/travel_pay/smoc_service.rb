@@ -2,8 +2,9 @@
 
 module TravelPay
   class SmocService
-    def initialize(auth_manager, client)
+    def initialize(auth_manager, user, client)
       @auth_manager = auth_manager
+      @user = user
       @client = client
     end
 
@@ -85,7 +86,7 @@ module TravelPay
     end
 
     def claims_service
-      @claims_service ||= TravelPay::ClaimsService.new(@auth_manager)
+      @claims_service ||= TravelPay::ClaimsService.new(@auth_manager, @user)
     end
 
     def appts_service
