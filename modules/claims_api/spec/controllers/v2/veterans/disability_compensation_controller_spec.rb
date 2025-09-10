@@ -10,12 +10,12 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
     # Action methods
 
     describe '#synchronous' do
-      let(:docker) { instance_double(ClaimsApi::DisabilityCompensation::DockerContainerService, upload: nil) }
+      let(:docker) { instance_double(ClaimsApi::DisabilityCompensation::Form526EstablishmentService, upload: nil) }
 
       it 'handles synchronous flow' do
         allow(controller).to receive_messages(shared_submit_methods: auto_claim, claims_load_testing: false,
                                               mocking: true, veteran_middle_initial: 'M',
-                                              docker_container_service: docker, queue_flash_updater: nil,
+                                              form526_establishment_service: docker, queue_flash_updater: nil,
                                               start_bd_uploader_job: nil, render: nil,
                                               url_for: 'http://example.com')
         controller.send(:synchronous)
@@ -25,7 +25,7 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
       it 'generates PDF when needed' do
         allow(controller).to receive_messages(shared_submit_methods: auto_claim, claims_load_testing: false,
                                               mocking: false, veteran_middle_initial: 'M',
-                                              generate_pdf_from_service!: nil, docker_container_service: docker,
+                                              generate_pdf_from_service!: nil, form526_establishment_service: docker,
                                               queue_flash_updater: nil, start_bd_uploader_job: nil,
                                               render: nil, url_for: 'http://example.com')
         controller.send(:synchronous)
@@ -46,9 +46,9 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
           .to be_a(ClaimsApi::DisabilityCompensation::PdfGenerationService)
       end
 
-      it '#docker_container_service' do
-        expect(controller.send(:docker_container_service))
-          .to be_a(ClaimsApi::DisabilityCompensation::DockerContainerService)
+      it '#form526_establishment_service' do
+        expect(controller.send(:form526_establishment_service))
+          .to be_a(ClaimsApi::DisabilityCompensation::Form526EstablishmentService)
       end
 
       it '#queue_flash_updater' do
