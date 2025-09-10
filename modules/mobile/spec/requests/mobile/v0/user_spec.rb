@@ -10,6 +10,11 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     VAProfile::ContactInformation::V2::Service
   end
 
+  before do
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
+  end
+
   describe 'GET /mobile/v0/user' do
     let!(:user) do
       sis_user(
@@ -200,12 +205,14 @@ RSpec.describe 'Mobile::V0::User', type: :request do
             disabilityRating
             genderIdentity
             lettersAndDocuments
+            medicationsOracleHealthEnabled
             militaryServiceHistory
             paymentHistory
             preferredName
             prescriptions
             scheduleAppointments
             secureMessaging
+            secureMessagingOracleHealthEnabled
             userProfileUpdate
           ]
         )
