@@ -249,7 +249,7 @@ module TravelClaim
       headers = {
         'Content-Type' => 'application/json',
         'Authorization' => "Bearer #{@current_veis_token}",
-        'X-BTSSS-Token' => @current_btsss_token,
+        'BTSSS-Access-Token' => @current_btsss_token,
         'X-Correlation-ID' => @correlation_id
       }
 
