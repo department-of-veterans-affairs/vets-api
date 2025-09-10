@@ -247,9 +247,11 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
                 .to receive(:claims_service).and_return(claims_service)
             end
 
-            it 'returns 500 Internal Server Error' do
+            it 'returns 400 Bad Request' do
               post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
-              expect(response).to have_http_status(:internal_server_error)
+              expect(response).to have_http_status(:bad_request)
+              byebug
+              expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Invalid request for complex claim')
             end
           end
 
@@ -262,10 +264,10 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
                 .to receive(:claims_service).and_return(claims_service)
             end
 
-            it 'returns 400 Bad Request with error detail' do
+            it 'returns 500 Internal Server Error' do
               post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
-              expect(response).to have_http_status(:bad_request)
-              expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Something is wrong')
+              expect(response).to have_http_status(:internal_server_error)
+              expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Internal server error')
             end
           end
         end
