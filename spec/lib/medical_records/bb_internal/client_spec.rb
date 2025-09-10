@@ -8,24 +8,7 @@ UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 describe BBInternal::Client do
   let(:client) { @client }
-
-  RSpec.shared_context 'redis setup' do
-    let(:redis) { instance_double(Redis::Namespace) }
-    let(:study_id) { '453-2487450' }
-    let(:uuid) { 'c9396040-23b7-44bc-a505-9127ed968b0d' }
-    let(:cached_data) do
-      {
-        uuid => study_id
-      }.to_json
-    end
-    let(:namespace) { REDIS_CONFIG[:bb_internal_store][:namespace] }
-    let(:study_data_key) { 'study_data-11382904' }
-
-    before do
-      allow(Redis::Namespace).to receive(:new).with(namespace, redis: $redis).and_return(redis)
-      allow(redis).to receive(:get).with(study_data_key).and_return(cached_data)
-    end
-  end
+  let(:study_id) { '453-2487450' }
 
   before do
     VCR.use_cassette 'mr_client/bb_internal/session_auth' do
@@ -56,90 +39,33 @@ describe BBInternal::Client do
   end
 
   describe '#list_imaging_studies' do
-    let(:cached_list_data) do
-      { 'f1c9a455-9a43-4d73-ac5b-e417bac1d3bb' => '451-72913365',
-        'a3de79e7-93d1-4df4-ab00-e38f8a31f157' => '453-2487450',
-        '2830903b-08da-49c2-89e2-7a49ea1204d9' => '453-2487448' }.to_json
-    end
-
-    include_context 'redis setup'
-
-    before do
-      allow(redis).to receive(:set)
-      allow(Rails.logger).to receive(:info)
-    end
-
-    it 'gets the list of imaging studies with IDs from cache' do
-      allow(redis).to receive(:get).with(study_data_key).and_return(cached_list_data)
-
+    it 'gets the list of imaging studies' do
       VCR.use_cassette 'mr_client/bb_internal/get_imaging_studies' do
         studies = client.list_imaging_studies
         expect(studies).to be_an(Array)
         expect(studies.first).to have_key('studyIdUrn')
-
-        expect(Rails.logger).not_to have_received(:info)
-          .with(message: /Assigned studyIdUrn to new UUID/i)
-        # Check if 'studyIdUrn' was replaced by a UUID
-        expect(studies.first['studyIdUrn']).to match(UUID_REGEX)
-      end
-    end
-
-    it 'gets the list of imaging studies and saves UUIDs to redis' do
-      allow(redis).to receive(:get).with(study_data_key).and_return({}.to_json)
-
-      VCR.use_cassette 'mr_client/bb_internal/get_imaging_studies' do
-        studies = client.list_imaging_studies
-        expect(studies).to be_an(Array)
-        expect(studies.first).to have_key('studyIdUrn')
-
-        expect(Rails.logger).to have_received(:info)
-          .with(message: /Assigned studyIdUrn to new UUID/i).at_least(:once)
-        # Check if 'studyIdUrn' was replaced by a UUID
-        expect(studies.first['studyIdUrn']).to match(UUID_REGEX)
+        expect(studies.first['studyIdUrn']).to eq('451-72913365')
       end
     end
   end
 
   describe '#request_study' do
-    include_context 'redis setup'
-
-    before do
-      allow(Rails.logger).to receive(:info)
-    end
-
     it 'requests a study by study_id' do
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
-        result = client.request_study(uuid)
+        result = client.request_study(study_id)
         expect(result).to be_a(Hash)
         expect(result).to have_key('status')
         expect(result).to have_key('studyIdUrn')
 
-        expect(Rails.logger).not_to have_received(:info)
-          .with(message: "[MHV-Images] Study UUID #{uuid} not cached")
-
-        # 'studyIdUrn' should match a specific UUID
-        expect(result['studyIdUrn']).to equal(uuid)
-      end
-    end
-
-    it 'raises RecordNotFound exception and logs the uuid if not in the cache' do
-      allow(redis).to receive(:get).with(study_data_key).and_return({}.to_json)
-
-      VCR.use_cassette 'mr_client/bb_internal/request_study' do
-        expect { client.request_study(uuid) }.to raise_error(Common::Exceptions::RecordNotFound)
-
-        expect(Rails.logger).to have_received(:info)
-          .with(message: "[MHV-Images] Study UUID #{uuid} not cached")
+        expect(result['studyIdUrn']).to eq(study_id)
       end
     end
   end
 
   describe '#list_images' do
-    include_context 'redis setup'
-
     it 'lists the images for a given study' do
       VCR.use_cassette 'mr_client/bb_internal/list_images' do
-        images = client.list_images(uuid)
+        images = client.list_images(study_id)
         expect(images).to be_an(Array)
         expect(images.first).to be_a(String)
       end
@@ -147,28 +73,24 @@ describe BBInternal::Client do
   end
 
   describe '#get_image' do
-    include_context 'redis setup'
-
     it 'streams an image successfully' do
       series = '01'
       image = '01'
       yielder = StringIO.new
 
       VCR.use_cassette 'mr_client/bb_internal/get_image' do
-        client.get_image(uuid, series, image, ->(headers) {}, yielder)
+        client.get_image(study_id, series, image, ->(headers) {}, yielder)
         expect(yielder.string).not_to be_empty
       end
     end
   end
 
   describe '#get_dicom' do
-    include_context 'redis setup'
-
     it 'streams a DICOM zip successfully' do
       yielder = StringIO.new
 
       VCR.use_cassette 'mr_client/bb_internal/get_dicom' do
-        client.get_dicom(uuid, ->(headers) {}, yielder)
+        client.get_dicom(study_id, ->(headers) {}, yielder)
         expect(yielder.string).not_to be_empty
       end
     end
@@ -259,8 +181,7 @@ describe BBInternal::Client do
         expect(first_study_job).to have_key('studyIdUrn')
         expect(first_study_job['studyIdUrn']).to be_a(String)
 
-        # Check if 'studyIdUrn' was replaced by a UUID
-        expect(first_study_job['studyIdUrn']).to match(UUID_REGEX)
+        expect(first_study_job['studyIdUrn']).to eq(study_id)
       end
     end
   end
