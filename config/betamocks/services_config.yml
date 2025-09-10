@@ -312,6 +312,10 @@
         :uid_location: url
         :uid_locator: '\/mhvacctinfo\/(.+)'
 
+# EVSS
+- :name: 'EVSS'
+  :base_uri: <%= "#{URI(Settings.evss.url).host}:#{URI(Settings.evss.url).port}" %>
+  :endpoints:
 
   # Intent To File
   - :method: :get
