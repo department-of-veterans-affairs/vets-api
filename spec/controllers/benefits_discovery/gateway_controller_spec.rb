@@ -37,7 +37,12 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
     end
 
     it 'proxies GET requests to /benefits_discovery/v0/benefits' do
-      expect(service_instance).to receive(:proxy_request).with(method: :get, path: 'v0/benefits', body: nil)
+      expect(service_instance).to receive(:proxy_request) do |req|
+        expect(req.method).to eq 'GET'
+        expect(req.params[:path]).to end_with 'v0/benefits'
+        expect(req.body).to be_nil
+      end
+
       get '/benefits_discovery/v0/benefits', headers:
     end
 
@@ -159,9 +164,12 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
       end
 
       it 'passes parameters to service' do
-        expect(service_instance).to receive(:proxy_request).with(method: :post,
-                                                                 path: 'v0/recommendations',
-                                                                 body: params.to_json)
+        expect(service_instance).to receive(:proxy_request) do |req|
+          expect(req.method).to eq 'POST'
+          expect(req.params[:path]).to end_with 'v0/recommendations'
+          expect(req.body.read).to eq params.to_json
+        end
+
         expect(StatsD).to receive(:increment).with('api.bds_gateway.proxy.request',
                                                    tags: array_including('path:v0/recommendations', 'method:POST'))
         expect(StatsD).to receive(:increment).with('api.bds_gateway.proxy.success',

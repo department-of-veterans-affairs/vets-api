@@ -18,8 +18,15 @@ module BenefitsDiscovery
       response.body
     end
 
-    def proxy_request(method:, path:, body:)
-      response = perform(method.downcase.to_sym, path, body, headers)
+    def proxy_request(request)
+      method = request.method_symbol
+      path = "benefits-discovery-service/#{request.params['path']}"
+      body = request.raw_post.presence
+
+      custom_headers = headers.dup
+      custom_headers['X-Forwarded-For'] = request.remote_ip
+
+      response = perform(method.downcase.to_sym, path, body, custom_headers)
       response.body
     end
 

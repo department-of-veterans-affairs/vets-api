@@ -14,19 +14,18 @@ module BenefitsDiscovery
     STATSD_KEY_PREFIX = 'api.bds_gateway.proxy'
 
     def proxy
-      path = params[:path]
-      tags = ["path:#{path}", "method:#{request.method}"]
+      tags = ["path:#{params[:path]}", "method:#{request.method}"]
       StatsD.increment("#{STATSD_KEY_PREFIX}.request", tags:)
 
       api_key, app_id = credentials
       service = ::BenefitsDiscovery::Service.new(api_key:, app_id:)
-      response_data = service.proxy_request(method: request.method_symbol, path:, body: request.raw_post.presence)
+      response_data = service.proxy_request(request)
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.success", tags:)
       render json: response_data
     rescue Common::Client::Errors::ClientError => e
       log_proxy_error(e)
-      render json: e.body, status: e.status
+      render json: e.body, status: e.status || :bad_gateway
     rescue Common::Exceptions::Unauthorized => e
       log_proxy_error(e)
       render json: { error: e.message }, status: :unauthorized
