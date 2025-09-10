@@ -29,12 +29,11 @@ module TravelPay
 
         render json: submitted_claim, status: :created
       rescue Faraday::ClientError => e
-        Rails.logger.error("Faraday client error submitting complex claim: #{e.message}")
-        # TODO: Adjust this once API team confirms expected status codes
-        raise Common::Exceptions::BadRequest.new(detail: 'Invalid request for complex claim')
+        # 400-level errors (bad request, unauthorized, forbidden)
+        handle_faraday_error(e, 'Client error submitting complex claim', log_prefix: 'Submitting complex claim: ')
       rescue Faraday::ServerError => e
-        Rails.logger.error("Faraday server error submitting complex claim: #{e.message}")
-        raise Common::Exceptions::InternalServerError.new(exception: e)
+        # 500-level errors
+        handle_faraday_error(e, 'Server error submitting complex claim', log_prefix: 'Submitting complex claim: ')
       end
 
       def create
@@ -55,6 +54,24 @@ module TravelPay
       end
 
       private
+
+      # Handles Faraday errors for both client (4xx) and server (5xx)
+      # e: the Faraday error
+      # default_message: fallback message if response body is missing
+      # log_prefix: optional prefix for log message
+      def handle_faraday_error(e, default_message, log_prefix: '')
+        error_type = e.is_a?(Faraday::ClientError) ? 'client' : 'server'
+        Rails.logger.error("#{log_prefix}Faraday #{error_type} error: #{e.message}")
+
+        http_status = e.response[:status] || (e.is_a?(Faraday::ClientError) ? :bad_request : :internal_server_error)
+        message = if e.response&.dig(:body).present?
+                    e.response[:body]
+                  else
+                    default_message
+                  end
+
+        render json: { errors: [{ detail: message }] }, status: http_status
+      end
 
       def check_feature_flag
         verify_feature_flag!(

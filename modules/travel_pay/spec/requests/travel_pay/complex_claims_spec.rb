@@ -240,9 +240,10 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
         context 'when there are errors' do
           context 'when claims service raises Faraday::ClientError' do
             before do
+              response_obj = { status: 400, body: nil }
               allow(claims_service).to receive(:submit_claim)
                 .with(claim_id)
-                .and_raise(Faraday::ClientError.new('400 Bad Request'))
+                .and_raise(Faraday::ClientError.new('400 Bad Request', response_obj))
               allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
                 .to receive(:claims_service).and_return(claims_service)
             end
@@ -250,7 +251,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
             it 'returns 400 Bad Request' do
               post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
               expect(response).to have_http_status(:bad_request)
-              expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Invalid request for complex claim')
+              expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Client error submitting complex claim')
             end
           end
 
