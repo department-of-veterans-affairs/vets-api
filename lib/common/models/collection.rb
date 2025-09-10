@@ -30,12 +30,13 @@ module Common
       'match' => 'match'
     }.with_indifferent_access.freeze
 
-    def initialize(klass = Array, data: [], metadata: {}, errors: {})
+    def initialize(klass = Array, data: [], metadata: {}, errors: {}, cache_key: nil)
       data = Array.wrap(data) # If data is passed in as nil, wrap it as an empty array
       @type = klass
       @attributes = data
       @metadata = metadata
       @errors = errors
+      @cache_key = cache_key
 
       (@data = data) && return if defined?(::WillPaginate::Collection) && data.is_a?(WillPaginate::Collection)
 
