@@ -25,6 +25,7 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
   end
 
   before do
+    allow(StatsD).to receive(:increment)
     allow(BenefitsDiscovery::Service).to receive(:new).and_return(service_instance)
     allow(service_instance).to receive(:proxy_request).and_return(response_data)
     allow(Flipper).to receive(:enabled?).with(:bds_gateway_enabled).and_return(true)
@@ -66,7 +67,10 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
           api_key: 'custom_api_key',
           app_id: 'custom_app_id'
         )
-
+        expect(StatsD).to receive(:increment).with('api.bds_gateway.proxy.request',
+                                                   tags: array_including('path:v0/recommendations', 'method:POST'))
+        expect(StatsD).to receive(:increment).with('api.bds_gateway.proxy.success',
+                                                   tags: array_including('path:v0/recommendations', 'method:POST'))
         post '/benefits_discovery/v0/recommendations', params: request_params, headers:
       end
 
@@ -114,7 +118,9 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
       end
 
       it 'logs the error' do
-        expect(Rails.logger).to receive(:error).with(/Not authorized/, path: 'v0/recommendations')
+        expect(Rails.logger).to receive(:error).with(/Not authorized/,
+                                                     path: 'v0/recommendations',
+                                                     method: 'POST')
         post '/benefits_discovery/v0/recommendations', params: request_params, headers:
       end
     end
@@ -156,7 +162,10 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
         expect(service_instance).to receive(:proxy_request).with(method: :post,
                                                                  path: 'v0/recommendations',
                                                                  body: params.to_json)
-
+        expect(StatsD).to receive(:increment).with('api.bds_gateway.proxy.request',
+                                                   tags: array_including('path:v0/recommendations', 'method:POST'))
+        expect(StatsD).to receive(:increment).with('api.bds_gateway.proxy.success',
+                                                   tags: array_including('path:v0/recommendations', 'method:POST'))
         post '/benefits_discovery/v0/recommendations', params:, headers:, as: :json
       end
     end
@@ -174,15 +183,20 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
       end
 
       it 'returns error response' do
+        expect(StatsD).to receive(:increment).with('api.bds_gateway.proxy.request',
+                                                   tags: array_including('path:v0/recommendations', 'method:POST'))
+        expect(StatsD).to receive(:increment).with('api.bds_gateway.proxy.error',
+                                                   tags: array_including('path:v0/recommendations', 'method:POST',
+                                                                         'error:StandardError'))
         post('/benefits_discovery/v0/recommendations', params: request_params, headers:)
-
         expect(response).to have_http_status(:internal_server_error)
         expect(JSON.parse(response.body)).to eq({ 'error' => 'Service error' })
       end
 
       it 'logs the error' do
         expect(Rails.logger).to receive(:error).with('Benefits Discovery Gateway proxy error: Service error',
-                                                     path: 'v0/recommendations')
+                                                     path: 'v0/recommendations',
+                                                     method: 'POST')
 
         post '/benefits_discovery/v0/recommendations', params: request_params
       end

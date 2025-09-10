@@ -11,21 +11,27 @@ module BenefitsDiscovery
     before_action :check_flipper_enabled, only: [:proxy]
     skip_after_action :set_csrf_header, only: [:proxy]
 
+    STATSD_KEY_PREFIX = 'api.bds_gateway.proxy'
+
     def proxy
+      path = params[:path]
+      tags = ["path:#{path}", "method:#{request.method}"]
+      StatsD.increment("#{STATSD_KEY_PREFIX}.request", tags:)
+
       api_key, app_id = credentials
       service = ::BenefitsDiscovery::Service.new(api_key:, app_id:)
+      response_data = service.proxy_request(method: request.method_symbol, path:, body: request.raw_post.presence)
 
-      response_data = service.proxy_request(method: request.method_symbol, path: params[:path],
-                                            body: request.raw_post.presence)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.success", tags:)
       render json: response_data
     rescue Common::Client::Errors::ClientError => e
-      log_proxy_error(e, path: params[:path])
+      log_proxy_error(e)
       render json: e.body, status: e.status
     rescue Common::Exceptions::Unauthorized => e
-      log_proxy_error(e, path: params[:path])
+      log_proxy_error(e)
       render json: { error: e.message }, status: :unauthorized
     rescue => e
-      log_proxy_error(e, path: params[:path])
+      log_proxy_error(e)
       render json: { error: e.message }, status: :internal_server_error
     end
 
@@ -48,8 +54,13 @@ module BenefitsDiscovery
       end
     end
 
-    def log_proxy_error(error, path:)
-      Rails.logger.error("Benefits Discovery Gateway proxy error: #{error.message}", path:)
+    def log_proxy_error(error)
+      path = params[:path]
+      method = request.method
+      tags = ["path:#{path}", "method:#{method}", "error:#{error.class}"]
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}.error", tags:)
+      Rails.logger.error("Benefits Discovery Gateway proxy error: #{error.message}", path:, method:)
     end
 
     def check_flipper_enabled
