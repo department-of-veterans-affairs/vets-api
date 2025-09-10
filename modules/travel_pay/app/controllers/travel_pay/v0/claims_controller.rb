@@ -77,11 +77,11 @@ module TravelPay
       end
 
       def claims_service
-        @claims_service ||= TravelPay::ClaimsService.new(auth_manager, @current_user)
+        @claims_service ||= TravelPay::ClaimsService.new(auth_manager)
       end
 
       def appts_service
-        @appts_service ||= TravelPay::AppointmentsService.new(auth_manager, @current_user)
+        @appts_service ||= TravelPay::AppointmentsService.new(auth_manager)
       end
 
       def expense_service

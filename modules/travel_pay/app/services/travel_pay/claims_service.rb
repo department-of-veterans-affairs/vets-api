@@ -2,9 +2,8 @@
 
 module TravelPay
   class ClaimsService
-    def initialize(auth_manager, user)
+    def initialize(auth_manager)
       @auth_manager = auth_manager
-      @user = user
     end
 
     DEFAULT_PAGE_SIZE = 50
@@ -69,7 +68,7 @@ module TravelPay
         claim['documents'] = documents
 
         # Add decision letter reason for denied or partial payment claims
-        if Flipper.enabled?(:travel_pay_claims_management_decision_reason_api, @user)
+        if Flipper.enabled?(:travel_pay_claims_management_decision_reason_api, @auth_manager.user)
           decision_document = find_decision_letter_document(claim)
           if (claim['claimStatus'].eql?('Denied') || claim['claimStatus'].eql?('Paid')) && !decision_document.nil?
             claim['decision_letter_reason'] = get_decision_reason(claim_id, decision_document['documentId'])
@@ -250,7 +249,7 @@ module TravelPay
     end
 
     def include_documents?
-      Flipper.enabled?(:travel_pay_claims_management, @user)
+      Flipper.enabled?(:travel_pay_claims_management, @auth_manager.user)
     end
 
     def client
