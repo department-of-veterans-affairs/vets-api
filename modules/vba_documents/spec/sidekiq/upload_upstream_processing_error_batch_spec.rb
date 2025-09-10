@@ -6,11 +6,11 @@ RSpec.describe VBADocuments::UploadStatusErrorBatch, type: :job do
   let(:client_stub) { instance_double(CentralMail::Service) }
 
   # less than MAX_UPSTREAM_ERROR_AGE_DAYS old with upstream error, job should pick up this record
-  let!(:emms_error_upload) { create(:upload_submission, :upstream_error_upload) }
+  let!(:emms_error_upload) { create(:upload_submission, :status_error_upstream) }
 
   # Old errored record, job should not pick up since it's older than MAX_UPSTREAM_ERROR_AGE_DAYS
   let!(:old_error_upload) do
-    create(:upload_submission, :upstream_error_upload,
+    create(:upload_submission, :status_error_upstream,
            created_at: (VBADocuments::UploadSubmission::MAX_UPSTREAM_ERROR_AGE_DAYS + 1).days.ago)
   end
 
