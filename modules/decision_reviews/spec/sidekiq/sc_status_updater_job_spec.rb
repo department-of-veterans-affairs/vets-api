@@ -679,6 +679,286 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
             .with('DecisionReviews::SavedClaimScStatusUpdaterJob secondary form status error', anything)
         end
       end
+
+      # NEW TESTS FOR 15-DAY MONITORING
+      context 'temporary error monitoring' do
+        let!(:secondary_form) { create(:secondary_appeal_form4142_module, guid: SecureRandom.uuid) }
+        let!(:saved_claim) do
+          SavedClaim::SupplementalClaim.create(
+            guid: secondary_form.appeal_submission.submitted_appeal_uuid,
+            form: '{}'
+          )
+        end
+
+        let(:response_processing) do
+          response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json'))
+          response['data']['attributes']['status'] = 'processing'
+          response['data']['attributes']['final_status'] = false
+          instance_double(Faraday::Response, body: response)
+        end
+
+        before do
+          allow(service).to receive(:get_supplemental_claim)
+            .with(saved_claim.guid).and_return(response_complete)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        context 'when form has temporary error (final_status: false) for exactly 15 days' do
+          let(:temp_error_status) do
+            {
+              'status' => 'error',
+              'final_status' => false,
+              'detail' => 'Temporary processing error'
+            }
+          end
+
+          before do
+            secondary_form.update!(
+              status: temp_error_status.to_json,
+              status_updated_at: frozen_time - 15.days
+            )
+
+            allow(benefits_intake_service).to receive(:get_status)
+              .with(uuid: secondary_form.guid).and_return(response_processing)
+          end
+
+          it 'does not log warning at exactly 15 days' do
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
+
+            expect(Rails.logger).not_to have_received(:info).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in temporary error state',
+              anything
+            )
+          end
+
+          it 'continues polling the form' do
+            processing_response = instance_double(Faraday::Response, body: {
+                                                    'data' => {
+                                                      'attributes' => {
+                                                        'status' => 'processing',
+                                                        'final_status' => false,
+                                                        'detail' => 'Still processing',
+                                                        'updated_at' => Time.current.iso8601
+                                                      }
+                                                    }
+                                                  })
+
+            allow(benefits_intake_service).to receive(:get_status)
+              .with(uuid: secondary_form.guid).and_return(processing_response)
+
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
+
+            expect(benefits_intake_service).to have_received(:get_status).with(uuid: secondary_form.guid)
+          end
+        end
+
+        context 'when form has temporary error (final_status: false) for more than 15 days' do
+          let(:temp_error_status) do
+            {
+              'status' => 'error',
+              'final_status' => false,
+              'detail' => 'Temporary processing error',
+              'code' => 'DOC105'
+            }
+          end
+
+          let(:days_in_error) { 17.5 }
+
+          before do
+            secondary_form.update!(
+              status: temp_error_status.to_json,
+              status_updated_at: frozen_time - days_in_error.days
+            )
+
+            allow(benefits_intake_service).to receive(:get_status)
+              .with(uuid: secondary_form.guid).and_return(response_processing)
+          end
+
+          it 'logs warning with correct attributes' do
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
+
+            expect(Rails.logger).to have_received(:info).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in temporary error state',
+              hash_including(
+                secondary_form_uuid: secondary_form.guid,
+                appeal_submission_id: secondary_form.appeal_submission_id,
+                days_in_error: days_in_error.round(2),
+                status_updated_at: secondary_form.status_updated_at
+              )
+            )
+          end
+        end
+
+        context 'when form has permanent error (final_status: true)' do
+          let(:permanent_error_status) do
+            {
+              'status' => 'error',
+              'final_status' => true,
+              'detail' => 'Permanent error - invalid document'
+            }
+          end
+
+          before do
+            secondary_form.update!(
+              status: permanent_error_status.to_json,
+              status_updated_at: frozen_time - 20.days
+            )
+          end
+
+          it 'does not log warning for permanent errors' do
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
+
+            expect(Rails.logger).not_to have_received(:info).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in temporary error state',
+              anything
+            )
+          end
+        end
+
+        context 'when form has non-error status' do
+          let(:processing_status) do
+            {
+              'status' => 'processing',
+              'final_status' => false,
+              'detail' => 'Still processing'
+            }
+          end
+
+          before do
+            secondary_form.update!(
+              status: processing_status.to_json,
+              status_updated_at: frozen_time - 20.days
+            )
+          end
+
+          it 'does not log warning for non-error statuses' do
+            processing_response = instance_double(Faraday::Response, body: {
+                                                    'data' => {
+                                                      'attributes' => {
+                                                        'status' => 'processing',
+                                                        'final_status' => false,
+                                                        'detail' => 'Still processing',
+                                                        'updated_at' => Time.current.iso8601
+                                                      }
+                                                    }
+                                                  })
+
+            allow(benefits_intake_service).to receive(:get_status)
+              .with(uuid: secondary_form.guid).and_return(processing_response)
+
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
+
+            expect(Rails.logger).not_to have_received(:info).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in temporary error state',
+              anything
+            )
+          end
+        end
+
+        context 'when using different timestamp fallbacks' do
+          let(:temp_error_status) do
+            {
+              'status' => 'error',
+              'final_status' => false,
+              'detail' => 'Temporary error'
+            }
+          end
+
+          context 'when status_updated_at is nil' do
+            before do
+              secondary_form.update!(
+                status: temp_error_status.to_json,
+                status_updated_at: nil,
+                updated_at: frozen_time - 16.days
+              )
+
+              processing_response = instance_double(Faraday::Response, body: {
+                                                      'data' => {
+                                                        'attributes' => {
+                                                          'status' => 'processing',
+                                                          'final_status' => false,
+                                                          'detail' => 'Still processing',
+                                                          'updated_at' => Time.current.iso8601
+                                                        }
+                                                      }
+                                                    })
+
+              allow(benefits_intake_service).to receive(:get_status)
+                .with(uuid: secondary_form.guid).and_return(processing_response)
+            end
+
+            it 'falls back to updated_at for calculating days in error' do
+              Timecop.freeze(frozen_time) do
+                subject.new.perform
+              end
+
+              expect(Rails.logger).to have_received(:info).with(
+                'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in temporary error state',
+                hash_including(days_in_error: 16.0)
+              )
+            end
+          end
+        end
+
+        context 'multiple forms with mixed statuses' do
+          let!(:form_temp_error_old) do
+            create(:secondary_appeal_form4142_module,
+                   guid: SecureRandom.uuid,
+                   appeal_submission: secondary_form.appeal_submission,
+                   status: { 'status' => 'error', 'final_status' => false }.to_json,
+                   status_updated_at: frozen_time - 20.days)
+          end
+
+          let!(:form_temp_error_recent) do
+            create(:secondary_appeal_form4142_module,
+                   guid: SecureRandom.uuid,
+                   appeal_submission: secondary_form.appeal_submission,
+                   status: { 'status' => 'error', 'final_status' => false }.to_json,
+                   status_updated_at: frozen_time - 5.days)
+          end
+
+          let!(:form_permanent_error) do
+            create(:secondary_appeal_form4142_module,
+                   guid: SecureRandom.uuid,
+                   appeal_submission: secondary_form.appeal_submission,
+                   status: { 'status' => 'error', 'final_status' => true }.to_json,
+                   status_updated_at: frozen_time - 25.days)
+          end
+
+          before do
+            response_processing = JSON.parse(
+              File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json')
+            )
+            response_processing['data']['attributes']['status'] = 'processing'
+            response_processing['data']['attributes']['final_status'] = false
+            processing_response = instance_double(Faraday::Response, body: response_processing)
+
+            allow(benefits_intake_service).to receive(:get_status).and_return(processing_response)
+          end
+
+          it 'only logs warnings for temporary errors exceeding threshold' do
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
+
+            # Should log info for form_temp_error_old (20 days > 15 days)
+            expect(Rails.logger).to have_received(:info).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in temporary error state',
+              hash_including(secondary_form_uuid: form_temp_error_old.guid)
+            ).once
+          end
+        end
+      end
     end
   end
 

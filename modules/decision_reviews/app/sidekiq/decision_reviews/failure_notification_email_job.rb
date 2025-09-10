@@ -108,6 +108,7 @@ module DecisionReviews
       end
     end
 
+    # New method to fetch SecondaryAppealForm records that have an error status with a final status: true
     def permanent_error_forms
       @permanent_error_forms ||= SecondaryAppealForm.with_permanent_error.order(id: :asc)
     end

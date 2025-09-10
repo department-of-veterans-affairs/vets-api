@@ -165,30 +165,21 @@ module DecisionReviews
 
       # Branch to separate implementations for clean feature flag removal
       if decision_review_final_status_polling_enabled?
-        process_secondary_forms_enhanced(secondary_forms, record.guid)
+        process_secondary_forms_enhanced(secondary_forms)
       else
-        process_secondary_forms_legacy(secondary_forms, record.guid)
+        process_secondary_forms_legacy(secondary_forms)
       end
     end
 
-    # rubocop:disable Metrics/MethodLength
-    def process_secondary_forms_enhanced(secondary_forms, record_guid)
-      log_context = {
-        record_guid:,
-        secondary_forms_count: secondary_forms.count,
-        processing_type: 'enhanced_with_final_status'
-      }
-
-      Rails.logger.info("#{log_prefix} starting enhanced secondary form processing", log_context)
-
+    def process_secondary_forms_enhanced(secondary_forms)
       all_complete = true
-      forms_stopped_polling = 0
 
       secondary_forms.each do |form|
         current_status = JSON.parse(form.status || '{}')
         should_stop_polling = current_status['final_status'] == true
 
-        forms_stopped_polling += 1 if should_stop_polling
+        # Monitor forms stuck in temporary error state
+        monitor_temporary_error_form(form, current_status)
 
         attributes = if should_stop_polling
                        current_status.slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE.map(&:to_s))
@@ -205,27 +196,10 @@ module DecisionReviews
         update_secondary_form_status_enhanced(form, attributes)
       end
 
-      log_context.merge!(
-        total_forms: secondary_forms.count,
-        forms_stopped_polling:,
-        all_forms_complete: all_complete,
-        polling_efficiency_percent: calculate_polling_efficiency(forms_stopped_polling, secondary_forms.count)
-      )
-
-      Rails.logger.info("#{log_prefix} completed enhanced secondary form processing", log_context)
-
       all_complete
     end
 
-    def process_secondary_forms_legacy(secondary_forms, record_guid)
-      log_context = {
-        record_guid:,
-        secondary_forms_count: secondary_forms.count,
-        processing_type: 'legacy_without_final_status'
-      }
-
-      Rails.logger.info("#{log_prefix} starting legacy secondary form processing", log_context)
-
+    def process_secondary_forms_legacy(secondary_forms)
       all_complete = true
 
       secondary_forms.each do |form|
@@ -237,16 +211,27 @@ module DecisionReviews
         update_secondary_form_status_legacy(form, attributes)
       end
 
-      log_context.merge!(
-        total_forms: secondary_forms.count,
-        all_forms_complete: all_complete
-      )
-
-      Rails.logger.info("#{log_prefix} completed legacy secondary form processing", log_context)
-
       all_complete
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def monitor_temporary_error_form(form, current_status)
+      return unless current_status['status'] == 'error' && current_status['final_status'] == false
+
+      error_timestamp = form.status_updated_at || form.updated_at || form.created_at
+      days_in_error = (Time.current - error_timestamp) / 1.day
+
+      return unless days_in_error > 15
+
+      Rails.logger.info(
+        "#{log_prefix} secondary form stuck in temporary error state",
+        {
+          secondary_form_uuid: form.guid,
+          appeal_submission_id: form.appeal_submission_id,
+          days_in_error: days_in_error.round(2),
+          status_updated_at: form.status_updated_at
+        }
+      )
+    end
 
     def handle_form_status_metrics_and_logging(record, status)
       # Skip logging and statsd metrics when there is no status change
@@ -324,12 +309,6 @@ module DecisionReviews
       return {} if metadata.nil?
 
       JSON.parse(metadata).fetch('uploads', []).index_by { |upload| upload['id'] }
-    end
-
-    def calculate_polling_efficiency(forms_stopped, total_forms)
-      return 0 if total_forms.zero?
-
-      (forms_stopped.to_f / total_forms * 100).round(2)
     end
 
     def get_error_type(detail)
