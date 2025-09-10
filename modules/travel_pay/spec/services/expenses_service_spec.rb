@@ -23,7 +23,7 @@ describe TravelPay::ExpensesService do
 
   context 'create_expense' do
     before do
-      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user: user)
       @expenses_client = instance_double(TravelPay::ExpensesClient)
       @service = TravelPay::ExpensesService.new(auth_manager)
     end
@@ -154,7 +154,7 @@ describe TravelPay::ExpensesService do
   end
 
   context 'add_mileage_expense method' do
-    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens) }
+    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user: user) }
     let(:service) { TravelPay::ExpensesService.new(auth_manager) }
 
     it 'returns an expense ID when passed a valid claim id and appointment date' do

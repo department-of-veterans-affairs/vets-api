@@ -27,6 +27,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
     context 'when feature flag is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, instance_of(User)).and_return(false)
       end
 
       context 'VCR-backed integration tests' do

@@ -78,8 +78,8 @@ describe TravelPay::AppointmentsService do
     end
 
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
-    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens) }
-    let(:service) { TravelPay::AppointmentsService.new(auth_manager, user) }
+    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user:) }
+    let(:service) { TravelPay::AppointmentsService.new(auth_manager) }
 
     before do
       allow_any_instance_of(TravelPay::AppointmentsClient)
@@ -140,8 +140,8 @@ describe TravelPay::AppointmentsService do
     end
 
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
-    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens) }
-    let(:service) { TravelPay::AppointmentsService.new(auth_manager, user) }
+    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user:) }
+    let(:service) { TravelPay::AppointmentsService.new(auth_manager) }
 
     before do
       allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, user).and_return(false)
