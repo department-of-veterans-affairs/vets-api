@@ -86,7 +86,7 @@ RSpec.describe User, type: :model do
         contact_info = user.vet360_contact_info
         expect(contact_info.class).to eq(VAProfileRedis::V2::ContactInformation)
         expect(contact_info.response.class).to eq(VAProfile::ContactInformation::V2::PersonResponse)
-        expect(contact_info.mailing_address.class).to eq(VAProfile::Models::V3::Address)
+        expect(contact_info.mailing_address.class).to eq(VAProfile::Models::Address)
         expect(contact_info.email.email_address).to eq(user.va_profile_email)
       end
     end
