@@ -7,6 +7,10 @@ module VRE
       before_action :authenticate
       skip_before_action :load_user
 
+      def show
+        details = eligibility_service.get_details
+      end
+
       def create
         claim = VRE::VREVeteranReadinessEmploymentClaim.new(form: filtered_params[:form])
 
@@ -26,6 +30,10 @@ module VRE
       end
 
       private
+
+      def eligibility_service
+        VRE::Ch31Eligibility.new(@current_user&.icn)
+      end
 
       def filtered_params
         params.require(:veteran_readiness_employment_claim).permit(:form)

@@ -24,7 +24,7 @@ module VRE
     private
 
     def end_point
-      "#{Settings.res.base_url}/suite/webapi/form281900"
+      "/suite/webapi/#{api_path}"
     end
   end
 end

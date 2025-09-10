@@ -41,6 +41,10 @@ module VRE
 
     private
 
+    def api_path
+      'form281900'
+    end
+
     def format_payload_for_res
       form_data = claim_form_hash
 
