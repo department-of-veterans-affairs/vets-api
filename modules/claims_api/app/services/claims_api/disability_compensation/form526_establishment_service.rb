@@ -15,8 +15,6 @@ module ClaimsApi
       ASYNC = false
 
       def upload(claim_id)
-        # rubocop:enable Metrics/MethodLength
-
         auto_claim = get_claim(claim_id)
 
         log_job_progress(claim_id, 'Form526 Establishment service started', auto_claim.transaction_id)
@@ -47,6 +45,8 @@ module ClaimsApi
         auto_claim.save
         raise e
       end
+
+      # rubocop:enable Metrics/MethodLength
 
       private
 
