@@ -4,9 +4,9 @@ require 'rails_helper'
 
 RSpec.describe V0::Profile::AddressValidationController, type: :controller do
   let(:user) { build(:user) }
-  let(:multiple_match_addr) { build(:va_profile_v3_address, :multiple_matches) }
-  let(:invalid_address) { build(:va_profile_v3_validation_address).to_h }
-  let(:incorrect_address_pou) { build(:va_profile_v3_address, :incorrect_address_pou) }
+  let(:multiple_match_addr) { build(:va_profile_address, :multiple_matches) }
+  let(:invalid_address) { build(:va_profile_validation_address).to_h }
+  let(:incorrect_address_pou) { build(:va_profile_address, :incorrect_address_pou) }
 
   shared_examples 'invalid address' do
     it 'returns an error' do
