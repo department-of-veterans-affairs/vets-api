@@ -45,7 +45,12 @@ module DecisionReviews
 
     def perform_all
       enabled? &&
-        (submissions.present? || submission_uploads.present? || errored_secondary_forms.present?)
+        (
+          submissions.present? ||
+          submission_uploads.present? ||
+          errored_secondary_forms.present? ||
+          permanent_error_forms.present?
+        )
     end
 
     def get_callback_config(email_type, appeal_type)
