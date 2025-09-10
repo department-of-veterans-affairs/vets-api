@@ -170,7 +170,6 @@ module TravelClaim
     #
     def send_claim_submission_request(claim_id:)
       with_auth do
-
         perform(:patch, "api/v3/claims/#{claim_id}/submit", nil, headers)
       end
     end
