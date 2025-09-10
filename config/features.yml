@@ -2441,3 +2441,7 @@ features:
     actor_type: user
     description: Enables substance use disorder as care related to mental health appointments with new codes
     enable_in_development: true
+  contention_classification_ml_classifier:
+    actor_type: user
+    description: enables the machine learning classifier for contention classification by calling the hybrid endpoint instead of expanded endpoint.
+    enable_in_development: true
