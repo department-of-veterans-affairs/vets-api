@@ -60,7 +60,7 @@ module SimpleFormsApi
         },
         {
           coords: [460, 690],
-          text: timestamp.utc.strftime('%H:%M UTC %Y-%m-%d'),
+          text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
           page: 1,
           font_size: 12
         }
