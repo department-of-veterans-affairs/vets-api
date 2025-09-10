@@ -49,6 +49,11 @@ set -euo pipefail
 
     for cert in *.{cer,pem}
     do
+        if ! grep 'BEGIN' "${cert}" > /dev/null
+        then
+          (echo '-----BEGIN CERTIFICATE-----'; cat "${cert}"; echo; echo '-----END CERTIFICATE-----') > "${cert}.bak"
+          mv "${cert}.bak" "${cert}"
+        fi
         if file "${cert}" | grep -q 'PEM'
         then
             cp "${cert}" "${cert}.crt"
