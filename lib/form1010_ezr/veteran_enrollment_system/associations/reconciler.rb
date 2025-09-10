@@ -22,6 +22,7 @@ module Form1010Ezr
 
         UNKNOWN_NAME = 'UNKNOWN'
         UNKNOWN_RELATION = 'UNRELATED FRIEND'
+        UNKNOWN_ROLE = 'Other emergency contact'
 
         # @param [Array] ves_associations The associations data from VES
         # @param [Array] form_associations The associations data in the submitted form
@@ -48,6 +49,7 @@ module Form1010Ezr
           # Add a deleteIndicator to the missing association objects. The user deleted these associations
           # on the frontend, so we need to delete them from the Associations API
           associations_to_delete = missing_associations.map do |obj|
+            obj['contactType'] = UNKNOWN_ROLE if obj['contactType'].blank?
             obj.merge('deleteIndicator' => true)
           end
 
@@ -73,6 +75,7 @@ module Form1010Ezr
         end
 
         def fill_association_full_name_from_ves_association(association, ves_association)
+          ves_association['name'] = {} unless ves_association['name']
           first_name = ves_association.dig('name', 'givenName')
           last_name = ves_association.dig('name', 'familyName')
           ves_association['name']['givenName'] = UNKNOWN_NAME if first_name.blank?
