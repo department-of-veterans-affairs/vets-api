@@ -523,7 +523,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(upload_cm_error_old.in_final_status?).to be(true)
     end
 
-    it 'returns false when status is DOC202 error and the age is still less than the MAX_UPSTREAM_ERROR_AGE_DAYS limit' do
+    it 'returns false when status is DOC202 error and the age is less than the MAX_UPSTREAM_ERROR_AGE_DAYS limit' do
       expect(upload_cm_error_new.in_final_status?).to be(false)
     end
 
