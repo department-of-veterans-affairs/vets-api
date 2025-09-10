@@ -1538,7 +1538,7 @@ features:
   pension_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
-  pension_itf_validate_data_loggeer:
+  pension_itf_validate_data_logger:
     actor_type: user
     description: Toggle sending of the ITF Validate Data to Rails Logger
     enable_in_development: true
