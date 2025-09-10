@@ -798,15 +798,6 @@ module ClaimsApi
         }
       end
 
-      def convert_phone(phone)
-        phone&.gsub!(/[^0-9]/, '')
-        return nil if phone.nil? || (phone.length < 10)
-
-        return "#{phone[0..2]}-#{phone[3..5]}-#{phone[6..9]}" if phone.length == 10
-
-        "#{phone[0..1]}-#{phone[2..3]}-#{phone[4..7]}-#{phone[8..11]}" if phone.length > 10
-      end
-
       def convert_date_string_to_format_yyyy(date_string)
         date = Date.strptime(date_string, '%Y')
         {
