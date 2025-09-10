@@ -680,6 +680,28 @@ RSpec.describe ApplicationController, type: :controller do
       session_object.to_hash.each { |k, v| session[k] = v }
     end
 
+    context 'with service tag logging' do
+      context 'when controller has a service tag' do
+        before do
+          controller.class.service_tag 'test-service'
+        end
+
+        it 'adds service tag to logs within around_action' do
+          expect(SemanticLogger).to receive(:named_tagged).with(service_tag: 'test-service').and_call_original
+          expect(Rails.logger).to receive(:info).with(expected_result)
+          subject
+        end
+      end
+
+      context 'when controller has no service tag' do
+        it 'does not call SemanticLogger.named_tagged' do
+          expect(SemanticLogger).not_to receive(:named_tagged)
+          expect(Rails.logger).to receive(:info).with(expected_result)
+          subject
+        end
+      end
+    end
+
     context 'when the current user and session object exist' do
       it 'returns the current user session token' do
         expect(Rails.logger).to receive(:info).with(expected_result)

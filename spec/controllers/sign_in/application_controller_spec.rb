@@ -713,4 +713,36 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       expect(JSON.parse(response.body)['errors'].first['title']).to eq(expected_error)
     end
   end
+
+  describe 'service tag logging' do
+    controller(SignIn::ApplicationController) do
+      skip_before_action :authenticate
+
+      def index
+        Rails.logger.info('Test log message')
+        render plain: 'OK'
+      end
+    end
+
+    before do
+      routes.draw do
+        get 'index' => 'sign_in/application#index'
+      end
+    end
+
+    it 'adds identity service tag to logs' do
+      expect(SemanticLogger).to receive(:named_tagged).with(service_tag: 'identity').and_call_original
+      expect(Rails.logger).to receive(:info).with('Test log message')
+      get :index
+      expect(response.body).to eq 'OK'
+    end
+
+    it 'handles missing service tag gracefully' do
+      controller.class.trace_service_tag = nil
+      expect(SemanticLogger).not_to receive(:named_tagged)
+      expect(Rails.logger).to receive(:info).with('Test log message')
+      get :index
+      expect(response.body).to eq 'OK'
+    end
+  end
 end
