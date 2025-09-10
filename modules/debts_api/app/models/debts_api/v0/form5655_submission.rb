@@ -211,7 +211,8 @@ module DebtsApi
     private
 
     def create_transaction_log_if_needed
-      return find_transaction_log if find_transaction_log
+      existing_log = find_transaction_log
+      return existing_log if existing_log
 
       user = User.find(user_uuid)
       DebtTransactionLog.track_waiver(self, user)
