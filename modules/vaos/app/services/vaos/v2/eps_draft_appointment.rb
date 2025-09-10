@@ -304,42 +304,29 @@ module VAOS
             appointmentId: draft_appointment_id
           }
         )
-        log_provider_slots_info(draft_appointment_id, slots)
+        log_provider_slots_info(slots)
         slots
       rescue ArgumentError => e
-        log_provider_slots_error(draft_appointment_id, e)
+        error_data = {
+          error_class: e.class.name,
+          error_message: e.message,
+          user_uuid: @current_user&.uuid
+        }
+        Rails.logger.error("#{CC_APPOINTMENTS}: Error fetching provider slots", error_data)
         nil
       end
 
       ##
       # Logs information about retrieved provider slots
       #
-      # @param draft_appointment_id [String] The draft appointment ID
       # @param slots [Array<Hash>] The retrieved provider slots
       # @return [void]
-      def log_provider_slots_info(draft_appointment_id, slots)
+      def log_provider_slots_info(slots)
         Rails.logger.info(
           "#{CC_APPOINTMENTS}: Provider slots retrieved",
           {
-            draft_appointment_id:,
             slots_count: slots&.length || 0,
             slots_available: slots&.any? || false
-          }
-        )
-      end
-
-      ##
-      # Logs an error when fetching provider slots fails
-      #
-      # @param draft_appointment_id [String] The draft appointment ID
-      # @param error [StandardError] The error raised during slot fetching
-      # @return [void]
-      def log_provider_slots_error(draft_appointment_id, error)
-        Rails.logger.error(
-          "#{CC_APPOINTMENTS}: Error fetching provider slots",
-          {
-            draft_appointment_id:,
-            error: error.message
           }
         )
       end
