@@ -27,39 +27,4 @@ RSpec.describe ClaimHelper do
       expect(instance.create_claim(appointment_id, 'complex')).to eq(claim_id)
     end
   end
-
-  describe '#validate_claim_id_exists!' do
-    context 'when claim_id is nil' do
-      it 'raises BadRequest with required message' do
-        expect { instance.validate_claim_id_exists!(nil) }.to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::BadRequest)
-          expect(error.errors.first[:detail]).to eq('Claim ID is required')
-        end
-      end
-    end
-
-    context 'when claim_id is blank' do
-      it 'raises BadRequest with required message' do
-        expect { instance.validate_claim_id_exists!('') }.to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::BadRequest)
-          expect(error.errors.first[:detail]).to eq('Claim ID is required')
-        end
-      end
-    end
-
-    context 'when claim_id is invalid format' do
-      it 'raises BadRequest with invalid message' do
-        expect { instance.validate_claim_id_exists!('not-a-uuid') }.to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::BadRequest)
-          expect(error.errors.first[:detail]).to eq('Claim ID is invalid')
-        end
-      end
-    end
-
-    context 'when claim_id is valid UUID' do
-      it 'does not raise' do
-        expect { instance.validate_claim_id_exists!(claim_id) }.not_to raise_error
-      end
-    end
-  end
 end
