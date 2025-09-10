@@ -385,7 +385,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       end
     end
   end
-  
+
   context 'section 5, disabilities' do
     let(:disabilities_object) do
       [

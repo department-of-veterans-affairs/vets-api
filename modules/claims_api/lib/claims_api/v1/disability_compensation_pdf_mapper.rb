@@ -18,11 +18,8 @@ module ClaimsApi
         section_0_claim_attributes
         section_1_veteran_identification
         section_2_change_of_address
-<<<<<<< HEAD
-        section_5_disabilities
-=======
         section_3_homeless_information
->>>>>>> master
+        section_5_disabilities
 
         @pdf_data
       end
