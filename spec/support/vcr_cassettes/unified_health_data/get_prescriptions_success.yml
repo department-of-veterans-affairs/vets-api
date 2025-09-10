@@ -64,7 +64,7 @@ http_interactions:
       - "<FARADAY_VERSION>"
       Authorization: Bearer <TOKEN>
       X-Api-Key:
-      - d9n1hWo7yq6Cr2Qkweda04WqhyakepJj9uV1oCJM
+      - <X_API_KEY>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
