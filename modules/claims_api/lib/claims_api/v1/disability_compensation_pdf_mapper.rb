@@ -18,6 +18,7 @@ module ClaimsApi
         section_0_claim_attributes
         section_1_veteran_identification
         section_2_change_of_address
+        section_3_homeless_information
 
         @pdf_data
       end
@@ -195,6 +196,73 @@ module ClaimsApi
 
       def change_of_address_type(address_info)
         @pdf_data[:data][:attributes][:changeOfAddress][:typeOfAddressChange] = address_info&.dig('addressChangeType')
+      end
+
+      def section_3_homeless_information
+        homeless_info = @auto_claim&.dig('veteran', 'homelessness')
+        return if homeless_info.blank?
+
+        set_pdf_data_for_homeless_information
+
+        point_of_contact
+        currently_homeless
+        homelessness_risk
+      end
+
+      def set_pdf_data_for_homeless_information
+        return if @pdf_data[:data][:attributes].key?(:homelessInformation)
+
+        @pdf_data[:data][:attributes][:homelessInformation] = {}
+      end
+
+      # If "pointOfContact" is on the form "pointOfContactName", "primaryPhone" are required via the schema
+      # "primaryPhone" requires both "areaCode" and "phoneNumber" via the schema
+      def point_of_contact
+        point_of_contact_info = @auto_claim&.dig('veteran', 'homelessness', 'pointOfContact')
+        return if point_of_contact_info.blank?
+
+        @pdf_data[:data][:attributes][:homelessInformation][:pointOfContact] =
+          point_of_contact_info&.dig('pointOfContactName')
+        phone_object = point_of_contact_info&.dig('primaryPhone')
+        phone_number = phone_object.values.join
+
+        @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber] = convert_phone(phone_number)
+      end
+
+      # if "currentlyHomeless" is present "homelessSituationType", "otherLivingSituation" are required by the schema
+      def currently_homeless
+        currently_homeless_info = @auto_claim&.dig('veteran', 'homelessness', 'currentlyHomeless')
+        return if currently_homeless_info.blank?
+
+        set_pdf_data_for_currently_homeless_information
+        currently_homeless_base = @pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+        currently_homeless_base[:homelessSituationOptions] = currently_homeless_info['homelessSituationType']
+        currently_homeless_base[:otherDescription] = currently_homeless_info['otherLivingSituation']
+      end
+
+      def set_pdf_data_for_currently_homeless_information
+        return if @pdf_data[:data][:attributes][:homelessInformation]&.key?(:currentlyHomeless)
+
+        @pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless] = {}
+      end
+
+      # if "homelessnessRisk" is on the submission "homelessnessRiskSituationType", "otherLivingSituation" are required
+      def homelessness_risk
+        homelessness_risk_info = @auto_claim&.dig('veteran', 'homelessness', 'homelessnessRisk')
+        return if homelessness_risk_info.blank?
+
+        set_pdf_data_for_homelessness_risk_information
+        risk_of_homeless_base = @pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
+
+        risk_of_homeless_base[:livingSituationOptions] = homelessness_risk_info['homelessnessRiskSituationType']
+        risk_of_homeless_base[:otherDescription] = homelessness_risk_info['otherLivingSituation']
+      end
+
+      def set_pdf_data_for_homelessness_risk_information
+        return if @pdf_data[:data][:attributes][:homelessInformation]&.key?(:riskOfBecomingHomeless)
+
+        @pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless] = {}
       end
     end
   end

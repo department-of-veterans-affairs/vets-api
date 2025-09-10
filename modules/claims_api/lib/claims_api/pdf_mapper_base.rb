@@ -72,5 +72,14 @@ module ClaimsApi
     def format_country(country)
       country == 'USA' ? 'US' : country
     end
+
+    def convert_phone(phone)
+      phone&.gsub!(/[^0-9]/, '')
+      return nil if phone.nil? || (phone.length < 10)
+
+      return "#{phone[0..2]}-#{phone[3..5]}-#{phone[6..9]}" if phone.length == 10
+
+      "#{phone[0..1]}-#{phone[2..3]}-#{phone[4..7]}-#{phone[8..11]}" if phone.length > 10
+    end
   end
 end
