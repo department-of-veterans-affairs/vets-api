@@ -134,4 +134,26 @@ RSpec.configure do |config|
   config.before do
     $redis.flushdb
   end
+
+  if ENV['CI']
+    REAL_STDOUT = $stdout.dup
+    REAL_STDERR = $stderr.dup
+
+    require 'rspec/core'
+    RSpec.configure do |config|
+      config.output_stream = REAL_STDOUT
+      config.error_stream  = REAL_STDERR
+      config.warnings = false
+      config.deprecation_stream = File.open(File::NULL, 'w')
+    end
+
+    $stdout.reopen(File::NULL, 'w')
+    $stderr.reopen(File::NULL, 'w')
+
+    if defined?(Warning) && Warning.respond_to?(:[]=)
+      Warning[:deprecated] = false
+      Warning[:experimental] = false
+      Warning[:performance] = false
+    end
+  end
 end
