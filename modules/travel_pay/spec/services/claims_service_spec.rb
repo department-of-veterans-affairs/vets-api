@@ -62,7 +62,7 @@ describe TravelPay::ClaimsService do
     end
 
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
-    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user: user) }
+    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user:) }
     let(:service) { TravelPay::ClaimsService.new(auth_manager) }
 
     before do
@@ -191,7 +191,7 @@ describe TravelPay::ClaimsService do
     end
 
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
-    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user: user) }
+    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user:) }
     let(:service) { TravelPay::ClaimsService.new(auth_manager) }
 
     before do
@@ -395,7 +395,7 @@ describe TravelPay::ClaimsService do
     end
 
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
-    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user: user) }
+    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user:) }
     let(:service) { TravelPay::ClaimsService.new(auth_manager) }
 
     before do
@@ -622,7 +622,7 @@ describe TravelPay::ClaimsService do
     end
 
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
-    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user: user) }
+    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user:) }
     let(:service) { TravelPay::ClaimsService.new(auth_manager) }
 
     it 'returns a claim ID when passed a valid btsss appt id' do
@@ -661,7 +661,7 @@ describe TravelPay::ClaimsService do
     end
 
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
-    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user: user) }
+    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user:) }
     let(:service) { TravelPay::ClaimsService.new(auth_manager) }
 
     it 'returns submitted claim information' do
@@ -688,7 +688,7 @@ describe TravelPay::ClaimsService do
   context 'decision letter functionality' do
     let(:user) { build(:user) }
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
-    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user: user) }
+    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user:) }
     let(:service) { TravelPay::ClaimsService.new(auth_manager) }
 
     describe '#find_decision_letter_document' do
