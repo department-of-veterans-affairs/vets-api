@@ -5,7 +5,7 @@ http_interactions:
     uri: "<MHV_HOST>/v1/pharmacy/ess/rxrefill"
     body:
       encoding: UTF-8
-      string: "[25664832,25658010]"
+      string: "[13650545,13650546]"
     headers:
       Accept:
       - application/json
@@ -24,28 +24,30 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 05 Sep 2025 14:48:21 GMT
+      - Thu, 04 Sep 2025 22:36:14 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '169'
+      - '388'
       X-Amzn-Requestid:
-      - 3f78084a-6180-49cc-913d-809b60f3ec0d
+      - cfa50487-0c9d-4def-b2d8-a4468fb3febb
       X-Oneagent-Js-Injection:
       - 'true'
       X-Amzn-Remapped-Connection:
       - keep-alive
       X-Amz-Apigw-Id:
-      - Qbu4YExUvHMFWhg=
+      - QZge2Ha4vHMFRig=
       Server-Timing:
-      - dtRpid;desc="1952845171", dtSInfo;desc="0"
+      - dtRpid;desc="2059899444", dtSInfo;desc="0"
       X-Amzn-Remapped-Date:
-      - Fri, 05 Sep 2025 14:48:21 GMT
+      - Thu, 04 Sep 2025 22:36:14 GMT
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: ASCII-8BIT
-      string: '{"failedStationList":"","successfulStationList":"DAYT29, DAYT29","lastUpdatedTime":"Fri,
-        05 Sep 2025 10:44:30 EDT","prescriptionList":null,"errors":[],"infoMessages":[]}'
-  recorded_at: Fri, 05 Sep 2025 14:48:22 GMT
+      string: '{"failedStationList":"","successfulStationList":"","lastUpdatedTime":"Thu,
+        04 Sep 2025 17:27:36 EDT","prescriptionList":null,"errors":[{"errorCode":138,"developerMessage":"Prescription
+        not found for id: 13650545","message":"Prescription is not Found"},{"errorCode":138,"developerMessage":"Prescription
+        not found for id: 13650546","message":"Prescription is not Found"}],"infoMessages":[]}'
+  recorded_at: Thu, 04 Sep 2025 22:36:14 GMT
 recorded_with: VCR 6.3.1
