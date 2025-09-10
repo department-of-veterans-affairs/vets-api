@@ -673,6 +673,10 @@ features:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
     enable_in_development: true
+  contention_classification_ml_classifier:
+    actor_type: user
+    description: Enables the machine learning classifier for contention classification by calling the hybrid endpoint instead of expanded endpoint.
+    enable_in_development: true
   disability_526_ee_mst_special_issue:
     actor_type: user
     description: enables adding MST special issue to disability_526 prior to submission.
@@ -2440,8 +2444,4 @@ features:
   va_online_scheduling_add_substance_use_disorder:
     actor_type: user
     description: Enables substance use disorder as care related to mental health appointments with new codes
-    enable_in_development: true
-  contention_classification_ml_classifier:
-    actor_type: user
-    description: Enables the machine learning classifier for contention classification by calling the hybrid endpoint instead of expanded endpoint.
     enable_in_development: true
