@@ -2,9 +2,8 @@
 
 module TravelPay
   class AppointmentsService
-    def initialize(auth_manager, user = nil)
+    def initialize(auth_manager)
       @auth_manager = auth_manager
-      @user = user
     end
 
     ##
@@ -65,7 +64,7 @@ module TravelPay
         @auth_manager.authorize => { veis_token:, btsss_token: }
 
         # Use feature flag to determine API version
-        use_v4_api = !!(@user && Flipper.enabled?(:travel_pay_appt_add_v4_upgrade, @user))
+        use_v4_api = !!(@auth_manager.user && Flipper.enabled?(:travel_pay_appt_add_v4_upgrade, @auth_manager.user))
 
         faraday_response = client.find_or_create(veis_token, btsss_token, params, use_v4_api:)
         appointments = faraday_response.body['data']
