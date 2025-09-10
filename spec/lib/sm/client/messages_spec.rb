@@ -210,6 +210,32 @@ describe 'sm client' do
           expect(attachment[:body]).to eq(file_content)
         end
       end
+
+      context 'when response is an incomplete object' do
+        let(:incomplete_object_data) do
+          {
+            'url' => 'https://example.com/attachments/sample.pdf',
+            'mimeType' => 'application/pdf'
+            # missing 'name' key
+          }
+        end
+
+        before do
+          allow(client).to receive(:perform).and_return(
+            double(
+              body: { data: incomplete_object_data },
+              response_headers: { 'content-disposition' => 'attachment; filename="fallback.pdf"' }
+            )
+          )
+        end
+
+        it 'falls back to binary response handling' do
+          attachment = client.get_attachment(message_id, attachment_id)
+
+          expect(attachment[:filename]).to eq('fallback.pdf')
+          expect(attachment[:body]).to eq({ data: incomplete_object_data })
+        end
+      end
     end
   end
 end

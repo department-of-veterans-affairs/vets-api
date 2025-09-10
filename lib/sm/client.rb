@@ -757,6 +757,7 @@ module SM
     # @!endgroup
 
     def has_object_attributes?(data)
+      return false unless data.is_a?(Hash)
       required_keys = %w[url mimeType name]
       required_keys.all? { |key| data.key?(key) || data.key?(key.to_sym) }
     end
