@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
-
 require 'claims_api/v1/disability_compensation_pdf_mapper'
 require 'pdf_generator_service/pdf_client'
 
@@ -12,9 +10,7 @@ module ClaimsApi
       LOG_TAG = '526_v2_PDF_Generator_job'
       sidekiq_options expires_in: 48.hours, retry: true
 
-      def perform(claim_id, middle_initial)
-        # rubocop:enable Metrics/MethodLength
-
+      def perform(claim_id, middle_initial) # rubocop:disable Metrics/MethodLength
         log_job_progress(claim_id,
                          "526EZ PDF generator started for claim #{claim_id}")
 
@@ -90,10 +86,10 @@ module ClaimsApi
       private
 
       def start_docker_container_job(auto_claim)
-        form526_establishment_service.perform_async(auto_claim)
+        docker_container_service.perform_async(auto_claim)
       end
 
-      def form526_establishment_service
+      def docker_container_service
         ClaimsApi::V2::DisabilityCompensationDockerContainerUpload
       end
 
