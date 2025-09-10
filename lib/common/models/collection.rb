@@ -20,7 +20,7 @@ module Common
     alias to_hash attributes
 
     CACHE_NAMESPACE = 'common_collection'
-    CACHE_DEFAULT_TTL = 3600 # defaul
+    CACHE_DEFAULT_TTL = 3600 # default to 1 hour
 
     OPERATIONS_MAP = {
       'eq' => '==',
