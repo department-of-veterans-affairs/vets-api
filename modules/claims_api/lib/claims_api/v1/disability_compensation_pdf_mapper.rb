@@ -314,10 +314,6 @@ module ClaimsApi
           end
         end.flatten
       end # rubocop:enable Metrics/MethodLength
-
-      def build_disability_item(disability, approximate_date, service_relevance)
-        { disability:, approximateDate: approximate_date, serviceRelevance: service_relevance }.compact
-      end
     end
   end
 end
