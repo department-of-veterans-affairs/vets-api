@@ -23,9 +23,8 @@ module ClaimsApi
 
         FORM_NUMBER = '526'
 
-        skip_before_action :validate_json_format, only: [:attachments]
-        before_action :shared_validation, :file_number_check, only: %i[submit validate synchronous]
-        before_action :edipi_check, only: %i[submit validate synchronous]
+        before_action :shared_validation, :file_number_check, only: %i[validate synchronous]
+        before_action :edipi_check, only: %i[validate synchronous]
 
         before_action only: %i[generate_pdf] do
           permit_scopes(%w[system/526-pdf.override], actions: [:generate_pdf])
@@ -34,41 +33,8 @@ module ClaimsApi
           permit_scopes(%w[system/526.override], actions: [:synchronous])
         end
 
-        def submit
-          auto_claim = shared_submit_methods
-
-          # This kicks off the first of three jobs required to fully establish the claim
-          process_claim(auto_claim) unless Flipper.enabled? :claims_load_testing
-
-          render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
-            auto_claim, root: :data
-          ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
-        end
-
         def validate
           render json: valid_526_response
-        end
-
-        def attachments
-          if params.keys.select { |key| key.include? 'attachment' }.count > 10
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-              detail: 'Too many attachments.'
-            )
-          end
-
-          claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
-
-          unless claim
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
-              detail: 'Resource not found'
-            )
-          end
-
-          documents_service(params, claim).process_documents
-
-          render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
-            claim, root: :data
-          ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: claim.id)
         end
 
         # Returns filled out 526EZ form as PDF
@@ -106,7 +72,7 @@ module ClaimsApi
 
           unless claims_load_testing # || sandbox_request(request)
             generate_pdf_from_service!(auto_claim.id, veteran_middle_initial) unless mocking
-            docker_container_service.upload(auto_claim.id)
+            form526_establishment_service.upload(auto_claim.id)
             queue_flash_updater(auto_claim.flashes, auto_claim.id)
             start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
             auto_claim.reload
@@ -176,13 +142,6 @@ module ClaimsApi
           { data: {} }
         end
 
-        def process_claim(auto_claim)
-          ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
-            auto_claim.id,
-            veteran_middle_initial # PDF mapper just needs middle initial
-          )
-        end
-
         # Only value required by background jobs that is missing in headers is middle name
         def veteran_middle_initial
           target_veteran.middle_name&.first&.upcase || ''
@@ -215,10 +174,6 @@ module ClaimsApi
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
-        end
-
-        def documents_service(params, claim)
-          ClaimsApi::V2::DisabilityCompensationDocuments.new(params, claim)
         end
 
         def valid_526_response
@@ -258,8 +213,8 @@ module ClaimsApi
           ClaimsApi::DisabilityCompensation::PdfGenerationService.new
         end
 
-        def docker_container_service
-          ClaimsApi::DisabilityCompensation::DockerContainerService.new
+        def form526_establishment_service
+          ClaimsApi::DisabilityCompensation::Form526EstablishmentService.new
         end
 
         def queue_flash_updater(flashes, auto_claim_id)

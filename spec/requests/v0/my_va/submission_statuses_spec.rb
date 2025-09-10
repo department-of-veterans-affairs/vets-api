@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'forms/submission_statuses/gateway'
+require 'forms/submission_statuses/benefits_intake_gateway'
 
 RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
                                                team_owner: :vfs_authenticated_experience_backend, type: :request do
@@ -171,7 +171,7 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
 
   context 'when user has no submissions' do
     before do
-      allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:submissions).and_return([])
+      allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway).to receive(:submissions).and_return([])
     end
 
     it 'returns an empty array' do

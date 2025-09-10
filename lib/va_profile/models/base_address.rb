@@ -13,7 +13,7 @@ module VAProfile
       VALID_ALPHA_REGEX = /[a-zA-Z ]+/
       VALID_NUMERIC_REGEX = /[0-9]+/
       ADDRESS_FIELD_LIMIT = 35
-      RESIDENCE = 'RESIDENCE/CHOICE'
+      RESIDENCE = 'RESIDENCE'
       CORRESPONDENCE = 'CORRESPONDENCE'
       ADDRESS_POUS   = [RESIDENCE, CORRESPONDENCE].freeze
       DOMESTIC       = 'DOMESTIC'
@@ -48,8 +48,10 @@ module VAProfile
       attribute :state_code, String
       attribute :transaction_id, String
       attribute :updated_at, Vets::Type::ISO8601Time
+      attribute :override_validation_key, Integer
       attribute :validation_key, Integer
       attribute :vet360_id, String
+      attribute :va_profile_id, String
       attribute :zip_code, String
       attribute :zip_code_suffix, String
 
@@ -120,6 +122,13 @@ module VAProfile
         validates :zip_code_suffix, absence: true
         validates :county_name, absence: true
         validates :county_code, absence: true
+      end
+
+      def initialize(attributes = {})
+        # Address_pou RESIDENCE/CHOICE was changed to RESIDENCE for Contact Information API v2
+        # This will update the address_pou when address_pou is RESIDENCE/CHOICE
+        super
+        self.address_pou = 'RESIDENCE' if address_pou == 'RESIDENCE/CHOICE'
       end
 
       def ascii_only

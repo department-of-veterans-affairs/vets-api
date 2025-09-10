@@ -917,6 +917,24 @@
             }
           }
         }
+      },
+      "if": {
+        "required": ["federalActivation"]
+      },
+      "then": {
+        "required": ["reservesNationalGuardService"],
+        "properties": {
+          "reservesNationalGuardService": {
+            "required": [
+              "obligationTermsOfService"
+            ],
+            "properties": {
+              "obligationTermsOfService": {
+                "required": ["beginDate", "endDate"]
+              }
+            }
+          }
+        }
       }
     },
     "servicePay": {
