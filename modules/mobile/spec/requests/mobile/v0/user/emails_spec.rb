@@ -8,7 +8,6 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
   let!(:user) { sis_user(icn: '123498767V234859') }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.000Z'))
   end
 
@@ -17,7 +16,7 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
   end
 
   describe 'POST /mobile/v0/user/emails' do
-    let(:email) { build(:email, :contact_info_v2, email_address: 'person42@example.com') }
+    let(:email) { build(:email, email_address: 'person42@example.com') }
 
     context 'with a valid email that takes two tries to complete' do
       before do
@@ -77,8 +76,8 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
 
   describe 'PUT /mobile/v0/user/emails' do
     let(:email) do
-      build(:email, :contact_info_v2, id: 318_927, email_address: 'person43@example.com',
-                                      source_system_user: user.icn)
+      build(:email, id: 318_927, email_address: 'person43@example.com',
+                    source_system_user: user.icn)
     end
 
     context 'with a valid email that takes two tries to complete' do

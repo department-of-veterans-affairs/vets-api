@@ -4,10 +4,6 @@ require 'rails_helper'
 require 'va_profile/contact_information/v2/transaction_response'
 
 describe VAProfile::ContactInformation::V2::TransactionResponse do
-  before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-  end
-
   describe '.from' do
     subject { described_class.from(raw_response) }
 
@@ -29,7 +25,7 @@ describe VAProfile::ContactInformation::V2::TransactionResponse do
 
       context 'with a residence address change' do
         before do
-          body['tx_output'][0]['address_pou'] = VAProfile::Models::V3::BaseAddress::RESIDENCE
+          body['tx_output'][0]['address_pou'] = VAProfile::Models::BaseAddress::RESIDENCE
         end
 
         it 'has the correct changed field' do
@@ -39,7 +35,7 @@ describe VAProfile::ContactInformation::V2::TransactionResponse do
 
       context 'with a correspondence address change' do
         before do
-          body['tx_output'][0]['address_pou'] = VAProfile::Models::V3::BaseAddress::CORRESPONDENCE
+          body['tx_output'][0]['address_pou'] = VAProfile::Models::BaseAddress::CORRESPONDENCE
         end
 
         it 'has the correct changed field' do

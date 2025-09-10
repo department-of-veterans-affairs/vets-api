@@ -50,11 +50,7 @@ class FormProfiles::VA686c674v2 < FormProfile
 
   def prefill_form_address
     begin
-      mailing_address = if user.icn.present? && Flipper.enabled?(:remove_pciu, user)
-                          VAProfileRedis::V2::ContactInformation.for_user(user).mailing_address
-                        elsif user.vet360_id.present?
-                          VAProfileRedis::ContactInformation.for_user(user).mailing_address
-                        end
+      mailing_address = VAProfileRedis::V2::ContactInformation.for_user(user).mailing_address
     rescue
       nil
     end
@@ -143,8 +139,7 @@ class FormProfiles::VA686c674v2 < FormProfile
       full_name: FormFullName.new({
                                     first: person[:first_name],
                                     middle: person[:middle_name],
-                                    last: person[:last_name],
-                                    suffix: person[:suffix]
+                                    last: person[:last_name]
                                   }),
       date_of_birth: parsed_date,
       ssn: person[:ssn],
