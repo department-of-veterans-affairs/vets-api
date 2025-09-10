@@ -738,7 +738,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     end
 
     it 'handles missing service tag gracefully' do
-      controller.class.trace_service_tag = nil
+      allow(controller).to receive(:trace_service_tag).and_return(nil)
       expect(SemanticLogger).not_to receive(:named_tagged)
       expect(Rails.logger).to receive(:info).with('Test log message')
       get :index
