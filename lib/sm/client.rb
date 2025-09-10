@@ -494,8 +494,21 @@ module SM
       response = perform(:get, path, nil, token_headers)
       data = response.body[:data] if response.body.is_a?(Hash)
 
+      # If response data is an object with url, mimeType, and name attributes
+      if data.is_a?(Hash) && has_object_attributes?(data)
+        url = data[:url] || data['url']
+        uri = URI.parse(url)
+        file_response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+          http.get(uri.request_uri)
+        end
+        unless file_response.is_a?(Net::HTTPSuccess)
+          Rails.logger.error("Failed to fetch attachment from presigned URL: \\#{file_response.body}")
+          raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', 500)
+        end
+        filename = data[:name] || data['name']
+        { body: file_response.body, filename: }
       # If response body is a string and looks like a URL, fetch the file from the URL
-      if data.is_a?(String) && data.match?(%r{^https?://})
+      elsif data.is_a?(String) && data.match?(%r{^https?://})
         url = data
         uri = URI.parse(url)
         file_response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
@@ -742,5 +755,10 @@ module SM
       StatsD.increment("#{STATSD_KEY_PREFIX}.cache.miss")
     end
     # @!endgroup
+
+    def has_object_attributes?(data)
+      required_keys = %w[url mimeType name]
+      required_keys.all? { |key| data.key?(key) || data.key?(key.to_sym) }
+    end
   end
 end

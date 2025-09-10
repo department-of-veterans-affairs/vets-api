@@ -139,6 +139,77 @@ describe 'sm client' do
         attachment = client.get_attachment(message_id, attachment_id)
         expect(attachment[:filename]).to eq('noise300x200.png')
       end
+
+      context 'when response is an object with url, mimeType, and name attributes' do
+        let(:object_response_data) do
+          {
+            url: 'https://example.com/attachments/sample.pdf',
+            mimeType: 'application/pdf',
+            name: 'sample_document.pdf'
+          }
+        end
+        let(:file_content) { 'sample PDF content' }
+
+        before do
+          # Mock the perform method to return object data
+          allow(client).to receive(:perform).and_return(
+            double(
+              body: { data: object_response_data },
+              response_headers: {}
+            )
+          )
+
+          # Mock the HTTP request to return file content
+          stub_request(:get, object_response_data[:url])
+            .to_return(status: 200, body: file_content)
+        end
+
+        it 'fetches file from url and uses name from object' do
+          attachment = client.get_attachment(message_id, attachment_id)
+
+          expect(attachment[:filename]).to eq('sample_document.pdf')
+          expect(attachment[:body]).to eq(file_content)
+        end
+
+        it 'raises error when URL fetch fails' do
+          stub_request(:get, object_response_data[:url])
+            .to_return(status: 404, body: 'Not Found')
+
+          expect { client.get_attachment(message_id, attachment_id) }
+            .to raise_error(Common::Exceptions::BackendServiceException, /SM_ATTACHMENT_URL_FETCH_ERROR/)
+        end
+      end
+
+      context 'when response is an object with string keys' do
+        let(:object_response_data) do
+          {
+            'url' => 'https://example.com/attachments/sample.pdf',
+            'mimeType' => 'application/pdf',
+            'name' => 'sample_document.pdf'
+          }
+        end
+        let(:file_content) { 'sample PDF content' }
+
+        before do
+          allow(client).to receive(:perform).and_return(
+            double(
+              body: { data: object_response_data },
+              response_headers: {}
+            )
+          )
+
+          # Mock the HTTP request to return file content
+          stub_request(:get, object_response_data['url'])
+            .to_return(status: 200, body: file_content)
+        end
+
+        it 'fetches file from url and uses name from object' do
+          attachment = client.get_attachment(message_id, attachment_id)
+
+          expect(attachment[:filename]).to eq('sample_document.pdf')
+          expect(attachment[:body]).to eq(file_content)
+        end
+      end
     end
   end
 end
