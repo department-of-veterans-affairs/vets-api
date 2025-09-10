@@ -23,7 +23,7 @@ module TravelClaim
     # Delegate settings methods directly to the settings object
     def_delegators :settings, :auth_url, :tenant_id, :travel_pay_client_id, :travel_pay_client_secret,
                    :scope, :claims_url_v2, :subscription_key, :e_subscription_key, :s_subscription_key,
-                   :travel_pay_client_number, :travel_pay_resource, :client_secret
+                   :client_number, :travel_pay_resource, :client_secret
 
     def initialize(uuid:, check_in_uuid:, appointment_date_time:)
       @uuid = uuid
@@ -77,9 +77,8 @@ module TravelClaim
     # @param icn [String] Patient ICN
     # @return [Faraday::Response] HTTP response containing access token
     #
-    def system_access_token_request(client_number:, veis_access_token:, icn:)
+    def system_access_token_request(veis_access_token:, icn:)
       body = { secret: travel_pay_client_secret, icn: }
-      client_number ||= travel_pay_client_number
 
       headers = {
         'Content-Type' => 'application/json',
@@ -170,8 +169,7 @@ module TravelClaim
     #
     def send_claim_submission_request(claim_id:)
       with_auth do
-        body = { claimId: claim_id }
-        perform(:patch, 'api/v3/claims/submit', body, headers)
+        perform(:patch, "api/v3/claims/#{claim_id}/submit", nil, headers)
       end
     end
 
@@ -191,6 +189,23 @@ module TravelClaim
       else
         { 'Ocp-Apim-Subscription-Key' => subscription_key }
       end
+    end
+
+    ##
+    # Ensures valid tokens are available.
+    # Fetches tokens from Redis cache or fetches new ones if needed.
+    #
+    def ensure_tokens!
+      return if @current_veis_token && @current_btsss_token
+
+      cached_veis = @redis_client.token
+      if cached_veis
+        @current_veis_token = cached_veis
+        fetch_btsss_token! if @current_btsss_token.nil?
+        return
+      end
+
+      fetch_tokens!
     end
 
     private
@@ -265,23 +280,6 @@ module TravelClaim
     end
 
     ##
-    # Ensures valid tokens are available.
-    # Fetches tokens from Redis cache or fetches new ones if needed.
-    #
-    def ensure_tokens!
-      return if @current_veis_token && @current_btsss_token
-
-      cached_veis = @redis_client.token
-      if cached_veis
-        @current_veis_token = cached_veis
-        fetch_btsss_token! if @current_btsss_token.nil?
-        return
-      end
-
-      fetch_tokens!
-    end
-
-    ##
     # Fetches fresh tokens.
     # Updates internal token state and stores VEIS token in Redis.
     #
@@ -304,7 +302,6 @@ module TravelClaim
     #
     def fetch_btsss_token!
       btsss_response = system_access_token_request(
-        client_number: nil,
         veis_access_token: @current_veis_token,
         icn: @icn
       )

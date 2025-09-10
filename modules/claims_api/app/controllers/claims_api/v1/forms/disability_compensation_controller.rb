@@ -7,6 +7,7 @@ require 'evss/error_middleware'
 require 'common/exceptions'
 require 'jsonapi/parser'
 require 'evss_service/base' # docker container
+require 'claims_api/v1/disability_compensation_pdf_generator'
 
 module ClaimsApi
   module V1
@@ -93,7 +94,11 @@ module ClaimsApi
           end
 
           unless form_attributes['autoCestPDFGenerationDisabled'] == true
-            ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
+            if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+              ClaimsApi::V1::DisabilityCompensationPdfGenerator.perform_async(auto_claim.id, veteran_middle_initial)
+            else
+              ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
+            end
           end
 
           render json: ClaimsApi::AutoEstablishedClaimSerializer.new(auto_claim)
@@ -282,6 +287,11 @@ module ClaimsApi
               }
             }
           }.to_json
+        end
+
+        # Only value required by background jobs that is missing in headers is middle name
+        def veteran_middle_initial
+          target_veteran.middle_name&.first&.upcase || ''
         end
 
         def format_526_errors(errors)
