@@ -242,14 +242,16 @@ module ClaimsApi
         auth_headers.key?(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY) && rep.present?
     end
 
-    def v1_fes_mapper_service(auto_claim); end
-
     def evss_mapper_service(auto_claim)
       ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim)
     end
 
     def fes_mapper_service(auto_claim)
       ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim)
+    end
+
+    def v1_fes_mapper_service(auto_claim)
+      ClaimsApi::V1::V1DisabilityCompensationFesMapper.new(auto_claim)
     end
 
     def veteran_file_number(auto_claim)
