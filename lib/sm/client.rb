@@ -5,6 +5,8 @@ require 'common/client/concerns/mhv_session_based_client'
 require 'sm/client_session'
 require 'sm/configuration'
 require 'vets/collection'
+require 'net/http'
+require 'uri'
 
 module SM
   ##
@@ -503,7 +505,7 @@ module SM
           http.get(uri.request_uri)
         end
         unless file_response.is_a?(Net::HTTPSuccess)
-          Rails.logger.error("Failed to fetch attachment from presigned URL: \\#{file_response.body}")
+          Rails.logger.error("Failed to fetch attachment from presigned URL: #{file_response.code}")
           raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', 500)
         end
         filename = data[:name] || data['name']
@@ -516,7 +518,7 @@ module SM
           http.get(uri.request_uri)
         end
         unless file_response.is_a?(Net::HTTPSuccess)
-          Rails.logger.error("Failed to fetch attachment from presigned URL: \\#{file_response.body}")
+          Rails.logger.error("Failed to fetch attachment from presigned URL: #{file_response.code}")
           raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', 500)
         end
         filename = uri.path.split('/').last
