@@ -23,7 +23,7 @@ module EventBusGateway
     end
 
     def self.retry_email(notification)
-      ebg_noti = find_notification_by_va_notify_id(notification.id)
+      ebg_noti = find_notification_by_va_notify_id(notification.notification_id)
       return handle_exhausted_retries(notification, ebg_noti) if ebg_noti.attempts >= Constants::MAX_EMAIL_ATTEMPTS
 
       schedule_retry_job(ebg_noti)
@@ -62,6 +62,7 @@ module EventBusGateway
     end
 
     def self.handle_retry_failure(error)
+      Rails.logger.error(name, error.message)
       tags = Constants::DD_TAGS + ["function: #{error.message}"]
       StatsD.increment("#{STATSD_METRIC_PREFIX}.queued_retry_failure", tags:)
     end
