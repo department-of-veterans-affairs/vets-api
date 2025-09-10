@@ -24,6 +24,8 @@ describe TravelPay::DocumentsService do
            })
   end
   let(:upload_response) { double(body: { 'data' => { 'documentId' => '123e4567-e89b-12d3-a456-426614174000' } }) }
+  let(:claim_id) { '73611905-71bf-46ed-b1ec-e790593b8565' }
+  let(:doc_id) { '123e4567-e89b-12d3-a456-426614174000' }
 
   before do
     allow_any_instance_of(TravelPay::DocumentsClient).to receive(:get_document_binary).and_return(doc_binary_data)
@@ -73,7 +75,6 @@ describe TravelPay::DocumentsService do
   end
 
   describe '#upload_document' do
-    let(:claim_id) { '73611905-71bf-46ed-b1ec-e790593b8565' }
     let(:file_path) { 'modules/travel_pay/spec/fixtures/documents/test.pdf' }
     # Have to set the filename here since Rack::Test::UploadedFile creates a tempfile under /tmp with a unique name
     let(:file) { Rack::Test::UploadedFile.new(file_path, 'application/pdf', 'test.pdf') }
@@ -138,6 +139,44 @@ describe TravelPay::DocumentsService do
           Common::Exceptions::BadRequest
         )
       end
+    end
+  end
+
+  describe '#delete_document' do
+    let(:delete_response) do
+      double(body: { 'data' => { 'documentId' => doc_id } })
+    end
+
+    before do
+      allow_any_instance_of(TravelPay::DocumentsClient).to receive(:delete_document).and_return(delete_response)
+    end
+
+    it 'calls the client to delete the document' do
+      expect_any_instance_of(TravelPay::DocumentsClient).to receive(:delete_document).with(
+        'veis_token',
+        'btsss_token',
+        hash_including(claim_id:, document_id: doc_id)
+      )
+      service.delete_document(claim_id, doc_id)
+    end
+
+    it 'returns the data from the response body' do
+      result = service.delete_document(claim_id, doc_id)
+      expect(result).to eq({ 'documentId' => doc_id })
+    end
+
+    it 'raises ArgumentError when claim_id is missing' do
+      expect { service.delete_document(nil, doc_id) }.to raise_error(
+        ArgumentError,
+        /Missing Claim ID/
+      )
+    end
+
+    it 'raises ArgumentError when document_id is missing' do
+      expect { service.delete_document(claim_id, nil) }.to raise_error(
+        ArgumentError,
+        /Missing Claim ID or Document ID/
+      )
     end
   end
 end
