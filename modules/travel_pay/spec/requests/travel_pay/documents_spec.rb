@@ -129,7 +129,7 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
           delete(doc_path)
 
           expect(response).to have_http_status(:bad_request)
-          expect(JSON.parse(response.body)['error']).to eq('invalid document')
+          expect(JSON.parse(response.body)['errors'].first['detail']).to eq('invalid document')
         end
 
         it 'returns server error JSON when Faraday::ServerError' do
@@ -140,7 +140,7 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
           delete(doc_path)
 
           expect(response).to have_http_status(:internal_server_error)
-          expect(JSON.parse(response.body)['error']).to eq('Server error deleting document')
+          expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Server error deleting document')
         end
       end
     end

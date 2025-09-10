@@ -86,7 +86,7 @@ module TravelPay
                     default_message
                   end
 
-        render json: { error: message }, status: http_status
+        render json: { errors: [{ detail: message }] }, status: http_status
       end
 
       def check_feature_flag
