@@ -155,7 +155,6 @@ check_in:
     subscription_key: ~
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     travel_pay_client_id: ~
-    travel_pay_client_number: 12345
     travel_pay_client_secret: secret
     travel_pay_resource: ~
   vaos:
