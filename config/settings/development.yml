@@ -148,6 +148,7 @@ check_in:
     client_number_oh: ~
     client_secret: ~
     e_subscription_key: ~
+    mock: true
     redis_token_expiry: 3540
     s_subscription_key: ~
     scope: ~
