@@ -2,6 +2,7 @@
 
 require 'datadog'
 require 'ves_api/client'
+require 'common/pdf_helpers'
 
 # rubocop:disable Metrics/ClassLength
 # Note: Disabling this rule is temporary, refactoring of this class is planned
@@ -202,15 +203,31 @@ module IvcChampva
       end
 
       # Modified from claim_documents_controller.rb:
-      def unlock_file(file, file_password) # rubocop:disable Metrics/MethodLength
+      def unlock_file(file, file_password)
         return file unless File.extname(file) == '.pdf' && file_password
 
-        pdftk = PdfForms.new(Settings.binaries.pdftk)
         tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
+
+        tmpf = if Flipper.enabled?(:champva_use_hexapdf_to_unlock_pdfs, @current_user)
+                 unlock_with_hexapdf(file, file_password, tmpf)
+               else
+                 unlock_with_pdftk(file, file_password, tmpf)
+               end
+
+        file.tempfile.unlink
+        file.tempfile = tmpf
+      end
+
+      ## Uses pdftk to unlock the provided PDF file with the given password
+      # @param [ActionDispatch::Http::UploadedFile] source_file The uploaded PDF file to unlock
+      # @param [String] file_password The password to unlock the PDF
+      # @param [Tempfile] destination_file A tempfile where the unlocked PDF will be saved
+      def unlock_with_pdftk(source_file, file_password, destination_file)
+        pdftk = PdfForms.new(Settings.binaries.pdftk)
 
         has_pdf_err = false
         begin
-          pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
+          pdftk.call_pdftk(source_file.tempfile.path, 'input_pw', file_password, 'output', destination_file.path)
         rescue PdfForms::PdftkError => e
           file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
           password_regex = /(input_pw).*?(output)/
@@ -227,8 +244,34 @@ module IvcChampva
           )
         end
 
-        file.tempfile.unlink
-        file.tempfile = tmpf
+        destination_file
+      end
+
+      ## Uses hexapdf to unlock the provided PDF file with the given password
+      # @param [ActionDispatch::Http::UploadedFile] source_file The uploaded PDF file to unlock
+      # @param [String] file_password The password to unlock the PDF
+      # @param [Tempfile] destination_file A tempfile where the unlocked PDF will be saved
+      def unlock_with_hexapdf(source_file, file_password, destination_file)
+        has_pdf_err = false
+        begin
+          ::Common::PdfHelpers.unlock_pdf(source_file.tempfile.path, file_password, destination_file.path)
+        rescue Common::Exceptions::UnprocessableEntity => e
+          file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
+          password_regex = /(input_pw).*?(output)/
+          sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
+          log_message_to_sentry(sanitized_message, 'warn')
+          has_pdf_err = true
+        end
+
+        # This helps prevent leaking exception context to DataDog when we raise this error
+        if has_pdf_err
+          raise Common::Exceptions::UnprocessableEntity.new(
+            detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
+            source: 'IvcChampva::V1::UploadsController'
+          )
+        end
+
+        destination_file
       end
 
       def submit_supporting_documents # rubocop:disable Metrics/MethodLength
@@ -799,9 +842,8 @@ module IvcChampva
                       filler.generate
                     end
 
-        # Get validated metadata and ensure docType uses legacy form ID for backwards compatibility
+        # Get validated metadata
         metadata = IvcChampva::MetadataValidator.validate(form.metadata)
-        metadata['docType'] = legacy_form_id if IvcChampva::FormVersionManager.versioned_form?(actual_form_id)
 
         file_paths = form.handle_attachments(file_path)
 

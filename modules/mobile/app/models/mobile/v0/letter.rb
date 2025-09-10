@@ -10,6 +10,7 @@ module Mobile
         'benefit_summary_dependent',
         'benefit_verification',
         'certificate_of_eligibility',
+        'certificate_of_eligibility_home_loan',
         'civil_service',
         'commissary',
         'medicare_partd',
@@ -21,6 +22,7 @@ module Mobile
       VISIBLE_TYPES = %w[
         benefit_summary
         benefit_verification
+        certificate_of_eligibility_home_loan
         civil_service
         commissary
         medicare_partd

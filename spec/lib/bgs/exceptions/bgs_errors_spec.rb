@@ -8,10 +8,6 @@ RSpec.describe BGS::Exceptions::BGSErrors do
     Class.new do
       include BGS::Exceptions::BGSErrors
       attr_reader :user
-
-      def initialize
-        @user = { icn: '1234' }
-      end
     end
   end
   let(:dummy_instance) { dummy_class.new }
@@ -24,7 +20,7 @@ RSpec.describe BGS::Exceptions::BGSErrors do
         expect(dummy_instance).to receive(:log_message_to_sentry).with(
           'ORA-12899: value too large for column "CORPPROD"."VNP_PERSON"."MIDDLE_NM" (actual: 52, maximum: 30)',
           :error,
-          { icn: '1234' },
+          {},
           { team: 'vfs-ebenefits' }
         )
         expect do

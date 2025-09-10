@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'va_profile/address_validation/v3/service'
 
 describe VAProfile::AddressValidation::V3::Service do
-  let(:base_address) { build(:va_profile_v3_validation_address) }
+  let(:base_address) { build(:va_profile_validation_address) }
 
   let(:address) do
     base_address.address_line1 = '5 Stoddard Ct'
@@ -24,11 +24,7 @@ describe VAProfile::AddressValidation::V3::Service do
   end
 
   let(:multiple_match_addr) do
-    build(:va_profile_v3_validation_address, :multiple_matches)
-  end
-
-  before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
+    build(:va_profile_validation_address, :multiple_matches)
   end
 
   describe '#address_suggestions' do

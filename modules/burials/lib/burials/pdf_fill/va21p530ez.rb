@@ -23,6 +23,60 @@ module Burials
         # The path to the PDF template for the form
         TEMPLATE = Burials::PDF_PATH
 
+        # Starting page number for overflow pages
+        START_PAGE = 10
+
+        # Default label column width (points) for redesigned extras in this form
+        DEFAULT_LABEL_WIDTH = 130
+
+        # Map question numbers to descriptive titles for overflow attachments
+        QUESTION_KEY = [
+          { question_number: '1', question_text: "Deceased Veteran's Name" },
+          { question_number: '2', question_text: "Deceased Veteran's Social Security Number" },
+          { question_number: '3', question_text: 'VA File Number' },
+          { question_number: '4', question_text: "Veteran's Date of Birth" },
+          { question_number: '5', question_text: "Veteran's Date of Death" },
+          { question_number: '6', question_text: "Veteran's Date of Burial" },
+          { question_number: '7', question_text: "Claimant's Name" },
+          { question_number: '8', question_text: "Claimant's Social Security Number" },
+          { question_number: '9', question_text: "Claimant's Date of Birth" },
+          { question_number: '10', question_text: "Claimant's Address" },
+          { question_number: '11', question_text: "Claimant's International Phone Number" },
+          { question_number: '12', question_text: 'E-Mail Address' },
+          { question_number: '13', question_text: 'Relationship to Veteran' },
+          { question_number: '14', question_text: 'Military Service Information' },
+          { question_number: '15', question_text: 'Other Names Veteran Served Under' },
+          { question_number: '16', question_text: 'Place of Burial Plot, Interment Site, or Final Resting Place' },
+          { question_number: '17', question_text: 'National or Federal Cemetery' },
+          { question_number: '18', question_text: 'State Cemetery or Tribal Trust Land' },
+          { question_number: '19', question_text: 'Government or Employer Contribution' },
+          { question_number: '20', question_text: "Where Did the Veteran's Death Occur" },
+          { question_number: '21', question_text: 'Burial Allowance Requested' },
+          { question_number: '22', question_text: 'Previously Received Allowance' },
+          { question_number: '23', question_text: 'Burial Expense Responsibility' },
+          { question_number: '24', question_text: 'Plot/Interment Expense Responsibility' },
+          { question_number: '25', question_text: 'Claimant Signature' },
+          { question_number: '26', question_text: 'Firm, Corporation, or State Agency Information' }
+        ].freeze
+
+        # V2-style sections grouping question numbers for overflow pages
+        SECTIONS = [
+          { label: 'Section I: Deceased Veteran\'s Name', question_nums: ['1'] },
+          { label: 'Section II: Deceased Veteran\'s Social Security Number', question_nums: ['2'] },
+          { label: 'Section III: VA File Number', question_nums: ['3'] },
+          { label: 'Section IV: Veteran\'s Date of Birth', question_nums: ['4'] },
+          { label: 'Section V: Veteran\'s Date of Death', question_nums: ['5'] },
+          { label: 'Section VI: Veteran\'s Date of Burial', question_nums: ['6'] },
+          { label: 'Section VII: Claimant\'s Identification Information', question_nums: %w[7 8 9] },
+          { label: 'Section VIII: Claimant\'s Contact Information', question_nums: %w[10 11 12] },
+          { label: 'Section IX: Relationship to Veteran', question_nums: ['13'] },
+          { label: 'Section X: Military Service Information', question_nums: %w[14 15] },
+          { label: 'Section XI: Burial Information', question_nums: %w[16 17 18] },
+          { label: 'Section XII: Government Contributions and Death Location', question_nums: %w[19 20] },
+          { label: 'Section XIII: Burial Allowance and Expenses', question_nums: %w[21 22 23 24] },
+          { label: 'Section XIV: Signatures and Certifications', question_nums: %w[25 26] }
+        ].freeze
+
         # A mapping of care facilities to their labels
         PLACE_OF_DEATH_KEY = {
           'vaMedicalCenter' => 'VA MEDICAL CENTER',
@@ -38,24 +92,28 @@ module Burials
               key: 'form1[0].#subform[82].VeteransFirstName[0]',
               limit: 12,
               question_num: 1,
+              question_label: "Deceased Veteran's First Name",
               question_text: "DECEASED VETERAN'S FIRST NAME"
             },
             'middleInitial' => {
               key: 'form1[0].#subform[82].VeteransMiddleInitial1[0]',
               question_num: 1,
               limit: 1,
+              question_label: "Deceased Veteran's Middle Initial",
               question_text: "DECEASED VETERAN'S MIDDLE INITIAL"
             },
             'last' => {
               key: 'form1[0].#subform[82].VeteransLastName[0]',
               limit: 18,
               question_num: 1,
+              question_label: "Deceased Veteran's Last Name",
               question_text: "DECEASED VETERAN'S LAST NAME"
             },
             'suffix' => {
               key: 'form1[0].#subform[82].Suffix[0]',
               question_num: 1,
               limit: 0,
+              question_label: "Deceased Veteran's Suffix",
               question_text: "DECEASED VETERAN'S SUFFIX"
             }
           },
@@ -80,6 +138,7 @@ module Burials
               limit: 2,
               question_num: 4,
               question_suffix: 'A',
+              question_label: "Veteran/Claimant's Identification Information > Veteran's Date Of Birth (Mm-Dd-Yyyy)",
               question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S DATE OF BIRTH (MM-DD-YYYY)'
             },
             'day' => {
@@ -87,6 +146,7 @@ module Burials
               limit: 2,
               question_num: 4,
               question_suffix: 'B',
+              question_label: "Veteran/Claimant's Identification Information > Veteran's Date Of Birth (Mm-Dd-Yyyy)",
               question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S DATE OF BIRTH (MM-DD-YYYY)'
             },
             'year' => {
@@ -94,6 +154,7 @@ module Burials
               limit: 4,
               question_num: 4,
               question_suffix: 'C',
+              question_label: "Veteran/Claimant's Identification Information > Veteran's Date Of Birth (Mm-Dd-Yyyy)",
               question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S DATE OF BIRTH (MM-DD-YYYY)'
             }
           },
@@ -103,6 +164,7 @@ module Burials
               limit: 2,
               question_num: 5,
               question_suffix: 'A',
+              question_label: "Veteran/Claimant's Identification Information > Veteran's Date Of Death (Mm-Dd-Yyyy)",
               question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S DATE OF DEATH (MM-DD-YYYY)'
             },
             'day' => {
@@ -110,6 +172,7 @@ module Burials
               limit: 2,
               question_num: 5,
               question_suffix: 'B',
+              question_label: "Veteran/Claimant's Identification Information > Veteran's Date Of Death (Mm-Dd-Yyyy)",
               question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S DATE OF DEATH (MM-DD-YYYY)'
             },
             'year' => {
@@ -117,6 +180,7 @@ module Burials
               limit: 4,
               question_num: 5,
               question_suffix: 'C',
+              question_label: "Veteran/Claimant's Identification Information > Veteran's Date Of Death (Mm-Dd-Yyyy)",
               question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S DATE OF DEATH (MM-DD-YYYY)'
             }
           },
@@ -126,6 +190,7 @@ module Burials
               limit: 2,
               question_num: 6,
               question_suffix: 'A',
+              question_label: "Veteran/Claimant's Identification Information > Veteran's Date Of Burial (Mm-Dd-Yyyy)",
               question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S DATE OF BURIAL (MM-DD-YYYY)'
             },
             'day' => {
@@ -133,6 +198,7 @@ module Burials
               limit: 2,
               question_num: 6,
               question_suffix: 'B',
+              question_label: "Veteran/Claimant's Identification Information > Veteran's Date Of Burial (Mm-Dd-Yyyy)",
               question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S DATE OF BURIAL  (MM-DD-YYYY)'
             },
             'year' => {
@@ -140,6 +206,7 @@ module Burials
               limit: 4,
               question_num: 6,
               question_suffix: 'C',
+              question_label: "Veteran/Claimant's Identification Information > Veteran's Date Of Burial (Mm-Dd-Yyyy)",
               question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S DATE OF BURIAL (MM-DD-YYYY)'
             }
           }, # end veteran information
@@ -148,6 +215,7 @@ module Burials
               key: 'form1[0].#subform[82].ClaimantsFirstName[0]',
               limit: 12,
               question_num: 7,
+              question_label: "Claimant's First Name",
               question_text: "CLAIMANT'S FIRST NAME"
             },
             'middleInitial' => {
@@ -157,12 +225,14 @@ module Burials
               key: 'form1[0].#subform[82].ClaimantsLastName[0]',
               limit: 18,
               question_num: 7,
+              question_label: "Claimant's Last Name",
               question_text: "CLAIMANT'S LAST NAME"
             },
             'suffix' => {
               key: 'form1[0].#subform[82].ClaimantSuffix[0]',
               question_num: 7,
               limit: 0,
+              question_label: "Claimant's Suffix",
               question_text: "CLAIMANT'S SUFFIX"
             }
           },
@@ -183,6 +253,7 @@ module Burials
               limit: 2,
               question_num: 9,
               question_suffix: 'A',
+              question_label: "Veteran/Claimant's Identification Information > Claimant's Date Of Birth (Mm-Dd-Yyyy)",
               question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > CLAIMANT\'S DATE OF BIRTH (MM-DD-YYYY)'
             },
             'day' => {
@@ -190,6 +261,7 @@ module Burials
               limit: 2,
               question_num: 9,
               question_suffix: 'B',
+              question_label: "Veteran/Claimant's Identification Information > Claimant's Date Of Birth (Mm-Dd-Yyyy)",
               question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > CLAIMANT\'S DATE OF BIRTH (MM-DD-YYYY)'
             },
             'year' => {
@@ -197,6 +269,7 @@ module Burials
               limit: 4,
               question_num: 9,
               question_suffix: 'C',
+              question_label: "Veteran/Claimant's Identification Information > Claimant's Date Of Birth (Mm-Dd-Yyyy)",
               question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > CLAIMANT\'S DATE OF BIRTH (MM-DD-YYYY)'
             }
           },
@@ -205,18 +278,21 @@ module Burials
               key: 'form1[0].#subform[82].CurrentMailingAddress_NumberAndStreet[0]',
               limit: 30,
               question_num: 10,
+              question_label: "Claimant's Address - Street",
               question_text: "CLAIMANT'S ADDRESS - STREET"
             },
             'street2' => {
               key: 'form1[0].#subform[82].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
               limit: 5,
               question_num: 10,
+              question_label: "Claimant's Address - Apt/Unit No.",
               question_text: "CLAIMANT'S ADDRESS - APT/UNIT NO."
             },
             'city' => {
               key: 'form1[0].#subform[82].CurrentMailingAddress_City[0]',
               limit: 18,
               question_num: 10,
+              question_label: "Claimant's Address - City",
               question_text: "CLAIMANT'S ADDRESS - CITY"
             },
             'state' => {
@@ -233,6 +309,7 @@ module Burials
                 key: 'form1[0].#subform[82].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]',
                 limit: 4,
                 question: 10,
+                question_label: "Claimant's Address - Postal Code - Last Four",
                 question_text: "CLAIMANT's ADDRESS - POSTAL CODE - LAST FOUR"
               }
             }
@@ -251,6 +328,7 @@ module Burials
           'claimantIntPhone' => {
             key: 'form1[0].#subform[82].IntTelephoneNumber[0]',
             question_num: 11,
+            question_label: "Claimant's International Phone Number",
             question_text: "CLAIMANT'S INTERNATIONAL PHONE NUMBER",
             limit: 0 # this will force this value that is not on the pdf to appear in the overflow
           },
@@ -258,6 +336,7 @@ module Burials
             key: 'form1[0].#subform[82].E-Mail_Address[0]',
             limit: 31,
             question_num: 12,
+            question_label: 'E-Mail Address',
             question_text: 'E-MAIL ADDRESS'
           },
           'relationshipToVeteran' => {
@@ -283,10 +362,12 @@ module Burials
           'toursOfDuty' => {
             limit: 3,
             first_key: 'rank',
+            item_label: 'Service period',
             'dateRangeStart' => {
               key: "form1[0].#subform[82].DATE_ENTERED_SERVICE[#{ITERATOR}]",
               question_num: 14,
               question_suffix: 'A(1)',
+              question_label: 'Entered Service (Date)',
               question_text: 'ENTERED SERVICE (date)',
               format: 'date'
             },
@@ -295,6 +376,7 @@ module Burials
               limit: 25,
               question_num: 14,
               question_suffix: 'A(2)',
+              question_label: 'Entered Service (Place)',
               question_text: 'ENTERED SERVICE (place)'
             },
             'militaryServiceNumber' => {
@@ -302,12 +384,14 @@ module Burials
               limit: 12,
               question_num: 14,
               question_suffix: 'B',
+              question_label: 'Service Number',
               question_text: 'SERVICE NUMBER'
             },
             'dateRangeEnd' => {
               key: "form1[0].#subform[82].DATE_SEPARATED_SERVICE[#{ITERATOR}]",
               question_num: 14,
               question_suffix: 'C(1)',
+              question_label: 'Separated From Service (Date)',
               question_text: 'SEPARATED FROM SERVICE (date)',
               format: 'date'
             },
@@ -315,6 +399,7 @@ module Burials
               key: "form1[0].#subform[82].PLACE_SEPARATED[#{ITERATOR}]",
               question_num: 14,
               question_suffix: 'C(2)',
+              question_label: 'Separated From Service (Place)',
               question_text: 'SEPARATED FROM SERVICE (place)',
               limit: 25
             },
@@ -322,6 +407,7 @@ module Burials
               key: "form1[0].#subform[82].GRADE_RANK_OR_RATING[#{ITERATOR}]",
               question_num: 14,
               question_suffix: 'D(1)',
+              question_label: 'Grade, Rank Or Rating, Organization And Branch Of Service',
               question_text: 'GRADE, RANK OR RATING, ORGANIZATION AND BRANCH OF SERVICE',
               limit: 31
             }
@@ -329,6 +415,7 @@ module Burials
           'previousNames' => {
             key: 'form1[0].#subform[82].OTHER_NAME_VETERAN_SERVED_UNDER[0]',
             question_num: 15,
+            question_label: 'If Veteran Served Under Name Other Than That Shown In Item 1, Give Full Name And Service Rendered Under That Name',
             question_text: 'IF VETERAN SERVED UNDER NAME OTHER THAN THAT SHOWN IN ITEM 1, GIVE FULL NAME AND SERVICE RENDERED UNDER THAT NAME',
             limit: 180
           },
@@ -361,6 +448,7 @@ module Burials
             'other' => {
               limit: 58,
               question_num: 16,
+              question_label: "Place Of Burial Plot, Interment Site, Or Final Resting Place Of Deceased Veteran's Remains",
               question_text: "PLACE OF BURIAL PLOT, INTERMENT SITE, OR FINAL RESTING PLACE OF DECEASED VETERAN'S REMAINS",
               key: 'form1[0].#subform[83].#subform[84].PLACE_OF_DEATH[0]'
             }
@@ -396,6 +484,7 @@ module Burials
             question_num: 19,
             question_suffix: 'B',
             dollar: true,
+            question_label: 'Amount Of Government Or Employer Contribution',
             question_text: 'AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION',
             limit: 5
           },
@@ -434,6 +523,7 @@ module Burials
               key: 'form1[0].#subform[37].DeathOccurredOtherSpecify[1]',
               question_num: 20,
               question_suffix: 'B',
+              question_label: "Where Did The Veteran's Death Occur?",
               question_text: "WHERE DID THE VETERAN'S DEATH OCCUR?",
               limit: 32
             },
@@ -441,6 +531,7 @@ module Burials
               limit: 42,
               question_num: 20,
               question_suffix: 'B',
+              question_label: "Please Provide Veteran's Specific Place Of Death Including The Name And Location Of The Nursing Home, Va Medical Center Or State Veteran Facility.",
               question_text: "PLEASE PROVIDE VETERAN'S SPECIFIC PLACE OF DEATH INCLUDING THE NAME AND LOCATION OF THE NURSING HOME, VA MEDICAL CENTER OR STATE VETERAN FACILITY.",
               key: 'form1[0].#subform[37].DeathOccurredPlaceAndLocation[1]'
             }
@@ -476,6 +567,7 @@ module Burials
             key: 'form1[0].#subform[83].CLAIMANT_SIGNATURE[0]',
             limit: 45,
             question_num: 25,
+            question_label: 'Signature Of Claimant',
             question_text: 'SIGNATURE OF CLAIMANT',
             question_suffix: 'A'
           },
@@ -483,6 +575,7 @@ module Burials
             key: 'form1[0].#subform[83].ClaimantPrintedName[0]',
             limit: 45,
             question_num: 25,
+            question_label: 'Printed Name Of Claimant',
             question_text: 'Printed Name of Claimant',
             question_suffix: 'B'
           },
@@ -491,6 +584,7 @@ module Burials
             limit: 90,
             question_num: 26,
             question_suffix: 'B',
+            question_label: 'Full Name And Address Of The Firm, Corporation, Or State Agency Filing As Claimant',
             question_text: 'FULL NAME AND ADDRESS OF THE FIRM, CORPORATION, OR STATE AGENCY FILING AS CLAIMANT'
           },
           'officialPosition' => {
@@ -498,6 +592,7 @@ module Burials
             limit: 90,
             question_num: 26,
             question_suffix: 'B',
+            question_label: 'Official Position Of Person Signing On Behalf Of Firm, Corporation Or State Agency',
             question_text: 'OFFICIAL POSITION OF PERSON SIGNING ON BEHALF OF FIRM, CORPORATION OR STATE AGENCY'
           },
           'veteranSocialSecurityNumber3' => {
