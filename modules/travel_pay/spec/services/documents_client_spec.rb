@@ -271,8 +271,7 @@ describe TravelPay::DocumentsClient do
       client = TravelPay::DocumentsClient.new
 
       expect do
-        client.delete_document('veis_token', 'btsss_token',
-                                { claim_id:, document_id: })
+        client.delete_document('veis_token', 'btsss_token', { claim_id:, document_id: })
       end.to raise_error(Faraday::ResourceNotFound)
     end
 
@@ -288,8 +287,7 @@ describe TravelPay::DocumentsClient do
       client = TravelPay::DocumentsClient.new
 
       expect do
-        client.delete_document('veis_token', 'btsss_token',
-                                { claim_id:, document_id: })
+        client.delete_document('veis_token', 'btsss_token', { claim_id:, document_id: })
       end.to raise_error(Faraday::ClientError)
     end
 
@@ -305,8 +303,7 @@ describe TravelPay::DocumentsClient do
       client = TravelPay::DocumentsClient.new
 
       expect do
-        client.delete_document('veis_token', 'btsss_token',
-                                { claim_id:, document_id: })
+        client.delete_document('veis_token', 'btsss_token', { claim_id:, document_id: })
       end.to raise_error(Faraday::ServerError)
     end
   end
