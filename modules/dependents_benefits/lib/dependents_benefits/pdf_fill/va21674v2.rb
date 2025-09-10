@@ -1,9 +1,11 @@
 # frozen_string_literal: true
-
+require 'pdf_fill/forms/form_base'
+require 'pdf_fill/forms/form_helper'
+require 'pdf_fill/hash_converter'
 # rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
-    class Va21674v2 < FormBase
+    class Va21674v2 < ::PdfFill::Forms::FormBase
       include FormHelper
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
