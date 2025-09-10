@@ -3,8 +3,8 @@
 module AppealsApi::V1::SwaggerRoot
   include Swagger::Blocks
   DESCRIPTION_FILE_NAME = Flipper.enabled?(:decision_reviews_evidence_final_status_field) ? 'description_with_final_status.md' : 'api_description.md'
-  read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
-  read_file_from_alt_dir = ->(filename) { read_file.call(['app', 'swagger', 'decision_reviews', 'v2', filename]) }
+  read_file = ->(path) { Rails.root.join(*path).read }
+  read_file_from_alt_dir = ->(filename) { read_file.call(['modules', 'appeals_api', 'app', 'swagger', 'decision_reviews', 'v2', filename]) }
 
   swagger_root do
     key :openapi, '3.0.0'
