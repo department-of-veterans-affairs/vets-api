@@ -66,6 +66,7 @@ module TravelClaim
                                  })
 
       headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
+
       perform(:post, "#{tenant_id}/oauth2/token", body, headers, { server_url: auth_url })
     end
 
@@ -77,7 +78,7 @@ module TravelClaim
     # @param icn [String] Patient ICN
     # @return [Faraday::Response] HTTP response containing access token
     #
-    def system_access_token_request(client_number:, veis_access_token:, icn:)
+    def system_access_token_request(veis_access_token:, icn:)
       body = { secret: travel_pay_client_secret, icn: }
 
       headers = {
@@ -303,7 +304,6 @@ module TravelClaim
     #
     def fetch_btsss_token!
       btsss_response = system_access_token_request(
-        client_number: nil,
         veis_access_token: @current_veis_token,
         icn: @icn
       )

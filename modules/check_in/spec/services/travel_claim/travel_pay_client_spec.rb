@@ -137,7 +137,6 @@ RSpec.describe TravelClaim::TravelPayClient do
                     claims_url_v2:) do
         VCR.use_cassette('check_in/travel_claim/system_access_token_200') do
           result = client.send(:system_access_token_request,
-                               client_number: 'test-client',
                                veis_access_token: 'test-veis-token',
                                icn: test_icn)
 
