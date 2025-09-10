@@ -15,7 +15,8 @@ module SignIn
 
     scope :active,   -> { select(&:active?) }
     scope :expired,  -> { select(&:expired?) }
-    scope :expiring, -> { select(&:expiring?) }
+    scope :expiring_soon, -> { select(&:expiring_soon?) }
+    scope :expiring_later, -> { select(&:expiring_later?) }
 
     normalizes :pem, with: ->(value) { value.present? ? "#{value.chomp}\n" : value }
 
@@ -40,19 +41,23 @@ module SignIn
       x509? && not_after < Time.current
     end
 
-    def expiring?
-      x509? && !expired? && not_after < EXPIRING_WINDOW.from_now
+    def expiring_soon?
+      x509? && !expired? && not_after <= EXPIRING_WINDOW.from_now
+    end
+
+    def expiring_later?
+      x509? && not_after > EXPIRING_WINDOW.from_now
     end
 
     def active?
-      x509? && not_after >= EXPIRING_WINDOW.from_now
+      x509? && not_after > Time.current
     end
 
     def status
       if expired?
         'expired'
-      elsif expiring?
-        'expiring'
+      elsif expiring_soon?
+        'expiring_soon'
       elsif active?
         'active'
       end
