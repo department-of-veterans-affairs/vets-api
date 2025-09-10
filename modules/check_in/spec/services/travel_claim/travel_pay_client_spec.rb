@@ -20,7 +20,6 @@ RSpec.describe TravelClaim::TravelPayClient do
   let(:test_date_incurred) { '2024-01-15' }
   let(:test_client_number) { 'fake_client_number' }
   let(:test_veis_access_token) { 'fake_veis_token_123' }
-  let(:test_claim_id_for_submission) { 'test-claim-id' }
 
   # Settings constants
   let(:auth_url) { 'https://dev.integration.d365.va.gov' }
@@ -573,7 +572,7 @@ RSpec.describe TravelClaim::TravelPayClient do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
                     claims_url_v2:) do
         VCR.use_cassette('check_in/travel_claim/claims_submit_200') do
-          result = client.send_claim_submission_request(claim_id: test_claim_id_for_submission)
+          result = client.send_claim_submission_request(claim_id: test_claim_id)
 
           expect(result).to respond_to(:status)
           expect(result.status).to eq(200)
