@@ -488,6 +488,50 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:champva_use_hexapdf_to_unlock_pdfs, @current_user).and_return(true)
+    end
+
+    context 'with locked PDF and no provided password' do
+      let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
+
+      it 'rejects locked PDFs if no password is provided' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents', params: { form_id: '10-10D', file: locked_file }
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(
+          response.parsed_body['errors'].first['title']
+        ).to eq("File #{I18n.t('errors.messages.uploads.pdf.invalid')}")
+      end
+
+      it 'accepts locked PDFs with the correct password' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: locked_file, password: 'test' }
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'rejects locked PDFs with the incorrect password' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: locked_file, password: 'bad' }
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    it 'handles non-PDF files' do
+      non_pdf_file = fixture_file_upload('doctors-note.gif')
+      expect(controller.send(:unlock_file, non_pdf_file, nil)).to eq(non_pdf_file)
+    end
+
+    it 'handles PDFs with no password' do
+      expect(controller.send(:unlock_file, file, nil)).to eq(file)
+    end
+  end
+
+  describe '#unlock_file via pdftk' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:file) { fixture_file_upload('locked_pdf_password_is_test.pdf') }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:champva_use_hexapdf_to_unlock_pdfs, @current_user).and_return(false)
     end
 
     context 'with locked PDF and no provided password' do
@@ -1604,7 +1648,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
 
         expect(tmpfile).to be_a(Tempfile)
-        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w\-]+\.gif$/)
+        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w-]+\.gif$/)
         tmpfile.rewind
         expect(tmpfile.read).to eq(file_content)
         tmpfile.close
@@ -1627,7 +1671,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
 
         expect(tmpfile).to be_a(Tempfile)
-        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w\-]+\.png$/)
+        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w-]+\.png$/)
         tmpfile.rewind
         expect(tmpfile.read).to eq(file_content)
         tmpfile.close

@@ -5,7 +5,7 @@ require 'dependents_benefits/monitor'
 
 RSpec.describe DependentsBenefits::Monitor do
   let(:monitor) { described_class.new }
-  let(:claim) { DependentsBenefits::SavedClaim.create(id: 123, form: {}.to_json) }
+  let(:claim) { create(:dependents_claim) }
   let(:ipf) { create(:in_progress_form) }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
@@ -40,7 +40,7 @@ RSpec.describe DependentsBenefits::Monitor do
   describe '#track_show404' do
     it 'logs a not found error' do
       log = "#{message_prefix} submission not found"
-      payload = base_payload({ claim_id: nil, form_id: nil, message: monitor_error.message })
+      payload = base_payload({ claim_id: nil, form_id: nil, error: monitor_error.message })
 
       expect(monitor).to receive(:track_request).with(
         :error, log, claim_stats_key, call_location: anything, **payload
@@ -52,7 +52,7 @@ RSpec.describe DependentsBenefits::Monitor do
   describe '#track_show_error' do
     it 'logs a submission failed error' do
       log = "#{message_prefix} fetching submission failed"
-      payload = base_payload({ claim_id: nil, form_id: nil, message: monitor_error.message })
+      payload = base_payload({ claim_id: nil, form_id: nil, error: monitor_error.message })
 
       expect(monitor).to receive(:track_request).with(
         :error, log, claim_stats_key, call_location: anything, **payload
@@ -88,7 +88,7 @@ RSpec.describe DependentsBenefits::Monitor do
   describe '#track_create_error' do
     it 'logs sidekiq failed' do
       log = "#{message_prefix} submission to Sidekiq failed"
-      payload = base_payload({ in_progress_form_id: ipf.id, errors: [], message: monitor_error.message })
+      payload = base_payload({ in_progress_form_id: ipf.id, errors: [], error: monitor_error.message })
 
       expect(monitor).to receive(:track_request).with(
         :error, log, "#{claim_stats_key}.failure", call_location: anything, **payload
@@ -161,7 +161,7 @@ RSpec.describe DependentsBenefits::Monitor do
   describe '#track_submission_retry' do
     it 'logs sidekiq job failure and retry' do
       log = "#{message_prefix} submission to LH failed, retrying"
-      payload = submission_payload({ message: monitor_error.message })
+      payload = submission_payload({ error: monitor_error.message })
 
       expect(monitor).to receive(:track_request).with(
         :warn, log, "#{submission_stats_key}.failure", call_location: anything, **payload
@@ -176,7 +176,7 @@ RSpec.describe DependentsBenefits::Monitor do
         msg = { 'args' => [claim.id, current_user.uuid] }
         log = "#{message_prefix} submission to LH exhausted!"
 
-        payload = base_payload({ confirmation_number: nil, form_id: nil, message: msg })
+        payload = base_payload({ confirmation_number: nil, form_id: nil, error: msg })
 
         expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.uuid, anything)
         expect(monitor).to receive(:track_request).with(
@@ -191,7 +191,7 @@ RSpec.describe DependentsBenefits::Monitor do
     %w[confirmation submitted].each do |email_type|
       it "logs sidekiq job send_#{email_type}_email error" do
         log = "#{message_prefix} send_#{email_type}_email failed"
-        payload = submission_payload({ message: monitor_error.message })
+        payload = submission_payload({ error: monitor_error.message })
 
         expect(monitor).to receive(:track_request).with(
           :warn, log, "#{submission_stats_key}.send_#{email_type}_failed", call_location: anything, **payload
