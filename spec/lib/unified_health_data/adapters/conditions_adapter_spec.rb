@@ -7,13 +7,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
   let(:adapter) { UnifiedHealthData::Adapters::ConditionsAdapter.new }
   let(:conditions_sample_response) do
     JSON.parse(Rails.root.join(
-      'spec', 'fixtures', 'unified_health_data', 'condition_sample_response.json'
-    ).read)
-  end
-
-  let(:conditions_fallback_response) do
-    JSON.parse(Rails.root.join(
-      'spec', 'fixtures', 'unified_health_data', 'condition_fallback_response.json'
+      'spec', 'fixtures', 'unified_health_data', 'conditions_sample_response.json'
     ).read)
   end
 
@@ -29,7 +23,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
       expect(parsed_condition).to have_attributes(
         id: be_present,
         name: be_present,
-        date: be_a(String).or(be_nil), # Date can be nil in some records
+        date: be_a(String).or(be_nil),
         provider: be_present,
         facility: be_present,
         comments: be_an(Array)
@@ -47,36 +41,36 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         name: be_present,
         date: be_present,
         provider: be_present,
-        facility: be_a(String), # Facility can be empty string
+        facility: be_a(String),
         comments: be_an(Array)
       )
     end
 
-    it 'returns the expected fields with VistA fallback values' do
-      fallback_records = conditions_fallback_response['vista']['entry']
-      parsed_condition = adapter.parse(fallback_records).first
+    it 'returns the expected fields with VistA sample data' do
+      vista_records = conditions_sample_response['vista']['entry']
+      parsed_condition = adapter.parse(vista_records).first
 
       expect(parsed_condition).to have_attributes(
-        id: 'fallback-test-id',
-        name: 'Condition from text field',
-        date: '2024-02-20T00:00:00Z',
-        provider: 'Dr. Simple Provider',
-        facility: 'Simple Medical Center',
-        comments: ['Single note text']
+        id: '2b4de3e7-0ced-43c6-9a8a-336b9171f4df',
+        name: 'Major depressive disorder, recurrent, moderate',
+        date: be_nil,
+        provider: 'BORLAND,VICTORIA A',
+        facility: 'CHYSHR TEST LAB',
+        comments: be_an(Array)
       )
     end
 
-    it 'returns the expected fields with Oracle Health fallback values' do
-      fallback_records = conditions_fallback_response['oracle-health']['entry']
-      parsed_condition = adapter.parse(fallback_records).first
+    it 'returns the expected fields with Oracle Health sample data' do
+      oh_records = conditions_sample_response['oracle-health']['entry']
+      parsed_condition = adapter.parse(oh_records).first
 
       expect(parsed_condition).to have_attributes(
-        id: 'oh-fallback-test-id',
-        name: 'Oracle Health Condition from text field',
-        date: '2024-02-20T00:00:00Z',
-        provider: 'Dr. OH Provider',
-        facility: 'Oracle Health Medical Center',
-        comments: ['Oracle Health note text']
+        id: 'p1533314061',
+        name: 'Disease caused by 2019-nCoV',
+        date: '2025-01-20',
+        provider: 'SYSTEM, SYSTEM Cerner, Cerner Managed Acct',
+        facility: 'WAMC Bariatric Surgery',
+        comments: ['This problem was added by Discern Expert for positive COVID-19 lab test.']
       )
     end
 

@@ -43,21 +43,55 @@ module UnifiedHealthData
       end
 
       def extract_condition_provider(resource)
-        return resource.dig('asserter', 'display') || '' unless resource['contained']
+        reference = resource.dig('recorder', 'reference')
+        return '' unless reference && resource['contained']
 
-        practitioner = resource['contained'].find { |item| item['resourceType'] == 'Practitioner' }
+        practitioner = find_contained_practitioner(resource, reference)
         return '' unless practitioner
 
-        practitioner.dig('name', 0, 'text') || ''
+        if practitioner['name'].is_a?(Array)
+          name_obj = practitioner['name'].find { |n| n['text'] } || practitioner['name'].first
+          name_obj['text'] || format_practitioner_name(name_obj) || ''
+        else
+          practitioner.dig('name', 'text') || format_practitioner_name(practitioner['name']) || ''
+        end
       end
 
       def extract_condition_facility(resource)
-        return resource.dig('encounter', 'display') || '' unless resource['contained']
+        return '' unless resource['contained']
 
         location = resource['contained'].find { |item| item['resourceType'] == 'Location' }
         return '' unless location
 
         location['name'] || ''
+      end
+
+      def find_contained_practitioner(resource, reference)
+        return nil unless reference && resource['contained']
+
+        target_id = if reference.start_with?('#')
+                      reference.delete_prefix('#')
+                    else
+                      reference.split('/').last
+                    end
+
+        resource['contained'].find { |res| res['id'] == target_id && res['resourceType'] == 'Practitioner' }
+      end
+
+      def format_practitioner_name(name_obj)
+        return nil unless name_obj.is_a?(Hash)
+
+        if name_obj.key?('family') && name_obj.key?('given')
+          firstname = name_obj['given']&.join(' ')
+          lastname = name_obj['family']
+          "#{firstname} #{lastname}"
+        elsif name_obj['text']
+          parts = name_obj['text'].split(',')
+          return name_obj['text'] if parts.length != 2
+
+          lastname, firstname = parts.map(&:strip)
+          "#{firstname} #{lastname}"
+        end
       end
     end
   end

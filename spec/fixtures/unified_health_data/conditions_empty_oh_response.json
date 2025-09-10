@@ -1,0 +1,2256 @@
+{
+    "vista": {
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "total": 16,
+        "entry": 
+        [
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "2b4de3e7-0ced-43c6-9a8a-336b9171f4df",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650352",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "BORLAND,VICTORIA A"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650352"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650352"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "F33.1",
+                        "display": "Major depressive disorder, recurrent, moderate"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650352"
+                }
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "211ddb2a-9e08-4574-a0a8-2126b187a3aa",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650339",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "MCGUIRE,MARCI P"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "Z01.12",
+                        "display": "Encounter for hearing conservation and treatment"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650339"
+                }
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "9b35d505-92e8-45ba-9670-a34c2c700972",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650339",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "MCGUIRE,MARCI P"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "M79.81",
+                        "display": "Nontraumatic hematoma of soft tissue"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650339"
+                },
+                "note": [
+                    {
+                    "authorString": "MCGUIRE,MARCI P",
+                    "time": "2024-12-12T04:00:00+00:00",
+                    "text": "Noting this condition was removed and restored"
+                    },
+                    {
+                    "authorString": "MCGUIRE,MARCI P",
+                    "time": "2024-12-12T04:00:00+00:00",
+                    "text": "New annotation added as a comment"
+                    },
+                    {
+                    "authorString": "MCGUIRE,MARCI P",
+                    "time": "2024-12-12T04:00:00+00:00",
+                    "text": "Annotating this active problem"
+                    },
+                    {
+                    "authorString": "MCGUIRE,MARCI P",
+                    "time": "2024-12-12T04:00:00+00:00",
+                    "text": "palpated, oedered US"
+                    }
+                ]
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "6f5683ba-2ae8-4d8d-85ff-24babcfbabde",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650339",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "MCGUIRE,MARCI P"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "D04.9",
+                        "display": "Carcinoma in situ of skin, unspecified"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "onsetDateTime": "2024-01-03T04:00:00Z",
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650339"
+                },
+                "note": [
+                    {
+                    "authorString": "MCGUIRE,MARCI P",
+                    "time": "2024-12-09T04:00:00+00:00",
+                    "text": "Carcinoma of right ear"
+                    }
+                ]
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "1fe82d3d-1030-4de2-881b-087200a4a05c",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650339",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "MCGUIRE,MARCI P"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "D35.00",
+                        "display": "Benign neoplasm of unspecified adrenal gland"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "onsetDateTime": "2024-11-16T04:00:00Z",
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650339"
+                },
+                "note": [
+                    {
+                    "authorString": "MCGUIRE,MARCI P",
+                    "time": "2024-11-26T04:00:00+00:00",
+                    "text": "Test annotation"
+                    },
+                    {
+                    "authorString": "MCGUIRE,MARCI P",
+                    "time": "2024-11-26T04:00:00+00:00",
+                    "text": "TEST 3cm adenemoa observed in left adrenal gland"
+                    }
+                ]
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "0d40409a-e8b6-4ac6-985c-999d313ecf77",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650339",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "MCGUIRE,MARCI P"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "R73.01",
+                        "display": "Impaired fasting glucose"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "onsetDateTime": "2024-11-20T04:00:00Z",
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650339"
+                },
+                "note": [
+                    {
+                    "authorString": "MCGUIRE,MARCI P",
+                    "time": "2024-11-20T04:00:00+00:00",
+                    "text": "Fasting blood glucose 99 borderline pre-diabetic"
+                    }
+                ]
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "ebd34759-3f4e-4149-869b-4ea09c2de254",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650339",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "MCGUIRE,MARCI P"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "B20.",
+                        "display": "Human immunodeficiency virus [HIV] disease"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "onsetDateTime": "2024-03-05T04:00:00Z",
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650339"
+                },
+                "note": [
+                    {
+                    "authorString": "MCGUIRE,MARCI P",
+                    "time": "2024-11-05T04:00:00+00:00",
+                    "text": "Test sensitive problem"
+                    }
+                ]
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "2afda724-55ca-4a78-b815-3e6d9c35cd15",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650339",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "MCGUIRE,MARCI P"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "F33.0",
+                        "display": "Major depressive disorder, recurrent, mild"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "onsetDateTime": "2024-10-18T04:00:00Z",
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650339"
+                }
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "1bfddec7-c711-401c-9246-a45087b7d3db",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650339",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "MCGUIRE,MARCI P"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "Z81.1",
+                        "display": "Family history of alcohol abuse and dependence"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "onsetDateTime": "2024-10-18T04:00:00Z",
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650339"
+                },
+                "note": [
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "Patient reports multiple first and second degree relatives with possible AUD"
+                    }
+                ]
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "1ead9379-2658-4397-9891-861ef90ee857",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650352",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "BORLAND,VICTORIA A"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650352"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650352"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "D04.9",
+                        "display": "Carcinoma in situ of skin, unspecified"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "onsetDateTime": "2024-07-07T04:00:00Z",
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650352"
+                },
+                "note": [
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "Precancerous cells detected"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "Pending patient biopsy"
+                    }
+                ]
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "8c56dfdb-67c2-4078-a9fb-5cd649767d71",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520647991",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "AHMED,MARUF"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520647991"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520647991"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "Z76.89",
+                        "display": "Persons encountering health services in other specified circumstances"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "onsetDateTime": "2024-10-18T04:00:00Z",
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520647991"
+                },
+                "note": [
+                    {
+                    "authorString": "MCGUIRE,MARCI P",
+                    "time": "2024-11-06T04:00:00+00:00",
+                    "text": "This is a test annotation, not a comment."
+                    },
+                    {
+                    "authorString": "MCGUIRE,MARCI P",
+                    "time": "2024-11-06T04:00:00+00:00",
+                    "text": "Sensitive health conditions do not get filtered in MHV"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "fifty"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "forty-nine"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "forty-eight"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "forty-seven"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "forty-six"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "forty-five"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "forty-four"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "forty-three"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "forty-two"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "forty-one"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "forty"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "thirty-nine"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "thirty-eight"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "thirty-seven"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "thirty-six"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "thirty-five"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "thirty-four"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "thirty-three"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "thirty-two"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "thirty-one"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "thirty"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "twenty-nine"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "twenty-eight"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "twenty-seven"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "twenty-six"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "twenty-five"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "twenty-four"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "twenty-three"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "twenty-two"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "twenty-one"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "twenty"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "nineteen"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "eighteen"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "seventeen"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "sixteen"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "fifteen"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "fourteen"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "thirteen"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "twelve"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "eleven"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "ten"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "nine"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "eight"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "seven"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "six"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "five"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "four"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "three"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "two"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "First comment entered; comment one"
+                    }
+                ]
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "621d07d7-0ab6-4208-9d8d-141d4e6e0fbf",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650352",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "BORLAND,VICTORIA A"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650352"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650352"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "F17.200",
+                        "display": "Nicotine dependence, unspecified, uncomplicated"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "onsetDateTime": "2024-10-18T04:00:00Z",
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650352"
+                },
+                "note": [
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "Client resumed smoking recently"
+                    }
+                ]
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "98df51ca-fc20-4c36-816e-fdb9e8f0d37e",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650339",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "MCGUIRE,MARCI P"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "R69.",
+                        "display": "Illness, unspecified"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "onsetDateTime": "2024-10-18T04:00:00Z",
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650339"
+                },
+                "note": [
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-11-11T04:00:00+00:00",
+                    "text": "There was no comment here before but now I've added one"
+                    }
+                ]
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "71e770a8-c548-484f-a8c8-e1358ad3c0e3",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650339",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "MCGUIRE,MARCI P"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "R10.9",
+                        "display": "Unspecified abdominal pain"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "onsetDateTime": "2024-09-22T04:00:00Z",
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650339"
+                },
+                "note": [
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "Lorem ipsum odor, amet consectetuer adipiscing elit. Curae amet turpis quam morbi himenaeos euismod ullamcorper duis. Posuere dui finibus ultricies sed orci hac aptent morbi. In cras condimentum nam e"
+                    }
+                ]
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "0980f1fd-e953-4923-a26e-9a384a874bfa",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650339",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "MCGUIRE,MARCI P"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650339"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "J44.9",
+                        "display": "Chronic obstructive pulmonary disease, unspecified"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "onsetDateTime": "2024-09-22T04:00:00Z",
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650339"
+                },
+                "note": [
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "Additional comment for testing"
+                    },
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "Symptoms of COPD"
+                    }
+                ]
+                }
+            },
+            {
+                "resource": {
+                "resourceType": "Condition",
+                "id": "6d358d5c-d90e-4b54-9612-be577057545a",
+                "meta": {
+                    "profile": [
+                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.condition"
+                    ]
+                },
+                "contained": [
+                    {
+                    "resourceType": "Location",
+                    "id": "location-983",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "HospitalLocationTO.983"
+                        }
+                    ],
+                    "name": "CHYSHR TEST LAB"
+                    },
+                    {
+                    "resourceType": "Practitioner",
+                    "id": "ex-MHV-practitioner-520650352",
+                    "meta": {
+                        "profile": [
+                        "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                        ]
+                    },
+                    "identifier": [
+                        {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "AuthorTO.983"
+                        }
+                    ],
+                    "name": [
+                        {
+                        "text": "BORLAND,VICTORIA A"
+                        }
+                    ]
+                    }
+                ],
+                "extension": [
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650352"
+                    }
+                    },
+                    {
+                    "url": "http://hl7.org/fhir/StructureDefinition/alternate-reference",
+                    "valueReference": {
+                        "reference": "ex-MHV-practitioner-520650352"
+                    }
+                    }
+                ],
+                "identifier": [
+                    {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
+                    "value": "ProblemTO.983"
+                    }
+                ],
+                "clinicalStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                        "code": "active",
+                        "display": "active"
+                    }
+                    ]
+                },
+                "verificationStatus": {
+                    "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                        "code": "confirmed",
+                        "display": "confirmed"
+                    }
+                    ]
+                },
+                "category": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "problem-list-item"
+                        }
+                    ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "R69.",
+                        "display": "Illness, unspecified"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/24643801"
+                },
+                "onsetDateTime": "2024-10-18T04:00:00Z",
+                "recorder": {
+                    "reference": "ex-MHV-practitioner-520650352"
+                },
+                "note": [
+                    {
+                    "authorString": "BORLAND,VICTORIA A",
+                    "time": "2024-10-18T04:00:00+00:00",
+                    "text": "Testing custom problem"
+                    }
+                ]
+                }
+            }
+        ]
+    },
+    "oracle-health": {}
+}
