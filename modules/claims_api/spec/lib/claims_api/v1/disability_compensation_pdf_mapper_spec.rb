@@ -224,6 +224,168 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
     end
   end
 
+  describe 'section 3, homeless information' do
+    describe '#set_pdf_data_for_homeless_information' do
+      context 'when homelessInformation key does not exist' do
+        before do
+          @pdf_data = pdf_data
+        end
+
+        it 'sets the homelessInformation key to an empty hash' do
+          res = mapper.send(:set_pdf_data_for_homeless_information)
+
+          expect(res).to eq({})
+        end
+      end
+
+      context 'when homelessInformation key already exists' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:homelessInformation] = {}
+        end
+
+        it 'returns early without modifying the existing data' do
+          res = mapper.send(:set_pdf_data_for_homeless_information)
+
+          expect(res).to be_nil
+        end
+      end
+    end
+
+    context 'when homeless information is included in the submission' do
+      context 'pointOfContact attributes' do
+        it 'maps the attributes if included' do
+          mapper.map_claim
+
+          homeless_base = pdf_data[:data][:attributes][:homelessInformation]
+
+          expect(homeless_base[:pointOfContact]).to eq('Firstname Lastname')
+          expect(homeless_base[:pointOfContactNumber]).to eq('123-555-1234')
+        end
+
+        it 'does not map anything if not included' do
+          form_attributes['veteran']['homelessness']['pointOfContact'] = nil
+          mapper.map_claim
+
+          homeless_base = pdf_data[:data][:attributes][:homelessInformation]
+
+          expect(homeless_base).not_to have_key(:pointOfContact)
+          expect(homeless_base).not_to have_key(:pointOfContactNumber)
+        end
+      end
+
+      context 'currentlyHomeless attributes' do
+        describe '#set_pdf_data_for_currently_homeless_information' do
+          context 'when currentlyHomeless key does not exist' do
+            before do
+              @pdf_data = pdf_data
+              @pdf_data[:data][:attributes][:homelessInformation] = {}
+            end
+
+            it 'sets the currentlyHomeless key to an empty hash' do
+              res = mapper.send(:set_pdf_data_for_currently_homeless_information)
+
+              expect(res).to eq({})
+            end
+          end
+
+          context 'when currentlyHomeless key already exists' do
+            before do
+              @pdf_data = pdf_data
+              @pdf_data[:data][:attributes][:homelessInformation] = {}
+              @pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless] = {}
+            end
+
+            it 'returns early without modifying the existing data' do
+              res = mapper.send(:set_pdf_data_for_currently_homeless_information)
+
+              expect(res).to be_nil
+            end
+          end
+        end
+
+        it 'maps the attributes if included' do
+          mapper.map_claim
+
+          currently_homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+          expect(currently_homeless_base[:homelessSituationOptions]).to eq('fleeing')
+          expect(currently_homeless_base[:otherDescription]).to eq('none')
+        end
+
+        it 'does not map anything if not included' do
+          form_attributes['veteran']['homelessness']['currentlyHomeless'] = nil
+          mapper.map_claim
+
+          homeless_base = pdf_data[:data][:attributes][:homelessInformation]
+
+          expect(homeless_base).not_to have_key(:currentlyHomeless)
+        end
+      end
+
+      context 'riskOfBecomingHomeless attributes' do
+        describe '#set_pdf_data_for_homelessness_risk_information' do
+          context 'when riskOfBecomingHomeless key does not exist' do
+            before do
+              @pdf_data = pdf_data
+              @pdf_data[:data][:attributes][:homelessInformation] = {}
+            end
+
+            it 'sets the riskOfBecomingHomeless key to an empty hash' do
+              res = mapper.send(:set_pdf_data_for_homelessness_risk_information)
+
+              expect(res).to eq({})
+            end
+          end
+
+          context 'when riskOfBecomingHomeless key already exists' do
+            before do
+              @pdf_data = pdf_data
+              @pdf_data[:data][:attributes][:homelessInformation] = {}
+              @pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless] = {}
+            end
+
+            it 'returns early without modifying the existing data' do
+              res = mapper.send(:set_pdf_data_for_homelessness_risk_information)
+
+              expect(res).to be_nil
+            end
+          end
+        end
+
+        it 'maps the attributes if included' do
+          form_attributes['veteran']['homelessness']['homelessnessRisk'] = {}
+          form_attributes['veteran']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType'] = 'other'
+          form_attributes['veteran']['homelessness']['homelessnessRisk']['otherLivingSituation'] = 'Other situation'
+          mapper.map_claim
+
+          risk_of_homeless_base = pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
+
+          expect(risk_of_homeless_base[:livingSituationOptions]).to eq('other')
+          expect(risk_of_homeless_base[:otherDescription]).to eq('Other situation')
+        end
+
+        it 'does not map anything if not included' do
+          form_attributes['veteran']['homelessness']['homelessnessRisk'] = nil
+          mapper.map_claim
+
+          homeless_base = pdf_data[:data][:attributes][:homelessInformation]
+
+          expect(homeless_base).not_to have_key(:riskOfBecomingHomeless)
+        end
+      end
+    end
+
+    context 'when homeless information is not included in the submission' do
+      it 'adds nothing to the pdf data' do
+        form_attributes['veteran']['homelessness'] = {}
+        mapper.map_claim
+
+        expect(pdf_data[:data][:attributes]).not_to have_key(:homelessInformation)
+      end
+    end
+  end
+  
   context 'section 5, disabilities' do
     let(:disabilities_object) do
       [
