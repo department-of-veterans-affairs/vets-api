@@ -192,6 +192,9 @@ features:
   hca_ez_kafka_submission_enabled:
     actor_type: cookie_id
     description: Enables the 10-10EZ Kafka Event Bus submission
+  hca_disable_sentry_logging:
+    actor_type: user
+    description: Disables Sentry logging in the 10-10EZ and 10-10EZR
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch

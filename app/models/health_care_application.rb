@@ -10,7 +10,6 @@ require 'hca/overrides_parser'
 require 'kafka/sidekiq/event_bus_submission_job'
 
 class HealthCareApplication < ApplicationRecord
-  include SentryLogging
   include RetriableConcern
 
   FORM_ID = '10-10EZ'

@@ -38,7 +38,6 @@ module Form1010cg
 
     include Sidekiq::Job
     include Sidekiq::MonitoredWorker
-    include SentryLogging
 
     # retry for  2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
