@@ -81,8 +81,6 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
     allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:decision_review_final_status_secondary_form_failure_notifications)
-                                        .and_return(false)
   end
 
   describe '#get_callback_config' do
@@ -166,7 +164,6 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
                                             .and_return(true)
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:error)
-        allow(Rails.logger).to receive(:warn)
         allow(StatsD).to receive(:increment)
       end
 
@@ -436,335 +433,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
         end
       end
 
-      # FEATURE FLAG TESTS: Updated tests for final status secondary form failure notifications feature flag
-      context 'final status secondary form failure notifications feature flag' do
-        let(:appeal_submission1) do
-          create(:appeal_submission, user_account:, submitted_appeal_uuid: guid1, type_of_appeal: 'SC')
-        end
-        let(:appeal_submission2) do
-          create(:appeal_submission, user_account: user_account2, submitted_appeal_uuid: guid2, type_of_appeal: 'SC')
-        end
-        let(:appeal_submission3) do
-          create(:appeal_submission, user_account:, submitted_appeal_uuid: guid3, type_of_appeal: 'SC')
-        end
-        let(:appeal_submission4) do
-          create(:appeal_submission, user_account:, submitted_appeal_uuid: guid4, type_of_appeal: 'SC')
-        end
-
-        let(:secondary_form_final_error) do
-          {
-            status: 'error',
-            detail: 'Final permanent error',
-            final_status: true,
-            createDate: 10.days.ago,
-            updateDate: 5.days.ago
-          }.to_json
-        end
-
-        let(:secondary_form_temp_error_old) do
-          {
-            status: 'error',
-            detail: 'Temporary error over threshold',
-            final_status: false,
-            createDate: 20.days.ago,
-            updateDate: 18.days.ago
-          }.to_json
-        end
-
-        let(:secondary_form_temp_error_recent) do
-          {
-            status: 'error',
-            detail: 'Recent temporary error under threshold',
-            final_status: false,
-            createDate: 10.days.ago,
-            updateDate: 5.days.ago
-          }.to_json
-        end
-
-        let(:secondary_form_legacy_error) do
-          {
-            status: 'error',
-            detail: 'Legacy error without final_status',
-            createDate: 10.days.ago,
-            updateDate: 5.days.ago
-            # NOTE: no final_status field
-          }.to_json
-        end
-
-        before do
-          SavedClaim::SupplementalClaim.create(guid: guid1, form:)
-          SavedClaim::SupplementalClaim.create(guid: guid2, form:)
-          SavedClaim::SupplementalClaim.create(guid: guid3, form:)
-          SavedClaim::SupplementalClaim.create(guid: guid4, form:)
-        end
-
-        context 'when final status secondary form failure notifications flag is ENABLED' do
-          before do
-            allow(Flipper).to receive(:enabled?)
-              .with(:decision_review_final_status_secondary_form_failure_notifications)
-              .and_return(true)
-          end
-
-          context 'with forms having different final_status values' do
-            let!(:final_error_form) do
-              create(:secondary_appeal_form4142,
-                     appeal_submission: appeal_submission1,
-                     status: secondary_form_final_error)
-            end
-            let!(:temp_error_form_old) do
-              create(:secondary_appeal_form4142,
-                     appeal_submission: appeal_submission2,
-                     status: secondary_form_temp_error_old,
-                     created_at: 20.days.ago,
-                     status_updated_at: 18.days.ago)
-            end
-            let!(:temp_error_form_recent) do
-              create(:secondary_appeal_form4142,
-                     appeal_submission: appeal_submission3,
-                     status: secondary_form_temp_error_recent,
-                     created_at: 10.days.ago,
-                     status_updated_at: 5.days.ago)
-            end
-            let!(:legacy_error_form) do
-              create(:secondary_appeal_form4142,
-                     appeal_submission: appeal_submission4,
-                     status: secondary_form_legacy_error)
-            end
-
-            it 'only sends emails for forms with error status AND final_status=true' do
-              subject.new.perform
-
-              # Should send email for final error form only
-              expected_hash = hash_including(template_id: 'fake_sc_secondary_form_template_id')
-              expect(vanotify_service).to have_received(:send_email).with(expected_hash).once
-
-              # Should update notification sent timestamp for final error form
-              expect(final_error_form.reload.failure_notification_sent_at).not_to be_nil
-
-              # Should NOT update notification timestamp for temporary error forms
-              expect(temp_error_form_old.reload.failure_notification_sent_at).to be_nil
-              expect(temp_error_form_recent.reload.failure_notification_sent_at).to be_nil
-
-              # Should NOT update notification timestamp for legacy error form (no final_status)
-              expect(legacy_error_form.reload.failure_notification_sent_at).to be_nil
-            end
-
-            it 'logs warnings for temporary error forms exceeding threshold' do
-              frozen_time = Time.current
-              Timecop.freeze(frozen_time) do
-                subject.new.perform
-
-                # Should log warning for temp_error_form_old (over 16 days)
-                expected_log_data = hash_including(
-                  secondary_form_uuid: temp_error_form_old.guid,
-                  appeal_submission_uuid: appeal_submission2.submitted_appeal_uuid,
-                  appeal_type: 'SC',
-                  alert_type: 'secondary_form_temp_error_threshold_exceeded',
-                  requires_investigation: true
-                )
-                expect(Rails.logger).to have_received(:warn)
-                  .with('DecisionReviews::FailureNotificationEmailJob secondary form stuck in temporary error',
-                        expected_log_data)
-
-                # Should NOT log warning for temp_error_form_recent (under 16 days)
-                recent_log_data = hash_including(
-                  secondary_form_uuid: temp_error_form_recent.guid
-                )
-                expect(Rails.logger).not_to have_received(:warn)
-                  .with('DecisionReviews::FailureNotificationEmailJob secondary form stuck in temporary error',
-                        recent_log_data)
-              end
-            end
-
-            it 'increments StatsD metrics for temporary error monitoring' do
-              subject.new.perform
-
-              # Should increment metric for temp_error_form_old
-              expect(StatsD).to have_received(:increment)
-                .with('worker.decision_review.failure_notification_email.secondary_form.temp_error_threshold_exceeded',
-                      tags: array_including('appeal_type:SC'))
-
-              # Should increment only once (for the one form over threshold)
-              expect(StatsD).to have_received(:increment)
-                .with('worker.decision_review.failure_notification_email.secondary_form.temp_error_threshold_exceeded',
-                      anything).once
-            end
-
-            it 'increments correct metrics for enhanced filtering' do
-              subject.new.perform
-
-              # Should process only 1 final errored form (out of 4 total errored forms)
-              expect(StatsD).to have_received(:increment)
-                .with('worker.decision_review.failure_notification_email.secondary_forms.processing_records', 1)
-            end
-          end
-
-          context 'when no forms have final_status=true with error' do
-            let!(:recoverable_error_form_only) do
-              create(:secondary_appeal_form4142,
-                     appeal_submission: appeal_submission1,
-                     status: secondary_form_temp_error_recent)
-            end
-
-            it 'sends no emails' do
-              subject.new.perform
-
-              expected_hash = hash_including(template_id: 'fake_sc_secondary_form_template_id')
-              expect(vanotify_service).not_to have_received(:send_email).with(expected_hash)
-
-              # Should process 0 forms since none are final errors
-              expect(StatsD).to have_received(:increment)
-                .with('worker.decision_review.failure_notification_email.secondary_forms.processing_records', 0)
-            end
-          end
-        end
-
-        context 'when final status secondary form failure notifications flag is DISABLED (legacy behavior)' do
-          before do
-            allow(Flipper).to receive(:enabled?)
-              .with(:decision_review_final_status_secondary_form_failure_notifications)
-              .and_return(false)
-          end
-
-          context 'with same forms as enhanced test' do
-            let!(:final_error_form) do
-              create(:secondary_appeal_form4142,
-                     appeal_submission: appeal_submission1,
-                     status: secondary_form_final_error)
-            end
-            let!(:temp_error_form_old) do
-              create(:secondary_appeal_form4142,
-                     appeal_submission: appeal_submission2,
-                     status: secondary_form_temp_error_old)
-            end
-            let!(:temp_error_form_recent) do
-              create(:secondary_appeal_form4142,
-                     appeal_submission: appeal_submission3,
-                     status: secondary_form_temp_error_recent)
-            end
-            let!(:legacy_error_form) do
-              create(:secondary_appeal_form4142,
-                     appeal_submission: appeal_submission4,
-                     status: secondary_form_legacy_error)
-            end
-
-            it 'sends emails for ALL error forms regardless of final_status (legacy behavior)' do
-              subject.new.perform
-
-              # Should send emails for ALL FOUR error forms in legacy mode
-              expected_hash = hash_including(template_id: 'fake_sc_secondary_form_template_id')
-              expect(vanotify_service).to have_received(:send_email).with(expected_hash).exactly(4).times
-
-              # All forms should get notification timestamps
-              expect(final_error_form.reload.failure_notification_sent_at).not_to be_nil
-              expect(temp_error_form_old.reload.failure_notification_sent_at).not_to be_nil
-              expect(temp_error_form_recent.reload.failure_notification_sent_at).not_to be_nil
-              expect(legacy_error_form.reload.failure_notification_sent_at).not_to be_nil
-            end
-
-            it 'processes all errored forms in legacy mode' do
-              subject.new.perform
-
-              # Should process ALL 4 errored forms in legacy mode
-              expect(StatsD).to have_received(:increment)
-                .with('worker.decision_review.failure_notification_email.secondary_forms.processing_records', 4)
-            end
-
-            it 'does not perform temporary error monitoring in legacy mode' do
-              subject.new.perform
-
-              # Should NOT log any temporary error warnings in legacy mode
-              expect(Rails.logger).not_to have_received(:warn)
-                .with('DecisionReviews::FailureNotificationEmailJob secondary form stuck in temporary error',
-                      anything)
-
-              # Should NOT increment temporary error threshold metrics in legacy mode
-              expect(StatsD).not_to have_received(:increment)
-                .with('worker.decision_review.failure_notification_email.secondary_form.temp_error_threshold_exceeded',
-                      anything)
-            end
-          end
-        end
-
-        context 'feature flag helper method usage' do
-          let!(:error_form) do
-            create(:secondary_appeal_form4142,
-                   appeal_submission: appeal_submission1,
-                   status: secondary_form_final_error)
-          end
-
-          it 'calls the feature flag helper method' do
-            allow(Flipper).to receive(:enabled?)
-              .with(:decision_review_final_status_secondary_form_failure_notifications)
-              .and_return(true)
-
-            job_instance = subject.new
-            expect(job_instance).to receive(:final_status_secondary_form_failure_notifications_enabled?)
-              .and_call_original
-
-            job_instance.perform
-          end
-        end
-
-        # NEW TESTS: For the temporary error monitoring functionality we added
-        context 'temporary error monitoring edge cases' do
-          before do
-            allow(Flipper).to receive(:enabled?)
-              .with(:decision_review_final_status_secondary_form_failure_notifications)
-              .and_return(true)
-          end
-
-          context 'when form has status_updated_at timestamp' do
-            let!(:temp_error_form_with_status_timestamp) do
-              create(:secondary_appeal_form4142,
-                     appeal_submission: appeal_submission1,
-                     status: secondary_form_temp_error_old,
-                     created_at: 10.days.ago,
-                     updated_at: 15.days.ago,
-                     status_updated_at: 18.days.ago) # This should be used for calculation
-            end
-
-            it 'uses status_updated_at for error duration calculation' do
-              frozen_time = Time.current
-              Timecop.freeze(frozen_time) do
-                subject.new.perform
-
-                expected_duration = ((frozen_time - 18.days.ago) / 1.day).round(2)
-                expected_log_data = hash_including(
-                  error_duration_days: expected_duration,
-                  days_over_threshold: (expected_duration - 16).round(2)
-                )
-
-                expect(Rails.logger).to have_received(:warn)
-                  .with('DecisionReviews::FailureNotificationEmailJob secondary form stuck in temporary error',
-                        expected_log_data)
-              end
-            end
-          end
-
-          context 'when no forms exceed the temporary error threshold' do
-            let!(:temp_error_form_under_threshold) do
-              create(:secondary_appeal_form4142,
-                     appeal_submission: appeal_submission1,
-                     status: secondary_form_temp_error_recent)
-            end
-
-            it 'does not log any warnings or increment metrics' do
-              subject.new.perform
-
-              expect(Rails.logger).not_to have_received(:warn)
-                .with('DecisionReviews::FailureNotificationEmailJob secondary form stuck in temporary error',
-                      anything)
-
-              expect(StatsD).not_to have_received(:increment)
-                .with('worker.decision_review.failure_notification_email.secondary_form.temp_error_threshold_exceeded',
-                      anything)
-            end
-          end
-        end
-      end
-
-      context 'SecondaryAppealForm records are present with an error status' do
+      # Legacy tests - These tests remain unchanged because they test the existing legacy functionality
+      # that is still supported when the new feature flag is disabled
+      context 'SecondaryAppealForm records are present with an error status (legacy behavior)' do
         let(:secondary_form_status_error) do
           {
             status: 'error',
@@ -806,6 +477,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
         before do
           SavedClaim::SupplementalClaim.create(guid: guid1, form:)
           SavedClaim::SupplementalClaim.create(guid: guid2, form:)
+          # Ensure feature flag is disabled to test legacy behavior
+          allow(Flipper).to receive(:enabled?).with(:decision_review_final_status_secondary_form_failure_notifications)
+                                              .and_return(false)
         end
 
         context 'when already notified' do
@@ -828,7 +502,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             secondary_form1.update(failure_notification_sent_at: nil)
           end
 
-          it 'sends email with correct callback options' do
+          it 'sends email with correct callback options (legacy method)' do
             vanotify_service_instance = instance_double(VaNotify::Service)
             allow(VaNotify::Service).to receive(:new).and_return(vanotify_service_instance)
 
@@ -861,6 +535,303 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             )
 
             expect(vanotify_service_instance).to have_received(:send_email).with(expected_hash)
+          end
+        end
+      end
+
+      context 'SecondaryAppealForm records with permanent errors (enhanced behavior with feature flag)' do
+        let(:appeal_submission1) do
+          create(:appeal_submission, user_account:, submitted_appeal_uuid: guid1, type_of_appeal: 'SC')
+        end
+        let(:appeal_submission2) do
+          create(:appeal_submission, user_account: user_account2, submitted_appeal_uuid: guid2, type_of_appeal: 'SC')
+        end
+        let(:appeal_submission3) do
+          create(:appeal_submission, user_account:, submitted_appeal_uuid: guid3, type_of_appeal: 'NOD')
+        end
+
+        let(:permanent_error_status) do
+          {
+            status: 'error',
+            detail: 'Permanent processing failure',
+            final_status: true,
+            createDate: 10.days.ago,
+            updateDate: 5.days.ago
+          }.to_json
+        end
+
+        let(:temporary_error_status) do
+          {
+            status: 'error',
+            detail: 'Temporary processing failure',
+            final_status: false,
+            createDate: 10.days.ago,
+            updateDate: 5.days.ago
+          }.to_json
+        end
+
+        let(:legacy_error_status) do
+          {
+            status: 'error',
+            detail: 'Legacy error format',
+            createDate: 10.days.ago,
+            updateDate: 5.days.ago
+          }.to_json
+        end
+
+        let(:success_status) do
+          {
+            status: 'vbms',
+            detail: nil,
+            final_status: true,
+            createDate: 10.days.ago,
+            updateDate: 5.days.ago
+          }.to_json
+        end
+
+        let!(:permanent_error_form) do
+          create(:secondary_appeal_form4142, appeal_submission: appeal_submission1, status: permanent_error_status)
+        end
+        let!(:temporary_error_form) do
+          create(:secondary_appeal_form4142, appeal_submission: appeal_submission2, status: temporary_error_status)
+        end
+        let!(:legacy_error_form) do
+          create(:secondary_appeal_form4142, appeal_submission: appeal_submission3, status: legacy_error_status)
+        end
+        let!(:success_form) do
+          create(:secondary_appeal_form4142, appeal_submission: appeal_submission1, status: success_status)
+        end
+
+        let(:personalisation) do
+          {
+            first_name: mpi_profile.given_names[0],
+            filename: nil,
+            date_submitted: permanent_error_form.created_at.strftime('%B %d, %Y')
+          }
+        end
+        let(:reference) { "SC-secondary_form-#{permanent_error_form.guid}" }
+
+        before do
+          SavedClaim::SupplementalClaim.create(guid: guid1, form:)
+          SavedClaim::SupplementalClaim.create(guid: guid2, form:)
+          SavedClaim::NoticeOfDisagreement.create(guid: guid3, form:)
+
+          allow(Flipper).to receive(:enabled?).with(:decision_review_final_status_secondary_form_failure_notifications)
+                                              .and_return(true)
+        end
+
+        context 'when permanent error form has not been notified' do
+          before do
+            permanent_error_form.update(failure_notification_sent_at: nil)
+            temporary_error_form.update(failure_notification_sent_at: nil)
+            legacy_error_form.update(failure_notification_sent_at: nil)
+            success_form.update(failure_notification_sent_at: nil)
+          end
+
+          it 'sends notification only for forms with permanent errors (final_status: true)' do
+            vanotify_service_instance = instance_double(VaNotify::Service)
+            allow(VaNotify::Service).to receive(:new).and_return(vanotify_service_instance)
+
+            response = instance_double(Notifications::Client::ResponseNotification, id: notification_id)
+            allow(vanotify_service_instance).to receive(:send_email).and_return(response)
+
+            subject.new.perform
+
+            expected_hash = hash_including(
+              email_address:,
+              personalisation:,
+              template_id: 'fake_sc_secondary_form_template_id'
+            )
+            expect(vanotify_service_instance).to have_received(:send_email).with(expected_hash).once
+
+            permanent_error_form.reload
+            expect(permanent_error_form.failure_notification_sent_at).not_to be_nil
+
+            temporary_error_form.reload
+            legacy_error_form.reload
+            success_form.reload
+            expect(temporary_error_form.failure_notification_sent_at).to be_nil
+            expect(legacy_error_form.failure_notification_sent_at).to be_nil
+            expect(success_form.failure_notification_sent_at).to be_nil
+          end
+
+          it 'uses the enhanced processing method when feature flag is enabled' do
+            job = subject.new
+
+            expect(job).to receive(:send_secondary_form_emails_enhanced).and_call_original
+            expect(job).not_to receive(:send_secondary_form_emails_legacy)
+
+            job.perform
+          end
+
+          it 'logs and tracks correct metrics for permanent error notifications' do
+            subject.new.perform
+
+            logger_params = [
+              'DecisionReviews::FailureNotificationEmailJob secondary form email queued',
+              {
+                submitted_appeal_uuid: guid1,
+                lighthouse_upload_id: permanent_error_form.guid,
+                appeal_type: 'SC',
+                notification_id:
+              }
+            ]
+            expect(Rails.logger).to have_received(:info).with(*logger_params)
+
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.failure_notification_email.secondary_forms.processing_records', 1)
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.failure_notification_email.secondary_form.email_queued',
+                    tags: ['appeal_type:SC'])
+          end
+        end
+
+        context 'when permanent error form has already been notified' do
+          before do
+            permanent_error_form.update(failure_notification_sent_at: 1.day.ago)
+          end
+
+          it 'does not send another notification' do
+            subject.new.perform
+
+            expected_hash = hash_including(template_id: 'fake_sc_secondary_form_template_id')
+            expect(vanotify_service).not_to have_received(:send_email).with(expected_hash)
+          end
+        end
+
+        context 'when multiple permanent error forms exist' do
+          let(:appeal_submission4) do
+            create(:appeal_submission, user_account: user_account2, submitted_appeal_uuid: guid4, type_of_appeal: 'HLR')
+          end
+          let!(:another_permanent_error_form) do
+            create(:secondary_appeal_form4142, appeal_submission: appeal_submission4, status: permanent_error_status)
+          end
+
+          before do
+            SavedClaim::HigherLevelReview.create(guid: guid4, form: form2)
+            permanent_error_form.update(failure_notification_sent_at: nil)
+            another_permanent_error_form.update(failure_notification_sent_at: nil)
+          end
+
+          it 'sends notifications for all permanent error forms' do
+            vanotify_service_instance = instance_double(VaNotify::Service)
+            allow(VaNotify::Service).to receive(:new).and_return(vanotify_service_instance)
+
+            response1 = instance_double(Notifications::Client::ResponseNotification, id: notification_id)
+            response2 = instance_double(Notifications::Client::ResponseNotification, id: notification_id2)
+            allow(vanotify_service_instance).to receive(:send_email).and_return(response1, response2)
+
+            subject.new.perform
+
+            expect(vanotify_service_instance).to have_received(:send_email).twice
+
+            permanent_error_form.reload
+            another_permanent_error_form.reload
+            expect(permanent_error_form.failure_notification_sent_at).not_to be_nil
+            expect(another_permanent_error_form.failure_notification_sent_at).not_to be_nil
+          end
+
+          it 'processes correct count in metrics' do
+            subject.new.perform
+
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.failure_notification_email.secondary_forms.processing_records', 2)
+          end
+        end
+      end
+
+      context 'Feature flag behavior switching' do
+        let(:appeal_submission1) do
+          create(:appeal_submission, user_account:, submitted_appeal_uuid: guid1, type_of_appeal: 'SC')
+        end
+
+        let(:legacy_error_status) do
+          {
+            status: 'error',
+            detail: 'Legacy error without final_status',
+            createDate: 10.days.ago,
+            updateDate: 5.days.ago
+          }.to_json
+        end
+
+        let(:permanent_error_status) do
+          {
+            status: 'error',
+            detail: 'Permanent error with final_status',
+            final_status: true,
+            createDate: 10.days.ago,
+            updateDate: 5.days.ago
+          }.to_json
+        end
+
+        let!(:legacy_form) do
+          create(:secondary_appeal_form4142, appeal_submission: appeal_submission1, status: legacy_error_status)
+        end
+        let!(:permanent_form) do
+          create(:secondary_appeal_form4142, appeal_submission: appeal_submission1, status: permanent_error_status)
+        end
+
+        before do
+          SavedClaim::SupplementalClaim.create(guid: guid1, form:)
+          legacy_form.update(failure_notification_sent_at: nil)
+          permanent_form.update(failure_notification_sent_at: nil)
+        end
+
+        context 'when feature flag is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:decision_review_final_status_secondary_form_failure_notifications)
+              .and_return(false)
+          end
+
+          it 'uses legacy method and processes both error forms' do
+            job = subject.new
+            expect(job).to receive(:send_secondary_form_emails_legacy).and_call_original
+            expect(job).not_to receive(:send_secondary_form_emails_enhanced)
+
+            vanotify_service_instance = instance_double(VaNotify::Service)
+            allow(VaNotify::Service).to receive(:new).and_return(vanotify_service_instance)
+
+            response1 = instance_double(Notifications::Client::ResponseNotification, id: notification_id)
+            response2 = instance_double(Notifications::Client::ResponseNotification, id: notification_id2)
+            allow(vanotify_service_instance).to receive(:send_email).and_return(response1, response2)
+
+            job.perform
+
+            expect(vanotify_service_instance).to have_received(:send_email).twice
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.failure_notification_email.secondary_forms.processing_records', 2)
+          end
+        end
+
+        context 'when feature flag is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:decision_review_final_status_secondary_form_failure_notifications)
+              .and_return(true)
+          end
+
+          it 'uses enhanced method and processes only permanent error forms' do
+            job = subject.new
+            expect(job).to receive(:send_secondary_form_emails_enhanced).and_call_original
+            expect(job).not_to receive(:send_secondary_form_emails_legacy)
+
+            vanotify_service_instance = instance_double(VaNotify::Service)
+            allow(VaNotify::Service).to receive(:new).and_return(vanotify_service_instance)
+
+            response = instance_double(Notifications::Client::ResponseNotification, id: notification_id)
+            allow(vanotify_service_instance).to receive(:send_email).and_return(response)
+
+            job.perform
+
+            expect(vanotify_service_instance).to have_received(:send_email).once
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.failure_notification_email.secondary_forms.processing_records', 1)
+
+            permanent_form.reload
+            legacy_form.reload
+            expect(permanent_form.failure_notification_sent_at).not_to be_nil
+            expect(legacy_form.failure_notification_sent_at).to be_nil
           end
         end
       end
@@ -941,9 +912,49 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
         end
       end
 
-      context 'when an error occurs during secondary form processing' do
+      context 'when an error occurs during secondary form processing (enhanced method)' do
         let(:mpi_profile) { nil }
+        let(:lighthouse_upload_id) { SecureRandom.uuid }
+        let(:message) { 'Failed to fetch MPI profile' }
+        let(:permanent_error_status) do
+          {
+            status: 'error',
+            detail: 'Permanent processing failure',
+            final_status: true,
+            createDate: 10.days.ago,
+            updateDate: 5.days.ago
+          }.to_json
+        end
 
+        before do
+          SavedClaim::SupplementalClaim.create(guid: guid1, form:)
+          appeal_submission = create(:appeal_submission, type_of_appeal: 'SC', submitted_appeal_uuid: guid1)
+
+          create(:secondary_appeal_form4142, guid: lighthouse_upload_id, status: permanent_error_status,
+                                             appeal_submission:)
+          # Enable the enhanced feature flag
+          allow(Flipper).to receive(:enabled?).with(:decision_review_final_status_secondary_form_failure_notifications)
+                                              .and_return(true)
+        end
+
+        it 'handles the error and increments the statsd metric' do
+          expect { subject.new.perform }.not_to raise_exception
+
+          logger_params = [
+            'DecisionReviews::FailureNotificationEmailJob secondary form error',
+            { submitted_appeal_uuid: guid1, lighthouse_upload_id:, appeal_type: 'SC', message: }
+          ]
+          expect(Rails.logger).to have_received(:error).with(*logger_params)
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.failure_notification_email.secondary_form.error', tags: ['appeal_type:SC'])
+          expect(StatsD).to have_received(:increment)
+            .with('silent_failure',
+                  tags: ['service:supplemental-claims', 'function: secondary form submission to Lighthouse'])
+        end
+      end
+
+      context 'when an error occurs during secondary form processing (legacy method)' do
+        let(:mpi_profile) { nil }
         let(:lighthouse_upload_id) { SecureRandom.uuid }
         let(:message) { 'Failed to fetch MPI profile' }
         let(:secondary_form_status_error) do
@@ -961,6 +972,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
 
           create(:secondary_appeal_form4142, guid: lighthouse_upload_id, status: secondary_form_status_error,
                                              appeal_submission:)
+          # Disable the enhanced feature flag to use legacy method
+          allow(Flipper).to receive(:enabled?).with(:decision_review_final_status_secondary_form_failure_notifications)
+                                              .and_return(false)
         end
 
         it 'handles the error and increments the statsd metric' do
