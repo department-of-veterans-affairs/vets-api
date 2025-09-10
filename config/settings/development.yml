@@ -137,7 +137,6 @@ check_in:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
   travel_reimbursement_api_v2:
-    mock: true
     auth_url: https://fake.service.us
     auth_url_v2: ~
     claims_base_path: ~
