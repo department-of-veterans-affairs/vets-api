@@ -66,7 +66,6 @@ module TravelClaim
                                  })
 
       headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
-
       perform(:post, "#{tenant_id}/oauth2/token", body, headers, { server_url: auth_url })
     end
 
