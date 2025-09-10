@@ -251,7 +251,18 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
             it 'returns 400 Bad Request' do
               post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
               expect(response).to have_http_status(:bad_request)
-              expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Client error submitting complex claim')
+              expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Invalid request for complex claim')
+            end
+
+            it 'returns 400 if claim is missing a document' do
+              response_obj = { status: 400, body: 'Missing document for expense' }
+              allow(claims_service).to receive(:submit_claim)
+                .with(claim_id)
+                .and_raise(Faraday::ClientError.new('400 Bad Request', response_obj))
+              post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+
+              expect(response).to have_http_status(:bad_request)
+              expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Missing document for expense')
             end
           end
 

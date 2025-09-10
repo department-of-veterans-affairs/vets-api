@@ -30,7 +30,7 @@ module TravelPay
         render json: submitted_claim, status: :created
       rescue Faraday::ClientError => e
         # 400-level errors (bad request, unauthorized, forbidden)
-        handle_faraday_error(e, 'Client error submitting complex claim', log_prefix: 'Submitting complex claim: ')
+        handle_faraday_error(e, 'Invalid request for complex claim', log_prefix: 'Submitting complex claim: ')
       rescue Faraday::ServerError => e
         # 500-level errors
         handle_faraday_error(e, 'Server error submitting complex claim', log_prefix: 'Submitting complex claim: ')
