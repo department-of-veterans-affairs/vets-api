@@ -125,7 +125,7 @@ module SimpleFormsApi
         },
         {
           coords: [460, 690],
-          text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          text: timestamp.utc.strftime('%H:%M UTC %Y-%m-%d'),
           page: 2,
           font_size: 12
         }
