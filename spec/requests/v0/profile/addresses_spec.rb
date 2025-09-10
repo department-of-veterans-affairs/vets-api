@@ -20,7 +20,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
   end
 
   describe 'POST /v0/profile/addresses' do
-    let(:address) { build(:va_profile_v3_address) }
+    let(:address) { build(:va_profile_address) }
 
     context 'with a 200 response' do
       it 'matches the address schema', :aggregate_failures do
@@ -125,7 +125,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
         log_data = log.data
         expect(log_data['address_line1']).to eq(address.address_line1)
         expect(log_data['address_pou']).to eq(address.address_pou)
-        expect(log.error_class).to eq('VAProfile::Models::V3::Address ValidationError')
+        expect(log.error_class).to eq('VAProfile::Models::Address ValidationError')
       end
 
       it 'matches the errors schema', :aggregate_failures do
@@ -147,7 +147,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
   end
 
   describe 'PUT /v0/profile/addresses' do
-    let(:address) { build(:va_profile_v3_address) }
+    let(:address) { build(:va_profile_address) }
 
     context 'with a 200 response' do
       it 'matches the email address schema', :aggregate_failures do
@@ -178,7 +178,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
       context 'with a validation key' do
         let(:address) do
-          build(:va_profile_v3_address, :override, country_name: nil)
+          build(:va_profile_address, :override, country_name: nil)
         end
 
         let(:frozen_time) { Time.zone.parse('2024-09-16T16:09:37.000Z') }
@@ -224,7 +224,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
     context 'when effective_end_date is included' do
       let(:address) do
-        build(:va_profile_v3_address, effective_end_date: Time.now.utc.iso8601)
+        build(:va_profile_address, effective_end_date: Time.now.utc.iso8601)
       end
 
       it 'effective_end_date is NOT included in the request body', :aggregate_failures do

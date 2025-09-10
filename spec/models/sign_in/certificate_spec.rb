@@ -69,7 +69,7 @@ RSpec.describe SignIn::Certificate, type: :model do
 
       it 'is not valid and adds expired error' do
         expect(certificate).not_to be_valid
-        expect(certificate.errors[:pem]).to include('certificate is expired')
+        expect(certificate.errors[:pem]).to include('X.509 certificate is expired')
       end
 
       it '#expired? returns true' do
@@ -82,7 +82,7 @@ RSpec.describe SignIn::Certificate, type: :model do
 
       it 'is not valid and adds “not yet valid” error' do
         expect(certificate).not_to be_valid
-        expect(certificate.errors[:pem]).to include('certificate is not yet valid')
+        expect(certificate.errors[:pem]).to include('X.509 certificate is not yet valid')
       end
     end
 
@@ -91,23 +91,23 @@ RSpec.describe SignIn::Certificate, type: :model do
 
       it 'is not valid and adds self‑signed error' do
         expect(certificate).not_to be_valid
-        expect(certificate.errors[:pem]).to include('certificate is self-signed')
+        expect(certificate.errors[:pem]).to include('X.509 certificate is self-signed')
       end
     end
   end
 
   describe 'delegations' do
-    it { is_expected.to delegate_method(:not_before).to(:certificate) }
-    it { is_expected.to delegate_method(:not_after).to(:certificate) }
-    it { is_expected.to delegate_method(:subject).to(:certificate) }
-    it { is_expected.to delegate_method(:issuer).to(:certificate) }
-    it { is_expected.to delegate_method(:serial).to(:certificate) }
+    it { is_expected.to delegate_method(:not_before).to(:x509) }
+    it { is_expected.to delegate_method(:not_after).to(:x509) }
+    it { is_expected.to delegate_method(:subject).to(:x509) }
+    it { is_expected.to delegate_method(:issuer).to(:x509) }
+    it { is_expected.to delegate_method(:serial).to(:x509) }
   end
 
   describe '#certificate' do
     context 'when PEM is valid' do
       it 'returns an OpenSSL::X509::Certificate object' do
-        expect(certificate.certificate).to be_a(OpenSSL::X509::Certificate)
+        expect(certificate.x509).to be_a(OpenSSL::X509::Certificate)
       end
     end
 
@@ -115,7 +115,7 @@ RSpec.describe SignIn::Certificate, type: :model do
       subject(:certificate) { build(:sign_in_certificate, pem: 'not a valid pem') }
 
       it 'returns nil' do
-        expect(certificate.certificate).to be_nil
+        expect(certificate.x509).to be_nil
       end
     end
   end
@@ -123,7 +123,7 @@ RSpec.describe SignIn::Certificate, type: :model do
   describe '#certificate?' do
     context 'when certificate is valid' do
       it 'returns true' do
-        expect(certificate.certificate?).to be true
+        expect(certificate.x509?).to be true
       end
     end
 
@@ -131,7 +131,7 @@ RSpec.describe SignIn::Certificate, type: :model do
       subject(:certificate) { build(:sign_in_certificate, pem: 'not a valid pem') }
 
       it 'returns false' do
-        expect(certificate.certificate?).to be false
+        expect(certificate.x509?).to be false
       end
     end
   end
