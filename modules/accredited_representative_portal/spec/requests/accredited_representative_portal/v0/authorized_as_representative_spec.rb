@@ -25,9 +25,8 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::AuthorizeAsRepresentative', 
 
           holder =
             AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
-              type: vso_type,
-              poa_code: '067',
-              can_accept_digital_poa_requests: true
+              type: vso_type, poa_code: '067',
+              name: 'Org Name', can_accept_digital_poa_requests: true
             )
 
           allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships)

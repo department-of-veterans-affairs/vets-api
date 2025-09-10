@@ -25,6 +25,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
       power_of_attorney_holder:
         AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
           type: AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
+          name: 'Org Name',
           poa_code: Faker::Alphanumeric.alphanumeric(number: 3),
           can_accept_digital_poa_requests: nil
         )
@@ -198,6 +199,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
                   AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
                     type: 'invalid',
                     poa_code: 'super-invalid',
+                    name: 'Org Name',
                     can_accept_digital_poa_requests: nil
                   )
               )

@@ -37,7 +37,7 @@ module AccreditedRepresentativePortal
               power_of_attorney_holder:
                 PowerOfAttorneyHolder.new(
                   type: 'veteran_service_organization', poa_code: '067',
-                  can_accept_digital_poa_requests: nil
+                  name: 'Org Name', can_accept_digital_poa_requests: nil
                 )
             )
           ]

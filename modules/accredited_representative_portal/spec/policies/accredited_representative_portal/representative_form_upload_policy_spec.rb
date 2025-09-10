@@ -55,8 +55,12 @@ module AccreditedRepresentativePortal
 
         context 'when user has at least one POA holder' do
           let(:power_of_attorney_holders) do
-            [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: '067',
-                                       can_accept_digital_poa_requests: nil)]
+            [
+              PowerOfAttorneyHolder.new(
+                type: 'veteran_service_organization', poa_code: '067',
+                name: 'Org Name', can_accept_digital_poa_requests: nil
+              )
+            ]
           end
 
           it 'allows access' do

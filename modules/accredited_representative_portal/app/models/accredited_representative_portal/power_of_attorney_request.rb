@@ -225,7 +225,7 @@ module AccreditedRepresentativePortal
 
     def power_of_attorney_holder
       PowerOfAttorneyHolder.new(
-        type: power_of_attorney_holder_type,
+        type: power_of_attorney_holder_type, name: nil,
         poa_code: power_of_attorney_holder_poa_code,
         can_accept_digital_poa_requests: nil
       )

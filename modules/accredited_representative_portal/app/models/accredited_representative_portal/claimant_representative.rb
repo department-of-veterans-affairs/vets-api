@@ -95,7 +95,7 @@ module AccreditedRepresentativePortal
             #
             type.presence &&
               PowerOfAttorneyHolder.new(
-                type:, poa_code: response.dig('attributes', 'code'),
+                type:, name: nil, poa_code: response.dig('attributes', 'code'),
                 can_accept_digital_poa_requests: nil
               )
           end

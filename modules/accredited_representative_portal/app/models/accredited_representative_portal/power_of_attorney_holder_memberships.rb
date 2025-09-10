@@ -81,6 +81,7 @@ module AccreditedRepresentativePortal
                 power_of_attorney_holder:
                   PowerOfAttorneyHolder.new(
                     type: PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
+                    name: organization.name,
                     poa_code: organization.poa,
                     can_accept_digital_poa_requests:
                       organization.can_accept_digital_poa_requests
@@ -95,6 +96,7 @@ module AccreditedRepresentativePortal
               power_of_attorney_holder:
                 PowerOfAttorneyHolder.new(
                   type: PowerOfAttorneyHolder::Types::CLAIMS_AGENT,
+                  name: "#{registration.first_name} #{registration.last_name}",
                   poa_code: registration.poa_codes.first,
                   can_accept_digital_poa_requests:
                     false
@@ -108,6 +110,7 @@ module AccreditedRepresentativePortal
               power_of_attorney_holder:
                 PowerOfAttorneyHolder.new(
                   type: PowerOfAttorneyHolder::Types::ATTORNEY,
+                  name: "#{registration.first_name} #{registration.last_name}",
                   poa_code: registration.poa_codes.first,
                   can_accept_digital_poa_requests:
                     false

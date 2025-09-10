@@ -64,6 +64,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
                 power_of_attorney_holder:
                   PowerOfAttorneyHolder.new(
                     type: 'attorney',
+                    name: 'Bob Law',
                     poa_code: 'P10',
                     can_accept_digital_poa_requests: false
                   )
@@ -73,6 +74,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
                 power_of_attorney_holder:
                   PowerOfAttorneyHolder.new(
                     type: 'claims_agent',
+                    name: 'Bob Law',
                     poa_code: 'P11',
                     can_accept_digital_poa_requests: false
                   )
@@ -178,6 +180,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
                     power_of_attorney_holder:
                       PowerOfAttorneyHolder.new(
                         type: 'attorney',
+                        name: 'Bob Law',
                         poa_code: 'P10',
                         can_accept_digital_poa_requests: false
                       )
@@ -187,6 +190,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
                     power_of_attorney_holder:
                       PowerOfAttorneyHolder.new(
                         type: 'claims_agent',
+                        name: 'Bob Law',
                         poa_code: 'P11',
                         can_accept_digital_poa_requests: false
                       )
@@ -196,6 +200,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
                     power_of_attorney_holder:
                       PowerOfAttorneyHolder.new(
                         type: 'veteran_service_organization',
+                        name: 'Org A',
                         poa_code: 'P12',
                         can_accept_digital_poa_requests: false
                       )
@@ -205,6 +210,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
                     power_of_attorney_holder:
                       PowerOfAttorneyHolder.new(
                         type: 'veteran_service_organization',
+                        name: 'Org B',
                         poa_code: 'P13',
                         can_accept_digital_poa_requests: true
                       )
@@ -297,6 +303,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
             [
               PowerOfAttorneyHolder.new(
                 type: 'veteran_service_organization',
+                name: 'Org B',
                 poa_code: 'P13',
                 can_accept_digital_poa_requests: true
               )
@@ -316,21 +323,25 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
             [
               PowerOfAttorneyHolder.new(
                 type: 'attorney',
+                name: 'Bob Law',
                 poa_code: 'P10',
                 can_accept_digital_poa_requests: false
               ),
               PowerOfAttorneyHolder.new(
                 type: 'claims_agent',
+                name: 'Bob Law',
                 poa_code: 'P11',
                 can_accept_digital_poa_requests: false
               ),
               PowerOfAttorneyHolder.new(
                 type: 'veteran_service_organization',
+                name: 'Org A',
                 poa_code: 'P12',
                 can_accept_digital_poa_requests: false
               ),
               PowerOfAttorneyHolder.new(
                 type: 'veteran_service_organization',
+                name: 'Org B',
                 poa_code: 'P13',
                 can_accept_digital_poa_requests: true
               )
@@ -345,6 +356,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
           memberships.for_power_of_attorney_holder(
             PowerOfAttorneyHolder.new(
               type: 'veteran_service_organization',
+              name: 'Org B',
               poa_code: 'P13',
               can_accept_digital_poa_requests: nil
             )
@@ -359,6 +371,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
                 PowerOfAttorneyHolder.new(
                   poa_code: 'P13',
                   type: 'veteran_service_organization',
+                  name: 'Org B',
                   can_accept_digital_poa_requests: true
                 )
             )
