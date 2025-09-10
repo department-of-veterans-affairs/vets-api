@@ -5,15 +5,15 @@ set -euo pipefail
 (
     cd /usr/local/share/ca-certificates/
 
-    curl -LO https://cacerts.digicert.com/DigiCertTLSRSASHA2562020CA1-1.crt.pem
-    curl -LO https://digicert.tbs-certificats.com/DigiCertGlobalG2TLSRSASHA2562020CA1.crt
+    curl -k -LO https://cacerts.digicert.com/DigiCertTLSRSASHA2562020CA1-1.crt.pem
+    curl -k -LO https://digicert.tbs-certificats.com/DigiCertGlobalG2TLSRSASHA2562020CA1.crt
 
     # DoD ECA with multiple fallback mechanisms
     (
         echo "Downloading DoD ECA certificates..."
 
         # Primary: HTTPS with timeout and retries
-        if curl --show-error --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -o unclass-certificates_pkcs7_ECA.zip https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
+        if curl -k --show-error --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 -o unclass-certificates_pkcs7_ECA.zip https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip; then
             echo "✓ DoD ECA downloaded via HTTPS"
         ## Uncomment in case the https call fails again
         ## Last time we got this error: Failed to connect to dl.dod.cyber.mil port 443
