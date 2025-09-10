@@ -4,14 +4,14 @@ module AppealsApi::V1::SwaggerRoot
   include Swagger::Blocks
   DESCRIPTION_FILE_NAME = Flipper.enabled?(:decision_reviews_evidence_final_status_field) ? 'description_with_final_status.md' : 'api_description.md'
   read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
-  read_file_from_same_dir = ->(filename) { read_file.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
+  read_file_from_alt_dir = ->(filename) { read_file.call(['app', 'swagger', 'decision_reviews', 'v2', filename]) }
 
   swagger_root do
     key :openapi, '3.0.0'
     info do
       key :title, 'Decision Reviews'
       key :version, '1.0.0'
-      key :description, read_file(`../../decision_reviews/v2/#{DESCRIPTION_FILE_NAME}`, __dir__)
+      key :description, read_file_from_alt_dir[DESCRIPTION_FILE_NAME]
       key :termsOfService, 'https://developer.va.gov/terms-of-service'
       contact do
         key :name, 'VA API Benefits Team'
