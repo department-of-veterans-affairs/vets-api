@@ -430,6 +430,10 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
 
     # FES Val Section 5.c: changeOfAddress date validations
     context 'changeOfAddress date validations' do
+      before do
+        allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+      end
+
       # FES Val Section 5.c.i: TEMPORARY address requires dates
       context 'when TEMPORARY address missing beginDate' do
         let(:form_attributes) do
@@ -615,6 +619,10 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
 
       # FES Val Section 5.c.v-viii: changeOfAddress field validations
       context 'changeOfAddress field validations' do
+        before do
+          allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+        end
+
         context 'USA address (5.c.v)' do
           let(:form_attributes) do
             base_form_attributes.merge(
@@ -656,6 +664,66 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             expect(errors.map do |e|
               e[:detail]
             end).to contain_exactly('City is required', 'InternationalPostalCode is required')
+          end
+        end
+
+        # FES Val Section 5.c.ix: country validation against reference data
+        context 'Invalid country code (5.c.ix)' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'PERMANENT',
+                'country' => 'INVALID',
+                'addressLine1' => '123 Main St',
+                'city' => 'London',
+                'internationalPostalCode' => 'SW1A 1AA',
+                'dates' => { 'beginDate' => (Date.current + 10.days).to_s }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          end
+
+          it 'returns validation error for invalid country' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.any? do |e|
+              e[:source] == '/changeOfAddress/country' &&
+                e[:title] == 'Invalid country' &&
+                e[:detail] == 'Provided country is not valid: INVALID'
+            end).to be true
+          end
+        end
+
+        # FES Val Section 5.c.x: BRD service error handling
+        context 'BRD service unavailable (5.c.x)' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'changeOfAddress' => {
+                'typeOfAddressChange' => 'PERMANENT',
+                'country' => 'GBR',
+                'addressLine1' => '123 High St',
+                'city' => 'London',
+                'internationalPostalCode' => 'SW1A 1AA',
+                'dates' => { 'beginDate' => (Date.current + 10.days).to_s }
+              }
+            )
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:valid_countries).and_return(nil)
+          end
+
+          it 'returns BRD service error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.any? do |e|
+              e[:source] == '/changeOfAddress/country' &&
+                e[:title] == 'Internal Server Error' &&
+                e[:detail] == 'Failed To Obtain Country Types (Request Failed)'
+            end).to be true
           end
         end
       end

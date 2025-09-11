@@ -366,7 +366,7 @@ module ClaimsApi
         countries = valid_countries
         source_prefix = address_type == 'changeOfAddress' ? '' : '/veteranIdentification'
         if countries.nil?
-          # FES Val Section 5.b.vii-viii: BRD service error
+          # FES Val Section 5.b.vii-viii & 5.c.x: BRD service error
           collect_error(
             source: "#{source_prefix}/#{address_type}/country",
             title: 'Internal Server Error',
@@ -375,7 +375,7 @@ module ClaimsApi
           return
         end
 
-        # FES Val Section 5.b.vi: Invalid country
+        # FES Val Section 5.b.vi & 5.c.ix: Invalid country
         return if countries.include?(address['country'])
 
         collect_error(
@@ -453,9 +453,11 @@ module ClaimsApi
           validate_international_change_of_address!(change_of_address)
         end
 
+        # FES Val Section 5.c.ix & 5.c.x: Validate country against reference data
+        validate_address_country!(change_of_address, 'changeOfAddress') if country.present?
+
         # NOTE: Military address fields don't exist in v2 schema
-        # NOTE: FES Val Section 5.c.ix (country validation) is CROSSED OUT - not implementing
-        # NOTE: FES Val Section 5.c.x (BRD error handling) is CROSSED OUT - not implementing
+        # NOTE: FES Val Section 5.c.xi is CROSSED OUT - not implementing
       end
 
       def validate_domestic_change_of_address!(change_of_address)
