@@ -19,6 +19,5 @@ module DependentsBenefits
         end
       end
     end
-
   end
 end
