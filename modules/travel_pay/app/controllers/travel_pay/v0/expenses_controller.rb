@@ -3,13 +3,14 @@
 module TravelPay
   module V0
     class ExpensesController < ApplicationController
+      include FeatureFlagHelper
+
       before_action :validate_claim_id
       before_action :validate_expense_type
       before_action :validate_expense_id, only: [:show]
+      before_action :check_feature_flag
 
       def show
-        validate_feature_flag_enabled
-
         Rails.logger.info(message: 'Travel Pay expense retrieval START')
         Rails.logger.info(message: <<~LOG_MESSAGE.strip)
           Getting expense of type '#{params[:expense_type]}'
@@ -29,8 +30,6 @@ module TravelPay
       end
 
       def create
-        validate_feature_flag_enabled
-
         Rails.logger.info(message: 'Travel Pay expense submission START')
         Rails.logger.info(
           message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
@@ -58,12 +57,12 @@ module TravelPay
         @expense_service ||= TravelPay::ExpensesService.new(auth_manager)
       end
 
-      def validate_feature_flag_enabled
-        return if Flipper.enabled?(:travel_pay_enable_complex_claims, @current_user)
-
-        message = 'Travel Pay expense submission unavailable per feature toggle'
-        Rails.logger.error(message:)
-        raise Common::Exceptions::ServiceUnavailable, message:
+      def check_feature_flag
+        verify_feature_flag!(
+          :travel_pay_enable_complex_claims,
+          current_user,
+          error_message: 'Travel Pay expense submission unavailable per feature toggle'
+        )
       end
 
       def create_and_validate_expense

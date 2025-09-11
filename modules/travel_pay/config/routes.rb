@@ -10,5 +10,7 @@ TravelPay::Engine.routes.draw do
       get 'expenses/:expense_type/:expense_id', to: 'expenses#show',
                                                 constraints: { expense_type: %r{[^/]+}, expense_id: %r{[^/]+} }
     end
+
+    resources :complex_claims, only: %i[create]
   end
 end

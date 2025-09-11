@@ -75,6 +75,7 @@ describe ClaimsApi::PdfMapperBase do
     it 'formats an SSN string' do
       ssn = '123456789'
       result = subject.format_ssn(ssn)
+
       expect(result).to eq('123-45-6789')
     end
   end
@@ -82,7 +83,9 @@ describe ClaimsApi::PdfMapperBase do
   describe '#format_birth_date' do
     it 'extracts month, day, and year correctly' do
       result = subject.format_birth_date('1948-10-30T00:00:00+00:00') # birth date format from auth_header
+
       expected = { month: '10', day: '30', year: '1948' }
+
       expect(result).to eq(expected)
     end
   end
@@ -163,6 +166,99 @@ describe ClaimsApi::PdfMapperBase do
 
         expect(result).to be_nil
       end
+    end
+  end
+
+  describe '#make_date_object' do
+    context 'when date_length is 4 (year only)' do
+      it 'returns a hash with only year' do
+        result = subject.make_date_object('2023', 4)
+
+        expect(result).to eq({ year: '2023' })
+      end
+    end
+
+    context 'when date_length is 7 (year and month)' do
+      it 'returns a hash with year and month' do
+        result = subject.make_date_object('2023-12', 7)
+
+        expect(result).to eq({ month: '12', year: '2023' })
+      end
+    end
+
+    context 'when date_length is neither 4 nor 7 (full date)' do
+      it 'returns a hash with year, month, and day' do
+        result = subject.make_date_object('2023-12-25', 10)
+
+        expect(result).to eq({ year: '2023', month: '12', day: '25' })
+      end
+    end
+
+    context 'when year is nil (invalid date)' do
+      it 'returns nil' do
+        result = subject.make_date_object('invalid-date', 10)
+
+        expect(result).to be_nil
+      end
+    end
+  end
+
+  describe '#convert_phone' do
+    it 'formats a plain 10-digit number' do
+      number = String.new('1234567890')
+
+      res = subject.convert_phone(number)
+
+      expect(res).to eq('123-456-7890')
+    end
+
+    it 'formats an 11-digit number (with country code)' do
+      number = String.new('11234567890')
+
+      res = subject.convert_phone(number)
+
+      expect(res).to eq('11-23-4567-890')
+    end
+
+    it 'returns nil for strings with something other than digits in them' do
+      number = String.new('555defghij')
+
+      res = subject.convert_phone(number)
+
+      expect(res).to be_nil
+    end
+  end
+
+  describe '#build_disability_item' do
+    it 'returns hash with all keys when exposure is provided' do
+      result = subject.build_disability_item(
+        'PTSD',
+        '2020-01-01',
+        'Combat related',
+        'Agent Orange'
+      )
+
+      expect(result).to eq({
+                             disability: 'PTSD',
+                             approximateDate: '2020-01-01',
+                             exposureOrEventOrInjury: 'Agent Orange',
+                             serviceRelevance: 'Combat related'
+                           })
+    end
+
+    it 'handles no exposure key' do
+      result = subject.build_disability_item(
+        'Hearing Loss',
+        '2019-06-15',
+        'Artillery exposure'
+      )
+
+      expect(result).to eq({
+                             disability: 'Hearing Loss',
+                             approximateDate: '2019-06-15',
+                             serviceRelevance: 'Artillery exposure'
+                           })
+      expect(result).not_to have_key(:exposureOrEventOrInjury)
     end
   end
 end
