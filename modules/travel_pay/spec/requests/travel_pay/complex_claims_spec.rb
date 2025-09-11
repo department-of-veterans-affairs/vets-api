@@ -208,13 +208,16 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
       end
 
       context 'stubbed service behavior' do
+        before do
+          allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
+            .to receive(:claims_service).and_return(claims_service)
+        end
+
         context 'when there are no service errors' do
           before do
             allow(claims_service).to receive(:submit_claim)
               .with(claim_id)
               .and_return({ 'claimId' => claim_id })
-            allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
-              .to receive(:claims_service).and_return(claims_service)
           end
 
           it 'successfully creates complex claim and returns claimId' do
@@ -239,11 +242,6 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
 
         context 'when there are errors' do
           context 'when claims service raises Faraday::ClientError' do
-            before do
-              allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
-                .to receive(:claims_service).and_return(claims_service)
-            end
-
             it 'falls back to :bad_request - 400 error, when response is nil' do
               error = Faraday::ClientError.new('Connection failed', nil)
               allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
@@ -279,11 +277,6 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
           end
 
           context 'when claims service raises ServerError' do
-            before do
-              allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
-                .to receive(:claims_service).and_return(claims_service)
-            end
-
             it 'falls back to :internal_server_error - 500, when response is nil' do
               error = Faraday::ServerError.new('Service unavailable', nil)
               allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
