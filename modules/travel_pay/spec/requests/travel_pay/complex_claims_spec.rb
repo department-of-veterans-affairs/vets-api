@@ -255,29 +255,26 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
               expect(body['errors'].first['detail']).to eq('Invalid request for complex claim')
             end
 
-            it 'uses status from Faraday response and shows default message when its blank' do
-              error = Faraday::ClientError.new('Connection failed', { status: 429, body: '' })
+            it 'uses status from Faraday response and shows default message when is blank' do
+              error = Faraday::ClientError.new('Connection failed', { status: 404, body: '' })
               allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
 
               post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
 
-              expect(response).to have_http_status(:too_many_requests)
+              expect(response).to have_http_status(:not_found)
               body = JSON.parse(response.body)
               expect(body['errors'].first['detail']).to eq('Invalid request for complex claim')
             end
 
-            it 'uses status from Faraday response if present (e.g. 429)' do
-              error = Faraday::ClientError.new(
-                '429 Too Many Requests',
-                { status: 429, body: 'Rate limit exceeded' }
-              )
+            it 'uses status from Faraday response if present (e.g. 404)' do
+              error = Faraday::ClientError.new('404 Not Found', { status: 404, body: 'Claim not found' })
               allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
 
               post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
 
-              expect(response).to have_http_status(:too_many_requests)
+              expect(response).to have_http_status(:not_found)
               body = JSON.parse(response.body)
-              expect(body['errors'].first['detail']).to eq('Rate limit exceeded')
+              expect(body['errors'].first['detail']).to eq('Claim not found')
             end
           end
 
@@ -287,7 +284,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
                 .to receive(:claims_service).and_return(claims_service)
             end
 
-            it 'falls back to :internal_server_error when response is nil' do
+            it 'falls back to :internal_server_error - 500, when response is nil' do
               error = Faraday::ServerError.new('Service unavailable', nil)
               allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
 
