@@ -58,6 +58,9 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       end
 
       it 'logs the success' do
+        expect(Rails.logger).to receive(:info).with(
+          match(/DependentsBenefits::SavedClaim Skipping tracking PDF overflow/), instance_of(Hash)
+        ).at_least(:once)
         expect(Rails.logger).to receive(:info).with(match(/Successfully created claim/),
                                                     include({ statsd: 'api.dependents_application.create_success' }))
         post(:create, params: test_form, as: :json)
