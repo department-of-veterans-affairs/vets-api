@@ -232,7 +232,8 @@ module VSPDanger
       %r{spec/.+_spec\.rb$}, # Test files
       %r{modules/.+/spec/.+_spec\.rb$}, # Module test files
       %r{spec/factories/.+\.rb$}, # Factory changes
-      %r{modules/.+/spec/factories/.+\.rb$} # Module factory changes
+      %r{modules/.+/spec/factories/.+\.rb$}, # Module factory changes
+      %r{^Dangerfile$} # Dangerfile changes (for MigrationIsolator improvements)
     ].freeze
 
     def run
@@ -276,17 +277,17 @@ module VSPDanger
       <<~EMSG
         This PR contains migrations with disallowed application code changes.
 
-        **DEBUG INFO:**
-        
-        All Files: #{files.join(', ')}
-        
-        DB Files: #{db_files.join(', ')}
-        
-        App Files: #{app_files.join(', ')}
-        
-        Disallowed Files: #{disallowed_files.join(', ')}
-        
-        Allowed Files: #{(app_files - disallowed_files).join(', ')}
+        <details>
+          <summary>File Summary</summary>
+
+          #### DB File(s)
+          - #{db_files.join "\n- "}
+
+          #### Disallowed App File(s)
+          - #{disallowed_files.join "\n- "}
+
+          #{(app_files - disallowed_files).any? ? "#### Allowed App File(s)\n- #{(app_files - disallowed_files).join "\n- "}" : ''}
+        </details>
 
         **Allowed changes with migrations:**
         - Model files (for `ignored_columns`, validations)
