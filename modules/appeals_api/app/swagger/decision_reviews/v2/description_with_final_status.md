@@ -97,11 +97,7 @@ The metadata.json file only supports a limited set of characters within the asci
 | vbms      | Indicates the evidence submission was successfully uploaded into a Veteran's eFolder within VBMS. On average, submissions reach VBMS status within 3 business days. However, processing times vary and some submissions may remain in a Success status for several weeks before reaching a VBMS status. Some document packages are worked in VA systems other than VBMS. For these submissions, Success is the final status. |
 | error     | Indicates that there was an error. Refer to the error code and detail for further information. |
 
-<<<<<<< HEAD
-Evidence submissions have a final_status attribute that indicates whether the status is final. Submissions with a final_status of true will no longer update to a new status.
-=======
 - The statuses have a finalStatus attribute that indicates whether the status of the evidence is final. Submissions with a finalStatus of true will no longer update to a new status.
->>>>>>> 8f67bcb2c0 (regen decision reviews oas + update md file)
 
 ### Status Caching
 
