@@ -384,17 +384,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
   end
 
-  describe '#extract_refill_status' do
-    it 'maps FHIR statuses to expected values' do
-      expect(subject.send(:extract_refill_status, { 'status' => 'active' })).to eq('active')
-      expect(subject.send(:extract_refill_status, { 'status' => 'completed' })).to eq('expired')
-      expect(subject.send(:extract_refill_status, { 'status' => 'stopped' })).to eq('discontinued')
-      expect(subject.send(:extract_refill_status, { 'status' => 'cancelled' })).to eq('discontinued')
-      expect(subject.send(:extract_refill_status, { 'status' => 'entered-in-error' })).to eq('discontinued')
-      expect(subject.send(:extract_refill_status, { 'status' => 'unknown' })).to eq('unknown')
-    end
-  end
-
   describe '#extract_is_refillable' do
     context 'with active status and remaining refills' do
       let(:resource) do

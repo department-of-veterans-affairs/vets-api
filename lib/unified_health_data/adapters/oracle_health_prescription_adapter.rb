@@ -22,7 +22,7 @@ module UnifiedHealthData
       # rubocop:disable Metrics/MethodLength
       def build_prescription_attributes(resource)
         UnifiedHealthData::PrescriptionAttributes.new({
-                                                        refill_status: extract_refill_status(resource),
+                                                        refill_status: resource['status'],
                                                         refill_submit_date: nil, # Not available in FHIR
                                                         refill_date: extract_refill_date(resource),
                                                         refill_remaining:
@@ -43,16 +43,6 @@ module UnifiedHealthData
                                                       })
       end
       # rubocop:enable Metrics/MethodLength
-
-      def extract_refill_status(resource)
-        status = resource['status']
-        case status
-        when 'active' then 'active'
-        when 'completed' then 'expired'
-        when 'stopped', 'cancelled', 'entered-in-error' then 'discontinued'
-        else status
-        end
-      end
 
       def extract_refill_date(resource)
         resource.dig('dispenseRequest', 'validityPeriod', 'start')
