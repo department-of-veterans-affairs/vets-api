@@ -38,9 +38,6 @@ features:
     actor_type: user
     description: Enables the people search of the accredited representative portal
     enable_in_development: true
-  accredited_representative_portal_self_service_auth:
-    actor_type: user
-    description: Enables the self-service authorization of the accredited representative portal
   accredited_representative_portal_form_21a:
     actor_type: user
     description: >
@@ -165,6 +162,10 @@ features:
     description: Enables dependents verification emails
   event_bus_gateway_ep040_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP040 claims"
+  event_bus_gateway_ep120_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP120 reopened pension claims"
+  event_bus_gateway_ep180_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP180 initial pension claims"
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -177,6 +178,10 @@ features:
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
+    enable_in_development: true
+  hca_in_progress_form_logging:
+    actor_type: user
+    description: Add logging for the 10-10EZ around cleaning up InProgressForms after submission
     enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
@@ -293,9 +298,15 @@ features:
   champva_form_10_10d_2027:
     actor_type: user
     description: If enabled uses the 2027 version of form 10-10d with expiration 12/31/2027
+  champva_form_10_7959f_2_2025:
+    actor_type: user
+    description: If enabled uses the 2025 version of form 10-7959f-2 with expiration 12/31/2027
   champva_ves_retry_failures_job:
     actor_type: user
     description: Enables the sidekiq job to retry VES submissions that failed
+  champva_use_hexapdf_to_unlock_pdfs:
+    actor_type: user
+    description: Enables the the use of hexapdf instead of pdftk to unlock password-protected PDFs on form submission
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -472,9 +483,12 @@ features:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
     enable_in_development: true
-  cst_filter_ep_codes:
+  cst_filter_ep_290:
     actor_type: user
-    description: When enabled, benefits_claims/get_claims service filters certain ep codes based on issue 90936 research from the response
+    description: When enabled, benefits_claims/get_claims service filters 290 EP code claims from the response
+  cst_filter_ep_960:
+    actor_type: user
+    description: When enabled, benefits_claims/get_claims service filters 960 EP code claims from the response
   cst_smooth_loading_experience:
     actor_type: user
     description: When enabled, the UI of the CST app will have a smoother loading experience
@@ -666,6 +680,10 @@ features:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
     enable_in_development: true
+  contention_classification_ml_classifier:
+    actor_type: user
+    description: Enables the machine learning classifier for contention classification by calling the hybrid endpoint instead of expanded endpoint.
+    enable_in_development: true
   disability_526_ee_mst_special_issue:
     actor_type: user
     description: enables adding MST special issue to disability_526 prior to submission.
@@ -741,6 +759,10 @@ features:
   disability_526_form4142_use_2024_version:
     actor_type: user
     description: enables the 2024 version of form 4142 in the disability 526 submission frontend workflow
+    enable_in_development: true
+  disability_526_toxic_exposure_opt_out_data_purge:
+    actor_type: user
+    description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
     enable_in_development: true
   disability_526_track_saved_claim_error:
     actor_type: user
@@ -1021,6 +1043,7 @@ features:
   form1010d_extended:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-10d merged with form 10-7959c
+    enable_in_development: true
   form1010d_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for form 10-10d (IVC CHAMPVA)
@@ -1036,12 +1059,15 @@ features:
   form107959c:
     actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
+    enable_in_development: true
   form107959a:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959a (IVC CHAMPVA claim form)
+    enable_in_development: true
   form107959f2:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959f-2 (Foreign Medical Program claim form)
+    enable_in_development: true
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
@@ -1120,9 +1146,15 @@ features:
     actor_type: user
     description: Lighthouse Benefits Claims API uses MPI birls_id as filenumber parameter to BDS search
     enable_in_development: true
+  lighthouse_document_convert_to_unlocked_pdf_use_hexapdf:
+    description: Enables the LighthouseDocument class's convert_to_unlocked_pdf method to use hexapdf to unlock encrypted pdfs
   log_eligible_benefits:
     actor_type: user
     description: Allows log_eligible_benefits_job.rb to run in background.
+    enable_in_development: true
+  logging_data_scrubber:
+    actor_type: user
+    description: Enable/disable data scrubbing for sensitive information
     enable_in_development: true
   loop_pages:
     actor_type: user
@@ -1209,7 +1241,7 @@ features:
     description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
-    description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
+    description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov and VHAB
   mhv_secure_messaging_filter_accordion:
     actor_type: user
     description: Enables/disables Secure Messaging Filter Accordion re-design updates on VA.gov
@@ -1404,10 +1436,6 @@ features:
     actor_type: user
     description: Enables/disables documentation-related content for Medications on VA.gov
     enable_in_development: true
-  mhv_medications_display_allergies:
-    actor_type: user
-    description: Enables/disables allergies and reactions data
-    enable_in_development: true
   mhv_medications_display_filter:
     actor_type: user
     description: Enables/disables filter feature for medications list
@@ -1416,6 +1444,9 @@ features:
     actor_type: user
     description: Enables/disables grouping medications related work
     enable_in_development: true
+  mhv_medications_cerner_pilot:
+    actor_type: user
+    description: Enables/disables Medications Cerner Transition Pilot environment on VA.gov and VHAB
   mhv_enable_aal_integration:
     actor_type: user
     description: Enables/disables integration with MHV's AAL-creation endpoint
@@ -1467,6 +1498,10 @@ features:
     actor_type: user
     description: Logs decision letter info on both claims and decision letter endpoint
     enable_in_development: true
+  mobile_coe_letter_use_lgy_service:
+    actor_type: user
+    description: Use LGY service for retrieving COE letters in the mobile app
+    enable_in_development: false
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
@@ -2131,13 +2166,20 @@ features:
     actor_type: user
     description: This determines whether a user is redirected to the Terms of Use page
     enable_in_development: true
-  burial_form_enabled:
+  burial_browser_monitoring_enabled:
     actor_type: user
-    description: Enable the burial form
+    description: Burial Datadog RUM monitoring
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
     enable_in_development: true
+  burial_extras_redesign_enabled:
+    actor_type: user
+    description: Enable the new overflow design
+    enable_in_development: true
+  burial_form_enabled:
+    actor_type: user
+    description: Enable the burial form
   burial_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -2150,9 +2192,6 @@ features:
   burial_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
-  burial_browser_monitoring_enabled:
-    actor_type: user
-    description: Burial Datadog RUM monitoring
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
@@ -2286,10 +2325,6 @@ features:
     actor_type: cookie_id
     description: Swaps the Search Service's for one with an updated api.gsa.gov address
     enable_in_development: true
-  remove_pciu:
-    actor_type: user
-    description: If enabled, VA Profile is used to populate contact information with PCIU backup calls
-    enable_in_development: true
   override_address_pou:
     actor_type: user
     description: If enabled, ADDRESS_POU == RESIDENCE/CHOICE
@@ -2321,6 +2356,9 @@ features:
   va_notify_notification_creation:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
+  va_notify_request_level_callbacks:
+    actor_type: user
+    description: If enabled, emails and sms sent through VaNotify::Service will authenticate request-level callback data
   is_DGIB_endpoint:
     actor_type: user
     description: used to call data from DGIB endpoints for MGIB VYE application
@@ -2382,6 +2420,9 @@ features:
   disable_bdn_processing:
     actor_type: user
     description: If enabled, skip all BDN-related processing for VYE
+  my_va_auth_exp_redesign_available_to_opt_in:
+    actor_type: user
+    description: When enabled, a user will see the option to switch to the redesigned experience of MyVA.
   my_va_auth_exp_redesign_enabled:
     actor_type: user
     description: When enabled, a user will see the redesigned experience of MyVA.
@@ -2413,6 +2454,9 @@ features:
   calculator_constants_versioning:
     actor_type:
     description: (gibct-data-service) If enabled, updates GIDS UI and includes calculator constants in GIDS version generation
+  vre_eligibility_status_updates:
+    actor_type: user
+    description: If enabled, show VRE eligibility content and status updates
   gi_feedback_tool_vet_tec_education_benefit:
     actor_type: user
     description: Includes the (VET TEC 2.0) option for selection under the Education Benefits question in the GI Bill® School Feedback Tool
@@ -2431,4 +2475,12 @@ features:
   va_online_scheduling_add_substance_use_disorder:
     actor_type: user
     description: Enables substance use disorder as care related to mental health appointments with new codes
+    enable_in_development: true
+  form10203_confirmation_email_with_silent_failure_processing:
+    actor_type: user
+    description: If enabled, confirmation email will be sent with silent failure processing
+  unique_user_metrics_logging:
+    # System level feature flag
+    actor_type:
+    description: Enables unique user metrics logging for MHV Portal analytics. When disabled, no events will be recorded to database or sent to StatsD.
     enable_in_development: true

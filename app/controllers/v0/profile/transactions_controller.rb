@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'va_profile/contact_information/service'
 require 'va_profile/contact_information/v2/service'
 
 module V0
@@ -29,11 +28,7 @@ module V0
       end
 
       def service
-        if Flipper.enabled?(:remove_pciu, @current_user)
-          VAProfile::ContactInformation::V2::Service.new @current_user
-        else
-          VAProfile::ContactInformation::Service.new @current_user
-        end
+        VAProfile::ContactInformation::V2::Service.new @current_user
       end
     end
   end

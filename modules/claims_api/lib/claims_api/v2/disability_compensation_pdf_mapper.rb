@@ -135,7 +135,7 @@ module ClaimsApi
           @auto_claim&.dig('changeOfAddress')&.deep_symbolize_keys
 
         country = @pdf_data[:data][:attributes][:changeOfAddress][:country]
-        abbr_country = country == 'USA' ? 'US' : country
+        abbr_country = format_country(country)
         @pdf_data[:data][:attributes][:changeOfAddress].merge!(
           newAddress: { country: abbr_country }
         )
@@ -190,16 +190,7 @@ module ClaimsApi
       end
 
       def chg_addr_zip
-        zip_first_five = @auto_claim&.dig('changeOfAddress', 'zipFirstFive') || ''
-        zip_last_four = @auto_claim&.dig('changeOfAddress', 'zipLastFour') || ''
-        international_zip = @auto_claim&.dig('changeOfAddress', 'internationalPostalCode')
-        zip = if zip_last_four.present?
-                "#{zip_first_five}-#{zip_last_four}"
-              elsif international_zip.present?
-                international_zip
-              else
-                zip_first_five
-              end
+        zip = concatenate_zip_code(@auto_claim&.dig('changeOfAddress'))
         addr = @pdf_data&.dig(:data, :attributes, :identificationInformation, :mailingAddress).present?
         @pdf_data[:data][:attributes][:changeOfAddress][:newAddress].merge!(zip:) if addr
         @pdf_data[:data][:attributes][:changeOfAddress].delete(:internationalPostalCode)
@@ -448,22 +439,18 @@ module ClaimsApi
             exposure = disability['exposureOrEventOrInjury']
             service_relevance = disability['serviceRelevance']
 
-            disabilities_list << build_disability_item(dis_name, dis_date, exposure, service_relevance)
+            disabilities_list << build_disability_item(dis_name, dis_date, service_relevance, exposure)
             if disability['secondaryDisabilities'].present?
               disabilities_list << disability['secondaryDisabilities']&.map do |secondary_disability|
                 dis_name = "#{secondary_disability['name']} secondary to: #{disability['name']}"
                 dis_date = make_date_string_month_first(secondary_disability['approximateDate'], secondary_disability['approximateDate'].length) if secondary_disability['approximateDate'].present?
                 exposure = disability['exposureOrEventOrInjury']
                 service_relevance = secondary_disability['serviceRelevance']
-                build_disability_item(dis_name, dis_date, exposure, service_relevance)
+                build_disability_item(dis_name, dis_date, service_relevance, exposure)
               end
             end
           end
         end.flatten
-      end
-
-      def build_disability_item(disability, approximate_date, exposure, service_relevance)
-        { disability:, approximateDate: approximate_date, exposureOrEventOrInjury: exposure, serviceRelevance: service_relevance }.compact
       end
 
       def conditions_related_to_exposure?
@@ -807,15 +794,6 @@ module ClaimsApi
         }
       end
 
-      def convert_phone(phone)
-        phone&.gsub!(/[^0-9]/, '')
-        return nil if phone.nil? || (phone.length < 10)
-
-        return "#{phone[0..2]}-#{phone[3..5]}-#{phone[6..9]}" if phone.length == 10
-
-        "#{phone[0..1]}-#{phone[2..3]}-#{phone[4..7]}-#{phone[8..11]}" if phone.length > 10
-      end
-
       def convert_date_string_to_format_yyyy(date_string)
         date = Date.strptime(date_string, '%Y')
         {
@@ -837,19 +815,6 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:identificationInformation][:ssn] = formated_ssn
         @pdf_data[:data][:attributes][:identificationInformation][:dateOfBirth] = birth_date
         @pdf_data
-      end
-
-      def make_date_object(date, date_length)
-        year, month, day = regex_date_conversion(date)
-        return if year.nil? || date_length.nil?
-
-        if date_length == 4
-          { year: }
-        elsif date_length == 7
-          { month:, year: }
-        else
-          { year:, month:, day: }
-        end
       end
     end
   end

@@ -574,7 +574,7 @@ module VAOS
       # or nil if the input ICN was nil.
       #
       def normalize_icn(icn)
-        icn&.gsub(/V[\d]{6}$/, '')
+        icn&.gsub(/V\d{6}$/, '')
       end
 
       # Checks equality between two ICNs (Integration Control Numbers)

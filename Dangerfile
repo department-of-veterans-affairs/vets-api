@@ -133,7 +133,7 @@ module VSPDanger
           lines = file_git_diff(file_name).split("\n")
           changed = { '+' => 0, '-' => 0 }
           lines.each do |line|
-            next if (line =~ /^(\+[^\+]|-[^\-])/).nil? # Only changed lines, exclude metadata
+            next if (line =~ /^(\+[^+]|-[^-])/).nil? # Only changed lines, exclude metadata
 
             action = line[0].to_s
             clean_line = line[1..].strip # Remove leading '+' or '-'

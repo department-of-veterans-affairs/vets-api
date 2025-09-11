@@ -23,10 +23,6 @@ module AccreditedRepresentativePortal
         ar_monitoring.trace('ar.claims.form_upload.submit') do |span|
           service = SavedClaimService::Create
 
-          # Tags for tracing
-          span.set_tag('form_id', form_id)
-          Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
-
           saved_claim = service.perform(
             type: form_class,
             metadata:,
@@ -40,6 +36,8 @@ module AccreditedRepresentativePortal
 
           span.set_tag('form_submission.status', '200')
           span.set_tag('form_submission.confirmation_number', confirmation_number)
+
+          trace_key_tags(span, form_id:, org: organization)
 
           send_confirmation_email(saved_claim)
           render json: {
@@ -145,17 +143,16 @@ module AccreditedRepresentativePortal
             form_id: form_class::PROPER_FORM_ID
           )
 
-          # Trace tags
           span.set_tag('form_upload.form_id', attachment.form_id)
           span.set_tag('form_upload.attachment_type', model_klass.name)
+          trace_key_tags(span, form_id:, org: organization)
+
           if params[:file].respond_to?(:original_filename)
             span.set_tag('form_upload.file_name', params[:file].original_filename)
           end
           span.set_tag('form_upload.file_size', params[:file].size) if params[:file].respond_to?(:size)
 
-          json = serializer_klass.new(attachment).as_json.deep_transform_keys! do |key|
-            key.camelize(:lower)
-          end
+          json = serializer_klass.new(attachment).as_json.deep_transform_keys! { |key| key.camelize(:lower) }
 
           render json:
         rescue service::RecordInvalidError => e
@@ -172,14 +169,34 @@ module AccreditedRepresentativePortal
       # rubocop:enable Metrics/MethodLength
 
       def ar_monitoring
+        org_tag = "org:#{organization}" if organization.present?
+
         @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
           AccreditedRepresentativePortal::Monitoring::NAME,
-          default_tags: ["controller:#{controller_name}", "action:#{action_name}"]
+          default_tags: [
+            "controller:#{controller_name}",
+            "action:#{action_name}",
+            org_tag
+          ].compact
         )
       end
 
       def form_class
         SavedClaim::BenefitsIntake.form_class_from_proper_form_id(form_id)
+      end
+
+      def organization
+        claimant_representative&.to_h&.[](:power_of_attorney_holder_poa_code)
+      rescue => e
+        Rails.logger.warn("Org lookup failed: #{e.class} #{e.message}")
+        nil
+      end
+
+      def trace_key_tags(span, **tags)
+        tags.each do |tag, value|
+          span.set_tag(tag, value) if value.present?
+          Datadog::Tracing.active_trace&.set_tag(tag, value) if value.present?
+        end
       end
     end
   end

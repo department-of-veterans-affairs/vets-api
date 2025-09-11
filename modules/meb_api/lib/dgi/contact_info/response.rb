@@ -6,8 +6,8 @@ module MebApi
   module DGI
     module ContactInfo
       class Response < MebApi::DGI::Response
-        attribute :phone, Array
-        attribute :email, Array
+        attribute :phone, Hash, array: true
+        attribute :email, Hash, array: true
 
         def initialize(status, response = nil)
           attributes = {

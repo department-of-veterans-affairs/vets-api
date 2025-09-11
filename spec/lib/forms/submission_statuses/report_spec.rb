@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'forms/submission_statuses/gateway'
+require 'forms/submission_statuses/benefits_intake_gateway'
 require 'forms/submission_statuses/report'
 
 describe Forms::SubmissionStatuses::Report, feature: :form_submission,
@@ -12,9 +12,11 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
   let(:allowed_forms) { %w[20-10207 21-0845 21-0972 21-10210 21-4142 21-4142a 21P-0847] }
 
   context 'when user has no submissions' do
+    let(:benefits_intake_gateway) { Forms::SubmissionStatuses::BenefitsIntakeGateway }
+
     before do
-      allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:submissions).and_return([])
-      allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:intake_statuses).and_return([nil, nil])
+      allow_any_instance_of(benefits_intake_gateway).to receive(:submissions).and_return([])
+      allow_any_instance_of(benefits_intake_gateway).to receive(:intake_statuses).and_return([nil, nil])
     end
 
     it 'returns an empty array' do
@@ -37,7 +39,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
 
     context 'has statuses' do
       before do
-        allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:intake_statuses).and_return(
+        allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway).to receive(:intake_statuses).and_return(
           [
             [
               {
@@ -70,7 +72,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
         result = subject.run
 
         expect(result.submission_statuses.size).to be(2)
-        expect(result.errors).to be_nil
+        expect(result.errors).to be_empty
       end
 
       it 'sorts results' do
@@ -95,7 +97,9 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
 
     context 'when no statuses' do
       before do
-        allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:intake_statuses).and_return([nil, nil])
+        allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
+          .to receive(:intake_statuses)
+          .and_return([nil, nil])
       end
 
       it 'returns the correct count' do
@@ -119,7 +123,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
 
     context 'when missing status' do
       before do
-        allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:intake_statuses).and_return(
+        allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway).to receive(:intake_statuses).and_return(
           [
             [
               {
@@ -149,6 +153,104 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
 
         expect(result.submission_statuses.first.updated_at).to be_nil
         expect(result.submission_statuses.last.updated_at).not_to be_nil
+      end
+    end
+  end
+
+  context 'logging errors' do
+    let(:logger) { Rails.logger }
+
+    context 'when gateway returns errors' do
+      before do
+        allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
+          .to receive(:data)
+          .and_return(OpenStruct.new(errors: ['Gateway error'], submissions?: false))
+      end
+
+      it 'logs gateway errors' do
+        expect(logger).to receive(:error).with(
+          'Gateway errors encountered when retrieving data in Forms::SubmissionStatuses::Report',
+          hash_including(
+            service: 'lighthouse_benefits_intake',
+            errors: ['Gateway error']
+          )
+        )
+
+        subject.run
+      end
+    end
+
+    context 'when formatter is missing' do
+      before do
+        stub_const('Forms::SubmissionStatuses::Report::FORMATTERS', {})
+      end
+
+      it 'logs missing formatter error' do
+        expect(logger).to receive(:error).with(
+          'Report execution failed in Forms::SubmissionStatuses::Report',
+          hash_including(
+            error: 'Missing formatter for service: lighthouse_benefits_intake',
+            service: 'lighthouse_benefits_intake',
+            error_source: 'data_formatting'
+          )
+        )
+
+        expect { subject.run }.to raise_error(RuntimeError)
+      end
+    end
+
+    context 'when an unexpected error occurs' do
+      context 'when retrieving data' do
+        before do
+          allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
+            .to receive(:data)
+            .and_raise(StandardError, 'Unexpected error')
+        end
+
+        it 'logs unexpected errors' do
+          expect(logger).to receive(:error).with(
+            'Report execution failed in Forms::SubmissionStatuses::Report',
+            hash_including(
+              error: 'Unexpected error',
+              service: 'lighthouse_benefits_intake',
+              error_source: 'data_retrieval_from_gateway'
+            )
+          )
+
+          expect { subject.run }.to raise_error(StandardError)
+        end
+      end
+
+      context 'when formatting data' do
+        let(:formatter) { instance_double(Forms::SubmissionStatuses::Formatters::BenefitsIntakeFormatter) }
+
+        before do
+          allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
+            .to receive(:data)
+            .and_return(OpenStruct.new(submissions?: true, errors: []))
+
+          stub_const(
+            'Forms::SubmissionStatuses::Report::FORMATTERS',
+            { 'lighthouse_benefits_intake' => formatter }
+          )
+
+          allow(formatter)
+            .to receive(:format_data)
+            .and_raise(StandardError, 'Formatter error')
+        end
+
+        it 'logs formatter errors' do
+          expect(logger).to receive(:error).with(
+            'Report execution failed in Forms::SubmissionStatuses::Report',
+            hash_including(
+              error: 'Formatter error',
+              service: 'lighthouse_benefits_intake',
+              error_source: 'data_formatting'
+            )
+          )
+
+          expect { subject.run }.to raise_error(StandardError)
+        end
       end
     end
   end
