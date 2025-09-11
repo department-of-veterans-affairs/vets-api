@@ -25,7 +25,7 @@ RSpec.describe IvcChampvaForm, type: :model do
     describe 'creating and reading records' do
       it 'creates a record with encrypted personal data' do
         form = described_class.create!(
-          form_uuid: form_uuid,
+          form_uuid:,
           first_name: test_first_name,
           last_name: test_last_name,
           email: test_email,
@@ -41,7 +41,7 @@ RSpec.describe IvcChampvaForm, type: :model do
 
       it 'reads encrypted personal data correctly after creation' do
         form = described_class.create!(
-          form_uuid: form_uuid,
+          form_uuid:,
           first_name: test_first_name,
           last_name: test_last_name,
           email: test_email
@@ -58,7 +58,7 @@ RSpec.describe IvcChampvaForm, type: :model do
 
       it 'stores encrypted data in ciphertext columns' do
         form = described_class.create!(
-          form_uuid: form_uuid,
+          form_uuid:,
           first_name: test_first_name,
           last_name: test_last_name,
           email: test_email
@@ -66,15 +66,16 @@ RSpec.describe IvcChampvaForm, type: :model do
 
         # Verify that the actual database columns contain encrypted data
         raw_record = described_class.connection.execute(
-          "SELECT first_name_ciphertext, last_name_ciphertext, email_ciphertext FROM ivc_champva_forms WHERE id = #{form.id}"
+          'SELECT first_name_ciphertext, last_name_ciphertext, email_ciphertext ' \
+          "FROM ivc_champva_forms WHERE id = #{form.id}"
         ).first
 
         expect(raw_record['first_name_ciphertext']).to be_present
         expect(raw_record['first_name_ciphertext']).not_to eq(test_first_name)
-        
+
         expect(raw_record['last_name_ciphertext']).to be_present
         expect(raw_record['last_name_ciphertext']).not_to eq(test_last_name)
-        
+
         expect(raw_record['email_ciphertext']).to be_present
         expect(raw_record['email_ciphertext']).not_to eq(test_email)
       end
@@ -110,14 +111,14 @@ RSpec.describe IvcChampvaForm, type: :model do
 
       it 'finds records by email using blind index' do
         results = described_class.where(email: 'alice@example.com')
-        
+
         expect(results.count).to eq(2)
         expect(results.map(&:first_name)).to contain_exactly('Alice', 'Charlie')
       end
 
       it 'returns empty result for non-existent email' do
         results = described_class.where(email: 'nonexistent@example.com')
-        
+
         expect(results).to be_empty
       end
     end
@@ -125,7 +126,7 @@ RSpec.describe IvcChampvaForm, type: :model do
     describe 'updating encrypted fields' do
       let!(:form) do
         described_class.create!(
-          form_uuid: form_uuid,
+          form_uuid:,
           first_name: test_first_name,
           last_name: test_last_name,
           email: test_email
