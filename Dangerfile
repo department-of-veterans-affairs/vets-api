@@ -237,9 +237,9 @@ module VSPDanger
 
     def run
       return Result.success('All set.') unless db_files.any?
-      
+
       disallowed_files = app_files.reject { |file| allowed_app_file?(file) }
-      
+
       return Result.error(error_message(disallowed_files)) if disallowed_files.any?
       return Result.warn(warning_message) if app_files.any?
 
@@ -259,7 +259,7 @@ module VSPDanger
         The following files were modified alongside migrations:
         - #{app_files.join "\n- "}
 
-        These changes appear to follow [Strong Migrations](https://github.com/ankane/strong_migrations) patterns 
+        These changes appear to follow [Strong Migrations](https://github.com/ankane/strong_migrations) patterns
         for safe deployments. Common acceptable changes include:
         - Adding `ignored_columns` to models before removing columns
         - Updating tests/factories to accommodate schema changes
@@ -284,7 +284,7 @@ module VSPDanger
 
           #### Disallowed App File(s)
           - #{disallowed_files.join "\n- "}
-          
+
           #{app_files.count > disallowed_files.count ? "#### Allowed App File(s)\n- #{(app_files - disallowed_files).join "\n- "}" : ''}
         </details>
 
@@ -300,7 +300,7 @@ module VSPDanger
         - Other business logic changes
 
         These should be deployed separately to ensure backwards compatibility.
-        
+
         For more info:
         - [Strong Migrations Best Practices](https://github.com/ankane/strong_migrations#removing-a-column)
         - [vets-api Database Migrations](https://depo-platform-documentation.scrollhelp.site/developer-docs/Vets-API-Database-Migrations.689832034.html)

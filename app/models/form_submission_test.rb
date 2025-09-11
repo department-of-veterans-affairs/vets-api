@@ -6,10 +6,10 @@
 
 class FormSubmissionTest < ApplicationRecord
   self.table_name = 'form_submissions'
-  
+
   # Strong Migrations pattern: ignore columns before removing them
   self.ignored_columns += %w[legacy_data old_status deprecated_at]
-  
+
   has_kms_key
   has_encrypted :form_data, key: :kms_key, **lockbox_options
 
@@ -18,6 +18,6 @@ class FormSubmissionTest < ApplicationRecord
   belongs_to :user_account, optional: true
 
   validates :form_type, presence: true
-  
+
   # Rest of the model code remains the same...
 end

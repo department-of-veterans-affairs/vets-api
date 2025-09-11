@@ -9,16 +9,16 @@ module Claims
     def initialize(claim)
       @claim = claim
     end
-    
+
     def process!
       # Business logic that depends on new columns
       @claim.processing_status = 'in_progress'
       @claim.processed_at = Time.current
       @claim.save!
-      
+
       # External API call
       result = submit_to_lighthouse
-      
+
       if result.success?
         @claim.update!(processing_status: 'completed')
         notify_veteran
@@ -27,18 +27,18 @@ module Claims
         create_error_record(result.errors)
       end
     end
-    
+
     private
-    
+
     def submit_to_lighthouse
       # External service integration
       LighthouseService.submit(@claim)
     end
-    
+
     def notify_veteran
       ClaimStatusMailer.completed(@claim).deliver_later
     end
-    
+
     def create_error_record(errors)
       ClaimError.create!(
         claim: @claim,
