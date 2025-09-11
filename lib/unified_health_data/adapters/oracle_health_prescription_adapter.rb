@@ -69,7 +69,7 @@ module UnifiedHealthData
 
         # Fallback: check contained MedicationDispense for location
         if resource['contained']
-          dispense = find_medication_dispense(resource['contained'])
+          dispense = find_most_recent_medication_dispense(resource['contained'])
           location = dispense&.dig('location', 'display')
           return location if location
         end
@@ -85,7 +85,7 @@ module UnifiedHealthData
 
         # Fallback: check contained MedicationDispense
         if resource['contained']
-          dispense = find_medication_dispense(resource['contained'])
+          dispense = find_most_recent_medication_dispense(resource['contained'])
           return dispense.dig('quantity', 'value') if dispense
         end
 
@@ -111,7 +111,7 @@ module UnifiedHealthData
       def extract_dispensed_date(resource)
         # Check for contained MedicationDispense resources
         if resource['contained']
-          dispense = find_medication_dispense(resource['contained'])
+          dispense = find_most_recent_medication_dispense(resource['contained'])
           return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
         end
 
@@ -172,10 +172,17 @@ module UnifiedHealthData
         parts.join(' ')
       end
 
-      def find_medication_dispense(contained_resources)
+      def find_most_recent_medication_dispense(contained_resources)
         return nil unless contained_resources.is_a?(Array)
 
-        contained_resources.find { |c| c['resourceType'] == 'MedicationDispense' }
+        dispenses = contained_resources.select { |c| c['resourceType'] == 'MedicationDispense' }
+        return nil if dispenses.empty?
+
+        # Sort by whenHandedOver date, most recent first
+        dispenses.max_by do |dispense|
+          when_handed_over = dispense['whenHandedOver']
+          when_handed_over ? Time.parse(when_handed_over) : Time.at(0)
+        end
       end
     end
   end

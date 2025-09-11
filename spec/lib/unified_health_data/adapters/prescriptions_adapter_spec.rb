@@ -51,7 +51,30 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
           'value' => 1,
           'unit' => 'EA'
         }
-      }
+      },
+      'contained' => [
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-1',
+          'whenHandedOver' => '2025-01-15T10:00:00Z',
+          'quantity' => { 'value' => 30 },
+          'location' => { 'display' => 'Main Pharmacy' }
+        },
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-2',
+          'whenHandedOver' => '2025-01-29T14:30:00Z',
+          'quantity' => { 'value' => 30 },
+          'location' => { 'display' => 'Main Pharmacy' }
+        },
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-3',
+          'whenHandedOver' => '2025-01-22T09:15:00Z',
+          'quantity' => { 'value' => 30 },
+          'location' => { 'display' => 'Main Pharmacy' }
+        }
+      ]
     }
   end
 
@@ -138,6 +161,16 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
       it 'returns empty array' do
         expect(subject.parse(empty_response)).to eq([])
+      end
+    end
+
+    context 'with Oracle Health data containing multiple MedicationDispense resources' do
+      it 'uses the most recent dispensed date based on whenHandedOver' do
+        prescriptions = subject.parse(unified_response)
+        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
+
+        # Should use the most recent whenHandedOver date: '2025-01-29T14:30:00Z'
+        expect(oracle_prescription.dispensed_date).to eq('2025-01-29T14:30:00Z')
       end
     end
   end
