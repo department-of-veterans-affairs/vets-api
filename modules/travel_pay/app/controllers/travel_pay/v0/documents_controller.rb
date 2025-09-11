@@ -79,7 +79,8 @@ module TravelPay
         error_type = e.is_a?(Faraday::ClientError) ? 'client' : 'server'
         Rails.logger.error("#{log_prefix}Faraday #{error_type} error: #{e.message}")
 
-        http_status = e.response[:status] || (e.is_a?(Faraday::ClientError) ? :bad_request : :internal_server_error)
+        http_status = e.response&.dig(:status) ||
+                      (e.is_a?(Faraday::ClientError) ? :bad_request : :internal_server_error)
         message = if e.response&.dig(:body).present?
                     e.response[:body]
                   else
