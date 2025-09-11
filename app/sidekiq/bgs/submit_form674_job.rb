@@ -19,7 +19,7 @@ module BGS
     sidekiq_options retry: 16
 
     sidekiq_retries_exhausted do |msg, _error|
-      user_uuid, _icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = msg['args']
+      user_uuid, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       monitor = ::Dependents::Monitor.new(saved_claim_id)
       monitor.track_event('error',
@@ -29,10 +29,10 @@ module BGS
       BGS::SubmitForm674Job.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)
     end
 
-    def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = nil)
+    def perform(user_uuid, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = nil)
       @monitor = init_monitor(saved_claim_id)
       @monitor.track_event('info', 'BGS::SubmitForm674Job running!', "#{STATS_KEY}.begin")
-      instance_params(encrypted_vet_info, icn, encrypted_user_struct_hash, user_uuid, saved_claim_id)
+      instance_params(encrypted_vet_info, user_uuid, saved_claim_id, encrypted_user_struct_hash)
 
       submit_form
 
@@ -60,10 +60,10 @@ module BGS
       raise Sidekiq::JobRetry::Skip
     end
 
-    def instance_params(encrypted_vet_info, icn, encrypted_user_struct_hash, user_uuid, saved_claim_id)
+    def instance_params(encrypted_vet_info, user_uuid, saved_claim_id, encrypted_user_struct_hash)
       @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       @user = BGS::SubmitForm674Job.generate_user_struct(encrypted_user_struct_hash, @vet_info)
-      @icn = icn
+      @icn = @user.icn
       @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
       @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
