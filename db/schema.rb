@@ -1234,9 +1234,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_09_221715) do
   end
 
   create_table "ivc_champva_forms", force: :cascade do |t|
-    t.string "email"
-    t.string "first_name"
-    t.string "last_name"
     t.string "form_number"
     t.string "file_name"
     t.uuid "form_uuid"
