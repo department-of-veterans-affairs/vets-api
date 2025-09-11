@@ -24,6 +24,7 @@ module FacilitiesApi
     end
 
     def lighthouse_params
+      map_latitude_longitude_params_to_lat_long
       params.permit(
         :ids,
         :facilityIds,
@@ -60,6 +61,13 @@ module FacilitiesApi
 
     def covid_mobile_params?
       lighthouse_params.fetch(:type, '')[/health/i] && lighthouse_params[:services]&.any?(/Covid19Vaccine/i)
+    end
+
+    # Mapbox prepares the params with latitude and longitude, but the Lighthouse API
+    # is only prepared to process lat and long
+    def map_latitude_longitude_params_to_lat_long
+      params[:lat] = params[:latitude] if params[:latitude].present? && params[:lat].blank?
+      params[:long] = params[:longitude] if params[:longitude].present? && params[:long].blank?
     end
   end
 end
