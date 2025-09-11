@@ -457,7 +457,6 @@ module ClaimsApi
         validate_address_country!(change_of_address, 'changeOfAddress') if country.present?
 
         # NOTE: Military address fields don't exist in v2 schema
-        # NOTE: FES Val Section 5.c.xi is CROSSED OUT - not implementing
       end
 
       def validate_domestic_change_of_address!(change_of_address)
