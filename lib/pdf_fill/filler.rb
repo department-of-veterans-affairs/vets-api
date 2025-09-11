@@ -206,7 +206,6 @@ module PdfFill
 
       hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
       new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
-      byebug
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
       unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,
