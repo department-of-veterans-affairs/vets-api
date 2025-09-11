@@ -38,9 +38,6 @@ features:
     actor_type: user
     description: Enables the people search of the accredited representative portal
     enable_in_development: true
-  accredited_representative_portal_self_service_auth:
-    actor_type: user
-    description: Enables the self-service authorization of the accredited representative portal
   accredited_representative_portal_form_21a:
     actor_type: user
     description: >
@@ -165,6 +162,10 @@ features:
     description: Enables dependents verification emails
   event_bus_gateway_ep040_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP040 claims"
+  event_bus_gateway_ep120_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP120 reopened pension claims"
+  event_bus_gateway_ep180_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP180 initial pension claims"
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -482,9 +483,12 @@ features:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
     enable_in_development: true
-  cst_filter_ep_codes:
+  cst_filter_ep_290:
     actor_type: user
-    description: When enabled, benefits_claims/get_claims service filters certain ep codes based on issue 90936 research from the response
+    description: When enabled, benefits_claims/get_claims service filters 290 EP code claims from the response
+  cst_filter_ep_960:
+    actor_type: user
+    description: When enabled, benefits_claims/get_claims service filters 960 EP code claims from the response
   cst_smooth_loading_experience:
     actor_type: user
     description: When enabled, the UI of the CST app will have a smoother loading experience
@@ -675,6 +679,10 @@ features:
   contention_classification_claim_linker:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
+    enable_in_development: true
+  contention_classification_ml_classifier:
+    actor_type: user
+    description: Enables the machine learning classifier for contention classification by calling the hybrid endpoint instead of expanded endpoint.
     enable_in_development: true
   disability_526_ee_mst_special_issue:
     actor_type: user
@@ -2348,6 +2356,9 @@ features:
   va_notify_notification_creation:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
+  va_notify_request_level_callbacks:
+    actor_type: user
+    description: If enabled, emails and sms sent through VaNotify::Service will authenticate request-level callback data
   is_DGIB_endpoint:
     actor_type: user
     description: used to call data from DGIB endpoints for MGIB VYE application
@@ -2409,6 +2420,9 @@ features:
   disable_bdn_processing:
     actor_type: user
     description: If enabled, skip all BDN-related processing for VYE
+  my_va_auth_exp_redesign_available_to_opt_in:
+    actor_type: user
+    description: When enabled, a user will see the option to switch to the redesigned experience of MyVA.
   my_va_auth_exp_redesign_enabled:
     actor_type: user
     description: When enabled, a user will see the redesigned experience of MyVA.

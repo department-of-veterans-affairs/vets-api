@@ -7,28 +7,7 @@ module AccreditedRepresentativePortal
   RSpec.describe RepresentativeUserAccount, type: :model do
     let(:user_account) do
       RepresentativeUserAccount.find(create(:user_account).id).tap do |memo|
-        memo.set_email(user_email)
         memo.set_all_emails([user_email])
-      end
-    end
-
-    describe '#set_email' do
-      subject { user_account.set_email('alsoemail@email.com') }
-
-      context 'with no email set' do
-        let(:user_email) { nil }
-
-        it 'does not raise ArgumentError' do
-          expect { subject }.not_to raise_error
-        end
-      end
-
-      context 'with an email already set' do
-        let(:user_email) { 'email@email.com' }
-
-        it 'raises ArgumentError' do
-          expect { subject }.to raise_error(ArgumentError)
-        end
       end
     end
 
@@ -36,14 +15,6 @@ module AccreditedRepresentativePortal
       subject { user_account.active_power_of_attorney_holders }
 
       let(:user_email) { 'email@email.com' }
-
-      context 'with no email set' do
-        let(:user_email) { nil }
-
-        it 'raises ArgumentError' do
-          expect { subject }.to raise_error(ArgumentError)
-        end
-      end
 
       context 'with no associated VSO registration' do
         it 'raises Common::Exceptions::Forbidden' do
@@ -103,15 +74,6 @@ module AccreditedRepresentativePortal
     describe '#get_registration_number' do
       subject { user_account.get_registration_number(power_of_attorney_holder_type) }
 
-      context 'without a user email set' do
-        let(:user_email) { nil }
-        let(:power_of_attorney_holder_type) { 'veteran_service_organization' }
-
-        it 'raises ArgumentError' do
-          expect { subject }.to raise_error(ArgumentError)
-        end
-      end
-
       context 'with a user email set' do
         let(:user_email) { 'email@email.com' }
 
@@ -145,7 +107,6 @@ module AccreditedRepresentativePortal
       before do
         allow(user_account).to receive(:icn).and_return(icn)
         allow(AccreditedRepresentativePortal::OgcClient).to receive(:new).and_return(ogc_client)
-        allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_self_service_auth).and_return(true)
       end
 
       context 'when OGC client returns a conflict during registration' do
@@ -318,7 +279,6 @@ module AccreditedRepresentativePortal
       end
     end
 
-    # rubocop:disable Layout/LineLength
     describe '#registrations' do
       let(:icn) { '1234567890V123456' }
       let(:user_email) { 'email@email.com' }
@@ -327,51 +287,18 @@ module AccreditedRepresentativePortal
       let(:poa_type) { 'veteran_service_organization' }
 
       before do
-        allow(user_account).to receive(:icn).and_return(icn)
+        registration_numbers = { user_type => registration_number }
+        allow(user_account).to receive_messages(icn:, registration_numbers:)
       end
 
-      context 'when feature flag is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_self_service_auth).and_return(true)
-          # Mock the registration_numbers result
-          allow(user_account).to receive(:registration_numbers).and_return({
-                                                                             user_type => registration_number
-                                                                           })
-        end
+      it 'creates registrations from registration_numbers' do
+        registrations = user_account.send(:registrations)
 
-        it 'creates registrations from registration_numbers' do
-          registrations = user_account.send(:registrations)
-
-          expect(registrations.size).to eq(1)
-          expect(registrations.first.accredited_individual_registration_number).to eq(registration_number)
-          expect(registrations.first.power_of_attorney_holder_type).to eq(poa_type)
-        end
-      end
-
-      context 'when feature flag is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_self_service_auth).and_return(false)
-
-          # Create a database record to be found
-          create(
-            :user_account_accredited_individual,
-            user_account_email: user_email,
-            user_account_icn: icn,
-            accredited_individual_registration_number: registration_number,
-            power_of_attorney_holder_type: poa_type
-          )
-        end
-
-        it 'retrieves registrations from database' do
-          registrations = user_account.send(:registrations)
-
-          expect(registrations.size).to eq(1)
-          expect(registrations.first.accredited_individual_registration_number).to eq(registration_number)
-          expect(registrations.first.power_of_attorney_holder_type).to eq(poa_type)
-        end
+        expect(registrations.size).to eq(1)
+        expect(registrations.first.accredited_individual_registration_number).to eq(registration_number)
+        expect(registrations.first.power_of_attorney_holder_type).to eq(poa_type)
       end
     end
-    # rubocop:enable Layout/LineLength
   end
 end
 # rubocop:enable Metrics/ModuleLength

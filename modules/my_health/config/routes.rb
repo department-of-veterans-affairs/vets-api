@@ -3,7 +3,7 @@
 MyHealth::Engine.routes.draw do
   namespace :v2 do
     scope :medical_records do
-      resources :clinical_notes, only: %i[index], defaults: { format: :json }
+      resources :clinical_notes, only: %i[index show], defaults: { format: :json }
       resources :labs_and_tests, only: %i[index], defaults: { format: :json }
       resources :immunizations, only: %i[index show], defaults: { format: :json }
     end

@@ -9,62 +9,57 @@ module AccreditedRepresentativePortal
       :accredited_individual_registration_number
     )
     class << self
-      def find(&)
-        Finder.new.tap(&).perform
+      def find(...)
+        Finder.new(...).perform
       end
     end
 
     class Finder
       Error = Class.new(RuntimeError)
 
-      def perform
-        unless [@claimant, @representative].all?(&:present?)
-          raise ArgumentError, <<~MSG.squish
-            all of `claimant' and `representative'
-            must be present
-          MSG
-        end
+      def initialize(claimant_icn:, power_of_attorney_holder_memberships:)
+        @claimant =
+          Claimant.new(icn: claimant_icn)
 
+        @power_of_attorney_holder_memberships =
+          power_of_attorney_holder_memberships
+      end
+
+      def perform
         @claimant.power_of_attorney_holder.present? or
           return nil
 
-        common_poa_holder =
-          @representative.power_of_attorney_holders.find do |h|
+        common_membership =
+          @power_of_attorney_holder_memberships.load.find do |membership|
             ##
             # Might be nice to instead have a `PowerOfAttorneyHolder#==` method
             # with a semantics that matches what is needed here.
             #
-            h.poa_code == @claimant.power_of_attorney_holder.poa_code &&
-              h.type == @claimant.power_of_attorney_holder.type
+            holder = membership.power_of_attorney_holder
+            holder.poa_code == @claimant.power_of_attorney_holder.poa_code &&
+              holder.type == @claimant.power_of_attorney_holder.type
           end
 
-        common_poa_holder.present? or
+        common_membership.present? or
           return nil
 
-        build(common_poa_holder)
+        build(common_membership)
       rescue
         raise Error
       end
 
-      def for_claimant(...)
-        @claimant = Claimant.new(...)
-      end
-
-      def for_representative(...)
-        @representative = Representative.new(...)
-      end
-
       private
 
-      def build(poa_holder)
+      def build(membership)
+        holder =
+          membership.power_of_attorney_holder
+
         ClaimantRepresentative.new(
           claimant_id: @claimant.id,
-          power_of_attorney_holder_type: poa_holder.type,
-          power_of_attorney_holder_poa_code: poa_holder.poa_code,
+          power_of_attorney_holder_type: holder.type,
+          power_of_attorney_holder_poa_code: holder.poa_code,
           accredited_individual_registration_number:
-            @representative.get_registration_number(
-              poa_holder.type
-            )
+            membership.registration_number
         )
       end
     end
@@ -116,30 +111,6 @@ module AccreditedRepresentativePortal
             IcnTemporaryIdentifier.find_or_create_by(icn: @icn)
           else
             IcnTemporaryIdentifier.find(@id)
-          end
-      end
-    end
-
-    class Representative
-      def initialize(icn:, email:, all_emails:)
-        @icn = icn
-        @email = email
-        @all_emails = all_emails
-      end
-
-      delegate(
-        :get_registration_number,
-        :power_of_attorney_holders,
-        to: :representative_user_account
-      )
-
-      private
-
-      def representative_user_account
-        @representative_user_account ||=
-          RepresentativeUserAccount.find_by!(icn: @icn).tap do |account|
-            account.set_email(@email)
-            account.set_all_emails(@all_emails)
           end
       end
     end

@@ -526,6 +526,59 @@ RSpec.describe Representatives::Update do
           expect(representative.address_line1).to eq('123 East Main St')
         end
       end
+
+      context 'when initial validation raises CandidateAddressNotFound (ADDRVAL108)' do
+        let(:id) { '123abc' }
+        let(:address_exists) { true }
+        let(:address_changed) { true }
+        let(:email_changed) { false }
+        let(:phone_number_changed) { false }
+        let!(:representative) { create_representative }
+        let(:validation_stub) { instance_double(VAProfile::AddressValidation::V3::Service) }
+
+        let(:candidate_not_found_exception) do
+          Common::Exceptions::BackendServiceException.new(
+            'VET360_AV_ERROR',
+            {
+              detail: {
+                'messages' => [
+                  {
+                    'code' => 'ADDRVAL108',
+                    'key' => 'CandidateAddressNotFound',
+                    'text' => 'No Candidate Address Found',
+                    'severity' => 'INFO'
+                  }
+                ]
+              },
+              code: 'VET360_AV_ERROR'
+            },
+            400,
+            nil
+          )
+        end
+
+        before do
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
+          call_count = 0
+          allow(validation_stub).to receive(:candidate) do
+            if call_count.zero?
+              call_count += 1
+              raise candidate_not_found_exception
+            else
+              api_response1_v3 # successful retry response with valid non-zero coordinates
+            end
+          end
+        end
+
+        it 'retries after ADDRVAL108 and updates the representative address' do
+          expect(representative.address_line1).to eq('123 East Main St')
+          subject.perform(json_data)
+          representative.reload
+          expect(representative.address_line1).to eq('37N 1st St')
+          expect(representative.lat).to eq(40.717029)
+          expect(representative.long).to eq(-73.964956)
+        end
+      end
     end
   end
 end
