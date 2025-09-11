@@ -4,7 +4,6 @@ module TravelPay
   module V0
     class DocumentsController < ApplicationController
       include FeatureFlagHelper
-      include ClaimHelper
 
       rescue_from Common::Exceptions::BadRequest, with: :render_bad_request
 
@@ -36,7 +35,9 @@ module TravelPay
         validate_claim_id_exists!(claim_id)
         validate_document_exists!(document)
 
-        Rails.logger.info(message: "Creating attachment for claim #{claim_id.slice(0, 8)}")
+        Rails.logger.info(
+          message: "Creating attachment for claim #{claim_id.slice(0, 8)}"
+        )
         response_data = service.upload_document(claim_id, document)
         render json: { documentId: response_data['documentId'] }, status: :created
       rescue Faraday::ResourceNotFound => e
@@ -84,6 +85,21 @@ module TravelPay
           },
           status: :not_found
         )
+      end
+
+      def validate_claim_id_exists!(claim_id)
+        # NOTE: In request specs, you can’t make params[:claim_id] truly missing because
+        # it’s part of the URL path and Rails routing prevents that.
+        raise Common::Exceptions::BadRequest.new(detail: 'Claim ID is required') if claim_id.blank?
+
+        # ensure claim ID is the right format, allowing any version
+        uuid_all_version_format = /\A[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}\z/i
+
+        unless uuid_all_version_format.match?(claim_id)
+          raise Common::Exceptions::BadRequest.new(
+            detail: 'Claim ID is invalid'
+          )
+        end
       end
 
       def validate_document_exists!(document)
