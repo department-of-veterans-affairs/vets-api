@@ -17,8 +17,7 @@ module BenefitsDiscovery
       tags = ["path:#{params[:path]}", "method:#{request.method}"]
       StatsD.increment("#{STATSD_KEY_PREFIX}.request", tags:)
 
-      api_key, app_id = credentials
-      service = ::BenefitsDiscovery::Service.new(api_key:, app_id:)
+      service = ::BenefitsDiscovery::Service.new(**credentials)
       response_data = service.proxy_request(request)
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.success", tags:)
@@ -42,7 +41,7 @@ module BenefitsDiscovery
 
       raise Common::Exceptions::Unauthorized if app_id.nil? || api_key.nil?
 
-      [api_key, app_id]
+      { api_key:, app_id: }
     end
 
     def log_proxy_error(error)
