@@ -277,15 +277,24 @@ module VSPDanger
         This PR contains migrations with disallowed application code changes.
 
         <details>
-          <summary>File Summary</summary>
+          <summary>File Summary - DEBUG INFO</summary>
+
+          #### All Files
+          - #{files.join "\n- "}
 
           #### DB File(s)
           - #{db_files.join "\n- "}
+          
+          #### All App File(s)
+          - #{app_files.join "\n- "}
 
           #### Disallowed App File(s)
           - #{disallowed_files.join "\n- "}
 
-          #{app_files.count > disallowed_files.count ? "#### Allowed App File(s)\n- #{(app_files - disallowed_files).join "\n- "}" : ''}
+          #{app_files.count > disallowed_files.count ? "#### Allowed App File(s)\n- #{(app_files - disallowed_files).join "\n- "}" : '#### No Allowed Files Found'}
+
+          #### Pattern Debug
+          #{app_files.map { |file| "- #{file} matches model pattern: #{file.match?(%r{app/models/.+\.rb$})}" }.join("\n")}
         </details>
 
         **Allowed changes with migrations:**
