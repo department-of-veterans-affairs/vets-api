@@ -11,7 +11,7 @@ module MyHealth
     include JsonApiPaginationLinks
     service_tag 'mhv-medical-records'
 
-    skip_before_action :authenticate
+    # skip_before_action :authenticate
     before_action :authenticate_bb_client
 
     protected
