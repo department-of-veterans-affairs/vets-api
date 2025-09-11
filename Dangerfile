@@ -276,26 +276,17 @@ module VSPDanger
       <<~EMSG
         This PR contains migrations with disallowed application code changes.
 
-        <details>
-          <summary>File Summary - DEBUG INFO</summary>
-
-          #### All Files
-          - #{files.join "\n- "}
-
-          #### DB File(s)
-          - #{db_files.join "\n- "}
-          
-          #### All App File(s)
-          - #{app_files.join "\n- "}
-
-          #### Disallowed App File(s)
-          - #{disallowed_files.join "\n- "}
-
-          #{app_files.count > disallowed_files.count ? "#### Allowed App File(s)\n- #{(app_files - disallowed_files).join "\n- "}" : '#### No Allowed Files Found'}
-
-          #### Pattern Debug
-          #{app_files.map { |file| "- #{file} matches model pattern: #{file.match?(%r{app/models/.+\.rb$})}" }.join("\n")}
-        </details>
+        **DEBUG INFO:**
+        
+        All Files: #{files.join(', ')}
+        
+        DB Files: #{db_files.join(', ')}
+        
+        App Files: #{app_files.join(', ')}
+        
+        Disallowed Files: #{disallowed_files.join(', ')}
+        
+        Allowed Files: #{(app_files - disallowed_files).join(', ')}
 
         **Allowed changes with migrations:**
         - Model files (for `ignored_columns`, validations)
