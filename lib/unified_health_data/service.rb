@@ -4,6 +4,8 @@ require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
+require_relative 'models/clinical_notes'
+require_relative 'adapters/clinical_notes_adapter'
 require_relative 'reference_range_formatter'
 
 module UnifiedHealthData
@@ -37,8 +39,56 @@ module UnifiedHealthData
       end
     end
 
+    def get_care_summaries_and_notes
+      with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        patient_id = @user.icn
+
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
+        start_date = '1900-01-01'
+        # End date defaults to today
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+
+        filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
+
+        parse_notes(filtered)
+      end
+    end
+
+    def get_single_summary_or_note(note_id)
+      # TODO: refactor out common bits into a client type method - most of this is repeated from above
+      with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        patient_id = @user.icn
+
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
+        start_date = '1900-01-01'
+        # End date defaults to today
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+
+        filtered = combined_records.select { |record| record['resource']['id'] == note_id }
+
+        parse_single_note(filtered[0])
+      end
+    end
+
     private
 
+    # Shared
     def fetch_access_token
       with_monitoring do
         response = connection.post(config.token_path) do |req|
@@ -54,6 +104,20 @@ module UnifiedHealthData
       end
     end
 
+    def parse_response_body(body)
+      # FIXME: workaround for testing
+      body.is_a?(String) ? JSON.parse(body) : body
+    end
+
+    def fetch_combined_records(body)
+      return [] if body.nil?
+
+      vista_records = body.dig('vista', 'entry') || []
+      oracle_health_records = body.dig('oracle-health', 'entry') || []
+      vista_records + oracle_health_records
+    end
+
+    # Labs and Tests methods
     def filter_records(records)
       return all_records_response(records) unless filtering_enabled?
 
@@ -97,19 +161,6 @@ module UnifiedHealthData
       else
         false # Reject any other test codes for now, but we'll log them for analysis
       end
-    end
-
-    def parse_response_body(body)
-      # FIXME: workaround for testing
-      body.is_a?(String) ? JSON.parse(body) : body
-    end
-
-    def fetch_combined_records(body)
-      return [] if body.nil?
-
-      vista_records = body.dig('vista', 'entry') || []
-      oracle_health_records = body.dig('oracle-health', 'entry') || []
-      vista_records + oracle_health_records
     end
 
     def parse_labs(records)
@@ -378,6 +429,26 @@ module UnifiedHealthData
         "Error creating PersonalInformationLog for short test name issue: #{e.class.name}",
         { service: 'unified_health_data', backtrace: e.backtrace.first(5) }
       )
+    end
+
+    # Care Summaries and Notes methods
+    def parse_notes(records)
+      return [] if records.blank?
+
+      # Parse using the adapter
+      parsed = records.map { |record| clinical_notes_adapter.parse(record) }
+      parsed.compact
+    end
+
+    def parse_single_note(record)
+      return nil if record.blank?
+
+      # Parse using the adapter
+      clinical_notes_adapter.parse(record)
+    end
+
+    def clinical_notes_adapter
+      @clinical_notes_adapter ||= UnifiedHealthData::V2::Adapters::ClinicalNotesAdapter.new
     end
   end
 end

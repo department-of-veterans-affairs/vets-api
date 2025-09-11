@@ -68,17 +68,20 @@ module TravelPay
 
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
       log_to_statsd('documents', 'add_document') do
-        connection(server_url: btsss_url).post("api/v3/claims/#{claim_id}/documents/form-data") do |req|
-          req.headers['Authorization'] = "Bearer #{veis_token}"
-          req.headers['BTSSS-Access-Token'] = btsss_token
-          req.headers['X-Correlation-ID'] = correlation_id
-          req.headers.merge!(claim_headers)
-
-          # Use capital 'Document' key for Swagger compliance
-          req.body = {
-            'Document' => Faraday::Multipart::FilePart.new(document.path, document.content_type)
-          }
-        end
+        connection(server_url: btsss_url, multipart: true)
+          .post("api/v3/claims/#{claim_id}/documents/form-data") do |req|
+            req.headers['Authorization'] = "Bearer #{veis_token}"
+            req.headers['BTSSS-Access-Token'] = btsss_token
+            req.headers['X-Correlation-ID'] = correlation_id
+            # Remove the content-type from the claim_headers so that we dont override the multipart/form-data header
+            req.headers.merge!(claim_headers.except('Content-Type'))
+            # Use capital 'Document' key for Swagger compliance
+            req.body = {
+              'Document' => Faraday::Multipart::FilePart.new(
+                document.path, document.content_type, document.original_filename
+              )
+            }
+          end
       end
     end
   end

@@ -16,7 +16,9 @@ http_interactions:
       Apptoken:
       - "<APP_TOKEN>"
       Mhvcorrelationid:
-      - '12210827'
+      - '16955936'
+      X-Api-Key:
+      - "<X_API_KEY>"
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -24,18 +26,33 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Server:
-      - Apache-Coyote/1.1
-      Expires:
-      - Tue, 02 May 2017 06:21:13 GMT
-      Token: "<SESSION_TOKEN>"
+      Date:
+      - Fri, 05 Sep 2025 15:08:02 GMT
+      Content-Type:
+      - application/json
       Content-Length:
       - '0'
-      Date:
-      - Tue, 02 May 2017 06:11:13 GMT
+      X-Amzn-Requestid:
+      - 66800398-88ef-4d30-905a-48069829edde
+      X-Amzn-Remapped-Content-Length:
+      - '0'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - Qbxw8EafvHMFUIQ=
+      Expires:
+      - Fri, 05 Sep 2025 15:18:02 GMT+00:00
+      Server-Timing:
+      - dtRpid;desc="-1789142891", dtSInfo;desc="0"
+      Token: "<SESSION_TOKEN>"
+      X-Amzn-Remapped-Date:
+      - Fri, 05 Sep 2025 15:08:02 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
       string: ''
-    http_version:
-  recorded_at: Tue, 02 May 2017 06:11:13 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Fri, 05 Sep 2025 15:08:02 GMT
+recorded_with: VCR 6.3.1

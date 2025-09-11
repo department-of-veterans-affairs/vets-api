@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'base'
-require 'common/models/attribute_types/iso8601_time'
 require 'va_profile/concerns/defaultable'
 require 'va_profile/concerns/expirable'
 
@@ -14,7 +13,7 @@ module VAProfile
       VALID_ALPHA_REGEX = /[a-zA-Z ]+/
       VALID_NUMERIC_REGEX = /[0-9]+/
       ADDRESS_FIELD_LIMIT = 35
-      RESIDENCE = 'RESIDENCE/CHOICE'
+      RESIDENCE = 'RESIDENCE'
       CORRESPONDENCE = 'CORRESPONDENCE'
       ADDRESS_POUS   = [RESIDENCE, CORRESPONDENCE].freeze
       DOMESTIC       = 'DOMESTIC'
@@ -34,23 +33,25 @@ module VAProfile
       attribute :country_code_fips, String
       attribute :county_code, String
       attribute :county_name, String
-      attribute :created_at, Common::ISO8601Time
-      attribute :effective_end_date, Common::ISO8601Time
-      attribute :effective_start_date, Common::ISO8601Time
-      attribute :geocode_date, Common::ISO8601Time
+      attribute :created_at, Vets::Type::ISO8601Time
+      attribute :effective_end_date, Vets::Type::ISO8601Time
+      attribute :effective_start_date, Vets::Type::ISO8601Time
+      attribute :geocode_date, Vets::Type::ISO8601Time
       attribute :geocode_precision, Float
       attribute :id, Integer
       attribute :international_postal_code, String
       attribute :latitude, Float
       attribute :longitude, Float
       attribute :province, String
-      attribute :source_date, Common::ISO8601Time
+      attribute :source_date, Vets::Type::ISO8601Time
       attribute :source_system_user, String
       attribute :state_code, String
       attribute :transaction_id, String
-      attribute :updated_at, Common::ISO8601Time
+      attribute :updated_at, Vets::Type::ISO8601Time
+      attribute :override_validation_key, Integer
       attribute :validation_key, Integer
       attribute :vet360_id, String
+      attribute :va_profile_id, String
       attribute :zip_code, String
       attribute :zip_code_suffix, String
 
@@ -121,6 +122,13 @@ module VAProfile
         validates :zip_code_suffix, absence: true
         validates :county_name, absence: true
         validates :county_code, absence: true
+      end
+
+      def initialize(attributes = {})
+        # Address_pou RESIDENCE/CHOICE was changed to RESIDENCE for Contact Information API v2
+        # This will update the address_pou when address_pou is RESIDENCE/CHOICE
+        super
+        self.address_pou = 'RESIDENCE' if address_pou == 'RESIDENCE/CHOICE'
       end
 
       def ascii_only

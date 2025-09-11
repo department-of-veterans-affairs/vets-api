@@ -3,7 +3,11 @@
 module TravelPay
   module V0
     class DocumentsController < ApplicationController
+      include FeatureFlagHelper
+
       rescue_from Common::Exceptions::BadRequest, with: :render_bad_request
+
+      before_action :check_feature_flag, only: [:create]
 
       def show
         document_data = service.download_document(params[:claim_id], params[:id])
@@ -25,8 +29,6 @@ module TravelPay
       end
 
       def create
-        verify_feature_flag_enabled!
-
         claim_id = params[:claim_id]
         document = params[:document] || params[:Document] # accept capital D from API
 
@@ -41,14 +43,19 @@ module TravelPay
       rescue Faraday::ResourceNotFound => e
         handle_resource_not_found_error(e)
       rescue Faraday::Error => e
-        Rails.logger.error("Error downloading document: #{e.message}")
-        render json: { error: 'Error downloading document' }, status: e.response[:status]
-      rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.error("Error downloading document: #{e.message}")
-        render json: { error: 'Error downloading document' }, status: e.original_status
+        Rails.logger.error("Error uploading document: #{e.message}")
+        render json: { error: 'Error uploading document' }, status: e.response[:status]
       end
 
       private
+
+      def check_feature_flag
+        verify_feature_flag!(
+          :travel_pay_enable_complex_claims,
+          current_user,
+          error_message: 'Travel Pay create document unavailable per feature toggle'
+        )
+      end
 
       def render_bad_request(e)
         # Extract the first detail from errors array, fallback to generic
@@ -78,14 +85,6 @@ module TravelPay
           },
           status: :not_found
         )
-      end
-
-      def verify_feature_flag_enabled!
-        return if Flipper.enabled?(:travel_pay_enable_complex_claims, @current_user)
-
-        message = 'Travel Pay create document unavailable per feature toggle'
-        Rails.logger.error(message:)
-        raise Common::Exceptions::ServiceUnavailable, message:
       end
 
       def validate_claim_id_exists!(claim_id)

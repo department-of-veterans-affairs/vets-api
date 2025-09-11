@@ -574,7 +574,7 @@ module VAOS
       # or nil if the input ICN was nil.
       #
       def normalize_icn(icn)
-        icn&.gsub(/V[\d]{6}$/, '')
+        icn&.gsub(/V\d{6}$/, '')
       end
 
       # Checks equality between two ICNs (Integration Control Numbers)
@@ -981,17 +981,31 @@ module VAOS
         appointment[:future] = future?(appointment)
       end
 
+      # rubocop:disable Metrics/MethodLength
       def log_telehealth_issue(appointment)
-        context = {
-          displayLink: appointment.dig(:telehealth, :display_link),
-          kind: appointment[:kind],
-          modality: appointment[:modality],
-          start: appointment[:start],
-          telehealthUrl: appointment.dig(:telehealth, :url),
-          vvsVistaVideoAppt: appointment.dig(:extension, :vvs_vista_video_appt)
-        }
-        Rails.logger.warn('VAOS video telehealth issue', context.to_json) if context[:telehealthUrl].blank?
+        if appointment[:start]
+          start_time = appointment[:start].to_datetime
+          time_now = Time.now.utc
+          fifteen_before = start_time - 15.minutes
+          fifteen_after = start_time + 15.minutes
+          context = {
+            displayLink: appointment.dig(:telehealth, :display_link),
+            kind: appointment[:kind],
+            modality: appointment[:modality],
+            telehealthUrl: appointment.dig(:telehealth, :url),
+            vvsVistaVideoAppt: appointment.dig(:extension, :vvs_vista_video_appt),
+            facilityId: appointment[:location_id],
+            clinicId: appointment[:clinic],
+            primaryStopCode: appointment.dig(:extension, :clinic, :primary_stop_code),
+            secondaryStopCode: appointment.dig(:extension, :clinic, :secondary_stop_code),
+            afterFiveBeforeStart: time_now >= start_time - 5.minutes
+          }
+          Rails.logger.warn('VAOS video telehealth issue', context.to_json) if context[:telehealthUrl].blank? &&
+                                                                               time_now >= fifteen_before &&
+                                                                               time_now <= fifteen_after
+        end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def log_modality_failure(appointment)
         context = {

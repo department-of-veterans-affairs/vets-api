@@ -153,6 +153,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :dependents_benefits, only: %i[create index]
+
     resources :dependents_verifications, only: %i[create index]
 
     resources :benefits_claims, only: %i[index show] do

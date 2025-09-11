@@ -2,6 +2,7 @@
 
 require 'datadog'
 require 'ves_api/client'
+require 'common/pdf_helpers'
 
 # rubocop:disable Metrics/ClassLength
 # Note: Disabling this rule is temporary, refactoring of this class is planned
@@ -202,15 +203,31 @@ module IvcChampva
       end
 
       # Modified from claim_documents_controller.rb:
-      def unlock_file(file, file_password) # rubocop:disable Metrics/MethodLength
+      def unlock_file(file, file_password)
         return file unless File.extname(file) == '.pdf' && file_password
 
-        pdftk = PdfForms.new(Settings.binaries.pdftk)
         tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
+
+        tmpf = if Flipper.enabled?(:champva_use_hexapdf_to_unlock_pdfs, @current_user)
+                 unlock_with_hexapdf(file, file_password, tmpf)
+               else
+                 unlock_with_pdftk(file, file_password, tmpf)
+               end
+
+        file.tempfile.unlink
+        file.tempfile = tmpf
+      end
+
+      ## Uses pdftk to unlock the provided PDF file with the given password
+      # @param [ActionDispatch::Http::UploadedFile] source_file The uploaded PDF file to unlock
+      # @param [String] file_password The password to unlock the PDF
+      # @param [Tempfile] destination_file A tempfile where the unlocked PDF will be saved
+      def unlock_with_pdftk(source_file, file_password, destination_file)
+        pdftk = PdfForms.new(Settings.binaries.pdftk)
 
         has_pdf_err = false
         begin
-          pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
+          pdftk.call_pdftk(source_file.tempfile.path, 'input_pw', file_password, 'output', destination_file.path)
         rescue PdfForms::PdftkError => e
           file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
           password_regex = /(input_pw).*?(output)/
@@ -227,8 +244,34 @@ module IvcChampva
           )
         end
 
-        file.tempfile.unlink
-        file.tempfile = tmpf
+        destination_file
+      end
+
+      ## Uses hexapdf to unlock the provided PDF file with the given password
+      # @param [ActionDispatch::Http::UploadedFile] source_file The uploaded PDF file to unlock
+      # @param [String] file_password The password to unlock the PDF
+      # @param [Tempfile] destination_file A tempfile where the unlocked PDF will be saved
+      def unlock_with_hexapdf(source_file, file_password, destination_file)
+        has_pdf_err = false
+        begin
+          ::Common::PdfHelpers.unlock_pdf(source_file.tempfile.path, file_password, destination_file.path)
+        rescue Common::Exceptions::UnprocessableEntity => e
+          file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
+          password_regex = /(input_pw).*?(output)/
+          sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
+          log_message_to_sentry(sanitized_message, 'warn')
+          has_pdf_err = true
+        end
+
+        # This helps prevent leaking exception context to DataDog when we raise this error
+        if has_pdf_err
+          raise Common::Exceptions::UnprocessableEntity.new(
+            detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
+            source: 'IvcChampva::V1::UploadsController'
+          )
+        end
+
+        destination_file
       end
 
       def submit_supporting_documents # rubocop:disable Metrics/MethodLength
@@ -667,8 +710,11 @@ module IvcChampva
       end
 
       def get_attachment_ids_and_form(parsed_form_data)
-        form_id = get_form_id
-        form_class = "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize
+        base_form_id = get_form_id
+        form_id = IvcChampva::FormVersionManager.resolve_form_version(base_form_id, @current_user)
+        form = IvcChampva::FormVersionManager.create_form_instance(form_id, parsed_form_data, @current_user)
+
+        form_class = form.class
         additional_pdf_count = form_class.const_defined?(:ADDITIONAL_PDF_COUNT) ? form_class::ADDITIONAL_PDF_COUNT : 1
         applicant_key = form_class.const_defined?(:ADDITIONAL_PDF_KEY) ? form_class::ADDITIONAL_PDF_KEY : 'applicants'
 
@@ -678,8 +724,6 @@ module IvcChampva
         # `form_id` even on forms that don't have an `applicants` array (e.g. FMP2)
         applicant_rounded_number = total_applicants_count.ceil.zero? ? 1 : total_applicants_count.ceil
 
-        form = form_class.new(parsed_form_data)
-
         # Optionally add a supporting document with arbitrary form-defined values.
         add_blank_doc_and_stamp(form, parsed_form_data)
 
@@ -688,8 +732,8 @@ module IvcChampva
         form.track_current_user_loa(@current_user)
         form.track_email_usage
 
-        attachment_ids = build_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
-        attachment_ids = [form_id] if attachment_ids.empty?
+        attachment_ids = build_attachment_ids(base_form_id, parsed_form_data, applicant_rounded_number)
+        attachment_ids = [base_form_id] if attachment_ids.empty?
 
         [attachment_ids.compact, form]
       end
@@ -786,14 +830,21 @@ module IvcChampva
       def get_file_paths_and_metadata(parsed_form_data)
         attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
 
-        filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
+        # Use the actual form ID for PDF generation, but legacy form ID for S3/metadata
+        actual_form_id = form.form_id
+        legacy_form_id = IvcChampva::FormVersionManager.get_legacy_form_id(actual_form_id)
+
+        filler = IvcChampva::PdfFiller.new(form_number: actual_form_id, form:, uuid: form.uuid, name: legacy_form_id)
 
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
                     else
                       filler.generate
                     end
+
+        # Get validated metadata
         metadata = IvcChampva::MetadataValidator.validate(form.metadata)
+
         file_paths = form.handle_attachments(file_path)
 
         [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]

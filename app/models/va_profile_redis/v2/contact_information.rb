@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
-require 'va_profile/v2/contact_information/person_response'
-require 'va_profile/v2/contact_information/service'
-require 'va_profile/models/v3/address'
+require 'va_profile/contact_information/v2/person_response'
+require 'va_profile/contact_information/v2/service'
+require 'va_profile/models/address'
 require 'va_profile/models/telephone'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 require 'va_profile/configuration'
 
 module VAProfileRedis
-  # Facade for VAProfile::V2::ContactInformation::Service. The user_serializer delegates
+  # Facade for VAProfile::ContactInformation::V2::Service. The user_serializer delegates
   # to this class through the User model.
   #
   # When a person is requested from the serializer, it returns either a cached
-  # response in Redis or from the VAProfile::V2::ContactInformation::Service.
+  # response in Redis or from the VAProfile::ContactInformation::V2::Service.
   #
   module V2
     class ContactInformation < Common::RedisStore
@@ -53,7 +53,7 @@ module VAProfileRedis
       def residential_address
         return unless verified_user?
 
-        dig_out('addresses', 'address_pou', VAProfile::Models::V3::Address::RESIDENCE)
+        dig_out('addresses', 'address_pou', VAProfile::Models::Address::RESIDENCE)
       end
 
       # Returns the user's mailing address. In VA Profile, a user can only have one
@@ -64,7 +64,7 @@ module VAProfileRedis
       def mailing_address
         return unless verified_user?
 
-        dig_out('addresses', 'address_pou', VAProfile::Models::V3::Address::CORRESPONDENCE)
+        dig_out('addresses', 'address_pou', VAProfile::Models::Address::CORRESPONDENCE)
       end
 
       # Returns the user's home phone. In VA Profile, a user can only have one
@@ -122,20 +122,20 @@ module VAProfileRedis
         dig_out('telephones', 'phone_type', VAProfile::Models::Telephone::FAX)
       end
 
-      # The status of the last VAProfile::V2::ContactInformation::Service response,
+      # The status of the last VAProfile::ContactInformation::V2::Service response,
       # or not authorized for for users < LOA 3
       #
-      # @return [Integer <> String] the status of the last VAProfile::V2::ContactInformation::Service response
+      # @return [Integer <> String] the status of the last VAProfile::ContactInformation::V2::Service response
       #
       def status
-        return VAProfile::V2::ContactInformation::PersonResponse::RESPONSE_STATUS[:not_authorized] unless verified_user?
+        return VAProfile::ContactInformation::V2::PersonResponse::RESPONSE_STATUS[:not_authorized] unless verified_user?
 
         response.status
       end
 
       # @return [VAProfile::ContactInformation::PersonResponse] the response returned from
       # the redis cache.  If that is unavailable, it calls the
-      # VAProfile::V2::ContactInformation::Service#get_person endpoint.
+      # VAProfile::ContactInformation::V2::Service#get_person endpoint.
       #
       def response
         @response ||= response_from_redis_or_service
@@ -181,7 +181,7 @@ module VAProfileRedis
       end
 
       def contact_info_service
-        @service ||= VAProfile::V2::ContactInformation::Service.new @user
+        @service ||= VAProfile::ContactInformation::V2::Service.new @user
       end
     end
   end

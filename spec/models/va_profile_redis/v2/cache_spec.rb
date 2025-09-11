@@ -2,16 +2,15 @@
 
 require 'rails_helper'
 
-describe VAProfileRedis::V2::Cache, :skip_vet360 do
+describe VAProfileRedis::V2::Cache do
   let(:user) { build(:user, :loa3) }
 
   describe 'ContactInformationServiceV2' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
     end
 
-    describe '.invalidate v2' do
+    describe '.invalidate' do
       context 'when user.vet360_contact_info is present' do
         it 'invalidates the va-profile-contact-info-response cache' do
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do

@@ -7,11 +7,12 @@ RSpec.describe 'Mobile::V1::User', type: :request do
   include JsonSchemaMatchers
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
   end
 
   let(:contact_information_service) do
-    VAProfile::V2::ContactInformation::Service
+    VAProfile::ContactInformation::V2::Service
   end
 
   describe 'GET /mobile/v1/user' do
@@ -200,12 +201,14 @@ RSpec.describe 'Mobile::V1::User', type: :request do
             disabilityRating
             genderIdentity
             lettersAndDocuments
+            medicationsOracleHealthEnabled
             militaryServiceHistory
             paymentHistory
             preferredName
             prescriptions
             scheduleAppointments
             secureMessaging
+            secureMessagingOracleHealthEnabled
             userProfileUpdate
           ]
         )

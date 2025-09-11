@@ -2,9 +2,7 @@
 
 require 'sidekiq'
 require 'va_profile/models/validation_address'
-require 'va_profile/address_validation/service'
-require 'va_profile/models/v3/validation_address'
-require 'va_profile/v3/address_validation/service'
+require 'va_profile/address_validation/v3/service'
 
 module Representatives
   # Processes updates for representative records based on provided JSON data.
@@ -76,11 +74,7 @@ module Representatives
     # @param address [Hash] A hash containing the details of the representative's address.
     # @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
     def build_validation_address(address)
-      validation_model = if Flipper.enabled?(:remove_pciu)
-                           VAProfile::Models::V3::ValidationAddress
-                         else
-                           VAProfile::Models::ValidationAddress
-                         end
+      validation_model = VAProfile::Models::ValidationAddress
 
       validation_model.new(
         address_pou: address['address_pou'],
@@ -99,11 +93,7 @@ module Representatives
     # @param candidate_address [VAProfile::Models::ValidationAddress] The address to be validated.
     # @return [Hash] The response from the address validation service.
     def validate_address(candidate_address)
-      validation_service = if Flipper.enabled?(:remove_pciu)
-                             VAProfile::V3::AddressValidation::Service.new
-                           else
-                             VAProfile::AddressValidation::Service.new
-                           end
+      validation_service = VAProfile::AddressValidation::V3::Service.new
       validation_service.candidate(candidate_address)
     end
 
@@ -155,15 +145,8 @@ module Representatives
     # Updates the given record with the new address and other relevant attributes.
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
-    def build_address_attributes(rep_data, api_response)
-      if Flipper.enabled?(:remove_pciu)
-        build_v3_address(api_response['candidate_addresses'].first)
-      else
-        address = api_response['candidate_addresses'].first['address']
-        geocode = api_response['candidate_addresses'].first['geocode']
-        meta = api_response['candidate_addresses'].first['address_meta_data']
-        build_address(address, geocode, meta).merge({ raw_address: rep_data['address'].to_json })
-      end
+    def build_address_attributes(_rep_data, api_response)
+      build_v3_address(api_response['candidate_addresses'].first)
     end
 
     def build_email_attributes(rep_data)
@@ -235,7 +218,7 @@ module Representatives
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values
     #   for DualAddressError warnings we see with some P.O. Box addresses the validator struggles with
-    # @param candidate_address [Hash] an address hash object returned by [VAProfile::AddressValidation::Service]
+    # @param candidate_address [Hash] an address hash object returned by [VAProfile::AddressValidation::V3::Service]
     # @return [Boolean]
     def lat_long_zero?(candidate_address)
       address = candidate_address['candidate_addresses']&.first

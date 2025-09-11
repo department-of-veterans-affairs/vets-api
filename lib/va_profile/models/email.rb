@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'base'
-require 'common/models/attribute_types/iso8601_time'
 require 'va_profile/concerns/defaultable'
 require 'va_profile/concerns/expirable'
 
@@ -12,15 +11,15 @@ module VAProfile
       include VAProfile::Concerns::Expirable
       VALID_EMAIL_REGEX = /.+@.+\..+/i
 
-      attribute :created_at, Common::ISO8601Time
+      attribute :created_at, Vets::Type::ISO8601Time
       attribute :email_address, String
-      attribute :effective_end_date, Common::ISO8601Time
-      attribute :effective_start_date, Common::ISO8601Time
+      attribute :effective_end_date, Vets::Type::ISO8601Time
+      attribute :effective_start_date, Vets::Type::ISO8601Time
       attribute :id, Integer
-      attribute :source_date, Common::ISO8601Time
+      attribute :source_date, Vets::Type::ISO8601Time
       attribute :source_system_user, String
       attribute :transaction_id, String
-      attribute :updated_at, Common::ISO8601Time
+      attribute :updated_at, Vets::Type::ISO8601Time
       attribute :vet360_id, String
       attribute :va_profile_id, String
 
@@ -35,23 +34,6 @@ module VAProfile
       # the body of a request to VAProfile
       # @return [String] JSON-encoded string suitable for requests to VAProfile
       def in_json
-        {
-          bio: {
-            emailAddressText: @email_address,
-            emailId: @id,
-            originatingSourceSystem: SOURCE_SYSTEM,
-            sourceSystemUser: @source_system_user,
-            sourceDate: @source_date,
-            vet360Id: @vet360_id || @vaProfileId,
-            effectiveStartDate: @effective_start_date,
-            effectiveEndDate: @effective_end_date
-          }
-        }.to_json
-      end
-
-      # Contact Information V2 requests do not need the vet360Id
-      # in_json_v2 will replace in_json when Contact Information V1 Service has depreciated
-      def in_json_v2
         {
           bio: {
             emailAddressText: @email_address,
