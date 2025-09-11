@@ -2,7 +2,7 @@
 
 module ClaimsApi
   module V1
-    class V1DisabilityCompensationFesMapper
+    class DisabilityCompensationFesMapper
     end
   end
 end
