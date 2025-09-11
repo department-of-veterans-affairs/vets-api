@@ -682,7 +682,7 @@ features:
     enable_in_development: true
   contention_classification_ml_classifier:
     actor_type: user
-    description: enables the machine learning classifier for contention classification by calling the hybrid endpoint instead of expanded endpoint.
+    description: Enables the machine learning classifier for contention classification by calling the hybrid endpoint instead of expanded endpoint.
     enable_in_development: true
   disability_526_ee_mst_special_issue:
     actor_type: user
