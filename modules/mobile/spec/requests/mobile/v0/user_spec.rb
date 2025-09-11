@@ -25,7 +25,8 @@ RSpec.describe 'Mobile::V0::User', type: :request do
         birth_date: '1970-08-12',
         idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
         cerner_facility_ids: %w[757 358 999],
-        vha_facility_ids: %w[757 358 999]
+        vha_facility_ids: %w[757 358 999],
+        user_account_uuid: '12345'
       )
     end
 
