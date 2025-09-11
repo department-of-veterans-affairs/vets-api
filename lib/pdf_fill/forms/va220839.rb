@@ -92,6 +92,7 @@ module PdfFill
         },
         'usSchools' => {
           limit: 11,
+          label_all: true,
           'maximumNumberofStudents' => {
             key: "us_school[#{ITERATOR}][max_students]",
           },
