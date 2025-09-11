@@ -240,12 +240,10 @@ module VSPDanger
 
       disallowed_files = app_files.reject { |file| allowed_app_file?(file) }
 
-      # Debug: Add file information to understand what's happening
-      if disallowed_files.any?
+      # Debug: Always show debug info when there are any app files
+      if disallowed_files.any? || app_files.any?
         return Result.error(error_message_with_debug(disallowed_files))
       end
-      
-      return Result.warn(warning_message) if app_files.any?
 
       Result.success('All set.')
     end
