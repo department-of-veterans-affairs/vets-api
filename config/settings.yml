@@ -707,18 +707,8 @@ lighthouse:
     hqva_mobile:
       url: <%= ENV['hqva_mobile__url'] %>
     url: <%= ENV['lighthouse__facilities__url'] %>
-  healthcare_cost_and_coverage:
-    access_token:
-      aud_claim_url: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__aud_claim_url'] %>
-      client_id: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__client_id'] %>
-      rsa_key: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__rsa_key'] %>
-    host: <%= ENV['lighthouse__healthcare_cost_and_coverage__host'] %>
-    scopes:
-    - system/ChargeItem.read
-    - system/Invoice.read
-    - launch
-    timeout: 30
-    use_mocks: false
+    veterans_health:
+      url: <%= ENV['lighthouse__facilities__veterans_health__url'] %>
   letters_generator:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__letters_generator__access_token__aud_claim_url'] %>
