@@ -19,6 +19,7 @@ module ClaimsApi
         section_1_veteran_identification
         section_2_change_of_address
         section_3_homeless_information
+        section_5_disabilities
 
         @pdf_data
       end
@@ -263,6 +264,64 @@ module ClaimsApi
         return if @pdf_data[:data][:attributes][:homelessInformation]&.key?(:riskOfBecomingHomeless)
 
         @pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless] = {}
+      end
+
+      # Section 4 has no mapped properties in v1
+
+      # "disabilities" are required
+      # "disabilityActionType", "name" are required inside "disabilities" via the schema
+      def section_5_disabilities
+        set_pdf_data_for_claim_information
+        set_pdf_data_for_disabilities
+
+        @pdf_data[:data][:attributes][:claimInformation][:disabilities] = transform_disabilities
+      end
+
+      def set_pdf_data_for_claim_information
+        return if @pdf_data[:data][:attributes]&.key?(:claimInformation)
+
+        @pdf_data[:data][:attributes][:claimInformation] = {}
+      end
+
+      def set_pdf_data_for_disabilities
+        return if @pdf_data[:data][:attributes][:claimInformation]&.key?(:disabilities)
+
+        @pdf_data[:data][:attributes][:claimInformation][:disabilities] = {}
+      end
+
+      def transform_disabilities
+        @auto_claim['disabilities'].flat_map do |disability|
+          primary_disability = build_primary_disability(disability)
+          secondary_disabilities = if disability['secondaryDisabilities'].present?
+                                     build_secondary_disabilities(disability)
+                                   end
+
+          [primary_disability, *secondary_disabilities]
+        end
+      end
+
+      def build_primary_disability(disability)
+        dis_name = disability['name']
+        dis_date = format_disability_date(disability['approximateBeginDate'])
+        service_relevance = disability['serviceRelevance']
+
+        build_disability_item(dis_name, dis_date, service_relevance)
+      end
+
+      def build_secondary_disabilities(disability)
+        disability['secondaryDisabilities'].map do |secondary_disability|
+          dis_name = "#{secondary_disability['name']} secondary to: #{disability['name']}"
+          dis_date = format_disability_date(secondary_disability['approximateBeginDate'])
+          service_relevance = secondary_disability['serviceRelevance']
+
+          build_disability_item(dis_name, dis_date, service_relevance)
+        end
+      end
+
+      def format_disability_date(begin_date)
+        return nil if begin_date.blank?
+
+        make_date_string_month_first(begin_date, begin_date.length)
       end
     end
   end
