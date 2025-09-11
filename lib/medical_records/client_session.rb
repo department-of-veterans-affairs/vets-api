@@ -4,7 +4,6 @@ require 'common/client/session'
 
 module MedicalRecords
   class ClientSession < Common::Client::Session
-    attribute :user_uuid, String
     attribute :patient_fhir_id, Integer
     attribute :icn, String
     attribute :refresh_time, Date
