@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'lighthouse/healthcare_cost_and_coverage/invoice/service'
+require 'lighthouse/healthcare_cost_and_coverage/configuration'
 
 RSpec.describe Lighthouse::HealthcareCostAndCoverage::Configuration do
   subject(:config) { described_class.instance }
