@@ -15,6 +15,13 @@ describe MebApi::DGI::Letters::Configuration do
     )
   end
 
+  after(:each) do
+    cfg = described_class.instance
+    %i[@connection @conn @faraday].each do |ivar|
+      cfg.remove_instance_variable(ivar) if cfg.instance_variable_defined?(ivar)
+    end
+  end
+
   context 'when mock is disabled' do
     let(:mock_enabled) { false }
 
