@@ -240,7 +240,11 @@ module VSPDanger
 
       disallowed_files = app_files.reject { |file| allowed_app_file?(file) }
 
-      return Result.error(error_message(disallowed_files)) if disallowed_files.any?
+      # Debug: Add file information to understand what's happening
+      if disallowed_files.any?
+        return Result.error(error_message_with_debug(disallowed_files))
+      end
+      
       return Result.warn(warning_message) if app_files.any?
 
       Result.success('All set.')
@@ -272,7 +276,52 @@ module VSPDanger
       EMSG
     end
 
+    def error_message_with_debug(disallowed_files)
+      allowed_files = app_files - disallowed_files
+      
+      <<~EMSG
+        This PR contains migrations with disallowed application code changes.
+
+        <details>
+          <summary>File Summary</summary>
+
+          #### All Files Detected
+          - #{files.join "\n- "}
+
+          #### DB File(s)
+          - #{db_files.join "\n- "}
+
+          #### All App File(s)
+          - #{app_files.join "\n- "}
+
+          #### Disallowed App File(s)
+          - #{disallowed_files.join "\n- "}
+
+          #{allowed_files.any? ? "#### Allowed App File(s)\n- #{allowed_files.join "\n- "}" : ''}
+        </details>
+
+        **Allowed changes with migrations:**
+        - Model files (for `ignored_columns`, validations)
+        - Test files and factories
+        - Strong migrations configuration
+
+        **Not allowed:**
+        - Controller changes
+        - Service object changes
+        - Background job changes
+        - Other business logic changes
+
+        These should be deployed separately to ensure backwards compatibility.
+
+        For more info:
+        - [Strong Migrations Best Practices](https://github.com/ankane/strong_migrations#removing-a-column)
+        - [vets-api Database Migrations](https://depo-platform-documentation.scrollhelp.site/developer-docs/Vets-API-Database-Migrations.689832034.html)
+      EMSG
+    end
+
     def error_message(disallowed_files)
+      allowed_files = app_files - disallowed_files
+      
       <<~EMSG
         This PR contains migrations with disallowed application code changes.
 
@@ -285,7 +334,7 @@ module VSPDanger
           #### Disallowed App File(s)
           - #{disallowed_files.join "\n- "}
 
-          #{app_files.count > disallowed_files.count ? "#### Allowed App File(s)\n- #{(app_files - disallowed_files).join "\n- "}" : ''}
+          #{allowed_files.any? ? "#### Allowed App File(s)\n- #{allowed_files.join "\n- "}" : ''}
         </details>
 
         **Allowed changes with migrations:**
