@@ -116,4 +116,52 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
       expect(claim.cid).to eq('ABC123')
     end
   end
+
+  describe 'process error handling' do
+    let(:poa) do
+      ClaimsApi::PowerOfAttorney.create!(
+        auth_headers: {},
+        status: '',
+        form_data: {},
+        current_poa: '',
+        header_hash: {},
+        cid: '123'
+      )
+    end
+
+    it 'gets ClaimsApi::Process errors and does not override ActiveRecord errors' do
+      # Create a process and add an error message
+      process = ClaimsApi::Process.create!(
+        processable: poa,
+        step_type: 'PDF_SUBMISSION',
+        step_status: 'IN_PROGRESS'
+      )
+      process.error_messages.push(
+        { 'title' => 'BGS Error', 'detail' => 'updatePoaAccess: No POA found on system of record',
+          'code' => 'POA_ACCESS_UPDATE' }
+      )
+      process.save!
+
+      # Reload POA and verify process association
+      rec = ClaimsApi::PowerOfAttorney.find(poa.id)
+      expect(rec.processes.map(&:id)).to include(process.id)
+
+      # This test covers a bug with method name collision between ActiveRecord::Errors and our custom method.
+      # Before fix: rec.errors would attempt to use the active record method and break because errors was an array
+      # After fix: rec.errors should be an active record errors object, process_errors should return the process error
+      expect(rec.errors).to be_empty
+
+      expect(rec.process_errors).to eq([
+                                         {
+                                           title: 'BGS Error',
+                                           detail: 'updatePoaAccess: No POA found on system of record',
+                                           code: 'PDF_SUBMISSION'
+                                         }
+                                       ])
+
+      # Should be able to update and save the POA without error
+      rec[:status] = 'testing'
+      expect { rec.save! }.not_to raise_error
+    end
+  end
 end

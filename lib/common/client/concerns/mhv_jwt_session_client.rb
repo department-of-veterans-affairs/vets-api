@@ -20,7 +20,7 @@ module Common
         protected
 
         def user_key
-          session.icn
+          session.user_uuid
         end
 
         def session_config_key

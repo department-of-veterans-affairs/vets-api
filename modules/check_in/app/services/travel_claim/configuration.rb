@@ -33,7 +33,7 @@ module TravelClaim
     # @return [String] The service name identifier
     #
     def service_name
-      'TravelClaim'
+      Settings.check_in.travel_reimbursement_api_v2.service_name
     end
 
     ##
@@ -46,8 +46,8 @@ module TravelClaim
     #
     # @return [Faraday::Connection] Configured HTTP connection
     #
-    def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+    def connection(server_url: base_path)
+      Faraday.new(url: server_url, headers: base_request_headers, request: request_options) do |conn|
         conn.use(:breakers, service_name:)
         conn.request :json
         conn.response :json
