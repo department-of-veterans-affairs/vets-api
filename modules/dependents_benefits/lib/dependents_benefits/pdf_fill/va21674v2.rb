@@ -3,12 +3,12 @@ require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
 # rubocop:disable Metrics/ClassLength
-module PdfFill
-  module Forms
+module DependentsBenefits
+  module PdfFill
     class Va21674v2 < ::PdfFill::Forms::FormBase
-      include FormHelper
+      include ::PdfFill::Forms::FormHelper
 
-      ITERATOR = PdfFill::HashConverter::ITERATOR
+      ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
       KEY = {
         'veteran_information' => {
