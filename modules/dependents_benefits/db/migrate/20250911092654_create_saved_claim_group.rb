@@ -1,4 +1,6 @@
-class CreateSavedClaimGroup < ActiveRecord::Migration[6.0]
+# frozen_string_literal: true
+
+class CreateSavedClaimGroup < ActiveRecord::Migration[7.2]
   def change
     create_table :saved_claim_group do |t|
       t.uuid :claim_group_guid, null: false
