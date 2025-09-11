@@ -439,22 +439,18 @@ module ClaimsApi
             exposure = disability['exposureOrEventOrInjury']
             service_relevance = disability['serviceRelevance']
 
-            disabilities_list << build_disability_item(dis_name, dis_date, exposure, service_relevance)
+            disabilities_list << build_disability_item(dis_name, dis_date, service_relevance, exposure)
             if disability['secondaryDisabilities'].present?
               disabilities_list << disability['secondaryDisabilities']&.map do |secondary_disability|
                 dis_name = "#{secondary_disability['name']} secondary to: #{disability['name']}"
                 dis_date = make_date_string_month_first(secondary_disability['approximateDate'], secondary_disability['approximateDate'].length) if secondary_disability['approximateDate'].present?
                 exposure = disability['exposureOrEventOrInjury']
                 service_relevance = secondary_disability['serviceRelevance']
-                build_disability_item(dis_name, dis_date, exposure, service_relevance)
+                build_disability_item(dis_name, dis_date, service_relevance, exposure)
               end
             end
           end
         end.flatten
-      end
-
-      def build_disability_item(disability, approximate_date, exposure, service_relevance)
-        { disability:, approximateDate: approximate_date, exposureOrEventOrInjury: exposure, serviceRelevance: service_relevance }.compact
       end
 
       def conditions_related_to_exposure?
