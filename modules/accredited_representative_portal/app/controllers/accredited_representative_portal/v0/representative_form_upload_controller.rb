@@ -20,7 +20,7 @@ module AccreditedRepresentativePortal
 
       # rubocop:disable Metrics/MethodLength
       def submit
-        ar_monitoring.trace('ar.claims.form_upload.submit') do |span|
+        ar_monitoring(with_organization: true).trace('ar.claims.form_upload.submit') do |span|
           service = SavedClaimService::Create
 
           saved_claim = service.perform(
@@ -36,7 +36,6 @@ module AccreditedRepresentativePortal
 
           span.set_tag('form_submission.status', '200')
           span.set_tag('form_submission.confirmation_number', confirmation_number)
-
           trace_key_tags(span, form_id:, org: organization)
 
           send_confirmation_email(saved_claim)
@@ -58,7 +57,7 @@ module AccreditedRepresentativePortal
       # rubocop:enable Metrics/MethodLength
 
       def upload_scanned_form
-        ar_monitoring.trace('ar.claims.form_upload.upload_scanned_form') do |_span|
+        ar_monitoring(with_organization: false).trace('ar.claims.form_upload.upload_scanned_form') do |_span|
           handle_attachment_upload(
             PersistentAttachments::VAForm,
             PersistentAttachmentVAFormSerializer
@@ -67,7 +66,7 @@ module AccreditedRepresentativePortal
       end
 
       def upload_supporting_documents
-        ar_monitoring.trace('ar.claims.form_upload.upload_supporting_documents') do |_span|
+        ar_monitoring(with_organization: false).trace('ar.claims.form_upload.upload_supporting_documents') do |_span|
           handle_attachment_upload(
             PersistentAttachments::VAFormDocumentation,
             PersistentAttachmentSerializer
@@ -105,7 +104,7 @@ module AccreditedRepresentativePortal
       end
 
       def authorize_submission
-        ar_monitoring.trace('ar.claims.form_upload.authorize_submission') do |_span|
+        ar_monitoring(with_organization: true).trace('ar.claims.form_upload.authorize_submission') do |_span|
           claimant_icn.present? or
             raise Common::Exceptions::RecordNotFound,
                   'Could not lookup claimant with given information.'
@@ -119,7 +118,7 @@ module AccreditedRepresentativePortal
 
       # rubocop:disable Metrics/MethodLength
       def handle_attachment_upload(model_klass, serializer_klass)
-        ar_monitoring.trace('ar.claims.form_upload.handle_attachment_upload') do |span|
+        ar_monitoring(with_organization: false).trace('ar.claims.form_upload.handle_attachment_upload') do |span|
           service = SavedClaimService::Attach
 
           attachment = service.perform(
@@ -130,7 +129,7 @@ module AccreditedRepresentativePortal
 
           span.set_tag('form_upload.form_id', attachment.form_id)
           span.set_tag('form_upload.attachment_type', model_klass.name)
-          trace_key_tags(span, form_id:, org: organization)
+          trace_key_tags(span, form_id:)
 
           if params[:file].respond_to?(:original_filename)
             span.set_tag('form_upload.file_name', params[:file].original_filename)
@@ -153,8 +152,8 @@ module AccreditedRepresentativePortal
       end
       # rubocop:enable Metrics/MethodLength
 
-      def ar_monitoring
-        org_tag = "org:#{organization}" if organization.present?
+      def ar_monitoring(with_organization:)
+        org_tag = "org:#{organization}" if with_organization
 
         @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
           AccreditedRepresentativePortal::Monitoring::NAME,
@@ -171,10 +170,7 @@ module AccreditedRepresentativePortal
       end
 
       def organization
-        claimant_representative&.to_h&.[](:power_of_attorney_holder_poa_code)
-      rescue => e
-        Rails.logger.warn("Org lookup failed: #{e.class} #{e.message}")
-        nil
+        claimant_representative&.power_of_attorney_holder&.poa_code
       end
 
       def trace_key_tags(span, **tags)

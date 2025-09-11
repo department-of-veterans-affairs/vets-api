@@ -107,9 +107,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
         '21_686c_empty_form.pdf'
       )
     end
-    let!(:representative_user_account) do
-      UserAccount.create!(icn: representative_user.icn)
-    end
 
     before do
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('<TOKEN>')
@@ -412,10 +409,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       expect(response).to have_http_status(:ok)
 
       expect(span_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'form_id' }, form_number)
-      expect(span_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'org' }, 'Org Name')
 
       expect(trace_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'form_id' }, form_number)
-      expect(trace_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'org' }, 'Org Name')
 
       expect(span_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'form_upload.form_id' }, form_number)
       expect(span_double).to have_received(:set_tag).with(
