@@ -18,6 +18,7 @@ module AccreditedRepresentativePortal
         end
       end
 
+      # rubocop:disable Metrics/MethodLength
       def create
         ar_monitoring(nil).trace('ar.poa.request.decision.create') do |span|
           span.set_tag('poa_request.poa_code', poa_code)
@@ -43,6 +44,7 @@ module AccreditedRepresentativePortal
           render json: { errors: [e.message] }, status: :internal_server_error
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
@@ -95,7 +97,6 @@ module AccreditedRepresentativePortal
           Datadog::Tracing.active_trace&.set_tag(tag, value) if value.present?
         end
       end
-
 
       def ar_monitoring(organization)
         org_tag = "org:#{organization}" if organization.present?

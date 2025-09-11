@@ -142,7 +142,7 @@ module AccreditedRepresentativePortal
       end
 
       def poa_codes(poa_requests)
-        poa_requests.map {|poar| poar.power_of_attorney_holder_poa_code}.uniq.join(',')
+        poa_requests.map(&:power_of_attorney_holder_poa_code).uniq.join(',')
       end
 
       def poa_organization
