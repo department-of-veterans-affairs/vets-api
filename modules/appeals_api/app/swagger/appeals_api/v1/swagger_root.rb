@@ -7,10 +7,10 @@ module AppealsApi::V1::SwaggerRoot
   read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
 
   read_file_from_rel_dir = if DESCRIPTION_FILE_NAME == 'description_with_final_status.md'
-                              read_file.call(['app', 'swagger', 'decision_reviews', 'v2', DESCRIPTION_FILE_NAME])
-                            else
-                              read_file.call(['app', 'swagger', 'appeals_api', 'v1', DESCRIPTION_FILE_NAME])
-                            end
+                             read_file.call(['app', 'swagger', 'decision_reviews', 'v2', DESCRIPTION_FILE_NAME])
+                           else
+                             read_file.call(['app', 'swagger', 'appeals_api', 'v1', DESCRIPTION_FILE_NAME])
+                           end
 
   swagger_root do
     key :openapi, '3.0.0'
