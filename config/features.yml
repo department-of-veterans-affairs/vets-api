@@ -2417,7 +2417,7 @@ features:
   disable_bdn_processing:
     actor_type: user
     description: If enabled, skip all BDN-related processing for VYE
-  my_auth_exp_redesign_available_to_opt_in:
+  my_va_auth_exp_redesign_available_to_opt_in:
     actor_type: user
     description: When enabled, a user will see the option to switch to the redesigned experience of MyVA.
   my_va_auth_exp_redesign_enabled:
