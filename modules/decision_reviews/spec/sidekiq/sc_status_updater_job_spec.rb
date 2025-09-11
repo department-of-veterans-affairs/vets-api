@@ -231,7 +231,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
         benefits_intake_service { nil }
       end
 
-      context 'when forms have final_status = true in stored status' do
+      context 'when forms have final_status = true' do
         let!(:secondary_form) { create(:secondary_appeal_form4142_module, guid: SecureRandom.uuid) }
         let!(:saved_claim) do
           SavedClaim::SupplementalClaim.create(
@@ -256,15 +256,19 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           allow(benefits_intake_service).to receive(:get_status)
         end
 
-        it 'does NOT make API call and uses stored data' do
+        it 'does NOT make API call and does NOT update timestamps for forms with final status' do
+          original_status_updated_at = secondary_form.status_updated_at
+          original_delete_date = secondary_form.delete_date
+
           Timecop.freeze(frozen_time) do
             subject.new.perform
           end
 
           expect(benefits_intake_service).not_to have_received(:get_status)
             .with(uuid: secondary_form.guid)
-          expect(secondary_form.reload.status_updated_at).to eq(frozen_time)
-          expect(secondary_form.reload.delete_date).to eq(frozen_time + 59.days)
+
+          expect(secondary_form.reload.status_updated_at).to eq(original_status_updated_at)
+          expect(secondary_form.reload.delete_date).to eq(original_delete_date)
         end
 
         it 'marks record as complete when using stored final status' do
@@ -277,7 +281,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
         end
       end
 
-      context 'when forms have final_status = false in stored status' do
+      context 'when forms have final_status = false' do
         let!(:secondary_form) { create(:secondary_appeal_form4142_module, guid: SecureRandom.uuid) }
         let!(:saved_claim) do
           SavedClaim::SupplementalClaim.create(
@@ -513,6 +517,67 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
             expect(parsed_status['final_status']).to be(false)
           end
         end
+
+        context 'when API returns error with no final_status field (nil)' do
+          let(:response_error_no_final_status) do
+            response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json'))
+            response['data']['attributes']['status'] = 'error'
+            response['data']['attributes']['detail'] = 'Document processing failed'
+            response['data']['attributes']['final_status'] = nil
+            instance_double(Faraday::Response, body: response)
+          end
+
+          before do
+            allow(benefits_intake_service).to receive(:get_status)
+              .with(uuid: secondary_form.guid).and_return(response_error_no_final_status)
+          end
+
+          it 'treats nil final_status as non-final and continues polling' do
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
+
+            expect(secondary_form.reload.delete_date).to be_nil
+
+            parsed_status = JSON.parse(secondary_form.reload.status)
+            expect(parsed_status['status']).to eq('error')
+            expect(parsed_status['final_status']).to be_nil
+
+            expect(benefits_intake_service).to have_received(:get_status).with(uuid: secondary_form.guid)
+          end
+
+          it 'continues polling on subsequent runs since final_status is nil (not true)' do
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
+
+            parsed_status = JSON.parse(secondary_form.reload.status)
+            expect(parsed_status['final_status']).to be_nil
+
+            allow(benefits_intake_service).to receive(:get_status)
+              .with(uuid: secondary_form.guid).and_return(response_error_no_final_status)
+
+            Timecop.freeze(frozen_time + 1.hour) do
+              subject.new.perform
+            end
+
+            expect(benefits_intake_service).to have_received(:get_status).with(uuid: secondary_form.guid).twice
+          end
+
+          it 'handles nil final_status correctly in should_continue_polling?' do
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
+
+            stored_status = JSON.parse(secondary_form.reload.status)
+            expect(stored_status['final_status']).to be_nil
+
+            # The logic should treat nil as "continue polling"
+            # This is implicitly tested by the fact that the API was called above,
+            # but we can also verify by checking that no delete_date was set
+            expect(secondary_form.reload.delete_date).to be_nil
+          end
+        end
       end
 
       context 'multi-form completion logic' do
@@ -564,7 +629,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           end
         end
 
-        context 'when one form has recoverable error (active mitigation scenario)' do
+        context 'when one form has recoverable error (we should continue polling for status updates)' do
           let(:response_vbms_final) do
             response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json'))
             response['data']['attributes']['status'] = 'vbms'
@@ -588,7 +653,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
               .with(uuid: form_two.guid).and_return(response_error_recoverable)
           end
 
-          it 'does not mark record as complete and continues mitigation' do
+          it 'does not mark record as complete and continues polling' do
             Timecop.freeze(frozen_time) do
               subject.new.perform
             end
@@ -767,31 +832,40 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           end
 
           let(:days_in_error) { 17.5 }
+          let(:error_timestamp) { frozen_time - days_in_error.days }
 
           before do
             secondary_form.update!(
               status: temp_error_status.to_json,
-              status_updated_at: frozen_time - days_in_error.days
+              status_updated_at: error_timestamp,
+              created_at: error_timestamp
             )
+
+            # Reload to ensure we have the actual database value
+            secondary_form.reload
 
             allow(benefits_intake_service).to receive(:get_status)
               .with(uuid: secondary_form.guid).and_return(response_processing)
+
+            allow(Rails.logger).to receive(:info).and_call_original
           end
 
           it 'logs warning with correct attributes' do
-            Timecop.freeze(frozen_time) do
-              subject.new.perform
-            end
-
-            expect(Rails.logger).to have_received(:info).with(
+            # The status_updated_at will be updated to frozen_time during processing
+            # because update_secondary_form_status_enhanced sets it to Time.current
+            expect(Rails.logger).to receive(:info).with(
               'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in temporary error state',
               hash_including(
                 secondary_form_uuid: secondary_form.guid,
                 appeal_submission_id: secondary_form.appeal_submission_id,
                 days_in_error: days_in_error.round(2),
-                status_updated_at: secondary_form.status_updated_at
+                status_updated_at: frozen_time # This will be the updated value after processing
               )
-            )
+            ).once
+
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
           end
         end
 
@@ -865,58 +939,14 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           end
         end
 
-        context 'when using different timestamp fallbacks' do
-          let(:temp_error_status) do
-            {
-              'status' => 'error',
-              'final_status' => false,
-              'detail' => 'Temporary error'
-            }
-          end
-
-          context 'when status_updated_at is nil' do
-            before do
-              secondary_form.update!(
-                status: temp_error_status.to_json,
-                status_updated_at: nil,
-                updated_at: frozen_time - 16.days
-              )
-
-              processing_response = instance_double(Faraday::Response, body: {
-                                                      'data' => {
-                                                        'attributes' => {
-                                                          'status' => 'processing',
-                                                          'final_status' => false,
-                                                          'detail' => 'Still processing',
-                                                          'updated_at' => Time.current.iso8601
-                                                        }
-                                                      }
-                                                    })
-
-              allow(benefits_intake_service).to receive(:get_status)
-                .with(uuid: secondary_form.guid).and_return(processing_response)
-            end
-
-            it 'falls back to updated_at for calculating days in error' do
-              Timecop.freeze(frozen_time) do
-                subject.new.perform
-              end
-
-              expect(Rails.logger).to have_received(:info).with(
-                'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in temporary error state',
-                hash_including(days_in_error: 16.0)
-              )
-            end
-          end
-        end
-
         context 'multiple forms with mixed statuses' do
           let!(:form_temp_error_old) do
             create(:secondary_appeal_form4142_module,
                    guid: SecureRandom.uuid,
                    appeal_submission: secondary_form.appeal_submission,
                    status: { 'status' => 'error', 'final_status' => false }.to_json,
-                   status_updated_at: frozen_time - 20.days)
+                   status_updated_at: frozen_time - 20.days,
+                   created_at: frozen_time - 20.days) # Ensure created_at is set
           end
 
           let!(:form_temp_error_recent) do
@@ -924,7 +954,8 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
                    guid: SecureRandom.uuid,
                    appeal_submission: secondary_form.appeal_submission,
                    status: { 'status' => 'error', 'final_status' => false }.to_json,
-                   status_updated_at: frozen_time - 5.days)
+                   status_updated_at: frozen_time - 5.days,
+                   created_at: frozen_time - 5.days)
           end
 
           let!(:form_permanent_error) do
@@ -932,7 +963,8 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
                    guid: SecureRandom.uuid,
                    appeal_submission: secondary_form.appeal_submission,
                    status: { 'status' => 'error', 'final_status' => true }.to_json,
-                   status_updated_at: frozen_time - 25.days)
+                   status_updated_at: frozen_time - 25.days,
+                   created_at: frozen_time - 25.days)
           end
 
           before do
@@ -947,15 +979,21 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           end
 
           it 'only logs warnings for temporary errors exceeding threshold' do
-            Timecop.freeze(frozen_time) do
-              subject.new.perform
-            end
-
-            # Should log info for form_temp_error_old (20 days > 15 days)
-            expect(Rails.logger).to have_received(:info).with(
+            # Set up expectation for the specific log we care about
+            expect(Rails.logger).to receive(:info).with(
               'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in temporary error state',
               hash_including(secondary_form_uuid: form_temp_error_old.guid)
             ).once
+
+            # Allow other info logs to pass through without failing the test
+            allow(Rails.logger).to receive(:info).with(
+              'SavedClaim::SupplementalClaim Skipping tracking PDF overflow',
+              anything
+            ).and_call_original
+
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
           end
         end
       end

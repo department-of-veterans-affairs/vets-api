@@ -176,24 +176,20 @@ module DecisionReviews
 
       secondary_forms.each do |form|
         current_status = JSON.parse(form.status || '{}')
-        should_stop_polling = current_status['final_status'] == true
 
-        # Monitor forms stuck in temporary error state
+        if should_continue_polling?(current_status)
+          response = benefits_intake_service.get_status(uuid: form.guid).body
+          attributes = response.dig('data', 'attributes').slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE)
+          form_is_complete = attributes['status'] == UPLOAD_SUCCESSFUL_STATUS &&
+                             attributes['final_status'] == true
+          all_complete = false unless form_is_complete
+
+          handle_secondary_form_status_metrics_and_logging(form, attributes['status'])
+          update_secondary_form_status_enhanced(form, attributes)
+        end
+
+        # Monitor ALL forms stuck in a non-final error state
         monitor_temporary_error_form(form, current_status)
-
-        attributes = if should_stop_polling
-                       current_status.slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE.map(&:to_s))
-                     else
-                       response = benefits_intake_service.get_status(uuid: form.guid).body
-                       response.dig('data', 'attributes').slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE)
-                     end
-
-        form_is_complete = attributes['status'] == UPLOAD_SUCCESSFUL_STATUS &&
-                           attributes['final_status'] == true
-        all_complete = false unless form_is_complete
-
-        handle_secondary_form_status_metrics_and_logging(form, attributes['status'])
-        update_secondary_form_status_enhanced(form, attributes)
       end
 
       all_complete
@@ -215,9 +211,9 @@ module DecisionReviews
     end
 
     def monitor_temporary_error_form(form, current_status)
-      return unless current_status['status'] == 'error' && current_status['final_status'] == false
+      return unless current_status['status'] == 'error' && current_status['final_status'] != true
 
-      error_timestamp = form.status_updated_at || form.updated_at || form.created_at
+      error_timestamp = form.created_at
       days_in_error = (Time.current - error_timestamp) / 1.day
 
       return unless days_in_error > 15
@@ -303,6 +299,11 @@ module DecisionReviews
     def record_complete?(record, status, uploads_metadata, secondary_forms_complete)
       check_attachments_status(record,
                                uploads_metadata) && secondary_forms_complete && status == FORM_SUCCESSFUL_STATUS
+    end
+
+    def should_continue_polling?(current_status)
+      # Continue polling unless explicitly marked as final
+      current_status['final_status'] != true
     end
 
     def extract_uploads_metadata(metadata)
