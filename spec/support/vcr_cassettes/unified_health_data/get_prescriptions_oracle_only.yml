@@ -55,7 +55,7 @@ http_interactions:
   recorded_at: Wed, 10 Sep 2025 15:45:09 GMT
 - request:
     method: get
-    uri: "<MHV_UHD_HOST>/v1/medicalrecords/medications?endDate=2025-09-01&patientId=1000123456V123456&startDate=2020-01-01"
+    uri: "<MHV_UHD_HOST>/v1/medicalrecords/medications?patientId=1000123456V123456"
     body:
       encoding: US-ASCII
       string: ''

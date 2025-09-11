@@ -66,11 +66,11 @@ module UnifiedHealthData
       end
     end
 
-    def get_prescriptions(start_date:, end_date:)
+    def get_prescriptions
       with_monitoring do
         headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
         patient_id = @user.icn
-        path = "#{config.base_path}medications?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        path = "#{config.base_path}medications?patientId=#{patient_id}"
 
         response = perform(:get, path, nil, headers)
         body = parse_response_body(response.body)

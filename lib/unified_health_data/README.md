@@ -33,7 +33,7 @@ The main service class provides the following public methods:
 
 - `get_labs(start_date:, end_date:)` - Retrieve lab results for date range
 - `get_care_summaries_and_notes` - Retrieve clinical notes and care summaries
-- `get_prescriptions(start_date:, end_date:)` - Retrieve prescriptions from all data sources
+- `get_prescriptions` - Retrieve prescriptions from all data sources
 - `refill_prescription(prescription_ids)` - Submit prescription refill requests
 - `get_single_summary_or_note(note_id)` - Retrieve a single clinical note by ID
 
@@ -109,10 +109,8 @@ The VistA response contains additional fields that are not currently mapped but 
 # Initialize service for a user
 service = UnifiedHealthData::Service.new(current_user)
 
-# Get prescriptions for a date range
-start_date = '2023-01-01'
-end_date = '2023-12-31'
-prescriptions = service.get_prescriptions(start_date: start_date, end_date: end_date)
+# Get prescriptions
+prescriptions = service.get_prescriptions
 # Returns array of UnifiedHealthData::Prescription objects
 
 # Access prescription data
@@ -149,11 +147,7 @@ class PrescriptionsController < ApplicationController
   def index
     service = UnifiedHealthData::Service.new(current_user)
     
-    # Date range is required
-    start_date = params[:start_date] || 1.year.ago.to_date.to_s
-    end_date = params[:end_date] || Date.current.to_s
-    
-    prescriptions = service.get_prescriptions(start_date: start_date, end_date: end_date)
+    prescriptions = service.get_prescriptions
     
     # Use existing Mobile serializer for consistency
     render json: prescriptions, 

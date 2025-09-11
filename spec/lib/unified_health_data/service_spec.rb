@@ -939,13 +939,10 @@ describe UnifiedHealthData::Service, type: :service do
 
   # Prescriptions
   describe '#get_prescriptions' do
-    let(:start_date) { '2020-01-01' }
-    let(:end_date) { '2025-09-01' }
-
     context 'with valid prescription responses', :vcr do
       it 'returns prescriptions from both VistA and Oracle Health' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-          prescriptions = service.get_prescriptions(start_date:, end_date:)
+          prescriptions = service.get_prescriptions
           expect(prescriptions.size).to eq(78)
 
           # Check that prescriptions are UnifiedHealthData::Prescription objects
@@ -961,7 +958,7 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'properly maps VistA prescription fields' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-          prescriptions = service.get_prescriptions(start_date:, end_date:)
+          prescriptions = service.get_prescriptions
           vista_prescription = prescriptions.find { |p| p.prescription_id == '25804851' }
 
           expect(vista_prescription.refill_status).to eq('activeParked')
@@ -977,7 +974,7 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'properly maps Oracle Health prescription fields' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-          prescriptions = service.get_prescriptions(start_date:, end_date:)
+          prescriptions = service.get_prescriptions
           oracle_prescription = prescriptions.find { |p| p.prescription_id == '25809921' }
 
           expect(oracle_prescription.refill_status).to eq('active')
@@ -994,7 +991,7 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'handles different refill statuses correctly' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-          prescriptions = service.get_prescriptions(start_date:, end_date:)
+          prescriptions = service.get_prescriptions
 
           active_prescription = prescriptions.find { |p| p.prescription_id == '25804853' }
           discontinued_prescription = prescriptions.find { |p| p.prescription_id == '25804854' }
@@ -1008,7 +1005,7 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'properly handles Oracle Health FHIR features' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-          prescriptions = service.get_prescriptions(start_date:, end_date:)
+          prescriptions = service.get_prescriptions
 
           # Test prescription with patientInstruction (should prefer over text)
           oracle_prescription_with_patient_instruction = prescriptions.find { |p| p.prescription_id == '15214174591' }
@@ -1031,7 +1028,7 @@ describe UnifiedHealthData::Service, type: :service do
         allow(Rails.logger).to receive(:info)
 
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-          service.get_prescriptions(start_date:, end_date:)
+          service.get_prescriptions
 
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
@@ -1047,7 +1044,7 @@ describe UnifiedHealthData::Service, type: :service do
     context 'with empty response', :vcr do
       it 'returns empty array for nil response' do
         VCR.use_cassette('unified_health_data/get_prescriptions_empty') do
-          result = service.get_prescriptions(start_date:, end_date:)
+          result = service.get_prescriptions
           expect(result).to eq([])
         end
       end
@@ -1056,7 +1053,7 @@ describe UnifiedHealthData::Service, type: :service do
     context 'with partial data', :vcr do
       it 'handles VistA-only data' do
         VCR.use_cassette('unified_health_data/get_prescriptions_vista_only') do
-          prescriptions = service.get_prescriptions(start_date:, end_date:)
+          prescriptions = service.get_prescriptions
           expect(prescriptions.size).to eq(33)
           expect(prescriptions.map(&:prescription_id)).to contain_exactly(
             '25804851', '25804852', '25804853', '25804854', '25804855', '25804856', '25804858', '25804859',
@@ -1070,7 +1067,7 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'handles Oracle Health-only data' do
         VCR.use_cassette('unified_health_data/get_prescriptions_oracle_only') do
-          prescriptions = service.get_prescriptions(start_date:, end_date:)
+          prescriptions = service.get_prescriptions
           expect(prescriptions.size).to eq(45)
           expect(prescriptions.map(&:prescription_id)).to contain_exactly(
             '15214174591', '15215168033', '15216187241', '15215488543', '15214174423', '15215979885',
