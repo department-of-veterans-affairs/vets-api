@@ -14,7 +14,6 @@ module PdfFill
       DEFAULT_FORM_OFFICIALS_LIMIT = 7
       TMP_DIR = 'tmp/pdfs'
       FORM_CLASS = PdfFill::Forms::Va228794
-      OFFICIALS_KEY_REGEX = /additionalCertifyingOfficials_(?<i>\d+)/
 
       def initialize(form_data, main_form_filler)
         @form_data = form_data
@@ -45,9 +44,8 @@ module PdfFill
       end
 
       def generate_extended_form(merged_form_data, hash_converter)
-        extra_officials = merged_form_data.select do |k, _v|
-          (m = OFFICIALS_KEY_REGEX.match(k)) && (m[:i].to_i >= DEFAULT_FORM_OFFICIALS_LIMIT)
-        end.values
+        extra_officials = merged_form_data['additionalCertifyingOfficials'][DEFAULT_FORM_OFFICIALS_LIMIT..]
+        merged_form_data['additionalCertifyingOfficials'] = merged_form_data['additionalCertifyingOfficials'][0..DEFAULT_FORM_OFFICIALS_LIMIT]
 
         pdf_data_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: FORM_CLASS::KEY)
 
