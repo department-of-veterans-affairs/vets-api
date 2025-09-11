@@ -25,7 +25,7 @@ module VBADocuments
     private
 
     def filtered_submission_guids
-      ups = VBADocuments::UploadSubmission.in_flight.order(created_at: :asc).pluck(:guid)
+      VBADocuments::UploadSubmission.in_flight.order(created_at: :asc).pluck(:guid)
     end
 
     def enabled?
