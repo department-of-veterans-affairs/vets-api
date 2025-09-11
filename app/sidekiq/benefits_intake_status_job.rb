@@ -5,6 +5,7 @@ require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
 require 'pcpg/monitor'
 require 'dependents/monitor'
 require 'vre/monitor'
+require 'vff/monitor'
 
 # Datadog Dashboard:
 # https://vagov.ddog-gov.com/dashboard/4d8-3fn-dbp/benefits-intake-form-submission-tracking?fromUser=false&refresh_mode=sliding&view=spans&from_ts=1717772535566&to_ts=1718377335566&live=true
@@ -183,6 +184,19 @@ class BenefitsIntakeStatusJob
         VRE::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
       else
         VRE::Monitor.new.log_silent_failure(context, call_location:)
+      end
+    end
+
+    # VFF (Simple Forms)
+    if VFF::Monitor.vff?(form_id)
+      # VFF forms use a different notification pattern: emails are sent automatically via
+      # AASM transitions in FormSubmissionAttempt.fail! rather than direct email calls.
+      # We monitor here to capture failure detection context while email handling occurs
+      # in the model's state machine callback via SimpleFormsApi::Notification system.
+      begin
+        VFF::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
+      rescue
+        nil
       end
     end
   end
