@@ -39,9 +39,7 @@ module UnifiedHealthData
                                                         station_number: extract_station_number(resource),
                                                         is_refillable: extract_is_refillable(resource),
                                                         is_trackable: false, # Default for Oracle Health
-                                                        instructions: extract_instructions(resource),
-                                                        facility_phone_number: extract_facility_phone_number(resource),
-                                                        data_source_system: 'ORACLE_HEALTH'
+                                                        instructions: extract_instructions(resource)
                                                       })
       end
       # rubocop:enable Metrics/MethodLength
