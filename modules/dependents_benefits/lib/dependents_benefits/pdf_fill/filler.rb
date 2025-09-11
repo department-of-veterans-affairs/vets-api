@@ -3,7 +3,7 @@
 require 'pdf_fill/extras_generator'
 require 'pdf_fill/extras_generator_v2'
 require 'pdf_fill/pdf_post_processor'
-#require 'dependents_benefits/pdf_fill/va686c674v2'
+require 'dependents_benefits/pdf_fill/va686c674v2'
 require 'dependents_benefits/pdf_fill/va21674v2'
 require 'utilities/date_parser'
 require 'forwardable'
@@ -40,8 +40,8 @@ module DependentsBenefits
 
       # Registers form classes for various form IDs.
       {
-      # '686C-674-V2' => DependentsBenefits::PdfFill::Va686c674v2,
-        '21-674-V2' => DependentsBenefits::PdfFill::Va21674v2,
+        '686C-674-V2' => DependentsBenefits::PdfFill::Va686c674v2,
+        '21-674-V2' => DependentsBenefits::PdfFill::Va21674v2
       }.each do |form_id, form_class|
         register_form(form_id, form_class)
       end
@@ -142,15 +142,10 @@ module DependentsBenefits
       #
       # @return [String] The path to the filled PDF form.
       #
-      # rubocop:disable Metrics/MethodLength
+
       def process_form(form_id, form_data, form_class, file_name_extension, fill_options = {})
         unless fill_options.key?(:show_jumplinks)
           fill_options[:show_jumplinks] = Flipper.enabled?(:pdf_fill_redesign_overflow_jumplinks)
-        end
-
-        # Handle 22-10215 overflow with continuation sheets
-        if form_id == '22-10215' && form_data['programs'] && form_data['programs'].length > 16
-          return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options)
         end
 
         folder = 'tmp/pdfs'
@@ -166,36 +161,13 @@ module DependentsBenefits
 
         has_template = form_class.const_defined?(:TEMPLATE)
         template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
-        unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,
-                                EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2]
-        (form_id.in?(unicode_pdf_form_list) ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
+
+        PDF_FORMS.fill_form(
           template_path, file_path, new_hash, flatten: Rails.env.production?
         )
 
         file_path = stamp_form(file_path, submit_date) if should_stamp_form?(form_id, fill_options, submit_date)
         combine_extras(file_path, hash_converter.extras_generator, form_class)
-      end
-      # rubocop:enable Metrics/MethodLength
-
-      ##
-      # Processes 22-10215 forms with continuation sheets for overflow programs.
-      #
-      # @param form_id [String] The form ID (should be '22-10215').
-      # @param form_data [Hash] The data to fill in the form.
-      # @param form_class [Class] The class associated with the form ID.
-      # @param file_name_extension [String] The file name extension for the output PDF.
-      # @param fill_options [Hash] Options for filling the form.
-      #
-      # @return [String] The path to the combined PDF form.
-      #
-      def process_form_with_continuation_sheets(_form_id, form_data, _form_class, file_name_extension, fill_options = {})
-        processor = PdfFill::Processors::VA2210215ContinuationSheetProcessor.new(
-          form_data,
-          file_name_extension,
-          fill_options,
-          self
-        )
-        processor.process
       end
 
       def make_hash_converter(form_id, form_class, submit_date, fill_options)
@@ -223,8 +195,8 @@ module DependentsBenefits
         dependents = %w[686C-674 686C-674-V2 21-674 21-674-V2].include?(form_id)
 
         # If the form is being generated with the overflow redesign, stamp the top and bottom of the document before the
-        # form is combined with the extras overflow pages. This allows the stamps to be placed correctly for the redesign
-        # implemented in lib/pdf_fill/extras_generator_v2.rb.
+        # form is combined with the extras overflow pages. This allows the stamps to be placed correctly for the
+        # redesign implemented in lib/pdf_fill/extras_generator_v2.rb.
         (fill_options[:extras_redesign] || dependents) && submit_date.present?
       end
 

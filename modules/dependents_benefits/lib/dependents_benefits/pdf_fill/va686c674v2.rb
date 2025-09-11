@@ -1,13 +1,16 @@
 # frozen_string_literal: true
+
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
+
 # rubocop:disable Metrics/ClassLength
 
 module DependentsBenefits
   module PdfFill
     class Va686c674v2 < ::PdfFill::Forms::FormBase
-      include FormHelper
+      include ::PdfFill::Forms::FormHelper
+
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
       KEY = {

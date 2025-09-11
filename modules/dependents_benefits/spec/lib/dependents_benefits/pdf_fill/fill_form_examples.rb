@@ -32,8 +32,12 @@ RSpec.shared_examples 'a form filler' do |options|
 
   describe PdfFill::Filler, type: :model do
     context "form #{form_id}", run_at: run_at || '2017-07-25 00:00:00 -0400' do
-      let(:input_data_fixture_dir) { options[:input_data_fixture_dir] || "modules/dependents_benefits/spec/fixtures/pdf_fill/#{form_id}" }
-      let(:output_pdf_fixture_dir) { options[:output_pdf_fixture_dir] || "modules/dependents_benefits/spec/fixtures/pdf_fill/#{form_id}" }
+      let(:input_data_fixture_dir) do
+        options[:input_data_fixture_dir] || "modules/dependents_benefits/spec/fixtures/pdf_fill/#{form_id}"
+      end
+      let(:output_pdf_fixture_dir) do
+        options[:output_pdf_fixture_dir] || "modules/dependents_benefits/spec/fixtures/pdf_fill/#{form_id}"
+      end
 
       test_data_types.each do |type|
         context "with #{type} test data" do
