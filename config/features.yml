@@ -38,9 +38,6 @@ features:
     actor_type: user
     description: Enables the people search of the accredited representative portal
     enable_in_development: true
-  accredited_representative_portal_self_service_auth:
-    actor_type: user
-    description: Enables the self-service authorization of the accredited representative portal
   accredited_representative_portal_form_21a:
     actor_type: user
     description: >
@@ -165,6 +162,10 @@ features:
     description: Enables dependents verification emails
   event_bus_gateway_ep040_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP040 claims"
+  event_bus_gateway_ep120_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP120 reopened pension claims"
+  event_bus_gateway_ep180_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP180 initial pension claims"
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -1490,6 +1491,10 @@ features:
     actor_type: user
     description: Logs decision letter info on both claims and decision letter endpoint
     enable_in_development: true
+  mobile_coe_letter_use_lgy_service:
+    actor_type: user
+    description: Use LGY service for retrieving COE letters in the mobile app
+    enable_in_development: false
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
@@ -2405,6 +2410,9 @@ features:
   disable_bdn_processing:
     actor_type: user
     description: If enabled, skip all BDN-related processing for VYE
+  my_auth_exp_redesign_available_to_opt_in:
+    actor_type: user
+    description: When enabled, a user will see the option to switch to the redesigned experience of MyVA.
   my_va_auth_exp_redesign_enabled:
     actor_type: user
     description: When enabled, a user will see the redesigned experience of MyVA.

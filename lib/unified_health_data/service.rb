@@ -44,7 +44,13 @@ module UnifiedHealthData
         headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
         patient_id = @user.icn
 
-        path = "#{config.base_path}notes?patientId=#{patient_id}"
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
+        start_date = '1900-01-01'
+        # End date defaults to today
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
         response = perform(:get, path, nil, headers)
         body = parse_response_body(response.body)
 
@@ -53,6 +59,30 @@ module UnifiedHealthData
         filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
 
         parse_notes(filtered)
+      end
+    end
+
+    def get_single_summary_or_note(note_id)
+      # TODO: refactor out common bits into a client type method - most of this is repeated from above
+      with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        patient_id = @user.icn
+
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
+        start_date = '1900-01-01'
+        # End date defaults to today
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+
+        filtered = combined_records.select { |record| record['resource']['id'] == note_id }
+
+        parse_single_note(filtered[0])
       end
     end
 
@@ -405,11 +435,20 @@ module UnifiedHealthData
     def parse_notes(records)
       return [] if records.blank?
 
-      clinical_notes_adapter = UnifiedHealthData::V2::Adapters::ClinicalNotesAdapter.new
-
       # Parse using the adapter
       parsed = records.map { |record| clinical_notes_adapter.parse(record) }
       parsed.compact
+    end
+
+    def parse_single_note(record)
+      return nil if record.blank?
+
+      # Parse using the adapter
+      clinical_notes_adapter.parse(record)
+    end
+
+    def clinical_notes_adapter
+      @clinical_notes_adapter ||= UnifiedHealthData::V2::Adapters::ClinicalNotesAdapter.new
     end
   end
 end

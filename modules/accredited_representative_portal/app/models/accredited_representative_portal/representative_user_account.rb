@@ -2,13 +2,6 @@
 
 module AccreditedRepresentativePortal
   class RepresentativeUserAccount < UserAccount
-    def set_email(email)
-      @email.blank? or
-        raise ArgumentError, 'Must not reset user email'
-
-      @email = email
-    end
-
     def set_all_emails(all_emails)
       @all_emails = all_emails
     end
@@ -54,22 +47,12 @@ module AccreditedRepresentativePortal
     end
 
     def registrations
-      @email.present? or
-        raise ArgumentError, 'Must set user email'
+      @registration_numbers ||= registration_numbers
 
-      if Flipper.enabled?(:accredited_representative_portal_self_service_auth)
-        @registration_numbers ||= registration_numbers
-
-        @registrations ||= @registration_numbers.map do |user_type, registration_number|
-          OpenStruct.new(
-            accredited_individual_registration_number: registration_number,
-            power_of_attorney_holder_type: map_user_type(user_type)
-          )
-        end
-      else
-        # When we remove this we can also remove email as a single field
-        @registrations ||= UserAccountAccreditedIndividual.for_user_account_email(
-          @email, user_account_icn: icn
+      @registrations ||= @registration_numbers.map do |user_type, registration_number|
+        OpenStruct.new(
+          accredited_individual_registration_number: registration_number,
+          power_of_attorney_holder_type: map_user_type(user_type)
         )
       end
     end
