@@ -29,7 +29,6 @@ describe PdfFill::Filler, type: :model do
     %w[21-674-V2].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].map { |type| [type, false, false] }
-        form_types.push(['overflow', true, false], ['overflow', true, true]) if form_id == '21-0781V2'
         form_types.each do |type, extras_redesign, show_jumplinks|
           context "with type=#{type} extras_redesign=#{extras_redesign} show_jumplinks=#{show_jumplinks}" do
             let(:form_data) do
@@ -47,8 +46,6 @@ describe PdfFill::Filler, type: :model do
 
               # this is only for 21-674-V2 but it passes in the extras hash. passing nil for all other scenarios
               student = form_id == '21-674-V2' ? form_data['dependents_application']['student_information'][0] : nil
-
-              expect(described_class).to receive(:stamp_form).once.and_call_original if extras_redesign
 
               file_path = described_class.fill_ancillary_form(form_data, 1, form_id,
                                                               { extras_redesign:, student:, show_jumplinks: })
