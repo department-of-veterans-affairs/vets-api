@@ -56,7 +56,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
         .with(hash_including(user_struct.to_h.stringify_keys))
         .and_return(user_struct)
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+        subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
       end.not_to raise_error
     end
 
@@ -65,7 +65,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
         .with(hash_including(icn: vet_info['veteran_information']['icn']))
         .and_return(user_struct)
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info)
+        subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info)
       end.not_to raise_error
     end
 
@@ -88,7 +88,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
                                service_name: 'dependents' } }
       )
 
-      subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+      subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
     end
   end
 
@@ -107,7 +107,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
       expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm674V2Job::Invalid674Claim)
 
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+        subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
       end.to raise_error(BGS::SubmitForm674V2Job::Invalid674Claim)
     end
 
@@ -119,7 +119,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
       expect(client_stub).to receive(:submit) { raise_nested_err }
 
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+        subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
       end.to raise_error(Sidekiq::JobRetry::Skip)
     end
   end
@@ -146,7 +146,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
                                service_name: 'dependents' } }
       )
 
-      subject.perform(user.uuid, user.icn, dependency_claim_674_only.id, encrypted_vet_info, encrypted_user_struct)
+      subject.perform(user.uuid, dependency_claim_674_only.id, encrypted_vet_info, encrypted_user_struct)
     end
   end
 end
