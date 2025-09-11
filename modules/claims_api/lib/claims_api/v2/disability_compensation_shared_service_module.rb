@@ -25,6 +25,10 @@ module ClaimsApi
         @valid_countries ||= brd.countries
       end
 
+      def service_branches
+        @service_branches ||= brd.service_branches
+      end
+
       def brd_classification_ids
         @brd_classification_ids ||= brd_disabilities&.pluck(:id)
       end

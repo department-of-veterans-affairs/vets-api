@@ -238,7 +238,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
       it 'maps the attributes correctly' do
         service_periods = evss_data[:serviceInformation][:servicePeriods][0]
 
-        expect(service_periods[:serviceBranch]).to eq('Public Health Service')
+        expect(service_periods[:serviceBranch]).to eq('PHS')
         expect(service_periods[:activeDutyBeginDate]).to eq('2008-11-14')
         expect(service_periods[:activeDutyEndDate]).to eq('2023-10-30')
         expect(service_periods[:serviceComponent]).to eq('Active')

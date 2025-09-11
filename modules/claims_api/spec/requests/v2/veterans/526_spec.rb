@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../rails_helper'
+require 'claims_api/v2/disability_compensation_shared_service_module'
 
 RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
   let(:scopes) { %w[claim.write claim.read] }
@@ -27,6 +28,13 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
   before do
     Timecop.freeze(Time.zone.now)
     allow_any_instance_of(ClaimsApi::EVSSService::Base).to receive(:submit).and_return OpenStruct.new(claimId: 1337)
+    # Mock BRD service_branches to include valid values from fixture
+    allow_any_instance_of(ClaimsApi::V2::DisabilityCompensationSharedServiceModule).to receive(:service_branches)
+      .and_return([
+                    { code: 'Public Health Service' }, # Used in fixture
+                    { code: 'ARMY' },
+                    { code: 'NAVY' }
+                  ])
   end
 
   after do

@@ -668,7 +668,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         fed_sep = serv_info[:federalActivation][:anticipatedSeparationDate]
         served_after_nine_eleven = serv_info[:servedInActiveCombatSince911]
 
-        expect(branch).to eq('Public Health Service')
+        expect(branch).to eq('PHS')
         expect(component).to eq('ACTIVE')
         expect(recent_start).to eq({ month: '11', day: '14', year: '2008' })
         expect(recent_end).to eq({ month: '10', day: '30', year: '2023' })
@@ -818,7 +818,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expected = { receivingMilitaryRetiredPay: 'NO', futureMilitaryRetiredPay: 'NO',
                      futureMilitaryRetiredPayExplanation: 'ABCDEFGHIJKLMNOPQRSTUVW',
                      receivedSeparationOrSeverancePay: 'YES',
-                     separationSeverancePay: { branchOfService: { branch: 'Naval Academy' } } }
+                     separationSeverancePay: { branchOfService: { branch: 'Navy' } } }
 
         expect(service_pay).to eq(expected)
       end

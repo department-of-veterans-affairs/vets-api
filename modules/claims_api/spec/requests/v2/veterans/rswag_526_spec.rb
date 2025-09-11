@@ -5,6 +5,7 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
+require 'claims_api/v2/disability_compensation_shared_service_module'
 
 describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   let(:scopes) { %w[system/claim.read system/claim.write] }
@@ -558,6 +559,14 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           context 'when federalActivation is present but obligationTermsOfService is missing' do
             def make_request(example)
               allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+              # Mock BRD service_branches to include valid values from fixture
+              allow_any_instance_of(ClaimsApi::V2::DisabilityCompensationSharedServiceModule)
+                .to receive(:service_branches)
+                .and_return([
+                              { code: 'Public Health Service' }, # Used in fixture
+                              { code: 'ARMY' },
+                              { code: 'NAVY' }
+                            ])
 
               with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
                 VCR.use_cassette('claims_api/disability_comp') do
@@ -653,6 +662,14 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           end
 
           before do |example|
+            # Mock BRD service_branches to include valid values from fixture
+            allow_any_instance_of(ClaimsApi::V2::DisabilityCompensationSharedServiceModule)
+              .to receive(:service_branches)
+              .and_return([
+                            { code: 'Public Health Service' }, # Used in fixture
+                            { code: 'ARMY' },
+                            { code: 'NAVY' }
+                          ])
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
@@ -761,6 +778,14 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           let(:data) { { data: { attributes: nil } } }
 
           before do |example|
+            # Mock BRD service_branches to include valid values from fixture
+            allow_any_instance_of(ClaimsApi::V2::DisabilityCompensationSharedServiceModule)
+              .to receive(:service_branches)
+              .and_return([
+                            { code: 'Public Health Service' }, # Used in fixture
+                            { code: 'ARMY' },
+                            { code: 'NAVY' }
+                          ])
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end

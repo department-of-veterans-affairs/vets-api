@@ -175,7 +175,7 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
         it 'maps service periods correctly' do
           periods = service_info[:servicePeriods]
           expect(periods).to be_an(Array)
-          expect(periods.first[:serviceBranch]).to eq('Public Health Service')
+          expect(periods.first[:serviceBranch]).to eq('PHS')
           expect(periods.first[:activeDutyBeginDate]).to eq('2008-11-14')
           expect(periods.first[:activeDutyEndDate]).to eq('2023-10-30')
         end

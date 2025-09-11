@@ -64,7 +64,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     let(:no_separation_code) do
       { 'servicePeriods' => [
         {
-          'serviceBranch' => 'Public Health Service',
+          'serviceBranch' => 'PHS',
           'serviceComponent' => 'Active',
           'activeDutyBeginDate' => '2008-11-14',
           'activeDutyEndDate' => '2023-10-30'
@@ -75,14 +75,14 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     let(:valid_and_invalid_separation_codes) do
       { 'servicePeriods' => [
         {
-          'serviceBranch' => 'Public Health Service',
+          'serviceBranch' => 'PHS',
           'serviceComponent' => 'Active',
           'activeDutyBeginDate' => '2008-11-14',
           'activeDutyEndDate' => '2023-10-30',
           'separationLocationCode' => '24912' # valid
         },
         {
-          'serviceBranch' => 'Public Health Service',
+          'serviceBranch' => 'PHS',
           'serviceComponent' => 'Active',
           'activeDutyBeginDate' => '2008-11-14',
           'activeDutyEndDate' => '2023-10-30',
@@ -94,14 +94,14 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     let(:valid_and_no_separation_codes) do
       { 'servicePeriods' => [
         {
-          'serviceBranch' => 'Public Health Service',
+          'serviceBranch' => 'PHS',
           'serviceComponent' => 'Active',
           'activeDutyBeginDate' => '2008-11-14',
           'activeDutyEndDate' => '2023-10-30',
           'separationLocationCode' => '24912' # valid
         },
         {
-          'serviceBranch' => 'Public Health Service',
+          'serviceBranch' => 'PHS',
           'serviceComponent' => 'Active',
           'activeDutyBeginDate' => '2008-11-14',
           'activeDutyEndDate' => '2023-10-30'
