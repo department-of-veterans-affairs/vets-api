@@ -5,7 +5,7 @@ require 'dependents_benefits/monitor'
 
 RSpec.describe DependentsBenefits::Monitor do
   let(:monitor) { described_class.new }
-  let(:claim) { DependentsBenefits::SavedClaim.create(id: 123, form: {}.to_json) }
+  let(:claim) { create(:dependents_claim) }
   let(:ipf) { create(:in_progress_form) }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }

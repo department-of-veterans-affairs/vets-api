@@ -49,10 +49,29 @@ set -euo pipefail
 
     for cert in *.{cer,pem}
     do
-        if file "${cert}" | grep 'PEM'
+        if file "${cert}" | grep -q 'PEM'
         then
             cp "${cert}" "${cert}.crt"
+        elif file "${cert}" | grep -q 'ASCII text'
+        then
+            # Handle base64-encoded DER (like VA-Internal-S2-ICA22.cer)
+            if base64 -d "${cert}" > "${cert}.der" && [ -s "${cert}.der" ]
+            then
+                if openssl x509 -in "${cert}.der" -inform der -outform pem -out "${cert}.crt"
+                then
+                    rm "${cert}.der"
+                else
+                    echo "Error: Failed to convert ${cert} from DER to PEM format"
+                    rm -f "${cert}.der" "${cert}.crt"
+                    exit 1
+                fi
+            else
+                echo "Error: Failed to decode base64 data in ${cert}"
+                rm -f "${cert}.der"
+                exit 1
+            fi
         else
+            # Binary DER format
             openssl x509 -in "${cert}" -inform der -outform pem -out "${cert}.crt"
         fi
         rm "${cert}"

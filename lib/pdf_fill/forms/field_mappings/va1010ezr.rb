@@ -264,22 +264,22 @@ module PdfFill
               key: 'F[0].P4[0].ChildName[0]',
               limit: 42,
               question_num: 4.07,
-              question_text: "CHILD'S NAME (Last, First, Middle Name)."
+              question_text: 'NAME (Last, First, Middle Name).'
             },
             'dateOfBirth' => {
               key: 'F[0].P4[0].ChildDateofBirth[0]',
               question_num: 4.08,
-              question_text: "CHILD'S DATE OF BIRTH."
+              question_text: 'DATE OF BIRTH.'
             },
             'socialSecurityNumber' => {
               key: 'F[0].P4[0].ChildSSN[0]',
               question_num: 4.09,
-              question_text: "CHILD'S SOCIAL SECURITY NUMBER."
+              question_text: 'SOCIAL SECURITY NUMBER.'
             },
             'becameDependent' => {
               key: 'F[0].P4[0].DateDependent[0]',
               question_num: 4.10,
-              question_text: 'DATE CHILD BECAME YOUR DEPENDENT.'
+              question_text: 'DATE BECAME YOUR DEPENDENT.'
             },
             'dependentRelation' => {
               key: 'F[0].P4[0].Relationship[0]',
@@ -299,20 +299,24 @@ module PdfFill
               question_text: 'EXPENSES PAID BY YOUR DEPENDENT CHILD WITH REPORTABLE INCOME FOR COLLEGE, ' \
                              'VOCATIONAL REHABILITATION OR TRAINING (e.g., tuition, books, materials). '
             },
+            'receivedSupportLastYear' => {
+              question_num: 5.1,
+              question_text: 'IF YOUR DEPENDENT DID NOT LIVE WITH YOU LAST YEAR, DID YOU PROVIDE SUPPORT?'
+            },
             'grossIncome' => {
               key: 'F[0].P5[0].Table1[0].#subform[1].Amount[2]',
               question_num: 5.1,
-              question_text: 'CHILD GROSS ANNUAL INCOME. Enter dollar amount.'
+              question_text: 'GROSS ANNUAL INCOME. Enter dollar amount.'
             },
             'netIncome' => {
               key: 'F[0].P5[0].Table1[0].#subform[2].Amount[5]',
               question_num: 5.2,
-              question_text: 'CHILD NET INCOME. Enter dollar amount.'
+              question_text: 'NET INCOME. Enter dollar amount.'
             },
             'otherIncome' => {
               key: 'F[0].P5[0].Table1[0].#subform[3].Amount[8]',
               question_num: 5.3,
-              question_text: 'CHILD OTHER INCOME. Enter dollar amount.'
+              question_text: 'OTHER INCOME. Enter dollar amount.'
             }
           },
           'provideSupportLastYear' => {

@@ -105,7 +105,6 @@ module VAProfile
       #
       # @return [String] JSON-encoded string suitable for requests to VAProfile
       #
-      # rubocop:disable Metrics/MethodLength
       def in_json
         {
           bio: {
@@ -122,38 +121,12 @@ module VAProfile
             textMessageCapableInd: @is_textable,
             textMessagePermInd: @is_text_permitted,
             ttyInd: @is_tty,
-            vet360Id: @vet360_id || @vaProfileId,
             voiceMailAcceptableInd: @is_voicemailable,
             effectiveStartDate: @effective_start_date,
             effectiveEndDate: @effective_end_date
           }
         }.to_json
       end
-
-      # in_json_v2 will replace in_json when Contact Information V1 Service has depreciated
-      def in_json_v2
-        {
-          bio: {
-            areaCode: @area_code,
-            countryCode: @country_code,
-            internationalIndicator: @is_international,
-            originatingSourceSystem: SOURCE_SYSTEM,
-            phoneNumber: @phone_number,
-            phoneNumberExt: @extension,
-            phoneType: @phone_type,
-            sourceDate: @source_date,
-            sourceSystemUser: @source_system_user,
-            telephoneId: @id,
-            textMessageCapableInd: @is_textable,
-            textMessagePermInd: @is_text_permitted,
-            ttyInd: @is_tty,
-            voiceMailAcceptableInd: @is_voicemailable,
-            effectiveStartDate: @effective_start_date,
-            effectiveEndDate: @effective_end_date
-          }
-        }.to_json
-      end
-      # rubocop:enable Metrics/MethodLength
 
       # Converts a decoded JSON response from VAProfile to an instance of the Telephone model
       # @param body [Hash] the decoded response body from VAProfile

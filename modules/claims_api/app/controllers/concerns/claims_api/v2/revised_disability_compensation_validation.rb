@@ -265,6 +265,55 @@ module ClaimsApi
       def validate_veteran!
         # FES Val Section 5.b: mailingAddress validations
         validate_current_mailing_address!
+        # FES Val Section 5.c: changeOfAddress validations
+        validate_change_of_address!
+      end
+
+      # FES Val Section 5.c: changeOfAddress validations
+      def validate_change_of_address!
+        change_of_address = form_attributes['changeOfAddress']
+        return if change_of_address.blank?
+
+        # FES Val Section 5.c.i-ii: Validate date requirements
+        validate_change_of_address_dates!(change_of_address)
+        # FES Val Section 5.c.iii-iv: Validate date logic
+        validate_change_of_address_date_logic!(change_of_address)
+        # FES Val Section 5.c.v-x: Validate address fields based on type
+        validate_change_of_address_fields!(change_of_address)
+      end
+
+      # FES Val Section 5.c.iii-iv: Date validation logic
+      def validate_change_of_address_date_logic!(change_of_address)
+        return if change_of_address['typeOfAddressChange'] != 'TEMPORARY'
+
+        begin_date = parse_date_safely(change_of_address.dig('dates', 'beginDate'))
+        end_date = parse_date_safely(change_of_address.dig('dates', 'endDate'))
+
+        # FES Val Section 5.c.iii: beginningDate must be in the future if TEMPORARY
+        validate_temporary_begin_date_future!(begin_date)
+
+        # FES Val Section 5.c.iv: beginningDate and endingDate must be in chronological order
+        validate_dates_chronological_order!(begin_date, end_date)
+      end
+
+      def validate_temporary_begin_date_future!(begin_date)
+        return if begin_date.blank? || begin_date > Date.current
+
+        collect_error(
+          source: '/changeOfAddress/dates/beginDate',
+          title: 'Invalid beginningDate',
+          detail: "BeginningDate cannot be in the past: #{begin_date}"
+        )
+      end
+
+      def validate_dates_chronological_order!(begin_date, end_date)
+        return if begin_date.blank? || end_date.blank? || begin_date <= end_date
+
+        collect_error(
+          source: '/changeOfAddress/dates/beginDate',
+          title: 'Invalid beginningDate',
+          detail: "BeginningDate cannot be after endingDate: #{begin_date}"
+        )
       end
 
       # FES Val Section 5.b: mailingAddress validations
@@ -348,6 +397,143 @@ module ClaimsApi
             detail: 'InternationalPostalCode is required for non-USA addresses'
           )
         end
+      end
+
+      # FES Val Section 5.c.i-ii: Date requirements validation
+      def validate_change_of_address_dates!(change_of_address)
+        if change_of_address['typeOfAddressChange'] == 'TEMPORARY'
+          validate_temporary_address_dates!(change_of_address)
+        elsif change_of_address['typeOfAddressChange'] == 'PERMANENT'
+          validate_permanent_address_dates!(change_of_address)
+        end
+      end
+
+      def validate_temporary_address_dates!(change_of_address)
+        # FES Val Section 5.c.i: TEMPORARY requires beginDate and endDate
+        dates = change_of_address['dates'] || {}
+
+        if dates['beginDate'].blank?
+          collect_error(
+            source: '/changeOfAddress/dates/beginDate',
+            title: 'Missing beginningDate',
+            detail: 'beginningDate is required for temporary address'
+          )
+        end
+
+        if dates['endDate'].blank?
+          collect_error(
+            source: '/changeOfAddress/dates/endDate',
+            title: 'Missing endingDate',
+            detail: 'EndingDate is required for temporary address'
+          )
+        end
+      end
+
+      def validate_permanent_address_dates!(change_of_address)
+        # FES Val Section 5.c.ii: PERMANENT cannot have endDate
+        return if change_of_address.dig('dates', 'endDate').blank?
+
+        collect_error(
+          source: '/changeOfAddress/dates/endDate',
+          title: 'Cannot provide endingDate',
+          detail: 'EndingDate cannot be provided for a permanent address'
+        )
+      end
+
+      # FES Val Section 5.c.v-viii: Address field validations
+      def validate_change_of_address_fields!(change_of_address)
+        # Determine address type based on country field (schema doesn't have addressChangeType)
+        country = change_of_address['country']
+
+        if country == 'USA'
+          # FES Val Section 5.c.v: DOMESTIC address validations
+          validate_domestic_change_of_address!(change_of_address)
+        elsif country.present?
+          # FES Val Section 5.c.vi & 5.c.viii: INTERNATIONAL address validations
+          validate_international_change_of_address!(change_of_address)
+        end
+
+        # NOTE: Military address fields don't exist in v2 schema
+        # NOTE: FES Val Section 5.c.ix (country validation) is CROSSED OUT - not implementing
+        # NOTE: FES Val Section 5.c.x (BRD error handling) is CROSSED OUT - not implementing
+      end
+
+      def validate_domestic_change_of_address!(change_of_address)
+        validate_domestic_city!(change_of_address)
+        validate_domestic_state!(change_of_address)
+        validate_domestic_zip!(change_of_address)
+      end
+
+      def validate_domestic_city!(change_of_address)
+        # FES Val Section 5.c.v: city, state and zipCode required for DOMESTIC
+        return if change_of_address['city'].present?
+
+        collect_error(
+          source: '/changeOfAddress/city',
+          title: 'Missing city',
+          detail: 'City is required'
+        )
+      end
+
+      def validate_domestic_state!(change_of_address)
+        # FES Val Section 5.c.v: city, state and zipCode required for DOMESTIC
+        return if change_of_address['state'].present?
+
+        collect_error(
+          source: '/changeOfAddress/state',
+          title: 'Missing state',
+          detail: 'State is required'
+        )
+      end
+
+      def validate_domestic_zip!(change_of_address)
+        # FES Val Section 5.c.v: city, state and zipCode required for DOMESTIC
+        return if change_of_address['zipFirstFive'].present?
+
+        collect_error(
+          source: '/changeOfAddress/zipFirstFive',
+          title: 'Missing zipFirstFive',
+          detail: 'ZipFirstFive is required'
+        )
+      end
+
+      def validate_international_change_of_address!(change_of_address)
+        validate_intl_change_city!(change_of_address)
+        validate_intl_change_country!(change_of_address)
+        validate_intl_change_postal_code!(change_of_address)
+      end
+
+      def validate_intl_change_city!(change_of_address)
+        # FES Val Section 5.c.vi: city and country required for INTERNATIONAL
+        return if change_of_address['city'].present?
+
+        collect_error(
+          source: '/changeOfAddress/city',
+          title: 'Missing city',
+          detail: 'City is required'
+        )
+      end
+
+      def validate_intl_change_country!(change_of_address)
+        # FES Val Section 5.c.vi: city and country required for INTERNATIONAL
+        return if change_of_address['country'].present?
+
+        collect_error(
+          source: '/changeOfAddress/country',
+          title: 'Missing country',
+          detail: 'Country is required'
+        )
+      end
+
+      def validate_intl_change_postal_code!(change_of_address)
+        # FES Val Section 5.c.viii: internationalPostalCode required for INTERNATIONAL
+        return if change_of_address['internationalPostalCode'].present?
+
+        collect_error(
+          source: '/changeOfAddress/internationalPostalCode',
+          title: 'Missing internationalPostalCode',
+          detail: 'InternationalPostalCode is required'
+        )
       end
 
       # Utility methods grouped at the bottom
