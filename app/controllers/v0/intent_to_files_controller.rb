@@ -132,8 +132,8 @@ module V0
     def validate_data(user, method, form_id, itf_type)
       if Flipper.enabled?(:pension_itf_validate_data_logger, user)
         context = {
-          user_icn: user.icn.present?,
-          user_participant_id: user.participant_id.present?,
+          user_icn_present: user.icn.present?,
+          user_participant_id_present: user.participant_id.present?,
           itf_type:,
           user_uuid: user.uuid
         }
