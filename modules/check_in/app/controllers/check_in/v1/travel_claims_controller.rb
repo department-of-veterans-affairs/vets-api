@@ -50,13 +50,7 @@ module CheckIn
         return unless start_time
 
         duration_ms = ((Time.current - start_time) * 1000).round
-        facility_type = permitted_params[:facility_type]
-
-        if facility_type == 'vamc'
-          StatsD.measure('api.check_in.travel_claim.request.duration', duration_ms)
-        else
-          StatsD.measure('api.oracle_health.travel_claim.request.duration', duration_ms)
-        end
+        StatsD.measure('api.check_in.travel_claim.request.duration', duration_ms)
       end
     end
   end
