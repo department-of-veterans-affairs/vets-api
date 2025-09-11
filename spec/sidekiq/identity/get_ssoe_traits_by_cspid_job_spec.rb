@@ -36,22 +36,46 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
     allow(StatsD).to receive(:increment)
   end
 
-  shared_examples 'service call failure' do
+  shared_examples 'service call failure' do |should_raise: true|
     it 'logs failure and increments failure metric' do
-      expect(StatsD).to receive(:increment).with('worker.get_ssoe_traits_by_cspid.failure', anything)
-      expect(Rails.logger).to receive(:error).with(/\[GetSSOeTraitsByCspidJob\].*/)
-      job.perform(cache_key, credential_method, credential_id)
+      expect(StatsD).to receive(:increment).with(
+        'get_ssoe_traits_by_cspid.failure',
+        tags: ["credential_method:#{credential_method}"]
+      )
+
+      expect(Rails.logger).to receive(:error).with(
+        /\[GetSSOeTraitsByCspidJob\] .*/,
+        hash_including(credential_method:, credential_id:)
+      )
+
+      if should_raise
+        expect do
+          job.perform(cache_key, credential_method, credential_id)
+        end.to raise_error(StandardError)
+      else
+        expect do
+          job.perform(cache_key, credential_method, credential_id)
+        end.not_to raise_error
+      end
     end
   end
 
   context 'when service call is successful' do
+    let(:icn) { 'icn-12345' }
+
     before do
-      allow_any_instance_of(SSOe::Service).to receive(:get_traits).and_return({ success: true, icn: 'icn-12345' })
+      allow_any_instance_of(SSOe::Service).to receive(:get_traits).and_return({ success: true, icn: })
     end
 
     it 'logs success and increments success metric' do
-      expect(Rails.logger).to receive(:info).with(/\[GetSSOeTraitsByCspidJob\] SSOe::Service.get_traits success/)
-      expect(StatsD).to receive(:increment).with('worker.get_ssoe_traits_by_cspid.success', anything)
+      expect(Rails.logger).to receive(:info).with(
+        '[GetSSOeTraitsByCspidJob] SSOe::Service.get_traits success',
+        hash_including(icn:, credential_method:, credential_id:)
+      )
+
+      expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.success',
+                                                 tags: ["credential_method:#{credential_method}"])
+      expect(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
 
       job.perform(cache_key, credential_method, credential_id)
     end
@@ -77,14 +101,18 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
         allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(nil)
       end
 
-      it 'logs failure and returns early' do
-        expect(Rails.logger).to receive(:error).with(/\[GetSSOeTraitsByCspidJob\] Missing attributes in Redis/)
-        expect(StatsD).to receive(:increment).with('worker.get_ssoe_traits_by_cspid.failure', anything)
+      it 'logs failure and returns early without raising' do
+        expect(Rails.logger).to receive(:error).with(
+          '[GetSSOeTraitsByCspidJob] Missing attributes in Redis for key',
+          hash_including(credential_method:, credential_id:)
+        )
+
+        expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.failure',
+                                                   tags: ["credential_method:#{credential_method}"])
+        expect(Sidekiq::AttrPackage).not_to receive(:delete)
 
         job.perform(cache_key, credential_method, credential_id)
       end
-
-      it_behaves_like 'service call failure'
     end
 
     context 'when user is invalid' do
@@ -93,14 +121,20 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
         allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(invalid_attrs)
       end
 
-      it 'logs failure due to validation and returns early' do
-        expect(Rails.logger).to receive(:error).with(/Invalid user attributes/)
-        expect(StatsD).to receive(:increment).with('worker.get_ssoe_traits_by_cspid.failure', anything)
+      it 'logs validation failure and returns early' do
+        expect(Rails.logger).to receive(:error).with(
+          /Invalid user attributes/,
+          hash_including(credential_method:, credential_id:)
+        )
+
+        expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.failure',
+                                                   tags: ["credential_method:#{credential_method}"])
+        expect(Sidekiq::AttrPackage).not_to receive(:delete)
 
         job.perform(cache_key, credential_method, credential_id)
       end
 
-      it_behaves_like 'service call failure'
+      it_behaves_like 'service call failure', should_raise: false
     end
 
     context 'when an unhandled exception occurs' do
@@ -110,30 +144,35 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
 
       it 'logs and re-raises the exception' do
         expect(Rails.logger).to receive(:error).with(
-          /\[GetSSOeTraitsByCspidJob\] Unhandled exception: StandardError - Unexpected crash/
+          '[GetSSOeTraitsByCspidJob] Unhandled exception: StandardError - Unexpected crash',
+          hash_including(credential_method:, credential_id:)
         )
-        expect(StatsD).to receive(:increment).with('worker.get_ssoe_traits_by_cspid.failure', anything)
+
+        expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.failure',
+                                                   tags: ["credential_method:#{credential_method}"])
 
         expect do
           job.perform(cache_key, credential_method, credential_id)
         end.to raise_error(StandardError, /Unexpected crash/)
       end
+
+      it_behaves_like 'service call failure'
     end
 
-    it 'logs failure and increments failure metric' do
-      expect(Rails.logger).to receive(:error).with(/\[GetSSOeTraitsByCspidJob\] SSOe::Service.get_traits failed/)
-      expect(StatsD).to receive(:increment).with('worker.get_ssoe_traits_by_cspid.failure', anything)
+    it 'logs failure, increments metric, does not delete cache, and raises' do
+      expect(Rails.logger).to receive(:error).with(
+        '[GetSSOeTraitsByCspidJob] SSOe::Service.get_traits failed',
+        hash_including(credential_method:, credential_id:, error: error_response[:error])
+      )
 
-      job.perform(cache_key, credential_method, credential_id)
+      expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.failure',
+                                                 tags: ["credential_method:#{credential_method}"])
+      expect(Sidekiq::AttrPackage).not_to receive(:delete)
+
+      expect do
+        job.perform(cache_key, credential_method, credential_id)
+      end.to raise_error(/SSOe::Service.get_traits failed/)
     end
-  end
-
-  it 'always deletes the cache key' do
-    allow_any_instance_of(SSOe::Service).to receive(:get_traits).and_return({ success: true, icn: 'icn-12345' })
-
-    expect(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
-
-    job.perform(cache_key, credential_method, credential_id)
   end
 end
 # rubocop:enable RSpec/SpecFilePathFormat

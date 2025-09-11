@@ -10,34 +10,36 @@ module Identity
       attributes = Sidekiq::AttrPackage.find(cache_key)
 
       unless attributes
-        log_failure("Missing attributes in Redis for key: #{cache_key}", cache_key)
+        log_failure('Missing attributes in Redis for key', credential_method, credential_id)
         return
       end
 
       user = build_user(attributes)
       address = build_address(attributes)
 
-      return unless validate_user(user, cache_key)
+      return unless validate_user(user, credential_method, credential_id)
 
       response = SSOe::Service.new.get_traits(credential_method:, credential_id:, user:, address:)
 
       if response[:success]
-        log_success("SSOe::Service.get_traits success - ICN: #{response[:icn]}", cache_key)
+        log_success(response[:icn], credential_method, credential_id)
+        StatsD.increment('get_ssoe_traits_by_cspid.success', tags: ["credential_method:#{credential_method}"])
+        Sidekiq::AttrPackage.delete(cache_key)
       else
-        log_failure("SSOe::Service.get_traits failed - #{response[:error].inspect}", cache_key)
+        log_failure('SSOe::Service.get_traits failed', credential_method, credential_id, response[:error])
+        raise "SSOe::Service.get_traits failed - #{response[:error].inspect}"
       end
     rescue => e
-      log_failure("Unhandled exception: #{e.class} - #{e.message}", cache_key)
+      log_failure("Unhandled exception: #{e.class} - #{e.message}", credential_method, credential_id)
       raise
-    ensure
-      Sidekiq::AttrPackage.delete(cache_key)
     end
 
     private
 
-    def validate_user(user, cache_key)
+    def validate_user(user, credential_method, credential_id)
       unless user.valid?
-        log_failure("Invalid user attributes: #{user.errors.full_messages.join(', ')}", cache_key)
+        log_failure("Invalid user attributes: #{user.errors.full_messages.join(', ')}", credential_method,
+                    credential_id)
         return false
       end
       true
@@ -63,14 +65,24 @@ module Identity
       )
     end
 
-    def log_success(message, cache_key)
-      Rails.logger.info("[GetSSOeTraitsByCspidJob] #{message}")
-      StatsD.increment('worker.get_ssoe_traits_by_cspid.success', tags: ["cache_key:#{cache_key}"])
+    def log_success(icn, credential_method, credential_id)
+      Rails.logger.info(
+        '[GetSSOeTraitsByCspidJob] SSOe::Service.get_traits success',
+        icn:,
+        credential_method:,
+        credential_id:
+      )
     end
 
-    def log_failure(message, cache_key)
-      Rails.logger.error("[GetSSOeTraitsByCspidJob] #{message}")
-      StatsD.increment('worker.get_ssoe_traits_by_cspid.failure', tags: ["cache_key:#{cache_key}"])
+    def log_failure(message, credential_method, credential_id, error = nil)
+      log_payload = {
+        credential_method:,
+        credential_id:
+      }
+      log_payload[:error] = error if error
+
+      Rails.logger.error("[GetSSOeTraitsByCspidJob] #{message}", log_payload)
+      StatsD.increment('get_ssoe_traits_by_cspid.failure', tags: ["credential_method:#{credential_method}"])
     end
   end
 end
