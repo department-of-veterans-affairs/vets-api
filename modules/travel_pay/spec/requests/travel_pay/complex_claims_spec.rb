@@ -240,45 +240,87 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
         context 'when there are errors' do
           context 'when claims service raises Faraday::ClientError' do
             before do
-              response_obj = { status: 400, body: nil }
-              allow(claims_service).to receive(:submit_claim)
-                .with(claim_id)
-                .and_raise(Faraday::ClientError.new('400 Bad Request', response_obj))
               allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
                 .to receive(:claims_service).and_return(claims_service)
             end
 
-            it 'returns 400 Bad Request' do
+            it 'falls back to :bad_request - 400 error, when response is nil' do
+              error = Faraday::ClientError.new('Connection failed', nil)
+              allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
+
               post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+
               expect(response).to have_http_status(:bad_request)
-              expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Invalid request for complex claim')
+              body = JSON.parse(response.body)
+              expect(body['errors'].first['detail']).to eq('Invalid request for complex claim')
             end
 
-            it 'returns 400 if claim is missing a document' do
-              response_obj = { status: 400, body: 'Missing document for expense' }
-              allow(claims_service).to receive(:submit_claim)
-                .with(claim_id)
-                .and_raise(Faraday::ClientError.new('400 Bad Request', response_obj))
+            it 'uses status from Faraday response and shows default message when its blank' do
+              error = Faraday::ClientError.new('Connection failed', { status: 429, body: '' })
+              allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
+
               post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
 
-              expect(response).to have_http_status(:bad_request)
-              expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Missing document for expense')
+              expect(response).to have_http_status(:too_many_requests)
+              body = JSON.parse(response.body)
+              expect(body['errors'].first['detail']).to eq('Invalid request for complex claim')
+            end
+
+            it 'uses status from Faraday response if present (e.g. 429)' do
+              error = Faraday::ClientError.new(
+                '429 Too Many Requests',
+                { status: 429, body: 'Rate limit exceeded' }
+              )
+              allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
+
+              post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+
+              expect(response).to have_http_status(:too_many_requests)
+              body = JSON.parse(response.body)
+              expect(body['errors'].first['detail']).to eq('Rate limit exceeded')
             end
           end
 
-          context 'when claims service raises ArgumentError' do
+          context 'when claims service raises ServerError' do
             before do
-              allow(claims_service).to receive(:submit_claim)
-                .with(claim_id)
-                .and_raise(ArgumentError.new('Something is wrong'))
               allow_any_instance_of(TravelPay::V0::ComplexClaimsController)
                 .to receive(:claims_service).and_return(claims_service)
             end
 
-            it 'returns 500 Internal Server Error' do
+            it 'falls back to :internal_server_error when response is nil' do
+              error = Faraday::ServerError.new('Service unavailable', nil)
+              allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
+
               post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+
               expect(response).to have_http_status(:internal_server_error)
-              expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Internal server error')
+              body = JSON.parse(response.body)
+              expect(body['errors'].first['detail']).to eq('Server error submitting complex claim')
+            end
+
+            it 'uses status from Faraday response and shows default message when body is blank' do
+              error = Faraday::ServerError.new('Service Unavailable', { status: 503, body: '' })
+              allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
+
+              post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+
+              expect(response).to have_http_status(:service_unavailable)
+              body = JSON.parse(response.body)
+              expect(body['errors'].first['detail']).to eq('Server error submitting complex claim')
+            end
+
+            it 'uses status from Faraday response if present (e.g. 503)' do
+              error = Faraday::ClientError.new(
+                'Service Unavailable',
+                { status: 503, body: 'TravelPay service is temporarily unavailable' }
+              )
+              allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
+
+              post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+
+              expect(response).to have_http_status(:service_unavailable)
+              body = JSON.parse(response.body)
+              expect(body['errors'].first['detail']).to eq('TravelPay service is temporarily unavailable')
             end
           end
         end
