@@ -241,7 +241,21 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
         end
 
         context 'when there are errors' do
+          it 'falls back to :internal_server_error - 500, when Faraday::Error and response is nil' do
+            error = Faraday::ConnectionFailed.new('Failed to open TCP connection')
+            allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
+
+            post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+            expect(response).to have_http_status(:internal_server_error)
+            body = JSON.parse(response.body)
+            expect(body['errors'].first['detail']).to eq('Error creating complex claim')
+          end
+
           context 'when claims service raises Faraday::ClientError' do
+            # This simulates a rare edge case where a Faraday::ClientError is raised
+            # without a response object (e.response is nil). Normally Faraday provides
+            # a response, but we test this fallback path to ensure the controller still
+            # returns a structured 400 Bad Request error.
             it 'falls back to :bad_request - 400 error, when response is nil' do
               error = Faraday::ClientError.new('Connection failed', nil)
               allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
@@ -277,6 +291,10 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
           end
 
           context 'when claims service raises ServerError' do
+            # This simulates a rare edge case where a Faraday::ServerError is raised
+            # without a response object (e.response is nil). Normally Faraday includes
+            # a response with a status code, but this ensures we gracefully fall back
+            # to returning a 500 Internal Server Error with a consistent error payload.
             it 'falls back to :internal_server_error - 500, when response is nil' do
               error = Faraday::ServerError.new('Service unavailable', nil)
               allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)

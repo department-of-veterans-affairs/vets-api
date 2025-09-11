@@ -28,6 +28,9 @@ module TravelPay
       rescue Faraday::ServerError => e
         # 500-level errors
         handle_faraday_error(e, 'Server error submitting complex claim', log_prefix: 'Submitting complex claim: ')
+      rescue Faraday::Error => e
+        # Catch all for Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::SSLError
+        handle_faraday_error(e, 'Error creating complex claim', log_prefix: 'Submitting complex claim: ')
       end
 
       def create
