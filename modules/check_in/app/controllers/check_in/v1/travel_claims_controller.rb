@@ -8,8 +8,6 @@ module CheckIn
       before_action :authorize_travel_reimbursement
 
       def create
-        start_time = Time.current
-
         check_in_session = CheckIn::V2::Session.build(
           data: { uuid: permitted_params[:uuid] },
           jwt: low_auth_token
@@ -21,8 +19,6 @@ module CheckIn
         end
 
         submit_travel_claim(check_in_session)
-      ensure
-        log_request_duration(start_time)
       end
 
       def permitted_params
@@ -44,13 +40,6 @@ module CheckIn
         ).submit_claim
 
         render json: result, status: :ok
-      end
-
-      def log_request_duration(start_time)
-        return unless start_time
-
-        duration_ms = ((Time.current - start_time) * 1000).round
-        StatsD.measure('api.check_in.travel_claim.request.duration', duration_ms)
       end
     end
   end
