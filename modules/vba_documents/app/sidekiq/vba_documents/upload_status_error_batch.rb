@@ -9,7 +9,6 @@ module VBADocuments
   class UploadStatusErrorBatch
     include Sidekiq::Job
 
-    # No need to retry since the schedule will run this every hour
     sidekiq_options retry: 9, unique_for: 6.hours
 
     BATCH_SIZE = 100
