@@ -711,12 +711,12 @@ lighthouse:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__aud_claim_url'] %>
       client_id: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__client_id'] %>
-      rsa_key:   <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__rsa_key'] %>
+      rsa_key: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__rsa_key'] %>
     host: <%= ENV['lighthouse__healthcare_cost_and_coverage__host'] %>
     scopes:
-      - system/ChargeItem.read
-      - system/Invoice.read
-      - launch
+    - system/ChargeItem.read
+    - system/Invoice.read
+    - launch
     timeout: 30
     use_mocks: false
   letters_generator:
