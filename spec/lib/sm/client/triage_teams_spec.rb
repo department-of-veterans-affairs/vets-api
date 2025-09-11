@@ -27,7 +27,7 @@ describe 'sm client' do
       it 'does not cache triage teams' do
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_triage_team_recipients' do
           allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_no_cache).and_return(true)
-          folders = client.get_triage_teams('1234', false)
+          client.get_triage_teams('1234', false)
           expect(TriageTeam.get_cached('1234-triage-teams')).to be_nil
         end
       end
@@ -35,7 +35,7 @@ describe 'sm client' do
       it 'does not cache all triage teams' do
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
           allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_no_cache).and_return(true)
-          folders = client.get_all_triage_teams('1234', false)
+          client.get_all_triage_teams('1234', false)
           expect(AllTriageTeams.get_cached('1234-all-triage-teams')).to be_nil
         end
       end
@@ -45,7 +45,7 @@ describe 'sm client' do
       it 'does cache triage teams' do
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_triage_team_recipients' do
           allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_no_cache).and_return(false)
-          folders = client.get_triage_teams('1234', false)
+          client.get_triage_teams('1234', false)
           expect(TriageTeam.get_cached('1234-triage-teams').class).to eq(Array)
         end
       end
@@ -53,7 +53,7 @@ describe 'sm client' do
       it 'does cache all triage teams' do
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
           allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_no_cache).and_return(false)
-          folders = client.get_all_triage_teams('1234', false)
+          client.get_all_triage_teams('1234', false)
           expect(AllTriageTeams.get_cached('1234-all-triage-teams').class).to eq(Array)
         end
       end
