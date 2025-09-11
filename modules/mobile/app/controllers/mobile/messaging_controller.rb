@@ -12,7 +12,8 @@ module Mobile
     protected
 
     def client
-      @client ||= Mobile::V0::Messaging::Client.new(session: { user_id: current_user.mhv_correlation_id })
+      @client ||= Mobile::V0::Messaging::Client.new(session: { user_uuid: current_user.user_account_uuid,
+                                                               user_id: current_user.mhv_correlation_id })
     end
 
     def authorize
