@@ -170,6 +170,9 @@ module ClaimsApi
       # Convert 12-05-1984 to 1984-12-05 for Docker container
       def format_service_periods(service_periods)
         service_periods.each do |sp|
+          # Map service branch to abbreviated form
+          sp[:serviceBranch] = abbreviate_service_branch(sp[:serviceBranch]) if sp[:serviceBranch]
+
           next if sp[:activeDutyBeginDate].nil?
 
           begin_year = Date.strptime(sp[:activeDutyBeginDate], '%Y-%m-%d')
@@ -179,6 +182,16 @@ module ClaimsApi
           end_year = Date.strptime(sp[:activeDutyEndDate], '%Y-%m-%d')
           sp[:activeDutyEndDate] = end_year.strftime('%Y-%m-%d')
         end
+      end
+
+      def abbreviate_service_branch(branch)
+        # Map full service branch names to their abbreviations
+        service_branch_abbreviations = {
+          'Public Health Service' => 'PHS',
+          'Naval Academy' => 'Navy'
+        }
+
+        service_branch_abbreviations[branch] || branch
       end
 
       def format_confinements(confinements)

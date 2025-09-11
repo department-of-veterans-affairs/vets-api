@@ -311,11 +311,21 @@ module ClaimsApi
         # FES doesn't need date reformatting like EVSS does
         service_periods.map do |sp|
           {
-            serviceBranch: sp[:serviceBranch],
+            serviceBranch: abbreviate_service_branch(sp[:serviceBranch]),
             activeDutyBeginDate: sp[:activeDutyBeginDate],
             activeDutyEndDate: sp[:activeDutyEndDate]
           }.compact_blank
         end
+      end
+
+      def abbreviate_service_branch(branch)
+        # Map full service branch names to their abbreviations
+        service_branch_abbreviations = {
+          'Public Health Service' => 'PHS',
+          'Naval Academy' => 'Navy'
+        }
+
+        service_branch_abbreviations[branch] || branch
       end
 
       def format_confinements(confinements)

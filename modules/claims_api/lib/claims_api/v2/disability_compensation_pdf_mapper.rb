@@ -574,7 +574,7 @@ module ClaimsApi
           end
         end
         @pdf_data[:data][:attributes][:serviceInformation].merge!(branchOfService: {
-                                                                    branch: most_recent_period[:serviceBranch]
+                                                                    branch: abbreviate_service_branch(most_recent_period[:serviceBranch])
                                                                   })
         most_recent_period
       end
@@ -747,7 +747,17 @@ module ClaimsApi
       end
 
       def handle_branch(branch)
-        { branch: }
+        { branch: abbreviate_service_branch(branch) }
+      end
+
+      def abbreviate_service_branch(branch)
+        # Map full service branch names to their abbreviations
+        service_branch_abbreviations = {
+          'Public Health Service' => 'PHS',
+          'Naval Academy' => 'Navy'
+        }
+
+        service_branch_abbreviations[branch] || branch
       end
 
       def handle_service_pay
