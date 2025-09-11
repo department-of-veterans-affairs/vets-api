@@ -392,8 +392,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
         {
           'disabilityActionType' => 'NEW',
           'name' => 'Arthritis',
-          'serviceRelevance' => 'Caused by in-service injury',
-          'approximateBeginDate' => '2018-03-02'
+          'serviceRelevance' => 'Caused by in-service injury'
         },
         {
           'disabilityActionType' => 'NEW',
@@ -477,7 +476,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
 
       expect(disabilities_base[0][:disability]).to eq('Arthritis')
       expect(disabilities_base[0][:serviceRelevance]).to eq('Caused by in-service injury')
-      expect(disabilities_base[0][:approximateDate]).to eq('03/02/2018')
+      expect(disabilities_base[0]).not_to have_key(:approximateDate)
       expect(disabilities_base[1][:disability]).to eq('Left Knee Injury')
       expect(disabilities_base[1][:serviceRelevance]).to be_nil
       expect(disabilities_base[1][:approximateDate]).to eq('04/02/2018')

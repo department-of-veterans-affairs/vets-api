@@ -289,31 +289,40 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:claimInformation][:disabilities] = {}
       end
 
-      def transform_disabilities # rubocop:disable Metrics/MethodLength
-        [].tap do |disabilities_list|
-          @auto_claim&.dig('disabilities')&.map do |disability|
-            dis_name = disability['name']
-            begin_date = disability['approximateBeginDate']
-            dis_date = make_date_string_month_first(begin_date, begin_date.length) if begin_date.present?
-            service_relevance = disability['serviceRelevance']
+      def transform_disabilities
+        @auto_claim['disabilities'].flat_map do |disability|
+          primary_disability = build_primary_disability(disability)
+          secondary_disabilities = if disability['secondaryDisabilities'].present?
+                                     build_secondary_disabilities(disability)
+                                   end
 
-            disabilities_list << build_disability_item(dis_name, dis_date, service_relevance)
-            if disability['secondaryDisabilities'].present?
-              disabilities_list << disability['secondaryDisabilities']&.map do |secondary_disability|
-                dis_name = "#{secondary_disability['name']} secondary to: #{disability['name']}"
-                sec_begin_date = secondary_disability['approximateBeginDate']
-                if sec_begin_date.present?
-                  dis_date = make_date_string_month_first(sec_begin_date,
-                                                          sec_begin_date.length)
-                end
-                service_relevance = secondary_disability['serviceRelevance']
+          [primary_disability, *secondary_disabilities]
+        end
+      end
 
-                build_disability_item(dis_name, dis_date, service_relevance)
-              end
-            end
-          end
-        end.flatten
-      end # rubocop:enable Metrics/MethodLength
+      def build_primary_disability(disability)
+        dis_name = disability['name']
+        dis_date = format_disability_date(disability['approximateBeginDate'])
+        service_relevance = disability['serviceRelevance']
+
+        build_disability_item(dis_name, dis_date, service_relevance)
+      end
+
+      def build_secondary_disabilities(disability)
+        disability['secondaryDisabilities'].map do |secondary_disability|
+          dis_name = "#{secondary_disability['name']} secondary to: #{disability['name']}"
+          dis_date = format_disability_date(secondary_disability['approximateBeginDate'])
+          service_relevance = secondary_disability['serviceRelevance']
+
+          build_disability_item(dis_name, dis_date, service_relevance)
+        end
+      end
+
+      def format_disability_date(begin_date)
+        return nil if begin_date.blank?
+
+        make_date_string_month_first(begin_date, begin_date.length)
+      end
     end
   end
 end
