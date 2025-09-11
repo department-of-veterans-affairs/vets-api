@@ -10,6 +10,7 @@ module TravelClaim
   #
   class TravelPayClient < Common::Client::Base
     extend Forwardable
+    include Common::Client::Concerns::Monitoring
 
     EXPENSE_DESCRIPTION = 'mileage'
     TRIP_TYPE = 'RoundTrip'
@@ -17,6 +18,7 @@ module TravelClaim
     CLIENT_TYPE = '1'
     CLAIM_NAME = 'Travel Reimbursement'
     CLAIMANT_TYPE = 'Veteran'
+    STATSD_KEY_PREFIX = 'api.check_in.travel_claim'
 
     attr_reader :redis_client, :settings
 
@@ -56,17 +58,19 @@ module TravelClaim
     # @return [Faraday::Response] HTTP response containing access token
     #
     def veis_token_request
-      body = URI.encode_www_form({
-                                   client_id: travel_pay_client_id,
-                                   client_secret:,
-                                   client_type: CLIENT_TYPE,
-                                   scope:,
-                                   grant_type: GRANT_TYPE,
-                                   resource: travel_pay_resource
-                                 })
+      with_monitoring do
+        body = URI.encode_www_form({
+                                     client_id: travel_pay_client_id,
+                                     client_secret:,
+                                     client_type: CLIENT_TYPE,
+                                     scope:,
+                                     grant_type: GRANT_TYPE,
+                                     resource: travel_pay_resource
+                                   })
 
-      headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
-      perform(:post, "#{tenant_id}/oauth2/token", body, headers, { server_url: auth_url })
+        headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
+        perform(:post, "#{tenant_id}/oauth2/token", body, headers, { server_url: auth_url })
+      end
     end
 
     ##
@@ -78,16 +82,18 @@ module TravelClaim
     # @return [Faraday::Response] HTTP response containing access token
     #
     def system_access_token_request(veis_access_token:, icn:)
-      body = { secret: travel_pay_client_secret, icn: }
+      with_monitoring do
+        body = { secret: travel_pay_client_secret, icn: }
 
-      headers = {
-        'Content-Type' => 'application/json',
-        'X-Correlation-ID' => @correlation_id,
-        'BTSSS-API-Client-Number' => client_number.to_s,
-        'Authorization' => "Bearer #{veis_access_token}"
-      }.merge(subscription_key_headers)
+        headers = {
+          'Content-Type' => 'application/json',
+          'X-Correlation-ID' => @correlation_id,
+          'BTSSS-API-Client-Number' => client_number.to_s,
+          'Authorization' => "Bearer #{veis_access_token}"
+        }.merge(subscription_key_headers)
 
-      perform(:post, 'api/v4/auth/system-access-token', body, headers)
+        perform(:post, 'api/v4/auth/system-access-token', body, headers)
+      end
     end
 
     ##
@@ -97,12 +103,14 @@ module TravelClaim
     #
     def send_appointment_request
       with_auth do
-        body = {
-          appointmentDateTime: @appointment_date_time,
-          facilityStationNumber: @station_number
-        }
+        with_monitoring do
+          body = {
+            appointmentDateTime: @appointment_date_time,
+            facilityStationNumber: @station_number
+          }
 
-        perform(:post, 'api/v3/appointments/find-or-add', body, headers)
+          perform(:post, 'api/v3/appointments/find-or-add', body, headers)
+        end
       end
     end
 
@@ -113,13 +121,15 @@ module TravelClaim
     #
     def send_claim_request(appointment_id:)
       with_auth do
-        body = {
-          appointmentId: appointment_id,
-          claimName: CLAIM_NAME,
-          claimantType: CLAIMANT_TYPE
-        }
+        with_monitoring do
+          body = {
+            appointmentId: appointment_id,
+            claimName: CLAIM_NAME,
+            claimantType: CLAIMANT_TYPE
+          }
 
-        perform(:post, 'api/v3/claims', body, headers)
+          perform(:post, 'api/v3/claims', body, headers)
+        end
       end
     rescue Common::Client::Errors::ClientError => e
       log_existing_claim_error if e.status == 400
@@ -138,14 +148,16 @@ module TravelClaim
     #
     def send_mileage_expense_request(claim_id:, date_incurred:)
       with_auth do
-        body = {
-          claimId: claim_id,
-          dateIncurred: date_incurred,
-          description: EXPENSE_DESCRIPTION,
-          tripType: TRIP_TYPE
-        }
+        with_monitoring do
+          body = {
+            claimId: claim_id,
+            dateIncurred: date_incurred,
+            description: EXPENSE_DESCRIPTION,
+            tripType: TRIP_TYPE
+          }
 
-        perform(:post, 'api/v3/expenses/mileage', body, headers)
+          perform(:post, 'api/v3/expenses/mileage', body, headers)
+        end
       end
     end
 
@@ -157,7 +169,9 @@ module TravelClaim
     #
     def send_get_claim_request(claim_id:)
       with_auth do
-        perform(:get, "api/v3/claims/#{claim_id}", nil, headers)
+        with_monitoring do
+          perform(:get, "api/v3/claims/#{claim_id}", nil, headers)
+        end
       end
     end
 
@@ -169,7 +183,9 @@ module TravelClaim
     #
     def send_claim_submission_request(claim_id:)
       with_auth do
-        perform(:patch, "api/v3/claims/#{claim_id}/submit", nil, headers)
+        with_monitoring do
+          perform(:patch, "api/v3/claims/#{claim_id}/submit", nil, headers)
+        end
       end
     end
 
