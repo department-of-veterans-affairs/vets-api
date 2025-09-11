@@ -485,4 +485,102 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       expect(disabilities_base[2][:approximateDate]).to eq('05/02/2018')
     end
   end
+
+  describe 'section 5, treatment centers' do
+    let(:treatments) do
+      [
+        {
+          'startDate' => '2020-01-01',
+          'endDate' => '2022-01-01',
+          'treatedDisabilityNames' => [
+            'Arthritis'
+          ],
+          'center' => {
+            'name' => 'Private Facility Name',
+            'country' => 'USA'
+          }
+        },
+        {
+          'startDate' => '2022-01',
+          'treatedDisabilityNames' => [
+            'Bad Knee'
+          ],
+          'center' => {
+            'name' => 'Another Private Facility Name',
+            'country' => 'USA'
+          }
+        },
+        {
+          'treatedDisabilityNames' => [
+            'Bad Elbow'
+          ],
+          'center' => {
+            'name' => 'Public Facility Name',
+            'country' => 'USA'
+          }
+        }
+      ]
+    end
+
+    describe '#set_pdf_data_for_claim_information' do
+      context 'when the claimInformation key does not exist' do
+        before do
+          @pdf_data = pdf_data
+        end
+
+        it 'sets the claimInformation key to an empty hash' do
+          res = mapper.send(:set_pdf_data_for_claim_information)
+
+          expect(res).to eq({})
+        end
+      end
+
+      context 'when the claimInformation key already exists' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:claimInformation] = {}
+        end
+
+        it 'returns early without modifying the existing data' do
+          res = mapper.send(:set_pdf_data_for_claim_information)
+
+          expect(res).to be_nil
+        end
+      end
+    end
+
+    context 'when treatments information is not provided' do
+      before do
+        @pdf_data = pdf_data
+        @pdf_data[:data][:attributes][:claimInformation] = {}
+      end
+
+      it 'does not add any treatment key to the data object' do
+        mapper.map_claim
+
+        claim_information_base = pdf_data[:data][:attributes][:claimInformation]
+
+        expect(claim_information_base).not_to have_key(:treatments)
+      end
+    end
+
+    context 'when treatments information is provided' do
+      it 'maps the attributes' do
+        form_attributes['treatments'] = treatments
+        mapper.map_claim
+
+        treatments_base = pdf_data[:data][:attributes][:claimInformation][:treatments]
+
+        expect(treatments_base[0][:treatment_details]).to eq('Arthritis - Private Facility Name, USA')
+        expect(treatments_base[0][:dateOfTreatment]).to eq({ year: '2020', month: '01', day: '01' })
+        expect(treatments_base[0]).not_to have_key(:doNotHaveDate)
+        expect(treatments_base[1][:treatment_details]).to eq('Bad Knee - Another Private Facility Name, USA')
+        expect(treatments_base[1][:dateOfTreatment]).to eq({ month: '01', year: '2022' })
+        expect(treatments_base[0]).not_to have_key(:doNotHaveDate)
+        expect(treatments_base[2][:treatment_details]).to eq('Bad Elbow - Public Facility Name, USA')
+        expect(treatments_base[2]).not_to have_key(:dateOfTreatment)
+        expect(treatments_base[2][:doNotHaveDate]).to be(true)
+      end
+    end
+  end
 end
