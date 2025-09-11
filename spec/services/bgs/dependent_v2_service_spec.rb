@@ -60,7 +60,7 @@ RSpec.describe BGS::DependentV2Service do
           service = BGS::DependentV2Service.new(user)
 
           expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -80,7 +80,7 @@ RSpec.describe BGS::DependentV2Service do
           service = BGS::DependentV2Service.new(user)
 
           expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -97,7 +97,7 @@ RSpec.describe BGS::DependentV2Service do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '796-04-3735' }) # rubocop:disable Layout/LineLength
         service = BGS::DependentV2Service.new(user)
         expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           encrypted_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -116,7 +116,7 @@ RSpec.describe BGS::DependentV2Service do
         service = BGS::DependentV2Service.new(user)
 
         expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -135,7 +135,7 @@ RSpec.describe BGS::DependentV2Service do
         service = BGS::DependentV2Service.new(user)
 
         expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -154,7 +154,7 @@ RSpec.describe BGS::DependentV2Service do
         service = BGS::DependentV2Service.new(user)
 
         expect(BGS::SubmitForm686cV2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -307,7 +307,7 @@ RSpec.describe BGS::DependentV2Service do
           service = BGS::DependentV2Service.new(user)
 
           expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -327,7 +327,7 @@ RSpec.describe BGS::DependentV2Service do
           service = BGS::DependentV2Service.new(user)
 
           expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -344,7 +344,7 @@ RSpec.describe BGS::DependentV2Service do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '796-04-3735' }) # rubocop:disable Layout/LineLength
         service = BGS::DependentV2Service.new(user)
         expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           encrypted_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -363,7 +363,7 @@ RSpec.describe BGS::DependentV2Service do
         service = BGS::DependentV2Service.new(user)
 
         expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -382,7 +382,7 @@ RSpec.describe BGS::DependentV2Service do
         service = BGS::DependentV2Service.new(user)
 
         expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
@@ -401,7 +401,7 @@ RSpec.describe BGS::DependentV2Service do
         service = BGS::DependentV2Service.new(user)
 
         expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).with(
