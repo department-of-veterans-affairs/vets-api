@@ -13,12 +13,6 @@ module TravelPay
       before_action :check_feature_flag
 
       def submit
-        verify_feature_flag!(
-          :travel_pay_enable_complex_claims,
-          current_user,
-          error_message: 'Travel Pay submit complex claim unavailable per feature toggle'
-        )
-
         claim_id = params[:claim_id]
         validate_claim_id_exists!(claim_id)
 
