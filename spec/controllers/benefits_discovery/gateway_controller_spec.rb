@@ -87,34 +87,12 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
       end
     end
 
-    context 'with an app_id that has a mapped api key' do
-      let(:headers) do
-        { 'x-app-id' => Settings.lighthouse.benefits_discovery.transition_experience_app_id }
-      end
-
-      it 'uses app-specific API key from settings' do
-        expect(BenefitsDiscovery::Service).to receive(:new).with(
-          api_key: Settings.lighthouse.benefits_discovery.transition_experience_api_key,
-          app_id: Settings.lighthouse.benefits_discovery.transition_experience_app_id
-        )
-
-        post '/benefits_discovery/v0/recommendations', params: request_params, headers:
-      end
-
-      it 'returns successful response' do
-        post('/benefits_discovery/v0/recommendations', params: request_params, headers:)
-
-        expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)).to eq(response_data)
-      end
-    end
-
     context 'with only an app_id' do
       let(:headers) do
         { 'x-app-id' => 'unsupported-app' }
       end
 
-      it 'returns error for unsupported app_id' do
+      it 'returns not authorized' do
         post('/benefits_discovery/v0/recommendations', params: request_params, headers:)
 
         expect(response).to have_http_status(:unauthorized)
@@ -206,7 +184,7 @@ RSpec.describe BenefitsDiscovery::GatewayController, type: :request do
                                                      path: 'v0/recommendations',
                                                      method: 'POST')
 
-        post '/benefits_discovery/v0/recommendations', params: request_params
+        post '/benefits_discovery/v0/recommendations', params: request_params, headers:
       end
     end
 

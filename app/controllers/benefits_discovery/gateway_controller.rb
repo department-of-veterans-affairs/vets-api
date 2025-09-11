@@ -37,20 +37,12 @@ module BenefitsDiscovery
     private
 
     def credentials
-      app_id = request.headers['x-app-id']
-      api_key = request.headers['x-api-key'] || fetch_api_key(app_id)
+      app_id = request.headers['x-app-id'].presence
+      api_key = request.headers['x-api-key'].presence
+
+      raise Common::Exceptions::Unauthorized if app_id.nil? || api_key.nil?
 
       [api_key, app_id]
-    end
-
-    def fetch_api_key(app_id)
-      # Map specific app IDs to their API keys from settings
-      case app_id
-      when Settings.lighthouse.benefits_discovery.transition_experience_app_id
-        Settings.lighthouse.benefits_discovery.transition_experience_api_key
-      else
-        raise Common::Exceptions::Unauthorized
-      end
     end
 
     def log_proxy_error(error)

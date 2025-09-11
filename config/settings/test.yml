@@ -670,8 +670,6 @@ lighthouse:
     use_mocks: false
   benefits_discovery:
     host: 'https://sandbox.lighthouse.va.gov'
-    transition_experience_api_key: ~
-    transition_experience_app_id: ~
     x_api_key: ~
     x_app_id: ~
   benefits_documents:
