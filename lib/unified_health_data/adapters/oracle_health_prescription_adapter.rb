@@ -67,15 +67,16 @@ module UnifiedHealthData
         performer_display = resource.dig('dispenseRequest', 'performer', 'display')
         return performer_display if performer_display
 
-        # Fallback: check contained MedicationDispense for location
+        # Fallback: check contained Encounter for location
         if resource['contained']
-          dispense = find_most_recent_medication_dispense(resource['contained'])
-          location = dispense&.dig('location', 'display')
-          return location if location
+          encounter = resource['contained'].find { |c| c['resourceType'] == 'Encounter' }
+          if encounter
+            location_display = encounter.dig('location', 0, 'location', 'display')
+            return location_display if location_display
+          end
         end
 
-        # Final fallback: requester
-        resource.dig('requester', 'display')
+        nil
       end
 
       def extract_quantity(resource)
