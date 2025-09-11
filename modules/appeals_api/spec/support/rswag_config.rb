@@ -8,6 +8,8 @@ RSpec.configure { |_config| include DocHelpers }
 
 # rubocop:disable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength
 class AppealsApi::RswagConfig
+  DECISION_REVIEWS_DESCRIPTION_FILE_NAME = Flipper.enabled?(:decision_reviews_evidence_final_status_field) ? 'description_with_final_status.md' : `api_description#{DocHelpers.doc_suffix}.md`
+
   def rswag_doc_config(base_path_template:, description_file_path:, name:, tags:, version:)
     {
       # FIXME: The Lighthouse docs UI code does not yet support openapi versions above 3.0.z
@@ -58,7 +60,7 @@ class AppealsApi::RswagConfig
       ),
       "modules/appeals_api/app/swagger/decision_reviews/v2/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
         version: 'v2',
-        description_file_path: AppealsApi::Engine.root.join("app/swagger/decision_reviews/v2/api_description#{DocHelpers.doc_suffix}.md"),
+        description_file_path: AppealsApi::Engine.root.join(`app/swagger/decision_reviews/v2/#{DECISION_REVIEWS_DESCRIPTION_FILE_NAME}`),
         base_path_template: '/services/appeals/{version}/decision_reviews',
         name: 'decision_reviews',
         tags: api_tags(*%i[higher_level_reviews notice_of_disagreements supplemental_claims contestable_issues legacy_appeals])
