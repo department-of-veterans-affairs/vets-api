@@ -25,7 +25,7 @@ describe VAProfile::ContactInformation::V2::TransactionResponse do
 
       context 'with a residence address change' do
         before do
-          body['tx_output'][0]['address_pou'] = VAProfile::Models::V3::BaseAddress::RESIDENCE
+          body['tx_output'][0]['address_pou'] = VAProfile::Models::BaseAddress::RESIDENCE
         end
 
         it 'has the correct changed field' do
@@ -35,7 +35,7 @@ describe VAProfile::ContactInformation::V2::TransactionResponse do
 
       context 'with a correspondence address change' do
         before do
-          body['tx_output'][0]['address_pou'] = VAProfile::Models::V3::BaseAddress::CORRESPONDENCE
+          body['tx_output'][0]['address_pou'] = VAProfile::Models::BaseAddress::CORRESPONDENCE
         end
 
         it 'has the correct changed field' do
