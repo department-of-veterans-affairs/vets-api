@@ -232,8 +232,7 @@ module VSPDanger
       %r{spec/.+_spec\.rb$}, # Test files
       %r{modules/.+/spec/.+_spec\.rb$}, # Module test files
       %r{spec/factories/.+\.rb$}, # Factory changes
-      %r{modules/.+/spec/factories/.+\.rb$}, # Module factory changes
-      %r{^Dangerfile$} # Dangerfile changes (for MigrationIsolator improvements)
+      %r{modules/.+/spec/factories/.+\.rb$} # Module factory changes
     ].freeze
 
     def run
@@ -309,7 +308,7 @@ module VSPDanger
     end
 
     def app_files
-      files - db_files - seed_files
+      (files - db_files - seed_files).reject { |file| file == 'Dangerfile' }
     end
 
     def db_files
