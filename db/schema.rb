@@ -2185,6 +2185,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
+  add_foreign_key "saved_claim_group", "saved_claims", column: "parent_claim_id", validate: false
+  add_foreign_key "saved_claim_group", "saved_claims", validate: false
   add_foreign_key "schema_contract_validations", "user_accounts", validate: false
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "test_user_dashboard_tud_account_availability_logs", "user_accounts"
