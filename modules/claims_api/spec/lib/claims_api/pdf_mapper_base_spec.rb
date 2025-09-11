@@ -202,4 +202,30 @@ describe ClaimsApi::PdfMapperBase do
       end
     end
   end
+
+  describe '#convert_phone' do
+    it 'formats a plain 10-digit number' do
+      number = String.new('1234567890')
+
+      res = subject.convert_phone(number)
+
+      expect(res).to eq('123-456-7890')
+    end
+
+    it 'formats an 11-digit number (with country code)' do
+      number = String.new('11234567890')
+
+      res = subject.convert_phone(number)
+
+      expect(res).to eq('11-23-4567-890')
+    end
+
+    it 'returns nil for strings with something other than digits in them' do
+      number = String.new('555defghij')
+
+      res = subject.convert_phone(number)
+
+      expect(res).to be_nil
+    end
+  end
 end

@@ -380,7 +380,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       expect(new_headers).not_to eq(initial_headers)
       expect(new_headers['Authorization']).to eq("Bearer #{new_veis_token}")
-      expect(new_headers['X-BTSSS-Token']).to eq(new_btsss_token)
+      expect(new_headers['BTSSS-Access-Token']).to eq(new_btsss_token)
     end
 
     it 'includes all required headers' do
@@ -389,7 +389,7 @@ RSpec.describe TravelClaim::TravelPayClient do
       expect(headers).to include(
         'Content-Type' => 'application/json',
         'Authorization' => "Bearer #{test_veis_token_for_headers}",
-        'X-BTSSS-Token' => test_btsss_token_for_headers,
+        'BTSSS-Access-Token' => test_btsss_token_for_headers,
         'X-Correlation-ID' => client.instance_variable_get(:@correlation_id)
       )
     end
@@ -505,7 +505,7 @@ RSpec.describe TravelClaim::TravelPayClient do
       headers = client.send(:headers)
 
       expect(headers['Authorization']).to eq("Bearer #{test_veis}")
-      expect(headers['X-BTSSS-Token']).to eq(test_btsss)
+      expect(headers['BTSSS-Access-Token']).to eq(test_btsss)
       expect(headers['X-Correlation-ID']).to eq(client.instance_variable_get(:@correlation_id))
     end
 
