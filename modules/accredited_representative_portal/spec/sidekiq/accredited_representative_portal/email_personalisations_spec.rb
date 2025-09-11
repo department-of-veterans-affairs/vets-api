@@ -203,7 +203,6 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
     let!(:individual) { create(:representative) }
     let!(:user_account) do
       AccreditedRepresentativePortal::RepresentativeUserAccount.find(create(:user_account).id).tap do |memo|
-        memo.set_email('email@email.com')
         memo.set_all_emails(['email@email.com'])
       end
     end
@@ -235,8 +234,6 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:ar_poa_request_failure_rep_notification).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_self_service_auth)
-                                          .and_return(true)
       allow(poa_form).to receive(:parsed_data).and_return({
                                                             'veteran' => {
                                                               'name' => { 'first' => 'Jane', 'last' => 'Doe' },

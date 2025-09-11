@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'va_profile/models/v3/validation_address'
+require 'va_profile/models/validation_address'
 require_relative 'service'
 
 module VAProfile
@@ -24,10 +24,10 @@ module VAProfile
           @response = {
             addresses: response['candidate_addresses'].map do |address_suggestion_hash|
               {
-                address: VAProfile::Models::V3::ValidationAddress.build_from_address_suggestion(
+                address: VAProfile::Models::ValidationAddress.build_from_address_suggestion(
                   address_suggestion_hash
                 ).attributes.compact,
-                address_meta_data: VAProfile::Models::V3::ValidationAddress.build_address_metadata(
+                address_meta_data: VAProfile::Models::ValidationAddress.build_address_metadata(
                   address_suggestion_hash
                 ).to_h
               }
@@ -42,10 +42,10 @@ module VAProfile
           @response = {
             addresses: [
               {
-                address: VAProfile::Models::V3::ValidationAddress.build_from_address_suggestion(
+                address: VAProfile::Models::ValidationAddress.build_from_address_suggestion(
                   address_suggestion_hash
                 ).attributes.compact,
-                address_meta_data: VAProfile::Models::V3::ValidationAddress.build_address_metadata(
+                address_meta_data: VAProfile::Models::ValidationAddress.build_address_metadata(
                   address_suggestion_hash
                 ).to_h
               }
