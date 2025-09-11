@@ -174,8 +174,8 @@ RSpec.describe 'V0::IntentToFile', type: :request do
           expect(Rails.logger).to receive(:info).with(
             'IntentToFilesController ITF Validate Data',
             {
-              user_icn: true,
-              user_participant_id: true,
+              user_icn_present: true,
+              user_participant_id_present: true,
               itf_type: 'pension',
               user_uuid: user.uuid
             }
