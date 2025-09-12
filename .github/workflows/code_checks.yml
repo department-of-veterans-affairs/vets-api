@@ -4,10 +4,12 @@ on:
     branches: [master]
   pull_request:
     types: [opened, reopened, synchronize]
+
 permissions:
   id-token: write
   contents: read
   checks: write
+
 jobs:
   compare_sha:
     runs-on: ubuntu-latest
@@ -134,6 +136,23 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Prepare tmp dir
+        run: mkdir -p tmp
+
+      - name: Runtime cache - restore
+        id: runtime-restore
+        uses: actions/cache/restore@v4
+        with:
+          key: runtime-cache-all-${{ github.head_ref || github.ref_name }}
+          restore-keys: |
+            runtime-cache-all-${{ github.event.repository.default_branch }}
+          path: tmp/parallel_runtime_rspec.log
+
+      - name: Show restored runtime log
+        run: |
+          ls -lah tmp || true
+          [ -s tmp/parallel_runtime_rspec.log ] && head -n 20 tmp/parallel_runtime_rspec.log || echo "no runtime log restored"
+
       - name: Setup Database
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
@@ -149,11 +168,57 @@ jobs:
           ${{ env.COMPOSE_BASH_CMD }}
           "mkdir -p tmp/systmp"
 
+      - name: Ensure tmp dirs
+        run: mkdir -p tmp tmp/systmp
+
       - name: Run Specs
-        timeout-minutes: 15
+        timeout-minutes: 20
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
-          "TMPDIR=tmp/systmp bundle exec rake 'parallel:spec[24, , , modules\/]'"
+          "RECORD_RUNTIME=true TMPDIR=tmp/systmp bundle exec parallel_rspec spec/ modules/ -n 24 --group-by runtime --test-options '--format progress --format ParallelTests::RSpec::RuntimeLogger --out tmp/parallel_runtime_rspec.log'"
+
+      - name: Inspect runtime logs inside container
+        if: always()
+        run: >
+          ${{ env.COMPOSE_BASH_CMD }}
+          "sh -lc 'pwd; ls -lah tmp || true; ls -lah tmp/parallel_runtime_rspec.log* || true; head -n 5 tmp/parallel_runtime_rspec.log* 2>/dev/null || true'"
+
+      - name: Combine runtime chunks
+        shell: bash
+        run: |
+          mkdir -p tmp
+          shopt -s nullglob
+          files=(tmp/parallel_runtime_rspec.log*)
+          if [ ${#files[@]} -gt 0 ]; then
+            awk -F: '{k=$1; $1=""; a[k]=$0} END{for(k in a) print k ":" a[k]}' "${files[@]}" > tmp/parallel_runtime_rspec.log
+          else
+            [ -f tmp/parallel_runtime_rspec.log ] || : > tmp/parallel_runtime_rspec.log
+          fi
+          echo "merged size: $(stat -c%s tmp/parallel_runtime_rspec.log 2>/dev/null || echo 0) bytes"
+          head -n 10 tmp/parallel_runtime_rspec.log || true
+
+      - name: Runtime cache - clear previous branch cache
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh extension install actions/gh-actions-cache >/dev/null 2>&1 || true
+          gh actions-cache delete "runtime-cache-all-${{ github.head_ref || github.ref_name }}" --confirm || true
+        continue-on-error: true
+
+      - name: Runtime cache -store merged
+        uses: actions/cache/save@v4
+        with:
+          key: runtime-cache-all-${{ github.head_ref || github.ref_name }}
+          path: tmp/parallel_runtime_rspec.log
+
+      - name: Upload runtime log artifact (optional)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parallel_runtime_rspec.log
+          path: tmp/parallel_runtime_rspec.log
+          if-no-files-found: ignore
 
       - name: Upload Coverage Report
         if: always()
@@ -210,7 +275,6 @@ jobs:
     needs: tests
     permissions: write-all
     runs-on: ubuntu-16-cores-latest
-
     steps:
       - uses: actions/download-artifact@v5
 
