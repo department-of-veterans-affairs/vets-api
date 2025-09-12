@@ -6,6 +6,7 @@ module TravelPay
       include FeatureFlagHelper
       include AppointmentHelper
       include ClaimHelper
+      include IdValidation
 
       rescue_from Common::Exceptions::BadRequest, with: :render_bad_request
       rescue_from Common::Exceptions::ServiceUnavailable, with: :render_service_unavailable
