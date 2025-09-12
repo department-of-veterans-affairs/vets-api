@@ -228,4 +228,83 @@ describe TravelPay::DocumentsClient do
       expect(JSON.parse(error.response[:body])['message']).to eq('Content Too Large')
     end
   end
+
+  describe '#delete_document' do
+    let(:claim_id) { '73611905-71bf-46ed-b1ec-e790593b8565' }
+    let(:document_id) { '123e4567-e89b-12d3-a456-426614174000' }
+
+    it 'sends a DELETE to the correct URL with headers' do
+      @stubs.delete("api/v1/claims/#{claim_id}/documents/#{document_id}") do |env|
+        # Check headers
+        expect(env.request_headers['Authorization']).to eq('Bearer veis_token')
+        expect(env.request_headers['BTSSS-Access-Token']).to eq('btsss_token')
+        expect(env.request_headers['X-Correlation-ID']).to be_present
+
+        [
+          200,
+          { 'Content-Type' => 'application/json' },
+          { data: { documentId: document_id } }.to_json
+        ]
+      end
+
+      client = TravelPay::DocumentsClient.new
+      response = client.delete_document('veis_token', 'btsss_token',
+                                        { claim_id:, document_id: })
+
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:delete_document'])
+      expect(response.status).to eq(200)
+      expect(response.body['data']['documentId']).to eq(document_id)
+    end
+
+    it 'raises Faraday::ResourceNotFound when the document does not exist' do
+      @stubs.delete("api/v1/claims/#{claim_id}/documents/#{document_id}") do |_env|
+        [
+          404,
+          { 'Content-Type' => 'application/json' },
+          { message: 'Not Found' }.to_json
+        ]
+      end
+
+      client = TravelPay::DocumentsClient.new
+
+      expect do
+        client.delete_document('veis_token', 'btsss_token', { claim_id:, document_id: })
+      end.to raise_error(Faraday::ResourceNotFound)
+    end
+
+    it 'raises Faraday::ClientError on 400 Bad Request' do
+      @stubs.delete("api/v1/claims/#{claim_id}/documents/#{document_id}") do |_env|
+        [
+          400,
+          { 'Content-Type' => 'application/json' },
+          { message: 'Bad Request' }.to_json
+        ]
+      end
+
+      client = TravelPay::DocumentsClient.new
+
+      expect do
+        client.delete_document('veis_token', 'btsss_token', { claim_id:, document_id: })
+      end.to raise_error(Faraday::ClientError)
+    end
+
+    it 'raises Faraday::ServerError on 500 Internal Server Error' do
+      @stubs.delete("api/v1/claims/#{claim_id}/documents/#{document_id}") do |_env|
+        [
+          500,
+          { 'Content-Type' => 'application/json' },
+          { message: 'Internal Server Error' }.to_json
+        ]
+      end
+
+      client = TravelPay::DocumentsClient.new
+
+      expect do
+        client.delete_document('veis_token', 'btsss_token', { claim_id:, document_id: })
+      end.to raise_error(Faraday::ServerError)
+    end
+  end
 end

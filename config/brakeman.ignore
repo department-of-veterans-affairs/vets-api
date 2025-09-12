@@ -1,6 +1,29 @@
 {
   "ignored_warnings": [
     {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "c6be575b25f7d0b6a3a83da81c1680f867bc8262b47ae4edd92b93b0bd770667",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "modules/travel_pay/app/services/travel_pay/documents_client.rb",
+      "line": 101,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "connection(:server_url => Settings.travel_pay.base_url).delete(\"api/v1/claims/#{claim_id}/documents/#{document_id}\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "TravelPay::DocumentsClient",
+        "method": "delete_document"
+      },
+      "user_input": "claim_id",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": ""
+    },
+    {
       "warning_type": "File Access",
       "warning_code": 16,
       "fingerprint": "6cc3643a6f55145df1240ed4f37c8db0371bf7350eb0b510d881a2671bf529ea",

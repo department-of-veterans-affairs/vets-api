@@ -84,5 +84,28 @@ module TravelPay
           end
       end
     end
+
+    ##
+    # HTTP DELETE call to the BTSSS '/api/v1/claims/{claimId}/documents/{documentId}' endpoint
+    # API responds with the document id
+    # "documentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    #
+    # @return [TravelPay::DocumentId]
+    #
+    # brakeman:skip all
+    def delete_document(veis_token, btsss_token, params = {})
+      btsss_url = Settings.travel_pay.base_url
+      correlation_id = SecureRandom.uuid
+      params.symbolize_keys => { claim_id:, document_id: }
+      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      log_to_statsd('documents', 'delete_document') do
+        connection(server_url: btsss_url).delete("api/v1/claims/#{claim_id}/documents/#{document_id}") do |req|
+          req.headers['Authorization'] = "Bearer #{veis_token}"
+          req.headers['BTSSS-Access-Token'] = btsss_token
+          req.headers['X-Correlation-ID'] = correlation_id
+          req.headers.merge!(claim_headers)
+        end
+      end
+    end
   end
 end
