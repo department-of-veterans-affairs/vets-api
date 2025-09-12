@@ -27,7 +27,13 @@ module SignIn
           config_cert_id = find_config_certificate_for_destruction(cert_attrs)
           { id: config_cert_id, _destroy: true }.compact
         else
-          { cert_attributes: { id: cert_attrs[:id].presence, pem: cert_attrs[:pem].to_s }.compact }
+          cert = SignIn::Certificate.where(id: cert_attrs[:id].presence)
+                                    .or(SignIn::Certificate.where(pem: cert_attrs[:pem].presence))
+                                    .first
+
+          next if certs.include?(cert)
+
+          { cert_attributes: { id: cert&.id, pem: cert_attrs[:pem].to_s }.compact }
         end
       end
     end

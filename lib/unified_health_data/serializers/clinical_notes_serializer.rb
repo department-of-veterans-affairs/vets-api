@@ -9,11 +9,14 @@ module UnifiedHealthData
 
     attributes :id,
                :name,
-               :type,
+               :note_type,
+               :loinc_codes,
                :date,
                :date_signed,
                :written_by,
                :signed_by,
+               :admission_date,
+               :discharge_date,
                :location,
                :note # base64 encoded
   end
