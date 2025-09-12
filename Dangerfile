@@ -262,9 +262,9 @@ module VSPDanger
 
     def has_ignored_columns_in_models?
       model_files = app_files.select { |f| f.match?(%r{app/models/.+\.rb$}) }
-      
+
       return false if model_files.empty?
-      
+
       model_files.any? do |file|
         content = File.read(file)
         content.match?(/ignored_columns|self\.ignored_columns/)
@@ -299,7 +299,7 @@ module VSPDanger
         - Rolling deployments may have servers with different code versions
 
         Consider splitting this into separate PRs following the Strong Migrations pattern.
-        
+
         For more info:
         - [Strong Migrations - Removing a column](https://github.com/ankane/strong_migrations#removing-a-column)
         - [vets-api Database Migrations](https://depo-platform-documentation.scrollhelp.site/developer-docs/Vets-API-Database-Migrations.689832034.html)
