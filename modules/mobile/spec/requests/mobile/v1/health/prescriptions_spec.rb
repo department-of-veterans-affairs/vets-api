@@ -1,0 +1,361 @@
+# frozen_string_literal: true
+
+require_relative '../../../../../support/helpers/rails_helper'
+
+RSpec.describe 'Mobile::V1::Health::Rx::Prescriptions', type: :request do
+  include JsonSchemaMatchers
+
+  let!(:user) { sis_user(icn: '9000682') }
+  let(:uhd_client) { instance_double(UnifiedHealthData::Service) }
+  let(:sample_uhd_prescription) do
+    OpenStruct.new(
+      prescription_id: '12345',
+      medication_name: 'Test Medication',
+      instructions: 'Take once daily',
+      fill_date: '2024-01-15',
+      quantity: 30,
+      refills_remaining: 2,
+      status: 'active',
+      prescriber_name: 'Dr. Smith',
+      pharmacy_name: 'VA Pharmacy',
+      rx_number: 'RX12345',
+      tracking_number: 'TRACK123456789',
+      shipper: 'UPS'
+    )
+  end
+  let(:sample_uhd_refill_response) do
+    {
+      status: 'success',
+      refilled_prescriptions: [
+        {
+          prescription_id: '12345',
+          status: 'refilled',
+          fill_date: '2024-01-20'
+        }
+      ],
+      failed_prescriptions: [],
+      errors: []
+    }
+  end
+
+  before do
+    allow(UnifiedHealthData::Service).to receive(:new).and_return(uhd_client)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, user).and_return(true)
+    Timecop.freeze(Time.zone.parse('2024-01-15T00:00:00.000Z'))
+  end
+
+  after do
+    Timecop.return
+  end
+
+  describe 'GET /mobile/v1/health/rx/prescriptions' do
+    context 'when UHD service returns prescriptions' do
+      before do
+        allow(uhd_client).to receive(:get_prescriptions).and_return([sample_uhd_prescription])
+        get '/mobile/v1/health/rx/prescriptions', headers: sis_headers
+      end
+
+      it 'returns a 200 status' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'returns prescriptions data in the expected format' do
+        data = response.parsed_body['data']
+        expect(data).to be_an(Array)
+        expect(data.first).to include(
+          'id' => '12345',
+          'type' => 'prescription',
+          'attributes' => include(
+            'prescriptionId' => 12345,
+            'prescriptionName' => 'Test Medication',
+            'instructions' => 'Take once daily',
+            'refillDate' => '2024-01-15',
+            'quantity' => 30,
+            'refillRemaining' => 2,
+            'refillStatus' => 'active',
+            'expirationDate' => nil,
+            'facilityName' => 'VA Pharmacy',
+            'orderedDate' => nil,
+            'prescriptionSource' => 'UHD',
+            'trackingNumber' => 'TRACK123456789',
+            'shipper' => 'UPS'
+          )
+        )
+      end
+
+      it 'includes all v0 API compatible attributes' do
+        data = response.parsed_body['data']
+        prescription_attributes = data.first['attributes']
+
+        # Verify all v0 serializer attributes are present
+        expected_v0_attributes = %w[
+          refillStatus refillSubmitDate refillDate refillRemaining
+          facilityName orderedDate quantity expirationDate
+          prescriptionNumber prescriptionName dispensedDate
+          stationNumber isRefillable isTrackable instructions
+          facilityPhoneNumber
+        ]
+
+        expected_v0_attributes.each do |attr|
+          expect(prescription_attributes).to have_key(attr), "Missing attribute: #{attr}"
+        end
+      end
+
+      it 'includes v1-specific tracking attributes' do
+        data = response.parsed_body['data']
+        prescription_attributes = data.first['attributes']
+        
+        # Verify v1-specific attributes are present
+        expect(prescription_attributes).to have_key('trackingNumber')
+        expect(prescription_attributes).to have_key('shipper')
+        expect(prescription_attributes).to have_key('prescriptionSource')
+        expect(prescription_attributes).to have_key('dataSourceSystem')
+        
+        # Verify new tracking_info array structure
+        expect(prescription_attributes).to have_key('trackingInfo')
+        expect(prescription_attributes['trackingInfo']).to be_an(Array)
+        
+        # Verify tracking info contains expected structure
+        if prescription_attributes['trackingInfo'].any?
+          tracking_item = prescription_attributes['trackingInfo'].first
+          expect(tracking_item).to have_key('trackingNumber')
+          expect(tracking_item).to have_key('shipper')
+        end
+      end
+
+      it 'includes required metadata fields' do
+        meta = response.parsed_body['meta']
+        expect(meta).to include(
+          'prescriptionStatusCount' => be_a(Hash),
+          'hasNonVaMeds' => false,
+          'dataSource' => 'unified_health_data'
+        )
+      end
+    end
+
+    context 'with multiple tracking info objects' do
+      let(:sample_uhd_prescription_with_multiple_tracking) do
+        OpenStruct.new(
+          prescription_id: '12345',
+          medication_name: 'Test Medication',
+          instructions: 'Take once daily',
+          fill_date: '2024-01-15',
+          quantity: 30,
+          refills_remaining: 2,
+          status: 'active',
+          prescriber_name: 'Dr. Smith',
+          pharmacy_name: 'VA Pharmacy',
+          rx_number: 'RX12345',
+          tracking_info: [
+            { tracking_number: 'TRACK123456789', shipper: 'UPS' },
+            { tracking_number: 'TRACK987654321', shipper: 'FedEx' }
+          ]
+        )
+      end
+
+      before do
+        allow(uhd_client).to receive(:get_prescriptions).and_return([sample_uhd_prescription_with_multiple_tracking])
+        get '/mobile/v1/health/rx/prescriptions', headers: sis_headers
+      end
+
+      it 'returns multiple tracking info objects in array' do
+        data = response.parsed_body['data']
+        prescription_attributes = data.first['attributes']
+        tracking_info = prescription_attributes['trackingInfo']
+
+        expect(tracking_info).to be_an(Array)
+        expect(tracking_info.length).to eq(2)
+
+        expect(tracking_info[0]).to include(
+          'trackingNumber' => 'TRACK123456789',
+          'shipper' => 'UPS'
+        )
+
+        expect(tracking_info[1]).to include(
+          'trackingNumber' => 'TRACK987654321',
+          'shipper' => 'FedEx'
+        )
+      end
+
+      it 'provides backward compatibility with first tracking info as top-level attributes' do
+        data = response.parsed_body['data']
+        prescription_attributes = data.first['attributes']
+
+        # Should use first tracking info for backward compatibility
+        expect(prescription_attributes['trackingNumber']).to eq('TRACK123456789')
+        expect(prescription_attributes['shipper']).to eq('UPS')
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, user).and_return(false)
+        get '/mobile/v1/health/rx/prescriptions', headers: sis_headers
+      end
+
+      it 'returns 501 Not Implemented' do
+        expect(response).to have_http_status(:not_implemented)
+      end
+
+      it 'returns appropriate error message' do
+        error = response.parsed_body['errors'].first
+        expect(error['title']).to eq('Not Implemented')
+        expect(error['detail']).to eq('Mobile v1 prescriptions endpoint requires feature flag')
+      end
+    end
+
+    context 'when UHD service raises an error' do
+      before do
+        allow(uhd_client).to receive(:get_prescriptions).and_raise(StandardError, 'UHD service unavailable')
+        get '/mobile/v1/health/rx/prescriptions', headers: sis_headers
+      end
+
+      it 'returns 502 Bad Gateway' do
+        expect(response).to have_http_status(:bad_gateway)
+      end
+
+      it 'returns appropriate error message' do
+        error = response.parsed_body['errors'].first
+        expect(error['title']).to eq('Bad Gateway')
+        expect(error['detail']).to eq('UHD service unavailable')
+      end
+    end
+
+    context 'with pagination parameters' do
+      before do
+        allow(uhd_client).to receive(:get_prescriptions).and_return([sample_uhd_prescription])
+        get '/mobile/v1/health/rx/prescriptions', 
+            headers: sis_headers,
+            params: { page: { number: 1, size: 10 } }
+      end
+
+      it 'returns a 200 status' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'includes pagination metadata' do
+        meta = response.parsed_body['meta']
+        expect(meta).to include('pagination')
+      end
+    end
+
+    context 'when non-VA medications are present' do
+      let(:non_va_prescription) do
+        sample_uhd_prescription.merge(
+          prescription_id: '67890',
+          medication_name: 'Non-VA Medication'
+        )
+      end
+
+      before do
+        # Mock transformer to return prescription with NV source
+        transformed_prescription = double(
+          prescription_id: 67890,
+          prescription_name: 'Non-VA Medication',
+          prescription_source: 'NV',
+          refill_status: 'active',
+          is_refillable: false,
+          is_trackable: false
+        )
+        
+        allow(uhd_client).to receive(:get_prescriptions).and_return([non_va_prescription])
+        allow_any_instance_of(Mobile::V1::Prescriptions::Transformer)
+          .to receive(:transform).and_return([transformed_prescription])
+        
+        get '/mobile/v1/health/rx/prescriptions', headers: sis_headers
+      end
+
+      it 'sets hasNonVaMeds to true' do
+        meta = response.parsed_body['meta']
+        expect(meta['hasNonVaMeds']).to be true
+      end
+    end
+  end
+
+  describe 'PUT /mobile/v1/health/rx/prescriptions/refill' do
+    context 'when UHD service successfully refills prescriptions' do
+      before do
+        allow(uhd_client).to receive(:refill_prescription).and_return(sample_uhd_refill_response)
+        put '/mobile/v1/health/rx/prescriptions/refill', 
+            params: { ids: ['12345'] }, 
+            headers: sis_headers
+      end
+
+      it 'returns a 200 status' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'returns refill data in the expected format' do
+        data = response.parsed_body['data']
+        expect(data).to include(
+          'type' => 'prescriptionsRefills',
+          'attributes' => include(
+            'failedStationList' => '',
+            'successfulStationList' => '',
+            'lastUpdatedTime' => be_present,
+            'prescriptionList' => nil,
+            'failedPrescriptionIds' => [],
+            'errors' => [],
+            'infoMessages' => []
+          )
+        )
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, user).and_return(false)
+        put '/mobile/v1/health/rx/prescriptions/refill', 
+            params: { ids: ['12345'] }, 
+            headers: sis_headers
+      end
+
+      it 'returns 501 Not Implemented' do
+        expect(response).to have_http_status(:not_implemented)
+      end
+    end
+
+    context 'when UHD service returns errors' do
+      let(:uhd_error_response) do
+        {
+          status: 'error',
+          refilled_prescriptions: [],
+          failed_prescriptions: [
+            {
+              prescription_id: '12345',
+              error_code: 139,
+              error_message: 'Prescription not refillable'
+            }
+          ],
+          errors: ['Prescription not refillable for id: 12345']
+        }
+      end
+
+      before do
+        allow(uhd_client).to receive(:refill_prescription).and_return(uhd_error_response)
+        put '/mobile/v1/health/rx/prescriptions/refill', 
+            params: { ids: ['12345'] }, 
+            headers: sis_headers
+      end
+
+      it 'returns a 200 status with error details' do
+        expect(response).to have_http_status(:ok)
+        data = response.parsed_body['data']
+        expect(data['attributes']['failedPrescriptionIds']).to eq(['12345'])
+        expect(data['attributes']['errors']).not_to be_empty
+      end
+    end
+
+    context 'with invalid parameters' do
+      before do
+        put '/mobile/v1/health/rx/prescriptions/refill', 
+            params: { ids: '12345' }, # Should be array
+            headers: sis_headers
+      end
+
+      it 'returns 400 Bad Request' do
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+  end
+end
