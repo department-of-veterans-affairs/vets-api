@@ -18,7 +18,7 @@ module AccreditedRepresentativePortal
         end
       end
 
-       # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/MethodLength
       def create
         ar_monitoring(nil).trace('ar.poa.request.decision.create') do |span|
           span.set_tag('poa_request.poa_code', poa_code)
