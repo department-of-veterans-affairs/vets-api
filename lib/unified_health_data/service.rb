@@ -62,7 +62,7 @@ module UnifiedHealthData
 
         parsed_notes = parse_notes(filtered)
 
-        log_loinc_codes_enabled? && log_loinc_code_distribution(parsed_notes)
+        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes)
 
         parsed_notes
       end
@@ -480,32 +480,6 @@ module UnifiedHealthData
 
     def log_loinc_codes_enabled?
       Flipper.enabled?(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, @user)
-    end
-
-    # Logs the distribution of loinc codes found in the Notes records for analytics purposes
-    # This helps identify which loinc codes are being used to identify note types
-    def log_loinc_code_distribution(records)
-      loinc_code_counts = Hash.new(0)
-
-      records.each do |record|
-        loinc_codes = record.loinc_codes
-        loinc_codes.each { |code| loinc_code_counts[code] += 1 if code.present? }
-      end
-
-      return if loinc_code_counts.empty?
-
-      sorted_code_counts = loinc_code_counts.sort_by { |_, count| -count }
-      code_count_pairs = sorted_code_counts.map { |code, count| "#{code}:#{count}" }
-
-      Rails.logger.info(
-        {
-          message: 'UHD LOINC code distribution',
-          loinc_code_distribution: code_count_pairs.join(','),
-          total_codes: sorted_code_counts.size,
-          total_records: records.size,
-          service: 'unified_health_data'
-        }
-      )
     end
 
     def clinical_notes_adapter
