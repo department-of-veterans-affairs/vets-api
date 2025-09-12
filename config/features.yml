@@ -2273,6 +2273,12 @@ features:
       A switch that toggles the availability of the expense and document submission features for travel pay claims. This feature flag can be retired when the feature is deployed to 100% of logged-in users in production for > 30 days.
       Enabled - Requests are handled as normal. Users can submit various types of expenses (mileage, lodging, meal, other) to their travel pay claims. Users can upload documents to their travel claims.
       Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
+  travel_pay_exclude_expense_placeholder_receipt:
+    actor_type: user
+    enable_in_development: false
+    description: >-
+      Excludes the placeholder expenseReceipt object on Travel Pay expense create when enabled.
+      When disabled (default), placeholder receipt is included.
   travel_pay_submit_mileage_expense:
     actor_type: user
     enable_in_development: true
