@@ -204,7 +204,7 @@ module VaNotify
     end
 
     def extracted_token(computed_api_key)
-      (computed_api_key.length - UUID_LENGTH)..computed_api_key.length
+      computed_api_key[(computed_api_key.length - UUID_LENGTH)..computed_api_key.length]
     end
   end
 end
