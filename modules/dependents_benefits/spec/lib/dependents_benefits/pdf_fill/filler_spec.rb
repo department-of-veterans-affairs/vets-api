@@ -32,7 +32,7 @@ describe PdfFill::Filler, type: :model do
         form_types.each do |type, extras_redesign, show_jumplinks|
           context "with type=#{type} extras_redesign=#{extras_redesign} show_jumplinks=#{show_jumplinks}" do
             let(:form_data) do
-              get_fixture("pdf_fill/#{form_id}/#{type}")
+              get_fixture_absolute("modules/dependents_benefits/spec/fixtures/pdf_fill/#{form_id}/#{type}")
             end
 
             it 'fills the form correctly' do
@@ -50,7 +50,7 @@ describe PdfFill::Filler, type: :model do
               file_path = described_class.fill_ancillary_form(form_data, 1, form_id,
                                                               { extras_redesign:, student:, show_jumplinks: })
 
-              fixture_pdf_base = "spec/fixtures/pdf_fill/#{form_id}/#{type}"
+              fixture_pdf_base = "modules/dependents_benefits/spec/fixtures/pdf_fill/#{form_id}/#{type}"
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
