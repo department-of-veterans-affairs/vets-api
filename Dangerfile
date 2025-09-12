@@ -308,7 +308,7 @@ module VSPDanger
     end
 
     def app_files
-      (files - db_files - seed_files).reject { |file| file == 'Dangerfile' }
+      (files - db_files - seed_files).reject { |file| file == File.basename(__FILE__) }
     end
 
     def db_files
