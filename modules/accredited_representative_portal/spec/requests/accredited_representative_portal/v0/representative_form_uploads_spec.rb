@@ -245,10 +245,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
           expect(response).to have_http_status(:ok)
 
           expect(span_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'form_id' }, form_number)
-          expect(span_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'org' }, '067')
+          expect(span_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'poa_code' }, '067')
 
           expect(trace_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'form_id' }, form_number)
-          expect(trace_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'org' }, '067')
+          expect(trace_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'poa_code' }, '067')
         end
 
         context 'when email sending fails' do
