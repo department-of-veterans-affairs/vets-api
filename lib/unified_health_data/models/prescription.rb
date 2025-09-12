@@ -74,9 +74,5 @@ module UnifiedHealthData
     def sig
       attributes&.instructions
     end
-
-    def cmop_division_phone
-      attributes&.facility_phone_number
-    end
   end
 end
