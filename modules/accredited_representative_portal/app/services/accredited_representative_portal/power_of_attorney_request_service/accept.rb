@@ -146,7 +146,7 @@ module AccreditedRepresentativePortal
       def organization_data
         membership =
           @power_of_attorney_holder_memberships.find(
-            poa_request.power_of_attorney_holder.poa_code
+            poa_request.power_of_attorney_holder_poa_code
           )
 
         {

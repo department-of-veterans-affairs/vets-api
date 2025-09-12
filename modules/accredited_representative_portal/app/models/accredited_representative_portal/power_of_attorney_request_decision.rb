@@ -94,7 +94,7 @@ module AccreditedRepresentativePortal
         **attrs
       )
         PowerOfAttorneyRequestResolution.transaction do
-          poa_code = power_of_attorney_request.power_of_attorney_holder.poa_code
+          poa_code = power_of_attorney_request.power_of_attorney_holder_poa_code
           membership = power_of_attorney_holder_memberships.find(poa_code)
           poa_holder = membership.power_of_attorney_holder
 

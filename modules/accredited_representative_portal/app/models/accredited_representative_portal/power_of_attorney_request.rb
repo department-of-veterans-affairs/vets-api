@@ -223,14 +223,6 @@ module AccreditedRepresentativePortal
       where(accredited_individual_registration_number:)
     }
 
-    def power_of_attorney_holder
-      PowerOfAttorneyHolder.new(
-        type: power_of_attorney_holder_type, name: nil,
-        poa_code: power_of_attorney_holder_poa_code,
-        can_accept_digital_poa_requests: nil
-      )
-    end
-
     private
 
     def set_claimant_type

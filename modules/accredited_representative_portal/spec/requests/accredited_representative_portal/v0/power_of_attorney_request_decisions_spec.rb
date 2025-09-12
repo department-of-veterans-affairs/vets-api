@@ -131,7 +131,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
               AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
                 registration_number: '1234',
                 power_of_attorney_holder:
-                  poa_request.power_of_attorney_holder
+                  AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+                    poa_code: poa_request.power_of_attorney_holder_poa_code,
+                    type: poa_request.power_of_attorney_holder_type,
+                    can_accept_digital_poa_requests: false,
+                    name: 'Org Name'
+                  )
               )
             ]
           )
@@ -272,7 +277,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
             AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
               registration_number: '1234',
               power_of_attorney_holder:
-                poa_request.power_of_attorney_holder
+                AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+                  poa_code: poa_request.power_of_attorney_holder_poa_code,
+                  type: poa_request.power_of_attorney_holder_type,
+                  can_accept_digital_poa_requests: false,
+                  name: 'Org Name'
+                )
             )
           ]
         )
