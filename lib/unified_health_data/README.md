@@ -156,7 +156,7 @@ class PrescriptionsController < ApplicationController
 
   def refill
     service = UnifiedHealthData::Service.new(current_user)
-    prescription_ids = refill_params[:prescriptions].map { |p| p[:orderId] }
+    prescription_ids = refill_params[:prescriptions].map { |p| p[:id] }
     
     result = service.refill_prescription(prescription_ids)
     render json: result
@@ -165,7 +165,7 @@ class PrescriptionsController < ApplicationController
   private
 
   def refill_params
-    params.permit(prescriptions: [:orderId])
+    params.permit(prescriptions: [:id])
   end
 end
 ```
