@@ -5,8 +5,10 @@ require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
 require_relative 'models/clinical_notes'
+require_relative 'models/condition'
 require_relative 'adapters/clinical_notes_adapter'
 require_relative 'reference_range_formatter'
+require_relative 'adapters/conditions_adapter'
 
 module UnifiedHealthData
   class Service < Common::Client::Base
@@ -36,6 +38,23 @@ module UnifiedHealthData
         log_test_code_distribution(parsed_records)
 
         filtered_records
+      end
+    end
+
+    def get_conditions
+      with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        patient_id = @user.icn
+
+        start_date = '1900-01-01'
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+        conditions_adapter.parse(combined_records)
       end
     end
 
@@ -429,6 +448,11 @@ module UnifiedHealthData
         "Error creating PersonalInformationLog for short test name issue: #{e.class.name}",
         { service: 'unified_health_data', backtrace: e.backtrace.first(5) }
       )
+    end
+
+    # Conditions methods
+    def conditions_adapter
+      @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
     end
 
     # Care Summaries and Notes methods
