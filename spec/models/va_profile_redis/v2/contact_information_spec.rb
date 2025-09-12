@@ -10,7 +10,7 @@ describe VAProfileRedis::V2::ContactInformation do
     VAProfile::ContactInformation::V2::PersonResponse.from(raw_response)
   end
   let(:contact_info) { VAProfileRedis::V2::ContactInformation.for_user(user) }
-  let(:person) { build(:person_v2, telephones:) }
+  let(:person) { build(:person, telephones:) }
   let(:telephones) do
     [
       build(:telephone),
@@ -22,12 +22,11 @@ describe VAProfileRedis::V2::ContactInformation do
   end
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-    allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
+    allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
   end
 
   [404, 400].each do |status|
-    context "with a #{status} from get_person", :skip_vet360 do
+    context "with a #{status} from get_person" do
       let(:get_person_calls) { 'once' }
 
       before do
@@ -104,7 +103,7 @@ describe VAProfileRedis::V2::ContactInformation do
   describe 'contact information attributes' do
     context 'with a successful response' do
       before do
-        allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
+        allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
         allow_any_instance_of(
           VAProfile::ContactInformation::V2::Service
         ).to receive(:get_person).and_return(person_response)
@@ -121,20 +120,20 @@ describe VAProfileRedis::V2::ContactInformation do
 
       describe '#residential_address' do
         it 'returns the users residential address object', :aggregate_failures do
-          residence = address_for VAProfile::Models::V3::Address::RESIDENCE
+          residence = address_for VAProfile::Models::Address::RESIDENCE
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             expect(contact_info.residential_address).to eq residence
-            expect(contact_info.residential_address.class).to eq VAProfile::Models::V3::Address
+            expect(contact_info.residential_address.class).to eq VAProfile::Models::Address
           end
         end
       end
 
       describe '#mailing_address' do
         it 'returns the users mailing address object', :aggregate_failures do
-          correspondence = address_for VAProfile::Models::V3::Address::CORRESPONDENCE
+          correspondence = address_for VAProfile::Models::Address::CORRESPONDENCE
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             expect(contact_info.mailing_address).to eq correspondence
-            expect(contact_info.mailing_address.class).to eq VAProfile::Models::V3::Address
+            expect(contact_info.mailing_address.class).to eq VAProfile::Models::Address
           end
         end
       end
@@ -270,7 +269,7 @@ describe VAProfileRedis::V2::ContactInformation do
       end
 
       before do
-        allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(nil)
+        allow(VAProfile::Models::Person).to receive(:build_from).and_return(nil)
         allow_any_instance_of(
           VAProfile::ContactInformation::V2::Service
         ).to receive(:get_person).and_return(empty_response)

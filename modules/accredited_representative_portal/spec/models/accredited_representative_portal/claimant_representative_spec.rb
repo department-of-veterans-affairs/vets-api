@@ -4,31 +4,18 @@ require 'rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :model do
   describe '.find' do
-    context 'without all required arguments' do
-      subject do
-        described_class.find {}
-      end
-
-      it 'raises Finder::Error' do
-        expect { subject }.to raise_error(
-          described_class::Finder::Error
-        )
-      end
-    end
-
     context 'with all required arguments' do
       subject do
-        described_class.find do |finder|
-          finder.for_claimant(
-            icn: claimant_icn
+        power_of_attorney_holder_memberships =
+          AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
+            icn: representative_icn,
+            emails: [representative_email]
           )
 
-          finder.for_representative(
-            icn: representative_icn,
-            email: representative_email,
-            all_emails: [representative_email]
-          )
-        end
+        described_class.find(
+          claimant_icn:,
+          power_of_attorney_holder_memberships:
+        )
       end
 
       context 'with a representative belonging to 2 VSOs' do

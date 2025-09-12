@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
-require 'va_profile/contact_information/person_response'
 require 'va_profile/contact_information/v2/person_response'
-require 'va_profile/contact_information/service'
 require 'va_profile/contact_information/v2/service'
 require 'va_profile/models/address'
-require 'va_profile/models/v3/address'
 require 'va_profile/models/telephone'
-require 'va_profile/models/permission'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 
