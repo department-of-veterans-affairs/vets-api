@@ -551,21 +551,21 @@ GEM
       base64 (~> 0.2)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.2.0)
-    google-protobuf (4.32.0)
+    google-protobuf (4.32.1)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.32.0-aarch64-linux-gnu)
+    google-protobuf (4.32.1-aarch64-linux-gnu)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.32.0-java)
+    google-protobuf (4.32.1-java)
       bigdecimal
       ffi (~> 1)
       ffi-compiler (~> 1)
       rake (>= 13)
-    google-protobuf (4.32.0-x86-mingw32)
+    google-protobuf (4.32.1-x86-mingw32)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.32.0-x86_64-linux-gnu)
+    google-protobuf (4.32.1-x86_64-linux-gnu)
       bigdecimal
       rake (>= 13)
     googleauth (1.15.0)
