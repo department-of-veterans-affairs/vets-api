@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'dependents_benefits/monitor'
+require 'dependents_benefits/generators/claim674_generator'
+require 'dependents_benefits/generators/claim686c_generator'
 
 module DependentsBenefits
   module V0
@@ -55,6 +57,9 @@ module DependentsBenefits
                                  { claim_id: claim.id, user_account_uuid: current_user&.user_account_uuid })
 
         render json: SavedClaimSerializer.new(claim)
+      rescue => e
+        puts e
+        raise e
       end
 
       private
