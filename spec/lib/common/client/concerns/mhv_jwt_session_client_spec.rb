@@ -15,18 +15,14 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
       end
 
       def session
-        @session || OpenStruct.new(user_uuid: '12345', icn: 'ABC')
+        @session || OpenStruct.new(icn: 'ABC')
       end
 
       def config
         OpenStruct.new(app_token: 'sample_token')
       end
 
-      # The following methods are wrappers around private/protected methods, so they can be tested here.
-
-      def test_user_key
-        user_key
-      end
+      # The following methods are wrappers around private methods, so they can be tested here.
 
       def test_get_jwt_from_headers(headers)
         get_jwt_from_headers(headers)
@@ -39,15 +35,6 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
   end
 
   let(:dummy_instance) { dummy_class.new(session: session_data) }
-
-  describe '#user_key' do
-    let(:session_data) { OpenStruct.new(user_uuid: '12345', icn: 'ABC') }
-
-    it 'returns the user UUID' do
-      user_key = dummy_instance.test_user_key
-      expect(user_key).to eq('12345')
-    end
-  end
 
   describe '#validate_session_params' do
     context 'when icn and app_token are present' do
