@@ -11,7 +11,7 @@ TravelPay::Engine.routes.draw do
 
     resources :complex_claims, only: %i[create], param: :claim_id do
       member do
-        post :submit
+        patch :submit
       end
     end
   end
