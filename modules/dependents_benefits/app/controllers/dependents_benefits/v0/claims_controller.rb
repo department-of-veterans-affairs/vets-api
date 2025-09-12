@@ -57,9 +57,6 @@ module DependentsBenefits
                                  { claim_id: claim.id, user_account_uuid: current_user&.user_account_uuid })
 
         render json: SavedClaimSerializer.new(claim)
-      rescue => e
-        puts e
-        raise e
       end
 
       private
