@@ -17,24 +17,36 @@ module AccreditedRepresentativePortal
       @ogc_client = OgcClient.new
     end
 
-    Types = PowerOfAttorneyHolder::Types
+    delegate :empty?, to: :all
+
+    def power_of_attorney_holders
+      all.map(&:power_of_attorney_holder)
+    end
+
+    def find(poa_code)
+      all.find do |membership|
+        membership.power_of_attorney_holder.poa_code ==
+          poa_code
+      end
+    end
+
+    def registration_numbers
+      all.map(&:registration_number).uniq
+    end
+
+    private
 
     ##
-    # `#load` always returns an `Array` of `Membership` objects with:
-    #   - a unique `registration_number`
-    #   - a `power_of_attorney_holder` having a type that is one of:
-    #     - `VETERAN_SERVICE_ORGANIZATION`
-    #     - `CLAIMS_AGENT`
-    #     - `ATTORNEY`
+    # `#all` returns an `Array` of `Membership` objects with:
+    # - <= 1 instance where `power_of_attorney_holder.type` is `CLAIMS_AGENT`
+    # - <= 1 instance where `power_of_attorney_holder.type` is `ATTORNEY`
+    # - Any number where `power_of_attorney_holder.type` is `VETERAN_SERVICE_ORGANIZATION`
+    # - `registration_number` that is shared _always and only_ among the same `power_of_attorney_holder.type`
+    # - >= 1 instance
     #
-    # `VETERAN_SERVICE_ORGANIZATION`s may account for multiple memberships (one
-    # per matching organization), while `CLAIMS_AGENT` and `ATTORNEY` account
-    # for exactly one each.
+    # When any of the above properties is violated, an exception is raised.
     #
-    # No unsupported user types are included, and duplicate or empty
-    # registration sets raise `InvalidRegistrationsError`.
-    #
-    def load # rubocop:disable Metrics/MethodLength
+    def all # rubocop:disable Metrics/MethodLength
       @memberships ||=
         get_registrations.flat_map do |registration|
           case registration.user_type
@@ -51,21 +63,23 @@ module AccreditedRepresentativePortal
 
                 power_of_attorney_holder:
                   PowerOfAttorneyHolder.new(
-                    type: Types::VETERAN_SERVICE_ORGANIZATION,
+                    type: PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
+                    name: organization.name,
                     poa_code: organization.poa,
                     can_accept_digital_poa_requests:
                       organization.can_accept_digital_poa_requests
                   )
               )
             end
-          when 'claims_agent'
+          when 'claim_agents'
             Membership.new(
               registration_number:
                 registration.representative_id,
 
               power_of_attorney_holder:
                 PowerOfAttorneyHolder.new(
-                  type: Types::CLAIMS_AGENT,
+                  type: PowerOfAttorneyHolder::Types::CLAIMS_AGENT,
+                  name: "#{registration.first_name} #{registration.last_name}",
                   poa_code: registration.poa_codes.first,
                   can_accept_digital_poa_requests:
                     false
@@ -78,7 +92,8 @@ module AccreditedRepresentativePortal
 
               power_of_attorney_holder:
                 PowerOfAttorneyHolder.new(
-                  type: Types::ATTORNEY,
+                  type: PowerOfAttorneyHolder::Types::ATTORNEY,
+                  name: "#{registration.first_name} #{registration.last_name}",
                   poa_code: registration.poa_codes.first,
                   can_accept_digital_poa_requests:
                     false
@@ -89,8 +104,6 @@ module AccreditedRepresentativePortal
           end
         end
     end
-
-    private
 
     def get_registrations
       registrations = get_upstream_registrations

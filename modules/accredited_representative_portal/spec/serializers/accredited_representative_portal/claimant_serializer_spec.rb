@@ -3,7 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::ClaimantSerializer, type: :serializer do
-  subject { described_class.new(claimant).as_json }
+  subject do
+    described_class.new(
+      power_of_attorney_requests:,
+      claimant_representative:,
+      claimant_profile:
+    ).as_json
+  end
 
   let(:address) do
     double(
@@ -13,7 +19,7 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantSerializer, type: :serial
     )
   end
 
-  let(:profile) do
+  let(:claimant_profile) do
     double(
       icn: '123498767V234859',
       address:,
@@ -22,8 +28,14 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantSerializer, type: :serial
     )
   end
   let!(:poa_request) { create(:power_of_attorney_request) }
-  let(:poa_requests) { AccreditedRepresentativePortal::PowerOfAttorneyRequest.all }
-  let(:claimant) { AccreditedRepresentativePortal::Claimant.new(profile, poa_requests, '067') }
+  let(:power_of_attorney_requests) { AccreditedRepresentativePortal::PowerOfAttorneyRequest.all }
+
+  let(:claimant_representative) do
+    double(
+      power_of_attorney_holder: double(name: 'Org Name'),
+      claimant_id: '1234'
+    )
+  end
 
   around do |example|
     VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney/200_response') do
