@@ -239,9 +239,7 @@ module VSPDanger
       return Result.success('All set.') unless db_files.any?
 
       # Check for column removal without ignored_columns
-      if migration_removes_columns? && !has_ignored_columns_in_models?
-        return Result.warn(column_removal_warning)
-      end
+      return Result.warn(column_removal_warning) if migration_removes_columns? && !ignored_columns_in_models?
 
       disallowed_files = app_files.reject { |file| allowed_app_file?(file) }
 
@@ -260,8 +258,8 @@ module VSPDanger
       end
     end
 
-    def has_ignored_columns_in_models?
-      model_files = app_files.select { |f| f.match?(%r{app/models/.+\.rb$}) }
+    def ignored_columns_in_models?
+      model_files = app_files.grep(%r{app/models/.+\.rb$})
 
       return false if model_files.empty?
 
@@ -272,7 +270,7 @@ module VSPDanger
     end
 
     def migration_files
-      db_files.select { |f| f.match?(%r{db/migrate/.+\.rb$}) }
+      db_files.grep(%r{db/migrate/.+\.rb$})
     end
 
     def column_removal_warning
@@ -370,11 +368,13 @@ module VSPDanger
     end
 
     def db_files
-      files.select { |file| DB_PATHS.any? { |db_path| file.include?(db_path) } }
+      pattern = Regexp.union(DB_PATHS.map { |path| Regexp.new(Regexp.escape(path)) })
+      files.grep(pattern)
     end
 
     def seed_files
-      files.select { |file| SEEDS_PATHS.any? { |seed_path| file.include?(seed_path) } }
+      pattern = Regexp.union(SEEDS_PATHS.map { |path| Regexp.new(Regexp.escape(path)) })
+      files.grep(pattern)
     end
 
     def files
