@@ -70,6 +70,8 @@ module IvcChampva
       @metadata['attachment_ids'].zip(@file_paths).map do |attachment_id, file_path|
         next if file_path.blank?
 
+        Rails.logger.info "IVC Champva Forms - FileUploader: Starting upload with attachment_id: #{attachment_id}"
+
         file_name = File.basename(file_path).gsub('-tmp', '')
         response_status = upload(file_name, file_path, metadata_for_s3(attachment_id))
         insert_form(file_name, response_status.to_s) if @insert_db_row
@@ -91,6 +93,8 @@ module IvcChampva
 
         attachment_id = @form_id
         file_name = File.basename(merged_pdf_path)
+
+        Rails.logger.info "IVC Champva Forms - FileUploader: Starting upload with attachment_id: #{attachment_id}"
 
         # Upload the combined PDF
         response_status = upload(file_name, merged_pdf_path, metadata_for_s3(attachment_id))
@@ -175,6 +179,8 @@ module IvcChampva
       meta_file_name = "#{@metadata['uuid']}_#{@form_id}_metadata.json"
       meta_file_path = "tmp/#{meta_file_name}"
       File.write(meta_file_path, @metadata.to_json)
+
+      Rails.logger.info 'IVC Champva Forms - FileUploader: Starting upload of metadata json'
       meta_upload_status, meta_upload_error_message = upload(meta_file_name, meta_file_path)
 
       if meta_upload_status == 200
