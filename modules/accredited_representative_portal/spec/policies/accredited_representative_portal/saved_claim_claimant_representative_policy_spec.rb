@@ -14,7 +14,10 @@ module AccreditedRepresentativePortal
 
     before do
       allow_any_instance_of(PowerOfAttorneyHolderMemberships).to(
-        receive_messages(power_of_attorney_holders:, registration_numbers:)
+        receive_messages(
+          power_of_attorney_holders:, registration_numbers:,
+          empty?: power_of_attorney_holders.empty?
+        )
       )
     end
 

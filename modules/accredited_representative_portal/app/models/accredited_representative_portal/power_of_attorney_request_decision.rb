@@ -94,18 +94,16 @@ module AccreditedRepresentativePortal
         **attrs
       )
         PowerOfAttorneyRequestResolution.transaction do
-          membership =
-            power_of_attorney_holder_memberships.for_power_of_attorney_holder(
-              power_of_attorney_request.power_of_attorney_holder
-            )
+          poa_code = power_of_attorney_request.power_of_attorney_holder.poa_code
+          membership = power_of_attorney_holder_memberships.find(poa_code)
+          poa_holder = membership.power_of_attorney_holder
 
-          holder = membership.power_of_attorney_holder
           decision = build_decision(
             creator_id:,
             type:,
             declination_reason:,
-            power_of_attorney_holder_type: holder.type,
-            power_of_attorney_holder_poa_code: holder.poa_code,
+            power_of_attorney_holder_type: poa_holder.type,
+            power_of_attorney_holder_poa_code: poa_holder.poa_code,
             accredited_individual_registration_number: membership.registration_number
           )
 

@@ -32,10 +32,13 @@ module AccreditedRepresentativePortal
 
     delegate(
       :power_of_attorney_holders,
-      :active_power_of_attorney_holders,
       :registration_numbers,
       to: :power_of_attorney_holder_memberships
     )
+
+    def representative?
+      power_of_attorney_holder_memberships.present?
+    end
 
     def power_of_attorney_holder_memberships
       @power_of_attorney_holder_memberships ||=

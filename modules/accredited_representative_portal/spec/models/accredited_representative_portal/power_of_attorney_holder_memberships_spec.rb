@@ -292,26 +292,6 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         end
       end
 
-      describe '#active_power_of_attorney_holders' do
-        subject(:active_power_of_attorney_holders) do
-          memberships = described_class.new(icn: 'some_icn', emails:)
-          memberships.active_power_of_attorney_holders
-        end
-
-        it 'returns active_power_of_attorney_holders' do
-          expect(active_power_of_attorney_holders).to eq(
-            [
-              PowerOfAttorneyHolder.new(
-                type: 'veteran_service_organization',
-                name: 'Org B',
-                poa_code: 'P13',
-                can_accept_digital_poa_requests: true
-              )
-            ]
-          )
-        end
-      end
-
       describe '#power_of_attorney_holders' do
         subject(:power_of_attorney_holders) do
           memberships = described_class.new(icn: 'some_icn', emails:)
@@ -350,21 +330,14 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         end
       end
 
-      describe '#for_power_of_attorney_holder' do
-        subject(:for_power_of_attorney_holder) do
+      describe '#find' do
+        subject(:find) do
           memberships = described_class.new(icn: 'some_icn', emails:)
-          memberships.for_power_of_attorney_holder(
-            PowerOfAttorneyHolder.new(
-              type: 'veteran_service_organization',
-              name: 'Org B',
-              poa_code: 'P13',
-              can_accept_digital_poa_requests: nil
-            )
-          )
+          memberships.find('P13')
         end
 
         it 'finds the membership that matches the provided poa holder' do
-          expect(for_power_of_attorney_holder).to eq(
+          expect(find).to eq(
             described_class::Membership.new(
               registration_number: 'R1002',
               power_of_attorney_holder:

@@ -20,18 +20,9 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::AuthorizeAsRepresentative', 
 
       context 'and user is an accredited representative' do
         before do
-          vso_type =
-            AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION
-
-          holder =
-            AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
-              type: vso_type, poa_code: '067',
-              name: 'Org Name', can_accept_digital_poa_requests: true
-            )
-
           allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships)
-            .to receive(:power_of_attorney_holders)
-            .and_return([holder])
+            .to receive(:empty?)
+            .and_return(false)
         end
 
         it 'returns 204 No Content' do
@@ -54,7 +45,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::AuthorizeAsRepresentative', 
         end
       end
 
-      context 'and RepresentativeUserAccount raises Forbidden (e.g., OGC conflict/none)' do
+      context 'and PowerOfAttorneyHolderMemberships raises Forbidden (e.g., OGC conflict/none)' do
         before do
           allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships)
             .to receive(:power_of_attorney_holders).and_raise(Common::Exceptions::Forbidden)

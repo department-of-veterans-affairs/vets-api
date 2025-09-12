@@ -17,28 +17,16 @@ module AccreditedRepresentativePortal
       @ogc_client = OgcClient.new
     end
 
-    def active_power_of_attorney_holders
-      power_of_attorney_holders
-        .select(&:accepts_digital_power_of_attorney_requests?)
-    end
+    delegate :empty?, to: :all
 
     def power_of_attorney_holders
       all.map(&:power_of_attorney_holder)
     end
 
-    def for_power_of_attorney_holder(power_of_attorney_holder)
-      ##
-      # Might be nice to instead have a `PowerOfAttorneyHolder#==` method with a
-      # semantics that matches what is needed here.
-      #
+    def find(poa_code)
       all.find do |membership|
-        ##
-        # We might redundantly insist that POA holder type matches as well. But
-        # currently the claimant POA fetched from Lighthouse API doesn't
-        # distinguish the same types for individuals as we do internally.
-        #
         membership.power_of_attorney_holder.poa_code ==
-          power_of_attorney_holder.poa_code
+          poa_code
       end
     end
 
@@ -49,19 +37,14 @@ module AccreditedRepresentativePortal
     private
 
     ##
-    # `#all` always returns an `Array` of `Membership` objects with:
-    #   - a unique `registration_number`
-    #   - a `power_of_attorney_holder` having a type that is one of:
-    #     - `VETERAN_SERVICE_ORGANIZATION`
-    #     - `CLAIMS_AGENT`
-    #     - `ATTORNEY`
+    # `#all` returns an `Array` of `Membership` objects with:
+    # - <= 1 instance where `power_of_attorney_holder.type` is `CLAIMS_AGENT`
+    # - <= 1 instance where `power_of_attorney_holder.type` is `ATTORNEY`
+    # - Any number where `power_of_attorney_holder.type` is `VETERAN_SERVICE_ORGANIZATION`
+    # - `registration_number` that is shared _always and only_ among the same `power_of_attorney_holder.type`
+    # - >= 1 instance
     #
-    # `VETERAN_SERVICE_ORGANIZATION`s may account for multiple memberships (one
-    # per matching organization), while `CLAIMS_AGENT` and `ATTORNEY` account
-    # for exactly one each.
-    #
-    # No unsupported user types are included, and duplicate or empty
-    # registration sets raise `InvalidRegistrationsError`.
+    # When any of the above properties is violated, an exception is raised.
     #
     def all # rubocop:disable Metrics/MethodLength
       @memberships ||=
