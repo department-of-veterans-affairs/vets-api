@@ -1099,8 +1099,11 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'submits refill requests and returns success/failure breakdown' do
-        prescription_ids = %w[28148665 28148545]
-        result = service.refill_prescription(prescription_ids)
+        orders = [
+          { orderId: '28148665', stationNumber: '570' },
+          { orderId: '28148545', stationNumber: '556' }
+        ]
+        result = service.refill_prescription(orders)
 
         expect(result).to have_key(:success)
         expect(result).to have_key(:failed)
@@ -1115,11 +1118,15 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'formats request body correctly' do
-        prescription_ids = %w[12345 67890]
+        orders = [
+          { orderId: '12345', stationNumber: '570' },
+          { orderId: '67890', stationNumber: '556' }
+        ]
         expected_body = {
-          prescriptions: [
-            { orderId: '12345' },
-            { orderId: '67890' }
+          patientId: user.icn,
+          orders: [
+            { orderId: '12345', stationNumber: '570' },
+            { orderId: '67890', stationNumber: '556' }
           ]
         }.to_json
 
@@ -1130,7 +1137,7 @@ describe UnifiedHealthData::Service, type: :service do
           hash_including('Content-Type' => 'application/json')
         ).and_return(double(body: refill_response))
 
-        service.refill_prescription(prescription_ids)
+        service.refill_prescription(orders)
       end
     end
 
@@ -1138,8 +1145,8 @@ describe UnifiedHealthData::Service, type: :service do
       it 'handles network errors gracefully' do
         allow(service).to receive(:fetch_access_token).and_raise(StandardError.new('Network error'))
 
-        prescription_ids = ['12345']
-        result = service.refill_prescription(prescription_ids)
+        orders = [{ orderId: '12345', stationNumber: '570' }]
+        result = service.refill_prescription(orders)
 
         expect(result[:success]).to eq([])
         expect(result[:failed]).to contain_exactly(
@@ -1151,7 +1158,7 @@ describe UnifiedHealthData::Service, type: :service do
         allow(service).to receive(:fetch_access_token).and_raise(StandardError.new('API error'))
         allow(Rails.logger).to receive(:error)
 
-        service.refill_prescription(['12345'])
+        service.refill_prescription([{ orderId: '12345', stationNumber: '570' }])
 
         expect(Rails.logger).to have_received(:error).with('Error submitting prescription refill: API error')
       end
@@ -1165,7 +1172,7 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'handles empty response gracefully' do
-        result = service.refill_prescription(['12345'])
+        result = service.refill_prescription([{ orderId: '12345', stationNumber: '570' }])
 
         expect(result[:success]).to eq([])
         expect(result[:failed]).to eq([])

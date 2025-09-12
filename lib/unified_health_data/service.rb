@@ -26,7 +26,7 @@ module UnifiedHealthData
 
     def get_labs(start_date:, end_date:)
       with_monitoring do
-        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        headers = request_headers
         patient_id = @user.icn
         path = "#{config.base_path}labs?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
         response = perform(:get, path, nil, headers)
@@ -45,7 +45,6 @@ module UnifiedHealthData
 
     def get_care_summaries_and_notes
       with_monitoring do
-        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
         patient_id = @user.icn
 
         # NOTE: we must pass in a startDate and endDate to SCDF
@@ -55,7 +54,7 @@ module UnifiedHealthData
         end_date = Time.zone.today.to_s
 
         path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, headers)
+        response = perform(:get, path, nil, request_headers)
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)
@@ -68,11 +67,10 @@ module UnifiedHealthData
 
     def get_prescriptions
       with_monitoring do
-        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
         patient_id = @user.icn
         path = "#{config.base_path}medications?patientId=#{patient_id}"
 
-        response = perform(:get, path, nil, headers)
+        response = perform(:get, path, nil, request_headers)
         body = parse_response_body(response.body)
 
         adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new
@@ -88,36 +86,21 @@ module UnifiedHealthData
       end
     end
 
-    def refill_prescription(prescription_ids)
+    def refill_prescription(orders)
       with_monitoring do
-        headers = {
-          'Authorization' => fetch_access_token,
-          'x-api-key' => config.x_api_key,
-          'Content-Type' => 'application/json'
-        }
-
         path = "#{config.base_path}prescriptions/refill"
-
-        # Format the request body
-        request_body = {
-          prescriptions: prescription_ids.map { |id| { orderId: id.to_s } }
-        }
-
-        response = perform(:post, path, request_body.to_json, headers)
+        request_body = build_refill_request_body(orders)
+        response = perform(:post, path, request_body.to_json, request_headers(include_content_type: true))
         parse_refill_response(response)
       end
     rescue => e
       Rails.logger.error("Error submitting prescription refill: #{e.message}")
-      {
-        success: [],
-        failed: prescription_ids.map { |id| { id:, error: 'Service unavailable' } }
-      }
+      build_error_response(orders)
     end
 
     def get_single_summary_or_note(note_id)
       # TODO: refactor out common bits into a client type method - most of this is repeated from above
       with_monitoring do
-        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
         patient_id = @user.icn
 
         # NOTE: we must pass in a startDate and endDate to SCDF
@@ -127,7 +110,7 @@ module UnifiedHealthData
         end_date = Time.zone.today.to_s
 
         path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, headers)
+        response = perform(:get, path, nil, request_headers)
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)
@@ -154,6 +137,15 @@ module UnifiedHealthData
         end
         response.headers['authorization']
       end
+    end
+
+    def request_headers(include_content_type: false)
+      headers = {
+        'Authorization' => fetch_access_token,
+        'x-api-key' => config.x_api_key
+      }
+      headers['Content-Type'] = 'application/json' if include_content_type
+      headers
     end
 
     def parse_response_body(body)
@@ -420,6 +412,25 @@ module UnifiedHealthData
     end
 
     # Prescription refill helper methods
+    def build_refill_request_body(orders)
+      {
+        patientId: @user.icn,
+        orders: orders.map do |order|
+          {
+            orderId: order[:orderId].to_s,
+            stationNumber: order[:stationNumber].to_s
+          }
+        end
+      }
+    end
+
+    def build_error_response(orders)
+      {
+        success: [],
+        failed: orders.map { |order| { id: order[:orderId], error: 'Service unavailable' } }
+      }
+    end
+
     def parse_refill_response(response)
       body = parse_response_body(response.body)
 
