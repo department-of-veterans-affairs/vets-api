@@ -196,6 +196,35 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
             }
           )
         end
+
+        it 'applies form_id and org tags on span and root trace during submit' do
+          span_double  = double('Span')
+          trace_double = double('Trace')
+
+          allow(span_double).to receive(:set_tag)
+          allow(trace_double).to receive(:set_tag)
+
+          real_monitor = AccreditedRepresentativePortal::Monitoring.new(
+            AccreditedRepresentativePortal::Monitoring::NAME,
+            default_tags: []
+          )
+
+          allow(AccreditedRepresentativePortal::Monitoring)
+            .to receive(:new)
+            .and_return(real_monitor)
+
+          allow(real_monitor).to receive(:trace) { |*_args, &blk| blk.call(span_double) }
+          allow(Datadog::Tracing).to receive(:active_trace).and_return(trace_double)
+
+          post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+          expect(response).to have_http_status(:ok)
+
+          expect(span_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'form_id' }, form_number)
+          expect(span_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'org' }, '067')
+
+          expect(trace_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'form_id' }, form_number)
+          expect(trace_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'org' }, '067')
+        end
       end
 
       context 'when email sending fails' do
@@ -320,6 +349,51 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
                                         'status' => '422'
                                       }]
                                     })
+    end
+
+    it 'applies form_id and org tags on span and root trace during supporting documents upload' do
+      # Make uploads pass
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+      allow_any_instance_of(BenefitsIntakeService::Service).to receive(:valid_document?).and_return(pdf_path)
+      file = fixture_file_upload('doctors-note.gif')
+
+      allow_any_instance_of(
+        AccreditedRepresentativePortal::V0::RepresentativeFormUploadController
+      ).to receive(:organization).and_return('Org Name')
+
+      span_double  = double('Span')
+      trace_double = double('Trace')
+      allow(span_double).to receive(:set_tag)
+      allow(trace_double).to receive(:set_tag)
+
+      real_monitor = AccreditedRepresentativePortal::Monitoring.new(
+        AccreditedRepresentativePortal::Monitoring::NAME,
+        default_tags: []
+      )
+      allow(AccreditedRepresentativePortal::Monitoring).to receive(:new).and_return(real_monitor)
+      allow(real_monitor).to receive(:trace) { |*_args, &blk| blk.call(span_double) }
+      allow(real_monitor).to receive(:track_count) if real_monitor.respond_to?(:track_count)
+
+      allow(Datadog::Tracing).to receive(:active_trace).and_return(trace_double)
+
+      expect do
+        post '/accredited_representative_portal/v0/upload_supporting_documents',
+             params: { form_id: form_number, file: }
+      end.to change(PersistentAttachments::VAFormDocumentation, :count).by(1)
+      expect(response).to have_http_status(:ok)
+
+      expect(span_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'form_id' }, form_number)
+      expect(span_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'org' }, 'Org Name')
+
+      expect(trace_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'form_id' }, form_number)
+      expect(trace_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'org' }, 'Org Name')
+
+      expect(span_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'form_upload.form_id' }, form_number)
+      expect(span_double).to have_received(:set_tag).with(
+        satisfy { |k| k.to_s == 'form_upload.attachment_type' },
+        'PersistentAttachments::VAFormDocumentation'
+      )
     end
   end
 

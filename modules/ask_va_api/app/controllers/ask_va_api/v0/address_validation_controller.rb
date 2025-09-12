@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'va_profile/models/v3/validation_address'
+require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/v3/service'
 
 module AskVAApi
@@ -10,7 +10,7 @@ module AskVAApi
       service_tag 'profile'
 
       def create
-        address = VAProfile::Models::V3::ValidationAddress.new(address_params)
+        address = VAProfile::Models::ValidationAddress.new(address_params)
 
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
 
