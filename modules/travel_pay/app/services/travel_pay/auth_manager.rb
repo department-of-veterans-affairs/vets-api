@@ -24,6 +24,9 @@ module TravelPay
       end
     end
 
+    # Expose @user for consumers of the auth manager
+    attr_reader :user
+
     private
 
     def request_new_tokens

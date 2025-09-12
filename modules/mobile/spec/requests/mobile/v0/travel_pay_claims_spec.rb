@@ -123,6 +123,7 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
   describe '#create' do
     before do
       allow(Flipper).to receive(:enabled?).with(:travel_pay_submit_mileage_expense, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, instance_of(User)).and_return(false)
     end
 
     it 'returns a successfully submitted claim response' do
