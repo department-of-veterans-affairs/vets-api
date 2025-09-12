@@ -935,6 +935,40 @@ describe UnifiedHealthData::Service, type: :service do
         end.to raise_error(StandardError, 'Unknown fetch error')
       end
     end
+
+    context 'LOINC code logging' do
+      before do
+        allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_sample_response),
+                                           parse_response_body: notes_sample_response)
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'logs LOINC code distribution when flipper enabled' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
+                                                  user).and_return(true)
+
+        service.get_care_summaries_and_notes
+
+        expect(Rails.logger).to have_received(:info).with(
+          {
+            message: 'UHD LOINC code distribution',
+            loinc_code_distribution: '11506-3:3,11488-4:1,4189665:1,18842-5:1,4189666:1,96339-7:1',
+            total_codes: 6,
+            total_records: 6,
+            service: 'unified_health_data'
+          }
+        )
+      end
+
+      it 'does not log LOINC code distribution when flipper disabled' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
+                                                  user).and_return(false)
+
+        service.get_care_summaries_and_notes
+
+        expect(Rails.logger).not_to receive(:info)
+      end
+    end
   end
 
   describe '#get_single_summary_or_note' do

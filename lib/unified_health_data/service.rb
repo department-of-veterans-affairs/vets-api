@@ -58,7 +58,11 @@ module UnifiedHealthData
 
         filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
 
-        parse_notes(filtered)
+        parsed_notes = parse_notes(filtered)
+
+        log_loinc_codes_enabled? && log_loinc_code_distribution(parsed_notes)
+
+        parsed_notes
       end
     end
 
@@ -435,8 +439,7 @@ module UnifiedHealthData
     def parse_notes(records)
       return [] if records.blank?
 
-      # Parse using the adapter
-      parsed = records.map { |record| clinical_notes_adapter.parse(record) }
+      parsed = records.map { |record| parse_single_note(record) }
       parsed.compact
     end
 
@@ -445,6 +448,47 @@ module UnifiedHealthData
 
       # Parse using the adapter
       clinical_notes_adapter.parse(record)
+    end
+
+    def log_loinc_codes_enabled?
+      Flipper.enabled?(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, @user)
+    end
+
+    # Logs the distribution of loinc codes found in the Notes records for analytics purposes
+    # This helps identify which loinc codes are being used to identify note types
+    def log_loinc_code_distribution(records)
+      loinc_code_counts = count_loinc_codes(records)
+
+      return if loinc_code_counts.empty?
+
+      log_loinc_distribution_info(loinc_code_counts, records.size)
+    end
+
+    def count_loinc_codes(records)
+      loinc_code_counts = Hash.new(0)
+
+      records.each do |record|
+        loinc_codes = record.loinc_codes
+        loinc_codes.each { |code| loinc_code_counts[code] += 1 if code.present? }
+      end
+
+      loinc_code_counts
+    end
+
+    def log_loinc_distribution_info(loinc_code_counts, total_records)
+      sorted_code_counts = loinc_code_counts.sort_by { |_, count| -count }
+
+      code_count_pairs = sorted_code_counts.map { |code, count| "#{code}:#{count}" }
+
+      Rails.logger.info(
+        {
+          message: 'UHD LOINC code distribution',
+          loinc_code_distribution: code_count_pairs.join(','),
+          total_codes: sorted_code_counts.size,
+          total_records:,
+          service: 'unified_health_data'
+        }
+      )
     end
 
     def clinical_notes_adapter
