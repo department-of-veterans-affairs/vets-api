@@ -5,11 +5,9 @@ http_interactions:
       uri: "<TRAVEL_PAY_BASE_URL>/api/v1/claims/73611905-71bf-46ed-b1ec-e790593b8565/documents/123e4567-e89b-12d3-a456-426614174000"
       body:
         encoding: US-ASCII
-        string: ""
+        string: ''
       headers:
         Accept:
-          - application/json
-        Content-Type:
           - application/json
         User-Agent:
           - Vets.gov Agent
@@ -17,27 +15,15 @@ http_interactions:
           - Bearer string
         BTSSS-Access-Token:
           - string
-        Accept-Encoding:
-          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        X-Correlation-ID:
+          - test-correlation-id-123
     response:
       status:
         code: 200
         message: OK
       headers:
-        Date:
-          - Wed, 10 Sep 2025 00:00:00 GMT
-        Connection:
-          - keep-alive
         Content-Type:
           - application/json
-        X-Request-Id:
-          - d687047e-5004-43c1-babb-c2f52f2fda40
-        X-Runtime:
-          - "3.569014"
-        Cache-Control:
-          - no-cache, no-store
-        Pragma:
-          - no-cache
       body:
         encoding: UTF-8
         string: >-

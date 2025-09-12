@@ -70,11 +70,36 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
     context 'when feature flag is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
-        allow_any_instance_of(TravelPay::V0::DocumentsController)
-          .to receive(:service).and_return(service)
+      end
+
+      context 'vcr tests' do
+        let(:headers) do
+          {
+            'Authorization' => 'Bearer vagov_token',
+            'X-Correlation-ID' => 'test-correlation-id-123'
+          }
+        end
+
+        context 'when the document is successfully deleted' do
+          it 'returns the document data with correct headers' do
+            VCR.use_cassette('travel_pay/documents/delete/success', match_requests_on: %i[method path]) do
+              delete(doc_path)
+
+              expect(response).to have_http_status(:ok)
+              body = JSON.parse(response.body)
+
+              expect(body['documentId']).to eq('123e4567-e89b-12d3-a456-426614174000')
+            end
+          end
+        end
       end
 
       context 'stubbed service behavior' do
+        before do
+          allow_any_instance_of(TravelPay::V0::DocumentsController)
+            .to receive(:service).and_return(service)
+        end
+
         it 'deletes document and returns documentId' do
           allow(service).to receive(:delete_document)
             .with(claim_id, doc_id)

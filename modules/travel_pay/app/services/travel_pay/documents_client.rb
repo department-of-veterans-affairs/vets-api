@@ -95,7 +95,7 @@ module TravelPay
     def delete_document(veis_token, btsss_token, params = {})
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      params.symbolize_keys => { claim_id: nil, doc_id: nil }
+      params.symbolize_keys => { claim_id:, document_id: }
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
       log_to_statsd('documents', 'delete_document') do
         connection(server_url: btsss_url).delete("api/v1/claims/#{claim_id}/documents/#{document_id}") do |req|
