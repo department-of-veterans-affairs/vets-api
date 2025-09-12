@@ -1013,12 +1013,12 @@ describe UnifiedHealthData::Service, type: :service do
             '2 Inhalation Inhalation (breathe in) every 4 hours as needed shortness of breath or wheezing. ' \
             'Refills: 2.'
           )
-          expect(oracle_prescription_with_patient_instruction.facility_name).to eq('556-RX-MAIN-OP')
+          expect(oracle_prescription_with_patient_instruction.facility_name).to eq('Ambulatory Pharmacy')
           expect(oracle_prescription_with_patient_instruction.dispensed_date).to eq('2025-06-24T21:05:53.000Z')
 
           # Test prescription with completed status mapping
           completed_prescription = prescriptions.find { |p| p.prescription_id == '15214166467' }
-          expect(completed_prescription.refill_status).to eq('expired')
+          expect(completed_prescription.refill_status).to eq('completed')
           expect(completed_prescription.refillable?).to be false
           expect(completed_prescription.refill_date).to eq('2025-05-22T21:03:45Z')
         end
