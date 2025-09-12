@@ -177,7 +177,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
     end
   end
 
-  # POST /travel_pay/v0/complex_claims/#{claim_id}/submit
+  # PATCH /travel_pay/v0/complex_claims/#{claim_id}/submit
   describe '#submit' do
     let(:claims_service) { instance_double(TravelPay::ClaimsService) }
 
