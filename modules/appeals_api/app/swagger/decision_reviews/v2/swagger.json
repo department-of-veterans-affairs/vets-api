@@ -2490,7 +2490,6 @@
                                 "veteran": {
                                   "homeless": true,
                                   "phone": {
-                                    "areaCode": "555",
                                     "phoneNumber": "8001111"
                                   },
                                   "email": "clause@north.com",
@@ -2713,7 +2712,6 @@
                         "veteran": {
                           "homeless": true,
                           "phone": {
-                            "areaCode": "555",
                             "phoneNumber": "8001111"
                           },
                           "email": "clause@north.com",
@@ -3220,7 +3218,6 @@
                         "veteran": {
                           "homeless": true,
                           "phone": {
-                            "areaCode": "555",
                             "phoneNumber": "8001111"
                           },
                           "email": "clause@north.com",
@@ -3413,6 +3410,7 @@
                       "detail": null,
                       "location": "http://some.fakesite.com/path/uuid",
                       "appealId": "00000000-1111-2222-3333-444444444444",
+                      "finalStatus": false,
                       "appealType": "NoticeOfDisagreement",
                       "createDate": "2020-01-02T03:04:05.067Z",
                       "updateDate": "2020-01-02T03:04:05.067Z"
@@ -3635,6 +3633,7 @@
                       "detail": null,
                       "location": null,
                       "appealId": "00000000-1111-2222-3333-444444444444",
+                      "finalStatus": false,
                       "appealType": "NoticeOfDisagreement",
                       "createDate": "2020-01-02T03:04:05.067Z",
                       "updateDate": "2020-01-02T03:04:05.067Z"
@@ -5248,6 +5247,7 @@
                       "detail": null,
                       "location": "http://some.fakesite.com/path/uuid",
                       "appealId": "00000000-1111-2222-3333-444444444444",
+                      "finalStatus": false,
                       "appealType": "SupplementalClaim",
                       "createDate": "2020-01-02T03:04:05.067Z",
                       "updateDate": "2020-01-02T03:04:05.067Z"
@@ -5494,6 +5494,7 @@
                       "detail": null,
                       "location": null,
                       "appealId": "00000000-1111-2222-3333-444444444444",
+                      "finalStatus": false,
                       "appealType": "SupplementalClaim",
                       "createDate": "2020-01-02T03:04:05.067Z",
                       "updateDate": "2020-01-02T03:04:05.067Z"

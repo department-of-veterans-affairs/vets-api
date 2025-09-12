@@ -39,9 +39,7 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
         "parameters": [
@@ -136,7 +134,8 @@
                             "rampClaimId": null,
                             "titleOfActiveReview": null,
                             "sourceReviewType": null,
-                            "timely": true
+                            "timely": true,
+                            "activeReview": false
                           }
                         },
                         {
@@ -160,7 +159,8 @@
                             "rampClaimId": null,
                             "titleOfActiveReview": null,
                             "sourceReviewType": null,
-                            "timely": true
+                            "timely": true,
+                            "activeReview": false
                           }
                         },
                         {
@@ -184,7 +184,8 @@
                             "rampClaimId": null,
                             "titleOfActiveReview": null,
                             "sourceReviewType": null,
-                            "timely": true
+                            "timely": true,
+                            "activeReview": false
                           }
                         }
                       ]
@@ -215,7 +216,8 @@
                             "rampClaimId": null,
                             "titleOfActiveReview": null,
                             "sourceReviewType": null,
-                            "timely": true
+                            "timely": true,
+                            "activeReview": false
                           }
                         },
                         {
@@ -239,7 +241,8 @@
                             "rampClaimId": null,
                             "titleOfActiveReview": null,
                             "sourceReviewType": null,
-                            "timely": true
+                            "timely": true,
+                            "activeReview": false
                           }
                         },
                         {
@@ -263,7 +266,8 @@
                             "rampClaimId": null,
                             "titleOfActiveReview": null,
                             "sourceReviewType": null,
-                            "timely": true
+                            "timely": true,
+                            "activeReview": false
                           }
                         }
                       ]
@@ -294,7 +298,8 @@
                             "rampClaimId": null,
                             "titleOfActiveReview": null,
                             "sourceReviewType": null,
-                            "timely": true
+                            "timely": true,
+                            "activeReview": false
                           }
                         },
                         {
@@ -318,7 +323,8 @@
                             "rampClaimId": null,
                             "titleOfActiveReview": null,
                             "sourceReviewType": null,
-                            "timely": true
+                            "timely": true,
+                            "activeReview": false
                           }
                         },
                         {
@@ -342,7 +348,8 @@
                             "rampClaimId": null,
                             "titleOfActiveReview": null,
                             "sourceReviewType": null,
-                            "timely": true
+                            "timely": true,
+                            "activeReview": false
                           }
                         }
                       ]

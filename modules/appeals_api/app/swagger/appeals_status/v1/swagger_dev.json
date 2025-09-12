@@ -39,9 +39,7 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
         "parameters": [
@@ -70,13 +68,9 @@
                       "data": [
                         {
                           "attributes": {
-                            "appealIds": [
-
-                            ],
+                            "appealIds": [],
                             "active": false,
-                            "alerts": [
-
-                            ],
+                            "alerts": [],
                             "aod": false,
                             "aoj": "vba",
                             "description": "",
@@ -99,9 +93,7 @@
                                 "type": "ftr"
                               }
                             ],
-                            "evidence": [
-
-                            ],
+                            "evidence": [],
                             "incompleteHistory": false,
                             "issues": [
                               {
@@ -115,8 +107,7 @@
                             "location": "bva",
                             "programArea": "compensation",
                             "status": {
-                              "details": {
-                              },
+                              "details": {},
                               "type": "ftr"
                             },
                             "type": "original",
@@ -127,13 +118,9 @@
                         },
                         {
                           "attributes": {
-                            "appealIds": [
-
-                            ],
+                            "appealIds": [],
                             "active": true,
-                            "alerts": [
-
-                            ],
+                            "alerts": [],
                             "aod": false,
                             "aoj": "vba",
                             "description": "",
@@ -184,9 +171,7 @@
                                 "type": "ssoc"
                               }
                             ],
-                            "evidence": [
-
-                            ],
+                            "evidence": [],
                             "incompleteHistory": false,
                             "issues": [
                               {
@@ -256,8 +241,7 @@
                             "location": "aoj",
                             "programArea": "compensation",
                             "status": {
-                              "details": {
-                              },
+                              "details": {},
                               "type": "remand_ssoc"
                             },
                             "type": "post_remand",
@@ -268,13 +252,9 @@
                         },
                         {
                           "attributes": {
-                            "appealIds": [
-
-                            ],
+                            "appealIds": [],
                             "active": false,
-                            "alerts": [
-
-                            ],
+                            "alerts": [],
                             "aod": false,
                             "aoj": "other",
                             "description": "",
@@ -305,18 +285,13 @@
                                 "type": "merged"
                               }
                             ],
-                            "evidence": [
-
-                            ],
+                            "evidence": [],
                             "incompleteHistory": false,
-                            "issues": [
-
-                            ],
+                            "issues": [],
                             "location": "bva",
                             "programArea": null,
                             "status": {
-                              "details": {
-                              },
+                              "details": {},
                               "type": "other_close"
                             },
                             "type": "original",
@@ -333,13 +308,9 @@
                       "data": [
                         {
                           "attributes": {
-                            "appealIds": [
-
-                            ],
+                            "appealIds": [],
                             "active": false,
-                            "alerts": [
-
-                            ],
+                            "alerts": [],
                             "aod": false,
                             "aoj": "vba",
                             "description": "",
@@ -362,9 +333,7 @@
                                 "type": "ftr"
                               }
                             ],
-                            "evidence": [
-
-                            ],
+                            "evidence": [],
                             "incompleteHistory": false,
                             "issues": [
                               {
@@ -378,8 +347,7 @@
                             "location": "bva",
                             "programArea": "compensation",
                             "status": {
-                              "details": {
-                              },
+                              "details": {},
                               "type": "ftr"
                             },
                             "type": "original",
@@ -390,13 +358,9 @@
                         },
                         {
                           "attributes": {
-                            "appealIds": [
-
-                            ],
+                            "appealIds": [],
                             "active": true,
-                            "alerts": [
-
-                            ],
+                            "alerts": [],
                             "aod": false,
                             "aoj": "vba",
                             "description": "",
@@ -447,9 +411,7 @@
                                 "type": "ssoc"
                               }
                             ],
-                            "evidence": [
-
-                            ],
+                            "evidence": [],
                             "incompleteHistory": false,
                             "issues": [
                               {
@@ -519,8 +481,7 @@
                             "location": "aoj",
                             "programArea": "compensation",
                             "status": {
-                              "details": {
-                              },
+                              "details": {},
                               "type": "remand_ssoc"
                             },
                             "type": "post_remand",
@@ -531,13 +492,9 @@
                         },
                         {
                           "attributes": {
-                            "appealIds": [
-
-                            ],
+                            "appealIds": [],
                             "active": false,
-                            "alerts": [
-
-                            ],
+                            "alerts": [],
                             "aod": false,
                             "aoj": "other",
                             "description": "",
@@ -568,18 +525,13 @@
                                 "type": "merged"
                               }
                             ],
-                            "evidence": [
-
-                            ],
+                            "evidence": [],
                             "incompleteHistory": false,
-                            "issues": [
-
-                            ],
+                            "issues": [],
                             "location": "bva",
                             "programArea": null,
                             "status": {
-                              "details": {
-                              },
+                              "details": {},
                               "type": "other_close"
                             },
                             "type": "original",
@@ -596,13 +548,9 @@
                       "data": [
                         {
                           "attributes": {
-                            "appealIds": [
-
-                            ],
+                            "appealIds": [],
                             "active": false,
-                            "alerts": [
-
-                            ],
+                            "alerts": [],
                             "aod": false,
                             "aoj": "vba",
                             "description": "",
@@ -625,9 +573,7 @@
                                 "type": "ftr"
                               }
                             ],
-                            "evidence": [
-
-                            ],
+                            "evidence": [],
                             "incompleteHistory": false,
                             "issues": [
                               {
@@ -641,8 +587,7 @@
                             "location": "bva",
                             "programArea": "compensation",
                             "status": {
-                              "details": {
-                              },
+                              "details": {},
                               "type": "ftr"
                             },
                             "type": "original",
@@ -653,13 +598,9 @@
                         },
                         {
                           "attributes": {
-                            "appealIds": [
-
-                            ],
+                            "appealIds": [],
                             "active": true,
-                            "alerts": [
-
-                            ],
+                            "alerts": [],
                             "aod": false,
                             "aoj": "vba",
                             "description": "",
@@ -710,9 +651,7 @@
                                 "type": "ssoc"
                               }
                             ],
-                            "evidence": [
-
-                            ],
+                            "evidence": [],
                             "incompleteHistory": false,
                             "issues": [
                               {
@@ -782,8 +721,7 @@
                             "location": "aoj",
                             "programArea": "compensation",
                             "status": {
-                              "details": {
-                              },
+                              "details": {},
                               "type": "remand_ssoc"
                             },
                             "type": "post_remand",
@@ -794,13 +732,9 @@
                         },
                         {
                           "attributes": {
-                            "appealIds": [
-
-                            ],
+                            "appealIds": [],
                             "active": false,
-                            "alerts": [
-
-                            ],
+                            "alerts": [],
                             "aod": false,
                             "aoj": "other",
                             "description": "",
@@ -831,18 +765,13 @@
                                 "type": "merged"
                               }
                             ],
-                            "evidence": [
-
-                            ],
+                            "evidence": [],
                             "incompleteHistory": false,
-                            "issues": [
-
-                            ],
+                            "issues": [],
                             "location": "bva",
                             "programArea": null,
                             "status": {
-                              "details": {
-                              },
+                              "details": {},
                               "type": "other_close"
                             },
                             "type": "original",

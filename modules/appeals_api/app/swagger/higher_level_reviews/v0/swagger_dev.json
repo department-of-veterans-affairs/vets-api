@@ -39,14 +39,10 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
-        "parameters": [
-
-        ],
+        "parameters": [],
         "responses": {
           "201": {
             "description": "Higher-Level Review created",
@@ -688,9 +684,7 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
         "parameters": [
@@ -814,9 +808,7 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
         "description": "Returns a watermarked copy of a Higher-Level Review PDF as submitted to the VA. PDFs are available\nwith the following caveats:\n\n1. The PDF download will become available only after after the Higher-Level Review has progressed to\n   the 'submitted' state.\n2. The PDF will stop being available one week after the Higher-Level Review has progressed to the\n   'completed' state. This is when the Veteran's personally identifying information is purged from our servers.\n\nThe 'icn' parameter is required when accessing this endpoint using an OAuth token with the 'representative/HigherLevelReviews.read' or 'system/HigherLevelReviews.read' scopes.\nRequests made with the 'veteran/HigherLevelReviews.read' scope may omit the 'icn' parameter.\n",
@@ -1008,9 +1000,7 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
         "parameters": [
@@ -1105,8 +1095,7 @@
                                           "minLength": 1,
                                           "maxLength": 30
                                         },
-                                        {
-                                        },
+                                        {},
                                         {
                                           "$ref": "nonBlankString.json"
                                         }
@@ -1574,7 +1563,6 @@
                             }
                           },
                           "required": [
-                            "areaCode",
                             "phoneNumber"
                           ]
                         }
@@ -1688,6 +1676,7 @@
                             "America/Coral_Harbour",
                             "America/Cordoba",
                             "America/Costa_Rica",
+                            "America/Coyhaique",
                             "America/Creston",
                             "America/Cuiaba",
                             "America/Curacao",
@@ -2167,19 +2156,6 @@
                             "ROC",
                             "ROK",
                             "Singapore",
-                            "SystemV/AST4",
-                            "SystemV/AST4ADT",
-                            "SystemV/CST6",
-                            "SystemV/CST6CDT",
-                            "SystemV/EST5",
-                            "SystemV/EST5EDT",
-                            "SystemV/HST10",
-                            "SystemV/MST7",
-                            "SystemV/MST7MDT",
-                            "SystemV/PST8",
-                            "SystemV/PST8PDT",
-                            "SystemV/YST9",
-                            "SystemV/YST9YDT",
                             "Turkey",
                             "UCT",
                             "US/Alaska",
@@ -2290,14 +2266,10 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
-        "parameters": [
-
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "Valid",
@@ -3393,7 +3365,6 @@
           }
         },
         "required": [
-          "areaCode",
           "phoneNumber"
         ]
       },
@@ -3506,6 +3477,7 @@
           "America/Coral_Harbour",
           "America/Cordoba",
           "America/Costa_Rica",
+          "America/Coyhaique",
           "America/Creston",
           "America/Cuiaba",
           "America/Curacao",
@@ -3985,19 +3957,6 @@
           "ROC",
           "ROK",
           "Singapore",
-          "SystemV/AST4",
-          "SystemV/AST4ADT",
-          "SystemV/CST6",
-          "SystemV/CST6CDT",
-          "SystemV/EST5",
-          "SystemV/EST5EDT",
-          "SystemV/HST10",
-          "SystemV/MST7",
-          "SystemV/MST7MDT",
-          "SystemV/PST8",
-          "SystemV/PST8PDT",
-          "SystemV/YST9",
-          "SystemV/YST9YDT",
           "Turkey",
           "UCT",
           "US/Alaska",
