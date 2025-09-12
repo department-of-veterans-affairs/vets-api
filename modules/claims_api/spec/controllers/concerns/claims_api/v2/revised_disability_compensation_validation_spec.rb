@@ -660,5 +660,243 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
       end
     end
+
+    # FES Val Section 7: treatments validations
+    context 'treatments validations' do
+      # FES Val Section 7.a: center.name validation
+      context 'when treatment center exists without name' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'treatments' => [
+              {
+                'beginDate' => '2018-06',
+                'center' => {
+                  'city' => 'Portland',
+                  'state' => 'OR'
+                }
+              }
+            ]
+          )
+        end
+
+        it 'returns error for missing center name' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors.size).to eq(1)
+          expect(errors.first[:source]).to eq('/treatments/0/center/name')
+          expect(errors.first[:title]).to eq('Missing treatment center name')
+          expect(errors.first[:detail]).to eq('Treatment center name is required when center information is provided')
+        end
+      end
+
+      # FES Val Section 7.b: beginDate validation - format
+      context 'when treatment beginDate has invalid format' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'treatments' => [
+              {
+                'beginDate' => '2018-13', # Invalid month
+                'center' => { 'name' => 'VA Medical Center' }
+              }
+            ]
+          )
+        end
+
+        it 'returns error for invalid date format' do
+          errors = subject.validate_form_526_fes_values
+          # Also expects city and state errors since center name is provided
+          expect(errors.size).to eq(3)
+          date_error = errors.find { |e| e[:source] == '/treatments/0/beginDate' }
+          expect(date_error[:title]).to eq('Invalid treatment begin date format')
+          expect(date_error[:detail]).to eq('Treatment begin date must be in format YYYY or YYYY-MM')
+        end
+      end
+
+      # FES Val Section 7.b: beginDate validation - after service
+      context 'when treatment beginDate is before first service period' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'serviceInformation' => {
+              'servicePeriods' => [
+                {
+                  'serviceBranch' => 'Air Force',
+                  'serviceComponent' => 'Active',
+                  'activeDutyBeginDate' => '2010-01-01',
+                  'activeDutyEndDate' => '2015-12-31'
+                }
+              ]
+            },
+            'treatments' => [
+              {
+                'beginDate' => '2009', # Before service
+                'center' => { 'name' => 'VA Medical Center' }
+              }
+            ]
+          )
+        end
+
+        it 'returns error for treatment before service' do
+          errors = subject.validate_form_526_fes_values
+          # Also expects city and state errors since center name is provided
+          expect(errors.size).to eq(3)
+          date_error = errors.find { |e| e[:source] == '/treatments/0/beginDate' }
+          expect(date_error[:title]).to eq('Invalid treatment begin date')
+          expect(date_error[:detail]).to eq('Treatment begin date must be after the first service period begin date')
+        end
+      end
+
+      # FES Val Section 7.f: treatedDisabilityNames validation
+      context 'when treatedDisabilityNames contains empty strings' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'treatments' => [
+              {
+                'treatedDisabilityNames' => ['PTSD', '', '  ', 'Back Pain'],
+                'center' => { 'name' => 'VA Medical Center' }
+              }
+            ]
+          )
+        end
+
+        it 'returns errors for empty disability names' do
+          errors = subject.validate_form_526_fes_values
+          # Also expects city and state errors since center name is provided
+          expect(errors.size).to eq(4)
+          disability_errors = errors.select { |e| e[:source].include?('treatedDisabilityNames') }
+          expect(disability_errors.size).to eq(2)
+          expect(disability_errors.map { |e| e[:source] }).to contain_exactly(
+            '/treatments/0/treatedDisabilityNames/1',
+            '/treatments/0/treatedDisabilityNames/2'
+          )
+          expect(disability_errors.first[:title]).to eq('Empty treated disability name')
+          expect(disability_errors.first[:detail]).to eq('Each treated disability name must not be empty')
+        end
+      end
+
+      context 'when treatedDisabilityNames is not an array' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'treatments' => [
+              {
+                'treatedDisabilityNames' => 'PTSD', # String instead of array
+                'center' => { 'name' => 'VA Medical Center' }
+              }
+            ]
+          )
+        end
+
+        it 'returns error for invalid format' do
+          errors = subject.validate_form_526_fes_values
+          # Also expects city and state errors since center name is provided
+          expect(errors.size).to eq(3)
+          format_error = errors.find { |e| e[:source] == '/treatments/0/treatedDisabilityNames' }
+          expect(format_error[:title]).to eq('Invalid treated disability names format')
+          expect(format_error[:detail]).to eq('Treated disability names must be an array')
+        end
+      end
+
+      # FES Val Section 7.m: center address (city/state) validation
+      context 'when treatment center name exists but city is missing' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'treatments' => [
+              {
+                'center' => {
+                  'name' => 'VA Medical Center',
+                  'state' => 'OR'
+                }
+              }
+            ]
+          )
+        end
+
+        it 'returns error for missing city' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors.size).to eq(1)
+          expect(errors.first[:source]).to eq('/treatments/0/center/city')
+          expect(errors.first[:title]).to eq('Missing treatment center city')
+          expect(errors.first[:detail]).to eq('Treatment center city is required when center name is provided')
+        end
+      end
+
+      context 'when treatment center name exists but state is missing' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'treatments' => [
+              {
+                'center' => {
+                  'name' => 'VA Medical Center',
+                  'city' => 'Portland'
+                }
+              }
+            ]
+          )
+        end
+
+        it 'returns error for missing state' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors.size).to eq(1)
+          expect(errors.first[:source]).to eq('/treatments/0/center/state')
+          expect(errors.first[:title]).to eq('Missing treatment center state')
+          expect(errors.first[:detail]).to eq('Treatment center state is required when center name is provided')
+        end
+      end
+
+      context 'when treatment center state has invalid format' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'treatments' => [
+              {
+                'center' => {
+                  'name' => 'VA Medical Center',
+                  'city' => 'Portland',
+                  'state' => 'Oregon' # Should be 2-letter code
+                }
+              }
+            ]
+          )
+        end
+
+        it 'returns error for invalid state format' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors.size).to eq(1)
+          expect(errors.first[:source]).to eq('/treatments/0/center/state')
+          expect(errors.first[:title]).to eq('Invalid treatment center state')
+          expect(errors.first[:detail]).to eq('Treatment center state must be a 2-letter state code')
+        end
+      end
+
+      context 'with valid treatments' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'serviceInformation' => {
+              'servicePeriods' => [
+                {
+                  'serviceBranch' => 'Air Force',
+                  'serviceComponent' => 'Active',
+                  'activeDutyBeginDate' => '2010-01-01',
+                  'activeDutyEndDate' => '2015-12-31'
+                }
+              ]
+            },
+            'treatments' => [
+              {
+                'beginDate' => '2016-06',
+                'treatedDisabilityNames' => ['PTSD', 'Back Pain'],
+                'center' => {
+                  'name' => 'VA Medical Center',
+                  'city' => 'Portland',
+                  'state' => 'OR'
+                }
+              }
+            ]
+          )
+        end
+
+        it 'returns no errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_nil
+        end
+      end
+    end
   end
 end

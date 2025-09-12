@@ -22,6 +22,9 @@ module ClaimsApi
         # Validate veteran information
         validate_veteran!
 
+        # Validate treatments information
+        validate_treatments!
+
         # Return collected errors
         error_collection if @errors
       end
@@ -257,6 +260,150 @@ module ClaimsApi
             source: '/serviceInformation/federalActivation',
             title: 'Invalid value',
             detail: "Federal activation date is in the future: #{federal_activation['activationDate']}"
+          )
+        end
+      end
+
+      ### FES Val Section 7: treatments validations
+      def validate_treatments!
+        treatments = form_attributes['treatments']
+        return if treatments.blank?
+
+        treatments.each_with_index do |treatment, index|
+          validate_single_treatment!(treatment, index)
+        end
+      end
+
+      def validate_single_treatment!(treatment, index)
+        # FES Val Section 7.a: center.name validation
+        validate_treatment_center_name!(treatment, index)
+        # FES Val Section 7.b: beginDate validation
+        validate_treatment_begin_date!(treatment, index)
+        # FES Val Section 7.f: treatedDisabilityNames validation
+        validate_treated_disability_names!(treatment, index)
+        # FES Val Section 7.m: center address (city/state) validation - partial implementation
+        validate_treatment_center_address!(treatment, index)
+        # NOTE: FES Val Section 7.n (phone) - field doesn't exist in v2 schema
+        # NOTE: FES Val Section 7.o (doctor name) - field doesn't exist in v2 schema
+      end
+
+      # FES Val Section 7.a: center.name validation
+      def validate_treatment_center_name!(treatment, index)
+        center = treatment['center']
+        return if center.blank?
+
+        return if center['name'].present?
+
+        collect_error(
+          source: "/treatments/#{index}/center/name",
+          title: 'Missing treatment center name',
+          detail: 'Treatment center name is required when center information is provided'
+        )
+      end
+
+      # FES Val Section 7.b: beginDate validation
+      def validate_treatment_begin_date!(treatment, index)
+        begin_date_str = treatment['beginDate']
+        return if begin_date_str.blank?
+
+        # Validate format (YYYY or YYYY-MM)
+        return unless validate_treatment_date_format!(begin_date_str, index)
+
+        # Validate begin date is after first service period begin date
+        validate_treatment_date_after_service!(begin_date_str, index)
+      end
+
+      def validate_treatment_date_format!(begin_date_str, index)
+        return true if begin_date_str.match?(/^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$/)
+
+        collect_error(
+          source: "/treatments/#{index}/beginDate",
+          title: 'Invalid treatment begin date format',
+          detail: 'Treatment begin date must be in format YYYY or YYYY-MM'
+        )
+        false
+      end
+
+      def validate_treatment_date_after_service!(begin_date_str, index)
+        service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
+        return if service_periods.blank?
+
+        first_service_begin = service_periods.map { |sp| sp['activeDutyBeginDate'] }.compact.min
+        return if first_service_begin.blank?
+
+        treatment_year = begin_date_str[0..3].to_i
+        service_begin_date = Date.parse(first_service_begin)
+
+        return unless treatment_year < service_begin_date.year
+
+        collect_error(
+          source: "/treatments/#{index}/beginDate",
+          title: 'Invalid treatment begin date',
+          detail: 'Treatment begin date must be after the first service period begin date'
+        )
+      end
+
+      # FES Val Section 7.f: treatedDisabilityNames validation
+      def validate_treated_disability_names!(treatment, index)
+        disability_names = treatment['treatedDisabilityNames']
+        return if disability_names.blank?
+
+        # Validate it's an array
+        unless disability_names.is_a?(Array)
+          collect_error(
+            source: "/treatments/#{index}/treatedDisabilityNames",
+            title: 'Invalid treated disability names format',
+            detail: 'Treated disability names must be an array'
+          )
+          return
+        end
+
+        # Validate each disability name is not empty
+        disability_names.each_with_index do |name, name_index|
+          next if name.present? && name.strip.present?
+
+          collect_error(
+            source: "/treatments/#{index}/treatedDisabilityNames/#{name_index}",
+            title: 'Empty treated disability name',
+            detail: 'Each treated disability name must not be empty'
+          )
+        end
+      end
+
+      # FES Val Section 7.m: center address validation (partial - only city/state exist in schema)
+      def validate_treatment_center_address!(treatment, index)
+        center = treatment['center']
+        return if center.blank?
+
+        # Only validate if center name is provided (indicating center info is being used)
+        return if center['name'].blank?
+
+        validate_center_city!(center, index)
+        validate_center_state!(center, index)
+      end
+
+      def validate_center_city!(center, index)
+        return if center['city'].present?
+
+        collect_error(
+          source: "/treatments/#{index}/center/city",
+          title: 'Missing treatment center city',
+          detail: 'Treatment center city is required when center name is provided'
+        )
+      end
+
+      def validate_center_state!(center, index)
+        if center['state'].blank?
+          collect_error(
+            source: "/treatments/#{index}/center/state",
+            title: 'Missing treatment center state',
+            detail: 'Treatment center state is required when center name is provided'
+          )
+        elsif !center['state'].match?(/^[a-z,A-Z]{2}$/)
+          collect_error(
+            source: "/treatments/#{index}/center/state",
+            title: 'Invalid treatment center state',
+            detail: 'Treatment center state must be a 2-letter state code'
           )
         end
       end
@@ -559,7 +706,7 @@ module ClaimsApi
       end
 
       def error_collection
-        errors_array.uniq! { |e| e[:detail] }
+        errors_array.uniq! { |e| "#{e[:source]}|#{e[:detail]}" }
         errors_array
       end
     end
