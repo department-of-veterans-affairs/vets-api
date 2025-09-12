@@ -436,4 +436,3 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
     end
   end
 end
-
