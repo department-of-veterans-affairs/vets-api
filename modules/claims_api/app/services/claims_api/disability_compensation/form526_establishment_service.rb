@@ -5,6 +5,7 @@
 require 'pdf_generator_service/pdf_client'
 require 'claims_api/v2/disability_compensation_evss_mapper'
 require 'claims_api/v2/disability_compensation_fes_mapper'
+require 'claims_api/v1/disability_compensation_fes_mapper'
 require 'evss_service/base'
 require 'fes_service/base'
 
@@ -23,6 +24,27 @@ module ClaimsApi
 
         if Flipper.enabled?(:lighthouse_claims_api_v2_enable_FES)
           fes_data = get_fes_data(auto_claim)
+          log_job_progress(claim_id, 'Submitting mapped data to FES', auto_claim.transaction_id)
+          fes_res = fes_service.submit(auto_claim, fes_data, ASYNC)
+          log_job_progress(claim_id, "Successfully submitted to FES with response: #{fes_res}",
+                           auto_claim.transaction_id)
+          # update with the evss_id returned
+          auto_claim.update!(evss_id: fes_res[:claimId])
+        else
+          evss_data = get_evss_data(auto_claim)
+          log_job_progress(claim_id, 'Submitting mapped data to Form 526 Establishment service',
+                           auto_claim.transaction_id)
+          evss_res = evss_service.submit(auto_claim, evss_data, ASYNC)
+          log_job_progress(claim_id, "Successfully submitted to 526 Establishment service with response: #{evss_res}",
+                           auto_claim.transaction_id)
+          # update with the evss_id returned
+          auto_claim.update!(evss_id: evss_res[:claimId])
+        end
+
+        # This is not pretty but an easy way to do it as a temp job before we remove v1
+
+        if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+          fes_data = get_v1_fes_data(auto_claim)
           log_job_progress(claim_id, 'Submitting mapped data to FES', auto_claim.transaction_id)
           fes_res = fes_service.submit(auto_claim, fes_data, ASYNC)
           log_job_progress(claim_id, "Successfully submitted to FES with response: #{fes_res}",
@@ -62,6 +84,10 @@ module ClaimsApi
 
       def get_fes_data(auto_claim)
         fes_mapper_service(auto_claim).map_claim
+      end
+
+      def get_v1_fes_data(auto_claim)
+        v1_fes_mapper_service(auto_claim).map_claim
       end
     end
   end

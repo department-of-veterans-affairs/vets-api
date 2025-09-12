@@ -251,7 +251,7 @@ module ClaimsApi
     end
 
     def v1_fes_mapper_service(auto_claim)
-      ClaimsApi::V1::V1DisabilityCompensationFesMapper.new(auto_claim)
+      ClaimsApi::V1::DisabilityCompensationFesMapper.new(auto_claim)
     end
 
     def veteran_file_number(auto_claim)
