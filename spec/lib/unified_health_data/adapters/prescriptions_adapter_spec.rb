@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Spec for UnifiedHealthData::Adapters::PrescriptionsAdapter
 require 'rails_helper'
 require 'unified_health_data/models/prescription_attributes'
 require 'unified_health_data/models/prescription'
