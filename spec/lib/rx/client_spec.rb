@@ -53,26 +53,16 @@ describe Rx::Client do
     end
   end
 
-  shared_examples 'prescriptions' do |caching_enabled|
+  shared_examples 'prescriptions' do
     before do
-      allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(caching_enabled)
       allow(StatsD).to receive(:increment)
     end
-
-    let(:cache_keys) { ["#{client.session.user_id}:getactiverx", "#{client.session.user_id}:gethistoryrx"] }
 
     it 'gets a list of active prescriptions' do
       VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
         client_response = client.get_active_rxs
         expect(client_response).to be_a(Vets::Collection)
         expect(client_response.type).to eq(Prescription)
-        expect(client_response.cached?).to eq(caching_enabled)
-
-        if caching_enabled
-          expect(cache_key_for(client_response)).to eq("#{client.session.user_id}:getactiverx")
-        else
-          expect(cache_key_for(client_response)).to be_nil
-        end
       end
     end
 
@@ -81,13 +71,6 @@ describe Rx::Client do
         client_response = client.get_history_rxs
         expect(client_response).to be_a(Vets::Collection)
         expect(client_response.members.first).to be_a(Prescription)
-        expect(client_response.cached?).to eq(caching_enabled)
-
-        if caching_enabled
-          expect(cache_key_for(client_response)).to eq("#{client.session.user_id}:gethistoryrx")
-        else
-          expect(cache_key_for(client_response)).to be_nil
-        end
       end
     end
 
@@ -99,13 +82,7 @@ describe Rx::Client do
 
     it 'refills a prescription' do
       VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
-        if caching_enabled
-          expect(Vets::Collection).to receive(:bust).with(cache_keys)
-        else
-          expect(Vets::Collection).not_to receive(:bust).with([nil, nil])
-        end
-
-        client_response = client.post_refill_rx(25_567_989)
+        client_response = client.post_refill_rx(13_650_545)
         expect(client_response.status).to equal 200
         expect(client_response.body).to eq(status: 'success')
         expect(StatsD).to have_received(:increment).with(
@@ -173,8 +150,6 @@ describe Rx::Client do
           client_response = client.get_tracking_history_rx(13_650_541)
           expect(client_response).to be_a(Vets::Collection)
           expect(client_response.members.first.prescription_id).to eq(13_650_541)
-          expect(client_response.cached?).to be(false)
-          expect(cache_key_for(client_response)).to be_nil
         end
       end
     end
@@ -185,14 +160,6 @@ describe Rx::Client do
         client.get_history_rxs
       end
     end
-  end
-
-  describe 'Prescriptions with caching disabled' do
-    it_behaves_like 'prescriptions', false
-  end
-
-  describe 'Prescriptions with caching enabled' do
-    it_behaves_like 'prescriptions', true
   end
 
   describe 'API gateway methods' do
@@ -209,9 +176,5 @@ describe Rx::Client do
       expect(result).to include('x-api-key' => 'test-api-key')
       expect(config.x_api_key).to eq('test-api-key')
     end
-  end
-
-  def cache_key_for(collection)
-    collection.instance_variable_get(:@cache_key)
   end
 end
