@@ -17,11 +17,11 @@ module AccreditedRepresentativePortal
     end
 
     attribute :state do |object|
-      object[:claimant_profile].address.state
+      object[:claimant_profile].address&.state
     end
 
     attribute :postal_code do |object|
-      object[:claimant_profile].address.postal_code
+      object[:claimant_profile].address&.postal_code
     end
 
     attribute :representative do |object|
@@ -32,9 +32,9 @@ module AccreditedRepresentativePortal
       address = object[:claimant_profile].address
 
       if MILITARY_STATE_CODES.include? address&.state&.upcase
-        address.city
+        address&.city
       else
-        address.city&.titleize
+        address&.city&.titleize
       end
     end
 
