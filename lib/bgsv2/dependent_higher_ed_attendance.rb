@@ -28,7 +28,7 @@ module BGSV2
       @dependents = adult_attending_school.serialize_dependent_result(
         participant,
         'Child',
-        'Biological',
+        formatted_info['is_parent'] ? 'Biological' : 'Other',
         {
           type: '674',
           dep_has_income_ind: formatted_info['dependent_income']
