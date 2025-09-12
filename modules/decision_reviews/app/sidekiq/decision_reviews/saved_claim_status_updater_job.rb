@@ -175,7 +175,7 @@ module DecisionReviews
       all_complete = true
 
       secondary_forms.each do |form|
-        current_status = JSON.parse(form.status || '{}')
+        current_status = parse_form_status(form)
 
         if should_continue_polling?(current_status)
           response = benefits_intake_service.get_status(uuid: form.guid).body
@@ -307,6 +307,16 @@ module DecisionReviews
     def should_continue_polling?(current_status)
       # Continue polling unless explicitly marked as final
       current_status['final_status'] != true
+    end
+
+    def parse_form_status(form)
+      JSON.parse(form.status || '{}')
+    rescue JSON::ParserError => e
+      Rails.logger.error(
+        "#{log_prefix} Malformed JSON in secondary form status",
+        { guid: form.guid, status: form.status, error: e.message }
+      )
+      {}
     end
 
     def extract_uploads_metadata(metadata)
