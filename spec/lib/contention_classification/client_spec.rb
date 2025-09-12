@@ -30,25 +30,26 @@ RSpec.describe ContentionClassification::Client do
     }
   end
 
+  let(:generic_response) do
+    {
+      status: 200,
+      body: {
+        contentions: [
+          { classification_code: '99999', classification_name: 'namey' },
+          { classification_code: '9012', classification_name: 'Respiratory' },
+          {
+            classification_code: '8997',
+            classification_name: 'Musculoskeletal - Knee'
+          }
+        ]
+      }.as_json
+    }
+  end
+
   describe 'making classification contention requests to expanded classifier' do
     subject { client.classify_vagov_contentions_expanded(classification_contention_params) }
 
     context 'valid requests' do
-      let(:generic_response) do
-        double(
-          'contention classification response', status: 200,
-                                                body: {
-                                                  contentions: [
-                                                    { classification_code: '99999', classification_name: 'namey' },
-                                                    { classification_code: '9012', classification_name: 'Respiratory' },
-                                                    {
-                                                      classification_code: '8997',
-                                                      classification_name: 'Musculoskeletal - Knee'
-                                                    }
-                                                  ]
-                                                }.as_json
-        )
-      end
 
       before do
         allow(client).to receive(:perform).and_return generic_response
@@ -116,7 +117,7 @@ RSpec.describe ContentionClassification::Client do
 
   describe 'making classification contention requests to hybrid classifier' do
     subject { client.classify_vagov_contentions_hybrid(classification_contention_params) }
-
+    
     context 'valid requests' do
       let(:generic_response) do
         {
