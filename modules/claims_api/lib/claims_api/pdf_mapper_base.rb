@@ -81,5 +81,11 @@ module ClaimsApi
 
       "#{phone[0..1]}-#{phone[2..3]}-#{phone[4..7]}-#{phone[8..11]}" if phone.length > 10
     end
+
+    # exposure is not used in v1
+    def build_disability_item(disability, approximate_date, service_relevance, exposure = nil)
+      { disability:, approximateDate: approximate_date, exposureOrEventOrInjury: exposure,
+        serviceRelevance: service_relevance }.compact
+    end
   end
 end
