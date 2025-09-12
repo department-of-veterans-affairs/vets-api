@@ -38,10 +38,14 @@ module UnifiedHealthData
                                                         dispensed_date: extract_dispensed_date(resource),
                                                         station_number: extract_station_number(resource),
                                                         is_refillable: extract_is_refillable(resource),
-                                                        is_trackable: false, # Default for Oracle Health
+                                                        is_trackable: extract_is_trackable(resource),
                                                         instructions: extract_instructions(resource),
                                                         facility_phone_number: extract_facility_phone_number(resource),
-                                                        data_source_system: 'ORACLE_HEALTH'
+                                                        data_source_system: 'ORACLE_HEALTH',
+                                                        ndc_number: extract_ndc_number(resource),
+                                                        prescribed_date: resource['authoredOn'],
+                                                        tracking_info: extract_tracking_info(resource),
+                                                        prescription_source: 'UHD'
                                                       })
       end
       # rubocop:enable Metrics/MethodLength
@@ -178,6 +182,76 @@ module UnifiedHealthData
         return nil unless contained_resources.is_a?(Array)
 
         contained_resources.find { |c| c['resourceType'] == 'MedicationDispense' }
+      end
+
+      def extract_is_trackable(resource)
+        # Check if prescription has tracking information
+        extract_tracking_info(resource).any?
+      end
+
+      def extract_ndc_number(resource)
+        # Look for NDC in medication coding
+        coding = resource.dig('medicationCodeableConcept', 'coding') || []
+        ndc_coding = coding.find { |c| c['system']&.include?('ndc') || c['system']&.include?('NDC') }
+        ndc_coding ? ndc_coding['code'] : nil
+      end
+
+      def extract_tracking_info(resource)
+        tracking_info = []
+
+        # Check for tracking info in contained MedicationDispense
+        if resource['contained']
+          dispense = find_medication_dispense(resource['contained'])
+          if dispense
+            # Look for tracking extension or identifier
+            tracking_extension = find_tracking_extension(dispense)
+            if tracking_extension
+              tracking_info << extract_tracking_from_extension(tracking_extension)
+            end
+
+            # Look for tracking in identifiers
+            tracking_identifier = find_tracking_identifier(dispense)
+            if tracking_identifier
+              tracking_info << extract_tracking_from_identifier(tracking_identifier)
+            end
+          end
+        end
+
+        # Look for tracking in extensions at the request level
+        request_tracking = find_tracking_extension(resource)
+        if request_tracking
+          tracking_info << extract_tracking_from_extension(request_tracking)
+        end
+
+        tracking_info.compact
+      end
+
+      def find_tracking_extension(resource)
+        extensions = resource['extension'] || []
+        extensions.find { |ext| ext['url']&.include?('tracking') || ext['url']&.include?('shipment') }
+      end
+
+      def find_tracking_identifier(resource)
+        identifiers = resource['identifier'] || []
+        identifiers.find { |id| id['type']&.dig('text')&.downcase&.include?('tracking') }
+      end
+
+      def extract_tracking_from_extension(extension)
+        return nil unless extension
+
+        {
+          'tracking_number' => extension.dig('valueString'),
+          'shipper' => extension.dig('valueCodeableConcept', 'text')
+        }.compact
+      end
+
+      def extract_tracking_from_identifier(identifier)
+        return nil unless identifier
+
+        {
+          'tracking_number' => identifier['value'],
+          'shipper' => identifier.dig('assigner', 'display')
+        }.compact
       end
     end
   end

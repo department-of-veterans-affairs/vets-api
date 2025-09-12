@@ -78,5 +78,33 @@ module UnifiedHealthData
     def cmop_division_phone
       attributes&.facility_phone_number
     end
+
+    def ndc_number
+      attributes&.ndc_number
+    end
+
+    def prescribed_date
+      attributes&.prescribed_date
+    end
+
+    def tracking_info
+      attributes&.tracking_info || []
+    end
+
+    def tracking_number
+      tracking_info&.first&.dig('tracking_number') || tracking_info&.first&.dig(:tracking_number)
+    end
+
+    def shipper
+      tracking_info&.first&.dig('shipper') || tracking_info&.first&.dig(:shipper)
+    end
+
+    def prescription_source
+      attributes&.prescription_source
+    end
+
+    def data_source_system
+      attributes&.data_source_system
+    end
   end
 end
