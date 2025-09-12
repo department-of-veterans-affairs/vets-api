@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'dependents_benefits/generators/claim686c_generator'
 
-RSpec.describe DependentsBenefits::Claim686cGenerator, type: :model do
+RSpec.describe DependentsBenefits::Generators::Claim686cGenerator, type: :model do
   let(:form_data) { create(:dependents_claim).parsed_form }
   let(:parent_id) { 123 }
   let(:generator) { described_class.new(form_data, parent_id) }

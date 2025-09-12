@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'dependents_benefits/generators/claim674_generator'
 
-RSpec.describe DependentsBenefits::Claim674Generator, type: :model do
+RSpec.describe DependentsBenefits::Generators::Claim674Generator, type: :model do
   let(:form_data) { create(:dependents_claim).parsed_form }
   let(:student_data) do
     form_data['dependents_application']['student_information'][0]

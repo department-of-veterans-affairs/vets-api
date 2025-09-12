@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DependentsBenefits::DependentClaimGenerator, type: :model do
+RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :model do
   let(:form_data) { { 'test' => 'data' } }
   let(:parent_id) { 123 }
   let(:generator) { described_class.new(form_data, parent_id) }

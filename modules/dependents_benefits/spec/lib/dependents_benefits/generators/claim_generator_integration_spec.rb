@@ -13,7 +13,7 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
 
     context 'when creating a 686c claim' do
       it 'extracts only dependent-related data' do
-        generator = DependentsBenefits::Claim686cGenerator.new(form_data, parent_claim_id)
+        generator = DependentsBenefits::Generators::Claim686cGenerator.new(form_data, parent_claim_id)
         claim_686c = generator.generate
 
         parsed_form = JSON.parse(claim_686c.form)
@@ -47,7 +47,7 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
       it 'extracts only student-related data' do
         student_data = form_data.dig('dependents_application', 'student_information', 0)
 
-        generator = DependentsBenefits::Claim674Generator.new(form_data, parent_claim_id, student_data)
+        generator = DependentsBenefits::Generators::Claim674Generator.new(form_data, parent_claim_id, student_data)
         claim674 = generator.generate
 
         parsed_form = JSON.parse(claim674.form)
@@ -82,9 +82,9 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
     context 'when creating both 686c and 674 claims' do
       it 'creates separate claims with appropriate data' do
         # Create both claims
-        generator_686c = DependentsBenefits::Claim686cGenerator.new(form_data, parent_claim_id)
+        generator_686c = DependentsBenefits::Generators::Claim686cGenerator.new(form_data, parent_claim_id)
         student_data = form_data.dig('dependents_application', 'student_information', 0)
-        generator674 = DependentsBenefits::Claim674Generator.new(form_data, parent_claim_id, student_data)
+        generator674 = DependentsBenefits::Generators::Claim674Generator.new(form_data, parent_claim_id, student_data)
 
         claim_686c = generator_686c.generate
         claim674 = generator674.generate
