@@ -62,7 +62,7 @@ MyHealth::Engine.routes.draw do
       resources :patient, only: %i[index] do
         get :demographic, on: :collection
       end
-      resources :imaging, only: %i[index], defaults: { format: :json } do
+      resources :imaging, only: %i[index], param: :study_id, defaults: { format: :json } do
         get 'request', on: :member, action: :request_download
         get :status, on: :collection, action: :request_status
         get :images, on: :member

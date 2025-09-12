@@ -45,7 +45,7 @@ module MyHealth
         private
 
         def set_study_id
-          @study_id = params[:id].to_s
+          @study_id = params[:study_id].to_s
         end
 
         def render_resource(resource)
