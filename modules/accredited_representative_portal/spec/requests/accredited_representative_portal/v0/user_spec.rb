@@ -13,7 +13,18 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::User', type: :request do
     end
 
     context 'when authenticated' do
-      before { login_as(user) }
+      let(:poa_code) { '00A' }
+      let(:representative_email) { Faker::Internet.email.downcase }
+
+      before do
+        login_as(user)
+        create(:organization, poa: poa_code)
+        create(
+          :representative, :vso,
+          email: representative_email,
+          poa_codes: [poa_code]
+        )
+      end
 
       context 'as a user with an in progress form' do
         let(:first_name_value) { Faker::Name.first_name }
@@ -32,7 +43,9 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::User', type: :request do
               first_name: first_name_value,
               last_name: last_name_value,
               sign_in_service_name: sign_in_service_name_value,
-              in_progress_form_id: in_progress_form_id_value
+              in_progress_form_id: in_progress_form_id_value,
+              email: representative_email,
+              all_emails: [representative_email]
             }
           )
         end
