@@ -19,7 +19,6 @@ module AccreditedRepresentativePortal
 
       def index
         ar_monitoring(nil).trace('ar.power_of_attorney_requests.index') do |span|
-          debugger
           serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
           span.set_tag('poa_request.poa_codes', poa_codes(poa_requests))
           trace_key_tags(span, poa_codes: poa_codes(poa_requests))
@@ -32,7 +31,6 @@ module AccreditedRepresentativePortal
 
       def show
         ar_monitoring(poa_organization).trace('ar.power_of_attorney_requests.show') do |span|
-          debugger
           serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
           span.set_tag('poa_request.poa_code', poa_code)
           trace_key_tags(span, poa_code:)
