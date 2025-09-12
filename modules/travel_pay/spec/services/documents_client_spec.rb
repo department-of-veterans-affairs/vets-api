@@ -108,25 +108,18 @@ describe TravelPay::DocumentsClient do
     let(:file) { Rack::Test::UploadedFile.new(file_path, 'application/pdf', 'test.pdf') }
 
     it 'sends a POST to the correct URL with headers and Document body' do
-      # Build a Faraday Multipart::FilePart explicitly so we can check the file name
-      file_part = Faraday::Multipart::FilePart.new(
-        file_path,           # path to the fixture file
-        'application/pdf',   # content type
-        'test.pdf'           # explicit filename
-      )
+      # Spy on FilePart creation
+      allow(Faraday::Multipart::FilePart).to receive(:new).and_call_original
+
       @stubs.post("api/v3/claims/#{claim_id}/documents/form-data") do |env|
         # Check headers
         expect(env.request_headers['Authorization']).to eq('Bearer veis_token')
         expect(env.request_headers['BTSSS-Access-Token']).to eq('btsss_token')
         expect(env.request_headers['X-Correlation-ID']).to be_present
+        expect(env.request_headers['Content-Type']).to match(%r{multipart/form-data; boundary=})
 
-        # Check the multipart body
-        # Normalize keys to symbols
-        body = env.body.is_a?(Hash) ? env.body.transform_keys(&:to_sym) : {}
-        document = body[:Document]
-        expect(document).to be_a(Faraday::Multipart::FilePart)
-        expect(document.original_filename).to eq('test.pdf')
-        expect(document.content_type).to eq('application/pdf')
+        # Multipart body should be a CompositeReadIO
+        expect(env.body).to be_a(Faraday::Multipart::CompositeReadIO)
 
         [
           201,
@@ -136,14 +129,40 @@ describe TravelPay::DocumentsClient do
       end
 
       client = TravelPay::DocumentsClient.new
-      response = client.add_document('veis_token', 'btsss_token', claim_id:, document: file_part)
+      response = client.add_document('veis_token', 'btsss_token', claim_id:, document: file)
 
       expect(StatsD).to have_received(:measure)
         .with(expected_log_prefix,
               kind_of(Numeric),
               tags: ['travel_pay:add_document'])
+      expect(Faraday::Multipart::FilePart).to have_received(:new)
+        .with(file.path, 'application/pdf', 'test.pdf')
       expect(response.status).to eq(201)
       expect(response.body['data']['documentId']).to eq('abc-123')
+    end
+
+    it 'does not raise bytesize error when sending multipart with a valid FilePart' do
+      @stubs.post("api/v3/claims/#{claim_id}/documents/form-data") do |env|
+        # Should be encoded as CompositeReadIO
+        expect(env.body).to be_a(Faraday::Multipart::CompositeReadIO)
+        [
+          201,
+          { 'Content-Type' => 'application/json' },
+          { data: { documentId: 'test-id' } }.to_json
+        ]
+      end
+
+      client = TravelPay::DocumentsClient.new
+
+      # Use a valid Rack::Test::UploadedFile, like you do normally
+      expect do
+        client.add_document(
+          'veis_token',
+          'btsss_token',
+          claim_id:,
+          document: file
+        )
+      end.not_to raise_error
     end
 
     it 'raises an internal server error when the response is not successful' do

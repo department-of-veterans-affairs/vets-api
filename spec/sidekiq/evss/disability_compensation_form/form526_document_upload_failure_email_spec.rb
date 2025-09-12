@@ -29,6 +29,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
   before do
     Sidekiq::Job.clear_all
     allow(Notifications::Client).to receive(:new).and_return(notification_client)
+    allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(false)
   end
 
   describe '#perform' do

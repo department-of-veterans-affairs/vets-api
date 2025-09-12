@@ -15,6 +15,6 @@ describe PreferredNameSerializer, type: :serializer do
   end
 
   it 'includes :preferred_name' do
-    expect(attributes['preferred_name']).to eq preferred_name_response.preferred_name.attributes.deep_stringify_keys
+    expect(attributes['preferred_name']).to match(preferred_name_response.preferred_name.attributes.deep_stringify_keys)
   end
 end

@@ -26,13 +26,12 @@ module BGSV2
           raise_backend_exception('BGS_686c_SERVICE_403', self.class, error.class.new('CEST11 Error'))
         end
         msg = "Unable to #{method}: #{error.message}: try #{attempt} of #{MAX_ATTEMPTS}"
-        context = { icn: @user[:icn] }
         tags = { team: 'vfs-ebenefits' }
 
-        return log_message_to_sentry(msg, :warn, context, tags) if status == :warn
+        return log_message_to_sentry(msg, :warn, {}, tags) if status == :warn
 
         log_oracle_errors!(error:)
-        log_exception_to_sentry(error, context, tags)
+        log_exception_to_sentry(error, {}, tags)
         raise_backend_exception('BGS_686c_SERVICE_403', self.class, error)
       end
 
@@ -60,7 +59,7 @@ module BGSV2
           log_message_to_sentry(
             oracle_error_match_data[0],
             :error,
-            { icn: @user[:icn] },
+            {},
             { team: 'vfs-ebenefits' }
           )
         end

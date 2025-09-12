@@ -14,6 +14,7 @@
     "sponsor_is_deceased": true,
     "date_of_death": "2021-01-08",
     "is_active_service_death": true,
+    "email": "veteran@example.com",
     "address": {
       "country": "USA",
       "street": "1 First Ln",

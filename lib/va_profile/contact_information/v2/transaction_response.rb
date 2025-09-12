@@ -68,7 +68,7 @@ module VAProfile
       end
 
       class AddressTransactionResponse < TransactionResponse
-        attribute :response_body, String
+        attribute :response_body, Hash
 
         def self.from(*args)
           return_val = super
@@ -87,9 +87,9 @@ module VAProfile
             Rails.logger.info("AddressTransactionResponse CHANGED FIELD ADDRESS POU: #{address_pou}")
           end
           case address_pou
-          when VAProfile::Models::V3::BaseAddress::RESIDENCE
+          when VAProfile::Models::BaseAddress::RESIDENCE
             :residence_address
-          when VAProfile::Models::V3::BaseAddress::CORRESPONDENCE
+          when VAProfile::Models::BaseAddress::CORRESPONDENCE
             :correspondence_address
           else
             :address
@@ -155,7 +155,7 @@ module VAProfile
       end
 
       class EmailTransactionResponse < TransactionResponse
-        attribute :response_body, String
+        attribute :response_body, Hash
 
         def self.from(*args)
           return_val = super
@@ -174,7 +174,7 @@ module VAProfile
       end
 
       class TelephoneTransactionResponse < TransactionResponse
-        attribute :response_body, String
+        attribute :response_body, Hash
 
         def self.from(*args)
           return_val = super

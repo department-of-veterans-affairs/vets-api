@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_19_181750) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_09_221715) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -640,6 +640,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_19_181750) do
     t.index ["processable_id", "processable_type"], name: "idx_on_processable_id_processable_type_91e46b55a4"
   end
 
+  create_table "claims_api_record_metadata", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "metadata_ciphertext", null: false
+    t.string "record_type", null: false
+    t.uuid "record_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["record_type", "record_id"], name: "index_record_metadata_on_type_and_id"
+  end
+
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -700,6 +709,25 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_19_181750) do
     t.string "credential_service_providers", default: ["logingov", "idme", "dslogon", "mhv"], array: true
     t.boolean "json_api_compatibility", default: true, null: false
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
+  end
+
+  create_table "debt_transaction_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "transactionable_type", null: false
+    t.uuid "transactionable_id", null: false
+    t.string "transaction_type", null: false
+    t.uuid "user_uuid", null: false
+    t.jsonb "debt_identifiers", default: [], null: false
+    t.jsonb "summary_data", default: {}
+    t.string "state"
+    t.string "external_reference_id"
+    t.datetime "transaction_started_at", null: false
+    t.datetime "transaction_completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["debt_identifiers"], name: "index_debt_transaction_logs_on_debt_identifiers", using: :gin
+    t.index ["transaction_started_at"], name: "index_debt_transaction_logs_on_transaction_started_at"
+    t.index ["transactionable_type", "transactionable_id"], name: "index_debt_transaction_logs_on_transactionable"
+    t.index ["user_uuid", "transaction_type"], name: "index_debt_transaction_logs_on_user_uuid_and_transaction_type"
   end
 
   create_table "decision_review_notification_audit_logs", force: :cascade do |t|

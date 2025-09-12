@@ -21,7 +21,7 @@ RSpec.describe IvcChampva::FormVersionManager do
       end
 
       def metadata
-        { 'docType' => 'test_base_form', 'uuid' => @uuid }
+        { 'uuid' => @uuid, 'docType' => @data['form_number'] }
       end
 
       def track_user_identity; end
@@ -44,7 +44,7 @@ RSpec.describe IvcChampva::FormVersionManager do
       end
 
       def metadata
-        { 'docType' => 'test_versioned_form', 'uuid' => @uuid, 'formExpiration' => '12/31/2025' }
+        { 'uuid' => @uuid, 'docType' => @data['form_number'], 'formExpiration' => '12/31/2025' }
       end
 
       def track_user_identity; end
@@ -258,8 +258,8 @@ RSpec.describe IvcChampva::FormVersionManager do
 
           expect(file_paths).to include(file_path)
           expect(metadata['attachment_ids']).to include('test_base_form')
-          # DocType should match the form's metadata since no legacy mapping is applied
-          expect(metadata['docType']).to eq('test_base_form')
+          # DocType should use the original user-facing form number for database records
+          expect(metadata['docType']).to eq('TEST-FORM')
         end
       end
 
@@ -274,8 +274,8 @@ RSpec.describe IvcChampva::FormVersionManager do
           expect(file_paths).to include(file_path)
           # Attachment IDs should be mapped to legacy form ID for downstream services
           expect(metadata['attachment_ids']).to include('test_base_form')
-          # DocType should be mapped to legacy form ID for backwards compatibility
-          expect(metadata['docType']).to eq('test_base_form')
+          # DocType should use the original user-facing form number for database records
+          expect(metadata['docType']).to eq('TEST-FORM')
         end
       end
     end

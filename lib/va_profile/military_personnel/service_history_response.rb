@@ -6,10 +6,10 @@ require 'va_profile/models/service_history'
 module VAProfile
   module MilitaryPersonnel
     class ServiceHistoryResponse < VAProfile::Response
-      attribute :episodes, Array
+      attribute :episodes, VAProfile::Models::ServiceHistory, array: true, default: []
       attribute :uniformed_service_initial_entry_date, String
       attribute :release_from_active_duty_date, String
-      attribute :vet_status_eligibility, Object
+      attribute :vet_status_eligibility, Hash
 
       def self.from(current_user, raw_response = nil)
         body = raw_response&.body

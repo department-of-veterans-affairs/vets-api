@@ -73,7 +73,7 @@ class MHVMetricsUniqueUserEvent < ApplicationRecord
       # Cache that this event now exists
       mark_key_cached(cache_key)
 
-      Rails.logger.info('UUM: New unique event recorded', { user_id:, event_name: })
+      Rails.logger.debug('UUM: New unique event recorded', { user_id:, event_name: })
       true # NEW EVENT - top-level library should log to statsd
     rescue ActiveRecord::RecordNotUnique
       # Event already exists in database
