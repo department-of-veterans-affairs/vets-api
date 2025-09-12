@@ -1,0 +1,2939 @@
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 81,
+  "link": [
+    {
+      "relation": "first",
+      "url": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem?_count=100&patient=1234567890V123456&page=1"
+    },
+    {
+      "relation": "self",
+      "url": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem?_count=100&patient=1234567890V123456&page=1"
+    },
+    {
+      "relation": "last",
+      "url": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem?_count=100&patient=1234567890V123456&page=1"
+    }
+  ],
+  "entry": [
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvIHeljN",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvIHeljN",
+        "meta": {
+          "lastUpdated": "2024-02-13T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35369698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "EXEMPT INT/ADM. COST"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-02-12T06:28:03Z",
+        "enteredDate": "2024-02-13T06:28:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvKcz7HN",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvKcz7HN",
+        "meta": {
+          "lastUpdated": "2024-02-13T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35359698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-01-29T06:28:03Z",
+        "enteredDate": "2024-01-30T06:28:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvIHeYwa",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvIHeYwa",
+        "meta": {
+          "lastUpdated": "2024-02-12T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35349221"
+          }
+        ],
+        "status": "billed",
+        "partOf": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvKcyuUa"
+          }
+        ],
+        "code": {
+          "text": "CHANGE IN ELIGIBILITY"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdGzAZ"
+        },
+        "occurrencePeriod": {
+          "start": "2023-12-29T06:28:03Z",
+          "end": "2023-12-29T06:58:03Z"
+        },
+        "enteredDate": "2024-02-12T06:28:03Z",
+        "note": [
+          {
+            "text": "DG INPT COPAY (MED) CANCEL"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvKcyuUa",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvKcyuUa",
+        "meta": {
+          "lastUpdated": "2024-02-12T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35339069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "HOSPITAL CARE (NSC)"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdGzAZ"
+        },
+        "occurrencePeriod": {
+          "start": "2023-12-29T06:28:03Z",
+          "end": "2023-12-29T06:58:03Z"
+        },
+        "enteredDate": "2023-12-30T06:28:03Z",
+        "note": [
+          {
+            "text": "DG INPT COPAY (MED) NEW"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvIGW6A5",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvIGW6A5",
+        "meta": {
+          "lastUpdated": "2025-01-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35249698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-01-29T14:47:03Z",
+        "enteredDate": "2025-01-30T14:47:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvKbqRi5",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvKbqRi5",
+        "meta": {
+          "lastUpdated": "2024-12-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35239698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-12-29T14:47:03Z",
+        "enteredDate": "2024-12-30T14:47:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvIGVp73",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvIGVp73",
+        "meta": {
+          "lastUpdated": "2024-11-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35229698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-11-29T14:47:03Z",
+        "enteredDate": "2024-11-30T14:47:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvKbqAf3",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvKbqAf3",
+        "meta": {
+          "lastUpdated": "2024-10-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35219698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-10-29T14:47:03Z",
+        "enteredDate": "2024-10-30T14:47:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvIGVY41",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvIGVY41",
+        "meta": {
+          "lastUpdated": "2024-09-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35209698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-09-29T14:47:03Z",
+        "enteredDate": "2024-09-30T14:47:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvKaisKv",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvKaisKv",
+        "meta": {
+          "lastUpdated": "2024-08-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35199698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-08-29T14:47:03Z",
+        "enteredDate": "2024-08-30T14:47:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvIFOK08",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvIFOK08",
+        "meta": {
+          "lastUpdated": "2024-07-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35189069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "NURSING HOME CARE PER DIEM"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdGzAZ"
+        },
+        "occurrencePeriod": {
+          "start": "2024-07-29T14:47:03Z",
+          "end": "2024-07-29T15:17:03Z"
+        },
+        "enteredDate": "2024-07-30T14:47:03Z",
+        "note": [
+          {
+            "text": "DG NHCU PER DIEM NEW"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvKZaTof",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvKZaTof",
+        "meta": {
+          "lastUpdated": "2024-11-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35099698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-11-29T12:03:03Z",
+        "enteredDate": "2024-11-30T12:03:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvIEFrDd",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvIEFrDd",
+        "meta": {
+          "lastUpdated": "2024-10-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35089698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-10-29T12:03:03Z",
+        "enteredDate": "2024-10-30T12:03:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvKZaCld",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvKZaCld",
+        "meta": {
+          "lastUpdated": "2024-09-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35079698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-09-29T12:03:03Z",
+        "enteredDate": "2024-09-30T12:03:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvIEFaAb",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvIEFaAb",
+        "meta": {
+          "lastUpdated": "2024-08-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35069698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-08-29T12:03:03Z",
+        "enteredDate": "2024-08-30T12:03:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvKZZvib",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvKZZvib",
+        "meta": {
+          "lastUpdated": "2024-07-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35059698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-07-29T12:03:03Z",
+        "enteredDate": "2024-07-30T12:03:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvIEFJ7Z",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvIEFJ7Z",
+        "meta": {
+          "lastUpdated": "2024-06-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35049698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-06-29T12:03:03Z",
+        "enteredDate": "2024-06-30T12:03:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvKZZivo",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvKZZivo",
+        "meta": {
+          "lastUpdated": "2024-05-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35039069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "HOSPITAL CARE (NSC)"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdGzAZ"
+        },
+        "occurrencePeriod": {
+          "start": "2024-05-29T12:03:03Z",
+          "end": "2024-05-29T12:33:03Z"
+        },
+        "enteredDate": "2024-05-30T12:03:03Z",
+        "note": [
+          {
+            "text": "DG INPT COPAY (MED) NEW"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvIEEpHk",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvIEEpHk",
+        "meta": {
+          "lastUpdated": "2025-01-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-35009069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "RX CO-PAYMENT/SC VET"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdGzAZ"
+        },
+        "occurrencePeriod": {
+          "start": "2025-01-29T18:08:03Z",
+          "end": "2025-01-29T18:38:03Z"
+        },
+        "enteredDate": "2025-01-30T18:08:03Z",
+        "note": [
+          {
+            "text": "PSO SC RX COPAY NEW"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvBMTLK4",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvBMTLK4",
+        "meta": {
+          "lastUpdated": "2024-11-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34979069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "OUTPATIENT CARE(NSC)"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdGzAZ"
+        },
+        "occurrencePeriod": {
+          "start": "2024-11-29T15:18:03Z",
+          "end": "2024-11-29T15:48:03Z"
+        },
+        "enteredDate": "2024-11-30T15:18:03Z",
+        "note": [
+          {
+            "text": "DG OPT COPAY NEW"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23Zv918Rg0",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23Zv918Rg0",
+        "meta": {
+          "lastUpdated": "2025-01-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34949069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "RX CO-PAYMENT/SC VET"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdGzAZ"
+        },
+        "occurrencePeriod": {
+          "start": "2025-01-29T09:32:03Z",
+          "end": "2025-01-29T10:02:03Z"
+        },
+        "enteredDate": "2025-01-30T09:32:03Z",
+        "note": [
+          {
+            "text": "PSO SC RX COPAY NEW"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23Zv917pJh",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23Zv917pJh",
+        "meta": {
+          "lastUpdated": "2024-11-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34909698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-11-29T14:05:03Z",
+        "enteredDate": "2024-11-30T14:05:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvBLLDqq",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvBLLDqq",
+        "meta": {
+          "lastUpdated": "2024-10-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34899069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "NURSING HOME CARE PER DIEM"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdGzAZ"
+        },
+        "occurrencePeriod": {
+          "start": "2024-10-29T14:05:03Z",
+          "end": "2024-10-29T14:35:03Z"
+        },
+        "enteredDate": "2024-10-30T14:05:03Z",
+        "note": [
+          {
+            "text": "DG NHCU PER DIEM NEW"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvBLKwno",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvBLKwno",
+        "meta": {
+          "lastUpdated": "2025-01-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34879069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "OUTPATIENT CARE(NSC)"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdGzAZ"
+        },
+        "occurrencePeriod": {
+          "start": "2025-01-29T18:06:03.596081Z",
+          "end": "2025-01-29T18:36:03.596081Z"
+        },
+        "enteredDate": "2025-01-30T18:06:03.596081Z",
+        "note": [
+          {
+            "text": "DG OPT COPAY NEW"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvBKCl4L",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvBKCl4L",
+        "meta": {
+          "lastUpdated": "2025-03-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34799698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-03-29T19:26:03Z",
+        "enteredDate": "2025-03-30T19:26:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23Zv8ys8TJ",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23Zv8ys8TJ",
+        "meta": {
+          "lastUpdated": "2025-03-01T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34789698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-02-28T19:26:03Z",
+        "enteredDate": "2025-03-01T19:26:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvBKCU1J",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvBKCU1J",
+        "meta": {
+          "lastUpdated": "2025-01-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34779698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-01-29T19:26:03Z",
+        "enteredDate": "2025-01-30T19:26:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23Zv8yrrQH",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23Zv8yrrQH",
+        "meta": {
+          "lastUpdated": "2024-12-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34769698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-12-29T19:26:03Z",
+        "enteredDate": "2024-12-30T19:26:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvBKCCyH",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvBKCCyH",
+        "meta": {
+          "lastUpdated": "2024-11-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34759698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-11-29T19:26:03Z",
+        "enteredDate": "2024-11-30T19:26:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23Zv8yraNF",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23Zv8yraNF",
+        "meta": {
+          "lastUpdated": "2024-10-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34749698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-10-29T19:26:03Z",
+        "enteredDate": "2024-10-30T19:26:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvBKBvvF",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvBKBvvF",
+        "meta": {
+          "lastUpdated": "2024-09-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34739698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-09-29T19:26:03Z",
+        "enteredDate": "2024-09-30T19:26:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23Zv8yrNaS",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23Zv8yrNaS",
+        "meta": {
+          "lastUpdated": "2024-08-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34729069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "CC OPT"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdGzAZ"
+        },
+        "occurrencePeriod": {
+          "start": "2024-08-29T19:26:03Z",
+          "end": "2024-08-29T19:56:03Z"
+        },
+        "enteredDate": "2024-08-30T19:26:03Z",
+        "note": [
+          {
+            "text": "CC (OPT) NEW"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvBJ45V3",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvBJ45V3",
+        "meta": {
+          "lastUpdated": "2025-03-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34679698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-03-29T19:26:03Z",
+        "enteredDate": "2025-03-30T19:26:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23Zv8xjSu1",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23Zv8xjSu1",
+        "meta": {
+          "lastUpdated": "2025-03-01T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34669698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-02-28T19:26:03Z",
+        "enteredDate": "2025-03-01T19:26:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvBJ3oS1",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvBJ3oS1",
+        "meta": {
+          "lastUpdated": "2025-01-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34659698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-01-29T19:26:03Z",
+        "enteredDate": "2025-01-30T19:26:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23Zv8xjBqz",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23Zv8xjBqz",
+        "meta": {
+          "lastUpdated": "2024-12-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34649698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-12-29T19:26:03Z",
+        "enteredDate": "2024-12-30T19:26:03Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23ZvBJ3bfE",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23ZvBJ3bfE",
+        "meta": {
+          "lastUpdated": "2024-11-30T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-34639069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "HOSPITAL CARE (NSC)"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdGzAZ"
+        },
+        "occurrencePeriod": {
+          "start": "2024-11-29T19:26:03Z",
+          "end": "2024-11-29T19:56:03Z"
+        },
+        "enteredDate": "2024-11-30T19:26:03Z",
+        "note": [
+          {
+            "text": "DG INPT COPAY (MED) NEW"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjlITSD",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjlITSD",
+        "meta": {
+          "lastUpdated": "2024-03-09T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17629698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "EXEMPT INT/ADM. COST"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-03-08T04:35:34Z",
+        "enteredDate": "2024-03-09T04:35:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIvIw6"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm6cp0D",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm6cp0D",
+        "meta": {
+          "lastUpdated": "2024-03-09T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17619698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-02-23T04:35:34Z",
+        "enteredDate": "2024-02-24T04:35:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIvIw6"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjlIGfQ",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjlIGfQ",
+        "meta": {
+          "lastUpdated": "2024-03-08T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17609221"
+          }
+        ],
+        "status": "billed",
+        "partOf": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm5VawK"
+          }
+        ],
+        "code": {
+          "text": "ENTERED IN ERROR"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hk6jXH"
+        },
+        "occurrencePeriod": {
+          "start": "2024-01-23T04:35:34Z",
+          "end": "2024-01-23T05:05:34Z"
+        },
+        "enteredDate": "2024-03-08T04:35:34Z",
+        "note": [
+          {
+            "text": "DG OPT COPAY CANCEL"
+          }
+        ],
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIvIw6"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm5VawK",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm5VawK",
+        "meta": {
+          "lastUpdated": "2024-03-08T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17599069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "OUTPATIENT CARE(NSC)"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hk6jXH"
+        },
+        "occurrencePeriod": {
+          "start": "2024-01-23T04:35:34Z",
+          "end": "2024-01-23T05:05:34Z"
+        },
+        "enteredDate": "2024-01-24T04:35:34Z",
+        "note": [
+          {
+            "text": "DG OPT COPAY NEW"
+          }
+        ],
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIvIw6"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjkAu53",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjkAu53",
+        "meta": {
+          "lastUpdated": "2025-02-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17589698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-02-23T12:54:34Z",
+        "enteredDate": "2025-02-24T12:54:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIv1t4"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm5VFd3",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm5VFd3",
+        "meta": {
+          "lastUpdated": "2025-01-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17579698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-01-23T12:54:34Z",
+        "enteredDate": "2025-01-24T12:54:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIv1t4"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjkAd21",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjkAd21",
+        "meta": {
+          "lastUpdated": "2024-12-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17569698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-12-23T12:54:34Z",
+        "enteredDate": "2024-12-24T12:54:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIv1t4"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm5Uya1",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm5Uya1",
+        "meta": {
+          "lastUpdated": "2024-11-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17559698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-11-23T12:54:34Z",
+        "enteredDate": "2024-11-24T12:54:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIv1t4"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjkALyz",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjkALyz",
+        "meta": {
+          "lastUpdated": "2024-10-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17549698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-10-23T12:54:34Z",
+        "enteredDate": "2024-10-24T12:54:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIv1t4"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm5UhWz",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm5UhWz",
+        "meta": {
+          "lastUpdated": "2024-09-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17539698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-09-23T12:54:34Z",
+        "enteredDate": "2024-09-24T12:54:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIv1t4"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjkA9CC",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjkA9CC",
+        "meta": {
+          "lastUpdated": "2024-08-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17529069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "OUTPATIENT CARE(NSC)"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hmL38V"
+        },
+        "occurrencePeriod": {
+          "start": "2024-08-23T12:54:34Z",
+          "end": "2024-08-23T13:24:34Z"
+        },
+        "enteredDate": "2024-08-24T12:54:34Z",
+        "note": [
+          {
+            "text": "DG OPT COPAY NEW"
+          }
+        ],
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIv1t4"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm5UQTx",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm5UQTx",
+        "meta": {
+          "lastUpdated": "2024-12-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17519698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-12-23T10:10:34Z",
+        "enteredDate": "2024-12-24T10:10:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIukq2"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjk9nsv",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjk9nsv",
+        "meta": {
+          "lastUpdated": "2024-11-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17509698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-11-23T10:10:34Z",
+        "enteredDate": "2024-11-24T10:10:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIukq2"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm4N89p",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm4N89p",
+        "meta": {
+          "lastUpdated": "2024-10-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17499698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-10-23T10:10:34Z",
+        "enteredDate": "2024-10-24T10:10:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIukq2"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjj2VYn",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjj2VYn",
+        "meta": {
+          "lastUpdated": "2024-09-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17489698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-09-23T10:10:34Z",
+        "enteredDate": "2024-09-24T10:10:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIukq2"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm4Mr6n",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm4Mr6n",
+        "meta": {
+          "lastUpdated": "2024-08-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17479698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-08-23T10:10:34Z",
+        "enteredDate": "2024-08-24T10:10:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIukq2"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjj2EVl",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjj2EVl",
+        "meta": {
+          "lastUpdated": "2024-07-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17469698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-07-23T10:10:34Z",
+        "enteredDate": "2024-07-24T10:10:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIukq2"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm4MeK0",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm4MeK0",
+        "meta": {
+          "lastUpdated": "2024-06-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17459069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "RX CO-PAYMENT/NSC VET"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrencePeriod": {
+          "start": "2024-06-23T10:10:34Z",
+          "end": "2024-06-23T10:40:34Z"
+        },
+        "enteredDate": "2024-06-24T10:10:34Z",
+        "service": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/MedicationDispense/4-1abU4wmNqUowRI"
+          }
+        ],
+        "note": [
+          {
+            "text": "PSO NSC RX COPAY NEW"
+          }
+        ],
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIukq2"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjj21iy",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjj21iy",
+        "meta": {
+          "lastUpdated": "2025-02-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17449069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "OUTPATIENT CARE(NSC)"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hqtBJb"
+        },
+        "occurrencePeriod": {
+          "start": "2025-02-23T16:15:34Z",
+          "end": "2025-02-23T16:45:34Z"
+        },
+        "enteredDate": "2025-02-24T16:15:34Z",
+        "note": [
+          {
+            "text": "DG OPT COPAY NEW"
+          }
+        ],
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIuTn0"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm4MNGy",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm4MNGy",
+        "meta": {
+          "lastUpdated": "2024-12-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17439069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "RX CO-PAYMENT/NSC VET"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrencePeriod": {
+          "start": "2024-12-23T13:25:34Z",
+          "end": "2024-12-23T13:55:34Z"
+        },
+        "enteredDate": "2024-12-24T13:25:34Z",
+        "service": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/MedicationDispense/4-1abU4wmNqUofOG"
+          }
+        ],
+        "note": [
+          {
+            "text": "PSO NSC RX COPAY NEW"
+          }
+        ],
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xIuCjy"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjj1kfw",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjj1kfw",
+        "meta": {
+          "lastUpdated": "2025-02-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17429069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "OUTPATIENT CARE(NSC)"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hk4X91"
+        },
+        "occurrencePeriod": {
+          "start": "2025-02-23T07:39:34Z",
+          "end": "2025-02-23T08:09:34Z"
+        },
+        "enteredDate": "2025-02-24T07:39:34Z",
+        "note": [
+          {
+            "text": "DG OPT COPAY NEW"
+          }
+        ],
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xItvgw"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm4M1xh",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm4M1xh",
+        "meta": {
+          "lastUpdated": "2024-12-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17419698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-12-23T12:12:34Z",
+        "enteredDate": "2024-12-24T12:12:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGfc5i"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjj1Tcu",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjj1Tcu",
+        "meta": {
+          "lastUpdated": "2024-11-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17409069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "OUTPATIENT CARE(NSC)"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdHGDb"
+        },
+        "occurrencePeriod": {
+          "start": "2024-11-23T12:12:34Z",
+          "end": "2024-11-23T12:42:34Z"
+        },
+        "enteredDate": "2024-11-24T12:12:34Z",
+        "note": [
+          {
+            "text": "DG OPT COPAY NEW"
+          }
+        ],
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGfc5i"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm3Ento",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm3Ento",
+        "meta": {
+          "lastUpdated": "2025-02-23T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17399069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "RX CO-PAYMENT/NSC VET"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrencePeriod": {
+          "start": "2025-02-22T16:13:34.479666500Z",
+          "end": "2025-02-22T16:43:34.479666500Z"
+        },
+        "enteredDate": "2025-02-23T16:13:34.479666500Z",
+        "service": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/MedicationDispense/4-1abU4wmNqUoOLE"
+          }
+        ],
+        "note": [
+          {
+            "text": "PSO NSC RX COPAY NEW"
+          }
+        ],
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGfL2g"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjhu72X",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjhu72X",
+        "meta": {
+          "lastUpdated": "2025-04-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17389698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-04-23T17:33:34Z",
+        "enteredDate": "2025-04-24T17:33:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGf3ze"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm3ESaX",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm3ESaX",
+        "meta": {
+          "lastUpdated": "2025-03-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17379698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-03-23T17:33:34Z",
+        "enteredDate": "2025-03-24T17:33:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGf3ze"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjhtpzV",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjhtpzV",
+        "meta": {
+          "lastUpdated": "2025-02-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17369698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-02-23T17:33:34Z",
+        "enteredDate": "2025-02-24T17:33:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGf3ze"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm3EBXV",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm3EBXV",
+        "meta": {
+          "lastUpdated": "2025-01-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17359698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-01-23T17:33:34Z",
+        "enteredDate": "2025-01-24T17:33:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGf3ze"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjhtYwT",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjhtYwT",
+        "meta": {
+          "lastUpdated": "2024-12-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17349698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-12-23T17:33:34Z",
+        "enteredDate": "2024-12-24T17:33:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGf3ze"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm3DuUT",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm3DuUT",
+        "meta": {
+          "lastUpdated": "2024-11-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17339698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-11-23T17:33:34Z",
+        "enteredDate": "2024-11-24T17:33:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGf3ze"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjhtHtR",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjhtHtR",
+        "meta": {
+          "lastUpdated": "2024-10-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17329698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-10-23T17:33:34Z",
+        "enteredDate": "2024-10-24T17:33:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGf3ze"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm3Dhhg",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm3Dhhg",
+        "meta": {
+          "lastUpdated": "2024-09-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17319069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "OUTPATIENT CARE(NSC)"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hodlWF"
+        },
+        "occurrencePeriod": {
+          "start": "2024-09-23T17:33:34Z",
+          "end": "2024-09-23T18:03:34Z"
+        },
+        "enteredDate": "2024-09-24T17:33:34Z",
+        "note": [
+          {
+            "text": "DG OPT COPAY NEW"
+          }
+        ],
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGf3ze"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjht0qP",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjht0qP",
+        "meta": {
+          "lastUpdated": "2025-04-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17309698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-04-23T17:33:34Z",
+        "enteredDate": "2025-04-24T17:33:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGemwc"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm26L7J",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm26L7J",
+        "meta": {
+          "lastUpdated": "2025-03-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17299698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-03-23T17:33:34Z",
+        "enteredDate": "2025-03-24T17:33:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGemwc"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjgliWH",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjgliWH",
+        "meta": {
+          "lastUpdated": "2025-02-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17289698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-02-23T17:33:34Z",
+        "enteredDate": "2025-02-24T17:33:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGemwc"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQm2644H",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQm2644H",
+        "meta": {
+          "lastUpdated": "2025-01-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17279698"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2025-01-23T17:33:34Z",
+        "enteredDate": "2025-01-24T17:33:34Z",
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGemwc"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-6c9ZE23XQjglVjU",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-6c9ZE23XQjglVjU",
+        "meta": {
+          "lastUpdated": "2024-12-24T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-17269069"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "OUTPATIENT CARE(NSC)"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hmLbEZ"
+        },
+        "occurrencePeriod": {
+          "start": "2024-12-23T17:33:34Z",
+          "end": "2024-12-23T18:03:34Z"
+        },
+        "enteredDate": "2024-12-24T17:33:34Z",
+        "note": [
+          {
+            "text": "DG OPT COPAY NEW"
+          }
+        ],
+        "supportingInformation": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7xGemwc"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-7Vh0sHj8fM2ZOZTpOeU",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-7Vh0sHj8fM2ZOZTpOeU",
+        "meta": {
+          "lastUpdated": "2024-12-31T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-123456"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "OUTPATIENT CARE(NSC)"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdGzAZ"
+        },
+        "occurrencePeriod": {
+          "start": "2022-11-15T00:00:00Z",
+          "end": "2022-11-15T00:00:00Z"
+        },
+        "enteredDate": "2022-11-15T18:45:00Z",
+        "service": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/MedicationDispense/4-NsbndSfPPNEx"
+          }
+        ],
+        "note": [
+          {
+            "text": "PSO SC RX COPAY NEW"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-7Vh0sHj8fM2ZOZTrb2k",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-7Vh0sHj8fM2ZOZTrb2k",
+        "meta": {
+          "lastUpdated": "2024-12-31T00:00:00Z"
+        },
+        "status": "billed",
+        "partOf": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-7Vh0sHj8fM2ZOZTpOeU"
+          }
+        ],
+        "code": {
+          "text": "ELIGIBILITY INCORRECT"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdGzAZ"
+        },
+        "occurrencePeriod": {
+          "start": "2022-11-15T00:00:00Z",
+          "end": "2022-11-15T00:00:00Z"
+        },
+        "enteredDate": "2022-12-30T13:42:00Z",
+        "service": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/MedicationDispense/4-NsbndSfPPNEx"
+          }
+        ],
+        "note": [
+          {
+            "text": "PSO SC RX COPAY CANCEL"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-7Vh0sHj8fM2ZOZTtnR0",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-7Vh0sHj8fM2ZOZTtnR0",
+        "meta": {
+          "lastUpdated": "2024-12-31T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-38243810"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "OUTPATIENT CARE(NSC)"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "context": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Encounter/4-1abONHj6hdGzAZ"
+        },
+        "occurrencePeriod": {
+          "start": "2024-06-20T00:00:00Z",
+          "end": "2024-06-20T00:00:00Z"
+        },
+        "enteredDate": "2024-06-20T11:10:15Z",
+        "service": [
+          {
+            "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/MedicationDispense/4-NsbndSfPPNEx"
+          }
+        ],
+        "note": [
+          {
+            "text": "PSO SC RX COPAY NEW"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-ZDEzfWOwF1QC9thHGH9dforZ",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-ZDEzfWOwF1QC9thHGH9dforZ",
+        "meta": {
+          "lastUpdated": "2024-12-31T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-38243792"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2022-12-14T17:45:00Z",
+        "enteredDate": "2022-12-14T17:45:00Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-ZDEzfWOwF1QC9thHGH7ILTJZ",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-ZDEzfWOwF1QC9thHGH7ILTJZ",
+        "meta": {
+          "lastUpdated": "2024-12-31T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-38243792"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "EXEMPT INT/ADM. COST"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2022-12-15T18:45:00Z",
+        "enteredDate": "2022-12-30T13:42:00Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-ZDEzfWOwF1QC9thHGH9dg5ub",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-ZDEzfWOwF1QC9thHGH9dg5ub",
+        "meta": {
+          "lastUpdated": "2024-12-31T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-38243811"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "ADMIN.COST CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-06-20T11:10:15Z",
+        "enteredDate": "2024-06-20T11:19:50Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/ChargeItem/4-ZDEzfWOwF1QC9thHGH7ILkMb",
+      "resource": {
+        "resourceType": "ChargeItem",
+        "id": "4-ZDEzfWOwF1QC9thHGH7ILkMb",
+        "meta": {
+          "lastUpdated": "2024-12-31T00:00:00Z"
+        },
+        "identifier": [
+          {
+            "type": {
+              "text": "Transaction Number"
+            },
+            "value": "-38243812"
+          }
+        ],
+        "status": "billed",
+        "code": {
+          "text": "INTEREST/ADM. CHARGE"
+        },
+        "subject": {
+          "reference": "https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/1234567890V123456"
+        },
+        "occurrenceDateTime": "2024-07-30T06:30:00Z",
+        "enteredDate": "2024-07-30T06:30:00Z"
+      },
+      "search": {
+        "mode": "match"
+      }
+    }
+  ]
+}
