@@ -222,211 +222,216 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       end
     end
   end
-end
 
-describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
-  subject { described_class.new }
+  describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
+    subject { described_class.new }
 
-  let(:base_resource) do
-    {
-      'resourceType' => 'MedicationRequest',
-      'id' => '12345',
-      'status' => 'active',
-      'authoredOn' => '2025-01-29T19:41:43Z',
-      'medicationCodeableConcept' => {
-        'text' => 'Test Medication'
-      },
-      'dosageInstruction' => [
-        {
-          'text' => 'Take as directed'
-        }
-      ]
-    }
-  end
-
-  describe '#parse' do
-    context 'with valid resource' do
-      it 'returns a UnifiedHealthData::Prescription object' do
-        result = subject.parse(base_resource)
-
-        expect(result).to be_a(UnifiedHealthData::Prescription)
-        expect(result.id).to eq('12345')
-        expect(result.type).to eq('Prescription')
-      end
-    end
-
-    context 'with nil resource' do
-      it 'returns nil' do
-        expect(subject.parse(nil)).to be_nil
-      end
-    end
-
-    context 'with resource missing id' do
-      let(:resource_without_id) { base_resource.except('id') }
-
-      it 'returns nil' do
-        expect(subject.parse(resource_without_id)).to be_nil
-      end
-    end
-
-    context 'when parsing raises an error' do
-      before do
-        allow(subject).to receive(:build_prescription_attributes).and_raise(StandardError, 'Test error')
-        allow(Rails.logger).to receive(:error)
-      end
-
-      it 'logs the error and returns nil' do
-        result = subject.parse(base_resource)
-
-        expect(result).to be_nil
-        expect(Rails.logger).to have_received(:error).with('Error parsing Oracle Health prescription: Test error')
-      end
-    end
-  end
-
-  describe '#extract_facility_name' do
-    context 'with dispenseRequest performer' do
-      let(:resource_with_performer) do
-        base_resource.merge(
-          'dispenseRequest' => {
-            'performer' => {
-              'display' => 'Main Pharmacy'
-            }
+    let(:base_resource) do
+      {
+        'resourceType' => 'MedicationRequest',
+        'id' => '12345',
+        'status' => 'active',
+        'authoredOn' => '2025-01-29T19:41:43Z',
+        'medicationCodeableConcept' => {
+          'text' => 'Test Medication'
+        },
+        'dosageInstruction' => [
+          {
+            'text' => 'Take as directed'
           }
-        )
+        ]
+      }
+    end
+
+    describe '#parse' do
+      context 'with valid resource' do
+        it 'returns a UnifiedHealthData::Prescription object' do
+          result = subject.parse(base_resource)
+
+          expect(result).to be_a(UnifiedHealthData::Prescription)
+          expect(result.id).to eq('12345')
+          expect(result.type).to eq('Prescription')
+        end
       end
 
-      it 'returns the performer display name' do
-        result = subject.send(:extract_facility_name, resource_with_performer)
-        expect(result).to eq('Main Pharmacy')
+      context 'with nil resource' do
+        it 'returns nil' do
+          expect(subject.parse(nil)).to be_nil
+        end
+      end
+
+      context 'with resource missing id' do
+        let(:resource_without_id) { base_resource.except('id') }
+
+        it 'returns nil' do
+          expect(subject.parse(resource_without_id)).to be_nil
+        end
+      end
+
+      context 'when parsing raises an error' do
+        let(:adapter_with_error) do
+          adapter = described_class.new
+          allow(adapter).to receive(:build_prescription_attributes).and_raise(StandardError, 'Test error')
+          adapter
+        end
+
+        before do
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'logs the error and returns nil' do
+          result = adapter_with_error.parse(base_resource)
+
+          expect(result).to be_nil
+          expect(Rails.logger).to have_received(:error).with('Error parsing Oracle Health prescription: Test error')
+        end
       end
     end
 
-    context 'with encounter location in contained resources' do
-      let(:resource_with_encounter) do
-        base_resource.merge(
-          'contained' => [
-            {
-              'resourceType' => 'Encounter',
-              'id' => 'encounter-1',
-              'location' => [
-                {
-                  'location' => {
-                    'display' => 'VA Medical Center - Emergency'
+    describe '#extract_facility_name' do
+      context 'with dispenseRequest performer' do
+        let(:resource_with_performer) do
+          base_resource.merge(
+            'dispenseRequest' => {
+              'performer' => {
+                'display' => 'Main Pharmacy'
+              }
+            }
+          )
+        end
+
+        it 'returns the performer display name' do
+          result = subject.send(:extract_facility_name, resource_with_performer)
+          expect(result).to eq('Main Pharmacy')
+        end
+      end
+
+      context 'with encounter location in contained resources' do
+        let(:resource_with_encounter) do
+          base_resource.merge(
+            'contained' => [
+              {
+                'resourceType' => 'Encounter',
+                'id' => 'encounter-1',
+                'location' => [
+                  {
+                    'location' => {
+                      'display' => 'VA Medical Center - Emergency'
+                    }
                   }
-                }
-              ]
-            }
-          ]
-        )
+                ]
+              }
+            ]
+          )
+        end
+
+        it 'returns the encounter location display name' do
+          result = subject.send(:extract_facility_name, resource_with_encounter)
+          expect(result).to eq('VA Medical Center - Emergency')
+        end
       end
 
-      it 'returns the encounter location display name' do
-        result = subject.send(:extract_facility_name, resource_with_encounter)
-        expect(result).to eq('VA Medical Center - Emergency')
-      end
-    end
-
-    context 'with multiple contained resources including encounter' do
-      let(:resource_with_multiple_contained) do
-        base_resource.merge(
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1'
-            },
-            {
-              'resourceType' => 'Encounter',
-              'id' => 'encounter-1',
-              'location' => [
-                {
-                  'location' => {
-                    'display' => 'Outpatient Clinic'
+      context 'with multiple contained resources including encounter' do
+        let(:resource_with_multiple_contained) do
+          base_resource.merge(
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1'
+              },
+              {
+                'resourceType' => 'Encounter',
+                'id' => 'encounter-1',
+                'location' => [
+                  {
+                    'location' => {
+                      'display' => 'Outpatient Clinic'
+                    }
                   }
-                }
-              ]
-            },
-            {
-              'resourceType' => 'Organization',
-              'id' => 'org-1'
+                ]
+              },
+              {
+                'resourceType' => 'Organization',
+                'id' => 'org-1'
+              }
+            ]
+          )
+        end
+
+        it 'finds and returns the encounter location display name' do
+          result = subject.send(:extract_facility_name, resource_with_multiple_contained)
+          expect(result).to eq('Outpatient Clinic')
+        end
+      end
+
+      context 'with encounter but no location' do
+        let(:resource_with_encounter_no_location) do
+          base_resource.merge(
+            'contained' => [
+              {
+                'resourceType' => 'Encounter',
+                'id' => 'encounter-1'
+              }
+            ],
+            'requester' => {
+              'display' => 'Fallback Provider'
             }
-          ]
-        )
+          )
+        end
       end
 
-      it 'finds and returns the encounter location display name' do
-        result = subject.send(:extract_facility_name, resource_with_multiple_contained)
-        expect(result).to eq('Outpatient Clinic')
+      context 'with no performer, encounter, or requester' do
+        it 'returns nil' do
+          result = subject.send(:extract_facility_name, base_resource)
+          expect(result).to be_nil
+        end
       end
     end
 
-    context 'with encounter but no location' do
-      let(:resource_with_encounter_no_location) do
-        base_resource.merge(
-          'contained' => [
-            {
-              'resourceType' => 'Encounter',
-              'id' => 'encounter-1'
+    describe '#extract_is_refillable' do
+      context 'with active status and remaining refills' do
+        let(:resource) do
+          {
+            'status' => 'active',
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 5
             }
-          ],
-          'requester' => {
-            'display' => 'Fallback Provider'
           }
-        )
-      end
-    end
+        end
 
-    context 'with no performer, encounter, or requester' do
-      it 'returns nil' do
-        result = subject.send(:extract_facility_name, base_resource)
-        expect(result).to be_nil
+        it 'returns true' do
+          expect(subject.send(:extract_is_refillable, resource)).to be true
+        end
       end
-    end
-  end
 
-  describe '#extract_is_refillable' do
-    context 'with active status and remaining refills' do
-      let(:resource) do
-        {
-          'status' => 'active',
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 5
+      context 'with active status but no remaining refills' do
+        let(:resource) do
+          {
+            'status' => 'active',
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 0
+            }
           }
-        }
+        end
+
+        it 'returns false' do
+          expect(subject.send(:extract_is_refillable, resource)).to be false
+        end
       end
 
-      it 'returns true' do
-        expect(subject.send(:extract_is_refillable, resource)).to be true
-      end
-    end
-
-    context 'with active status but no remaining refills' do
-      let(:resource) do
-        {
-          'status' => 'active',
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 0
+      context 'with inactive status' do
+        let(:resource) do
+          {
+            'status' => 'completed',
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 5
+            }
           }
-        }
-      end
+        end
 
-      it 'returns false' do
-        expect(subject.send(:extract_is_refillable, resource)).to be false
-      end
-    end
-
-    context 'with inactive status' do
-      let(:resource) do
-        {
-          'status' => 'completed',
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 5
-          }
-        }
-      end
-
-      it 'returns false' do
-        expect(subject.send(:extract_is_refillable, resource)).to be false
+        it 'returns false' do
+          expect(subject.send(:extract_is_refillable, resource)).to be false
+        end
       end
     end
   end
