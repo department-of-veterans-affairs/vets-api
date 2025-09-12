@@ -852,7 +852,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
 
           it 'logs warning with correct attributes' do
             expect(Rails.logger).to receive(:info).with(
-              'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in temporary error state',
+              'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in non-final error state',
               hash_including(
                 secondary_form_uuid: secondary_form.guid,
                 appeal_submission_id: secondary_form.appeal_submission_id,
@@ -978,7 +978,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
 
           it 'only logs warnings for temporary errors exceeding threshold' do
             expect(Rails.logger).to receive(:info).with(
-              'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in temporary error state',
+              'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in non-final error state',
               hash_including(secondary_form_uuid: form_temp_error_old.guid)
             ).once
 
