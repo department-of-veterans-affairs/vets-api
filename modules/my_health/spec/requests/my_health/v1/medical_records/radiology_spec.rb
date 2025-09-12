@@ -16,6 +16,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Radiology', type: :request do
   before do
     bb_internal_client = BBInternal::Client.new(
       session: {
+        user_uuid: '12345',
         user_id: 11_375_034,
         icn: '1000000000V000000',
         patient_id: '11382904',

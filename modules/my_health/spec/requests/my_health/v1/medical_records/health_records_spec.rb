@@ -16,6 +16,7 @@ RSpec.describe 'MyHealth::V1::HealthRecordsController', type: :request do
   before do
     bb_client = BB::Client.new(
       session: {
+        user_uuid: '12345',
         user_id: 11_375_034,
         expires_at: 1.hour.from_now,
         token: '<SESSION_TOKEN>'

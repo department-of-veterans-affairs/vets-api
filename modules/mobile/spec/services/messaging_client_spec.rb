@@ -8,7 +8,7 @@ describe Mobile::V0::Messaging::Client do
       with_settings(Settings.mhv_mobile.sm, app_token: 'TestToken') do
         stub_request(:get, /session/).with(headers: { 'appToken' => 'TestToken' })
                                      .to_return(status: 200, headers: { 'Token' => 'abcd1234z' })
-        svc = Mobile::V0::Messaging::Client.new(session: { user_id: '10616687' })
+        svc = Mobile::V0::Messaging::Client.new(session: { user_uuid: '12345', user_id: '10616687' })
         svc.authenticate
         expect(a_request(:get, /session/).with(headers: { 'appToken' => 'TestToken' }))
           .to have_been_made.once
@@ -21,7 +21,7 @@ describe Mobile::V0::Messaging::Client do
       with_settings(Settings.mhv_mobile.sm, app_token: 'TestToken') do
         stub_request(:get, /session/).with(headers: { 'appToken' => 'TestToken' })
                                      .to_return(status: 200, headers: { 'Token' => 'abcd1234z' })
-        svc = Mobile::V0::Messaging::Client.new(session: { user_id: })
+        svc = Mobile::V0::Messaging::Client.new(session: { user_uuid: '12345', user_id: })
         svc.authenticate
         expect($redis.get(key)).to be_truthy
       end

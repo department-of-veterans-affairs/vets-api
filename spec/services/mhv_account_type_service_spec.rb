@@ -15,6 +15,7 @@ RSpec.describe MHVAccountTypeService do
       mhv_correlation_id:,
       identity: user_identity,
       uuid: 1,
+      user_account_uuid: 1,
       authn_context: 'myhealthevet',
       va_patient?: true
     )
