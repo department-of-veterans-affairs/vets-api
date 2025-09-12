@@ -204,7 +204,7 @@ module PdfFill
         @form_data['agreementType'] = {}
         %w[newCommitment withdrawal].each do |agreement_type|
           # Set checkbox to checked or unchecked
-          checked_value = form_value == agreement_type ? 'Yes' : 'No'
+          checked_value = form_value == agreement_type ? 'Yes' : 'Off'
           @form_data['agreementType'][agreement_type] = checked_value
         end
       end
@@ -215,6 +215,7 @@ module PdfFill
           format_address(address)
           institution['institutionAddress'] = combine_full_address(address)
 
+          # flatten nested contact info
           poc = institution.delete('pointOfContact')
           institution.merge!(poc)
           format_contact(institution)
