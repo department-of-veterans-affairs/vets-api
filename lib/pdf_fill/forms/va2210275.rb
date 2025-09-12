@@ -22,23 +22,27 @@ module PdfFill
             question_num: 2,
             limit: 8
           },
-          'institutionAddress' => {
+          'mailingAddress' => {
+            key: 'mailingAddress',
+            limit: 245,
             question_text: 'MAILING ADDRESS OF EDUCATIONAL TRAINING INSTITUTION',
-            question_num: 3,
-            'mailingAddress' => {
-              key: 'mailingAddress',
-              limit: 245
-            }
+            question_num: 3
           }
         },
         'agreementType' => {
           question_text: 'AGREEMENT_TYPE (CHECK ONE)',
           question_num: 4,
           'newCommitment' => {
-            key: 'newCommitment'
+            key: 'newCommitment',
+            question_text: 'NEW COMMITMENT',
+            question_num: 4,
+            question_suffix: 'A'
           },
           'withdrawal' => {
-            key: 'withdrawal'
+            key: 'withdrawal',
+            question_text: 'WITHDRAWAL',
+            question_num: 4,
+            question_suffix: 'B'
           }
         },
         'additionalInstitutions' => {
@@ -46,32 +50,41 @@ module PdfFill
           question_text: 'List all participating locations',
           first_key: 'institutionName',
           limit: 6,
+          label_all: true,
           'institutionName' => {
             key: "schoolName[#{ITERATOR}]",
             limit: 55,
-            question_suffix: 'A'
+            question_suffix: 'A',
+            question_num: 5,
+            question_text: 'SCHOOL NAME'
           },
           'institutionAddress' => {
             key: "schoolLocation[#{ITERATOR}]",
             limit: 65,
-            question_suffix: 'B'
+            question_suffix: 'B',
+            question_num: 5,
+            question_text: 'SCHOOL LOCATION'
           },
           'facilityCode' => {
             key: "schoolFacilityCode[#{ITERATOR}]",
             limit: 8,
-            question_suffix: 'C'
+            question_suffix: 'C',
+            question_num: 5,
+            question_text: 'FACILITY CODE'
           },
-          'pointOfContact' => {
-            'fullName' => {
-              key: "schoolPoc[#{ITERATOR}]",
-              limit: 80,
-              question_suffix: 'D'
-            },
-            'email' => {
-              key: "schoolEmail[#{ITERATOR}]",
-              limit: 80,
-              question_suffix: 'E'
-            }
+          'fullName' => {
+            key: "schoolPoc[#{ITERATOR}]",
+            limit: 80,
+            question_suffix: 'D',
+            question_num: 5,
+            question_text: 'POINT OF CONTACT'
+          },
+          'email' => {
+            key: "schoolEmail[#{ITERATOR}]",
+            limit: 80,
+            question_suffix: 'E',
+            question_num: 5,
+            question_text: 'EMAIL ADDRESS'
           }
         },
         'newCommitment' => {
@@ -164,18 +177,14 @@ module PdfFill
       private
 
       def merge_address_helpers
-        address = @form_data.dig('mainInstitution', 'institutionAddress')
-        format_address(address, newline: true)
+        address = @form_data['mainInstitution'].delete('institutionAddress')
+        format_address(address)
+        @form_data['mainInstitution']['mailingAddress'] = combine_full_address_extras(address)
       end
 
-      def format_address(address, newline: false)
+      def format_address(address)
         address['country'] = format_country(address)
         address['state'] = format_state(address)
-        address['mailingAddress'] = if newline
-                                      combine_full_address_extras(address)
-                                    else
-                                      combine_full_address(address)
-                                    end
       end
 
       # Unnecessary to include country code in mailing address if domestic
@@ -203,19 +212,23 @@ module PdfFill
       def merge_additional_institution_helpers
         @form_data['additionalInstitutions'].each do |institution|
           address = institution['institutionAddress']
-          institution['institutionAddress'] = format_address(address)
-          institution['pointOfContact'] = format_contact(institution['pointOfContact'])
+          format_address(address)
+          institution['institutionAddress'] = combine_full_address(address)
+
+          poc = institution.delete('pointOfContact')
+          institution.merge!(poc)
+          format_contact(institution)
         end
       end
 
       def format_contact(contact)
         contact['fullName'] = combine_full_name(contact['fullName'])
-        phone = contact['usPhone'] || contact['internationalPhone']
-        contact['phone'] = format_phone(phone) if contact['usPhone'].present?
-        contact
+        phone = contact.delete('usPhone')&.then(&method(:format_us_phone)) ||
+                contact.delete('internationalPhone')
+        contact['phone'] = phone if phone.present?
       end
 
-      def format_phone(number)
+      def format_us_phone(number)
         expand_phone_number(number).values.join('-')
       end
 
