@@ -23,6 +23,8 @@ class ApplicationController < ActionController::API
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
   skip_before_action :verify_authenticity_token, only: :routing_error
 
+  around_action :tag_with_service_tag
+
   VERSION_STATUS = {
     draft: 'Draft Version',
     current: 'Current Version',
