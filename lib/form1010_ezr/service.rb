@@ -54,6 +54,10 @@ module Form1010Ezr
       end
     end
 
+    def self.log_submission_failure(parsed_form, msg)
+      log_message_to_rails(msg, :error, veteran_initials(parsed_form))
+    end
+
     def submit_async(parsed_form)
       HCA::EzrSubmissionJob.perform_async(
         HealthCareApplication::LOCKBOX.encrypt(parsed_form.to_json),
@@ -79,7 +83,12 @@ module Form1010Ezr
       res
     rescue => e
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
-      Form1010Ezr::Service.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
+      if Flipper.enabled?(:hca_disable_sentry_logging)
+        Form1010Ezr::Service.log_submission_failure(parsed_form, '[10-10EZR] failure')
+      else
+        Form1010Ezr::Service.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
+      end
+
       raise e
     end
 
@@ -95,7 +104,11 @@ module Form1010Ezr
       submit_async(parsed_form)
     rescue => e
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
-      self.class.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
+      if Flipper.enabled?(:hca_disable_sentry_logging)
+        self.class.log_submission_failure(parsed_form, '[10-10EZR] failure')
+      else
+        self.class.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
+      end
       raise e
     end
 
