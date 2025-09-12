@@ -184,7 +184,8 @@ module DecisionReviews
     end
 
     def send_secondary_form_emails_enhanced
-      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records", permanently_errored_secondary_forms.size)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records",
+                       permanently_errored_secondary_forms.size)
 
       permanently_errored_secondary_forms.each do |form|
         send_secondary_form_email(form)
