@@ -238,6 +238,11 @@ module VSPDanger
     def run
       return Result.success('All set.') unless db_files.any?
 
+      # Check for column removal without ignored_columns
+      if migration_removes_columns? && !has_ignored_columns_in_models?
+        return Result.warn(column_removal_warning)
+      end
+
       disallowed_files = app_files.reject { |file| allowed_app_file?(file) }
 
       return Result.error(error_message(disallowed_files)) if disallowed_files.any?
@@ -247,6 +252,59 @@ module VSPDanger
     end
 
     private
+
+    def migration_removes_columns?
+      migration_files.any? do |file|
+        content = File.read(file)
+        content.match?(/remove_column|remove_columns|drop_column/)
+      end
+    end
+
+    def has_ignored_columns_in_models?
+      model_files = app_files.select { |f| f.match?(%r{app/models/.+\.rb$}) }
+      
+      return false if model_files.empty?
+      
+      model_files.any? do |file|
+        content = File.read(file)
+        content.match?(/ignored_columns|self\.ignored_columns/)
+      end
+    end
+
+    def migration_files
+      db_files.select { |f| f.match?(%r{db/migrate/.+\.rb$}) }
+    end
+
+    def column_removal_warning
+      <<~EMSG
+        ⚠️ **Column Removal Detected Without `ignored_columns`**
+
+        This PR contains a migration that removes columns but doesn't include `ignored_columns` in any models.
+
+        **Strong Migrations recommends a 3-step process:**
+        1. **First PR:** Add `ignored_columns` to the model
+        2. **Second PR:** Remove the column with `safety_assured`
+        3. **Third PR:** Remove `ignored_columns` from the model
+
+        **Example for step 1:**
+        ```ruby
+        class YourModel < ApplicationRecord
+          self.ignored_columns += ["column_to_remove"]
+        end
+        ```
+
+        **Why this matters:**
+        - Active Record caches columns at runtime
+        - Removing columns without ignoring them first can cause production errors
+        - Rolling deployments may have servers with different code versions
+
+        Consider splitting this into separate PRs following the Strong Migrations pattern.
+        
+        For more info:
+        - [Strong Migrations - Removing a column](https://github.com/ankane/strong_migrations#removing-a-column)
+        - [vets-api Database Migrations](https://depo-platform-documentation.scrollhelp.site/developer-docs/Vets-API-Database-Migrations.689832034.html)
+      EMSG
+    end
 
     def allowed_app_file?(file)
       ALLOWED_APP_PATTERNS.any? { |pattern| file.match?(pattern) }
