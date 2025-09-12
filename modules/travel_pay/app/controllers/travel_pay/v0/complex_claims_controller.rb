@@ -15,7 +15,7 @@ module TravelPay
 
       def submit
         claim_id = params[:claim_id]
-        validate_claim_id_exists!(claim_id)
+        validate_uuid_exists!(claim_id, 'Claim')
 
         # TODO: add validation to verify there is a document associated to a given expense
         # TODO: possibly add validation to verify the claim id is valid
