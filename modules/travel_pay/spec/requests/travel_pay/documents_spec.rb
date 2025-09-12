@@ -190,7 +190,6 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
 
           expect(response).to have_http_status(:bad_request)
           body = JSON.parse(response.body)
-          puts response
           expect(body['errors'].first['detail']).to eq('Claim ID is invalid')
         end
 
