@@ -11,6 +11,7 @@ module VaNotify
     include Common::Client::Concerns::Monitoring
 
     STATSD_KEY_PREFIX = 'api.vanotify'
+    UUID_LENGTH = 36
 
     configuration VaNotify::Configuration
 
@@ -185,9 +186,12 @@ module VaNotify
     end
 
     def retrieve_service_api_key_path
-      if Flipper.enabled?(:va_notify_custom_errors)
+      if Flipper.enabled?(:va_notify_request_level_callbacks)
         service_config = Settings.vanotify.services.find do |_service, options|
-          options.api_key == @notify_client.secret_token
+          # multiple services may be using same options.api_key
+          api_key_secret_token = extracted_token(options.api_key)
+
+          api_key_secret_token == @notify_client.secret_token
         end
 
         if service_config.blank?
@@ -197,6 +201,10 @@ module VaNotify
           "Settings.vanotify.services.#{service_config[0]}.api_key"
         end
       end
+    end
+
+    def extracted_token(computed_api_key)
+      computed_api_key[(computed_api_key.length - UUID_LENGTH)..computed_api_key.length]
     end
   end
 end
