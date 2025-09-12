@@ -1121,7 +1121,7 @@ features:
   kendra_enabled_for_resources_and_support_search:
     actor_type: user
     description: Enable/disable Amazon Kendra for Resources and Support search
-    enable_in_development: true 
+    enable_in_development: true
   letters_page_new_design:
     actor_type: user
     description: Enables ability to show updated letter page design
@@ -1834,6 +1834,10 @@ features:
   sign_in_modal_v2:
     actor_type: user
     description: Enables new page design of Sign In modal and USiP
+    enable_in_development: false
+  confirm_contact_email_interstitial_enabled:
+    actor_type: user
+    description: Enables users with emails tied to MHV classic accounts to be redirected to the confirm contact email interstitial page (Identity)
     enable_in_development: false
   dslogon_interstitial_redirect:
     actor_type: user
