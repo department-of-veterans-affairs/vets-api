@@ -36,6 +36,35 @@ module TravelPay
     end
 
     ##
+    # Generic HTTP GET call to the BTSSS 'expenses' endpoints to retrieve an expense by ID
+    # Routes to appropriate endpoint based on expense type
+    #
+    # @param veis_token [String] VEIS authentication token
+    # @param btsss_token [String] BTSSS access token
+    # @param expense_type [String] Type of expense ('other')
+    # @param expense_id [String] UUID of the expense to retrieve
+    #
+    # @return [Faraday::Response] API response with expense details
+    #
+    def get_expense(veis_token, btsss_token, expense_type, expense_id)
+      btsss_url = Settings.travel_pay.base_url
+      correlation_id = SecureRandom.uuid
+      endpoint = "#{expense_endpoint_for_type(expense_type)}/#{expense_id}"
+
+      Rails.logger.info(message: 'Correlation ID', correlation_id:)
+      Rails.logger.info(message: "Getting #{expense_type} expense from endpoint: #{endpoint}")
+
+      log_to_statsd('expense', "get_#{expense_type}") do
+        connection(server_url: btsss_url).get(endpoint) do |req|
+          req.headers['Authorization'] = "Bearer #{veis_token}"
+          req.headers['BTSSS-Access-Token'] = btsss_token
+          req.headers['X-Correlation-ID'] = correlation_id
+          req.headers.merge!(claim_headers)
+        end
+      end
+    end
+
+    ##
     # HTTP POST call to the BTSSS 'expenses' endpoint to add a new mileage expense
     # API responds with an expenseId
     #
@@ -85,15 +114,10 @@ module TravelPay
     #
     def expense_endpoint_for_type(expense_type)
       case expense_type
-      when 'mileage'
-        'api/v2/expenses/mileage'
-      when 'parking'
-        'api/v1/expenses/parking'
-      when 'meal'
-        'api/v1/expenses/meal'
-      else
-        # Default to a generic expenses endpoint
+      when 'other'
         'api/v1/expenses/other'
+      else
+        raise ArgumentError, "Unsupported expense type: #{expense_type}. Only 'other' is currently supported."
       end
     end
   end
