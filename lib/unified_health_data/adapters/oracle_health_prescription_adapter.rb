@@ -19,7 +19,6 @@ module UnifiedHealthData
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def build_prescription_attributes(resource)
         UnifiedHealthData::PrescriptionAttributes.new({
                                                         refill_status: resource['status'],
@@ -42,7 +41,6 @@ module UnifiedHealthData
                                                         instructions: extract_instructions(resource)
                                                       })
       end
-      # rubocop:enable Metrics/MethodLength
 
       def extract_refill_date(resource)
         resource.dig('dispenseRequest', 'validityPeriod', 'start')
@@ -172,7 +170,7 @@ module UnifiedHealthData
         # Sort by whenHandedOver date, most recent first
         dispenses.max_by do |dispense|
           when_handed_over = dispense['whenHandedOver']
-          when_handed_over ? Time.parse(when_handed_over) : Time.at(0)
+          when_handed_over ? Time.zone.parse(when_handed_over) : Time.zone.at(0)
         end
       end
     end
