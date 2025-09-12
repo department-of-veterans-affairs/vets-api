@@ -53,10 +53,10 @@ describe TravelPay::ExpensesService do
           'amount' => 125.50,
           'expenseType' => 'lodging',
           'expenseReceipt' => {
-            'contentType' => '',
-            'length' => 0,
-            'fileName' => '',
-            'fileData' => ''
+            'contentType' => 'text/plain',
+            'length' => 11,
+            'fileName' => 'placeholder.txt',
+            'fileData' => 'cGxhY2Vob2xkZXI='
           }
         }
 
@@ -85,10 +85,10 @@ describe TravelPay::ExpensesService do
           'amount' => 15.75,
           'expenseType' => 'meal',
           'expenseReceipt' => {
-            'contentType' => '',
-            'length' => 0,
-            'fileName' => '',
-            'fileData' => ''
+            'contentType' => 'text/plain',
+            'length' => 11,
+            'fileName' => 'placeholder.txt',
+            'fileData' => 'cGxhY2Vob2xkZXI='
           }
         }
 
@@ -117,10 +117,10 @@ describe TravelPay::ExpensesService do
           'amount' => 10.00,
           'expenseType' => 'other',
           'expenseReceipt' => {
-            'contentType' => '',
-            'length' => 0,
-            'fileName' => '',
-            'fileData' => ''
+            'contentType' => 'text/plain',
+            'length' => 11,
+            'fileName' => 'placeholder.txt',
+            'fileData' => 'cGxhY2Vob2xkZXI='
           }
         }
 
@@ -205,10 +205,10 @@ describe TravelPay::ExpensesService do
             'amount' => 10.00,
             'expenseType' => 'other',
             'expenseReceipt' => {
-              'contentType' => '',
-              'length' => 0,
-              'fileName' => '',
-              'fileData' => ''
+              'contentType' => 'text/plain',
+              'length' => 11,
+              'fileName' => 'placeholder.txt',
+              'fileData' => 'cGxhY2Vob2xkZXI='
             }
           }
 

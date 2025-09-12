@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'securerandom'
+require 'base64'
 
 module TravelPay
   class ExpensesService
@@ -75,11 +76,12 @@ module TravelPay
     # @return [Hash] The minimal placeholder receipt data
     #
     def build_placeholder_receipt
+      placeholder_data = 'placeholder'
       {
-        'contentType' => '',
-        'length' => 0,
-        'fileName' => '',
-        'fileData' => ''
+        'contentType' => 'text/plain',
+        'length' => placeholder_data.length,
+        'fileName' => 'placeholder.txt',
+        'fileData' => Base64.strict_encode64(placeholder_data)
       }
     end
 
