@@ -21,7 +21,5 @@ module UnifiedHealthData
     attribute :is_refillable, Bool
     attribute :is_trackable, Bool
     attribute :instructions, String
-    attribute :facility_phone_number, String
-    attribute :data_source_system, String
   end
 end

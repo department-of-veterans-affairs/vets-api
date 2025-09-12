@@ -37,11 +37,7 @@ module UnifiedHealthData
                                                         station_number: medication['stationNumber'],
                                                         is_refillable: medication['isRefillable'],
                                                         is_trackable: medication['isTrackable'],
-                                                        instructions: medication['sig'],
-                                                        facility_phone_number:
-                                                          medication['cmopDivisionPhone'],
-                                                        data_source_system:
-                                                          medication['dataSourceSystem'] || 'VISTA'
+                                                        instructions: medication['sig']
                                                       })
       end
       # rubocop:enable Metrics/MethodLength

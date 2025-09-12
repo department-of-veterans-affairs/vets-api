@@ -37,6 +37,13 @@ module AccreditedRepresentativePortal
         end
     end
 
+    def power_of_attorney_holder_memberships
+      @power_of_attorney_holder_memberships ||=
+        PowerOfAttorneyHolderMemberships.new(
+          icn:, emails: all_emails
+        )
+    end
+
     def flipper_id
       email&.downcase
     end

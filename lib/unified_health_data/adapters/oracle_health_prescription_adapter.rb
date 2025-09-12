@@ -22,7 +22,7 @@ module UnifiedHealthData
       # rubocop:disable Metrics/MethodLength
       def build_prescription_attributes(resource)
         UnifiedHealthData::PrescriptionAttributes.new({
-                                                        refill_status: extract_refill_status(resource),
+                                                        refill_status: resource['status'],
                                                         refill_submit_date: nil, # Not available in FHIR
                                                         refill_date: extract_refill_date(resource),
                                                         refill_remaining:
@@ -39,22 +39,10 @@ module UnifiedHealthData
                                                         station_number: extract_station_number(resource),
                                                         is_refillable: extract_is_refillable(resource),
                                                         is_trackable: false, # Default for Oracle Health
-                                                        instructions: extract_instructions(resource),
-                                                        facility_phone_number: extract_facility_phone_number(resource),
-                                                        data_source_system: 'ORACLE_HEALTH'
+                                                        instructions: extract_instructions(resource)
                                                       })
       end
       # rubocop:enable Metrics/MethodLength
-
-      def extract_refill_status(resource)
-        status = resource['status']
-        case status
-        when 'active' then 'active'
-        when 'completed' then 'expired'
-        when 'stopped', 'cancelled', 'entered-in-error' then 'discontinued'
-        else status
-        end
-      end
 
       def extract_refill_date(resource)
         resource.dig('dispenseRequest', 'validityPeriod', 'start')
@@ -69,15 +57,16 @@ module UnifiedHealthData
         performer_display = resource.dig('dispenseRequest', 'performer', 'display')
         return performer_display if performer_display
 
-        # Fallback: check contained MedicationDispense for location
+        # Fallback: check contained Encounter for location
         if resource['contained']
-          dispense = find_medication_dispense(resource['contained'])
-          location = dispense&.dig('location', 'display')
-          return location if location
+          encounter = resource['contained'].find { |c| c['resourceType'] == 'Encounter' }
+          if encounter
+            location_display = encounter.dig('location', 0, 'location', 'display')
+            return location_display if location_display
+          end
         end
 
-        # Final fallback: requester
-        resource.dig('requester', 'display')
+        nil
       end
 
       def extract_quantity(resource)
@@ -87,7 +76,7 @@ module UnifiedHealthData
 
         # Fallback: check contained MedicationDispense
         if resource['contained']
-          dispense = find_medication_dispense(resource['contained'])
+          dispense = find_most_recent_medication_dispense(resource['contained'])
           return dispense.dig('quantity', 'value') if dispense
         end
 
@@ -113,7 +102,7 @@ module UnifiedHealthData
       def extract_dispensed_date(resource)
         # Check for contained MedicationDispense resources
         if resource['contained']
-          dispense = find_medication_dispense(resource['contained'])
+          dispense = find_most_recent_medication_dispense(resource['contained'])
           return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
         end
 
@@ -174,10 +163,17 @@ module UnifiedHealthData
         parts.join(' ')
       end
 
-      def find_medication_dispense(contained_resources)
+      def find_most_recent_medication_dispense(contained_resources)
         return nil unless contained_resources.is_a?(Array)
 
-        contained_resources.find { |c| c['resourceType'] == 'MedicationDispense' }
+        dispenses = contained_resources.select { |c| c['resourceType'] == 'MedicationDispense' }
+        return nil if dispenses.empty?
+
+        # Sort by whenHandedOver date, most recent first
+        dispenses.max_by do |dispense|
+          when_handed_over = dispense['whenHandedOver']
+          when_handed_over ? Time.parse(when_handed_over) : Time.at(0)
+        end
       end
     end
   end
