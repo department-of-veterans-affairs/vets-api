@@ -31,18 +31,18 @@ module AccreditedRepresentativePortal
           else
             render_invalid_type_error
           end
-        rescue PowerOfAttorneyRequestService::Accept::Error => e
-          render json: { errors: [e.message] }, status: e.status
-        rescue ActiveRecord::RecordInvalid => e
-          error_message = e.message.sub(/^Validation failed: /, '')
-          render json: { errors: [error_message] }, status: :unprocessable_entity
-        rescue Faraday::TimeoutError => e
-          render json: { errors: ["Gateway Timeout: #{e.message}"] }, status: :gateway_timeout
-        rescue Common::Exceptions::ResourceNotFound
-          render json: { errors: ['Record not found'] }, status: :not_found
-        rescue => e
-          render json: { errors: [e.message] }, status: :internal_server_error
         end
+      rescue PowerOfAttorneyRequestService::Accept::Error => e
+        render json: { errors: [e.message] }, status: e.status
+      rescue ActiveRecord::RecordInvalid => e
+        error_message = e.message.sub(/^Validation failed: /, '')
+        render json: { errors: [error_message] }, status: :unprocessable_entity
+      rescue Faraday::TimeoutError => e
+        render json: { errors: ["Gateway Timeout: #{e.message}"] }, status: :gateway_timeout
+      rescue Common::Exceptions::ResourceNotFound
+        render json: { errors: ['Record not found'] }, status: :not_found
+      rescue => e
+        render json: { errors: [e.message] }, status: :internal_server_error
       end
       # rubocop:enable Metrics/MethodLength
 
