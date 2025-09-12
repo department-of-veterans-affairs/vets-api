@@ -385,4 +385,104 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       end
     end
   end
+
+  context 'section 5, disabilities' do
+    let(:disabilities_object) do
+      [
+        {
+          'disabilityActionType' => 'NEW',
+          'name' => 'Arthritis',
+          'serviceRelevance' => 'Caused by in-service injury'
+        },
+        {
+          'disabilityActionType' => 'NEW',
+          'name' => 'Left Knee Injury',
+          'ratedDisabilityId' => '1100583',
+          'diagnosticCode' => 9999,
+          'approximateBeginDate' => '2018-04-02',
+          'secondaryDisabilities' => [
+            {
+              'name' => 'Left Hip Pain',
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by a service-connected disability',
+              'approximateBeginDate' => '2018-05-02'
+            }
+          ]
+        }
+      ]
+    end
+
+    describe '#set_pdf_data_for_claim_information' do
+      context 'when the claimInformation key does not exist' do
+        before do
+          @pdf_data = pdf_data
+        end
+
+        it 'sets the claimInformation key to an empty hash' do
+          res = mapper.send(:set_pdf_data_for_claim_information)
+
+          expect(res).to eq({})
+        end
+      end
+
+      context 'when the claimInformation key already exists' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:claimInformation] = {}
+        end
+
+        it 'returns early without modifying the existing data' do
+          res = mapper.send(:set_pdf_data_for_claim_information)
+
+          expect(res).to be_nil
+        end
+      end
+    end
+
+    describe '#set_pdf_data_for_disabilities' do
+      context 'when the disabilities key does not exist' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:claimInformation] = {}
+        end
+
+        it 'sets the disabilities key to an empty hash' do
+          res = mapper.send(:set_pdf_data_for_disabilities)
+
+          expect(res).to eq({})
+        end
+      end
+
+      context 'when the disabilities key already exists' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:claimInformation] = {}
+          @pdf_data[:data][:attributes][:claimInformation][:disabilities] = {}
+        end
+
+        it 'returns early without modifying the existing data' do
+          res = mapper.send(:set_pdf_data_for_disabilities)
+
+          expect(res).to be_nil
+        end
+      end
+    end
+
+    it 'maps the attributes' do
+      form_attributes['disabilities'] = disabilities_object
+      mapper.map_claim
+
+      disabilities_base = pdf_data[:data][:attributes][:claimInformation][:disabilities]
+
+      expect(disabilities_base[0][:disability]).to eq('Arthritis')
+      expect(disabilities_base[0][:serviceRelevance]).to eq('Caused by in-service injury')
+      expect(disabilities_base[0]).not_to have_key(:approximateDate)
+      expect(disabilities_base[1][:disability]).to eq('Left Knee Injury')
+      expect(disabilities_base[1][:serviceRelevance]).to be_nil
+      expect(disabilities_base[1][:approximateDate]).to eq('04/02/2018')
+      expect(disabilities_base[2][:disability]).to eq('Left Hip Pain secondary to: Left Knee Injury')
+      expect(disabilities_base[2][:serviceRelevance]).to eq('Caused by a service-connected disability')
+      expect(disabilities_base[2][:approximateDate]).to eq('05/02/2018')
+    end
+  end
 end
