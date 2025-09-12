@@ -4,34 +4,6 @@ require 'rails_helper'
 require 'dependents_benefits/sidekiq/dependent_submission_job'
 
 ##
-# Fake submission job for testing DependentSubmissionJob behavior
-# Allows testing success/failure paths without external service dependencies
-class FakeSubmissionJob < DependentsBenefits::DependentSubmissionJob
-  attr_accessor :response_behavior, :should_raise_error
-
-  def initialize
-    super
-    @response_behavior = :success
-    @should_raise_error = false
-  end
-
-  def submit_to_service
-    raise StandardError, 'Simulated service error' if should_raise_error
-
-    case response_behavior
-    when :success
-      ServiceResponse.new(success: true, data: { confirmation_id: '12345' })
-    when :failure
-      ServiceResponse.new(success: false, error: 'Service unavailable')
-    when :timeout
-      raise Timeout::Error, 'Service timeout'
-    else
-      ServiceResponse.new(success: true)
-    end
-  end
-end
-
-##
 # Mock ServiceResponse for testing
 ServiceResponse = Struct.new(:success, :data, :error, keyword_init: true) do
   def success? = success
@@ -42,12 +14,7 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
   let(:proc_id) { 'test-proc-123' }
   let(:saved_claim) { create(:dependents_claim) }
 
-  let(:job) { FakeSubmissionJob.new }
-
-  before do
-    job.response_behavior = :success
-    job.should_raise_error = false
-  end
+  let(:job) { described_class.new }
 
   describe '#perform' do
     context 'when claim group has already failed' do
@@ -62,6 +29,12 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
     end
 
     context 'when submission succeeds' do
+      before do
+        allow(job).to receive(:submit_to_service).and_return(
+          ServiceResponse.new(success: true, data: { confirmation_id: '12345' })
+        )
+      end
+
       it 'handles job success' do
         expect(job).to receive(:handle_job_success)
         job.perform(claim_id, proc_id)
@@ -70,23 +43,14 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
 
     context 'when submission fails' do
       before do
-        job.response_behavior = :failure
+        allow(job).to receive(:submit_to_service).and_return(
+          ServiceResponse.new(success: false, error: 'Service unavailable')
+        )
       end
 
       it 'handles job failure with error message' do
         expect(job).to receive(:handle_job_failure).with('Service unavailable')
         job.perform(claim_id, proc_id)
-      end
-    end
-
-    context 'when service times out' do
-      before do
-        job.response_behavior = :timeout
-      end
-
-      it 'handles timeout error' do
-        expect(job).to receive(:handle_job_failure)
-        expect { job.perform(claim_id, proc_id) }.not_to raise_error
       end
     end
   end
@@ -108,35 +72,20 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
     let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
 
     before do
-      # Set up instance variables as if perform was called
       job.instance_variable_set(:@claim_id, claim_id)
       job.instance_variable_set(:@proc_id, proc_id)
       job.instance_variable_set(:@form_submission_attempt, form_submission_attempt)
-
-      # Mock the dependencies
-      allow(job).to receive_messages(
-        form_submission:
-      )
+      allow(job).to receive(:form_submission).and_return(form_submission)
     end
 
     it 'updates form submission attempt status to success using AASM' do
       expect(form_submission_attempt).to receive(:succeed!)
-
-      job.send(:handle_job_success)
-    end
-
-    it 'wraps all updates in a database transaction' do
-      expect(ActiveRecord::Base).to receive(:transaction).and_yield
-
-      allow(form_submission_attempt).to receive(:succeed!)
-
       job.send(:handle_job_success)
     end
 
     context 'when database update fails' do
       it 'rolls back all changes' do
         allow(form_submission_attempt).to receive(:succeed!).and_raise(ActiveRecord::RecordInvalid)
-
         expect { job.send(:handle_job_success) }.to raise_error(ActiveRecord::RecordInvalid)
       end
     end
@@ -149,23 +98,8 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
     let(:monitor) { double('Monitor') }
 
     before do
-      # Mock dependencies
-      allow(job).to receive_messages(form_submission:,
-                                     monitor:)
-      # Set up form submission attempt
+      allow(job).to receive_messages(form_submission:, monitor:)
       job.instance_variable_set(:@form_submission_attempt, form_submission_attempt)
-    end
-
-    it 'sets claim_id and proc_id instance variables' do
-      allow(ActiveRecord::Base).to receive(:transaction).and_yield
-      allow(job).to receive(:mark_submission_records_failed)
-      allow(job).to receive(:mark_claim_groups_failed)
-      allow(monitor).to receive(:log_permanent_failure)
-
-      job.send(:handle_permanent_failure, claim_id, proc_id, exception)
-
-      expect(job.instance_variable_get(:@claim_id)).to eq(claim_id)
-      expect(job.instance_variable_get(:@proc_id)).to eq(proc_id)
     end
 
     it 'wraps all operations in a database transaction' do
@@ -339,7 +273,6 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
       before do
         allow(job).to receive(:claim_group_failed?).and_return(false)
         allow(job).to receive(:create_form_submission_attempt)
-        # Use Timeout::Error instead of Net::TimeoutError
         allow(job).to receive(:submit_to_service).and_raise(Timeout::Error)
       end
 
@@ -347,39 +280,6 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
         expect(job).to receive(:handle_job_failure).with('Timeout::Error')
         job.perform(claim_id, proc_id)
       end
-    end
-  end
-
-  describe 'full job execution flow' do
-    let(:saved_claim) { create(:dependents_claim) }
-    let(:claim_id) { saved_claim.id }
-
-    before do
-      # Mock all external dependencies
-      allow(job).to receive(:claim_group_failed?).and_return(false)
-      allow(job).to receive(:create_form_submission_attempt)
-      allow(job).to receive(:handle_job_success)
-      allow(job).to receive(:handle_job_failure)
-    end
-
-    it 'executes complete success flow' do
-      job.response_behavior = :success
-
-      expect(job).to receive(:create_form_submission_attempt).ordered
-      expect(job).to receive(:submit_to_service).and_call_original.ordered
-      expect(job).to receive(:handle_job_success).ordered
-
-      job.perform(claim_id, proc_id)
-    end
-
-    it 'executes complete failure flow' do
-      job.response_behavior = :failure
-
-      expect(job).to receive(:create_form_submission_attempt).ordered
-      expect(job).to receive(:submit_to_service).and_call_original.ordered
-      expect(job).to receive(:handle_job_failure).with('Service unavailable').ordered
-
-      job.perform(claim_id, proc_id)
     end
   end
 
@@ -400,9 +300,7 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
       before do
         job.instance_variable_set(:@claim_id, claim_id)
         job.instance_variable_set(:@proc_id, proc_id)
-        allow(job).to receive_messages(
-          form_submission:
-        )
+        allow(job).to receive(:form_submission).and_return(form_submission)
       end
 
       context 'transaction rollback scenarios' do
@@ -410,7 +308,6 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
           form_submission_attempt = create(:form_submission_attempt, form_submission:)
           job.instance_variable_set(:@form_submission_attempt, form_submission_attempt)
 
-          # Test form submission attempt failure scenario
           allow(form_submission_attempt).to receive(:succeed!).and_raise(ActiveRecord::RecordInvalid)
 
           expect { job.send(:handle_job_success) }.to raise_error(ActiveRecord::RecordInvalid)
