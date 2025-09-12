@@ -36,6 +36,7 @@ module AccreditedRepresentativePortal
 
           span.set_tag('form_submission.status', '200')
           span.set_tag('form_submission.confirmation_number', confirmation_number)
+          span.set_tag('form_submission.organization', organization)
 
           trace_key_tags(span, form_id:, org: organization)
 

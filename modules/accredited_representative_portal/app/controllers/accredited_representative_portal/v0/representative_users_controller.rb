@@ -9,22 +9,27 @@ module AccreditedRepresentativePortal
         # TODO: Once we figure out how we're handling serialization and which
         # library we're using, moving this serialization logic out to to a
         # serialization layer.
-        render json: {
-          account: {
-            accountUuid: @current_user.user_account_uuid
-          },
-          profile: {
-            firstName: @current_user.first_name,
-            lastName: @current_user.last_name,
-            verified: @current_user.user_account.verified?,
-            signIn: {
-              serviceName: @current_user.sign_in[:service_name]
+        ar_monitoring(nil).trace('ar.users.show') do |span|
+          span.set_tag('users_show.poa_codes', poa_codes)
+          trace_key_tags(span, poa_codes:)
+
+          render json: {
+            account: {
+              accountUuid: @current_user.user_account_uuid
             },
-            loa: @current_user.loa
-          },
-          prefillsAvailable: [],
-          inProgressForms: in_progress_forms
-        }
+            profile: {
+              firstName: @current_user.first_name,
+              lastName: @current_user.last_name,
+              verified: @current_user.user_account.verified?,
+              signIn: {
+                serviceName: @current_user.sign_in[:service_name]
+              },
+              loa: @current_user.loa
+            },
+            prefillsAvailable: [],
+            inProgressForms: in_progress_forms
+          }
+        end
       end
 
       def authorize_as_representative
@@ -42,6 +47,34 @@ module AccreditedRepresentativePortal
             lastUpdated: form.updated_at.to_i
           }
         end
+      end
+
+      def ar_monitoring(organization)
+        org_tag = "org:#{organization}" if organization.present?
+
+        @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
+          AccreditedRepresentativePortal::Monitoring::NAME,
+          default_tags: [
+            "controller:#{controller_name}",
+            "action:#{action_name}",
+            org_tag
+          ].compact
+        )
+      end
+
+      def trace_key_tags(span, **tags)
+        tags.each do |tag, value|
+          span.set_tag(tag, value) if value.present?
+          Datadog::Tracing.active_trace&.set_tag(tag, value) if value.present?
+        end
+      end
+
+      def poa_codes
+        current_user
+          .power_of_attorney_holder_memberships
+          .load
+          .map { |membership| membership.power_of_attorney_holder.poa_code }
+          .join(',')
       end
     end
   end
