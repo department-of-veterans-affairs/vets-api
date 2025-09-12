@@ -88,7 +88,7 @@ module UnifiedHealthData
 
     def refill_prescription(orders)
       with_monitoring do
-        path = "#{config.base_path}prescriptions/refill"
+        path = "#{config.base_path}medications/rx/refill"
         request_body = build_refill_request_body(orders)
         response = perform(:post, path, request_body.to_json, request_headers(include_content_type: true))
         parse_refill_response(response)
