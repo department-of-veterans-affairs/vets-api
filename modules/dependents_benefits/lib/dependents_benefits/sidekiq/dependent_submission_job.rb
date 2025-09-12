@@ -59,11 +59,13 @@ module DependentsBenefits
 
     # Prevents wasted work when sibling jobs have determined failure
     def claim_group_failed?
-      parent_claim_group.status == 'FAILED'
+      # TODO: Implement actual check against ClaimGroup model
+      false
     end
 
     def claim_group_completed?
-      parent_claim_group.status.in?(%w[FAILED SUCCEEDED])
+      # TODO: Implement actual check against ClaimGroup model (failed or succeeded)
+      false
     end
 
     # Override for service-specific permanent failures (INVALID_SSN, DUPLICATE_CLAIM, etc)
@@ -83,16 +85,19 @@ module DependentsBenefits
 
     def mark_job_succeeded
       form_submission_attempt.succeed!
-      claim_group.update!(status: 'SUCCEEDED')
+
+      # TODO: Update claim_group status (this job only)
     end
 
     # Pessimistic locking prevents race conditions with sibling jobs
     def update_parent_if_appropriate
-      return if claim_group_completed?
+      return false if claim_group_completed?
 
-      parent_claim_group.with_lock do
-        parent_claim_group.mark_succeeded_and_notify! if claim_group.all_siblings_succeeded?
-      end
+      # TODO: Implement actual parent claim group update logic.
+      # Should LOCK the claim group record to prevent race conditions
+      # Should send success email notification
+      # Should NOT update parent claim if its status is already FAILED
+      true
     end
 
     # Distinguishes permanent vs transient failures for retry logic
@@ -141,12 +146,13 @@ module DependentsBenefits
 
     # Coordinates failure across child and parent claim groups
     def mark_claim_groups_failed
-      claim_group&.update!(status: 'FAILED')
-
-      parent_claim_group.with_lock do
-        # Prevent duplicate notifications
-        parent_claim_group.mark_failed_and_notify! unless parent_claim_group.status == 'FAILED'
-      end
+      # TODO: Implement actual claim group failure logic
+      # Should update this claim group status to FAILED
+      # Should update parent claim group status to FAILED
+      # If parent already FAILED, do not update
+      # Should LOCK the claim group record to prevent race conditions
+      # Should send failure email notification
+      true
     end
 
     # Override for service-specific FormSubmission types (LighthouseFormSubmission, etc)
@@ -176,17 +182,12 @@ module DependentsBenefits
       @form_submission_attempt ||= create_form_submission_attempt
     end
 
-    # TODO: Replace MockClaimGroup with actual ClaimGroup model
     def claim_group
-      @claim_group ||= DependentsBenefits::MockClaimGroup.new(
-        parent_claim_id: 123, claim_id:
-      )
+      # TODO: Return ClaimGroup model instance for this claim
     end
 
     def parent_claim_group
-      @parent_claim_group ||= DependentsBenefits::MockClaimGroup.new(
-        parent_claim_id: 123, claim_id: 123
-      )
+      # TODO: Return parent ClaimGroup model instance
     end
 
     def monitor

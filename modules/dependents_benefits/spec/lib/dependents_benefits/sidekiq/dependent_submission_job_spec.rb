@@ -105,8 +105,6 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
 
   describe '#handle_job_success' do
     let(:form_submission) { create(:form_submission) }
-    let(:claim_group) { create(:claim_group) }
-    let(:parent_claim_group) { create(:parent_claim_group) }
     let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
 
     before do
@@ -117,32 +115,12 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
 
       # Mock the dependencies
       allow(job).to receive_messages(
-        form_submission:,
-        claim_group:,
-        parent_claim_group:
+        form_submission:
       )
     end
 
     it 'updates form submission attempt status to success using AASM' do
       expect(form_submission_attempt).to receive(:succeed!)
-      allow(claim_group).to receive(:update!)
-      allow(parent_claim_group).to receive(:mark_succeeded_and_notify!)
-
-      job.send(:handle_job_success)
-    end
-
-    it 'updates claim group status to SUCCEEDED' do
-      allow(form_submission_attempt).to receive(:succeed!)
-      expect(claim_group).to receive(:update!).with(status: 'SUCCEEDED')
-      allow(parent_claim_group).to receive(:mark_succeeded_and_notify!)
-
-      job.send(:handle_job_success)
-    end
-
-    it 'marks parent claim group as succeeded and notifies' do
-      allow(form_submission_attempt).to receive(:succeed!)
-      allow(claim_group).to receive(:update!)
-      expect(parent_claim_group).to receive(:mark_succeeded_and_notify!)
 
       job.send(:handle_job_success)
     end
@@ -151,8 +129,6 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
       expect(ActiveRecord::Base).to receive(:transaction).and_yield
 
       allow(form_submission_attempt).to receive(:succeed!)
-      allow(claim_group).to receive(:update!)
-      allow(parent_claim_group).to receive(:mark_succeeded_and_notify!)
 
       job.send(:handle_job_success)
     end
@@ -160,9 +136,6 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
     context 'when database update fails' do
       it 'rolls back all changes' do
         allow(form_submission_attempt).to receive(:succeed!).and_raise(ActiveRecord::RecordInvalid)
-
-        expect(claim_group).not_to receive(:update!)
-        expect(parent_claim_group).not_to receive(:mark_succeeded_and_notify!)
 
         expect { job.send(:handle_job_success) }.to raise_error(ActiveRecord::RecordInvalid)
       end
@@ -173,17 +146,12 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
     let(:exception) { StandardError.new('BGS service permanently unavailable') }
     let(:form_submission_attempt) { double('FormSubmissionAttempt') }
     let(:form_submission) { double('FormSubmission') }
-    let(:claim_group) { double('ClaimGroup') }
-    let(:parent_claim_group) { double('ParentClaimGroup') }
     let(:monitor) { double('Monitor') }
 
     before do
       # Mock dependencies
       allow(job).to receive_messages(form_submission:,
-                                     claim_group:,
-                                     parent_claim_group:,
                                      monitor:)
-
       # Set up form submission attempt
       job.instance_variable_set(:@form_submission_attempt, form_submission_attempt)
     end
@@ -280,77 +248,6 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
 
           job.send(:mark_submission_records_failed, exception)
         end
-      end
-    end
-
-    describe '#mark_claim_groups_failed' do
-      before do
-        allow(parent_claim_group).to receive(:with_lock).and_yield
-        allow(parent_claim_group).to receive(:status).and_return('PENDING')
-      end
-
-      it 'marks own claim group as FAILED' do
-        expect(claim_group).to receive(:update!).with(status: 'FAILED')
-        allow(parent_claim_group).to receive(:mark_failed_and_notify!)
-
-        job.send(:mark_claim_groups_failed)
-      end
-
-      it 'marks parent claim group as failed and notifies' do
-        allow(claim_group).to receive(:update!)
-        expect(parent_claim_group).to receive(:mark_failed_and_notify!)
-
-        job.send(:mark_claim_groups_failed)
-      end
-
-      context 'when claim group is nil' do
-        before do
-          allow(job).to receive(:claim_group).and_return(nil)
-        end
-
-        it 'still processes parent claim group' do
-          expect(parent_claim_group).to receive(:mark_failed_and_notify!)
-
-          job.send(:mark_claim_groups_failed)
-        end
-      end
-    end
-
-    context 'when parent claim group is already failed' do
-      before do
-        allow(parent_claim_group).to receive(:with_lock).and_yield
-        allow(parent_claim_group).to receive(:status).and_return('FAILED')
-      end
-
-      it 'does not call mark_failed_and_notify!' do
-        allow(claim_group).to receive(:update!)
-        expect(parent_claim_group).not_to receive(:mark_failed_and_notify!)
-
-        job.send(:mark_claim_groups_failed)
-      end
-    end
-  end
-
-  describe '#claim_group_failed?' do
-    let(:parent_claim_group) { double('ParentClaimGroup', status:) }
-
-    before do
-      allow(job).to receive(:parent_claim_group).and_return(parent_claim_group)
-    end
-
-    context 'when parent claim group status is FAILED' do
-      let(:status) { 'FAILED' }
-
-      it 'returns true' do
-        expect(job.send(:claim_group_failed?)).to be true
-      end
-    end
-
-    context 'when parent claim group status is not FAILED' do
-      let(:status) { 'PENDING' }
-
-      it 'returns false' do
-        expect(job.send(:claim_group_failed?)).to be false
       end
     end
   end
@@ -499,16 +396,12 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
   describe 'atomicity and race conditions' do
     describe '#handle_job_success transaction atomicity' do
       let(:form_submission) { create(:form_submission) }
-      let(:claim_group) { create(:claim_group) }
-      let(:parent_claim_group) { create(:parent_claim_group) }
 
       before do
         job.instance_variable_set(:@claim_id, claim_id)
         job.instance_variable_set(:@proc_id, proc_id)
         allow(job).to receive_messages(
-          form_submission:,
-          claim_group:,
-          parent_claim_group:
+          form_submission:
         )
       end
 
@@ -522,94 +415,7 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
 
           expect { job.send(:handle_job_success) }.to raise_error(ActiveRecord::RecordInvalid)
           expect(form_submission_attempt.reload.aasm_state).not_to eq('success')
-          expect(claim_group.reload.status).not_to eq('SUCCEEDED')
-
-          # Reset mocks for notification failure scenario
-          allow(form_submission_attempt).to receive(:succeed!)
-          allow(claim_group).to receive(:update!)
-          allow(parent_claim_group).to receive(:mark_succeeded_and_notify!)
-            .and_raise(StandardError, 'Notification failed')
-
-          expect { job.send(:handle_job_success) }.to raise_error(StandardError, 'Notification failed')
-          expect(form_submission_attempt.reload.aasm_state).not_to eq('success')
-          expect(claim_group.reload.status).not_to eq('SUCCEEDED')
         end
-      end
-
-      it 'does not mark the parent claim failed if already failed' do
-        form_submission_attempt = create(:form_submission_attempt, form_submission:)
-        job.instance_variable_set(:@form_submission_attempt, form_submission_attempt)
-
-        # Set parent claim group as already failed
-        allow(parent_claim_group).to receive(:status).and_return('FAILED')
-
-        # Mock the claim group update to succeed
-        allow(claim_group).to receive(:update!)
-
-        # Parent should not be updated again if already failed
-        expect(parent_claim_group).not_to receive(:mark_failed_and_notify!)
-
-        # Simulate database failure to trigger mark_claim_groups_failed
-        allow(form_submission_attempt).to receive(:succeed!).and_raise(ActiveRecord::RecordInvalid)
-
-        expect { job.send(:handle_job_success) }.to raise_error(ActiveRecord::RecordInvalid)
-      end
-
-      it 'does not mark the parent claim succeeded if already succeeded' do
-        form_submission_attempt = create(:form_submission_attempt, form_submission:)
-        job.instance_variable_set(:@form_submission_attempt, form_submission_attempt)
-
-        # Set parent claim group as already succeeded
-        allow(parent_claim_group).to receive(:status).and_return('SUCCEEDED')
-
-        # Mock successful operations
-        allow(form_submission_attempt).to receive(:succeed!)
-        allow(claim_group).to receive(:update!)
-
-        # Parent should not be notified again if already succeeded
-        expect(parent_claim_group).not_to receive(:mark_succeeded_and_notify!)
-
-        job.send(:handle_job_success)
-      end
-
-      it 'does not mark the parent claim succeeded if already failed' do
-        form_submission_attempt = create(:form_submission_attempt, form_submission:)
-        job.instance_variable_set(:@form_submission_attempt, form_submission_attempt)
-
-        # Set parent claim group as already failed
-        allow(parent_claim_group).to receive(:status).and_return('FAILED')
-
-        # Mock successful operations
-        allow(form_submission_attempt).to receive(:succeed!)
-        allow(claim_group).to receive(:update!)
-
-        # Parent should not be marked succeeded if it's already failed
-        expect(parent_claim_group).not_to receive(:mark_succeeded_and_notify!)
-
-        job.send(:handle_job_success)
-      end
-
-      it 'handles concurrent updates safely' do
-        form_submission_attempt = create(:form_submission_attempt, form_submission:)
-        job.instance_variable_set(:@form_submission_attempt, form_submission_attempt)
-
-        # Mock successful individual operations
-        allow(form_submission_attempt).to receive(:succeed!)
-        allow(claim_group).to receive(:update!)
-
-        # Simulate concurrent access by having parent claim group acquire a lock
-        lock_acquired = false
-        allow(parent_claim_group).to receive(:with_lock) do |&block|
-          lock_acquired = true
-          block.call
-        end
-
-        allow(parent_claim_group).to receive(:mark_succeeded_and_notify!)
-
-        job.send(:handle_job_success)
-
-        # Verify that locking mechanism was used for parent updates
-        expect(lock_acquired).to be true
       end
     end
   end
