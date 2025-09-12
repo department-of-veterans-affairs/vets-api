@@ -39,12 +39,12 @@ module DependentsBenefits
         raise Common::Exceptions::ValidationErrors if !claim.submittable_686? && !claim.submittable_674?
 
         # Create a 686c claim for dependent benefits
-        DependentsBenefits::Claim686cFactory.new(form_data, claim_group_id).generate if claim.submittable_686?
+        DependentsBenefits::Claim686cGenerator.new(form_data, claim_group_id).generate if claim.submittable_686?
 
         if claim.submittable_674?
           # Create a 674 claim for student benefits
           form_data.dig('dependents_application', 'student_information')&.each do |student|
-            DependentsBenefits::Claim674Factory.new(form_data, claim_group_id, student).generate
+            DependentsBenefits::Claim674Generator.new(form_data, claim_group_id, student).generate
           end
         end
 

@@ -2,14 +2,14 @@
 
 module DependentsBenefits
   ##
-  # Abstract factory class for creating dependent claims (686c or 674)
+  # Abstract generator class for creating dependent claims (686c or 674)
   # from a combined 686c-674 form submission.
   #
-  # This factory takes the full form_data from a combined submission and
+  # This generator takes the full form_data from a combined submission and
   # creates individual SavedClaim records for each claim type with only
   # the relevant data for that specific claim.
   #
-  class DependentClaimFactory
+  class DependentClaimGenerator
     def initialize(form_data, parent_id)
       @form_data = form_data
       @parent_id = parent_id

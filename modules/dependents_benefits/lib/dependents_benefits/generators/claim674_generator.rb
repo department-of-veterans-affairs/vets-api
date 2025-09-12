@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'dependents_benefits/generators/dependent_claim_generator'
+
 module DependentsBenefits
   ##
-  # Factory for creating VA Form 21-674 claims from combined 686c-674 form data
+  # Generator for creating VA Form 21-674 claims from combined 686c-674 form data
   #
   # VA Form 21-674: "Request for Approval of School Attendance"
   # Use this form when claiming benefits for a child who is at least 18 years old,
@@ -10,7 +12,7 @@ module DependentsBenefits
   #
   # Extracts only the required data for the 674 claim for a specific student
   #
-  class Claim674Factory < DependentClaimFactory
+  class Claim674Generator < DependentClaimGenerator
     def initialize(form_data, parent_id, student_data)
       super(form_data, parent_id)
       @student_data = student_data

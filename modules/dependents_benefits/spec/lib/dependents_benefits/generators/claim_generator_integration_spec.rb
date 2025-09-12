@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'DependentsBenefits Claim Factory Integration', type: :model do
+RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
   let(:parent_claim_id) { 123 }
   let(:form_data) { create(:dependents_claim).parsed_form }
 
@@ -13,8 +13,8 @@ RSpec.describe 'DependentsBenefits Claim Factory Integration', type: :model do
 
     context 'when creating a 686c claim' do
       it 'extracts only dependent-related data' do
-        factory = DependentsBenefits::Claim686cFactory.new(form_data, parent_claim_id)
-        claim_686c = factory.generate
+        generator = DependentsBenefits::Claim686cGenerator.new(form_data, parent_claim_id)
+        claim_686c = generator.generate
 
         parsed_form = JSON.parse(claim_686c.form)
 
@@ -47,8 +47,8 @@ RSpec.describe 'DependentsBenefits Claim Factory Integration', type: :model do
       it 'extracts only student-related data' do
         student_data = form_data.dig('dependents_application', 'student_information', 0)
 
-        factory = DependentsBenefits::Claim674Factory.new(form_data, parent_claim_id, student_data)
-        claim674 = factory.generate
+        generator = DependentsBenefits::Claim674Generator.new(form_data, parent_claim_id, student_data)
+        claim674 = generator.generate
 
         parsed_form = JSON.parse(claim674.form)
 
@@ -82,12 +82,12 @@ RSpec.describe 'DependentsBenefits Claim Factory Integration', type: :model do
     context 'when creating both 686c and 674 claims' do
       it 'creates separate claims with appropriate data' do
         # Create both claims
-        factory_686c = DependentsBenefits::Claim686cFactory.new(form_data, parent_claim_id)
+        generator_686c = DependentsBenefits::Claim686cGenerator.new(form_data, parent_claim_id)
         student_data = form_data.dig('dependents_application', 'student_information', 0)
-        factory674 = DependentsBenefits::Claim674Factory.new(form_data, parent_claim_id, student_data)
+        generator674 = DependentsBenefits::Claim674Generator.new(form_data, parent_claim_id, student_data)
 
-        claim_686c = factory_686c.generate
-        claim674 = factory674.generate
+        claim_686c = generator_686c.generate
+        claim674 = generator674.generate
 
         # Claims should have different form_ids
         expect(claim_686c.form_id).to eq('21-686c')

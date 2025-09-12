@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'dependents_benefits/generators/dependent_claim_generator'
+
 module DependentsBenefits
   ##
-  # Factory for creating VA Form 21-686c claims from combined 686c-674 form data
+  # Generator for creating VA Form 21-686c claims from combined 686c-674 form data
   #
   # VA Form 21-686c: "Application Request to Add and/or Remove Dependents"
   # Use this form to submit a claim for additional benefits for a dependent,
@@ -10,7 +12,7 @@ module DependentsBenefits
   #
   # Extracts only the dependent-related data for the 686c claim
   #
-  class Claim686cFactory < DependentClaimFactory
+  class Claim686cGenerator < DependentClaimGenerator
     private
 
     FORM_KEYS = ['veteran_information', 'view:selectable_686_options',

@@ -1,20 +1,21 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'dependents_benefits/generators/claim686c_generator'
 
-RSpec.describe DependentsBenefits::Claim686cFactory, type: :model do
+RSpec.describe DependentsBenefits::Claim686cGenerator, type: :model do
   let(:form_data) { create(:dependents_claim).parsed_form }
   let(:parent_id) { 123 }
-  let(:factory) { described_class.new(form_data, parent_id) }
+  let(:generator) { described_class.new(form_data, parent_id) }
 
   describe '#form_id' do
     it 'returns the correct form_id for 686c' do
-      expect(factory.send(:form_id)).to eq('21-686c')
+      expect(generator.send(:form_id)).to eq('21-686c')
     end
   end
 
   describe '#extract_form_data' do
-    let(:extracted_data) { factory.send(:extract_form_data) }
+    let(:extracted_data) { generator.send(:extract_form_data) }
 
     it 'preserves veteran information' do
       expect(extracted_data['veteran_information'].keys).to include(*%w[birth_date full_name ssn va_file_number])
@@ -41,14 +42,14 @@ RSpec.describe DependentsBenefits::Claim686cFactory, type: :model do
     end
 
     it 'does not modify the original form_data' do
-      factory.send(:extract_form_data)
+      generator.send(:extract_form_data)
       expect(form_data['dependents_application']).to have_key('student_information')
     end
   end
 
   describe '#generate' do
     it 'creates a 686c claim' do
-      created_claim = factory.generate
+      created_claim = generator.generate
       expect(created_claim.form_id).to eq('21-686c')
 
       parsed_form = JSON.parse(created_claim.form)
@@ -60,7 +61,7 @@ RSpec.describe DependentsBenefits::Claim686cFactory, type: :model do
                                                   instance_of(Hash)).at_least(:once)
       expect(Rails.logger).to receive(:info).with(match(/Stamping PDF/)).at_least(:once)
       expect(Rails.logger).to receive(:info).with(match(/TODO: Link claim \d+ to parent #{parent_id}/)).once
-      factory.generate
+      generator.generate
     end
   end
 end

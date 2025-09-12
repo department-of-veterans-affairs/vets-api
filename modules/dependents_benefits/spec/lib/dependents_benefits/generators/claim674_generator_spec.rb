@@ -1,24 +1,25 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'dependents_benefits/generators/claim674_generator'
 
-RSpec.describe DependentsBenefits::Claim674Factory, type: :model do
+RSpec.describe DependentsBenefits::Claim674Generator, type: :model do
   let(:form_data) { create(:dependents_claim).parsed_form }
   let(:student_data) do
     form_data['dependents_application']['student_information'][0]
   end
 
   let(:parent_id) { 123 }
-  let(:factory) { described_class.new(form_data, parent_id, student_data) }
+  let(:generator) { described_class.new(form_data, parent_id, student_data) }
 
   describe '#form_id' do
     it 'returns the correct form_id for 674' do
-      expect(factory.send(:form_id)).to eq('21-674')
+      expect(generator.send(:form_id)).to eq('21-674')
     end
   end
 
   describe '#extract_form_data' do
-    let(:extracted_data) { factory.send(:extract_form_data) }
+    let(:extracted_data) { generator.send(:extract_form_data) }
 
     it 'preserves veteran information' do
       expect(extracted_data['veteran_information'].keys).to eq(%w[birth_date full_name ssn va_file_number])
@@ -51,7 +52,7 @@ RSpec.describe DependentsBenefits::Claim674Factory, type: :model do
     end
 
     it 'does not modify the original form_data' do
-      factory.send(:extract_form_data)
+      generator.send(:extract_form_data)
 
       expect(form_data['dependents_application']).to have_key('student_information')
     end
@@ -59,7 +60,7 @@ RSpec.describe DependentsBenefits::Claim674Factory, type: :model do
 
   describe '#generate' do
     it 'creates a 674 claim with extracted student data' do
-      created_claim = factory.generate
+      created_claim = generator.generate
       expect(created_claim.form_id).to eq('21-674')
 
       parsed_form = JSON.parse(created_claim.form)
@@ -69,7 +70,7 @@ RSpec.describe DependentsBenefits::Claim674Factory, type: :model do
     it 'logs a TODO message for claim linking' do
       expect(Rails.logger).to receive(:info).with(match('Stamping PDF')).at_least(:once)
       expect(Rails.logger).to receive(:info).with(match("TODO: Link claim \\d+ to parent #{parent_id}"))
-      factory.generate
+      generator.generate
     end
   end
 end
