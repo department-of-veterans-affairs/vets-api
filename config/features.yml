@@ -2277,8 +2277,9 @@ features:
     actor_type: user
     enable_in_development: false
     description: >-
-      Excludes the placeholder expenseReceipt object on Travel Pay expense create when enabled.
-      When disabled (default), placeholder receipt is included.
+      A switch for a workaround for the API's requirement of receipts with expenses.
+      Enabled - Excludes the placeholder expenseReceipt object on Travel Pay expense create
+      Disabled - Placeholder receipt is included
   travel_pay_submit_mileage_expense:
     actor_type: user
     enable_in_development: true
