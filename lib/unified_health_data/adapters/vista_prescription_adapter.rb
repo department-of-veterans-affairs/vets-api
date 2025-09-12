@@ -19,7 +19,6 @@ module UnifiedHealthData
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def build_prescription_attributes(medication)
         UnifiedHealthData::PrescriptionAttributes.new({
                                                         refill_status: medication['refillStatus'],
@@ -40,7 +39,6 @@ module UnifiedHealthData
                                                         instructions: medication['sig']
                                                       })
       end
-      # rubocop:enable Metrics/MethodLength
     end
   end
 end
