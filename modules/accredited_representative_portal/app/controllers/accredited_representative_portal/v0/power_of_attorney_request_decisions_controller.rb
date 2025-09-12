@@ -18,27 +18,33 @@ module AccreditedRepresentativePortal
         end
       end
 
+       # rubocop:disable Metrics/MethodLength
       def create
-        case decision_params[:type]
-        when 'acceptance'
-          process_acceptance
-        when 'declination'
-          process_declination
-        else
-          render_invalid_type_error
+        ar_monitoring(nil).trace('ar.poa.request.decision.create') do |span|
+          span.set_tag('poa_request.poa_code', poa_code)
+          trace_key_tags(span, poa_code:)
+          case decision_params[:type]
+          when 'acceptance'
+            process_acceptance
+          when 'declination'
+            process_declination
+          else
+            render_invalid_type_error
+          end
+        rescue PowerOfAttorneyRequestService::Accept::Error => e
+          render json: { errors: [e.message] }, status: e.status
+        rescue ActiveRecord::RecordInvalid => e
+          error_message = e.message.sub(/^Validation failed: /, '')
+          render json: { errors: [error_message] }, status: :unprocessable_entity
+        rescue Faraday::TimeoutError => e
+          render json: { errors: ["Gateway Timeout: #{e.message}"] }, status: :gateway_timeout
+        rescue Common::Exceptions::ResourceNotFound
+          render json: { errors: ['Record not found'] }, status: :not_found
+        rescue => e
+          render json: { errors: [e.message] }, status: :internal_server_error
         end
-      rescue PowerOfAttorneyRequestService::Accept::Error => e
-        render json: { errors: [e.message] }, status: e.status
-      rescue ActiveRecord::RecordInvalid => e
-        error_message = e.message.sub(/^Validation failed: /, '')
-        render json: { errors: [error_message] }, status: :unprocessable_entity
-      rescue Faraday::TimeoutError => e
-        render json: { errors: ["Gateway Timeout: #{e.message}"] }, status: :gateway_timeout
-      rescue Common::Exceptions::ResourceNotFound
-        render json: { errors: ['Record not found'] }, status: :not_found
-      rescue => e
-        render json: { errors: [e.message] }, status: :internal_server_error
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
@@ -91,6 +97,30 @@ module AccreditedRepresentativePortal
         notification = poa_request.notifications.create!(type: 'declined')
         PowerOfAttorneyRequestEmailJob.perform_async(
           notification.id
+        )
+      end
+
+      def poa_code
+        @poa_request.power_of_attorney_holder_poa_code
+      end
+
+      def trace_key_tags(span, **tags)
+        tags.each do |tag, value|
+          span.set_tag(tag, value) if value.present?
+          Datadog::Tracing.active_trace&.set_tag(tag, value) if value.present?
+        end
+      end
+
+      def ar_monitoring(organization)
+        org_tag = "org:#{organization}" if organization.present?
+
+        @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
+          AccreditedRepresentativePortal::Monitoring::NAME,
+          default_tags: [
+            "controller:#{controller_name}",
+            "action:#{action_name}",
+            org_tag
+          ].compact
         )
       end
     end
