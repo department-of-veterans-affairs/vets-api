@@ -27,7 +27,7 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
     }
   end
 
-  let(:credential_type) { 'idme' }
+  let(:credential_method) { 'idme' }
   let(:credential_id) { 'abc-123' }
 
   before do
@@ -40,21 +40,21 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
     it 'logs failure and increments failure metric' do
       expect(StatsD).to receive(:increment).with(
         'get_ssoe_traits_by_cspid.failure',
-        tags: ["credential_type:#{credential_type}"]
+        tags: ["credential_method:#{credential_method}"]
       )
 
       expect(Rails.logger).to receive(:error).with(
         /\[GetSSOeTraitsByCspidJob\] .*/,
-        hash_including(credential_type:, credential_id:)
+        hash_including(credential_method:, credential_id:)
       )
 
       if should_raise
         expect do
-          job.perform(cache_key, credential_type, credential_id)
+          job.perform(cache_key, credential_method, credential_id)
         end.to raise_error(StandardError)
       else
         expect do
-          job.perform(cache_key, credential_type, credential_id)
+          job.perform(cache_key, credential_method, credential_id)
         end.not_to raise_error
       end
     end
@@ -70,14 +70,14 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
     it 'logs success and increments success metric' do
       expect(Rails.logger).to receive(:info).with(
         '[GetSSOeTraitsByCspidJob] SSOe::Service.get_traits success',
-        hash_including(icn:, credential_type:, credential_id:)
+        hash_including(icn:, credential_method:, credential_id:)
       )
 
       expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.success',
-                                                 tags: ["credential_type:#{credential_type}"])
+                                                 tags: ["credential_method:#{credential_method}"])
       expect(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
 
-      job.perform(cache_key, credential_type, credential_id)
+      job.perform(cache_key, credential_method, credential_id)
     end
   end
 
@@ -104,14 +104,14 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
       it 'logs failure and returns early without raising' do
         expect(Rails.logger).to receive(:error).with(
           '[GetSSOeTraitsByCspidJob] Missing attributes in Redis for key',
-          hash_including(credential_type:, credential_id:)
+          hash_including(credential_method:, credential_id:)
         )
 
         expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.failure',
-                                                   tags: ["credential_type:#{credential_type}"])
+                                                   tags: ["credential_method:#{credential_method}"])
         expect(Sidekiq::AttrPackage).not_to receive(:delete)
 
-        job.perform(cache_key, credential_type, credential_id)
+        job.perform(cache_key, credential_method, credential_id)
       end
     end
 
@@ -124,14 +124,14 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
       it 'logs validation failure and returns early' do
         expect(Rails.logger).to receive(:error).with(
           /Invalid user attributes/,
-          hash_including(credential_type:, credential_id:)
+          hash_including(credential_method:, credential_id:)
         )
 
         expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.failure',
-                                                   tags: ["credential_type:#{credential_type}"])
+                                                   tags: ["credential_method:#{credential_method}"])
         expect(Sidekiq::AttrPackage).not_to receive(:delete)
 
-        job.perform(cache_key, credential_type, credential_id)
+        job.perform(cache_key, credential_method, credential_id)
       end
 
       it_behaves_like 'service call failure', should_raise: false
@@ -145,14 +145,14 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
       it 'logs and re-raises the exception' do
         expect(Rails.logger).to receive(:error).with(
           '[GetSSOeTraitsByCspidJob] Unhandled exception: StandardError - Unexpected crash',
-          hash_including(credential_type:, credential_id:)
+          hash_including(credential_method:, credential_id:)
         )
 
         expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.failure',
-                                                   tags: ["credential_type:#{credential_type}"])
+                                                   tags: ["credential_method:#{credential_method}"])
 
         expect do
-          job.perform(cache_key, credential_type, credential_id)
+          job.perform(cache_key, credential_method, credential_id)
         end.to raise_error(StandardError, /Unexpected crash/)
       end
 
@@ -162,15 +162,15 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
     it 'logs failure, increments metric, does not delete cache, and raises' do
       expect(Rails.logger).to receive(:error).with(
         '[GetSSOeTraitsByCspidJob] SSOe::Service.get_traits failed',
-        hash_including(credential_type:, credential_id:, error: error_response[:error])
+        hash_including(credential_method:, credential_id:, error: error_response[:error])
       )
 
       expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.failure',
-                                                 tags: ["credential_type:#{credential_type}"])
+                                                 tags: ["credential_method:#{credential_method}"])
       expect(Sidekiq::AttrPackage).not_to receive(:delete)
 
       expect do
-        job.perform(cache_key, credential_type, credential_id)
+        job.perform(cache_key, credential_method, credential_id)
       end.to raise_error(/SSOe::Service.get_traits failed/)
     end
   end
