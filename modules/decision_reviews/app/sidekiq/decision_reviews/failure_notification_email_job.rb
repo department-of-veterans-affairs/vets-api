@@ -49,7 +49,7 @@ module DecisionReviews
           submissions.present? ||
           submission_uploads.present? ||
           errored_secondary_forms.present? ||
-          permanent_error_forms.present?
+          permanently_errored_secondary_forms.present?
         )
     end
 
@@ -109,8 +109,10 @@ module DecisionReviews
     end
 
     # New method to fetch SecondaryAppealForm records that have an error status with a final status: true
-    def permanent_error_forms
-      @permanent_error_forms ||= SecondaryAppealForm.with_permanent_error.order(id: :asc)
+    def permanently_errored_secondary_forms
+      return [] unless final_status_secondary_form_failure_notifications_enabled?
+
+      @permanently_errored_secondary_forms ||= SecondaryAppealForm.with_permanent_error.order(id: :asc)
     end
 
     # Legacy method to fetch SecondaryAppealForm records that have an error status without a final status
@@ -182,9 +184,9 @@ module DecisionReviews
     end
 
     def send_secondary_form_emails_enhanced
-      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records", permanent_error_forms.size)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records", permanently_errored_secondary_forms.size)
 
-      permanent_error_forms.each do |form|
+      permanently_errored_secondary_forms.each do |form|
         send_secondary_form_email(form)
       end
     end
