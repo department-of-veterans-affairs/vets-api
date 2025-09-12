@@ -50,7 +50,7 @@ http_interactions:
       - '844'
     body:
       encoding: UTF-8
-      string: '{"data":{"access_token":"eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJ2YS5nb3Ygc2lnbiBpbiIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMCIsImp0aSI6ImNkYzNmN2JlLTQ5MTMtNGQxZC04ZTI4LTRhNmJkZmJiYjYxOCIsInN1YiI6IjEwMTAxVjk2NDE0NCIsImV4cCI6MTcyNDg5ODk2MiwiaWF0IjoxNzI0ODk4NjYyLCJ2ZXJzaW9uIjoiVjAiLCJzY29wZXMiOlsiaHR0cHM6Ly9taHYtaW50Yi1hcGkubXloZWFsdGgudmEuZ292L21odmFwaS92MS91c2VybWdtdC9hY2NvdW50LXNlcnZpY2UvYWNjb3VudCJdLCJzZXJ2aWNlX2FjY291bnRfaWQiOiJjMzRiODZmMjEzMGZmM2NkNGIxZDMwOWJjMDlkODc0MCIsInVzZXJfYXR0cmlidXRlcyI6e319.Ld_KvqHnm2HDuZE0sO5LAbILSA9ccPahuZXBDbvnDI2Vl9n1TPUovCo7V1iQr50T_kttgZtE4fz5FIs8wpbsTfC2G2CtT2TEaT6wKODBAXb2Fdyskv7lkN29K_PlhW8_HJIFiaSpxIcg2AQxvByTnfAvOZ4qWjBu16OXqnJjC4koLpyL-tcj0yO9tMzd_Cup8irdmLcDruqIjfkG1sIyuFHTAKThBX0_3oDs5eNSEM20Iwd3pxylfP8RmN67WrMo38oH53skJNg2BorfsLwebcr3JjLmJQJcRR7fypovBqXSMjDiXLMOkg6NTr23XfOmxmnEbJLx936U1uOuWpg4hA"}}'
+      string: '{"data":{"access_token":"some-token"}}'
   recorded_at: Thu, 29 Aug 2024 02:31:02 GMT
 - request:
     method: post
@@ -60,7 +60,11 @@ http_interactions:
       string: '{"icn":"1012830712V627751","email":"some-email@email.com","vaTermsOfUseStatus":"accepted","vaTermsOfUseDateTime":"2017-07-26T19:56:07Z","vaTermsOfUseRevision":"3","vaTermsOfUseLegalVersion":"1.0","vaTermsOfUseDocTitle":"VA Enterprise Terms of Use"}'
     headers:
       Authorization:
-      - Bearer eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJ2YS5nb3Ygc2lnbiBpbiIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMCIsImp0aSI6ImNkYzNmN2JlLTQ5MTMtNGQxZC04ZTI4LTRhNmJkZmJiYjYxOCIsInN1YiI6IjEwMTAxVjk2NDE0NCIsImV4cCI6MTcyNDg5ODk2MiwiaWF0IjoxNzI0ODk4NjYyLCJ2ZXJzaW9uIjoiVjAiLCJzY29wZXMiOlsiaHR0cHM6Ly9taHYtaW50Yi1hcGkubXloZWFsdGgudmEuZ292L21odmFwaS92MS91c2VybWdtdC9hY2NvdW50LXNlcnZpY2UvYWNjb3VudCJdLCJzZXJ2aWNlX2FjY291bnRfaWQiOiJjMzRiODZmMjEzMGZmM2NkNGIxZDMwOWJjMDlkODc0MCIsInVzZXJfYXR0cmlidXRlcyI6e319.Ld_KvqHnm2HDuZE0sO5LAbILSA9ccPahuZXBDbvnDI2Vl9n1TPUovCo7V1iQr50T_kttgZtE4fz5FIs8wpbsTfC2G2CtT2TEaT6wKODBAXb2Fdyskv7lkN29K_PlhW8_HJIFiaSpxIcg2AQxvByTnfAvOZ4qWjBu16OXqnJjC4koLpyL-tcj0yO9tMzd_Cup8irdmLcDruqIjfkG1sIyuFHTAKThBX0_3oDs5eNSEM20Iwd3pxylfP8RmN67WrMo38oH53skJNg2BorfsLwebcr3JjLmJQJcRR7fypovBqXSMjDiXLMOkg6NTr23XfOmxmnEbJLx936U1uOuWpg4hA
+      - Bearer some-token
+      X-Api-Key:
+      - some-access-key
+      Mhvapi-Idempotency-Key:
+      - 10101V964144
       Accept:
       - application/json
       Content-Type:
