@@ -36,7 +36,7 @@ module AccreditedRepresentativePortal
 
           span.set_tag('form_submission.status', '200')
           span.set_tag('form_submission.confirmation_number', confirmation_number)
-          trace_key_tags(span, form_id:, poa_code: organization)
+          trace_key_tags(span, form_id:, org: organization)
 
           send_confirmation_email(saved_claim)
           render json: {
