@@ -213,13 +213,16 @@ module DecisionReviews
     def monitor_temporary_error_form(form, current_status)
       return unless current_status['status'] == 'error' && current_status['final_status'] != true
 
+      # Ideally we'd track when status first became "error", but since errors are rare,
+      # we can just use the form.created_at field as a comparison
+
       error_timestamp = form.created_at
       days_in_error = (Time.current - error_timestamp) / 1.day
 
       return unless days_in_error > 15
 
       Rails.logger.info(
-        "#{log_prefix} secondary form stuck in temporary error state",
+        "#{log_prefix} secondary form stuck in non-final error state",
         {
           secondary_form_uuid: form.guid,
           appeal_submission_id: form.appeal_submission_id,

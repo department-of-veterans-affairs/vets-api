@@ -506,7 +506,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
               .with(uuid: secondary_form.guid).and_return(response_error_final)
           end
 
-          it 'does not set delete_date despite being final' do
+          it 'does not set delete_date when final_status is false' do
             Timecop.freeze(frozen_time) do
               subject.new.perform
             end
@@ -851,15 +851,13 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           end
 
           it 'logs warning with correct attributes' do
-            # The status_updated_at will be updated to frozen_time during processing
-            # because update_secondary_form_status_enhanced sets it to Time.current
             expect(Rails.logger).to receive(:info).with(
               'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in temporary error state',
               hash_including(
                 secondary_form_uuid: secondary_form.guid,
                 appeal_submission_id: secondary_form.appeal_submission_id,
                 days_in_error: days_in_error.round(2),
-                status_updated_at: frozen_time # This will be the updated value after processing
+                status_updated_at: frozen_time
               )
             ).once
 
@@ -946,7 +944,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
                    appeal_submission: secondary_form.appeal_submission,
                    status: { 'status' => 'error', 'final_status' => false }.to_json,
                    status_updated_at: frozen_time - 20.days,
-                   created_at: frozen_time - 20.days) # Ensure created_at is set
+                   created_at: frozen_time - 20.days)
           end
 
           let!(:form_temp_error_recent) do
@@ -979,13 +977,11 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           end
 
           it 'only logs warnings for temporary errors exceeding threshold' do
-            # Set up expectation for the specific log we care about
             expect(Rails.logger).to receive(:info).with(
               'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in temporary error state',
               hash_including(secondary_form_uuid: form_temp_error_old.guid)
             ).once
 
-            # Allow other info logs to pass through without failing the test
             allow(Rails.logger).to receive(:info).with(
               'SavedClaim::SupplementalClaim Skipping tracking PDF overflow',
               anything
