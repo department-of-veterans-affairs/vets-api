@@ -19,7 +19,7 @@ module V0
       claims['data'].each do |claim|
         update_claim_type_language(claim)
         # Add has_failed_uploads field for document uploads that were added
-        if Flipper.enabled?(:cst_show_document_upload_status)
+        if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
           claim['attributes']['hasFailedUploads'] = add_has_failed_uploads(claim)
         end
       end
@@ -49,7 +49,7 @@ module V0
       claim['data']['attributes']['canUpload'] = !@current_user.birls_id.nil?
 
       # Add Evidence Submissions section for document uploads that were added
-      if Flipper.enabled?(:cst_show_document_upload_status)
+      if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
         claim['data']['attributes']['evidenceSubmissions'] = add_evidence_submissions(claim['data'])
       end
 
