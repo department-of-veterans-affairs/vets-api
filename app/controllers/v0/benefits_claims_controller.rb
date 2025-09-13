@@ -10,6 +10,15 @@ module V0
     before_action { authorize :lighthouse, :access? }
     service_tag 'claims-shared'
 
+    STATSD_METRIC_PREFIX = 'api.benefits_claims'
+    STATSD_TAGS = [
+      'service:benefits-claims',
+      'team:cross-benefits-crew',
+      'team:benefits',
+      'itportfolio:benefits-delivery',
+      'dependency:lighthouse'
+    ].freeze
+
     def index
       claims = service.get_claims
 
@@ -25,6 +34,10 @@ module V0
       end
 
       tap_claims(claims['data'])
+
+      # Report metrics for evidence submission upload statuses
+      claim_ids = claims['data'].map { |claim| claim['id'] }
+      report_evidence_submission_metrics('index', claim_ids)
 
       render json: claims
     end
@@ -57,6 +70,9 @@ module V0
       log_claim_details(claim['data']['attributes'])
 
       tap_claims([claim['data']])
+
+      # Report metrics for evidence submission upload statuses
+      report_evidence_submission_metrics('show', params[:id])
 
       render json: claim
     end
@@ -211,6 +227,27 @@ module V0
 
       tracked_items.reject! { |i| BenefitsClaims::Service::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
       claim
+    end
+
+    def report_evidence_submission_metrics(endpoint, claim_ids)
+      claim_ids = Array(claim_ids) # Ensure it's always an array
+
+      # Get upload status counts for the claim(s)
+      status_counts = EvidenceSubmission.where(claim_id: claim_ids)
+                                        .group(:upload_status)
+                                        .count
+
+      # Increment metrics for each status found
+      BenefitsDocuments::Constants::UPLOAD_STATUS.each_value do |status|
+        count = status_counts[status] || 0
+        next if count.zero?
+
+        StatsD.increment("#{STATSD_METRIC_PREFIX}.#{endpoint}", count, tags: STATSD_TAGS + ["status:#{status}"])
+      end
+    rescue => e
+      ::Rails.logger.error(
+        "BenefitsClaimsController##{endpoint} Error reporting evidence submission upload status metrics: #{e.message}"
+      )
     end
   end
 end
