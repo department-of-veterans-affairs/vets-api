@@ -28,12 +28,22 @@ module Vets
     def log_message_to_rails(message, level, extra_context = {})
       # this can be a drop-in replacement for now, but maybe suggest teams
       # handle extra context on their own and move to a direct Rails.logger call?
+      #
+      ## If level is not supported by Rails.Logger, it will throw an exception
+      # Must be one of: debug, info, warn, error, fatal. Default to Warn
+
+      level = 'warn' unless %w[debug info warn error fatal].include?(level)
       formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
       Rails.logger.send(level, formatted_message)
     end
 
     def log_exception_to_rails(exception, level = 'error')
       level = normalize_shared_level(level, exception)
+      # If level is not supported by Rails.Logger, it will throw an exception
+      # Must be one of: debug, info, warn, error, fatal. Default to Warn
+
+      level = 'warn' unless %w[debug info warn error fatal].include?(level)
+
       if exception.is_a? Common::Exceptions::BackendServiceException
         error_details = exception.errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
         log_message_to_rails(exception.message, level, error_details.merge(backtrace: exception.backtrace))
