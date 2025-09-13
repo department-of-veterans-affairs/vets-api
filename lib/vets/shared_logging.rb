@@ -49,6 +49,8 @@ module Vets
       if exception.is_a? Common::Exceptions::BackendServiceException
         error_details = exception.errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
         log_message_to_rails(exception.message, level, error_details)
+      elsif exception.is_a?(StandardError)
+        Rails.logger.error(exception)
       else
         log_message_to_rails("#{exception.message}.", level)
       end
