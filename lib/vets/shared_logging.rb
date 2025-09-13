@@ -31,11 +31,15 @@ module Vets
       # guards against nil messages to avoid logging itself throwing exceptions.
       message = '[No message provided]' if message.nil?
 
-      # Validate that level is one of the supported Rails logger methods
+      # Normalize and validate level (accept symbols / strings / nil)
+      level = level.to_s if level
       level = 'warn' unless %w[info warn error].include?(level)
-
-      formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
-      Rails.logger.send(level, formatted_message)
+      if non_nil_hash?(extra_context)
+        # Pass structured context as separate argument for semantic logger
+        Rails.logger.send(level, message, extra_context)
+      else
+        Rails.logger.send(level, message)
+      end
     end
 
     def log_exception_to_rails(exception, level = 'error')
@@ -44,7 +48,7 @@ module Vets
       level = if %w[info warn error].include?(level)
                 level
               else
-                (exception.presence? ? 'error' : 'warn')
+                (exception ? 'error' : 'warn')
               end
 
       # If level is error, use logging once and don't append backtrace to message
