@@ -51,6 +51,9 @@ module Vets
       # guards against nil exceptions!
       if exception.nil?
         Rails.logger.warn('[No Exception provided]')
+      elsif exception.is_a?(Common::Exceptions::BackendServiceException) # For backward compatibility
+        error_details = exception.errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
+        log_message_to_rails(exception.message, level, error_details.merge(backtrace: exception.backtrace))
       else
         Rails.logger.send(level, exception)
       end
