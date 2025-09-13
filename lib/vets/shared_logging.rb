@@ -28,18 +28,13 @@ module Vets
     def log_message_to_rails(message, level, extra_context = {})
       # this can be a drop-in replacement for now, but maybe suggest teams
       # handle extra context on their own and move to a direct Rails.logger call?
-      # guards against nil messages to avoid logging itself throwing exceptions.
-      message = '[No message provided]' if message.nil?
+
+      formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
+      Rails.logger.send(level, formatted_message)
 
       # Normalize and validate level (accept symbols / strings / nil)
-      level = level.to_s if level
       level = 'warn' unless %w[info warn error].include?(level)
-      if non_nil_hash?(extra_context)
-        # Pass structured context as separate argument for semantic logger
-        Rails.logger.send(level, message, extra_context)
-      else
-        Rails.logger.send(level, message)
-      end
+      Rails.logger.send(level, formatted_message)
     end
 
     def log_exception_to_rails(exception, level = 'error')
@@ -61,16 +56,15 @@ module Vets
     end
 
     def normalize_shared_level(level, exception)
-      # If explicit level supplied (not nil), honor it directly
-      return level.to_s if level
-
       case exception
       when Pundit::NotAuthorizedError
         'info'
       when Common::Exceptions::BaseError
+        # could change this attribute to log_level
+        # to make clear it is not just a Sentry concern
         exception.sentry_type.to_s
       else
-        'error'
+        level.to_s
       end
     end
 
