@@ -106,6 +106,21 @@ RSpec.describe ApplicationController, type: :controller do
           expect(Rails.logger).to receive(:error).with(/blah/).with(/context/)
           subject.log_message_to_rails('blah', :error, { extra: 'context' })
         end
+
+        it 'logs warning message when message is nil' do
+          expect(Rails.logger).to receive(:error).with('[No message provided]')
+          subject.log_message_to_rails(nil, :error)
+        end
+
+        it 'validates log level and defaults to warn for invalid levels' do
+          expect(Rails.logger).to receive(:warn).with('test message')
+          subject.log_message_to_rails('test message', 'blah blah')
+        end
+
+        it 'handles nil level by defaulting to warn' do
+          expect(Rails.logger).to receive(:warn).with('test message')
+          subject.log_message_to_rails('test message', nil)
+        end
       end
 
       describe '#log_exception_to_sentry' do
@@ -116,9 +131,65 @@ RSpec.describe ApplicationController, type: :controller do
       end
 
       describe '#log_exception_to_rails' do
-        it 'warn logs to Rails logger' do
-          expect(Rails.logger).to receive(:error).with("#{exception.message}.")
+        it 'logs error level with exception object' do
+          expect(Rails.logger).to receive(:error).with(exception)
           subject.log_exception_to_rails(exception)
+        end
+
+        it 'logs info level with exception object' do
+          expect(Rails.logger).to receive(:info).with(exception)
+          subject.log_exception_to_rails(exception, 'info')
+        end
+
+        it 'logs warn level with exception object' do
+          expect(Rails.logger).to receive(:warn).with(exception)
+          subject.log_exception_to_rails(exception, 'warn')
+        end
+
+        it 'logs warn message when exception is nil' do
+          expect(Rails.logger).to receive(:warn).with('[No Exception provided]')
+          subject.log_exception_to_rails(nil, 'warn')
+        end
+
+        it 'logs BackendServiceException with exception object' do
+          backend_exception = Common::Exceptions::BackendServiceException.new('VA900', { detail: 'Test error' })
+          expect(Rails.logger).to receive(:warn).with(backend_exception)
+          subject.log_exception_to_rails(backend_exception, 'warn')
+        end
+
+        it 'validates log level and defaults to error for invalid levels when exception provided' do
+          expect(Rails.logger).to receive(:error).with(exception)
+          subject.log_exception_to_rails(exception, 'blah blah')
+        end
+
+        it 'validates log level and defaults to warn for invalid levels when no exception' do
+          expect(Rails.logger).to receive(:warn).with('[No Exception provided]')
+          subject.log_exception_to_rails(nil, 'blah blah')
+        end
+
+        it 'logs exception with backtrace when exception has backtrace' do
+          exception_with_backtrace = StandardError.new('Test error')
+          allow(exception_with_backtrace).to receive(:backtrace).and_return(%w[line1 line2])
+
+          # Verify that Rails logger receives the exception object (which includes backtrace)
+          expect(Rails.logger).to receive(:error).with(exception_with_backtrace)
+          subject.log_exception_to_rails(exception_with_backtrace, 'error')
+        end
+
+        it 'logs exception without backtrace when exception has no backtrace' do
+          exception_without_backtrace = StandardError.new('Test error')
+          exception_without_backtrace.set_backtrace(nil)
+
+          expect(Rails.logger).to receive(:warn).with(exception_without_backtrace)
+          subject.log_exception_to_rails(exception_without_backtrace, 'warn')
+        end
+
+        it 'logs error level exception without backtrace' do
+          exception_without_backtrace = StandardError.new('Test error')
+          exception_without_backtrace.set_backtrace(nil)
+
+          expect(Rails.logger).to receive(:error).with(exception_without_backtrace)
+          subject.log_exception_to_rails(exception_without_backtrace, 'error')
         end
       end
     end

@@ -28,20 +28,32 @@ module Vets
     def log_message_to_rails(message, level, extra_context = {})
       # this can be a drop-in replacement for now, but maybe suggest teams
       # handle extra context on their own and move to a direct Rails.logger call?
+      # guards against nil messages to avoid logging itself throwing exceptions.
+      message = '[No message provided]' if message.nil?
+
+      # Validate that level is one of the supported Rails logger methods
+      level = 'warn' unless %w[info warn error].include?(level)
+
       formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
       Rails.logger.send(level, formatted_message)
     end
 
     def log_exception_to_rails(exception, level = 'error')
       level = normalize_shared_level(level, exception)
-      if exception.is_a? Common::Exceptions::BackendServiceException
-        error_details = exception.errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
-        log_message_to_rails(exception.message, level, error_details.merge(backtrace: exception.backtrace))
-      else
-        log_message_to_rails("#{exception.message}.", level)
-      end
+      # Validate that level is one of the supported Rails logger methods
+      level = if %w[info warn error].include?(level)
+                level
+              else
+                (exception.presence? ? 'error' : 'warn')
+              end
 
-      log_message_to_rails(exception.backtrace.join("\n"), level) unless exception.backtrace.nil?
+      # If level is error, use logging once and don't append backtrace to message
+      # guards against nil exceptions!
+      if exception.nil?
+        Rails.logger.warn('[No Exception provided]')
+      else
+        Rails.logger.send(level, exception)
+      end
     end
 
     def normalize_shared_level(level, exception)
