@@ -131,6 +131,26 @@ RSpec.describe ApplicationController, type: :controller do
           expect(Rails.logger).to receive(:info).with('ctx message : {:foo=>"bar"}')
           subject.log_message_to_rails('ctx message', 'info', { foo: 'bar' })
         end
+
+        it 'uses fallback text when message is nil' do
+          expect(Rails.logger).to receive(:warn).with('[No Message Passed]')
+          subject.log_message_to_rails(nil, 'warn')
+        end
+
+        it 'uses fallback text when message is empty string' do
+          expect(Rails.logger).to receive(:warn).with('[No Message Passed]')
+          subject.log_message_to_rails('   ', 'warn')
+        end
+
+        it 'omits context section when extra_context is empty hash' do
+          expect(Rails.logger).to receive(:info).with('just text')
+          subject.log_message_to_rails('just text', 'info', {})
+        end
+
+        it 'omits context section when extra_context is nil' do
+          expect(Rails.logger).to receive(:info).with('just text 2')
+          subject.log_message_to_rails('just text 2', 'info', nil)
+        end
       end
 
       describe '#log_exception_to_sentry' do

@@ -31,8 +31,13 @@ module Vets
       # Normalize and sanitize level so we never call an unsupported logger method
       level = level.to_s
       level = 'warn' unless %w[debug info warn error fatal].include?(level)
-      formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
-      Rails.logger.public_send(level, formatted_message)
+      safe_message = message.nil? || message.to_s.strip.empty? ? '[No Message Passed]' : message.to_s
+      context_part = if extra_context.is_a?(Hash) && !extra_context.empty?
+                       " : #{extra_context}"
+                     else
+                       ''
+                     end
+      Rails.logger.public_send(level, "#{safe_message}#{context_part}")
     end
 
     def log_exception_to_rails(exception, level = 'error')
