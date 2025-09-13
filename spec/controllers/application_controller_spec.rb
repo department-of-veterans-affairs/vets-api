@@ -106,6 +106,31 @@ RSpec.describe ApplicationController, type: :controller do
           expect(Rails.logger).to receive(:error).with(/blah/).with(/context/)
           subject.log_message_to_rails('blah', :error, { extra: 'context' })
         end
+
+        it 'coerces symbol warn level and logs warn' do
+          expect(Rails.logger).to receive(:warn).with('sym warn test')
+          subject.log_message_to_rails('sym warn test', :warn)
+        end
+
+        it 'defaults to warn for invalid string level' do
+          expect(Rails.logger).to receive(:warn).with('bad level test')
+          subject.log_message_to_rails('bad level test', 'not_a_level')
+        end
+
+        it 'defaults to warn for invalid symbol level' do
+          expect(Rails.logger).to receive(:warn).with('bad sym level test')
+          subject.log_message_to_rails('bad sym level test', :totally_invalid)
+        end
+
+        it 'logs message without context when extra_context empty' do
+          expect(Rails.logger).to receive(:info).with('plain message')
+          subject.log_message_to_rails('plain message', 'info', {})
+        end
+
+        it 'appends context when provided' do
+          expect(Rails.logger).to receive(:info).with('ctx message : {:foo=>"bar"}')
+          subject.log_message_to_rails('ctx message', 'info', { foo: 'bar' })
+        end
       end
 
       describe '#log_exception_to_sentry' do
@@ -119,6 +144,12 @@ RSpec.describe ApplicationController, type: :controller do
         it 'warn logs to Rails logger' do
           expect(Rails.logger).to receive(:error).with("#{exception.message}.")
           subject.log_exception_to_rails(exception)
+        end
+
+        it 'falls back to warn if passed invalid level' do
+          allow(exception).to receive(:message).and_return('ex msg')
+          expect(Rails.logger).to receive(:warn).with('ex msg.')
+          subject.log_exception_to_rails(exception, :bogus_level)
         end
       end
     end
