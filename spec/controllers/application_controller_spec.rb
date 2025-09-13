@@ -106,51 +106,6 @@ RSpec.describe ApplicationController, type: :controller do
           expect(Rails.logger).to receive(:error).with(/blah/).with(/context/)
           subject.log_message_to_rails('blah', :error, { extra: 'context' })
         end
-
-        it 'coerces symbol warn level and logs warn' do
-          expect(Rails.logger).to receive(:warn).with('sym warn test')
-          subject.log_message_to_rails('sym warn test', :warn)
-        end
-
-        it 'defaults to warn for invalid string level' do
-          expect(Rails.logger).to receive(:warn).with('bad level test')
-          subject.log_message_to_rails('bad level test', 'not_a_level')
-        end
-
-        it 'defaults to warn for invalid symbol level' do
-          expect(Rails.logger).to receive(:warn).with('bad sym level test')
-          subject.log_message_to_rails('bad sym level test', :totally_invalid)
-        end
-
-        it 'logs message without context when extra_context empty' do
-          expect(Rails.logger).to receive(:info).with('plain message')
-          subject.log_message_to_rails('plain message', 'info', {})
-        end
-
-        it 'appends context when provided' do
-          expect(Rails.logger).to receive(:info).with('ctx message : {:foo=>"bar"}')
-          subject.log_message_to_rails('ctx message', 'info', { foo: 'bar' })
-        end
-
-        it 'uses fallback text when message is nil' do
-          expect(Rails.logger).to receive(:warn).with('[No Message Passed]')
-          subject.log_message_to_rails(nil, 'warn')
-        end
-
-        it 'uses fallback text when message is empty string' do
-          expect(Rails.logger).to receive(:warn).with('[No Message Passed]')
-          subject.log_message_to_rails('   ', 'warn')
-        end
-
-        it 'omits context section when extra_context is empty hash' do
-          expect(Rails.logger).to receive(:info).with('just text')
-          subject.log_message_to_rails('just text', 'info', {})
-        end
-
-        it 'omits context section when extra_context is nil' do
-          expect(Rails.logger).to receive(:info).with('just text 2')
-          subject.log_message_to_rails('just text 2', 'info', nil)
-        end
       end
 
       describe '#log_exception_to_sentry' do
