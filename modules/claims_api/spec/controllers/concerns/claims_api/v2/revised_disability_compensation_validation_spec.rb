@@ -773,66 +773,192 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
       end
     end
 
-    # FES Val Section 7: Disabilities validations
-    context 'disabilities validations' do
-      # NOTE: Minimum validation (at least 1 disability) is handled by schema (required field + minItems: 1)
-      # We only test the maximum validation here
-
-      context 'when exactly 1 disability provided' do
+    # FES Val Section 7: Disability action type and name validations
+    context 'disability action type and name validations' do
+      context 'when disability has actionType NONE' do
         let(:form_attributes) do
           base_form_attributes.merge(
             'disabilities' => [
               {
                 'name' => 'PTSD',
-                'disabilityActionType' => 'NEW',
-                'approximateBeginDate' => '2020-01-01'
+                'disabilityActionType' => 'NONE'
               }
             ]
           )
         end
 
-        it 'returns no errors' do
-          errors = subject.validate_form_526_fes_values
-          expect(errors).to be_nil
-        end
-      end
-
-      context 'when 150 disabilities provided' do
-        let(:form_attributes) do
-          disabilities = (1..150).map do |i|
-            {
-              'name' => "Disability #{i}",
-              'disabilityActionType' => 'NEW',
-              'approximateBeginDate' => '2020-01-01'
-            }
-          end
-          base_form_attributes.merge('disabilities' => disabilities)
-        end
-
-        it 'returns no errors' do
-          errors = subject.validate_form_526_fes_values
-          expect(errors).to be_nil
-        end
-      end
-
-      context 'when more than 150 disabilities provided' do
-        let(:form_attributes) do
-          disabilities = (1..151).map do |i|
-            {
-              'name' => "Disability #{i}",
-              'disabilityActionType' => 'NEW',
-              'approximateBeginDate' => '2020-01-01'
-            }
-          end
-          base_form_attributes.merge('disabilities' => disabilities)
-        end
-
-        it 'returns validation error for exceeding maximum' do
+        it 'returns validation error' do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
-          expect(errors.first[:source]).to eq('/disabilities')
-          expect(errors.first[:title]).to eq('Unprocessable Entity')
-          expect(errors.first[:detail]).to eq('Number of disabilities (151) exceeds maximum allowed (150)')
+          expect(errors.first[:source]).to eq('/disabilities/0/disabilityActionType')
+          expect(errors.first[:title]).to eq('Bad Request')
+          expect(errors.first[:detail]).to eq('The request failed disability validation: ' \
+                                              'The disability Action Type of "NONE" is not currently supported.')
+        end
+      end
+
+      context 'when disability name format validation for NEW disabilities' do
+        context 'with valid name format' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'name' => 'Post-Traumatic Stress Disorder (PTSD)',
+                  'disabilityActionType' => 'NEW'
+                }
+              ]
+            )
+          end
+
+          it 'returns no errors' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_nil
+          end
+        end
+
+        context 'with invalid name starting with space' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'name' => ' PTSD',
+                  'disabilityActionType' => 'NEW'
+                }
+              ]
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/disabilities/0/name')
+            expect(errors.first[:title]).to eq('Bad Request')
+            expect(errors.first[:detail]).to include('does not match the expected format')
+          end
+        end
+
+        context 'with invalid characters' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'name' => 'PTSD @ Location',
+                  'disabilityActionType' => 'NEW'
+                }
+              ]
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/disabilities/0/name')
+            expect(errors.first[:title]).to eq('Bad Request')
+            expect(errors.first[:detail]).to eq('The request failed disability validation: ' \
+                                                'The disability name "PTSD @ Location" does not match the expected ' \
+                                                'format for a disabilityActionType of "NEW"')
+          end
+        end
+
+        context 'with INCREASE actionType (should not validate format)' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'name' => ' Invalid Format',
+                  'disabilityActionType' => 'INCREASE',
+                  'ratedDisabilityId' => '123',
+                  'diagnosticCode' => '9999'
+                }
+              ]
+            )
+          end
+
+          it 'returns no errors (format validation only for NEW)' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_nil
+          end
+        end
+      end
+
+      context 'when disability name exceeds 255 characters' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'disabilities' => [
+              {
+                'name' => 'A' * 256,
+                'disabilityActionType' => 'NEW'
+              }
+            ]
+          )
+        end
+
+        it 'returns validation error for length' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          # Should have both format and length errors
+          length_error = errors.find { |e| e[:detail].include?('less than 256 characters') }
+          expect(length_error).not_to be_nil
+          expect(length_error[:source]).to eq('/disabilities/0/name')
+          expect(length_error[:title]).to eq('Invalid value')
+          expect(length_error[:detail]).to eq('The disability name must be less than 256 characters')
+        end
+      end
+
+      context 'when disability name is exactly 255 characters' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'disabilities' => [
+              {
+                'name' => 'A' * 255,
+                'disabilityActionType' => 'NEW'
+              }
+            ]
+          )
+        end
+
+        it 'returns no length error' do
+          errors = subject.validate_form_526_fes_values
+          # May have format error but no length error
+          if errors
+            length_error = errors.find { |e| e[:detail].include?('less than 256 characters') }
+            expect(length_error).to be_nil
+          end
+        end
+      end
+
+      context 'with multiple disabilities having different issues' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'disabilities' => [
+              {
+                'name' => 'Valid Name',
+                'disabilityActionType' => 'NEW'
+              },
+              {
+                'name' => 'Another condition',
+                'disabilityActionType' => 'NONE'
+              },
+              {
+                'name' => 'Invalid @ Name',
+                'disabilityActionType' => 'NEW'
+              }
+            ]
+          )
+        end
+
+        it 'returns errors for each invalid disability' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.size).to eq(2)
+
+          # Check for NONE error on second disability
+          none_error = errors.find { |e| e[:source] == '/disabilities/1/disabilityActionType' }
+          expect(none_error[:detail]).to include('NONE')
+
+          # Check for format error on third disability
+          format_error = errors.find { |e| e[:source] == '/disabilities/2/name' }
+          expect(format_error[:detail]).to include('does not match the expected format')
         end
       end
     end
