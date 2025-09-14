@@ -173,6 +173,16 @@ RSpec.describe ApplicationController, type: :controller do
         expect(Rails.logger).to receive(:error).with('legacy-warning')
         subject.log_message_to_rails('legacy-warning', 'warning', {})
       end
+
+      it 'defaults nil message to placeholder' do
+        expect(Rails.logger).to receive(:info).with('[No Message Provided]')
+        subject.log_message_to_rails(nil, 'info', {})
+      end
+
+      it 'defaults empty message to placeholder and keeps context' do
+        expect(Rails.logger).to receive(:info).with('[No Message Provided] : {:foo=>"bar"}')
+        subject.log_message_to_rails('', 'info', { foo: 'bar' })
+      end
     end
 
     describe '#log_exception_to_rails' do
@@ -192,6 +202,16 @@ RSpec.describe ApplicationController, type: :controller do
         ex = ArgumentError.new('bad')
         expect(Rails.logger).to receive(:error).with(anything)
         subject.log_exception_to_rails(ex, 'unknown')
+      end
+
+      it 'logs BackendServiceException with key:value error details via log_message_to_rails' do
+        ex = Common::Exceptions::BackendServiceException.new('RX139', { code: 'RX139', detail: 'x' })
+        expect(subject).to receive(:log_message_to_rails).with(
+          ex.message,
+          'error',
+          hash_including(:title, :detail, :code, :status, :backtrace)
+        )
+        subject.log_exception_to_rails(ex, 'error')
       end
     end
   end

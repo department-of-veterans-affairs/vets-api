@@ -31,7 +31,9 @@ module Vets
       #
       # Code was previously using Rails.logger.send(level, formatted_message) which could cause an exception
       # of its own. Hacky, but safe. Rails.logger.info etc do the right thing.
-      # Following line preserved for backwards compatibility.
+
+      message = '[No Message Provided]' if message.blank?
+
       formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
       case level
       when 'debug'
