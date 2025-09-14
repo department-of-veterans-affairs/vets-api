@@ -169,8 +169,8 @@ RSpec.describe ApplicationController, type: :controller do
         subject.log_message_to_rails('unknown', 'unknown', {})
       end
 
-      it "treats 'warning' as unknown and falls back to error" do
-        expect(Rails.logger).to receive(:error).with('legacy-warning')
+      it "maps 'warning' to Rails.warn level" do
+        expect(Rails.logger).to receive(:warn).with('legacy-warning')
         subject.log_message_to_rails('legacy-warning', 'warning', {})
       end
 
