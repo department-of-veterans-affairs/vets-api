@@ -50,17 +50,22 @@ module Vets
     def log_exception_to_rails(exception, level = 'error')
       level = normalize_shared_level(level, exception)
 
-      case level
-      when 'debug'
-        Rails.logger.debug(exception)
-      when 'info'
-        Rails.logger.info(exception)
-      when 'warn'
-        Rails.logger.warn(exception)
-      when 'fatal'
-        Rails.logger.fatal(exception)
-      else # 'error' and unknown levels
-        Rails.logger.error(exception)
+      if exception.is_a? Common::Exceptions::BackendServiceException
+        error_details = exception.errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
+        log_message_to_rails(exception.message, level, error_details.merge(backtrace: exception.backtrace))
+      else
+        case level
+        when 'debug'
+          Rails.logger.debug(exception)
+        when 'info'
+          Rails.logger.info(exception)
+        when 'warn'
+          Rails.logger.warn(exception)
+        when 'fatal'
+          Rails.logger.fatal(exception)
+        else # 'error' and unknown levels
+          Rails.logger.error(exception)
+        end
       end
     end
 
