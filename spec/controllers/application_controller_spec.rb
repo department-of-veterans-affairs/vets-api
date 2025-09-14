@@ -117,7 +117,7 @@ RSpec.describe ApplicationController, type: :controller do
 
       describe '#log_exception_to_rails' do
         it 'warn logs to Rails logger' do
-          expect(Rails.logger).to receive(:error).with("#{exception.message}.")
+          expect(Rails.logger).to receive(:error).with(exception)
           subject.log_exception_to_rails(exception)
         end
       end
