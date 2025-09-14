@@ -28,20 +28,40 @@ module Vets
     def log_message_to_rails(message, level, extra_context = {})
       # this can be a drop-in replacement for now, but maybe suggest teams
       # handle extra context on their own and move to a direct Rails.logger call?
+      #
+      # Code was previously using Rails.logger.send(level, formatted_message) which could cause an exception
+      # of its own. Hacky, but safe. Rails.logger.info etc do the right thing.
+      # Following line preserved for backwards compatibility.
       formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
-      Rails.logger.send(level, formatted_message)
+      case level
+      when 'debug'
+        Rails.logger.debug(formatted_message)
+      when 'info'
+        Rails.logger.info(formatted_message)
+      when 'warn'
+        Rails.logger.warn(formatted_message)
+      when 'fatal'
+        Rails.logger.fatal(formatted_message)
+      else # 'error' and unknown levels
+        Rails.logger.error(formatted_message)
+      end
     end
 
     def log_exception_to_rails(exception, level = 'error')
       level = normalize_shared_level(level, exception)
-      if exception.is_a? Common::Exceptions::BackendServiceException
-        error_details = exception.errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
-        log_message_to_rails(exception.message, level, error_details.merge(backtrace: exception.backtrace))
-      else
-        log_message_to_rails("#{exception.message}.", level)
-      end
 
-      log_message_to_rails(exception.backtrace.join("\n"), level) unless exception.backtrace.nil?
+      case level
+      when 'debug'
+        Rails.logger.debug(exception)
+      when 'info'
+        Rails.logger.info(exception)
+      when 'warn'
+        Rails.logger.warn(exception)
+      when 'fatal'
+        Rails.logger.fatal(exception)
+      else # 'error' and unknown levels
+        Rails.logger.error(exception)
+      end
     end
 
     def normalize_shared_level(level, exception)

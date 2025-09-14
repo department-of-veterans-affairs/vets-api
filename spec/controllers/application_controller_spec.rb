@@ -150,6 +150,52 @@ RSpec.describe ApplicationController, type: :controller do
     end
   end
 
+  describe 'SharedLogging (Rails logger routing)' do
+    subject { described_class.new }
+
+    describe '#log_message_to_rails' do
+      it 'routes info level to Rails.logger.info with formatted context' do
+        expect(Rails.logger).to receive(:info).with('hello : {:foo=>"bar"}')
+        subject.log_message_to_rails('hello', 'info', { foo: 'bar' })
+      end
+
+      it 'routes warn level to Rails.logger.warn' do
+        expect(Rails.logger).to receive(:warn).with('warn-only')
+        subject.log_message_to_rails('warn-only', 'warn', {})
+      end
+
+      it 'falls back unknown level to Rails.logger.error' do
+        expect(Rails.logger).to receive(:error).with('unknown')
+        subject.log_message_to_rails('unknown', 'unknown', {})
+      end
+
+      it "treats 'warning' as unknown and falls back to error" do
+        expect(Rails.logger).to receive(:error).with('legacy-warning')
+        subject.log_message_to_rails('legacy-warning', 'warning', {})
+      end
+    end
+
+    describe '#log_exception_to_rails' do
+      it 'logs at error level by default' do
+        ex = StandardError.new('boom')
+        expect(Rails.logger).to receive(:error).with(anything)
+        subject.log_exception_to_rails(ex)
+      end
+
+      it 'logs at specified level (warn)' do
+        ex = RuntimeError.new('oops')
+        expect(Rails.logger).to receive(:warn).with(anything)
+        subject.log_exception_to_rails(ex, 'warn')
+      end
+
+      it 'falls back unknown level to error when logging exceptions' do
+        ex = ArgumentError.new('bad')
+        expect(Rails.logger).to receive(:error).with(anything)
+        subject.log_exception_to_rails(ex, 'unknown')
+      end
+    end
+  end
+
   describe 'Sentry Handling' do
     around do |example|
       with_settings(Settings.sentry, dsn: 'T') do
