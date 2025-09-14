@@ -582,6 +582,9 @@ module ClaimsApi
 
           # FES Val Section 7.v: HEPC specialIssue validation
           validate_hepc_special_issue!(disability, index)
+
+          # FES Val Section 7.w: POW specialIssue validation
+          validate_pow_special_issue!(disability, index)
         end
       end
 
@@ -617,6 +620,21 @@ module ClaimsApi
           source: "/disabilities/#{index}/specialIssues",
           title: 'Invalid value',
           detail: 'A special issue of HEPC can only exist for the disability Hepatitis'
+        )
+      end
+
+      # FES Val Section 7.w: POW special issue requires confinements
+      def validate_pow_special_issue!(disability, index)
+        special_issues = disability['specialIssues']
+        return unless special_issues&.include?('POW')
+
+        confinements = form_attributes['confinements']
+        return if confinements.present? && !confinements.empty?
+
+        collect_error(
+          source: "/disabilities/#{index}/specialIssues",
+          title: 'Invalid value',
+          detail: 'A prisoner of war must have at least one period of confinement record'
         )
       end
 
