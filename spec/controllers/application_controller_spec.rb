@@ -213,6 +213,19 @@ RSpec.describe ApplicationController, type: :controller do
         )
         subject.log_exception_to_rails(ex, 'error')
       end
+
+      it 'logs BackendServiceException safely when errors array is empty' do
+        ex = Common::Exceptions::BackendServiceException.new('RX139', { code: 'RX139', detail: 'x' })
+        # Force an empty errors array to exercise defensive nil-safe logic
+        allow(ex).to receive(:errors).and_return([])
+        expect(subject).to receive(:log_message_to_rails).with(
+          ex.message,
+          'error',
+          hash_including(:backtrace) # only backtrace expected since no error attributes
+        )
+        # Should not raise
+        expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
+      end
     end
   end
 

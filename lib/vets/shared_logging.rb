@@ -32,6 +32,10 @@ module Vets
       # Code was previously using Rails.logger.send(level, formatted_message) which could cause an exception
       # of its own. Hacky, but safe. Rails.logger.info etc do the right thing.
 
+      # if level is passed as a symbol (e.g. :warn), handle it. convert to string
+
+      level = level.to_s.downcase
+      level = 'warn' if level == 'warning' # Rails doesn't support Sentries Warning level
       message = '[No Message Provided]' if message.blank?
 
       formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
@@ -49,11 +53,14 @@ module Vets
       end
     end
 
-    def log_exception_to_rails(exception, level = 'error')
+    def log_exception_to_rails(exception, level = 'error') # rubocop:disable Metrics/MethodLength
+      level = level.to_s.downcase
       level = normalize_shared_level(level, exception)
-
+      level = 'warn' if level == 'warning' # Rails doesn't support Sentries Warning level
       if exception.is_a? Common::Exceptions::BackendServiceException
-        error_details = exception.errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
+        error_details = (Array(exception.errors).first&.try(:attributes) || {}).compact.reject do |_k, v|
+          v.respond_to?(:empty?) && v.empty?
+        end
         log_message_to_rails(exception.message, level, error_details.merge(backtrace: exception.backtrace))
       else
         case level
