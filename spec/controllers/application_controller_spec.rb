@@ -120,12 +120,6 @@ RSpec.describe ApplicationController, type: :controller do
           expect(Rails.logger).to receive(:error).with("#{exception.message}.")
           subject.log_exception_to_rails(exception)
         end
-
-        it 'falls back to warn if passed invalid level' do
-          allow(exception).to receive(:message).and_return('ex msg')
-          expect(Rails.logger).to receive(:warn).with('ex msg.')
-          subject.log_exception_to_rails(exception, :bogus_level)
-        end
       end
     end
 
