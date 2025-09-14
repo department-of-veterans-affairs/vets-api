@@ -204,25 +204,22 @@ RSpec.describe ApplicationController, type: :controller do
         subject.log_exception_to_rails(ex, 'unknown')
       end
 
-      it 'logs BackendServiceException with key:value error details via log_message_to_rails' do
+      it 'logs BackendServiceException with key:value error details' do
         ex = Common::Exceptions::BackendServiceException.new('RX139', { code: 'RX139', detail: 'x' })
-        expect(subject).to receive(:log_message_to_rails).with(
-          ex.message,
-          'error',
-          hash_including(:title, :detail, :code, :status, :backtrace)
-        )
+        # Expect the final Rails.logger.error call with formatted message including error details
+        expect(Rails.logger).to receive(:error).with(/RX139.*title.*detail.*code.*status.*backtrace/m)
         subject.log_exception_to_rails(ex, 'error')
       end
 
       it 'logs BackendServiceException safely when errors array is empty' do
-        ex = Common::Exceptions::BackendServiceException.new('RX139', { code: 'RX139', detail: 'x' })
-        # Force an empty errors array to exercise defensive nil-safe logic
-        allow(ex).to receive(:errors).and_return([])
-        expect(subject).to receive(:log_message_to_rails).with(
-          ex.message,
-          'error',
-          hash_including(:backtrace) # only backtrace expected since no error attributes
-        )
+        empty_errors_exception_class = Class.new(Common::Exceptions::BackendServiceException) do
+          def errors
+            [] # simulate unexpected empty error list
+          end
+        end
+        ex = empty_errors_exception_class.new('RX139', { code: 'RX139', detail: 'x' })
+        # Should still log the exception message and backtrace even with empty errors
+        expect(Rails.logger).to receive(:error).with(/RX139.*backtrace/m)
         # Should not raise
         expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
       end
