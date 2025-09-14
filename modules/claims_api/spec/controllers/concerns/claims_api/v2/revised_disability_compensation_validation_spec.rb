@@ -940,6 +940,96 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
       end
 
+      context 'POW special issue validation' do
+        context 'when POW special issue is used without confinements' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'PTSD',
+                  'specialIssues' => ['POW']
+                }
+              ]
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/disabilities/0/specialIssues')
+            expect(errors.first[:title]).to eq('Invalid value')
+            expect(errors.first[:detail]).to eq('A prisoner of war must have at least one period of confinement record')
+          end
+        end
+
+        context 'when POW special issue is used with empty confinements' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'PTSD',
+                  'specialIssues' => ['POW']
+                }
+              ],
+              'confinements' => []
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/disabilities/0/specialIssues')
+            expect(errors.first[:detail]).to eq('A prisoner of war must have at least one period of confinement record')
+          end
+        end
+
+        context 'when POW special issue is used with valid confinements' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'PTSD',
+                  'specialIssues' => ['POW']
+                }
+              ],
+              'confinements' => [
+                {
+                  'approximateBeginDate' => { 'year' => '1970', 'month' => '6' },
+                  'approximateEndDate' => { 'year' => '1971', 'month' => '3' }
+                }
+              ]
+            )
+          end
+
+          it 'returns no errors' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_nil
+          end
+        end
+
+        context 'when non-POW special issues are used without confinements' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'PTSD',
+                  'specialIssues' => %w[ALS TRM]
+                }
+              ]
+            )
+          end
+
+          it 'returns no errors (validation only applies to POW)' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_nil
+          end
+        end
+      end
+
       context 'duplicate disability name validation' do
         context 'when disabilities have duplicate names' do
           let(:form_attributes) do
@@ -1063,6 +1153,11 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
                 'disabilityActionType' => 'NEW',
                 'name' => 'Back Pain',
                 'specialIssues' => ['HEPC']
+              },
+              {
+                'disabilityActionType' => 'NEW',
+                'name' => 'Knee Pain',
+                'specialIssues' => ['POW']
               }
             ]
           )
@@ -1071,7 +1166,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         it 'returns errors for all issues' do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
-          expect(errors.size).to eq(3)
+          expect(errors.size).to eq(4)
 
           # Check for special issue error
           special_issue_error = errors.find { |e| e[:source] == '/disabilities/0/specialIssues' }
@@ -1084,6 +1179,10 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           # Check for HEPC error
           hepc_error = errors.find { |e| e[:source] == '/disabilities/2/specialIssues' }
           expect(hepc_error[:detail]).to include('HEPC can only exist for the disability Hepatitis')
+
+          # Check for POW error
+          pow_error = errors.find { |e| e[:source] == '/disabilities/3/specialIssues' }
+          expect(pow_error[:detail]).to eq('A prisoner of war must have at least one period of confinement record')
         end
       end
     end
