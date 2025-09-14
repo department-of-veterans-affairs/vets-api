@@ -773,21 +773,357 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
       end
     end
 
-    # FES Val Section 7: Disabilities validations
-    context 'disabilities validations' do
-      # NOTE: Minimum validation (at least 1 disability) is handled by schema (required field + minItems: 1)
-      # We only test the maximum validation here
+    # FES Val Section 7: Disability special issues and duplicate validations
+    context 'disability special issues and duplicate validations' do
+      context 'specialIssues validation for INCREASE disabilities' do
+        context 'when INCREASE disability has invalid special issues' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'INCREASE',
+                  'name' => 'PTSD',
+                  'specialIssues' => %w[ALS TRM]
+                }
+              ]
+            )
+          end
 
-      context 'when exactly 1 disability provided' do
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/disabilities/0/specialIssues')
+            expect(errors.first[:title]).to eq('Invalid value')
+            expect(errors.first[:detail]).to eq('A Special Issue cannot be added to a primary disability ' \
+                                                'after the disability has been rated')
+          end
+        end
+
+        context 'when INCREASE disability has only EMP special issue' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'INCREASE',
+                  'name' => 'PTSD',
+                  'specialIssues' => ['EMP']
+                }
+              ]
+            )
+          end
+
+          it 'returns no errors' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_nil
+          end
+        end
+
+        context 'when INCREASE disability has only RRD special issue' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'INCREASE',
+                  'name' => 'PTSD',
+                  'specialIssues' => ['RRD']
+                }
+              ]
+            )
+          end
+
+          it 'returns no errors' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_nil
+          end
+        end
+
+        context 'when INCREASE disability has mix of valid and invalid special issues' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'INCREASE',
+                  'name' => 'PTSD',
+                  'specialIssues' => %w[EMP ALS RRD]
+                }
+              ]
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/disabilities/0/specialIssues')
+            expect(errors.first[:detail]).to include('cannot be added to a primary disability')
+          end
+        end
+
+        context 'when NEW disability has special issues' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'PTSD',
+                  'specialIssues' => %w[ALS TRM]
+                }
+              ]
+            )
+          end
+
+          it 'returns no errors (validation only applies to INCREASE)' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_nil
+          end
+        end
+      end
+
+      context 'HEPC special issue validation' do
+        context 'when HEPC special issue is used with non-Hepatitis disability' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'PTSD',
+                  'specialIssues' => ['HEPC']
+                }
+              ]
+            )
+          end
+
+          it 'returns validation error' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/disabilities/0/specialIssues')
+            expect(errors.first[:title]).to eq('Invalid value')
+            expect(errors.first[:detail]).to eq('A special issue of HEPC can only exist for the disability Hepatitis')
+          end
+        end
+
+        context 'when HEPC special issue is used with Hepatitis disability' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'Hepatitis C',
+                  'specialIssues' => ['HEPC']
+                }
+              ]
+            )
+          end
+
+          it 'returns no errors' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_nil
+          end
+        end
+
+        context 'when HEPC special issue is used with mixed case Hepatitis' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'HEPATITIS',
+                  'specialIssues' => ['HEPC']
+                }
+              ]
+            )
+          end
+
+          it 'returns no errors' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_nil
+          end
+        end
+      end
+
+      context 'duplicate disability name validation' do
+        context 'when disabilities have duplicate names' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'PTSD'
+                },
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'PTSD'
+                }
+              ]
+            )
+          end
+
+          it 'returns validation error on the second occurrence' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/disabilities/1/name')
+            expect(errors.first[:title]).to eq('Invalid value')
+            expect(errors.first[:detail]).to eq('Duplicate disability name found: PTSD')
+          end
+        end
+
+        context 'when disabilities have duplicate names with different cases' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'ptsd'
+                },
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'PTSD'
+                }
+              ]
+            )
+          end
+
+          it 'returns validation error (case insensitive)' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.first[:source]).to eq('/disabilities/1/name')
+            expect(errors.first[:detail]).to eq('Duplicate disability name found: PTSD')
+          end
+        end
+
+        context 'when disabilities have three of the same name' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'PTSD'
+                },
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'PTSD'
+                },
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'PTSD'
+                }
+              ]
+            )
+          end
+
+          it 'returns validation error only on the second occurrence' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_an(Array)
+            expect(errors.size).to eq(1)
+            expect(errors.first[:source]).to eq('/disabilities/1/name')
+            expect(errors.first[:detail]).to eq('Duplicate disability name found: PTSD')
+          end
+        end
+
+        context 'when disabilities have unique names' do
+          let(:form_attributes) do
+            base_form_attributes.merge(
+              'disabilities' => [
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'PTSD'
+                },
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'Back Pain'
+                },
+                {
+                  'disabilityActionType' => 'NEW',
+                  'name' => 'Knee Pain'
+                }
+              ]
+            )
+          end
+
+          it 'returns no errors' do
+            errors = subject.validate_form_526_fes_values
+            expect(errors).to be_nil
+          end
+        end
+      end
+
+      context 'with multiple validation issues' do
         let(:form_attributes) do
           base_form_attributes.merge(
             'disabilities' => [
               {
+                'disabilityActionType' => 'INCREASE',
                 'name' => 'PTSD',
+                'specialIssues' => ['ALS']
+              },
+              {
                 'disabilityActionType' => 'NEW',
-                'approximateBeginDate' => '2020-01-01'
+                'name' => 'PTSD'
+              },
+              {
+                'disabilityActionType' => 'NEW',
+                'name' => 'Back Pain',
+                'specialIssues' => ['HEPC']
               }
             ]
+          )
+        end
+
+        it 'returns errors for all issues' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.size).to eq(3)
+
+          # Check for special issue error
+          special_issue_error = errors.find { |e| e[:source] == '/disabilities/0/specialIssues' }
+          expect(special_issue_error[:detail]).to include('cannot be added to a primary disability')
+
+          # Check for duplicate name error
+          duplicate_error = errors.find { |e| e[:source] == '/disabilities/1/name' }
+          expect(duplicate_error[:detail]).to eq('Duplicate disability name found: PTSD')
+
+          # Check for HEPC error
+          hepc_error = errors.find { |e| e[:source] == '/disabilities/2/specialIssues' }
+          expect(hepc_error[:detail]).to include('HEPC can only exist for the disability Hepatitis')
+        end
+      end
+    end
+
+    # FES Val Section 10: Special circumstances validation
+    context 'special circumstances validation' do
+      context 'when specialCircumstances has more than 100 items' do
+        let(:form_attributes) do
+          circumstances = 101.times.map do |i|
+            {
+              'name' => "Circumstance #{i}",
+              'code' => "CODE#{i}"
+            }
+          end
+
+          base_form_attributes.merge(
+            'specialCircumstances' => circumstances
+          )
+        end
+
+        it 'returns validation error' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.first[:source]).to eq('/specialCircumstances')
+          expect(errors.first[:title]).to eq('Invalid array')
+          expect(errors.first[:detail]).to eq('Number of special circumstances 101 must be between 0 and 100 inclusive')
+        end
+      end
+
+      context 'when specialCircumstances has exactly 100 items' do
+        let(:form_attributes) do
+          circumstances = 100.times.map do |i|
+            {
+              'name' => "Circumstance #{i}",
+              'code' => "CODE#{i}"
+            }
+          end
+
+          base_form_attributes.merge(
+            'specialCircumstances' => circumstances
           )
         end
 
@@ -797,16 +1133,11 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
       end
 
-      context 'when 150 disabilities provided' do
+      context 'when specialCircumstances is empty' do
         let(:form_attributes) do
-          disabilities = (1..150).map do |i|
-            {
-              'name' => "Disability #{i}",
-              'disabilityActionType' => 'NEW',
-              'approximateBeginDate' => '2020-01-01'
-            }
-          end
-          base_form_attributes.merge('disabilities' => disabilities)
+          base_form_attributes.merge(
+            'specialCircumstances' => []
+          )
         end
 
         it 'returns no errors' do
@@ -815,24 +1146,12 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
       end
 
-      context 'when more than 150 disabilities provided' do
-        let(:form_attributes) do
-          disabilities = (1..151).map do |i|
-            {
-              'name' => "Disability #{i}",
-              'disabilityActionType' => 'NEW',
-              'approximateBeginDate' => '2020-01-01'
-            }
-          end
-          base_form_attributes.merge('disabilities' => disabilities)
-        end
+      context 'when specialCircumstances is not provided' do
+        let(:form_attributes) { base_form_attributes }
 
-        it 'returns validation error for exceeding maximum' do
+        it 'returns no errors' do
           errors = subject.validate_form_526_fes_values
-          expect(errors).to be_an(Array)
-          expect(errors.first[:source]).to eq('/disabilities')
-          expect(errors.first[:title]).to eq('Unprocessable Entity')
-          expect(errors.first[:detail]).to eq('Number of disabilities (151) exceeds maximum allowed (150)')
+          expect(errors).to be_nil
         end
       end
     end
