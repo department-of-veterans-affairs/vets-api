@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'rx/client' # used to stub Rx::Client in tests
+require 'ostruct'
 
 RSpec.describe ApplicationController, type: :controller do
   controller do
@@ -106,6 +107,63 @@ RSpec.describe ApplicationController, type: :controller do
           expect(Rails.logger).to receive(:error).with(/blah/).with(/context/)
           subject.log_message_to_rails('blah', :error, { extra: 'context' })
         end
+
+        context 'edge cases' do
+          it 'coerces symbol level to string and logs at that level' do
+            expect(Rails.logger).to receive(:info).with('test symbol')
+            subject.log_message_to_rails('test symbol', :info)
+          end
+
+          it 'falls back to warn for invalid string level' do
+            expect(Rails.logger).to receive(:warn).with('fallback level')
+            subject.log_message_to_rails('fallback level', 'not_a_level')
+          end
+
+          it 'falls back to warn for invalid symbol level' do
+            expect(Rails.logger).to receive(:warn).with('bad sym')
+            subject.log_message_to_rails('bad sym', :totally_invalid)
+          end
+
+          it 'falls back to warn for nil level' do
+            expect(Rails.logger).to receive(:warn).with('nil lvl')
+            subject.log_message_to_rails('nil lvl', nil)
+          end
+
+          it 'replaces nil message with placeholder' do
+            expect(Rails.logger).to receive(:error).with('[No Message]')
+            subject.log_message_to_rails(nil, :error)
+          end
+
+          it 'replaces blank message with placeholder' do
+            expect(Rails.logger).to receive(:error).with('[No Message]')
+            subject.log_message_to_rails("   \t", :error)
+          end
+
+          it 'omits context when extra_context empty hash' do
+            expect(Rails.logger).to receive(:info).with('base msg')
+            subject.log_message_to_rails('base msg', 'info', {})
+          end
+
+          it 'omits context when extra_context is nil' do
+            expect(Rails.logger).to receive(:info).with('base msg 2')
+            subject.log_message_to_rails('base msg 2', 'info', nil)
+          end
+
+          it 'appends context when non-empty hash provided' do
+            expect(Rails.logger).to receive(:info).with('ctx msg : {:foo=>"bar"}')
+            subject.log_message_to_rails('ctx msg', 'info', { foo: 'bar' })
+          end
+
+          it 'ignores non-hash extra_context' do
+            expect(Rails.logger).to receive(:info).with('plain')
+            subject.log_message_to_rails('plain', 'info', %w[not a hash])
+          end
+
+          it 'combines fallbacks (nil message + invalid level + bad context type)' do
+            expect(Rails.logger).to receive(:warn).with('[No Message]')
+            subject.log_message_to_rails(nil, :bogus, 'string context')
+          end
+        end
       end
 
       describe '#log_exception_to_sentry' do
@@ -116,9 +174,92 @@ RSpec.describe ApplicationController, type: :controller do
       end
 
       describe '#log_exception_to_rails' do
-        it 'warn logs to Rails logger' do
-          expect(Rails.logger).to receive(:error).with("#{exception.message}.")
+        it 'logs message and backtrace only once' do
+          fake_bt = %w[line1 line2]
+          allow(exception).to receive(:backtrace).and_return(fake_bt)
+          expect(Rails.logger).to receive(:error).with("#{exception.message}.").once
+          expect(Rails.logger).to receive(:error).with("line1\nline2").once
           subject.log_exception_to_rails(exception)
+        end
+
+        it 'handles nil exception gracefully' do
+          expect(Rails.logger).to receive(:warn).with('[Nil Exception]').once
+          subject.log_exception_to_rails(nil)
+        end
+
+        it 'handles empty message exception' do
+          empty_msg_ex = StandardError.new('')
+          allow(empty_msg_ex).to receive(:backtrace).and_return([])
+          expect(Rails.logger).to receive(:error).with('[No Message].').once
+          subject.log_exception_to_rails(empty_msg_ex)
+        end
+
+        it 'includes backend service error details without duplicating backtrace' do
+          bse = Common::Exceptions::BackendServiceException.new('VA900', { code: 'X123', detail: 'failure' }, 502,
+                                                                'Bad Gateway')
+          allow(bse).to receive(:backtrace).and_return(%w[b1 b2])
+          expect(Rails.logger).to receive(:error) do |arg|
+            expect(arg).to include('BackendServiceException:')
+            # message portion hash with resolved VA900 code
+            expect(arg).to include('{:code=>"VA900", :detail=>"failure"}')
+            # context hash with title/detail/code/status
+            expect(arg).to include(': {:title=>"Operation failed", :detail=>"failure", :code=>"VA900"')
+          end
+            .once
+          expect(Rails.logger).to receive(:error).with("b1\nb2").once
+          subject.log_exception_to_rails(bse)
+        end
+
+        it 'normalizes level to info for Pundit::NotAuthorizedError' do
+          pundit_ex = Pundit::NotAuthorizedError.new
+          # ensure deterministic message
+          allow(pundit_ex).to receive(:message).and_return('auth fail')
+          allow(pundit_ex).to receive_messages(message: 'auth fail', backtrace: ['bt'])
+          expect(Rails.logger).to receive(:info).with('auth fail.').once
+          expect(Rails.logger).to receive(:info).with('bt').once
+          subject.log_exception_to_rails(pundit_ex, :error)
+        end
+
+        it 'falls back to error for invalid explicit level' do
+          ex = StandardError.new('bad level')
+          allow(ex).to receive(:backtrace).and_return([])
+          expect(Rails.logger).to receive(:error).with('bad level.').once
+          subject.log_exception_to_rails(ex, :bogus)
+        end
+
+        it 'accepts a valid symbolic level (:info)' do
+          ex = StandardError.new('symbolic')
+          allow(ex).to receive(:backtrace).and_return([])
+          expect(Rails.logger).to receive(:info).with('symbolic.').once
+          subject.log_exception_to_rails(ex, :info)
+        end
+
+        it 'does not log backtrace when backtrace is nil' do
+          ex = StandardError.new('no bt')
+          allow(ex).to receive(:backtrace).and_return(nil)
+          expect(Rails.logger).to receive(:error).with('no bt.').once
+          # ensure no second log (set expectation that error is called exactly once)
+          subject.log_exception_to_rails(ex)
+        end
+
+    it 'logs minimal message plus derived context when BackendServiceException attributes empty' do
+          bse = Common::Exceptions::BackendServiceException.new('VA900', {}, 502, 'Bad Gateway')
+          allow(bse).to receive(:backtrace).and_return(['only'])
+          # stub the attributes to empty hash so error_details becomes {}
+          allow(bse.errors.first).to receive(:attributes).and_return({})
+          expect(Rails.logger).to receive(:error) do |arg|
+      expect(arg).to include('BackendServiceException: {:code=>"VA900"}')
+      expect(arg).to include(': {:title=>"Operation failed", :detail=>"Operation failed", :code=>"VA900"')
+          end.once
+          expect(Rails.logger).to receive(:error).with('only').once
+          subject.log_exception_to_rails(bse)
+        end
+
+        it 'replaces whitespace-only message with placeholder' do
+          ex = StandardError.new("   \n\t  ")
+          allow(ex).to receive(:backtrace).and_return([])
+          expect(Rails.logger).to receive(:error).with('[No Message].').once
+          subject.log_exception_to_rails(ex)
         end
       end
     end

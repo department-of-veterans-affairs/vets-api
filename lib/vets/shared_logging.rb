@@ -26,22 +26,53 @@ module Vets
     end
 
     def log_message_to_rails(message, level, extra_context = {})
-      # this can be a drop-in replacement for now, but maybe suggest teams
-      # handle extra context on their own and move to a direct Rails.logger call?
-      formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
-      Rails.logger.send(level, formatted_message)
+      # Normalizes and safely logs a message to Rails.logger.
+      # Corner cases handled:
+      #  - level nil / invalid / symbol -> coerced & defaulted to 'warn'
+      #  - message nil or blank -> "[No Message]"
+      #  - extra_context nil / non-hash / empty -> omitted
+      #  - only allowed levels: debug, info, warn, error, fatal
+
+      allowed_levels = %w[debug info warn error fatal].freeze
+      normalized_level = level.to_s
+      normalized_level = 'warn' unless allowed_levels.include?(normalized_level)
+
+      safe_message = message.to_s.strip
+      safe_message = '[No Message]' if safe_message.empty?
+
+      context_suffix = extra_context.is_a?(Hash) && !extra_context.empty? ? " : #{extra_context}" : ''
+
+      final_line = safe_message + context_suffix
+      Rails.logger.public_send(normalized_level, final_line)
     end
 
     def log_exception_to_rails(exception, level = 'error')
-      level = normalize_shared_level(level, exception)
-      if exception.is_a? Common::Exceptions::BackendServiceException
-        error_details = exception.errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
-        log_message_to_rails(exception.message, level, error_details.merge(backtrace: exception.backtrace))
-      else
-        log_message_to_rails("#{exception.message}.", level)
+      # Corner cases handled:
+      #  - nil exception => single warn line
+      #  - BackendServiceException => include extracted error details (no backtrace in context)
+      #  - generic exceptions => message line + backtrace line
+      #  - backtrace logged only once
+      if exception.nil?
+        log_message_to_rails('[Nil Exception]', 'warn')
+        return
       end
 
-      log_message_to_rails(exception.backtrace.join("\n"), level) unless exception.backtrace.nil?
+      allowed_levels = %w[debug info warn error fatal].freeze
+      level = normalize_shared_level(level, exception)
+      level = 'error' unless allowed_levels.include?(level)
+
+      if exception.is_a?(Common::Exceptions::BackendServiceException)
+        # Extract non-empty error attributes for context (excluding backtrace to prevent duplication)
+        error_details = exception.errors.first.attributes.compact.reject { |_k, v| v.respond_to?(:empty?) && v.empty? }
+        log_message_to_rails(exception.message.to_s, level, error_details)
+      else
+        msg = exception.message.to_s.strip
+        msg = '[No Message]' if msg.empty?
+        log_message_to_rails("#{msg}.", level)
+      end
+
+      bt = exception.backtrace
+      log_message_to_rails(bt.join("\n"), level) if bt.present?
     end
 
     def normalize_shared_level(level, exception)
