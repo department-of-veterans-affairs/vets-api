@@ -52,7 +52,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       context 'when :cst_show_document_upload_status is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(
+            :cst_show_document_upload_status,
+            instance_of(User)
+          ).and_return(false)
         end
 
         it 'does not return hasFailedUploads field' do
@@ -68,7 +71,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       context 'when :cst_show_document_upload_status is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(
+            :cst_show_document_upload_status,
+            instance_of(User)
+          ).and_return(true)
         end
 
         context 'when record has a SUCCESS upload status' do
@@ -278,7 +284,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
       context 'when :cst_show_document_upload_status is disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(
+            :cst_show_document_upload_status,
+            instance_of(User)
+          ).and_return(false)
         end
 
         it 'doesnt show the evidenceSubmissions section in claim attributes' do
@@ -293,7 +302,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       context 'when :cst_show_document_upload_status is enabled' do
         context 'when record does not have a tracked item' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(
+              :cst_show_document_upload_status,
+              instance_of(User)
+            ).and_return(true)
             create(:bd_lh_evidence_submission_success, claim_id:)
           end
 
@@ -310,7 +322,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           let(:tracked_item_id) { 394_443 }
 
           before do
-            allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(
+              :cst_show_document_upload_status,
+              instance_of(User)
+            ).and_return(true)
             create(:bd_lh_evidence_submission_success, claim_id:, tracked_item_id:)
           end
 
