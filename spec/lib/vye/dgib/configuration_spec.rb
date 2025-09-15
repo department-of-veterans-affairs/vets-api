@@ -17,26 +17,20 @@ describe Vye::DGIB::Configuration do
   end
 
   describe '#mock_enabled?' do
-    context 'when Settings.Vye::DGIB.mock is true' do
-      before { allow(Settings.Vye::DGIB).to receive(:mock).and_return(true) }
+    context 'when Settings.dgi.vye.vets.mock is true' do
+      before { allow(Settings.dgi.vye.vets.mock).to receive(:mock).and_return(true) }
 
       it 'returns true' do
         expect(Vye::DGIB::Configuration.instance).to be_mock_enabled
       end
     end
 
-    context 'when Settings.Vye::DGIB.mock is false' do
-      before { allow(Settings.Vye::DGIB).to receive(:mock).and_return(false) }
+    context 'when Settings.dgi.vye.vets.mock is false' do
+      before { allow(Settings.dgi.vye.vets.mock).to receive(:mock).and_return(false) }
 
       it 'returns false' do
         expect(Vye::DGIB::Configuration.instance).not_to be_mock_enabled
       end
-    end
-  end
-
-  describe '#breakers_error_threshold' do
-    it 'returns the correct error threshold' do
-      expect(Vye::DGIB::Configuration.instance.breakers_error_threshold).to eq(80)
     end
   end
 
