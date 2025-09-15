@@ -177,7 +177,7 @@ features:
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
   hca_insurance_v2_enabled:
     actor_type: user
-    description: Enables the the upgraded insurance section of the Health Care Application
+    description: Enables the upgraded insurance section of the Health Care Application
     enable_in_development: true
   hca_in_progress_form_logging:
     actor_type: user
@@ -193,6 +193,10 @@ features:
   hca_ez_kafka_submission_enabled:
     actor_type: cookie_id
     description: Enables the 10-10EZ Kafka Event Bus submission
+  hca_health_facilities_update_job:
+    actor_type: user
+    description: Enables the health facilities import job - should only run daily by default in prod, staging, and sandbox.
+    enable_in_development: false
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
@@ -680,6 +684,10 @@ features:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
     enable_in_development: true
+  contention_classification_ml_classifier:
+    actor_type: user
+    description: Enables the machine learning classifier for contention classification by calling the hybrid endpoint instead of expanded endpoint.
+    enable_in_development: true
   disability_526_ee_mst_special_issue:
     actor_type: user
     description: enables adding MST special issue to disability_526 prior to submission.
@@ -1113,7 +1121,7 @@ features:
   kendra_enabled_for_resources_and_support_search:
     actor_type: user
     description: Enable/disable Amazon Kendra for Resources and Support search
-    enable_in_development: true 
+    enable_in_development: true
   letters_page_new_design:
     actor_type: user
     description: Enables ability to show updated letter page design
@@ -1235,6 +1243,9 @@ features:
   mhv_supply_reordering_enabled:
     actor_type: user
     description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
+  mhv_secure_messaging_no_cache:
+    actor_type: user
+    description: Prevents caching of Secure Messaging data
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov and VHAB
@@ -1480,6 +1491,9 @@ features:
     actor_type: user
     description: Display My HealtheVet and My VA links in the site header
     enable_in_development: true
+  mhv_email_confirmation:
+    actor_type: user
+    description: Enables/disables email confirmation alerts on MHV and My VA pages
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
@@ -1538,6 +1552,10 @@ features:
   pension_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  pension_itf_validate_data_logger:
+    actor_type: user
+    description: Toggle sending of the ITF Validate Data to Rails Logger
+    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1820,6 +1838,10 @@ features:
     actor_type: user
     description: Enables new page design of Sign In modal and USiP
     enable_in_development: false
+  confirm_contact_email_interstitial_enabled:
+    actor_type: user
+    description: Enables users with emails tied to MHV classic accounts to be redirected to the confirm contact email interstitial page (Identity)
+    enable_in_development: false
   dslogon_interstitial_redirect:
     actor_type: user
     description: Enables DS Logon users to be redirected to the DS Logon deprecation interstitial page (Identity)
@@ -1933,6 +1955,10 @@ features:
   va_dependents_new_fields_for_pdf:
     actor_type: user
     description: Allows us to toggle the new fields on the front end for 686C-674
+  va_dependents_duplicate_modals:
+    actor_type: user
+    description: Allows us to toggle duplicate modals for the 686C-674
+    enable_in_development: true
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
@@ -2352,6 +2378,9 @@ features:
   va_notify_notification_creation:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
+  va_notify_request_level_callbacks:
+    actor_type: user
+    description: If enabled, emails and sms sent through VaNotify::Service will authenticate request-level callback data
   is_DGIB_endpoint:
     actor_type: user
     description: used to call data from DGIB endpoints for MGIB VYE application
