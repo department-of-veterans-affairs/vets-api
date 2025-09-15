@@ -15,10 +15,7 @@ module VRE
       attribute :res_eligibility_recommendation, String
 
       def initialize(_status, response = nil)
-        if response
-          attributes = response.body.deep_transform_keys!(&:underscore)
-          super(attributes)
-        end
+        super(response.body) if response
       end
     end
   end

@@ -42,7 +42,7 @@ module VRE
       end
 
       def service_unavailable?(e)
-        return unless e.original_body['error'] == SERVICE_UNAVAILABLE
+        return false unless e.original_body['error'] == SERVICE_UNAVAILABLE
 
         raise e.class.new('RES_CH31_ELIGIBILITY_503', e.response_values)
       end
