@@ -54,7 +54,8 @@ module TravelPay
       unless claim_id.present? && document_id.present?
         raise ArgumentError,
               message:
-                "Missing Claim ID or Document ID, given: claim_id=#{claim_id}, document_id=#{document_id}"
+              'Missing Claim ID or Document ID, given: ' \
+              "claim_id=#{claim_id&.first(8)}, document_id=#{document_id&.first(8)}"
       end
 
       params = { claim_id:, document_id: }
