@@ -4,14 +4,22 @@ require 'lighthouse/benefits_claims/service'
 
 module AccreditedRepresentativePortal
   class IntentToFilePolicy < ApplicationPolicy
-    include ValidatePowerOfAttorney
-
     def show?
-      authorize_poa
+      claimant_representative.present?
     end
 
     def create?
-      authorize_poa
+      claimant_representative.present?
+    end
+
+    private
+
+    def claimant_representative
+      ClaimantRepresentative.find(
+        claimant_icn: @record,
+        power_of_attorney_holder_memberships:
+          @user.power_of_attorney_holder_memberships
+      )
     end
   end
 end

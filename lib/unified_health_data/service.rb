@@ -6,9 +6,13 @@ require_relative 'configuration'
 require_relative 'models/lab_or_test'
 require_relative 'models/clinical_notes'
 require_relative 'models/condition'
+require_relative 'models/prescription_attributes'
+require_relative 'models/prescription'
 require_relative 'adapters/clinical_notes_adapter'
+require_relative 'adapters/prescriptions_adapter'
 require_relative 'reference_range_formatter'
 require_relative 'adapters/conditions_adapter'
+require_relative 'logging'
 
 module UnifiedHealthData
   class Service < Common::Client::Base
@@ -24,7 +28,7 @@ module UnifiedHealthData
 
     def get_labs(start_date:, end_date:)
       with_monitoring do
-        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        headers = request_headers
         patient_id = @user.icn
         path = "#{config.base_path}labs?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
         response = perform(:get, path, nil, headers)
@@ -35,7 +39,7 @@ module UnifiedHealthData
         filtered_records = filter_records(parsed_records)
 
         # Log test code distribution after filtering is applied
-        log_test_code_distribution(parsed_records)
+        logger.log_test_code_distribution(parsed_records)
 
         filtered_records
       end
@@ -60,7 +64,6 @@ module UnifiedHealthData
 
     def get_care_summaries_and_notes
       with_monitoring do
-        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
         patient_id = @user.icn
 
         # NOTE: we must pass in a startDate and endDate to SCDF
@@ -70,7 +73,7 @@ module UnifiedHealthData
         end_date = Time.zone.today.to_s
 
         path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, headers)
+        response = perform(:get, path, nil, request_headers)
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)
@@ -81,10 +84,42 @@ module UnifiedHealthData
       end
     end
 
+    def get_prescriptions
+      with_monitoring do
+        patient_id = @user.icn
+        path = "#{config.base_path}medications?patientId=#{patient_id}"
+
+        response = perform(:get, path, nil, request_headers)
+        body = parse_response_body(response.body)
+
+        adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new
+        prescriptions = adapter.parse(body)
+
+        Rails.logger.info(
+          message: 'UHD prescriptions retrieved',
+          total_prescriptions: prescriptions.size,
+          service: 'unified_health_data'
+        )
+
+        prescriptions
+      end
+    end
+
+    def refill_prescription(orders)
+      with_monitoring do
+        path = "#{config.base_path}medications/rx/refill"
+        request_body = build_refill_request_body(orders)
+        response = perform(:post, path, request_body.to_json, request_headers(include_content_type: true))
+        parse_refill_response(response)
+      end
+    rescue => e
+      Rails.logger.error("Error submitting prescription refill: #{e.message}")
+      build_error_response(orders)
+    end
+
     def get_single_summary_or_note(note_id)
       # TODO: refactor out common bits into a client type method - most of this is repeated from above
       with_monitoring do
-        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
         patient_id = @user.icn
 
         # NOTE: we must pass in a startDate and endDate to SCDF
@@ -94,7 +129,7 @@ module UnifiedHealthData
         end_date = Time.zone.today.to_s
 
         path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, headers)
+        response = perform(:get, path, nil, request_headers)
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)
@@ -121,6 +156,15 @@ module UnifiedHealthData
         end
         response.headers['authorization']
       end
+    end
+
+    def request_headers(include_content_type: false)
+      headers = {
+        'Authorization' => fetch_access_token,
+        'x-api-key' => config.x_api_key
+      }
+      headers['Content-Type'] = 'application/json' if include_content_type
+      headers
     end
 
     def parse_response_body(body)
@@ -464,6 +508,64 @@ module UnifiedHealthData
       parsed.compact
     end
 
+    # Prescription refill helper methods
+    def build_refill_request_body(orders)
+      {
+        patientId: @user.icn,
+        orders: orders.map do |order|
+          {
+            id: order[:id].to_s,
+            stationNumber: order[:stationNumber].to_s
+          }
+        end
+      }
+    end
+
+    def build_error_response(orders)
+      {
+        success: [],
+        failed: orders.map { |order| { id: order[:id], error: 'Service unavailable' } }
+      }
+    end
+
+    def parse_refill_response(response)
+      body = parse_response_body(response.body)
+
+      # Parse successful refills
+      successes = extract_successful_refills(body)
+
+      # Parse failed refills
+      failures = extract_failed_refills(body)
+
+      {
+        success: successes,
+        failed: failures
+      }
+    end
+
+    def extract_successful_refills(body)
+      # Parse successful refills from API response
+      successful_refills = body['successfulRefills'] || []
+      successful_refills.map do |refill|
+        {
+          id: refill['prescriptionId'],
+          status: refill['status'] || 'submitted'
+        }
+      end
+    end
+
+    def extract_failed_refills(body)
+      # Assuming the API returns detailed error info for failures
+      # Adjust based on actual API response format
+      failed_refills = body['failedRefills'] || []
+      failed_refills.map do |failure|
+        {
+          id: failure['prescriptionId'],
+          error: failure['reason'] || 'Unable to process refill'
+        }
+      end
+    end
+
     def parse_single_note(record)
       return nil if record.blank?
 
@@ -473,6 +575,10 @@ module UnifiedHealthData
 
     def clinical_notes_adapter
       @clinical_notes_adapter ||= UnifiedHealthData::V2::Adapters::ClinicalNotesAdapter.new
+    end
+
+    def logger
+      @logger ||= UnifiedHealthData::Logging.new(@user)
     end
   end
 end
