@@ -18,6 +18,21 @@ module MyHealth
         handle_error(e)
       end
 
+      def show
+        condition = service.get_single_condition(params[:id])
+        if condition
+          render json: UnifiedHealthData::Serializers::ConditionSerializer.new(condition),
+                 status: :ok
+        else
+          render json: { errors: [{ title: 'Condition not found', status: '404', code: '404' }] },
+                 status: :not_found
+        end
+      rescue Common::Client::Errors::ClientError,
+             Common::Exceptions::BackendServiceException,
+             StandardError => e
+        handle_error(e)
+      end
+
       private
 
       def handle_error(error)

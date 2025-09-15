@@ -1379,5 +1379,44 @@ describe UnifiedHealthData::Service, type: :service do
       expect { service.get_conditions }.not_to raise_error
       expect(service.get_conditions).to be_an(Array)
     end
+
+    describe '#get_single_condition' do
+      let(:condition_id) { '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+
+      it 'returns a single condition when found' do
+        allow(service).to receive_messages(
+          perform: double(body: conditions_sample_response),
+          parse_response_body: conditions_sample_response
+        )
+
+        condition = service.get_single_condition(condition_id)
+        expect(condition).to be_a(UnifiedHealthData::Condition)
+        expect(condition.id).to eq(condition_id)
+        expect(condition.name).to eq('Major depressive disorder, recurrent, moderate')
+        expect(condition.provider).to eq('BORLAND,VICTORIA A')
+        expect(condition.facility).to eq('CHYSHR TEST LAB')
+      end
+
+      it 'returns nil when condition not found' do
+        allow(service).to receive_messages(
+          perform: double(body: conditions_empty_response),
+          parse_response_body: conditions_empty_response
+        )
+
+        condition = service.get_single_condition('nonexistent-id')
+        expect(condition).to be_nil
+      end
+
+      it 'handles malformed responses gracefully' do
+        allow(service).to receive_messages(
+          perform: double(body: 'invalid'),
+          parse_response_body: nil
+        )
+
+        expect { service.get_single_condition(condition_id) }.not_to raise_error
+        condition = service.get_single_condition(condition_id)
+        expect(condition).to be_nil
+      end
+    end
   end
 end
