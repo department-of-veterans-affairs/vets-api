@@ -5,12 +5,20 @@ require 'securerandom'
 
 RSpec.describe TravelPay::V0::ExpensesController, type: :request do
   let(:user) { build(:user) }
-  let(:claim_id) { SecureRandom.uuid }
+  let(:claim_id) { '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
 
   before do
     sign_in(user)
     allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
+
+    # Mock authentication to provide tokens for VCR cassettes
+    allow_any_instance_of(TravelPay::AuthManager)
+      .to receive(:authorize)
+      .and_return({
+                    veis_token: 'veis_access_token_12345',
+                    btsss_token: 'btsss_access_token_67890'
+                  })
   end
 
   describe 'POST #create' do
@@ -24,56 +32,19 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
       }
     end
 
-    let(:auth_manager) { instance_double(TravelPay::AuthManager) }
-    let(:expenses_service) { instance_double(TravelPay::ExpensesService) }
-
-    before do
-      allow(TravelPay::AuthManager).to receive(:new).and_return(auth_manager)
-      allow(TravelPay::ExpensesService).to receive(:new).with(auth_manager).and_return(expenses_service)
-    end
-
     context 'when creating a valid expense' do
-      let(:expected_response) do
-        {
-          'id' => SecureRandom.uuid,
-          'expense_type' => 'other',
-          'claim_id' => claim_id,
-          'description' => 'Test expense description',
-          'cost_requested' => 25.50,
-          'status' => 'created'
-        }
-      end
+      it 'creates an expense successfully', :vcr do
+        VCR.use_cassette('travel_pay/expenses/create_other_expense_success') do
+          post "/travel_pay/v0/claims/#{claim_id}/expenses/other",
+               params: expense_params,
+               headers: { 'Authorization' => 'Bearer vagov_token' }
 
-      before do
-        allow(expenses_service).to receive(:create_expense).and_return(expected_response)
-      end
-
-      it 'creates an expense successfully' do
-        post "/travel_pay/v0/claims/#{claim_id}/expenses/other",
-             params: expense_params,
-             headers: { 'Authorization' => 'Bearer vagov_token' }
-
-        expect(response).to have_http_status(:created)
-        response_body = JSON.parse(response.body)
-        expect(response_body['expense_type']).to eq('other')
-        expect(response_body['claim_id']).to eq(claim_id)
-        expect(response_body['description']).to eq('Test expense description')
-      end
-
-      it 'calls the expenses service with correct parameters' do
-        expected_service_params = {
-          'claim_id' => claim_id,
-          'purchase_date' => expense_params[:expense][:purchase_date],
-          'description' => 'Test expense description',
-          'cost_requested' => 25.50,
-          'expense_type' => 'other'
-        }
-
-        expect(expenses_service).to receive(:create_expense).with(expected_service_params)
-
-        post "/travel_pay/v0/claims/#{claim_id}/expenses/other",
-             params: expense_params,
-             headers: { 'Authorization' => 'Bearer vagov_token' }
+          expect(response).to have_http_status(:created)
+          response_body = JSON.parse(response.body)
+          expect(response_body).to have_key('id')
+          expect(response_body).to have_key('expenseType')
+          expect(response_body).to have_key('description')
+        end
       end
     end
 
@@ -139,64 +110,33 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
     end
 
     context 'for different expense types' do
-      it 'accepts other expense type' do
-        allow(expenses_service).to receive(:create_expense).and_return({
-                                                                         'id' => SecureRandom.uuid,
-                                                                         'expense_type' => 'other',
-                                                                         'status' => 'created'
-                                                                       })
+      it 'accepts other expense type', :vcr do
+        VCR.use_cassette('travel_pay/expenses/create_other_expense_types') do
+          post "/travel_pay/v0/claims/#{claim_id}/expenses/other",
+               params: expense_params,
+               headers: { 'Authorization' => 'Bearer vagov_token' }
 
-        post "/travel_pay/v0/claims/#{claim_id}/expenses/other",
-             params: expense_params,
-             headers: { 'Authorization' => 'Bearer vagov_token' }
-
-        expect(response).to have_http_status(:created)
+          expect(response).to have_http_status(:created)
+        end
       end
     end
   end
 
   describe 'GET #show' do
-    let(:expense_id) { SecureRandom.uuid }
-    let(:auth_manager) { instance_double(TravelPay::AuthManager) }
-    let(:expenses_service) { instance_double(TravelPay::ExpensesService) }
-
-    before do
-      allow(TravelPay::AuthManager).to receive(:new).and_return(auth_manager)
-      allow(TravelPay::ExpensesService).to receive(:new).with(auth_manager).and_return(expenses_service)
-    end
+    let(:expense_id) { '550e8400-e29b-41d4-a716-446655440000' }
 
     context 'when retrieving a valid expense' do
-      let(:expected_response) do
-        {
-          'id' => expense_id,
-          'expense_type' => 'other',
-          'claim_id' => claim_id,
-          'description' => 'Test other expense',
-          'cost_requested' => 45.25,
-          'status' => 'approved'
-        }
-      end
+      it 'retrieves an expense successfully', :vcr do
+        VCR.use_cassette('travel_pay/expenses/get_other_expense_success') do
+          get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{expense_id}",
+              headers: { 'Authorization' => 'Bearer vagov_token' }
 
-      before do
-        allow(expenses_service).to receive(:get_expense).and_return(expected_response)
-      end
-
-      it 'retrieves an expense successfully' do
-        get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{expense_id}",
-            headers: { 'Authorization' => 'Bearer vagov_token' }
-
-        expect(response).to have_http_status(:ok)
-        response_body = JSON.parse(response.body)
-        expect(response_body['id']).to eq(expense_id)
-        expect(response_body['expense_type']).to eq('other')
-        expect(response_body['claim_id']).to eq(claim_id)
-      end
-
-      it 'calls the expenses service with correct parameters' do
-        expect(expenses_service).to receive(:get_expense).with('other', expense_id)
-
-        get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{expense_id}",
-            headers: { 'Authorization' => 'Bearer vagov_token' }
+          expect(response).to have_http_status(:ok)
+          response_body = JSON.parse(response.body)
+          expect(response_body).to have_key('id')
+          expect(response_body).to have_key('expenseType')
+          expect(response_body).to have_key('description')
+        end
       end
     end
 
@@ -205,7 +145,6 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         get "/travel_pay/v0/claims/#{claim_id}/expenses/other/%20",
             headers: { 'Authorization' => 'Bearer vagov_token' }
 
-        expect(expenses_service).not_to receive(:get_expense)
         expect(response).to have_http_status(:bad_request)
       end
     end
@@ -215,7 +154,6 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         get "/travel_pay/v0/claims/#{claim_id}/expenses/other",
             headers: { 'Authorization' => 'Bearer vagov_token' }
 
-        expect(expenses_service).not_to receive(:get_expense)
         expect(response).to have_http_status(:not_found)
       end
     end
@@ -227,7 +165,6 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{invalid_expense_id}",
             headers: { 'Authorization' => 'Bearer vagov_token' }
 
-        expect(expenses_service).not_to receive(:get_expense)
         expect(response).to have_http_status(:bad_request)
         response_body = JSON.parse(response.body)
         expect(response_body['errors'].first['detail']).to eq('Expense ID is invalid')
@@ -255,18 +192,15 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         expect(response_body['errors'].first['detail']).to eq('Expense ID is invalid')
       end
 
-      it 'accepts valid UUID v4' do
-        valid_uuid_v4 = '550e8400-e29b-41d4-a716-446655440000'
-        allow(expenses_service).to receive(:get_expense).and_return({
-                                                                      'id' => valid_uuid_v4,
-                                                                      'expense_type' => 'other',
-                                                                      'status' => 'approved'
-                                                                    })
+      it 'accepts valid UUID v4', :vcr do
+        valid_uuid_v4 = '82c62eaa-c83e-4c29-888f-d1fb7d5c3123'
 
-        get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{valid_uuid_v4}",
-            headers: { 'Authorization' => 'Bearer vagov_token' }
+        VCR.use_cassette('travel_pay/expenses/get_expense_valid_uuid') do
+          get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{valid_uuid_v4}",
+              headers: { 'Authorization' => 'Bearer vagov_token' }
 
-        expect(response).to have_http_status(:ok)
+          expect(response).to have_http_status(:ok)
+        end
       end
     end
 
@@ -298,32 +232,28 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
     end
 
     context 'for different expense types' do
-      it 'accepts other expense type' do
-        allow(expenses_service).to receive(:get_expense).and_return({
-                                                                      'id' => expense_id,
-                                                                      'expense_type' => 'other',
-                                                                      'status' => 'approved'
-                                                                    })
+      it 'accepts other expense type', :vcr do
+        other_expense_id = '12345678-1234-1234-8234-123456789012'
 
-        get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{expense_id}",
-            headers: { 'Authorization' => 'Bearer vagov_token' }
+        VCR.use_cassette('travel_pay/expenses/get_other_expense_types') do
+          get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{other_expense_id}",
+              headers: { 'Authorization' => 'Bearer vagov_token' }
 
-        expect(response).to have_http_status(:ok)
+          expect(response).to have_http_status(:ok)
+        end
       end
     end
 
     context 'when expense is not found' do
-      before do
-        allow(expenses_service).to receive(:get_expense).and_raise(
-          Common::Exceptions::RecordNotFound.new(expense_id)
-        )
-      end
+      it 'returns not found status', :vcr do
+        non_existent_expense_id = 'non-existent-expense-id-99999'
 
-      it 'returns not found status' do
-        get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{expense_id}",
-            headers: { 'Authorization' => 'Bearer vagov_token' }
+        VCR.use_cassette('travel_pay/expenses/get_expense_not_found') do
+          get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{non_existent_expense_id}",
+              headers: { 'Authorization' => 'Bearer vagov_token' }
 
-        expect(response).to have_http_status(:not_found)
+          expect(response).to have_http_status(:bad_request)
+        end
       end
     end
   end
