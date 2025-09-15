@@ -70,9 +70,9 @@ module IvcChampva
       @metadata['attachment_ids'].zip(@file_paths).map do |attachment_id, file_path|
         next if file_path.blank?
 
-        Rails.logger.info "IVC Champva Forms - FileUploader: Starting upload with attachment_id: #{attachment_id.gsub(
-          /[^a-zA-Z0-9\s_-]/, ''
-        )}"
+        Rails.logger.info "IVC Champva Forms - FileUploader: Starting upload with attachment_id: #{
+          sanitize_for_logging(attachment_id)
+        }"
 
         file_name = File.basename(file_path).gsub('-tmp', '')
         response_status = upload(file_name, file_path, metadata_for_s3(attachment_id))
@@ -96,9 +96,9 @@ module IvcChampva
         attachment_id = @form_id
         file_name = File.basename(merged_pdf_path)
 
-        Rails.logger.info "IVC Champva Forms - FileUploader: Starting upload with attachment_id: #{attachment_id.gsub(
-          /[^a-zA-Z0-9\s_-]/, ''
-        )}"
+        Rails.logger.info "IVC Champva Forms - FileUploader: Starting upload with attachment_id: #{
+          sanitize_for_logging(attachment_id)
+        }"
 
         # Upload the combined PDF
         response_status = upload(file_name, merged_pdf_path, metadata_for_s3(attachment_id))
@@ -236,6 +236,13 @@ module IvcChampva
       return nil unless email.present? && email.match?(/\A[\w+\-.]+@[a-z\d-]+(\.[a-z]+)*\.[a-z]+\z/i)
 
       email
+    end
+
+    # Returns sanitized string that is safe for logging
+    # @param [String, nil] value to sanitize
+    # @return [String, nil] Sanitized value
+    def sanitize_for_logging(value)
+      (value || '').to_s.gsub(/[^a-zA-Z0-9\s_-]/, '').slice(0, 100)
     end
 
     ##
