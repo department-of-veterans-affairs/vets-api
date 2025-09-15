@@ -71,7 +71,7 @@ RSpec.describe EventBusGateway::LetterReadyRetryEmailJob, type: :job do
     let(:message_detail) { 'VA Notify email error' }
     let(:tags) { EventBusGateway::Constants::DD_TAGS + ["function: #{error_message}"] }
 
-    it 'does not send an email successfully, logs the error, and increments the statsd metric' do
+    it 'does not send an email successfully, logs the error, increments the statsd metric, and re-raises for retry' do
       expect(Rails.logger)
         .to receive(:error)
         .with(error_message, { message: message_detail })
@@ -79,7 +79,7 @@ RSpec.describe EventBusGateway::LetterReadyRetryEmailJob, type: :job do
 
       expect do
         subject.new.perform(participant_id, template_id, personalisation, notification_id)
-      end.not_to change(EventBusGatewayNotification, :count)
+      end.to raise_error(StandardError, message_detail).and not_change(EventBusGatewayNotification, :count)
 
       # Notification should remain unchanged since email send failed
       existing_notification.reload
@@ -95,7 +95,7 @@ RSpec.describe EventBusGateway::LetterReadyRetryEmailJob, type: :job do
       allow(StatsD).to receive(:increment)
     end
 
-    it 'raises EventBusGatewayNotificationNotFoundError and logs failure' do
+    it 'raises EventBusGatewayNotificationNotFoundError, logs failure, and re-raises for retry' do
       non_existent_id = SecureRandom.uuid
 
       expect(va_notify_service).not_to receive(:send_email)
@@ -106,10 +106,12 @@ RSpec.describe EventBusGateway::LetterReadyRetryEmailJob, type: :job do
         .with("#{described_class::STATSD_METRIC_PREFIX}.failure",
               tags: EventBusGateway::Constants::DD_TAGS + ['function: LetterReadyRetryEmailJob email error'])
 
-      subject.new.perform(participant_id, template_id, personalisation, non_existent_id)
+      expect do
+        subject.new.perform(participant_id, template_id, personalisation, non_existent_id)
+      end.to raise_error(EventBusGateway::LetterReadyRetryEmailJob::EventBusGatewayNotificationNotFoundError)
     end
 
-    it 'raises EventBusGatewayNotificationNotFoundError when notification_id is nil' do
+    it 'raises EventBusGatewayNotificationNotFoundError when notification_id is nil and re-raises for retry' do
       expect(va_notify_service).not_to receive(:send_email)
       expect(Rails.logger).to receive(:error)
         .with('LetterReadyRetryEmailJob email error',
@@ -118,7 +120,9 @@ RSpec.describe EventBusGateway::LetterReadyRetryEmailJob, type: :job do
         .with("#{described_class::STATSD_METRIC_PREFIX}.failure",
               tags: EventBusGateway::Constants::DD_TAGS + ['function: LetterReadyRetryEmailJob email error'])
 
-      subject.new.perform(participant_id, template_id, personalisation, nil)
+      expect do
+        subject.new.perform(participant_id, template_id, personalisation, nil)
+      end.to raise_error(EventBusGateway::LetterReadyRetryEmailJob::EventBusGatewayNotificationNotFoundError)
     end
   end
 

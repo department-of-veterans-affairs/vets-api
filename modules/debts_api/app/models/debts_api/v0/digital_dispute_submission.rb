@@ -73,6 +73,11 @@ module DebtsApi
                               Flipper.enabled?(:digital_dispute_email_notifications)
       end
 
+      def clean_up_failure
+        files.each(&:purge)
+        destroy
+      end
+
       private
 
       def files_present

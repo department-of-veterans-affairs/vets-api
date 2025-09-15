@@ -14,12 +14,10 @@ module VAProfile
         now = Time.zone.now.iso8601
 
         tap do |record|
-          record.attributes = {
-            effective_start_date: now,
-            source_date: now,
-            vet360_id: user.vet360_id,
-            source_system_user: user.icn
-          }
+          record.try(:effective_start_date=, now)
+          record.try(:source_date=, now)
+          record.try(:vet360_id=, user.vet360_id)
+          record.try(:source_system_user=, user.icn)
         end
       end
     end

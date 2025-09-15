@@ -828,9 +828,8 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       context 'when cerner eligibility is checked' do
-        let(:user) { build(:user, :loa3, cerner_id:, cerner_facility_ids:) }
+        let(:user) { build(:user, :loa3, cerner_id:) }
         let(:cerner_id) { 'some-cerner-id' }
-        let(:cerner_facility_ids) { ['some-facility-id'] }
         let(:cerner_eligible_cookie) { 'CERNER_ELIGIBLE' }
         let(:expected_log_message) { '[SessionsController] Cerner Eligibility' }
         let(:previous_value) { nil }
@@ -860,7 +859,6 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           context 'when the user is not cerner eligible' do
             let(:cerner_id) { nil }
-            let(:cerner_facility_ids) { [] }
             let(:eligible) { false }
 
             it 'sets the cookie and logs the cerner eligibility' do

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 require 'lighthouse/benefits_education/amendment'
 
 module BenefitsEducation
@@ -39,15 +39,17 @@ module BenefitsEducation
   #   @return [String] The enrollment status
   # @!attribute amendments
   #   @return [Array[Amendment]] Any amendments made to this enrollment
-  class Enrollment < Common::Base
+  class Enrollment
+    include Vets::Model
+
     attribute :begin_date, DateTime
     attribute :end_date, DateTime
     attribute :facility_code, String
     attribute :facility_name, String
-    attribute :participant_id
-    attribute :training_type
-    attribute :term_id
-    attribute :hour_type
+    attribute :participant_id, Integer
+    attribute :training_type, String
+    attribute :term_id, String
+    attribute :hour_type, String
     attribute :full_time_hours, Integer
     attribute :full_time_credit_hour_under_grad, Integer
     attribute :vacation_day_count, Integer
@@ -55,7 +57,7 @@ module BenefitsEducation
     attribute :online_hours, Float
     attribute :yellow_ribbon_amount, Float
     attribute :status, String
-    attribute :amendments, Array[Amendment]
+    attribute :amendments, Amendment, array: true
 
     def initialize(attributes)
       key_mapping = { 'begin_date_time' => 'begin_date', 'end_date_time' => 'end_date' }

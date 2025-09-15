@@ -201,12 +201,7 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
   describe 'FailedRep subclass' do
     let!(:organization) { create(:organization, name: 'Org Name') }
     let!(:individual) { create(:representative) }
-    let!(:user_account) do
-      AccreditedRepresentativePortal::RepresentativeUserAccount.find(create(:user_account).id).tap do |memo|
-        memo.set_email('email@email.com')
-        memo.set_all_emails(['email@email.com'])
-      end
-    end
+    let!(:user_account) { create(:user_account) }
 
     let(:poa_request) do
       create(
@@ -235,8 +230,6 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:ar_poa_request_failure_rep_notification).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_self_service_auth)
-                                          .and_return(true)
       allow(poa_form).to receive(:parsed_data).and_return({
                                                             'veteran' => {
                                                               'name' => { 'first' => 'Jane', 'last' => 'Doe' },
@@ -244,11 +237,31 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
                                                             }
                                                           })
 
-      allow(user_account).to receive(:registration_numbers).and_return({ 'veteran_service_officer' => '1234' })
-      AccreditedRepresentativePortal::Engine.routes.default_url_options[:host] = 'http://test.host'
+      memberships =
+        AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
+          icn: '1234', emails: []
+        )
+
+      allow(memberships).to(
+        receive(:all).and_return(
+          [
+            AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
+              registration_number: '1234',
+              power_of_attorney_holder:
+                AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+                  poa_code: poa_request.power_of_attorney_holder_poa_code,
+                  type: poa_request.power_of_attorney_holder_type,
+                  can_accept_digital_poa_requests: false,
+                  name: 'Org Name'
+                )
+            )
+          ]
+        )
+      )
 
       AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_declination!(
-        creator: user_account,
+        creator_id: user_account.id,
+        power_of_attorney_holder_memberships: memberships,
         power_of_attorney_request: poa_request,
         declination_reason: :OTHER
       )
@@ -256,11 +269,15 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
 
     it 'returns the correct URL' do
       result = personalisation.generate
-      expected_url = AccreditedRepresentativePortal::Engine
-                     .routes
-                     .url_helpers
-                     .v0_power_of_attorney_request_url(poa_request)
-      expect(result['poa_request_url']).to eq(expected_url)
+
+      base = Settings.accredited_representative_portal.frontend_base_url
+      expected = begin
+        u = URI.parse(base)
+        u.path = File.join(u.path.presence || '/', 'poa_requests', poa_request.id.to_s)
+        u.to_s
+      end
+
+      expect(result['poa_request_url']).to eq(expected)
     end
 
     it 'returns the first name' do

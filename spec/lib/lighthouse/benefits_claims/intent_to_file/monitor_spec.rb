@@ -230,6 +230,24 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
       end
     end
 
+    describe '#track_itf_controller_error' do
+      it 'logs an ITF controller error' do
+        tags = ['form_id:21P-527EZ', 'itf_type:pension', 'method:post', 'version:v1']
+        log = 'IntentToFilesController pension ITF controller error'
+        payload = {
+          error: 'error',
+          method: 'post',
+          itf_type: 'pension',
+          form_id: '21P-527EZ'
+        }
+
+        expect(StatsD).to receive(:increment).with('v1.itf.error', tags:)
+        expect(Rails.logger).to receive(:error).with(log, payload)
+
+        monitor.track_itf_controller_error('post', '21P-527EZ', 'pension', 'error')
+      end
+    end
+
     describe '#track_missing_user_icn_itf_controller' do
       it 'logs a missing user ICN' do
         tags = ['form_id:21P-527EZ', 'itf_type:pension', 'method:post', 'version:v1']

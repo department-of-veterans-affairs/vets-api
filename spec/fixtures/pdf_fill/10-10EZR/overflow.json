@@ -28,7 +28,7 @@
   "homePhone": "1231241234",
   "mobilePhone": "1235551234",
   "email": "foooooooooooooooooooooooooooooooooooooooooooooooo@example.com",
-  "maritalStatus": "Married",
+  "maritalStatus": "Never Married",
   "providers": [
     {
       "insuranceName": "MyInsurance",
@@ -88,6 +88,7 @@
       "disabledBefore18": true,
       "attendedSchoolLastYear": true,
       "dependentEducationExpenses": 45.2,
+      "receivedSupportLastYear": false,
       "grossIncome": 991.9,
       "netIncome": 981.2,
       "otherIncome": 91.9
@@ -106,6 +107,7 @@
       "dependentEducationExpenses": 100,
       "disabledBefore18": false,
       "cohabitedLastYear": true,
+      "receivedSupportLastYear": true,
       "grossIncome": 100000,
       "netIncome": 90000,
       "otherIncome": 101
@@ -149,6 +151,26 @@
         "postalCode": "33602"
       },
       "primaryPhone": "1239131234"
+    },
+    {
+      "fullName": {
+        "first": "SecondFirstNoKA ZZZZZZZZZZZZZ",
+        "middle": "MiddleNoKA",
+        "last": "LastNoKA ZZZZZZZZZZZZZ",
+        "suffix": "Jr."
+      },
+      "contactType": "Secondary Next of Kin",
+      "relationship": "DAUGHTER",
+      "address": {
+        "street": "53 West St ZZZZZZZZZZZZZZZZZZ",
+        "street2": "Bldg 2",
+        "street3": "Apt 1",
+        "city": "Tampa",
+        "country": "USA",
+        "state": "FL",
+        "postalCode": "33602"
+      },
+      "primaryPhone": "9939131234"
     }
   ],
   "emergencyContacts": [
@@ -170,6 +192,25 @@
         "postalCode": "24544"
       },
       "primaryPhone": "7452743546"
+    },
+    {
+      "fullName": {
+        "first": "SecondFirstECA ZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "middle": "MiddleECA",
+        "last": "LastECA"
+      },
+      "contactType": "Emergency Contact",
+      "relationship": "SISTER",
+      "address": {
+        "street": "28 NW 78th St ZZZZZZZZZZZZZZZZ",
+        "street2": "Floor 2",
+        "street3": "Apt 3",
+        "city": "Dulles",
+        "country": "USA",
+        "state": "VA",
+        "postalCode": "24544"
+      },
+      "primaryPhone": "8852743546"
     }
   ],
   "veteranGrossIncome": 123.33,

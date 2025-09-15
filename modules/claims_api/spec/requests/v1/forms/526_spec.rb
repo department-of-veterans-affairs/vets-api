@@ -778,6 +778,89 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
 
+      describe 'activeDutyBeginDate must be in the past' do
+        let(:json_data) { JSON.parse data }
+
+        before do
+          allow_any_instance_of(ClaimsApi::DisabilityCompensationValidations)
+            .to receive(:validate_form_526_location_codes!).and_return(nil)
+          allow_any_instance_of(ClaimsApi::DisabilityCompensationValidations)
+            .to receive(:validate_form_526_current_mailing_address!).and_return(nil)
+        end
+
+        context 'when activeDutyBeginDate is not in the past' do
+          let(:service_periods) do
+            [
+              {
+                'activeDutyBeginDate' => 1.day.from_now.to_date.to_s,
+                'activeDutyEndDate' => 2.days.from_now.to_date.to_s,
+                'serviceBranch' => 'Navy'
+              }
+            ]
+          end
+
+          it 'returns a bad request response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                par = json_data
+                par['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
+
+                post path, params: par.to_json, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:bad_request)
+              end
+            end
+          end
+        end
+
+        context 'when activeDutyBeginDate is today' do
+          let(:service_periods) do
+            [
+              {
+                'activeDutyBeginDate' => Time.zone.now.to_date.to_s,
+                'activeDutyEndDate' => 2.days.from_now.to_date.to_s,
+                'serviceBranch' => 'Navy'
+              }
+            ]
+          end
+
+          it 'returns a bad request response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                par = json_data
+                par['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
+
+                post path, params: par.to_json, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:bad_request)
+              end
+            end
+          end
+        end
+
+        context 'when activeDutyBeginDate is in the past' do
+          let(:service_periods) do
+            [
+              {
+                'activeDutyBeginDate' => 4.years.ago.to_date.to_s,
+                'activeDutyEndDate' => 2.days.from_now.to_date.to_s,
+                'serviceBranch' => 'Navy'
+              }
+            ]
+          end
+
+          it 'returns a successful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                par = json_data
+                par['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
+
+                post path, params: par.to_json, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:ok)
+              end
+            end
+          end
+        end
+      end
+
       # lines 89-92 in disability_compensation_validations.rb checks phone number for dash
       context 'when reservesNationalGuardService information is submitted' do
         let(:json_data) { JSON.parse data }
