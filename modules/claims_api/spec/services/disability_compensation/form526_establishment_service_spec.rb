@@ -94,9 +94,11 @@ describe ClaimsApi::DisabilityCompensation::Form526EstablishmentService do
   end
 
   describe '#upload' do
-    context 'using the EVSS Service' do
+    context 'using the EVSS Service v2' do
       before do
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(false)
+        allow(form526_establishment_service).to receive(:claim_version).and_return(:v2)
       end
 
       it 'has a upload method that returns a claim id' do
@@ -155,9 +157,10 @@ describe ClaimsApi::DisabilityCompensation::Form526EstablishmentService do
       end
     end
 
-    context 'using the FES Service' do
+    context 'using the FES Service v2' do
       before do
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(true)
+        allow(form526_establishment_service).to receive(:claim_version).and_return(:v2)
       end
 
       it 'has a upload method that returns a claim id' do
@@ -212,6 +215,66 @@ describe ClaimsApi::DisabilityCompensation::Form526EstablishmentService do
             expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
             expect(e.message).to include 'Unprocessable Entity'
           end
+        end
+      end
+    end
+
+    context 'EVSS Service (v1 branch)' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
+        allow(form526_establishment_service).to receive(:claim_version).and_return(:v1)
+      end
+
+      it 'returns true' do
+        VCR.use_cassette('/claims_api/evss/submit', allow_playback_repeats: true) do
+          expect(form526_establishment_service.send(:upload, claim.id)).to be(true)
+        end
+      end
+
+      it 'adds the transaction_id to headers' do
+        VCR.use_cassette('/claims_api/evss/submit', allow_playback_repeats: true) do
+          form526_establishment_service.send(:upload, claim_with_transaction_id.id)
+          claim_with_transaction_id.reload
+          expect(claim_with_transaction_id.auth_headers['va_eauth_service_transaction_id'])
+            .to eq(claim_with_transaction_id.transaction_id)
+        end
+      end
+
+      it 'logs the transaction_id' do
+        VCR.use_cassette('/claims_api/evss/submit', allow_playback_repeats: true) do
+          expect(Rails.logger).to receive(:info).with(/#{claim_with_transaction_id.transaction_id}/).at_least(:once)
+          form526_establishment_service.send(:upload, claim_with_transaction_id.id)
+        end
+      end
+    end
+
+    context 'FES Service (v1 branch)' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
+        allow(form526_establishment_service).to receive(:claim_version).and_return(:v1)
+      end
+
+      it 'returns true' do
+        VCR.use_cassette('/claims_api/fes/submit', allow_playback_repeats: true) do
+          expect(form526_establishment_service.send(:upload, fes_claim.id)).to be(true)
+        end
+      end
+
+      it 'adds the transaction_id to headers' do
+        VCR.use_cassette('/claims_api/fes/submit', allow_playback_repeats: true) do
+          form526_establishment_service.send(:upload, claim_with_transaction_id.id)
+          claim_with_transaction_id.reload
+          expect(claim_with_transaction_id.auth_headers['va_eauth_service_transaction_id'])
+            .to eq(claim_with_transaction_id.transaction_id)
+        end
+      end
+
+      it 'logs the transaction_id' do
+        VCR.use_cassette('/claims_api/fes/submit', allow_playback_repeats: true) do
+          expect(Rails.logger).to receive(:info).with(/#{claim_with_transaction_id.transaction_id}/).at_least(:once)
+          form526_establishment_service.send(:upload, claim_with_transaction_id.id)
         end
       end
     end
