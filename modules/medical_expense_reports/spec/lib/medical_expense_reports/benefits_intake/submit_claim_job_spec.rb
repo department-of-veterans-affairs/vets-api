@@ -38,6 +38,36 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
       job.instance_variable_set(:@monitor, monitor)
     end
 
+    context 'with medical_expense_reports_form_enabled flipper' do
+      before do
+        allow(UserAccount).to receive(:find).and_return(double('user_account'))
+      end
+
+      it 'processes claim when flipper is enabled' do
+        allow(Flipper).to receive(:enabled?).with(:medical_expense_reports_form_enabled).and_return(true)
+        allow(job).to receive(:process_document).and_return(pdf_path)
+
+        expect(MedicalExpenseReports::SavedClaim).to receive(:find).and_return(claim)
+        expect(claim).to receive(:to_pdf)
+        expect(service).to receive(:perform_upload)
+        expect(job).to receive(:cleanup_file_paths)
+
+        result = job.perform(claim.id, user_account_uuid)
+        expect(result).to eq(service.uuid)
+      end
+
+      it 'returns early when flipper is disabled' do
+        allow(Flipper).to receive(:enabled?).with(:medical_expense_reports_form_enabled).and_return(false)
+
+        expect(MedicalExpenseReports::SavedClaim).not_to receive(:find)
+        expect(claim).not_to receive(:to_pdf)
+        expect(service).not_to receive(:perform_upload)
+
+        result = job.perform(claim.id, user_account_uuid)
+        expect(result).to be_nil
+      end
+    end
+
     it 'submits the saved claim successfully' do
       allow(job).to receive(:process_document).and_return(pdf_path)
 
