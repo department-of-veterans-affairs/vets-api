@@ -76,7 +76,6 @@ module UnifiedHealthData
 
         combined_records = fetch_combined_records(body)
         conditions = conditions_adapter.parse(combined_records)
-        
         conditions.find { |condition| condition.id == condition_id }
       end
     end
