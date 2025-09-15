@@ -57,21 +57,6 @@ module Vets
       end
     end
 
-    def log_full_exception_to_rails(exception, level = 'error')
-      case level
-      when 'debug'
-        Rails.logger.debug(exception)
-      when 'info'
-        Rails.logger.info(exception)
-      when 'warn'
-        Rails.logger.warn(exception)
-      when 'fatal'
-        Rails.logger.fatal(exception)
-      else # 'error' and unknown levels
-        Rails.logger.error(exception)
-      end
-    end
-
     def log_exception_to_rails(exception, level = 'error')
       level = level.to_s.downcase
       level = normalize_shared_level(level, exception)
@@ -86,7 +71,15 @@ module Vets
         end
         log_message_to_rails(exception.message, level, error_details.merge(backtrace: exception.backtrace))
       else
-        log_full_exception_to_rails(exception, level)
+        case level
+        when 'debug' then Rails.logger.debug(exception)
+        when 'info' then Rails.logger.info(exception)
+        when 'warn' then Rails.logger.warn(exception)
+        when 'fatal' then Rails.logger.fatal(exception)
+                          Rails.logger.fatal(exception)
+        else # 'error' and unknown levels
+          Rails.logger.error(exception)
+        end
       end
     end
 
