@@ -11,10 +11,11 @@ module VaNotify
     include Common::Client::Concerns::Monitoring
 
     STATSD_KEY_PREFIX = 'api.vanotify'
+    UUID_LENGTH = 36
 
     configuration VaNotify::Configuration
 
-    attr_reader :notify_client, :callback_options
+    attr_reader :notify_client, :callback_options, :template_id
 
     def initialize(api_key, callback_options = {})
       overwrite_client_networking
@@ -25,11 +26,16 @@ module VaNotify
     end
 
     def send_email(args)
+      @template_id = args[:template_id]
       if Flipper.enabled?(:va_notify_notification_creation)
         response = with_monitoring do
-          notify_client.send_email(args)
+          if Flipper.enabled?(:va_notify_request_level_callbacks)
+            notify_client.send_email(append_callback_url(args))
+          else
+            notify_client.send_email(args)
+          end
         end
-        create_notification(response, args[:template_id])
+        create_notification(response)
         response
       else
         with_monitoring do
@@ -41,11 +47,16 @@ module VaNotify
     end
 
     def send_sms(args)
+      @template_id = args[:template_id]
       if Flipper.enabled?(:va_notify_notification_creation)
         response = with_monitoring do
-          notify_client.send_sms(args)
+          if Flipper.enabled?(:va_notify_request_level_callbacks)
+            notify_client.send_sms(append_callback_url(args))
+          else
+            notify_client.send_sms(args)
+          end
         end
-        create_notification(response, args[:template_id])
+        create_notification(response)
         response
       else
         with_monitoring do
@@ -104,7 +115,12 @@ module VaNotify
       )
     end
 
-    def create_notification(response, template_id)
+    def append_callback_url(args)
+      args[:callback_url] = Settings.vanotify.callback_url
+      args
+    end
+
+    def create_notification(response)
       if response.nil?
         Rails.logger.error('VANotify - no response')
         return
@@ -117,7 +133,8 @@ module VaNotify
         source_location: find_caller_locations,
         callback_klass: callback_options[:callback_klass] || callback_options['callback_klass'],
         callback_metadata: callback_options[:callback_metadata] || callback_options['callback_metadata'],
-        template_id:
+        template_id:,
+        service_api_key_path: retrieve_service_api_key_path
       )
 
       if notification.save
@@ -166,6 +183,28 @@ module VaNotify
 
         return "#{location.path}:#{location.lineno} in #{location.base_label}"
       end
+    end
+
+    def retrieve_service_api_key_path
+      if Flipper.enabled?(:va_notify_request_level_callbacks)
+        service_config = Settings.vanotify.services.find do |_service, options|
+          # multiple services may be using same options.api_key
+          api_key_secret_token = extracted_token(options.api_key)
+
+          api_key_secret_token == @notify_client.secret_token
+        end
+
+        if service_config.blank?
+          Rails.logger.error("api key path not found for template #{@template_id}")
+          nil
+        else
+          "Settings.vanotify.services.#{service_config[0]}.api_key"
+        end
+      end
+    end
+
+    def extracted_token(computed_api_key)
+      computed_api_key[(computed_api_key.length - UUID_LENGTH)..computed_api_key.length]
     end
   end
 end
