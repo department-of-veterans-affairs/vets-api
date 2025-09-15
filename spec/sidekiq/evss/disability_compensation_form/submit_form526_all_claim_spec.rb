@@ -205,24 +205,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       context 'with contention classification enabled' do
-        it 'uses the expanded endpoint when ML classifier feature flag is disabled' do
-          allow(Flipper).to receive(:enabled?).with(:contention_classification_ml_classifier).and_return(false)
+        it 'uses the migrated endpoint' do
           mock_cc_client = instance_double(ContentionClassification::Client)
           allow(ContentionClassification::Client).to receive(:new).and_return(mock_cc_client)
           expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
           expect(mock_cc_client).to receive(:classify_vagov_contentions_expanded)
-          expect(mock_cc_client).not_to receive(:classify_vagov_contentions_hybrid)
-          subject.perform_async(submission.id)
-          described_class.drain
-        end
-
-        it 'uses the hybrid endpoint when ML classifier feature flag is enabled' do
-          allow(Flipper).to receive(:enabled?).with(:contention_classification_ml_classifier).and_return(true)
-          mock_cc_client = instance_double(ContentionClassification::Client)
-          allow(ContentionClassification::Client).to receive(:new).and_return(mock_cc_client)
-          expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
-          expect(mock_cc_client).to receive(:classify_vagov_contentions_hybrid)
-          expect(mock_cc_client).not_to receive(:classify_vagov_contentions_expanded)
           subject.perform_async(submission.id)
           described_class.drain
         end
