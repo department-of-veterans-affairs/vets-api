@@ -78,11 +78,7 @@ Rails.application.config.filter_parameters = [
     when Hash # Recursively iterate over each key value pair in hashes
       v.each_with_object({}) do |(nested_key, nested_value), result|
         key = nested_key.is_a?(String) ? nested_key : nested_key.to_sym
-        result[key] = if ALLOWLIST.include?(nested_key.to_s)
-                        nested_value
-                      else
-                        Rails.application.config.filter_parameters.first&.call(nested_key, nested_value)
-                      end
+        result[key] = Rails.application.config.filter_parameters.first&.call(nested_key, nested_value)
       end
     when Array # Recursively map all elements in arrays
       v.map { |element| Rails.application.config.filter_parameters.first&.call(k, element) }
@@ -92,9 +88,9 @@ Rails.application.config.filter_parameters = [
         v.instance_variable_set(var, '[FILTERED!]') unless ALLOWLIST.include?(var_name)
       end
       v
-    when String # Base case
+    else # Base case for all other types (String, Integer, Symbol, Class, nil, etc.)
       # Apply filtering only if the key is NOT in the ALLOWLIST
-      v.replace('[FILTERED]') unless ALLOWLIST.include?(k.to_s)
+      ALLOWLIST.include?(k.to_s) ? v : '[FILTERED]'
     end
   end
 ]
