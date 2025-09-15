@@ -1084,4 +1084,7 @@
   :endpoints:
     - :method: :post
       :path: "/suite/webapi/chapter31-eligibility-details-search"
-      :file_path: "vre/ch31_eligibility/default"
+      :file_path: "vre/ch31_eligibility"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'icn":"(\w+)"'

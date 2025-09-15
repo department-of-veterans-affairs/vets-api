@@ -802,6 +802,18 @@ en:
         code: 'PPMS_502'
         detail: 'PPMS returned an invalid response'
         status: 502
+      RES_CH31_ELIGIBILITY_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'RES_CH31_ELIGIBILITY_400'
+        detail: 'Bad request'
+        status: 400
+      RES_CH31_ELIGIBILITY_404:
+        <<: *external_defaults
+        title: Not Found
+        code: 'RES_CH31_ELIGIBILITY_404'
+        detail: 'Record not found'
+        status: 404
       SEARCH_400:
         <<: *external_defaults
         title: Bad Request
