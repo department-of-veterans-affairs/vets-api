@@ -13,12 +13,14 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
     allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
 
     # Mock authentication to provide tokens for VCR cassettes
-    allow_any_instance_of(TravelPay::AuthManager)
-      .to receive(:authorize)
-      .and_return({
-                    veis_token: 'veis_access_token_12345',
-                    btsss_token: 'btsss_access_token_67890'
-                  })
+    auth_manager_double = instance_double(
+      TravelPay::AuthManager,
+      authorize: {
+        veis_token: 'veis_access_token_12345',
+        btsss_token: 'btsss_access_token_67890'
+      }
+    )
+    allow(TravelPay::AuthManager).to receive(:new).and_return(auth_manager_double)
   end
 
   describe 'POST #create' do
