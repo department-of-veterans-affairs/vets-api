@@ -39,7 +39,7 @@ module Vet360
     def build_record(type, params)
       # This needs to be refactored after V2 upgrade is complete
       if type == 'address'
-        model = 'VAProfile::Models::V3::Address'
+        model = 'VAProfile::Models::Address'
         Rails.logger.info("Override Key Present? #{params[:override_validation_key].present?},
                            Validation present? #{params[:validation_key].present?}")
         # Validation Key was deprecated with ContactInformationV2

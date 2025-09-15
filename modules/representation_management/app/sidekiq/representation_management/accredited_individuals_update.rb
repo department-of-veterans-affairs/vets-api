@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'va_profile/models/v3/validation_address'
+require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/v3/service'
 
 module RepresentationManagement
@@ -68,7 +68,7 @@ module RepresentationManagement
     # @param address [Hash] A hash containing the details of the AccreditedIndividual's address.
     # @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
     def build_validation_address(address)
-      validation_model = VAProfile::Models::V3::ValidationAddress
+      validation_model = VAProfile::Models::ValidationAddress
 
       validation_model.new(
         address_pou: address['address_pou'],

@@ -3747,7 +3747,7 @@ components:
           type: string
           format: date-time
         quantity:
-          type: integer
+          type: string
         expirationDate:
           type: string
           format: date-time
@@ -3947,8 +3947,8 @@ components:
               format: datetime
               example: '2023-08-04T04:00:00.000Z'
             quantity:
-              type: integer
-              example: 30
+              type: string
+              example: "30"
             expirationDate:
               type: string
               format: datetime

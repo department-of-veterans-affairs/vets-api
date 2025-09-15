@@ -7,7 +7,6 @@ RSpec.describe 'Mobile::V1::User', type: :request do
   include JsonSchemaMatchers
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
   end

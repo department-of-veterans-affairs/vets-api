@@ -16,7 +16,7 @@ RSpec.describe FormProfile, type: :model do
 
   let(:user) do
     build(:user, :loa3, :legacy_icn, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', suffix: 'Jr.',
-                                     address: build(:va_profile_v3_address), vet360_id: '1')
+                                     address: build(:va_profile_address), vet360_id: '1')
   end
 
   let(:contact_info) { form_profile.send :initialize_contact_information }
@@ -1852,7 +1852,7 @@ RSpec.describe FormProfile, type: :model do
 
         context 'when Vet360 prefill is enabled' do
           let(:user) do
-            build(:user, :loa3, :legacy_icn, suffix: 'Jr.', address: build(:va_profile_v3_address),
+            build(:user, :loa3, :legacy_icn, suffix: 'Jr.', address: build(:va_profile_address),
                                              vet360_id: '1781151')
           end
 
@@ -1929,7 +1929,7 @@ RSpec.describe FormProfile, type: :model do
         allow_any_instance_of(BGS::People::Service).to(
           receive(:find_person_by_participant_id).and_return(BGS::People::Response.new({ file_nbr: '1234567890' }))
         )
-        allow_any_instance_of(VAProfile::Models::V3::Address).to(
+        allow_any_instance_of(VAProfile::Models::Address).to(
           receive(:address_line3).and_return('suite 500')
         )
       end
@@ -1968,7 +1968,7 @@ RSpec.describe FormProfile, type: :model do
         allow_any_instance_of(BGS::People::Service).to(
           receive(:find_person_by_participant_id).and_return(BGS::People::Response.new({ file_nbr: '1234567890' }))
         )
-        allow_any_instance_of(VAProfile::Models::V3::Address).to(
+        allow_any_instance_of(VAProfile::Models::Address).to(
           receive(:address_line3).and_return('suite 500')
         )
       end
