@@ -223,6 +223,12 @@ RSpec.describe ApplicationController, type: :controller do
         # Should not raise
         expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
       end
+
+      it 'handles nil exception gracefully by logging placeholder message' do
+        expect(Rails.logger).to receive(:error).with('[No Exception Provided]')
+        # Should not raise when exception is nil
+        expect { subject.log_exception_to_rails(nil, 'error') }.not_to raise_error
+      end
     end
   end
 
