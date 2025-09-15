@@ -5,7 +5,7 @@ require_relative '../../../../../support/helpers/rails_helper'
 RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
   include SchemaMatchers
 
-  let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
+  let!(:user) { sis_user(:mhv, user_account_uuid: '12345', mhv_correlation_id: '123', mhv_account_type: 'Premium') }
   let(:care_systems_stub) { [{ station_number: '977', health_care_system_name: 'Manila VA Clinic' }] }
 
   before do
