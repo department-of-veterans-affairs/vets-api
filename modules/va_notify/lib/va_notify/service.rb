@@ -96,7 +96,7 @@ module VaNotify
         if Flipper.enabled?(:va_notify_custom_errors) && error.status >= 400
           context = {
             template_id: callback_options[:template_id] || callback_options['template_id'],
-            callback_metadata: callback_options[:callback_metadata] || callback_options['callback_metadata']
+            callback_metadata: sanitize_metadata(callback_options[:callback_metadata] || callback_options['callback_metadata'])
           }
           raise VANotify::Error.from_generic_error(error, context)
         elsif error.status >= 400
@@ -105,6 +105,12 @@ module VaNotify
       else
         raise error
       end
+    end
+
+    def sanitize_metadata(metadata)
+      return nil unless metadata.is_a?(Hash)
+      # Specific keys that are safe to include and do not contain PII
+      metadata.slice(:notification_type, :form_number)
     end
 
     def save_error_details(error)
