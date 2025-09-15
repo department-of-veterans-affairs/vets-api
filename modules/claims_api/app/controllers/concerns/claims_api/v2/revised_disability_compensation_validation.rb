@@ -278,6 +278,8 @@ module ClaimsApi
         validate_change_of_address_dates!(change_of_address)
         # FES Val Section 5.c.iii-iv: Validate date logic
         validate_change_of_address_date_logic!(change_of_address)
+        # FES Val Section 5.c.v-x: Validate address fields based on type
+        validate_change_of_address_fields!(change_of_address)
       end
 
       # FES Val Section 5.c.iii-iv: Date validation logic
@@ -435,6 +437,102 @@ module ClaimsApi
           source: '/changeOfAddress/dates/endDate',
           title: 'Cannot provide endingDate',
           detail: 'EndingDate cannot be provided for a permanent address'
+        )
+      end
+
+      # FES Val Section 5.c.v-viii: Address field validations
+      def validate_change_of_address_fields!(change_of_address)
+        # Determine address type based on country field (schema doesn't have addressChangeType)
+        country = change_of_address['country']
+
+        if country == 'USA'
+          # FES Val Section 5.c.v: DOMESTIC address validations
+          validate_domestic_change_of_address!(change_of_address)
+        elsif country.present?
+          # FES Val Section 5.c.vi & 5.c.viii: INTERNATIONAL address validations
+          validate_international_change_of_address!(change_of_address)
+        end
+
+        # NOTE: Military address fields don't exist in v2 schema
+        # NOTE: FES Val Section 5.c.ix (country validation) is CROSSED OUT - not implementing
+        # NOTE: FES Val Section 5.c.x (BRD error handling) is CROSSED OUT - not implementing
+      end
+
+      def validate_domestic_change_of_address!(change_of_address)
+        validate_domestic_city!(change_of_address)
+        validate_domestic_state!(change_of_address)
+        validate_domestic_zip!(change_of_address)
+      end
+
+      def validate_domestic_city!(change_of_address)
+        # FES Val Section 5.c.v: city, state and zipCode required for DOMESTIC
+        return if change_of_address['city'].present?
+
+        collect_error(
+          source: '/changeOfAddress/city',
+          title: 'Missing city',
+          detail: 'City is required'
+        )
+      end
+
+      def validate_domestic_state!(change_of_address)
+        # FES Val Section 5.c.v: city, state and zipCode required for DOMESTIC
+        return if change_of_address['state'].present?
+
+        collect_error(
+          source: '/changeOfAddress/state',
+          title: 'Missing state',
+          detail: 'State is required'
+        )
+      end
+
+      def validate_domestic_zip!(change_of_address)
+        # FES Val Section 5.c.v: city, state and zipCode required for DOMESTIC
+        return if change_of_address['zipFirstFive'].present?
+
+        collect_error(
+          source: '/changeOfAddress/zipFirstFive',
+          title: 'Missing zipFirstFive',
+          detail: 'ZipFirstFive is required'
+        )
+      end
+
+      def validate_international_change_of_address!(change_of_address)
+        validate_intl_change_city!(change_of_address)
+        validate_intl_change_country!(change_of_address)
+        validate_intl_change_postal_code!(change_of_address)
+      end
+
+      def validate_intl_change_city!(change_of_address)
+        # FES Val Section 5.c.vi: city and country required for INTERNATIONAL
+        return if change_of_address['city'].present?
+
+        collect_error(
+          source: '/changeOfAddress/city',
+          title: 'Missing city',
+          detail: 'City is required'
+        )
+      end
+
+      def validate_intl_change_country!(change_of_address)
+        # FES Val Section 5.c.vi: city and country required for INTERNATIONAL
+        return if change_of_address['country'].present?
+
+        collect_error(
+          source: '/changeOfAddress/country',
+          title: 'Missing country',
+          detail: 'Country is required'
+        )
+      end
+
+      def validate_intl_change_postal_code!(change_of_address)
+        # FES Val Section 5.c.viii: internationalPostalCode required for INTERNATIONAL
+        return if change_of_address['internationalPostalCode'].present?
+
+        collect_error(
+          source: '/changeOfAddress/internationalPostalCode',
+          title: 'Missing internationalPostalCode',
+          detail: 'InternationalPostalCode is required'
         )
       end
 
