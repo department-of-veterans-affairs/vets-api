@@ -45,7 +45,8 @@ module PdfFill
 
       def generate_extended_form(merged_form_data, hash_converter)
         extra_officials = merged_form_data['additionalCertifyingOfficials'][DEFAULT_FORM_OFFICIALS_LIMIT..]
-        merged_form_data['additionalCertifyingOfficials'] = merged_form_data['additionalCertifyingOfficials'][0..DEFAULT_FORM_OFFICIALS_LIMIT]
+        merged_form_data['additionalCertifyingOfficials'] =
+          merged_form_data['additionalCertifyingOfficials'][0..DEFAULT_FORM_OFFICIALS_LIMIT]
 
         pdf_data_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: FORM_CLASS::KEY)
 

@@ -121,7 +121,7 @@ module PdfFill
       end
 
       def format_additional_officials(form_data)
-        (form_data['additionalCertifyingOfficials'] || []).each_with_index do |data, i|
+        (form_data['additionalCertifyingOfficials'] || []).each do |data|
           details = data['additionalCertifyingOfficialsDetails']
           full_name = combine_full_name(details['fullName'])
           data['fullName'] = full_name
@@ -135,7 +135,7 @@ module PdfFill
       end
 
       def format_read_only_officials(form_data)
-        (form_data['readOnlyCertifyingOfficial'] || []).each_with_index do |data, i|
+        (form_data['readOnlyCertifyingOfficial'] || []).each do |data|
           data['name'] = combine_full_name(data['fullName'])
         end
       end
