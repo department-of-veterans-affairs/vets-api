@@ -40,5 +40,17 @@ module CheckIn
     OH_STATSD_BTSSS_TIMEOUT = 'worker.oracle_health.travel_claim.btsss.timeout'
     OH_STATSD_BTSSS_CLAIM_FAILURE = 'worker.oracle_health.travel_claim.btsss.claim.failure'
     OH_STATSD_BTSSS_DUPLICATE = 'worker.oracle_health.travel_claim.btsss.duplicate'
+
+    # V1 specific Travel Claim Submission Step Metrics - CIE
+    CIE_STATSD_APPOINTMENT_ERROR = 'api.check_in.travel_claim.appointment.error'
+    CIE_STATSD_CLAIM_CREATE_ERROR = 'api.check_in.travel_claim.claim.create.error'
+    CIE_STATSD_EXPENSE_ADD_ERROR = 'api.check_in.travel_claim.expense.add.error'
+    CIE_STATSD_CLAIM_SUBMIT_ERROR = 'api.check_in.travel_claim.claim.submit.error'
+
+    # Travel Claim Submission Step Metrics - OH
+    OH_STATSD_APPOINTMENT_ERROR = 'api.oracle_health.travel_claim.appointment.error'
+    OH_STATSD_CLAIM_CREATE_ERROR = 'api.oracle_health.travel_claim.claim.create.error'
+    OH_STATSD_EXPENSE_ADD_ERROR = 'api.oracle_health.travel_claim.expense.add.error'
+    OH_STATSD_CLAIM_SUBMIT_ERROR = 'api.oracle_health.travel_claim.claim.submit.error'
   end
 end
