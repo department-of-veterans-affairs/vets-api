@@ -8,7 +8,7 @@ module VRE
       class Ch31EligibilityError < StandardError; end
 
       STATSD_KEY_PREFIX = 'api.res.eligibility'
-      SERVICE_UNAVAILABLE = 'APNX-1-4187-000'
+      SERVICE_UNAVAILABLE_ERROR = 'APNX-1-4187-000'
 
       def initialize(icn)
         super()
@@ -17,7 +17,7 @@ module VRE
         @icn = icn
       end
 
-      # Requests current user's Ch31 eligibility status and details 
+      # Requests current user's Ch31 eligibility status and details
       #
       # @return [Hash]
       #
@@ -42,7 +42,7 @@ module VRE
       end
 
       def service_unavailable?(e)
-        return false unless e.original_body['error'] == SERVICE_UNAVAILABLE
+        return false unless e.original_body['error'] == SERVICE_UNAVAILABLE_ERROR
 
         raise e.class.new('RES_CH31_ELIGIBILITY_503', e.response_values)
       end

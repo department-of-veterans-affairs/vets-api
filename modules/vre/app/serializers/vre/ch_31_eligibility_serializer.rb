@@ -13,6 +13,5 @@ module VRE
                :entitlement_details,
                :res_case_id,
                :res_eligibility_recommendation
-
   end
 end

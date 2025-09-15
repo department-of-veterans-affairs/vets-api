@@ -812,8 +812,13 @@ en:
         <<: *external_defaults
         title: Not Found
         code: 'RES_CH31_ELIGIBILITY_404'
-        detail: 'Record not found'
+        detail: 'Not Found'
         status: 404
+      RES_CH31_ELIGIBILITY_500:
+        <<: *external_defaults
+        title: Internal Server Error
+        code: 'RES_CH31_ELIGIBILITY_500'
+        detail: 'Internal Server Error'
       RES_CH31_ELIGIBILITY_503:
         <<: *external_defaults
         title: Service Unavailable

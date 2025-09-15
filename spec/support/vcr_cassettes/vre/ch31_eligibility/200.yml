@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: https://fwdproxy-staging.vfs.va.gov:4478/suite/webapi/chapter31-eligibility-details-search
+    uri: https://fake_url.com/suite/webapi/chapter31-eligibility-details-search
     body:
       encoding: UTF-8
-      string: '{"icn":"1018616478V531227"}'
+      string: '{"icn":"1012667145V762142"}'
     headers:
       Accept:
       - application/json
@@ -22,6 +22,8 @@ http_interactions:
     headers:
       date:
       - Mon, 15 Sep 2025 13:58:28 GMT
+      content-type:
+      - application/json
       content-length:
       - '666'
       connection:
@@ -57,6 +59,6 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"veteranProfile":{"firstName":"VICTORIA","lastName":"DUNCAN","dob":"1901-09-11Z","characterOfDischarge":"Honorable","servicePeriod":[{"serviceBeganDate":"1941-12-05Z","serviceEndDate":"1960-12-07Z","characterOfDischarge":"Honorable"},{"serviceBeganDate":"2021-01-01Z","serviceEndDate":"2023-04-01Z","characterOfDischarge":"Honorable"}]},"disabilityRating":{"combinedScd":0,"SCDDetails":[]},"IRNDDate":"2025-08-04Z","eligibilityTerminationDate":null,"entitlementDetails":{"maxCh31Entitlement":{"month":48,"days":0},"ch31EntilementRemaining":{"month":0,"days":0},"entitlementUsed":{"month":0,"days":0}},"resCaseId":685,"resEligibilityRecommendation":"Ineligible"}'
+      string: '{"veteranProfile":{"firstName":"VICTORIA","lastName":"DUNCAN","dob":"1901-09-11Z","characterOfDischarge":"Honorable","servicePeriod":[{"serviceBeganDate":"1941-12-05Z","serviceEndDate":"1960-12-07Z","characterOfDischarge":"Honorable"},{"serviceBeganDate":"2021-01-01Z","serviceEndDate":"2023-04-01Z","characterOfDischarge":"Honorable"}]},"disabilityRating":{"combinedScd":0,"SCDDetails":[]},"IRNDDate":"2025-08-04Z","eligibilityTerminationDate":null,"entitlementDetails":{"maxCh31Entitlement":{"month":48,"days":0},"ch31EntitlementRemaining":{"month":0,"days":0},"entitlementUsed":{"month":0,"days":0}},"resCaseId":685,"resEligibilityRecommendation":"Ineligible"}'
   recorded_at: Mon, 15 Sep 2025 13:58:28 GMT
 recorded_with: VCR 6.3.1

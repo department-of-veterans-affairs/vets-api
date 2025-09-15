@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: https://fwdproxy-staging.vfs.va.gov:4478/suite/webapi/chapter31-eligibility-details-search
+    uri: https://fake_url.com/suite/webapi/chapter31-eligibility-details-search
     body:
       encoding: UTF-8
-      string: '{"icn":"1018616478V531228"}'
+      string: '{"icn":"1234"}'
     headers:
       Accept:
       - application/json
@@ -17,8 +17,8 @@ http_interactions:
       - eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjNDdiNzNjMy04ZTgzLTQ5MzQtODViMS1kOTNhMmNhMjgxN2UifQ.8TqYLKpQKmdK5PrWvS1FeA7nE2a8HU9S0BuTVXIR5Gw
   response:
     status:
-      code: 500
-      message: '500'
+      code: 404
+      message: '404'
     headers:
       date:
       - Mon, 15 Sep 2025 14:22:27 GMT
