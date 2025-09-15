@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://btsss.gov/api/v1/expenses/other/550e8400-e29b-41d4-a716-446655440000
+    uri: <TRAVEL_PAY_BASE_URL>/api/v1/expenses/other/550e8400-e29b-41d4-a716-446655440000
     body:
       encoding: UTF-8
       string: ''

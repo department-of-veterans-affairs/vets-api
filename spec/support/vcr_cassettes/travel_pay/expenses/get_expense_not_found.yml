@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://btsss.gov/api/v1/expenses/other/non-existent-expense-id-99999
+    uri: <TRAVEL_PAY_BASE_URL>/api/v1/expenses/other/non-existent-expense-id-99999
     body:
       encoding: UTF-8
       string: ''
