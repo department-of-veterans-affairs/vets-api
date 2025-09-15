@@ -773,7 +773,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
       end
     end
 
-    # FES Val Section 7: Disability REOPEN and approximateBeginDate validations
+    # FES Val Section 7: Disability REOPEN and approximateDate validations
     context 'disability action type REOPEN and date validations' do
       context 'when disability has actionType REOPEN' do
         let(:form_attributes) do
@@ -791,169 +791,84 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/disabilities/0/disabilityActionType')
-          expect(errors.first[:title]).to eq('Bad Request')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('The request failed disability validation: ' \
                                               'The disability Action Type of "REOPEN" is not currently supported. ' \
                                               'REOPEN will be supported in a future release')
         end
       end
 
-      context 'approximateBeginDate validations' do
-        context 'when month is invalid (less than 1)' do
+      context 'approximateDate validations' do
+        # NOTE: Schema regex handles month range (01-12) and day range (01-31) validation
+        # We only test invalid calendar dates and future dates
+
+        context 'when date is invalid for the calendar (Feb 30)' do
           let(:form_attributes) do
             base_form_attributes.merge(
               'disabilities' => [
                 {
                   'disabilityActionType' => 'NEW',
                   'name' => 'PTSD',
-                  'approximateBeginDate' => {
-                    'year' => '2020',
-                    'month' => '0'
-                  }
+                  'approximateDate' => '2020-02-30'
                 }
               ]
             )
           end
 
-          it 'returns validation error for invalid month' do
+          it 'returns validation error for invalid calendar date' do
             errors = subject.validate_form_526_fes_values
             expect(errors).to be_an(Array)
-            expect(errors.first[:source]).to eq('/disabilities/0/approximateBeginDate/month')
-            expect(errors.first[:title]).to eq('Invalid value')
-            expect(errors.first[:detail]).to eq('The month is not a valid value')
+            expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
+            expect(errors.first[:title]).to eq('Unprocessable Entity')
+            expect(errors.first[:detail]).to eq('The approximateDate is not a valid date')
           end
         end
 
-        context 'when month is invalid (greater than 12)' do
+        context 'when date is invalid for the calendar (Apr 31)' do
           let(:form_attributes) do
             base_form_attributes.merge(
               'disabilities' => [
                 {
                   'disabilityActionType' => 'NEW',
                   'name' => 'PTSD',
-                  'approximateBeginDate' => {
-                    'year' => '2020',
-                    'month' => '13'
-                  }
+                  'approximateDate' => '2020-04-31'
                 }
               ]
             )
           end
 
-          it 'returns validation error for invalid month' do
+          it 'returns validation error for invalid calendar date' do
             errors = subject.validate_form_526_fes_values
             expect(errors).to be_an(Array)
-            expect(errors.first[:source]).to eq('/disabilities/0/approximateBeginDate/month')
-            expect(errors.first[:title]).to eq('Invalid value')
-            expect(errors.first[:detail]).to eq('The month is not a valid value')
+            expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
+            expect(errors.first[:title]).to eq('Unprocessable Entity')
+            expect(errors.first[:detail]).to eq('The approximateDate is not a valid date')
           end
         end
 
-        context 'when day is invalid (less than 1)' do
+        context 'when date is invalid for leap year (Feb 29 in non-leap year)' do
           let(:form_attributes) do
             base_form_attributes.merge(
               'disabilities' => [
                 {
                   'disabilityActionType' => 'NEW',
                   'name' => 'PTSD',
-                  'approximateBeginDate' => {
-                    'year' => '2020',
-                    'month' => '6',
-                    'day' => '0'
-                  }
+                  'approximateDate' => '2021-02-29'  # 2021 is not a leap year
                 }
               ]
             )
           end
 
-          it 'returns validation error for invalid day' do
+          it 'returns validation error for invalid calendar date' do
             errors = subject.validate_form_526_fes_values
             expect(errors).to be_an(Array)
-            expect(errors.first[:source]).to eq('/disabilities/0/approximateBeginDate/day')
-            expect(errors.first[:title]).to eq('Invalid value')
-            expect(errors.first[:detail]).to eq('The day is not a valid value')
+            expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
+            expect(errors.first[:title]).to eq('Unprocessable Entity')
+            expect(errors.first[:detail]).to eq('The approximateDate is not a valid date')
           end
         end
 
-        context 'when day is invalid (greater than 31)' do
-          let(:form_attributes) do
-            base_form_attributes.merge(
-              'disabilities' => [
-                {
-                  'disabilityActionType' => 'NEW',
-                  'name' => 'PTSD',
-                  'approximateBeginDate' => {
-                    'year' => '2020',
-                    'month' => '6',
-                    'day' => '32'
-                  }
-                }
-              ]
-            )
-          end
-
-          it 'returns validation error for invalid day' do
-            errors = subject.validate_form_526_fes_values
-            expect(errors).to be_an(Array)
-            expect(errors.first[:source]).to eq('/disabilities/0/approximateBeginDate/day')
-            expect(errors.first[:title]).to eq('Invalid value')
-            expect(errors.first[:detail]).to eq('The day is not a valid value')
-          end
-        end
-
-        context 'when day is invalid for the specific month (Feb 30)' do
-          let(:form_attributes) do
-            base_form_attributes.merge(
-              'disabilities' => [
-                {
-                  'disabilityActionType' => 'NEW',
-                  'name' => 'PTSD',
-                  'approximateBeginDate' => {
-                    'year' => '2020',
-                    'month' => '2',
-                    'day' => '30'
-                  }
-                }
-              ]
-            )
-          end
-
-          it 'returns validation error for invalid day for month' do
-            errors = subject.validate_form_526_fes_values
-            expect(errors).to be_an(Array)
-            expect(errors.first[:source]).to eq('/disabilities/0/approximateBeginDate/day')
-            expect(errors.first[:title]).to eq('Invalid value')
-            expect(errors.first[:detail]).to eq('The day is not a valid value')
-          end
-        end
-
-        context 'when day and year are provided without month' do
-          let(:form_attributes) do
-            base_form_attributes.merge(
-              'disabilities' => [
-                {
-                  'disabilityActionType' => 'NEW',
-                  'name' => 'PTSD',
-                  'approximateBeginDate' => {
-                    'year' => '2020',
-                    'day' => '15'
-                  }
-                }
-              ]
-            )
-          end
-
-          it 'returns validation error for invalid combination' do
-            errors = subject.validate_form_526_fes_values
-            expect(errors).to be_an(Array)
-            expect(errors.first[:source]).to eq('/disabilities/0/approximateBeginDate')
-            expect(errors.first[:title]).to eq('Invalid value')
-            expect(errors.first[:detail]).to eq('Day and Year is not a valid combination. ' \
-                                                'Accepted combinations are: Year/Month/Day, Year/Month, Or Year')
-          end
-        end
-
-        context 'when approximateBeginDate is in the future' do
+        context 'when approximateDate is in the future' do
           context 'with full date (year/month/day) in future' do
             let(:future_date) { Date.current + 30.days }
             let(:form_attributes) do
@@ -962,11 +877,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
                   {
                     'disabilityActionType' => 'NEW',
                     'name' => 'PTSD',
-                    'approximateBeginDate' => {
-                      'year' => future_date.year.to_s,
-                      'month' => future_date.month.to_s,
-                      'day' => future_date.day.to_s
-                    }
+                    'approximateDate' => future_date.strftime('%Y-%m-%d')
                   }
                 ]
               )
@@ -975,9 +886,9 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             it 'returns validation error for future date' do
               errors = subject.validate_form_526_fes_values
               expect(errors).to be_an(Array)
-              expect(errors.first[:source]).to eq('/disabilities/0/approximateBeginDate')
-              expect(errors.first[:title]).to eq('Invalid value')
-              expect(errors.first[:detail]).to eq('The ApproximateBeginDate in primary disability must be in the past')
+              expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
+              expect(errors.first[:title]).to eq('Unprocessable Entity')
+              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must be in the past')
             end
           end
 
@@ -989,10 +900,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
                   {
                     'disabilityActionType' => 'NEW',
                     'name' => 'PTSD',
-                    'approximateBeginDate' => {
-                      'year' => future_date.year.to_s,
-                      'month' => future_date.month.to_s
-                    }
+                    'approximateDate' => future_date.strftime('%Y-%m')
                   }
                 ]
               )
@@ -1001,9 +909,9 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             it 'returns validation error for future date' do
               errors = subject.validate_form_526_fes_values
               expect(errors).to be_an(Array)
-              expect(errors.first[:source]).to eq('/disabilities/0/approximateBeginDate')
-              expect(errors.first[:title]).to eq('Invalid value')
-              expect(errors.first[:detail]).to eq('The ApproximateBeginDate in primary disability must be in the past')
+              expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
+              expect(errors.first[:title]).to eq('Unprocessable Entity')
+              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must be in the past')
             end
           end
 
@@ -1015,9 +923,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
                   {
                     'disabilityActionType' => 'NEW',
                     'name' => 'PTSD',
-                    'approximateBeginDate' => {
-                      'year' => future_year.to_s
-                    }
+                    'approximateDate' => future_year.to_s
                   }
                 ]
               )
@@ -1026,22 +932,20 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             it 'returns validation error for future date' do
               errors = subject.validate_form_526_fes_values
               expect(errors).to be_an(Array)
-              expect(errors.first[:source]).to eq('/disabilities/0/approximateBeginDate')
-              expect(errors.first[:title]).to eq('Invalid value')
-              expect(errors.first[:detail]).to eq('The ApproximateBeginDate in primary disability must be in the past')
+              expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
+              expect(errors.first[:title]).to eq('Unprocessable Entity')
+              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must be in the past')
             end
           end
 
-          context 'with past year only' do
+          context 'with past date' do
             let(:form_attributes) do
               base_form_attributes.merge(
                 'disabilities' => [
                   {
                     'disabilityActionType' => 'NEW',
                     'name' => 'PTSD',
-                    'approximateBeginDate' => {
-                      'year' => (Date.current.year - 2).to_s
-                    }
+                    'approximateDate' => (Date.current - 2.years).strftime('%Y-%m-%d')
                   }
                 ]
               )
@@ -1062,9 +966,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
                   {
                     'disabilityActionType' => 'NEW',
                     'name' => 'PTSD',
-                    'approximateBeginDate' => {
-                      'year' => '2020'
-                    }
+                    'approximateDate' => '2020'
                   }
                 ]
               )
@@ -1083,10 +985,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
                   {
                     'disabilityActionType' => 'NEW',
                     'name' => 'PTSD',
-                    'approximateBeginDate' => {
-                      'year' => '2020',
-                      'month' => '6'
-                    }
+                    'approximateDate' => '2020-06'
                   }
                 ]
               )
@@ -1105,11 +1004,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
                   {
                     'disabilityActionType' => 'NEW',
                     'name' => 'PTSD',
-                    'approximateBeginDate' => {
-                      'year' => '2020',
-                      'month' => '6',
-                      'day' => '15'
-                    }
+                    'approximateDate' => '2020-06-15'
                   }
                 ]
               )
@@ -1123,6 +1018,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
 
         context 'with multiple disabilities having different issues' do
+          let(:future_date) { Date.current + 30.days }
           let(:form_attributes) do
             base_form_attributes.merge(
               'disabilities' => [
@@ -1133,18 +1029,12 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
                 {
                   'disabilityActionType' => 'NEW',
                   'name' => 'Back Pain',
-                  'approximateBeginDate' => {
-                    'year' => '2020',
-                    'month' => '13'
-                  }
+                  'approximateDate' => '2020-02-30'  # Invalid calendar date
                 },
                 {
                   'disabilityActionType' => 'NEW',
                   'name' => 'Knee Pain',
-                  'approximateBeginDate' => {
-                    'year' => '2020',
-                    'day' => '15'
-                  }
+                  'approximateDate' => future_date.strftime('%Y-%m-%d') # Future date
                 }
               ]
             )
@@ -1157,15 +1047,18 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
 
             # Check for REOPEN error
             reopen_error = errors.find { |e| e[:source] == '/disabilities/0/disabilityActionType' }
+            expect(reopen_error[:title]).to eq('Unprocessable Entity')
             expect(reopen_error[:detail]).to include('REOPEN')
 
-            # Check for invalid month error
-            month_error = errors.find { |e| e[:source] == '/disabilities/1/approximateBeginDate/month' }
-            expect(month_error[:detail]).to eq('The month is not a valid value')
+            # Check for invalid calendar date error
+            calendar_error = errors.find { |e| e[:source] == '/disabilities/1/approximateDate' }
+            expect(calendar_error[:title]).to eq('Unprocessable Entity')
+            expect(calendar_error[:detail]).to eq('The approximateDate is not a valid date')
 
-            # Check for day/year combination error
-            combo_error = errors.find { |e| e[:source] == '/disabilities/2/approximateBeginDate' }
-            expect(combo_error[:detail]).to include('Day and Year is not a valid combination')
+            # Check for future date error
+            future_error = errors.find { |e| e[:source] == '/disabilities/2/approximateDate' }
+            expect(future_error[:title]).to eq('Unprocessable Entity')
+            expect(future_error[:detail]).to eq('The approximateDate in primary disability must be in the past')
           end
         end
       end
