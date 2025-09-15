@@ -50,7 +50,7 @@ describe TravelPay::ExpensesService do
           'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
           'dateIncurred' => '2024-10-02',
           'description' => 'Hotel stay',
-          'amount' => 125.50,
+          'costRequested' => 125.50,
           'expenseType' => 'lodging',
           'expenseReceipt' => {
             'contentType' => 'text/plain',
@@ -82,7 +82,7 @@ describe TravelPay::ExpensesService do
           'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
           'dateIncurred' => '2024-10-02',
           'description' => 'Lunch during appointment',
-          'amount' => 15.75,
+          'costRequested' => 15.75,
           'expenseType' => 'meal',
           'expenseReceipt' => {
             'contentType' => 'text/plain',
@@ -114,7 +114,7 @@ describe TravelPay::ExpensesService do
           'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
           'dateIncurred' => '2024-10-02',
           'description' => 'Parking fee',
-          'amount' => 10.00,
+          'costRequested' => 10.00,
           'expenseType' => 'other',
           'expenseReceipt' => {
             'contentType' => 'text/plain',
@@ -174,7 +174,7 @@ describe TravelPay::ExpensesService do
             'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
             'dateIncurred' => '2024-10-02',
             'description' => 'Parking fee',
-            'amount' => 10.00,
+            'costRequested' => 10.00,
             'expenseType' => 'other'
           }
 
@@ -202,7 +202,7 @@ describe TravelPay::ExpensesService do
             'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
             'dateIncurred' => '2024-10-02',
             'description' => 'Parking fee',
-            'amount' => 10.00,
+            'costRequested' => 10.00,
             'expenseType' => 'other',
             'expenseReceipt' => {
               'contentType' => 'text/plain',
