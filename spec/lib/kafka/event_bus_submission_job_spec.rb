@@ -12,9 +12,9 @@ RSpec.describe Kafka::EventBusSubmissionJob, type: :job do
 
   describe '#perform' do
     before do
+      allow(Kafka::Monitor).to receive(:new).and_return(monitor)
       allow(Kafka::AvroProducer).to receive(:new).and_return(producer)
       allow(producer).to receive(:produce)
-      allow(Kafka::Monitor).to receive(:new).and_return(monitor)
       allow(monitor).to receive(:track_submission_success)
       allow(monitor).to receive(:track_submission_failure)
     end
