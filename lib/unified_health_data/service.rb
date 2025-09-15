@@ -417,7 +417,7 @@ module UnifiedHealthData
         patientId: @user.icn,
         orders: orders.map do |order|
           {
-            id: order[:id].to_s,
+            orderId: order[:id].to_s,
             stationNumber: order[:stationNumber].to_s
           }
         end

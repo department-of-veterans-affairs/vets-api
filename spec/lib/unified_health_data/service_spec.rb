@@ -1085,61 +1085,51 @@ describe UnifiedHealthData::Service, type: :service do
   end
 
   describe '#refill_prescription' do
-    let(:refill_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'refill_response.json'
-      ).read)
-    end
-
-    context 'with valid refill request' do
-      before do
-        allow(service).to receive_messages(fetch_access_token: 'token',
-                                           perform: double(body: refill_response, status: 200),
-                                           parse_response_body: refill_response)
-      end
-
+    context 'with valid refill request', :vcr do
       it 'submits refill requests and returns success/failure breakdown' do
-        orders = [
-          { id: '15218125519', stationNumber: '556' },
-          { id: '0000000000001', stationNumber: '570' },
-          { id: '15215488543', stationNumber: '687GB' }
-        ]
-        result = service.refill_prescription(orders)
+        VCR.use_cassette('unified_health_data/refill_prescription_success') do
+          orders = [
+            { id: '15220389459', stationNumber: '556' },
+            { id: '0000000000001', stationNumber: '570' },
+          ]
+          result = service.refill_prescription(orders)
 
-        expect(result).to have_key(:success)
-        expect(result).to have_key(:failed)
+          expect(result).to have_key(:success)
+          expect(result).to have_key(:failed)
 
-        expect(result[:success]).to contain_exactly(
-          { id: '15218125519', status: 'Already in Queue', station_number: '556' }
-        )
+          expect(result[:success]).to contain_exactly(
+            { id: '15220389459', status: 'Already in Queue', station_number: '556' }
+          )
 
-        expect(result[:failed]).to contain_exactly(
-          { id: '0000000000001', error: 'Prescription is not Found', station_number: '570' },
-          { id: '15215488543', error: '^ER:Error:', station_number: '687GB' }
-        )
+          expect(result[:failed]).to contain_exactly(
+            { id: '0000000000001', error: 'Prescription is not Found', station_number: '570' },
+          )
+        end
       end
 
       it 'formats request body correctly' do
-        orders = [
-          { id: '12345', stationNumber: '570' },
-          { id: '67890', stationNumber: '556' }
-        ]
-        expected_body = {
-          patientId: user.icn,
-          orders: [
+        VCR.use_cassette('unified_health_data/refill_prescription_success') do
+          orders = [
             { id: '12345', stationNumber: '570' },
             { id: '67890', stationNumber: '556' }
           ]
-        }.to_json
+          expected_body = {
+            patientId: user.icn,
+            orders: [
+              { orderId: '12345', stationNumber: '570' },
+              { orderId: '67890', stationNumber: '556' }
+            ]
+          }.to_json
 
-        expect(service).to receive(:perform).with(
-          :post,
-          anything,
-          expected_body,
-          hash_including('Content-Type' => 'application/json')
-        ).and_return(double(body: refill_response))
+          expect(service).to receive(:perform).with(
+            :post,
+            anything,
+            expected_body,
+            hash_including('Content-Type' => 'application/json')
+          ).and_call_original
 
-        service.refill_prescription(orders)
+          service.refill_prescription(orders)
+        end
       end
     end
 
@@ -1166,18 +1156,14 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
 
-    context 'with malformed response' do
-      before do
-        allow(service).to receive_messages(fetch_access_token: 'token',
-                                           perform: double(body: '[]'),
-                                           parse_response_body: [])
-      end
-
+    context 'with malformed response', :vcr do
       it 'handles empty response gracefully' do
-        result = service.refill_prescription([{ id: '12345', stationNumber: '570' }])
+        VCR.use_cassette('unified_health_data/refill_prescription_empty') do
+          result = service.refill_prescription([{ id: '12345', stationNumber: '570' }])
 
-        expect(result[:success]).to eq([])
-        expect(result[:failed]).to eq([])
+          expect(result[:success]).to eq([])
+          expect(result[:failed]).to eq([])
+        end
       end
     end
   end
