@@ -26,7 +26,7 @@ module VRE
         VRE::Ch31Eligibility::Response.new(raw_response.status, raw_response)
       rescue Common::Exceptions::BackendServiceException => e
         log_error(e)
-        raise e unless service_downtime?(e)
+        raise e unless service_unavailable?(e)
       end
 
       private
@@ -36,8 +36,9 @@ module VRE
       end
 
       def log_error(e)
+        message = e.original_body['errorMessageList'] || e.original_body['error']
         Rails.logger.error(e)
-        Rails.logger.error({ messages: e.original_body[ERRORS_KEY] })
+        Rails.logger.error({ message: }) if message.present?
       end
 
       def service_unavailable?(e)
