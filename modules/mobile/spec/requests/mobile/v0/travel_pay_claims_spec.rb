@@ -132,17 +132,41 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
           get("/mobile/v0/travel-pay/claims/#{claim_id}", headers: sis_headers)
 
           expect(response).to have_http_status(:ok)
-          expect(response.body).to match_json_schema('travel_pay_smoc_response')
 
           json = response.parsed_body
           claim_data = json['data']['attributes']
 
+          expect(json['data']['type']).to eq('travelPayClaimDetails')
+          expect(json['data']['id']).to eq(claim_id)
+
           expect(claim_data['id']).to eq(claim_id)
           expect(claim_data['claimNumber']).to be_present
           expect(claim_data['claimStatus']).to be_present
-          expect(claim_data['appointmentDateTime']).to be_present
-          expect(claim_data['facilityId']).to be_present
+          expect(claim_data['appointmentDate']).to be_present
           expect(claim_data['facilityName']).to be_present
+          expect(claim_data['claimName']).to be_present
+          expect(claim_data['claimantFirstName']).to be_present
+          expect(claim_data['claimantLastName']).to be_present
+          expect(claim_data['totalCostRequested']).to be_present
+          expect(claim_data['reimbursementAmount']).to be_present
+          expect(claim_data['createdOn']).to be_present
+          expect(claim_data['modifiedOn']).to be_present
+
+          expect(claim_data['appointment']).to be_present
+          expect(claim_data['appointment']).to be_a(Hash)
+          expect(claim_data['appointment']['id']).to be_present
+          expect(claim_data['appointment']['facilityId']).to be_present
+
+          expect(claim_data['expenses']).to be_present
+          expect(claim_data['expenses']).to be_an(Array)
+          if claim_data['expenses'].any?
+            expense = claim_data['expenses'].first
+            expect(expense['id']).to be_present
+            expect(expense['expenseType']).to be_present
+          end
+
+          expect(claim_data).to have_key('documents')
+          expect(claim_data['documents']).to be_an(Array)
         end
       end
     end

@@ -20,18 +20,37 @@ module Mobile
                status:
       end
 
+      # rubocop:disable Metrics/MethodLength
       def show
         claim = claims_service.get_claim_details(params[:id])
 
         raise Common::Exceptions::ResourceNotFound, detail: "Claim not found. ID provided: #{params[:id]}" if claim.nil?
 
-        normalized_claim = normalize_claim_summary(claim)
-        render json: Mobile::V0::TravelPayClaimSummarySerializer.new(normalized_claim), status: :ok
+        detailed_claim = Mobile::V0::TravelPayClaimDetails.new(
+          id: claim['claimId'] || claim['id'],
+          claimNumber: claim['claimNumber'],
+          claimName: claim['claimName'],
+          claimantFirstName: claim['claimantFirstName'],
+          claimantMiddleName: claim['claimantMiddleName'],
+          claimantLastName: claim['claimantLastName'],
+          claimStatus: claim['claimStatus'],
+          appointmentDate: claim['appointmentDate'] || claim['appointmentDateTime'],
+          facilityName: claim['facilityName'],
+          totalCostRequested: claim['totalCostRequested'],
+          reimbursementAmount: claim['reimbursementAmount'],
+          rejectionReason: claim['rejectionReason'],
+          appointment: claim['appointment'],
+          expenses: claim['expenses'],
+          documents: claim['documents'],
+          createdOn: claim['createdOn'],
+          modifiedOn: claim['modifiedOn']
+        )
+
+        render json: Mobile::V0::TravelPayClaimDetailsSerializer.new(detailed_claim), status: :ok
       rescue ArgumentError => e
         raise Common::Exceptions::BadRequest, detail: e.message
       end
 
-      # rubocop:disable Metrics/MethodLength
       def create
         appt_params = {
           'appointment_date_time' => validated_params[:appointment_date_time],
