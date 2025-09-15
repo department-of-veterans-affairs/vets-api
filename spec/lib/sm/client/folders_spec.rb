@@ -26,6 +26,26 @@ describe 'sm client' do
       expect(folders.type).to eq(Folder)
     end
 
+    context 'when not caching' do
+      it 'does not cache folders' do
+        VCR.use_cassette 'sm_client/folders/gets_a_collection_of_folders' do
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_no_cache).and_return(true)
+          client.get_folders('1234', false)
+          expect(Folder.get_cached('1234-folders')).to be_nil
+        end
+      end
+    end
+
+    context 'when caching' do
+      it 'does cache folders' do
+        VCR.use_cassette 'sm_client/folders/gets_a_collection_of_folders' do
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_no_cache).and_return(false)
+          client.get_folders('1234', false)
+          expect(Folder.get_cached('1234-folders').class).to eq(Array)
+        end
+      end
+    end
+
     it 'gets a single folder', :vcr do
       folder = client.get_folder(folder_id)
       expect(folder).to be_a(Folder)
@@ -55,6 +75,26 @@ describe 'sm client' do
         messages = client.get_folder_messages('1234', folder_id, false)
         expect(messages).to be_a(Vets::Collection)
         expect(messages.records.size).to eq(10)
+      end
+
+      context 'when not caching' do
+        it 'does not cache messages' do
+          VCR.use_cassette 'sm_client/folders/nested_resources/gets_a_collection_of_messages' do
+            allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_no_cache).and_return(true)
+            client.get_folder_messages('1234', folder_id, false)
+            expect(Folder.get_cached("1234-folder-messages-#{folder_id}")).to be_nil
+          end
+        end
+      end
+
+      context 'when caching' do
+        it 'does cache messages' do
+          VCR.use_cassette 'sm_client/folders/nested_resources/gets_a_collection_of_messages' do
+            allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_no_cache).and_return(false)
+            client.get_folder_messages('1234', folder_id, false)
+            expect(Folder.get_cached("1234-folder-messages-#{folder_id}").class).to eq(Array)
+          end
+        end
       end
     end
   end
