@@ -1090,7 +1090,7 @@ describe UnifiedHealthData::Service, type: :service do
         VCR.use_cassette('unified_health_data/refill_prescription_success') do
           orders = [
             { id: '15220389459', stationNumber: '556' },
-            { id: '0000000000001', stationNumber: '570' },
+            { id: '0000000000001', stationNumber: '570' }
           ]
           result = service.refill_prescription(orders)
 
@@ -1102,7 +1102,7 @@ describe UnifiedHealthData::Service, type: :service do
           )
 
           expect(result[:failed]).to contain_exactly(
-            { id: '0000000000001', error: 'Prescription is not Found', station_number: '570' },
+            { id: '0000000000001', error: 'Prescription is not Found', station_number: '570' }
           )
         end
       end
