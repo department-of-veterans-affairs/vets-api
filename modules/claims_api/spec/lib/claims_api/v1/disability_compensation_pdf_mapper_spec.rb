@@ -501,7 +501,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
           }
         },
         {
-          'startDate' => '2022-01-12',
+          'startDate' => '2022-01',
           'treatedDisabilityNames' => [
             'Bad Knee'
           ],
