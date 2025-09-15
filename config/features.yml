@@ -646,6 +646,12 @@ features:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in decision review applications
     enable_in_development: true
+  decision_review_final_status_polling:
+    actor_type: user
+    description: Enables enhanced polling for secondary forms in decision review applications with final status
+  decision_review_final_status_secondary_form_failure_notifications:
+    actor_type: user
+    description: Enables failure notifications for secondary forms in decision review applications with final status
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -2505,8 +2511,17 @@ features:
   form10203_confirmation_email_with_silent_failure_processing:
     actor_type: user
     description: If enabled, confirmation email will be sent with silent failure processing
+  form10297_confirmation_email_with_silent_failure_processing:
+    actor_type: user
+    description: If enabled, confirmation email will be sent with silent failure processing
   unique_user_metrics_logging:
     # System level feature flag
     actor_type:
     description: Enables unique user metrics logging for MHV Portal analytics. When disabled, no events will be recorded to database or sent to StatsD.
     enable_in_development: true
+  form_8794_release:
+    actor_type: user
+    description: If enabled, show link to digitized form instead of PDF download on SCO page
+  form_1919_release:
+    actor_type: user
+    description: If enabled, show link to digitized form instead of PDF download on SCO page
