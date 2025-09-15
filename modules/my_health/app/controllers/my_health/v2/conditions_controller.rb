@@ -20,13 +20,15 @@ module MyHealth
 
       def show
         condition = service.get_single_condition(params[:id])
-        if condition
-          render json: UnifiedHealthData::Serializers::ConditionSerializer.new(condition),
-                 status: :ok
-        else
-          render json: { errors: [{ title: 'Condition not found', status: '404', code: '404' }] },
-                 status: :not_found
+        unless condition
+          render_error('Condition Not Found',
+                       'The requested condition record was not found',
+                       '404', 404, :not_found)
+          return
         end
+        serialized_condition = UnifiedHealthData::Serializers::ConditionSerializer.new(condition)
+        render json: serialized_condition,
+               status: :ok
       rescue Common::Client::Errors::ClientError,
              Common::Exceptions::BackendServiceException,
              StandardError => e

@@ -75,8 +75,10 @@ module UnifiedHealthData
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)
-        conditions = conditions_adapter.parse(combined_records)
-        conditions.find { |condition| condition.id == condition_id }
+        target_record = combined_records.find { |record| record['resource']['id'] == condition_id }
+        return nil unless target_record
+
+        conditions_adapter.parse([target_record]).first
       end
     end
 
