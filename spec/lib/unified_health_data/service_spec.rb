@@ -1278,4 +1278,140 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
   end
+
+  # Conditions
+  describe '#get_conditions' do
+    let(:conditions_sample_response) do
+      JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'conditions_sample_response.json').read)
+    end
+    let(:conditions_empty_vista_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'conditions_empty_vista_response.json'
+      ).read)
+    end
+    let(:conditions_empty_oh_response) do
+      JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'conditions_empty_oh_response.json').read)
+    end
+    let(:conditions_empty_response) do
+      JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'conditions_empty_response.json').read)
+    end
+
+    let(:condition_attributes) do
+      {
+        'id' => be_a(String),
+        'name' => be_a(String),
+        'date' => be_a(String).or(be_nil),
+        'provider' => be_a(String).or(be_nil),
+        'facility' => be_a(String).or(be_nil),
+        'comments' => be_an(Array).or(be_nil)
+      }
+    end
+
+    before do
+      allow(service).to receive(:fetch_access_token).and_return('token')
+    end
+
+    it 'returns conditions from both VistA and Oracle Health' do
+      allow(service).to receive_messages(
+        perform: double(body: conditions_sample_response),
+        parse_response_body: conditions_sample_response
+      )
+
+      conditions = service.get_conditions
+      expect(conditions.size).to eq(18)
+      expect(conditions).to all(be_a(UnifiedHealthData::Condition))
+      expect(conditions).to all(have_attributes(condition_attributes))
+    end
+
+    it 'returns conditions from both VistA and Oracle Health with real sample data' do
+      allow(service).to receive_messages(
+        perform: double(body: conditions_sample_response),
+        parse_response_body: conditions_sample_response
+      )
+
+      conditions = service.get_conditions
+      expect(conditions.size).to eq(18)
+      expect(conditions).to all(be_a(UnifiedHealthData::Condition))
+      expect(conditions).to all(have_attributes(condition_attributes))
+
+      vista_conditions = conditions.select { |c| c.id.include?('-') }
+      oh_conditions = conditions.reject { |c| c.id.include?('-') }
+      expect(vista_conditions).not_to be_empty
+      expect(oh_conditions).not_to be_empty
+
+      depression_condition = conditions.find { |c| c.id == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+      covid_condition = conditions.find { |c| c.id == 'p1533314061' }
+
+      expect(depression_condition).to have_attributes(
+        name: 'Major depressive disorder, recurrent, moderate',
+        provider: 'BORLAND,VICTORIA A',
+        facility: 'CHYSHR TEST LAB'
+      )
+
+      expect(covid_condition).to have_attributes(
+        name: 'Disease caused by 2019-nCoV',
+        provider: 'SYSTEM, SYSTEM Cerner, Cerner Managed Acct',
+        facility: 'WAMC Bariatric Surgery'
+      )
+    end
+
+    it 'returns empty array when no data exists' do
+      allow(service).to receive_messages(
+        perform: double(body: conditions_empty_response),
+        parse_response_body: conditions_empty_response
+      )
+
+      conditions = service.get_conditions
+      expect(conditions).to eq([])
+    end
+
+    it 'returns conditions from Oracle Health only when VistA is empty' do
+      allow(service).to receive_messages(
+        perform: double(body: conditions_empty_vista_response),
+        parse_response_body: conditions_empty_vista_response
+      )
+
+      conditions = service.get_conditions
+      expect(conditions.size).to eq(2)
+      expect(conditions).to all(be_a(UnifiedHealthData::Condition))
+      covid_condition = conditions.find { |c| c.id == 'p1533314061' }
+      expect(covid_condition.name).to eq('Disease caused by 2019-nCoV')
+    end
+
+    it 'returns conditions from VistA only when Oracle Health is empty' do
+      allow(service).to receive_messages(
+        perform: double(body: conditions_empty_oh_response),
+        parse_response_body: conditions_empty_oh_response
+      )
+
+      conditions = service.get_conditions
+      expect(conditions.size).to eq(16)
+      expect(conditions).to all(be_a(UnifiedHealthData::Condition))
+      first_condition = conditions.find { |c| c.id == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+      expect(first_condition.name).to eq('Major depressive disorder, recurrent, moderate')
+    end
+
+    it 'handles malformed responses gracefully' do
+      allow(service).to receive_messages(
+        perform: double(body: 'invalid'),
+        parse_response_body: nil
+      )
+
+      expect { service.get_conditions }.not_to raise_error
+      expect(service.get_conditions).to eq([])
+    end
+
+    it 'handles missing data sections without errors' do
+      modified_response = JSON.parse(conditions_sample_response.to_json)
+      modified_response['vista'] = nil
+      modified_response['oracle-health'] = nil
+      allow(service).to receive_messages(
+        perform: double(body: conditions_sample_response),
+        parse_response_body: modified_response
+      )
+
+      expect { service.get_conditions }.not_to raise_error
+      expect(service.get_conditions).to be_an(Array)
+    end
+  end
 end

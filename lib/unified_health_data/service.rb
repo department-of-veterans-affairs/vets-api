@@ -9,6 +9,7 @@ require_relative 'models/prescription'
 require_relative 'adapters/clinical_notes_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'reference_range_formatter'
+require_relative 'adapters/conditions_adapter'
 require_relative 'logging'
 
 module UnifiedHealthData
@@ -39,6 +40,23 @@ module UnifiedHealthData
         logger.log_test_code_distribution(parsed_records)
 
         filtered_records
+      end
+    end
+
+    def get_conditions
+      with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        patient_id = @user.icn
+
+        start_date = '1900-01-01'
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+        conditions_adapter.parse(combined_records)
       end
     end
 
@@ -403,6 +421,11 @@ module UnifiedHealthData
       else
         record['resource']['code'] ? record['resource']['code']['text'] : ''
       end
+    end
+
+    # Conditions methods
+    def conditions_adapter
+      @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
     end
 
     # Prescription refill helper methods
