@@ -6,6 +6,7 @@ module BGSDependentsV2
       @proc_id = proc_id
     end
 
+    # rubocop:disable Metrics/MethodLength
     def params_for_686c(participant_a_id, dependent)
       {
         vnp_proc_id: @proc_id,
@@ -29,5 +30,6 @@ module BGSDependentsV2
         dep_has_income_ind: dependent[:dep_has_income_ind]
       }
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end
