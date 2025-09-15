@@ -2507,6 +2507,9 @@ features:
   form10203_confirmation_email_with_silent_failure_processing:
     actor_type: user
     description: If enabled, confirmation email will be sent with silent failure processing
+  form10297_confirmation_email_with_silent_failure_processing:
+    actor_type: user
+    description: If enabled, confirmation email will be sent with silent failure processing
   unique_user_metrics_logging:
     # System level feature flag
     actor_type:
