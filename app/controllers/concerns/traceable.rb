@@ -43,10 +43,9 @@ module Traceable
   end
 
   # Wraps controller methods with the service tag.
-  def tag_with_service_tag(&)
-    service_tag = trace_service_tag
-    return yield if service_tag.blank?
+  def tag_with_controller_name(&)
+    return yield if controller_name.blank?
 
-    SemanticLogger.named_tagged(service_tag:, &)
+    SemanticLogger.named_tagged(controller_name:, &)
   end
 end

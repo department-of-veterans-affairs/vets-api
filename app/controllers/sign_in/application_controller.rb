@@ -16,7 +16,7 @@ module SignIn
 
     skip_before_action :authenticate, only: :cors_preflight
 
-    around_action :tag_with_service_tag
+    around_action :tag_with_controller_name
 
     def cors_preflight
       head(:ok)
