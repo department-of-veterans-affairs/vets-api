@@ -5,7 +5,7 @@ require_relative '../../../../../support/helpers/rails_helper'
 RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
   include SchemaMatchers
 
-  let!(:user) { sis_user(:mhv, mhv_account_type: 'Premium') }
+  let!(:user) { sis_user(:mhv, user_account_uuid: '12345', mhv_account_type: 'Premium') }
   let(:message_id) { 573_059 }
 
   before { Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z')) }
