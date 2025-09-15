@@ -8,7 +8,8 @@ class LighthouseDocumentUploaderBase < CarrierWave::Uploader::Base
   include UploaderVirusScan
 
   version :converted, if: :tiff_or_incorrect_extension? do
-    process(convert: :jpg, if: :tiff?)
+    process(:convert_to_jpg_if_tiff)
+
     def full_filename(original_name_for_file)
       name = "converted_#{original_name_for_file}"
       extension = CarrierWave::SanitizedFile.new(nil).send(:split_extension, original_name_for_file)[1]
@@ -42,5 +43,11 @@ class LighthouseDocumentUploaderBase < CarrierWave::Uploader::Base
       raise CarrierWave::IntegrityError, I18n.t(:'errors.messages.max_size_error',
                                                 max_size: '50MB')
     end
+  end
+
+  private
+
+  def convert_to_jpg_if_tiff
+    self.class.process(convert: :jpg) if file && tiff?(file)
   end
 end
