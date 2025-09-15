@@ -21,10 +21,14 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
   let(:claimant_representative) do
     AccreditedRepresentativePortal::ClaimantRepresentative.new(
       claimant_id: Faker::Internet.uuid,
-      power_of_attorney_holder_type:
-        AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
-      power_of_attorney_holder_poa_code: Faker::Alphanumeric.alphanumeric(number: 3),
-      accredited_individual_registration_number: Faker::Number.number(digits: 5).to_s
+      accredited_individual_registration_number: Faker::Number.number(digits: 5).to_s,
+      power_of_attorney_holder:
+        AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+          type: AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
+          name: 'Org Name',
+          poa_code: Faker::Alphanumeric.alphanumeric(number: 3),
+          can_accept_digital_poa_requests: nil
+        )
     )
   end
 
@@ -112,7 +116,14 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
 
             claimant_representative_associated =
               AccreditedRepresentativePortal::SavedClaimClaimantRepresentative.exists?(
-                **claimant_representative.to_h,
+                claimant_id:
+                  claimant_representative.claimant_id,
+                accredited_individual_registration_number:
+                  claimant_representative.accredited_individual_registration_number,
+                power_of_attorney_holder_type:
+                  claimant_representative.power_of_attorney_holder.type,
+                power_of_attorney_holder_poa_code:
+                  claimant_representative.power_of_attorney_holder.poa_code,
                 saved_claim_id: claim.id,
                 claimant_type: 'dependent'
               )
@@ -151,7 +162,14 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
 
             claimant_representative_associated =
               AccreditedRepresentativePortal::SavedClaimClaimantRepresentative.exists?(
-                **claimant_representative.to_h,
+                claimant_id:
+                  claimant_representative.claimant_id,
+                accredited_individual_registration_number:
+                  claimant_representative.accredited_individual_registration_number,
+                power_of_attorney_holder_type:
+                  claimant_representative.power_of_attorney_holder.type,
+                power_of_attorney_holder_poa_code:
+                  claimant_representative.power_of_attorney_holder.poa_code,
                 saved_claim_id: claim.id,
                 claimant_type: 'dependent'
               )
@@ -176,9 +194,14 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
             let(:claimant_representative) do
               AccreditedRepresentativePortal::ClaimantRepresentative.new(
                 claimant_id: Faker::Internet.uuid,
-                power_of_attorney_holder_type: 'invalid',
-                power_of_attorney_holder_poa_code: 'super-invalid',
-                accredited_individual_registration_number: 'wrong'
+                accredited_individual_registration_number: 'wrong',
+                power_of_attorney_holder:
+                  AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+                    type: 'invalid',
+                    poa_code: 'super-invalid',
+                    name: 'Org Name',
+                    can_accept_digital_poa_requests: nil
+                  )
               )
             end
 
