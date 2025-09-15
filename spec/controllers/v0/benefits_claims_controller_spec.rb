@@ -26,6 +26,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
     token = 'fake_access_token'
 
     allow(Rails.logger).to receive(:info)
+    allow(Rails.logger).to receive(:error)
     allow(StatsD).to receive(:increment)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
   end
@@ -143,6 +144,27 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             expect_metric('index', 'IN_PROGRESS', 1)
             expect_metric('index', 'FAILED', 2)
             expect_metric('index', 'SUCCESS', 2)
+          end
+        end
+
+        context 'when evidence submission metrics reporting fails' do
+          before do
+            # Allow normal EvidenceSubmission calls to work
+            allow(EvidenceSubmission).to receive(:where).and_call_original
+
+            # Mock specifically for the metrics method pattern (claim_id with an array)
+            allow(EvidenceSubmission).to receive(:where).with(claim_id: kind_of(Array))
+                                                        .and_raise(StandardError, 'Database connection error')
+          end
+
+          it 'logs the error and continues processing' do
+            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+              get(:index)
+            end
+
+            expect(response).to have_http_status(:ok)
+            expect(Rails.logger).to have_received(:error)
+              .with(a_string_including('BenefitsClaimsController#index'))
           end
         end
       end
@@ -363,6 +385,28 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             expect(evidence_submissions.size).to eq(1)
             expect(evidence_submissions[0]['tracked_item_id']).to eq(tracked_item_id)
             expect_metric('show', 'SUCCESS')
+          end
+        end
+
+        context 'when evidence submission metrics reporting fails' do
+          before do
+            # Allow normal EvidenceSubmission calls to work
+            allow(EvidenceSubmission).to receive(:where).and_call_original
+
+            # Mock specifically for the metrics method pattern (claim_id with an array)
+            # Show endpoint passes a single ID converted to array in the metrics method
+            allow(EvidenceSubmission).to receive(:where).with(claim_id: kind_of(Array))
+                                                        .and_raise(StandardError, 'Database connection error')
+          end
+
+          it 'logs the error and continues processing' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              get(:show, params: { id: claim_id })
+            end
+
+            expect(response).to have_http_status(:ok)
+            expect(Rails.logger).to have_received(:error)
+              .with(a_string_including('BenefitsClaimsController#show'))
           end
         end
       end
