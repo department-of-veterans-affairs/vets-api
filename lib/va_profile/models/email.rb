@@ -41,23 +41,6 @@ module VAProfile
             originatingSourceSystem: SOURCE_SYSTEM,
             sourceSystemUser: @source_system_user,
             sourceDate: @source_date,
-            vet360Id: @vet360_id || @vaProfileId,
-            effectiveStartDate: @effective_start_date,
-            effectiveEndDate: @effective_end_date
-          }
-        }.to_json
-      end
-
-      # Contact Information V2 requests do not need the vet360Id
-      # in_json_v2 will replace in_json when Contact Information V1 Service has depreciated
-      def in_json_v2
-        {
-          bio: {
-            emailAddressText: @email_address,
-            emailId: @id,
-            originatingSourceSystem: SOURCE_SYSTEM,
-            sourceSystemUser: @source_system_user,
-            sourceDate: @source_date,
             effectiveStartDate: @effective_start_date,
             effectiveEndDate: @effective_end_date
           }

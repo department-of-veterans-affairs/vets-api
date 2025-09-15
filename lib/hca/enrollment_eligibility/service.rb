@@ -304,7 +304,7 @@ module HCA
             fullName: {},
             relationship: get_locate_value(association, 'relationship'),
             contactType: get_locate_value(association, 'contactType'),
-            primaryPhone: get_locate_value(association, 'primaryPhone').gsub(/[()\-]/, ''),
+            primaryPhone: get_locate_value(association, 'primaryPhone').gsub(/[()-]/, ''),
             address: get_address_from_association(association)
           }
           fill_contact_full_name_from_association(contact, association)

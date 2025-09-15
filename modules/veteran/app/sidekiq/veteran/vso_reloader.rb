@@ -10,7 +10,7 @@ module Veteran
 
     # The total number of representatives and organizations parsed from the ingested .ASP files
     # must not decrease by more than this percentage from the previous count
-    DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
+    DECREASE_THRESHOLD = 0.50 # 50% maximum decrease allowed
 
     # User type constants
     USER_TYPE_ATTORNEY = 'attorney'

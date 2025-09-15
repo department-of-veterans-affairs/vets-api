@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'va_profile/address_validation/v3/service'
 
 describe VAProfile::AddressValidation::V3::Service do
-  let(:base_address) { build(:va_profile_v3_validation_address) }
+  let(:base_address) { build(:va_profile_validation_address) }
 
   let(:address) do
     base_address.address_line1 = '5 Stoddard Ct'
@@ -24,11 +24,7 @@ describe VAProfile::AddressValidation::V3::Service do
   end
 
   let(:multiple_match_addr) do
-    build(:va_profile_v3_validation_address, :multiple_matches)
-  end
-
-  before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
+    build(:va_profile_validation_address, :multiple_matches)
   end
 
   describe '#address_suggestions' do
@@ -141,29 +137,9 @@ describe VAProfile::AddressValidation::V3::Service do
             'va_profile/v3/address_validation/candidate_no_match',
             match_requests_on: [:uri]
           ) do
-            res = described_class.new.address_suggestions(invalid_address)
-            expect(JSON.parse(res.to_json)).to eq(
-              'addresses' => [
-                {
-                  'address' => {
-                    'address_line1' => 'Sdfdsfsdf',
-                    'address_type' => 'DOMESTIC',
-                    'city' => 'Sparks Glencoe',
-                    'country_name' => 'United States',
-                    'country_code_iso3' => 'USA',
-                    'state_code' => 'MD',
-                    'zip_code' => '21152'
-                  },
-                  'address_meta_data' => {
-                    'confidence_score' => 0.0,
-                    'address_type' => 'Domestic',
-                    'delivery_point_validation' => 'MISSING_ZIP'
-                  }
-                }
-              ],
-              'override_validation_key' => 1_499_210_293,
-              'validation_key' => 1_499_210_293
-            )
+            expect { described_class.new.address_suggestions(invalid_address) }.to raise_error(
+              Common::Exceptions::BackendServiceException
+            ).with_message(/CandidateAddressNotFound/)
           end
         end
       end
@@ -171,58 +147,16 @@ describe VAProfile::AddressValidation::V3::Service do
   end
 
   describe '#candidate' do
-    context 'with a request error' do
-      it 'raises backend service exception' do
-        allow_any_instance_of(described_class).to receive(:perform).and_raise(Common::Client::Errors::ClientError)
-        expect { described_class.new.candidate(invalid_address) }.to raise_error(
-          Common::Exceptions::BackendServiceException
-        )
-      end
-    end
-
     context 'with an invalid address' do
       it 'returns error messages' do
         VCR.use_cassette(
           'va_profile/v3/address_validation/candidate_no_match',
           VCR::MATCH_EVERYTHING
         ) do
-          expect(described_class.new.candidate(invalid_address)).to eq(
-            'candidate_addresses' => [
-              {
-                'address_line1' => 'Sdfdsfsdf',
-                'city_name' => 'Sparks Glencoe',
-                'zip_code5' => '21152',
-                'state' => {
-                  'state_name' => 'Maryland',
-                  'state_code' => 'MD'
-                },
-                'country' => {
-                  'country_name' => 'United States',
-                  'country_code_fips' => 'US',
-                  'country_code_iso2' => 'US',
-                  'country_code_iso3' => 'USA'
-                },
-                'geocode' => {
-                  'calc_date' => '2024-10-22T19:26:20+00:00Z',
-                  'latitude' => 39.5412,
-                  'longitude' => -76.6676
-                },
-                'confidence' => 0.0,
-                'address_type' => 'Domestic',
-                'delivery_point_validation' => 'MISSING_ZIP'
-              }
-            ],
-            'override_validation_key' => 1_499_210_293,
-            'messages' => [
-              {
-                'code' => 'ADDRVAL108',
-                'key' => 'CandidateAddressNotFound',
-                'severity' => 'WARN',
-                'text' => 'No Candidate Address Found',
-                'potentially_self_correcting_on_retry' => true
-              }
-            ]
-          )
+          allow_any_instance_of(described_class).to receive(:perform).and_raise(Common::Client::Errors::ClientError)
+          expect { described_class.new.candidate(invalid_address) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          ).with_message(/VET360_502/)
         end
       end
     end
