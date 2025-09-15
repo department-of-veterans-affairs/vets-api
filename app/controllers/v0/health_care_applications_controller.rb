@@ -112,7 +112,7 @@ module V0
       return unless Flipper.enabled?(:hca_in_progress_form_logging)
 
       in_progress_form = InProgressForm.form_for_user(FORM_ID, current_user)
-      Rails.logger.info("[10-10EZ][#{log_user_uuid}] " \
+      Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}] " \
                         "- HealthCareApplication has InProgressForm: #{!in_progress_form.nil?}")
     end
 
@@ -120,7 +120,7 @@ module V0
       in_progress_form_before = nil
       if Flipper.enabled?(:hca_in_progress_form_logging)
         in_progress_form_before = InProgressForm.form_for_user(FORM_ID, current_user)
-        Rails.logger.info("[10-10EZ][#{log_user_uuid}][#{log_hca_id}, " \
+        Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}][#{hca_id}, " \
                           "form_submission_id: #{health_care_application.form_submission_id_string}] - " \
                           "InProgressForm exists before attempted delete: #{!in_progress_form_before.nil?}")
 
@@ -130,22 +130,40 @@ module V0
 
       if Flipper.enabled?(:hca_in_progress_form_logging) && in_progress_form_before
         in_progress_form_after = InProgressForm.form_for_user(FORM_ID, current_user)
-        Rails.logger.info("[10-10EZ][#{log_user_uuid}][#{log_hca_id}] - " \
-                          "InProgressForm successfully deleted: #{in_progress_form_after.nil?}")
+        Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}][#{hca_id}]" \
+                          "[ipf_id_before:#{in_progress_form_before&.id}, ipf_id_after:#{in_progress_form_after&.id}]" \
+                          " - InProgressForm successfully deleted: #{in_progress_form_after.nil?}")
+        increment_in_progress_metric(in_progress_form_after)
       end
     rescue => e
-      Rails.logger.warn("[10-10EZ][#{log_user_uuid}][#{log_hca_id}] - Failed to clear saved form: #{e.message}")
+      Rails.logger.warn("[10-10EZ][#{user_uuid},#{user_account_id}][#{hca_id}] - " \
+                        "Failed to clear saved form: #{e.message}")
     end
 
-    def log_hca_id
-      "HCA id: #{health_care_application.id}"
+    def increment_in_progress_metric(in_progress_form_after)
+      metric_text = if in_progress_form_after.nil?
+                      'in_progress_form_deleted'
+                    else
+                      'in_progress_form_not_deleted'
+                    end
+      StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.#{metric_text}",
+                       tags: [hca_id, user_uuid, user_account_id])
     end
 
-    def log_user_uuid
+    def hca_id
+      "health_care_application_id:#{health_care_application.id}"
+    end
+
+    def user_uuid
       user_uuid = current_user.uuid || 'none'
+
+      "user_uuid:#{user_uuid}"
+    end
+
+    def user_account_id
       user_account_id = current_user&.user_account&.id || 'none'
 
-      "User uuid: #{user_uuid}, UserAccount id: #{user_account_id}"
+      "user_account_id:#{user_account_id}"
     end
 
     def health_care_application

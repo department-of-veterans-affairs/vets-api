@@ -43,7 +43,7 @@ RSpec.describe Mobile::V0::Vet360LinkingJob, type: :job do
           'Mobile Vet360 account linking request failed for user with uuid',
           {
             user_uuid: user.uuid,
-            message: 'BackendServiceException: {:source=>"VAProfile::Person::V2::Service", :code=>"VET360_PERS101"}'
+            message: 'BackendServiceException: {:source=>"VAProfile::Person::Service", :code=>"VET360_PERS101"}'
           }
         )
         subject.perform(user.uuid)

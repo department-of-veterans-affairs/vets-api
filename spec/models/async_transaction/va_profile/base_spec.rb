@@ -83,7 +83,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
 
   describe '.start' do
     let(:user) { build(:user, :loa3) }
-    let(:address) { build(:va_profile_v3_address, :mobile) }
+    let(:address) { build(:va_profile_address, :mobile) }
 
     it 'returns an instance with the user uuid', :aggregate_failures do
       VCR.use_cassette('va_profile/v2/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do

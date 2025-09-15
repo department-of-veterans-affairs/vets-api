@@ -45,9 +45,11 @@ module TravelClaim
       validate_parameters
       process_claim_submission
     rescue Common::Exceptions::BackendServiceException => e
+      log_metric('BTSSS_ERROR')
       raise e
     rescue => e
       log_message(:error, 'Unexpected error', error_class: e.class.name)
+      log_metric('BTSSS_ERROR')
       raise_backend_service_exception('An unexpected error occurred')
     end
 
@@ -66,6 +68,7 @@ module TravelClaim
       add_expense_to_claim(claim_id)
       submit_claim_for_processing(claim_id)
 
+      log_metric('BTSSS_SUCCESS')
       { 'success' => true, 'claimId' => claim_id }
     end
 
@@ -91,9 +94,10 @@ module TravelClaim
       log_message(:info, 'Get appointment ID', uuid: @uuid)
 
       response = client.send_appointment_request
-      appointment_id = response.body.dig('data', 'id')
+      appointment_id = response.body.dig('data', 0, 'id')
 
       unless appointment_id
+        log_metric('APPOINTMENT_ERROR')
         raise_backend_service_exception('Appointment could not be found or created', response.status)
       end
 
@@ -113,7 +117,10 @@ module TravelClaim
       response = client.send_claim_request(appointment_id:)
       claim_id = response.body.dig('data', 'claimId')
 
-      raise_backend_service_exception('Failed to create claim', response.status) unless claim_id
+      unless claim_id
+        log_metric('CLAIM_CREATE_ERROR')
+        raise_backend_service_exception('Failed to create claim', response.status)
+      end
 
       claim_id
     end
@@ -129,7 +136,10 @@ module TravelClaim
 
       response = client.send_mileage_expense_request(claim_id:, date_incurred: @appointment_date)
 
-      raise_backend_service_exception('Failed to add expense', response.status) unless response.status == 200
+      unless response.status == 200
+        log_metric('EXPENSE_ADD_ERROR')
+        raise_backend_service_exception('Failed to add expense', response.status)
+      end
     end
 
     ##
@@ -143,7 +153,10 @@ module TravelClaim
 
       response = client.send_claim_submission_request(claim_id:)
 
-      raise_backend_service_exception('Failed to submit claim', response.status) unless response.status == 200
+      unless response.status == 200
+        log_metric('CLAIM_SUBMIT_ERROR')
+        raise_backend_service_exception('Failed to submit claim', response.status)
+      end
     end
 
     ##
@@ -191,6 +204,17 @@ module TravelClaim
         { detail: },
         status
       )
+    end
+
+    ##
+    # Logs a metric with facility-type awareness
+    #
+    # @param metric_suffix [String] the suffix for the metric constant
+    #
+    def log_metric(metric_suffix)
+      prefix = @facility_type&.downcase == 'oh' ? 'OH' : 'CIE'
+      constant_name = "#{prefix}_STATSD_#{metric_suffix}"
+      StatsD.increment(CheckIn::Constants.const_get(constant_name))
     end
   end
 end

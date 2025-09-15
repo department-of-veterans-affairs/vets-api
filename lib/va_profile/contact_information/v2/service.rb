@@ -65,7 +65,7 @@ module VAProfile
 
         def update_address(address)
           address_type =
-            if address.address_pou == VAProfile::Models::V3::BaseAddress::RESIDENCE
+            if address.address_pou == VAProfile::Models::BaseAddress::RESIDENCE
               'residential'
             else
               'mailing'
@@ -294,8 +294,7 @@ module VAProfile
           with_monitoring do
             verify_user!
             request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(vaprofile_aaid)}" + "/#{path}"
-            # in_json_v2 method should replace in_json after Contact Information V1 has depreciated
-            raw_response = perform(method, request_path, model.in_json_v2)
+            raw_response = perform(method, request_path, model.in_json)
             response_class.from(raw_response)
           end
         rescue => e

@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: fc860d92f6fe0a0c861234638b403c1b498ae338
+  revision: c78f4d3f0aa9eea7b7bb1ebe390286e28d293392
   branch: master
   specs:
-    vets_json_schema (25.1.10)
+    vets_json_schema (25.2.3)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -246,8 +246,8 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1152.0)
-    aws-sdk-core (3.231.0)
+    aws-partitions (1.1156.0)
+    aws-sdk-core (3.232.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -261,7 +261,7 @@ GEM
     aws-sdk-kms (1.112.0)
       aws-sdk-core (~> 3, >= 3.231.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.198.0)
+    aws-sdk-s3 (1.199.0)
       aws-sdk-core (~> 3, >= 3.231.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -368,10 +368,10 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.20.0)
+    datadog (2.19.0)
       datadog-ruby_core_source (~> 3.4, >= 3.4.1)
       libdatadog (~> 18.1.0.1.0)
-      libddwaf (~> 1.24.1.1.0)
+      libddwaf (~> 1.24.1.0.3)
       logger
       msgpack
     datadog-ruby_core_source (3.4.1)
@@ -680,11 +680,11 @@ GEM
     libdatadog (18.1.0.1.0)
     libdatadog (18.1.0.1.0-aarch64-linux)
     libdatadog (18.1.0.1.0-x86_64-linux)
-    libddwaf (1.24.1.1.0)
+    libddwaf (1.24.1.0.3)
       ffi (~> 1.0)
-    libddwaf (1.24.1.1.0-aarch64-linux)
+    libddwaf (1.24.1.0.3-aarch64-linux)
       ffi (~> 1.0)
-    libddwaf (1.24.1.1.0-x86_64-linux)
+    libddwaf (1.24.1.0.3-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
     liquid (5.8.7)
@@ -855,9 +855,9 @@ GEM
       date
       jar-dependencies (>= 0.1.7)
     public_suffix (6.0.2)
-    puma (7.0.1)
+    puma (7.0.2)
       nio4r (~> 2.0)
-    puma (7.0.1-java)
+    puma (7.0.2-java)
       nio4r (~> 2.0)
     pundit (2.5.0)
       activesupport (>= 3.0.0)
@@ -1081,7 +1081,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.17.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.26.0)
+    sentry-ruby (5.27.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)

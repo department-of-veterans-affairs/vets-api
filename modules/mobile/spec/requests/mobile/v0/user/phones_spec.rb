@@ -20,7 +20,7 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
   end
 
   describe 'POST /mobile/v0/user/phones' do
-    let(:telephone) { build(:telephone, :contact_info_v2, id: nil, source_system_user: user.icn) }
+    let(:telephone) { build(:telephone, id: nil, source_system_user: user.icn) }
 
     context 'with a valid phone number' do
       before do
@@ -80,7 +80,7 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
 
   describe 'PUT /mobile/v0/user/phones' do
     let(:telephone) do
-      build(:telephone, :contact_info_v2, source_system_user: user.icn, id: 458_781, phone_number: 5_551_235)
+      build(:telephone, source_system_user: user.icn, id: 458_781, phone_number: 5_551_235)
     end
 
     context 'with a valid phone number' do
@@ -141,7 +141,7 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
   end
 
   describe 'DELETE /mobile/v0/user/phones' do
-    let(:telephone) { build(:telephone, :contact_info_v2, source_system_user: user.icn, id: 42) }
+    let(:telephone) { build(:telephone, source_system_user: user.icn, id: 42) }
 
     context 'with a valid phone number' do
       before do

@@ -40,7 +40,7 @@ module Avs
 
         avs_response = avs_service.get_avs(sid)
 
-        if avs_response[:status] == 404
+        if avs_response.status == 404
           render_client_error('Not found', "No AVS found for sid #{sid}", :not_found)
           return
         end
