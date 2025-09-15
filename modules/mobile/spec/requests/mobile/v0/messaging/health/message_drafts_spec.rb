@@ -5,7 +5,7 @@ require_relative '../../../../../support/helpers/rails_helper'
 RSpec.describe 'Mobile::V0::Messaging::Health::MessageDrafts', type: :request do
   include SchemaMatchers
 
-  let!(:user) { sis_user(:mhv, mhv_account_type: 'Premium') }
+  let!(:user) { sis_user(:mhv, user_account_uuid: '12345', mhv_account_type: 'Premium') }
   let(:reply_id)               { 674_874 }
   let(:created_draft_id)       { 674_942 }
   let(:created_draft_reply_id) { 674_944 }

@@ -6,7 +6,7 @@ require 'vets/collection'
 RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validation, type: :request do
   include SchemaMatchers
 
-  let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
+  let!(:user) { sis_user(:mhv, user_account_uuid: '12345', mhv_correlation_id: '123', mhv_account_type: 'Premium') }
   let(:inbox_id) { 0 }
 
   before do
