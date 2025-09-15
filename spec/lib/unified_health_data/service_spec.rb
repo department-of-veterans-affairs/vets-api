@@ -1110,12 +1110,12 @@ describe UnifiedHealthData::Service, type: :service do
         expect(result).to have_key(:failed)
 
         expect(result[:success]).to contain_exactly(
-          { id: '15218125519', status: 'Already in Queue' }
+          { id: '15218125519', status: 'Already in Queue', station_number: '556' }
         )
 
         expect(result[:failed]).to contain_exactly(
-          { id: '0000000000001', error: 'Prescription is not Found' },
-          { id: '15215488543', error: '^ER:Error:' }
+          { id: '0000000000001', error: 'Prescription is not Found', station_number: '570' },
+          { id: '15215488543', error: '^ER:Error:', station_number: '687GB' }
         )
       end
 
@@ -1152,7 +1152,7 @@ describe UnifiedHealthData::Service, type: :service do
 
         expect(result[:success]).to eq([])
         expect(result[:failed]).to contain_exactly(
-          { id: '12345', error: 'Service unavailable' }
+          { id: '12345', error: 'Service unavailable', station_number: '570' }
         )
       end
 

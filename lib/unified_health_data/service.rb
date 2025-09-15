@@ -427,7 +427,7 @@ module UnifiedHealthData
     def build_error_response(orders)
       {
         success: [],
-        failed: orders.map { |order| { id: order[:id], error: 'Service unavailable' } }
+        failed: orders.map { |order| { id: order[:id], error: 'Service unavailable', station_number: order[:stationNumber] } }
       }
     end
 
@@ -455,7 +455,8 @@ module UnifiedHealthData
       successful_refills.map do |refill|
         {
           id: refill['orderId'],
-          status: refill['message'] || 'submitted'
+          status: refill['message'] || 'submitted',
+          station_number: refill['stationNumber']
         }
       end
     end
@@ -466,7 +467,8 @@ module UnifiedHealthData
       failed_refills.map do |failure|
         {
           id: failure['orderId'],
-          error: failure['message'] || 'Unable to process refill'
+          error: failure['message'] || 'Unable to process refill',
+          station_number: failure['stationNumber']
         }
       end
     end
