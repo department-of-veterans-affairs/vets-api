@@ -1495,6 +1495,9 @@ features:
     actor_type: user
     description: Display My HealtheVet and My VA links in the site header
     enable_in_development: true
+  mhv_email_confirmation:
+    actor_type: user
+    description: Enables/disables email confirmation alerts on MHV and My VA pages
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
