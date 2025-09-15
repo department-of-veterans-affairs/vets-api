@@ -125,7 +125,7 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
 
       # Verify the certificate processing logic is present
       expect(script_content).to include('for cert in *.{cer,pem}')
-      expect(script_content).to include('if file "${cert}" | grep \'PEM\'')
+      expect(script_content).to include('if file "${cert}" | grep -q \'PEM\'')
       expect(script_content).to include('cp "${cert}" "${cert}.crt"')
       expect(script_content).to include('openssl x509 -in "${cert}" -inform der -outform pem -out "${cert}.crt"')
       expect(script_content).to include('rm "${cert}"')
@@ -136,10 +136,14 @@ RSpec.describe 'import-va-certs' do # rubocop:disable RSpec/DescribeClass
 
       # Verify the script structure contains the correct commands for conversion
       expect(script_content).to include('openssl x509 -in "${cert}" -inform der -outform pem -out "${cert}.crt"')
-      expect(script_content).to include('if file "${cert}" | grep \'PEM\'')
+      expect(script_content).to include('if file "${cert}" | grep -q \'PEM\'')
 
-      # Verify the else branch for DER conversion is present
-      expect(script_content).to match(/else\s+openssl x509.*-inform der -outform pem/m)
+      # Verify base64-encoded DER handling
+      expect(script_content).to include('elif file "${cert}" | grep -q \'ASCII text\'')
+      expect(script_content).to include('base64 -d "${cert}" > "${cert}.der"')
+
+      # Verify the else branch for binary DER conversion is present
+      expect(script_content).to match(/else\s+.*openssl x509.*-inform der -outform pem/m)
     end
   end
 

@@ -122,7 +122,7 @@ module IvcChampva
 
       {
         'pdi_number' => pdi_or_claim == 'PDI number' ? identifying_number : '',
-        'claim_number' => pdi_or_claim == 'Claim control number' ? identifying_number : ''
+        'claim_number' => pdi_or_claim == 'Control number' ? identifying_number : ''
       }.compact_blank
     end
   end

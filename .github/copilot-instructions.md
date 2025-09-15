@@ -90,25 +90,27 @@ Recommend: Remove PII, move key to env var, add before_action
 
 ## Flipper Usage in Tests
 
+**⚠️ IMPORTANT: DO NOT suggest changes to Flipper stubs that already follow the correct pattern below.**
+
 Avoid enabling or disabling Flipper features in tests. Instead, use stubs to control feature flag behavior:
 
-**❌ Avoid (modifies global state):**
+**❌ ONLY flag these patterns (modifies global state):**
 ```ruby
 Flipper.enable(:veteran_benefit_processing)
 Flipper.disable(:legacy_claims_api)
 ```
 
-**✅ Correct approach (stubs without side effects):**
+**✅ This is the CORRECT pattern - DO NOT suggest changes to this:**
 ```ruby
-# Flipper.enable → stub with and_return(true)
+# This is the correct way to stub Flipper in tests
 allow(Flipper).to receive(:enabled?).with(:veteran_benefit_processing).and_return(true)
-# Flipper.disable → stub with and_return(false)
 allow(Flipper).to receive(:enabled?).with(:legacy_claims_api).and_return(false)
 ```
 
-**Important:** When suggesting stub replacements, preserve the intended behavior:
-- `Flipper.enable(:feature)` → stub with `and_return(true)`
-- `Flipper.disable(:feature)` → stub with `and_return(false)`
+**Critical for PR Reviews:**
+- If you see `allow(Flipper).to receive(:enabled?).with(:feature).and_return(true/false)` - this is CORRECT, do not comment
+- ONLY suggest changes when you see actual `Flipper.enable()` or `Flipper.disable()` calls
+- Never suggest replacing correct stubs with identical stubs
 
 ## Context for Responses
 - **VA.gov serves millions of veterans** - reliability and security critical

@@ -79,7 +79,7 @@ RSpec.describe Lighthouse::Facilities::V1::Response, type: :model do
 
     it 'creates facilities with underscore attributes' do
       facility = subject.facilities.first
-      expect(facility.attributes.keys).to include(:name, :facility_type)
+      expect(facility.attributes.keys).to include('name', 'facility_type')
     end
 
     context 'data is nil' do

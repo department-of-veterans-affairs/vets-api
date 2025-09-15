@@ -25,9 +25,7 @@ module AccreditedRepresentativePortal
         begin
           yield(span)
         rescue => e
-          span.set_tag('error', true)
-          span.set_tag('error.type', e.class.name)
-          span.set_tag('error.message', e.message)
+          span.set_error(e)
           raise
         end
       end

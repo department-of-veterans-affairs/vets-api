@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative 'sign_in_controller_shared_examples_spec'
 
 RSpec.describe V0::SignInController, type: :controller do
-  include_context 'sign_in_controller_shared_setup'
   include_context 'authorize_setup'
 
   describe 'GET authorize' do
@@ -17,7 +15,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:acr_value) { nil }
         let(:expected_error) { 'ACR is not valid' }
 
-        it_behaves_like 'error response'
+        it_behaves_like 'authorize_error_response'
       end
 
       context 'and acr param is given but not in client service_levels' do
@@ -25,14 +23,14 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:service_levels) { ['ial2'] }
         let(:expected_error) { 'ACR is not valid' }
 
-        it_behaves_like 'error response'
+        it_behaves_like 'authorize_error_response'
       end
 
       context 'and acr param is given and in client service_levels but not valid for logingov' do
         let(:acr_value) { 'loa1' }
         let(:expected_error) { 'Invalid ACR for logingov' }
 
-        it_behaves_like 'error response'
+        it_behaves_like 'authorize_error_response'
       end
 
       context 'and acr param is given and in client service_levels and valid for logingov' do
@@ -45,13 +43,13 @@ RSpec.describe V0::SignInController, type: :controller do
             let(:pkce) { true }
             let(:expected_error) { 'Code Challenge Method is not valid' }
 
-            it_behaves_like 'error response'
+            it_behaves_like 'authorize_error_response'
           end
 
           context 'and client is configured with pkce disabled' do
             let(:pkce) { false }
 
-            it_behaves_like 'expected response with optional client state'
+            it_behaves_like 'authorize_client_state_handling'
           end
         end
 
@@ -65,13 +63,13 @@ RSpec.describe V0::SignInController, type: :controller do
               let(:pkce) { true }
               let(:expected_error) { 'Code Challenge is not valid' }
 
-              it_behaves_like 'error response'
+              it_behaves_like 'authorize_error_response'
             end
 
             context 'and client is configured with pkce disabled' do
               let(:pkce) { false }
 
-              it_behaves_like 'expected response with optional client state'
+              it_behaves_like 'authorize_client_state_handling'
             end
           end
 
@@ -83,20 +81,20 @@ RSpec.describe V0::SignInController, type: :controller do
               let(:expected_error) { 'Code Challenge is not valid' }
               let(:expected_error_json) { { 'errors' => expected_error } }
 
-              it_behaves_like 'error response'
+              it_behaves_like 'authorize_error_response'
             end
 
             context 'and client is configured with pkce disabled' do
               let(:pkce) { false }
 
-              it_behaves_like 'expected response with optional client state'
+              it_behaves_like 'authorize_client_state_handling'
             end
           end
 
           context 'and code_challenge is properly URL encoded' do
             let(:code_challenge) { { code_challenge: Base64.urlsafe_encode64('some-safe-code-challenge') } }
 
-            it_behaves_like 'expected response with optional client state'
+            it_behaves_like 'authorize_client_state_handling'
           end
         end
 
@@ -105,13 +103,13 @@ RSpec.describe V0::SignInController, type: :controller do
             let(:pkce) { true }
             let(:expected_error) { 'Code Challenge Method is not valid' }
 
-            it_behaves_like 'error response'
+            it_behaves_like 'authorize_error_response'
           end
 
           context 'and client is configured with pkce disabled' do
             let(:pkce) { false }
 
-            it_behaves_like 'expected response with optional client state'
+            it_behaves_like 'authorize_client_state_handling'
           end
         end
       end
@@ -139,7 +137,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:operation_value) { 'some-operation-value' }
         let(:expected_error) { 'Operation is not valid' }
 
-        it_behaves_like 'error response'
+        it_behaves_like 'authorize_error_response'
       end
     end
   end
