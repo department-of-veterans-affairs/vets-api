@@ -27,6 +27,7 @@ class SavedClaim < ApplicationRecord
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
   has_many :claim_va_notifications, dependent: :destroy
+
   has_many :form_submissions, dependent: :nullify
   has_many :bpds_submissions, class_name: 'BPDS::Submission', dependent: :nullify
   has_many :lighthouse_submissions, class_name: 'Lighthouse::Submission', dependent: :nullify
@@ -133,11 +134,9 @@ class SavedClaim < ApplicationRecord
     nil
   end
 
-  ##
   # insert notifcation after VANotify email send
   #
   # @see ClaimVANotification
-  #
   def insert_notification(email_template_id)
     claim_va_notifications.create!(
       form_type: form_id,
@@ -146,12 +145,10 @@ class SavedClaim < ApplicationRecord
     )
   end
 
-  ##
   # Find notifcation by args*
   #
   # @param email_template_id
   # @see ClaimVANotification
-  #
   def va_notification?(email_template_id)
     claim_va_notifications.find_by(
       form_type: form_id,
@@ -161,6 +158,16 @@ class SavedClaim < ApplicationRecord
 
   def regional_office
     []
+  end
+
+  # retrieve claim groups _this_ claim is a parent of
+  def parent_of_claim_groups
+    claim_groups(SavedClaimGroup.where(parent_claim_id: id))
+  end
+
+  # retrieve claim groups _this_ claim is a child of
+  def child_of_claim_groups
+    claim_groups(SavedClaimGroup.where(saved_claim_id: id))
   end
 
   private
@@ -201,6 +208,11 @@ class SavedClaim < ApplicationRecord
 
   def attachment_keys
     []
+  end
+
+  # retrieve list of claim groups keyed to claim_group_guid
+  def claim_groups(group_claims)
+    group_claims.each_with_object({}) { |hash, group_claim| hash[group_claim.claim_group_guid] << group_claim }
   end
 
   def after_create_metrics

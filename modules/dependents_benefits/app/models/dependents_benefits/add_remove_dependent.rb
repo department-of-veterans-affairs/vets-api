@@ -4,7 +4,6 @@ module DependentsBenefits
   # DependentsBenefit 21-686c Active::Record
   # @see app/model/saved_claim
   class AddRemoveDependent < ::SavedClaim
-
     # DependentsBenefit Form ID
     FORM = DependentsBenefits::ADD_REMOVE_DEPENDENT
 

@@ -4,7 +4,6 @@ module DependentsBenefits
   # DependentsBenefit 21-674 Active::Record
   # @see app/model/saved_claim
   class SchoolAttendanceApproval < ::SavedClaim
-
     # DependentsBenefit Form ID
     FORM = DependentsBenefits::SCHOOL_ATTENDANCE_APPROVAL
 
