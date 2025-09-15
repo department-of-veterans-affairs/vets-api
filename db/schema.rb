@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_15_095344) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1253,6 +1253,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
     t.text "ves_request_data_ciphertext"
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.text "first_name_ciphertext"
+    t.text "last_name_ciphertext"
+    t.text "email_ciphertext"
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
     t.index ["needs_kms_rotation"], name: "index_ivc_champva_forms_on_needs_kms_rotation"
   end
