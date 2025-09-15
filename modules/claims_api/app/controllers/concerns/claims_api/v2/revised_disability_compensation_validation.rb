@@ -346,7 +346,7 @@ module ClaimsApi
         if mailing_address['city'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/city',
-            title: 'Missing city',
+            title: 'Unprocessable Entity',
             detail: 'City is required'
           )
         end
@@ -355,8 +355,8 @@ module ClaimsApi
         if mailing_address['country'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/country',
-            title: 'Missing country',
-            detail: 'Country is required'
+            title: 'Unprocessable Entity',
+            detail: 'The country provided is not valid.'
           )
         end
       end
@@ -576,7 +576,7 @@ module ClaimsApi
 
         collect_error(
           source: '/disabilities',
-          title: 'Invalid array',
+          title: 'Unprocessable Entity',
           detail: "Number of disabilities (#{disabilities.size}) exceeds maximum allowed (150)"
         )
       end
