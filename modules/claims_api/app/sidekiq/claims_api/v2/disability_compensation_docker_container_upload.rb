@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'pdf_generator_service/pdf_client'
-require 'claims_api/v2/disability_compensation_evss_mapper'
+require 'claims_api/v1/disability_compensation_fes_mapper'
 require 'evss_service/base'
 
 module ClaimsApi
@@ -10,7 +10,7 @@ module ClaimsApi
       LOG_TAG = '526_v2_Docker_Container_job'
       sidekiq_options expires_in: 48.hours, retry: true
 
-      def perform(claim_id) # rubocop:disable Metrics/MethodLength
+      def perform(claim_id)
         log_job_progress(claim_id,
                          'Docker container job started')
 
@@ -23,7 +23,7 @@ module ClaimsApi
         log_job_progress(claim_id,
                          'Submitting mapped data to Docker container')
 
-        evss_res = evss_service.submit(auto_claim, evss_data)
+        evss_res = fes_service.submit(auto_claim, evss_data)
 
         log_job_progress(claim_id,
                          "Successfully submitted to Docker container with response: #{evss_res}")
@@ -49,7 +49,8 @@ module ClaimsApi
                          "Docker container job errored #{e.class}: #{auto_claim&.evss_response}")
         if will_retry?(auto_claim, e)
           raise e
-        else # form526.submit.noRetryError OR form526.InProcess error returned
+        else
+          # form526.submit.noRetryError OR form526.InProcess error returned
           {}
         end
       rescue => e

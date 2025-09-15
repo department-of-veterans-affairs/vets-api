@@ -94,11 +94,9 @@ describe ClaimsApi::DisabilityCompensation::Form526EstablishmentService do
   end
 
   describe '#upload' do
-    context 'using the EVSS Service v2' do
+    context 'using the EVSS Service' do
       before do
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(false)
-        allow(form526_establishment_service).to receive(:claim_version).and_return(:v2)
       end
 
       it 'has a upload method that returns a claim id' do
@@ -157,10 +155,9 @@ describe ClaimsApi::DisabilityCompensation::Form526EstablishmentService do
       end
     end
 
-    context 'using the FES Service v2' do
+    context 'using the FES Service' do
       before do
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(true)
-        allow(form526_establishment_service).to receive(:claim_version).and_return(:v2)
       end
 
       it 'has a upload method that returns a claim id' do
@@ -218,23 +215,21 @@ describe ClaimsApi::DisabilityCompensation::Form526EstablishmentService do
         end
       end
     end
+  end
 
-    context 'EVSS Service (v1 branch)' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
-        allow(form526_establishment_service).to receive(:claim_version).and_return(:v1)
-      end
+  describe '#upload_v1' do
+    context 'using the v1 EVSS Service' do
+      before { allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(false) }
 
-      it 'returns true' do
+      it 'has a upload method that returns a claim id' do
         VCR.use_cassette('/claims_api/evss/submit', allow_playback_repeats: true) do
-          expect(form526_establishment_service.send(:upload, claim.id)).to be(true)
+          expect(form526_establishment_service.upload_v1(claim.id)).to be(true)
         end
       end
 
-      it 'adds the transaction_id to headers' do
-        VCR.use_cassette('/claims_api/evss/submit', allow_playback_repeats: true) do
-          form526_establishment_service.send(:upload, claim_with_transaction_id.id)
+      it 'adds the transaction_id to the headers' do
+        VCR.use_cassette('/claims_api/evss/submit') do
+          form526_establishment_service.send(:upload_v1, claim_with_transaction_id.id)
           claim_with_transaction_id.reload
           expect(claim_with_transaction_id.auth_headers['va_eauth_service_transaction_id'])
             .to eq(claim_with_transaction_id.transaction_id)
@@ -242,29 +237,58 @@ describe ClaimsApi::DisabilityCompensation::Form526EstablishmentService do
       end
 
       it 'logs the transaction_id' do
-        VCR.use_cassette('/claims_api/evss/submit', allow_playback_repeats: true) do
+        VCR.use_cassette('/claims_api/evss/submit') do
           expect(Rails.logger).to receive(:info).with(/#{claim_with_transaction_id.transaction_id}/).at_least(:once)
-          form526_establishment_service.send(:upload, claim_with_transaction_id.id)
+          form526_establishment_service.send(:upload_v1, claim_with_transaction_id.id)
+        end
+      end
+
+      context 'the error is saved on the claim in the evss_response attribute' do
+        errors = {
+          messages: [
+            {
+              'key' => 'header.va_eauth_birlsfilenumber.Invalid',
+              'severity' => 'ERROR',
+              'text' => 'Size must be between 8 and 9'
+            }
+          ]
+        }
+        let(:file_number) { '635781568' }
+
+        it 'sets the evss_response to the original body error message' do
+          evss_mapper_stub = instance_double(ClaimsApi::V2::DisabilityCompensationEvssMapper)
+          allow(ClaimsApi::V2::DisabilityCompensationEvssMapper).to receive(:new) { evss_mapper_stub }
+          allow(evss_mapper_stub).to receive(:map_claim).and_raise(Common::Exceptions::BackendServiceException.new(
+                                                                     errors
+                                                                   ))
+          begin
+            allow(subject).to receive(:upload_v1).with(claim.id).and_raise(
+              Common::Exceptions::UnprocessableEntity
+            )
+          rescue => e
+            claim.reload
+            expect(claim.evss_id).to be_nil
+            expect(claim.evss_response).to eq([{ 'title' => 'Operation failed', 'detail' => 'Operation failed',
+                                                 'code' => 'VA900', 'status' => '400' }])
+            expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
+            expect(e.message).to include 'Unprocessable Entity'
+          end
         end
       end
     end
 
-    context 'FES Service (v1 branch)' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
-        allow(form526_establishment_service).to receive(:claim_version).and_return(:v1)
-      end
+    context 'using the v1 FES Service' do
+      before { allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(true) }
 
-      it 'returns true' do
+      it 'has a upload method that returns a claim id' do
         VCR.use_cassette('/claims_api/fes/submit', allow_playback_repeats: true) do
-          expect(form526_establishment_service.send(:upload, fes_claim.id)).to be(true)
+          expect(form526_establishment_service.upload_v1(fes_claim.id)).to be(true)
         end
       end
 
-      it 'adds the transaction_id to headers' do
-        VCR.use_cassette('/claims_api/fes/submit', allow_playback_repeats: true) do
-          form526_establishment_service.send(:upload, claim_with_transaction_id.id)
+      it 'adds the transaction_id to the headers' do
+        VCR.use_cassette('/claims_api/fes/submit') do
+          form526_establishment_service.send(:upload_v1, claim_with_transaction_id.id)
           claim_with_transaction_id.reload
           expect(claim_with_transaction_id.auth_headers['va_eauth_service_transaction_id'])
             .to eq(claim_with_transaction_id.transaction_id)
@@ -272,9 +296,42 @@ describe ClaimsApi::DisabilityCompensation::Form526EstablishmentService do
       end
 
       it 'logs the transaction_id' do
-        VCR.use_cassette('/claims_api/fes/submit', allow_playback_repeats: true) do
+        VCR.use_cassette('/claims_api/fes/submit') do
           expect(Rails.logger).to receive(:info).with(/#{claim_with_transaction_id.transaction_id}/).at_least(:once)
-          form526_establishment_service.send(:upload, claim_with_transaction_id.id)
+          form526_establishment_service.send(:upload_v1, claim_with_transaction_id.id)
+        end
+      end
+
+      context 'the error is saved on the claim in the evss_response attribute' do
+        errors = {
+          messages: [
+            {
+              'key' => 'header.va_eauth_birlsfilenumber.Invalid',
+              'severity' => 'ERROR',
+              'text' => 'Size must be between 8 and 9'
+            }
+          ]
+        }
+        let(:file_number) { '635781568' }
+
+        it 'sets the evss_response to the original body error message' do
+          evss_mapper_stub = instance_double(ClaimsApi::V2::DisabilityCompensationEvssMapper)
+          allow(ClaimsApi::V2::DisabilityCompensationEvssMapper).to receive(:new) { evss_mapper_stub }
+          allow(evss_mapper_stub).to receive(:map_claim).and_raise(Common::Exceptions::BackendServiceException.new(
+                                                                     errors
+                                                                   ))
+          begin
+            allow(subject).to receive(:upload_v1).with(claim.id).and_raise(
+              Common::Exceptions::UnprocessableEntity
+            )
+          rescue => e
+            claim.reload
+            expect(claim.evss_id).to be_nil
+            expect(claim.evss_response).to eq([{ 'title' => 'Operation failed', 'detail' => 'Operation failed',
+                                                 'code' => 'VA900', 'status' => '400' }])
+            expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
+            expect(e.message).to include 'Unprocessable Entity'
+          end
         end
       end
     end

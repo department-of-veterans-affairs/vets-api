@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
-
 require 'pdf_generator_service/pdf_client'
 require 'claims_api/v2/disability_compensation_evss_mapper'
 require 'claims_api/v2/disability_compensation_fes_mapper'
@@ -17,33 +15,35 @@ module ClaimsApi
 
       def upload(claim_id)
         auto_claim = get_claim(claim_id)
-        log_job_progress(claim_id, 'Form526 Establishment service started', auto_claim.transaction_id)
+        log_job_progress(claim_id, 'Form526 Establishment service (v2) started', auto_claim.transaction_id)
         update_auth_headers(auto_claim) if auto_claim.transaction_id.present?
 
-        case claim_version(auto_claim)
-        when :v1
-          if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
-            submit_fes(claim_id, auto_claim, get_v1_fes_data(auto_claim), 'v1')
-          else
-            submit_evss(claim_id, auto_claim, get_evss_data(auto_claim), 'v1')
-          end
-        when :v2
-          if Flipper.enabled?(:lighthouse_claims_api_v2_enable_FES)
-            submit_fes(claim_id, auto_claim, get_fes_data(auto_claim), 'v2')
-          else
-            submit_evss(claim_id, auto_claim, get_evss_data(auto_claim), 'v2')
-          end
+        if Flipper.enabled?(:lighthouse_claims_api_v2_enable_FES)
+          submit_fes(claim_id, auto_claim, get_fes_data(auto_claim), 'v2')
         else
-          raise ArgumentError, "Unknown claim version for claim_id=#{claim_id}"
+          submit_evss(claim_id, auto_claim, get_evss_data(auto_claim), 'v2')
         end
+        true
       rescue => e
-        auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-        auto_claim.evss_response = e.errors if e.methods.include?(:errors)
-        auto_claim.save
-        raise e
+        mark_claim_errored!(auto_claim, e)
+        raise
       end
 
-      # rubocop:enable Metrics/MethodLength
+      def upload_v1(claim_id)
+        auto_claim = get_claim(claim_id)
+        log_job_progress(claim_id, 'Form526 Establishment service (v1) started', auto_claim.transaction_id)
+        update_auth_headers(auto_claim) if auto_claim.transaction_id.present?
+
+        if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+          submit_fes(claim_id, auto_claim, get_v1_fes_data(auto_claim), 'v1')
+        else
+          submit_evss(claim_id, auto_claim, get_evss_data(auto_claim), 'v1')
+        end
+        true
+      rescue => e
+        mark_claim_errored!(auto_claim, e)
+        raise
+      end
 
       private
 
@@ -51,17 +51,6 @@ module ClaimsApi
         updated_auth_headers = auto_claim.auth_headers
         updated_auth_headers['va_eauth_service_transaction_id'] = auto_claim.transaction_id
         auto_claim.update!(auth_headers: updated_auth_headers)
-      end
-
-      def claim_version(auto_claim)
-        version_control = auto_claim.respond_to?(:api_version) ? auto_claim.api_version&.to_sym : nil
-        return version_control if version_control
-
-        data = auto_claim.form_data || {}
-        return :v2 if data.key?('veteranIdentification') || data.key?(:veteranIdentification)
-        return :v1 if data.key?('veteran') || data.key?(:veteran)
-
-        :v1
       end
 
       def submit_fes(claim_id, auto_claim, payload, tag)
@@ -90,6 +79,12 @@ module ClaimsApi
 
       def get_v1_fes_data(auto_claim)
         v1_fes_mapper_service(auto_claim).map_claim
+      end
+
+      def mark_claim_errored!(auto_claim, e)
+        auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+        auto_claim.evss_response = e.errors if e.respond_to?(:errors)
+        auto_claim.save
       end
     end
   end
