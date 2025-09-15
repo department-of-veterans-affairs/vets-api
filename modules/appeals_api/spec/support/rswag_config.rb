@@ -8,7 +8,7 @@ RSpec.configure { |_config| include DocHelpers }
 
 # rubocop:disable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength
 class AppealsApi::RswagConfig
-  DECISION_REVIEWS_DESCRIPTION_FILE_NAME = Flipper.enabled?(:decision_reviews_evidence_final_status_field) ? 'description_with_final_status.md' : `api_description#{DocHelpers.doc_suffix}.md`
+  DECISION_REVIEWS_DESCRIPTION_FILE_NAME = Flipper.enabled?(:decision_reviews_evidence_final_status_field) ? `description_with_final_status#{DocHelpers.doc_suffix}.md` : `api_description#{DocHelpers.doc_suffix}.md`
 
   def rswag_doc_config(base_path_template:, description_file_path:, name:, tags:, version:)
     {
