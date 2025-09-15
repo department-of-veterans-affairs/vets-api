@@ -38,7 +38,11 @@ module Vets
       level = 'warn' if level == 'warning' # Rails doesn't support Sentries Warning level
       message = '[No Message Provided]' if message.blank?
 
-      formatted_message = extra_context.respond_to?(:empty?) && extra_context.empty? ? message : "#{message} : #{extra_context}"
+      formatted_message = if extra_context.respond_to?(:empty?) && extra_context.empty?
+                            message
+                          else
+                            "#{message} : #{extra_context}"
+                          end
       case level
       when 'debug'
         Rails.logger.debug(formatted_message)
