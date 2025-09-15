@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'dependents_benefits/monitor'
+require 'dependents_benefits/generators/claim674_generator'
+require 'dependents_benefits/generators/claim686c_generator'
 
 module DependentsBenefits
   module V0
@@ -31,6 +33,25 @@ module DependentsBenefits
         claim.form_start_date = in_progress_form.created_at if in_progress_form
 
         raise Common::Exceptions::ValidationErrors, claim unless claim.save
+
+        # TODO: Create a claim group to associate multiple claims together
+        claim_group_id = nil
+        form_data = claim.parsed_form
+
+        raise Common::Exceptions::ValidationErrors if !claim.submittable_686? && !claim.submittable_674?
+
+        # Create a 686c claim for dependent benefits
+        if claim.submittable_686?
+          DependentsBenefits::Generators::Claim686cGenerator.new(form_data,
+                                                                 claim_group_id).generate
+        end
+
+        if claim.submittable_674?
+          # Create a 674 claim for student benefits
+          form_data.dig('dependents_application', 'student_information')&.each do |student|
+            DependentsBenefits::Generators::Claim674Generator.new(form_data, claim_group_id, student).generate
+          end
+        end
 
         monitor.track_info_event('Successfully created claim', "#{stats_key}.create_success",
                                  { claim_id: claim.id, user_account_uuid: current_user&.user_account_uuid })

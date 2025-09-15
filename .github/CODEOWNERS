@@ -911,6 +911,7 @@ lib/lighthouse/benefits_documents/ @department-of-veterans-affairs/benefits-mana
 lib/lighthouse/benefits_education @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_intake @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_reference_data/response_strategy.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
+lib/lighthouse/direct_deposit @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/facilities @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/letters_generator @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 lib/logging @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
@@ -1142,6 +1143,7 @@ spec/controllers/v0/sign_in_controller_callback_basic_spec.rb @department-of-vet
 spec/controllers/v0/sign_in_controller_callback_dslogon_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_callback_idme_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_callback_logingov_spec.rb @department-of-veterans-affairs/octo-identity
+spec/controllers/v0/sign_in_controller_logout_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_refresh_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_revoke_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_spec.rb @department-of-veterans-affairs/octo-identity
