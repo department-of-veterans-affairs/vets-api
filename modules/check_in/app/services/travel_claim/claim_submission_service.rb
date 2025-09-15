@@ -106,6 +106,7 @@ module TravelClaim
       appointment_id = response.body.dig('data', 0, 'id')
 
       unless appointment_id
+        log_metric('APPOINTMENT_ERROR')
         raise_backend_service_exception('Appointment could not be found or created', response.status)
       end
 
@@ -125,7 +126,10 @@ module TravelClaim
       response = client.send_claim_request(appointment_id:)
       claim_id = response.body.dig('data', 'claimId')
 
-      raise_backend_service_exception('Failed to create claim', response.status) unless claim_id
+      unless claim_id
+        log_metric('CLAIM_CREATE_ERROR')
+        raise_backend_service_exception('Failed to create claim', response.status)
+      end
 
       claim_id
     end
@@ -141,7 +145,10 @@ module TravelClaim
 
       response = client.send_mileage_expense_request(claim_id:, date_incurred: @appointment_date)
 
-      raise_backend_service_exception('Failed to add expense', response.status) unless response.status == 200
+      unless response.status == 200
+        log_metric('EXPENSE_ADD_ERROR')
+        raise_backend_service_exception('Failed to add expense', response.status)
+      end
     end
 
     ##
