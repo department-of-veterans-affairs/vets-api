@@ -814,6 +814,12 @@ en:
         code: 'RES_CH31_ELIGIBILITY_404'
         detail: 'Record not found'
         status: 404
+      RES_CH31_ELIGIBILITY_503:
+        <<: *external_defaults
+        title: Service Unavailable
+        code: 'RES_CH31_ELIGIBILITY_503'
+        detail: 'Service Unavailable'
+        status: 503
       SEARCH_400:
         <<: *external_defaults
         title: Bad Request
