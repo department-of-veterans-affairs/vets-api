@@ -964,9 +964,8 @@ describe UnifiedHealthData::Service, type: :service do
         allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
                                                   user).and_return(false)
 
-        service.get_care_summaries_and_notes
-
         expect(Rails.logger).not_to receive(:info)
+        service.get_care_summaries_and_notes
       end
     end
   end
