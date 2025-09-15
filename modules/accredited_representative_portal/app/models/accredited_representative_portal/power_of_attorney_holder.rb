@@ -3,8 +3,7 @@
 module AccreditedRepresentativePortal
   class PowerOfAttorneyHolder <
     Data.define(
-      :type,
-      :poa_code,
+      :type, :poa_code, :name,
       :can_accept_digital_poa_requests
     )
     module Types

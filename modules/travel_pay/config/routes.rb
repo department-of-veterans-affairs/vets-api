@@ -11,6 +11,10 @@ TravelPay::Engine.routes.draw do
                                                 constraints: { expense_type: %r{[^/]+}, expense_id: %r{[^/]+} }
     end
 
-    resources :complex_claims, only: %i[create]
+    resources :complex_claims, only: %i[create], param: :claim_id do
+      member do
+        patch :submit
+      end
+    end
   end
 end
