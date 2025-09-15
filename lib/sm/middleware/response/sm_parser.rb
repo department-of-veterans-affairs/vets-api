@@ -48,7 +48,8 @@ module SM
         end
 
         def parsed_aws_s3_attachment_meta
-          if @parsed_json.is_a?(Hash) && @parsed_json.key?(:url) && @parsed_json.key?(:mime_type) && @parsed_json.key?(:name)
+          if @parsed_json.is_a?(Hash) && @parsed_json.key?(:url) &&
+             @parsed_json.key?(:mime_type) && @parsed_json.key?(:name)
             @parsed_json
           end
         end
