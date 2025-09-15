@@ -59,7 +59,7 @@ module Vets
       level = 'warn' if level == 'warning' # Rails doesn't support Sentries Warning level
 
       # Handle nil exception gracefully - log a placeholder message instead of crashing
-      return log_message_to_rails('[No Exception Provided]', 'error') unless exception
+      return log_message_to_rails('[No Exception Provided]', level) unless exception
 
       if exception.is_a? Common::Exceptions::BackendServiceException
         error_details = (Array(exception.errors).first&.try(:attributes) || {}).compact.reject do |_k, v|
