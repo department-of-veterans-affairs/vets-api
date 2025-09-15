@@ -282,5 +282,5 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('5 0 * * *', 'Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob')
 
   # Daily cron job to check for PDF Form version changes
-  mgr.register('0 12 * * *', 'FormPdfChangeDetectionJob') if Flipper.enabled?(:form_pdf_change_detection)
+  mgr.register('0 12 * * *', 'FormPdfChangeDetectionJob')
 }

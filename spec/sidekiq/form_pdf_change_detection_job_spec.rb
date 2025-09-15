@@ -52,6 +52,26 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
   end
 
   describe '#perform' do
+    context ':form_pdf_change_detection disabled'
+    before do
+      allow(Flipper).to receive(:enabled?).with(:form_pdf_change_detection).and_return(false)
+    end
+
+    it 'does not run' do
+      expect(Forms::Client).not_to receive(:new)
+      expect(Rails.cache).not_to receive(:read_multi)
+      expect(Rails.cache).not_to receive(:write_multi)
+      expect(StatsD).not_to receive(:increment)
+
+      subject.perform
+    end
+  end
+
+  context ':form_pdf_change_detection enabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:form_pdf_change_detection).and_return(true)
+    end
+
     it 'sets cache values without triggering change detection metrics on initial run' do
       expect(@mock_cache).to be_empty
 
