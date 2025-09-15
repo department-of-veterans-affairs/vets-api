@@ -113,4 +113,71 @@ RSpec.describe ContentionClassification::Client do
       end
     end
   end
+
+  describe 'making classification contention requests to hybrid classifier' do
+    subject { client.classify_vagov_contentions_hybrid(classification_contention_params) }
+
+    context 'valid requests' do
+      let(:generic_response) do
+        {
+          'contentions' => [
+            {
+              'classification_code' => 8998,
+              'classification_name' => 'Musculoskeletal - Mid/Lower Back (Thoracolumbar Spine)',
+              'diagnostic_code' => 1234,
+              'contention_type' => 'INCREASE'
+            },
+            {
+              'classification_code' => 9012,
+              'classification_name' => 'Respiratory',
+              'diagnostic_code' => nil,
+              'contention_type' => 'NEW'
+            },
+            {
+              'classification_code' => 8991,
+              'classification_name' => 'Musculoskeletal - Ankle',
+              'diagnostic_code' => nil,
+              'contention_type' => 'NEW'
+            }
+          ],
+          'claim_id' => 4567,
+          'form526_submission_id' => 789,
+          'is_fully_classified' => true,
+          'num_processed_contentions' => 3,
+          'num_classified_contentions' => 3
+        }
+      end
+
+      before do
+        allow(client).to receive(:perform).and_return(
+          instance_double('Faraday::Response', body: generic_response)
+        )
+      end
+
+      it 'returns classifications for each contention' do
+        expect(subject.body).to eq(generic_response)
+      end
+    end
+
+    context 'error handling' do
+      [
+        Faraday::TimeoutError.new('timeout'),
+        Faraday::ConnectionFailed.new('connection failed')
+      ].each do |error|
+        context "when request raises #{error.class}" do
+          before do
+            allow(client).to receive(:perform).and_raise(error)
+          end
+
+          it 'logs and re-raises the exception' do
+            expect(Rails.logger).to receive(:error).with(
+              'ContentionClassification::Client Faraday error on path ' \
+              "#{Settings.contention_classification_api.hybrid_contention_classification_path}: #{error.message}"
+            )
+            expect { subject }.to raise_error(error.class)
+          end
+        end
+      end
+    end
+  end
 end
