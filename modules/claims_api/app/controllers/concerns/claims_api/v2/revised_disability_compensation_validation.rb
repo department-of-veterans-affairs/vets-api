@@ -558,7 +558,6 @@ module ClaimsApi
 
         disabilities.each_with_index do |disability, index|
           validate_disability_action_type_none!(disability, index)
-          validate_disability_name_format!(disability, index)
           validate_disability_name_length!(disability, index)
         end
       end
@@ -569,27 +568,9 @@ module ClaimsApi
 
         collect_error(
           source: "/disabilities/#{index}/disabilityActionType",
-          title: 'Bad Request',
+          title: 'Unprocessable Entity',
           detail: 'The request failed disability validation: The disability Action Type of "NONE" ' \
                   'is not currently supported.'
-        )
-      end
-
-      # FES Val Section 7.m: name must match regex pattern for NEW disabilities.
-      def validate_disability_name_format!(disability, index)
-        return unless disability['disabilityActionType'] == 'NEW'
-        return if disability['name'].blank?
-
-        # Regex pattern from FES document: must start with alphanumeric or allowed special chars,
-        # followed by any combination of alphanumeric, allowed special chars, or spaces
-        pattern = %r{\A[a-zA-Z0-9\-'.,/()][a-zA-Z0-9\-'.,/() ]*\z}
-        return if disability['name'].match?(pattern)
-
-        collect_error(
-          source: "/disabilities/#{index}/name",
-          title: 'Bad Request',
-          detail: "The request failed disability validation: The disability name \"#{disability['name']}\" " \
-                  'does not match the expected format for a disabilityActionType of "NEW"'
         )
       end
 
@@ -600,7 +581,7 @@ module ClaimsApi
 
         collect_error(
           source: "/disabilities/#{index}/name",
-          title: 'Invalid value',
+          title: 'Unprocessable Entity',
           detail: 'The disability name must be less than 256 characters'
         )
       end
