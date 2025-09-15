@@ -47,23 +47,40 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
   describe 'POST create' do
     context 'with valid params and flipper enabled' do
       it 'validates successfully' do
-        response = post(:create, params: test_form, as: :json)
-        expect(response).to have_http_status(:ok)
+        VCR.use_cassette('bgs/service/create_proc') do
+          response = post(:create, params: test_form, as: :json)
+          expect(response).to have_http_status(:ok)
+        end
       end
 
       it 'creates saved claims' do
-        expect do
-          post(:create, params: test_form, as: :json)
-        end.to change(DependentsBenefits::SavedClaim, :count).by(3)
+        VCR.use_cassette('bgs/service/create_proc') do
+          expect do
+            post(:create, params: test_form, as: :json)
+          end.to change(DependentsBenefits::SavedClaim, :count).by(3)
+        end
       end
 
       it 'logs the success' do
-        expect(Rails.logger).to receive(:info).with('DependentsBenefits::SavedClaim Skipping tracking PDF overflow',
-                                                    instance_of(Hash)).at_least(:once)
-        expect(Rails.logger).to receive(:info).with(match(/TODO: Link claim \d+ to parent/)).at_least(:once)
-        expect(Rails.logger).to receive(:info).with(match(/Successfully created claim/),
-                                                    include({ statsd: 'api.dependents_application.create_success' }))
-        post(:create, params: test_form, as: :json)
+        VCR.use_cassette('bgs/service/create_proc') do
+          expect(Rails.logger).to receive(:info).with('DependentsBenefits::SavedClaim Skipping tracking PDF overflow',
+                                                      instance_of(Hash)).at_least(:once)
+          expect(Rails.logger).to receive(:info).with(match(/TODO: Link claim \d+ to parent/)).at_least(:once)
+          expect(Rails.logger).to receive(:info).with(match(/Successfully created claim/),
+                                                      include({ statsd: 'api.dependents_application.create_success' }))
+          post(:create, params: test_form, as: :json)
+        end
+      end
+
+      it 'calls ClaimProcessor with correct parameters' do
+        VCR.use_cassette('bgs/service/create_proc') do
+          expect(DependentsBenefits::ClaimProcessor).to receive(:enqueue_submissions)
+            .with(a_kind_of(Integer), '21875')
+            .and_return({ data: { jobs_enqueued: 2 }, error: nil })
+
+          post(:create, params: test_form, as: :json)
+          expect(response).to have_http_status(:ok)
+        end
       end
     end
 
