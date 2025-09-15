@@ -22,7 +22,7 @@ module ClaimsApi
         # Validate veteran information
         validate_veteran!
 
-        # Validate disability action type REOPEN and approximateBeginDate
+        # Validate disability action type REOPEN and approximateDate
         validate_disability_reopen_and_dates!
 
         # Return collected errors
@@ -564,14 +564,14 @@ module ClaimsApi
         )
       end
 
-      ### FES Val Section 7: Disability and approximateBeginDate validations
+      ### FES Val Section 7: Disability and approximateDate validations
       def validate_disability_reopen_and_dates!
         disabilities = form_attributes['disabilities']
         return if disabilities.blank?
 
         disabilities.each_with_index do |disability, index|
           validate_disability_action_type_reopen!(disability, index)
-          validate_approximate_begin_date!(disability, index) if disability['approximateBeginDate'].present?
+          validate_approximate_date!(disability, index) if disability['approximateDate'].present?
         end
       end
 
@@ -581,120 +581,40 @@ module ClaimsApi
 
         collect_error(
           source: "/disabilities/#{index}/disabilityActionType",
-          title: 'Bad Request',
+          title: 'Unprocessable Entity',
           detail: 'The request failed disability validation: The disability Action Type of "REOPEN" ' \
                   'is not currently supported. REOPEN will be supported in a future release'
         )
       end
 
-      # FES Val Section 7.q-t: approximateBeginDate validations
-      def validate_approximate_begin_date!(disability, index)
-        date_hash = disability['approximateBeginDate']
+      # FES Val Section 7.t: approximateDate validations
+      # Note: Schema regex handles format validation (YYYY, YYYY-MM, YYYY-MM-DD)
+      # Schema regex handles month range (01-12) and day range (01-31)
+      # We only validate: 1) Date is valid (not Feb 30), 2) Date is in the past
+      def validate_approximate_date!(disability, index)
+        date_string = disability['approximateDate']
+        return if date_string.blank?
 
-        # Parse the date components
-        year = date_hash['year']
-        month = date_hash['month']
-        day = date_hash['day']
+        begin
+          # Parse will fail for invalid dates like Feb 30, Apr 31, etc.
+          date = Date.parse(date_string)
 
-        # FES Val Section 7.q: month must be between 1-12 if present
-        validate_month_range!(month, index) if month.present?
-
-        # FES Val Section 7.r: day must be valid if present
-        validate_day_range!(day, month, year, index) if day.present?
-
-        # FES Val Section 7.s: cannot have day and year without month
-        validate_day_year_combination!(day, month, year, index)
-
-        # FES Val Section 7.t: approximateBeginDate must be in the past
-        validate_date_not_future!(year, month, day, index)
-      end
-
-      def validate_month_range!(month, index)
-        month_int = month.to_i
-        return if month_int >= 1 && month_int <= 12
-
-        collect_error(
-          source: "/disabilities/#{index}/approximateBeginDate/month",
-          title: 'Invalid value',
-          detail: 'The month is not a valid value'
-        )
-      end
-
-      def validate_day_range!(day, month, year, index)
-        day_int = day.to_i
-
-        # Basic range check first
-        if day_int < 1 || day_int > 31
-          collect_day_error(index)
-          return
-        end
-
-        # If we have month and year, check if day is valid for that specific month
-        validate_day_for_month!(day_int, month, year, index) if month.present? && year.present?
-      end
-
-      def validate_day_for_month!(day_int, month, year, index)
-        month_int = month.to_i
-        year_int = year.to_i
-
-        # Check if it's a valid date for the specific month/year
-        Date.new(year_int, month_int, day_int)
-      rescue ArgumentError
-        collect_day_error(index)
-      end
-
-      def collect_day_error(index)
-        collect_error(
-          source: "/disabilities/#{index}/approximateBeginDate/day",
-          title: 'Invalid value',
-          detail: 'The day is not a valid value'
-        )
-      end
-
-      def validate_day_year_combination!(day, month, year, index)
-        # FES Val Section 7.s: cannot have day and year without month
-        return unless day.present? && year.present? && month.blank?
-
-        collect_error(
-          source: "/disabilities/#{index}/approximateBeginDate",
-          title: 'Invalid value',
-          detail: 'Day and Year is not a valid combination. Accepted combinations are: ' \
-                  'Year/Month/Day, Year/Month, Or Year'
-        )
-      end
-
-      # FES Val Section 7.t: approximateBeginDate must be in the past
-      def validate_date_not_future!(year, month, day, index)
-        return if year.blank?
-
-        date_to_check = build_date_to_check(year.to_i, month, day)
-        return if date_to_check.nil? || date_to_check <= Date.current
-
-        collect_error(
-          source: "/disabilities/#{index}/approximateBeginDate",
-          title: 'Invalid value',
-          detail: 'The ApproximateBeginDate in primary disability must be in the past'
-        )
-      end
-
-      def build_date_to_check(year_int, month, day)
-        if month.present? && day.present?
-          begin
-            Date.new(year_int, month.to_i, day.to_i)
-          rescue ArgumentError
-            # Invalid date, will be caught by other validations
-            nil
+          # FES Val Section 7.t: approximateDate must be in the past
+          if date > Date.current
+            collect_error(
+              source: "/disabilities/#{index}/approximateDate",
+              title: 'Unprocessable Entity',
+              detail: 'The approximateDate in primary disability must be in the past'
+            )
           end
-        elsif month.present?
-          # Check end of month for year/month only
-          month_int = month.to_i
-          # Skip invalid months, they'll be caught by month validation
-          return nil if month_int < 1 || month_int > 12
-
-          Date.new(year_int, month_int, -1)
-        else
-          # Check end of year for year only
-          Date.new(year_int, 12, 31)
+        rescue ArgumentError
+          # Invalid date combinations like Feb 30, Apr 31, etc.
+          # that pass the schema regex but aren't valid calendar dates
+          collect_error(
+            source: "/disabilities/#{index}/approximateDate",
+            title: 'Unprocessable Entity',
+            detail: 'The approximateDate is not a valid date'
+          )
         end
       end
 
