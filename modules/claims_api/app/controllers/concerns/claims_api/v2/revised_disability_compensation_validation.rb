@@ -594,42 +594,42 @@ module ClaimsApi
         date_string = disability['approximateDate']
         return if date_string.blank?
 
-        # Parse the date based on format
         parts = date_string.split('-')
         return unless parts.any? # Invalid format will be caught by schema
 
         begin
-          year = parts[0].to_i
-          month = parts[1]&.to_i || 12 # Default to December for year-only
-          day = parts[2]&.to_i
-
-          # Build the date to check
-          date = if day
-                   # Full date: validate it's a real calendar date
-                   Date.new(year, month, day)
-                 elsif parts[1]
-                   # Year-month: use last day of month for future check
-                   Date.new(year, month, -1)
-                 else
-                   # Year only: use end of year for future check
-                   Date.new(year, 12, 31)
-                 end
-
-          # FES Val Section 7.t: approximateDate must be in the past
-          if date > Date.current
-            collect_error(
-              source: "/disabilities/#{index}/approximateDate",
-              detail: 'The approximateDate in primary disability must be in the past'
-            )
-          end
+          date = build_date_from_parts(parts)
+          validate_date_not_in_future!(date, index)
         rescue ArgumentError
           # Invalid date combinations like Feb 30, Apr 31, etc.
-          # that pass the schema regex but aren't valid calendar dates
           collect_error(
             source: "/disabilities/#{index}/approximateDate",
             detail: 'The approximateDate is not a valid date'
           )
         end
+      end
+
+      def build_date_from_parts(parts)
+        year = parts[0].to_i
+        month = parts[1]&.to_i || 12 # Default to December for year-only
+        day = parts[2]&.to_i
+
+        if day
+          Date.new(year, month, day) # Full date: validate it's a real calendar date
+        elsif parts[1]
+          Date.new(year, month, -1) # Year-month: use last day of month for future check
+        else
+          Date.new(year, 12, 31) # Year only: use end of year for future check
+        end
+      end
+
+      def validate_date_not_in_future!(date, index)
+        return unless date > Date.current
+
+        collect_error(
+          source: "/disabilities/#{index}/approximateDate",
+          detail: 'The approximateDate in primary disability must be in the past'
+        )
       end
 
       # Utility methods grouped at the bottom
