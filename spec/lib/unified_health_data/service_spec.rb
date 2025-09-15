@@ -1100,8 +1100,9 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'submits refill requests and returns success/failure breakdown' do
         orders = [
-          { id: '28148665', stationNumber: '570' },
-          { id: '28148545', stationNumber: '556' }
+          { id: '15218125519', stationNumber: '556' },
+          { id: '0000000000001', stationNumber: '570' },
+          { id: '15215488543', stationNumber: '687GB' }
         ]
         result = service.refill_prescription(orders)
 
@@ -1109,11 +1110,12 @@ describe UnifiedHealthData::Service, type: :service do
         expect(result).to have_key(:failed)
 
         expect(result[:success]).to contain_exactly(
-          { id: '28148665', status: 'submitted' }
+          { id: '15218125519', status: 'Already in Queue' }
         )
 
         expect(result[:failed]).to contain_exactly(
-          { id: '28148545', error: 'Prescription already has pending refill request' }
+          { id: '0000000000001', error: 'Prescription is not Found' },
+          { id: '15215488543', error: '^ER:Error:' }
         )
       end
 
@@ -1167,8 +1169,8 @@ describe UnifiedHealthData::Service, type: :service do
     context 'with malformed response' do
       before do
         allow(service).to receive_messages(fetch_access_token: 'token',
-                                           perform: double(body: '{}'),
-                                           parse_response_body: {})
+                                           perform: double(body: '[]'),
+                                           parse_response_body: [])
       end
 
       it 'handles empty response gracefully' do

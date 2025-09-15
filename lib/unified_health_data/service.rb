@@ -434,11 +434,14 @@ module UnifiedHealthData
     def parse_refill_response(response)
       body = parse_response_body(response.body)
 
+      # Ensure we have an array response format
+      refill_items = body.is_a?(Array) ? body : []
+
       # Parse successful refills
-      successes = extract_successful_refills(body)
+      successes = extract_successful_refills(refill_items)
 
       # Parse failed refills
-      failures = extract_failed_refills(body)
+      failures = extract_failed_refills(refill_items)
 
       {
         success: successes,
@@ -446,25 +449,24 @@ module UnifiedHealthData
       }
     end
 
-    def extract_successful_refills(body)
-      # Parse successful refills from API response
-      successful_refills = body['successfulRefills'] || []
+    def extract_successful_refills(refill_items)
+      # Parse successful refills from API response array
+      successful_refills = refill_items.select { |item| item['success'] == true }
       successful_refills.map do |refill|
         {
-          id: refill['prescriptionId'],
-          status: refill['status'] || 'submitted'
+          id: refill['orderId'],
+          status: refill['message'] || 'submitted'
         }
       end
     end
 
-    def extract_failed_refills(body)
-      # Assuming the API returns detailed error info for failures
-      # Adjust based on actual API response format
-      failed_refills = body['failedRefills'] || []
+    def extract_failed_refills(refill_items)
+      # Parse failed refills from API response array
+      failed_refills = refill_items.select { |item| item['success'] == false }
       failed_refills.map do |failure|
         {
-          id: failure['prescriptionId'],
-          error: failure['reason'] || 'Unable to process refill'
+          id: failure['orderId'],
+          error: failure['message'] || 'Unable to process refill'
         }
       end
     end

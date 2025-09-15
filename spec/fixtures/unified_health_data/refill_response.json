@@ -1,14 +1,20 @@
-{
-  "successfulRefills": [
+[
     {
-      "prescriptionId": "28148665",
-      "status": "submitted"
-    }
-  ],
-  "failedRefills": [
+        "success": true,
+        "orderId": "15218125519",
+        "stationNumber": "556",
+        "message": "Already in Queue"
+    },
     {
-      "prescriptionId": "28148545",
-      "reason": "Prescription already has pending refill request"
+        "success": false,
+        "orderId": "0000000000001",
+        "stationNumber": "570",
+        "message": "Prescription is not Found"
+    },
+    {
+        "success": false,
+        "orderId": "15215488543",
+        "stationNumber": "687GB",
+        "message": "^ER:Error:"
     }
-  ]
-}
+]
