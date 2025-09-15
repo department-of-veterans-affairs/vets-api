@@ -10,15 +10,15 @@ RSpec.describe Kafka::EventBusSubmissionJob, type: :job do
   let(:monitor) { instance_double(Kafka::Monitor) }
   let(:producer) { instance_double(Kafka::AvroProducer) }
 
-  before do
-    allow(Kafka::Monitor).to receive(:new).and_return(monitor)
-    allow(Kafka::AvroProducer).to receive(:new).and_return(producer)
-    allow(producer).to receive(:produce)
-    allow(monitor).to receive(:track_submission_success)
-    allow(monitor).to receive(:track_submission_failure)
-  end
-
   describe '#perform' do
+    before do
+      allow(Kafka::AvroProducer).to receive(:new).and_return(producer)
+      allow(producer).to receive(:produce)
+      allow(Kafka::Monitor).to receive(:new).and_return(monitor)
+      allow(monitor).to receive(:track_submission_success)
+      allow(monitor).to receive(:track_submission_failure)
+    end
+
     it 'produces a message to the Kafka topic and tracks success' do
       described_class.new.perform(payload)
       expect(producer).to have_received(:produce).with(topic, payload)
@@ -37,6 +37,24 @@ RSpec.describe Kafka::EventBusSubmissionJob, type: :job do
           described_class.new.perform(payload)
         end.to raise_error(StandardError, 'Error')
         expect(monitor).to have_received(:track_submission_failure).with(topic, payload, error)
+      end
+    end
+  end
+
+  describe 'sidekiq_retries_exhausted' do
+    let(:exhaustion_msg) do
+      {
+        'queue' => 'low',
+        'class' => 'Kafka::EventBusSubmissionJob',
+        'args' => [payload, false],
+        'error_message' => 'An error occurred'
+      }
+    end
+
+    it 'tracks submission exhaustion and emits StatsD metric' do
+
+      described_class.within_sidekiq_retries_exhausted_block(exhaustion_msg) do
+        expect(StatsD).to receive(:increment).with('api.kafka_service.exhausted', tags: anything)
       end
     end
   end
