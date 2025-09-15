@@ -43,9 +43,26 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
   describe '#user_key' do
     let(:session_data) { OpenStruct.new(user_uuid: '12345', icn: 'ABC') }
 
-    it 'returns the user UUID' do
-      user_key = dummy_instance.test_user_key
-      expect(user_key).to eq('12345')
+    context 'when feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_uuid_for_jwt_session_locking).and_return(true)
+      end
+
+      it 'returns the user UUID' do
+        user_key = dummy_instance.test_user_key
+        expect(user_key).to eq('12345')
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_uuid_for_jwt_session_locking).and_return(false)
+      end
+
+      it 'returns the user UUID' do
+        user_key = dummy_instance.test_user_key
+        expect(user_key).to eq('ABC')
+      end
     end
   end
 

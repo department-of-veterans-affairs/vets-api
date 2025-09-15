@@ -20,7 +20,11 @@ module Common
         protected
 
         def user_key
-          session.user_uuid
+          if Flipper.enabled?(:mhv_medical_records_uuid_for_jwt_session_locking)
+            session.user_uuid
+          else
+            session.icn
+          end
         end
 
         def session_config_key
