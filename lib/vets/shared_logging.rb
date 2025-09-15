@@ -54,12 +54,13 @@ module Vets
     end
 
     def log_exception_to_rails(exception, level = 'error') # rubocop:disable Metrics/MethodLength
-      # Handle nil exception gracefully - log a placeholder message instead of crashing
-      return log_message_to_rails('[No Exception Provided]', 'error') unless exception
-
       level = level.to_s.downcase
       level = normalize_shared_level(level, exception)
       level = 'warn' if level == 'warning' # Rails doesn't support Sentries Warning level
+
+      # Handle nil exception gracefully - log a placeholder message instead of crashing
+      return log_message_to_rails('[No Exception Provided]', 'error') unless exception
+
       if exception.is_a? Common::Exceptions::BackendServiceException
         error_details = (Array(exception.errors).first&.try(:attributes) || {}).compact.reject do |_k, v|
           v.respond_to?(:empty?) && v.empty?
