@@ -1912,7 +1912,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       it 'supports updating a va profile email' do
         expect(subject).to validate(:post, '/v0/profile/email_addresses/create_or_update', 401)
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
-          email_address = build(:email, :contact_info_v2)
+          email_address = build(:email)
 
           expect(subject).to validate(
             :post,
@@ -1927,7 +1927,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         expect(subject).to validate(:post, '/v0/profile/email_addresses', 401)
 
         VCR.use_cassette('va_profile/v2/contact_information/post_email_success') do
-          email_address = build(:email, :contact_info_v2)
+          email_address = build(:email)
 
           expect(subject).to validate(
             :post,
@@ -1972,7 +1972,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         expect(subject).to validate(:post, '/v0/profile/telephones/create_or_update', 401)
 
         VCR.use_cassette('va_profile/v2/contact_information/put_telephone_success') do
-          telephone = build(:telephone, :contact_info_v2)
+          telephone = build(:telephone)
           expect(subject).to validate(
             :post,
             '/v0/profile/telephones/create_or_update',
@@ -1986,7 +1986,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         expect(subject).to validate(:post, '/v0/profile/telephones', 401)
 
         VCR.use_cassette('va_profile/v2/contact_information/post_telephone_success') do
-          telephone = build(:telephone, :contact_info_v2)
+          telephone = build(:telephone)
 
           expect(subject).to validate(
             :post,
@@ -2133,7 +2133,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       it 'supports the address validation api' do
-        address = build(:va_profile_v3_validation_address, :multiple_matches)
+        address = build(:va_profile_validation_address, :multiple_matches)
         VCR.use_cassette(
           'va_profile/address_validation/validate_match',
           VCR::MATCH_EVERYTHING
@@ -2155,7 +2155,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       it 'supports va_profile create or update address api' do
         expect(subject).to validate(:post, '/v0/profile/addresses/create_or_update', 401)
         VCR.use_cassette('va_profile/v2/contact_information/put_address_success') do
-          address = build(:va_profile_v3_address, id: 15_035)
+          address = build(:va_profile_address, id: 15_035)
 
           expect(subject).to validate(
             :post,
@@ -2170,7 +2170,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         expect(subject).to validate(:post, '/v0/profile/addresses', 401)
 
         VCR.use_cassette('va_profile/v2/contact_information/post_address_success') do
-          address = build(:va_profile_v3_address)
+          address = build(:va_profile_address)
 
           expect(subject).to validate(
             :post,
@@ -2185,7 +2185,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         expect(subject).to validate(:put, '/v0/profile/addresses', 401)
 
         VCR.use_cassette('va_profile/v2/contact_information/put_address_success') do
-          address = build(:va_profile_v3_address, id: 15_035)
+          address = build(:va_profile_address, id: 15_035)
 
           expect(subject).to validate(
             :put,
@@ -2200,7 +2200,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         expect(subject).to validate(:delete, '/v0/profile/addresses', 401)
 
         VCR.use_cassette('va_profile/v2/contact_information/delete_address_success') do
-          address = build(:va_profile_v3_address, id: 15_035)
+          address = build(:va_profile_address, id: 15_035)
 
           expect(subject).to validate(
             :delete,

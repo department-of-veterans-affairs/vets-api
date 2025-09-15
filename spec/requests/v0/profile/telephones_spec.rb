@@ -15,7 +15,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
   end
 
   describe 'POST /v0/profile/telephones' do
-    let(:telephone) { build(:telephone, :contact_info_v2, vet360_id: user.vet360_id) }
+    let(:telephone) { build(:telephone, vet360_id: user.vet360_id) }
 
     context 'with a 200 response' do
       it 'matches the telephone schema', :aggregate_failures do
@@ -103,7 +103,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
   end
 
   describe 'PUT /v0/profile/telephones' do
-    let(:telephone) { build(:telephone, :contact_info_v2, id: 42) }
+    let(:telephone) { build(:telephone, id: 42) }
 
     context 'with a 200 response' do
       it 'matches the telephone schema', :aggregate_failures do
@@ -158,7 +158,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
     context 'when effective_end_date is included' do
       let(:time) { Time.zone.parse('2020-01-17T04:21:59.000Z') }
       let(:telephone) do
-        build(:telephone, :contact_info_v2,
+        build(:telephone,
               id: 17_259,
               vet360_id: user.vet360_id,
               effective_end_date: Time.now.utc.iso8601,
@@ -205,7 +205,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
       Timecop.return
     end
 
-    let(:telephone) { build(:telephone, :contact_info_v2, id: 42) }
+    let(:telephone) { build(:telephone, id: 42) }
 
     it 'calls update_telephone' do
       expect_any_instance_of(VAProfile::ContactInformation::V2::Service).to receive(:update_telephone)
@@ -227,7 +227,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
       Timecop.return
     end
 
-    let(:telephone) { build(:telephone, :contact_info_v2, source_system_user: user.icn, id: 42) }
+    let(:telephone) { build(:telephone, source_system_user: user.icn, id: 42) }
 
     context 'when the method is DELETE' do
       it 'effective_end_date gets appended to the request body', :aggregate_failures do
@@ -257,7 +257,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
         end
 
         let(:international_telephone) do
-          build(:telephone, :contact_info_v2,
+          build(:telephone,
                 source_system_user: user.icn,
                 vet360_id: user.vet360_id,
                 is_international: true,

@@ -140,7 +140,10 @@ module PdfFill
         end
       end
 
-      target.write(new_file_path)
+      # NOTE: In deployed environments we use the `flatten` flag when calling `fill_form`, which removes
+      # all of the form metadata. HexaPDF validation fails when the form metadata has been removed,
+      # so we should not validate the merged document in deployed environments
+      target.write(new_file_path, validate: !Rails.env.production?)
     end
 
     ##

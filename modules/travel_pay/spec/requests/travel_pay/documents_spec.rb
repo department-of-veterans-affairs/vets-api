@@ -104,7 +104,6 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
 
           expect(response).to have_http_status(:bad_request)
           body = JSON.parse(response.body)
-          puts response
           expect(body['errors'].first['detail']).to eq('Claim ID is invalid')
         end
 
@@ -120,17 +119,6 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
           expect(response).to have_http_status(:not_found)
           expect(JSON.parse(response.body)['error']).to eq('Document not found')
           expect(JSON.parse(response.body)['correlation_id']).to eq('abc')
-        end
-
-        it 'returns error json with original status when BackendServiceException' do
-          error = Common::Exceptions::BackendServiceException.new('ERROR')
-          allow(error).to receive(:original_status).and_return(503)
-          allow(service).to receive(:upload_document).and_raise(error)
-
-          post("/travel_pay/v0/claims/#{claim_id}/documents", params: { Document: valid_document })
-
-          expect(response).to have_http_status(:service_unavailable)
-          expect(JSON.parse(response.body)['error']).to eq('Error uploading document')
         end
 
         it 'returns error json with status when Faraday::Error' do

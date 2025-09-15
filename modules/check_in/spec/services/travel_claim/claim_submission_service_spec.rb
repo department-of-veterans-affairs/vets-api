@@ -159,7 +159,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
 
     context 'when appointment response is malformed' do
       it 'raises backend service exception for malformed appointment response' do
-        mock_malformed_response(:appointment, { 'data' => {} }) # Missing 'id'
+        mock_malformed_response(:appointment, { 'data' => [] }) # Empty array - missing appointment with 'id'
 
         expect { service.submit_claim }.to raise_error(
           Common::Exceptions::BackendServiceException
@@ -287,7 +287,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
   # Helper methods for common mock setups
   def mock_successful_flow
     allow(travel_pay_client).to receive_messages(
-      send_appointment_request: double(body: { 'data' => { 'id' => 'appointment-123' } }, status: 200),
+      send_appointment_request: double(body: { 'data' => [{ 'id' => 'appointment-123' }] }, status: 200),
       send_claim_request: double(body: { 'data' => { 'claimId' => 'claim-456' } }, status: 200),
       send_mileage_expense_request: double(status: 200),
       send_claim_submission_request: double(status: 200)
@@ -322,7 +322,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
 
   def mock_successful_appointment
     allow(travel_pay_client).to receive(:send_appointment_request)
-      .and_return(double(body: { 'data' => { 'id' => 'appointment-123' } }, status: 200))
+      .and_return(double(body: { 'data' => [{ 'id' => 'appointment-123' }] }, status: 200))
   end
 
   def mock_successful_claim_creation

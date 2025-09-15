@@ -146,10 +146,10 @@ describe VAProfile::Models::Telephone do
     end
   end
 
-  describe '#in_json_v2' do
+  describe '#in_json' do
     it 'returns a JSON string with expected keys' do
       telephone = build(:telephone)
-      json = JSON.parse(telephone.in_json_v2)
+      json = JSON.parse(telephone.in_json)
       expect(json).to have_key('bio')
       expect(json['bio']).to have_key('areaCode')
       expect(json['bio']).to have_key('countryCode')

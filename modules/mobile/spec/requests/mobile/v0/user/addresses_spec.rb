@@ -18,7 +18,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
   describe 'update endpoints' do
     describe 'POST /mobile/v0/user/es' do
       let(:address) do
-        address = build(:va_profile_v3_address, :mobile)
+        address = build(:va_profile_address, :mobile)
         # Some domestic addresses are coming in with province of string 'null'.
         # The controller now manually forces all domestic provinces be nil
         address.province = 'null'
@@ -110,7 +110,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
     end
 
     describe 'PUT /mobile/v0/user/addresses' do
-      let(:address) { build(:va_profile_v3_address, :override, id: 577_127) }
+      let(:address) { build(:va_profile_address, :override, id: 577_127) }
 
       context 'with a valid address that takes two tries to complete' do
         before do
@@ -320,7 +320,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
   describe 'POST /mobile/v0/user/addresses/validate' do
     let(:address) do
-      address = build(:va_profile_v3_address)
+      address = build(:va_profile_address)
       # Some domestic addresses are coming in with province of string 'null'.
       # The controller now manually forces all domestic provinces be nil
       address.province = 'null'
@@ -328,7 +328,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
     end
 
     context 'with an invalid address' do
-      let(:invalid_address) { build(:va_profile_v3_validation_address) }
+      let(:invalid_address) { build(:va_profile_validation_address) }
 
       before do
         post '/mobile/v0/user/addresses/validate',
@@ -387,7 +387,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
     end
 
     context 'with a found address' do
-      let(:multiple_match_address) { build(:va_profile_v3_validation_address, :multiple_matches) }
+      let(:multiple_match_address) { build(:va_profile_validation_address, :multiple_matches) }
 
       before do
         VCR.use_cassette(

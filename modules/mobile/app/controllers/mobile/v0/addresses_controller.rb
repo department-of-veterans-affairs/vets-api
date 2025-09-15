@@ -25,7 +25,7 @@ module Mobile
       end
 
       def validate
-        validated_address_params = VAProfile::Models::V3::ValidationAddress.new(address_params)
+        validated_address_params = VAProfile::Models::ValidationAddress.new(address_params)
         raise Common::Exceptions::ValidationErrors, validated_address_params unless validated_address_params.valid?
 
         response = validation_service.address_suggestions(validated_address_params).as_json

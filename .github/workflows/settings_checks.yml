@@ -84,8 +84,8 @@ jobs:
             exit 0
           fi
 
-          new_env_keys=$(git diff origin/master config/settings.yml | \
-            grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
+          new_env_keys=$(git diff --unified=0 origin/master config/settings.yml | \
+            grep '^+' | grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
 
           keys=()
           for line in $new_env_keys; do
