@@ -1553,6 +1553,10 @@ features:
   pension_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  pension_itf_validate_data_logger:
+    actor_type: user
+    description: Toggle sending of the ITF Validate Data to Rails Logger
+    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1952,6 +1956,10 @@ features:
   va_dependents_new_fields_for_pdf:
     actor_type: user
     description: Allows us to toggle the new fields on the front end for 686C-674
+  va_dependents_duplicate_modals:
+    actor_type: user
+    description: Allows us to toggle duplicate modals for the 686C-674
+    enable_in_development: true
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
