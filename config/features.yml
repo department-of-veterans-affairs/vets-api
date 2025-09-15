@@ -656,6 +656,10 @@ features:
     actor_type: user
     description: Manage whether the enqueued job for 686c and 674 will be with a User model or the new User struct
     enable_in_development: true
+  dependents_log_vbms_errors:
+    actor_type: user
+    description: Log VBMS errors when submitting 686c and 674
+    enable_in_development: true
   dependents_module_enabled:
     actor_type: user
     description: Enables new Dependents module
