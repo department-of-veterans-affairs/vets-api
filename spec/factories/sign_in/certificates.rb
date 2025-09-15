@@ -27,7 +27,7 @@ FactoryBot.define do
                   end
     signer_key = self_signed ? key : ca_key
 
-    OpenSSL::X509::Certificate.new.tap do |c|
+    cert = OpenSSL::X509::Certificate.new.tap do |c|
       c.version    = 2
       c.serial     = rand(1_000_000)
       c.subject    = OpenSSL::X509::Name.parse("/CN=#{subject_cn}")
@@ -37,6 +37,7 @@ FactoryBot.define do
       c.not_after  = not_after
       c.sign(signer_key, OpenSSL::Digest.new('SHA256'))
     end
+    [cert, key]
   end
 
   factory :sign_in_certificate, class: 'SignIn::Certificate' do
@@ -46,12 +47,19 @@ FactoryBot.define do
       self_signed { false }
     end
 
-    pem do
-      if self_signed
-        build_leaf.call(nil, nil, not_before, not_after, true).to_pem
-      else
-        ca_cert, ca_key = build_ca.call(not_before - 1.day, not_after + 1.day)
-        build_leaf.call(ca_cert, ca_key, not_before, not_after, false).to_pem
+    after(:build) do |certificate, t|
+      if certificate.pem.blank?
+        ca_cert, ca_key = if t.self_signed
+                            [nil, nil]
+                          else
+                            build_ca.call(t.not_before - 1.day, t.not_after + 1.day)
+                          end
+
+        leaf_cert, leaf_key = build_leaf.call(ca_cert, ca_key, t.not_before, t.not_after, t.self_signed)
+
+        certificate.pem = leaf_cert.to_pem
+
+        certificate.define_singleton_method(:private_key) { leaf_key }
       end
     end
 
@@ -66,10 +74,17 @@ FactoryBot.define do
       end
     end
 
-    trait :expiring do
+    trait :expiring_soon do
       transient do
         not_before { 1.month.ago }
         not_after  { 1.month.from_now }
+      end
+    end
+
+    trait :expiring_later do
+      transient do
+        not_before { 1.month.ago }
+        not_after  { 3.months.from_now }
       end
     end
 

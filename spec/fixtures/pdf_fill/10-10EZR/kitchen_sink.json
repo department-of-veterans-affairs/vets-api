@@ -7,7 +7,7 @@
   },
   "veteranSocialSecurityNumber": "234221243",
   "veteranDateOfBirth": "1980-01-01",
-  "gender": "M",
+  "gender": "F",
   "veteranAddress": {
     "street": "321 Elm St",
     "street2": "Unit 4",
@@ -28,7 +28,7 @@
   "homePhone": "1231241234",
   "mobilePhone": "1235551234",
   "email": "foo@example.com",
-  "maritalStatus": "Married",
+  "maritalStatus": "Never Married",
   "providers": [
     {
       "insuranceName": "MyInsurance",
@@ -69,13 +69,14 @@
         "last": "LastChildA",
         "suffix": "Jr."
       },
-      "dependentRelation": "Stepson",
+      "dependentRelation": "Son",
       "socialSecurityNumber": "111229876",
       "becameDependent": "1992-04-07",
       "dateOfBirth": "1982-05-05",
       "disabledBefore18": true,
       "attendedSchoolLastYear": true,
       "dependentEducationExpenses": 45.2,
+      "receivedSupportLastYear": false,
       "grossIncome": 991.9,
       "netIncome": 981.2,
       "otherIncome": 91.9

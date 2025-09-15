@@ -29,7 +29,7 @@ module PersistentAttachments
       in_progress_form.update!(form_data: Common::HashHelpers.deep_to_h(form_data).to_json)
     rescue => e
       additional_context = { claim:, in_progress_form_id: in_progress_form&.id, errors: claim&.errors&.errors,
-                             message: e&.message }
+                             error: e&.message }
       Logging::Monitor.new('vets-api-service').track_request(
         :error,
         'PersistentAttachments::Sanitizer sanitize attachments error',
