@@ -1458,6 +1458,10 @@ features:
     actor_type: user
     description: Enables/disables integration with MHV's AAL-creation endpoint
     enable_in_development: true
+  mhv_uuid_for_mhv_session_locking:
+    actor_type: user
+    description: Use UUID instead of ICN for locking MHV sessions
+    enable_in_development: true
   mhv_modern_cta_links:
     actor_type: user
     description: CTA widget links point to va.gov services

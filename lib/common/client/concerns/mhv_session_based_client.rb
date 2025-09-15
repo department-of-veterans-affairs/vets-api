@@ -23,7 +23,11 @@ module Common
         attr_reader :session
 
         def user_key
-          session.user_uuid
+          if Flipper.enabled?(:mhv_uuid_for_mhv_session_locking)
+            session.user_uuid
+          else
+            session.user_id
+          end
         end
 
         def invalid?(session)
