@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
 require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
@@ -582,3 +583,4 @@ module UnifiedHealthData
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
