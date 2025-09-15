@@ -7,23 +7,23 @@ module Mobile
 
       set_type :travelPayClaimDetails
 
-             attributes :id,
-                        :claimNumber,
-                        :claimName,
-                        :claimantFirstName,
-                        :claimantMiddleName,
-                        :claimantLastName,
-                        :claimStatus,
-                        :appointmentDate,
-                        :facilityName,
-                        :totalCostRequested,
-                        :reimbursementAmount,
-                        :rejectionReason,
-                        :appointment,
-                        :expenses,
-                        :documents,
-                        :createdOn,
-                        :modifiedOn
+      attributes :id,
+                 :claimNumber,
+                 :claimName,
+                 :claimantFirstName,
+                 :claimantMiddleName,
+                 :claimantLastName,
+                 :claimStatus,
+                 :appointmentDate,
+                 :facilityName,
+                 :totalCostRequested,
+                 :reimbursementAmount,
+                 :rejectionReason,
+                 :appointment,
+                 :expenses,
+                 :documents,
+                 :createdOn,
+                 :modifiedOn
     end
   end
 end
