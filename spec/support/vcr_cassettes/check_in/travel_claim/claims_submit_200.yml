@@ -2,10 +2,7 @@
 http_interactions:
 - request:
     method: patch
-    uri: "<TRAVEL_CLAIM_API_URL>/api/v3/claims/submit"
-    body:
-      encoding: UTF-8
-      string: '{"claimId":"claim-123"}'
+    uri: "<TRAVEL_CLAIM_API_URL>/api/v3/claims/claim-123/submit"
     headers:
       Accept:
       - application/json

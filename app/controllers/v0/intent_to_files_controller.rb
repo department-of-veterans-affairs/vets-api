@@ -68,7 +68,7 @@ module V0
 
       if %w[pension survivor].include? type
         form_id = ITF_FORM_IDS[type]
-        validate_data(@current_user, 'post', type, form_id)
+        validate_data(@current_user, 'post', form_id, type)
 
         monitor.track_submit_itf(form_id, type, @current_user.uuid)
         itf = BenefitsClaims::Service.new(@current_user.icn).create_intent_to_file(type, @current_user.ssn, nil)
@@ -127,7 +127,19 @@ module V0
         TYPES.include?(params[:itf_type])
     end
 
+    # This is temporary. Testing logged data to ensure this is being hit properly
+    # rubocop:disable Metrics/MethodLength
     def validate_data(user, method, form_id, itf_type)
+      if Flipper.enabled?(:pension_itf_validate_data_logger, user)
+        context = {
+          user_icn_present: user.icn.present?,
+          user_participant_id_present: user.participant_id.present?,
+          itf_type:,
+          user_uuid: user.uuid
+        }
+        Rails.logger.info('IntentToFilesController ITF Validate Data', context)
+      end
+
       user_uuid = user.uuid
 
       if user.icn.blank?
@@ -149,6 +161,7 @@ module V0
         raise InvalidITFTypeError, error_message
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def monitor
       @monitor ||= BenefitsClaims::IntentToFile::Monitor.new

@@ -22,6 +22,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     allow_any_instance_of(BenefitsDocuments::Service).to receive(:validate_claimant_can_upload).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
                                               instance_of(User)).and_return(false)
+    allow(Rails.logger).to receive(:info)
     user.user_account_uuid = user_account.id
     user.save!
     FileUtils.rm_rf(Rails.root.join('tmp', 'uploads', 'cache', '*'))
@@ -69,6 +70,26 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
 
       expect(response).to have_http_status(:accepted)
+      # ensure the logger is filtering out sensitive data
+      expect(Rails.logger).to have_received(:info).with(
+        a_string_starting_with('Parameters for document upload'),
+        hash_including(
+          file: have_attributes(
+            headers: '[FILTERED!]',
+            original_filename: '[FILTERED!]'
+          ),
+          claim_id: '600117255',
+          tracked_item_ids: ['12345'],
+          document_type: 'L023'
+        )
+      )
+      expect(Rails.logger).not_to have_received(:info).with(
+        a_string_starting_with('Parameters for document upload'),
+        hash_including(
+          password: 'password',
+          qqfilename: 'test.txt'
+        )
+      )
       expect(response.parsed_body.dig('data', 'jobId'))
         .to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
       expect(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first.dig('args', 1, 'tracked_item_id'))
@@ -86,6 +107,32 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
                                                                  headers: sis_headers(json: true)
       end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
       expect(response).to have_http_status(:accepted)
+      # ensure the logger is filtering out sensitive data
+      expect(Rails.logger).to have_received(:info).with(
+        a_string_starting_with('Parameters for document multi image upload'),
+        hash_including(
+          files: [
+            '[FILTERED]',
+            '[FILTERED]'
+          ],
+          claim_id: '600117255',
+          tracked_item_ids: ['12345'],
+          document_type: 'L023',
+          claims_and_appeal: {
+            files: [
+              '[FILTERED]',
+              '[FILTERED]'
+            ]
+          }
+        )
+      )
+      expect(Rails.logger).not_to have_received(:info).with(
+        a_string_starting_with('Parameters for document multi image upload'),
+        hash_including(
+          password: 'password',
+          qqfilename: 'test.txt'
+        )
+      )
       expect(response.parsed_body.dig('data', 'jobId'))
         .to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
       expect(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first.dig('args', 1, 'tracked_item_id'))
@@ -344,6 +391,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
   context 'when cst_send_evidence_submission_failure_emails is enabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
+      allow(Rails.logger).to receive(:info)
     end
 
     context 'with pdftk (hexapdf disabled)' do

@@ -72,7 +72,7 @@ module ClaimsApi
 
           unless claims_load_testing # || sandbox_request(request)
             generate_pdf_from_service!(auto_claim.id, veteran_middle_initial) unless mocking
-            docker_container_service.upload(auto_claim.id)
+            form526_establishment_service.upload(auto_claim.id)
             queue_flash_updater(auto_claim.flashes, auto_claim.id)
             start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
             auto_claim.reload
@@ -213,8 +213,8 @@ module ClaimsApi
           ClaimsApi::DisabilityCompensation::PdfGenerationService.new
         end
 
-        def docker_container_service
-          ClaimsApi::DisabilityCompensation::DockerContainerService.new
+        def form526_establishment_service
+          ClaimsApi::DisabilityCompensation::Form526EstablishmentService.new
         end
 
         def queue_flash_updater(flashes, auto_claim_id)
