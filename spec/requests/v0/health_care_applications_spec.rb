@@ -689,7 +689,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
               expect(DeleteInProgressFormJob).to receive(:perform_in).with(
                 5.minutes,
                 '1010ez',
-                an_instance_of(User)
+                current_user.uuid
               )
 
               subject

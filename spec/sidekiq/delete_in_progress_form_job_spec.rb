@@ -21,7 +21,7 @@ RSpec.describe DeleteInProgressFormJob, type: :job do
           )
 
           expect do
-            subject.perform(form_id, current_user)
+            subject.perform(form_id, current_user.uuid)
           end.to change(InProgressForm, :count).by(-1)
 
           expect(InProgressForm.form_for_user(form_id, current_user)).to be_nil
@@ -39,7 +39,7 @@ RSpec.describe DeleteInProgressFormJob, type: :job do
             a_string_matching(Regexp.union(logger_regex))
           )
 
-          subject.perform(form_id, current_user)
+          subject.perform(form_id, current_user.uuid)
         end
       end
 
@@ -58,12 +58,12 @@ RSpec.describe DeleteInProgressFormJob, type: :job do
             a_string_matching(Regexp.union(logger_regex))
           )
 
-          expect { subject.perform(form_id, current_user) }.not_to raise_error
+          expect { subject.perform(form_id, current_user.uuid) }.not_to raise_error
         end
       end
     end
 
-    context 'when current_user is nil' do
+    context 'when user_uuid is nil' do
       it 'does not attempt to delete and logs appropriately' do
         expect { subject.perform(form_id, nil) }.not_to change(InProgressForm, :count)
       end
@@ -89,7 +89,7 @@ RSpec.describe DeleteInProgressFormJob, type: :job do
           a_string_matching(Regexp.union(logger_regex))
         )
 
-        subject.perform(form_id, current_user)
+        subject.perform(form_id, current_user.uuid)
       end
     end
   end

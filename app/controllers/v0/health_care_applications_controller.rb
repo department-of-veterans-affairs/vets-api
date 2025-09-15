@@ -53,11 +53,7 @@ module V0
 
       if current_user
         if Flipper.enabled?(:hca_in_progress_form_delete_async)
-          DeleteInProgressFormJob.perform_in(
-            5.minutes,
-            FORM_ID,
-            current_user
-          )
+          DeleteInProgressFormJob.perform_in(5.minutes, FORM_ID, current_user.uuid)
         else
           clear_in_progress_form
         end

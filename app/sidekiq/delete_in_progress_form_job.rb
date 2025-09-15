@@ -5,15 +5,18 @@ class DeleteInProgressFormJob
 
   sidekiq_options retry: 5
 
-  def perform(form_id, current_user)
-    return unless current_user
+  def perform(form_id, user_uuid)
+    return unless user_uuid
 
-    in_progress_form_before = InProgressForm.form_for_user(form_id, current_user)
-    InProgressForm.form_for_user(form_id, current_user)&.destroy
+    # Keeping this logging with the multiple find_bys to confirm this fixes an issue we were seeing.
+    # After confirming we can simply delete the InProgressForm
+    in_progress_form_before = InProgressForm.find_by(form_id:, user_uuid:)
 
-    in_progress_form_after = InProgressForm.form_for_user(form_id, current_user)
+    InProgressForm.find_by(form_id:, user_uuid:)&.destroy
 
-    Rails.logger.info("[10-10EZ][user_uuid:#{current_user.uuid}]" \
+    in_progress_form_after = InProgressForm.find_by(form_id:, user_uuid:)
+
+    Rails.logger.info("[10-10EZ][user_uuid:#{user_uuid}]" \
                       "[ipf_id_before:#{in_progress_form_before&.id}, ipf_id_after:#{in_progress_form_after&.id}]" \
                       " - InProgressForm successfully deleted: #{in_progress_form_after.nil?}")
   end
