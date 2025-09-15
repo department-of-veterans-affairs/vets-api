@@ -3,7 +3,9 @@
 require_relative '../../../../../support/helpers/rails_helper'
 
 RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
-  let!(:user) { sis_user(:mhv, :api_auth, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
+  let!(:user) do
+    sis_user(:mhv, :api_auth, user_account_uuid: '12345', mhv_correlation_id: '123', mhv_account_type: 'Premium')
+  end
 
   before do
     Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
