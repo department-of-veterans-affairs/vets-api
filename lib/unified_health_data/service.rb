@@ -427,7 +427,9 @@ module UnifiedHealthData
     def build_error_response(orders)
       {
         success: [],
-        failed: orders.map { |order| { id: order[:id], error: 'Service unavailable', station_number: order[:stationNumber] } }
+        failed: orders.map do |order|
+          { id: order[:id], error: 'Service unavailable', station_number: order[:stationNumber] }
+        end
       }
     end
 
