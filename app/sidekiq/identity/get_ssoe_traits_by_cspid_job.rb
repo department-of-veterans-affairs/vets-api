@@ -4,6 +4,8 @@ module Identity
   class GetSSOeTraitsByCspidJob
     include Sidekiq::Job
 
+    STATSD_KEY_PREFIX = 'worker.get_ssoe_traits_by_cspid'
+
     sidekiq_options retry: 3, queue: :default
 
     def perform(cache_key, credential_method, credential_id)
@@ -21,16 +23,9 @@ module Identity
 
       response = SSOe::Service.new.get_traits(credential_method:, credential_id:, user:, address:)
 
-      if response[:success]
-        log_success(response[:icn], credential_method, credential_id)
-        StatsD.increment('get_ssoe_traits_by_cspid.success', tags: ["credential_method:#{credential_method}"])
-        Sidekiq::AttrPackage.delete(cache_key)
-      else
-        log_failure('SSOe::Service.get_traits failed', credential_method, credential_id, response[:error])
-        raise "SSOe::Service.get_traits failed - #{response[:error].inspect}"
-      end
+      log_success_or_failure(cache_key, credential_method, credential_id, response)
     rescue => e
-      log_failure("Unhandled exception: #{e.class} - #{e.message}", credential_method, credential_id)
+      log_failure("Unhandled exception: #{e.class} - #{e.message}", credential_method, credential_id, e)
       raise
     end
 
@@ -65,6 +60,18 @@ module Identity
       )
     end
 
+    def log_success_or_failure(cache_key, credential_method, credential_id, response)
+      if response[:success]
+        log_success(response[:icn], credential_method, credential_id)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.success", tags: ["credential_method:#{credential_method}"])
+        Sidekiq::AttrPackage.delete(cache_key)
+      else
+        log_failure('SSOe::Service.get_traits failed', credential_method, credential_id, response[:error],
+                    icn: response[:icn])
+        raise "SSOe::Service.get_traits failed - #{response[:error].inspect}"
+      end
+    end
+
     def log_success(icn, credential_method, credential_id)
       Rails.logger.info(
         '[GetSSOeTraitsByCspidJob] SSOe::Service.get_traits success',
@@ -74,15 +81,16 @@ module Identity
       )
     end
 
-    def log_failure(message, credential_method, credential_id, error = nil)
+    def log_failure(message, credential_method, credential_id, error = nil, icn = nil)
       log_payload = {
         credential_method:,
         credential_id:
       }
       log_payload[:error] = error if error
+      log_payload[:icn] = icn if icn
 
       Rails.logger.error("[GetSSOeTraitsByCspidJob] #{message}", log_payload)
-      StatsD.increment('get_ssoe_traits_by_cspid.failure', tags: ["credential_method:#{credential_method}"])
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failure", tags: ["credential_method:#{credential_method}"])
     end
   end
 end

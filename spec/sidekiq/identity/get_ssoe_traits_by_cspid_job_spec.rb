@@ -29,6 +29,7 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
 
   let(:credential_method) { 'idme' }
   let(:credential_id) { 'abc-123' }
+  let(:icn) { '1234567890V123456' }
 
   before do
     allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(valid_attrs)
@@ -39,7 +40,7 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
   shared_examples 'service call failure' do |should_raise: true|
     it 'logs failure and increments failure metric' do
       expect(StatsD).to receive(:increment).with(
-        'get_ssoe_traits_by_cspid.failure',
+        'worker.get_ssoe_traits_by_cspid.failure',
         tags: ["credential_method:#{credential_method}"]
       )
 
@@ -61,7 +62,7 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
   end
 
   context 'when service call is successful' do
-    let(:icn) { 'icn-12345' }
+    let(:icn) { '1234567890V123456' }
 
     before do
       allow_any_instance_of(SSOe::Service).to receive(:get_traits).and_return({ success: true, icn: })
@@ -73,7 +74,7 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
         hash_including(icn:, credential_method:, credential_id:)
       )
 
-      expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.success',
+      expect(StatsD).to receive(:increment).with('worker.get_ssoe_traits_by_cspid.success',
                                                  tags: ["credential_method:#{credential_method}"])
       expect(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
 
@@ -107,7 +108,7 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
           hash_including(credential_method:, credential_id:)
         )
 
-        expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.failure',
+        expect(StatsD).to receive(:increment).with('worker.get_ssoe_traits_by_cspid.failure',
                                                    tags: ["credential_method:#{credential_method}"])
         expect(Sidekiq::AttrPackage).not_to receive(:delete)
 
@@ -127,7 +128,7 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
           hash_including(credential_method:, credential_id:)
         )
 
-        expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.failure',
+        expect(StatsD).to receive(:increment).with('worker.get_ssoe_traits_by_cspid.failure',
                                                    tags: ["credential_method:#{credential_method}"])
         expect(Sidekiq::AttrPackage).not_to receive(:delete)
 
@@ -148,7 +149,7 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
           hash_including(credential_method:, credential_id:)
         )
 
-        expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.failure',
+        expect(StatsD).to receive(:increment).with('worker.get_ssoe_traits_by_cspid.failure',
                                                    tags: ["credential_method:#{credential_method}"])
 
         expect do
@@ -165,8 +166,9 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
         hash_including(credential_method:, credential_id:, error: error_response[:error])
       )
 
-      expect(StatsD).to receive(:increment).with('get_ssoe_traits_by_cspid.failure',
+      expect(StatsD).to receive(:increment).with('worker.get_ssoe_traits_by_cspid.failure',
                                                  tags: ["credential_method:#{credential_method}"])
+
       expect(Sidekiq::AttrPackage).not_to receive(:delete)
 
       expect do
