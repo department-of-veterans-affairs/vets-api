@@ -25,7 +25,7 @@ module TravelPay
         render json: expense, status: :ok
       rescue ArgumentError => e
         raise Common::Exceptions::BadRequest, detail: e.message
-      rescue Faraday::ClientError, Faraday::ServerError => e
+      rescue Faraday::Error => e
         TravelPay::ServiceError.raise_mapped_error(e)
       end
 
@@ -43,7 +43,7 @@ module TravelPay
         render json: created_expense, status: :created
       rescue ArgumentError => e
         raise Common::Exceptions::BadRequest, detail: e.message
-      rescue Faraday::ClientError, Faraday::ServerError => e
+      rescue Faraday::Error => e
         TravelPay::ServiceError.raise_mapped_error(e)
       end
 
