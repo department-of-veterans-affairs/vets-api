@@ -76,7 +76,6 @@ module Vets
         when 'info' then Rails.logger.info(exception)
         when 'warn' then Rails.logger.warn(exception)
         when 'fatal' then Rails.logger.fatal(exception)
-                          Rails.logger.fatal(exception)
         else # 'error' and unknown levels
           Rails.logger.error(exception)
         end
