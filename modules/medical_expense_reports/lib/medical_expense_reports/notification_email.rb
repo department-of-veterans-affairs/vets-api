@@ -1,21 +1,21 @@
 # frozen_string_literal: true
 
-require 'income_and_assets/notification_callback'
+require 'medical_expense_reports/notification_callback'
 require 'veteran_facing_services/notification_email/saved_claim'
 
-module IncomeAndAssets
+module MedicalExpenseReports
   # @see VeteranFacingServices::NotificationEmail::SavedClaim
   class NotificationEmail < ::VeteranFacingServices::NotificationEmail::SavedClaim
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#new
     def initialize(saved_claim_id)
-      super(saved_claim_id, service_name: 'income_and_assets')
+      super(saved_claim_id, service_name: 'medical_expense_reports')
     end
 
     private
 
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#claim_class
     def claim_class
-      IncomeAndAssets::SavedClaim
+      MedicalExpenseReports::SavedClaim
     end
 
     # Capture the first name of the claimant or veteran
@@ -39,22 +39,15 @@ module IncomeAndAssets
         # confirmation, error
         'first_name' => first_name,
         # received
-        'date_received' => date_received
+        'date_received' => claim.form_submissions&.last&.form_submission_attempts&.last&.lighthouse_updated_at
       }
 
       default.merge(template)
     end
 
-    # Provides the date received with fallback to claim submission date
-    # @return [Time] the date the form was received or submitted
-    def date_received
-      lighthouse_date = claim.form_submissions&.last&.form_submission_attempts&.last&.lighthouse_updated_at
-      lighthouse_date || claim.submitted_at || claim.created_at
-    end
-
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_klass
     def callback_klass
-      IncomeAndAssets::NotificationCallback.to_s
+      MedicalExpenseReports::NotificationCallback.to_s
     end
   end
 end
