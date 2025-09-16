@@ -5,7 +5,7 @@ require_relative '../../../rails_helper'
 RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) { FactoryBot.create(:user, :vaos) }
+  let!(:user) { create(:user, :vaos) }
   let(:va_patient) { true }
   let(:current_user) { user }
 
@@ -205,7 +205,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
       context 'when prescription exists' do
         let(:mock_prescription) do
           UnifiedHealthData::Models::Prescription.new(
-            prescription_id: prescription_id,
+            prescription_id:,
             prescription_name: 'Test Medication',
             dispense_date: '2024-01-15'
           )
@@ -221,7 +221,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
           expect(response).to have_http_status(:ok)
           expect(UnifiedHealthData::Service).to have_received(:get_prescription).with(
             user: current_user,
-            prescription_id: prescription_id
+            prescription_id:
           )
         end
       end

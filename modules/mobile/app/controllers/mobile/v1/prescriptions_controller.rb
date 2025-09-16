@@ -20,10 +20,10 @@ module Mobile
           # Use UHD service for all data transformation
           prescriptions = UnifiedHealthData::Service.get_prescriptions(
             user: current_user,
-            page: page,
-            per_page: per_page,
-            refill_status: refill_status,
-            sort: sort
+            page:,
+            per_page:,
+            refill_status:,
+            sort:
           )
 
           # Generate mobile-specific metadata
@@ -34,7 +34,7 @@ module Mobile
             meta: {
               pagination: {
                 current_page: page,
-                per_page: per_page,
+                per_page:,
                 total_pages: metadata[:total_pages],
                 total_entries: metadata[:total_entries]
               },
@@ -58,7 +58,7 @@ module Mobile
         begin
           prescription = UnifiedHealthData::Service.get_prescription(
             user: current_user,
-            prescription_id: prescription_id
+            prescription_id:
           )
 
           if prescription
@@ -88,13 +88,13 @@ module Mobile
         begin
           result = UnifiedHealthData::Service.refill_prescription(
             user: current_user,
-            prescription_id: prescription_id
+            prescription_id:
           )
 
           if result[:success]
             render json: {
               data: {
-                prescription_id: prescription_id,
+                prescription_id:,
                 refill_status: result[:refill_status],
                 refill_date: result[:refill_date]
               }
@@ -143,8 +143,8 @@ module Mobile
         has_non_va_meds = prescriptions.any? { |rx| rx.prescription_source != 'va' }
 
         {
-          total_entries: total_entries,
-          total_pages: total_pages,
+          total_entries:,
+          total_pages:,
           mobile_specific: {
             prescriptionStatusCount: {
               active: status_counts['active'] || 0,

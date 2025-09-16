@@ -5,7 +5,7 @@ module Mobile
     class PrescriptionsSerializer < Mobile::V0::PrescriptionsSerializer
       # Inherit all attributes and behavior from v0 for API compatibility
       # Add UHD-specific attributes
-      
+
       attribute :data_source_system
       attribute :prescription_source
       attribute :tracking_info
@@ -13,13 +13,9 @@ module Mobile
       attribute :prescribed_date
 
       # Backward compatibility: provide first tracking info as top-level attributes
-      attribute :tracking_number do |object|
-        object.tracking_number
-      end
+      attribute :tracking_number, &:tracking_number
 
-      attribute :shipper do |object|
-        object.shipper
-      end
+      attribute :shipper, &:shipper
 
       # Override type to maintain consistency
       set_type :Prescription
