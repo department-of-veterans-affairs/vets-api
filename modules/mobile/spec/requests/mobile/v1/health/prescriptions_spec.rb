@@ -85,7 +85,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
             expect(response).to have_http_status(:ok)
             expect(response.parsed_body['data']).to eq([])
-            expect(response.parsed_body['meta']['pagination']['total_entries']).to eq(0)
+            expect(response.parsed_body['meta']['pagination']['totalEntries']).to eq(0)
           end
         end
       end

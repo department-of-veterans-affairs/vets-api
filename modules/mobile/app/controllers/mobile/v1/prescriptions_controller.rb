@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'unified_health_data/service'
+require 'unified_health_data/serializers/prescription_serializer'
 
 module Mobile
   module V1
@@ -17,7 +18,8 @@ module Mobile
         # TODO: Add pagination and filtering logic for page, per_page, refill_status, sort
         
         meta = generate_mobile_metadata(prescriptions)
-        render json: { data: prescriptions, meta: }, serializer: Mobile::V1::PrescriptionsSerializer
+        serialized_data = UnifiedHealthData::Serializers::PrescriptionSerializer.new(prescriptions).serializable_hash
+        render json: { **serialized_data, meta: }
       end
 
       def show
@@ -30,7 +32,7 @@ module Mobile
         
         raise Common::Exceptions::ResourceNotFound.new(nil, detail: 'Prescription not found') unless prescription
 
-        render json: prescription, serializer: Mobile::V1::PrescriptionsSerializer
+        render json: UnifiedHealthData::Serializers::PrescriptionSerializer.new(prescription).serializable_hash
       end
 
       def refill
