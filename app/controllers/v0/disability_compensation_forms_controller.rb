@@ -15,6 +15,11 @@ module V0
     before_action :auth_rating_info, only: [:rating_info]
     before_action :validate_name_part, only: [:suggested_conditions]
 
+    def initialize
+      @monitor = DisabilityCompensation::Loggers::Monitor.new
+      super()
+    end
+
     def rated_disabilities
       invoker = 'V0::DisabilityCompensationFormsController#rated_disabilities'
       api_provider = ApiProviderFactory.call(
@@ -75,6 +80,7 @@ module V0
       if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) && form_content['form526'].present?
         saved_claim.metadata = add_0781_metadata(form_content['form526'])
       end
+
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
       # if jid = 0 then the submission was prevented from going any further in the process
@@ -159,13 +165,11 @@ module V0
 
     def log_failure(claim)
       if Flipper.enabled?(:disability_526_track_saved_claim_error) && claim&.errors
-        monitor = DisabilityCompensation::Loggers::Monitor.new
-
         begin
           in_progress_form =
             @current_user ? InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user) : nil
         ensure
-          monitor.track_saved_claim_save_error(
+          @monitor.track_saved_claim_save_error(
             # Array of ActiveModel::Error instances from the claim that failed to save
             claim&.errors&.errors,
             in_progress_form&.id,
@@ -174,13 +178,14 @@ module V0
         end
       end
 
-      StatsD.increment("#{stats_key}.failure")
       raise Common::Exceptions::ValidationErrors, claim
     end
 
     def log_success(claim)
-      StatsD.increment("#{stats_key}.success")
-      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+      @monitor.track_saved_claim_save_success(
+        claim,
+        @current_user.uuid
+      )
     end
 
     def validate_name_part
