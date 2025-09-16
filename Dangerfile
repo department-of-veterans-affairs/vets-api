@@ -358,7 +358,7 @@ module VSPDanger
         These should be deployed separately to ensure backwards compatibility.
 
         For more info:
-        - [Strong Migrations Best Practices](https://github.com/ankane/strong_migrations#removing-a-column)
+        - [Strong Migrations Best Practices](https://github.com/ankane/strong_migrations)
         - [vets-api Database Migrations](https://depo-platform-documentation.scrollhelp.site/developer-docs/Vets-API-Database-Migrations.689832034.html)
       EMSG
     end
