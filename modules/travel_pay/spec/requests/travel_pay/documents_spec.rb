@@ -6,7 +6,7 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
   include TravelPay::Engine.routes.url_helpers
 
   let(:claim_id) { '73611905-71bf-46ed-b1ec-e790593b8565' }
-  let(:doc_id) { 'doc-456' }
+  let(:doc_id) { '123e4567-e89b-12d3-a456-426614174000' }
   let(:user) { build(:user) }
   let(:service) { instance_double(TravelPay::DocumentsService) }
   let(:valid_document) do
@@ -19,7 +19,8 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
     sign_in(user)
   end
 
-  describe 'GET /travel_pay/v0/documents/:id' do
+  # GET /travel_pay/v0/claims/:claim_id/documents/:id
+  describe 'show' do
     headers = { 'Authorization' => 'Bearer vagov_token' }
     filename = 'AppealForm.pdf'
 
@@ -55,6 +56,116 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
           get(doc_path('big-bad-error'), headers:)
 
           expect(response).to have_http_status(:internal_server_error)
+        end
+      end
+    end
+  end
+
+  # DELETE /travel_pay/v0/claims/:claim_id/documents/:id
+  describe 'destroy' do
+    before do
+      allow_any_instance_of(TravelPay::V0::DocumentsController).to receive(:current_user).and_return(user)
+    end
+
+    context 'when feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
+      end
+
+      context 'vcr tests' do
+        let(:headers) do
+          {
+            'Authorization' => 'Bearer vagov_token',
+            'X-Correlation-ID' => 'test-correlation-id-123'
+          }
+        end
+
+        context 'when the document is successfully deleted' do
+          it 'returns the document data with correct headers' do
+            VCR.use_cassette('travel_pay/documents/delete/success', match_requests_on: %i[method path]) do
+              delete(doc_path)
+
+              expect(response).to have_http_status(:ok)
+              body = JSON.parse(response.body)
+
+              expect(body['documentId']).to eq('123e4567-e89b-12d3-a456-426614174000')
+            end
+          end
+        end
+      end
+
+      context 'stubbed service behavior' do
+        before do
+          allow_any_instance_of(TravelPay::V0::DocumentsController)
+            .to receive(:service).and_return(service)
+        end
+
+        it 'deletes document and returns documentId' do
+          allow(service).to receive(:delete_document)
+            .with(claim_id, doc_id)
+            .and_return({ 'documentId' => '123e4567-e89b-12d3-a456-426614174000' })
+
+          delete(doc_path)
+
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)).to eq('documentId' => '123e4567-e89b-12d3-a456-426614174000')
+        end
+
+        it 'returns bad request when claim_id is invalid' do
+          invalid_claim_id = 'invalid$'
+
+          delete("/travel_pay/v0/claims/#{invalid_claim_id}/documents/123e4567-e89b-12d3-a456-426614174000")
+
+          expect(response).to have_http_status(:bad_request)
+          body = JSON.parse(response.body)
+          expect(body['errors'].first['detail']).to eq('Claim ID is invalid')
+        end
+
+        it 'returns bad request when document_id is invalid' do
+          invalid_doc_id = 'bad!!'
+
+          delete("/travel_pay/v0/claims/#{claim_id}/documents/#{invalid_doc_id}")
+
+          expect(response).to have_http_status(:bad_request)
+          body = JSON.parse(response.body)
+          expect(body['errors'].first['detail']).to eq('Document ID is invalid')
+        end
+
+        it 'returns not found when Faraday::ResourceNotFound' do
+          exception = Faraday::ResourceNotFound.new('Not found')
+          allow(exception).to receive(:response).and_return(
+            request: { headers: { 'X-Correlation-ID' => 'abc' } }
+          )
+          allow(service).to receive(:delete_document).and_raise(exception)
+
+          delete(doc_path)
+
+          expect(response).to have_http_status(:not_found)
+          body = JSON.parse(response.body)
+          expect(body['error']).to eq('Document not found')
+          expect(body['correlation_id']).to eq('abc')
+        end
+
+        it 'returns client error JSON when Faraday::ClientError' do
+          error = Faraday::ClientError.new('Bad request')
+          allow(error).to receive(:response).and_return({ status: 400, body: 'invalid document' })
+          allow(service).to receive(:delete_document).and_raise(error)
+
+          delete(doc_path)
+
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'].first['detail']).to eq('invalid document')
+        end
+
+        it 'returns server error JSON when Faraday::ServerError' do
+          error = Faraday::ServerError.new('Internal server error')
+          allow(error).to receive(:response).and_return({ status: 500 })
+          allow(service).to receive(:delete_document).and_raise(error)
+
+          delete(doc_path)
+
+          expect(response).to have_http_status(:internal_server_error)
+          expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Server error deleting document')
         end
       end
     end
@@ -150,6 +261,6 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
   end
 
   def doc_path(doc_id = nil)
-    "/travel_pay/v0/claims/#{claim_id}/documents/#{doc_id || 'doc-456'}"
+    "/travel_pay/v0/claims/#{claim_id}/documents/#{doc_id || '123e4567-e89b-12d3-a456-426614174000'}"
   end
 end

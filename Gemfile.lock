@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: c78f4d3f0aa9eea7b7bb1ebe390286e28d293392
+  revision: 40306e3de819eb3edb9b49aff8d0f6deeada94e2
   branch: master
   specs:
-    vets_json_schema (25.2.3)
+    vets_json_schema (25.2.4)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -656,24 +656,16 @@ GEM
       base64
     jwt (2.10.2)
       base64
-    karafka-core (2.5.6)
-      karafka-rdkafka (>= 0.20.0)
+    karafka-core (2.5.5)
+      karafka-rdkafka (>= 0.19.2, < 0.21.0)
       logger (>= 1.6.0)
-    karafka-rdkafka (0.21.0)
+    karafka-rdkafka (0.20.1)
       ffi (~> 1.15)
-      json (> 2.0)
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
-    karafka-rdkafka (0.21.0-aarch64-linux-gnu)
+    karafka-rdkafka (0.20.1-x86_64-linux-gnu)
       ffi (~> 1.15)
-      json (> 2.0)
-      logger
-      mini_portile2 (~> 2.6)
-      rake (> 12)
-    karafka-rdkafka (0.21.0-x86_64-linux-gnu)
-      ffi (~> 1.15)
-      json (> 2.0)
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
@@ -1324,7 +1316,7 @@ DEPENDENCIES
   jsonapi-serializer
   jwe
   jwt
-  karafka-core (= 2.5.6)
+  karafka-core (= 2.5.5)
   kms_encrypted
   liquid
   lockbox
