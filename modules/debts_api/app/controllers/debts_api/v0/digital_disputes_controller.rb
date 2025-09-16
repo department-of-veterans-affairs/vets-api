@@ -21,7 +21,6 @@ module DebtsApi
         begin
           submission.save!
           DebtsApi::V0::DigitalDisputeJob.perform_async(submission.id)
-          render_success(submission)
 
           render json: { message: 'Submission received', submission_id: submission.id }, status: :ok
         rescue ActiveRecord::RecordInvalid => e
