@@ -207,7 +207,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       context 'with contention classification enabled' do
-
         it 'uses the expanded lookup endpoint as default' do
           mock_cc_client = instance_double(ContentionClassification::Client)
           allow(ContentionClassification::Client).to receive(:new).and_return(mock_cc_client)
@@ -220,8 +219,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
         context 'with ml classification toggle enabled' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:contention_classification_ml_classifier, anything
-            ).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:contention_classification_ml_classifier,
+                                                      anything).and_return(true)
           end
 
           it 'uses the hybrid contention classification endpoint' do
@@ -315,8 +314,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       it 'uses hybrid classifier to classify contentions' do
-        allow(Flipper).to receive(:enabled?).with(:contention_classification_ml_classifier, 
-          anything).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:contention_classification_ml_classifier,
+                                                  anything).and_return(true)
         subject.perform_async(submission.id)
         expect do
           VCR.use_cassette('contention_classification/hybrid_contention_classification') do
@@ -327,7 +326,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
         expect(classification_codes).to eq([9012, 8994, 8989, 8997])
       end
-
 
       context 'when the disabilities array is empty' do
         before do

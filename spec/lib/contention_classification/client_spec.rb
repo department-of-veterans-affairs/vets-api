@@ -64,7 +64,6 @@ RSpec.describe ContentionClassification::Client do
     subject { client.classify_vagov_contentions_expanded(classification_contention_params) }
 
     context 'valid requests' do
-
       before do
         allow(client).to receive(:perform).and_return generic_response
       end
@@ -75,7 +74,6 @@ RSpec.describe ContentionClassification::Client do
     end
 
     context 'invalid requests' do
-
       before do
         allow(client).to receive(:perform).and_return error_response
       end
@@ -120,7 +118,6 @@ RSpec.describe ContentionClassification::Client do
     subject { client.classify_vagov_contentions_hybrid(classification_contention_params) }
 
     context 'valid requests' do
-
       before do
         allow(client).to receive(:perform).and_return generic_response
       end
@@ -170,5 +167,4 @@ RSpec.describe ContentionClassification::Client do
       end
     end
   end
-
 end
