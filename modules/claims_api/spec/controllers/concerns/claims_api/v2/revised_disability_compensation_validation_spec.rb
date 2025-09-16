@@ -406,7 +406,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/city')
-          expect(errors.first[:title]).to eq('Missing city')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('City is required')
         end
       end
@@ -430,7 +430,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors).to be_an(Array)
           # Country validation would be checked first in the international validation
           expect(errors.any? { |e| e[:source] == '/veteranIdentification/mailingAddress/country' }).to be true
-          expect(errors.any? { |e| e[:title] == 'Missing country' }).to be true
+          expect(errors.any? { |e| e[:title] == 'Unprocessable Entity' }).to be true
         end
       end
 
@@ -831,7 +831,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/disabilities')
-          expect(errors.first[:title]).to eq('Invalid array')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('Number of disabilities (151) exceeds maximum allowed (150)')
         end
       end

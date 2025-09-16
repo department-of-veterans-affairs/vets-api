@@ -172,7 +172,6 @@ module ClaimsApi
         if rng_service['obligationTermOfServiceFromDate'].blank?
           collect_error(
             source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService",
-            title: 'Missing required field',
             detail: 'The service period is missing a required start date for the obligation terms of service'
           )
         end
@@ -180,7 +179,6 @@ module ClaimsApi
         if rng_service['obligationTermOfServiceToDate'].blank?
           collect_error(
             source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService",
-            title: 'Missing required field',
             detail: 'The service period is missing a required end date for the obligation terms of service'
           )
         end
@@ -207,7 +205,6 @@ module ClaimsApi
 
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          title: 'Missing required field',
           detail: 'Title 10 activation is missing the anticipated separation date'
         )
       end
@@ -217,7 +214,6 @@ module ClaimsApi
 
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          title: 'Invalid value',
           detail: 'Reserves national guard title 10 activation date ' \
                   "(#{activation['title10ActivationDate']}) is before the earliest active duty begin date " \
                   "(#{period['activeDutyBeginDate']})"
@@ -229,7 +225,6 @@ module ClaimsApi
 
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          title: 'Invalid value',
           detail: 'Reserves national guard title 10 activation date is in the future: ' \
                   "#{activation['title10ActivationDate']}"
         )
@@ -248,7 +243,6 @@ module ClaimsApi
         if federal_activation['anticipatedSeparationDate'].blank?
           collect_error(
             source: '/serviceInformation/federalActivation',
-            title: 'Missing required field',
             detail: 'anticipatedSeparationDate is missing or blank'
           )
         end
@@ -258,7 +252,6 @@ module ClaimsApi
         if activation_date && activation_date > Date.current
           collect_error(
             source: '/serviceInformation/federalActivation',
-            title: 'Invalid value',
             detail: "Federal activation date is in the future: #{federal_activation['activationDate']}"
           )
         end
@@ -346,7 +339,6 @@ module ClaimsApi
         if mailing_address['city'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/city',
-            title: 'Unprocessable Entity',
             detail: 'City is required'
           )
         end
@@ -355,7 +347,6 @@ module ClaimsApi
         if mailing_address['country'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/country',
-            title: 'Unprocessable Entity',
             detail: 'The country provided is not valid.'
           )
         end
@@ -366,7 +357,6 @@ module ClaimsApi
         if mailing_address['state'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/state',
-            title: 'Missing state',
             detail: 'State is required for USA addresses'
           )
         end
@@ -375,7 +365,6 @@ module ClaimsApi
         if mailing_address['zipFirstFive'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/zipFirstFive',
-            title: 'Missing zipFirstFive',
             detail: 'ZipFirstFive is required for USA addresses'
           )
         end
@@ -385,7 +374,6 @@ module ClaimsApi
 
         collect_error(
           source: '/veteranIdentification/mailingAddress/internationalPostalCode',
-          title: 'Invalid field',
           detail: 'InternationalPostalCode should not be provided for USA addresses'
         )
       end
@@ -423,7 +411,6 @@ module ClaimsApi
         if country != 'USA' && mailing_address['internationalPostalCode'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/internationalPostalCode',
-            title: 'Missing internationalPostalCode',
             detail: 'InternationalPostalCode is required for non-USA addresses'
           )
         end
@@ -445,7 +432,6 @@ module ClaimsApi
         if dates['beginDate'].blank?
           collect_error(
             source: '/changeOfAddress/dates/beginDate',
-            title: 'Missing beginningDate',
             detail: 'beginningDate is required for temporary address'
           )
         end
@@ -453,7 +439,6 @@ module ClaimsApi
         if dates['endDate'].blank?
           collect_error(
             source: '/changeOfAddress/dates/endDate',
-            title: 'Missing endingDate',
             detail: 'EndingDate is required for temporary address'
           )
         end
@@ -464,9 +449,7 @@ module ClaimsApi
         return if change_of_address.dig('dates', 'endDate').blank?
 
         collect_error(
-          source: '/changeOfAddress/dates/endDate',
-          title: 'Cannot provide endingDate',
-          detail: 'EndingDate cannot be provided for a permanent address'
+          source: '/changeOfAddress/dates/endDate', detail: 'EndingDate cannot be provided for a permanent address'
         )
       end
 
@@ -499,9 +482,7 @@ module ClaimsApi
         return if change_of_address['city'].present?
 
         collect_error(
-          source: '/changeOfAddress/city',
-          title: 'Missing city',
-          detail: 'City is required'
+          source: '/changeOfAddress/city', detail: 'City is required'
         )
       end
 
@@ -510,9 +491,7 @@ module ClaimsApi
         return if change_of_address['state'].present?
 
         collect_error(
-          source: '/changeOfAddress/state',
-          title: 'Missing state',
-          detail: 'State is required'
+          source: '/changeOfAddress/state', detail: 'State is required'
         )
       end
 
@@ -521,9 +500,7 @@ module ClaimsApi
         return if change_of_address['zipFirstFive'].present?
 
         collect_error(
-          source: '/changeOfAddress/zipFirstFive',
-          title: 'Missing zipFirstFive',
-          detail: 'ZipFirstFive is required'
+          source: '/changeOfAddress/zipFirstFive',          detail: 'ZipFirstFive is required'
         )
       end
 
@@ -538,9 +515,7 @@ module ClaimsApi
         return if change_of_address['city'].present?
 
         collect_error(
-          source: '/changeOfAddress/city',
-          title: 'Missing city',
-          detail: 'City is required'
+          source: '/changeOfAddress/city', detail: 'City is required'
         )
       end
 
@@ -549,9 +524,7 @@ module ClaimsApi
         return if change_of_address['country'].present?
 
         collect_error(
-          source: '/changeOfAddress/country',
-          title: 'Missing country',
-          detail: 'Country is required'
+          source: '/changeOfAddress/country', detail: 'Country is required'
         )
       end
 
@@ -560,9 +533,7 @@ module ClaimsApi
         return if change_of_address['internationalPostalCode'].present?
 
         collect_error(
-          source: '/changeOfAddress/internationalPostalCode',
-          title: 'Missing internationalPostalCode',
-          detail: 'InternationalPostalCode is required'
+          source: '/changeOfAddress/internationalPostalCode', detail: 'InternationalPostalCode is required'
         )
       end
 
@@ -576,7 +547,6 @@ module ClaimsApi
 
         collect_error(
           source: '/disabilities',
-          title: 'Unprocessable Entity',
           detail: "Number of disabilities (#{disabilities.size}) exceeds maximum allowed (150)"
         )
       end
@@ -592,7 +562,7 @@ module ClaimsApi
         @errors ||= []
       end
 
-      def collect_error(source:, title:, detail:)
+      def collect_error(source:, detail:, title: 'Unprocessable Entity')
         errors_array.push(
           {
             source:,
