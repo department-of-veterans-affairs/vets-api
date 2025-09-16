@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'debts_api/v0/digital_dispute_submission_service'
 
 module DebtsApi
