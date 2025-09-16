@@ -38,8 +38,6 @@ module IncomeAndAssets
       # @return [UUID] benefits intake upload uuid
       #
       def perform(saved_claim_id, user_account_uuid = nil)
-        return unless Flipper.enabled?(:income_and_assets_form_enabled)
-
         init(saved_claim_id, user_account_uuid)
 
         # generate and validate claim pdf documents
