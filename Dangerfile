@@ -227,7 +227,6 @@ module VSPDanger
     # Allowed app file patterns when migrations are present
     # Based on strong_migrations best practices
     ALLOWED_APP_PATTERNS = [
-      %r{app/models/.+\.rb$}, # Model changes for ignored_columns, etc.
       %r{config/initializers/strong_migrations\.rb$}, # Strong migrations config
       %r{spec/.+_spec\.rb$}, # Test files
       %r{modules/.+/spec/.+_spec\.rb$}, # Module test files
@@ -315,11 +314,8 @@ module VSPDanger
         The following files were modified alongside migrations:
         - #{app_files.join "\n- "}
 
-        These changes appear to follow [Strong Migrations](https://github.com/ankane/strong_migrations) patterns
-        for safe deployments. Common acceptable changes include:
-        - Adding `ignored_columns` to models before removing columns
-        - Updating tests/factories to accommodate schema changes
-        - Adjusting model validations for column changes
+        These changes appear to be test-related files that need updating for the migration.
+        This is generally acceptable as tests need to validate the new schema.
 
         Please ensure these changes are necessary for the migration's safety.
         For more info:
@@ -345,11 +341,11 @@ module VSPDanger
         </details>
 
         **Allowed changes with migrations:**
-        - Model files (for `ignored_columns`, validations)
-        - Test files and factories
+        - Test files and factories (to validate the migration)
         - Strong migrations configuration
 
         **Not allowed:**
+        - Model changes (including `ignored_columns` - these should be in a separate PR)
         - Controller changes
         - Service object changes
         - Background job changes
