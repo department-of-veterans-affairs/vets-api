@@ -2334,6 +2334,13 @@ features:
       The intention behind this flag is to be able deploy the decision reason parsing functionality ahead of the front-end display (travel_pay_claims_management_decision_reason) to gather data logs and ensure a working state.
       Enabled - Decision letter documents are parsed and the decision reason is extracted.
       Disabled - Decision letter documents are not parsed for the decision reason.
+  travel_pay_appt_add_v4_upgrade:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the use of the v4 Travel Pay API for /appointments/find-or-add.
+      Enabled - The find_or_create method will use Travel Pay API v4.
+      Disabled - The find_or_create method will use Travel Pay API v2.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
