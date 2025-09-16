@@ -1188,6 +1188,22 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
+  medical_expense_reports_form_enabled:
+    actor_type: user
+    description: Enables the Medical Expense Reports form (Form 21P-8416)
+    enable_in_development: true
+  medical_expense_reports_browser_monitoring_enabled:
+    actor_type: user
+    description: Medical Expense Reports Datadog RUM monitoring
+  medical_expense_reports_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  medical_expense_reports_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  medical_expense_reports_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
   mhv_accelerated_delivery_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching MR data from LightHouse
