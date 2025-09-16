@@ -571,13 +571,13 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
 
         treatments_base = pdf_data[:data][:attributes][:claimInformation][:treatments]
 
-        expect(treatments_base[0][:treatment_details]).to eq('Arthritis - Private Facility Name, USA')
-        expect(treatments_base[0][:dateOfTreatment]).to eq({ year: '2020', month: '01', day: '01' })
+        expect(treatments_base[0][:treatmentDetails]).to eq('Arthritis - Private Facility Name, USA')
+        expect(treatments_base[0][:dateOfTreatment]).to eq({ month: '01', year: '2020' })
         expect(treatments_base[0]).not_to have_key(:doNotHaveDate)
-        expect(treatments_base[1][:treatment_details]).to eq('Bad Knee - Another Private Facility Name, USA')
+        expect(treatments_base[1][:treatmentDetails]).to eq('Bad Knee - Another Private Facility Name, USA')
         expect(treatments_base[1][:dateOfTreatment]).to eq({ month: '01', year: '2022' })
         expect(treatments_base[0]).not_to have_key(:doNotHaveDate)
-        expect(treatments_base[2][:treatment_details]).to eq('Bad Elbow - Public Facility Name, USA')
+        expect(treatments_base[2][:treatmentDetails]).to eq('Bad Elbow - Public Facility Name, USA')
         expect(treatments_base[2]).not_to have_key(:dateOfTreatment)
         expect(treatments_base[2][:doNotHaveDate]).to be(true)
       end

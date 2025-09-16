@@ -371,11 +371,21 @@ module ClaimsApi
       end
 
       def build_treatment_start_date(treatment)
-        make_date_object(treatment['startDate'], treatment['startDate'].length) if treatment['startDate'].present?
+        return if treatment['startDate'].blank?
+
+        start_date = parse_treatment_date(treatment['startDate'])
+        make_date_object(start_date, start_date.length)
+      end
+
+      # The PDF Generator only wants month and year for this field
+      # The date value sent in is in the format of YYYY-MM-DD
+      def parse_treatment_date(date)
+        date.length > 7 ? date[0..-4] : date
       end
 
       def build_treatment_item(treatment_details, treatment_start_date, do_not_have_date)
-        { treatment_details:, dateOfTreatment: treatment_start_date, doNotHaveDate: do_not_have_date }.compact
+        { treatmentDetails: treatment_details, dateOfTreatment: treatment_start_date,
+          doNotHaveDate: do_not_have_date }.compact
       end
     end
   end
