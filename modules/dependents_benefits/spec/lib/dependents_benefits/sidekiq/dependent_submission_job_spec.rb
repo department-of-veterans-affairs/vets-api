@@ -34,9 +34,8 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
       let(:mock_response) { double('ServiceResponse', success?: true) }
 
       before do
-        allow(job).to receive(:claim_group_failed?).and_return(false)
+        allow(job).to receive_messages(claim_group_failed?: false, submit_to_service: mock_response)
         allow(job).to receive(:create_form_submission_attempt)
-        allow(job).to receive(:submit_to_service).and_return(mock_response)
         allow(job).to receive(:handle_job_success)
       end
 
