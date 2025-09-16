@@ -259,10 +259,14 @@ module VSPDanger
       # Use git grep for efficiency - searches without reading entire files
       return false if migration_files.empty?
 
+      # Validate file paths for security
+      validated_files = validate_file_paths(migration_files)
+      return false if validated_files.empty?
+
       # Check all migration files at once with git grep
       # Use Open3 for secure command execution
       migration_pattern = 'remove_column|remove_columns|drop_column'
-      cmd = ['git', 'grep', '-l', migration_pattern, '--'] + migration_files
+      cmd = ['git', 'grep', '-l', migration_pattern, '--'] + validated_files
       stdout, _stderr, status = Open3.capture3(*cmd)
 
       status.success? && !stdout.strip.empty?
@@ -273,12 +277,30 @@ module VSPDanger
 
       return false if model_files.empty?
 
+      # Validate file paths for security
+      validated_files = validate_file_paths(model_files)
+      return false if validated_files.empty?
+
       # Check all model files at once with git grep
       # Use Open3 for secure command execution
-      cmd = ['git', 'grep', '-l', 'ignored_columns', '--'] + model_files
+      cmd = ['git', 'grep', '-l', 'ignored_columns', '--'] + validated_files
       stdout, _stderr, status = Open3.capture3(*cmd)
 
       status.success? && !stdout.strip.empty?
+    end
+
+    def validate_file_paths(file_list)
+      # Validate that file paths are safe and within repo
+      file_list.select do |file|
+        # Ensure no path traversal attempts
+        !file.include?('..') &&
+          # Ensure no absolute paths
+          !file.start_with?('/') &&
+          # Ensure no null bytes or special chars that could break commands
+          !file.match?(/[\x00-\x1f]/) &&
+          # Ensure file is within expected directories
+          file.match?(%r{^(app|db|lib|spec|modules|config)/})
+      end
     end
 
     def migration_files
