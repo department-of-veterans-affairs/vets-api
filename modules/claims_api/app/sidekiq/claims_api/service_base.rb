@@ -104,6 +104,7 @@ module ClaimsApi
     def set_evss_response(auto_claim, error)
       auto_claim.evss_response ||= []
       errors_to_add = []
+
       if error_responds_to_original_body?(error)
         if error&.original_body.present?
           errors_to_add.concat(error.original_body)
