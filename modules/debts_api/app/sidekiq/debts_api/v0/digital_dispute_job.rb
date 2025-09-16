@@ -4,13 +4,30 @@ module DebtsApi
   class V0::DigitalDisputeJob
     include Sidekiq::Worker
 
+    sidekiq_retries_exhausted do |job, ex|
+      StatsD.increment("#{STATS_KEY}.retries_exhausted")
+      submission_id = job['args'][0]
+
+      submission = DebtsApi::V0::DigitalDisputeSubmission.find(submission_id)
+      submission&.register_failure("VBASubmissionJob#perform: #{ex.message}")
+
+      Rails.logger.error <<~LOG
+        V0::DigitalDisputeJob retries exhausted:
+        submission_id: #{submission_id}
+        Exception: #{ex.class} - #{ex.message}
+        Backtrace: #{ex.backtrace.join("\n")}
+      LOG
+    end
+
     def perform(submission_id)
       submission = DebtsApi::V0::DigitalDisputeSubmission.find(submission_id)
       user_account = submission.user_account
       mpi_response = MPI::Service.new.find_profile_by_identifier(identifier: user_account.icn, identifier_type: MPI::Constants::ICN)
       user = OpenStruct.new(participant_id: mpi_response.profile.participant_id, ssn: mpi_response.profile.ssn)
 
-      DebtsApi::V0::DigitalDisputeDmcService.new(user, submission.id).process_submission
+      DebtsApi::V0::DigitalDisputeDmcService.new(user, submission).process_submission
+
+      submission.register_success
     rescue StandardError => e
       Rails.logger.error("DigitalDisputeJob failed for submission_id #{submission_id}: #{e.message}")
       raise e

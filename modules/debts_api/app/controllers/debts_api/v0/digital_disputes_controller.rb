@@ -20,7 +20,7 @@ module DebtsApi
 
         begin
           submission.save!
-          DebtsApi::V0DigitalDisputeJob.perform_async(submission.id, current_user.participant_id)
+          DebtsApi::V0::DigitalDisputeJob.perform_async(submission.id)
           dmc_service(submission).call!
 
           StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.success")
