@@ -17,7 +17,7 @@ module VRE
 
     def request_headers
       {
-        'Appian-API-Key': Settings.res.api_key
+        'Appian-API-Key' => Settings.res.api_key
       }
     end
 
