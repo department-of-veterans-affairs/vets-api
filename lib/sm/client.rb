@@ -503,9 +503,9 @@ module SM
           http.get(uri.request_uri)
         end
         unless file_response.is_a?(Net::HTTPSuccess)
-          Rails.logger.error("Failed to fetch attachment from presigned URL: #{file_response.body}")
+          Rails.logger.error('Failed to fetch attachment from presigned URL')
           raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', {},
-                                                                file_response.code, file_response.body)
+                                                                file_response.code)
         end
         filename = data[:name]
         return { body: file_response.body, filename: }
