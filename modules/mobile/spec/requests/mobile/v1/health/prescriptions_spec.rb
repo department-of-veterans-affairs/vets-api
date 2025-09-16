@@ -92,21 +92,31 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
     end
   end
 
-  describe 'POST /mobile/v1/health/rx/prescriptions/:id/refill' do
+  describe 'PUT /mobile/v1/health/rx/prescriptions/refill' do
     context 'with feature flag enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:mobile_prescriptions_v1, anything).and_return(true)
       end
 
       context 'when refill is successful' do
-        it 'returns success response' do
+        it 'returns success response for batch refill' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
             VCR.use_cassette('unified_health_data/refill_prescription_success') do
-              post '/mobile/v1/health/rx/prescriptions/25804851/refill', headers: sis_headers
+              put '/mobile/v1/health/rx/prescriptions/refill', params: { ids: %w[25804851] }, headers: sis_headers
 
               expect(response).to have_http_status(:ok)
-              expect(response.parsed_body['data']).to have_key('prescriptionId')
-              expect(response.parsed_body['data']).to have_key('refillStatus')
+              expect(response.parsed_body).to have_key('data')
+              
+              data = response.parsed_body['data']
+              expect(data).to have_key('id')
+              expect(data['type']).to eq('PrescriptionRefills')
+              expect(data['attributes']).to have_key('failedStationList')
+              expect(data['attributes']).to have_key('successfulStationList')
+              expect(data['attributes']).to have_key('lastUpdatedTime')
+              expect(data['attributes']).to have_key('prescriptionList')
+              expect(data['attributes']).to have_key('failedPrescriptionIds')
+              expect(data['attributes']).to have_key('errors')
+              expect(data['attributes']).to have_key('infoMessages')
             end
           end
         end
@@ -115,10 +125,20 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
       context 'when prescription does not exist for refill' do
         it 'returns not found error' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-            post '/mobile/v1/health/rx/prescriptions/nonexistent/refill', headers: sis_headers
+            put '/mobile/v1/health/rx/prescriptions/refill', params: { ids: %w[nonexistent] }, headers: sis_headers
 
             expect(response).to have_http_status(:not_found)
-            expect(response.parsed_body['errors'][0]['detail']).to eq('Prescription not found')
+            expect(response.parsed_body['errors'][0]['detail']).to include('Prescription not found')
+          end
+        end
+      end
+
+      context 'when no ids parameter provided' do
+        it 'returns parameter required error' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            put '/mobile/v1/health/rx/prescriptions/refill', headers: sis_headers
+
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end

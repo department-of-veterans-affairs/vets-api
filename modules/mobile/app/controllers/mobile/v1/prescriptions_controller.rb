@@ -2,6 +2,7 @@
 
 require 'unified_health_data/service'
 require 'unified_health_data/serializers/prescription_serializer'
+require 'securerandom'
 
 module Mobile
   module V1
@@ -23,18 +24,21 @@ module Mobile
       end
 
       def refill
-        Rails.logger.info("Mobile V1 Prescription refill request for ID: #{params[:id]}")
+        Rails.logger.info("Mobile V1 Prescription batch refill request for IDs: #{ids}")
         
-        # Note: The refill_prescription method expects an array of orders with id and stationNumber
-        # For now, we'll need to get the prescription first to extract the station number
+        # Get all prescriptions to validate IDs and extract station numbers
         prescriptions = unified_health_service.get_prescriptions
-        prescription = prescriptions.find { |p| p.prescription_id == params[:id] }
         
-        raise Common::Exceptions::ResourceNotFound.new(detail: 'Prescription not found') unless prescription
+        # Build orders array with id and stationNumber for each requested prescription
+        orders = ids.map do |prescription_id|
+          prescription = prescriptions.find { |p| p.prescription_id == prescription_id.to_s }
+          raise Common::Exceptions::ResourceNotFound.new(detail: "Prescription not found: #{prescription_id}") unless prescription
+          
+          { id: prescription_id.to_s, stationNumber: prescription.station_number }
+        end
         
-        orders = [{ id: params[:id], stationNumber: prescription.station_number }]
         result = unified_health_service.refill_prescription(orders)
-        render_refill_result(result)
+        render_batch_refill_result(result)
       end
 
       private
@@ -110,21 +114,24 @@ module Mobile
         prescriptions.any? { |rx| rx.prescription_source == 'NV' }
       end
 
-      def render_refill_result(result)
+      def ids
+        ids = params.require(:ids)
+        raise Common::Exceptions::InvalidFieldValue.new('ids', ids) unless ids.is_a? Array
+
+        ids.map(&:to_i)
+      end
+
+      def render_batch_refill_result(result)
         if result[:success]
-          render json: {
-            data: {
-              prescription_id: params[:id],
-              refill_status: result[:refill_status],
-              refill_date: result[:refill_date]
-            }
-          }, status: :ok
+          # Use the v1 serializer to maintain consistent format
+          render json: Mobile::V1::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
         else
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: (result[:error] || 'Unable to process refill request')
           )
         end
       end
+
     end
   end
 end
