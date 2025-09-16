@@ -261,7 +261,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/state')
-          expect(errors.first[:title]).to eq('Missing state')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('State is required for USA addresses')
         end
       end
@@ -284,7 +284,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/zipFirstFive')
-          expect(errors.first[:title]).to eq('Missing zipFirstFive')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('ZipFirstFive is required for USA addresses')
         end
       end
@@ -309,7 +309,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/internationalPostalCode')
-          expect(errors.first[:title]).to eq('Invalid field')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('InternationalPostalCode should not be provided for USA addresses')
         end
       end
@@ -534,7 +534,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/internationalPostalCode')
-          expect(errors.first[:title]).to eq('Missing internationalPostalCode')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('InternationalPostalCode is required for non-USA addresses')
         end
       end
@@ -564,7 +564,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/changeOfAddress/dates/beginDate')
-          expect(errors.first[:title]).to eq('Missing beginningDate')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('beginningDate is required for temporary address')
         end
       end
@@ -590,7 +590,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/changeOfAddress/dates/endDate')
-          expect(errors.first[:title]).to eq('Missing endingDate')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('EndingDate is required for temporary address')
         end
       end
@@ -618,7 +618,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/changeOfAddress/dates/endDate')
-          expect(errors.first[:title]).to eq('Cannot provide endingDate')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('EndingDate cannot be provided for a permanent address')
         end
       end
