@@ -617,29 +617,30 @@ module ClaimsApi
         if day
           Date.new(year, month, day) # Full date: validate it's a real calendar date
         elsif month
-          Date.new(year, month, -1) # Year-month: use last day of month for comparison
+          Date.new(year, month, 1) # Year-month: use first day of month for comparison
         else
           Date.new(year, 1, 1) # Year only: use beginning of year for comparison
         end
       end
 
       def validate_date_not_in_future!(date, date_string, index)
-        # For year-only dates, just compare the year
-        # For other dates, compare the full date
         parts = date_string.split('-')
 
         if parts.length == 1 # Year only
-          # Year must not be in the future (current year is OK since we don't know month/day)
+          # Year must not be in the future (current year is OK)
           return unless date.year > Date.current.year
-        else
-          # Month-Year or Full date must be in the past (not including today)
-          # Using > because error says "must be in the past"
+        elsif parts.length == 2 # Year-month
+          # Year-month must not be in the future (current month is OK)
+          current = Date.current
+          return unless date.year > current.year || (date.year == current.year && date.month > current.month)
+        else # Full date
+          # Full date must not be in the future (today is OK)
           return unless date > Date.current
         end
 
         collect_error(
           source: "/disabilities/#{index}/approximateDate",
-          detail: 'The approximateDate in primary disability must be in the past'
+          detail: 'The approximateDate in primary disability must not be in the future'
         )
       end
 

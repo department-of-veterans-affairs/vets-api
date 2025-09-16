@@ -888,7 +888,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
               expect(errors).to be_an(Array)
               expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
               expect(errors.first[:title]).to eq('Unprocessable Entity')
-              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must be in the past')
+              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must not be in the future')
             end
           end
 
@@ -911,7 +911,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
               expect(errors).to be_an(Array)
               expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
               expect(errors.first[:title]).to eq('Unprocessable Entity')
-              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must be in the past')
+              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must not be in the future')
             end
           end
 
@@ -934,7 +934,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
               expect(errors).to be_an(Array)
               expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
               expect(errors.first[:title]).to eq('Unprocessable Entity')
-              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must be in the past')
+              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must not be in the future')
             end
           end
 
@@ -952,6 +952,44 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             end
 
             it 'returns no errors (current year is valid)' do
+              errors = subject.validate_form_526_fes_values
+              expect(errors).to be_nil
+            end
+          end
+
+          context 'with today as full date' do
+            let(:form_attributes) do
+              base_form_attributes.merge(
+                'disabilities' => [
+                  {
+                    'disabilityActionType' => 'NEW',
+                    'name' => 'PTSD',
+                    'approximateDate' => Date.current.strftime('%Y-%m-%d')
+                  }
+                ]
+              )
+            end
+
+            it 'returns no errors (today is valid - inclusive)' do
+              errors = subject.validate_form_526_fes_values
+              expect(errors).to be_nil
+            end
+          end
+
+          context 'with current year-month' do
+            let(:form_attributes) do
+              base_form_attributes.merge(
+                'disabilities' => [
+                  {
+                    'disabilityActionType' => 'NEW',
+                    'name' => 'PTSD',
+                    'approximateDate' => Date.current.strftime('%Y-%m')
+                  }
+                ]
+              )
+            end
+
+            it 'returns no errors (current month is valid - inclusive)' do
               errors = subject.validate_form_526_fes_values
               expect(errors).to be_nil
             end
@@ -1077,7 +1115,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             # Check for future date error
             future_error = errors.find { |e| e[:source] == '/disabilities/2/approximateDate' }
             expect(future_error[:title]).to eq('Unprocessable Entity')
-            expect(future_error[:detail]).to eq('The approximateDate in primary disability must be in the past')
+            expect(future_error[:detail]).to eq('The approximateDate in primary disability must not be in the future')
           end
         end
       end
