@@ -7,17 +7,20 @@ RSpec.describe DebtsApi::V0::DigitalDisputeJob, type: :worker do
   subject(:worker) { described_class.new }
 
   let(:submission_id) { 123 }
-  let(:submission)    { instance_double(DebtsApi::V0::DigitalDisputeSubmission, user_account: user_account) }
-  let(:user_account)  { instance_double('UserAccount', icn: '1000123456V123456') }
+  let(:user_account)  { instance_double(UserAccount, icn: '1000123456V123456') }
+  let(:submission)    { instance_double(DebtsApi::V0::DigitalDisputeSubmission, user_account:) }
 
-  let(:mpi_profile)   { instance_double('MPI::Models::MviProfile', participant_id: '1234567', ssn: '111223333') }
-  let(:mpi_response)  { instance_double('MPI::Responses::FindProfileResponse', profile: mpi_profile) }
+  let(:mpi_profile)   { instance_double(MPI::Models::MviProfile, participant_id: '1234567', ssn: '111223333') }
+  let(:mpi_response)  { instance_double(MPI::Responses::FindProfileResponse, profile: mpi_profile) }
 
   let(:service_double)   { instance_double(DebtsApi::V0::DigitalDisputeDmcService) }
-  let(:in_progress_form) { instance_double('InProgressForm') }
+  let(:in_progress_form) { instance_double(InProgressForm) }
 
   before do
+    # Submission lookup shared by examples
     allow(DebtsApi::V0::DigitalDisputeSubmission).to receive(:find).with(submission_id).and_return(submission)
+
+    # Submission hooks used in multiple paths
     allow(submission).to receive(:register_success)
     allow(submission).to receive(:register_failure)
   end
@@ -33,7 +36,13 @@ RSpec.describe DebtsApi::V0::DigitalDisputeJob, type: :worker do
       allow(DebtsApi::V0::DigitalDisputeDmcService).to receive(:new).and_return(service_double)
       allow(service_double).to receive(:call!)
 
-      allow(worker).to receive(:in_progress_form).and_return(in_progress_form)
+      # Define current_user on the subject (not an RSpec stub) to satisfy the helper
+      worker.define_singleton_method(:current_user) { Object.new }
+
+      # Stub collaborator instead of stubbing the subject (#in_progress_form)
+      allow(InProgressForm).to receive(:form_for_user)
+        .with('DISPUTE-DEBT', anything)
+        .and_return(in_progress_form)
       allow(in_progress_form).to receive(:destroy)
     end
 
@@ -49,6 +58,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeJob, type: :worker do
       expect(service_double).to have_received(:call!)
       expect(submission).to have_received(:register_success)
       expect(in_progress_form).to have_received(:destroy)
+      expect(InProgressForm).to have_received(:form_for_user).with('DISPUTE-DEBT', anything)
     end
 
     it 're-raises on failure from call! and logs an error' do
@@ -65,7 +75,9 @@ RSpec.describe DebtsApi::V0::DigitalDisputeJob, type: :worker do
     end
 
     it 'does nothing if in_progress_form is nil' do
-      allow(worker).to receive(:in_progress_form).and_return(nil)
+      # Keep current_user defined on the instance
+      worker.define_singleton_method(:current_user) { Object.new }
+      allow(InProgressForm).to receive(:form_for_user).and_return(nil)
 
       expect { worker.perform(submission_id) }.not_to raise_error
       expect(submission).to have_received(:register_success)

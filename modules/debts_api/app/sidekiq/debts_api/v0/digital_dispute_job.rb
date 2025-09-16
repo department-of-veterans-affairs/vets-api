@@ -30,7 +30,7 @@ module DebtsApi
 
       submission.register_success
       in_progress_form&.destroy
-    rescue StandardError => e
+    rescue => e
       Rails.logger.error("DigitalDisputeJob failed for submission_id #{submission_id}: #{e.message}")
       raise e
     end
