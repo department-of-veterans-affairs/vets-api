@@ -201,11 +201,7 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
   describe 'FailedRep subclass' do
     let!(:organization) { create(:organization, name: 'Org Name') }
     let!(:individual) { create(:representative) }
-    let!(:user_account) do
-      AccreditedRepresentativePortal::RepresentativeUserAccount.find(create(:user_account).id).tap do |memo|
-        memo.set_all_emails(['email@email.com'])
-      end
-    end
+    let!(:user_account) { create(:user_account) }
 
     let(:poa_request) do
       create(
@@ -241,9 +237,31 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
                                                             }
                                                           })
 
-      allow(user_account).to receive(:registration_numbers).and_return({ 'veteran_service_officer' => '1234' })
+      memberships =
+        AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
+          icn: '1234', emails: []
+        )
+
+      allow(memberships).to(
+        receive(:all).and_return(
+          [
+            AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
+              registration_number: '1234',
+              power_of_attorney_holder:
+                AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+                  poa_code: poa_request.power_of_attorney_holder_poa_code,
+                  type: poa_request.power_of_attorney_holder_type,
+                  can_accept_digital_poa_requests: false,
+                  name: 'Org Name'
+                )
+            )
+          ]
+        )
+      )
+
       AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_declination!(
-        creator: user_account,
+        creator_id: user_account.id,
+        power_of_attorney_holder_memberships: memberships,
         power_of_attorney_request: poa_request,
         declination_reason: :OTHER
       )
