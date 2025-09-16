@@ -37,19 +37,26 @@ module TravelClaim
     # Submits a travel claim for processing through the Travel Pay API.
     # Validates parameters, then executes the complete claim submission flow.
     #
-    # @return [Hash] success response with claim ID
+    # @return [Hash] success response with claim ID and notification data
     # @raise [Common::Exceptions::BackendServiceException] for API failures
     # @raise [ArgumentError] for validation failures
     #
     def submit_claim
       validate_parameters
-      process_claim_submission
+      result = process_claim_submission
+
+      # Send notification if feature flag is enabled
+      send_notification_if_enabled(result) if result['success']
+
+      result
     rescue Common::Exceptions::BackendServiceException => e
-      log_metric('BTSSS_ERROR')
+      # Send error notification if feature flag is enabled
+      send_error_notification_if_enabled(e)
       raise e
     rescue => e
       log_message(:error, 'Unexpected error', error_class: e.class.name)
-      log_metric('BTSSS_ERROR')
+      # Send error notification if feature flag is enabled
+      send_error_notification_if_enabled(e)
       raise_backend_service_exception('An unexpected error occurred')
     end
 
@@ -58,7 +65,7 @@ module TravelClaim
     ##
     # Executes the complete claim submission workflow.
     #
-    # @return [Hash] success response with claim ID
+    # @return [Hash] success response with claim ID and submission data
     # @raise [Common::Exceptions::BackendServiceException] for API failures
     #
     def process_claim_submission
@@ -66,10 +73,12 @@ module TravelClaim
       appointment_id = get_appointment_id
       claim_id = create_new_claim(appointment_id)
       add_expense_to_claim(claim_id)
-      submit_claim_for_processing(claim_id)
+      submission_response = submit_claim_for_processing(claim_id)
 
-      log_metric('BTSSS_SUCCESS')
-      { 'success' => true, 'claimId' => claim_id }
+      # Extract claim data from submission response for notifications
+      claim_number_last_four = extract_claim_number_last_four(submission_response)
+
+      { 'success' => true, 'claimId' => claim_id, 'claimNumberLastFour' => claim_number_last_four }
     end
 
     ##
@@ -146,6 +155,7 @@ module TravelClaim
     # Submits the claim for final processing.
     #
     # @param claim_id [String] the claim ID
+    # @return [Faraday::Response] the submission response
     # @raise [Common::Exceptions::BackendServiceException] if submission fails
     #
     def submit_claim_for_processing(claim_id)
@@ -153,10 +163,9 @@ module TravelClaim
 
       response = client.send_claim_submission_request(claim_id:)
 
-      unless response.status == 200
-        log_metric('CLAIM_SUBMIT_ERROR')
-        raise_backend_service_exception('Failed to submit claim', response.status)
-      end
+      raise_backend_service_exception('Failed to submit claim', response.status) unless response.status == 200
+
+      response
     end
 
     ##
@@ -207,14 +216,109 @@ module TravelClaim
     end
 
     ##
-    # Logs a metric with facility-type awareness
+    # Extracts the last four digits of the claim number from API response
     #
-    # @param metric_suffix [String] the suffix for the metric constant
+    # @param response [Faraday::Response] the API response
+    # @return [String] last four digits of claim ID, or 'unknown' if not found
     #
-    def log_metric(metric_suffix)
-      prefix = @facility_type&.downcase == 'oh' ? 'OH' : 'CIE'
-      constant_name = "#{prefix}_STATSD_#{metric_suffix}"
-      StatsD.increment(CheckIn::Constants.const_get(constant_name))
+    def extract_claim_number_last_four(response)
+      response_body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      claim_id = response_body.dig('data', 'claimId')
+      claim_id&.last(4) || 'unknown'
+    rescue => e
+      log_message(:error, 'Failed to extract claim number', error: e.message)
+      'unknown'
+    end
+
+    ##
+    # Sends a success notification if feature flag is enabled
+    #
+    # @param result [Hash] the successful submission result
+    #
+    def send_notification_if_enabled(result)
+      return unless notification_enabled?
+
+      template_id = success_template_id
+      claim_number_last_four = result['claimNumberLastFour'] || 'unknown'
+
+      log_message(:info, 'Sending success notification',
+                  template_id:, claim_last_four: claim_number_last_four)
+
+      CheckIn::TravelClaimNotificationJob.perform_async(
+        @uuid,
+        format_appointment_date,
+        template_id,
+        claim_number_last_four
+      )
+    end
+
+    ##
+    # Sends an error notification if feature flag is enabled
+    #
+    # @param error [Exception] the error that occurred
+    #
+    def send_error_notification_if_enabled(error)
+      return unless notification_enabled?
+
+      template_id = error_template_id
+
+      log_message(:info, 'Sending error notification',
+                  template_id:, error_class: error.class.name)
+
+      CheckIn::TravelClaimNotificationJob.perform_async(
+        @uuid,
+        format_appointment_date,
+        template_id,
+        'unknown'
+      )
+    end
+
+    ##
+    # Determines if notifications are enabled via feature flag
+    # Uses the same flag as V1 travel reimbursement feature
+    #
+    # @return [Boolean] true if notifications should be sent
+    #
+    def notification_enabled?
+      Flipper.enabled?(:check_in_experience_travel_reimbursement)
+    end
+
+    ##
+    # Returns the appropriate success template ID based on facility type
+    #
+    # @return [String] template ID for success notifications
+    #
+    def success_template_id
+      if @facility_type&.downcase == 'oh'
+        CheckIn::Constants::OH_SUCCESS_TEMPLATE_ID
+      else
+        CheckIn::Constants::CIE_SUCCESS_TEMPLATE_ID
+      end
+    end
+
+    ##
+    # Returns the appropriate error template ID based on facility type
+    #
+    # @return [String] template ID for error notifications
+    #
+    def error_template_id
+      if @facility_type&.downcase == 'oh'
+        CheckIn::Constants::OH_ERROR_TEMPLATE_ID
+      else
+        CheckIn::Constants::CIE_ERROR_TEMPLATE_ID
+      end
+    end
+
+    ##
+    # Formats the appointment date for notification
+    #
+    # @return [String] appointment date in YYYY-MM-DD format
+    #
+    def format_appointment_date
+      Date.parse(@appointment_date).strftime('%Y-%m-%d')
+    rescue => e
+      log_message(:error, 'Failed to format appointment date', error: e.message)
+      @appointment_date
     end
   end
 end
