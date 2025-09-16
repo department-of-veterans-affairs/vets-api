@@ -560,7 +560,6 @@ module ClaimsApi
 
         collect_error(
           source: "/disabilities/#{index}/disabilityActionType",
-          title: 'Bad Request',
           detail: 'The request failed disability validation: The disability Action Type of "NONE" ' \
                   'is not currently supported.'
         )
