@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/MethodLength
 require 'pdf_generator_service/pdf_client'
 require 'claims_api/v1/disability_compensation_fes_mapper'
 require 'fes_service/base'
@@ -60,6 +61,8 @@ module ClaimsApi
 
         raise e
       end
+
+      # rubocop:enable Metrics/MethodLength
 
       private
 

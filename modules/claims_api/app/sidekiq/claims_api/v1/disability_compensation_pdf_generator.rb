@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/MethodLength
 require 'claims_api/v1/disability_compensation_pdf_mapper'
 require 'pdf_generator_service/pdf_client'
 
@@ -82,6 +83,8 @@ module ClaimsApi
                          "526EZ PDF generator errored #{e.class}: #{e}")
         raise e
       end
+
+      # rubocop:enable Metrics/MethodLength
 
       private
 
