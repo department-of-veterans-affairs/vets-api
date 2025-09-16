@@ -676,9 +676,9 @@ RSpec.describe ApplicationController, type: :controller do
     before do
       allow(Rails.logger).to receive(:info)
       session_object = Session.create(uuid: user.uuid, token:)
-      user.save!
+      User.create(user)
       session_object.to_hash.each { |k, v| session[k] = v }
-      controller.instance_variable_set(:@current_user, user)
+      sign_in_as(user, session_object.token)
     end
 
     context 'with controller name logging' do
