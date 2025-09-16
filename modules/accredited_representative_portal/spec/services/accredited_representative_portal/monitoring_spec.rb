@@ -107,7 +107,8 @@ RSpec.describe AccreditedRepresentativePortal::Monitoring do
       expect(mock_span).to receive(:set_tag).with('keep.zero', 0)
       expect(mock_span).to receive(:set_tag).with('keep.false', false)
       expect(mock_span).to receive(:set_tag).with('keep.str', 'ok')
-      # No expectations for nil/blank keys
+      expect(mock_span).not_to receive(:set_tag).with('drop.nil', nil)
+      expect(mock_span).not_to receive(:set_tag).with('drop.blank', '')
       subject.trace(span_name, tags:) { 'block_executed' }
     end
 
