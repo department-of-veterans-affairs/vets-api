@@ -27,9 +27,12 @@ module TravelPay
     # @return [Faraday::Response] API response
     #
     def add_expense(veis_token, btsss_token, expense_type, body = {})
+      # Validate expense_type by looking up the endpoint
+      endpoint = ENDPOINT_MAP.fetch(expense_type.to_sym)[:add] do
+        raise ArgumentError, "Unsupported expense_type: #{expense_type}"
+      end
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      endpoint = expense_endpoint_for_type(expense_type)
 
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       Rails.logger.info(message: "Adding #{expense_type} expense to endpoint: #{endpoint}")
@@ -106,7 +109,7 @@ module TravelPay
 
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      endpoint = format(endpoint_template, expense_id: CGI.escape(expense_id))
+      endpoint = format(endpoint_template, expense_id)
 
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       Rails.logger.info(message: "Deleting #{expense_type} expense to endpoint: #{endpoint}")
@@ -118,28 +121,6 @@ module TravelPay
           req.headers['X-Correlation-ID'] = correlation_id
           req.headers.merge!(claim_headers)
         end
-      end
-    end
-
-    private
-
-    ##
-    # Returns the appropriate API endpoint for the given expense type
-    #
-    # @param expense_type [String] The type of expense
-    # @return [String] The API endpoint path
-    #
-    def expense_endpoint_for_type(expense_type)
-      case expense_type
-      when 'mileage'
-        'api/v2/expenses/mileage'
-      when 'parking'
-        'api/v1/expenses/parking'
-      when 'meal'
-        'api/v1/expenses/meal'
-      else
-        # Default to a generic expenses endpoint
-        'api/v1/expenses/other'
       end
     end
   end
