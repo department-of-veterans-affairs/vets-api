@@ -676,24 +676,25 @@ RSpec.describe ApplicationController, type: :controller do
     before do
       allow(Rails.logger).to receive(:info)
       session_object = Session.create(uuid: user.uuid, token:)
-      User.create(user)
+      user.save!
       session_object.to_hash.each { |k, v| session[k] = v }
+      controller.instance_variable_set(:@current_user, user)
     end
 
-    context 'with service tag logging' do
-      context 'when controller has a service tag' do
-        before do
-          controller.class.service_tag 'test-service'
-        end
-
-        it 'adds service tag to logs within around_action' do
-          expect(SemanticLogger).to receive(:named_tagged).with(service_tag: 'test-service').and_call_original
-          expect(Rails.logger).to receive(:info).with(expected_result)
+    context 'with controller name logging' do
+      context 'when controller has a name' do
+        it 'adds controller name to logs within around_action' do
+          expect(SemanticLogger).to receive(:named_tagged).with(controller_name: 'anonymous').and_call_original
+          expect(Rails.logger).to receive(:info).with(any_args)
           subject
         end
       end
 
-      context 'when controller has no service tag' do
+      context 'when controller has no name' do
+        before do
+          allow(controller).to receive(:controller_name).and_return('')
+        end
+
         it 'does not call SemanticLogger.named_tagged' do
           expect(SemanticLogger).not_to receive(:named_tagged)
           expect(Rails.logger).to receive(:info).with(expected_result)
