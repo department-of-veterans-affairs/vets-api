@@ -1,0 +1,27 @@
+{
+  "form1[0].#subform[0].Inreplyreferto[0]": "<%= form.data['inReplyReferTo'] %>",
+
+  "form1[0].#subform[1].YESCHECKBOX1[0]": "<%= form.data['hasRemarried'] == true ? 1 : 0 %>",
+  "form1[0].#subform[1].NOcheckbox1[0]": "<%= form.data['hasRemarried'] == false ? 1 : 0 %>",
+
+  "form1[0].#subform[1].MARRIAGE_DATE[0]": "<%= form.data['marriageDate'] %>",
+  "form1[0].#subform[1].SPOUSE_NAME[0]": "<%= form.data['spouseName'] %>",
+  "form1[0].#subform[1].SPOUSE_DOB[0]": "<%= form.data['spouseDateOfBirth'] %>",
+
+  "form1[0].#subform[1].YESCHECKBOX2[1]": "<%= form.data['spouseIsVeteran'] == true ? 1 : 0 %>",
+  "form1[0].#subform[1].NOCHECKBOX2[1]": "<%= form.data['spouseIsVeteran'] == false ? 1 : 0 %>",
+  "form1[0].#subform[1].TERMINATION_REASON[1]": "<%= form.data['spouseVeteranId'] %>",
+  "form1[0].#subform[1].TERMINATION_REASON[2]": "<%= form.data['ageAtMarriage'] %>",
+
+  "form1[0].#subform[1].YESCHECKBOX2[0]": "<%= form.data['hasTerminated'] == true ? 1 : 0 %>",
+  "form1[0].#subform[1].NOCHECKBOX2[0]": "<%= form.data['hasTerminated'] == false ? 1 : 0 %>",
+  "form1[0].#subform[1].TERMINATION_DATE[0]": "<%= form.data['terminationDate'] %>",
+  "form1[0].#subform[1].TERMINATION_REASON[0]": "<%= form.data['terminationReason'] %>",
+
+  "form1[0].#subform[1].DAYTIME_PHONE[0]": "<%= form.data.dig('recipient', 'phone', 'daytime') %>",
+  "form1[0].#subform[1].EVENING_PHONE[0]": "<%= form.data.dig('recipient', 'phone', 'evening') %>",
+  "form1[0].#subform[1].EMAIL[0]": "<%= form.data.dig('recipient', 'email') %>",
+
+  "form1[0].#subform[1].Signature1[0]": "<%= form.data.dig('recipient', 'signature') %>",
+  "form1[0].#subform[1].DATE_SIGNED[0]": "<%= form.data.dig('recipient', 'signatureDate') %>"
+}
