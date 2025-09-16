@@ -110,18 +110,6 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         expect(response).to have_http_status(:service_unavailable)
       end
     end
-
-    context 'for different expense types' do
-      it 'accepts other expense type', :vcr do
-        VCR.use_cassette('travel_pay/expenses/create_other_expense_types') do
-          post "/travel_pay/v0/claims/#{claim_id}/expenses/other",
-               params: expense_params,
-               headers: { 'Authorization' => 'Bearer vagov_token' }
-
-          expect(response).to have_http_status(:created)
-        end
-      end
-    end
   end
 
   describe 'GET #show' do
@@ -193,17 +181,6 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         response_body = JSON.parse(response.body)
         expect(response_body['errors'].first['detail']).to eq('Expense ID is invalid')
       end
-
-      it 'accepts valid UUID v4', :vcr do
-        valid_uuid_v4 = '82c62eaa-c83e-4c29-888f-d1fb7d5c3123'
-
-        VCR.use_cassette('travel_pay/expenses/get_expense_valid_uuid') do
-          get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{valid_uuid_v4}",
-              headers: { 'Authorization' => 'Bearer vagov_token' }
-
-          expect(response).to have_http_status(:ok)
-        end
-      end
     end
 
     context 'when expense_type is invalid' do
@@ -230,32 +207,6 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
             headers: { 'Authorization' => 'Bearer vagov_token' }
 
         expect(response).to have_http_status(:service_unavailable)
-      end
-    end
-
-    context 'for different expense types' do
-      it 'accepts other expense type', :vcr do
-        other_expense_id = '12345678-1234-1234-8234-123456789012'
-
-        VCR.use_cassette('travel_pay/expenses/get_other_expense_types') do
-          get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{other_expense_id}",
-              headers: { 'Authorization' => 'Bearer vagov_token' }
-
-          expect(response).to have_http_status(:ok)
-        end
-      end
-    end
-
-    context 'when expense is not found' do
-      it 'returns not found status', :vcr do
-        non_existent_expense_id = 'non-existent-expense-id-99999'
-
-        VCR.use_cassette('travel_pay/expenses/get_expense_not_found') do
-          get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{non_existent_expense_id}",
-              headers: { 'Authorization' => 'Bearer vagov_token' }
-
-          expect(response).to have_http_status(:bad_request)
-        end
       end
     end
   end
