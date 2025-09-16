@@ -482,7 +482,8 @@ module ClaimsApi
         return if change_of_address['city'].present?
 
         collect_error(
-          source: '/changeOfAddress/city', detail: 'City is required'
+          source: '/changeOfAddress/city',
+          detail: 'City is required'
         )
       end
 
@@ -491,7 +492,8 @@ module ClaimsApi
         return if change_of_address['state'].present?
 
         collect_error(
-          source: '/changeOfAddress/state', detail: 'State is required'
+          source: '/changeOfAddress/state',
+          detail: 'State is required'
         )
       end
 
@@ -500,7 +502,8 @@ module ClaimsApi
         return if change_of_address['zipFirstFive'].present?
 
         collect_error(
-          source: '/changeOfAddress/zipFirstFive',          detail: 'ZipFirstFive is required'
+          source: '/changeOfAddress/zipFirstFive',
+          detail: 'ZipFirstFive is required'
         )
       end
 
@@ -515,7 +518,8 @@ module ClaimsApi
         return if change_of_address['city'].present?
 
         collect_error(
-          source: '/changeOfAddress/city', detail: 'City is required'
+          source: '/changeOfAddress/city',
+          detail: 'City is required'
         )
       end
 
@@ -524,7 +528,8 @@ module ClaimsApi
         return if change_of_address['country'].present?
 
         collect_error(
-          source: '/changeOfAddress/country', detail: 'Country is required'
+          source: '/changeOfAddress/country',
+          detail: 'Country is required'
         )
       end
 
@@ -533,21 +538,8 @@ module ClaimsApi
         return if change_of_address['internationalPostalCode'].present?
 
         collect_error(
-          source: '/changeOfAddress/internationalPostalCode', detail: 'InternationalPostalCode is required'
-        )
-      end
-
-      ### FES Val Section 7: Disabilities validations
-      def validate_disabilities!
-        disabilities = form_attributes['disabilities']
-
-        # FES Val Section 7.a: Minimum 1 disability is already enforced by schema (required field + minItems: 1)
-        # FES Val Section 7.b: Maximum of 150 disabilities allowed (not enforced by schema)
-        return unless disabilities.is_a?(Array) && disabilities.size > 150
-
-        collect_error(
-          source: '/disabilities',
-          detail: "Number of disabilities (#{disabilities.size}) exceeds maximum allowed (150)"
+          source: '/changeOfAddress/internationalPostalCode',
+          detail: 'InternationalPostalCode is required'
         )
       end
 
@@ -568,7 +560,7 @@ module ClaimsApi
 
         collect_error(
           source: "/disabilities/#{index}/disabilityActionType",
-          title: 'Unprocessable Entity',
+          title: 'Bad Request',
           detail: 'The request failed disability validation: The disability Action Type of "NONE" ' \
                   'is not currently supported.'
         )
@@ -581,7 +573,6 @@ module ClaimsApi
 
         collect_error(
           source: "/disabilities/#{index}/name",
-          title: 'Unprocessable Entity',
           detail: 'The disability name must be less than 256 characters'
         )
       end

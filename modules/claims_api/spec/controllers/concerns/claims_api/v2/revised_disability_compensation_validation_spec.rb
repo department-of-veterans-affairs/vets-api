@@ -828,12 +828,9 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             )
           end
 
-          it 'returns validation error' do
+          it 'returns no custom validation error (schema handles format)' do
             errors = subject.validate_form_526_fes_values
-            expect(errors).to be_an(Array)
-            expect(errors.first[:source]).to eq('/disabilities/0/name')
-            expect(errors.first[:title]).to eq('Bad Request')
-            expect(errors.first[:detail]).to include('does not match the expected format')
+            expect(errors).to be_nil
           end
         end
 
@@ -849,14 +846,9 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             )
           end
 
-          it 'returns validation error' do
+          it 'returns no custom validation error (schema handles format)' do
             errors = subject.validate_form_526_fes_values
-            expect(errors).to be_an(Array)
-            expect(errors.first[:source]).to eq('/disabilities/0/name')
-            expect(errors.first[:title]).to eq('Bad Request')
-            expect(errors.first[:detail]).to eq('The request failed disability validation: ' \
-                                                'The disability name "PTSD @ Location" does not match the expected ' \
-                                                'format for a disabilityActionType of "NEW"')
+            expect(errors).to be_nil
           end
         end
 
@@ -900,7 +892,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           length_error = errors.find { |e| e[:detail].include?('less than 256 characters') }
           expect(length_error).not_to be_nil
           expect(length_error[:source]).to eq('/disabilities/0/name')
-          expect(length_error[:title]).to eq('Invalid value')
+          expect(length_error[:title]).to eq('Unprocessable Entity')
           expect(length_error[:detail]).to eq('The disability name must be less than 256 characters')
         end
       end
@@ -947,18 +939,16 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           )
         end
 
-        it 'returns errors for each invalid disability' do
+        it 'returns error only for NONE disability (format handled by schema)' do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
-          expect(errors.size).to eq(2)
+          expect(errors.size).to eq(1)
 
           # Check for NONE error on second disability
           none_error = errors.find { |e| e[:source] == '/disabilities/1/disabilityActionType' }
           expect(none_error[:detail]).to include('NONE')
 
-          # Check for format error on third disability
-          format_error = errors.find { |e| e[:source] == '/disabilities/2/name' }
-          expect(format_error[:detail]).to include('does not match the expected format')
+          # Format error for third disability is handled by schema, not custom validation
         end
       end
     end
