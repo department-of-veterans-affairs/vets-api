@@ -2,12 +2,19 @@
 
 module Eps
   class ProviderService < BaseService
+    # StatsD metrics for provider service calls with no parameters
+    PROVIDER_SERVICE_NO_PARAMS_METRIC = "#{STATSD_PREFIX}.provider_service.no_params".freeze
     ##
     # Get provider data from EPS
     #
     # @return OpenStruct response from EPS provider endpoint
     #
     def get_provider_service(provider_id:)
+      if provider_id.blank?
+        log_no_params_metric
+        raise ArgumentError, 'provider_id is required and cannot be blank'
+      end
+
       with_monitoring do
         response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}",
                            {}, request_headers_with_correlation_id)
@@ -17,6 +24,11 @@ module Eps
     end
 
     def get_provider_services_by_ids(provider_ids:)
+      if provider_ids.blank?
+        log_no_params_metric
+        raise ArgumentError, 'provider_ids is required and cannot be blank'
+      end
+
       with_monitoring do
         query_object_array = provider_ids.map { |id| "id=#{id}" }
         response = perform(:get, "/#{config.base_path}/provider-services",
@@ -125,6 +137,13 @@ module Eps
     private
 
     ##
+    # Logs StatsD metric for provider service calls with no parameters
+    #
+    def log_no_params_metric
+      StatsD.increment(PROVIDER_SERVICE_NO_PARAMS_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
+    end
+
+    ##
     # Validates required search parameters
     #
     # @param npi [String] Provider NPI
@@ -145,6 +164,11 @@ module Eps
     # @return [Object] Response from EPS API
     #
     def fetch_provider_services(npi)
+      if npi.blank?
+        log_no_params_metric
+        raise ArgumentError, 'npi is required and cannot be blank'
+      end
+
       with_monitoring do
         query_params = { npi:, isSelfSchedulable: true }
         perform(:get, "/#{config.base_path}/provider-services", query_params,
