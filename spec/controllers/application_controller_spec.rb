@@ -183,6 +183,22 @@ RSpec.describe ApplicationController, type: :controller do
         expect(Rails.logger).to receive(:info).with('[No Message Provided] : {:foo=>"bar"}')
         subject.log_message_to_rails('', 'info', { foo: 'bar' })
       end
+
+      it 'handles nil extra_context safely' do
+        expect(Rails.logger).to receive(:info).with('test message')
+        subject.log_message_to_rails('test message', 'info', nil)
+      end
+
+      it 'handles integer extra_context safely' do
+        expect(Rails.logger).to receive(:info).with('test message : 42')
+        subject.log_message_to_rails('test message', 'info', 42)
+      end
+
+      it 'handles custom object extra_context safely' do
+        custom_obj = Object.new
+        expect(Rails.logger).to receive(:info).with("test message : #{custom_obj}")
+        subject.log_message_to_rails('test message', 'info', custom_obj)
+      end
     end
 
     describe '#log_exception_to_rails' do
@@ -221,6 +237,30 @@ RSpec.describe ApplicationController, type: :controller do
         # Should still log the exception message and backtrace even with empty errors
         expect(Rails.logger).to receive(:error).with(/RX139.*backtrace/m)
         # Should not raise
+        expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
+      end
+
+      it 'logs BackendServiceException safely when error attributes contain nil values' do
+        nil_attrs_exception_class = Class.new(Common::Exceptions::BackendServiceException) do
+          def errors
+            [OpenStruct.new(attributes: { title: 'Error', detail: nil, code: '', status: 422 })]
+          end
+        end
+        ex = nil_attrs_exception_class.new('RX139', { code: 'RX139', detail: 'x' })
+        # Should filter out nil and empty values, keeping only valid attributes
+        expect(Rails.logger).to receive(:error).with(/RX139.*title.*status.*backtrace/m)
+        expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
+      end
+
+      it 'logs BackendServiceException safely when error attributes are all nil/empty' do
+        all_empty_attrs_exception_class = Class.new(Common::Exceptions::BackendServiceException) do
+          def errors
+            [OpenStruct.new(attributes: { title: nil, detail: '', code: nil, status: '' })]
+          end
+        end
+        ex = all_empty_attrs_exception_class.new('RX139', { code: 'RX139', detail: 'x' })
+        # Should still log with just backtrace when all attributes are nil/empty
+        expect(Rails.logger).to receive(:error).with(/RX139.*backtrace/m)
         expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
       end
 

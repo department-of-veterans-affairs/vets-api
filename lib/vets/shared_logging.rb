@@ -38,7 +38,7 @@ module Vets
       level = 'warn' if level == 'warning' # Rails doesn't support Sentries Warning level
       message = '[No Message Provided]' if message.blank?
 
-      formatted_message = if extra_context.respond_to?(:empty?) && extra_context.empty?
+      formatted_message = if extra_context.nil? || (extra_context.respond_to?(:empty?) && extra_context.empty?)
                             message
                           else
                             "#{message} : #{extra_context}"
@@ -67,7 +67,7 @@ module Vets
 
       if exception.is_a? Common::Exceptions::BackendServiceException
         error_details = (Array(exception.errors).first&.try(:attributes) || {}).compact.reject do |_k, v|
-          v.respond_to?(:empty?) && v.empty?
+          v.nil? || (v.respond_to?(:empty?) && v.empty?)
         end
         log_message_to_rails(exception.message, level, error_details.merge(backtrace: exception.backtrace))
       else
