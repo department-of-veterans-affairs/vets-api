@@ -5,7 +5,8 @@ require_relative '../../../../support/helpers/rails_helper'
 RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) { sis_user(icn: '1000123456V123456') }
+  let!(:user) { sis_user(:mhv, mhv_account_type:) }
+  let(:mhv_account_type) { 'Premium' }
   let(:va_patient) { true }
   let(:current_user) { user }
 
@@ -34,6 +35,22 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
         expect(response).to have_http_status(:forbidden)
         expect(response.parsed_body['error']['code']).to eq('FEATURE_NOT_AVAILABLE')
+      end
+    end
+
+    context 'when user does not have mhv access' do
+      let!(:user) { sis_user }
+
+      it 'returns a 403 forbidden response' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+          get '/mobile/v1/health/rx/prescriptions', headers: sis_headers
+        end
+        expect(response).to have_http_status(:forbidden)
+        expect(response.parsed_body).to eq({ 'errors' =>
+                                             [{ 'title' => 'Forbidden',
+                                                'detail' => 'User does not have access to the requested resource',
+                                                'code' => '403',
+                                                'status' => '403' }] })
       end
     end
 
@@ -93,6 +110,21 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
   end
 
   describe 'PUT /mobile/v1/health/rx/prescriptions/refill' do
+    context 'when user does not have mhv access' do
+      let!(:user) { sis_user }
+
+      it 'returns a 403 forbidden response' do
+        put '/mobile/v1/health/rx/prescriptions/refill', params: { ids: %w[25804851] }, headers: sis_headers
+
+        expect(response).to have_http_status(:forbidden)
+        expect(response.parsed_body).to eq({ 'errors' =>
+                                             [{ 'title' => 'Forbidden',
+                                                'detail' => 'User does not have access to the requested resource',
+                                                'code' => '403',
+                                                'status' => '403' }] })
+      end
+    end
+
     context 'with feature flag enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:mobile_prescriptions_v1, anything).and_return(true)

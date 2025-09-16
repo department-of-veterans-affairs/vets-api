@@ -7,6 +7,7 @@ require 'securerandom'
 module Mobile
   module V1
     class PrescriptionsController < Mobile::ApplicationController
+      before_action { authorize :mhv_prescriptions, :access? }
       before_action :validate_feature_flag
 
       def index
