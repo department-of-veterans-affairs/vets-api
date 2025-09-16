@@ -257,16 +257,13 @@ For testing individual components:
 
 ```ruby
 # Test model creation
-attrs = UnifiedHealthData::PrescriptionAttributes.new({
-  prescription_name: 'Test Drug',
-  refill_remaining: 3,
-  is_refillable: true
-})
-
 prescription = UnifiedHealthData::Prescription.new({
   id: '12345',
   type: 'Prescription',
-  attributes: attrs
+  prescription_name: 'Test Drug',
+  refill_remaining: 3,
+  is_refillable: true,
+  instructions: 'Take as directed'
 })
 
 # Test adapter parsing - VistA

@@ -6,12 +6,7 @@ module UnifiedHealthData
       def parse(resource)
         return nil if resource.nil? || resource['id'].nil?
 
-        attributes = build_prescription_attributes(resource)
-        UnifiedHealthData::Prescription.new({
-                                              id: resource['id'],
-                                              type: 'Prescription',
-                                              attributes:
-                                            })
+        UnifiedHealthData::Prescription.new(build_prescription_attributes(resource))
       rescue => e
         Rails.logger.error("Error parsing Oracle Health prescription: #{e.message}")
         nil
@@ -19,28 +14,31 @@ module UnifiedHealthData
 
       private
 
+      # rubocop:disable Metrics/MethodLength
       def build_prescription_attributes(resource)
-        UnifiedHealthData::PrescriptionAttributes.new({
-                                                        refill_status: resource['status'],
-                                                        refill_submit_date: nil, # Not available in FHIR
-                                                        refill_date: extract_refill_date(resource),
-                                                        refill_remaining:
-                                                          extract_refill_remaining(resource),
-                                                        facility_name: extract_facility_name(resource),
-                                                        ordered_date: resource['authoredOn'],
-                                                        quantity: extract_quantity(resource),
-                                                        expiration_date: extract_expiration_date(resource),
-                                                        prescription_number:
-                                                          extract_prescription_number(resource),
-                                                        prescription_name:
-                                                          extract_prescription_name(resource),
-                                                        dispensed_date: extract_dispensed_date(resource),
-                                                        station_number: extract_station_number(resource),
-                                                        is_refillable: extract_is_refillable(resource),
-                                                        is_trackable: false, # Default for Oracle Health
-                                                        instructions: extract_instructions(resource)
-                                                      })
+        {
+          id: resource['id'],
+          type: 'Prescription',
+          refill_status: resource['status'],
+          refill_submit_date: nil, # Not available in FHIR
+          refill_date: extract_refill_date(resource),
+          refill_remaining: extract_refill_remaining(resource),
+          facility_name: extract_facility_name(resource),
+          ordered_date: resource['authoredOn'],
+          quantity: extract_quantity(resource),
+          expiration_date: extract_expiration_date(resource),
+          prescription_number: extract_prescription_number(resource),
+          prescription_name: extract_prescription_name(resource),
+          dispensed_date: extract_dispensed_date(resource),
+          station_number: extract_station_number(resource),
+          is_refillable: extract_is_refillable(resource),
+          is_trackable: false, # Default for Oracle Health
+          instructions: extract_instructions(resource),
+          cmop_division_phone: extract_facility_phone_number(resource),
+          prescription_source: extract_prescription_source(resource)
+        }
       end
+      # rubocop:enable Metrics/MethodLength
 
       def extract_refill_date(resource)
         resource.dig('dispenseRequest', 'validityPeriod', 'start')
@@ -144,6 +142,11 @@ module UnifiedHealthData
         # This might be in an extension or contained Organization resource
         # For now, return nil as it's not typically in standard FHIR
         nil
+      end
+
+      def extract_prescription_source(_resource)
+        # TODO: Identify non-VA meds, if/when possible
+        ''
       end
 
       def build_instruction_text(instruction)
