@@ -42,7 +42,7 @@ module Traceable
     Rails.logger.error('Error setting service tag', class: self.class.name, message: e.message)
   end
 
-  # Wraps controller methods with the service tag.
+  # Wraps controller methods with the controller name.
   def tag_with_controller_name(&)
     return yield if controller_name.blank?
 

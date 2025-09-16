@@ -722,18 +722,23 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
   end
 
   describe 'controller name logging' do
-    context 'when controller name is present' do
-      it 'adds controller name to logs' do
+    let(:expected_result) { 'Test log message' }
+
+    context 'when controller has a name' do
+      it 'adds controller name to logs within around_action' do
         expect(SemanticLogger).to receive(:named_tagged).with(controller_name: 'application').and_call_original
+        expect(Rails.logger).to receive(:info).with(expected_result)
         get :test_logging
         expect(response).to have_http_status :ok
       end
     end
 
-    context 'when controller name is missing' do
-      it 'handles missing controller name gracefully' do
-        allow(controller).to receive(:controller_name).and_return('')
+    context 'when controller has no name' do
+      before { allow(controller).to receive(:controller_name).and_return('') }
+
+      it 'does not call SemanticLogger.named_tagged' do
         expect(SemanticLogger).not_to receive(:named_tagged)
+        expect(Rails.logger).to receive(:info).with(expected_result)
         get :test_logging
         expect(response).to have_http_status :ok
       end

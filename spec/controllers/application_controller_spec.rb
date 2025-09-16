@@ -685,15 +685,13 @@ RSpec.describe ApplicationController, type: :controller do
       context 'when controller has a name' do
         it 'adds controller name to logs within around_action' do
           expect(SemanticLogger).to receive(:named_tagged).with(controller_name: 'anonymous').and_call_original
-          expect(Rails.logger).to receive(:info).with(any_args)
+          expect(Rails.logger).to receive(:info).with(expected_result)
           subject
         end
       end
 
       context 'when controller has no name' do
-        before do
-          allow(controller).to receive(:controller_name).and_return('')
-        end
+        before { allow(controller).to receive(:controller_name).and_return('') }
 
         it 'does not call SemanticLogger.named_tagged' do
           expect(SemanticLogger).not_to receive(:named_tagged)
