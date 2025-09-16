@@ -42,7 +42,7 @@ RSpec.describe DeleteInProgressFormJob, type: :job do
       context 'and no in-progress form' do
         before { in_progress_form.destroy }
 
-        it 'doexs not raise an error' do
+        it 'does not raise an error' do
           expect(Rails.logger).to receive(:info).with(
             "#{log_expectation_meta}[ipf_id_before:, ipf_id_after:] - #{log_expectation_success}"
           )
