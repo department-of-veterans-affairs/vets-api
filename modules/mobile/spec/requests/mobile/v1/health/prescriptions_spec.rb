@@ -138,7 +138,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
               expect(response).to have_http_status(:ok)
               expect(response.parsed_body).to have_key('data')
-              
+
               data = response.parsed_body['data']
               expect(data).to have_key('id')
               expect(data['type']).to eq('PrescriptionRefills')

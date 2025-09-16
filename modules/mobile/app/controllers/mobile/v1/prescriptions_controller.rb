@@ -11,14 +11,14 @@ module Mobile
       before_action :validate_feature_flag
 
       def index
-        page, per_page = pagination_params
+        pagination_params
 
         Rails.logger.info('Mobile V1 Prescriptions API call started')
-        
+
         prescriptions = unified_health_service.get_prescriptions
 
         # TODO: Add pagination and filtering logic for page, per_page, refill_status, sort
-        
+
         meta = generate_mobile_metadata(prescriptions)
         serialized_data = UnifiedHealthData::Serializers::PrescriptionSerializer.new(prescriptions).serializable_hash
         render json: { **serialized_data, meta: }
@@ -26,18 +26,20 @@ module Mobile
 
       def refill
         Rails.logger.info("Mobile V1 Prescription batch refill request for IDs: #{ids}")
-        
+
         # Get all prescriptions to validate IDs and extract station numbers
         prescriptions = unified_health_service.get_prescriptions
-        
+
         # Build orders array with id and stationNumber for each requested prescription
         orders = ids.map do |prescription_id|
           prescription = prescriptions.find { |p| p.prescription_id == prescription_id.to_s }
-          raise Common::Exceptions::ResourceNotFound.new(detail: "Prescription not found: #{prescription_id}") unless prescription
-          
+          unless prescription
+            raise Common::Exceptions::ResourceNotFound.new(detail: "Prescription not found: #{prescription_id}")
+          end
+
           { id: prescription_id.to_s, stationNumber: prescription.station_number }
         end
-        
+
         result = unified_health_service.refill_prescription(orders)
         render_batch_refill_result(result)
       end
@@ -128,11 +130,10 @@ module Mobile
           render json: Mobile::V1::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
         else
           raise Common::Exceptions::UnprocessableEntity.new(
-            detail: (result[:error] || 'Unable to process refill request')
+            detail: result[:error] || 'Unable to process refill request'
           )
         end
       end
-
     end
   end
 end

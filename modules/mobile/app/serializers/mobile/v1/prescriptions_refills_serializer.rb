@@ -16,7 +16,9 @@ module Mobile
                  :info_messages
 
       def initialize(id, resource)
-        failed_prescription_list = resource[:errors]&.map { |error| error[:developer_message]&.split(':')&.second&.strip } || []
+        failed_prescription_list = resource[:errors]&.map do |error|
+          error[:developer_message]&.split(':')&.second&.strip
+        end || []
 
         super(PrescriptionsRefillStruct.new(id, resource[:failed_station_list], resource[:successful_station_list],
                                             resource[:last_updated_time], resource[:prescription_list],
