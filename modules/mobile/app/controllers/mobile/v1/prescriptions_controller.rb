@@ -59,7 +59,7 @@ module Mobile
         generate_mobile_metadata_with_pagination(
           prescriptions,
           page: params[:page]&.to_i || 1,
-          per_page: [params[:per_page]&.to_i || 20, 50].min
+          per_page: params[:per_page]&.to_i || 20
         )
       end
 
@@ -81,7 +81,7 @@ module Mobile
 
       def pagination_params
         page = params[:page]&.to_i || 1
-        per_page = [params[:per_page]&.to_i || 20, 50].min
+        per_page = params[:per_page]&.to_i || 20
         [page, per_page]
       end
 
