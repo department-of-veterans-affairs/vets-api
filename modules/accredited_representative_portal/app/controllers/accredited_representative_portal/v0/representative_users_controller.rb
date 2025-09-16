@@ -9,9 +9,8 @@ module AccreditedRepresentativePortal
         # TODO: Once we figure out how we're handling serialization and which
         # library we're using, moving this serialization logic out to to a
         # serialization layer.
-        ar_monitoring(nil).trace('ar.users.show') do |span|
-          span.set_tag('users_show.poa_codes', poa_codes)
-          trace_key_tags(span, poa_codes:)
+        ar_monitoring.trace('ar.users.show',
+                            tags: { 'users_show.poa_codes' => poa_codes }) do |_span|
           render json: {
             account: {
               accountUuid: @current_user.user_account_uuid
@@ -48,24 +47,14 @@ module AccreditedRepresentativePortal
         end
       end
 
-      def ar_monitoring(organization)
-        org_tag = "org:#{organization}" if organization.present?
-
+      def ar_monitoring
         @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
           AccreditedRepresentativePortal::Monitoring::NAME,
           default_tags: [
             "controller:#{controller_name}",
-            "action:#{action_name}",
-            org_tag
+            "action:#{action_name}"
           ].compact
         )
-      end
-
-      def trace_key_tags(span, **tags)
-        tags.each do |tag, value|
-          span.set_tag(tag, value) if value.present?
-          Datadog::Tracing.active_trace&.set_tag(tag, value) if value.present?
-        end
       end
 
       def poa_codes
