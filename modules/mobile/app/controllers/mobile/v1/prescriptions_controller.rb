@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
+require 'unified_health_data/service'
+
 module Mobile
   module V1
-    class PrescriptionsController < ApplicationController
-      before_action :authenticate_user!
+    class PrescriptionsController < Mobile::ApplicationController
       before_action :validate_feature_flag
 
       def index
@@ -15,7 +16,7 @@ module Mobile
 
         # TODO: Add pagination and filtering logic for page, per_page, refill_status, sort
         
-        meta = generate_mobile_metadata(prescriptions, page:, per_page:)
+        meta = generate_mobile_metadata(prescriptions)
         render json: { data: prescriptions, meta: }, serializer: Mobile::V1::PrescriptionsSerializer
       end
 
@@ -117,7 +118,7 @@ module Mobile
       end
 
       def non_va_meds?(prescriptions)
-        prescriptions.any? { |rx| rx.prescription_source != 'va' }
+        prescriptions.any? { |rx| rx.prescription_source == 'NV' }
       end
 
       def render_refill_result(result)
