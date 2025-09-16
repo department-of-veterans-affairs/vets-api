@@ -260,7 +260,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
           homeless_base = pdf_data[:data][:attributes][:homelessInformation]
 
           expect(homeless_base[:pointOfContact]).to eq('Firstname Lastname')
-          expect(homeless_base[:pointOfContactNumber]).to eq('123-555-1234')
+          expect(homeless_base[:pointOfContactNumber][:telephone]).to eq('123-555-1234')
         end
 
         it 'does not map anything if not included' do

@@ -241,7 +241,8 @@ module ClaimsApi
         phone_object = point_of_contact_info&.dig('primaryPhone')
         phone_number = phone_object.values.join
 
-        @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber] = convert_phone(phone_number)
+        @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber] =
+          { telephone: convert_phone(phone_number) }
       end
 
       # if "currentlyHomeless" is present "homelessSituationType", "otherLivingSituation" are required by the schema
