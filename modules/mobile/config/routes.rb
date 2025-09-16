@@ -119,7 +119,6 @@ Mobile::Engine.routes.draw do
     get '/health/immunizations', to: 'immunizations#index'
     get '/health/labs-and-tests', to: 'labs_and_tests#index'
     get '/health/rx/prescriptions', to: 'prescriptions#index'
-    get '/health/rx/prescriptions/:id', to: 'prescriptions#show'
     post '/health/rx/prescriptions/:id/refill', to: 'prescriptions#refill'
     get '/messaging/health/messages/:id/thread', to: 'messages#thread'
     get '/user', to: 'users#show'

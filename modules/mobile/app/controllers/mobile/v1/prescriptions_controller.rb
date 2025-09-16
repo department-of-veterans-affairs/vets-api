@@ -22,19 +22,6 @@ module Mobile
         render json: { **serialized_data, meta: }
       end
 
-      def show
-        Rails.logger.info("Mobile V1 Prescription detail request for ID: #{params[:id]}")
-        
-        # Note: UnifiedHealthData::Service doesn't have get_prescription method yet
-        # For now, get all prescriptions and find the specific one
-        prescriptions = unified_health_service.get_prescriptions
-        prescription = prescriptions.find { |p| p.prescription_id == params[:id] }
-        
-        raise Common::Exceptions::ResourceNotFound.new(nil, detail: 'Prescription not found') unless prescription
-
-        render json: UnifiedHealthData::Serializers::PrescriptionSerializer.new(prescription).serializable_hash
-      end
-
       def refill
         Rails.logger.info("Mobile V1 Prescription refill request for ID: #{params[:id]}")
         
@@ -43,7 +30,7 @@ module Mobile
         prescriptions = unified_health_service.get_prescriptions
         prescription = prescriptions.find { |p| p.prescription_id == params[:id] }
         
-        raise Common::Exceptions::ResourceNotFound.new(nil, detail: 'Prescription not found') unless prescription
+        raise Common::Exceptions::ResourceNotFound.new(detail: 'Prescription not found') unless prescription
         
         orders = [{ id: params[:id], stationNumber: prescription.station_number }]
         result = unified_health_service.refill_prescription(orders)
