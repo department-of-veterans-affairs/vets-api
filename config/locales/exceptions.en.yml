@@ -806,14 +806,14 @@ en:
         <<: *external_defaults
         title: Bad Request
         code: 'RES_CH31_ELIGIBILITY_400'
-        detail: 'Bad request'
+        detail: 'Bad Request'
         status: 400
-      RES_CH31_ELIGIBILITY_404:
+      RES_CH31_ELIGIBILITY_403:
         <<: *external_defaults
         title: Not Found
-        code: 'RES_CH31_ELIGIBILITY_404'
-        detail: 'Not Found'
-        status: 404
+        code: 'RES_CH31_ELIGIBILITY_403'
+        detail: 'Not Authorized'
+        status: 403
       RES_CH31_ELIGIBILITY_500:
         <<: *external_defaults
         title: Internal Server Error

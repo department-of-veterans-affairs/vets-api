@@ -17,8 +17,8 @@ http_interactions:
       - eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjNDdiNzNjMy04ZTgzLTQ5MzQtODViMS1kOTNhMmNhMjgxN2UifQ.8TqYLKpQKmdK5PrWvS1FeA7nE2a8HU9S0BuTVXIR5Gw
   response:
     status:
-      code: 404
-      message: '404'
+      code: 403
+      message: '403'
     headers:
       date:
       - Mon, 15 Sep 2025 14:22:27 GMT

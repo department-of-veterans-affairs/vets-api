@@ -38,10 +38,10 @@ RSpec.describe VRE::Ch31Eligibility::Service do
     end
 
     context 'when unsuccessful' do
-      let(:key) { 'RES_CH31_ELIGIBILITY_404' }
-      let(:response_values) { { status: 404, detail: nil, code: key, source: nil } }
+      let(:key) { 'RES_CH31_ELIGIBILITY_403' }
+      let(:response_values) { { status: 403, detail: nil, code: key, source: nil } }
       let(:message) { 'Internal server error occurred while retrieving data from MPI.' }
-      let(:error) { error_klass.new(key, response_values, 404, 'errorMessageList' => message) }
+      let(:error) { error_klass.new(key, response_values, 403, 'errorMessageList' => message) }
 
       before { allow(service).to receive(:send_to_res).and_raise(error) }
 
