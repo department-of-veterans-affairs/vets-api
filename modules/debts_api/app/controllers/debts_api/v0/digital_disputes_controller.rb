@@ -21,11 +21,9 @@ module DebtsApi
         begin
           submission.save!
           DebtsApi::V0::DigitalDisputeJob.perform_async(submission.id)
-          dmc_service(submission).call!
-
-          StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.success")
-          in_progress_form&.destroy
           render_success(submission)
+
+          render json: { message: 'Submission received', submission_id: submission.id }, status: :ok
         rescue ActiveRecord::RecordInvalid => e
           StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
           errors_hash = e.record.errors.to_hash
@@ -41,10 +39,6 @@ module DebtsApi
           StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
           render json: { errors: { base: [e.message] } }, status: :unprocessable_entity
         end
-      end
-
-      def in_progress_form
-        InProgressForm.form_for_user('DISPUTE-DEBT', current_user)
       end
 
       def create_legacy!
@@ -69,10 +63,6 @@ module DebtsApi
 
       def dmc_service(submission)
         DebtsApi::V0::DigitalDisputeDmcService.new(current_user, submission)
-      end
-
-      def render_success(submission)
-        render json: { message: 'Submission received', submission_id: submission.id }, status: :ok
       end
 
       def render_validation_error(record)
