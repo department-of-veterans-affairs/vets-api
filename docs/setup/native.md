@@ -5,7 +5,7 @@ Vets API requires:
 
 - Ruby 3.3.6
 - PostgreSQL 15.x (including PostGIS 3)
-- Redis 6.2.x
+- Valkey 7.2.x
 
 The most up-to-date versions of each key dependency will be specified in the `docker-compose.yml` [file](https://github.com/department-of-veterans-affairs/vets-api/blob/master/docker-compose.yml) and the `Dockerfile`.
 
@@ -148,8 +148,9 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
         ```
    - run postgres (e.g. open postgres.app, create a new server, and click "initialize")
 
-2. Install redis
+2. Install valkey (Redis-compatible)
     ```bash
+    # Install Redis for Valkey compatibility
     brew install redis
     brew services start redis
     ```
@@ -212,8 +213,9 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    \q
    ```
 
-3. Install Redis
+3. Install Valkey
    ```bash
+   # Valkey is a Redis fork - install via Redis package for compatibility
    sudo apt install -y redis-server
    sudo sed -i 's/^supervised no/supervised systemd/' /etc/redis/redis.conf
    sudo systemctl restart redis.service
