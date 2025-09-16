@@ -938,6 +938,25 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             end
           end
 
+          context 'with current year only' do
+            let(:form_attributes) do
+              base_form_attributes.merge(
+                'disabilities' => [
+                  {
+                    'disabilityActionType' => 'NEW',
+                    'name' => 'PTSD',
+                    'approximateDate' => Date.current.year.to_s
+                  }
+                ]
+              )
+            end
+
+            it 'returns no errors (current year is valid)' do
+              errors = subject.validate_form_526_fes_values
+              expect(errors).to be_nil
+            end
+          end
+
           context 'with past date' do
             let(:form_attributes) do
               base_form_attributes.merge(

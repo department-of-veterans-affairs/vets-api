@@ -599,7 +599,7 @@ module ClaimsApi
 
         begin
           date = build_date_from_parts(parts)
-          validate_date_not_in_future!(date, index)
+          validate_date_not_in_future!(date, date_string, index)
         rescue ArgumentError
           # Invalid date combinations like Feb 30, Apr 31, etc.
           collect_error(
@@ -611,20 +611,31 @@ module ClaimsApi
 
       def build_date_from_parts(parts)
         year = parts[0].to_i
-        month = parts[1]&.to_i || 12 # Default to December for year-only
+        month = parts[1]&.to_i
         day = parts[2]&.to_i
 
         if day
           Date.new(year, month, day) # Full date: validate it's a real calendar date
-        elsif parts[1]
-          Date.new(year, month, -1) # Year-month: use last day of month for future check
+        elsif month
+          Date.new(year, month, -1) # Year-month: use last day of month for comparison
         else
-          Date.new(year, 12, 31) # Year only: use end of year for future check
+          Date.new(year, 1, 1) # Year only: use beginning of year for comparison
         end
       end
 
-      def validate_date_not_in_future!(date, index)
-        return unless date > Date.current
+      def validate_date_not_in_future!(date, date_string, index)
+        # For year-only dates, just compare the year
+        # For other dates, compare the full date
+        parts = date_string.split('-')
+
+        if parts.length == 1 # Year only
+          # Year must not be in the future (current year is OK since we don't know month/day)
+          return unless date.year > Date.current.year
+        else
+          # Month-Year or Full date must be in the past (not including today)
+          # Using > because error says "must be in the past"
+          return unless date > Date.current
+        end
 
         collect_error(
           source: "/disabilities/#{index}/approximateDate",
