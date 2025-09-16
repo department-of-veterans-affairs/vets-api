@@ -2,7 +2,6 @@
 
 require 'ostruct'
 require 'open3'
-require 'shellwords'
 
 module VSPDanger
   HEAD_SHA = ENV.fetch('GITHUB_HEAD_REF', '').empty? ? `git rev-parse --abbrev-ref HEAD`.chomp.freeze : "origin/#{ENV.fetch('GITHUB_HEAD_REF')}"
