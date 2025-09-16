@@ -295,9 +295,7 @@ module VAOS
       # @return [Array<Hash>, nil] Available appointment slots, or nil if unavailable
       def fetch_provider_slots(referral, provider, draft_appointment_id)
         appointment_type_id = get_provider_appointment_type_id(provider)
-        return nil if appointment_type_id.nil?
-
-        eps_provider_service.get_provider_slots(
+        slots = eps_provider_service.get_provider_slots(
           provider.id,
           {
             appointmentTypeId: appointment_type_id,
@@ -306,6 +304,8 @@ module VAOS
             appointmentId: draft_appointment_id
           }
         )
+        log_provider_slots_info(slots)
+        slots
       rescue ArgumentError => e
         error_data = {
           error_class: e.class.name,
@@ -314,6 +314,21 @@ module VAOS
         }
         Rails.logger.error("#{CC_APPOINTMENTS}: Error fetching provider slots", error_data)
         nil
+      end
+
+      ##
+      # Logs information about retrieved provider slots
+      #
+      # @param slots [Array<Hash>] The retrieved provider slots
+      # @return [void]
+      def log_provider_slots_info(slots)
+        Rails.logger.info(
+          "#{CC_APPOINTMENTS}: Provider slots retrieved",
+          {
+            slots_count: slots&.length || 0,
+            slots_available: slots&.any? || false
+          }
+        )
       end
 
       ##

@@ -7,20 +7,22 @@ module BPDS
     VALIDITY_LENGTH = 30.minutes
 
     # algorithm to be used
-    JWT_ENCODE_ALGORITHM = 'HS256'
+    ALGORITHM = 'HS256'
 
     # issuer constant
     ISSUER = 'vets-api'
 
     # uses HMAC symmetric signing algorithm
     def get_token
-      JWT.encode(payload, private_key, JWT_ENCODE_ALGORITHM, {
-                   typ: 'JWT',
-                   alg: 'HS256'
-                 })
+      JWT.encode(payload, private_key, ALGORITHM, headers)
     end
 
     private
+
+    # Returns the headers for the JWT token
+    def headers
+      { typ: 'JWT', alg: ALGORITHM }
+    end
 
     # the generated payload to be encoded
     def payload
@@ -39,12 +41,12 @@ module BPDS
 
     # set the token expiration date (expires)
     def expiration_time
-      Time.zone.now + VALIDITY_LENGTH
+      created_time + VALIDITY_LENGTH
     end
 
     # set the token created time (iat)
     def created_time
-      Time.zone.now
+      @created_time ||= Time.zone.now
     end
   end
 end

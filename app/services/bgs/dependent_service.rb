@@ -150,11 +150,11 @@ module BGS
     def submit_to_standard_service(claim:, encrypted_vet_info:)
       if claim.submittable_686?
         BGS::SubmitForm686cJob.perform_async(
-          uuid, icn, claim.id, encrypted_vet_info
+          uuid, claim.id, encrypted_vet_info
         )
       else
         BGS::SubmitForm674Job.perform_async(
-          uuid, icn, claim.id, encrypted_vet_info
+          uuid, claim.id, encrypted_vet_info
         )
       end
     end

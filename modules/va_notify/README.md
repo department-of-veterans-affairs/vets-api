@@ -2,17 +2,17 @@
 # Table of Contents
 - [Introduction](#introduction)
 - [Getting Started](#getting-started)
-  - [API Key Structure](#api-key-structure)
-    - [API Key Name](#api-key-name)
+    - [API Key Structure](#api-key-structure)
+        - [API Key Name](#api-key-name)
 - [Using VANotify: How It Works](#how-it-works)
-  - [Delivery Workflow](#delivery-workflow)
-  - [Sending Options](#sending-options)
-    - [Synchronous/inline](#sync)
-    - [Asynchronous](#async)
+    - [Delivery Workflow](#delivery-workflow)
+    - [Sending Options](#sending-options)
+        - [Synchronous/inline](#sync)
+        - [Asynchronous](#async)
 - [Using Custom Callbacks](#using-custom-callbacks)
-  - [Why Use Callbacks?](#why-use-callbacks)
-  - [Option 1: Default Callback Class](#callbacks-option-1)
-  - [Option 2: Custom Callback Class](#callbacks-option-2)
+    - [Why Use Callbacks?](#why-use-callbacks)
+    - [Option 1: Default Callback Class](#callbacks-option-1)
+    - [Option 2: Custom Callback Class](#callbacks-option-2)
 - [Testing](#testing)
 - [Debugging](#debugging)
 - [Contact Us](#contact-us)
@@ -104,7 +104,7 @@ notify_client.send_email(
 )
 ```
 
-After invoking this, you will immediately either 1) receive the message body and newly created `notification_id` back as a response, or 2) see an exception raised if it fails. 
+After invoking this, you will immediately either 1) receive the message body and newly created `notification_id` back as a response, or 2) see an exception raised if it fails.
 - If you are using the `VANotify::Service` class to process the user's request inline (like a form submission), the exception will propagate up through the application (unless you have error handling that catches the failure) and cause the entire request to fail (which will then show the user an error message).
 - If you are using the `VANotify::Service` class within the context of your _own_ Sidekiq job, a VANotify error will cause your Sidekiq job to retry (unless you have error handling that catches the failure). You will need to have your own error handling in place to handle this scenario.
 
@@ -248,7 +248,7 @@ Note that your team will need to review and determine if the `notification_type`
 [Back to top](#top)
 
 ### Option 2: Custom Callback Class <a name="callbacks-option-2"></a>
-The custom callback handler allows team to create a bespoke solution tailored to their specific requirements. Unlike option 1, this approach offers complete control over how delivery statuses are processed and logged. A `callback_klass` argument referencing the name of your custom class must be included. 
+The custom callback handler allows team to create a bespoke solution tailored to their specific requirements. Unlike option 1, this approach offers complete control over how delivery statuses are processed and logged. A `callback_klass` argument referencing the name of your custom class must be included.
 
 To proceed with this option, several additional steps are needed. First, you will need to define a class in your module for handling callbacks, which must include a class-level method for `.call`. Next, you will need to [create a feature flag](https://depo-platform-documentation.scrollhelp.site/developer-docs/flipper-ui-access). Once your feature flag is created, you must choose a notification trigger and update the callback data you are passing in to include `callback_klass`.
 

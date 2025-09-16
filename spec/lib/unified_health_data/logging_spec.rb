@@ -2,11 +2,12 @@
 
 require 'rails_helper'
 require 'unified_health_data/service'
+require 'unified_health_data/logging'
 require 'unified_health_data/models/lab_or_test'
 
-RSpec.describe UnifiedHealthData::Service do
+RSpec.describe UnifiedHealthData::Logging do
   let(:user) { build(:user, :loa3) }
-  let(:service) { described_class.new(user) }
+  let(:logging) { described_class.new(user) }
 
   describe '#log_test_code_distribution' do
     let(:ch_record) do
@@ -79,7 +80,6 @@ RSpec.describe UnifiedHealthData::Service do
     end
 
     before do
-      allow(service).to receive(:with_monitoring).and_yield
       allow(Rails.logger).to receive(:info)
     end
 
@@ -87,8 +87,8 @@ RSpec.describe UnifiedHealthData::Service do
       # Create a sample set of records with multiple test codes
       records = [ch_record, sp_record, ch_record, cy_record, mb_record, ch_record]
 
-      # Call the private method directly using send
-      service.send(:log_test_code_distribution, records)
+      # Call the method on the logging instance
+      logging.log_test_code_distribution(records)
 
       # Verify that the logger was called with the correct distribution data
       expect(Rails.logger).to have_received(:info).with(
@@ -105,7 +105,7 @@ RSpec.describe UnifiedHealthData::Service do
     end
 
     it 'logs nothing if no records are present' do
-      service.send(:log_test_code_distribution, [])
+      logging.log_test_code_distribution([])
       expect(Rails.logger).not_to have_received(:info)
     end
 
@@ -127,7 +127,7 @@ RSpec.describe UnifiedHealthData::Service do
       )
 
       records = [ch_record, record_with_no_code, sp_record]
-      service.send(:log_test_code_distribution, records)
+      logging.log_test_code_distribution(records)
 
       expect(Rails.logger).to have_received(:info).with(
         hash_including(
@@ -158,7 +158,7 @@ RSpec.describe UnifiedHealthData::Service do
       )
 
       records = [ch_record, record_with_no_name, sp_record]
-      service.send(:log_test_code_distribution, records)
+      logging.log_test_code_distribution(records)
 
       expect(Rails.logger).to have_received(:info).with(
         hash_including(
@@ -189,7 +189,7 @@ RSpec.describe UnifiedHealthData::Service do
       )
 
       records = [record_with_special_chars, sp_record]
-      service.send(:log_test_code_distribution, records)
+      logging.log_test_code_distribution(records)
 
       expect(Rails.logger).to have_received(:info).with(
         hash_including(
@@ -238,7 +238,7 @@ RSpec.describe UnifiedHealthData::Service do
         service: 'unified_health_data'
       }
 
-      service.send(:log_short_test_name_issue, short_name_record)
+      logging.send(:log_short_test_name_issue, short_name_record)
 
       expect(PersonalInformationLog).to have_received(:create!).with(
         error_class: 'UHD Short Test Name Issue',
@@ -249,7 +249,7 @@ RSpec.describe UnifiedHealthData::Service do
     it 'handles PersonalInformationLog creation errors gracefully' do
       allow(PersonalInformationLog).to receive(:create!).and_raise(StandardError.new('Test error'))
 
-      expect { service.send(:log_short_test_name_issue, short_name_record) }.not_to raise_error
+      expect { logging.send(:log_short_test_name_issue, short_name_record) }.not_to raise_error
 
       expect(Rails.logger).to have_received(:error).with(
         'Error creating PersonalInformationLog for short test name issue: StandardError',
@@ -335,40 +335,40 @@ RSpec.describe UnifiedHealthData::Service do
     end
 
     before do
-      allow(service).to receive(:log_short_test_name_issue)
+      allow(logging).to receive(:log_short_test_name_issue)
     end
 
     it 'calls log_short_test_name_issue when test name is 2 characters' do
       records = [normal_name_record, short_name_record_ch]
 
-      service.send(:count_test_codes_and_names, records)
+      logging.send(:count_test_codes_and_names, records)
 
-      expect(service).to have_received(:log_short_test_name_issue).once.with(short_name_record_ch)
+      expect(logging).to have_received(:log_short_test_name_issue).once.with(short_name_record_ch)
     end
 
     it 'calls log_short_test_name_issue when test name is 3 characters' do
       records = [normal_name_record, short_name_record_three_chars]
 
-      service.send(:count_test_codes_and_names, records)
+      logging.send(:count_test_codes_and_names, records)
 
-      expect(service).to have_received(:log_short_test_name_issue).once.with(short_name_record_three_chars)
+      expect(logging).to have_received(:log_short_test_name_issue).once.with(short_name_record_three_chars)
     end
 
     it 'calls log_short_test_name_issue for multiple short names' do
       records = [normal_name_record, short_name_record_ch, short_name_record_sp, short_name_record_three_chars]
 
-      service.send(:count_test_codes_and_names, records)
+      logging.send(:count_test_codes_and_names, records)
 
-      expect(service).to have_received(:log_short_test_name_issue).exactly(3).times
+      expect(logging).to have_received(:log_short_test_name_issue).exactly(3).times
 
       # Verify it was called with records having the expected short names
-      expect(service).to have_received(:log_short_test_name_issue).with(satisfy { |record|
+      expect(logging).to have_received(:log_short_test_name_issue).with(satisfy { |record|
         record.attributes.display == 'CH'
       })
-      expect(service).to have_received(:log_short_test_name_issue).with(satisfy { |record|
+      expect(logging).to have_received(:log_short_test_name_issue).with(satisfy { |record|
         record.attributes.display == 'SP'
       })
-      expect(service).to have_received(:log_short_test_name_issue).with(satisfy { |record|
+      expect(logging).to have_received(:log_short_test_name_issue).with(satisfy { |record|
         record.attributes.display == 'ABC'
       })
     end
@@ -376,9 +376,9 @@ RSpec.describe UnifiedHealthData::Service do
     it 'does not call log_short_test_name_issue when test name is longer than 3 characters' do
       records = [normal_name_record]
 
-      service.send(:count_test_codes_and_names, records)
+      logging.send(:count_test_codes_and_names, records)
 
-      expect(service).not_to have_received(:log_short_test_name_issue)
+      expect(logging).not_to have_received(:log_short_test_name_issue)
     end
 
     it 'does not call log_short_test_name_issue when test name is empty' do
@@ -400,19 +400,19 @@ RSpec.describe UnifiedHealthData::Service do
 
       records = [empty_name_record]
 
-      service.send(:count_test_codes_and_names, records)
+      logging.send(:count_test_codes_and_names, records)
 
-      expect(service).not_to have_received(:log_short_test_name_issue)
+      expect(logging).not_to have_received(:log_short_test_name_issue)
     end
 
     it 'returns correct counts while logging short name issues' do
       records = [normal_name_record, short_name_record_ch, short_name_record_sp]
 
-      test_code_counts, test_name_counts = service.send(:count_test_codes_and_names, records)
+      test_code_counts, test_name_counts = logging.send(:count_test_codes_and_names, records)
 
       expect(test_code_counts).to eq({ 'CH' => 2, 'SP' => 1 })
       expect(test_name_counts).to eq({ 'Chemistry Test' => 1, 'CH' => 1, 'SP' => 1 })
-      expect(service).to have_received(:log_short_test_name_issue).exactly(2).times
+      expect(logging).to have_received(:log_short_test_name_issue).exactly(2).times
     end
   end
 end

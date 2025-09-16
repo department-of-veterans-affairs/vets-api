@@ -29,6 +29,18 @@ module DependentsBenefits
     # DependentsBenefit Form ID
     FORM = DependentsBenefits::FORM_ID
 
+    DEPENDENT_CLAIM_FLOWS = %w[
+      report_death
+      report_divorce
+      add_child
+      report_stepchild_not_in_household
+      report_marriage_of_child_under18
+      child_marriage
+      report_child18_or_older_is_not_attending_school
+      add_spouse
+      add_disabled_child
+    ].freeze
+
     ##
     # Validates whether the form matches the expected VetsJsonSchema::JSON schema
     #
@@ -57,6 +69,14 @@ module DependentsBenefits
       end
 
       schema_errors.empty? && validation_errors.empty?
+    end
+
+    def submittable_686?
+      DEPENDENT_CLAIM_FLOWS.any? { |flow| parsed_form['view:selectable686_options'].include?(flow) }
+    end
+
+    def submittable_674?
+      parsed_form.dig('view:selectable686_options', 'report674')
     end
 
     private

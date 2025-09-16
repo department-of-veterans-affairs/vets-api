@@ -7,12 +7,14 @@ module AccreditedRepresentativePortal
     subject(:policy) { described_class.new(user, claimant_representative) }
 
     let(:user) { create(:representative_user) }
-    let(:power_of_attorney_holders) { [] }
+    let(:empty) { true }
     let(:claimant_representative) { nil }
 
     before do
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('<TOKEN>')
-      allow(user.user_account).to receive(:power_of_attorney_holders).and_return(power_of_attorney_holders)
+      allow_any_instance_of(PowerOfAttorneyHolderMemberships).to(
+        receive(:empty?).and_return(empty)
+      )
     end
 
     around do |example|
@@ -32,9 +34,8 @@ module AccreditedRepresentativePortal
         let(:claimant_representative) do
           ClaimantRepresentative.new(
             claimant_id: nil,
-            power_of_attorney_holder_type: nil,
-            power_of_attorney_holder_poa_code: nil,
-            accredited_individual_registration_number: nil
+            accredited_individual_registration_number: nil,
+            power_of_attorney_holder: nil
           )
         end
 
@@ -53,10 +54,7 @@ module AccreditedRepresentativePortal
         end
 
         context 'when user has at least one POA holder' do
-          let(:power_of_attorney_holders) do
-            [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: '067',
-                                       can_accept_digital_poa_requests: nil)]
-          end
+          let(:empty) { false }
 
           it 'allows access' do
             expect(policy.public_send("#{method}?")).to be true

@@ -1,0 +1,14 @@
+{
+  "successfulRefills": [
+    {
+      "prescriptionId": "28148665",
+      "status": "submitted"
+    }
+  ],
+  "failedRefills": [
+    {
+      "prescriptionId": "28148545",
+      "reason": "Prescription already has pending refill request"
+    }
+  ]
+}

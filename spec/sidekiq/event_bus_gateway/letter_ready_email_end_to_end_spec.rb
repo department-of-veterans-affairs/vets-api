@@ -52,9 +52,9 @@ RSpec.describe 'EventBusGateway Letter Ready Email End-to-End Flow', type: :feat
   # Helper method to create notification doubles
   def create_notification_double(va_notify_id, status, options = {})
     double('notification',
-           id: va_notify_id,
+           id: options[:id] || SecureRandom.random_number(1_000_000),
            status:,
-           notification_id: options[:notification_id] || SecureRandom.uuid,
+           notification_id: va_notify_id,
            source_location: options[:source_location] || 'test',
            status_reason: options[:status_reason] || "test #{status}",
            notification_type: options[:notification_type] || 'email')

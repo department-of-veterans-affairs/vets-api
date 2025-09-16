@@ -15,7 +15,7 @@ class ClaimGroup {
 
 ```mermaid
 classDiagram
-    class DependentClaimFactory {
+    class DependentClaimGenerator {
         <<abstract>>
         +initialize(form_data, parent_id)
         +generate() SavedClaim
@@ -26,18 +26,18 @@ classDiagram
         -form_id()*
     }
 
-    class Claim686cFactory {
+    class Claim686cGenerator {
         -extract_form_data()
         -form_id()
     }
 
-    class Claim674Factory {
+    class Claim674Generator {
         -extract_form_data()
         -form_id()
     }
 
-    DependentClaimFactory <|-- Claim686cFactory
-    DependentClaimFactory <|-- Claim674Factory
+    DependentClaimGenerator <|-- Claim686cGenerator
+    DependentClaimGenerator <|-- Claim674Generator
 ```
 
 

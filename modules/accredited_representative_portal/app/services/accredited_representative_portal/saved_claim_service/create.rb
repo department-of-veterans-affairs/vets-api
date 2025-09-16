@@ -56,7 +56,15 @@ module AccreditedRepresentativePortal
 
         def create!(saved_claim, claimant_representative)
           SavedClaimClaimantRepresentative.create!(
-            saved_claim:, **claimant_representative.to_h
+            saved_claim:,
+            claimant_id:
+              claimant_representative.claimant_id,
+            accredited_individual_registration_number:
+              claimant_representative.accredited_individual_registration_number,
+            power_of_attorney_holder_type:
+              claimant_representative.power_of_attorney_holder.type,
+            power_of_attorney_holder_poa_code:
+              claimant_representative.power_of_attorney_holder.poa_code
           )
         rescue ActiveRecord::RecordInvalid => e
           raise RecordInvalidError, e.record

@@ -74,10 +74,17 @@ FactoryBot.define do
       end
     end
 
-    trait :expiring do
+    trait :expiring_soon do
       transient do
         not_before { 1.month.ago }
         not_after  { 1.month.from_now }
+      end
+    end
+
+    trait :expiring_later do
+      transient do
+        not_before { 1.month.ago }
+        not_after  { 3.months.from_now }
       end
     end
 

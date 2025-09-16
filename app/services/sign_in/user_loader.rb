@@ -36,6 +36,14 @@ module SignIn
       current_user.create_mhv_account_async
       current_user.provision_cerner_async(source: :sis)
 
+      context = {
+        user_uuid: current_user.uuid,
+        credential_uuid: user_verification.credential_identifier,
+        icn: user_account.icn,
+        sign_in:
+      }
+      SignIn::Logger.new(prefix: self.class).info('reload_user', context)
+
       current_user
     end
 

@@ -39,6 +39,14 @@ unless Rails.env.test?
       "api.#{metric_prefix(object.request.headers, object.request.params)}.v0.travel_claims.create.count"
     }
 
+    CheckIn::V1::TravelClaimsController.extend(StatsD::Instrument)
+    CheckIn::V1::TravelClaimsController.statsd_measure :create, lambda { |object, _args|
+      "api.#{metric_prefix(object.request.headers, object.request.params)}.v1.travel_claims.create.measure"
+    }
+    CheckIn::V1::TravelClaimsController.statsd_count_success :create, lambda { |object, _args|
+      "api.#{metric_prefix(object.request.headers, object.request.params)}.v1.travel_claims.create.count"
+    }
+
     # Measure the count/duration of GET/POST calls for services
     V2::Lorota::Client.extend(StatsD::Instrument)
     %i[token data].each do |method|
@@ -57,6 +65,13 @@ unless Rails.env.test?
     %i[token submit_claim claim_status].each do |method|
       TravelClaim::Client.statsd_count_success method, "api.check_in.v0.travel_claim.#{method}.count"
       TravelClaim::Client.statsd_measure method, "api.check_in.v0.travel_claim.#{method}.measure"
+    end
+
+    TravelClaim::TravelPayClient.extend(StatsD::Instrument)
+    %i[send_appointment_request send_claim_request send_mileage_expense_request
+       send_claim_submission_request].each do |method|
+      TravelClaim::TravelPayClient.statsd_count_success method, "api.check_in.v1.travel_claim.client.#{method}.count"
+      TravelClaim::TravelPayClient.statsd_measure method, "api.check_in.v1.travel_claim.client.#{method}.measure"
     end
   end
 

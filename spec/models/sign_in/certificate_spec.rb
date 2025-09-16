@@ -14,6 +14,7 @@ RSpec.describe SignIn::Certificate, type: :model do
   describe 'scopes' do
     describe '.active' do
       let!(:active_certificate) { create(:sign_in_certificate) }
+      let!(:expiring_soon_certificate) { create(:sign_in_certificate, :expiring_soon) }
       let(:expired_certificate) { build(:sign_in_certificate, :expired) }
 
       before do
@@ -21,7 +22,11 @@ RSpec.describe SignIn::Certificate, type: :model do
       end
 
       it 'returns only active certificates' do
-        expect(SignIn::Certificate.active).to contain_exactly(active_certificate)
+        expect(SignIn::Certificate.active).to include(active_certificate)
+      end
+
+      it 'returns expiring soon certificates' do
+        expect(SignIn::Certificate.active).to include(expiring_soon_certificate)
       end
     end
 
@@ -38,12 +43,12 @@ RSpec.describe SignIn::Certificate, type: :model do
       end
     end
 
-    describe '.expiring' do
-      let!(:expiring_certificate) { create(:sign_in_certificate, :expiring) }
+    describe '.expiring_soon' do
+      let!(:expiring_soon_certificate) { create(:sign_in_certificate, :expiring_soon) }
       let!(:not_expiring_certificate) { create(:sign_in_certificate, not_before: 61.days.ago) }
 
       it 'returns only certificates expiring within 60 days' do
-        expect(SignIn::Certificate.expiring).to contain_exactly(expiring_certificate)
+        expect(SignIn::Certificate.expiring_soon).to contain_exactly(expiring_soon_certificate)
       end
     end
   end
@@ -154,10 +159,10 @@ RSpec.describe SignIn::Certificate, type: :model do
     end
 
     context 'when certificate is expiring' do
-      subject(:certificate) { build(:sign_in_certificate, :expiring) }
+      subject(:certificate) { build(:sign_in_certificate, :expiring_soon) }
 
       it 'returns "expiring"' do
-        expect(certificate.status).to eq('expiring')
+        expect(certificate.status).to eq('expiring_soon')
       end
     end
   end
@@ -214,19 +219,19 @@ RSpec.describe SignIn::Certificate, type: :model do
     end
   end
 
-  describe '#expiring?' do
+  describe '#expiring_soon?' do
     context 'when the certificate is expiring within 60 days' do
-      subject(:certificate) { build(:sign_in_certificate, :expiring) }
+      subject(:certificate) { build(:sign_in_certificate, :expiring_soon) }
 
       it 'returns true' do
-        expect(certificate.expiring?).to be true
+        expect(certificate.expiring_soon?).to be true
       end
 
       context 'when the certificate is not expiring' do
         subject(:certificate) { build(:sign_in_certificate) }
 
         it 'returns false' do
-          expect(certificate.expiring?).to be false
+          expect(certificate.expiring_soon?).to be false
         end
       end
     end

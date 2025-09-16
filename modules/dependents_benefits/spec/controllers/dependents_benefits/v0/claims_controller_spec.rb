@@ -47,17 +47,20 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
   describe 'POST create' do
     context 'with valid params and flipper enabled' do
       it 'validates successfully' do
-        post(:create, params: test_form, as: :json)
+        response = post(:create, params: test_form, as: :json)
         expect(response).to have_http_status(:ok)
       end
 
-      it 'creates a saved claim' do
+      it 'creates saved claims' do
         expect do
           post(:create, params: test_form, as: :json)
-        end.to change(DependentsBenefits::SavedClaim, :count).by(1)
+        end.to change(DependentsBenefits::SavedClaim, :count).by(3)
       end
 
       it 'logs the success' do
+        expect(Rails.logger).to receive(:info).with('DependentsBenefits::SavedClaim Skipping tracking PDF overflow',
+                                                    instance_of(Hash)).at_least(:once)
+        expect(Rails.logger).to receive(:info).with(match(/TODO: Link claim \d+ to parent/)).at_least(:once)
         expect(Rails.logger).to receive(:info).with(match(/Successfully created claim/),
                                                     include({ statsd: 'api.dependents_application.create_success' }))
         post(:create, params: test_form, as: :json)

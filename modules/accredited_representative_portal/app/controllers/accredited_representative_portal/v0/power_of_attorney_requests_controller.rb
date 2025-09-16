@@ -111,9 +111,7 @@ module AccreditedRepresentativePortal
         return relation unless as_selected_individual?
 
         relation.for_accredited_individual(
-          current_user.user_account.get_registration_number(
-            PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION
-          )
+          current_user.registration_numbers
         )
       rescue => e
         Rails.logger.error("Error filtering by current user as selected individual: #{e.message}")

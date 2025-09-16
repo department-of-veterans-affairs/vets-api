@@ -86,11 +86,10 @@ module Form1010Ezr
           end
         end
 
-        # There are instances where a VES association may have a 'relationship' field
+        # VES can return an association with a blank relationship. We need to set a default value
+        # in case the Veteran decides to delete this association, otherwise the update to VES will fail.
         def handle_relationship(association)
-          # VES can return an association with a blank relationship. We need to set a default value
-          # in case the Veteran decides to delete this association, otherwise the update to VES will fail.
-          relationship = association['relationship'] || association['relationType'] || UNKNOWN_RELATION
+          relationship = association['relationType'] || UNKNOWN_RELATION
           relationship.gsub(/_/, ' ').split.join(' ')
         end
 

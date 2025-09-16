@@ -90,7 +90,7 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
           let(:mpi_profile_response) { create(:find_profile_response, profile: mpi_profile) }
           let(:user_account) { create(:user_account, icn: mpi_profile_response.profile.icn) }
           let(:ebg_noti) do
-            create(:event_bus_gateway_notification, user_account:, va_notify_id: notification_record.id)
+            create(:event_bus_gateway_notification, user_account:, va_notify_id: notification_record.notification_id)
           end
 
           before do

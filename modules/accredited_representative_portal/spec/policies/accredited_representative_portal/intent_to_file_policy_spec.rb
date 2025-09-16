@@ -7,11 +7,13 @@ module AccreditedRepresentativePortal
     subject(:policy) { described_class.new(user, '123498767V234859') }
 
     let(:user) { create(:representative_user) }
-    let(:power_of_attorney_holders) { [] }
+    let(:power_of_attorney_holder_memberships) { [] }
 
     before do
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('<TOKEN>')
-      allow(user.user_account).to receive(:power_of_attorney_holders).and_return(power_of_attorney_holders)
+      allow_any_instance_of(PowerOfAttorneyHolderMemberships).to(
+        receive(:all).and_return(power_of_attorney_holder_memberships)
+      )
     end
 
     around do |example|
@@ -27,21 +29,18 @@ module AccreditedRepresentativePortal
         end
       end
 
-      context 'when user has at least one POA holder but does not accept digital POAs' do
-        let(:power_of_attorney_holders) do
-          [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: '067',
-                                     can_accept_digital_poa_requests: false)]
-        end
-
-        it 'denies access' do
-          expect(policy.show?).to be false
-        end
-      end
-
-      context 'when user has at least one POA holder that accepts digital POAs' do
-        let(:power_of_attorney_holders) do
-          [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: '067',
-                                     can_accept_digital_poa_requests: true)]
+      context 'when user has at least one POA holder' do
+        let(:power_of_attorney_holder_memberships) do
+          [
+            PowerOfAttorneyHolderMemberships::Membership.new(
+              registration_number: '1234',
+              power_of_attorney_holder:
+                PowerOfAttorneyHolder.new(
+                  type: 'veteran_service_organization', poa_code: '067',
+                  name: 'Org Name', can_accept_digital_poa_requests: nil
+                )
+            )
+          ]
         end
 
         it 'allows access' do

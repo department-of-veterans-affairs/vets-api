@@ -101,7 +101,7 @@ module V0
 
       render json: response_body, status: :ok
     rescue SignIn::Errors::StandardError => e
-      sign_in_logger.info('token error', { errors: e.message })
+      sign_in_logger.info('token error', { errors: e.message, grant_type: token_params[:grant_type] })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE)
       render json: { errors: e }, status: :bad_request
     end
@@ -203,13 +203,13 @@ module V0
     rescue SignIn::Errors::LogoutAuthorizationError,
            SignIn::Errors::SessionNotAuthorizedError,
            SignIn::Errors::SessionNotFoundError => e
-      sign_in_logger.info('logout error', { errors: e.message })
+      sign_in_logger.info('logout error', { errors: e.message, client_id: })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
       logout_redirect = SignIn::LogoutRedirectGenerator.new(client_config: client_config(client_id)).perform
 
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
     rescue => e
-      sign_in_logger.info('logout error', { errors: e.message })
+      sign_in_logger.info('logout error', { errors: e.message, client_id: })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
 
       render json: { errors: e }, status: :bad_request

@@ -25,9 +25,12 @@ RSpec.describe AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob do
       claimant_representative:
         AccreditedRepresentativePortal::ClaimantRepresentative.new(
           claimant_id: '1234',
-          power_of_attorney_holder_type: 'veteran_service_organization',
-          power_of_attorney_holder_poa_code: '123',
-          accredited_individual_registration_number: '10001'
+          accredited_individual_registration_number: '10001',
+          power_of_attorney_holder:
+            AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization', poa_code: '123',
+              name: 'Org Name', can_accept_digital_poa_requests: nil
+            )
         )
     )
   end

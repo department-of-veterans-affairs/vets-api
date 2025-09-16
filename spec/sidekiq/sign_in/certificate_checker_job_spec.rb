@@ -21,11 +21,11 @@ RSpec.describe SignIn::CertificateCheckerJob, type: :job do
           end
         end
 
-        context 'with only an active certificate' do
-          let(:active_certificate) { create(:sign_in_certificate) }
+        context 'with only an expiring_later certificate' do
+          let(:expiring_later_certificate) { create(:sign_in_certificate, :expiring_later) }
 
           before do
-            config.certs << active_certificate
+            config.certs << expiring_later_certificate
             config.save(validate: false)
           end
 
@@ -62,11 +62,11 @@ RSpec.describe SignIn::CertificateCheckerJob, type: :job do
             )
           end
 
-          context 'and an active certificate exists' do
-            let(:active_certificate) { create(:sign_in_certificate) }
+          context 'and an expiring_later certificate exists' do
+            let(:expiring_later_certificate) { create(:sign_in_certificate, :expiring_later) }
 
             before do
-              config.certs << active_certificate
+              config.certs << expiring_later_certificate
               config.save(validate: false)
             end
 
@@ -79,11 +79,11 @@ RSpec.describe SignIn::CertificateCheckerJob, type: :job do
             end
           end
 
-          context 'and an expiring certificate exists' do
-            let(:expiring_certificate) { create(:sign_in_certificate, :expiring) }
+          context 'and an expiring_soon certificate exists' do
+            let(:expiring_soon_certificate) { create(:sign_in_certificate, :expiring_soon) }
 
             before do
-              config.certs << expiring_certificate
+              config.certs << expiring_soon_certificate
               config.save(validate: false)
             end
 
@@ -97,43 +97,43 @@ RSpec.describe SignIn::CertificateCheckerJob, type: :job do
           end
         end
 
-        context 'with an expiring certificate' do
-          let(:expiring_certificate) { create(:sign_in_certificate, :expiring) }
+        context 'with an expiring_soon certificate' do
+          let(:expiring_soon_certificate) { create(:sign_in_certificate, :expiring_soon) }
 
           before do
-            config.certs << expiring_certificate
+            config.certs << expiring_soon_certificate
             config.save(validate: false)
           end
 
-          it 'logs an alert for the expiring certificate' do
+          it 'logs an alert for the expiring_soon certificate' do
             job.perform
             expect(Rails.logger).to have_received(:warn).with(
-              '[SignIn] [CertificateChecker] expiring_certificate',
+              '[SignIn] [CertificateChecker] expiring_soon_certificate',
               hash_including(
                 config_type: config.class.name,
                 config_id: config.id,
                 config_description: config.description,
-                certificate_subject: expiring_certificate.subject.to_s,
-                certificate_issuer: expiring_certificate.issuer.to_s,
-                certificate_serial: expiring_certificate.serial.to_s,
-                certificate_not_before: expiring_certificate.not_before.to_s,
-                certificate_not_after: expiring_certificate.not_after.to_s
+                certificate_subject: expiring_soon_certificate.subject.to_s,
+                certificate_issuer: expiring_soon_certificate.issuer.to_s,
+                certificate_serial: expiring_soon_certificate.serial.to_s,
+                certificate_not_before: expiring_soon_certificate.not_before.to_s,
+                certificate_not_after: expiring_soon_certificate.not_after.to_s
               )
             )
           end
 
-          context 'and an active certificate exists' do
-            let(:active_certificate) { create(:sign_in_certificate) }
+          context 'and an expiring_later certificate exists' do
+            let(:expiring_later_certificate) { create(:sign_in_certificate, :expiring_later) }
 
             before do
-              config.certs << active_certificate
+              config.certs << expiring_later_certificate
               config.save(validate: false)
             end
 
-            it 'does not log an alert for the expiring certificate' do
+            it 'does not log an alert for the expiring_soon certificate' do
               job.perform
               expect(Rails.logger).not_to have_received(:warn).with(
-                '[SignIn] [CertificateChecker] expiring_certificate',
+                '[SignIn] [CertificateChecker] expiring_soon_certificate',
                 anything
               )
             end
@@ -149,12 +149,12 @@ RSpec.describe SignIn::CertificateCheckerJob, type: :job do
               config.save(validate: false)
             end
 
-            it 'logs only for the expiring certificate' do
+            it 'logs only for the expiring_soon certificate' do
               job.perform
 
               expect(Rails.logger).to have_received(:warn).with(
-                '[SignIn] [CertificateChecker] expiring_certificate',
-                hash_including(certificate_serial: expiring_certificate.serial.to_s)
+                '[SignIn] [CertificateChecker] expiring_soon_certificate',
+                hash_including(certificate_serial: expiring_soon_certificate.serial.to_s)
               )
               expect(Rails.logger).not_to have_received(:warn).with(
                 '[SignIn] [CertificateChecker] expired_certificate',
@@ -178,7 +178,7 @@ RSpec.describe SignIn::CertificateCheckerJob, type: :job do
             config.save(validate: false)
           end
 
-          it 'logs an alert for each expired certificate when no active or expiring exist' do
+          it 'logs an alert for each expired certificate when no active (expiring_later & expiring_soon) exist' do
             job.perform
 
             expect(Rails.logger).to have_received(:warn).with(

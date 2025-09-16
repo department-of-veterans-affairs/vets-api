@@ -10,11 +10,15 @@ module AccreditedRepresentativePortal
     let(:record_class) { AccreditedRepresentativePortal::SavedClaimClaimantRepresentative }
 
     let(:power_of_attorney_holders) { [] }
-    let(:registrations)             { [] }
+    let(:registration_numbers) { [] }
 
     before do
-      allow(user.user_account).to receive_messages(power_of_attorney_holders:,
-                                                   registrations:)
+      allow_any_instance_of(PowerOfAttorneyHolderMemberships).to(
+        receive_messages(
+          power_of_attorney_holders:, registration_numbers:,
+          empty?: power_of_attorney_holders.empty?
+        )
+      )
     end
 
     describe '#index?' do
@@ -76,10 +80,7 @@ module AccreditedRepresentativePortal
       context 'when user has POA holders and a matching registration AIRN' do
         let(:power_of_attorney_holders) { [build(:power_of_attorney_holder, type: 'veteran_service_organization')] }
 
-        let!(:registration) do
-          create(:user_account_accredited_individual, accredited_individual_registration_number: 'AIRN-MATCH')
-        end
-        let(:registrations) { [registration] }
+        let(:registration_numbers) { ['AIRN-MATCH'] }
 
         before do
           allow(scope)

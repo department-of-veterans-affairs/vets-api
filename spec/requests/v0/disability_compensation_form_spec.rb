@@ -251,6 +251,24 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
           end
         end
 
+        context 'with a lot of VA Facility Treatments' do
+          let(:parsed_payload) { JSON.parse(all_claims_form) }
+          let(:large_array_of_treatments) { Array.new(149) { |i| "treatment_#{i + 1}" } }
+
+          it 'does not fail to submit' do
+            parsed_payload['form526']['vaTreatmentFacilities'][0]['treatedDisabilityNames'] = large_array_of_treatments
+            post('/v0/disability_compensation_form/submit_all_claim', params: JSON.generate(parsed_payload), headers:)
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('submit_disability_form')
+            expect(Form526Submission.count).to eq(1)
+            form = Form526Submission.last.form
+            treatments = form.dig('form526', 'form526', 'treatments')
+            expect(treatments).not_to be_nil
+            expect(treatments).not_to be_empty
+            expect(treatments[0]['treatedDisabilityNames'].size).to eq(149)
+          end
+        end
+
         context 'where the startedFormVersion indicator is true' do
           it 'creates a submission that includes a toxic exposure component' do
             post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)

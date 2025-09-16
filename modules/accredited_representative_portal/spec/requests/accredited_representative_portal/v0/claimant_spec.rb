@@ -20,18 +20,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
     create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov'])
   end
 
-  let!(:accredited_individual) do
-    create(:user_account_accredited_individual,
-           user_account_email: test_user.email,
-           user_account_icn: test_user.icn,
-           poa_code:)
-  end
-
   let!(:representative) do
     create(:representative,
            :vso,
            email: test_user.email,
-           representative_id: accredited_individual.accredited_individual_registration_number,
+           representative_id: Faker::Number.unique.number(digits: 6),
            poa_codes: [poa_code])
   end
 
@@ -83,7 +76,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
       it 'returns only matching claimant' do
         VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           VCR.use_cassette(
-            'accredited_representative_portal/requests/accredited_representative_portal/v0/claimant_request_spec/' \
+            'accredited_representative_portal/requests/accredited_representative_portal/v0/claimant_spec/' \
             'lighthouse/benefits_claims/200_response'
           ) do
             post('/accredited_representative_portal/v0/claimant/search', params: {
@@ -91,7 +84,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
                  })
           end
         end
-        parsed_response = JSON.parse(response.body)
         expect(response).to have_http_status(:ok)
         expect(parsed_response.dig('data', 'poaRequests').map { |poa| poa['id'] }).to eq([poa_request.id])
       end
@@ -122,7 +114,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
         it 'orders poa requests with pending first, then by date' do
           VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
             VCR.use_cassette(
-              'accredited_representative_portal/requests/accredited_representative_portal/v0/claimant_request_spec/' \
+              'accredited_representative_portal/requests/accredited_representative_portal/v0/claimant_spec/' \
               'lighthouse/benefits_claims/200_response'
             ) do
               post('/accredited_representative_portal/v0/claimant/search', params: {
@@ -130,14 +122,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
                    })
             end
           end
-          parsed_response = JSON.parse(response.body)
           expect(response).to have_http_status(:ok)
-          expect(parsed_response.dig('data', 'poaRequests').map { |poa| poa['id'] }).to eq([
-                                                                                             poa_request.id,
-                                                                                             other_poa_request.id,
-                                                                                             accepted_poa_request.id,
-                                                                                             declined_poa_request.id
-                                                                                           ])
+          expect(parsed_response.dig('data', 'poaRequests').map { |poa| poa['id'] }).to eq(
+            [
+              poa_request.id,
+              other_poa_request.id,
+              accepted_poa_request.id,
+              declined_poa_request.id
+            ]
+          )
         end
       end
 
@@ -153,7 +146,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
         it 'does not return the withdrawn poa request' do
           VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
             VCR.use_cassette(
-              'accredited_representative_portal/requests/accredited_representative_portal/v0/claimant_request_spec/' \
+              'accredited_representative_portal/requests/accredited_representative_portal/v0/claimant_spec/' \
               'lighthouse/benefits_claims/200_response'
             ) do
               post('/accredited_representative_portal/v0/claimant/search', params: {
@@ -161,7 +154,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
                    })
             end
           end
-          parsed_response = JSON.parse(response.body)
           expect(response).to have_http_status(:ok)
           returned_ids = parsed_response.dig('data', 'poaRequests').map { |poa| poa['id'] }
           expect(returned_ids).not_to include(withdrawn_poa_request.id)

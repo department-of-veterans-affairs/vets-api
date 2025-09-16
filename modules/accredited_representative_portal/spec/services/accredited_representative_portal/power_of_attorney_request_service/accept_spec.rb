@@ -4,12 +4,38 @@ require 'rails_helper'
 require 'ostruct'
 
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept, type: :service do
-  subject(:service_call) { described_class.new(poa_request, creator).call }
+  subject(:service_call) { described_class.new(poa_request, creator.uuid, memberships).call }
 
   let!(:creator)     { create(:representative_user) }
   let!(:poa_request) { create(:power_of_attorney_request) }
 
   let(:monitor) { instance_spy(Monitoring) }
+
+  let(:memberships) do
+    memo =
+      AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
+        icn: '1234', emails: []
+      )
+
+    allow(memo).to(
+      receive(:all).and_return(
+        [
+          AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
+            registration_number: 'REG-777',
+            power_of_attorney_holder:
+              AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+                poa_code: poa_request.power_of_attorney_holder_poa_code,
+                type: poa_request.power_of_attorney_holder_type,
+                can_accept_digital_poa_requests: false,
+                name: 'Org Name'
+              )
+          )
+        ]
+      )
+    )
+
+    memo
+  end
 
   before do
     stub_const('Monitoring', Class.new) unless Object.const_defined?('Monitoring')
@@ -96,7 +122,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
       allow(AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob)
         .to receive(:perform_async)
 
-      described_class.new(poa_request, creator).call
+      described_class.new(poa_request, creator.uuid, memberships).call
 
       expect(svc).to have_received(:submit2122) do |payload|
         expect(payload).to include(

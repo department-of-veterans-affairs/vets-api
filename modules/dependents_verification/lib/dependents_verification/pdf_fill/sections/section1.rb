@@ -49,53 +49,85 @@ module DependentsVerification
         # 3
         'veteranFileNumber' => {
           key: key_name('3', 'VeteranFileNumber'),
-          limit: 9
+          limit: 9,
+          question_num: 3,
+          question_text: 'VA FILE NUMBER'
         },
         # 4
         'veteranDOB' => {
           'month' => {
             key: key_name('4', 'VeteranDOB', 'Month'),
-            limit: 2
+            limit: 2,
+            question_num: 4,
+            question_suffix: 'a',
+            question_text: 'DATE OF BIRTH - MONTH'
           },
           'day' => {
             key: key_name('4', 'VeteranDOB', 'Day'),
-            limit: 2
+            limit: 2,
+            question_num: 4,
+            question_suffix: 'b',
+            question_text: 'DATE OF BIRTH - DAY'
           },
           'year' => {
             key: key_name('4', 'VeteranDOB', 'Year'),
-            limit: 4
+            limit: 4,
+            question_num: 4,
+            question_suffix: 'c',
+            question_text: 'DATE OF BIRTH - YEAR'
           }
         },
         # 5
         'veteranAddress' => {
           'street' => {
             key: key_name('5', 'VeteranAddress', 'Street'),
-            limit: 30
+            limit: 30,
+            question_num: 5,
+            question_suffix: 'a',
+            question_text: 'STREET ADDRESS'
           },
           'city' => {
             key: key_name('5', 'VeteranAddress', 'City'),
-            limit: 18
+            limit: 18,
+            question_num: 5,
+            question_suffix: 'b',
+            question_text: 'CITY'
           },
           'unit_number' => {
             key: key_name('5', 'VeteranAddress', 'UnitNumber'),
-            limit: 5
+            limit: 5,
+            question_num: 5,
+            question_suffix: 'c',
+            question_text: 'UNIT NUMBER'
           },
           'country' => {
             key: key_name('5', 'VeteranAddress', 'Country'),
-            limit: 2
+            limit: 2,
+            question_num: 5,
+            question_suffix: 'd',
+            question_text: 'COUNTRY'
           },
           'state' => {
             key: key_name('5', 'VeteranAddress', 'State'),
-            limit: 2
+            limit: 2,
+            question_num: 5,
+            question_suffix: 'e',
+            question_text: 'STATE'
           },
           'postal_code' => {
             'firstFive' => {
               key: key_name('5', 'VeteranAddress', 'PostalCode', 'First'),
-              limit: 5
+              limit: 5,
+              question_num: 5,
+              question_suffix: 'f',
+              question_text: 'POSTAL CODE - FIRST FIVE'
             },
             'lastFour' => {
               key: key_name('5', 'VeteranAddress', 'PostalCode', 'Second'),
-              limit: 4
+              limit: 4,
+              question_num: 5,
+              question_suffix: 'g',
+              question_text: 'POSTAL CODE - LAST FOUR'
             }
           }
         },
@@ -103,15 +135,24 @@ module DependentsVerification
         'veteranPhone' => {
           'phone_area_code' => {
             key: key_name('6', 'VeteranPhone', 'First'),
-            limit: 3
+            limit: 3,
+            question_num: 6,
+            question_suffix: 'a',
+            question_text: 'PHONE - AREA CODE'
           },
           'phone_first_three_numbers' => {
             key: key_name('6', 'VeteranPhone', 'Second'),
-            limit: 3
+            limit: 3,
+            question_num: 6,
+            question_suffix: 'b',
+            question_text: 'PHONE - FIRST THREE NUMBERS'
           },
           'phone_last_four_numbers' => {
             key: key_name('6', 'VeteranPhone', 'Third'),
-            limit: 4
+            limit: 4,
+            question_num: 6,
+            question_suffix: 'c',
+            question_text: 'PHONE - LAST FOUR NUMBERS'
           }
         },
         # 6
@@ -122,11 +163,17 @@ module DependentsVerification
         'veteranEmail' => {
           'firstPart' => {
             key: key_name('7', 'VeteranEmail', 'First'),
-            limit: 18
+            limit: 18,
+            question_num: 7,
+            question_suffix: 'a',
+            question_text: 'EMAIL - FIRST PART'
           },
           'secondPart' => {
             key: key_name('7', 'VeteranEmail', 'Second'),
-            limit: 18
+            limit: 18,
+            question_num: 7,
+            question_suffix: 'b',
+            question_text: 'EMAIL - SECOND PART'
           }
         },
         'veteranEmailAgree' => {

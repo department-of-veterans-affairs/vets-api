@@ -79,6 +79,8 @@ module HCA
     end
 
     def perform
+      return unless Flipper.enabled?(:hca_health_facilities_update_job)
+
       Rails.logger.info("[HCA] - Job started with #{StdInstitutionFacility.count} existing facilities.")
 
       ActiveRecord::Base.transaction do

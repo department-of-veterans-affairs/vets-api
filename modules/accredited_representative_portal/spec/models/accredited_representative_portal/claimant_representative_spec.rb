@@ -4,31 +4,18 @@ require 'rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :model do
   describe '.find' do
-    context 'without all required arguments' do
-      subject do
-        described_class.find {}
-      end
-
-      it 'raises Finder::Error' do
-        expect { subject }.to raise_error(
-          described_class::Finder::Error
-        )
-      end
-    end
-
     context 'with all required arguments' do
       subject do
-        described_class.find do |finder|
-          finder.for_claimant(
-            icn: claimant_icn
+        power_of_attorney_holder_memberships =
+          AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
+            icn: representative_icn,
+            emails: [representative_email]
           )
 
-          finder.for_representative(
-            icn: representative_icn,
-            email: representative_email,
-            all_emails: [representative_email]
-          )
-        end
+        described_class.find(
+          claimant_icn:,
+          power_of_attorney_holder_memberships:
+        )
       end
 
       context 'with a representative belonging to 2 VSOs' do
@@ -36,19 +23,10 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
           vso_a = create(:organization, poa: poa_code_a)
           vso_b = create(:organization, poa: poa_code_b)
 
-          representative =
-            create(
-              :representative, :vso,
-              poa_codes: [vso_a.poa, vso_b.poa],
-              email: representative_email
-            )
-
           create(
-            :user_account_accredited_individual,
-            user_account_email: representative_email,
-            user_account_icn: representative_icn,
-            accredited_individual_registration_number:
-              representative.representative_id
+            :representative, :vso,
+            poa_codes: [vso_a.poa, vso_b.poa],
+            email: representative_email
           )
 
           create(
@@ -117,10 +95,13 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
                 expect(subject).to have_attributes(
                   claimant_id: be_a(String),
                   accredited_individual_registration_number: be_a(String),
-                  power_of_attorney_holder_poa_code: claimant_poa_code,
-                  power_of_attorney_holder_type:
-                    AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::
-                      VETERAN_SERVICE_ORGANIZATION
+                  power_of_attorney_holder:
+                    AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+                      poa_code: claimant_poa_code,
+                      type: AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
+                      name: 'Org Name',
+                      can_accept_digital_poa_requests: false
+                    )
                 )
               end
             end

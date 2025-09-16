@@ -43,10 +43,10 @@ module TravelPay
     #
     # @params:
     #  {
-    #   appointmentDateTime: datetime string ('2024-01-01T12:45:34.465Z'),
-    #   facilityStationNumber: string (i.e. facilityId),
-    #   appointmentType: string, 'CompensationAndPensionExamination' || 'Other'
-    #   isComplete: boolean,
+    #   appointmentDateTime: datetime string (ex: '2024-01-01T12:45:34.465Z'),
+    #   facilityStationNumber: string (ex: '983'),
+    #   appointmentType: string, (ex:'CompensationAndPensionExamination' || 'Other')
+    #   isComplete: boolean, (ex: true)
     #  }
     #
     # @return [TravelPay::Appointment]
