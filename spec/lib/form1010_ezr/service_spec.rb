@@ -365,46 +365,49 @@ RSpec.describe Form1010Ezr::Service do
             end
           end
 
-          it 'logs the error to Sentry',
-             run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
-            VCR.use_cassette(
-              'form1010_ezr/authorized_submit',
-              { match_requests_on: %i[method uri body], erb: true }
-            ) do
-              allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(false)
-              expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_rails)
-              expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
-                '1010EZR failure',
-                :error,
-                {
-                  first_initial: 'F',
-                  middle_initial: 'M',
-                  last_initial: 'Z'
-                },
-                ezr: :failure
-              )
-              expect { submit_form(form_with_associations) }.to raise_error(Common::Exceptions::ResourceNotFound)
+          context 'when hca_disable_sentry_logging feature flag is disabled' do
+            it 'logs the error to Sentry',
+               run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+              VCR.use_cassette(
+                'form1010_ezr/authorized_submit',
+                { match_requests_on: %i[method uri body], erb: true }
+              ) do
+                allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(false)
+                expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_rails)
+                expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
+                  '1010EZR failure',
+                  :error,
+                  {
+                    first_initial: 'F',
+                    middle_initial: 'M',
+                    last_initial: 'Z'
+                  },
+                  ezr: :failure
+                )
+                expect { submit_form(form_with_associations) }.to raise_error(Common::Exceptions::ResourceNotFound)
+              end
             end
           end
 
-          it 'logs the error to Rails',
-             run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
-            VCR.use_cassette(
-              'form1010_ezr/authorized_submit',
-              { match_requests_on: %i[method uri body], erb: true }
-            ) do
-              allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(true)
-              expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_sentry)
-              expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_rails).with(
-                '[10-10EZR] failure',
-                :error,
-                {
-                  first_initial: 'F',
-                  middle_initial: 'M',
-                  last_initial: 'Z'
-                }
-              )
-              expect { submit_form(form_with_associations) }.to raise_error(Common::Exceptions::ResourceNotFound)
+          context 'when hca_disable_sentry_logging feature flag is enabled' do
+            it 'logs the error to Rails', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+              VCR.use_cassette(
+                'form1010_ezr/authorized_submit',
+                { match_requests_on: %i[method uri body], erb: true }
+              ) do
+                allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(true)
+                expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_sentry)
+                expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_rails).with(
+                  '[10-10EZR] failure',
+                  :error,
+                  {
+                    first_initial: 'F',
+                    middle_initial: 'M',
+                    last_initial: 'Z'
+                  }
+                )
+                expect { submit_form(form_with_associations) }.to raise_error(Common::Exceptions::ResourceNotFound)
+              end
             end
           end
         end
@@ -429,41 +432,45 @@ RSpec.describe Form1010Ezr::Service do
           )
         end
 
-        it 'logs the message to Sentry' do
-          allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(false)
-          expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_rails)
-          expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
-            '1010EZR failure',
-            :error,
-            {
-              first_initial: 'F',
-              middle_initial: 'M',
-              last_initial: 'Z'
-            },
-            ezr: :failure
-          )
+        context 'when hca_disable_sentry_logging feature flag is disabled' do
+          it 'logs the message to Sentry' do
+            allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(false)
+            expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_rails)
+            expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
+              '1010EZR failure',
+              :error,
+              {
+                first_initial: 'F',
+                middle_initial: 'M',
+                last_initial: 'Z'
+              },
+              ezr: :failure
+            )
 
-          expect { submit_form(form) }.to raise_error(
-            StandardError, 'Uh oh. Some bad error occurred.'
-          )
+            expect { submit_form(form) }.to raise_error(
+              StandardError, 'Uh oh. Some bad error occurred.'
+            )
+          end
         end
 
-        it 'logs the message to Rails' do
-          allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(true)
-          expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_sentry)
-          expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_rails).with(
-            '[10-10EZR] failure',
-            :error,
-            {
-              first_initial: 'F',
-              middle_initial: 'M',
-              last_initial: 'Z'
-            }
-          )
+        context 'when hca_disable_sentry_logging feature flag is enabled' do
+          it 'logs the message to Rails' do
+            allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(true)
+            expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_sentry)
+            expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_rails).with(
+              '[10-10EZR] failure',
+              :error,
+              {
+                first_initial: 'F',
+                middle_initial: 'M',
+                last_initial: 'Z'
+              }
+            )
 
-          expect { submit_form(form) }.to raise_error(
-            StandardError, 'Uh oh. Some bad error occurred.'
-          )
+            expect { submit_form(form) }.to raise_error(
+              StandardError, 'Uh oh. Some bad error occurred.'
+            )
+          end
         end
       end
     end
@@ -482,35 +489,39 @@ RSpec.describe Form1010Ezr::Service do
         expect { service.submit_sync(form_with_ves_fields) }.to raise_error(StandardError)
       end
 
-      it 'logs error to Sentry' do
-        allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(false)
-        expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_rails)
-        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
-          '1010EZR failure',
-          :error,
-          {
-            first_initial: 'F',
-            middle_initial: 'M',
-            last_initial: 'Z'
-          },
-          ezr: :failure
-        )
-        expect { service.submit_sync(form_with_ves_fields) }.to raise_error(StandardError)
+      context 'when hca_disable_sentry_logging feature flag is disabled' do
+        it 'logs error to Sentry' do
+          allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(false)
+          expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_rails)
+          expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
+            '1010EZR failure',
+            :error,
+            {
+              first_initial: 'F',
+              middle_initial: 'M',
+              last_initial: 'Z'
+            },
+            ezr: :failure
+          )
+          expect { service.submit_sync(form_with_ves_fields) }.to raise_error(StandardError)
+        end
       end
 
-      it 'logs error to Rails' do
-        allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(true)
-        expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_sentry)
-        expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_rails).with(
-          '[10-10EZR] failure',
-          :error,
-          {
-            first_initial: 'F',
-            middle_initial: 'M',
-            last_initial: 'Z'
-          }
-        )
-        expect { service.submit_sync(form_with_ves_fields) }.to raise_error(StandardError)
+      context 'when hca_disable_sentry_logging feature flag is enabled' do
+        it 'logs error to Rails' do
+          allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logging).and_return(true)
+          expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_sentry)
+          expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_rails).with(
+            '[10-10EZR] failure',
+            :error,
+            {
+              first_initial: 'F',
+              middle_initial: 'M',
+              last_initial: 'Z'
+            }
+          )
+          expect { service.submit_sync(form_with_ves_fields) }.to raise_error(StandardError)
+        end
       end
     end
 
