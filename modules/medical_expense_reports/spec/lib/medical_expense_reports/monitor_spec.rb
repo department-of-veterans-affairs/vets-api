@@ -13,7 +13,7 @@ RSpec.describe MedicalExpenseReports::Monitor, skip: 'TODO after schema built' d
 
   describe '#service_name' do
     it 'returns expected name' do
-      expect(monitor.send(:service_name)).to eq('income-and-assets')
+      expect(monitor.send(:service_name)).to eq('medical-expense-reports')
     end
   end
 
