@@ -7,115 +7,47 @@ module Mobile
       before_action :validate_feature_flag
 
       def index
-        # Mobile-specific pagination parameters
-        page = params[:page]&.to_i || 1
-        per_page = params[:per_page]&.to_i || 20
-        per_page = [per_page, 50].min # Cap at 50 for mobile performance
+        page, per_page = pagination_params
 
-        # Mobile-specific filters
-        refill_status = params[:refill_status]
-        sort = params[:sort] || '-dispensed_date'
+        Rails.logger.info('Mobile V1 Prescriptions API call started')
+        
+        service = UnifiedHealthData::Service.new(current_user)
+        prescriptions = service.get_prescriptions
 
-        begin
-          # Use UHD service for all data transformation
-          prescriptions = UnifiedHealthData::Service.get_prescriptions(
-            user: current_user,
-            page:,
-            per_page:,
-            refill_status:,
-            sort:
-          )
-
-          # Generate mobile-specific metadata
-          metadata = generate_mobile_metadata(prescriptions)
-
-          render json: {
-            data: prescriptions,
-            meta: {
-              pagination: {
-                current_page: page,
-                per_page:,
-                total_pages: metadata[:total_pages],
-                total_entries: metadata[:total_entries]
-              },
-              **metadata[:mobile_specific]
-            }
-          }, serializer: Mobile::V1::PrescriptionsSerializer
-        rescue => e
-          Rails.logger.error "Mobile V1 Prescriptions API error: #{e.message}"
-          render json: {
-            error: {
-              code: 'PRESCRIPTION_SERVICE_ERROR',
-              message: 'Unable to retrieve prescriptions at this time'
-            }
-          }, status: :service_unavailable
-        end
+        # TODO: Add pagination and filtering logic for page, per_page, refill_status, sort
+        
+        meta = generate_mobile_metadata(prescriptions, page:, per_page:)
+        render json: { data: prescriptions, meta: }, serializer: Mobile::V1::PrescriptionsSerializer
       end
 
       def show
-        prescription_id = params[:id]
+        Rails.logger.info("Mobile V1 Prescription detail request for ID: #{params[:id]}")
+        
+        # Note: UnifiedHealthData::Service doesn't have get_prescription method yet
+        # For now, get all prescriptions and find the specific one
+        service = UnifiedHealthData::Service.new(current_user)
+        prescriptions = service.get_prescriptions
+        prescription = prescriptions.find { |p| p.prescription_id == params[:id] }
+        
+        raise Common::Exceptions::ResourceNotFound.new(nil, detail: 'Prescription not found') unless prescription
 
-        begin
-          prescription = UnifiedHealthData::Service.get_prescription(
-            user: current_user,
-            prescription_id:
-          )
-
-          if prescription
-            render json: prescription, serializer: Mobile::V1::PrescriptionsSerializer
-          else
-            render json: {
-              error: {
-                code: 'PRESCRIPTION_NOT_FOUND',
-                message: 'Prescription not found'
-              }
-            }, status: :not_found
-          end
-        rescue => e
-          Rails.logger.error "Mobile V1 Prescription detail error: #{e.message}"
-          render json: {
-            error: {
-              code: 'PRESCRIPTION_SERVICE_ERROR',
-              message: 'Unable to retrieve prescription details at this time'
-            }
-          }, status: :service_unavailable
-        end
+        render json: prescription, serializer: Mobile::V1::PrescriptionsSerializer
       end
 
       def refill
-        prescription_id = params[:id]
-
-        begin
-          result = UnifiedHealthData::Service.refill_prescription(
-            user: current_user,
-            prescription_id:
-          )
-
-          if result[:success]
-            render json: {
-              data: {
-                prescription_id:,
-                refill_status: result[:refill_status],
-                refill_date: result[:refill_date]
-              }
-            }, status: :ok
-          else
-            render json: {
-              error: {
-                code: 'REFILL_FAILED',
-                message: result[:error] || 'Unable to process refill request'
-              }
-            }, status: :unprocessable_entity
-          end
-        rescue => e
-          Rails.logger.error "Mobile V1 Prescription refill error: #{e.message}"
-          render json: {
-            error: {
-              code: 'REFILL_SERVICE_ERROR',
-              message: 'Unable to process refill request at this time'
-            }
-          }, status: :service_unavailable
-        end
+        Rails.logger.info("Mobile V1 Prescription refill request for ID: #{params[:id]}")
+        
+        # Note: The refill_prescription method expects an array of orders with id and stationNumber
+        # For now, we'll need to get the prescription first to extract the station number
+        service = UnifiedHealthData::Service.new(current_user)
+        prescriptions = service.get_prescriptions
+        prescription = prescriptions.find { |p| p.prescription_id == params[:id] }
+        
+        raise Common::Exceptions::ResourceNotFound.new(nil, detail: 'Prescription not found') unless prescription
+        
+        orders = [{ id: params[:id], stationNumber: prescription.station_number }]
+        result = service.refill_prescription(orders)
+        render_refill_result(result)
       end
 
       private
@@ -132,33 +64,75 @@ module Mobile
       end
 
       def generate_mobile_metadata(prescriptions)
-        # Calculate mobile-specific metadata
+        # Legacy signature kept for backwards compatibility inside controller during refactor
+        generate_mobile_metadata_with_pagination(
+          prescriptions,
+          page: params[:page]&.to_i || 1,
+          per_page: [params[:per_page]&.to_i || 20, 50].min
+        )
+      end
+
+      def generate_mobile_metadata_with_pagination(prescriptions, page:, per_page:)
         total_entries = prescriptions.is_a?(Array) ? prescriptions.length : 0
-        total_pages = (total_entries.to_f / (params[:per_page]&.to_i || 20)).ceil
-
-        # Prescription status counts for mobile dashboard
-        status_counts = prescriptions.group_by(&:refill_status).transform_values(&:count)
-
-        # Check for non-VA medications
-        has_non_va_meds = prescriptions.any? { |rx| rx.prescription_source != 'va' }
+        total_pages = (total_entries.to_f / per_page).ceil
 
         {
-          total_entries:,
-          total_pages:,
-          mobile_specific: {
-            prescriptionStatusCount: {
-              active: status_counts['active'] || 0,
-              expired: status_counts['expired'] || 0,
-              transferred: status_counts['transferred'] || 0,
-              submitted: status_counts['submitted'] || 0,
-              hold: status_counts['hold'] || 0,
-              discontinued: status_counts['discontinued'] || 0,
-              pending: status_counts['pending'] || 0,
-              unknown: status_counts['unknown'] || 0
-            },
-            hasNonVaMeds: has_non_va_meds
-          }
+          pagination: {
+            current_page: page,
+            per_page:,
+            total_pages:,
+            total_entries:
+          },
+          prescriptionStatusCount: prescription_status_counts(prescriptions),
+          hasNonVaMeds: non_va_meds?(prescriptions)
         }
+      end
+
+      def pagination_params
+        page = params[:page]&.to_i || 1
+        per_page = [params[:per_page]&.to_i || 20, 50].min
+        [page, per_page]
+      end
+
+      def prescription_filters
+        {
+          refill_status: params[:refill_status],
+          sort: params[:sort] || '-dispensed_date'
+        }
+      end
+
+      def prescription_status_counts(prescriptions)
+        counts = prescriptions.group_by(&:refill_status).transform_values(&:count)
+        {
+          active: counts['active'] || 0,
+          expired: counts['expired'] || 0,
+          transferred: counts['transferred'] || 0,
+          submitted: counts['submitted'] || 0,
+          hold: counts['hold'] || 0,
+          discontinued: counts['discontinued'] || 0,
+          pending: counts['pending'] || 0,
+          unknown: counts['unknown'] || 0
+        }
+      end
+
+      def non_va_meds?(prescriptions)
+        prescriptions.any? { |rx| rx.prescription_source != 'va' }
+      end
+
+      def render_refill_result(result)
+        if result[:success]
+          render json: {
+            data: {
+              prescription_id: params[:id],
+              refill_status: result[:refill_status],
+              refill_date: result[:refill_date]
+            }
+          }, status: :ok
+        else
+          raise Common::Exceptions::UnprocessableEntity.new(
+            detail: (result[:error] || 'Unable to process refill request')
+          )
+        end
       end
     end
   end
