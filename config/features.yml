@@ -1585,6 +1585,10 @@ features:
     actor_type: user
     description: Toggle sending of the ITF Validate Data to Rails Logger
     enable_in_development: true
+  pension_pdf_form_alignment:
+    actor_type: user
+    description: Toggle for the new PDF form alignment update
+    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
