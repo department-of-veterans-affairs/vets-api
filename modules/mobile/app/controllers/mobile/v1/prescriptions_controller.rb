@@ -11,8 +11,7 @@ module Mobile
 
         Rails.logger.info('Mobile V1 Prescriptions API call started')
         
-        service = UnifiedHealthData::Service.new(current_user)
-        prescriptions = service.get_prescriptions
+        prescriptions = unified_health_service.get_prescriptions
 
         # TODO: Add pagination and filtering logic for page, per_page, refill_status, sort
         
@@ -25,8 +24,7 @@ module Mobile
         
         # Note: UnifiedHealthData::Service doesn't have get_prescription method yet
         # For now, get all prescriptions and find the specific one
-        service = UnifiedHealthData::Service.new(current_user)
-        prescriptions = service.get_prescriptions
+        prescriptions = unified_health_service.get_prescriptions
         prescription = prescriptions.find { |p| p.prescription_id == params[:id] }
         
         raise Common::Exceptions::ResourceNotFound.new(nil, detail: 'Prescription not found') unless prescription
@@ -39,18 +37,21 @@ module Mobile
         
         # Note: The refill_prescription method expects an array of orders with id and stationNumber
         # For now, we'll need to get the prescription first to extract the station number
-        service = UnifiedHealthData::Service.new(current_user)
-        prescriptions = service.get_prescriptions
+        prescriptions = unified_health_service.get_prescriptions
         prescription = prescriptions.find { |p| p.prescription_id == params[:id] }
         
         raise Common::Exceptions::ResourceNotFound.new(nil, detail: 'Prescription not found') unless prescription
         
         orders = [{ id: params[:id], stationNumber: prescription.station_number }]
-        result = service.refill_prescription(orders)
+        result = unified_health_service.refill_prescription(orders)
         render_refill_result(result)
       end
 
       private
+
+      def unified_health_service
+        @unified_health_service ||= UnifiedHealthData::Service.new(current_user)
+      end
 
       def validate_feature_flag
         unless Flipper.enabled?(:mobile_prescriptions_v1, current_user)
