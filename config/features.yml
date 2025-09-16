@@ -183,6 +183,10 @@ features:
     actor_type: user
     description: Add logging for the 10-10EZ around cleaning up InProgressForms after submission
     enable_in_development: true
+  hca_in_progress_form_delete_async:
+    actor_type: user
+    description: Enables deleting an InProgressForm in a sidekiq job
+    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -655,6 +659,10 @@ features:
   dependents_enqueue_with_user_struct:
     actor_type: user
     description: Manage whether the enqueued job for 686c and 674 will be with a User model or the new User struct
+    enable_in_development: true
+  dependents_log_vbms_errors:
+    actor_type: user
+    description: Log VBMS errors when submitting 686c and 674
     enable_in_development: true
   dependents_module_enabled:
     actor_type: user
@@ -1184,6 +1192,22 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
+  medical_expense_reports_form_enabled:
+    actor_type: user
+    description: Enables the Medical Expense Reports form (Form 21P-8416)
+    enable_in_development: true
+  medical_expense_reports_browser_monitoring_enabled:
+    actor_type: user
+    description: Medical Expense Reports Datadog RUM monitoring
+  medical_expense_reports_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  medical_expense_reports_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  medical_expense_reports_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
   mhv_accelerated_delivery_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching MR data from LightHouse
