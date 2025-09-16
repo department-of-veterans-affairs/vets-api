@@ -2691,7 +2691,7 @@ features:
     description: If enabled, show the VYE downtime alert on the VYE application
   decision_reviews_evidence_final_status_field:
     actor_type: user
-    description: Include final_status boolean field in Decision Reviews "show" and "create" endpoint responses
+    description: Include finalStatus boolean field in Decision Reviews "show" and "create" endpoint responses
   form_10275_release:
     actor_type: user
     description: If enabled, show link to digitized form on SCO page
