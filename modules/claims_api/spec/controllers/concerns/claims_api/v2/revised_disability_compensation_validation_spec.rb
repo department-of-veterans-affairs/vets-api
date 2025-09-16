@@ -69,6 +69,45 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors).to be_nil
         end
       end
+
+      context 'when claimDate is in the past' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'claimDate' => (Date.current - 30.days).to_s
+          )
+        end
+
+        it 'returns no errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_nil
+        end
+      end
+
+      context 'when claimDate has invalid format' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'claimDate' => 'invalid-date'
+          )
+        end
+
+        it 'returns validation error' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.first[:title]).to eq('Bad Request')
+          expect(errors.first[:detail]).to eq('Invalid date format for claimDate')
+        end
+      end
+    end
+
+    context 'when claimDate is not provided' do
+      let(:form_attributes) do
+        base_form_attributes.except('claimDate')
+      end
+
+      it 'returns no errors (optional field)' do
+        errors = subject.validate_form_526_fes_values
+        expect(errors).to be_nil
+      end
     end
 
     context 'service information validations' do
@@ -222,7 +261,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/state')
-          expect(errors.first[:title]).to eq('Missing state')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('State is required for USA addresses')
         end
       end
@@ -245,7 +284,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/zipFirstFive')
-          expect(errors.first[:title]).to eq('Missing zipFirstFive')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('ZipFirstFive is required for USA addresses')
         end
       end
@@ -270,7 +309,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/internationalPostalCode')
-          expect(errors.first[:title]).to eq('Invalid field')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('InternationalPostalCode should not be provided for USA addresses')
         end
       end
@@ -339,6 +378,79 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(error_sources).to include('/veteranIdentification/mailingAddress/state')
           expect(error_sources).to include('/veteranIdentification/mailingAddress/zipFirstFive')
           expect(error_sources).to include('/veteranIdentification/mailingAddress/internationalPostalCode')
+        end
+      end
+    end
+
+    # FES Val Section 5.b.iii: mailingAddress INTERNATIONAL field validations
+    context 'mailingAddress INTERNATIONAL validation' do
+      before do
+        allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+      end
+
+      context 'when INTERNATIONAL address missing city' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'veteranIdentification' => {
+              'mailingAddress' => {
+                'addressLine1' => '123 High St',
+                'country' => 'GBR',
+                'internationalPostalCode' => 'SW1A 1AA'
+                # Missing city
+              }
+            }
+          )
+        end
+
+        it 'returns validation error' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/city')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
+          expect(errors.first[:detail]).to eq('City is required')
+        end
+      end
+
+      context 'when INTERNATIONAL address missing country' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'veteranIdentification' => {
+              'mailingAddress' => {
+                'addressLine1' => '123 High St',
+                'city' => 'London',
+                'internationalPostalCode' => 'SW1A 1AA'
+                # Missing country
+              }
+            }
+          )
+        end
+
+        it 'returns validation error' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          # Country validation would be checked first in the international validation
+          expect(errors.any? { |e| e[:source] == '/veteranIdentification/mailingAddress/country' }).to be true
+          expect(errors.any? { |e| e[:title] == 'Unprocessable Entity' }).to be true
+        end
+      end
+
+      context 'when INTERNATIONAL address has all required fields' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'veteranIdentification' => {
+              'mailingAddress' => {
+                'addressLine1' => '123 High St',
+                'city' => 'London',
+                'country' => 'GBR',
+                'internationalPostalCode' => 'SW1A 1AA'
+              }
+            }
+          )
+        end
+
+        it 'returns no errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_nil
         end
       end
     end
@@ -422,7 +534,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/internationalPostalCode')
-          expect(errors.first[:title]).to eq('Missing internationalPostalCode')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('InternationalPostalCode is required for non-USA addresses')
         end
       end
@@ -452,7 +564,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/changeOfAddress/dates/beginDate')
-          expect(errors.first[:title]).to eq('Missing beginningDate')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('beginningDate is required for temporary address')
         end
       end
@@ -478,7 +590,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/changeOfAddress/dates/endDate')
-          expect(errors.first[:title]).to eq('Missing endingDate')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('EndingDate is required for temporary address')
         end
       end
@@ -506,7 +618,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/changeOfAddress/dates/endDate')
-          expect(errors.first[:title]).to eq('Cannot provide endingDate')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('EndingDate cannot be provided for a permanent address')
         end
       end
@@ -657,6 +769,70 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
               e[:detail]
             end).to contain_exactly('City is required', 'InternationalPostalCode is required')
           end
+        end
+      end
+    end
+
+    # FES Val Section 7: Disabilities validations
+    context 'disabilities validations' do
+      # NOTE: Minimum validation (at least 1 disability) is handled by schema (required field + minItems: 1)
+      # We only test the maximum validation here
+
+      context 'when exactly 1 disability provided' do
+        let(:form_attributes) do
+          base_form_attributes.merge(
+            'disabilities' => [
+              {
+                'name' => 'PTSD',
+                'disabilityActionType' => 'NEW',
+                'approximateBeginDate' => '2020-01-01'
+              }
+            ]
+          )
+        end
+
+        it 'returns no errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_nil
+        end
+      end
+
+      context 'when 150 disabilities provided' do
+        let(:form_attributes) do
+          disabilities = (1..150).map do |i|
+            {
+              'name' => "Disability #{i}",
+              'disabilityActionType' => 'NEW',
+              'approximateBeginDate' => '2020-01-01'
+            }
+          end
+          base_form_attributes.merge('disabilities' => disabilities)
+        end
+
+        it 'returns no errors' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_nil
+        end
+      end
+
+      context 'when more than 150 disabilities provided' do
+        let(:form_attributes) do
+          disabilities = (1..151).map do |i|
+            {
+              'name' => "Disability #{i}",
+              'disabilityActionType' => 'NEW',
+              'approximateBeginDate' => '2020-01-01'
+            }
+          end
+          base_form_attributes.merge('disabilities' => disabilities)
+        end
+
+        it 'returns validation error for exceeding maximum' do
+          errors = subject.validate_form_526_fes_values
+          expect(errors).to be_an(Array)
+          expect(errors.first[:source]).to eq('/disabilities')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
+          expect(errors.first[:detail]).to eq('Number of disabilities (151) exceeds maximum allowed (150)')
         end
       end
     end
