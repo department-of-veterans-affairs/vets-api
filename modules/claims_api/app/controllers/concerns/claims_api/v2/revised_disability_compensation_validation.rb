@@ -640,7 +640,7 @@ module ClaimsApi
 
         collect_error(
           source: "/disabilities/#{index}/approximateDate",
-          detail: 'The approximateDate in primary disability must not be in the future'
+          detail: 'The approximateDate in primary disability must be in the past'
         )
       end
 

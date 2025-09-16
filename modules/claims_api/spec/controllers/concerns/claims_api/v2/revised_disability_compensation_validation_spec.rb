@@ -888,7 +888,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
               expect(errors).to be_an(Array)
               expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
               expect(errors.first[:title]).to eq('Unprocessable Entity')
-              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must not be in the future')
+              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must be in the past')
             end
           end
 
@@ -911,7 +911,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
               expect(errors).to be_an(Array)
               expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
               expect(errors.first[:title]).to eq('Unprocessable Entity')
-              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must not be in the future')
+              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must be in the past')
             end
           end
 
@@ -934,7 +934,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
               expect(errors).to be_an(Array)
               expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
               expect(errors.first[:title]).to eq('Unprocessable Entity')
-              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must not be in the future')
+              expect(errors.first[:detail]).to eq('The approximateDate in primary disability must be in the past')
             end
           end
 
@@ -1115,7 +1115,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             # Check for future date error
             future_error = errors.find { |e| e[:source] == '/disabilities/2/approximateDate' }
             expect(future_error[:title]).to eq('Unprocessable Entity')
-            expect(future_error[:detail]).to eq('The approximateDate in primary disability must not be in the future')
+            expect(future_error[:detail]).to eq('The approximateDate in primary disability must be in the past')
           end
         end
       end
