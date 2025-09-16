@@ -5,7 +5,7 @@ require 'medical_expense_reports/benefits_intake/submission_handler'
 require 'medical_expense_reports/monitor'
 require 'medical_expense_reports/notification_email'
 
-Rspec.describe MedicalExpenseReports::BenefitsIntake::SubmissionHandler do
+RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmissionHandler do
   let(:handler) { MedicalExpenseReports::BenefitsIntake::SubmissionHandler }
   let(:claim) { double(form_id: 'TEST', id: 23) }
   let(:monitor) { double(MedicalExpenseReports::Monitor) }
