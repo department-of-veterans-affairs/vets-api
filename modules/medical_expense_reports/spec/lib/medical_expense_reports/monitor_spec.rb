@@ -335,7 +335,7 @@ RSpec.describe MedicalExpenseReports::Monitor, skip: 'TODO after schema built' d
             tags: monitor.tags
           }
 
-          expect(Burials::NotificationEmail).not_to receive(:new)
+          expect(MedicalExpenseReports::NotificationEmail).not_to receive(:new)
           expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.uuid, anything)
 
           expect(monitor).to receive(:track_request).with(
