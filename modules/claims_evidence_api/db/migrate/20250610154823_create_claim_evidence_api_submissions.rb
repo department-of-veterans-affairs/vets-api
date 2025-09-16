@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# create submissions table
 class CreateClaimEvidenceApiSubmissions < ActiveRecord::Migration[7.2]
   def change
     create_table :claims_evidence_api_submissions do |t|
