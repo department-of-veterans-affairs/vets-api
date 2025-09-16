@@ -309,7 +309,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
 
           currently_homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
 
-          expect(currently_homeless_base[:homelessSituationOptions]).to eq('fleeing')
+          expect(currently_homeless_base[:homelessSituationOptions]).to eq('FLEEING_CURRENT_RESIDENCE')
           expect(currently_homeless_base[:otherDescription]).to eq('none')
         end
 
@@ -320,6 +320,62 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
           homeless_base = pdf_data[:data][:attributes][:homelessInformation]
 
           expect(homeless_base).not_to have_key(:currentlyHomeless)
+        end
+
+        context 'mapping the enums' do
+          before do
+            form_attributes['veteran']['homelessness']['currentlyHomeless'] = {}
+          end
+
+          it "maps 'fleeing' to 'FLEEING_CURRENT_RESIDENCE'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'fleeing'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('FLEEING_CURRENT_RESIDENCE')
+          end
+
+          it "maps 'shelter' to 'LIVING_IN_A_HOMELESS_SHELTER'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'shelter'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('LIVING_IN_A_HOMELESS_SHELTER')
+          end
+
+          it "maps 'notShelter' to 'NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'notShelter'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT')
+          end
+
+          it "maps 'anotherPerson' to 'STAYING_WITH_ANOTHER_PERSON'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'anotherPerson'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('STAYING_WITH_ANOTHER_PERSON')
+          end
+
+          it "maps 'other' to 'OTHER'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'other'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('OTHER')
+          end
         end
       end
 
