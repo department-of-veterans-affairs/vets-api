@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'ostruct'
+require 'open3'
+require 'shellwords'
 
 module VSPDanger
   HEAD_SHA = ENV.fetch('GITHUB_HEAD_REF', '').empty? ? `git rev-parse --abbrev-ref HEAD`.chomp.freeze : "origin/#{ENV.fetch('GITHUB_HEAD_REF')}"
@@ -225,8 +227,8 @@ module VSPDanger
     DB_PATHS = ['db/migrate/', 'db/schema.rb'].freeze
     SEEDS_PATHS = ['db/seeds/', 'db/seeds.rb'].freeze
     # Pre-compile regex patterns for performance
-    DB_PATTERN = Regexp.union(DB_PATHS.map { |path| Regexp.new(Regexp.escape(path)) }).freeze
-    SEEDS_PATTERN = Regexp.union(SEEDS_PATHS.map { |path| Regexp.new(Regexp.escape(path)) }).freeze
+    DB_PATTERN = Regexp.union(DB_PATHS).freeze
+    SEEDS_PATTERN = Regexp.union(SEEDS_PATHS).freeze
     # Allowed app file patterns when migrations are present
     # Based on strong_migrations best practices
     ALLOWED_APP_PATTERNS = [
@@ -258,10 +260,12 @@ module VSPDanger
       return false if migration_files.empty?
 
       # Check all migration files at once with git grep
-      migration_pattern = 'remove_column\|remove_columns\|drop_column'
-      files_to_check = migration_files.map { |f| "'#{f}'" }.join(' ')
-      grep_cmd = "git grep -l '#{migration_pattern}' -- #{files_to_check} 2>/dev/null"
-      !`#{grep_cmd}`.strip.empty?
+      # Use Open3 for secure command execution
+      migration_pattern = 'remove_column|remove_columns|drop_column'
+      cmd = ['git', 'grep', '-l', migration_pattern, '--'] + migration_files
+      stdout, _stderr, status = Open3.capture3(*cmd)
+
+      status.success? && !stdout.strip.empty?
     end
 
     def ignored_columns_in_models?
@@ -270,9 +274,11 @@ module VSPDanger
       return false if model_files.empty?
 
       # Check all model files at once with git grep
-      files_to_check = model_files.map { |f| "'#{f}'" }.join(' ')
-      grep_cmd = "git grep -l 'ignored_columns' -- #{files_to_check} 2>/dev/null"
-      !`#{grep_cmd}`.strip.empty?
+      # Use Open3 for secure command execution
+      cmd = ['git', 'grep', '-l', 'ignored_columns', '--'] + model_files
+      stdout, _stderr, status = Open3.capture3(*cmd)
+
+      status.success? && !stdout.strip.empty?
     end
 
     def migration_files
