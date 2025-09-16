@@ -167,6 +167,7 @@ module DependentsBenefits
     # Each retry gets its own attempt record for debugging
     def create_form_submission_attempt
       @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
+      @form_submission_attempt
     end
 
     # Memoized accessors prevent repeated database queries
