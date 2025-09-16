@@ -11,7 +11,7 @@ module Eps
     #
     def get_provider_service(provider_id:)
       if provider_id.blank?
-        log_no_params_metric
+        log_no_params_metric('get_provider_service')
         raise ArgumentError, 'provider_id is required and cannot be blank'
       end
 
@@ -25,7 +25,7 @@ module Eps
 
     def get_provider_services_by_ids(provider_ids:)
       if provider_ids.blank?
-        log_no_params_metric
+        log_no_params_metric('get_provider_services_by_ids')
         raise ArgumentError, 'provider_ids is required and cannot be blank'
       end
 
@@ -137,10 +137,22 @@ module Eps
     private
 
     ##
-    # Logs StatsD metric for provider service calls with no parameters
+    # Logs StatsD metric and Rails log for provider service calls with no parameters
     #
-    def log_no_params_metric
+    # @param method_name [String] The name of the method being called
+    #
+    def log_no_params_metric(method_name)
+      # Log StatsD metric for monitoring
       StatsD.increment(PROVIDER_SERVICE_NO_PARAMS_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
+
+      # Log Rails warning with context
+      log_data = {
+        method: method_name,
+        service: 'eps_provider_service'
+      }
+      log_data[:user_uuid] = @user.uuid if @user&.uuid
+
+      Rails.logger.warn("#{CC_APPOINTMENTS}: Provider service called with no parameters", log_data)
     end
 
     ##
@@ -165,7 +177,7 @@ module Eps
     #
     def fetch_provider_services(npi)
       if npi.blank?
-        log_no_params_metric
+        log_no_params_metric('fetch_provider_services')
         raise ArgumentError, 'npi is required and cannot be blank'
       end
 

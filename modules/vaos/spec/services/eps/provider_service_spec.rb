@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe Eps::ProviderService do
   let(:service) { described_class.new(user) }
-  let(:user) { double('User', account_uuid: '1234') }
+  let(:user) { double('User', account_uuid: '1234', uuid: 'user-uuid-123') }
 
   before do
     allow(Rails.logger).to receive(:info)
@@ -64,10 +64,18 @@ describe Eps::ProviderService do
     end
 
     context 'when provider_id parameter is missing or blank' do
-      it 'raises ArgumentError and logs StatsD metric when provider_id is nil' do
+      it 'raises ArgumentError and logs StatsD metric and Rails warning when provider_id is nil' do
         expect(StatsD).to receive(:increment).with(
           'api.vaos.provider_service.no_params',
           tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'get_provider_service',
+            service: 'eps_provider_service',
+            user_uuid: 'user-uuid-123'
+          )
         )
 
         expect do
@@ -75,10 +83,18 @@ describe Eps::ProviderService do
         end.to raise_error(ArgumentError, 'provider_id is required and cannot be blank')
       end
 
-      it 'raises ArgumentError and logs StatsD metric when provider_id is empty string' do
+      it 'raises ArgumentError and logs StatsD metric and Rails warning when provider_id is empty string' do
         expect(StatsD).to receive(:increment).with(
           'api.vaos.provider_service.no_params',
           tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'get_provider_service',
+            service: 'eps_provider_service',
+            user_uuid: 'user-uuid-123'
+          )
         )
 
         expect do
@@ -86,10 +102,18 @@ describe Eps::ProviderService do
         end.to raise_error(ArgumentError, 'provider_id is required and cannot be blank')
       end
 
-      it 'raises ArgumentError and logs StatsD metric when provider_id is blank' do
+      it 'raises ArgumentError and logs StatsD metric and Rails warning when provider_id is blank' do
         expect(StatsD).to receive(:increment).with(
           'api.vaos.provider_service.no_params',
           tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'get_provider_service',
+            service: 'eps_provider_service',
+            user_uuid: 'user-uuid-123'
+          )
         )
 
         expect do
@@ -161,13 +185,13 @@ describe Eps::ProviderService do
 
     context 'when the request is successful' do
       let(:response) do
-        double('Response', status: 200, body: { 
-          count: 2,
-          provider_services: [
-            { id: 'provider1', name: 'Provider 1' },
-            { id: 'provider2', name: 'Provider 2' }
-          ]
-        }, response_headers: { 'Content-Type' => 'application/json' })
+        double('Response', status: 200, body: {
+                 count: 2,
+                 provider_services: [
+                   { id: 'provider1', name: 'Provider 1' },
+                   { id: 'provider2', name: 'Provider 2' }
+                 ]
+               }, response_headers: { 'Content-Type' => 'application/json' })
       end
 
       before do
@@ -199,10 +223,17 @@ describe Eps::ProviderService do
     end
 
     context 'when provider_ids parameter is missing or blank' do
-      it 'raises ArgumentError and logs StatsD metric when provider_ids is nil' do
+      it 'raises ArgumentError and logs StatsD metric and Rails warning when provider_ids is nil' do
         expect(StatsD).to receive(:increment).with(
           'api.vaos.provider_service.no_params',
           tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'get_provider_services_by_ids',
+            service: 'eps_provider_service'
+          )
         )
 
         expect do
@@ -210,10 +241,17 @@ describe Eps::ProviderService do
         end.to raise_error(ArgumentError, 'provider_ids is required and cannot be blank')
       end
 
-      it 'raises ArgumentError and logs StatsD metric when provider_ids is empty array' do
+      it 'raises ArgumentError and logs StatsD metric and Rails warning when provider_ids is empty array' do
         expect(StatsD).to receive(:increment).with(
           'api.vaos.provider_service.no_params',
           tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'get_provider_services_by_ids',
+            service: 'eps_provider_service'
+          )
         )
 
         expect do
@@ -1389,11 +1427,11 @@ describe Eps::ProviderService do
     context 'when the request is successful' do
       let(:response) do
         double('Response', status: 200, body: {
-          count: 1,
-          provider_services: [
-            { id: 'provider1', npi:, name: 'Provider 1' }
-          ]
-        }, response_headers: { 'Content-Type' => 'application/json' })
+                 count: 1,
+                 provider_services: [
+                   { id: 'provider1', npi:, name: 'Provider 1' }
+                 ]
+               }, response_headers: { 'Content-Type' => 'application/json' })
       end
 
       before do
@@ -1436,10 +1474,17 @@ describe Eps::ProviderService do
     end
 
     context 'when npi parameter is missing or blank' do
-      it 'raises ArgumentError and logs StatsD metric when npi is nil' do
+      it 'raises ArgumentError and logs StatsD metric and Rails warning when npi is nil' do
         expect(StatsD).to receive(:increment).with(
           'api.vaos.provider_service.no_params',
           tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'fetch_provider_services',
+            service: 'eps_provider_service'
+          )
         )
 
         expect do
@@ -1447,10 +1492,17 @@ describe Eps::ProviderService do
         end.to raise_error(ArgumentError, 'npi is required and cannot be blank')
       end
 
-      it 'raises ArgumentError and logs StatsD metric when npi is empty string' do
+      it 'raises ArgumentError and logs StatsD metric and Rails warning when npi is empty string' do
         expect(StatsD).to receive(:increment).with(
           'api.vaos.provider_service.no_params',
           tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'fetch_provider_services',
+            service: 'eps_provider_service'
+          )
         )
 
         expect do
@@ -1458,10 +1510,17 @@ describe Eps::ProviderService do
         end.to raise_error(ArgumentError, 'npi is required and cannot be blank')
       end
 
-      it 'raises ArgumentError and logs StatsD metric when npi is blank' do
+      it 'raises ArgumentError and logs StatsD metric and Rails warning when npi is blank' do
         expect(StatsD).to receive(:increment).with(
           'api.vaos.provider_service.no_params',
           tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'fetch_provider_services',
+            service: 'eps_provider_service'
+          )
         )
 
         expect do
