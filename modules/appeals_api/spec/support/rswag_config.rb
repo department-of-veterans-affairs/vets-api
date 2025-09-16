@@ -1002,7 +1002,7 @@ class AppealsApi::RswagConfig
                     example: '2018-07-30T17:31:15.958Z'
                   },
                   finalStatus: {
-                    description: 'Indicates whether the status of the submission is final. Submissions with a final_status of true will no longer update to a new status.',
+                    description: 'Indicates whether the status of the submission is final. Submissions with a finalStatus of true will no longer update to a new status.',
                     type: 'boolean',
                     example: false
                   }
