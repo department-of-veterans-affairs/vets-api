@@ -233,22 +233,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             subject.perform_async(submission.id)
             described_class.drain
           end
-
-
-          it 'uses hybrid classifier to classify contentions' do
-            subject.perform_async(submission.id)
-            expect do
-              VCR.use_cassette('contention_classification/hybrid_contention_classification') do
-                described_class.drain
-              end
-            end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
-            submission.reload
-            classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
-            expect(classification_codes).to eq([9012, 8994, 8989, 8997])
-          end
-
         end
-
 
         context 'when diagnostic code is not set' do
           let(:submission) do
@@ -328,6 +313,21 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
         expect(classification_codes).to eq([9012, 8994, nil, 8997])
       end
+
+      it 'uses hybrid classifier to classify contentions' do
+        allow(Flipper).to receive(:enabled?).with(:contention_classification_ml_classifier, 
+          anything).and_return(true)
+        subject.perform_async(submission.id)
+        expect do
+          VCR.use_cassette('contention_classification/hybrid_contention_classification') do
+            described_class.drain
+          end
+        end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+        submission.reload
+        classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+        expect(classification_codes).to eq([9012, 8994, 8989, 8997])
+      end
+
 
       context 'when the disabilities array is empty' do
         before do
