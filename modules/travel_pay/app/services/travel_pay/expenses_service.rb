@@ -76,12 +76,14 @@ module TravelPay
     # @return [Hash] The minimal placeholder receipt data
     #
     def build_placeholder_receipt
-      placeholder_data = 'placeholder'
+      # Minimal valid BMP (1x1 white pixel) - 58 bytes
+      bmp_base64 = 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
+
       {
-        'contentType' => 'text/plain',
-        'length' => placeholder_data.length,
-        'fileName' => 'placeholder.txt',
-        'fileData' => Base64.strict_encode64(placeholder_data)
+        'contentType' => 'image/bmp',
+        'length' => 58,
+        'fileName' => 'placeholder.bmp',
+        'fileData' => bmp_base64
       }
     end
 
