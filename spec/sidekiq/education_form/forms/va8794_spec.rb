@@ -20,7 +20,7 @@ RSpec.describe EducationForm::Forms::VA8794 do
   it 'reads institution details' do
     expect(subject.institution_name).to eq('Test University')
     expect(subject.facility_code).to eq('12345678')
-    expect(subject.va_facility_code?).to eq(true)
+    expect(subject.va_facility_code?).to be(true)
   end
 
   it 'reads primary official fields' do
@@ -31,8 +31,8 @@ RSpec.describe EducationForm::Forms::VA8794 do
 
   it 'reads training and benefit fields' do
     expect(subject.training_completion_date).to eq('2024-03-15')
-    expect(subject.training_exempt).to eq(false)
-    expect(subject.va_education_benefits?).to eq(true)
+    expect(subject.training_exempt).to be(false)
+    expect(subject.va_education_benefits?).to be(true)
   end
 
   it 'handles defaults for arrays and booleans' do
