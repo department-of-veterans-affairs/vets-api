@@ -19,6 +19,7 @@ updates:
       - dependency-name: "sidekiq"
       - dependency-name: "sidekiq-pro"
       - dependency-name: "sidekiq-ent"
+      - dependency-name: "karafka-core" # karafka-core is pinned in the Gemfile, but Dependabot keeps updating it. This is temporary.
     open-pull-requests-limit: 5
     registries:
     - rubygems-server-enterprise-contribsys-com
