@@ -965,7 +965,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(vista_prescription.refill_remaining).to eq(2)
           expect(vista_prescription.facility_name).to eq('DAYT29')
           expect(vista_prescription.prescription_name).to eq('BACITRACIN 500 UNIT/GM OINT 30GM')
-          expect(vista_prescription.sig).to eq('APPLY SMALL AMOUNT TO AFFECTED AREA WEEKLY FOR 30 DAYS')
+          expect(vista_prescription.instructions).to eq('APPLY SMALL AMOUNT TO AFFECTED AREA WEEKLY FOR 30 DAYS')
           expect(vista_prescription.refillable?).to be true
           expect(vista_prescription.station_number).to eq('989')
           expect(vista_prescription.prescription_number).to eq('2721174')
@@ -980,7 +980,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription.refill_status).to eq('active')
           expect(oracle_prescription.refill_remaining).to eq(5)
           expect(oracle_prescription.prescription_name).to eq('1.5 ML Buprenorphine 200 MG/ML Prefilled Syringe')
-          expect(oracle_prescription.sig).to eq(
+          expect(oracle_prescription.instructions).to eq(
             'See Instructions. This should not be dispensed to the patient but should be dispensed to clinic for ' \
             'in-clinic administration.. Refills: 5.'
           )
@@ -1009,7 +1009,7 @@ describe UnifiedHealthData::Service, type: :service do
 
           # Test prescription with patientInstruction (should prefer over text)
           oracle_prescription_with_patient_instruction = prescriptions.find { |p| p.prescription_id == '15214174591' }
-          expect(oracle_prescription_with_patient_instruction.sig).to eq(
+          expect(oracle_prescription_with_patient_instruction.instructions).to eq(
             '2 Inhalation Inhalation (breathe in) every 4 hours as needed shortness of breath or wheezing. ' \
             'Refills: 2.'
           )
