@@ -20,10 +20,12 @@ module AccreditedRepresentativePortal
 
       # rubocop:disable Metrics/MethodLength
       def create
-        ar_monitoring(nil).trace('ar.poa.request.decision.create') do |span|
+        ar_monitoring.trace('ar.poa.request.decision.create') do |span|
+          decision = decision_params[:type]
           span.set_tag('poa_request.poa_code', poa_code)
-          trace_key_tags(span, poa_code:)
-          case decision_params[:type]
+          span.set_tag('poa_request.decision', decision)
+
+          case decision
           when 'acceptance'
             process_acceptance
           when 'declination'
@@ -104,22 +106,12 @@ module AccreditedRepresentativePortal
         @poa_request.power_of_attorney_holder_poa_code
       end
 
-      def trace_key_tags(span, **tags)
-        tags.each do |tag, value|
-          span.set_tag(tag, value) if value.present?
-          Datadog::Tracing.active_trace&.set_tag(tag, value) if value.present?
-        end
-      end
-
-      def ar_monitoring(organization)
-        org_tag = "org:#{organization}" if organization.present?
-
+      def ar_monitoring
         @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
           AccreditedRepresentativePortal::Monitoring::NAME,
           default_tags: [
             "controller:#{controller_name}",
-            "action:#{action_name}",
-            org_tag
+            "action:#{action_name}"
           ].compact
         )
       end

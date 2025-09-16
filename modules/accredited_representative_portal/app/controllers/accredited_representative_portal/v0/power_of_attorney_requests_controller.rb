@@ -18,10 +18,9 @@ module AccreditedRepresentativePortal
       end
 
       def index
-        ar_monitoring(nil).trace('ar.power_of_attorney_requests.index') do |span|
+        ar_monitoring.trace('ar.power_of_attorney_requests.index',
+                            tags: { 'poa_request.poa_codes' => poa_codes(poa_requests) }) do |_span|
           serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
-          span.set_tag('poa_request.poa_codes', poa_codes(poa_requests))
-          trace_key_tags(span, poa_codes: poa_codes(poa_requests))
           render json: {
             data: serializer.serializable_hash,
             meta: pagination_meta(poa_requests)
@@ -30,10 +29,10 @@ module AccreditedRepresentativePortal
       end
 
       def show
-        ar_monitoring(poa_organization).trace('ar.power_of_attorney_requests.show') do |span|
+        ar_monitoring.trace('ar.power_of_attorney_requests.show',
+                            tags: { 'poa_request.poa_code' => poa_code },
+                            root_tags: { 'poa_request.poa_code' => poa_code }) do |_span|
           serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
-          span.set_tag('poa_request.poa_code', poa_code)
-          trace_key_tags(span, poa_code:)
           render json: serializer.serializable_hash, status: :ok
         end
       end
@@ -154,28 +153,14 @@ module AccreditedRepresentativePortal
         poa_requests.map(&:power_of_attorney_holder_poa_code).uniq.join(',')
       end
 
-      def poa_organization
-        @poa_request.accredited_organization
-      end
-
-      def ar_monitoring(organization)
-        org_tag = "org:#{organization}" if organization.present?
-
+      def ar_monitoring
         @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
           AccreditedRepresentativePortal::Monitoring::NAME,
           default_tags: [
             "controller:#{controller_name}",
-            "action:#{action_name}",
-            org_tag
+            "action:#{action_name}"
           ].compact
         )
-      end
-
-      def trace_key_tags(span, **tags)
-        tags.each do |tag, value|
-          span.set_tag(tag, value) if value.present?
-          Datadog::Tracing.active_trace&.set_tag(tag, value) if value.present?
-        end
       end
     end
   end
