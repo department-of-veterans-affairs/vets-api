@@ -115,8 +115,10 @@ module DependentsBenefits
     end
 
     def mark_attempt_failed(error)
-      form_submission_attempt.update!(error_message: error)
-      form_submission_attempt.fail!
+      ActiveRecord::Base.transaction do
+        form_submission_attempt.update!(error_message: error)
+        form_submission_attempt.fail!
+      end
     end
 
     # Called from retries_exhausted callback OR permanent failure detection
