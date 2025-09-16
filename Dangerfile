@@ -231,7 +231,6 @@ module VSPDanger
     # Allowed app file patterns when migrations are present
     # Based on strong_migrations best practices
     ALLOWED_APP_PATTERNS = [
-      %r{config/initializers/strong_migrations\.rb$}, # Strong migrations config
       %r{spec/.+_spec\.rb$}, # Test files
       %r{modules/.+/spec/.+_spec\.rb$}, # Module test files
       %r{spec/factories/.+\.rb$}, # Factory changes
