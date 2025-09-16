@@ -90,15 +90,15 @@ module SM
     #
     # @return [Common::Collection[Folder]]
     #
-    def get_folders(user_uuid, use_cache, requires_oh_messages = nil)
+    def get_folders(user_uuid, use_cache)
       path = 'folder'
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
 
       cache_key = "#{user_uuid}-folders"
       get_cached_or_fetch_data(use_cache, cache_key, Folder) do
         json = perform(:get, path, nil, token_headers).body
         data = Vets::Collection.new(json[:data], Folder, metadata: json[:metadata], errors: json[:errors])
-        Folder.set_cached(cache_key, data.records)
+        Folder.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         data
       end
     end
@@ -108,9 +108,9 @@ module SM
     #
     # @return [Folder]
     #
-    def get_folder(id, requires_oh_messages = nil)
+    def get_folder(id)
       path = "folder/#{id}"
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
 
       json = perform(:get, path, nil, token_headers).body
       Folder.new(json[:data].merge(json[:metadata]))
@@ -171,7 +171,7 @@ module SM
           page += 1
         end
         messages = Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
-        Message.set_cached(cache_key, messages.records)
+        Message.set_cached(cache_key, messages.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         messages
       end
     end
@@ -196,7 +196,7 @@ module SM
         "sortOrder=#{params[:sort_order]}"
       ].join('&')
       path = "#{base_path}?#{query_params}"
-      path = append_requires_oh_messages_query(path, params[:requires_oh_messages])
+      path = append_requires_oh_messages_query(path)
 
       json = perform(:get, path, nil, token_headers).body
 
@@ -212,12 +212,12 @@ module SM
     # @param args [Hash] arguments for the message search
     # @return [Common::Collection]
     #
-    def post_search_folder(folder_id, page_num, page_size, args = {}, requires_oh_messages = nil)
+    def post_search_folder(folder_id, page_num, page_size, args = {})
       page_num ||= 1
       page_size ||= MHV_MAXIMUM_PER_PAGE
 
       path = "folder/#{folder_id}/searchMessage/page/#{page_num}/pageSize/#{page_size}"
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
 
       json = perform(:post,
                      path,
@@ -311,9 +311,9 @@ module SM
     # @param id [Fixnum] message id
     # @return [Common::Collection[MessageThread]]
     #
-    def get_messages_for_thread(id, requires_oh_messages = nil)
+    def get_messages_for_thread(id)
       path = "message/#{id}/messagesforthread"
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
 
       json = perform(:get, path, nil, token_headers).body
       Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata], errors: json[:errors])
@@ -325,9 +325,9 @@ module SM
     # @param id [Fixnum] message id
     # @return [Common::Collection[MessageThreadDetails]]
     #
-    def get_full_messages_for_thread(id, requires_oh_messages = nil)
+    def get_full_messages_for_thread(id)
       path = "message/#{id}/allmessagesforthread/1"
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
       json = perform(:get, path, nil, token_headers).body
       Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata], errors: json[:errors])
     end
@@ -527,7 +527,7 @@ module SM
       get_cached_or_fetch_data(use_cache, cache_key, TriageTeam) do
         json = perform(:get, 'triageteam', nil, token_headers).body
         data = Vets::Collection.new(json[:data], TriageTeam, metadata: json[:metadata], errors: json[:errors])
-        TriageTeam.set_cached(cache_key, data.records)
+        TriageTeam.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         data
       end
     end
@@ -539,17 +539,13 @@ module SM
     #
     # @return [Common::Collection[AllTriageTeams]]
     #
-    def get_all_triage_teams(user_uuid, use_cache, requires_oh = nil)
+    def get_all_triage_teams(user_uuid, use_cache)
       cache_key = "#{user_uuid}-all-triage-teams"
       get_cached_or_fetch_data(use_cache, cache_key, AllTriageTeams) do
-        path = 'alltriageteams'
-        if requires_oh == '1'
-          separator = path.include?('?') ? '&' : '?'
-          path += "#{separator}requiresOHTriageGroup=#{requires_oh}"
-        end
+        path = append_requires_oh_messages_query('alltriageteams', 'requiresOHTriageGroup')
         json = perform(:get, path, nil, token_headers).body
         data = Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata], errors: json[:errors])
-        AllTriageTeams.set_cached(cache_key, data.records)
+        AllTriageTeams.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         data
       end
     end
@@ -569,6 +565,17 @@ module SM
     end
     # @!endgroup
 
+    def get_unique_care_systems(all_recipients)
+      unique_care_system_ids = all_recipients.uniq(&:station_number).map(&:station_number)
+      unique_care_system_names = Mobile::FacilitiesHelper.get_facility_names(unique_care_system_ids)
+      unique_care_system_ids.zip(unique_care_system_names).map! do |system|
+        {
+          station_number: system[0],
+          health_care_system_name: system[1] || system[0]
+        }
+      end
+    end
+
     def get_cached_or_fetch_data(use_cache, cache_key, model)
       data = nil
       data = model.get_cached(cache_key) if use_cache
@@ -586,15 +593,7 @@ module SM
 
     def get_session_tagged
       Sentry.set_tags(error: 'mhv_sm_session')
-      current_user = User.find(session.user_uuid)
-
-      requires_oh_messages = '0'
-      if current_user.present? && Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user)
-        requires_oh_messages = '1'
-      end
-
-      Rails.logger.info("secure messaging session tagged with requiresOHMessages=#{requires_oh_messages}")
-      path = append_requires_oh_messages_query('session', requires_oh_messages)
+      path = append_requires_oh_messages_query('session')
       env = perform(:get, path, nil, auth_headers)
       Sentry.get_current_scope.tags.delete(:error)
       env
@@ -603,26 +602,18 @@ module SM
     private
 
     def auth_headers
-      headers = config.base_request_headers.merge(
+      config.base_request_headers.merge(
         'appToken' => config.app_token,
-        'mhvCorrelationId' => session.user_id.to_s
+        'mhvCorrelationId' => session.user_id.to_s,
+        'x-api-key' => config.x_api_key
       )
-      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
-        headers.merge('x-api-key' => config.x_api_key)
-      else
-        headers
-      end
     end
 
     def token_headers
-      headers = config.base_request_headers.merge(
-        'Token' => session.token
+      config.base_request_headers.merge(
+        'Token' => session.token,
+        'x-api-key' => config.x_api_key
       )
-      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
-        headers.merge('x-api-key' => config.x_api_key)
-      else
-        headers
-      end
     end
 
     def reply_draft?(id)
@@ -649,10 +640,11 @@ module SM
       end
     end
 
-    def append_requires_oh_messages_query(path, requires_oh_messages = nil)
-      if requires_oh_messages == '1'
+    def append_requires_oh_messages_query(path, param_name = 'requiresOHMessages')
+      current_user = User.find(session.user_uuid)
+      if current_user.present? && Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user)
         separator = path.include?('?') ? '&' : '?'
-        path += "#{separator}requiresOHMessages=#{requires_oh_messages}"
+        path += "#{separator}#{param_name}=1"
       end
       path
     end

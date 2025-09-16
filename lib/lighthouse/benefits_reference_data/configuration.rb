@@ -9,7 +9,7 @@ module BenefitsReferenceData
   # sets the base path, the base request headers, and a service name for breakers and metrics.
   #
   class Configuration < Common::Client::Configuration::REST
-    self.read_timeout = Settings.lighthouse.benefits_reference_data.timeout || 20
+    self.read_timeout = Settings.lighthouse.benefits_reference_data.timeout || 30
 
     ##
     # @return [String] Base path for benefits_reference_data URLs.

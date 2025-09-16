@@ -32,7 +32,6 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
 
     allow(Settings).to receive(:ivc_forms).and_return(ivc_forms)
     allow(ivc_forms).to receive(:sidekiq).and_return(sidekiq)
-    allow(sidekiq).to receive(:ves_retry_failures_job).and_return(job_settings)
     allow(job_settings).to receive(:enabled).and_return(true)
 
     allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
@@ -59,7 +58,7 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
   describe '#perform' do
     context 'when setting is disabled' do
       before do
-        allow(Settings.ivc_forms.sidekiq.ves_retry_failures_job).to receive(:enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:champva_ves_retry_failures_job).and_return(false)
       end
 
       it 'returns early and does not process any records' do
@@ -70,6 +69,7 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
 
     context 'when setting is enabled' do
       before do
+        allow(Flipper).to receive(:enabled?).with(:champva_ves_retry_failures_job).and_return(true)
         query_relation = double('ActiveRecord::Relation')
         allow(IvcChampvaForm).to receive(:where).with(no_args).and_return(query_relation)
         allow(query_relation).to receive(:not).with(ves_status: [nil, 'ok']).and_return([recent_record, old_record])

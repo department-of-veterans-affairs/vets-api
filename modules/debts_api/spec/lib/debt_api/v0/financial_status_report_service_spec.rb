@@ -82,6 +82,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
             expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).to receive(:perform_in).with(
               5.minutes,
               {
+                'submission_type' => 'fsr',
                 'email' => user.email,
                 'first_name' => user.first_name,
                 'template_id' => 'fake_template_id',
@@ -459,7 +460,8 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       end
     end
 
-    it 'enqueues VHA submission jobs' do
+    it 'enqueues VHA submission jobs when financial_management_vbs_only is disabled' do
+      allow(Flipper).to receive(:enabled?).with(:financial_management_vbs_only).and_return(false)
       service = described_class.new(user)
       builder = DebtsApi::V0::FsrFormBuilder.new(vha_form_data, '', user)
       copay_count = builder.vha_forms.length
@@ -470,6 +472,19 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         .and change { DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs.size }
         .from(0)
         .to(copay_count)
+    end
+
+    it 'enqueues only VBSSubmissionJobs when financial_management_vbs_only is enabled' do
+      allow(Flipper).to receive(:enabled?).with(:financial_management_vbs_only).and_return(true)
+      service = described_class.new(user)
+      builder = DebtsApi::V0::FsrFormBuilder.new(vha_form_data, '', user)
+      copay_count = builder.vha_forms.length
+
+      expect { service.submit_combined_fsr(builder) }
+        .to change { DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs.size }.from(0).to(copay_count)
+
+      expect { service.submit_combined_fsr(builder) }
+        .not_to(change { DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs.size })
     end
 
     it 'creates a form 5655 submission record' do
@@ -533,7 +548,9 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       allow(User).to receive(:find).with(user.uuid).and_return(user)
     end
 
-    it 'creates multiple jobs with multiple stations' do
+    it 'creates multiple jobs with multiple stations when financial_management_vbs_only is disabled' do
+      allow(Flipper).to receive(:enabled?).with(:financial_management_vbs_only).and_return(false)
+
       service = described_class.new(user)
       builder = DebtsApi::V0::FsrFormBuilder.new(valid_vha_form_data, '', user)
       expect { service.create_vha_fsr(builder) }
@@ -543,6 +560,18 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         .and change { DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs.size }
         .from(0)
         .to(2)
+    end
+
+    it 'creates only VBSSubmissionJobs when financial_management_vbs_only is enabled' do
+      allow(Flipper).to receive(:enabled?).with(:financial_management_vbs_only).and_return(true)
+
+      service = described_class.new(user)
+      builder = DebtsApi::V0::FsrFormBuilder.new(valid_vha_form_data, '', user)
+
+      expect { service.create_vha_fsr(builder) }
+        .to change { DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs.size }
+        .from(0).to(2)
+        .and(not_change { DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs.size })
     end
 
     it 'gracefully handles a lack of vha FSRs' do

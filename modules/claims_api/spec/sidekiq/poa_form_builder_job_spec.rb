@@ -60,12 +60,14 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
       serviceOrganization: {
         poaCode: poa_code.to_s,
         organizationName: 'I Help Vets LLC',
+        firstName: 'Bob',
+        lastName: 'Law',
         address: {
-          numberAndStreet: '2719 Hyperion Ave',
-          city: 'Los Angeles',
-          state: 'CA',
+          numberAndStreet: '123 East Main St',
+          city: 'My City',
+          state: 'ZZ',
           country: 'US',
-          zipFirstFive: '92264'
+          zipFirstFive: '12345'
         }
       }
     }
@@ -75,7 +77,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
   describe 'generating the filled and signed pdf' do
     context 'when representative is an individual' do
       before do
-        create(:veteran_representative, representative_id: '12345', poa_codes: [poa_code.to_s]).save!
+        create(:veteran_representative, :with_address, representative_id: '12345', poa_codes: [poa_code.to_s])
       end
 
       it 'generates the pdf to match example' do

@@ -26,7 +26,7 @@ RSpec.describe BGS::Form674 do
         VCR.use_cassette('bgs/form674/submit') do
           VCR.use_cassette('bid/awards/get_awards_pension') do
             VCR.use_cassette('bgs/service/create_note') do
-              modify_dependents = BGS::Form674.new(user_struct, saved_claim).submit(all_flows_v2_payload)
+              modify_dependents = BGS::Form674.new(user_struct, saved_claim).submit(all_flows_payload)
 
               expect(modify_dependents).to include(
                 :jrn_dt,
@@ -52,7 +52,7 @@ RSpec.describe BGS::Form674 do
           expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:update).and_call_original
           expect_any_instance_of(BGS::VnpRelationships).to receive(:create_all).and_call_original
 
-          BGS::Form674.new(user_struct, saved_claim_674_only).submit(all_flows_v2_payload)
+          BGS::Form674.new(user_struct, saved_claim_674_only).submit(all_flows_payload)
         end
       end
 
@@ -61,7 +61,7 @@ RSpec.describe BGS::Form674 do
           VCR.use_cassette('bgs/service/create_note') do
             expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(false)
 
-            BGS::Form674.new(user_struct, saved_claim).submit(all_flows_v2_payload)
+            BGS::Form674.new(user_struct, saved_claim).submit(all_flows_payload)
           end
         end
       end
@@ -73,7 +73,7 @@ RSpec.describe BGS::Form674 do
               expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
               expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
 
-              BGS::Form674.new(user_struct, saved_claim).submit(all_flows_v2_payload)
+              BGS::Form674.new(user_struct, saved_claim).submit(all_flows_payload)
             end
           end
         end

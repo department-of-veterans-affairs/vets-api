@@ -2,11 +2,13 @@
 
 require 'logging/controller/monitor'
 require 'logging/benefits_intake/monitor'
+require 'logging/data_scrubber'
 
 module Logging
   class BaseMonitor < ::ZeroSilentFailures::Monitor
     include Logging::Controller::Monitor
     include Logging::BenefitsIntake::Monitor
+    include Logging::DataScrubber
 
     private
 
@@ -35,15 +37,6 @@ module Logging
       raise NotImplementedError, 'Subclasses must implement form_id'
     end
 
-    # Default implementation for sending emails
-    # Subclasses can override this method to provide custom email functionality
-    #
-    # @param claim_id [Integer] The ID of the claim
-    # @param email_type [Symbol] The type of the email (e.g., :error, :submitted)
-    def send_email(claim_id, email_type)
-      # Default implementation does nothing
-    end
-
     ##
     # Submits an event for tracking with standardized payload structure
     #
@@ -59,7 +52,7 @@ module Logging
       claim = options[:claim]
       user_account_uuid = options[:user_account_uuid]
       call_location = options[:call_location] || caller_locations.first
-      additional_context = options.except(:claim, :user_account_uuid, :call_location)
+      additional_context = Logging::DataScrubber.scrub(options.except(:claim, :user_account_uuid, :call_location))
 
       claim_id = claim.respond_to?(:id) ? claim.id : claim
       confirmation_number = claim.respond_to?(:confirmation_number) ? claim.confirmation_number : nil

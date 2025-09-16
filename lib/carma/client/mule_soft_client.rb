@@ -8,9 +8,9 @@ module CARMA
     class MuleSoftClient < Common::Client::Base
       include Common::Client::Concerns::Monitoring
 
-      configuration MuleSoftConfiguration
-
       STATSD_KEY_PREFIX = 'api.carma.mulesoft'
+
+      configuration MuleSoftConfiguration
 
       class RecordParseError < StandardError; end
 
@@ -38,8 +38,7 @@ module CARMA
             :post,
             resource,
             get_body(payload),
-            headers,
-            { timeout: config.settings.async_timeout }
+            headers
           )
 
           handle_response(resource, response)

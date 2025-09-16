@@ -65,12 +65,5 @@ module Burials
     def form_id
       Burials::FORM_ID
     end
-
-    ##
-    # Class name for notification email
-    # @return [Class]
-    def send_email(claim_id, email_type)
-      Burials::NotificationEmail.new(claim_id).deliver(email_type)
-    end
   end
 end

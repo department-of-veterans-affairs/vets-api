@@ -18,6 +18,7 @@ path 'modules' do
   gem 'claims_evidence_api'
   gem 'debts_api'
   gem 'decision_reviews'
+  gem 'dependents_benefits'
   gem 'dependents_verification'
   gem 'dhp_connected_devices'
   gem 'facilities_api'
@@ -105,6 +106,7 @@ gem 'json-schema'
 gem 'json_schemer'
 gem 'jwe'
 gem 'jwt'
+gem 'karafka-core', '2.5.5' # Temporary lock until new release of karafka-rdkafka (dependency of karafka-core) is available
 gem 'kms_encrypted'
 gem 'liquid'
 gem 'lockbox'
@@ -129,7 +131,7 @@ gem 'pg'
 gem 'pg_query'
 gem 'pg_search'
 gem 'pkce_challenge'
-gem 'prawn'
+gem 'prawn', '~> 2.4.0' # Pinned to version 2.4.0 to avoid embedded font issues (https://github.com/prawnpdf/ttfunk/issues/102)
 gem 'prawn-markup'
 gem 'prawn-table'
 gem 'puma'
@@ -162,6 +164,7 @@ gem 'staccato'
 gem 'statsd-instrument'
 gem 'strong_migrations'
 gem 'swagger-blocks'
+gem 'ttfunk', '~> 1.7.0'
 # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
 # POSIX systems should have this already, so we're not going to bring it in on other platforms
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
@@ -169,7 +172,7 @@ gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'warden-github'
-gem 'waterdrop'
+gem 'waterdrop', '2.8.6' # to temporarily undo dependabot commit 1fd3c5de899081010bbb27b7bfcedb8f27be2a53
 gem 'will_paginate'
 gem 'with_advisory_lock'
 

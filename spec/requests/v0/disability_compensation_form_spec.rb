@@ -4,6 +4,7 @@ require 'rails_helper'
 require 'lighthouse/auth/client_credentials/service'
 require 'lighthouse/service_exception'
 require 'disability_compensation/factories/api_provider_factory'
+require 'disability_compensation/loggers/monitor'
 
 RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
   include SchemaMatchers
@@ -250,6 +251,24 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
           end
         end
 
+        context 'with a lot of VA Facility Treatments' do
+          let(:parsed_payload) { JSON.parse(all_claims_form) }
+          let(:large_array_of_treatments) { Array.new(149) { |i| "treatment_#{i + 1}" } }
+
+          it 'does not fail to submit' do
+            parsed_payload['form526']['vaTreatmentFacilities'][0]['treatedDisabilityNames'] = large_array_of_treatments
+            post('/v0/disability_compensation_form/submit_all_claim', params: JSON.generate(parsed_payload), headers:)
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('submit_disability_form')
+            expect(Form526Submission.count).to eq(1)
+            form = Form526Submission.last.form
+            treatments = form.dig('form526', 'form526', 'treatments')
+            expect(treatments).not_to be_nil
+            expect(treatments).not_to be_empty
+            expect(treatments[0]['treatedDisabilityNames'].size).to eq(149)
+          end
+        end
+
         context 'where the startedFormVersion indicator is true' do
           it 'creates a submission that includes a toxic exposure component' do
             post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
@@ -325,6 +344,75 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
         json_object['form526'].delete('newSecondaryDisabilities')
         updated_form = JSON.generate(json_object)
         post('/v0/disability_compensation_form/submit_all_claim', params: updated_form, headers:)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
+
+  describe 'SavedClaim::DisabilityCompensation::Form526AllClaim save error logging' do
+    let(:form_params) { File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json' }
+    let(:claim_with_save_error) do
+      claim = SavedClaim::DisabilityCompensation::Form526AllClaim.new
+      errors = ActiveModel::Errors.new(claim)
+      errors.add(:form, 'Mock form validation error')
+      allow(claim).to receive_messages(errors:, save: false)
+      claim
+    end
+    let!(:in_progress_form) { create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid) }
+
+    context 'when the disability_526_track_saved_claim_error Flipper is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:disability_526_track_saved_claim_error).and_return(true)
+      end
+
+      after do
+        allow(Flipper).to receive(:enabled?).with(:disability_526_track_saved_claim_error).and_return(false)
+      end
+
+      context 'when the claim fails to save' do
+        before do
+          allow(SavedClaim::DisabilityCompensation::Form526AllClaim).to receive(:from_hash)
+            .and_return(claim_with_save_error)
+        end
+
+        it 'logs save errors for the claim and still returns a 422' do
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor).to receive(:track_saved_claim_save_error)
+            .with(
+              claim_with_save_error.errors.errors,
+              in_progress_form.id,
+              user.uuid
+            )
+
+          post('/v0/disability_compensation_form/submit_all_claim', params: form_params, headers:)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      context 'when the claim saves successfully' do
+        it 'does not track an error and returns a 200 response' do
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .not_to receive(:track_saved_claim_save_error)
+
+          post('/v0/disability_compensation_form/submit_all_claim', params: form_params, headers:)
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+
+    context 'when the disability_526_track_saved_claim_error Flipper is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:disability_526_track_saved_claim_error).and_return(false)
+        allow(SavedClaim::DisabilityCompensation::Form526AllClaim).to receive(:from_hash)
+          .and_return(claim_with_save_error)
+      end
+
+      it 'does not log save errors and still returns a 422' do
+        expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+          .not_to receive(:track_saved_claim_save_error)
+
+        post('/v0/disability_compensation_form/submit_all_claim', params: form_params, headers:)
+
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end

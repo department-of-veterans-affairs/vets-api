@@ -17,7 +17,6 @@ require 'evss/common_service'
 require 'evss/disability_compensation_form/configuration'
 require 'evss/documents_service'
 require 'evss/letters/service'
-require 'evss/pciu_address/configuration'
 require 'gi/configuration'
 require 'gibft/configuration'
 require 'hca/configuration'
@@ -34,10 +33,8 @@ require 'search/configuration'
 require 'search_gsa/configuration'
 require 'search_typeahead/configuration'
 require 'search_click_tracking/configuration'
-require 'va_profile/address_validation/configuration'
-require 'va_profile/v3/address_validation/configuration'
-require 'va_profile/contact_information/configuration'
-require 'va_profile/v2/contact_information/configuration'
+require 'va_profile/address_validation/v3/configuration'
+require 'va_profile/contact_information/v2/configuration'
 require 'va_profile/communication/configuration'
 require 'va_profile/demographics/configuration'
 require 'va_profile/military_personnel/configuration'
@@ -47,6 +44,8 @@ require 'vetext/service'
 require 'veteran_enrollment_system/associations/configuration'
 require 'veteran_enrollment_system/base_configuration'
 require 'unified_health_data/configuration'
+require 'eps/configuration'
+require 'ccra/configuration'
 
 Rails.application.reloader.to_prepare do
   redis_namespace = Redis::Namespace.new('breakers', redis: $redis)
@@ -63,7 +62,6 @@ Rails.application.reloader.to_prepare do
     EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service,
     EVSS::DocumentsService.breakers_service,
     EVSS::Letters::Configuration.instance.breakers_service,
-    EVSS::PCIUAddress::Configuration.instance.breakers_service,
     Gibft::Configuration.instance.breakers_service,
     GI::Configuration.instance.breakers_service,
     HCA::Configuration.instance.breakers_service,
@@ -74,10 +72,8 @@ Rails.application.reloader.to_prepare do
     SM::Configuration.instance.breakers_service,
     VeteranEnrollmentSystem::Associations::Configuration.instance.breakers_service,
     VeteranEnrollmentSystem::BaseConfiguration.instance.breakers_service,
-    VAProfile::AddressValidation::Configuration.instance.breakers_service,
-    VAProfile::V3::AddressValidation::Configuration.instance.breakers_service,
-    VAProfile::ContactInformation::Configuration.instance.breakers_service,
-    VAProfile::V2::ContactInformation::Configuration.instance.breakers_service,
+    VAProfile::AddressValidation::V3::Configuration.instance.breakers_service,
+    VAProfile::ContactInformation::V2::Configuration.instance.breakers_service,
     VAProfile::Communication::Configuration.instance.breakers_service,
     VAProfile::Demographics::Configuration.instance.breakers_service,
     VAProfile::MilitaryPersonnel::Configuration.instance.breakers_service,
@@ -95,7 +91,9 @@ Rails.application.reloader.to_prepare do
     MebApi::DGI::Configuration.instance.breakers_service,
     MebApi::DGI::Letters::Configuration.instance.breakers_service,
     UnifiedHealthData::Configuration.instance.breakers_service,
-    MDOT::Configuration.instance.breakers_service
+    MDOT::Configuration.instance.breakers_service,
+    Eps::Configuration.instance.breakers_service,
+    Ccra::Configuration.instance.breakers_service
   ]
 
   services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled

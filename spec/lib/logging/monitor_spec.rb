@@ -8,7 +8,9 @@ RSpec.describe Logging::Monitor do
   let(:monitor) { described_class.new(service) }
   let(:call_location) { double('Location', base_label: 'method_name', path: '/path/to/file.rb', lineno: 42) }
   let(:metric) { 'api.monitor.404' }
-  let(:additional_context) { { tags: ['form_id:FORM_ID'], user_account_uuid: '123-test-uuid' } }
+  let(:additional_context) do
+    { tags: ['form_id:FORM_ID'], user_account_uuid: '123-test-uuid', document_id: 10, user_password: 'password123456' }
+  end
   let(:payload) do
     {
       statsd: 'OVERRIDE',
@@ -27,7 +29,11 @@ RSpec.describe Logging::Monitor do
         tags = ["service:#{service}", "function:#{call_location.base_label}", 'form_id:FORM_ID']
 
         expect(StatsD).to receive(:increment).with(metric, tags:)
-        expect(Rails.logger).to receive(:error).with('404 Not Found!', payload)
+        expect(Rails.logger).to receive(:error) do |_, payload|
+          expect(payload[:context][:user_password]).to eq('[FILTERED]')
+          expect(payload[:context][:user_account_uuid]).to eq('123-test-uuid')
+          expect(payload[:context][:document_id]).to eq(10)
+        end
 
         monitor.track_request('error', '404 Not Found!', metric, call_location:, **additional_context)
       end
@@ -40,6 +46,18 @@ RSpec.describe Logging::Monitor do
         expect(Rails.logger).to receive(:error).with("Invalid log error_level: #{error_level}")
 
         monitor.track_request(error_level, 'TEST', metric, call_location:, **additional_context)
+      end
+
+      it 'allows an "error" parameter' do
+        tags = ["service:#{service}", "function:#{call_location.base_label}", 'form_id:FORM_ID']
+        context = { error: 'Test error message', tags: }
+
+        expect(StatsD).to receive(:increment).with(metric, tags:)
+        expect(Rails.logger).to receive(:error) do |_, payload|
+          expect(payload[:context][:error]).to eq('Test error message')
+        end
+
+        monitor.track_request('error', '404 Not Found!', metric, call_location:, **context)
       end
     end
   end

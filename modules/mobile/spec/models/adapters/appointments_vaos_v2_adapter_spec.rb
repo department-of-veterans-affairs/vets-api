@@ -17,12 +17,15 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   let(:phone_va_id) { '53352' }
   let(:home_va_mobile_any_id) { '50094' }
   let(:atlas_va_id) { '50095' }
-  let(:home_gfe_id) { '50096' }
+  let(:home_mobile_any_gfe_id) { '50096' }
   let(:home_va_mobile_any_group_id) { '50098' }
   let(:home_va_adhoc_id) { '50099' }
+  let(:home_mobile_gfe_id) { '50100' }
   let(:past_request_date_appt_id) { '53360' }
   let(:future_request_date_appt_id) { '53359' }
   let(:telehealth_onsite_id) { '50097' }
+  let(:missing_vvs_kind_id) { '50101' }
+  let(:cerner_va_id) { 'CERN129377263' }
 
   def appointment_data(index = nil)
     appts = index ? raw_data[index] : raw_data
@@ -56,7 +59,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   it 'returns a list of Mobile::V0::Appointments at the expected size' do
     adapted_appointments = subject.parse(appointment_data)
-    expect(adapted_appointments.size).to eq(15)
+    expect(adapted_appointments.size).to eq(18)
     expect(adapted_appointments.map(&:class).uniq).to match_array(Mobile::V0::Appointment)
   end
 
@@ -110,7 +113,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
                                  'best_time_to_call' => nil,
                                  'friendly_location_name' => 'Cheyenne VA Medical Center',
                                  'service_category_name' => nil,
-                                 'show_schedule_link' => nil
+                                 'show_schedule_link' => nil,
+                                 'is_cerner' => nil
                                })
   end
 
@@ -162,8 +166,13 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
         expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_ATLAS')
       end
 
-      it 'sets GFE appointments to VA_VIDEO_CONNECT_GFE' do
-        appt = appointment_by_id(home_gfe_id)
+      it 'sets GFE MOBILE_ANY appointments to VA_VIDEO_CONNECT_GFE' do
+        appt = appointment_by_id(home_mobile_any_gfe_id)
+        expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_GFE')
+      end
+
+      it 'sets GFE MOBILE_GFE appointments to VA_VIDEO_CONNECT_GFE' do
+        appt = appointment_by_id(home_mobile_gfe_id)
         expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_GFE')
       end
 
@@ -187,9 +196,19 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
         expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_ONSITE')
       end
 
-      it 'sets unknown vvs kind appointments to VA' do
-        appt = appointment_by_id(telehealth_onsite_id, overrides: { telehealth: { vvs_kind: 'OTHER' } })
+      it 'sets telehealth appointments without vvs_kind to VA when vvs_vista_video_appt is missing' do
+        appt = appointment_by_id(missing_vvs_kind_id)
         expect(appt.appointment_type).to eq('VA')
+      end
+
+      it 'sets telehealth appointments without vvs_kind to VA when vvs_vista_video_appt is false' do
+        appt = appointment_by_id(missing_vvs_kind_id, overrides: { extension: { vvs_vista_video_appt: false } })
+        expect(appt.appointment_type).to eq('VA')
+      end
+
+      it 'sets telehealth appointments without vvs_kind to VA_VIDEO_CONNECT_HOME when vvs_vista_video_appt is true' do
+        appt = appointment_by_id(missing_vvs_kind_id, overrides: { extension: { vvs_vista_video_appt: true } })
+        expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_HOME')
       end
     end
   end
@@ -705,6 +724,15 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
         appt = appointment_by_id(booked_va_id)
         expect(appt.show_schedule_link).to be_nil
       end
+    end
+  end
+
+  describe 'is_cerner' do
+    it 'passes through the proper boolean value' do
+      appt = appointment_by_id(booked_va_id)
+      expect(appt.is_cerner).to be_nil
+      appt = appointment_by_id(cerner_va_id)
+      expect(appt.is_cerner).to be(true)
     end
   end
 end

@@ -22,30 +22,31 @@ module AccreditedRepresentativePortal
           type:, metadata:, attachment_guids:,
           claimant_representative:
         )
-          type.new.tap do |saved_claim|
-            saved_claim.form = metadata.to_json
+          SavedClaimClaimantRepresentative.transaction do
+            type.new.tap do |saved_claim|
+              saved_claim.form = metadata.to_json
 
-            form_id = saved_claim.class::PROPER_FORM_ID
-            organize_attachments!(form_id, attachment_guids).tap do |attachments|
-              saved_claim.form_attachment = attachments[:form]
+              form_id = saved_claim.class::PROPER_FORM_ID
+              organize_attachments!(form_id, attachment_guids).tap do |attachments|
+                saved_claim.form_attachment = attachments[:form]
 
-              attachments[:documentations].each do |attachment|
-                saved_claim.persistent_attachments << attachment
+                attachments[:documentations].each do |attachment|
+                  saved_claim.persistent_attachments << attachment
+                end
               end
+
+              create!(saved_claim, claimant_representative)
+
+              SubmitBenefitsIntakeClaimJob.new.perform(
+                saved_claim.id
+              )
             end
-
-            create!(saved_claim, claimant_representative)
-
-            SubmitBenefitsIntakeClaimJob.new.perform(
-              saved_claim.id
-            )
           end
-
         ##
         # Expose a discrete set of known exceptions. Expose any remaining with a
         # catch-all unknown exception.
         #
-        rescue RecordInvalidError, WrongAttachmentsError
+        rescue RecordInvalidError, WrongAttachmentsError, BenefitsIntakeService::Service::InvalidDocumentError
           raise
         rescue
           raise UnknownError
@@ -55,7 +56,15 @@ module AccreditedRepresentativePortal
 
         def create!(saved_claim, claimant_representative)
           SavedClaimClaimantRepresentative.create!(
-            saved_claim:, **claimant_representative.to_h
+            saved_claim:,
+            claimant_id:
+              claimant_representative.claimant_id,
+            accredited_individual_registration_number:
+              claimant_representative.accredited_individual_registration_number,
+            power_of_attorney_holder_type:
+              claimant_representative.power_of_attorney_holder.type,
+            power_of_attorney_holder_poa_code:
+              claimant_representative.power_of_attorney_holder.poa_code
           )
         rescue ActiveRecord::RecordInvalid => e
           raise RecordInvalidError, e.record

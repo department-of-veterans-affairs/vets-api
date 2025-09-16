@@ -4,9 +4,15 @@ require 'sentry_logging'
 
 module SentryLogging
   # WARNING: This module is deprecated, and will be removed in October 2025. Please use Vets::SharedLogging instead.
-  # If your team currently uses this module, please see documentation for migrating to Vets::SharedLogging: TODO
-  ActiveSupport::Deprecation
-    .new.warn('SentryLogging is deprecated and will be removed in October 2025. Use Vets::SharedLogging instead.')
+  #
+  # Migration Documentation: https://depo-platform-documentation.scrollhelp.site/developer-docs/how-to-migrate-from-sentrylogging-to-vets-sharedlo
+  #
+  # If your team currently uses this module, please see the migration guide above for step-by-step instructions
+  # on transitioning to Vets::SharedLogging.
+  unless Rails.env.test?
+    ActiveSupport::Deprecation
+      .new.warn('SentryLogging is deprecated and will be removed in October 2025. Use Vets::SharedLogging instead.')
+  end
   extend self
 
   def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})

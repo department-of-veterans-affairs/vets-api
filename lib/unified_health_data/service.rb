@@ -4,6 +4,15 @@ require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
+require_relative 'models/clinical_notes'
+require_relative 'models/condition'
+require_relative 'models/prescription_attributes'
+require_relative 'models/prescription'
+require_relative 'adapters/clinical_notes_adapter'
+require_relative 'adapters/prescriptions_adapter'
+require_relative 'reference_range_formatter'
+require_relative 'adapters/conditions_adapter'
+require_relative 'logging'
 
 module UnifiedHealthData
   class Service < Common::Client::Base
@@ -19,7 +28,7 @@ module UnifiedHealthData
 
     def get_labs(start_date:, end_date:)
       with_monitoring do
-        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        headers = request_headers
         patient_id = @user.icn
         path = "#{config.base_path}labs?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
         response = perform(:get, path, nil, headers)
@@ -30,14 +39,130 @@ module UnifiedHealthData
         filtered_records = filter_records(parsed_records)
 
         # Log test code distribution after filtering is applied
-        log_test_code_distribution(parsed_records)
+        logger.log_test_code_distribution(parsed_records)
 
         filtered_records
       end
     end
 
+    def get_conditions
+      with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        patient_id = @user.icn
+
+        start_date = '1900-01-01'
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+        conditions_adapter.parse(combined_records)
+      end
+    end
+
+    def get_single_condition(condition_id)
+      with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        patient_id = @user.icn
+
+        start_date = '1900-01-01'
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+        target_record = combined_records.find { |record| record['resource']['id'] == condition_id }
+        return nil unless target_record
+
+        conditions_adapter.parse([target_record]).first
+      end
+    end
+
+    def get_care_summaries_and_notes
+      with_monitoring do
+        patient_id = @user.icn
+
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
+        start_date = '1900-01-01'
+        # End date defaults to today
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, request_headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+
+        filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
+
+        parse_notes(filtered)
+      end
+    end
+
+    def get_prescriptions
+      with_monitoring do
+        patient_id = @user.icn
+        path = "#{config.base_path}medications?patientId=#{patient_id}"
+
+        response = perform(:get, path, nil, request_headers)
+        body = parse_response_body(response.body)
+
+        adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new
+        prescriptions = adapter.parse(body)
+
+        Rails.logger.info(
+          message: 'UHD prescriptions retrieved',
+          total_prescriptions: prescriptions.size,
+          service: 'unified_health_data'
+        )
+
+        prescriptions
+      end
+    end
+
+    def refill_prescription(orders)
+      with_monitoring do
+        path = "#{config.base_path}medications/rx/refill"
+        request_body = build_refill_request_body(orders)
+        response = perform(:post, path, request_body.to_json, request_headers(include_content_type: true))
+        parse_refill_response(response)
+      end
+    rescue => e
+      Rails.logger.error("Error submitting prescription refill: #{e.message}")
+      build_error_response(orders)
+    end
+
+    def get_single_summary_or_note(note_id)
+      # TODO: refactor out common bits into a client type method - most of this is repeated from above
+      with_monitoring do
+        patient_id = @user.icn
+
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
+        start_date = '1900-01-01'
+        # End date defaults to today
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, request_headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+
+        filtered = combined_records.select { |record| record['resource']['id'] == note_id }
+
+        parse_single_note(filtered[0])
+      end
+    end
+
     private
 
+    # Shared
     def fetch_access_token
       with_monitoring do
         response = connection.post(config.token_path) do |req|
@@ -53,19 +178,13 @@ module UnifiedHealthData
       end
     end
 
-    def filter_records(records)
-      records.select do |record|
-        case record.attributes.test_code
-        when 'CH'
-          Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
-        when 'SP'
-          Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
-        when 'MB'
-          Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
-        else
-          false # Reject any other test codes for now, but we'll log them for analysis
-        end
-      end
+    def request_headers(include_content_type: false)
+      headers = {
+        'Authorization' => fetch_access_token,
+        'x-api-key' => config.x_api_key
+      }
+      headers['Content-Type'] = 'application/json' if include_content_type
+      headers
     end
 
     def parse_response_body(body)
@@ -79,6 +198,52 @@ module UnifiedHealthData
       vista_records = body.dig('vista', 'entry') || []
       oracle_health_records = body.dig('oracle-health', 'entry') || []
       vista_records + oracle_health_records
+    end
+
+    # Labs and Tests methods
+    def filter_records(records)
+      return all_records_response(records) unless filtering_enabled?
+
+      apply_test_code_filtering(records)
+    end
+
+    def filtering_enabled?
+      Flipper.enabled?(:mhv_accelerated_delivery_uhd_filtering_enabled, @user)
+    end
+
+    def all_records_response(records)
+      Rails.logger.info(
+        message: 'UHD filtering disabled - returning all records',
+        total_records: records.size,
+        service: 'unified_health_data'
+      )
+      records
+    end
+
+    def apply_test_code_filtering(records)
+      filtered = records.select { |record| test_code_enabled?(record.attributes.test_code) }
+
+      Rails.logger.info(
+        message: 'UHD filtering enabled - applied test code filtering',
+        total_records: records.size,
+        filtered_records: filtered.size,
+        service: 'unified_health_data'
+      )
+
+      filtered
+    end
+
+    def test_code_enabled?(test_code)
+      case test_code
+      when 'CH'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
+      when 'SP'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
+      when 'MB'
+        Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
+      else
+        false # Reject any other test codes for now, but we'll log them for analysis
+      end
     end
 
     def parse_labs(records)
@@ -206,166 +371,13 @@ module UnifiedHealthData
         UnifiedHealthData::Observation.new(
           test_code: obs['code']['text'],
           value: fetch_observation_value(obs),
-          reference_range: fetch_reference_range(obs),
+          reference_range: UnifiedHealthData::ReferenceRangeFormatter.format(obs),
           status: obs['status'],
           comments: obs['note']&.map { |note| note['text'] }&.join(', ') || '',
           sample_tested:,
           body_site:
         )
       end
-    end
-
-    # Main method to fetch reference range from observation
-    def fetch_reference_range(obs)
-      return '' unless obs['referenceRange'].is_a?(Array) && !obs['referenceRange'].empty?
-
-      begin
-        # Process each range element and transform it to a formatted string
-        formatted_ranges = obs['referenceRange'].map do |range|
-          next '' unless range.is_a?(Hash)
-
-          # Use the text directly if available, otherwise format it
-          if range['text'].is_a?(String) && !range['text'].empty?
-            range['text']
-          else
-            format_reference_range(range)
-          end
-        end
-
-        # Filter out empty strings and join the results
-        formatted_ranges.reject(&:empty?).join(', ').strip
-      rescue => e
-        Rails.logger.error("Error processing reference range: #{e.message}")
-        ''
-      end
-    end
-
-    # Format a reference range into a string representation
-    def format_reference_range(range)
-      return '' unless range.is_a?(Hash)
-
-      begin
-        return range['text'] if range['text'].is_a?(String) && !range['text'].empty?
-
-        return format_numeric_range(range) if range['low'].is_a?(Hash) || range['high'].is_a?(Hash)
-
-        ''
-      rescue => e
-        Rails.logger.error("Error processing individual reference range: #{e.message}")
-        ''
-      end
-    end
-
-    # Extract numeric value and unit from range component
-    def extract_range_component(component)
-      # Handle the case where component is not a hash
-      return [nil, ''] unless component.is_a?(Hash)
-
-      value = component&.dig('value')
-      value = nil unless value.is_a?(Numeric)
-      unit = component&.dig('unit').is_a?(String) ? component&.dig('unit') : ''
-      [value, unit]
-    end
-
-    # Determine range type prefix
-    def get_range_type_prefix(range)
-      return '' unless range.is_a?(Hash) && range['type'].present?
-
-      # Handle the case where type is not a hash
-      return '' unless range['type'].is_a?(Hash)
-
-      type_text = range['type']['text'].is_a?(String) ? range['type']['text'] : nil
-
-      # Always return the range type prefix if it exists
-      if type_text
-        "#{type_text}: "
-      else
-        ''
-      end
-    end
-
-    # Format a numeric reference range
-    def format_numeric_range(range)
-      # Extract values safely
-      low_value, low_unit = extract_range_component(range['low'])
-      high_value, high_unit = extract_range_component(range['high'])
-
-      # Get range type prefix
-      range_type = get_range_type_prefix(range)
-
-      # Create params hash for formatting
-      params = {
-        range_type:,
-        low: { value: low_value, unit: low_unit },
-        high: { value: high_value, unit: high_unit },
-        type_text: range['type'].is_a?(Hash) ? range['type']['text'] : nil
-      }
-
-      # Format based on available values
-      format_range_based_on_values(params)
-    rescue => e
-      Rails.logger.error("Error in format_numeric_range: #{e.message}")
-      ''
-    end
-
-    # Helper method to format range based on which values are available
-    def format_range_based_on_values(params)
-      range_type = params[:range_type]
-      low_value = params[:low][:value]
-      low_unit = params[:low][:unit]
-      high_value = params[:high][:value]
-      high_unit = params[:high][:unit]
-
-      if low_value && high_value
-        format_low_high_range(params)
-      elsif low_value
-        unit_str = low_unit.empty? ? '' : " #{low_unit}"
-        "#{range_type}>= #{low_value}#{unit_str}"
-      elsif high_value
-        unit_str = high_unit.empty? ? '' : " #{high_unit}"
-        "#{range_type}<= #{high_value}#{unit_str}"
-      else
-        ''
-      end
-    end
-
-    # Format range with both low and high values
-    def format_low_high_range(params)
-      range_type = params[:range_type]
-      low_value = params[:low][:value]
-      low_unit = params[:low][:unit]
-      high_value = params[:high][:value]
-      high_unit = params[:high][:unit]
-
-      if !low_unit.empty? || !high_unit.empty?
-        format_range_with_units(params)
-      else
-        "#{range_type}#{low_value} - #{high_value}"
-      end
-    end
-
-    # Helper method to format range with units
-    def format_range_with_units(params)
-      range_type = params[:range_type]
-      low_value = params[:low][:value]
-      low_unit = params[:low][:unit]
-      high_value = params[:high][:value]
-      high_unit = params[:high][:unit]
-
-      # Determine which unit to display (prefer high's unit, fall back to low's unit)
-      final_unit = if !high_unit.empty?
-                     high_unit
-                   elsif !low_unit.empty?
-                     low_unit
-                   else
-                     ''
-                   end
-
-      # Only show the unit on the last value
-      unit_str = final_unit.empty? ? '' : " #{final_unit}"
-
-      # Format the range with units only at the end
-      "#{range_type}#{low_value} - #{high_value}#{unit_str}"
     end
 
     def fetch_observation_value(obs)
@@ -429,35 +441,97 @@ module UnifiedHealthData
       end
     end
 
-    # Logs the distribution of test codes found in the records for analytics purposes
-    # This helps identify which test codes are common and might be worth filtering in
-    def log_test_code_distribution(records)
-      # Count occurrence of each test code
-      test_code_counts = Hash.new(0)
-      records.each do |record|
-        test_code = record.attributes.test_code
-        test_code_counts[test_code] += 1 if test_code.present?
-      end
+    # Conditions methods
+    def conditions_adapter
+      @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
+    end
 
-      # Only log if we have test codes
-      return if test_code_counts.empty?
+    # Care Summaries and Notes methods
+    def parse_notes(records)
+      return [] if records.blank?
 
-      # Sort by frequency (descending)
-      sorted_counts = test_code_counts.sort_by { |_, count| -count }
+      # Parse using the adapter
+      parsed = records.map { |record| clinical_notes_adapter.parse(record) }
+      parsed.compact
+    end
 
-      # Format for logging - code:count pairs
-      code_count_pairs = sorted_counts.map { |code, count| "#{code}:#{count}" }
+    # Prescription refill helper methods
+    def build_refill_request_body(orders)
+      {
+        patientId: @user.icn,
+        orders: orders.map do |order|
+          {
+            orderId: order[:id].to_s,
+            stationNumber: order[:stationNumber].to_s
+          }
+        end
+      }
+    end
 
-      # Log the distribution with useful context but no PII
-      Rails.logger.info(
+    def build_error_response(orders)
+      {
+        success: [],
+        failed: orders.map do |order|
+          { id: order[:id], error: 'Service unavailable', station_number: order[:stationNumber] }
+        end
+      }
+    end
+
+    def parse_refill_response(response)
+      body = parse_response_body(response.body)
+
+      # Ensure we have an array response format
+      refill_items = body.is_a?(Array) ? body : []
+
+      # Parse successful refills
+      successes = extract_successful_refills(refill_items)
+
+      # Parse failed refills
+      failures = extract_failed_refills(refill_items)
+
+      {
+        success: successes,
+        failed: failures
+      }
+    end
+
+    def extract_successful_refills(refill_items)
+      # Parse successful refills from API response array
+      successful_refills = refill_items.select { |item| item['success'] == true }
+      successful_refills.map do |refill|
         {
-          message: 'UHD test code distribution',
-          test_code_distribution: code_count_pairs.join(','),
-          total_codes: sorted_counts.size,
-          total_records: records.size,
-          service: 'unified_health_data'
+          id: refill['orderId'],
+          status: refill['message'] || 'submitted',
+          station_number: refill['stationNumber']
         }
-      )
+      end
+    end
+
+    def extract_failed_refills(refill_items)
+      # Parse failed refills from API response array
+      failed_refills = refill_items.select { |item| item['success'] == false }
+      failed_refills.map do |failure|
+        {
+          id: failure['orderId'],
+          error: failure['message'] || 'Unable to process refill',
+          station_number: failure['stationNumber']
+        }
+      end
+    end
+
+    def parse_single_note(record)
+      return nil if record.blank?
+
+      # Parse using the adapter
+      clinical_notes_adapter.parse(record)
+    end
+
+    def clinical_notes_adapter
+      @clinical_notes_adapter ||= UnifiedHealthData::V2::Adapters::ClinicalNotesAdapter.new
+    end
+
+    def logger
+      @logger ||= UnifiedHealthData::Logging.new(@user)
     end
   end
 end

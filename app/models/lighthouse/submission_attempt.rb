@@ -17,38 +17,44 @@ class Lighthouse::SubmissionAttempt < SubmissionAttempt
     manually: 'manually'
   }
 
+  STATS_KEY = 'api.lighthouse.submission_attempt'
+
   def fail!
     failure!
     log_hash = status_change_hash
     log_hash[:message] = 'Lighthouse Submission Attempt failed'
-    Rails.logger.public_send(:error, log_hash)
+    monitor.track_request(:error, log_hash[:message], STATS_KEY, **log_hash)
   end
 
   def manual!
     manually!
     log_hash = status_change_hash
     log_hash[:message] = 'Lighthouse Submission Attempt is being manually remediated'
-    Rails.logger.public_send(:warn, log_hash)
+    monitor.track_request(:warn, log_hash[:message], STATS_KEY, **log_hash)
   end
 
   def vbms!
     update(status: :vbms)
     log_hash = status_change_hash
     log_hash[:message] = 'Lighthouse Submission Attempt went to vbms'
-    Rails.logger.public_send(:info, log_hash)
+    monitor.track_request(:info, log_hash[:message], STATS_KEY, **log_hash)
   end
 
   def pending!
     update(status: :pending)
     log_hash = status_change_hash
     log_hash[:message] = 'Lighthouse Submission Attempt is pending'
-    Rails.logger.public_send(:info, log_hash)
+    monitor.track_request(:info, log_hash[:message], STATS_KEY, **log_hash)
   end
 
   def success!
     submitted!
     log_hash = status_change_hash
     log_hash[:message] = 'Lighthouse Submission Attempt is submitted'
-    Rails.logger.public_send(:info, log_hash)
+    monitor.track_request(:info, log_hash[:message], STATS_KEY, **log_hash)
+  end
+
+  def monitor
+    @monitor ||= Logging::Monitor.new('lighthouse_submission_attempt')
   end
 end

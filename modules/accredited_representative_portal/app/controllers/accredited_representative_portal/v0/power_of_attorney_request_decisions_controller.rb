@@ -4,6 +4,7 @@ module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestDecisionsController < ApplicationController
       include PowerOfAttorneyRequests
+      include AccreditedRepresentativePortal::V0::WithdrawalGuard
 
       before_action do
         authorize PowerOfAttorneyRequestDecision
@@ -13,6 +14,7 @@ module AccreditedRepresentativePortal
         before_action do
           id = params[:power_of_attorney_request_id]
           set_poa_request(id)
+          render_404_if_withdrawn!(@poa_request)
         end
       end
 
@@ -41,7 +43,12 @@ module AccreditedRepresentativePortal
       private
 
       def process_acceptance
-        PowerOfAttorneyRequestService::Accept.new(@poa_request, creator).call
+        PowerOfAttorneyRequestService::Accept.new(
+          @poa_request,
+          current_user.user_account_uuid,
+          current_user.power_of_attorney_holder_memberships
+        ).call
+
         render json: {}, status: :ok
       end
 
@@ -53,7 +60,12 @@ module AccreditedRepresentativePortal
           return
         end
 
-        @poa_request.mark_declined!(creator, declination_key)
+        @poa_request.mark_declined!(
+          current_user.user_account_uuid,
+          current_user.power_of_attorney_holder_memberships,
+          declination_key
+        )
+
         send_declination_email(@poa_request)
         track_declination_metrics
 
@@ -73,10 +85,6 @@ module AccreditedRepresentativePortal
 
       def decision_params
         params.require(:decision).permit(:type, :declinationReason, :key)
-      end
-
-      def creator
-        current_user.user_account
       end
 
       def send_declination_email(poa_request)

@@ -71,6 +71,53 @@ RSpec.describe SignIn::ClientConfigsController, type: :controller do
         expect(response_body.dig('errors', 'client_id')).to include("can't be blank")
       end
     end
+
+    context 'with certs_attributes' do
+      context 'when a cert with the pem already exists' do
+        let!(:cert) { create(:sign_in_certificate) }
+
+        it 'associates the existing cert with the client config' do
+          post :create, params: { client_config: valid_attributes.merge(certs_attributes: [cert.attributes]) },
+                        as: :json
+
+          expect(response).to have_http_status(:created)
+          expect(response_body['certs']).to include(a_hash_including('id' => cert.id))
+          expect(SignIn::ClientConfig.last.certs).to include(cert)
+        end
+
+        it 'does not create a new cert' do
+          expect do
+            post :create, params: { client_config: valid_attributes.merge(certs_attributes: [cert.attributes]) },
+                          as: :json
+          end.not_to change(SignIn::Certificate, :count)
+        end
+      end
+
+      context 'when a cert with the pem does not exist' do
+        let(:cert) { build(:sign_in_certificate) }
+
+        it 'creates a new certificate and associates it with the client config' do
+          post :create, params: { client_config: valid_attributes.merge(certs_attributes: [cert.attributes]) },
+                        as: :json
+
+          expect(response).to have_http_status(:created)
+          expect(response_body['certs']).to include(a_hash_including('pem' => cert.pem))
+          expect(SignIn::Certificate.count).to eq(1)
+        end
+      end
+
+      context 'when a cert has a validation error' do
+        let(:cert) { build(:sign_in_certificate, pem: 'bad_pem') }
+
+        it 'does not create the cert and returns an error' do
+          post :create, params: { client_config: valid_attributes.merge(certs_attributes: [cert.attributes]) },
+                        as: :json
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response_body.dig('errors',
+                                   'config_certificates[0].cert.pem')).to include('not a valid X.509 certificate')
+        end
+      end
+    end
   end
 
   describe 'PUT #update' do
@@ -91,6 +138,48 @@ RSpec.describe SignIn::ClientConfigsController, type: :controller do
         expect(response_body.dig('errors', 'client_id')).to include("can't be blank")
       end
     end
+
+    context 'with certs_attributes' do
+      let(:cert) { create(:sign_in_certificate) }
+
+      it 'updates the certs for the client config' do
+        put :update,
+            params: {
+              client_id:, client_config: valid_attributes.merge(certs_attributes: [cert.attributes])
+            }, as: :json
+
+        expect(response).to have_http_status(:ok)
+        expect(response_body['certs']).to include(a_hash_including('id' => cert.id))
+      end
+
+      context 'when certs_attributes are empty' do
+        it 'does not update the certs' do
+          put :update, params: { client_id:, client_config: valid_attributes.merge(certs_attributes: []) }, as: :json
+
+          expect(response).to have_http_status(:ok)
+          expect(response_body['certs']).to be_empty
+        end
+      end
+
+      context 'when certs_attributes contains _destroy' do
+        let(:cert_to_destroy) { create(:sign_in_certificate) }
+
+        before do
+          client_config.certs << cert_to_destroy
+        end
+
+        it 'destroys the specified cert' do
+          put :update, params: {
+            client_id:,
+            client_config: {
+              certs_attributes: [{ id: cert_to_destroy.id, _destroy: '1' }]
+            }
+          }, as: :json
+
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
   end
 
   describe 'DELETE #destroy' do
@@ -108,7 +197,7 @@ RSpec.describe SignIn::ClientConfigsController, type: :controller do
       it 'destroys the requested SignIn::ClientConfig' do
         client_config
         expect do
-          delete :destroy, params: { client_id:  }
+          delete :destroy, params: { client_id: }
         end.to change(SignIn::ClientConfig, :count).by(-1)
       end
     end

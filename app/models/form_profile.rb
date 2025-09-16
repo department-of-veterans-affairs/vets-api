@@ -97,7 +97,8 @@ class FormProfile
     dependents_verification: %w[21-0538],
     dispute_debt: ['DISPUTE-DEBT'],
     edu: %w[22-1990 22-1990N 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E
-            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
+            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ
+            22-10297],
     evss: ['21-526EZ'],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
     form_upload: %w[
@@ -154,6 +155,7 @@ class FormProfile
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
     '22-10203' => ::FormProfiles::VA10203,
+    '22-10297' => ::FormProfiles::VA10297,
     '22-1990' => ::FormProfiles::VA1990,
     '22-1990E' => ::FormProfiles::VA1990e,
     '22-1990EMEB' => ::FormProfiles::VA1990emeb,
@@ -331,25 +333,9 @@ class FormProfile
     return_val
   end
 
-  def pciu_disabled?
-    Flipper.enabled?(:remove_pciu, user)
-  end
-
   def initialize_contact_information
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
-    if pciu_disabled?
-      # Monitor logs to validate the presence of Contact Information V2 user data
-      Rails.logger.info("VAProfile Contact Info: Address? #{opt[:address].present?},
-        Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
-    else
-      # The following pciu lines need to removed when tearing down the EVSS PCIU service.
-      opt[:email] ||= extract_pciu_data(:pciu_email)
-      if opt[:home_phone].nil?
-        opt[:home_phone] = pciu_primary_phone
-        opt[:us_phone] = pciu_us_phone
-      end
-    end
     opt[:address] ||= user_address_hash
 
     format_for_schema_compatibility(opt)
@@ -361,10 +347,8 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    if pciu_disabled?
+    if user.icn.present? || user.vet360_id.present?
       @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
-    elsif VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
-      @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
     else
       Rails.logger.info('Vet360 Contact Info Null')
     end
@@ -398,23 +382,7 @@ class FormProfile
     opt[:address][:postal_code] = opt[:address][:postal_code][0..4] if opt.dig(:address, :postal_code)
   end
 
-  def extract_pciu_data(method)
-    user&.send(method)
-  rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException, EVSS::ErrorMiddleware::EVSSError
-    ''
-  end
-
-  def pciu_us_phone
-    return '' if pciu_primary_phone.blank?
-    return pciu_primary_phone if pciu_primary_phone.size == 10
-
-    return pciu_primary_phone[1..] if pciu_primary_phone.size == 11 && pciu_primary_phone[0] == '1'
-
-    ''
-  end
-
   # returns the veteran's phone number as an object
-  # preference: vet360 mobile -> vet360 home -> pciu
   def phone_object
     mobile = vet360_contact_info&.mobile_phone
     return mobile if mobile&.area_code && mobile.phone_number
@@ -422,20 +390,9 @@ class FormProfile
     home = vet360_contact_info&.home_phone
     return home if home&.area_code && home.phone_number
 
-    if pciu_disabled?
-      # Track precense of home and mobile
-      Rails.logger.info("VAProfile Phone Object: Home? #{home.present?}, Mobile? #{mobile.present?}")
-    end
-
     phone_struct = Struct.new(:area_code, :phone_number)
 
-    return phone_struct.new(pciu_us_phone.first(3), pciu_us_phone.last(7)) if pciu_us_phone&.length == 10
-
     phone_struct.new
-  end
-
-  def pciu_primary_phone
-    @pciu_primary_phone ||= extract_pciu_data(:pciu_primary_phone)
   end
 
   def convert_mapping(hash)

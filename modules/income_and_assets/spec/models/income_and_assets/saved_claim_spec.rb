@@ -93,4 +93,17 @@ RSpec.describe IncomeAndAssets::SavedClaim do
       end
     end
   end
+
+  describe '#send_email' do
+    it 'calls IncomeAndAssets::NotificationEmail with the claim id and delivers the email' do
+      claim = build(:income_and_assets_claim)
+      email_type = :error
+      notification_double = instance_double(IncomeAndAssets::NotificationEmail)
+
+      expect(IncomeAndAssets::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_double)
+      expect(notification_double).to receive(:deliver).with(email_type)
+
+      claim.send_email(email_type)
+    end
+  end
 end

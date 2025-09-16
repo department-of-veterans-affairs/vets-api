@@ -22,7 +22,7 @@ module ClaimsApi
                             detail: "Job retries exhausted for #{message['class']}",
                             error: message['error_message'])
 
-      classes = %w[ClaimsApi::V2::DisabilityCompensationPdfGenerator
+      classes = %w[ClaimsApi::V1:DisabilityCompensationPdfGenerator
                    ClaimApi::V2::DisabilityCompensationDockerContainerUpload
                    ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader].freeze
 
@@ -246,12 +246,20 @@ module ClaimsApi
       ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim)
     end
 
+    def fes_mapper_service(auto_claim)
+      ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim)
+    end
+
     def veteran_file_number(auto_claim)
       auto_claim.auth_headers['va_eauth_birlsfilenumber']
     end
 
     def evss_service
       ClaimsApi::EVSSService::Base.new
+    end
+
+    def fes_service
+      ClaimsApi::FesService::Base.new
     end
 
     def rescue_generic_errors(power_of_attorney, e)

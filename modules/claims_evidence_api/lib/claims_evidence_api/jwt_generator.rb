@@ -12,7 +12,7 @@ module ClaimsEvidenceApi
   # > token = encoder.encode_jwt
   # Use token:
   # > curl -X GET https://claimevidence-api-test.dev.bip.va.gov/api/v1/rest/swagger-ui.html \
-  # > -- 'Authentication: Bearer {token}'
+  # > -- 'Authentication: Bearer [TOKEN]'
   class JwtGenerator
     # Issuer assigned by Claim Evidence API team
     ISSUER = 'VAGOV'
@@ -24,6 +24,12 @@ module ClaimsEvidenceApi
     VALIDITY_LENGTH = 15.minutes
     # Algorithm used to encode and decode the JWT
     ALGORITHM = 'HS256'
+
+    # static method
+    # @see #encode_jwt
+    def self.encode_jwt
+      new.encode_jwt
+    end
 
     # Returns a JWT token for use in Bearer auth
     def encode_jwt
@@ -53,12 +59,12 @@ module ClaimsEvidenceApi
 
     # set the token expiration date
     def expiration_time
-      Time.zone.now + VALIDITY_LENGTH
+      created_time + VALIDITY_LENGTH
     end
 
     # set the token created time
     def created_time
-      Time.zone.now
+      @created_time ||= Time.zone.now
     end
 
     # retrieve the secret from settings

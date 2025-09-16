@@ -13,6 +13,9 @@ module BenefitsDocuments
     STATSD_KEY_PREFIX = 'api.benefits_documents'
     STATSD_UPLOAD_LATENCY = 'lighthouse.api.benefits.documents.latency'
 
+    # In order to avoid logging sensitive data, we need to exclude these params from the logs
+    DISALLOWED_PARAMS = %i[qqfilename password].freeze
+
     def initialize(user)
       @user = user
       raise ArgumentError, 'no user passed in for LH API request.' if @user.blank?
@@ -21,8 +24,7 @@ module BenefitsDocuments
     end
 
     def queue_document_upload(params, lighthouse_client_id = nil)
-      loggable_params = params.except(:password)
-      Rails.logger.info('Parameters for document upload', loggable_params)
+      Rails.logger.info('Parameters for document upload', filter_sensitive_params(params))
 
       start_timer = Time.zone.now
 
@@ -32,9 +34,10 @@ module BenefitsDocuments
     end
 
     def queue_multi_image_upload_document(params, lighthouse_client_id = nil)
-      loggable_params = params.except(:password)
-      loggable_params[:icn] = @user.icn
-      Rails.logger.info('Parameters for document multi image upload', loggable_params)
+      Rails.logger.info(
+        'Parameters for document multi image upload',
+        filter_sensitive_params(params, multi_file: true)
+      )
 
       start_timer = Time.zone.now
 
@@ -62,6 +65,14 @@ module BenefitsDocuments
       handle_error(e, nil, 'services/benefits-documents/v1/claim-letters/download')
     end
 
+    def validate_claimant_can_upload(document_data)
+      response = config.claimant_can_upload_document(document_data)
+      response.body.dig('data', 'valid') # boolean
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      handle_error(e, nil, 'services/benefits-documents/v1/documents/validate/claimant')
+      false
+    end
+
     private
 
     def submit_document(file, file_params, lighthouse_client_id = nil) # rubocop:disable Metrics/MethodLength
@@ -79,9 +90,16 @@ module BenefitsDocuments
       Rails.logger.info('file content type', file&.content_type)
       Rails.logger.info('participant_id present?', @user.participant_id.present?)
 
-      if Flipper.enabled?(:benefits_documents_filter_duplicates) && presumed_duplicate?(claim_id, file)
+      if presumed_duplicate?(claim_id, file)
         raise Common::Exceptions::UnprocessableEntity.new(
-          detail: 'Provided document has already been uploaded',
+          detail: 'DOC_UPLOAD_DUPLICATE',
+          source: self.class.name
+        )
+      end
+
+      unless validate_claimant_can_upload(document_data)
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: 'DOC_UPLOAD_INVALID_CLAIMANT',
           source: self.class.name
         )
       end
@@ -117,6 +135,7 @@ module BenefitsDocuments
         tracked_item_id: document.tracked_item_id&.first,
         upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED],
         user_account:,
+        file_size: File.size(document.file_obj),
         template_metadata: { personalisation: create_personalisation(document) }.to_json
       )
       StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_created')
@@ -218,6 +237,27 @@ module BenefitsDocuments
       end
 
       false
+    end
+
+    # To avoid logging PII, this method filters out sensitive data while keeping other pertinent data unchanged
+    def filter_sensitive_params(params, multi_file: false)
+      unfiltered_params = params.is_a?(Hash) ? params : params.to_unsafe_h
+      allowed_params = unfiltered_params.except(*DISALLOWED_PARAMS)
+      # If the 'files' key is present, it means multiple files are being uploaded
+      # so we need to filter all the file data
+      filtered_params =
+        if multi_file
+          files = allowed_params.slice(:files)
+          nested_files = allowed_params[:claims_and_appeal]&.slice(:files)
+          # Merge the files and nested files into a single hash
+          all_file_data = files.merge(claims_and_appeal: nested_files).compact
+          # Filter all file data
+          ParameterFilterHelper.filter_params(all_file_data)
+        else
+          ParameterFilterHelper.filter_params(allowed_params.slice(:file))
+        end
+      # Return everything except the disallowed params plus the filtered params
+      allowed_params.merge(filtered_params)
     end
   end
 end

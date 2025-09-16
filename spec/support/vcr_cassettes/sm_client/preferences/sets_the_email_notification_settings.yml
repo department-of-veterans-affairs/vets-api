@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-sm-api/patient/v1/preferences/notification"
+    uri: "<MHV_HOST>/v1/sm/patient/preferences/notification"
     body:
       encoding: UTF-8
       string: '{"emailAddress":"kamyar.karshenas@va.gov","notifyMe":0}'
@@ -36,7 +36,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 07:10:24 GMT
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-sm-api/patient/v1/preferences/notification"
+    uri: "<MHV_HOST>/v1/sm/patient/preferences/notification"
     body:
       encoding: US-ASCII
       string: ''
@@ -72,7 +72,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 07:10:25 GMT
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-sm-api/patient/v1/preferences/notification"
+    uri: "<MHV_HOST>/v1/sm/patient/preferences/notification"
     body:
       encoding: UTF-8
       string: '{"emailAddress":"muazzam.khan@va.gov","notifyMe":2}'
@@ -106,7 +106,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 07:10:25 GMT
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-sm-api/patient/v1/preferences/notification"
+    uri: "<MHV_HOST>/v1/sm/patient/preferences/notification"
     body:
       encoding: US-ASCII
       string: ''

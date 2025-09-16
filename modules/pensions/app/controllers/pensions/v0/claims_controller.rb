@@ -4,6 +4,7 @@ require 'kafka/concerns/kafka'
 require 'pensions/benefits_intake/submit_claim_job'
 require 'pensions/monitor'
 require 'bpds/sidekiq/submit_to_bpds_job'
+require 'persistent_attachments/sanitizer'
 
 module Pensions
   module V0
@@ -61,7 +62,9 @@ module Pensions
         # Submit to BPDS if the feature is enabled
         process_and_upload_to_bpds(claim)
 
-        process_and_upload_to_lighthouse(in_progress_form, claim)
+        process_attachments(in_progress_form, claim)
+
+        Pensions::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
 
@@ -86,16 +89,17 @@ module Pensions
         )
       end
 
-      # link the form to the uploaded attachments and perform submission job
+      ##
+      # Processes attachments for the claim
       #
-      # @param in_progress_form [InProgressForm]
-      # @param claim [Pensions::SavedClaim]
-      def process_and_upload_to_lighthouse(in_progress_form, claim)
+      # @param in_progress_form [Object]
+      # @param claim
+      # @raise [Exception]
+      def process_attachments(in_progress_form, claim)
         claim.process_attachments!
-
-        Pensions::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
+        sanitize_attachments(claim, in_progress_form)
         raise e
       end
 
@@ -191,6 +195,28 @@ module Pensions
         metadata = in_progress_form.metadata
         metadata['submission']['error_message'] = claim&.errors&.errors&.to_s
         in_progress_form.update(metadata:)
+      end
+
+      ##
+      # Sanitizes attachments for a claim and handles persistent attachment errors.
+      #
+      # This method checks a feature flag to determine if
+      # persistent attachment error handling should be enabled. If enabled, it:
+      #   - Calls the PersistentAttachments::Sanitizer to remove bad attachments and update the in_progress_form.
+      #   - Sends a persistent attachment error email notification if the claim supports it.
+      #   - Destroys the claim if attachment processing fails.
+      #
+      # @param claim [Pensions::SavedClaim] The claim whose attachments are being sanitized.
+      # @param in_progress_form [InProgressForm] The in-progress form associated with the claim.
+      # @return [void]
+      def sanitize_attachments(claim, in_progress_form)
+        feature_flag = Settings.vanotify.services['21p_527ez'].email.persistent_attachment_error.flipper_id
+
+        if Flipper.enabled?(feature_flag.to_sym)
+          PersistentAttachments::Sanitizer.new.sanitize_attachments(claim, in_progress_form)
+          claim.send_email(:persistent_attachment_error) if claim.respond_to?(:send_email)
+          claim.destroy! # Handle deletion of the claim if attachments processing fails
+        end
       end
 
       ##

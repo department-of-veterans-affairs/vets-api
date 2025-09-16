@@ -18,7 +18,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     login_as(test_user)
     travel_to(time)
     test_user
-    accredited_individual
     representative
     vso
     other_vso
@@ -36,18 +35,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov'])
   end
 
-  let(:accredited_individual) do
-    create(:user_account_accredited_individual,
-           user_account_email: test_user.email,
-           user_account_icn: test_user.icn,
-           poa_code:)
-  end
-
   let(:representative) do
     create(:representative,
            :vso,
            email: test_user.email,
-           representative_id: accredited_individual.accredited_individual_registration_number,
+           representative_id: Faker::Number.unique.number(digits: 6),
            poa_codes: [poa_code])
   end
 
@@ -259,9 +251,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       end
 
       before do
-        allow_any_instance_of(AccreditedRepresentativePortal::RepresentativeUserAccount)
-          .to receive(:get_registration_number).with('veteran_service_organization')
-          .and_return(accredited_individual.accredited_individual_registration_number)
+        allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships)
+          .to receive(:registration_numbers)
+          .and_return([representative.representative_id])
       end
 
       it 'returns the filtered list for the logged-in user' do
@@ -620,6 +612,20 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           get('/accredited_representative_portal/v0/power_of_attorney_requests/nonexistent')
 
           expect(response).to have_http_status(:not_found)
+        end
+      end
+
+      context 'when POA request is withdrawn' do
+        let!(:withdrawn_request) do
+          resolution = create(:power_of_attorney_request_resolution, :replacement)
+          resolution.power_of_attorney_request
+        end
+
+        it 'returns 404 Not Found' do
+          get("/accredited_representative_portal/v0/power_of_attorney_requests/#{withdrawn_request.id}")
+
+          expect(response).to have_http_status(:not_found)
+          expect(response.parsed_body).to eq({ 'errors' => ['Record not found'] })
         end
       end
     end

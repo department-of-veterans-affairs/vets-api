@@ -5,7 +5,7 @@ module V0
     service_tag 'dependent-change'
 
     def show
-      dependents = dependent_service.get_dependents
+      dependents = create_dependent_service.get_dependents
       dependents[:diaries] = dependency_verification_service.read_diaries
       render json: DependentsSerializer.new(dependents)
     rescue => e
@@ -37,12 +37,12 @@ module V0
       claim.process_attachments!
 
       # reinstantiate as v1 dependent service if use_v2 is blank
-      dependent_service = BGS::DependentService.new(current_user) if use_v2.blank?
+      dependent_service = use_v2.blank? ? BGS::DependentService.new(current_user) : create_dependent_service
 
       dependent_service.submit_686c_form(claim)
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-      claim.send_submitted_email(current_user) if Flipper.enabled?(:dependents_submitted_email)
+      claim.send_submitted_email(current_user)
 
       # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
 
@@ -64,13 +64,15 @@ module V0
         :report_death,
         :report_marriage_of_child_under18,
         :report_child18_or_older_is_not_attending_school,
+        :statement_of_truth_signature,
+        :statement_of_truth_certified,
         'view:selectable686_options': {},
         dependents_application: {},
         supporting_documents: []
       )
     end
 
-    def dependent_service
+    def create_dependent_service
       @dependent_service ||= if Flipper.enabled?(:va_dependents_v2, current_user)
                                BGS::DependentV2Service.new(current_user)
                              else

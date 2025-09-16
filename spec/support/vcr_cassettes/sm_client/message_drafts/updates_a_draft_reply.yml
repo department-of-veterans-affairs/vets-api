@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/674944/history"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/message/674944/history"
     body:
       encoding: US-ASCII
       string: ''
@@ -47,7 +47,7 @@ http_interactions:
   recorded_at: Thu, 02 Feb 2017 17:36:37 GMT
 - request:
     method: post
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/674874/replydraft"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/message/674874/replydraft"
     body:
       encoding: UTF-8
       string: '{"category":"OTHER","subject":"Subject 1","body":"Updated Body","recipientId":613586,"id":674944}'

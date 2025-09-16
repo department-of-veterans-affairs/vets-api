@@ -6,12 +6,20 @@ module Crm
 
     attr_reader :icn, :logger, :settings, :token
 
-    CRM_ENV = {
+    crm_env = {
       'test' => 'iris-dev',
       'development' => 'iris-dev',
-      'staging' => 'veft-preprod',
+      'staging' => 'ava-preprod',
       'production' => 'veft'
-    }.freeze
+    }
+
+    if Flipper.enabled?(:ask_va_api_patsr_separation)
+      crm_env.merge!(
+        'production' => 'ava'
+      )
+    end
+
+    CRM_ENV = crm_env.freeze
 
     def_delegators :settings,
                    :base_url,

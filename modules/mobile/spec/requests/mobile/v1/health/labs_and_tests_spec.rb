@@ -12,6 +12,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
   let(:labs_cassette) { 'mobile/unified_health_data/get_labs' }
   let(:labs_attachment_cassette) { 'mobile/unified_health_data/get_labs_value_attachment' }
   let(:uhd_flipper) { :mhv_accelerated_delivery_uhd_enabled }
+  let(:filtering_flipper) { :mhv_accelerated_delivery_uhd_filtering_enabled }
   let(:ch_flipper) { :mhv_accelerated_delivery_uhd_ch_enabled }
   let(:ch_response) do
     JSON.parse(Rails.root.join(
@@ -37,6 +38,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
     context 'happy path' do
       before do
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(filtering_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
@@ -63,6 +65,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
     context 'SP only' do
       before do
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(filtering_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(false)
@@ -88,6 +91,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
     context 'CH only' do
       before do
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(filtering_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(false)
@@ -113,6 +117,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
     context 'MB only' do
       before do
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(filtering_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
@@ -136,6 +141,34 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
       end
     end
 
+    context 'when filtering is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(filtering_flipper, instance_of(User)).and_return(false)
+        # These shouldn't matter when filtering is disabled, but set them anyway
+        allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(false)
+        VCR.use_cassette(labs_cassette) do
+          get path, headers: sis_headers, params: default_params
+        end
+      end
+
+      it 'returns a successful response' do
+        expect(response).to be_successful
+      end
+
+      it 'returns all lab records regardless of filtering flags' do
+        json_response = JSON.parse(response.body)['data']
+        # Should return all 9 records since filtering is disabled
+        expect(json_response.count).to eq(9)
+        # All test records should be included regardless of individual toggles
+        expect(json_response).to include(ch_response)
+        expect(json_response).to include(sp_response)
+        expect(json_response).to include(mb_response)
+      end
+    end
+
     context 'when UHD is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(false)
@@ -151,6 +184,8 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
 
     context 'errors' do
       before do
+        allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(filtering_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)

@@ -78,36 +78,35 @@ describe TravelPay::AppointmentsService do
     end
 
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens) }
+    let(:service) { TravelPay::AppointmentsService.new(auth_manager) }
 
     before do
       allow_any_instance_of(TravelPay::AppointmentsClient)
         .to receive(:get_all_appointments)
         .with(tokens[:veis_token], tokens[:btsss_token], { 'excludeWithClaims' => true })
         .and_return(appointments_response)
-
-      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
-      @service = TravelPay::AppointmentsService.new(auth_manager)
     end
 
     context 'find by appt date-time' do
       it 'returns the BTSSS appointment that matches appt date' do
         date_string = '2024-01-01T12:45:34.465Z'
-        appt = @service.get_appointment_by_date_time({ 'appt_datetime' => date_string })
+        appt = service.get_appointment_by_date_time({ 'appt_datetime' => date_string })
 
         expect(appt[:data]['appointmentDateTime']).to eq(date_string)
       end
 
       it 'returns nil if appt date does not match' do
-        appt = @service.get_appointment_by_date_time({ 'appt_datetime' => '1700-01-01T12:45:34.465Z' })
+        appt = service.get_appointment_by_date_time({ 'appt_datetime' => '1700-01-01T12:45:34.465Z' })
 
         expect(appt[:data]).to equal(nil)
       end
 
       it 'throws an Argument Error if appt date is invalid' do
-        expect { @service.get_appointment_by_date_time({ 'appt_datetime' => 'banana' }) }
+        expect { service.get_appointment_by_date_time({ 'appt_datetime' => 'banana' }) }
           .to raise_error(ArgumentError, /Invalid appointment time/i)
 
-        expect { @service.get_appointment_by_date_time({ 'appt_datetime' => nil }) }
+        expect { service.get_appointment_by_date_time({ 'appt_datetime' => nil }) }
           .to raise_error(ArgumentError, /Invalid appointment time/i)
       end
     end
@@ -141,6 +140,8 @@ describe TravelPay::AppointmentsService do
     end
 
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens) }
+    let(:service) { TravelPay::AppointmentsService.new(auth_manager) }
 
     before do
       allow_any_instance_of(TravelPay::AppointmentsClient)
@@ -151,9 +152,6 @@ describe TravelPay::AppointmentsService do
                 'appointment_type' => 'Other',
                 'is_complete' => false })
         .and_return(add_appointment_response)
-
-      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
-      @service = TravelPay::AppointmentsService.new(auth_manager)
     end
 
     it 'returns the BTSSS appointment that matches appt date' do
@@ -164,25 +162,25 @@ describe TravelPay::AppointmentsService do
                  'appointment_type' => 'Other',
                  'is_complete' => false }
 
-      appt = @service.find_or_create_appointment(params)
+      appt = service.find_or_create_appointment(params)
 
       expect(appt[:data]['id']).to eq('uuid1')
     end
 
     it 'throws an Argument Error if appt date is invalid' do
       expect do
-        @service.find_or_create_appointment({ 'appointment_date_time' => 'banana',
-                                              'facility_station_number' => '123',
-                                              'appointment_type' => 'Other',
-                                              'is_complete' => false })
+        service.find_or_create_appointment({ 'appointment_date_time' => 'banana',
+                                             'facility_station_number' => '123',
+                                             'appointment_type' => 'Other',
+                                             'is_complete' => false })
       end
         .to raise_error(ArgumentError, /Invalid appointment time/i)
 
       expect do
-        @service.find_or_create_appointment({ 'appointment_date_time' => nil,
-                                              'facility_station_number' => '123',
-                                              'appointment_type' => 'Other',
-                                              'is_complete' => false })
+        service.find_or_create_appointment({ 'appointment_date_time' => nil,
+                                             'facility_station_number' => '123',
+                                             'appointment_type' => 'Other',
+                                             'is_complete' => false })
       end
         .to raise_error(ArgumentError, /Invalid appointment time/i)
     end

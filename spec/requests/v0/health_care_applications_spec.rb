@@ -99,247 +99,199 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     end
   end
 
-  describe 'GET enrollment_status' do
-    let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
-    let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
+  describe 'enrollment_status' do
     let(:success_response) do
       { application_date: '2018-01-24T00:00:00.000-06:00',
         enrollment_date: nil,
         preferred_facility: '987 - CHEY6',
-        parsed_status: inelig_character_of_discharge,
+        parsed_status: HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE,
         primary_eligibility: 'SC LESS THAN 50%',
         can_submit_financial_info: true }
     end
+
     let(:loa1_response) do
-      { parsed_status: login_required }
+      { parsed_status: HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
     end
 
-    context 'with user attributes' do
-      let(:user_attributes) do
-        {
-          userAttributes: build(:health_care_application).parsed_form.slice(
-            'veteranFullName', 'veteranDateOfBirth',
-            'veteranSocialSecurityNumber', 'gender'
-          )
-        }
-      end
+    context 'GET enrollment_status' do
+      context 'with user attributes' do
+        let(:user_attributes) do
+          {
+            userAttributes: build(:health_care_application).parsed_form.slice(
+              'veteranFullName', 'veteranDateOfBirth',
+              'veteranSocialSecurityNumber', 'gender'
+            )
+          }
+        end
 
-      it 'logs user loa' do
-        allow(Sentry).to receive(:set_extras)
-        expect(Sentry).to receive(:set_extras).with(user_loa: nil)
-
-        get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
-      end
-
-      it 'returns the enrollment status data' do
-        expect(HealthCareApplication).to receive(:user_icn).and_return('123')
-        expect(HealthCareApplication).to receive(:enrollment_status).with(
-          '123', nil
-        ).and_return(loa1_response)
-
-        get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
-
-        expect(response.body).to eq(loa1_response.to_json)
-      end
-
-      context 'when the request is rate limited' do
-        it 'returns 429' do
-          expect(HCA::RateLimitedSearch).to receive(
-            :create_rate_limited_searches
-          ).and_raise(RateLimitedSearch::RateLimitedError)
+        it 'returns 404 unless signed in' do
+          allow(HealthCareApplication).to receive(:user_icn).and_return('123')
+          allow(HealthCareApplication).to receive(:enrollment_status).with(
+            '123', nil
+          ).and_return(loa1_response)
 
           get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
-          expect(response).to have_http_status(:too_many_requests)
-        end
-      end
-    end
-
-    context 'with a signed in user' do
-      let(:current_user) { build(:user, :loa3) }
-
-      before do
-        sign_in_as(current_user)
-      end
-
-      context 'with a user with no icn' do
-        before do
-          allow_any_instance_of(User).to receive(:icn).and_return(nil)
-        end
-
-        it 'returns 404' do
-          get(
-            enrollment_status_v0_health_care_applications_path,
-            params: { userAttributes: build(:health_care_application).parsed_form }
-          )
           expect(response).to have_http_status(:not_found)
         end
       end
 
-      context 'with user passed attributes' do
-        it 'returns the enrollment status data' do
-          expect(HealthCareApplication).to receive(:enrollment_status).with(
-            current_user.icn, true
-          ).and_return(success_response)
+      context 'with a signed in user' do
+        let(:current_user) { build(:user, :loa3) }
 
-          get(
-            enrollment_status_v0_health_care_applications_path,
-            params: { userAttributes: build(:health_care_application).parsed_form }
-          )
-
-          expect(response.body).to eq(success_response.to_json)
-        end
-      end
-
-      context 'without user passed attributes' do
-        let(:enrolled) { HCA::EnrollmentEligibility::Constants::ENROLLED }
-        let(:success_response) do
-          {
-            application_date: '2018-12-27T00:00:00.000-06:00',
-            enrollment_date: '2018-12-27T17:15:39.000-06:00',
-            preferred_facility: '988 - DAYT20',
-            effective_date: '2019-01-02T21:58:55.000-06:00',
-            primary_eligibility: 'SC LESS THAN 50%',
-            priority_group: 'Group 3',
-            can_submit_financial_info: true,
-            parsed_status: enrolled
-          }
+        before do
+          sign_in_as(current_user)
         end
 
-        it 'returns the enrollment status data' do
-          allow_any_instance_of(User).to receive(:icn).and_return('1013032368V065534')
+        context 'with a user with no icn' do
+          before do
+            allow_any_instance_of(User).to receive(:icn).and_return(nil)
+          end
 
-          VCR.use_cassette('hca/ee/lookup_user', erb: true) do
+          it 'returns 404' do
             get(enrollment_status_v0_health_care_applications_path)
+            expect(response).to have_http_status(:not_found)
+          end
+        end
 
-            expect(response.body).to eq(success_response.to_json)
+        context 'without user passed attributes' do
+          let(:enrolled) { HCA::EnrollmentEligibility::Constants::ENROLLED }
+          let(:success_response) do
+            {
+              application_date: '2018-12-27T00:00:00.000-06:00',
+              enrollment_date: '2018-12-27T17:15:39.000-06:00',
+              preferred_facility: '988 - DAYT20',
+              effective_date: '2019-01-02T21:58:55.000-06:00',
+              primary_eligibility: 'SC LESS THAN 50%',
+              priority_group: 'Group 3',
+              can_submit_financial_info: true,
+              parsed_status: enrolled
+            }
+          end
+
+          before do
+            allow_any_instance_of(User).to receive(:icn).and_return('1013032368V065534')
+          end
+
+          it 'returns the enrollment status data' do
+            VCR.use_cassette('hca/ee/lookup_user', erb: true) do
+              get(enrollment_status_v0_health_care_applications_path)
+
+              expect(response.body).to eq(success_response.to_json)
+            end
           end
         end
       end
     end
-  end
 
-  describe 'POST enrollment_status' do
-    let(:headers) do
-      {
-        'ACCEPT' => 'application/json',
-        'CONTENT_TYPE' => 'application/json'
-      }
-    end
-
-    let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
-    let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
-    let(:success_response) do
-      { application_date: '2018-01-24T00:00:00.000-06:00',
-        enrollment_date: nil,
-        preferred_facility: '987 - CHEY6',
-        parsed_status: inelig_character_of_discharge,
-        primary_eligibility: 'SC LESS THAN 50%',
-        can_submit_financial_info: true }
-    end
-    let(:loa1_response) do
-      { parsed_status: login_required }
-    end
-
-    context 'with user attributes' do
-      let(:params) do
+    context 'POST enrollment_status' do
+      let(:headers) do
         {
-          user_attributes: build(:health_care_application).parsed_form.deep_transform_keys(&:underscore).slice(
-            'veteran_full_name', 'veteran_date_of_birth',
-            'veteran_social_security_number', 'gender'
-          )
-        }.to_json
+          'ACCEPT' => 'application/json',
+          'CONTENT_TYPE' => 'application/json'
+        }
       end
 
-      it 'logs user loa' do
-        allow(Sentry).to receive(:set_extras)
-        expect(Sentry).to receive(:set_extras).with(user_loa: nil)
-        post(enrollment_status_v0_health_care_applications_path, params:, headers:)
-      end
+      context 'with user attributes' do
+        let(:params) do
+          {
+            user_attributes: build(:health_care_application).parsed_form.deep_transform_keys(&:underscore).slice(
+              'veteran_full_name', 'veteran_date_of_birth',
+              'veteran_social_security_number', 'gender'
+            )
+          }.to_json
+        end
 
-      it 'returns the enrollment status data' do
-        expect(HealthCareApplication).to receive(:user_icn).and_return('123')
-        expect(HealthCareApplication).to receive(:enrollment_status).with(
-          '123', nil
-        ).and_return(loa1_response)
+        it 'logs user loa' do
+          allow(Sentry).to receive(:set_extras)
+          expect(Sentry).to receive(:set_extras).with(user_loa: nil)
+          post(enrollment_status_v0_health_care_applications_path, params:, headers:)
+        end
 
-        post(enrollment_status_v0_health_care_applications_path, params:, headers:)
-
-        expect(response.body).to eq(loa1_response.to_json)
-      end
-
-      context 'when the request is rate limited' do
-        it 'returns 429' do
-          expect(HCA::RateLimitedSearch).to receive(
-            :create_rate_limited_searches
-          ).and_raise(RateLimitedSearch::RateLimitedError)
+        it 'returns the enrollment status data' do
+          expect(HealthCareApplication).to receive(:user_icn).and_return('123')
+          expect(HealthCareApplication).to receive(:enrollment_status).with(
+            '123', nil
+          ).and_return(loa1_response)
 
           post(enrollment_status_v0_health_care_applications_path, params:, headers:)
-          expect(response).to have_http_status(:too_many_requests)
+
+          expect(response.body).to eq(loa1_response.to_json)
+        end
+
+        context 'when the request is rate limited' do
+          it 'returns 429' do
+            expect(HCA::RateLimitedSearch).to receive(
+              :create_rate_limited_searches
+            ).and_raise(RateLimitedSearch::RateLimitedError)
+
+            post(enrollment_status_v0_health_care_applications_path, params:, headers:)
+            expect(response).to have_http_status(:too_many_requests)
+          end
         end
       end
-    end
 
-    context 'with a signed in user' do
-      let(:current_user) { build(:user, :loa3) }
-      let(:params) { { userAttributes: build(:health_care_application).parsed_form }.to_json }
+      context 'with a signed in user' do
+        let(:current_user) { build(:user, :loa3) }
+        let(:params) { { userAttributes: build(:health_care_application).parsed_form }.to_json }
 
-      before do
-        sign_in_as(current_user)
-      end
-
-      context 'with a user with no icn' do
         before do
-          allow_any_instance_of(User).to receive(:icn).and_return(nil)
+          sign_in_as(current_user)
         end
 
-        it 'returns 404' do
-          post(
-            enrollment_status_v0_health_care_applications_path,
-            params:,
-            headers:
-          )
-          expect(response).to have_http_status(:not_found)
-        end
-      end
+        context 'with a user with no icn' do
+          before do
+            allow_any_instance_of(User).to receive(:icn).and_return(nil)
+          end
 
-      context 'with user passed attributes' do
-        it 'returns the enrollment status data' do
-          expect(HealthCareApplication).to receive(:enrollment_status).with(
-            current_user.icn, true
-          ).and_return(success_response)
-
-          post(
-            enrollment_status_v0_health_care_applications_path,
-            params:,
-            headers:
-          )
-
-          expect(response.body).to eq(success_response.to_json)
-        end
-      end
-
-      context 'without user passed attributes' do
-        let(:enrolled) { HCA::EnrollmentEligibility::Constants::ENROLLED }
-        let(:success_response) do
-          {
-            application_date: '2018-12-27T00:00:00.000-06:00',
-            enrollment_date: '2018-12-27T17:15:39.000-06:00',
-            preferred_facility: '988 - DAYT20',
-            effective_date: '2019-01-02T21:58:55.000-06:00',
-            primary_eligibility: 'SC LESS THAN 50%',
-            priority_group: 'Group 3',
-            can_submit_financial_info: true,
-            parsed_status: enrolled
-          }
+          it 'returns 404' do
+            post(
+              enrollment_status_v0_health_care_applications_path,
+              params:,
+              headers:
+            )
+            expect(response).to have_http_status(:not_found)
+          end
         end
 
-        it 'returns the enrollment status data' do
-          allow_any_instance_of(User).to receive(:icn).and_return('1013032368V065534')
+        context 'with user passed attributes' do
+          it 'returns the enrollment status data' do
+            expect(HealthCareApplication).to receive(:enrollment_status).with(
+              current_user.icn, true
+            ).and_return(success_response)
 
-          VCR.use_cassette('hca/ee/lookup_user', erb: true) do
-            post(enrollment_status_v0_health_care_applications_path)
+            post(
+              enrollment_status_v0_health_care_applications_path,
+              params:,
+              headers:
+            )
 
             expect(response.body).to eq(success_response.to_json)
+          end
+        end
+
+        context 'without user passed attributes' do
+          let(:enrolled) { HCA::EnrollmentEligibility::Constants::ENROLLED }
+          let(:success_response) do
+            {
+              application_date: '2018-12-27T00:00:00.000-06:00',
+              enrollment_date: '2018-12-27T17:15:39.000-06:00',
+              preferred_facility: '988 - DAYT20',
+              effective_date: '2019-01-02T21:58:55.000-06:00',
+              primary_eligibility: 'SC LESS THAN 50%',
+              priority_group: 'Group 3',
+              can_submit_financial_info: true,
+              parsed_status: enrolled
+            }
+          end
+
+          it 'returns the enrollment status data' do
+            allow_any_instance_of(User).to receive(:icn).and_return('1013032368V065534')
+
+            VCR.use_cassette('hca/ee/lookup_user', erb: true) do
+              post(enrollment_status_v0_health_care_applications_path)
+
+              expect(response.body).to eq(success_response.to_json)
+            end
           end
         end
       end
@@ -520,6 +472,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         before do
           sign_in_as(current_user)
           test_veteran.delete('email')
+          allow(Flipper).to receive(:enabled?).with(:hca_in_progress_form_logging).and_return(false)
         end
 
         it 'renders success and delete the saved form', run_at: '2017-01-31' do
@@ -528,6 +481,196 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
             subject
             expect(JSON.parse(response.body)).to eq(body)
+          end
+        end
+
+        it 'renders success and logs failed attempt to delete the saved form', run_at: '2017-01-31' do
+          VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+            expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+            expect_any_instance_of(ApplicationController).to receive(:clear_saved_form)
+              .with('1010ez')
+              .and_raise(StandardError, 'Database connection failed')
+
+            logger_regex = [
+              /\[10-10EZ\]/,
+              /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+              /\[health_care_application_id:\d+\]/,
+              /  - Failed to clear saved form: Database connection failed/
+            ]
+            expect(Rails.logger).to receive(:warn).with(
+              a_string_matching(Regexp.union(logger_regex))
+            )
+
+            subject
+            expect(JSON.parse(response.body)).to eq(body)
+          end
+        end
+
+        context ':hca_in_progress_form_logging feature enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:hca_in_progress_form_logging).and_return(true)
+          end
+
+          context 'does not have InProgressForm' do
+            it 'renders success and delete the saved form', run_at: '2017-01-31' do
+              VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+                expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+
+                allow(Rails.logger).to receive(:info)
+                expect(Rails.logger).to receive(:info)
+                  .with("[10-10EZ][user_uuid:#{current_user.uuid},user_account_id:none]" \
+                        ' - HealthCareApplication has InProgressForm: false')
+
+                logger_regex = [
+                  /\[10-10EZ\]/,
+                  /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                  /\[health_care_application_id:\d+, form_submission_id: 436426340\]/,
+                  / - InProgressForm exists before attempted delete: false/
+                ]
+                expect(Rails.logger).to receive(:info).with(
+                  a_string_matching(Regexp.union(logger_regex))
+                )
+
+                subject
+                expect(JSON.parse(response.body)).to eq(body)
+              end
+            end
+
+            it 'renders success and logs failed attempt to delete the saved form', run_at: '2017-01-31' do
+              VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+                expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+                expect_any_instance_of(ApplicationController).to receive(:clear_saved_form)
+                  .with('1010ez')
+                  .and_raise(StandardError, 'Database connection failed')
+
+                logger_regex = [
+                  /\[10-10EZ\]/,
+                  /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                  /\[health_care_application_id:\d+\]/,
+                  / - Failed to clear saved form: Database connection failed/
+                ]
+                expect(Rails.logger).to receive(:warn).with(
+                  a_string_matching(Regexp.union(logger_regex))
+                )
+
+                subject
+                expect(JSON.parse(response.body)).to eq(body)
+              end
+            end
+          end
+
+          context 'has InProgressForm' do
+            let!(:in_progress_form) { create(:in_progress_form, user_uuid: current_user.uuid, form_id: '1010ez') }
+
+            before { allow(StatsD).to receive(:increment) }
+
+            it 'renders success and delete the saved form', run_at: '2017-01-31' do
+              VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+                expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+
+                allow(Rails.logger).to receive(:info)
+                expect(Rails.logger).to receive(:info)
+                  .with("[10-10EZ][user_uuid:#{current_user.uuid},user_account_id:none]" \
+                        ' - HealthCareApplication has InProgressForm: true')
+
+                logger_regex_before = [
+                  /\[10-10EZ\]/,
+                  /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                  /\[health_care_application_id:\d+, form_submission_id: 436426340\]/,
+                  / - InProgressForm exists before attempted delete: true/
+                ]
+                expect(Rails.logger).to receive(:info).with(
+                  a_string_matching(Regexp.union(logger_regex_before))
+                )
+
+                logger_regex_after = [
+                  /\[10-10EZ\]/,
+                  /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                  /\[health_care_application_id:\d+\]/,
+                  /\[ipf_id_before:\d+,ipf_id_after:\d+\]/,
+                  / - InProgressForm successfully deleted: true/
+                ]
+
+                expect(Rails.logger).to receive(:info).with(
+                  a_string_matching(Regexp.union(logger_regex_after))
+                )
+
+                expect(StatsD).to receive(:increment).with('api.1010ez.in_progress_form_deleted', anything)
+
+                subject
+                expect(JSON.parse(response.body)).to eq(body)
+              end
+            end
+
+            context 'form is not deleted' do
+              before do
+                allow(InProgressForm).to receive(:form_for_user)
+                  .with('1010ez', anything)
+                  .and_return(in_progress_form, in_progress_form)
+              end
+
+              it 'renders success and logs InProgressForm delete info', run_at: '2017-01-31' do
+                VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+                  expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+
+                  allow(Rails.logger).to receive(:info)
+                  expect(Rails.logger).to receive(:info)
+                    .with("[10-10EZ][user_uuid:#{current_user.uuid},user_account_id:none]" \
+                          ' - HealthCareApplication has InProgressForm: true')
+
+                  logger_regex_before = [
+                    /\[10-10EZ\]/,
+                    /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                    /\[health_care_application_id:\d+, form_submission_id: 436426340\]/,
+                    / - InProgressForm exists before attempted delete: true/
+                  ]
+                  expect(Rails.logger).to receive(:info).with(
+                    a_string_matching(Regexp.union(logger_regex_before))
+                  )
+
+                  logger_regex_after = [
+                    /\[10-10EZ\]/,
+                    /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                    /\[health_care_application_id:\d+\]/,
+                    /\[ipf_id_before:\d+,ipf_id_after:\d+\]/,
+                    / - InProgressForm successfully deleted: false/
+                  ]
+
+                  expect(Rails.logger).to receive(:info).with(
+                    a_string_matching(Regexp.union(logger_regex_after))
+                  )
+
+                  expect(StatsD).to receive(:increment).with('api.1010ez.in_progress_form_not_deleted',
+                                                             anything)
+
+                  subject
+                  expect(JSON.parse(response.body)).to eq(body)
+                end
+              end
+            end
+
+            it 'renders success and logs failed attempt to delete the saved form', run_at: '2017-01-31' do
+              VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+                expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+                expect_any_instance_of(ApplicationController).to receive(:clear_saved_form)
+                  .with('1010ez')
+                  .and_raise(StandardError, 'Database connection failed')
+
+                logger_regex = [
+                  /\[10-10EZ\]/,
+                  /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                  /\[health_care_application_id:\d+\]/,
+                  / - Failed to clear saved form: Database connection failed/
+                ]
+
+                expect(Rails.logger).to receive(:warn).with(
+                  a_string_matching(Regexp.union(logger_regex))
+                )
+
+                subject
+                expect(JSON.parse(response.body)).to eq(body)
+              end
+            end
           end
         end
       end
@@ -566,115 +709,58 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       end
 
       context 'when hca service raises an error' do
-        context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is enabled" do
-          before do
-            test_veteran.delete('email')
-            allow_any_instance_of(HCA::Service).to receive(:submit_form) do
-              raise error
-            end
-          end
-
-          context 'with a validation error' do
-            let(:error) { HCA::SOAPParser::ValidationError.new }
-
-            it 'renders error message' do
-              expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
-
-              subject
-
-              expect(response).to have_http_status(:unprocessable_entity)
-              expect(JSON.parse(response.body)).to eq(
-                'errors' => [
-                  {
-                    'title' => 'Operation failed',
-                    'detail' => 'Validation error',
-                    'code' => 'HCA422',
-                    'status' => '422'
-                  }
-                ]
-              )
-            end
-          end
-
-          context 'with a SOAP error' do
-            let(:error) { Common::Client::Errors::HTTPError.new('error message') }
-
-            before do
-              allow(Settings.sentry).to receive(:dsn).and_return('asdf')
-            end
-
-            it 'renders error message' do
-              expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
-
-              subject
-
-              expect(response).to have_http_status(:bad_request)
-              expect(JSON.parse(response.body)).to eq(
-                'errors' => [
-                  {
-                    'title' => 'Operation failed',
-                    'detail' => 'error message',
-                    'code' => 'VA900',
-                    'status' => '400'
-                  }
-                ]
-              )
-            end
+        before do
+          test_veteran.delete('email')
+          allow_any_instance_of(HCA::Service).to receive(:submit_form) do
+            raise error
           end
         end
 
-        context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is disabled" do
+        context 'with a validation error' do
+          let(:error) { HCA::SOAPParser::ValidationError.new }
+
+          it 'renders error message' do
+            expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
+
+            subject
+
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(JSON.parse(response.body)).to eq(
+              'errors' => [
+                {
+                  'title' => 'Operation failed',
+                  'detail' => 'Validation error',
+                  'code' => 'HCA422',
+                  'status' => '422'
+                }
+              ]
+            )
+          end
+        end
+
+        context 'with a SOAP error' do
+          let(:error) { Common::Client::Errors::HTTPError.new('error message') }
+
           before do
-            Flipper.disable(:va1010_forms_enrollment_system_service_enabled)
-            test_veteran.delete('email')
-            allow(HealthCareApplication).to receive(:user_icn).and_return('123')
-            allow_any_instance_of(HCA::Service).to receive(:post) do
-              raise error
-            end
+            allow(Settings.sentry).to receive(:dsn).and_return('asdf')
           end
 
-          context 'with a validation error' do
-            let(:error) { HCA::SOAPParser::ValidationError.new }
+          it 'renders error message' do
+            expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
 
-            it 'renders error message' do
-              subject
+            subject
 
-              expect(response).to have_http_status(:unprocessable_entity)
-              expect(JSON.parse(response.body)).to eq(
-                'errors' => [
-                  {
-                    'title' => 'Operation failed',
-                    'detail' => 'Validation error',
-                    'code' => 'HCA422',
-                    'status' => '422'
-                  }
-                ]
-              )
-            end
-          end
-
-          context 'with a SOAP error' do
-            let(:error) { Common::Client::Errors::HTTPError.new('error message') }
-
-            before do
-              allow(Settings.sentry).to receive(:dsn).and_return('asdf')
-            end
-
-            it 'renders error message' do
-              subject
-
-              expect(response).to have_http_status(:bad_request)
-              expect(JSON.parse(response.body)).to eq(
-                'errors' => [
-                  {
-                    'title' => 'Operation failed',
-                    'detail' => 'error message',
-                    'code' => 'VA900',
-                    'status' => '400'
-                  }
-                ]
-              )
-            end
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body)).to eq(
+              'errors' => [
+                {
+                  'title' => 'Operation failed',
+                  'detail' => 'error message',
+                  'code' => 'VA900',
+                  'status' => '400'
+                }
+              ]
+            )
           end
         end
       end

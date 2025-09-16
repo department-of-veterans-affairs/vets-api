@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 26 Jun 2025 02:13:14 GMT
+      - Thu, 24 Jul 2025 15:42:43 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -37,7 +37,7 @@ http_interactions:
       X-Oneagent-Js-Injection:
       - 'true'
       X-Envoy-Upstream-Service-Time:
-      - '28'
+      - '29'
       Ssl-Env:
       - 'On'
       X-Xss-Protection:
@@ -45,27 +45,27 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="-582326471"
+      - dtSInfo;desc="0", dtRpid;desc="1470549176"
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"data":{"associations":[{"role":"OTHER_NEXT_OF_KIN","relationType":"DAUGHTER","name":{"givenName":"FIRSTNOKB","middleName":"MIDDLENOKB","familyName":"LASTNOKB"},"address":{"line1":"875
-        Updated Blvd","line2":"Unit 532","city":"Tampa","state":"FL","zipCode":"33726","zipPlus4":"3942","country":"USA"},"primaryPhone":"5435553234","lastUpdateDate":"2025-06-25T21:11:21"},{"role":"OTHER_EMERGENCY_CONTACT","relationType":"UNRELATED_FRIEND","name":{"givenName":"FIRSTECB","middleName":"MIDDLEECB","familyName":"LASTECB"},"address":{"line1":"875
-        Updated Blvd","line2":"Unit 532","city":"Tampa","state":"FL","zipCode":"33726","zipPlus4":"3942","country":"USA"},"primaryPhone":"1442342659","lastUpdateDate":"2025-06-25T21:11:21"},{"role":"PRIMARY_NEXT_OF_KIN","relationType":"SON","name":{"givenName":"FIRSTNOKA","middleName":"MIDDLENOKA","familyName":"LASTNOKA","suffix":"JR."},"address":{"line1":"NE
-        54th St","line2":"Apt 7","line3":"Unit 1222","city":"guanajuato","provinceCode":"guanajuato","postalCode":"84754","country":"MEX"},"primaryPhone":"9473747334","lastUpdateDate":"2025-06-25T21:11:21"},{"role":"EMERGENCY_CONTACT","relationType":"BROTHER","name":{"givenName":"FIRSTECA","middleName":"MIDDLEECA","familyName":"LASTECA"},"address":{"line1":"28
-        Parker St","city":"Los Angeles","state":"CA","zipCode":"90038","zipPlus4":"1234","country":"USA"},"primaryPhone":"5436422223","lastUpdateDate":"2025-06-25T21:11:21"}]},"messages":[]}'
-  recorded_at: Thu, 26 Jun 2025 02:13:15 GMT
+      string: '{"data":{"associations":[{"role":"EMERGENCY_CONTACT","relationType":"BROTHER","name":{"givenName":"FirstECA","middleName":"MiddleECA","familyName":"LastECA"},"address":{"line1":"28
+        Parker St","city":"Los Angeles","state":"CA","zipCode":"90038","zipPlus4":"1234","country":"USA"},"primaryPhone":"5436422223","lastUpdateDate":"2025-07-24T10:39:16"},{"role":"OTHER_NEXT_OF_KIN","relationType":"DAUGHTER","name":{"givenName":"FirstNoKB","middleName":"MiddleNoKB","familyName":"LastNoKB"},"address":{"line1":"875
+        Updated Blvd","line2":"Unit 532","city":"Tampa","state":"FL","zipCode":"33726","zipPlus4":"3942","country":"USA"},"primaryPhone":"5435553234","lastUpdateDate":"2025-07-24T10:39:16"},{"role":"OTHER_EMERGENCY_CONTACT","relationType":"UNRELATED_FRIEND","name":{"givenName":"FirstECB","middleName":"MiddleECB","familyName":"LastECB"},"address":{"line1":"875
+        Updated Blvd","line2":"Unit 532","city":"Tampa","state":"FL","zipCode":"33726","zipPlus4":"3942","country":"USA"},"primaryPhone":"1442342659","lastUpdateDate":"2025-07-24T10:39:16"},{"role":"PRIMARY_NEXT_OF_KIN","relationType":"SON","name":{"givenName":"FirstNoKA","middleName":"MiddleNoKA","familyName":"LastNoKA","suffix":"Jr."},"address":{"line1":"NE
+        54th St","line2":"Apt 7","line3":"Unit 1222","city":"guanajuato","provinceCode":"guanajuato","postalCode":"84754","country":"MEX"},"primaryPhone":"9473747334","lastUpdateDate":"2025-07-24T10:39:16"}]},"messages":[]}'
+  recorded_at: Thu, 24 Jul 2025 15:42:43 GMT
 - request:
     method: put
     uri: "<VETERAN_ENROLLMENT_SYSTEM_BASE_URI>/ves-associate-gateway-svc/associations/person/1012829228V424035"
     body:
       encoding: UTF-8
       string: '{"associations":[{"address":{"city":"guanajuato","country":"MEX","line1":"NE
-        54th St","line2":"Apt 7","line3":"Unit 1222","provinceCode":"guanajuato","postalCode":"84754"},"name":{"givenName":"FIRSTNOKA","middleName":"MIDDLENOKA","familyName":"LASTNOKA","suffix":"JR."},"deleteIndicator":true,"primaryPhone":"9473747334","relationType":"SON","role":"PRIMARY_NEXT_OF_KIN"},{"address":{"city":"Tampa","country":"USA","line1":"875
-        Updated Blvd","line2":"Unit 532","state":"FL","zipCode":"33726","zipPlus4":"3942"},"name":{"givenName":"FIRSTNOKB","middleName":"MIDDLENOKB","familyName":"LASTNOKB"},"deleteIndicator":true,"primaryPhone":"5435553234","relationType":"DAUGHTER","role":"OTHER_NEXT_OF_KIN"},{"address":{"city":"Los
-        Angeles","country":"USA","line1":"28 Parker St","state":"CA","zipCode":"90038","zipPlus4":"1234"},"name":{"givenName":"FIRSTECA","middleName":"MIDDLEECA","familyName":"LASTECA"},"deleteIndicator":true,"primaryPhone":"5436422223","relationType":"BROTHER","role":"EMERGENCY_CONTACT"},{"address":{"city":"Tampa","country":"USA","line1":"875
-        Updated Blvd","line2":"Unit 532","state":"FL","zipCode":"33726","zipPlus4":"3942"},"name":{"givenName":"FIRSTECB","middleName":"MIDDLEECB","familyName":"LASTECB"},"deleteIndicator":true,"primaryPhone":"1442342659","relationType":"UNRELATED_FRIEND","role":"OTHER_EMERGENCY_CONTACT"}]}'
+        54th St","line2":"Apt 7","line3":"Unit 1222","provinceCode":"guanajuato","postalCode":"84754"},"name":{"givenName":"FirstNoKA","middleName":"MiddleNoKA","familyName":"LastNoKA","suffix":"Jr."},"deleteIndicator":true,"primaryPhone":"9473747334","relationType":"SON","role":"PRIMARY_NEXT_OF_KIN"},{"address":{"city":"Tampa","country":"USA","line1":"875
+        Updated Blvd","line2":"Unit 532","state":"FL","zipCode":"33726","zipPlus4":"3942"},"name":{"givenName":"FirstNoKB","middleName":"MiddleNoKB","familyName":"LastNoKB"},"deleteIndicator":true,"primaryPhone":"5435553234","relationType":"DAUGHTER","role":"OTHER_NEXT_OF_KIN"},{"address":{"city":"Los
+        Angeles","country":"USA","line1":"28 Parker St","state":"CA","zipCode":"90038","zipPlus4":"1234"},"name":{"givenName":"FirstECA","middleName":"MiddleECA","familyName":"LastECA"},"deleteIndicator":true,"primaryPhone":"5436422223","relationType":"BROTHER","role":"EMERGENCY_CONTACT"},{"address":{"city":"Tampa","country":"USA","line1":"875
+        Updated Blvd","line2":"Unit 532","state":"FL","zipCode":"33726","zipPlus4":"3942"},"name":{"givenName":"FirstECB","middleName":"MiddleECB","familyName":"LastECB"},"deleteIndicator":true,"primaryPhone":"1442342659","relationType":"UNRELATED_FRIEND","role":"OTHER_EMERGENCY_CONTACT"}]}'
     headers:
       Accept:
       - application/json
@@ -81,7 +81,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 26 Jun 2025 02:13:16 GMT
+      - Thu, 24 Jul 2025 15:42:44 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -97,7 +97,7 @@ http_interactions:
       X-Oneagent-Js-Injection:
       - 'true'
       X-Envoy-Upstream-Service-Time:
-      - '242'
+      - '99'
       Ssl-Env:
       - 'On'
       X-Xss-Protection:
@@ -105,16 +105,16 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="-455379531"
+      - dtSInfo;desc="0", dtRpid;desc="-1151625221"
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"data":{"associations":[{"role":"PRIMARY_NEXT_OF_KIN","name":{"givenName":"FIRSTNOKA","middleName":"MIDDLENOKA","familyName":"LASTNOKA","suffix":"JR."},"status":"DELETED"},{"role":"OTHER_NEXT_OF_KIN","name":{"givenName":"FIRSTNOKB","middleName":"MIDDLENOKB","familyName":"LASTNOKB"},"status":"NOT_DELETED_NO_MATCHING_ASSOCIATION","message":"The
+      string: '{"data":{"associations":[{"role":"PRIMARY_NEXT_OF_KIN","name":{"givenName":"FirstNoKA","middleName":"MiddleNoKA","familyName":"LastNoKA","suffix":"Jr."},"status":"DELETED"},{"role":"OTHER_NEXT_OF_KIN","name":{"givenName":"FirstNoKB","middleName":"MiddleNoKB","familyName":"LastNoKB"},"status":"NOT_DELETED_NO_MATCHING_ASSOCIATION","message":"The
         association was not deleted for this record, as there are no matching association
-        on file."},{"role":"EMERGENCY_CONTACT","name":{"givenName":"FIRSTECA","middleName":"MIDDLEECA","familyName":"LASTECA"},"status":"DELETED"},{"role":"OTHER_EMERGENCY_CONTACT","name":{"givenName":"FIRSTECB","middleName":"MIDDLEECB","familyName":"LASTECB"},"status":"NOT_DELETED_NO_MATCHING_ASSOCIATION","message":"The
+        on file."},{"role":"EMERGENCY_CONTACT","name":{"givenName":"FirstECA","middleName":"MiddleECA","familyName":"LastECA"},"status":"DELETED"},{"role":"OTHER_EMERGENCY_CONTACT","name":{"givenName":"FirstECB","middleName":"MiddleECB","familyName":"LastECB"},"status":"NOT_DELETED_NO_MATCHING_ASSOCIATION","message":"The
         association was not deleted for this record, as there are no matching association
         on file."}]},"messages":[{"description":"Not all of the association records
         were updated","code":"completed_partial"}]}'
-  recorded_at: Thu, 26 Jun 2025 02:13:17 GMT
+  recorded_at: Thu, 24 Jul 2025 15:42:44 GMT
 recorded_with: VCR 6.3.1

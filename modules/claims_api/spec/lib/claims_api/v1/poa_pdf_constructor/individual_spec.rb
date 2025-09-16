@@ -7,6 +7,7 @@ require_relative '../../../../support/pdf_matcher'
 describe ClaimsApi::V1::PoaPdfConstructor::Individual do
   let(:temp) { create(:power_of_attorney, :with_full_headers) }
   let(:phone_country_codes_temp) { create(:power_of_attorney, :with_full_headers) }
+  let(:rep) { create(:veteran_representative, :with_address, representative_id: '12345') }
 
   before do
     Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
@@ -30,12 +31,14 @@ describe ClaimsApi::V1::PoaPdfConstructor::Individual do
         }
       },
       serviceOrganization: {
+        firstName: 'Bob',
+        lastName: 'Law',
         address: {
-          numberAndStreet: '2719 Hyperion Ave',
-          city: 'Los Angeles',
-          state: 'CA',
+          numberAndStreet: '123 East Main St',
+          city: 'My City',
+          state: 'ZZ',
           country: 'US',
-          zipFirstFive: '92264'
+          zipFirstFive: '12345'
         }
       }
     }
@@ -61,12 +64,14 @@ describe ClaimsApi::V1::PoaPdfConstructor::Individual do
         }
       },
       serviceOrganization: {
+        firstName: 'Bob',
+        lastName: 'Law',
         address: {
-          numberAndStreet: '2719 Hyperion Ave',
-          city: 'Los Angeles',
-          state: 'CA',
+          numberAndStreet: '123 East Main St',
+          city: 'My City',
+          state: 'ZZ',
           country: 'US',
-          zipFirstFive: '92264'
+          zipFirstFive: '12345'
         }
       }
     }
@@ -86,6 +91,9 @@ describe ClaimsApi::V1::PoaPdfConstructor::Individual do
           'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
           'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
           'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+        },
+        'representative' => {
+          'type' => rep.user_types[0]
         }
       }
     )
@@ -105,6 +113,9 @@ describe ClaimsApi::V1::PoaPdfConstructor::Individual do
           'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
           'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
           'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+        },
+        'representative' => {
+          'type' => rep.user_types[0]
         }
       }
     )

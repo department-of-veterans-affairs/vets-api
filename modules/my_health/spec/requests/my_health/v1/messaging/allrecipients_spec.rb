@@ -61,9 +61,26 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
       expect(response).to match_camelized_response_schema('my_health/messaging/v1/all_triage_teams')
     end
 
-    it 'responds to GET #index with requires_oh flag' do
-      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_require_oh') do
-        get '/my_health/v1/messaging/allrecipients?requires_oh=1'
+    it 'when resource is blank returns 404 RecordNotFound' do
+      allow_any_instance_of(SM::Client).to receive(:get_all_triage_teams).and_return(nil)
+
+      get '/my_health/v1/messaging/allrecipients'
+
+      expect(response).to have_http_status(:not_found)
+      expect(response.body).to include('Triage teams for user ID')
+    end
+  end
+
+  context 'with requires_oh flag enabled' do
+    it 'responds to GET #index with requires_oh flipper' do
+      allow(Flipper).to receive(:enabled?)
+        .with(:mhv_secure_messaging_cerner_pilot, anything)
+        .and_return(true)
+
+      VCR.use_cassette('sm_client/session_require_oh') do
+        VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_require_oh') do
+          get '/my_health/v1/messaging/allrecipients'
+        end
       end
 
       expect(response).to be_successful

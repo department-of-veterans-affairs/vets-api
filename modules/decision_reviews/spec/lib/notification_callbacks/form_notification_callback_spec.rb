@@ -6,8 +6,8 @@ require 'decision_reviews/notification_callbacks/form_notification_callback'
 describe DecisionReviews::FormNotificationCallback do
   subject { described_class }
 
-  let(:reference) { "SC-form-#{SecureRandom.uuid}" }
   let(:submitted_appeal_uuid) { SecureRandom.uuid }
+  let(:reference) { "SC-form-#{submitted_appeal_uuid}" }
 
   before do
     allow(DecisionReviewNotificationAuditLog).to receive(:create!)
@@ -23,7 +23,6 @@ describe DecisionReviews::FormNotificationCallback do
         notification_id: SecureRandom.uuid,
         notification_type: 'email',
         source_location: 'unit-test',
-        reference:,
         status: 'delivered',
         status_reason: 'success',
         callback_klass: described_class.to_s,
@@ -32,7 +31,9 @@ describe DecisionReviews::FormNotificationCallback do
           service_name: 'supplemental-claims',
           function: 'form submission',
           submitted_appeal_uuid:,
-          email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email # rubocop:disable Layout/LineLength
+          email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email, # rubocop:disable Layout/LineLength
+          reference:,
+          statsd_tags: ['service:supplemental-claims', 'function:form submission']
         }
       )
     end
@@ -72,7 +73,6 @@ describe DecisionReviews::FormNotificationCallback do
         notification_id: SecureRandom.uuid,
         notification_type: 'email',
         source_location: 'unit-test',
-        reference:,
         status: 'permanent-failure',
         status_reason: 'failure',
         callback_klass: described_class.to_s,
@@ -81,7 +81,9 @@ describe DecisionReviews::FormNotificationCallback do
           service_name: 'supplemental-claims',
           function: 'form submission',
           submitted_appeal_uuid:,
-          email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email # rubocop:disable Layout/LineLength
+          email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email, # rubocop:disable Layout/LineLength
+          reference:,
+          statsd_tags: ['service:supplemental-claims', 'function:form submission']
         }
       )
     end
@@ -121,7 +123,6 @@ describe DecisionReviews::FormNotificationCallback do
         notification_id: SecureRandom.uuid,
         notification_type: 'email',
         source_location: 'unit-test',
-        reference:,
         status: 'temporary-failure',
         status_reason: 'failure',
         callback_klass: described_class.to_s,
@@ -130,7 +131,9 @@ describe DecisionReviews::FormNotificationCallback do
           service_name: 'supplemental-claims',
           function: 'form submission',
           submitted_appeal_uuid:,
-          email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email # rubocop:disable Layout/LineLength
+          email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email, # rubocop:disable Layout/LineLength
+          reference:,
+          statsd_tags: ['service:supplemental-claims', 'function:form submission']
         }
       )
     end
@@ -160,7 +163,6 @@ describe DecisionReviews::FormNotificationCallback do
         notification_id: SecureRandom.uuid,
         notification_type: 'email',
         source_location: 'unit-test',
-        reference:,
         status: 'other',
         status_reason: 'unknown',
         callback_klass: described_class.to_s,
@@ -169,7 +171,9 @@ describe DecisionReviews::FormNotificationCallback do
           form_id: '995',
           submitted_appeal_uuid:,
           email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email, # rubocop:disable Layout/LineLength
-          service_name: 'supplemental-claims'
+          service_name: 'supplemental-claims',
+          reference:,
+          statsd_tags: ['service:supplemental-claims', 'function:form submission']
         }
       )
     end

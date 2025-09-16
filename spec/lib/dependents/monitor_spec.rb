@@ -58,7 +58,7 @@ RSpec.describe Dependents::Monitor do
               "last error: #{msg['error_message']}"
         payload = {
           claim:,
-          message: msg,
+          error: msg,
           service: 'dependents-application',
           tags: ['service:dependents-application', 'v2:false'],
           use_v2: false,
@@ -80,7 +80,7 @@ RSpec.describe Dependents::Monitor do
               "last error: #{msg['error_message']}"
         payload = {
           claim:,
-          message: msg,
+          error: msg,
           service: 'dependents-application',
           tags: ['service:dependents-application', 'v2:false'],
           use_v2: false,
@@ -88,7 +88,7 @@ RSpec.describe Dependents::Monitor do
         }
         tags = { tags: ['service:dependents-application', 'v2:false'] }
 
-        expect(monitor_v1).to receive(:log_silent_failure_no_confirmation).with(payload, anything)
+        expect(monitor_v1).to receive(:log_silent_failure_avoided).with(payload, anything)
         expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted", tags)
         expect(Rails.logger).to receive(:error).with(log)
 
@@ -107,7 +107,7 @@ RSpec.describe Dependents::Monitor do
                                                        context: {
                                                          claim_id: claim.id,
                                                          confirmation_number: claim.confirmation_number,
-                                                         extra: 'test',
+                                                         error: 'test',
                                                          form_id: '686C-674',
                                                          service: 'dependents-application',
                                                          tags: ['service:dependents-application', 'v2:false'],
@@ -121,7 +121,7 @@ RSpec.describe Dependents::Monitor do
                                                        statsd: 'test.monitor.exhaustion'
                                                      })
 
-        monitor_v1.track_event('error', 'Error!', 'test.monitor.exhaustion', { extra: 'test' })
+        monitor_v1.track_event('error', 'Error!', 'test.monitor.exhaustion', { error: 'test' })
       end
 
       it 'handles an info log' do
@@ -132,7 +132,7 @@ RSpec.describe Dependents::Monitor do
                                                       context: {
                                                         claim_id: claim.id,
                                                         confirmation_number: claim.confirmation_number,
-                                                        extra: 'test',
+                                                        error: 'test',
                                                         form_id: '686C-674',
                                                         service: 'dependents-application',
                                                         tags: ['service:dependents-application', 'v2:false'],
@@ -146,7 +146,7 @@ RSpec.describe Dependents::Monitor do
                                                       statsd: 'test.monitor.success'
                                                     })
 
-        monitor_v1.track_event('info', 'Success!', 'test.monitor.success', { extra: 'test' })
+        monitor_v1.track_event('info', 'Success!', 'test.monitor.success', { error: 'test' })
       end
 
       it 'handles a warning' do
@@ -157,7 +157,7 @@ RSpec.describe Dependents::Monitor do
                                                       context: {
                                                         claim_id: claim.id,
                                                         confirmation_number: claim.confirmation_number,
-                                                        extra: 'test',
+                                                        error: 'test',
                                                         form_id: '686C-674',
                                                         service: 'dependents-application',
                                                         tags: ['service:dependents-application', 'v2:false'],
@@ -171,7 +171,7 @@ RSpec.describe Dependents::Monitor do
                                                       statsd: 'test.monitor.failure'
                                                     })
 
-        monitor_v1.track_event('warn', 'Oops!', 'test.monitor.failure', { extra: 'test' })
+        monitor_v1.track_event('warn', 'Oops!', 'test.monitor.failure', { error: 'test' })
       end
     end
   end
@@ -185,7 +185,7 @@ RSpec.describe Dependents::Monitor do
               "last error: #{msg['error_message']}"
         payload = {
           claim: claim_v2,
-          message: msg,
+          error: msg,
           service: 'dependents-application',
           tags: ['service:dependents-application', 'v2:true'],
           use_v2: true,
@@ -207,14 +207,14 @@ RSpec.describe Dependents::Monitor do
               "last error: #{msg['error_message']}"
         payload = {
           claim: claim_v2,
-          message: msg,
+          error: msg,
           service: 'dependents-application',
           tags: ['service:dependents-application', 'v2:true'],
           use_v2: true,
           user_account_uuid: nil
         }
 
-        expect(monitor_v2).to receive(:log_silent_failure_no_confirmation).with(payload, anything)
+        expect(monitor_v2).to receive(:log_silent_failure_avoided).with(payload, anything)
         expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted",
                                                    { tags: ['service:dependents-application', 'v2:true'] })
         expect(Rails.logger).to receive(:error).with(log)
@@ -234,7 +234,7 @@ RSpec.describe Dependents::Monitor do
                                                        context: {
                                                          claim_id: claim_v2.id,
                                                          confirmation_number: claim_v2.confirmation_number,
-                                                         extra: 'test',
+                                                         error: 'test',
                                                          form_id: '686C-674-V2',
                                                          service: 'dependents-application',
                                                          tags: ['service:dependents-application', 'v2:true'],
@@ -248,7 +248,7 @@ RSpec.describe Dependents::Monitor do
                                                        statsd: 'test.monitor.exhaustion'
                                                      })
 
-        monitor_v2.track_event('error', 'Error!', 'test.monitor.exhaustion', { extra: 'test' })
+        monitor_v2.track_event('error', 'Error!', 'test.monitor.exhaustion', { error: 'test' })
       end
 
       it 'handles an info log' do
@@ -259,7 +259,7 @@ RSpec.describe Dependents::Monitor do
                                                       context: {
                                                         claim_id: claim_v2.id,
                                                         confirmation_number: claim_v2.confirmation_number,
-                                                        extra: 'test',
+                                                        error: 'test',
                                                         form_id: '686C-674-V2',
                                                         service: 'dependents-application',
                                                         tags: ['service:dependents-application', 'v2:true'],
@@ -273,7 +273,7 @@ RSpec.describe Dependents::Monitor do
                                                       statsd: 'test.monitor.success'
                                                     })
 
-        monitor_v2.track_event('info', 'Success!', 'test.monitor.success', { extra: 'test' })
+        monitor_v2.track_event('info', 'Success!', 'test.monitor.success', { error: 'test' })
       end
 
       it 'handles a warning' do
@@ -284,7 +284,7 @@ RSpec.describe Dependents::Monitor do
                                                       context: {
                                                         claim_id: claim_v2.id,
                                                         confirmation_number: claim_v2.confirmation_number,
-                                                        extra: 'test',
+                                                        error: 'test',
                                                         form_id: '686C-674-V2',
                                                         service: 'dependents-application',
                                                         tags: ['service:dependents-application', 'v2:true'],
@@ -298,7 +298,7 @@ RSpec.describe Dependents::Monitor do
                                                       statsd: 'test.monitor.failure'
                                                     })
 
-        monitor_v2.track_event('warn', 'Oops!', 'test.monitor.failure', { extra: 'test' })
+        monitor_v2.track_event('warn', 'Oops!', 'test.monitor.failure', { error: 'test' })
       end
     end
   end

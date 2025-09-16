@@ -26,20 +26,16 @@ module AccreditedRepresentativePortal
     private
 
     ARP_PATH_INFO_PREFIX = '/accredited_representative_portal'
+    PATH_NORMALIZER = ::ActionDispatch::Journey::Router::Utils
 
     def exclude_arp_route?(env)
-      if env_check && Flipper.enabled?(:accredited_representative_portal_normalize_path)
-        # Chose the function Rack::Attack::PathNormalizer.normalize_path() since our middlewares
-        # uses this later [here](https://github.com/department-of-veterans-affairs/vets-api/blob/934424f5fe986befc33645cfc7b0a3156f3f7ae3/config/application.rb#L88).
-        # Need to use this since the Staging path includes an extra hash EX: '//accredited_representative_portal'
-        Rack::Attack::PathNormalizer.normalize_path(env['PATH_INFO']).to_s.start_with?(ARP_PATH_INFO_PREFIX)
-      else
-        env['PATH_INFO'].to_s.start_with?(ARP_PATH_INFO_PREFIX)
-      end
-    end
-
-    def env_check
-      %w[test localhost development staging].include?(Settings.vsp_environment)
+      ##
+      # Our reverse proxy for deployed environments prepends an extra slash at
+      # the beginning. Offending nginx conf here:
+      # https://github.com/department-of-veterans-affairs/devops/blob/c84a83696357b84e155c8ec849934af3019da769/ansible/deployment/config/revproxy-vagov/templates/nginx_api_server.conf.j2#L121
+      #
+      path_info = PATH_NORMALIZER.normalize_path(env['PATH_INFO']).to_s
+      path_info.start_with?(ARP_PATH_INFO_PREFIX)
     end
   end
 end

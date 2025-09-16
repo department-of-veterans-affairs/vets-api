@@ -306,20 +306,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         expect(first_message['threadId']).to eq(3_188_781)
         expect(first_message['senderId']).to eq(251_391)
       end
-
-      it 'responds to GET #thread when requires_oh_messages param is provided' do
-        VCR.use_cassette('sm_client/messages/gets_a_message_thread_oh_messages') do
-          get "/my_health/v1/messaging/messages/#{thread_id}/thread?requires_oh_messages=1"
-        end
-
-        expect(response).to be_successful
-
-        json_response = JSON.parse(response.body)
-        data = json_response['data']
-
-        first_message = data.first['attributes']
-        expect(first_message['is_oh_message']).to be(true)
-      end
     end
 
     describe '#destroy' do
@@ -362,6 +348,29 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         allow_any_instance_of(SM::Client).to receive(:post_create_message_with_lg_attachments).and_call_original
         allow_any_instance_of(SM::Client).to receive(:post_create_message_with_attachment).and_call_original
       end
+    end
+  end
+
+  context 'with authorized and requires_oh_messages flipper enabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, anything).and_return(true)
+    end
+
+    let(:thread_id) { 3_188_782 }
+
+    it 'responds to GET #thread when requires_oh_messages flipper is provided' do
+      VCR.use_cassette('sm_client/session_require_oh') do
+        VCR.use_cassette('sm_client/messages/gets_a_message_thread_oh_messages') do
+          get "/my_health/v1/messaging/messages/#{thread_id}/thread"
+        end
+      end
+      expect(response).to be_successful
+
+      json_response = JSON.parse(response.body)
+      data = json_response['data']
+
+      first_message = data.first['attributes']
+      expect(first_message['is_oh_message']).to be(true)
     end
   end
 end
