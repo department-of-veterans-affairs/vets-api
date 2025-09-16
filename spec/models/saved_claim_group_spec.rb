@@ -25,11 +25,18 @@ RSpec.describe SavedClaimGroup, type: :model do
       group = SavedClaimGroup.new(claim_group_guid: guid, parent_claim_id: parent.id, saved_claim_id: child.id)
       group.save
 
-      expect(group.parent_claim).to eq parent
-      expect(group.child_claims.first).to eq child
+      expect(group.parent).to eq parent
+      expect(group.child).to eq child
+      expect(group.children.first).to eq child
+    end
 
-      expect(group.group_claims.parent).to eq parent
-      expect(group.group_claims.child.first).to eq child
+    it 'can be found from the parent claim' do
+      SavedClaimGroup.new(claim_group_guid: guid, parent_claim_id: parent.id, saved_claim_id: child.id).save
+
+      family = parent.parent_of_claim_groups
+      expected = { "#{guid}" => [child] }
+
+      expect(expected).to eq family
     end
   end
 end

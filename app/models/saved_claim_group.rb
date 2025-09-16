@@ -21,30 +21,27 @@ class SavedClaimGroup < ApplicationRecord
   after_create { track_event(:create) }
   after_destroy { track_event(:destroy) }
 
-  def parent_claim
+  def parent
     @parent_claim ||= ::SavedClaim.find(parent_claim_id)
   end
 
-  def child_claims
-    child_ids = SavedClaimGroup.where(claim_group_guid:, parent_claim_id:).map(&:saved_claim_id)
-    ::SavedClaim.where(id: child_ids)
+  def child
+    @child_claim ||= ::SavedClaim.find(saved_claim_id)
   end
 
-  def group_claims
-    OpenStruct.new({
-                     parent: parent_claim,
-                     child: child_claims
-                   })
+  # return all the
+  def children
+    child_ids = SavedClaimGroup.where(claim_group_guid:, parent_claim_id:).map(&:saved_claim_id)
+    ::SavedClaim.where(id: child_ids)
   end
 
   private
 
   def track_event(action)
-    StatsD.increment('saved_claim_group', tags: ["form_id:#{parent_claim.form_id}", "action:#{action}"])
+    StatsD.increment('saved_claim_group', tags: ["form_id:#{parent.form_id}", "action:#{action}"])
 
-    parent = "#{parent_claim.form_id} #{parent_claim.id}"
-    child_claim = SavedClaim.find(saved_claim_id)
-    child = "#{child_claim.form_id} #{child_claim.id}"
-    Rails.logger.info("#{self.class} #{action} for #{parent} child #{child}")
+    parent_claim = "#{parent.form_id} #{parent.id}"
+    child_claim = "#{child.form_id} #{child.id}"
+    Rails.logger.info("#{self.class} #{action} for #{parent_claim} child #{child_claim}")
   end
 end

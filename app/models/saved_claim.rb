@@ -212,7 +212,7 @@ class SavedClaim < ApplicationRecord
 
   # retrieve list of claim groups keyed to claim_group_guid
   def claim_groups(group_claims)
-    group_claims.each_with_object({}) { |hash, group_claim| hash[group_claim.claim_group_guid] << group_claim }
+    group_claims.each_with_object({}) { |group_claim, hash| (hash[group_claim.claim_group_guid] ||= []) << group_claim }
   end
 
   def after_create_metrics
