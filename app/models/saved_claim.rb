@@ -161,13 +161,13 @@ class SavedClaim < ApplicationRecord
   end
 
   # retrieve claim groups _this_ claim is a parent of
-  def parent_of_claim_groups
-    claim_groups(SavedClaimGroup.where(parent_claim_id: id))
+  def parent_of_groups
+    SavedClaimGroup.where(parent_claim_id: id)
   end
 
   # retrieve claim groups _this_ claim is a child of
-  def child_of_claim_groups
-    claim_groups(SavedClaimGroup.where(saved_claim_id: id))
+  def child_of_groups
+    SavedClaimGroup.where(saved_claim_id: id)
   end
 
   private
@@ -208,11 +208,6 @@ class SavedClaim < ApplicationRecord
 
   def attachment_keys
     []
-  end
-
-  # retrieve list of claim groups keyed to claim_group_guid
-  def claim_groups(group_claims)
-    group_claims.each_with_object({}) { |group_claim, hash| (hash[group_claim.claim_group_guid] ||= []) << group_claim }
   end
 
   def after_create_metrics
