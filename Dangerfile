@@ -224,6 +224,9 @@ module VSPDanger
   class MigrationIsolator
     DB_PATHS = ['db/migrate/', 'db/schema.rb'].freeze
     SEEDS_PATHS = ['db/seeds/', 'db/seeds.rb'].freeze
+    # Pre-compile regex patterns for performance
+    DB_PATTERN = Regexp.union(DB_PATHS.map { |path| Regexp.new(Regexp.escape(path)) }).freeze
+    SEEDS_PATTERN = Regexp.union(SEEDS_PATHS.map { |path| Regexp.new(Regexp.escape(path)) }).freeze
     # Allowed app file patterns when migrations are present
     # Based on strong_migrations best practices
     ALLOWED_APP_PATTERNS = [
@@ -251,10 +254,14 @@ module VSPDanger
     private
 
     def migration_removes_columns?
-      migration_files.any? do |file|
-        content = File.read(file)
-        content.match?(/remove_column|remove_columns|drop_column/)
-      end
+      # Use git grep for efficiency - searches without reading entire files
+      return false if migration_files.empty?
+
+      # Check all migration files at once with git grep
+      migration_pattern = 'remove_column\|remove_columns\|drop_column'
+      files_to_check = migration_files.map { |f| "'#{f}'" }.join(' ')
+      grep_cmd = "git grep -l '#{migration_pattern}' -- #{files_to_check} 2>/dev/null"
+      !`#{grep_cmd}`.strip.empty?
     end
 
     def ignored_columns_in_models?
@@ -262,10 +269,10 @@ module VSPDanger
 
       return false if model_files.empty?
 
-      model_files.any? do |file|
-        content = File.read(file)
-        content.match?(/ignored_columns|self\.ignored_columns/)
-      end
+      # Check all model files at once with git grep
+      files_to_check = model_files.map { |f| "'#{f}'" }.join(' ')
+      grep_cmd = "git grep -l 'ignored_columns' -- #{files_to_check} 2>/dev/null"
+      !`#{grep_cmd}`.strip.empty?
     end
 
     def migration_files
@@ -364,13 +371,11 @@ module VSPDanger
     end
 
     def db_files
-      pattern = Regexp.union(DB_PATHS.map { |path| Regexp.new(Regexp.escape(path)) })
-      files.grep(pattern)
+      files.grep(DB_PATTERN)
     end
 
     def seed_files
-      pattern = Regexp.union(SEEDS_PATHS.map { |path| Regexp.new(Regexp.escape(path)) })
-      files.grep(pattern)
+      files.grep(SEEDS_PATTERN)
     end
 
     def files
