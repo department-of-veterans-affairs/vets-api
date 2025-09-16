@@ -1,0 +1,111 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_UHD_SECURITY_HOST>/mhvapi/security/v1/login"
+    body:
+      encoding: UTF-8
+      string: '{"appId":"test-app","appToken":"test-token","subject":"test-subject","userType":"test-user-type"}'
+    headers:
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Faraday v2.13.4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer test-access-token-12345
+    body:
+      encoding: UTF-8
+      string: '{"access_token":"test-access-token-12345","token_type":"Bearer","expires_in":3600}'
+  recorded_at: Mon, 25 Aug 2025 19:00:00 GMT
+- request:
+    method: get
+    uri: "<MHV_UHD_HOST>/v1/medicalrecords/conditions?patientId=123456789V012345&startDate=2024-01-01&endDate=2025-05-31"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Authorization:
+      - Bearer test-access-token-12345
+      X-Api-Key:
+      - test-api-key
+      User-Agent:
+      - Faraday v2.13.4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: |
+        {
+          "vista": {
+            "entry": [
+              {
+                "resource": {
+                  "resourceType": "Condition",
+                  "id": "condition-12345",
+                  "code": {
+                    "text": "Essential Hypertension"
+                  },
+                  "onsetDateTime": "2023-01-15T00:00:00Z",
+                  "asserter": {
+                    "display": "Dr. Jane Smith"
+                  },
+                  "encounter": {
+                    "display": "VA Medical Center - Primary Care"
+                  },
+                  "note": [
+                    {
+                      "text": "Well controlled with medication"
+                    }
+                  ]
+                }
+              },
+              {
+                "resource": {
+                  "resourceType": "Condition",
+                  "id": "condition-67890",
+                  "code": {
+                    "text": "Type 2 Diabetes Mellitus"
+                  },
+                  "onsetDateTime": "2022-06-10T00:00:00Z",
+                  "recordedDate": "2022-06-10T00:00:00Z",
+                  "asserter": {
+                    "display": "Dr. Robert Johnson"
+                  },
+                  "encounter": {
+                    "display": "VA Medical Center - Endocrinology"
+                  },
+                  "note": [
+                    {
+                      "text": "Patient managing well with metformin and lifestyle changes"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "oracle-health": {
+            "entry": []
+          }
+        }
+  recorded_at: Mon, 25 Aug 2025 19:00:00 GMT
+recorded_with: VCR 6.3.1

@@ -29,6 +29,8 @@ class FormPdfChangeDetectionJob
   CACHE_PREFIX = 'form_pdf_revision_sha256'
 
   def perform
+    return unless Flipper.enabled?(:form_pdf_change_detection)
+
     forms = fetch_forms_data
 
     cache_keys, current_sha_map = get_current_form_data(forms)

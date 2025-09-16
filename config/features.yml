@@ -642,6 +642,12 @@ features:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in decision review applications
     enable_in_development: true
+  decision_review_final_status_polling:
+    actor_type: user
+    description: Enables enhanced polling for secondary forms in decision review applications with final status
+  decision_review_final_status_secondary_form_failure_notifications:
+    actor_type: user
+    description: Enables failure notifications for secondary forms in decision review applications with final status
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -1075,6 +1081,9 @@ features:
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
+  form_pdf_change_detection:
+    actor_type: user
+    description: If enabled runs the FormPdfChangeDetectionJob daily
   get_help_ask_form:
     actor_type: user
     description: Enables inquiry form for users to submit questions, suggestions, and complaints.
@@ -1491,6 +1500,9 @@ features:
     actor_type: user
     description: Display My HealtheVet and My VA links in the site header
     enable_in_development: true
+  mhv_email_confirmation:
+    actor_type: user
+    description: Enables/disables email confirmation alerts on MHV and My VA pages
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
@@ -1549,6 +1561,10 @@ features:
   pension_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  pension_itf_validate_data_logger:
+    actor_type: user
+    description: Toggle sending of the ITF Validate Data to Rails Logger
+    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1932,10 +1948,13 @@ features:
     description: Toggles new features for the dependents verification form
   va_dependents_v2:
     actor_type: user
-    description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
+    description: Allows us to toggle between V1 and V2 of the 686c-674 forms.
   va_dependents_v2_banner:
     actor_type: user
     description: Allows us to toggle a form maintenance banner on the V1 form for pre-launch.
+  va_dependents_v3:
+    actor_type: user
+    description: Allows us to toggle v3 of the 686c-674 form.
   va_dependents_bgs_extra_error_logging:
     actor_type: user
     description: Allows us to toggle extra error logging for BGS in 686C-674
@@ -1948,6 +1967,10 @@ features:
   va_dependents_new_fields_for_pdf:
     actor_type: user
     description: Allows us to toggle the new fields on the front end for 686C-674
+  va_dependents_duplicate_modals:
+    actor_type: user
+    description: Allows us to toggle duplicate modals for the 686C-674
+    enable_in_development: true
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
@@ -2277,6 +2300,13 @@ features:
       A switch that toggles the availability of the expense and document submission features for travel pay claims. This feature flag can be retired when the feature is deployed to 100% of logged-in users in production for > 30 days.
       Enabled - Requests are handled as normal. Users can submit various types of expenses (mileage, lodging, meal, other) to their travel pay claims. Users can upload documents to their travel claims.
       Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
+  travel_pay_exclude_expense_placeholder_receipt:
+    actor_type: user
+    enable_in_development: false
+    description: >-
+      A switch for a workaround for the API's requirement of receipts with expenses.
+      Enabled - Excludes the placeholder expenseReceipt object on Travel Pay expense create
+      Disabled - Placeholder receipt is included
   travel_pay_submit_mileage_expense:
     actor_type: user
     enable_in_development: true
@@ -2490,8 +2520,17 @@ features:
   form10203_confirmation_email_with_silent_failure_processing:
     actor_type: user
     description: If enabled, confirmation email will be sent with silent failure processing
+  form10297_confirmation_email_with_silent_failure_processing:
+    actor_type: user
+    description: If enabled, confirmation email will be sent with silent failure processing
   unique_user_metrics_logging:
     # System level feature flag
     actor_type:
     description: Enables unique user metrics logging for MHV Portal analytics. When disabled, no events will be recorded to database or sent to StatsD.
     enable_in_development: true
+  form_8794_release:
+    actor_type: user
+    description: If enabled, show link to digitized form instead of PDF download on SCO page
+  form_1919_release:
+    actor_type: user
+    description: If enabled, show link to digitized form instead of PDF download on SCO page
