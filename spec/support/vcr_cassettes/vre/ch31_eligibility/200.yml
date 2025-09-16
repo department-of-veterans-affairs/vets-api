@@ -5,7 +5,7 @@ http_interactions:
     uri: https://fake_url.com/suite/webapi/chapter31-eligibility-details-search
     body:
       encoding: UTF-8
-    string: '{"icn":"1012667145V762142"}'
+      string: '{"icn":"1018616478V531227"}'
     headers:
       Accept:
       - application/json

@@ -22,6 +22,8 @@ http_interactions:
     headers:
       date:
       - Mon, 15 Sep 2025 14:22:27 GMT
+      content-type:
+      - application/json
       content-length:
       - '87'
       connection:

@@ -9,7 +9,7 @@ RSpec.describe 'VRE::V0::Ch31EligibilityStatus', type: :request do
 
   describe 'GET vre/v0/ch31_eligibility_status' do
     context 'when eligibility status available' do
-      let(:user) { create(:user, icn: '1012667145V762142') }
+      let(:user) { create(:user, icn: '1018616478V531227') }
 
       it 'returns 200 response' do
         VCR.use_cassette('vre/ch31_eligibility/200') do
