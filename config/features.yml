@@ -1948,10 +1948,13 @@ features:
     description: Toggles new features for the dependents verification form
   va_dependents_v2:
     actor_type: user
-    description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
+    description: Allows us to toggle between V1 and V2 of the 686c-674 forms.
   va_dependents_v2_banner:
     actor_type: user
     description: Allows us to toggle a form maintenance banner on the V1 form for pre-launch.
+  va_dependents_v3:
+    actor_type: user
+    description: Allows us to toggle v3 of the 686c-674 form.
   va_dependents_bgs_extra_error_logging:
     actor_type: user
     description: Allows us to toggle extra error logging for BGS in 686C-674
