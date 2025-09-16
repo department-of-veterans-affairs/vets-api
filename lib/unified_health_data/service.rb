@@ -82,28 +82,6 @@ module UnifiedHealthData
       end
     end
 
-    def get_care_summaries_and_notes
-      with_monitoring do
-        patient_id = @user.icn
-
-        # NOTE: we must pass in a startDate and endDate to SCDF
-        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
-        start_date = '1900-01-01'
-        # End date defaults to today
-        end_date = Time.zone.today.to_s
-
-        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, request_headers)
-        body = parse_response_body(response.body)
-
-        combined_records = fetch_combined_records(body)
-
-        filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
-
-        parse_notes(filtered)
-      end
-    end
-
     def get_prescriptions
       with_monitoring do
         patient_id = @user.icn
@@ -137,6 +115,32 @@ module UnifiedHealthData
       build_error_response(orders)
     end
 
+    def get_care_summaries_and_notes
+      with_monitoring do
+        patient_id = @user.icn
+
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
+        start_date = '1900-01-01'
+        # End date defaults to today
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, request_headers)
+        body = parse_response_body(response.body)
+
+        body['vista']['entry']&.each do |note|
+          new_id_array = note['resource']['identifier'].find { |id| id['system'] == 'vista-uid' }['value'].split(':')
+          note['resource']['id'] = "#{new_id_array[3]}-#{new_id_array[4]}-#{new_id_array[5]}"
+        end
+        combined_records = fetch_combined_records(body)
+
+        filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
+
+        parse_notes(filtered)
+      end
+    end
+
     def get_single_summary_or_note(note_id)
       # TODO: refactor out common bits into a client type method - most of this is repeated from above
       with_monitoring do
@@ -152,6 +156,10 @@ module UnifiedHealthData
         response = perform(:get, path, nil, request_headers)
         body = parse_response_body(response.body)
 
+        body['vista']['entry']&.each do |note|
+          new_id_array = note['resource']['identifier'].find { |id| id['system'] == 'vista-uid' }['value'].split(':')
+          note['resource']['id'] = "#{new_id_array[3]}-#{new_id_array[4]}-#{new_id_array[5]}"
+        end
         combined_records = fetch_combined_records(body)
 
         filtered = combined_records.select { |record| record['resource']['id'] == note_id }
@@ -446,15 +454,6 @@ module UnifiedHealthData
       @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
     end
 
-    # Care Summaries and Notes methods
-    def parse_notes(records)
-      return [] if records.blank?
-
-      # Parse using the adapter
-      parsed = records.map { |record| clinical_notes_adapter.parse(record) }
-      parsed.compact
-    end
-
     # Prescription refill helper methods
     def build_refill_request_body(orders)
       {
@@ -517,6 +516,15 @@ module UnifiedHealthData
           station_number: failure['stationNumber']
         }
       end
+    end
+
+    # Care Summaries and Notes methods
+    def parse_notes(records)
+      return [] if records.blank?
+
+      # Parse using the adapter
+      parsed = records.map { |record| clinical_notes_adapter.parse(record) }
+      parsed.compact
     end
 
     def parse_single_note(record)
