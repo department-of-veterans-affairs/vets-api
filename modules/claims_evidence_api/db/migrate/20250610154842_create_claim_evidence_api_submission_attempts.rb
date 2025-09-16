@@ -2,6 +2,8 @@
 
 # create submission attempts table
 class CreateClaimEvidenceApiSubmissionAttempts < ActiveRecord::Migration[7.2]
+
+  # create the table
   def change
     create_table :claims_evidence_api_submission_attempts do |t|
       t.references :claims_evidence_api_submissions, null: false, foreign_key: true
