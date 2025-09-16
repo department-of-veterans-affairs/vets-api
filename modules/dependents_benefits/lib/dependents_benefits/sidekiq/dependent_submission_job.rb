@@ -19,6 +19,7 @@ module DependentsBenefits
     include Sidekiq::Job
 
     # dead: false ensures critical dependent claims never go to dead queue
+    # https://github.com/sidekiq/sidekiq/wiki/Advanced-Options#jobs
     sidekiq_options retry: 16, dead: false
 
     # Callback runs outside job context - must recreate instance state

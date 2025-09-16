@@ -3,18 +3,18 @@
 require 'rails_helper'
 require 'dependents_benefits/sidekiq/dependent_submission_job'
 
-##
-# Mock ServiceResponse for testing
-ServiceResponse = Struct.new(:success, :data, :error, keyword_init: true) do
-  def success? = success
-end
-
 RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
   let(:claim_id) { saved_claim.id }
   let(:proc_id) { 'test-proc-123' }
   let(:saved_claim) { create(:dependents_claim) }
 
   let(:job) { described_class.new }
+
+  let(:service_response_class) do
+    Struct.new(:success, :data, :error, keyword_init: true) do
+      def success? = success
+    end
+  end
 
   describe '#perform' do
     context 'when claim group has already failed' do
@@ -31,7 +31,7 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
     context 'when submission succeeds' do
       before do
         allow(job).to receive(:submit_to_service).and_return(
-          ServiceResponse.new(success: true, data: { confirmation_id: '12345' })
+          service_response_class.new(success: true, data: { confirmation_id: '12345' })
         )
       end
 
@@ -44,7 +44,7 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
     context 'when submission fails' do
       before do
         allow(job).to receive(:submit_to_service).and_return(
-          ServiceResponse.new(success: false, error: 'Service unavailable')
+          service_response_class.new(success: false, error: 'Service unavailable')
         )
       end
 
