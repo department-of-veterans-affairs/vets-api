@@ -18,10 +18,9 @@ describe Vye::DGIB::Configuration do
   end
 
   describe '#mock_enabled?' do
-    let(:config) { Vye::DGIB::Configuration.instance }
-
-    # connection is memoized so you must do this to avoid the intermittent test failures
-    after do
+    # connection's memoized so this will avoid intermittent test failures w/Betamocks
+    before do
+      config = Vye::DGIB::Configuration.instance
       config.instance_variable_set(:@conn, nil)
     end
 
@@ -29,6 +28,7 @@ describe Vye::DGIB::Configuration do
       before { Settings.dgi.vye.vets.mock = true }
 
       it 'returns true and the connection includes Betamocks' do
+        config = Vye::DGIB::Configuration.instance
         expect(config.mock_enabled?).to be(true)
         expect(config.connection.builder.handlers.map(&:name)).to include('Betamocks::Middleware')
       end
@@ -38,6 +38,7 @@ describe Vye::DGIB::Configuration do
       before { Settings.dgi.vye.vets.mock = false }
 
       it 'returns false and the connection does not include Betamocks' do
+        config = Vye::DGIB::Configuration.instance
         expect(config.mock_enabled?).to be(false)
         expect(config.connection.builder.handlers.map(&:name)).not_to include('Betamocks::Middleware')
       end

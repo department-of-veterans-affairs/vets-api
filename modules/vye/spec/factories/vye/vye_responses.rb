@@ -67,7 +67,7 @@ FactoryBot.define do
       enrollment_verifications { nil }
       verified_details { nil }
       payment_on_hold { nil }
-      
+
       initialize_with do
         http_response = double('http_response', body: ERROR_RESPONSE_BODY)
         new(status, http_response)
