@@ -7,6 +7,12 @@ module ClaimsApi
     class DisabilityCompensationPdfMapper
       include PdfMapperBase
 
+      RISK_OF_BECOMING_HOMELESS_TYPES = {
+        'losingHousing' => 'HOUSING_WILL_BE_LOST_IN_30_DAYS',
+        'leavingShelter' => 'LEAVING_PUBLICLY_FUNDED_SYSTEM_OF_CARE',
+        'other' => 'OTHER'
+      }.freeze
+
       def initialize(auto_claim, pdf_data, auth_headers, middle_initial)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
@@ -256,7 +262,8 @@ module ClaimsApi
         set_pdf_data_for_homelessness_risk_information
         risk_of_homeless_base = @pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
 
-        risk_of_homeless_base[:livingSituationOptions] = homelessness_risk_info['homelessnessRiskSituationType']
+        risk_of_homeless_base[:livingSituationOptions] =
+          RISK_OF_BECOMING_HOMELESS_TYPES[homelessness_risk_info['homelessnessRiskSituationType']]
         risk_of_homeless_base[:otherDescription] = homelessness_risk_info['otherLivingSituation']
       end
 
