@@ -29,7 +29,7 @@ module TravelClaim
     def initialize(check_in:, appointment_date:, facility_type:, uuid:)
       @check_in = check_in
       @appointment_date = appointment_date
-      @facility_type = facility_type
+      @facility_type = facility_type || 'CIE'
       @uuid = uuid
     end
 
@@ -80,7 +80,6 @@ module TravelClaim
     def validate_parameters
       raise_backend_service_exception('CheckIn object is required', 400, 'VA901') if @check_in.nil?
       raise_backend_service_exception('Appointment date is required', 400, 'VA902') if @appointment_date.blank?
-      raise_backend_service_exception('Facility type is required', 400, 'VA903') if @facility_type.blank?
       raise_backend_service_exception('Uuid is required', 400, 'VA904') if @uuid.blank?
     end
 

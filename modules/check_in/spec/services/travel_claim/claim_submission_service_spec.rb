@@ -52,16 +52,6 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
         end
       end
 
-      context 'when facility_type is missing' do
-        let(:service) { described_class.new(check_in: check_in_session, appointment_date:, facility_type: nil, uuid:) }
-
-        it 'raises BackendServiceException for missing facility_type' do
-          expect { service.submit_claim }.to raise_error(
-            Common::Exceptions::BackendServiceException
-          )
-        end
-      end
-
       context 'when uuid is missing' do
         let(:service) { described_class.new(check_in: check_in_session, appointment_date:, facility_type:, uuid: nil) }
 
