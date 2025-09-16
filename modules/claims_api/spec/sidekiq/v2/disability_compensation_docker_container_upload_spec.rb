@@ -3,8 +3,9 @@
 require 'rails_helper'
 require_relative '../../rails_helper'
 require 'claims_api/v1/disability_compensation_pdf_generator'
+require 'fes_service/base'
 
-RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type: :job do
+RSpec.describe ClaimsApi::V1::DisabilityCompensationDockerContainerUpload, type: :job do
   subject { described_class }
 
   before do
@@ -21,8 +22,22 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
   let(:claim_date) { (Time.zone.today - 1.day).to_s }
   let(:anticipated_separation_date) { 2.days.from_now.strftime('%m-%d-%Y') }
 
+  let(:fes_auth_headers) do
+    # NEW: FES headers (copied from service spec)
+    { 'va_eauth_csid' => 'DSLogon', 'va_eauth_authenticationmethod' => 'DSLogon', 'va_eauth_pnidtype' => 'SSN',
+      'va_eauth_assurancelevel' => '3', 'va_eauth_firstName' => 'Pauline', 'va_eauth_lastName' => 'Foster',
+      'va_eauth_issueinstant' => '2025-08-19T13:57:05Z', 'va_eauth_dodedipnid' => '1243413229',
+      'va_eauth_birlsfilenumber' => '123456', 'va_eauth_pid' => '600049703', 'va_eauth_pnid' => '796330625',
+      'va_eauth_birthdate' => '1976-06-09T00:00:00+00:00',
+      'va_eauth_authorization' => '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796330625",' \
+                                  '"edi":"1243413229","firstName":"Pauline","lastName":"Foster", ' \
+                                  '"birthDate":"1976-06-09T00:00:00+00:00",' \
+                                  '"gender":"MALE"}}', 'va_eauth_authenticationauthority' => 'eauth',
+      'va_eauth_service_transaction_id' => '00000000-0000-0000-0000-000000000000' }
+  end
+
   let(:form_data) do
-    temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
+    temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v1', 'veterans', 'disability_compensation',
                            'form_526_json_api.json').read
     temp = JSON.parse(temp)
     attributes = temp['data']['attributes']
@@ -32,16 +47,41 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
     temp['data']['attributes']
   end
 
+  let(:min_fes_form_data) do
+    # NEW: minimal v1 FES payload (copied from service spec)
+    {
+      claimProcessType: 'STANDARD_CLAIM_PROCESS',
+      veteranIdentification: {
+        mailingAddress: {
+          addressLine1: '1234 Couch Street',
+          city: 'Portland', state: 'OR', country: 'USA', zipFirstFive: '12345'
+        },
+        currentVaEmployee: false
+      },
+      disabilities: [{ name: 'hearing loss', serviceRelevance: 'Heavy equipment operator in service',
+                       approximateDate: '2017-07', disabilityActionType: 'NEW' }],
+      serviceInformation: {
+        servicePeriods: [
+          { serviceBranch: 'Air Force', serviceComponent: 'Active',
+            activeDutyBeginDate: '2015-11-14', activeDutyEndDate: '2018-11-30' }
+        ]
+      },
+      claimantCertification: true
+    }
+  end
+
   let(:claim) do
-    claim = create(:auto_established_claim, form_data:)
-    claim.auth_headers = auth_headers
+    claim = create(:auto_established_claim, form_data: min_fes_form_data)
+    claim.transaction_id = '00000000-0000-0000-0000-000000000000'
+    claim.auth_headers = fes_auth_headers
     claim.save
     claim
   end
 
   let(:claim_with_evss_response) do
-    claim = create(:auto_established_claim, form_data:)
-    claim.auth_headers = auth_headers
+    claim = create(:auto_established_claim, form_data: min_fes_form_data)
+    claim.transaction_id = '00000000-0000-0000-0000-000000000000'
+    claim.auth_headers = fes_auth_headers
     claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
     claim.evss_response = 'Just a test evss error response'
     claim.save
@@ -49,9 +89,10 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
   end
 
   let(:errored_claim) do
-    claim = create(:auto_established_claim, form_data:)
+    claim = create(:auto_established_claim, form_data: min_fes_form_data)
+    claim..'00000000-0000-0000-0000-000000000000'
     claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-    claim.auth_headers = auth_headers
+    claim.auth_headers = fes_auth_headers
     claim.save
     claim
   end
@@ -67,7 +108,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
       end
 
       it 'sets the claim status to pending when starting/rerunning' do
-        VCR.use_cassette('claims_api/evss/submit') do
+        VCR.use_cassette('claims_api/fes/submit') do
           expect(errored_claim.status).to eq('errored')
 
           service.perform(errored_claim.id)
@@ -78,7 +119,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
       end
 
       it 'removes the evss_response on successful docker Container submission' do
-        VCR.use_cassette('claims_api/evss/submit') do
+        VCR.use_cassette('claims_api/fes/submit') do
           expect(claim_with_evss_response.status).to eq('errored')
           expect(claim_with_evss_response.evss_response).to eq('Just a test evss error response')
 
@@ -97,7 +138,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
       end
 
       it 'does not call the next job when the claim.status is errored' do
-        VCR.use_cassette('claims_api/evss/submit') do
+        VCR.use_cassette('claims_api/fes/submit') do
           allow(errored_claim).to receive(:status).and_return('errored')
 
           service.perform(errored_claim.id)
@@ -113,7 +154,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
                   text: 'Error calling external service to establish the claim during submit.' }]
 
         # Rubocop formatting
-        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+        allow_any_instance_of(ClaimsApi::FesService::Base).to(
           receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
                                        'form526.submit.establishClaim.serviceError', {}, nil, body
                                      ))
@@ -144,7 +185,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
           'form526.submit.noRetryError', {}, nil, body
         )
 
-        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+        allow_any_instance_of(ClaimsApi::FesService::Base).to(
           receive(:submit).and_raise(error)
         )
 
@@ -174,7 +215,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
           'form526.InProcess', {}, nil, body
         )
 
-        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+        allow_any_instance_of(ClaimsApi::FesService::Base).to(
           receive(:submit).and_raise(error)
         )
 
@@ -203,7 +244,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
             text: 'Error calling external service to establish the claim during submit.'
           }]
 
-        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+        allow_any_instance_of(ClaimsApi::FesService::Base).to(
           receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
                                        'form526.submit.establishClaim.serviceError', {}, nil, body
                                      ))
@@ -235,7 +276,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
           'form526.InProcess', {}, nil, body
         )
 
-        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+        allow_any_instance_of(ClaimsApi::FesService::Base).to(
           receive(:submit).and_raise(error)
         )
 
@@ -262,7 +303,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
           text: 'Error calling external service to establish the claim during submit.'
         }]
         # Rubocop formatting
-        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+        allow_any_instance_of(ClaimsApi::FesService::Base).to(
           receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
                                        '', {}, nil, body
                                      ))

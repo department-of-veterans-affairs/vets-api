@@ -2,10 +2,10 @@
 
 require 'pdf_generator_service/pdf_client'
 require 'claims_api/v1/disability_compensation_fes_mapper'
-require 'evss_service/base'
+require 'fes_service/base'
 
 module ClaimsApi
-  module V2
+  module V1
     class DisabilityCompensationDockerContainerUpload < ClaimsApi::ServiceBase
       LOG_TAG = '526_v2_Docker_Container_job'
       sidekiq_options expires_in: 48.hours, retry: true
@@ -13,22 +13,20 @@ module ClaimsApi
       def perform(claim_id)
         log_job_progress(claim_id,
                          'Docker container job started')
-
         auto_claim = get_claim(claim_id)
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
 
-        evss_data = evss_mapper_service(auto_claim).map_claim
-
         log_job_progress(claim_id,
                          'Submitting mapped data to Docker container')
 
-        evss_res = fes_service.submit(auto_claim, evss_data)
+        fes_data = v1_fes_mapper_service(auto_claim).map_claim
+        fes_res = fes_service.submit(auto_claim, fes_data)
 
         log_job_progress(claim_id,
-                         "Successfully submitted to Docker container with response: #{evss_res}")
+                         "Successfully submitted to Docker container with response: #{fes_res}")
         # update with the evss_id returned
-        auto_claim.update!(evss_id: evss_res[:claimId])
+        auto_claim.update!(evss_id: fes_res[:claimId])
         # clear out the evss_response value on successful submssion to docker container
         clear_evss_response_for_claim(auto_claim)
         # queue flashes job
@@ -76,7 +74,7 @@ module ClaimsApi
       end
 
       def bd_service
-        ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader
+        ClaimsApi::V1::DisabilityCompensationBenefitsDocumentsUploader
       end
     end
   end
