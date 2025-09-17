@@ -101,10 +101,9 @@ describe TravelPay::ExpensesClient do
         client.add_expense(veis_token, btsss_token, 'other', expense_body)
       end
 
-      it 'routes unknown expense types to the other endpoint' do
-        expect(connection_double).to receive(:post).with('api/v1/expenses/other')
-
-        client.add_expense(veis_token, btsss_token, 'unknown_type', expense_body)
+      it 'raises an error when an unsupported expense type is provided' do
+        expect { client.add_expense(veis_token, btsss_token, 'unknown_type', expense_body) }
+          .to raise_error(ArgumentError, /Unsupported expense_type/)
       end
     end
 
@@ -135,7 +134,11 @@ describe TravelPay::ExpensesClient do
   describe '#expense_endpoint_for_type' do
     it 'returns correct endpoints for each expense type' do
       expect(client.send(:expense_endpoint_for_type, 'other')).to eq('api/v1/expenses/other')
-      expect(client.send(:expense_endpoint_for_type, 'unknown')).to eq('api/v1/expenses/other')
+    end
+
+    it 'raises an error for unsupported expense types' do
+      expect { client.send(:expense_endpoint_for_type, 'unknown') }
+        .to raise_error(ArgumentError, /Unsupported expense_type/)
     end
   end
 end
