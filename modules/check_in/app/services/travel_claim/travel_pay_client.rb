@@ -458,16 +458,24 @@ module TravelClaim
     def log_api_error(status, body)
       return unless status
 
-      Rails.logger.error('TravelPayClient API error', {
-                           correlation_id: @correlation_id,
-                           status:,
-                           body: body.is_a?(String) ? body[0..500] : body&.to_s&.[](0..500) # Truncate for logging
-                         })
-
-      # Log specific error types for additional context (without duplicating auth errors)
+      # Only log specific known error types to avoid exposing PHI
+      # Skip 401 errors as they're already logged in with_auth method
       if status == 400
         parsed_message = extract_message_from_response(body)
-        log_existing_claim_error if parsed_message&.include?('already been created')
+        if parsed_message&.include?('already been created')
+          log_existing_claim_error
+        else
+          Rails.logger.error('TravelPayClient API error', {
+                               correlation_id: @correlation_id,
+                               status:,
+                               error_type: 'bad_request'
+                             })
+        end
+      elsif status != 401
+        Rails.logger.error('TravelPayClient API error', {
+                             correlation_id: @correlation_id,
+                             status:
+                           })
       end
     end
   end
