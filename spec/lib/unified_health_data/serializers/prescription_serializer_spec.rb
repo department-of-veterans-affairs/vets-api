@@ -23,8 +23,9 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       station_number: '589',
       is_refillable: true,
       is_trackable: true,
+      trackingInformation: {},
       instructions: 'Take twice daily with meals',
-      cmop_division_phone: '555-123-4567',
+      facility_phone_number: '555-123-4567',
       prescription_source: 'VA'
     )
   end
@@ -35,7 +36,7 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
 
       expect(result[:data][:type]).to eq(:Prescription)
       expect(result[:data][:id]).to eq('12345')
-      
+
       attributes = result[:data][:attributes]
       expect(attributes[:refill_status]).to eq('active')
       expect(attributes[:refill_remaining]).to eq(2)
@@ -44,6 +45,7 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       expect(attributes[:is_refillable]).to be(true)
       expect(attributes[:is_trackable]).to be(true)
       expect(attributes[:prescription_source]).to eq('VA')
+      expect(attributes[:trackingInformation]).to eq({})
     end
 
     it 'includes aliased attributes' do
@@ -60,6 +62,25 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       expect(result[:data][:type]).to eq(:Prescription)
       expect(result[:data][:id]).to eq('12345')
     end
+
+    context 'when trackingInformation is empty' do
+      let(:prescription) do
+        UnifiedHealthData::Prescription.new(
+          id: '67890',
+          refill_status: 'active',
+          prescription_name: 'LISINOPRIL 10MG TAB',
+          is_refillable: false,
+          is_trackable: false,
+          prescription_source: 'VA'
+        )
+      end
+
+      it 'includes empty trackingInformation hash' do
+        result = subject.serializable_hash
+        attributes = result[:data][:attributes]
+
+        expect(attributes[:trackingInformation]).to eq({})
+      end
+    end
   end
 end
-
