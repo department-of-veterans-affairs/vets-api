@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :model do
   let(:form_data) { { 'test' => 'data' } }
-  let(:parent_id) { 123 }
+  let(:parent_id) { create(:dependents_claim).id }
   let(:generator) { described_class.new(form_data, parent_id) }
 
   describe 'initialization' do
@@ -66,21 +66,27 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
     end
 
     describe '#create_claim_group_item' do
-      let(:mock_claim) { instance_double(DependentsBenefits::SavedClaim, id: 456) }
+      let(:mock_claim) { create(:dependents_claim, id: 456) }
+      let(:mock_group) { create(:saved_claim_group) }
 
       before do
         allow(Rails.logger).to receive(:info)
+        allow(SavedClaimGroup).to receive(:find_by).and_return(mock_group)
       end
 
-      it 'logs a TODO message for claim linking' do
+      it 'creates a claim group' do
+        expect(SavedClaimGroup).to receive(:new).with(
+          claim_group_guid: mock_group.claim_group_guid,
+          parent_claim_id: parent_id,
+          saved_claim_id: mock_claim.id
+        ).and_call_original
+
         generator.send(:create_claim_group_item, mock_claim)
-
-        expect(Rails.logger).to have_received(:info).with("TODO: Link claim 456 to parent #{parent_id}")
       end
 
-      it 'returns nil (stubbed method)' do
+      it 'returns the created claim group' do
         result = generator.send(:create_claim_group_item, mock_claim)
-        expect(result).to be_nil
+        expect(result).to be_a(SavedClaimGroup)
       end
     end
   end

@@ -1,14 +1,18 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'dependents_benefits/generators/claim674_generator'
+require 'dependents_benefits/generators/claim686c_generator'
 
 RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
-  let(:parent_claim_id) { 123 }
   let(:form_data) { create(:dependents_claim).parsed_form }
+  let(:parent_claim_group) { create(:saved_claim_group) }
+  let(:parent_claim_id) { parent_claim_group.parent_claim_id }
 
   describe 'Creating 686c and 674 claims from combined form data' do
     before do
       allow(Rails.logger).to receive(:info)
+      allow(SavedClaimGroup).to receive(:find_by).and_return(parent_claim_group)
     end
 
     context 'when creating a 686c claim' do
@@ -34,12 +38,7 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
         expect(parsed_form['dependents_application']).not_to have_key('program_information')
 
         # Should have correct form_id
-        expect(claim_686c.form_id).to eq('21-686c')
-
-        # Should log TODO message for claim linking
-        expect(Rails.logger).to have_received(:info).with(
-          "TODO: Link claim #{claim_686c.id} to parent #{parent_claim_id}"
-        )
+        expect(claim_686c.form_id).to eq('21-686C')
       end
     end
 
@@ -71,11 +70,6 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
 
         # Should have correct form_id
         expect(claim674.form_id).to eq('21-674')
-
-        # Should log TODO message for claim linking
-        expect(Rails.logger).to have_received(:info).with(
-          "TODO: Link claim #{claim674.id} to parent #{parent_claim_id}"
-        )
       end
     end
 
@@ -100,14 +94,6 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
         expect(form_686c['dependents_application']).not_to have_key('student_information')
 
         expect(form674['dependents_application']).to have_key('student_information')
-
-        # Should log TODO messages for both claims
-        expect(Rails.logger).to have_received(:info).with(
-          "TODO: Link claim #{claim_686c.id} to parent #{parent_claim_id}"
-        )
-        expect(Rails.logger).to have_received(:info).with(
-          "TODO: Link claim #{claim674.id} to parent #{parent_claim_id}"
-        )
       end
     end
   end

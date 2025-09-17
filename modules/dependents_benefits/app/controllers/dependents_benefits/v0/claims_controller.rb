@@ -36,7 +36,8 @@ module DependentsBenefits
 
         raise Common::Exceptions::ValidationErrors, claim unless claim.save
 
-        # TODO: Create a claim group to associate multiple claims together
+        # Matching parent_claim_id and saved_claim_id indicates this is a parent claim
+        SavedClaimGroup.new(claim_group_guid: claim.guid, parent_claim_id: claim.id, saved_claim_id: claim.id).save
         form_data = claim.parsed_form
 
         raise Common::Exceptions::ValidationErrors if !claim.submittable_686? && !claim.submittable_674?
