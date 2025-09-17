@@ -31,6 +31,8 @@ module ClaimsEvidenceApi
       new.encode_jwt
     end
 
+    attr_reader :_headers, :_payload
+
     # Returns a JWT token for use in Bearer auth
     def encode_jwt
       JWT.encode(payload, private_key, ALGORITHM, headers)
@@ -40,12 +42,12 @@ module ClaimsEvidenceApi
 
     # Returns the headers for the JWT token
     def headers
-      { typ: 'JWT', alg: ALGORITHM }
+      @_headers = { typ: 'JWT', alg: ALGORITHM }
     end
 
     # Returns the payload for the JWT token
     def payload
-      {
+      @_payload = {
         jti: SecureRandom.uuid, # random id to identify a unique JWT
         iat: created_time.to_i,
         exp: expiration_time.to_i,

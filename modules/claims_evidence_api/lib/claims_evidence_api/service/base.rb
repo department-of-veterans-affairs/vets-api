@@ -16,11 +16,11 @@ module ClaimsEvidenceApi
       include ClaimsEvidenceApi::Exceptions::Service
       include ClaimsEvidenceApi::Validation
 
-      attr_reader :folder_identifier
+      attr_reader :folder_identifier, :config
 
       def initialize
         # assigning configuration here so subclass will inherit
-        self.class.configuration ClaimsEvidenceApi::Configuration
+        @config = self.class.configuration(ClaimsEvidenceApi::Configuration)
         super
       end
 
