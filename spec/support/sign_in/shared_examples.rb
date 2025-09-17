@@ -15,3 +15,7 @@ require_relative 'shared_examples/revoke/error_response'
 
 require_relative 'shared_examples/logout/authorization_error_response'
 require_relative 'shared_examples/logout/error_response'
+
+require_relative 'shared_examples/logingov_logout_proxy/error_response'
+
+require_relative 'shared_examples/revoke_all_sessions/error_response'

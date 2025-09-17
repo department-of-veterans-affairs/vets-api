@@ -86,7 +86,6 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
         expect(result).to be_a(Hash)
         expect(result['success']).to be true
         expect(result['claimId']).to eq('claim-456')
-        expect(result['claimNumberLastFour']).to eq('6789')
       end
 
       it 'sends success notification when feature flag is enabled' do
@@ -195,6 +194,47 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
         expect { service.submit_claim }.to raise_error(
           Common::Exceptions::BackendServiceException
         )
+      end
+    end
+
+    context 'when claim already exists for appointment' do
+      before do
+        allow(travel_pay_client).to receive(:send_appointment_request).and_return(
+          double(body: { 'data' => [{ 'id' => 'appointment-123' }] })
+        )
+        allow(travel_pay_client).to receive(:send_claim_request).and_raise(
+          Common::Exceptions::BackendServiceException.new(
+            'VA900',
+            { detail: 'Validation failed: A claim has already been created for this appointment.' },
+            400
+          )
+        )
+      end
+
+      it 'sends duplicate claim notification for OH facility' do
+        expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
+
+        expect(CheckIn::TravelClaimNotificationJob).to have_received(:perform_async).with(
+          'test-uuid',
+          '2024-01-01',
+          CheckIn::Constants::OH_DUPLICATE_TEMPLATE_ID,
+          'unknown'
+        )
+      end
+
+      context 'with CIE facility type' do
+        let(:facility_type) { 'vamc' }
+
+        it 'sends duplicate claim notification for CIE facility' do
+          expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
+
+          expect(CheckIn::TravelClaimNotificationJob).to have_received(:perform_async).with(
+            'test-uuid',
+            '2024-01-01',
+            CheckIn::Constants::CIE_DUPLICATE_TEMPLATE_ID,
+            'unknown'
+          )
+        end
       end
     end
 

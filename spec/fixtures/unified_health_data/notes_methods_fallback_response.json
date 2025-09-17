@@ -80,7 +80,8 @@
                             "use": "usual",
                             "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
                             "value": "NoteTO.1834074"
-                        }
+                        },
+                        {"system": "vista-uid", "value": "urn:va:document:F253:7227761:1834074"}
                     ],
                     "status": "current",
                     "type": {},
@@ -193,7 +194,8 @@
                             "use": "usual",
                             "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
                             "value": "NoteTO.1834074"
-                        }
+                        },
+                        {"system": "vista-uid", "value": "urn:va:document:F253:7227761:1834074"}
                     ],
                     "status": "current",
                     "type": {},
