@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# FIXME: remove after re-factoring class
+
 require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
@@ -15,7 +17,7 @@ require_relative 'adapters/conditions_adapter'
 require_relative 'logging'
 
 module UnifiedHealthData
-  class Service < Common::Client::Base
+  class Service < Common::Client::Base # rubocop:disable Metrics/ClassLength
     STATSD_KEY_PREFIX = 'api.uhd'
     include Common::Client::Concerns::Monitoring
 
@@ -62,25 +64,23 @@ module UnifiedHealthData
       end
     end
 
-    def get_care_summaries_and_notes
+    def get_single_condition(condition_id)
       with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
         patient_id = @user.icn
 
-        # NOTE: we must pass in a startDate and endDate to SCDF
-        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
         start_date = '1900-01-01'
-        # End date defaults to today
         end_date = Time.zone.today.to_s
 
-        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, request_headers)
+        path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, headers)
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)
+        target_record = combined_records.find { |record| record['resource']['id'] == condition_id }
+        return nil unless target_record
 
-        filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
-
-        parse_notes(filtered)
+        conditions_adapter.parse([target_record]).first
       end
     end
 
@@ -117,23 +117,41 @@ module UnifiedHealthData
       build_error_response(orders)
     end
 
-    def get_single_summary_or_note(note_id)
-      # TODO: refactor out common bits into a client type method - most of this is repeated from above
+    def get_care_summaries_and_notes
       with_monitoring do
         patient_id = @user.icn
 
         # NOTE: we must pass in a startDate and endDate to SCDF
-        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
         start_date = '1900-01-01'
-        # End date defaults to today
         end_date = Time.zone.today.to_s
 
         path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
         response = perform(:get, path, nil, request_headers)
         body = parse_response_body(response.body)
 
+        remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
+        filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
 
+        parse_notes(filtered)
+      end
+    end
+
+    def get_single_summary_or_note(note_id)
+      # TODO: refactor out common bits into a client type method - most of this is repeated from above
+      with_monitoring do
+        patient_id = @user.icn
+
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = '1900-01-01'
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, request_headers)
+        body = parse_response_body(response.body)
+
+        remap_vista_uid(body)
+        combined_records = fetch_combined_records(body)
         filtered = combined_records.select { |record| record['resource']['id'] == note_id }
 
         parse_single_note(filtered[0])
@@ -426,22 +444,13 @@ module UnifiedHealthData
       @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
     end
 
-    # Care Summaries and Notes methods
-    def parse_notes(records)
-      return [] if records.blank?
-
-      # Parse using the adapter
-      parsed = records.map { |record| clinical_notes_adapter.parse(record) }
-      parsed.compact
-    end
-
     # Prescription refill helper methods
     def build_refill_request_body(orders)
       {
         patientId: @user.icn,
         orders: orders.map do |order|
           {
-            id: order[:id].to_s,
+            orderId: order[:id].to_s,
             stationNumber: order[:stationNumber].to_s
           }
         end
@@ -451,18 +460,23 @@ module UnifiedHealthData
     def build_error_response(orders)
       {
         success: [],
-        failed: orders.map { |order| { id: order[:id], error: 'Service unavailable' } }
+        failed: orders.map do |order|
+          { id: order[:id], error: 'Service unavailable', station_number: order[:stationNumber] }
+        end
       }
     end
 
     def parse_refill_response(response)
       body = parse_response_body(response.body)
 
+      # Ensure we have an array response format
+      refill_items = body.is_a?(Array) ? body : []
+
       # Parse successful refills
-      successes = extract_successful_refills(body)
+      successes = extract_successful_refills(refill_items)
 
       # Parse failed refills
-      failures = extract_failed_refills(body)
+      failures = extract_failed_refills(refill_items)
 
       {
         success: successes,
@@ -470,27 +484,47 @@ module UnifiedHealthData
       }
     end
 
-    def extract_successful_refills(body)
-      # Parse successful refills from API response
-      successful_refills = body['successfulRefills'] || []
+    def extract_successful_refills(refill_items)
+      # Parse successful refills from API response array
+      successful_refills = refill_items.select { |item| item['success'] == true }
       successful_refills.map do |refill|
         {
-          id: refill['prescriptionId'],
-          status: refill['status'] || 'submitted'
+          id: refill['orderId'],
+          status: refill['message'] || 'submitted',
+          station_number: refill['stationNumber']
         }
       end
     end
 
-    def extract_failed_refills(body)
-      # Assuming the API returns detailed error info for failures
-      # Adjust based on actual API response format
-      failed_refills = body['failedRefills'] || []
+    def extract_failed_refills(refill_items)
+      # Parse failed refills from API response array
+      failed_refills = refill_items.select { |item| item['success'] == false }
       failed_refills.map do |failure|
         {
-          id: failure['prescriptionId'],
-          error: failure['reason'] || 'Unable to process refill'
+          id: failure['orderId'],
+          error: failure['message'] || 'Unable to process refill',
+          station_number: failure['stationNumber']
         }
       end
+    end
+
+    # Care Summaries and Notes methods
+    def remap_vista_uid(records)
+      records['vista']['entry']&.each do |note|
+        vista_uid_identifier = note['resource']['identifier'].find { |id| id['system'] == 'vista-uid' }
+        next unless vista_uid_identifier && vista_uid_identifier['value']
+
+        new_id_array = vista_uid_identifier['value'].split(':')
+        note['resource']['id'] = new_id_array[-3..].join('-')
+      end
+    end
+
+    def parse_notes(records)
+      return [] if records.blank?
+
+      # Parse using the adapter
+      parsed = records.map { |record| clinical_notes_adapter.parse(record) }
+      parsed.compact
     end
 
     def parse_single_note(record)
@@ -508,4 +542,4 @@ module UnifiedHealthData
       @logger ||= UnifiedHealthData::Logging.new(@user)
     end
   end
-end
+end # rubocop:enable Metrics/ClassLength

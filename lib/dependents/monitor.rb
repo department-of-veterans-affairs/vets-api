@@ -113,6 +113,14 @@ module Dependents
                                e, user_account_uuid)
     end
 
+    def track_pdf_upload_error
+      metric = "#{CLAIM_STATS_KEY}.upload_pdf.failure"
+      metric = "#{metric}.v2" if @use_v2
+      payload = default_payload.merge({ statsd: metric })
+
+      track_event('error', 'DependencyClaim error in upload_to_vbms method', metric, payload)
+    end
+
     def track_to_pdf_failure(e, form_id)
       metric = "#{CLAIM_STATS_KEY}.to_pdf.failure"
       metric = "#{metric}.v2" if @use_v2

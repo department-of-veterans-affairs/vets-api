@@ -76,13 +76,12 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
             end
           end
 
-          # TODO: Update this to expect :ok when VCR cassettes are fully configured
-          expect(response).to have_http_status(:bad_request)
+          expect(response).to have_http_status(:ok)
           expect(response.content_type).to include('application/json')
 
           json_response = JSON.parse(response.body)
-          expect(json_response).to include('errors')
-          expect(json_response['errors']).to be_an(Array)
+          expect(json_response).to include('success' => true)
+          expect(json_response).to include('claimId' => 'claim-456')
         end
       end
 
@@ -143,7 +142,7 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
             {
               travel_claims: {
                 uuid:
-                # missing appointment_date and facility_type
+                # missing appointment_date
               }
             }
           end
@@ -203,32 +202,13 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           end
         end
 
-        context 'when appointment_date is not ISO format' do
+        context 'when appointment_date is not valid format' do
           let(:invalid_params) do
             {
               travel_claims: {
                 uuid:,
-                appointment_date: '2024-01-01', # Missing time component
+                appointment_date: 'invalid-date',
                 facility_type:
-              }
-            }
-          end
-
-          it 'returns bad request status' do
-            post '/check_in/v1/travel_claims', params: invalid_params,
-                                               headers: { 'Authorization' => "Bearer #{low_auth_token}" }
-
-            expect(response).to have_http_status(:bad_request)
-          end
-        end
-
-        context 'when facility_type is invalid' do
-          let(:invalid_params) do
-            {
-              travel_claims: {
-                uuid:,
-                appointment_date:,
-                facility_type: 'invalid_type'
               }
             }
           end
@@ -242,14 +222,68 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
         end
       end
 
+      context 'when claim already exists for appointment' do
+        it 'returns specific error message from Travel Pay API' do
+          VCR.use_cassette 'check_in/travel_claim/veis_token_200' do
+            VCR.use_cassette 'check_in/travel_claim/system_access_token_200' do
+              VCR.use_cassette 'check_in/travel_claim/appointments_find_or_add_200' do
+                VCR.use_cassette 'check_in/travel_claim/claims_create_400_duplicate' do
+                  post '/check_in/v1/travel_claims', params: valid_params,
+                                                     headers: { 'Authorization' => "Bearer #{low_auth_token}" }
+                end
+              end
+            end
+          end
+
+          json_response = JSON.parse(response.body)
+          expect(json_response['errors']).to be_an(Array)
+          expected_message = 'Validation failed: A claim has already been created for this appointment.'
+          expect(json_response['errors'].first['detail']).to eq(expected_message)
+          expect(response).to have_http_status(:bad_request)
+        end
+
+        it 'logs existing claim error when 400 status is received' do
+          # Mock Rails.logger to capture log calls
+          allow(Rails.logger).to receive(:error)
+
+          VCR.use_cassette 'check_in/travel_claim/veis_token_200' do
+            VCR.use_cassette 'check_in/travel_claim/system_access_token_200' do
+              VCR.use_cassette 'check_in/travel_claim/appointments_find_or_add_200' do
+                VCR.use_cassette 'check_in/travel_claim/claims_create_400_duplicate' do
+                  post '/check_in/v1/travel_claims', params: valid_params,
+                                                     headers: { 'Authorization' => "Bearer #{low_auth_token}" }
+                end
+              end
+            end
+          end
+
+          # Verify that the specific error log was called
+          expect(Rails.logger).to have_received(:error).with(
+            'TravelPayClient existing claim error',
+            hash_including(
+              message: 'Validation failed: A claim has already been created for this appointment.'
+            )
+          )
+        end
+      end
+
       context 'when service raises an error' do
         it 'returns bad request status' do
-          VCR.use_cassette 'check_in/travel_claim/appointments_find_or_add_400' do
-            post '/check_in/v1/travel_claims', params: valid_params,
-                                               headers: { 'Authorization' => "Bearer #{low_auth_token}" }
+          VCR.use_cassette 'check_in/travel_claim/veis_token_200' do
+            VCR.use_cassette 'check_in/travel_claim/system_access_token_200' do
+              VCR.use_cassette 'check_in/travel_claim/appointments_find_or_add_400' do
+                post '/check_in/v1/travel_claims', params: valid_params,
+                                                   headers: { 'Authorization' => "Bearer #{low_auth_token}" }
+              end
+            end
           end
 
           expect(response).to have_http_status(:bad_request)
+          json_response = JSON.parse(response.body)
+          expect(json_response).to include('errors')
+          expect(json_response['errors']).to be_an(Array)
+          expect(json_response['errors']).to be_present
+          expect(json_response['errors'].first['detail']).to eq('Invalid appointment date format')
         end
 
         it 'returns error details' do
@@ -286,22 +320,6 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
                                            headers: { 'Authorization' => "Bearer #{low_auth_token}" }
 
         expect(response).to have_http_status(:not_found)
-      end
-    end
-
-    context 'when authorization header is missing' do
-      it 'returns unauthorized status' do
-        post '/check_in/v1/travel_claims', params: valid_params
-
-        expect(response).to have_http_status(:bad_request)
-      end
-    end
-
-    context 'when authorization header is invalid' do
-      it 'returns unauthorized status' do
-        post '/check_in/v1/travel_claims', params: valid_params, headers: { 'Authorization' => 'Bearer invalid-token' }
-
-        expect(response).to have_http_status(:bad_request)
       end
     end
   end

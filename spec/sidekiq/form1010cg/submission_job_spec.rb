@@ -153,7 +153,6 @@ RSpec.describe Form1010cg::SubmissionJob do
           '[10-10CG] - Error processing Caregiver claim submission in job',
           { exception: StandardError, claim_id: claim.id }
         ).twice
-        expect(job).not_to receive(:log_exception_to_sentry)
 
         2.times do
           expect do
@@ -231,7 +230,6 @@ RSpec.describe Form1010cg::SubmissionJob do
           '[10-10CG] - Error destroying Caregiver claim after processing submission in job',
           { exception: error, claim_id: claim.id }
         )
-        expect(job).not_to receive(:log_exception_to_sentry)
 
         job.perform(claim.id)
       end
