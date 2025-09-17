@@ -11,8 +11,6 @@ require 'json_marshal/marshaller'
 #   t.text :encrypted_kms_key, comment: 'KMS key used to encrypt the reference data'
 #   t.boolean :needs_kms_rotation, default: false, null: false
 class SavedClaimGroup < ApplicationRecord
-  self.table_name = 'saved_claim_group'
-
   serialize :user_data, coder: ::JsonMarshal::Marshaller
 
   has_kms_key
