@@ -120,6 +120,11 @@ features:
     description: >
       Use new CRM environments for Ask VA API
     enable_in_development: true
+  ask_va_api_preprod_for_e2e_testing:
+    actor_type: user
+    description: >
+      Use pre-prod CRM environment to facilitate end to end testing by AVA testers.
+    enable_in_development: false
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -182,10 +187,6 @@ features:
   hca_in_progress_form_logging:
     actor_type: user
     description: Add logging for the 10-10EZ around cleaning up InProgressForms after submission
-    enable_in_development: true
-  hca_in_progress_form_delete_async:
-    actor_type: user
-    description: Enables deleting an InProgressForm in a sidekiq job
     enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
@@ -1569,6 +1570,10 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
+  pension_medical_evidence_clarification:
+    actor_type: user
+    description: >
+      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -1584,10 +1589,6 @@ features:
   pension_itf_validate_data_logger:
     actor_type: user
     description: Toggle sending of the ITF Validate Data to Rails Logger
-    enable_in_development: true
-  pension_pdf_form_alignment:
-    actor_type: user
-    description: Toggle for the new PDF form alignment update
     enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
@@ -2396,6 +2397,10 @@ features:
   search_use_v2_gsa:
     actor_type: cookie_id
     description: Swaps the Search Service's for one with an updated api.gsa.gov address
+    enable_in_development: true
+  override_address_pou:
+    actor_type: user
+    description: If enabled, ADDRESS_POU == RESIDENCE/CHOICE
     enable_in_development: true
   show_yellow_ribbon_table:
     actor_type: cookie_id
