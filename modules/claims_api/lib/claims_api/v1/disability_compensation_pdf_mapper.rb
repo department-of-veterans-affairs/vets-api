@@ -20,6 +20,7 @@ module ClaimsApi
         section_2_change_of_address
         section_3_homeless_information
         section_5_disabilities
+        section_5_treatment_centers
 
         @pdf_data
       end
@@ -322,6 +323,69 @@ module ClaimsApi
         return nil if begin_date.blank?
 
         make_date_string_month_first(begin_date, begin_date.length)
+      end
+
+      # 'treatments' is optional
+      # If 'treatments' is provided 'treatedDisabilityNames' and 'center' are required via the schema
+      def section_5_treatment_centers
+        treatment_info = @auto_claim&.dig('treatments')
+        return if treatment_info.blank?
+
+        set_pdf_data_for_claim_information
+        set_pdf_data_for_treatments
+
+        treatments = get_treatments(treatment_info)
+        treatment_details = treatments.map(&:deep_symbolize_keys)
+
+        @pdf_data[:data][:attributes][:claimInformation][:treatments] = treatment_details
+      end
+
+      def set_pdf_data_for_treatments
+        return if @pdf_data[:data][:attributes][:claimInformation]&.key?(:treatments)
+
+        @pdf_data[:data][:attributes][:claimInformation][:treatments] = {}
+      end
+
+      def get_treatments(treatment_info)
+        [].tap do |treatments_list|
+          treatment_info.map do |tx|
+            treatment_details = build_treatment_details(tx)
+            treatment_start_date = build_treatment_start_date(tx)
+            do_not_have_date = treatment_start_date.blank? || nil
+
+            treatments_list << build_treatment_item(treatment_details, treatment_start_date, do_not_have_date)
+          end
+        end.flatten
+      end
+
+      # String that is a composite of the treatment name and center name
+      def build_treatment_details(treatment)
+        if treatment['center'].present?
+          center_data = treatment['center'].transform_keys(&:to_sym)
+          center = center_data.values_at(:name, :country).compact.map(&:presence).compact.join(', ')
+        end
+
+        names = treatment['treatedDisabilityNames']
+        name = names.join(', ') if names.present?
+        [name, center].compact.join(' - ')
+      end
+
+      def build_treatment_start_date(treatment)
+        return if treatment['startDate'].blank?
+
+        start_date = parse_treatment_date(treatment['startDate'])
+        make_date_object(start_date, start_date.length)
+      end
+
+      # The PDF Generator only wants month and year for this field
+      # The date value sent in is in the format of YYYY-MM-DD
+      def parse_treatment_date(date)
+        date.length > 7 ? date[0..-4] : date
+      end
+
+      def build_treatment_item(treatment_details, treatment_start_date, do_not_have_date)
+        { treatmentDetails: treatment_details, dateOfTreatment: treatment_start_date,
+          doNotHaveDate: do_not_have_date }.compact
       end
     end
   end
