@@ -259,13 +259,11 @@ module BGS
     end
 
     def generate_hash_from_details
+      full_name = { 'first' => first_name, 'last' => last_name }
+      full_name['middle'] = middle_name unless middle_name.nil? # nil middle name breaks prod validation
       {
         'veteran_information' => {
-          'full_name' => {
-            'first' => first_name,
-            'middle' => middle_name,
-            'last' => last_name
-          },
+          'full_name' => full_name,
           'common_name' => common_name,
           'va_profile_email' => @va_profile_email,
           'email' => email,
