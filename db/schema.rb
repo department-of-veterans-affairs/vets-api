@@ -727,6 +727,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
     t.datetime "updated_at", null: false
     t.index ["debt_identifiers"], name: "index_debt_transaction_logs_on_debt_identifiers", using: :gin
     t.index ["transaction_started_at"], name: "index_debt_transaction_logs_on_transaction_started_at"
+    t.index ["transactionable_type", "transactionable_id"], name: "idx_on_transactionable_type_transactionable_id_52a8eee11c"
     t.index ["transactionable_type", "transactionable_id"], name: "index_debt_transaction_logs_on_transactionable"
     t.index ["user_uuid", "transaction_type"], name: "index_debt_transaction_logs_on_user_uuid_and_transaction_type"
   end
@@ -2184,6 +2185,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
+  add_foreign_key "saved_claim_group", "saved_claims", column: "parent_claim_id", validate: false
+  add_foreign_key "saved_claim_group", "saved_claims", validate: false
   add_foreign_key "schema_contract_validations", "user_accounts", validate: false
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "test_user_dashboard_tud_account_availability_logs", "user_accounts"
