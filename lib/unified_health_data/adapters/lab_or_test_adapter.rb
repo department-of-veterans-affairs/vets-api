@@ -27,6 +27,7 @@ module UnifiedHealthData
 
         UnifiedHealthData::LabOrTest.new(
           id: record['resource']['id'],
+          type: record['resource']['resourceType'],
           display: format_display(record),
           test_code: code,
           date_completed: record['resource']['effectiveDateTime'],

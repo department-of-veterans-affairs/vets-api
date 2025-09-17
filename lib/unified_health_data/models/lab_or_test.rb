@@ -26,6 +26,7 @@ module UnifiedHealthData
     include Vets::Model
 
     attribute :id, String
+    attribute :type, String
     attribute :display, String
     attribute :test_code, String
     attribute :date_completed, String
