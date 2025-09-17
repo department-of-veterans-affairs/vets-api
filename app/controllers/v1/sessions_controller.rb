@@ -37,6 +37,7 @@ module V1
                        VERIFY_PAGE_AUTHENTICATED = 'verify_page_authenticated',
                        VERIFY_PAGE_UNAUTHENTICATED = 'verify_page_unauthenticated'].freeze
     CERNER_ELIGIBLE_COOKIE_NAME = 'CERNER_ELIGIBLE'
+    LOG_PREFIX = '[V1][SessionsController]'
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -405,7 +406,16 @@ module V1
       if invalid_message_timestamp_error?(message)
         Rails.logger.warn("SessionsController version:v1 context:#{context} message:#{message}")
       else
-        log_message_to_sentry(message, level, extra_context: context)
+        full_message = "#{LOG_PREFIX} #{message}"
+
+        case level
+        when :error
+          Rails.logger.error(full_message)
+        when :warn
+          Rails.logger.warn(full_message)
+        else
+          Rails.logger.info(full_message)
+        end
       end
     end
 

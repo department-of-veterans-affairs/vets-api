@@ -41,7 +41,8 @@ module MPI
       end
 
       def create_error_response
-        log_message_to_sentry("MPI #{type} response error", :warn, { error_message: detailed_error&.message })
+        Rails.logger.warn("[MPI][AddPersonResponseCreator] MPI #{type} response error",
+                          error_message: detailed_error&.message)
         Responses::AddPersonResponse.new(status: :server_error, error: detailed_error)
       end
 
