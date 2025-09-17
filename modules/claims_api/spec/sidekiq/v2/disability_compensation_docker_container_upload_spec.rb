@@ -90,7 +90,7 @@ RSpec.describe ClaimsApi::V1::DisabilityCompensationDockerContainerUpload, type:
 
   let(:errored_claim) do
     claim = create(:auto_established_claim, form_data: min_fes_form_data)
-    claim..'00000000-0000-0000-0000-000000000000'
+    claim.transaction_id = '00000000-0000-0000-0000-000000000000'
     claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
     claim.auth_headers = fes_auth_headers
     claim.save

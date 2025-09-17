@@ -77,7 +77,7 @@ module ClaimsApi
       end
 
       def bd_service
-        ClaimsApi::V1::DisabilityCompensationBenefitsDocumentsUploader
+        ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader
       end
     end
   end

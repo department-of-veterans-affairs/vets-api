@@ -30,7 +30,7 @@ module ClaimsApi
       end
 
       def claim_attributes
-        # method caLls
+        # method calls
       end
 
       def extract_claimant_participant_id
