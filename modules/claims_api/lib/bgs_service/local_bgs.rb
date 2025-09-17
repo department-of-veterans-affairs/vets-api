@@ -173,6 +173,16 @@ module ClaimsApi
       end
 
       if response.status != 200
+        # TODO: override the UUID and record type with real info
+        ClaimsApi::RecordMetadata.create(
+          metadata: {
+            url:,
+            headers:,
+            request: Hash.from_xml(body),
+            response: Hash.from_xml(response.body)
+          }.deep_stringify_keys.to_s,
+          record_type: 'unset', record_id: SecureRandom.uuid
+        )
         errors = soap_error_handler.handle_errors(response)
         return errors
       end
