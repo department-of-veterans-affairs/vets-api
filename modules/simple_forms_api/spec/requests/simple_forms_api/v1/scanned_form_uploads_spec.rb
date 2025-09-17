@@ -33,19 +33,17 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       allow(Common::FileHelpers).to receive(:generate_clamav_temp_file).and_wrap_original do |original_method, *args|
         original_method.call(args[0], random_string)
       end
-      
-      # Mock PDF stamper
+
       allow(SimpleFormsApi::PdfStamper).to receive(:new).with(
-        stamped_template_path: pdf_path.to_s, 
+        stamped_template_path: pdf_path.to_s,
         current_loa: 3,
         timestamp: anything
       ).and_return(pdf_stamper)
-      
-      # Mock main attachment with Shrine file structure
-      allow(main_attachment).to receive_message_chain(:file, :open, :path).and_return(pdf_path.to_s)
+
+      file_mock = double('file')
+      allow(file_mock).to receive(:open).and_return(double(path: pdf_path.to_s))
+      allow(main_attachment).to receive(:file).and_return(file_mock)
       allow(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(main_attachment)
-      
-      # Mock empty supporting documents for existing tests (no supporting evidence)
       allow(PersistentAttachment).to receive(:where).with(guid: []).and_return([])
     end
 
@@ -56,7 +54,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     end
 
     it 'makes the request' do
-      post('/simple_forms_api/v1/submit_scanned_form', params: params)
+      post('/simple_forms_api/v1/submit_scanned_form', params:)
 
       expect(response).to have_http_status(:ok)
     end
@@ -64,7 +62,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     it 'stamps the pdf' do
       expect(pdf_stamper).to receive(:stamp_pdf)
 
-      post('/simple_forms_api/v1/submit_scanned_form', params: params)
+      post('/simple_forms_api/v1/submit_scanned_form', params:)
 
       expect(response).to have_http_status(:ok)
     end
@@ -77,11 +75,11 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         user_account: user.user_account
       ).and_return(form_submission)
       expect(FormSubmissionAttempt).to receive(:create).with(
-        form_submission: form_submission,
+        form_submission:,
         benefits_intake_uuid: anything
       )
 
-      post('/simple_forms_api/v1/submit_scanned_form', params: params)
+      post('/simple_forms_api/v1/submit_scanned_form', params:)
 
       expect(response).to have_http_status(:ok)
     end
@@ -92,7 +90,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       in_progress_form = double(form_data: prefill_data)
 
       allow(SimpleFormsApi::PrefillDataService).to receive(:new).with(
-        prefill_data: prefill_data,
+        prefill_data:,
         form_data: hash_including(:email),
         form_id: form_number
       ).and_return(prefill_data_service)
@@ -101,7 +99,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
       expect(prefill_data_service).to receive(:check_for_changes)
 
-      post('/simple_forms_api/v1/submit_scanned_form', params: params)
+      post('/simple_forms_api/v1/submit_scanned_form', params:)
 
       expect(response).to have_http_status(:ok)
     end
@@ -113,10 +111,10 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
       file = fixture_file_upload('doctors-note.gif')
 
-      params = { form_id: form_number, file: file }
+      params = { form_id: form_number, file: }
 
       expect do
-        post '/simple_forms_api/v1/scanned_form_upload', params: params
+        post '/simple_forms_api/v1/scanned_form_upload', params:
       end.to change(PersistentAttachment, :count).by(1)
 
       expect(response).to have_http_status(:ok)
@@ -137,16 +135,12 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     end
 
     context 'successful processing' do
-      it 'processes files through ScannedFormProcessor and returns success' do        
-        # Mock the processor to return the actual attachment that gets passed to it
+      it 'processes files through ScannedFormProcessor and returns success' do
         expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new) do |attachment|
           expect(attachment).to be_a(PersistentAttachments::VAForm)
           expect(attachment.form_id).to eq(form_number)
-          
-          # Create a processor mock that returns the attachment it receives
           processor = double('ScannedFormProcessor')
           allow(processor).to receive(:process!) do
-            # Save the attachment and return it
             attachment.save!
             attachment
           end
@@ -156,7 +150,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         params = { form_id: form_number, file: valid_pdf_file }
 
         expect do
-          post '/simple_forms_api/v1/supporting_documents_upload', params: params
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
         end.to change(PersistentAttachment, :count).by(1)
 
         expect(response).to have_http_status(:ok)
@@ -171,14 +165,15 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         expect(processor).to receive(:process!).and_raise(
           SimpleFormsApi::ScannedFormProcessor::ConversionError.new(
             'File conversion failed',
-            [{ title: 'File conversion error', detail: 'Unable to convert file to PDF. Please ensure your file is valid and try again.' }]
+            [{ title: 'File conversion error',
+               detail: 'Unable to convert file to PDF. Please ensure your file is valid and try again.' }]
           )
         )
 
         params = { form_id: form_number, file: valid_image_file }
 
         expect do
-          post '/simple_forms_api/v1/supporting_documents_upload', params: params
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
         end.not_to change(PersistentAttachment, :count)
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -202,7 +197,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         params = { form_id: form_number, file: large_file }
 
         expect do
-          post '/simple_forms_api/v1/supporting_documents_upload', params: params
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
         end.not_to change(PersistentAttachment, :count)
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -214,17 +209,16 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
     context 'when basic attachment validation fails' do
       it 'returns validation errors without calling processor' do
-        # Just mock the attachment creation to return an invalid attachment
         allow_any_instance_of(PersistentAttachments::VAForm).to receive(:valid?) do |attachment|
           attachment.errors.add(:file, 'is invalid')
           false
         end
-        
+
         expect(SimpleFormsApi::ScannedFormProcessor).not_to receive(:new)
-        
+
         params = { form_id: form_number, file: valid_pdf_file }
 
-        post '/simple_forms_api/v1/supporting_documents_upload', params: params
+        post('/simple_forms_api/v1/supporting_documents_upload', params:)
 
         expect(response).to have_http_status(:unprocessable_entity)
       end
@@ -266,29 +260,32 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     end
 
     it 'bundles main form with supporting evidence for Benefits Intake' do
-      # Mock main form attachment
       main_attachment = double('MainAttachment')
-      allow(main_attachment).to receive_message_chain(:file, :open, :path).and_return(pdf_path.to_s)
+      file_mock = double('file')
+      allow(file_mock).to receive(:open).and_return(double(path: pdf_path.to_s))
+      allow(main_attachment).to receive(:file).and_return(file_mock)
       allow(PersistentAttachment).to receive(:find_by).with(guid: main_confirmation_code).and_return(main_attachment)
+      support_attachment_first = double('SupportAttachment1')
+      support_attachment_second = double('SupportAttachment2')
 
-      # Mock supporting evidence attachments
-      support_attachment_1 = double('SupportAttachment1')
-      support_attachment_2 = double('SupportAttachment2')
-      allow(support_attachment_1).to receive_message_chain(:file, :open, :path).and_return('/tmp/support1.pdf')
-      allow(support_attachment_2).to receive_message_chain(:file, :open, :path).and_return('/tmp/support2.pdf')
-      
+      file_mock_first = double('file_first')
+      file_mock_second = double('file_second')
+      allow(file_mock_first).to receive(:open).and_return(double(path: '/tmp/support1.pdf'))
+      allow(file_mock_second).to receive(:open).and_return(double(path: '/tmp/support2.pdf'))
+      allow(support_attachment_first).to receive(:file).and_return(file_mock_first)
+      allow(support_attachment_second).to receive(:file).and_return(file_mock_second)
+
       allow(PersistentAttachment).to receive(:where).with(guid: supporting_evidence_codes)
-        .and_return([support_attachment_1, support_attachment_2])
+                                                    .and_return([support_attachment_first, support_attachment_second])
 
       pdf_stamper = double(stamp_pdf: nil)
       allow(SimpleFormsApi::PdfStamper).to receive(:new).and_return(pdf_stamper)
 
       lighthouse_service = double('BenefitsIntake::Service')
       allow(BenefitsIntake::Service).to receive(:new).and_return(lighthouse_service)
-      
-      # Mock the request_upload method that prepare_for_upload calls
+
       allow(lighthouse_service).to receive(:request_upload).and_return(['http://upload-url', 'uuid-123'])
-      
+
       expect(lighthouse_service).to receive(:perform_upload) do |args|
         expect(args[:attachments]).to be_an(Array)
         expect(args[:attachments].length).to eq(2)
@@ -303,7 +300,9 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
     it 'handles submission without supporting evidence (existing behavior)' do
       main_attachment = double('MainAttachment')
-      allow(main_attachment).to receive_message_chain(:file, :open, :path).and_return(pdf_path.to_s)
+      file_mock = double('file')
+      allow(file_mock).to receive(:open).and_return(double(path: pdf_path.to_s))
+      allow(main_attachment).to receive(:file).and_return(file_mock)
       allow(PersistentAttachment).to receive(:find_by).with(guid: main_confirmation_code).and_return(main_attachment)
 
       allow(PersistentAttachment).to receive(:where).with(guid: []).and_return([])
@@ -313,10 +312,9 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
       lighthouse_service = double('BenefitsIntake::Service')
       allow(BenefitsIntake::Service).to receive(:new).and_return(lighthouse_service)
-      
-      # Add the missing request_upload mock
+
       allow(lighthouse_service).to receive(:request_upload).and_return(['http://upload-url', 'uuid-123'])
-      
+
       expect(lighthouse_service).to receive(:perform_upload) do |args|
         expect(args[:attachments]).to eq([])
         double(status: 200)
@@ -328,4 +326,3 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     end
   end
 end
-

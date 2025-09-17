@@ -34,12 +34,11 @@ module SimpleFormsApi
 
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
-        # Process supporting evidence: convert to PDF and validate
         processor = SimpleFormsApi::ScannedFormProcessor.new(attachment)
         processed_attachment = processor.process!
 
         render json: PersistentAttachmentVAFormSerializer.new(processed_attachment)
-      rescue SimpleFormsApi::ScannedFormProcessor::ConversionError, 
+      rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
              SimpleFormsApi::ScannedFormProcessor::ValidationError => e
         render json: { errors: e.errors }, status: :unprocessable_entity
       end
@@ -59,23 +58,23 @@ module SimpleFormsApi
           confirmation_codes = params[:supporting_documents].map { |doc| doc[:confirmation_code] }
           supporting_attachments = PersistentAttachment.where(guid: confirmation_codes)
         end
-        
+
         stamper = PdfStamper.new(stamped_template_path: main_file_path, current_loa: @current_user.loa[:current],
                                  timestamp: Time.current)
         stamper.stamp_pdf
-        
+
         metadata = validated_metadata
         status, confirmation_number = upload_pdf_with_attachments(main_file_path, supporting_attachments, metadata)
-        
+
         file_size = File.size(main_file_path).to_f / (2**20)
         total_attachments = supporting_attachments.count
 
         Rails.logger.info(
           'Simple forms api - scanned form uploaded',
-          { 
-            form_number: params[:form_number], 
-            status:, 
-            confirmation_number:, 
+          {
+            form_number: params[:form_number],
+            status:,
+            confirmation_number:,
             file_size:,
             supporting_attachments_count: total_attachments
           }
@@ -118,7 +117,7 @@ module SimpleFormsApi
           metadata: metadata.to_json,
           document: main_file_path,
           upload_url: location,
-          attachments: attachments
+          attachments:
         )
 
         [response.status, uuid]

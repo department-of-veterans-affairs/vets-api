@@ -3,7 +3,6 @@
 # simple_forms_api/app/services/scanned_form_processor.rb
 module SimpleFormsApi
   class ScannedFormProcessor
-    # PDF validation options matching Benefits Intake requirements
     PDF_VALIDATOR_OPTIONS = {
       size_limit_in_bytes: 100.megabytes, # 100 MB
       check_page_dimensions: true,
@@ -48,8 +47,8 @@ module SimpleFormsApi
 
       pdf_file = File.open(pdf_path, 'rb')
       attachment.file = pdf_file
-      
-      Rails.logger.info("Successfully converted file to PDF")
+
+      Rails.logger.info('Successfully converted file to PDF')
     rescue => e
       Rails.logger.error("PDF conversion failed: #{e.message}")
       raise ConversionError.new(
@@ -64,19 +63,17 @@ module SimpleFormsApi
     def validate_pdf
       Rails.logger.info("Validating PDF for attachment #{attachment.guid}")
       file_path = attachment.file.open.path
-      
+
       validator = PDFUtilities::PDFValidator::Validator.new(file_path, PDF_VALIDATOR_OPTIONS)
       validation_result = validator.validate
 
       unless validation_result.valid_pdf?
         Rails.logger.error("PDF validation failed: #{validation_result.errors}")
-        
-        # Add validation errors to attachment warnings for frontend display
+
         validation_result.errors.each do |error|
           attachment.warnings << error
         end
 
-        # Format errors for API response
         formatted_errors = validation_result.errors.map do |error|
           {
             title: 'File validation error',
@@ -86,8 +83,8 @@ module SimpleFormsApi
 
         raise ValidationError.new('PDF validation failed', formatted_errors)
       end
-      
-      Rails.logger.info("PDF validation passed")
+
+      Rails.logger.info('PDF validation passed')
     end
   end
 end
