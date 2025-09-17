@@ -88,13 +88,6 @@ module Mobile
         [page, per_page]
       end
 
-      def prescription_filters
-        {
-          refill_status: params[:refill_status],
-          sort: params[:sort] || '-dispensed_date'
-        }
-      end
-
       def prescription_status_counts(prescriptions)
         counts = prescriptions.group_by(&:refill_status).transform_values(&:count)
         {
