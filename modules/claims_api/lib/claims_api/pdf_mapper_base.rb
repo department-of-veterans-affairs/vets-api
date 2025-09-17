@@ -2,7 +2,7 @@
 
 module ClaimsApi
   module PdfMapperBase
-    def concatenate_address(address_line_one, address_line_two, address_line_three)
+    def concatenate_address(address_line_one, address_line_two, address_line_three = nil)
       [address_line_one, address_line_two, address_line_three]
         .compact
         .map(&:strip)
@@ -48,11 +48,44 @@ module ClaimsApi
       end
     end
 
+    def make_date_object(date, date_length)
+      year, month, day = regex_date_conversion(date)
+      return if year.nil? || date_length.nil?
+
+      if date_length == 4
+        { year: }
+      elsif date_length == 7
+        { month:, year: }
+      else
+        { year:, month:, day: }
+
+      end
+    end
+
     def regex_date_conversion(date)
       if date.present?
         date_match = date.match(/^(?:(?<year>\d{4})(?:-(?<month>\d{2}))?(?:-(?<day>\d{2}))*|(?<month>\d{2})?(?:-(?<day>\d{2}))?-?(?<year>\d{4}))$/) # rubocop:disable Layout/LineLength
         date_match&.values_at(:year, :month, :day)
       end
+    end
+
+    def format_country(country)
+      country == 'USA' ? 'US' : country
+    end
+
+    def convert_phone(phone)
+      phone&.gsub!(/[^0-9]/, '')
+      return nil if phone.nil? || (phone.length < 10)
+
+      return "#{phone[0..2]}-#{phone[3..5]}-#{phone[6..9]}" if phone.length == 10
+
+      "#{phone[0..1]}-#{phone[2..3]}-#{phone[4..7]}-#{phone[8..11]}" if phone.length > 10
+    end
+
+    # exposure is not used in v1
+    def build_disability_item(disability, approximate_date, service_relevance, exposure = nil)
+      { disability:, approximateDate: approximate_date, exposureOrEventOrInjury: exposure,
+        serviceRelevance: service_relevance }.compact
     end
   end
 end

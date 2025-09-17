@@ -3,29 +3,48 @@
 module TravelPay
   module V0
     class ExpensesController < ApplicationController
+      include FeatureFlagHelper
+
       before_action :validate_claim_id
       before_action :validate_expense_type
+      before_action :validate_expense_id, only: [:show]
+      before_action :check_feature_flag
+
+      def show
+        Rails.logger.info(message: 'Travel Pay expense retrieval START')
+        Rails.logger.info(message: <<~LOG_MESSAGE.strip)
+          Getting expense of type '#{params[:expense_type]}'
+          with ID #{params[:expense_id].slice(0, 8)}
+          for claim #{params[:claim_id].slice(0, 8)}
+        LOG_MESSAGE
+
+        expense = expense_service.get_expense(params[:expense_type], params[:expense_id])
+
+        Rails.logger.info(message: 'Travel Pay expense retrieval END')
+
+        render json: expense, status: :ok
+      rescue ArgumentError => e
+        raise Common::Exceptions::BadRequest, detail: e.message
+      rescue Faraday::Error => e
+        TravelPay::ServiceError.raise_mapped_error(e)
+      end
 
       def create
-        validate_feature_flag_enabled
+        Rails.logger.info(message: 'Travel Pay expense submission START')
+        Rails.logger.info(
+          message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
+        )
 
-        begin
-          Rails.logger.info(message: 'Travel Pay expense submission START')
-          Rails.logger.info(
-            message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
-          )
+        expense = create_and_validate_expense
+        created_expense = expense_service.create_expense(expense_params_for_service(expense))
 
-          expense = create_and_validate_expense
-          created_expense = expense_service.create_expense(expense_params_for_service(expense))
-
-          Rails.logger.info(message: 'Travel Pay expense submission END')
-        rescue ArgumentError => e
-          raise Common::Exceptions::BadRequest, detail: e.message
-        rescue Faraday::ClientError, Faraday::ServerError => e
-          TravelPay::ServiceError.raise_mapped_error(e)
-        end
+        Rails.logger.info(message: 'Travel Pay expense submission END')
 
         render json: created_expense, status: :created
+      rescue ArgumentError => e
+        raise Common::Exceptions::BadRequest, detail: e.message
+      rescue Faraday::Error => e
+        TravelPay::ServiceError.raise_mapped_error(e)
       end
 
       private
@@ -38,12 +57,12 @@ module TravelPay
         @expense_service ||= TravelPay::ExpensesService.new(auth_manager)
       end
 
-      def validate_feature_flag_enabled
-        return if Flipper.enabled?(:travel_pay_enable_complex_claims, @current_user)
-
-        message = 'Travel Pay expense submission unavailable per feature toggle'
-        Rails.logger.error(message:)
-        raise Common::Exceptions::ServiceUnavailable, message:
+      def check_feature_flag
+        verify_feature_flag!(
+          :travel_pay_enable_complex_claims,
+          current_user,
+          error_message: 'Travel Pay expense submission unavailable per feature toggle'
+        )
       end
 
       def create_and_validate_expense
@@ -68,8 +87,20 @@ module TravelPay
         end
       end
 
+      def validate_expense_id
+        raise Common::Exceptions::BadRequest, detail: 'Expense ID is required' if params[:expense_id].blank?
+
+        uuid_all_version_format = /\A[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}\z/i
+
+        unless uuid_all_version_format.match?(params[:expense_id])
+          raise Common::Exceptions::BadRequest.new(
+            detail: 'Expense ID is invalid'
+          )
+        end
+      end
+
       def valid_expense_types
-        %w[mileage lodging meal other]
+        %w[mileage lodging meal other parking toll airtravel commoncarrier]
       end
 
       def build_expense_from_params

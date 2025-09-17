@@ -20,12 +20,36 @@ module DependentsBenefits
     # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'app.dependents_benefits.submit_benefits_intake_claim'
 
+    PROCESSOR_STATS_KEY = 'api.dependents_benefits.claim_processor'
+
     attr_reader :tags
 
     def initialize
       super('dependents-benefits-application')
 
       @tags = ["form_id:#{form_id}"]
+    end
+
+    def track_error_event(message, stats_key, options = {})
+      tags = options[:tags] ? options[:tags] + @tags : @tags
+      options = options.merge(tags:)
+      submit_event('error', message, stats_key, options)
+    end
+
+    def track_info_event(message, stats_key, options = {})
+      tags = options[:tags] ? options[:tags] + @tags : @tags
+      options = options.merge(tags:)
+      submit_event('info', message, stats_key, options)
+    end
+
+    def track_processor_error(message, action, options = {})
+      options[:tags] = ["action:#{action}"]
+      track_error_event(message, PROCESSOR_STATS_KEY, options)
+    end
+
+    def track_processor_info(message, action, options = {})
+      options[:tags] = ["action:#{action}"]
+      track_info_event(message, PROCESSOR_STATS_KEY, options)
     end
 
     private
