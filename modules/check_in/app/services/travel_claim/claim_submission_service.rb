@@ -103,12 +103,10 @@ module TravelClaim
     def validate_appointment_date_format
       return if @appointment_date.blank?
 
-      # Check if it starts with YYYY-MM-DD format
-      date_pattern = /^\d{4}-\d{2}-\d{2}/
-
-      unless @appointment_date.match?(date_pattern)
-        raise_backend_service_exception('Appointment date must start with YYYY-MM-DD format (e.g., 2025-09-16)', 400,
-                                        'VA905')
+      begin
+        DateTime.iso8601(@appointment_date)
+      rescue ArgumentError
+        raise_backend_service_exception('Appointment date must be a valid ISO 8601 date-time (e.g., 2025-09-16T10:00:00Z)', 400, 'VA905')
       end
     end
 
