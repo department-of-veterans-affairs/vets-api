@@ -5,6 +5,8 @@ require 'common/client/concerns/mhv_session_based_client'
 require 'sm/client_session'
 require 'sm/configuration'
 require 'vets/collection'
+require 'net/http'
+require 'uri'
 
 module SM
   ##
@@ -481,28 +483,42 @@ module SM
 
     ##
     # Retrieve a message attachment
-    # Endpoint returns either a binary file response or a AWS S3 URL depending on attachment upload method.
-    # If the response is a URL, it will fetch the file from that URL.
+    # Endpoint returns either a binary file response, an AWS S3 URL, or an object with attachment details
+    # depending on attachment upload method. If the response is a URL or object, it will fetch the file from that URL.
+    # Supports object responses with url, mimeType, and name attributes where filename is taken from name attribute.
     # 10MB limit of the MHV API gateway.
     #
     # @param message_id [Fixnum] the message id
     # @param attachment_id [Fixnum] the attachment id
-    # @return [Hash] an object with attachment response details
+    # @return [Hash] an object with attachment response details containing :body and :filename
     #
     def get_attachment(message_id, attachment_id)
       path = "message/#{message_id}/attachment/#{attachment_id}"
       response = perform(:get, path, nil, token_headers)
       data = response.body[:data] if response.body.is_a?(Hash)
 
+      # If response data is an object with url, mimeType, and name attributes
+      if data.is_a?(Hash) && has_object_attributes?(data)
+        url = data[:url] || data['url']
+        uri = URI.parse(url)
+        file_response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+          http.get(uri.request_uri)
+        end
+        unless file_response.is_a?(Net::HTTPSuccess)
+          Rails.logger.error("Failed to fetch attachment from presigned URL: #{file_response.code}")
+          raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', 500)
+        end
+        filename = data[:name] || data['name']
+        { body: file_response.body, filename: }
       # If response body is a string and looks like a URL, fetch the file from the URL
-      if data.is_a?(String) && data.match?(%r{^https?://})
+      elsif data.is_a?(String) && data.match?(%r{^https?://})
         url = data
         uri = URI.parse(url)
         file_response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
           http.get(uri.request_uri)
         end
         unless file_response.is_a?(Net::HTTPSuccess)
-          Rails.logger.error("Failed to fetch attachment from presigned URL: \\#{file_response.body}")
+          Rails.logger.error("Failed to fetch attachment from presigned URL: #{file_response.code}")
           raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', 500)
         end
         filename = uri.path.split('/').last
@@ -742,5 +758,11 @@ module SM
       StatsD.increment("#{STATSD_KEY_PREFIX}.cache.miss")
     end
     # @!endgroup
+
+    def has_object_attributes?(data)
+      return false unless data.is_a?(Hash)
+      required_keys = %w[url mimeType name]
+      required_keys.all? { |key| data.key?(key) || data.key?(key.to_sym) }
+    end
   end
 end
