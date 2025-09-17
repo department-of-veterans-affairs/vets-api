@@ -1569,10 +1569,6 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
-  pension_medical_evidence_clarification:
-    actor_type: user
-    description: >
-      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
