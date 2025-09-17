@@ -22,8 +22,8 @@ module ClaimsApi
         # Validate veteran information
         validate_veteran!
 
-        # Validate disability action type and name format
-        validate_disability_action_type_and_name!
+        # Validate disability action type REOPEN and approximateDate
+        validate_disability_reopen_and_dates!
 
         # Return collected errors
         error_collection if @errors
@@ -150,7 +150,8 @@ module ClaimsApi
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/activeDutyEndDate",
           title: 'Invalid service period duty dates',
-          detail: "activeDutyEndDate (#{index}) needs to be after activeDutyBeginDate."
+          detail: 'Date Completed Active Duty. If in the future, separationLocationCode is required. ' \
+                  'Cannot be more than 180 days in the future, unless past service is also included.'
         )
       end
 
@@ -160,7 +161,8 @@ module ClaimsApi
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/activeDutyEndDate",
           title: 'Invalid end service period duty date',
-          detail: 'The active duty end date for this service period is more than 180 days in the future'
+          detail: 'Date Completed Active Duty. If in the future, separationLocationCode is required. ' \
+                  'Cannot be more than 180 days in the future, unless past service is also included.'
         )
       end
 
@@ -205,7 +207,7 @@ module ClaimsApi
 
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          detail: 'Title 10 activation is missing the anticipated separation date'
+          detail: 'Anticipated date of separation. Date must be in the future.'
         )
       end
 
@@ -243,7 +245,7 @@ module ClaimsApi
         if federal_activation['anticipatedSeparationDate'].blank?
           collect_error(
             source: '/serviceInformation/federalActivation',
-            detail: 'anticipatedSeparationDate is missing or blank'
+            detail: 'Anticipated date of separation. Date must be in the future.'
           )
         end
 
@@ -252,7 +254,7 @@ module ClaimsApi
         if activation_date && activation_date > Date.current
           collect_error(
             source: '/serviceInformation/federalActivation',
-            detail: "Federal activation date is in the future: #{federal_activation['activationDate']}"
+            detail: 'Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.'
           )
         end
       end
@@ -285,10 +287,10 @@ module ClaimsApi
         begin_date = parse_date_safely(change_of_address.dig('dates', 'beginDate'))
         end_date = parse_date_safely(change_of_address.dig('dates', 'endDate'))
 
-        # FES Val Section 5.c.iii: beginningDate must be in the future if TEMPORARY
+        # FES Val Section 5.c.iii: beginDate must be in the future if TEMPORARY
         validate_temporary_begin_date_future!(begin_date)
 
-        # FES Val Section 5.c.iv: beginningDate and endingDate must be in chronological order
+        # FES Val Section 5.c.iv: beginDate and endDate must be in chronological order
         validate_dates_chronological_order!(begin_date, end_date)
       end
 
@@ -297,8 +299,8 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/dates/beginDate',
-          title: 'Invalid beginningDate',
-          detail: "BeginningDate cannot be in the past: #{begin_date}"
+          title: 'Invalid beginDate',
+          detail: 'Begin date for the Veteran\'s new address.'
         )
       end
 
@@ -307,8 +309,8 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/dates/beginDate',
-          title: 'Invalid beginningDate',
-          detail: "BeginningDate cannot be after endingDate: #{begin_date}"
+          title: 'Invalid beginDate',
+          detail: 'Begin date for the Veteran\'s new address.'
         )
       end
 
@@ -339,7 +341,7 @@ module ClaimsApi
         if mailing_address['city'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/city',
-            detail: 'City is required'
+            detail: 'City for the Veteran\'s current mailing address.'
           )
         end
 
@@ -357,7 +359,7 @@ module ClaimsApi
         if mailing_address['state'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/state',
-            detail: 'State is required for USA addresses'
+            detail: 'State for the Veteran\'s current mailing address. Required if country is USA.'
           )
         end
 
@@ -365,7 +367,7 @@ module ClaimsApi
         if mailing_address['zipFirstFive'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/zipFirstFive',
-            detail: 'ZipFirstFive is required for USA addresses'
+            detail: 'Zip code (First 5 digits) for the Veteran\'s current mailing address. Required if country is USA.'
           )
         end
 
@@ -374,7 +376,8 @@ module ClaimsApi
 
         collect_error(
           source: '/veteranIdentification/mailingAddress/internationalPostalCode',
-          detail: 'InternationalPostalCode should not be provided for USA addresses'
+          detail: 'International postal code for the Veteran\'s current mailing address. ' \
+                  'Do not include if country is USA.'
         )
       end
 
@@ -411,7 +414,8 @@ module ClaimsApi
         if country != 'USA' && mailing_address['internationalPostalCode'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/internationalPostalCode',
-            detail: 'InternationalPostalCode is required for non-USA addresses'
+            detail: 'International postal code for the Veteran\'s current mailing address. ' \
+                    'Do not include if country is USA.'
           )
         end
       end
@@ -432,14 +436,14 @@ module ClaimsApi
         if dates['beginDate'].blank?
           collect_error(
             source: '/changeOfAddress/dates/beginDate',
-            detail: 'beginningDate is required for temporary address'
+            detail: 'Begin date for the Veteran\'s new address.'
           )
         end
 
         if dates['endDate'].blank?
           collect_error(
             source: '/changeOfAddress/dates/endDate',
-            detail: 'EndingDate is required for temporary address'
+            detail: 'Date in YYYY-MM-DD the changed address expires, if change is temporary.'
           )
         end
       end
@@ -449,7 +453,8 @@ module ClaimsApi
         return if change_of_address.dig('dates', 'endDate').blank?
 
         collect_error(
-          source: '/changeOfAddress/dates/endDate', detail: 'EndingDate cannot be provided for a permanent address'
+          source: '/changeOfAddress/dates/endDate',
+          detail: 'Date in YYYY-MM-DD the changed address expires, if change is temporary.'
         )
       end
 
@@ -483,7 +488,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/city',
-          detail: 'City is required'
+          detail: 'City for the Veteran\'s new address.'
         )
       end
 
@@ -492,8 +497,7 @@ module ClaimsApi
         return if change_of_address['state'].present?
 
         collect_error(
-          source: '/changeOfAddress/state',
-          detail: 'State is required'
+          source: '/changeOfAddress/state', detail: 'State for the Veteran\'s new address. Required if country is USA.'
         )
       end
 
@@ -503,7 +507,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/zipFirstFive',
-          detail: 'ZipFirstFive is required'
+          detail: 'Zip code (First 5 digits) for the Veteran\'s new address. Required if country is USA.'
         )
       end
 
@@ -519,7 +523,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/city',
-          detail: 'City is required'
+          detail: 'City for the Veteran\'s new address.'
         )
       end
 
@@ -529,7 +533,8 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/country',
-          detail: 'Country is required'
+          detail: 'Country for the Veteran\'s new address. Value must match the values returned by ' \
+                  'the /countries endpoint on the Benefits Reference Data API.'
         )
       end
 
@@ -539,7 +544,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/internationalPostalCode',
-          detail: 'InternationalPostalCode is required'
+          detail: 'International postal code for the Veteran\'s new address. Do not include if country is USA.'
         )
       end
 
@@ -561,6 +566,87 @@ module ClaimsApi
           source: "/disabilities/#{index}/disabilityActionType",
           detail: 'The request failed disability validation: The disability Action Type of "NONE" ' \
                   'is not currently supported.'
+        )
+      end
+
+      ### FES Val Section 7: Disability and approximateDate validations
+      def validate_disability_reopen_and_dates!
+        disabilities = form_attributes['disabilities']
+        return if disabilities.blank?
+
+        disabilities.each_with_index do |disability, index|
+          validate_disability_action_type_reopen!(disability, index)
+          validate_approximate_date!(disability, index) if disability['approximateDate'].present?
+        end
+      end
+
+      # FES Val Section 7.o: disabilityActionType REOPEN is not supported
+      def validate_disability_action_type_reopen!(disability, index)
+        return unless disability['disabilityActionType'] == 'REOPEN'
+
+        collect_error(
+          source: "/disabilities/#{index}/disabilityActionType",
+          detail: 'The request failed disability validation: The disability Action Type of "REOPEN" ' \
+                  'is not currently supported. REOPEN will be supported in a future release'
+        )
+      end
+
+      # FES Val Section 7.t: approximateDate validations
+      # Note: Schema regex handles format validation (YYYY, YYYY-MM, YYYY-MM-DD)
+      # Schema regex handles month range (01-12) and day range (01-31)
+      # We only validate: 1) Date is valid (not Feb 30), 2) Date is in the past
+      def validate_approximate_date!(disability, index)
+        date_string = disability['approximateDate']
+        return if date_string.blank?
+
+        parts = date_string.split('-')
+        return unless parts.any? # Invalid format will be caught by schema
+
+        begin
+          date = build_date_from_parts(parts)
+          validate_date_not_in_future!(date, date_string, index)
+        rescue ArgumentError
+          # Invalid date combinations like Feb 30, Apr 31, etc.
+          collect_error(
+            source: "/disabilities/#{index}/approximateDate",
+            detail: 'The approximateDate is not a valid date'
+          )
+        end
+      end
+
+      def build_date_from_parts(parts)
+        year = parts[0].to_i
+        month = parts[1]&.to_i
+        day = parts[2]&.to_i
+
+        if day
+          Date.new(year, month, day) # Full date: validate it's a real calendar date
+        elsif month
+          Date.new(year, month, 1) # Year-month: use first day of month for comparison
+        else
+          Date.new(year, 1, 1) # Year only: use beginning of year for comparison
+        end
+      end
+
+      def validate_date_not_in_future!(date, date_string, index)
+        parts = date_string.split('-')
+        current = Date.current
+
+        if parts.length == 1 # Year only
+          # Year must not be in the future (current year is OK)
+          return unless date.year > current.year
+        elsif parts.length == 2 # Year-month
+          # Year-month must not be in the future (current month is OK)
+          return unless date.year > current.year || (date.year == current.year && date.month > current.month)
+        else # Full date
+          # Full date must not be in the future (today is OK)
+          return unless date > current
+        end
+
+        collect_error(
+          source: "/disabilities/#{index}/approximateDate",
+          detail: 'Approximate date disability began. Date must be in the past. Format can be either ' \
+                  'YYYY-MM-DD or YYYY-MM or YYYY'
         )
       end
 
