@@ -106,7 +106,11 @@ module TravelClaim
       begin
         DateTime.iso8601(@appointment_date)
       rescue ArgumentError
-        raise_backend_service_exception('Appointment date must be a valid ISO 8601 date-time (e.g., 2025-09-16T10:00:00Z)', 400, 'VA905')
+        raise_backend_service_exception(
+          'Appointment date must be a valid ISO 8601 date-time (e.g., 2025-09-16T10:00:00Z)',
+          400,
+          'VA905'
+        )
       end
     end
 
