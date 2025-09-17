@@ -112,8 +112,6 @@ module TravelClaim
           perform(:post, 'api/v3/appointments/find-or-add', body, headers)
         end
       end
-    rescue Common::Client::Errors::ClientError => e
-      handle_client_error(e)
     rescue Common::Exceptions::BackendServiceException => e
       handle_backend_service_exception(e)
     end
@@ -135,8 +133,6 @@ module TravelClaim
           perform(:post, 'api/v3/claims', body, headers)
         end
       end
-    rescue Common::Client::Errors::ClientError => e
-      handle_client_error(e)
     rescue Common::Exceptions::BackendServiceException => e
       handle_backend_service_exception(e)
     end
@@ -161,8 +157,6 @@ module TravelClaim
           perform(:post, 'api/v3/expenses/mileage', body, headers)
         end
       end
-    rescue Common::Client::Errors::ClientError => e
-      handle_client_error(e)
     rescue Common::Exceptions::BackendServiceException => e
       handle_backend_service_exception(e)
     end
@@ -179,8 +173,6 @@ module TravelClaim
           perform(:get, "api/v3/claims/#{claim_id}", nil, headers)
         end
       end
-    rescue Common::Client::Errors::ClientError => e
-      handle_client_error(e)
     rescue Common::Exceptions::BackendServiceException => e
       handle_backend_service_exception(e)
     end
@@ -197,8 +189,6 @@ module TravelClaim
           perform(:patch, "api/v3/claims/#{claim_id}/submit", nil, headers)
         end
       end
-    rescue Common::Client::Errors::ClientError => e
-      handle_client_error(e)
     rescue Common::Exceptions::BackendServiceException => e
       handle_backend_service_exception(e)
     end
@@ -384,14 +374,10 @@ module TravelClaim
     # Logging helper methods for errors and state information only
     #
 
-    def safe_uuid_reference
-      Digest::SHA256.hexdigest(@uuid)[0, 8]
-    end
-
     def log_initialization_error(missing_args)
       Rails.logger.error('TravelPayClient initialization failed', {
                            correlation_id: @correlation_id,
-                           uuid_hash: safe_uuid_reference,
+                           uuid_hash: @uuid,
                            missing_arguments: missing_args,
                            redis_data_loaded: @icn.present? && @station_number.present?
                          })
@@ -400,7 +386,7 @@ module TravelClaim
     def log_redis_error(operation)
       Rails.logger.error('TravelPayClient Redis error', {
                            correlation_id: @correlation_id,
-                           uuid_hash: safe_uuid_reference,
+                           uuid_hash: @uuid,
                            operation:,
                            icn_present: @icn.present?,
                            station_number_present: @station_number.present?
@@ -410,7 +396,7 @@ module TravelClaim
     def log_auth_retry
       Rails.logger.error('TravelPayClient 401 error - retrying authentication', {
                            correlation_id: @correlation_id,
-                           uuid_hash: safe_uuid_reference,
+                           uuid_hash: @uuid,
                            veis_token_present: @current_veis_token.present?,
                            btsss_token_present: @current_btsss_token.present?
                          })
@@ -419,7 +405,7 @@ module TravelClaim
     def log_auth_error(error_type, status_code)
       Rails.logger.error('TravelPayClient authentication failed', {
                            correlation_id: @correlation_id,
-                           uuid_hash: safe_uuid_reference,
+                           uuid_hash: @uuid,
                            error_type:,
                            status_code:,
                            veis_token_present: @current_veis_token.present?,
@@ -430,7 +416,7 @@ module TravelClaim
     def log_token_error(service, issue)
       Rails.logger.error('TravelPayClient token error', {
                            correlation_id: @correlation_id,
-                           uuid_hash: safe_uuid_reference,
+                           uuid_hash: @uuid,
                            service:,
                            issue:,
                            veis_token_present: @current_veis_token.present?,
@@ -441,7 +427,7 @@ module TravelClaim
     def log_existing_claim_error
       Rails.logger.error('TravelPayClient existing claim error', {
                            correlation_id: @correlation_id,
-                           uuid_hash: safe_uuid_reference,
+                           uuid_hash: @uuid,
                            message: 'Validation failed: A claim has already been created for this appointment.'
                          })
     end
@@ -458,13 +444,6 @@ module TravelClaim
       parsed['message']
     rescue JSON::ParserError
       nil
-    end
-
-    def handle_client_error(error)
-      log_api_error(error.status, error.body)
-      # Extract specific message from Travel Pay API and re-raise with it
-      message = extract_message_from_response(error.body) || 'Failed to create claim'
-      raise Common::Exceptions::BackendServiceException.new('VA900', { detail: message }, error.status)
     end
 
     def handle_backend_service_exception(error)
