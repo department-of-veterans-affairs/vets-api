@@ -63,7 +63,7 @@ http_interactions:
         "message": "Claim created successfully.",
         "success": true,
         "data": {
-            "claimId": "97d2e536-017e-f011-b4cc-001dd806c742"
+            "claimId": "claim-456"
         }
       }'
   recorded_at: Wed, 27 Aug 2025 21:54:27 GMT

@@ -18,17 +18,23 @@ module AccreditedRepresentativePortal
       end
 
       def index
-        serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
-
-        render json: {
-          data: serializer.serializable_hash,
-          meta: pagination_meta(poa_requests)
-        }, status: :ok
+        ar_monitoring.trace('ar.power_of_attorney_requests.index',
+                            tags: { 'poa_request.poa_codes' => poa_codes(poa_requests) }) do |_span|
+          serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
+          render json: {
+            data: serializer.serializable_hash,
+            meta: pagination_meta(poa_requests)
+          }, status: :ok
+        end
       end
 
       def show
-        serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
-        render json: serializer.serializable_hash, status: :ok
+        ar_monitoring.trace('ar.power_of_attorney_requests.show',
+                            tags: { 'poa_request.poa_code' => poa_code },
+                            root_tags: { 'poa_request.poa_code' => poa_code }) do |_span|
+          serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
+          render json: serializer.serializable_hash, status: :ok
+        end
       end
 
       private
@@ -137,6 +143,24 @@ module AccreditedRepresentativePortal
             totalPages: poa_requests.total_pages
           }
         }
+      end
+
+      def poa_code
+        @poa_request.power_of_attorney_holder_poa_code
+      end
+
+      def poa_codes(poa_requests)
+        poa_requests.map(&:power_of_attorney_holder_poa_code).uniq.join(',')
+      end
+
+      def ar_monitoring
+        @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
+          AccreditedRepresentativePortal::Monitoring::NAME,
+          default_tags: [
+            "controller:#{controller_name}",
+            "action:#{action_name}"
+          ].compact
+        )
       end
     end
   end

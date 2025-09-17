@@ -13,3 +13,7 @@ require_relative 'shared_contexts/refresh/setup'
 require_relative 'shared_contexts/revoke/setup'
 
 require_relative 'shared_contexts/logout/setup'
+
+require_relative 'shared_contexts/logingov_logout_proxy/setup'
+
+require_relative 'shared_contexts/revoke_all_sessions/setup'
