@@ -48,7 +48,7 @@ module V0
       StatsD.increment("api.education_benefits_claim.pdf_download.22#{form_type}.success")
     rescue => e
       StatsD.increment("api.education_benefits_claim.pdf_download.22#{form_type}.failure")
-      Rails.logger.info "EducationBenefitsClaimsController::download_pdf Failed to download pdf ClaimID=#{claim.id} #{e.message}" # rubocop:disable Layout/LineLength
+      Rails.logger.info "EducationBenefitsClaims::download_pdf Failed to download pdf ClaimID=#{claim.id} #{e.message}"
       raise e
     ensure
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
