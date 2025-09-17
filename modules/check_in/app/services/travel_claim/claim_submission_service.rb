@@ -343,51 +343,5 @@ module TravelClaim
       @appointment_date
     end
 
-    ##
-    # Extracts the error message from a BackendServiceException
-    # First tries the detail field, then falls back to parsing the original_body for the message
-    #
-    # @param error [Common::Exceptions::BackendServiceException] The backend service error
-    # @return [String, nil] The extracted message or nil
-    #
-    def extract_backend_service_error_message(error)
-      # First try the detail field
-      return error.response_values[:detail] if error.response_values[:detail].present?
-
-      # Fall back to parsing the original_body for the Travel Pay API message
-      return nil unless error.original_body
-
-      parsed_body = if error.original_body.is_a?(String)
-                      JSON.parse(error.original_body)
-                    else
-                      error.original_body
-                    end
-
-      parsed_body['message']
-    rescue JSON::ParserError => e
-      log_message(:error, 'Failed to parse backend service error response', error: e.message, body: error.original_body)
-      nil
-    end
-
-    ##
-    # Extracts the error message from a ClientError response body
-    #
-    # @param error [Common::Client::Errors::ClientError] The client error
-    # @return [String, nil] The extracted message or nil
-    #
-    def extract_client_error_message(error)
-      return nil unless error.body
-
-      parsed_body = if error.body.is_a?(String)
-                      JSON.parse(error.body)
-                    else
-                      error.body
-                    end
-
-      parsed_body['message']
-    rescue JSON::ParserError => e
-      log_message(:error, 'Failed to parse client error response', error: e.message, body: error.body)
-      nil
-    end
   end
 end
