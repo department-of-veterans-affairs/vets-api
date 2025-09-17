@@ -685,6 +685,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(result).to have_key(:success)
           expect(result).to have_key(:failed)
 
+          # TODO:
           expect(result[:success]).to contain_exactly(
             { id: '15220389459', status: 'Already in Queue', station_number: '556' }
           )
@@ -709,6 +710,7 @@ describe UnifiedHealthData::Service, type: :service do
             ]
           }.to_json
 
+          # TODO: replace with client
           expect(service).to receive(:perform).with(
             :post,
             anything,
@@ -723,6 +725,7 @@ describe UnifiedHealthData::Service, type: :service do
 
     context 'with service errors' do
       it 'handles network errors gracefully' do
+        # TODO: replace with client
         allow(service).to receive(:fetch_access_token).and_raise(StandardError.new('Network error'))
 
         orders = [{ id: '12345', stationNumber: '570' }]
@@ -735,6 +738,7 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'logs error when refill fails' do
+        # TODO: replace with client
         allow(service).to receive(:fetch_access_token).and_raise(StandardError.new('API error'))
         allow(Rails.logger).to receive(:error)
 
@@ -744,6 +748,7 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
 
+    # TODO
     context 'with malformed response', :vcr do
       it 'handles empty response gracefully' do
         VCR.use_cassette('unified_health_data/refill_prescription_empty') do

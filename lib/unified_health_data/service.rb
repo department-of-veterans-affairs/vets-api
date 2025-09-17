@@ -56,10 +56,10 @@ module UnifiedHealthData
 
     def get_prescriptions
       with_monitoring do
-        patient_id = @user.icn
-        path = "#{config.base_path}medications?patientId=#{patient_id}"
+        # patient_id = @user.icn
+        # path = "#{config.base_path}medications?patientId=#{patient_id}"
 
-        response = perform(:get, path, nil, request_headers)
+        response = uhd_client.get_all_prescriptions(@user.icn)
         body = parse_response_body(response.body)
 
         adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new
@@ -77,9 +77,10 @@ module UnifiedHealthData
 
     def refill_prescription(orders)
       with_monitoring do
-        path = "#{config.base_path}medications/rx/refill"
-        request_body = build_refill_request_body(orders)
-        response = perform(:post, path, request_body.to_json, request_headers(include_content_type: true))
+        # path = "#{config.base_path}medications/rx/refill"
+        # request_body = build_refill_request_body(orders)
+        # response = perform(:post, path, request_body.to_json, request_headers(include_content_type: true))
+        response = build_refill_request_body(build_refill_request_body(orders))
         parse_refill_response(response)
       end
     rescue => e

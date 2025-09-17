@@ -11,21 +11,29 @@ module UnifiedHealthData
     configuration UnifiedHealthData::Configuration
 
     def get_labs_by_date(patient_id:, start_date:, end_date:)
-      headers = request_headers
       path = "#{config.base_path}labs?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-      perform(:get, path, nil, headers)
+      perform(:get, path, nil, request_headers)
     end
 
     def get_conditions_by_date(patient_id:, start_date:, end_date:)
-      headers = request_headers
       path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-      perform(:get, path, nil, headers)
+      perform(:get, path, nil, request_headers)
     end
 
     def get_notes_by_date(patient_id:, start_date:, end_date:)
-      headers = request_headers
       path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-      perform(:get, path, nil, headers)
+      perform(:get, path, nil, request_headers)
+    end
+
+    def get_all_prescriptions(patient_id)
+      path = "#{config.base_path}medications?patientId=#{patient_id}"
+      perform(:get, path, nil, request_headers)
+    end
+
+    def refill_prescription(request_body)
+      path = "#{config.base_path}medications/rx/refill"
+      # request_body = build_refill_request_body(orders)
+      perform(:post, path, request_body.to_json, request_headers(include_content_type: true))
     end
 
     private
