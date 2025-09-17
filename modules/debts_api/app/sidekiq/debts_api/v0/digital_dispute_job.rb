@@ -10,7 +10,7 @@ module DebtsApi
       StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.retries_exhausted")
       submission_id = job['args'][0]
       submission = DebtsApi::V0::DigitalDisputeSubmission.find(submission_id)
-      submission&.register_failure("VBASubmissionJob#perform: #{ex.message}")
+      submission&.register_failure("DigitalDisputeJob#perform: #{ex.message}")
 
       Rails.logger.error <<~LOG
         V0::DigitalDisputeJob retries exhausted:
