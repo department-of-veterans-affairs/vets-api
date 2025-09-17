@@ -20,7 +20,6 @@ RSpec.describe TravelClaim::TravelPayClient do
   let(:test_date_incurred) { '2024-01-15' }
   let(:test_client_number) { 'fake_client_number' }
   let(:test_veis_access_token) { 'fake_veis_token_123' }
-  let(:test_claim_id_for_submission) { 'test-claim-id' }
 
   # Settings constants
   let(:auth_url) { 'https://dev.integration.d365.va.gov' }
@@ -137,7 +136,6 @@ RSpec.describe TravelClaim::TravelPayClient do
                     claims_url_v2:) do
         VCR.use_cassette('check_in/travel_claim/system_access_token_200') do
           result = client.send(:system_access_token_request,
-                               client_number: 'test-client',
                                veis_access_token: 'test-veis-token',
                                icn: test_icn)
 
@@ -382,7 +380,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       expect(new_headers).not_to eq(initial_headers)
       expect(new_headers['Authorization']).to eq("Bearer #{new_veis_token}")
-      expect(new_headers['X-BTSSS-Token']).to eq(new_btsss_token)
+      expect(new_headers['BTSSS-Access-Token']).to eq(new_btsss_token)
     end
 
     it 'includes all required headers' do
@@ -391,7 +389,7 @@ RSpec.describe TravelClaim::TravelPayClient do
       expect(headers).to include(
         'Content-Type' => 'application/json',
         'Authorization' => "Bearer #{test_veis_token_for_headers}",
-        'X-BTSSS-Token' => test_btsss_token_for_headers,
+        'BTSSS-Access-Token' => test_btsss_token_for_headers,
         'X-Correlation-ID' => client.instance_variable_get(:@correlation_id)
       )
     end
@@ -507,7 +505,7 @@ RSpec.describe TravelClaim::TravelPayClient do
       headers = client.send(:headers)
 
       expect(headers['Authorization']).to eq("Bearer #{test_veis}")
-      expect(headers['X-BTSSS-Token']).to eq(test_btsss)
+      expect(headers['BTSSS-Access-Token']).to eq(test_btsss)
       expect(headers['X-Correlation-ID']).to eq(client.instance_variable_get(:@correlation_id))
     end
 
@@ -574,7 +572,7 @@ RSpec.describe TravelClaim::TravelPayClient do
       with_settings(Settings.check_in.travel_reimbursement_api_v2,
                     claims_url_v2:) do
         VCR.use_cassette('check_in/travel_claim/claims_submit_200') do
-          result = client.send_claim_submission_request(claim_id: test_claim_id_for_submission)
+          result = client.send_claim_submission_request(claim_id: test_claim_id)
 
           expect(result).to respond_to(:status)
           expect(result.status).to eq(200)

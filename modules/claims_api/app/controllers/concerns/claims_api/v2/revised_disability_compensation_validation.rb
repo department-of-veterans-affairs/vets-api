@@ -22,6 +22,9 @@ module ClaimsApi
         # Validate veteran information
         validate_veteran!
 
+        # Validate disabilities
+        validate_disabilities!
+
         # Return collected errors
         error_collection if @errors
       end
@@ -169,7 +172,6 @@ module ClaimsApi
         if rng_service['obligationTermOfServiceFromDate'].blank?
           collect_error(
             source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService",
-            title: 'Missing required field',
             detail: 'The service period is missing a required start date for the obligation terms of service'
           )
         end
@@ -177,7 +179,6 @@ module ClaimsApi
         if rng_service['obligationTermOfServiceToDate'].blank?
           collect_error(
             source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService",
-            title: 'Missing required field',
             detail: 'The service period is missing a required end date for the obligation terms of service'
           )
         end
@@ -204,7 +205,6 @@ module ClaimsApi
 
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          title: 'Missing required field',
           detail: 'Title 10 activation is missing the anticipated separation date'
         )
       end
@@ -214,7 +214,6 @@ module ClaimsApi
 
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          title: 'Invalid value',
           detail: 'Reserves national guard title 10 activation date ' \
                   "(#{activation['title10ActivationDate']}) is before the earliest active duty begin date " \
                   "(#{period['activeDutyBeginDate']})"
@@ -226,7 +225,6 @@ module ClaimsApi
 
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          title: 'Invalid value',
           detail: 'Reserves national guard title 10 activation date is in the future: ' \
                   "#{activation['title10ActivationDate']}"
         )
@@ -245,7 +243,6 @@ module ClaimsApi
         if federal_activation['anticipatedSeparationDate'].blank?
           collect_error(
             source: '/serviceInformation/federalActivation',
-            title: 'Missing required field',
             detail: 'anticipatedSeparationDate is missing or blank'
           )
         end
@@ -255,7 +252,6 @@ module ClaimsApi
         if activation_date && activation_date > Date.current
           collect_error(
             source: '/serviceInformation/federalActivation',
-            title: 'Invalid value',
             detail: "Federal activation date is in the future: #{federal_activation['activationDate']}"
           )
         end
@@ -278,6 +274,8 @@ module ClaimsApi
         validate_change_of_address_dates!(change_of_address)
         # FES Val Section 5.c.iii-iv: Validate date logic
         validate_change_of_address_date_logic!(change_of_address)
+        # FES Val Section 5.c.v-x: Validate address fields based on type
+        validate_change_of_address_fields!(change_of_address)
       end
 
       # FES Val Section 5.c.iii-iv: Date validation logic
@@ -319,8 +317,15 @@ module ClaimsApi
         mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
         return if mailing_address.blank?
 
-        # FES Val Section 5.b.ii-iv: Address field validations for USA
-        validate_usa_mailing_address!(mailing_address) if mailing_address['country'] == 'USA'
+        # FES Val Section 5.b.ii-iv: Address field validations
+        # Determine address type based on country field or presence of international fields
+        if mailing_address['country'] == 'USA'
+          validate_usa_mailing_address!(mailing_address)
+        elsif mailing_address['country'] != 'USA' || mailing_address['internationalPostalCode'].present?
+          # FES Val Section 5.b.iii: Address field validations for INTERNATIONAL
+          # Treat as international if country is non-USA or has internationalPostalCode
+          validate_international_mailing_address!(mailing_address)
+        end
 
         # FES Val Section 5.b.vi: Validate country against reference data
         validate_address_country!(mailing_address, 'mailingAddress')
@@ -329,12 +334,29 @@ module ClaimsApi
         validate_international_postal_code!(mailing_address)
       end
 
+      def validate_international_mailing_address!(mailing_address)
+        # FES Val Section 5.b.iii.2: City required for INTERNATIONAL addresses
+        if mailing_address['city'].blank?
+          collect_error(
+            source: '/veteranIdentification/mailingAddress/city',
+            detail: 'City is required'
+          )
+        end
+
+        # FES Val Section 5.b.iii.3: Country required for INTERNATIONAL addresses
+        if mailing_address['country'].blank?
+          collect_error(
+            source: '/veteranIdentification/mailingAddress/country',
+            detail: 'The country provided is not valid.'
+          )
+        end
+      end
+
       def validate_usa_mailing_address!(mailing_address)
         # FES Val Section 5.b.ii.3: State required for USA addresses
         if mailing_address['state'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/state',
-            title: 'Missing state',
             detail: 'State is required for USA addresses'
           )
         end
@@ -343,7 +365,6 @@ module ClaimsApi
         if mailing_address['zipFirstFive'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/zipFirstFive',
-            title: 'Missing zipFirstFive',
             detail: 'ZipFirstFive is required for USA addresses'
           )
         end
@@ -353,7 +374,6 @@ module ClaimsApi
 
         collect_error(
           source: '/veteranIdentification/mailingAddress/internationalPostalCode',
-          title: 'Invalid field',
           detail: 'InternationalPostalCode should not be provided for USA addresses'
         )
       end
@@ -391,7 +411,6 @@ module ClaimsApi
         if country != 'USA' && mailing_address['internationalPostalCode'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/internationalPostalCode',
-            title: 'Missing internationalPostalCode',
             detail: 'InternationalPostalCode is required for non-USA addresses'
           )
         end
@@ -413,7 +432,6 @@ module ClaimsApi
         if dates['beginDate'].blank?
           collect_error(
             source: '/changeOfAddress/dates/beginDate',
-            title: 'Missing beginningDate',
             detail: 'beginningDate is required for temporary address'
           )
         end
@@ -421,7 +439,6 @@ module ClaimsApi
         if dates['endDate'].blank?
           collect_error(
             source: '/changeOfAddress/dates/endDate',
-            title: 'Missing endingDate',
             detail: 'EndingDate is required for temporary address'
           )
         end
@@ -432,9 +449,105 @@ module ClaimsApi
         return if change_of_address.dig('dates', 'endDate').blank?
 
         collect_error(
-          source: '/changeOfAddress/dates/endDate',
-          title: 'Cannot provide endingDate',
-          detail: 'EndingDate cannot be provided for a permanent address'
+          source: '/changeOfAddress/dates/endDate', detail: 'EndingDate cannot be provided for a permanent address'
+        )
+      end
+
+      # FES Val Section 5.c.v-viii: Address field validations
+      def validate_change_of_address_fields!(change_of_address)
+        # Determine address type based on country field (schema doesn't have addressChangeType)
+        country = change_of_address['country']
+
+        if country == 'USA'
+          # FES Val Section 5.c.v: DOMESTIC address validations
+          validate_domestic_change_of_address!(change_of_address)
+        elsif country.present?
+          # FES Val Section 5.c.vi & 5.c.viii: INTERNATIONAL address validations
+          validate_international_change_of_address!(change_of_address)
+        end
+
+        # NOTE: Military address fields don't exist in v2 schema
+        # NOTE: FES Val Section 5.c.ix (country validation) is CROSSED OUT - not implementing
+        # NOTE: FES Val Section 5.c.x (BRD error handling) is CROSSED OUT - not implementing
+      end
+
+      def validate_domestic_change_of_address!(change_of_address)
+        validate_domestic_city!(change_of_address)
+        validate_domestic_state!(change_of_address)
+        validate_domestic_zip!(change_of_address)
+      end
+
+      def validate_domestic_city!(change_of_address)
+        # FES Val Section 5.c.v: city, state and zipCode required for DOMESTIC
+        return if change_of_address['city'].present?
+
+        collect_error(
+          source: '/changeOfAddress/city', detail: 'City is required'
+        )
+      end
+
+      def validate_domestic_state!(change_of_address)
+        # FES Val Section 5.c.v: city, state and zipCode required for DOMESTIC
+        return if change_of_address['state'].present?
+
+        collect_error(
+          source: '/changeOfAddress/state', detail: 'State is required'
+        )
+      end
+
+      def validate_domestic_zip!(change_of_address)
+        # FES Val Section 5.c.v: city, state and zipCode required for DOMESTIC
+        return if change_of_address['zipFirstFive'].present?
+
+        collect_error(
+          source: '/changeOfAddress/zipFirstFive',          detail: 'ZipFirstFive is required'
+        )
+      end
+
+      def validate_international_change_of_address!(change_of_address)
+        validate_intl_change_city!(change_of_address)
+        validate_intl_change_country!(change_of_address)
+        validate_intl_change_postal_code!(change_of_address)
+      end
+
+      def validate_intl_change_city!(change_of_address)
+        # FES Val Section 5.c.vi: city and country required for INTERNATIONAL
+        return if change_of_address['city'].present?
+
+        collect_error(
+          source: '/changeOfAddress/city', detail: 'City is required'
+        )
+      end
+
+      def validate_intl_change_country!(change_of_address)
+        # FES Val Section 5.c.vi: city and country required for INTERNATIONAL
+        return if change_of_address['country'].present?
+
+        collect_error(
+          source: '/changeOfAddress/country', detail: 'Country is required'
+        )
+      end
+
+      def validate_intl_change_postal_code!(change_of_address)
+        # FES Val Section 5.c.viii: internationalPostalCode required for INTERNATIONAL
+        return if change_of_address['internationalPostalCode'].present?
+
+        collect_error(
+          source: '/changeOfAddress/internationalPostalCode', detail: 'InternationalPostalCode is required'
+        )
+      end
+
+      ### FES Val Section 7: Disabilities validations
+      def validate_disabilities!
+        disabilities = form_attributes['disabilities']
+
+        # FES Val Section 7.a: Minimum 1 disability is already enforced by schema (required field + minItems: 1)
+        # FES Val Section 7.b: Maximum of 150 disabilities allowed (not enforced by schema)
+        return unless disabilities.is_a?(Array) && disabilities.size > 150
+
+        collect_error(
+          source: '/disabilities',
+          detail: "Number of disabilities (#{disabilities.size}) exceeds maximum allowed (150)"
         )
       end
 
@@ -449,7 +562,7 @@ module ClaimsApi
         @errors ||= []
       end
 
-      def collect_error(source:, title:, detail:)
+      def collect_error(source:, detail:, title: 'Unprocessable Entity')
         errors_array.push(
           {
             source:,

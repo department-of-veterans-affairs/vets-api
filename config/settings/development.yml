@@ -137,11 +137,11 @@ check_in:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
   travel_reimbursement_api_v2:
-    auth_url: https://login.microsoftonline.us
+    auth_url: https://fake.service.us
     auth_url_v2: ~
     claims_base_path: ~
-    claims_url: https://dev.integration.d365.va.gov
-    claims_url_v2: ~
+    claims_url: https://fake.dev.va.gov
+    claims_url_v2: https://fake.dev.va.gov
     client_id: ~
     client_number: ~
     client_number_oh: ~
@@ -154,7 +154,7 @@ check_in:
     subscription_key: ~
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     travel_pay_client_id: ~
-    travel_pay_client_secret: ~
+    travel_pay_client_secret: secret
     travel_pay_resource: ~
   vaos:
     mock: false

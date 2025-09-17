@@ -11,7 +11,6 @@ module MyHealth
     class UniqueUserMetricsController < ApplicationController
       service_tag 'mhv-metrics'
       before_action :authenticate
-      before_action :check_feature_enabled
 
       ##
       # Creates unique user metric events for the authenticated user.
@@ -23,7 +22,7 @@ module MyHealth
       #     "event_names": ["mhv_landing_page_accessed", "secure_messaging_accessed"]
       #   }
       #
-      # @example Success response (200 OK or 201 Created)
+      # @example Success response when feature enabled (200 OK or 201 Created)
       #   {
       #     "results": [
       #       { "event_name": "mhv_landing_page_accessed", "status": "created", "new_event": true },
@@ -31,9 +30,20 @@ module MyHealth
       #     ]
       #   }
       #
+      # @example Success response when feature disabled (200 OK)
+      #   {
+      #     "results": [
+      #       { "event_name": "mhv_landing_page_accessed", "status": "disabled", "new_event": false },
+      #       { "event_name": "secure_messaging_accessed", "status": "disabled", "new_event": false }
+      #     ]
+      #   }
+      #
       def create
-        user_id = current_user.uuid
+        user_id = current_user.user_account_uuid
         event_names = metrics_params[:event_names]
+
+        # Check if feature is enabled
+        return handle_disabled_feature(event_names) unless Flipper.enabled?(:unique_user_metrics_logging)
 
         # Process all events and collect results
         results = event_names.map do |event_name|
@@ -87,6 +97,25 @@ module MyHealth
       end
 
       ##
+      # Handles the case when the feature flag is disabled.
+      # Returns a 200 OK response with disabled status for all events.
+      #
+      # @param event_names [Array<String>] Array of event names to mark as disabled
+      # @return [void] Renders JSON response and returns
+      #
+      def handle_disabled_feature(event_names)
+        results = event_names.map do |event_name|
+          {
+            event_name:,
+            status: 'disabled',
+            new_event: false
+          }
+        end
+
+        render json: { results: }, status: :ok
+      end
+
+      ##
       # Validates input parameters and user authentication.
       #
       # @raise [Common::Exceptions::ParameterMissing] if event_names missing
@@ -112,18 +141,6 @@ module MyHealth
             raise Common::Exceptions::InvalidFieldValue.new('event_names', 'must contain non-empty strings')
           end
         end
-      end
-
-      ##
-      # Validates that the feature flag is enabled.
-      #
-      # @raise [Common::Exceptions::NotImplemented] if feature is disabled
-      #
-      def check_feature_enabled
-        return if Flipper.enabled?(:unique_user_metrics_logging)
-
-        raise Common::Exceptions::NotImplemented,
-              detail: 'Unique user metrics logging is not currently available'
       end
     end
   end

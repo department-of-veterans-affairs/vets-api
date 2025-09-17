@@ -141,10 +141,11 @@ module BGS
 
       @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
-    rescue
+    rescue => e
+      error = Flipper.enabled?(:dependents_log_vbms_errors) ? e.message : '[REDACTED]'
       @monitor.track_event('warn',
                            'BGS::DependentV2Service#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
-                           "#{STATS_KEY}.submit_pdf.failure")
+                           "#{STATS_KEY}.submit_pdf.failure", { error: })
       raise PDFSubmissionError
     end
 
@@ -204,17 +205,17 @@ module BGS
     def submit_to_standard_service(claim:, encrypted_vet_info:)
       if claim.submittable_686?
         BGS::SubmitForm686cV2Job.perform_async(
-          uuid, icn, claim.id, encrypted_vet_info
+          uuid, claim.id, encrypted_vet_info
         )
       else
         BGS::SubmitForm674V2Job.perform_async(
-          uuid, icn, claim.id, encrypted_vet_info
+          uuid, claim.id, encrypted_vet_info
         )
       end
     end
 
     def submit_to_central_service(claim:, encrypted_vet_info:)
-      vet_info = JSON.parse(claim.form)['dependents_application']
+      vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
 
       user = BGS::SubmitForm686cV2Job.generate_user_struct(vet_info)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job.perform_async(

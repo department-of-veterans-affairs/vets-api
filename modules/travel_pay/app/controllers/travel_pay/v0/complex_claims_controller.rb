@@ -6,11 +6,33 @@ module TravelPay
       include FeatureFlagHelper
       include AppointmentHelper
       include ClaimHelper
+      include IdValidation
 
       rescue_from Common::Exceptions::BadRequest, with: :render_bad_request
       rescue_from Common::Exceptions::ServiceUnavailable, with: :render_service_unavailable
 
-      before_action :check_feature_flag, only: [:create]
+      before_action :check_feature_flag
+
+      def submit
+        claim_id = params[:claim_id]
+        validate_uuid_exists!(claim_id, 'Claim')
+
+        # TODO: add validation to verify there is a document associated to a given expense
+        # TODO: possibly add validation to verify the claim id is valid
+        Rails.logger.info(message: 'Submit complex claim')
+        submitted_claim = claims_service.submit_claim(claim_id)
+
+        render json: submitted_claim, status: :created
+      rescue Faraday::ClientError => e
+        # 400-level errors (bad request, unauthorized, forbidden)
+        handle_faraday_error(e, 'Invalid request for complex claim', log_prefix: 'Submitting complex claim: ')
+      rescue Faraday::ServerError => e
+        # 500-level errors
+        handle_faraday_error(e, 'Server error submitting complex claim', log_prefix: 'Submitting complex claim: ')
+      rescue Faraday::Error => e
+        # Catch all for Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::SSLError
+        handle_faraday_error(e, 'Error creating complex claim', log_prefix: 'Submitting complex claim: ')
+      end
 
       def create
         params.require(%i[appointment_date_time facility_station_number appointment_type is_complete])
@@ -30,6 +52,25 @@ module TravelPay
       end
 
       private
+
+      # Handles Faraday errors for both client (4xx) and server (5xx)
+      # e: the Faraday error
+      # default_message: fallback message if response body is missing
+      # log_prefix: optional prefix for log message
+      def handle_faraday_error(e, default_message, log_prefix: '')
+        error_type = e.is_a?(Faraday::ClientError) ? 'client' : 'server'
+        Rails.logger.error("#{log_prefix}Faraday #{error_type} error: #{e.message}")
+
+        http_status = e.response&.dig(:status) ||
+                      (e.is_a?(Faraday::ClientError) ? :bad_request : :internal_server_error)
+        message = if e.response&.dig(:body).present?
+                    e.response[:body]
+                  else
+                    default_message
+                  end
+
+        render json: { errors: [{ detail: message }] }, status: http_status
+      end
 
       def check_feature_flag
         verify_feature_flag!(
