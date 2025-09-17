@@ -569,7 +569,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
                 end
               end
             end
-
             let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
             let(:data) do
               temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
@@ -849,11 +848,11 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             let(:auto_claim) { create(:auto_established_claim_v2) }
             let(:attachment1) do
               Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
-                                                .to_s)
+                                                      .to_s)
             end
             let(:attachment2) do
               Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
-                                                .to_s)
+                                                      .to_s)
             end
             let(:id) { auto_claim.id }
 
@@ -894,11 +893,11 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             let(:auto_claim) { create(:auto_established_claim) }
             let(:attachment1) do
               Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
-                                                .to_s)
+                                                      .to_s)
             end
             let(:attachment2) do
               Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
-                                                .to_s)
+                                                      .to_s)
             end
             let(:id) { auto_claim.id }
             let(:Authorization) { nil }
@@ -929,11 +928,11 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             let(:scopes) { %w[claim.write] }
             let(:attachment1) do
               Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
-                                                .to_s)
+                                                      .to_s)
             end
             let(:attachment2) do
               Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
-                                                .to_s)
+                                                      .to_s)
             end
             let(:id) { 999_999_999 }
 
@@ -983,7 +982,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       let(:Authorization) { 'Bearer token' }
       let(:data) do
         temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                               'disability_compensation', 'form_526_json_api.json').read
+                               'disability_compensation', 'form_526_generate_pdf_json_api.json').read
         temp = JSON.parse(temp)
 
         temp

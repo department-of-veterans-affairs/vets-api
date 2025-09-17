@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 require_relative '../../rails_helper'
-require 'claims_api/v1/disability_compensation_benefits_documents_uploader'
+require 'claims_api/v2/disability_compensation_benefits_documents_uploader'
 
-RSpec.describe ClaimsApi::V1::DisabilityCompensationBenefitsDocumentsUploader, type: :job do
+RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, type: :job do
   subject { described_class }
 
   before do
@@ -78,9 +78,9 @@ RSpec.describe ClaimsApi::V1::DisabilityCompensationBenefitsDocumentsUploader, t
       end
     end
 
-    context 'when claims_api_526_v1_uploads_bd_refactor is enabled' do
+    context 'when claims_api_526_v2_uploads_bd_refactor is enabled' do
       it 'submits successfully with refactored BD' do
-        allow(Flipper).to receive(:enabled?).with(:claims_api_526_v1_uploads_bd_refactor).and_return true
+        allow(Flipper).to receive(:enabled?).with(:claims_api_526_v2_uploads_bd_refactor).and_return true
         expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document).and_return true
         service.perform(claim.id)
 
@@ -93,7 +93,7 @@ RSpec.describe ClaimsApi::V1::DisabilityCompensationBenefitsDocumentsUploader, t
   context 'when the pdf is mocked and claims_api_526_v2_uploads_bd_refactor is disabled' do
     it 'uploads to BD' do
       with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
-        allow(Flipper).to receive(:enabled?).with(:claims_api_526_v1_uploads_bd_refactor).and_return false
+        allow(Flipper).to receive(:enabled?).with(:claims_api_526_v2_uploads_bd_refactor).and_return false
         subject.perform_async(claim.id)
 
         claim.reload
