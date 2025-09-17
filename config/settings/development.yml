@@ -1176,7 +1176,7 @@ reports:
       - adam.freemer@accenturefederal.com
 res:
   api_key: ~
-  base_url: ~
+  base_url: https://fake_url.com
   mock_ch_31: ~
 review_instance_slug: ~
 rrd:
