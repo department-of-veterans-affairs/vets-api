@@ -24,7 +24,11 @@ module DebtsApi
       submission = DebtsApi::V0::DigitalDisputeSubmission.find(submission_id)
       user_account = submission.user_account
       mpi_response = MPI::Service.new.find_profile_by_identifier(identifier: user_account.icn, identifier_type: MPI::Constants::ICN)
-      user = OpenStruct.new(participant_id: mpi_response.profile.participant_id, ssn: mpi_response.profile.ssn, user_uuid: submission.user_uuid)
+      user = OpenStruct.new(
+        participant_id: mpi_response.profile.participant_id,
+        ssn: mpi_response.profile.ssn,
+        user_uuid: submission.user_uuid
+      )
 
       DebtsApi::V0::DigitalDisputeDmcService.new(user, submission).call!
 
