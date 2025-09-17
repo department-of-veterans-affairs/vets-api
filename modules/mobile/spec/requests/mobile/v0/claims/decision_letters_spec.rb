@@ -105,7 +105,7 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
           it 'returns expected decision letters' do
             get '/mobile/v0/claims/decision-letters', headers: sis_headers
             assert_schema_conform(200)
-            puts response.parsed_body
+            expect(response.body).to match_json_schema('decision_letter')
             expect(response.parsed_body).to eq(claim_letter_doc_response)
           end
         end
@@ -151,7 +151,7 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
           it 'returns expected decision letters' do
             get '/mobile/v0/claims/decision-letters', headers: sis_headers
             assert_schema_conform(200)
-            puts response.parsed_body
+            expect(response.body).to match_json_schema('decision_letter')
             expect(response.parsed_body).to eq(claim_letter_doc_response)
           end
         end
