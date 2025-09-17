@@ -11,13 +11,15 @@ module SignIn
         options, challenge_id = Registration::OptionsGenerator.new(@user_verification).perform
 
         render json: { options:, challenge_id: }, status: :ok
+      rescue => e
+        render json: { error: e.message }, status: :unprocessable_entity
       end
 
       def verify
         verified = Registration::Verifier.new(@user_verification, registration_params, challenge_id).perform
 
         render json: { verified: }, status: :ok
-      rescue WebAuthn::Error => e
+      rescue => e
         render json: { error: e.message }, status: :unprocessable_entity
       end
 
