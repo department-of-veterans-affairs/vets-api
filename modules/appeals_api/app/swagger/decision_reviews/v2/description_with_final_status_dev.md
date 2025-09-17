@@ -70,7 +70,7 @@ Example `metadata.json` file:
     "fileNumber": "012345678",
     "zipCode": "94402",
     "source": "Vets.gov",
-    "docType": "316",
+    "docType": "316"
 }
 ```
 The Decision Review API will set the businessLine for your Evidence submission to ensure the documents are routed to the correct group within VA.
