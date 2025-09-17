@@ -9,13 +9,19 @@ module Crm
     crm_env = {
       'test' => 'iris-dev',
       'development' => 'iris-dev',
-      'staging' => 'ava-preprod',
+      'staging' => 'ava-qa',
       'production' => 'veft'
     }
 
     if Flipper.enabled?(:ask_va_api_patsr_separation)
       crm_env.merge!(
         'production' => 'ava'
+      )
+    end
+
+    if Flipper.enabled?(:ask_va_api_preprod_for_e2e_testing)
+      crm_env.merge!(
+        'staging' => 'ava-pre-prod'
       )
     end
 
