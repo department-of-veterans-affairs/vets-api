@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 # FIXME: remove after re-factoring class
-# rubocop:disable Metrics/ClassLength
 
 require 'common/client/base'
 require 'common/exceptions/not_implemented'
@@ -123,21 +122,15 @@ module UnifiedHealthData
         patient_id = @user.icn
 
         # NOTE: we must pass in a startDate and endDate to SCDF
-        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
         start_date = '1900-01-01'
-        # End date defaults to today
         end_date = Time.zone.today.to_s
 
         path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
         response = perform(:get, path, nil, request_headers)
         body = parse_response_body(response.body)
 
-        body['vista']['entry']&.each do |note|
-          new_id_array = note['resource']['identifier'].find { |id| id['system'] == 'vista-uid' }['value'].split(':')
-          note['resource']['id'] = "#{new_id_array[3]}-#{new_id_array[4]}-#{new_id_array[5]}"
-        end
+        remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
-
         filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
 
         parse_notes(filtered)
@@ -150,21 +143,15 @@ module UnifiedHealthData
         patient_id = @user.icn
 
         # NOTE: we must pass in a startDate and endDate to SCDF
-        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
         start_date = '1900-01-01'
-        # End date defaults to today
         end_date = Time.zone.today.to_s
 
         path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
         response = perform(:get, path, nil, request_headers)
         body = parse_response_body(response.body)
 
-        body['vista']['entry']&.each do |note|
-          new_id_array = note['resource']['identifier'].find { |id| id['system'] == 'vista-uid' }['value'].split(':')
-          note['resource']['id'] = "#{new_id_array[3]}-#{new_id_array[4]}-#{new_id_array[5]}"
-        end
+        remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
-
         filtered = combined_records.select { |record| record['resource']['id'] == note_id }
 
         parse_single_note(filtered[0])
@@ -522,6 +509,13 @@ module UnifiedHealthData
     end
 
     # Care Summaries and Notes methods
+    def remap_vista_uid(records)
+      records['vista']['entry']&.each do |note|
+        new_id_array = note['resource']['identifier'].find { |id| id['system'] == 'vista-uid' }['value'].split(':')
+        note['resource']['id'] = "#{new_id_array[3]}-#{new_id_array[4]}-#{new_id_array[5]}"
+      end
+    end
+
     def parse_notes(records)
       return [] if records.blank?
 
@@ -546,5 +540,3 @@ module UnifiedHealthData
     end
   end
 end
-
-# rubocop:enable Metrics/ClassLength
