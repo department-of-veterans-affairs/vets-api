@@ -17,8 +17,6 @@ module Mobile
 
         prescriptions = unified_health_service.get_prescriptions
 
-        # TODO: Add pagination and filtering logic for page, per_page, refill_status, sort
-
         meta = generate_mobile_metadata(prescriptions)
         serialized_data = UnifiedHealthData::Serializers::PrescriptionSerializer.new(prescriptions).serializable_hash
         render json: { **serialized_data, meta: }
