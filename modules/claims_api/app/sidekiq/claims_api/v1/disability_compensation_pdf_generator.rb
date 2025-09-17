@@ -10,6 +10,7 @@ module ClaimsApi
       LOG_TAG = '526_v2_PDF_Generator_job'
       sidekiq_options expires_in: 48.hours, retry: true
 
+      # rubocop:disable Metrics/MethodLength
       def perform(claim_id, middle_initial)
         log_job_progress(claim_id,
                          "526EZ PDF generator started for claim #{claim_id}")
@@ -82,6 +83,8 @@ module ClaimsApi
                          "526EZ PDF generator errored #{e.class}: #{e}")
         raise e
       end
+
+      # rubocop:enable Metrics/MethodLength
 
       private
 

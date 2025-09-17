@@ -30,9 +30,9 @@ RSpec.describe ClaimsApi::V1::Form526EstablishmentUpload, type: :job do
       'va_eauth_birlsfilenumber' => '123456', 'va_eauth_pid' => '600049703', 'va_eauth_pnid' => '796330625',
       'va_eauth_birthdate' => '1976-06-09T00:00:00+00:00',
       'va_eauth_authorization' => '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796330625",' \
-        '"edi":"1243413229","firstName":"Pauline","lastName":"Foster", ' \
-        '"birthDate":"1976-06-09T00:00:00+00:00",' \
-        '"gender":"MALE"}}', 'va_eauth_authenticationauthority' => 'eauth',
+                                  '"edi":"1243413229","firstName":"Pauline","lastName":"Foster", ' \
+                                  '"birthDate":"1976-06-09T00:00:00+00:00",' \
+                                  '"gender":"MALE"}}', 'va_eauth_authenticationauthority' => 'eauth',
       'va_eauth_service_transaction_id' => '00000000-0000-0000-0000-000000000000' }
   end
 
@@ -156,8 +156,8 @@ RSpec.describe ClaimsApi::V1::Form526EstablishmentUpload, type: :job do
         # Rubocop formatting
         allow_any_instance_of(ClaimsApi::FesService::Base).to(
           receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
-            'form526.submit.establishClaim.serviceError', {}, nil, body
-          ))
+                                       'form526.submit.establishClaim.serviceError', {}, nil, body
+                                     ))
         )
 
         Sidekiq::Testing.inline! do
@@ -176,10 +176,10 @@ RSpec.describe ClaimsApi::V1::Form526EstablishmentUpload, type: :job do
 
       it 'does not retry when form526.submit.noRetryError error gets returned' do
         body = [{
-                  key: 'form526.submit.noRetryError',
-                  severity: 'FATAL',
-                  text: 'Claim could not be established. Retries will fail.'
-                }]
+          key: 'form526.submit.noRetryError',
+          severity: 'FATAL',
+          text: 'Claim could not be established. Retries will fail.'
+        }]
 
         error = Common::Exceptions::BackendServiceException.new(
           'form526.submit.noRetryError', {}, nil, body
@@ -239,15 +239,15 @@ RSpec.describe ClaimsApi::V1::Form526EstablishmentUpload, type: :job do
       it 'does retry when form526.submit.establishClaim.serviceError gets returned' do
         body =
           [{
-             key: 'form526.submit.establishClaim.serviceError',
-             severity: 'FATAL',
-             text: 'Error calling external service to establish the claim during submit.'
-           }]
+            key: 'form526.submit.establishClaim.serviceError',
+            severity: 'FATAL',
+            text: 'Error calling external service to establish the claim during submit.'
+          }]
 
         allow_any_instance_of(ClaimsApi::FesService::Base).to(
           receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
-            'form526.submit.establishClaim.serviceError', {}, nil, body
-          ))
+                                       'form526.submit.establishClaim.serviceError', {}, nil, body
+                                     ))
         )
 
         Sidekiq::Testing.inline! do
@@ -298,15 +298,15 @@ RSpec.describe ClaimsApi::V1::Form526EstablishmentUpload, type: :job do
 
       it 'does retry when 5xx error gets returned' do
         body = [{
-                  key: '',
-                  severity: 'FATAL',
-                  text: 'Error calling external service to establish the claim during submit.'
-                }]
+          key: '',
+          severity: 'FATAL',
+          text: 'Error calling external service to establish the claim during submit.'
+        }]
         # Rubocop formatting
         allow_any_instance_of(ClaimsApi::FesService::Base).to(
           receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
-            '', {}, nil, body
-          ))
+                                       '', {}, nil, body
+                                     ))
         )
 
         Sidekiq::Testing.inline! do
