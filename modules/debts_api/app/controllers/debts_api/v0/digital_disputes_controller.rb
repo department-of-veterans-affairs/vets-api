@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'debts_api/v0/digital_dispute_submission_service'
-require 'debts_api/v0/digital_dispute_dmc_service'
 
 module DebtsApi
   module V0
@@ -58,10 +57,6 @@ module DebtsApi
           state: :pending,
           metadata: submission_params[:metadata]
         ).tap { |s| s.files.attach(submission_params[:files]) }
-      end
-
-      def dmc_service(submission)
-        DebtsApi::V0::DigitalDisputeDmcService.new(current_user, submission)
       end
 
       def render_validation_error(record)
