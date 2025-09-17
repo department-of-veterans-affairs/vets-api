@@ -43,14 +43,10 @@ module UnifiedHealthData
 
     def get_conditions
       with_monitoring do
-        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
-        patient_id = @user.icn
-
         start_date = '1900-01-01'
         end_date = Time.zone.today.to_s
 
-        path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, headers)
+        response = uhd_client.get_conditions_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)

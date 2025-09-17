@@ -16,6 +16,12 @@ module UnifiedHealthData
       perform(:get, path, nil, headers)
     end
 
+    def get_conditions_by_date(patient_id:, start_date:, end_date:)
+      headers = request_headers
+      path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+      perform(:get, path, nil, headers)
+    end
+
     private
 
     def fetch_access_token
