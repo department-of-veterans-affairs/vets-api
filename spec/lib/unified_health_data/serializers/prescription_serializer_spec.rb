@@ -62,3 +62,4 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
     end
   end
 end
+
