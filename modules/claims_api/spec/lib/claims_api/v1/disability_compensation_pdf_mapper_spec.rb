@@ -223,4 +223,364 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       expect(change_of_address_address_base[:typeOfAddressChange]).to eq('TEMPORARY')
     end
   end
+
+  describe 'section 3, homeless information' do
+    describe '#set_pdf_data_for_homeless_information' do
+      context 'when homelessInformation key does not exist' do
+        before do
+          @pdf_data = pdf_data
+        end
+
+        it 'sets the homelessInformation key to an empty hash' do
+          res = mapper.send(:set_pdf_data_for_homeless_information)
+
+          expect(res).to eq({})
+        end
+      end
+
+      context 'when homelessInformation key already exists' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:homelessInformation] = {}
+        end
+
+        it 'returns early without modifying the existing data' do
+          res = mapper.send(:set_pdf_data_for_homeless_information)
+
+          expect(res).to be_nil
+        end
+      end
+    end
+
+    context 'when homeless information is included in the submission' do
+      context 'pointOfContact attributes' do
+        it 'maps the attributes if included' do
+          mapper.map_claim
+
+          homeless_base = pdf_data[:data][:attributes][:homelessInformation]
+
+          expect(homeless_base[:pointOfContact]).to eq('Firstname Lastname')
+          expect(homeless_base[:pointOfContactNumber]).to eq('123-555-1234')
+        end
+
+        it 'does not map anything if not included' do
+          form_attributes['veteran']['homelessness']['pointOfContact'] = nil
+          mapper.map_claim
+
+          homeless_base = pdf_data[:data][:attributes][:homelessInformation]
+
+          expect(homeless_base).not_to have_key(:pointOfContact)
+          expect(homeless_base).not_to have_key(:pointOfContactNumber)
+        end
+      end
+
+      context 'currentlyHomeless attributes' do
+        describe '#set_pdf_data_for_currently_homeless_information' do
+          context 'when currentlyHomeless key does not exist' do
+            before do
+              @pdf_data = pdf_data
+              @pdf_data[:data][:attributes][:homelessInformation] = {}
+            end
+
+            it 'sets the currentlyHomeless key to an empty hash' do
+              res = mapper.send(:set_pdf_data_for_currently_homeless_information)
+
+              expect(res).to eq({})
+            end
+          end
+
+          context 'when currentlyHomeless key already exists' do
+            before do
+              @pdf_data = pdf_data
+              @pdf_data[:data][:attributes][:homelessInformation] = {}
+              @pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless] = {}
+            end
+
+            it 'returns early without modifying the existing data' do
+              res = mapper.send(:set_pdf_data_for_currently_homeless_information)
+
+              expect(res).to be_nil
+            end
+          end
+        end
+
+        it 'maps the attributes if included' do
+          mapper.map_claim
+
+          currently_homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+          expect(currently_homeless_base[:homelessSituationOptions]).to eq('fleeing')
+          expect(currently_homeless_base[:otherDescription]).to eq('none')
+        end
+
+        it 'does not map anything if not included' do
+          form_attributes['veteran']['homelessness']['currentlyHomeless'] = nil
+          mapper.map_claim
+
+          homeless_base = pdf_data[:data][:attributes][:homelessInformation]
+
+          expect(homeless_base).not_to have_key(:currentlyHomeless)
+        end
+      end
+
+      context 'riskOfBecomingHomeless attributes' do
+        describe '#set_pdf_data_for_homelessness_risk_information' do
+          context 'when riskOfBecomingHomeless key does not exist' do
+            before do
+              @pdf_data = pdf_data
+              @pdf_data[:data][:attributes][:homelessInformation] = {}
+            end
+
+            it 'sets the riskOfBecomingHomeless key to an empty hash' do
+              res = mapper.send(:set_pdf_data_for_homelessness_risk_information)
+
+              expect(res).to eq({})
+            end
+          end
+
+          context 'when riskOfBecomingHomeless key already exists' do
+            before do
+              @pdf_data = pdf_data
+              @pdf_data[:data][:attributes][:homelessInformation] = {}
+              @pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless] = {}
+            end
+
+            it 'returns early without modifying the existing data' do
+              res = mapper.send(:set_pdf_data_for_homelessness_risk_information)
+
+              expect(res).to be_nil
+            end
+          end
+        end
+
+        it 'maps the attributes if included' do
+          form_attributes['veteran']['homelessness']['homelessnessRisk'] = {}
+          form_attributes['veteran']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType'] = 'other'
+          form_attributes['veteran']['homelessness']['homelessnessRisk']['otherLivingSituation'] = 'Other situation'
+          mapper.map_claim
+
+          risk_of_homeless_base = pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
+
+          expect(risk_of_homeless_base[:livingSituationOptions]).to eq('other')
+          expect(risk_of_homeless_base[:otherDescription]).to eq('Other situation')
+        end
+
+        it 'does not map anything if not included' do
+          form_attributes['veteran']['homelessness']['homelessnessRisk'] = nil
+          mapper.map_claim
+
+          homeless_base = pdf_data[:data][:attributes][:homelessInformation]
+
+          expect(homeless_base).not_to have_key(:riskOfBecomingHomeless)
+        end
+      end
+    end
+
+    context 'when homeless information is not included in the submission' do
+      it 'adds nothing to the pdf data' do
+        form_attributes['veteran']['homelessness'] = {}
+        mapper.map_claim
+
+        expect(pdf_data[:data][:attributes]).not_to have_key(:homelessInformation)
+      end
+    end
+  end
+
+  context 'section 5, disabilities' do
+    let(:disabilities_object) do
+      [
+        {
+          'disabilityActionType' => 'NEW',
+          'name' => 'Arthritis',
+          'serviceRelevance' => 'Caused by in-service injury'
+        },
+        {
+          'disabilityActionType' => 'NEW',
+          'name' => 'Left Knee Injury',
+          'ratedDisabilityId' => '1100583',
+          'diagnosticCode' => 9999,
+          'approximateBeginDate' => '2018-04-02',
+          'secondaryDisabilities' => [
+            {
+              'name' => 'Left Hip Pain',
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by a service-connected disability',
+              'approximateBeginDate' => '2018-05-02'
+            }
+          ]
+        }
+      ]
+    end
+
+    describe '#set_pdf_data_for_claim_information' do
+      context 'when the claimInformation key does not exist' do
+        before do
+          @pdf_data = pdf_data
+        end
+
+        it 'sets the claimInformation key to an empty hash' do
+          res = mapper.send(:set_pdf_data_for_claim_information)
+
+          expect(res).to eq({})
+        end
+      end
+
+      context 'when the claimInformation key already exists' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:claimInformation] = {}
+        end
+
+        it 'returns early without modifying the existing data' do
+          res = mapper.send(:set_pdf_data_for_claim_information)
+
+          expect(res).to be_nil
+        end
+      end
+    end
+
+    describe '#set_pdf_data_for_disabilities' do
+      context 'when the disabilities key does not exist' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:claimInformation] = {}
+        end
+
+        it 'sets the disabilities key to an empty hash' do
+          res = mapper.send(:set_pdf_data_for_disabilities)
+
+          expect(res).to eq({})
+        end
+      end
+
+      context 'when the disabilities key already exists' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:claimInformation] = {}
+          @pdf_data[:data][:attributes][:claimInformation][:disabilities] = {}
+        end
+
+        it 'returns early without modifying the existing data' do
+          res = mapper.send(:set_pdf_data_for_disabilities)
+
+          expect(res).to be_nil
+        end
+      end
+    end
+
+    it 'maps the attributes' do
+      form_attributes['disabilities'] = disabilities_object
+      mapper.map_claim
+
+      disabilities_base = pdf_data[:data][:attributes][:claimInformation][:disabilities]
+
+      expect(disabilities_base[0][:disability]).to eq('Arthritis')
+      expect(disabilities_base[0][:serviceRelevance]).to eq('Caused by in-service injury')
+      expect(disabilities_base[0]).not_to have_key(:approximateDate)
+      expect(disabilities_base[1][:disability]).to eq('Left Knee Injury')
+      expect(disabilities_base[1][:serviceRelevance]).to be_nil
+      expect(disabilities_base[1][:approximateDate]).to eq('04/02/2018')
+      expect(disabilities_base[2][:disability]).to eq('Left Hip Pain secondary to: Left Knee Injury')
+      expect(disabilities_base[2][:serviceRelevance]).to eq('Caused by a service-connected disability')
+      expect(disabilities_base[2][:approximateDate]).to eq('05/02/2018')
+    end
+  end
+
+  describe 'section 5, treatment centers' do
+    let(:treatments) do
+      [
+        {
+          'startDate' => '2020-01-01',
+          'endDate' => '2022-01-01',
+          'treatedDisabilityNames' => [
+            'Arthritis'
+          ],
+          'center' => {
+            'name' => 'Private Facility Name',
+            'country' => 'USA'
+          }
+        },
+        {
+          'startDate' => '2022-01',
+          'treatedDisabilityNames' => [
+            'Bad Knee'
+          ],
+          'center' => {
+            'name' => 'Another Private Facility Name',
+            'country' => 'USA'
+          }
+        },
+        {
+          'treatedDisabilityNames' => [
+            'Bad Elbow'
+          ],
+          'center' => {
+            'name' => 'Public Facility Name',
+            'country' => 'USA'
+          }
+        }
+      ]
+    end
+
+    describe '#set_pdf_data_for_claim_information' do
+      context 'when the claimInformation key does not exist' do
+        before do
+          @pdf_data = pdf_data
+        end
+
+        it 'sets the claimInformation key to an empty hash' do
+          res = mapper.send(:set_pdf_data_for_claim_information)
+
+          expect(res).to eq({})
+        end
+      end
+
+      context 'when the claimInformation key already exists' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:claimInformation] = {}
+        end
+
+        it 'returns early without modifying the existing data' do
+          res = mapper.send(:set_pdf_data_for_claim_information)
+
+          expect(res).to be_nil
+        end
+      end
+    end
+
+    context 'when treatments information is not provided' do
+      before do
+        @pdf_data = pdf_data
+        @pdf_data[:data][:attributes][:claimInformation] = {}
+      end
+
+      it 'does not add any treatment key to the data object' do
+        mapper.map_claim
+
+        claim_information_base = pdf_data[:data][:attributes][:claimInformation]
+
+        expect(claim_information_base).not_to have_key(:treatments)
+      end
+    end
+
+    context 'when treatments information is provided' do
+      it 'maps the attributes' do
+        form_attributes['treatments'] = treatments
+        mapper.map_claim
+
+        treatments_base = pdf_data[:data][:attributes][:claimInformation][:treatments]
+
+        expect(treatments_base[0][:treatmentDetails]).to eq('Arthritis - Private Facility Name, USA')
+        expect(treatments_base[0][:dateOfTreatment]).to eq({ month: '01', year: '2020' })
+        expect(treatments_base[0]).not_to have_key(:doNotHaveDate)
+        expect(treatments_base[1][:treatmentDetails]).to eq('Bad Knee - Another Private Facility Name, USA')
+        expect(treatments_base[1][:dateOfTreatment]).to eq({ month: '01', year: '2022' })
+        expect(treatments_base[0]).not_to have_key(:doNotHaveDate)
+        expect(treatments_base[2][:treatmentDetails]).to eq('Bad Elbow - Public Facility Name, USA')
+        expect(treatments_base[2]).not_to have_key(:dateOfTreatment)
+        expect(treatments_base[2][:doNotHaveDate]).to be(true)
+      end
+    end
+  end
 end
