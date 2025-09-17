@@ -251,7 +251,7 @@ module TravelClaim
       return unless notification_enabled?
 
       template_id = success_template_id
-      claim_number_last_four = @claim_number_last_four || 'unknown'
+      claim_number_last_four = @claim_number_last_four
 
       log_message(:info, 'Sending success notification',
                   template_id:, claim_last_four: claim_number_last_four)
@@ -273,6 +273,7 @@ module TravelClaim
       return unless notification_enabled?
 
       template_id = determine_error_template_id(error)
+      claim_number_last_four = @claim_number_last_four || 'unknown'
 
       log_message(:info, 'Sending error notification',
                   template_id:, error_class: error.class.name)
@@ -281,7 +282,7 @@ module TravelClaim
         @uuid,
         format_appointment_date,
         template_id,
-        'unknown'
+        claim_number_last_four
       )
     end
 
