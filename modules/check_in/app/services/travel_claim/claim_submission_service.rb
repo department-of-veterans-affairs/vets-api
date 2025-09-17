@@ -46,7 +46,7 @@ module TravelClaim
       result = process_claim_submission
 
       # Send notification if feature flag is enabled
-      send_notification_if_enabled(result) if result['success']
+      send_notification_if_enabled if result['success']
 
       result
     rescue Common::Exceptions::BackendServiceException => e
@@ -65,7 +65,7 @@ module TravelClaim
     ##
     # Executes the complete claim submission workflow.
     #
-    # @return [Hash] success response with claim ID and submission data
+    # @return [Hash] success response with claim ID
     # @raise [Common::Exceptions::BackendServiceException] for API failures
     #
     def process_claim_submission
@@ -76,9 +76,9 @@ module TravelClaim
       submission_response = submit_claim_for_processing(claim_id)
 
       # Extract claim data from submission response for notifications
-      claim_number_last_four = extract_claim_number_last_four(submission_response)
+      @claim_number_last_four = extract_claim_number_last_four(submission_response)
 
-      { 'success' => true, 'claimId' => claim_id, 'claimNumberLastFour' => claim_number_last_four }
+      { 'success' => true, 'claimId' => claim_id }
     end
 
     ##
@@ -245,13 +245,11 @@ module TravelClaim
     ##
     # Sends a success notification if feature flag is enabled
     #
-    # @param result [Hash] the successful submission result
-    #
-    def send_notification_if_enabled(result)
+    def send_notification_if_enabled
       return unless notification_enabled?
 
       template_id = success_template_id
-      claim_number_last_four = result['claimNumberLastFour'] || 'unknown'
+      claim_number_last_four = @claim_number_last_four || 'unknown'
 
       log_message(:info, 'Sending success notification',
                   template_id:, claim_last_four: claim_number_last_four)
@@ -272,7 +270,7 @@ module TravelClaim
     def send_error_notification_if_enabled(error)
       return unless notification_enabled?
 
-      template_id = error_template_id
+      template_id = determine_error_template_id(error)
 
       log_message(:info, 'Sending error notification',
                   template_id:, error_class: error.class.name)
@@ -318,6 +316,18 @@ module TravelClaim
         CheckIn::Constants::OH_ERROR_TEMPLATE_ID
       else
         CheckIn::Constants::CIE_ERROR_TEMPLATE_ID
+      end
+    end
+
+    ##
+    # Determines the appropriate error template ID based on the error type
+    #
+    def determine_error_template_id(error)
+      if error.is_a?(Common::Exceptions::BackendServiceException) &&
+         error.response_values[:detail]&.include?('already been created')
+        @facility_type&.downcase == 'oh' ? CheckIn::Constants::OH_DUPLICATE_TEMPLATE_ID : CheckIn::Constants::CIE_DUPLICATE_TEMPLATE_ID
+      else
+        error_template_id
       end
     end
 
