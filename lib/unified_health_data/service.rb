@@ -54,28 +54,6 @@ module UnifiedHealthData
       end
     end
 
-    def get_care_summaries_and_notes
-      with_monitoring do
-        patient_id = @user.icn
-
-        # NOTE: we must pass in a startDate and endDate to SCDF
-        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
-        start_date = '1900-01-01'
-        # End date defaults to today
-        end_date = Time.zone.today.to_s
-
-        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, request_headers)
-        body = parse_response_body(response.body)
-
-        combined_records = fetch_combined_records(body)
-
-        filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
-
-        parse_notes(filtered)
-      end
-    end
-
     def get_prescriptions
       with_monitoring do
         patient_id = @user.icn
@@ -109,26 +87,28 @@ module UnifiedHealthData
       build_error_response(orders)
     end
 
-    def get_single_summary_or_note(note_id)
-      # TODO: refactor out common bits into a client type method - most of this is repeated from above
+    def get_care_summaries_and_notes
       with_monitoring do
-        patient_id = @user.icn
-
         # NOTE: we must pass in a startDate and endDate to SCDF
-        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
         start_date = '1900-01-01'
-        # End date defaults to today
         end_date = Time.zone.today.to_s
 
-        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, request_headers)
+        response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)
 
-        filtered = combined_records.select { |record| record['resource']['id'] == note_id }
+        filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
 
-        parse_single_note(filtered[0])
+        parse_notes(filtered)
+      end
+    end
+
+    def get_single_summary_or_note(note_id)
+      with_monitoring do
+        # TODO: we will replace this with a direct call to the API once available
+        all_notes = get_care_summaries_and_notes
+        all_notes.select { |note| note['id'] == note_id }
       end
     end
 

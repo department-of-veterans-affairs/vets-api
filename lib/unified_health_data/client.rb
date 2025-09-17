@@ -22,6 +22,12 @@ module UnifiedHealthData
       perform(:get, path, nil, headers)
     end
 
+    def get_notes_by_date(patient_id:, start_date:, end_date:)
+      headers = request_headers
+      path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+      perform(:get, path, nil, headers)
+    end
+
     private
 
     def fetch_access_token

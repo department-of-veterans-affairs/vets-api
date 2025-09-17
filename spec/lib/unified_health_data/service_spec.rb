@@ -319,12 +319,21 @@ describe UnifiedHealthData::Service, type: :service do
       ).read)
     end
 
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: notes_sample_response
+      )
+    end
+
+    before do
+      allow_any_instance_of(UnifiedHealthData::Client)
+        .to receive(:get_notes_by_date)
+        .and_return(sample_client_response)
+    end
+
     context 'happy path' do
       context 'when data exists for both VistA + OH' do
         it 'returns care summaries and notes' do
-          allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_sample_response),
-                                             parse_response_body: notes_sample_response)
-
           notes = service.get_care_summaries_and_notes
           expect(notes.size).to eq(6)
           expect(notes.map(&:note_type)).to contain_exactly(
@@ -372,9 +381,11 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'when data exists for only VistA or OH' do
         it 'returns care summaries and notes for VistA only' do
-          allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_no_oh_response),
-                                             parse_response_body: notes_no_oh_response)
-
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_notes_by_date)
+            .and_return(Faraday::Response.new(
+                          body: notes_no_oh_response
+                        ))
           notes = service.get_care_summaries_and_notes
           expect(notes.size).to eq(4)
           expect(notes.map(&:note_type)).to contain_exactly(
@@ -402,10 +413,11 @@ describe UnifiedHealthData::Service, type: :service do
         end
 
         it 'returns care summaries and notes for OH only' do
-          allow(service).to receive_messages(fetch_access_token: 'token',
-                                             perform: double(body: notes_no_vista_response),
-                                             parse_response_body: notes_no_vista_response)
-
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_notes_by_date)
+            .and_return(Faraday::Response.new(
+                          body: notes_no_vista_response
+                        ))
           notes = service.get_care_summaries_and_notes
           expect(notes.size).to eq(2)
           expect(notes.map(&:note_type)).to contain_exactly(
@@ -433,9 +445,11 @@ describe UnifiedHealthData::Service, type: :service do
 
       context 'when there are no records in VistA or OH' do
         it 'returns care summaries and notes' do
-          allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_empty_response),
-                                             parse_response_body: notes_empty_response)
-
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_notes_by_date)
+            .and_return(Faraday::Response.new(
+                          body: notes_empty_response
+                        ))
           notes = service.get_care_summaries_and_notes
           expect(notes.size).to eq(0)
         end
@@ -450,6 +464,62 @@ describe UnifiedHealthData::Service, type: :service do
 
         expect do
           uhd_service.get_care_summaries_and_notes
+        end.to raise_error(StandardError, 'Unknown fetch error')
+      end
+    end
+  end
+
+  describe '#get_single_summary_or_note' do
+    let(:notes_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'notes_sample_response.json'
+      ).read)
+    end
+
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: notes_sample_response
+      )
+    end
+
+    before do
+      allow_any_instance_of(UnifiedHealthData::Client)
+        .to receive(:get_notes_by_date)
+        .and_return(sample_client_response)
+    end
+
+    context 'happy path' do
+      context 'when data exists for both VistA + OH' do
+        it 'returns care summaries and notes' do
+          note = service.get_single_summary_or_note('76ad925b-0c2c-4401-ac0a-13542d6b6ef5')
+          expect(note).to have_attributes(
+            {
+              'id' => '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
+              'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
+              'loinc_codes' => ['11506-3'],
+              'note_type' => 'physician_procedure_note',
+              'date' => '2025-01-14T09:18:00.000+00:00',
+              'date_signed' => '2025-01-14T09:29:26+00:00',
+              'written_by' => 'MARCI P MCGUIRE',
+              'signed_by' => 'MARCI P MCGUIRE',
+              'admission_date' => nil,
+              'discharge_date' => nil,
+              'location' => 'CHYSHR TEST LAB',
+              'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBka/i
+            }
+          )
+        end
+      end
+    end
+
+    context 'error handling' do
+      it 'handles unknown errors' do
+        uhd_service = double
+        allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
+        allow(uhd_service).to receive(:get_single_summary_or_note).and_raise(StandardError.new('Unknown fetch error'))
+
+        expect do
+          uhd_service.get_single_summary_or_note('banana')
         end.to raise_error(StandardError, 'Unknown fetch error')
       end
     end
@@ -682,71 +752,6 @@ describe UnifiedHealthData::Service, type: :service do
           expect(result[:success]).to eq([])
           expect(result[:failed]).to eq([])
         end
-      end
-    end
-  end
-
-  describe '#get_single_summary_or_note' do
-    let(:notes_sample_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'notes_sample_response.json'
-      ).read)
-    end
-
-    let(:notes_no_vista_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'notes_empty_vista_response.json'
-      ).read)
-    end
-
-    let(:notes_no_oh_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'notes_empty_oh_response.json'
-      ).read)
-    end
-
-    let(:notes_empty_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'notes_empty_response.json'
-      ).read)
-    end
-
-    context 'happy path' do
-      context 'when data exists for both VistA + OH' do
-        it 'returns care summaries and notes' do
-          allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_sample_response),
-                                             parse_response_body: notes_sample_response)
-
-          note = service.get_single_summary_or_note('76ad925b-0c2c-4401-ac0a-13542d6b6ef5')
-          expect(note).to have_attributes(
-            {
-              'id' => '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
-              'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
-              'loinc_codes' => ['11506-3'],
-              'note_type' => 'physician_procedure_note',
-              'date' => '2025-01-14T09:18:00.000+00:00',
-              'date_signed' => '2025-01-14T09:29:26+00:00',
-              'written_by' => 'MARCI P MCGUIRE',
-              'signed_by' => 'MARCI P MCGUIRE',
-              'admission_date' => nil,
-              'discharge_date' => nil,
-              'location' => 'CHYSHR TEST LAB',
-              'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBka/i
-            }
-          )
-        end
-      end
-    end
-
-    context 'error handling' do
-      it 'handles unknown errors' do
-        uhd_service = double
-        allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
-        allow(uhd_service).to receive(:get_single_summary_or_note).and_raise(StandardError.new('Unknown fetch error'))
-
-        expect do
-          uhd_service.get_single_summary_or_note('banana')
-        end.to raise_error(StandardError, 'Unknown fetch error')
       end
     end
   end
