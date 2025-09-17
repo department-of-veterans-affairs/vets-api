@@ -406,4 +406,36 @@ describe VaNotify::Service do
       end
     end
   end
+
+  describe '#overwrite_uuid_validation' do
+  # allocate is called to elongate evaluation of #new to manipulate what occurs in Speaker#initialize
+  # Service is allocated memory explicitly, since overwrite_uuid_validation occurs within Service#initialize
+    let(:service) { described_class.allocate }
+    let(:speaker) { Notifications::Client::Speaker.allocate }
+
+    before do
+      # since Service#initialize is not fully invoked during VaNotify::Service.new, it must be explicitly sent the method
+      service.send(:overwrite_uuid_validation)
+    end
+
+    it 'accepts valid UUIDs' do
+      uuid = '12345678-1234-1234-1234-123456789012'
+      expect { speaker.send(:validate_uuids!, uuid) }.not_to raise_error
+    end
+
+    it 'accepts Python secrets.token_urlsafe(64) tokens' do
+      token = 'A' * 86 # Simulates token_urlsafe(64) output
+      expect { speaker.send(:validate_uuids!, token) }.not_to raise_error
+    end
+
+    it 'rejects short strings' do
+      short_token = 'short'
+      expect { speaker.send(:validate_uuids!, short_token) }.to raise_error(ArgumentError, /Invalid token format/)
+    end
+
+    it 'rejects tokens with invalid characters' do
+      invalid_token = 'A' * 86 + '!@#'
+      expect { speaker.send(:validate_uuids!, invalid_token) }.to raise_error(ArgumentError, /Invalid token format/)
+    end
+  end
 end

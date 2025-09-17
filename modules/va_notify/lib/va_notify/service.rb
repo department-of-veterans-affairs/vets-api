@@ -19,6 +19,7 @@ module VaNotify
 
     def initialize(api_key, callback_options = {})
       overwrite_client_networking
+      overwrite_uuid_validation
       @notify_client ||= Notifications::Client.new(api_key, client_url)
       @callback_options = callback_options || {}
     rescue => e
@@ -81,6 +82,35 @@ module VaNotify
 
           response.body = JSON.dump(response.body)
           response
+        end
+      end
+    end
+
+    # similar to overwrite_client_networking, must reach into Speaker#initialize
+    # and re-write validate_uuids!
+    def overwrite_uuid_validation
+      Notifications::Client::Speaker.class_exec do
+        define_method(:validate_uuids!) do |*uuids|
+          uuids.each do |uuid|
+            next if valid_token?(uuid)
+            raise ArgumentError, "Invalid token format: #{uuid}"
+          end
+        end
+
+        # the invocation of private here exists within the Speaker class within the gem, not the Service class
+        # since class_exec is essentially patching in a different scope
+        private
+
+        define_method(:valid_token?) do |token|
+          return false unless token.is_a?(String)
+
+          # Standard UUID format (36 chars)
+          return true if token.match?(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i)
+
+          # Python secrets.token_urlsafe(64) format (86+ chars, URL-safe base64)
+          return true if token.length >= 86 && token.match?(/\A[A-Za-z0-9_-]+\z/)
+
+          false
         end
       end
     end
