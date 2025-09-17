@@ -6,7 +6,7 @@ module UnifiedHealthData
 
     set_id :id
     # TODO: should this be 'lab_or_test' so it matches the model name?
-    set_type :type
+    set_type 'DiagnosticReport'
 
     attributes :display,
                :test_code,
