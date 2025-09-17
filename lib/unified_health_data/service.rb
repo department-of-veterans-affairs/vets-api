@@ -513,8 +513,9 @@ module UnifiedHealthData
       records['vista']['entry']&.each do |note|
         vista_uid_identifier = note['resource']['identifier'].find { |id| id['system'] == 'vista-uid' }
         next unless vista_uid_identifier && vista_uid_identifier['value']
+
         new_id_array = vista_uid_identifier['value'].split(':')
-        note['resource']['id'] = "#{new_id_array[3]}-#{new_id_array[4]}-#{new_id_array[5]}"
+        note['resource']['id'] = new_id_array[-3..].join('-')
       end
     end
 
