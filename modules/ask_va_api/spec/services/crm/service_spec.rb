@@ -64,6 +64,43 @@ RSpec.describe Crm::Service do
   include_examples 'crm request with header', 'staging', true, 'ava-preprod'
   include_examples 'crm request with header', 'production', true, 'ava'
 
+  shared_examples 'crm request with preprod' do |env, flag_state, expected_org|
+    let(:response) { mock_response(status: 200, body: mock_data) }
+
+    before do
+      allow(Settings).to receive(:vsp_environment).and_return(env)
+      allow(Flipper).to receive(:enabled?).with(:ask_va_api_preprod_for_e2e_testing).and_return(flag_state)
+      allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
+
+      allow_any_instance_of(Faraday::Connection).to receive(:get).with(
+        'eis/vagov.lob.ava/api/inquiries',
+        organizationName: expected_org
+      ) do |_, _, &block|
+        request = double('request')
+        expect(request).to receive(:headers=).with(hash_including('X-VA-ICN' => icn))
+        block.call(request)
+        response
+      end
+    end
+
+    it "sends ICN header and returns parsed response in #{env} env" do
+      res = JSON.parse(response.body, symbolize_names: true)
+      expect(service.call(endpoint:)[:data].first).to eq(res[:data].first)
+    end
+  end
+
+  # Legacy endpoints (flag disabled)
+  include_examples 'crm request with preprod', 'development', false, 'iris-dev'
+  include_examples 'crm request with preprod', 'test', false, 'iris-dev'
+  include_examples 'crm request with preprod', 'staging', false, 'ava-qa'
+  include_examples 'crm request with preprod', 'production', false, 'veft'
+
+  # New endpoints (flag enabled)
+  include_examples 'crm request with preprod', 'development', true, 'iris-dev'
+  include_examples 'crm request with preprod', 'test', true, 'iris-dev'
+  include_examples 'crm request with preprod', 'staging', true, 'ava-preprod'
+  include_examples 'crm request with preprod', 'production', true, 'ava'
+
   describe '#call' do
     context 'when the server returns an error' do
       let(:resp) { mock_response(body: { error: 'server error' }, status: 500) }
