@@ -1565,10 +1565,6 @@ features:
   pdf_fill_redesign_overflow_jumplinks:
     actor_type: user
     description: Enable jumplinks from overflow page back to form, when using v2 PDF overflow generator
-  pension_income_and_assets_clarification:
-    actor_type: user
-    description: >
-      When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
