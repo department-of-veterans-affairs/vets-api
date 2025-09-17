@@ -647,6 +647,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
     t.uuid "record_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "encrypted_kms_key"
+    t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_claims_api_record_metadata_on_needs_kms_rotation"
     t.index ["record_type", "record_id"], name: "index_record_metadata_on_type_and_id"
   end
 

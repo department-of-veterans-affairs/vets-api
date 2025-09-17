@@ -107,14 +107,13 @@ RSpec.describe CheckIn::V1::TravelClaimsController, type: :controller do
           {
             travel_claims: {
               uuid:
-              # missing appointment_date and facility_type
             }
           }
         end
 
         before do
           allow(service).to receive(:submit_claim).and_raise(
-            Common::Exceptions::BackendServiceException.new('VA900', { detail: 'Appointment date is required' }, 502)
+            Common::Exceptions::BackendServiceException.new('VA902', { detail: 'Appointment date is required' }, 400)
           )
         end
 
