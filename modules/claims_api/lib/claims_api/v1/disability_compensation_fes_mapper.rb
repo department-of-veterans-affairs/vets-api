@@ -31,7 +31,6 @@ module ClaimsApi
       def claim_attributes; end
 
       def extract_claimant_participant_id
-        @auto_claim.auth_headers&.dig('dependent', 'participant_id').present?
         @auto_claim.auth_headers.dig('dependent', 'participant_id')
       end
     end

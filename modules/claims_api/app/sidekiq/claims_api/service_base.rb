@@ -23,7 +23,7 @@ module ClaimsApi
                             error: message['error_message'])
 
       classes = %w[ClaimsApi::V1:DisabilityCompensationPdfGenerator
-                   ClaimApi::V1::DisabilityCompensationDockerContainerUpload
+                   ClaimApi::V1::526FormEstablishmentUpload
                    ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader].freeze
 
       claim_id = message&.dig('args', 0)
