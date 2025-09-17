@@ -70,6 +70,14 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
             expect(response.parsed_body['meta']).to have_key('pagination')
             expect(response.parsed_body['meta']).to have_key('prescriptionStatusCount')
             expect(response.parsed_body['meta']).to have_key('hasNonVaMeds')
+
+            # Verify that prescription data includes trackingInformation field as empty hash
+            expect(response.parsed_body['data']).to be_an(Array)
+            if response.parsed_body['data'].any?
+              first_prescription = response.parsed_body['data'].first
+              expect(first_prescription['attributes']).to have_key('trackingInformation')
+              expect(first_prescription['attributes']['trackingInformation']).to eq({})
+            end
           end
         end
 
