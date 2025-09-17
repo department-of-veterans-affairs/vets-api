@@ -346,7 +346,7 @@ describe UnifiedHealthData::Service, type: :service do
           )
           expect(notes[0]).to have_attributes(
             {
-              'id' => '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
+              'id' => 'F253-7227761-1834074',
               'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
               'loinc_codes' => ['11506-3'],
               'note_type' => 'physician_procedure_note',
@@ -491,10 +491,10 @@ describe UnifiedHealthData::Service, type: :service do
     context 'happy path' do
       context 'when data exists for both VistA + OH' do
         it 'returns care summaries and notes' do
-          note = service.get_single_summary_or_note('76ad925b-0c2c-4401-ac0a-13542d6b6ef5')
+          note = service.get_single_summary_or_note('F253-7227761-1834074')
           expect(note).to have_attributes(
             {
-              'id' => '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
+              'id' => 'F253-7227761-1834074',
               'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
               'loinc_codes' => ['11506-3'],
               'note_type' => 'physician_procedure_note',
@@ -901,6 +901,40 @@ describe UnifiedHealthData::Service, type: :service do
 
       expect { service.get_conditions }.not_to raise_error
       expect(service.get_conditions).to be_an(Array)
+    end
+
+    describe '#get_single_condition' do
+      let(:condition_id) { '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+
+      it 'returns a single condition when found' do
+        condition = service.get_single_condition(condition_id)
+        expect(condition).to be_a(UnifiedHealthData::Condition)
+        expect(condition.id).to eq(condition_id)
+        expect(condition.name).to eq('Major depressive disorder, recurrent, moderate')
+        expect(condition.provider).to eq('BORLAND,VICTORIA A')
+        expect(condition.facility).to eq('CHYSHR TEST LAB')
+      end
+
+      it 'returns nil when condition not found' do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_conditions_by_date)
+          .and_return(Faraday::Response.new(
+                        body: conditions_empty_response
+                      ))
+        condition = service.get_single_condition('nonexistent-id')
+        expect(condition).to be_nil
+      end
+
+      it 'handles malformed responses gracefully' do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_conditions_by_date)
+          .and_return(Faraday::Response.new(
+                        body: nil
+                      ))
+        expect { service.get_single_condition(condition_id) }.not_to raise_error
+        condition = service.get_single_condition(condition_id)
+        expect(condition).to be_nil
+      end
     end
   end
 end

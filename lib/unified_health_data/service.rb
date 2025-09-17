@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# FIXME: remove after re-factoring class
+
 require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
@@ -54,6 +56,26 @@ module UnifiedHealthData
       end
     end
 
+    def get_single_condition(condition_id)
+      with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        patient_id = @user.icn
+
+        start_date = '1900-01-01'
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+        target_record = combined_records.find { |record| record['resource']['id'] == condition_id }
+        return nil unless target_record
+
+        conditions_adapter.parse([target_record]).first
+      end
+    end
+
     def get_prescriptions
       with_monitoring do
         response = uhd_client.get_all_prescriptions(@user.icn)
@@ -92,8 +114,8 @@ module UnifiedHealthData
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
+        remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
-
         filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
 
         parse_notes(filtered)
@@ -109,8 +131,8 @@ module UnifiedHealthData
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
+        remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
-
         filtered = combined_records.select { |record| record['resource']['id'] == note_id }
 
         parse_single_note(filtered[0])
@@ -244,6 +266,16 @@ module UnifiedHealthData
     end
 
     # Care Summaries and Notes methods
+    def remap_vista_uid(records)
+      records['vista']['entry']&.each do |note|
+        vista_uid_identifier = note['resource']['identifier'].find { |id| id['system'] == 'vista-uid' }
+        next unless vista_uid_identifier && vista_uid_identifier['value']
+
+        new_id_array = vista_uid_identifier['value'].split(':')
+        note['resource']['id'] = new_id_array[-3..].join('-')
+      end
+    end
+
     def parse_notes(records)
       return [] if records.blank?
 
@@ -279,4 +311,4 @@ module UnifiedHealthData
       @logger ||= UnifiedHealthData::Logging.new(@user)
     end
   end
-end
+end # rubocop:enable Metrics/ClassLength

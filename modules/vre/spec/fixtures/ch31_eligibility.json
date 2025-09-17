@@ -1,0 +1,39 @@
+{
+  "veteranProfile": {
+    "firstName": "VICTORIA",
+    "lastName": "DUNCAN",
+    "dob": "1901-09-11Z",
+    "characterOfDischarge": "Honorable",
+    "servicePeriod": [
+      {
+        "serviceBeganDate": "1941-12-05Z",
+        "serviceEndDate": "1960-12-07Z",
+        "characterOfDischarge": "Honorable"
+      },
+      {
+        "serviceBeganDate": "2021-01-01Z",
+        "serviceEndDate": "2023-04-01Z",
+        "characterOfDischarge": "Honorable"
+      }
+    ]
+  },
+  "disabilityRating": {
+    "combinedScd": 0,
+    "SCDDetails": [
+      {
+        "code": "7908",
+        "name": "Acromegaly",
+        "percentage": 50
+      }
+    ]
+  },
+  "IRNDDate": "2025-08-04Z",
+  "eligibilityTerminationDate": "2023-04-01Z",
+  "entitlementDetails": {
+    "maxCh31Entitlement": { "month": 48, "days": 0 },
+    "ch31EntitlementRemaining": { "month": 40, "days": 8 },
+    "entitlementUsed": { "month": 7, "days": 22 }
+  },
+  "resCaseId": 685,
+  "resEligibilityRecommendation": "Ineligible"
+}

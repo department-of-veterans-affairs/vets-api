@@ -63,6 +63,10 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
         expect(Rails.cache).not_to receive(:write_multi)
         expect(StatsD).not_to receive(:increment)
 
+        expect(Rails.logger).not_to receive(:info).with(
+          "[#{described_class.name}] - Job started."
+        )
+
         subject.perform
       end
     end
@@ -88,6 +92,12 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
       end
 
       it 'completes successfully with valid form data' do
+        expect(Rails.logger).to receive(:info).with(
+          "[#{described_class.name}] - Job started."
+        )
+        expect(Rails.logger).to receive(:info).with(
+          "[#{described_class.name}] - Job finished successfully."
+        )
         expect { subject.perform }.not_to raise_error
       end
 
@@ -131,6 +141,13 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
         it 'logs revision information' do
           form = forms_response['data'][0]
           attributes = form['attributes']
+          expect(Rails.logger).to receive(:info).with(
+            "[#{described_class.name}] - Job started."
+          )
+
+          expect(Rails.logger).to receive(:info).with(
+            "[#{described_class.name}] - Job finished successfully."
+          )
 
           expect(Rails.logger).to receive(:info).with(
             a_string_including(
@@ -177,8 +194,14 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
         end
 
         it 'logs the error and re-raises' do
+          expect(Rails.logger).to receive(:info).with(
+            "[#{described_class.name}] - Job started."
+          )
+          expect(Rails.logger).not_to receive(:info).with(
+            "[#{described_class.name}] - Job finished successfully."
+          )
           expect(Rails.logger).to receive(:error)
-            .with('Error in FormPdfChangeDetectionJob: API Error')
+            .with("[#{described_class.name}] - Job raised an error: API Error")
 
           expect { subject.perform }.to raise_error(StandardError, 'API Error')
         end
