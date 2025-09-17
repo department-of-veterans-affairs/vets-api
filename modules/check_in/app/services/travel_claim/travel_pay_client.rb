@@ -293,9 +293,11 @@ module TravelClaim
         log_auth_retry
         refresh_tokens!
         yield # Retry once with fresh tokens
-      else
+      elsif e.original_status == 401 && @auth_retry_attempted
         log_auth_error(e.class.name, e.respond_to?(:original_status) ? e.original_status : nil)
         raise
+      else
+        raise e
       end
     end
 
