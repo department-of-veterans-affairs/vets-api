@@ -1569,10 +1569,6 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
-  pension_medical_evidence_clarification:
-    actor_type: user
-    description: >
-      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -1588,6 +1584,10 @@ features:
   pension_itf_validate_data_logger:
     actor_type: user
     description: Toggle sending of the ITF Validate Data to Rails Logger
+    enable_in_development: true
+  pension_pdf_form_alignment:
+    actor_type: user
+    description: Toggle for the new PDF form alignment update
     enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
@@ -2396,10 +2396,6 @@ features:
   search_use_v2_gsa:
     actor_type: cookie_id
     description: Swaps the Search Service's for one with an updated api.gsa.gov address
-    enable_in_development: true
-  override_address_pou:
-    actor_type: user
-    description: If enabled, ADDRESS_POU == RESIDENCE/CHOICE
     enable_in_development: true
   show_yellow_ribbon_table:
     actor_type: cookie_id
