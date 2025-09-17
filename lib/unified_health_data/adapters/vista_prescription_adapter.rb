@@ -32,7 +32,8 @@ module UnifiedHealthData
           dispensed_date: medication['dispensedDate'],
           station_number: medication['stationNumber'],
           is_refillable: medication['isRefillable'],
-          is_trackable: medication['isTrackable'],
+          # TODO: update when adding tracking info to VistA response
+          is_trackable: false,
           instructions: medication['sig'],
           cmop_division_phone: medication['cmopDivisionPhone'],
           prescription_source: medication['prescriptionSource']
