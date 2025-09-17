@@ -1613,8 +1613,6 @@ vaos:
       hex_secret: <%= ENV['vaos__referral__encryption__hex_secret'] %>
 vba_documents:
   custom_metadata_allow_list: <%= ENV['vba_documents__custom_metadata_allow_list'] %>
-  documentation:
-    path_enabled_flag: <%= ENV['vba_documents__documentation__path_enabled_flag'] %>
   enable_download_endpoint: <%= ENV['vba_documents__enable_download_endpoint'] %>
   enable_status_override: <%= ENV['vba_documents__enable_status_override'] %>
   enable_validate_document_endpoint: true
