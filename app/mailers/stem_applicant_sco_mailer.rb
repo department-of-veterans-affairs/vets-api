@@ -7,8 +7,8 @@ class StemApplicantScoMailer < TransactionalEmailMailer
   GA_LABEL = 'school-certifying-officials-10203-submission-notification'
   TEMPLATE = 'stem_applicant_sco'
 
-  def build(applicant, ga_client_id)
-    @applicant = applicant
-    super([applicant.email], ga_client_id, {})
+  def build(claim_id, ga_client_id)
+    @applicant = SavedClaim::EducationBenefits::VA10203.find(claim_id).open_struct_form
+    super([@applicant.email], ga_client_id, {})
   end
 end
