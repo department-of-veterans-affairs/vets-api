@@ -52,24 +52,13 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        return unless %w[40-0247 20-10207 40-10007 31-4159].include?(params[:form_id])
+        return unless %w[40-0247 20-10207 40-10007].include?(params[:form_id])
 
         attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
         attachment.file = params['file']
         file_path = params['file'].tempfile.path
 
-        if params['file'].content_type != 'application/pdf'
-          begin
-            pdf_path = attachment.to_pdf
-            file_path = pdf_path
-          rescue IOError => e
-            handle_upload_error("PDF conversion failed: #{e.message}")
-            return
-          end
-        end
-
-        validation_result = validate_document_if_needed(file_path)
-        return if validation_result == false # Explicitly return if validation failed and rendered response
+        return unless validate_document_if_needed(file_path)
 
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
@@ -89,20 +78,13 @@ module SimpleFormsApi
       private
 
       def validate_document_if_needed(file_path)
-        return true unless %w[40-0247 40-10007 31-4159].include?(params[:form_id])
+        return true unless %w[40-0247 40-10007].include?(params[:form_id]) &&
+                           File.extname(file_path).downcase == '.pdf'
 
         service = BenefitsIntakeService::Service.new
         service.valid_document?(document: file_path)
         true
       rescue BenefitsIntakeService::Service::InvalidDocumentError => e
-        handle_upload_error("Document validation failed: #{e.message}")
-        false
-      rescue IOError => e
-        handle_upload_error("PDF conversion failed: #{e.message}")
-        false
-      end
-
-      def handle_upload_error(message)
         if params[:form_id] == '40-10007'
           detail_msg = "We weren't able to upload your file. Make sure the file is in an " \
                        'accepted format and size before continuing.'
@@ -112,8 +94,10 @@ module SimpleFormsApi
             }]
           }, status: :unprocessable_entity
         else
-          render json: { error: message }, status: :unprocessable_entity
+          msg = "Document validation failed: #{e.message}"
+          render json: { error: msg }, status: :unprocessable_entity
         end
+        false
       end
 
       def lighthouse_service

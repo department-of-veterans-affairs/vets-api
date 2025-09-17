@@ -652,6 +652,25 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       )
     end
 
+    it 'skips document validation for non-PDF files' do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+      # Mock a non-PDF file
+      non_pdf_file = fixture_file_upload('doctors-note.gif')
+
+      # BenefitsIntakeService should not be called for non-PDF files
+      expect(BenefitsIntakeService::Service).not_to receive(:new)
+
+      data = { form_id: '40-0247', file: non_pdf_file }
+
+      expect do
+        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+      end.to change(PersistentAttachment, :count).by(1)
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it 'skips document validation for form types that do not require it' do
       clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
@@ -1160,185 +1179,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             }
           )
         end
-      end
-    end
-  end
-
-  describe 'PDF conversion functionality' do
-    before do
-      sign_in
-      clamscan = double(safe?: true)
-      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
-    end
-
-    let(:image_file) { fixture_file_upload('doctors-note.jpg', 'image/jpeg') }
-    let(:png_file) { fixture_file_upload('doctors-note.png', 'image/png') }
-    let(:pdf_file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
-    let(:unsupported_file) do
-      fixture_file_upload('test_incorrect_type.docx',
-                          'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-    end
-
-    context 'when uploading image files that need PDF conversion' do
-      it 'converts JPEG to PDF and validates the converted file' do
-        # Mock the PDF conversion
-        converted_pdf_path = '/tmp/converted_file.pdf'
-        allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:to_pdf).and_return(converted_pdf_path)
-
-        # Mock successful validation of converted PDF
-        valid_service = double(valid_document?: true)
-        allow(BenefitsIntakeService::Service).to receive(:new).and_return(valid_service)
-
-        data = { form_id: '40-0247', file: image_file }
-
-        expect do
-          post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
-        end.to change(PersistentAttachment, :count).by(1)
-
-        expect(response).to have_http_status(:ok)
-
-        # Verify that validation was called with the converted PDF path
-        expect(valid_service).to have_received(:valid_document?).with(document: converted_pdf_path)
-      end
-
-      it 'converts PNG to PDF and validates the converted file' do
-        converted_pdf_path = '/tmp/converted_png_file.pdf'
-        allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:to_pdf).and_return(converted_pdf_path)
-
-        valid_service = double(valid_document?: true)
-        allow(BenefitsIntakeService::Service).to receive(:new).and_return(valid_service)
-
-        data = { form_id: '40-10007', file: png_file }
-
-        expect do
-          post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
-        end.to change(PersistentAttachment, :count).by(1)
-
-        expect(response).to have_http_status(:ok)
-        expect(valid_service).to have_received(:valid_document?).with(document: converted_pdf_path)
-      end
-
-      it 'handles PDF conversion failure gracefully' do
-        # Mock conversion failure
-        allow_any_instance_of(PersistentAttachments::MilitaryRecords)
-          .to receive(:to_pdf).and_raise(
-            IOError,
-            'PDF conversion failed, unsupported file type: image/jpeg'
-          )
-
-        data = { form_id: '40-0247', file: image_file }
-
-        expect do
-          post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
-        end.not_to change(PersistentAttachment, :count)
-
-        expect(response).to have_http_status(:unprocessable_entity)
-        resp = JSON.parse(response.body)
-        expect(resp['error']).to include('PDF conversion failed')
-      end
-
-      it 'handles converted PDF validation failure for form 40-0247' do
-        converted_pdf_path = '/tmp/converted_file.pdf'
-        allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:to_pdf).and_return(converted_pdf_path)
-
-        # Mock validation failure
-        invalid_service = double
-        error = BenefitsIntakeService::Service::InvalidDocumentError.new('Converted PDF exceeds size limit')
-        allow(invalid_service).to receive(:valid_document?).and_raise(error)
-        allow(BenefitsIntakeService::Service).to receive(:new).and_return(invalid_service)
-
-        data = { form_id: '40-0247', file: image_file }
-
-        expect do
-          post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
-        end.not_to change(PersistentAttachment, :count)
-
-        expect(response).to have_http_status(:unprocessable_entity)
-        resp = JSON.parse(response.body)
-        expect(resp['error']).to eq 'Document validation failed: Converted PDF exceeds size limit'
-      end
-
-      it 'handles converted PDF validation failure for form 40-10007 with user-friendly message' do
-        converted_pdf_path = '/tmp/converted_file.pdf'
-        allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:to_pdf).and_return(converted_pdf_path)
-
-        invalid_service = double
-        error = BenefitsIntakeService::Service::InvalidDocumentError.new('Converted PDF has invalid dimensions')
-        allow(invalid_service).to receive(:valid_document?).and_raise(error)
-        allow(BenefitsIntakeService::Service).to receive(:new).and_return(invalid_service)
-
-        data = { form_id: '40-10007', file: image_file }
-
-        expect do
-          post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
-        end.not_to change(PersistentAttachment, :count)
-
-        expect(response).to have_http_status(:unprocessable_entity)
-        resp = JSON.parse(response.body)
-        expect(resp['errors'][0]['detail']).to eq(
-          "We weren't able to upload your file. Make sure the file is in an accepted format and size before continuing."
-        )
-      end
-    end
-
-    context 'when uploading unsupported file types' do
-      it 'handles unsupported file type conversion failure' do
-        # Mock the IOError that Common::ConvertToPdf raises for unsupported types
-        allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:to_pdf).and_raise(
-          IOError, 'PDF conversion failed, unsupported file type:
-            application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        )
-
-        data = { form_id: '40-0247', file: unsupported_file }
-
-        expect do
-          post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
-        end.not_to change(PersistentAttachment, :count)
-
-        expect(response).to have_http_status(:unprocessable_entity)
-        resp = JSON.parse(response.body)
-        expect(resp['error']).to include('PDF conversion failed, unsupported file type')
-      end
-    end
-
-    context 'when uploading PDF files (no conversion needed)' do
-      it 'skips conversion and validates the original PDF' do
-        # Should not call to_pdf for PDFs
-        expect_any_instance_of(PersistentAttachments::MilitaryRecords).not_to receive(:to_pdf)
-
-        valid_service = double(valid_document?: true)
-        allow(BenefitsIntakeService::Service).to receive(:new).and_return(valid_service)
-
-        data = { form_id: '40-0247', file: pdf_file }
-
-        expect do
-          post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
-        end.to change(PersistentAttachment, :count).by(1)
-
-        expect(response).to have_http_status(:ok)
-
-        # Verify validation was called with original file path
-        expect(valid_service).to have_received(:valid_document?) do |args|
-          expect(args[:document]).to end_with('.pdf')
-        end
-      end
-    end
-
-    context 'form types that bypass validation' do
-      it 'converts image to PDF but skips validation for form 20-10207' do
-        converted_pdf_path = '/tmp/converted_file.pdf'
-        allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:to_pdf).and_return(converted_pdf_path)
-
-        # Should not call BenefitsIntakeService for this form type
-        expect(BenefitsIntakeService::Service).not_to receive(:new)
-
-        data = { form_id: '20-10207', file: image_file }
-
-        expect do
-          post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
-        end.to change(PersistentAttachment, :count).by(1)
-
-        expect(response).to have_http_status(:ok)
       end
     end
   end
