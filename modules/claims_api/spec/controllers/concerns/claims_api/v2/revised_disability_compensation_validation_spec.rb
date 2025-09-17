@@ -791,7 +791,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/disabilities/0/disabilityActionType')
-          expect(errors.first[:title]).to eq('Bad Request')
+          expect(errors.first[:title]).to eq('Unprocessable Entity')
           expect(errors.first[:detail]).to eq('The request failed disability validation: ' \
                                               'The disability Action Type of "NONE" is not currently supported.')
         end
