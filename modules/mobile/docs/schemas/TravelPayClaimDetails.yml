@@ -71,7 +71,7 @@ properties:
         example: "The claim was rejected due to missing required documentation"
   appointment:
     type: object
-    nullable: true
+    nullable: false
     description: 'Appointment details associated with the claim'
     additionalProperties: false
     properties:
