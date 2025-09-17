@@ -819,7 +819,7 @@ describe UnifiedHealthData::Service, type: :service do
           )
           expect(notes[0]).to have_attributes(
             {
-              'id' => '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
+              'id' => 'F253-7227761-1834074',
               'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
               'loinc_codes' => ['11506-3'],
               'note_type' => 'physician_procedure_note',
@@ -966,6 +966,71 @@ describe UnifiedHealthData::Service, type: :service do
 
         expect(Rails.logger).not_to receive(:info)
         service.get_care_summaries_and_notes
+      end
+    end
+  end
+
+  describe '#get_single_summary_or_note' do
+    let(:notes_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'notes_sample_response.json'
+      ).read)
+    end
+
+    let(:notes_no_vista_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'notes_empty_vista_response.json'
+      ).read)
+    end
+
+    let(:notes_no_oh_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'notes_empty_oh_response.json'
+      ).read)
+    end
+
+    let(:notes_empty_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'notes_empty_response.json'
+      ).read)
+    end
+
+    context 'happy path' do
+      context 'when data exists for both VistA + OH' do
+        it 'returns care summaries and notes' do
+          allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_sample_response),
+                                             parse_response_body: notes_sample_response)
+
+          note = service.get_single_summary_or_note('F253-7227761-1834074')
+          expect(note).to have_attributes(
+            {
+              'id' => 'F253-7227761-1834074',
+              'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
+              'loinc_codes' => ['11506-3'],
+              'note_type' => 'physician_procedure_note',
+              'date' => '2025-01-14T09:18:00.000+00:00',
+              'date_signed' => '2025-01-14T09:29:26+00:00',
+              'written_by' => 'MARCI P MCGUIRE',
+              'signed_by' => 'MARCI P MCGUIRE',
+              'admission_date' => nil,
+              'discharge_date' => nil,
+              'location' => 'CHYSHR TEST LAB',
+              'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBka/i
+            }
+          )
+        end
+      end
+    end
+
+    context 'error handling' do
+      it 'handles unknown errors' do
+        uhd_service = double
+        allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
+        allow(uhd_service).to receive(:get_single_summary_or_note).and_raise(StandardError.new('Unknown fetch error'))
+
+        expect do
+          uhd_service.get_single_summary_or_note('banana')
+        end.to raise_error(StandardError, 'Unknown fetch error')
       end
     end
   end
@@ -1118,59 +1183,51 @@ describe UnifiedHealthData::Service, type: :service do
   end
 
   describe '#refill_prescription' do
-    let(:refill_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'refill_response.json'
-      ).read)
-    end
-
-    context 'with valid refill request' do
-      before do
-        allow(service).to receive_messages(fetch_access_token: 'token',
-                                           perform: double(body: refill_response, status: 200),
-                                           parse_response_body: refill_response)
-      end
-
+    context 'with valid refill request', :vcr do
       it 'submits refill requests and returns success/failure breakdown' do
-        orders = [
-          { id: '28148665', stationNumber: '570' },
-          { id: '28148545', stationNumber: '556' }
-        ]
-        result = service.refill_prescription(orders)
+        VCR.use_cassette('unified_health_data/refill_prescription_success') do
+          orders = [
+            { id: '15220389459', stationNumber: '556' },
+            { id: '0000000000001', stationNumber: '570' }
+          ]
+          result = service.refill_prescription(orders)
 
-        expect(result).to have_key(:success)
-        expect(result).to have_key(:failed)
+          expect(result).to have_key(:success)
+          expect(result).to have_key(:failed)
 
-        expect(result[:success]).to contain_exactly(
-          { id: '28148665', status: 'submitted' }
-        )
+          expect(result[:success]).to contain_exactly(
+            { id: '15220389459', status: 'Already in Queue', station_number: '556' }
+          )
 
-        expect(result[:failed]).to contain_exactly(
-          { id: '28148545', error: 'Prescription already has pending refill request' }
-        )
+          expect(result[:failed]).to contain_exactly(
+            { id: '0000000000001', error: 'Prescription is not Found', station_number: '570' }
+          )
+        end
       end
 
       it 'formats request body correctly' do
-        orders = [
-          { id: '12345', stationNumber: '570' },
-          { id: '67890', stationNumber: '556' }
-        ]
-        expected_body = {
-          patientId: user.icn,
-          orders: [
+        VCR.use_cassette('unified_health_data/refill_prescription_success') do
+          orders = [
             { id: '12345', stationNumber: '570' },
             { id: '67890', stationNumber: '556' }
           ]
-        }.to_json
+          expected_body = {
+            patientId: user.icn,
+            orders: [
+              { orderId: '12345', stationNumber: '570' },
+              { orderId: '67890', stationNumber: '556' }
+            ]
+          }.to_json
 
-        expect(service).to receive(:perform).with(
-          :post,
-          anything,
-          expected_body,
-          hash_including('Content-Type' => 'application/json')
-        ).and_return(double(body: refill_response))
+          expect(service).to receive(:perform).with(
+            :post,
+            anything,
+            expected_body,
+            hash_including('Content-Type' => 'application/json')
+          ).and_call_original
 
-        service.refill_prescription(orders)
+          service.refill_prescription(orders)
+        end
       end
     end
 
@@ -1183,7 +1240,7 @@ describe UnifiedHealthData::Service, type: :service do
 
         expect(result[:success]).to eq([])
         expect(result[:failed]).to contain_exactly(
-          { id: '12345', error: 'Service unavailable' }
+          { id: '12345', error: 'Service unavailable', station_number: '570' }
         )
       end
 
@@ -1197,83 +1254,14 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
 
-    context 'with malformed response' do
-      before do
-        allow(service).to receive_messages(fetch_access_token: 'token',
-                                           perform: double(body: '{}'),
-                                           parse_response_body: {})
-      end
-
+    context 'with malformed response', :vcr do
       it 'handles empty response gracefully' do
-        result = service.refill_prescription([{ id: '12345', stationNumber: '570' }])
+        VCR.use_cassette('unified_health_data/refill_prescription_empty') do
+          result = service.refill_prescription([{ id: '12345', stationNumber: '570' }])
 
-        expect(result[:success]).to eq([])
-        expect(result[:failed]).to eq([])
-      end
-    end
-  end
-
-  describe '#get_single_summary_or_note' do
-    let(:notes_sample_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'notes_sample_response.json'
-      ).read)
-    end
-
-    let(:notes_no_vista_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'notes_empty_vista_response.json'
-      ).read)
-    end
-
-    let(:notes_no_oh_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'notes_empty_oh_response.json'
-      ).read)
-    end
-
-    let(:notes_empty_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'notes_empty_response.json'
-      ).read)
-    end
-
-    context 'happy path' do
-      context 'when data exists for both VistA + OH' do
-        it 'returns care summaries and notes' do
-          allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_sample_response),
-                                             parse_response_body: notes_sample_response)
-
-          note = service.get_single_summary_or_note('76ad925b-0c2c-4401-ac0a-13542d6b6ef5')
-          expect(note).to have_attributes(
-            {
-              'id' => '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
-              'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
-              'loinc_codes' => ['11506-3'],
-              'note_type' => 'physician_procedure_note',
-              'date' => '2025-01-14T09:18:00.000+00:00',
-              'date_signed' => '2025-01-14T09:29:26+00:00',
-              'written_by' => 'MARCI P MCGUIRE',
-              'signed_by' => 'MARCI P MCGUIRE',
-              'admission_date' => nil,
-              'discharge_date' => nil,
-              'location' => 'CHYSHR TEST LAB',
-              'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBka/i
-            }
-          )
+          expect(result[:success]).to eq([])
+          expect(result[:failed]).to eq([])
         end
-      end
-    end
-
-    context 'error handling' do
-      it 'handles unknown errors' do
-        uhd_service = double
-        allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
-        allow(uhd_service).to receive(:get_single_summary_or_note).and_raise(StandardError.new('Unknown fetch error'))
-
-        expect do
-          uhd_service.get_single_summary_or_note('banana')
-        end.to raise_error(StandardError, 'Unknown fetch error')
       end
     end
   end
@@ -1411,6 +1399,45 @@ describe UnifiedHealthData::Service, type: :service do
 
       expect { service.get_conditions }.not_to raise_error
       expect(service.get_conditions).to be_an(Array)
+    end
+
+    describe '#get_single_condition' do
+      let(:condition_id) { '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+
+      it 'returns a single condition when found' do
+        allow(service).to receive_messages(
+          perform: double(body: conditions_sample_response),
+          parse_response_body: conditions_sample_response
+        )
+
+        condition = service.get_single_condition(condition_id)
+        expect(condition).to be_a(UnifiedHealthData::Condition)
+        expect(condition.id).to eq(condition_id)
+        expect(condition.name).to eq('Major depressive disorder, recurrent, moderate')
+        expect(condition.provider).to eq('BORLAND,VICTORIA A')
+        expect(condition.facility).to eq('CHYSHR TEST LAB')
+      end
+
+      it 'returns nil when condition not found' do
+        allow(service).to receive_messages(
+          perform: double(body: conditions_empty_response),
+          parse_response_body: conditions_empty_response
+        )
+
+        condition = service.get_single_condition('nonexistent-id')
+        expect(condition).to be_nil
+      end
+
+      it 'handles malformed responses gracefully' do
+        allow(service).to receive_messages(
+          perform: double(body: 'invalid'),
+          parse_response_body: nil
+        )
+
+        expect { service.get_single_condition(condition_id) }.not_to raise_error
+        condition = service.get_single_condition(condition_id)
+        expect(condition).to be_nil
+      end
     end
   end
 end
