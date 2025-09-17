@@ -629,17 +629,17 @@ module ClaimsApi
 
       def validate_date_not_in_future!(date, date_string, index)
         parts = date_string.split('-')
+        current = Date.current
 
         if parts.length == 1 # Year only
           # Year must not be in the future (current year is OK)
-          return unless date.year > Date.current.year
+          return unless date.year > current.year
         elsif parts.length == 2 # Year-month
           # Year-month must not be in the future (current month is OK)
-          current = Date.current
           return unless date.year > current.year || (date.year == current.year && date.month > current.month)
         else # Full date
           # Full date must not be in the future (today is OK)
-          return unless date > Date.current
+          return unless date > current
         end
 
         collect_error(
