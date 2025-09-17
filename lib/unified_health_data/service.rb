@@ -1,15 +1,20 @@
 # frozen_string_literal: true
 
+# FIXME: remove after re-factoring class
+# rubocop:disable Metrics/ClassLength
+
 require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
 require_relative 'models/clinical_notes'
+require_relative 'models/condition'
 require_relative 'models/prescription_attributes'
 require_relative 'models/prescription'
 require_relative 'adapters/clinical_notes_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'reference_range_formatter'
+require_relative 'adapters/conditions_adapter'
 require_relative 'logging'
 
 module UnifiedHealthData
@@ -40,6 +45,43 @@ module UnifiedHealthData
         logger.log_test_code_distribution(parsed_records)
 
         filtered_records
+      end
+    end
+
+    def get_conditions
+      with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        patient_id = @user.icn
+
+        start_date = '1900-01-01'
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+        conditions_adapter.parse(combined_records)
+      end
+    end
+
+    def get_single_condition(condition_id)
+      with_monitoring do
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
+        patient_id = @user.icn
+
+        start_date = '1900-01-01'
+        end_date = Time.zone.today.to_s
+
+        path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+        response = perform(:get, path, nil, headers)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+        target_record = combined_records.find { |record| record['resource']['id'] == condition_id }
+        return nil unless target_record
+
+        conditions_adapter.parse([target_record]).first
       end
     end
 
@@ -402,6 +444,11 @@ module UnifiedHealthData
       end
     end
 
+    # Conditions methods
+    def conditions_adapter
+      @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
+    end
+
     # Care Summaries and Notes methods
     def parse_notes(records)
       return [] if records.blank?
@@ -417,7 +464,7 @@ module UnifiedHealthData
         patientId: @user.icn,
         orders: orders.map do |order|
           {
-            id: order[:id].to_s,
+            orderId: order[:id].to_s,
             stationNumber: order[:stationNumber].to_s
           }
         end
@@ -427,18 +474,23 @@ module UnifiedHealthData
     def build_error_response(orders)
       {
         success: [],
-        failed: orders.map { |order| { id: order[:id], error: 'Service unavailable' } }
+        failed: orders.map do |order|
+          { id: order[:id], error: 'Service unavailable', station_number: order[:stationNumber] }
+        end
       }
     end
 
     def parse_refill_response(response)
       body = parse_response_body(response.body)
 
+      # Ensure we have an array response format
+      refill_items = body.is_a?(Array) ? body : []
+
       # Parse successful refills
-      successes = extract_successful_refills(body)
+      successes = extract_successful_refills(refill_items)
 
       # Parse failed refills
-      failures = extract_failed_refills(body)
+      failures = extract_failed_refills(refill_items)
 
       {
         success: successes,
@@ -446,25 +498,26 @@ module UnifiedHealthData
       }
     end
 
-    def extract_successful_refills(body)
-      # Parse successful refills from API response
-      successful_refills = body['successfulRefills'] || []
+    def extract_successful_refills(refill_items)
+      # Parse successful refills from API response array
+      successful_refills = refill_items.select { |item| item['success'] == true }
       successful_refills.map do |refill|
         {
-          id: refill['prescriptionId'],
-          status: refill['status'] || 'submitted'
+          id: refill['orderId'],
+          status: refill['message'] || 'submitted',
+          station_number: refill['stationNumber']
         }
       end
     end
 
-    def extract_failed_refills(body)
-      # Assuming the API returns detailed error info for failures
-      # Adjust based on actual API response format
-      failed_refills = body['failedRefills'] || []
+    def extract_failed_refills(refill_items)
+      # Parse failed refills from API response array
+      failed_refills = refill_items.select { |item| item['success'] == false }
       failed_refills.map do |failure|
         {
-          id: failure['prescriptionId'],
-          error: failure['reason'] || 'Unable to process refill'
+          id: failure['orderId'],
+          error: failure['message'] || 'Unable to process refill',
+          station_number: failure['stationNumber']
         }
       end
     end
@@ -485,3 +538,5 @@ module UnifiedHealthData
     end
   end
 end
+
+# rubocop:enable Metrics/ClassLength
