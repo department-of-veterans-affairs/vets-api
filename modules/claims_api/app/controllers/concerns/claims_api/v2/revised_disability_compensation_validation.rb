@@ -150,7 +150,8 @@ module ClaimsApi
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/activeDutyEndDate",
           title: 'Invalid service period duty dates',
-          detail: "activeDutyEndDate (#{index}) needs to be after activeDutyBeginDate."
+          detail: 'Date Completed Active Duty. If in the future, separationLocationCode is required. ' \
+                  'Cannot be more than 180 days in the future, unless past service is also included.'
         )
       end
 
@@ -160,7 +161,8 @@ module ClaimsApi
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/activeDutyEndDate",
           title: 'Invalid end service period duty date',
-          detail: 'The active duty end date for this service period is more than 180 days in the future'
+          detail: 'Date Completed Active Duty. If in the future, separationLocationCode is required. ' \
+                  'Cannot be more than 180 days in the future, unless past service is also included.'
         )
       end
 
@@ -339,7 +341,7 @@ module ClaimsApi
         if mailing_address['city'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/city',
-            detail: 'City is required'
+            detail: 'City for the Veteran\'s current mailing address.'
           )
         end
 
@@ -357,7 +359,7 @@ module ClaimsApi
         if mailing_address['state'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/state',
-            detail: 'State is required for USA addresses'
+            detail: 'State for the Veteran\'s current mailing address. Required if country is USA.'
           )
         end
 
@@ -365,7 +367,7 @@ module ClaimsApi
         if mailing_address['zipFirstFive'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/zipFirstFive',
-            detail: 'ZipFirstFive is required for USA addresses'
+            detail: 'Zip code (First 5 digits) for the Veteran\'s current mailing address. Required if country is USA.'
           )
         end
 
@@ -374,7 +376,8 @@ module ClaimsApi
 
         collect_error(
           source: '/veteranIdentification/mailingAddress/internationalPostalCode',
-          detail: 'InternationalPostalCode should not be provided for USA addresses'
+          detail: 'International postal code for the Veteran\'s current mailing address. ' \
+                  'Do not include if country is USA.'
         )
       end
 
@@ -411,7 +414,8 @@ module ClaimsApi
         if country != 'USA' && mailing_address['internationalPostalCode'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/internationalPostalCode',
-            detail: 'InternationalPostalCode is required for non-USA addresses'
+            detail: 'International postal code for the Veteran\'s current mailing address. ' \
+                    'Do not include if country is USA.'
           )
         end
       end
@@ -483,7 +487,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/city',
-          detail: 'City is required'
+          detail: 'City for the Veteran\'s new address.'
         )
       end
 
@@ -492,8 +496,7 @@ module ClaimsApi
         return if change_of_address['state'].present?
 
         collect_error(
-          source: '/changeOfAddress/state',
-          detail: 'State is required'
+          source: '/changeOfAddress/state', detail: 'State for the Veteran\'s new address. Required if country is USA.'
         )
       end
 
@@ -503,7 +506,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/zipFirstFive',
-          detail: 'ZipFirstFive is required'
+          detail: 'Zip code (First 5 digits) for the Veteran\'s new address. Required if country is USA.'
         )
       end
 
@@ -519,7 +522,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/city',
-          detail: 'City is required'
+          detail: 'City for the Veteran\'s new address.'
         )
       end
 
@@ -529,7 +532,8 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/country',
-          detail: 'Country is required'
+          detail: 'Country for the Veteran\'s new address. Value must match the values returned by ' \
+                  'the /countries endpoint on the Benefits Reference Data API.'
         )
       end
 
@@ -539,7 +543,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/internationalPostalCode',
-          detail: 'InternationalPostalCode is required'
+          detail: 'International postal code for the Veteran\'s new address. Do not include if country is USA.'
         )
       end
 
@@ -640,7 +644,8 @@ module ClaimsApi
 
         collect_error(
           source: "/disabilities/#{index}/approximateDate",
-          detail: 'The approximateDate in primary disability must be in the past'
+          detail: 'Approximate date disability began. Date must be in the past. Format can be either ' \
+                  'YYYY-MM-DD or YYYY-MM or YYYY'
         )
       end
 
