@@ -253,8 +253,8 @@ module BGS
       generate_hash_from_details
     rescue
       @monitor.track_event('warn',
-                           'BGS::DependentV2Service#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
-                           "#{STATS_KEY}.submit_pdf.failure")
+                           'BGS::DependentV2Service#get_form_hash_686c failed',
+                           "#{STATS_KEY}.get_form_hash.failure", { error: 'Could not retrieve file number from BGS' })
       raise BgsServicesError
     end
 
