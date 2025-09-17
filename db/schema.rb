@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_27_155102) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -27,6 +27,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_27_155102) do
   create_enum "claims_evidence_api_submission_status", ["pending", "accepted", "failed"]
   create_enum "itf_remediation_status", ["unprocessed"]
   create_enum "lighthouse_submission_status", ["pending", "submitted", "failure", "vbms", "manually"]
+  create_enum "saved_claim_group_status", ["pending", "accepted", "failure", "processing", "success"]
   create_enum "user_action_status", ["initial", "success", "error"]
 
   create_table "account_login_stats", force: :cascade do |t|
@@ -638,6 +639,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_27_155102) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["processable_id", "processable_type"], name: "idx_on_processable_id_processable_type_91e46b55a4"
+  end
+
+  create_table "claims_api_record_metadata", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "metadata_ciphertext", null: false
+    t.string "record_type", null: false
+    t.uuid "record_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["record_type", "record_id"], name: "index_record_metadata_on_type_and_id"
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1433,6 +1443,20 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_27_155102) do
     t.datetime "updated_at", null: false
     t.index ["application_uuid"], name: "index_preneed_submissions_on_application_uuid", unique: true
     t.index ["tracking_number"], name: "index_preneed_submissions_on_tracking_number", unique: true
+  end
+
+  create_table "saved_claim_group", force: :cascade do |t|
+    t.uuid "claim_group_guid", null: false
+    t.integer "parent_claim_id", null: false, comment: "ID of the saved claim in vets-api"
+    t.integer "saved_claim_id", null: false, comment: "ID of the saved claim in vets-api"
+    t.enum "status", default: "pending", enum_type: "saved_claim_group_status"
+    t.jsonb "user_data_ciphertext", comment: "encrypted data that can be used to identify the associated user"
+    t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
+    t.boolean "needs_kms_rotation", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["claim_group_guid"], name: "index_saved_claim_group_on_claim_group_guid"
+    t.index ["needs_kms_rotation"], name: "index_saved_claim_group_on_needs_kms_rotation"
   end
 
   create_table "saved_claims", id: :serial, force: :cascade do |t|
