@@ -27,10 +27,7 @@ module TravelPay
     # @return [Faraday::Response] API response
     #
     def add_expense(veis_token, btsss_token, expense_type, body = {})
-      # Validate expense_type by looking up the endpoint
-      endpoint = ENDPOINT_MAP.fetch(expense_type.to_sym)[:add] do
-        raise ArgumentError, "Unsupported expense_type: #{expense_type}"
-      end
+      endpoint = expense_endpoint_for_type(expense_type, :add)
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
 
@@ -102,11 +99,7 @@ module TravelPay
       # Validate expense_id
       raise ArgumentError, 'Invalid expense_id' unless expense_id&.match?(UUID_REGEX)
 
-      # Validate expense_type by looking up the endpoint
-      endpoint_template = ENDPOINT_MAP.fetch(expense_type.to_sym)[:delete] do
-        raise ArgumentError, "Unsupported expense_type: #{expense_type}"
-      end
-
+      endpoint_template = expense_endpoint_for_type(expense_type, :delete)
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
       endpoint = format(endpoint_template, expense_id)
@@ -122,6 +115,15 @@ module TravelPay
           req.headers.merge!(claim_headers)
         end
       end
+    end
+
+    private
+
+    def expense_endpoint_for_type(expense_type, action = :add)
+      endpoint_data = ENDPOINT_MAP[expense_type.to_sym]
+      raise ArgumentError, "Unsupported expense_type: #{expense_type}" unless endpoint_data
+
+      endpoint_data[action]
     end
   end
 end
