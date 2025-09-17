@@ -7,9 +7,6 @@ module UnifiedHealthData
     class PrescriptionSerializer
       include JSONAPI::Serializer
 
-      set_type :Prescription
-      set_id :prescription_id
-
       # Core prescription attributes
       attributes :refill_status,
                  :refill_submit_date,
@@ -25,7 +22,7 @@ module UnifiedHealthData
                  :station_number,
                  :is_refillable,
                  :is_trackable,
-                 :trackingInformation,
+                 :tracking_information,
                  :prescription_source,
                  :instructions,
                  :facility_phone_number

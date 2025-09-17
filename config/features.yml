@@ -197,6 +197,9 @@ features:
   hca_ez_kafka_submission_enabled:
     actor_type: cookie_id
     description: Enables the 10-10EZ Kafka Event Bus submission
+  hca_disable_sentry_logging:
+    actor_type: user
+    description: Disables Sentry logging in the 10-10EZ and 10-10EZR
   hca_health_facilities_update_job:
     actor_type: user
     description: Enables the health facilities import job - should only run daily by default in prod, staging, and sandbox.
@@ -655,6 +658,10 @@ features:
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
+    enable_in_development: true
+  dependents_enable_form_viewer_mfe:
+    actor_type: user
+    description: enables display of form viewer microfrontend on 686 post-submission page
     enable_in_development: true
   dependents_enqueue_with_user_struct:
     actor_type: user

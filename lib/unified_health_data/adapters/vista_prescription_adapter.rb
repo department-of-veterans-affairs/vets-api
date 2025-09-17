@@ -3,6 +3,10 @@
 module UnifiedHealthData
   module Adapters
     class VistaPrescriptionAdapter
+      # Parses a VistA medication record into a UnifiedHealthData::Prescription
+      #
+      # @param medication [Hash] Raw medication data from VistA
+      # @return [UnifiedHealthData::Prescription, nil] Parsed prescription or nil if invalid
       def parse(medication)
         return nil if medication.nil? || medication['prescriptionId'].nil?
 
