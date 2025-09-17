@@ -1224,16 +1224,19 @@ RSpec.describe V1::SessionsController, type: :controller do
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_unknown_error) }
 
         it 'logs a generic error', :aggregate_failures do
-          expect(controller).to receive(:conditional_log_message_to_sentry).and_call_original
+          expect(controller).to receive(:conditional_log_message_to_sentry)
+            .and_call_original
             .with(
               'Login Failed! Other SAML Response Error(s)',
               :error,
-              [{ code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
-                                tag: :unknown,
-                                short_message: 'Other SAML Response Error(s)',
-                                level: :error,
-                                full_message: 'The status code of the Response was not Success, was Requester =>' \
-                                              ' NoAuthnContext -> AuthnRequest without an authentication context.' }]
+              [{
+                code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
+                tag: :unknown,
+                short_message: 'Other SAML Response Error(s)',
+                level: :error,
+                full_message: 'The status code of the Response was not Success, was Requester => ' \
+                              'NoAuthnContext -> AuthnRequest without an authentication context.'
+              }]
             )
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
@@ -1273,7 +1276,8 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'logs status_detail message to sentry' do
-          expect(controller).to receive(:conditional_log_message_to_sentry).and_call_original
+          expect(controller).to receive(:conditional_log_message_to_sentry)
+            .and_call_original
             .with(
               "<fim:FIMStatusDetail MessageID='could_not_perform_token_exchange'/>",
               :error,
@@ -1353,20 +1357,24 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'logs a generic error' do
-          expect(controller).to receive(:conditional_log_message_to_sentry).and_call_original
+          expect(controller).to receive(:conditional_log_message_to_sentry)
+            .and_call_original
             .with(
               'Login Failed! Subject did not consent to attribute release Multiple SAML Errors',
               :warn,
-              [{ code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE,
-                                tag: :clicked_deny,
-                                short_message: 'Subject did not consent to attribute release',
-                                level: :warn,
-                                full_message: 'Subject did not consent to attribute release' },
-                              { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
-                                tag: :unknown,
-                                short_message: 'Other SAML Response Error(s)',
-                                level: :error,
-                                full_message: 'Other random error' }]
+              [{
+                code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE,
+                tag: :clicked_deny,
+                short_message: 'Subject did not consent to attribute release',
+                level: :warn,
+                full_message: 'Subject did not consent to attribute release'
+              }, {
+                code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
+                tag: :unknown,
+                short_message: 'Other SAML Response Error(s)',
+                level: :error,
+                full_message: 'Other random error'
+              }]
             )
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
