@@ -270,7 +270,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       context 'when parsing raises an error' do
         let(:adapter_with_error) do
           adapter = described_class.new
-          allow(adapter).to receive(:build_prescription_attributes).and_raise(StandardError, 'Test error')
+          allow(adapter).to receive(:extract_refill_date).and_raise(StandardError, 'Test error')
           adapter
         end
 
