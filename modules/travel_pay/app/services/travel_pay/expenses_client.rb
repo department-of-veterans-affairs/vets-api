@@ -7,13 +7,16 @@ module TravelPay
   class ExpensesClient < TravelPay::BaseClient
     UUID_REGEX = /\A[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}\z/i
 
-    # A strict mapping from expense_type -> delete endpoint path
-    ENDPOINT_MAP = {
-      meal: { add: 'api/v1/expenses/meal', delete: 'api/v1/expenses/meal/%<expense_id>' },
-      mileage: { add: 'api/v2/expenses/mileage', delete: 'api/v2/expenses/mileage/%<expense_id>' },
-      parking: { add: 'api/v1/expenses/parking', delete: 'api/v1/expenses/parking/%<expense_id>' },
-      other: { add: 'api/v1/expenses/other', delete: 'api/v1/expenses/other/%<expense_id>' }
+    BASE_PATHS = {
+      meal: 'api/v1/expenses/meal',
+      mileage: 'api/v2/expenses/mileage',
+      parking: 'api/v1/expenses/parking',
+      other: 'api/v1/expenses/other'
     }.freeze
+
+    ENDPOINT_MAP = BASE_PATHS.transform_values do |base|
+      { add: base, delete: "#{base}/%<expense_id>s" }
+    end.freeze
 
     ##
     # Generic HTTP POST call to the BTSSS 'expenses' endpoints to add a new expense
@@ -102,7 +105,7 @@ module TravelPay
       endpoint_template = expense_endpoint_for_type(expense_type, :delete)
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      endpoint = format(endpoint_template, expense_id)
+      endpoint = format(endpoint_template, expense_id: expense_id) # rubocop:disable Style/HashSyntax
 
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       Rails.logger.info(message: "Deleting #{expense_type} expense to endpoint: #{endpoint}")
