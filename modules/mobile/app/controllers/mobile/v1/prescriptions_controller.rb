@@ -23,8 +23,6 @@ module Mobile
       end
 
       def refill
-        Rails.logger.info("Mobile V1 Prescription batch refill request for IDs: #{ids}")
-
         # Get all prescriptions to validate IDs and extract station numbers
         prescriptions = unified_health_service.get_prescriptions
 
