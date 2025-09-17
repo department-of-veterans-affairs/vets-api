@@ -46,7 +46,7 @@ module TravelClaim
       result = process_claim_submission
 
       # Send notification if feature flag is enabled
-      send_notification_if_enabled(result) if result['success']
+      send_notification_if_enabled if result['success']
 
       result
     rescue Common::Exceptions::BackendServiceException => e
@@ -57,7 +57,7 @@ module TravelClaim
       log_message(:error, 'Unexpected error', error_class: e.class.name)
       # Send error notification if feature flag is enabled
       send_error_notification_if_enabled(e)
-      raise_backend_service_exception('An unexpected error occurred')
+      raise e
     end
 
     private
@@ -65,7 +65,7 @@ module TravelClaim
     ##
     # Executes the complete claim submission workflow.
     #
-    # @return [Hash] success response with claim ID and submission data
+    # @return [Hash] success response with claim ID
     # @raise [Common::Exceptions::BackendServiceException] for API failures
     #
     def process_claim_submission
@@ -76,9 +76,9 @@ module TravelClaim
       submission_response = submit_claim_for_processing(claim_id)
 
       # Extract claim data from submission response for notifications
-      claim_number_last_four = extract_claim_number_last_four(submission_response)
+      @claim_number_last_four = extract_claim_number_last_four(submission_response)
 
-      { 'success' => true, 'claimId' => claim_id, 'claimNumberLastFour' => claim_number_last_four }
+      { 'success' => true, 'claimId' => claim_id }
     end
 
     ##
@@ -91,6 +91,27 @@ module TravelClaim
       raise_backend_service_exception('Appointment date is required', 400, 'VA902') if @appointment_date.blank?
       raise_backend_service_exception('Facility type is required', 400, 'VA903') if @facility_type.blank?
       raise_backend_service_exception('Uuid is required', 400, 'VA904') if @uuid.blank?
+
+      validate_appointment_date_format
+    end
+
+    ##
+    # Validates that appointment_date is in proper ISO 8601 format with time component
+    #
+    # @raise [ArgumentError] if appointment_date is not in valid ISO 8601 format
+    #
+    def validate_appointment_date_format
+      return if @appointment_date.blank?
+
+      begin
+        DateTime.iso8601(@appointment_date)
+      rescue ArgumentError
+        raise_backend_service_exception(
+          'Appointment date must be a valid ISO 8601 date-time (e.g., 2025-09-16T10:00:00Z)',
+          400,
+          'VA905'
+        )
+      end
     end
 
     ##
@@ -106,7 +127,6 @@ module TravelClaim
       appointment_id = response.body.dig('data', 0, 'id')
 
       unless appointment_id
-        log_metric('APPOINTMENT_ERROR')
         raise_backend_service_exception('Appointment could not be found or created', response.status)
       end
 
@@ -126,10 +146,7 @@ module TravelClaim
       response = client.send_claim_request(appointment_id:)
       claim_id = response.body.dig('data', 'claimId')
 
-      unless claim_id
-        log_metric('CLAIM_CREATE_ERROR')
-        raise_backend_service_exception('Failed to create claim', response.status)
-      end
+      raise_backend_service_exception('Failed to create claim', response.status) unless claim_id
 
       claim_id
     end
@@ -145,10 +162,7 @@ module TravelClaim
 
       response = client.send_mileage_expense_request(claim_id:, date_incurred: @appointment_date)
 
-      unless response.status == 200
-        log_metric('EXPENSE_ADD_ERROR')
-        raise_backend_service_exception('Failed to add expense', response.status)
-      end
+      raise_backend_service_exception('Failed to add expense', response.status) unless response.status == 200
     end
 
     ##
@@ -233,13 +247,11 @@ module TravelClaim
     ##
     # Sends a success notification if feature flag is enabled
     #
-    # @param result [Hash] the successful submission result
-    #
-    def send_notification_if_enabled(result)
+    def send_notification_if_enabled
       return unless notification_enabled?
 
       template_id = success_template_id
-      claim_number_last_four = result['claimNumberLastFour'] || 'unknown'
+      claim_number_last_four = @claim_number_last_four
 
       log_message(:info, 'Sending success notification',
                   template_id:, claim_last_four: claim_number_last_four)
@@ -260,7 +272,8 @@ module TravelClaim
     def send_error_notification_if_enabled(error)
       return unless notification_enabled?
 
-      template_id = error_template_id
+      template_id = determine_error_template_id(error)
+      claim_number_last_four = @claim_number_last_four || 'unknown'
 
       log_message(:info, 'Sending error notification',
                   template_id:, error_class: error.class.name)
@@ -269,7 +282,7 @@ module TravelClaim
         @uuid,
         format_appointment_date,
         template_id,
-        'unknown'
+        claim_number_last_four
       )
     end
 
@@ -306,6 +319,18 @@ module TravelClaim
         CheckIn::Constants::OH_ERROR_TEMPLATE_ID
       else
         CheckIn::Constants::CIE_ERROR_TEMPLATE_ID
+      end
+    end
+
+    ##
+    # Determines the appropriate error template ID based on the error type
+    #
+    def determine_error_template_id(error)
+      if error.is_a?(Common::Exceptions::BackendServiceException) &&
+         error.response_values[:detail]&.include?('already been created')
+        @facility_type&.downcase == 'oh' ? CheckIn::Constants::OH_DUPLICATE_TEMPLATE_ID : CheckIn::Constants::CIE_DUPLICATE_TEMPLATE_ID
+      else
+        error_template_id
       end
     end
 
