@@ -6,12 +6,13 @@ require_relative 'oracle_health_prescription_adapter'
 module UnifiedHealthData
   module Adapters
     class PrescriptionsAdapter
-      def initialize
+      def initialize(current_user = nil)
         @vista_adapter = VistaPrescriptionAdapter.new
         @oracle_adapter = OracleHealthPrescriptionAdapter.new
+        @current_user = current_user
       end
 
-      def parse(body, focused_only: false)
+      def parse(body, current_only: false)
         return [] if body.nil?
 
         prescriptions = []
@@ -24,19 +25,22 @@ module UnifiedHealthData
         oracle_medications = parse_oracle_medications(body)
         prescriptions.concat(oracle_medications) if oracle_medications.present?
 
-        # Apply focused filtering if requested
-        prescriptions = apply_focused_filtering(prescriptions) if focused_only
+        # Exclude certain prescriptions based on business rules
+        prescriptions.reject! { |prescription| should_exclude_prescription?(prescription) }
+
+        # Apply current filtering if requested
+        prescriptions = apply_current_filtering(prescriptions) if current_only
 
         prescriptions
       end
 
       private
 
-      def apply_focused_filtering(prescriptions)
-        filtered = prescriptions.reject { |prescription| should_exclude_prescription?(prescription) }
+      def apply_current_filtering(prescriptions)
+        filtered = prescriptions.reject { |prescription| prescription_not_current?(prescription) }
 
         Rails.logger.info(
-          message: 'Applied focused filtering to prescriptions',
+          message: 'Applied current filtering to prescriptions',
           original_count: prescriptions.size,
           filtered_count: filtered.size,
           excluded_count: prescriptions.size - filtered.size
@@ -45,15 +49,7 @@ module UnifiedHealthData
         filtered
       end
 
-      def should_exclude_prescription?(prescription)
-        # Mirror logic from Mobile::V0::PrescriptionsController#resource_data_modifications
-
-        # Exclude Partial Fill (PF) and Pending Prescriptions (PD)
-        return true if %w[PF PD].include?(prescription.prescription_source)
-
-        # Exclude Non-VA (NV) medications
-        return true if prescription.prescription_source == 'NV'
-
+      def prescription_not_current?(prescription)
         # Exclude discontinued/expired medications that are older than 180 days
         if %w[discontinued expired].include?(prescription.refill_status) &&
            prescription.expiration_date.present?
@@ -66,6 +62,21 @@ module UnifiedHealthData
             rx_suffix = prescription.id.to_s.last(4)
             Rails.logger.warn("Invalid expiration date for rx ending in #{rx_suffix}: #{prescription.expiration_date}")
           end
+        end
+
+        false
+      end
+
+      def should_exclude_prescription?(prescription)
+        # Mirror logic from Mobile::V0::PrescriptionsController#resource_data_modifications
+
+        # Exclude Partial Fill (PF) and Pending Prescriptions (PD)
+        display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, @current_user)
+        if display_pending_meds
+          return true if prescription.prescription_source == 'PF'
+        elsif %w[PF PD].include?(prescription.prescription_source)
+          # TODO: remove this line when PF and PD are allowed on the app
+          return true
         end
 
         false

@@ -85,14 +85,11 @@ module UnifiedHealthData
 
     # Retrieves prescriptions for the current user from unified health data sources
     #
-    # @param focused_only [Boolean] When true, applies mobile app filtering logic to exclude:
-    #   - PF (Partial Fill) prescriptions
-    #   - PD (Pending) prescriptions
-    #   - NV (Non-VA) medications
+    # @param current_only [Boolean] When true, applies filtering logic to exclude:
     #   - Discontinued/expired medications older than 180 days
     #   Defaults to false to return all prescriptions without filtering
     # @return [Array<UnifiedHealthData::Prescription>] Array of prescription objects
-    def get_prescriptions(focused_only: false)
+    def get_prescriptions(current_only: false)
       with_monitoring do
         patient_id = @user.icn
         path = "#{config.base_path}medications?patientId=#{patient_id}"
@@ -100,13 +97,13 @@ module UnifiedHealthData
         response = perform(:get, path, nil, request_headers)
         body = parse_response_body(response.body)
 
-        adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new
-        prescriptions = adapter.parse(body, focused_only:)
+        adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new(@user)
+        prescriptions = adapter.parse(body, current_only:)
 
         Rails.logger.info(
           message: 'UHD prescriptions retrieved',
           total_prescriptions: prescriptions.size,
-          focused_filtering_applied: focused_only,
+          current_filtering_applied: current_only,
           service: 'unified_health_data'
         )
 
