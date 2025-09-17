@@ -376,7 +376,6 @@ app/serializers/hca_rating_info_serializer.rb @department-of-veterans-affairs/vf
 app/serializers/health_care_application_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/serializers/in_progress_form_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/serializers/intent_to_file_serializer.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
-app/serializers/lab_or_test_serializer.rb @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 app/serializers/letter_beneficiary_serializer.rb @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/backend-review-group
 app/serializers/letters_serializer.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 app/serializers/lighthouse @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/backend-review-group
