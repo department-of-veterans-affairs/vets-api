@@ -93,6 +93,7 @@ module VaNotify
         define_method(:validate_uuids!) do |*uuids|
           uuids.each do |uuid|
             next if valid_token?(uuid)
+
             raise ArgumentError, "Invalid token format: #{uuid}"
           end
         end

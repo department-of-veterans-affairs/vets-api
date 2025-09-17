@@ -407,9 +407,10 @@ describe VaNotify::Service do
     end
   end
 
+  # rubocop:disable Layout/LineLength
   describe '#overwrite_uuid_validation' do
-  # allocate is called to elongate evaluation of #new to manipulate what occurs in Speaker#initialize
-  # Service is allocated memory explicitly, since overwrite_uuid_validation occurs within Service#initialize
+    # allocate is called to elongate evaluation of #new to manipulate what occurs in Speaker#initialize
+    # Service is allocated memory explicitly, since overwrite_uuid_validation occurs within Service#initialize
     let(:service) { described_class.allocate }
     let(:speaker) { Notifications::Client::Speaker.allocate }
 
@@ -434,8 +435,9 @@ describe VaNotify::Service do
     end
 
     it 'rejects tokens with invalid characters' do
-      invalid_token = 'A' * 86 + '!@#'
+      invalid_token = "#{'A' * 86}!@#"
       expect { speaker.send(:validate_uuids!, invalid_token) }.to raise_error(ArgumentError, /Invalid token format/)
     end
+    # rubocop:enable Layout/LineLength
   end
 end
