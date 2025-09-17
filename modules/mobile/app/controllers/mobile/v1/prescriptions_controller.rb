@@ -15,7 +15,7 @@ module Mobile
 
         Rails.logger.info('Mobile V1 Prescriptions API call started')
 
-        prescriptions = unified_health_service.get_prescriptions
+        prescriptions = unified_health_service.get_prescriptions(focused_only: true)
 
         meta = generate_mobile_metadata(prescriptions)
         serialized_data = UnifiedHealthData::Serializers::PrescriptionSerializer.new(prescriptions).serializable_hash
@@ -24,7 +24,7 @@ module Mobile
 
       def refill
         # Get all prescriptions to validate IDs and extract station numbers
-        prescriptions = unified_health_service.get_prescriptions
+        prescriptions = unified_health_service.get_prescriptions(focused_only: true)
 
         # Build orders array with id and stationNumber for each requested prescription
         orders = ids.map do |prescription_id|
