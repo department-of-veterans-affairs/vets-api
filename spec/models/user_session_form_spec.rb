@@ -134,7 +134,7 @@ RSpec.describe UserSessionForm, type: :model do
 
           it 'logs a message to Rails logger' do
             expect(Rails.logger).to receive(:warn).with(
-              "[Models][UserSessionForm] Failed Add CSP ID to MPI FAILED",
+              '[Models][UserSessionForm] Failed Add CSP ID to MPI FAILED',
               idme: idme_uuid
             )
             UserSessionForm.new(saml_response)
