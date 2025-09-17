@@ -154,18 +154,18 @@ describe TravelPay::ExpensesClient do
         .and_yield(request_double)
         .and_return(mock_response)
 
-      response = client.delete_expense(veis_token, btsss_token, 'other', expense_id)
+      response = client.delete_expense(veis_token, btsss_token, expense_id, 'other')
       expect(response.body['success']).to be(true)
       expect(response.body['data']['id']).to eq(expense_id)
     end
 
     it 'raises an error when expense_id is not a valid UUID' do
-      expect { client.delete_expense(veis_token, btsss_token, 'other', 'not-a-uuid') }
+      expect { client.delete_expense(veis_token, btsss_token, 'not-a-uuid', 'other') }
         .to raise_error(ArgumentError, /Invalid expense_id/)
     end
 
     it 'raises an error when expense type is unsupported' do
-      expect { client.delete_expense(veis_token, btsss_token, 'unknown_type', expense_id) }
+      expect { client.delete_expense(veis_token, btsss_token, expense_id, 'unknown_type') }
         .to raise_error(ArgumentError, /Unsupported expense_type/)
     end
 
@@ -179,7 +179,7 @@ describe TravelPay::ExpensesClient do
         .and_yield(request_double)
         .and_return(mock_response)
 
-      client.delete_expense(veis_token, btsss_token, 'other', expense_id)
+      client.delete_expense(veis_token, btsss_token, expense_id, 'other')
 
       expect(headers_hash['Authorization']).to eq("Bearer #{veis_token}")
       expect(headers_hash['BTSSS-Access-Token']).to eq(btsss_token)
@@ -191,7 +191,7 @@ describe TravelPay::ExpensesClient do
         mock_response = instance_double(Faraday::Response, status: 400, body: { 'error' => 'Bad Request' })
         allow(connection_double).to receive(:delete).and_return(mock_response)
 
-        response = client.delete_expense(veis_token, btsss_token, 'other', expense_id)
+        response = client.delete_expense(veis_token, btsss_token, expense_id, 'other')
         expect(response.status).to eq(400)
         expect(response.body['error']).to eq('Bad Request')
       end
@@ -200,7 +200,7 @@ describe TravelPay::ExpensesClient do
         mock_response = instance_double(Faraday::Response, status: 403, body: { 'error' => 'Forbidden' })
         allow(connection_double).to receive(:delete).and_return(mock_response)
 
-        response = client.delete_expense(veis_token, btsss_token, 'other', expense_id)
+        response = client.delete_expense(veis_token, btsss_token, expense_id, 'other')
         expect(response.status).to eq(403)
         expect(response.body['error']).to eq('Forbidden')
       end
@@ -209,7 +209,7 @@ describe TravelPay::ExpensesClient do
         mock_response = instance_double(Faraday::Response, status: 404, body: { 'error' => 'Not Found' })
         allow(connection_double).to receive(:delete).and_return(mock_response)
 
-        response = client.delete_expense(veis_token, btsss_token, 'other', expense_id)
+        response = client.delete_expense(veis_token, btsss_token, expense_id, 'other')
         expect(response.status).to eq(404)
         expect(response.body['error']).to eq('Not Found')
       end
@@ -218,7 +218,7 @@ describe TravelPay::ExpensesClient do
         mock_response = instance_double(Faraday::Response, status: 500, body: { 'error' => 'Internal Server Error' })
         allow(connection_double).to receive(:delete).and_return(mock_response)
 
-        response = client.delete_expense(veis_token, btsss_token, 'other', expense_id)
+        response = client.delete_expense(veis_token, btsss_token, expense_id, 'other')
         expect(response.status).to eq(500)
         expect(response.body['error']).to eq('Internal Server Error')
       end

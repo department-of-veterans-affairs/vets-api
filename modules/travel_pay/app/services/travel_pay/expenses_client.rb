@@ -98,7 +98,7 @@ module TravelPay
     # @param expense_id [String] UUID of the expense
     # @return [Faraday::Response] API response
     #
-    def delete_expense(veis_token, btsss_token, expense_type, expense_id)
+    def delete_expense(veis_token, btsss_token, expense_id, expense_type)
       # Validate expense_id
       raise ArgumentError, 'Invalid expense_id' unless expense_id&.match?(UUID_REGEX)
 
