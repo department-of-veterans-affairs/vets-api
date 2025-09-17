@@ -2031,6 +2031,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
+  va_online_scheduling_list_view_clinic_info:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to to display clinic name and location on appointment list and print views.
   vaos_appointment_notification_callback:
     actor_type: user
     enable_in_development: true
