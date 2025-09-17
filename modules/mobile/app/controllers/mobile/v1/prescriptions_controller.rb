@@ -47,7 +47,7 @@ module Mobile
       end
 
       def validate_feature_flag
-        unless Flipper.enabled?(:mobile_prescriptions_v1, current_user)
+        unless Flipper.enabled?(:mhv_medications_cerner_pilot, current_user)
           render json: {
             error: {
               code: 'FEATURE_NOT_AVAILABLE',
