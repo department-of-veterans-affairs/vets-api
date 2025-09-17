@@ -183,6 +183,10 @@ features:
     actor_type: user
     description: Add logging for the 10-10EZ around cleaning up InProgressForms after submission
     enable_in_development: true
+  hca_in_progress_form_delete_async:
+    actor_type: user
+    description: Enables deleting an InProgressForm in a sidekiq job
+    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -656,6 +660,10 @@ features:
     actor_type: user
     description: Manage whether the enqueued job for 686c and 674 will be with a User model or the new User struct
     enable_in_development: true
+  dependents_log_vbms_errors:
+    actor_type: user
+    description: Log VBMS errors when submitting 686c and 674
+    enable_in_development: true
   dependents_module_enabled:
     actor_type: user
     description: Enables new Dependents module
@@ -1081,6 +1089,9 @@ features:
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
+  form_pdf_change_detection:
+    actor_type: user
+    description: If enabled runs the FormPdfChangeDetectionJob daily
   get_help_ask_form:
     actor_type: user
     description: Enables inquiry form for users to submit questions, suggestions, and complaints.
@@ -1181,6 +1192,22 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
+  medical_expense_reports_form_enabled:
+    actor_type: user
+    description: Enables the Medical Expense Reports form (Form 21P-8416)
+    enable_in_development: true
+  medical_expense_reports_browser_monitoring_enabled:
+    actor_type: user
+    description: Medical Expense Reports Datadog RUM monitoring
+  medical_expense_reports_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  medical_expense_reports_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  medical_expense_reports_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
   mhv_accelerated_delivery_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching MR data from LightHouse
@@ -1542,10 +1569,6 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
-  pension_medical_evidence_clarification:
-    actor_type: user
-    description: >
-      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -1945,10 +1968,13 @@ features:
     description: Toggles new features for the dependents verification form
   va_dependents_v2:
     actor_type: user
-    description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
+    description: Allows us to toggle between V1 and V2 of the 686c-674 forms.
   va_dependents_v2_banner:
     actor_type: user
     description: Allows us to toggle a form maintenance banner on the V1 form for pre-launch.
+  va_dependents_v3:
+    actor_type: user
+    description: Allows us to toggle v3 of the 686c-674 form.
   va_dependents_bgs_extra_error_logging:
     actor_type: user
     description: Allows us to toggle extra error logging for BGS in 686C-674
@@ -2294,6 +2320,13 @@ features:
       A switch that toggles the availability of the expense and document submission features for travel pay claims. This feature flag can be retired when the feature is deployed to 100% of logged-in users in production for > 30 days.
       Enabled - Requests are handled as normal. Users can submit various types of expenses (mileage, lodging, meal, other) to their travel pay claims. Users can upload documents to their travel claims.
       Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
+  travel_pay_exclude_expense_placeholder_receipt:
+    actor_type: user
+    enable_in_development: false
+    description: >-
+      A switch for a workaround for the API's requirement of receipts with expenses.
+      Enabled - Excludes the placeholder expenseReceipt object on Travel Pay expense create
+      Disabled - Placeholder receipt is included
   travel_pay_submit_mileage_expense:
     actor_type: user
     enable_in_development: true
@@ -2321,6 +2354,13 @@ features:
       The intention behind this flag is to be able deploy the decision reason parsing functionality ahead of the front-end display (travel_pay_claims_management_decision_reason) to gather data logs and ensure a working state.
       Enabled - Decision letter documents are parsed and the decision reason is extracted.
       Disabled - Decision letter documents are not parsed for the decision reason.
+  travel_pay_appt_add_v4_upgrade:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the use of the v4 Travel Pay API for /appointments/find-or-add.
+      Enabled - The find_or_create method will use Travel Pay API v4.
+      Disabled - The find_or_create method will use Travel Pay API v2.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
@@ -2352,10 +2392,6 @@ features:
   search_use_v2_gsa:
     actor_type: cookie_id
     description: Swaps the Search Service's for one with an updated api.gsa.gov address
-    enable_in_development: true
-  override_address_pou:
-    actor_type: user
-    description: If enabled, ADDRESS_POU == RESIDENCE/CHOICE
     enable_in_development: true
   show_yellow_ribbon_table:
     actor_type: cookie_id

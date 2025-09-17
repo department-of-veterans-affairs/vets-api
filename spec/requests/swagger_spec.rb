@@ -3002,6 +3002,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     context 'create' do
       let(:mhv_user) { build(:user, :loa3, :with_terms_of_use_agreement) }
 
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, instance_of(User)).and_return(false)
+      end
+
       it 'returns unauthorized for unauthorized user' do
         expect(subject).to validate(:post, '/travel_pay/v0/claims', 401)
       end

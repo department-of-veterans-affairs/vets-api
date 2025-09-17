@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'securerandom'
+require 'base64'
 
 module TravelPay
   class ExpensesService
@@ -68,12 +69,34 @@ module TravelPay
     # @return [Hash] The formatted request body
     #
     def build_expense_request_body(params)
-      {
+      request_body = {
         'claimId' => params['claim_id'],
         'dateIncurred' => params['purchase_date'],
         'description' => params['description'],
-        'amount' => params['cost_requested'],
+        'costRequested' => params['cost_requested'],
         'expenseType' => params['expense_type']
+      }
+
+      # Include placeholder receipt unless feature flag is enabled to exclude it
+      unless Flipper.enabled?(:travel_pay_exclude_expense_placeholder_receipt)
+        request_body['expenseReceipt'] = build_placeholder_receipt
+      end
+
+      request_body
+    end
+
+    ##
+    # Builds the smallest possible placeholder receipt that satisfies the client contract
+    #
+    # @return [Hash] The minimal placeholder receipt data
+    #
+    def build_placeholder_receipt
+      placeholder_data = 'placeholder'
+      {
+        'contentType' => 'text/plain',
+        'length' => placeholder_data.length,
+        'fileName' => 'placeholder.txt',
+        'fileData' => Base64.strict_encode64(placeholder_data)
       }
     end
 

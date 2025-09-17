@@ -16,13 +16,13 @@ RSpec.describe TravelClaim::TravelPayClient do
   let(:test_veis_token) { 'fake_veis_token_123' }
   let(:test_btsss_token) { 'fake_btsss_token_456' }
   let(:test_appointment_id) { 'appt-123' }
-  let(:test_claim_id) { 'claim-123' }
+  let(:test_claim_id) { 'claim-456' }
   let(:test_date_incurred) { '2024-01-15' }
   let(:test_client_number) { 'fake_client_number' }
   let(:test_veis_access_token) { 'fake_veis_token_123' }
 
   # Settings constants
-  let(:auth_url) { 'https://dev.integration.d365.va.gov' }
+  let(:auth_url) { 'https://login.microsoftonline.us' }
   let(:tenant_id) { 'fake_template_id' }
   let(:travel_pay_client_id) { 'fake_client_id' }
   let(:travel_pay_client_secret) { 'fake_client_secret' }
