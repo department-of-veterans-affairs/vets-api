@@ -659,6 +659,10 @@ features:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
     enable_in_development: true
+  dependents_enable_form_viewer_mfe:
+    actor_type: user
+    description: enables display of form viewer microfrontend on 686 post-submission page
+    enable_in_development: true
   dependents_enqueue_with_user_struct:
     actor_type: user
     description: Manage whether the enqueued job for 686c and 674 will be with a User model or the new User struct
