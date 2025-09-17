@@ -52,9 +52,8 @@ RSpec.describe Kafka::EventBusSubmissionJob, type: :job do
     end
 
     it 'tracks submission exhaustion and emits StatsD metric' do
-      described_class.within_sidekiq_retries_exhausted_block(exhaustion_msg) do
-        expect(StatsD).to receive(:increment).with('api.kafka_service.exhausted', tags: anything)
-      end
+      expect(StatsD).to receive(:increment).with('api.kafka_service.exhausted', tags: anything)
+      described_class.sidekiq_retries_exhausted_block.call(exhaustion_msg)
     end
   end
 end
