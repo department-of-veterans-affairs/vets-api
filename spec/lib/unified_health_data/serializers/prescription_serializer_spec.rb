@@ -23,7 +23,7 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       station_number: '589',
       is_refillable: true,
       is_trackable: true,
-      trackingInformation: {},
+      tracking_information: {},
       instructions: 'Take twice daily with meals',
       facility_phone_number: '555-123-4567',
       prescription_source: 'VA'
@@ -45,7 +45,7 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       expect(attributes[:is_refillable]).to be(true)
       expect(attributes[:is_trackable]).to be(true)
       expect(attributes[:prescription_source]).to eq('VA')
-      expect(attributes[:trackingInformation]).to eq({})
+      expect(attributes[:tracking_information]).to eq({})
     end
 
     it 'includes aliased attributes' do
@@ -63,7 +63,7 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       expect(result[:data][:id]).to eq('12345')
     end
 
-    context 'when trackingInformation is empty' do
+    context 'when tracking_information is empty' do
       let(:prescription) do
         UnifiedHealthData::Prescription.new(
           id: '67890',
@@ -75,11 +75,11 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
         )
       end
 
-      it 'includes empty trackingInformation hash' do
+      it 'includes empty tracking_information hash' do
         result = subject.serializable_hash
         attributes = result[:data][:attributes]
 
-        expect(attributes[:trackingInformation]).to eq({})
+        expect(attributes[:tracking_information]).to eq({})
       end
     end
   end

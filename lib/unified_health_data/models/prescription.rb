@@ -21,7 +21,7 @@ module UnifiedHealthData
     attribute :station_number, String
     attribute :is_refillable, Bool
     attribute :is_trackable, Bool
-    attribute :trackingInformation, Hash, default: {}
+    attribute :tracking_information, Hash, default: {}
     attribute :instructions, String
     attribute :facility_phone_number, String
     attribute :prescription_source, String

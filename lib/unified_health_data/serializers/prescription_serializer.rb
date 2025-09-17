@@ -22,7 +22,7 @@ module UnifiedHealthData
                  :station_number,
                  :is_refillable,
                  :is_trackable,
-                 :trackingInformation,
+                 :tracking_information,
                  :prescription_source,
                  :instructions,
                  :facility_phone_number
