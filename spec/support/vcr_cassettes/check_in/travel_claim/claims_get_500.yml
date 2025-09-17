@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<TRAVEL_CLAIM_API_URL>/api/v3/claims/claim-123"
+    uri: "<TRAVEL_CLAIM_API_URL>/api/v3/claims/claim-456"
     body:
       encoding: UTF-8
       string: ''
