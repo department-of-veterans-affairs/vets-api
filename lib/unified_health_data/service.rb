@@ -17,7 +17,7 @@ require_relative 'adapters/conditions_adapter'
 require_relative 'logging'
 
 module UnifiedHealthData
-  class Service < Common::Client::Base
+  class Service < Common::Client::Base # rubocop:disable Metrics/ClassLength
     STATSD_KEY_PREFIX = 'api.uhd'
     include Common::Client::Concerns::Monitoring
 
@@ -539,4 +539,4 @@ module UnifiedHealthData
       @logger ||= UnifiedHealthData::Logging.new(@user)
     end
   end
-end
+end # rubocop:enable Metrics/ClassLength
