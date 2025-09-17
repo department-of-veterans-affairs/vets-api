@@ -4,118 +4,122 @@ require 'rails_helper'
 require 'debts_api/v0/digital_dispute_dmc_service'
 
 RSpec.describe DebtsApi::V0::DigitalDisputeJob, type: :worker do
-  subject(:worker) { described_class.new }
-
-  let(:submission_id) { 123 }
-  let(:user_account)  { instance_double(UserAccount, icn: '1000123456V123456') }
-  let(:submission)    { instance_double(DebtsApi::V0::DigitalDisputeSubmission, user_account:) }
-
-  let(:mpi_profile)   { instance_double(MPI::Models::MviProfile, participant_id: '1234567', ssn: '111223333') }
-  let(:mpi_response)  { instance_double(MPI::Responses::FindProfileResponse, profile: mpi_profile) }
-
-  let(:service_double)   { instance_double(DebtsApi::V0::DigitalDisputeDmcService) }
-  let(:in_progress_form) { instance_double(InProgressForm) }
-
-  before do
-    # Submission lookup shared by examples
-    allow(DebtsApi::V0::DigitalDisputeSubmission).to receive(:find).with(submission_id).and_return(submission)
-
-    # Submission hooks used in multiple paths
-    allow(submission).to receive(:register_success)
-    allow(submission).to receive(:register_failure)
-  end
-
   describe '#perform' do
+    let(:user) { create(:user, :loa3) }
+    let!(:submission) do
+      create(:debts_api_digital_dispute_submission,
+             user_uuid: user.uuid,
+             user_account: user.user_account,
+             state: :pending)
+    end
+
+    let(:mpi_service) { instance_double(MPI::Service) }
+    let(:mpi_profile) { OpenStruct.new(participant_id: user.participant_id, ssn: user.ssn) }
+    let(:mpi_resp)    { OpenStruct.new(profile: mpi_profile) }
+
     before do
       stub_const('MPI::Constants::ICN', 'ICN')
 
-      allow(MPI::Service).to receive(:new).and_return(
-        instance_double(MPI::Service, find_profile_by_identifier: mpi_response)
-      )
+      allow(MPI::Service).to receive(:new).and_return(mpi_service)
+      allow(mpi_service).to receive(:find_profile_by_identifier)
+        .with(hash_including(identifier: user.user_account.icn, identifier_type: 'ICN'))
+        .and_return(mpi_resp)
 
-      allow(DebtsApi::V0::DigitalDisputeDmcService).to receive(:new).and_return(service_double)
-      allow(service_double).to receive(:call!)
-
-      # Define current_user on the subject (not an RSpec stub) to satisfy the helper
-      worker.define_singleton_method(:current_user) { Object.new }
-
-      # Stub collaborator instead of stubbing the subject (#in_progress_form)
-      allow(InProgressForm).to receive(:form_for_user)
-        .with('DISPUTE-DEBT', anything)
-        .and_return(in_progress_form)
-      allow(in_progress_form).to receive(:destroy)
+      allow(DebtsApi::V0::DigitalDisputeSubmission).to receive(:find)
+        .with(submission.id).and_return(submission)
     end
 
-    it 'processes the submission via call!, marks success, and clears in-progress form' do
-      worker.perform(submission_id)
+    context 'success' do
+      it 'builds the DMC service with MPI user, calls it, marks success, and clears the in-progress form' do
+        service = instance_double(DebtsApi::V0::DigitalDisputeDmcService, call!: true)
+        expect(DebtsApi::V0::DigitalDisputeDmcService).to receive(:new)
+          .with(have_attributes(participant_id: user.participant_id, ssn: user.ssn), submission)
+          .and_return(service)
 
-      expect(DebtsApi::V0::DigitalDisputeDmcService).to have_received(:new) do |user, given_submission|
-        expect(given_submission).to eq(submission)
-        expect(user.participant_id).to eq('1234567')
-        expect(user.ssn).to eq('111223333')
+        form_double = instance_double(InProgressForm, destroy: true)
+        expect(InProgressForm).to receive(:form_for_user)
+          .with('DISPUTE-DEBT', anything)
+          .and_return(form_double)
+
+        expect(submission).to receive(:register_success)
+
+        described_class.new.perform(submission.id)
       end
-
-      expect(service_double).to have_received(:call!)
-      expect(submission).to have_received(:register_success)
-      expect(in_progress_form).to have_received(:destroy)
-      expect(InProgressForm).to have_received(:form_for_user).with('DISPUTE-DEBT', anything)
     end
 
-    it 're-raises on failure from call! and logs an error' do
-      allow(service_double).to receive(:call!).and_raise(StandardError, 'boom')
-      logger = double('Logger').as_null_object
-      allow(Rails).to receive(:logger).and_return(logger)
+    context 'when the DMC service raises' do
+      it 'logs and re-raises; does not mark success' do
+        service = instance_double(DebtsApi::V0::DigitalDisputeDmcService)
+        allow(DebtsApi::V0::DigitalDisputeDmcService).to receive(:new).and_return(service)
+        allow(service).to receive(:call!).and_raise(StandardError, 'boom')
 
-      expect { worker.perform(submission_id) }.to raise_error(StandardError, 'boom')
+        expect(Rails.logger).to receive(:error)
+          .with(a_string_matching(/DigitalDisputeJob failed for submission_id #{submission.id}: boom/))
+        expect(submission).not_to receive(:register_success)
 
-      expect(submission).not_to have_received(:register_success)
-      expect(logger).to have_received(:error).with(
-        /DigitalDisputeJob failed for submission_id #{submission_id}: boom/
-      )
+        expect { described_class.new.perform(submission.id) }
+          .to raise_error(StandardError, 'boom')
+      end
     end
 
-    it 'does nothing if in_progress_form is nil' do
-      # Keep current_user defined on the instance
-      worker.define_singleton_method(:current_user) { Object.new }
-      allow(InProgressForm).to receive(:form_for_user).and_return(nil)
+    context 'when no in-progress form exists' do
+      it 'still marks success' do
+        service = instance_double(DebtsApi::V0::DigitalDisputeDmcService, call!: true)
+        expect(DebtsApi::V0::DigitalDisputeDmcService).to receive(:new)
+          .with(have_attributes(participant_id: user.participant_id, ssn: user.ssn), submission)
+          .and_return(service)
 
-      expect { worker.perform(submission_id) }.not_to raise_error
-      expect(submission).to have_received(:register_success)
+        expect(InProgressForm).to receive(:form_for_user)
+          .with('DISPUTE-DEBT', anything)
+          .and_return(nil)
+
+        expect(submission).to receive(:register_success)
+
+        described_class.new.perform(submission.id)
+      end
     end
   end
 
   describe 'sidekiq_retries_exhausted hook' do
-    it 'increments StatsD with the submission stats key, registers failure, and logs' do
-      # Cross-version retrieval of the configured exhausted block
-      exhausted_proc =
-        if described_class.respond_to?(:sidekiq_retries_exhausted_block)
-          described_class.sidekiq_retries_exhausted_block
-        elsif described_class.respond_to?(:get_sidekiq_options)
-          described_class.get_sidekiq_options['retries_exhausted'] ||
-            described_class.get_sidekiq_options[:retries_exhausted]
-        else
-          opts = described_class.sidekiq_options
-          opts['retries_exhausted'] || opts[:retries_exhausted]
-        end
+    let(:config) { described_class }
 
-      expect(exhausted_proc).to be_a(Proc)
+    let(:user) { create(:user, :loa3) }
+    let!(:submission) do
+      create(:debts_api_digital_dispute_submission,
+             user_uuid: user.uuid,
+             user_account: user.user_account,
+             state: :pending)
+    end
 
+    let(:msg) { { 'class' => config.name, 'args' => [submission.id], 'jid' => 'abc123', 'retry_count' => 25 } }
+
+    let(:ex) do
+      e = StandardError.new('kaput')
+      allow(e).to receive(:backtrace).and_return(%w[backtrace1 backtrace2])
+      e
+    end
+
+    it 'increments StatsD, registers failure, and logs details' do
+      expected_log = <<~LOG
+        V0::DigitalDisputeJob retries exhausted:
+        submission_id: #{submission.id}
+        Exception: #{ex.class} - #{ex.message}
+        Backtrace: #{ex.backtrace.join("\n")}
+      LOG
+
+      # StatsD key used by the job
       stub_const('DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY', 'debts_api.v0.digital_dispute')
-      allow(StatsD).to receive(:increment)
+      expect(StatsD).to receive(:increment).with('debts_api.v0.digital_dispute.retries_exhausted')
 
-      logger = double('Logger').as_null_object
-      allow(Rails).to receive(:logger).and_return(logger)
+      # Let the hook load the record for real, but assert failure handling on it
+      expect(DebtsApi::V0::DigitalDisputeSubmission).to receive(:find).with(submission.id).and_call_original
+      expect_any_instance_of(DebtsApi::V0::DigitalDisputeSubmission)
+        .to receive(:register_failure).with('VBASubmissionJob#perform: kaput')
 
-      ex = StandardError.new('kaput')
-      allow(ex).to receive(:backtrace).and_return(%w[line1 line2])
+      expect(Rails.logger).to receive(:error).with(expected_log)
 
-      job_hash = { 'args' => [submission_id] }
-
-      exhausted_proc.call(job_hash, ex)
-
-      expect(StatsD).to have_received(:increment).with('debts_api.v0.digital_dispute.retries_exhausted')
-      expect(submission).to have_received(:register_failure).with('VBASubmissionJob#perform: kaput')
-      expect(logger).to have_received(:error).with(a_string_matching(/V0::DigitalDisputeJob retries exhausted:/))
+      # Call the hook directly, like your other job spec
+      config.sidekiq_retries_exhausted_block.call(msg, ex)
     end
   end
 end
