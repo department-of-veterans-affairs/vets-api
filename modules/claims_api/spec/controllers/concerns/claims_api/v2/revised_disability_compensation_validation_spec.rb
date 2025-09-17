@@ -565,7 +565,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/changeOfAddress/dates/beginDate')
           expect(errors.first[:title]).to eq('Unprocessable Entity')
-          expect(errors.first[:detail]).to eq('beginningDate is required for temporary address')
+          expect(errors.first[:detail]).to eq('Begin date for the Veteran\'s new address.')
         end
       end
 
@@ -591,7 +591,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/changeOfAddress/dates/endDate')
           expect(errors.first[:title]).to eq('Unprocessable Entity')
-          expect(errors.first[:detail]).to eq('EndingDate is required for temporary address')
+          expect(errors.first[:detail]).to eq('Date in YYYY-MM-DD the changed address expires, if change is temporary.')
         end
       end
 
@@ -619,7 +619,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/changeOfAddress/dates/endDate')
           expect(errors.first[:title]).to eq('Unprocessable Entity')
-          expect(errors.first[:detail]).to eq('EndingDate cannot be provided for a permanent address')
+          expect(errors.first[:detail]).to eq('Date in YYYY-MM-DD the changed address expires, if change is temporary.')
         end
       end
 
@@ -694,8 +694,8 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors).to be_an(Array)
           expect(errors.any? do |e|
             e[:source] == '/changeOfAddress/dates/beginDate' &&
-              e[:title] == 'Invalid beginningDate' &&
-              e[:detail].include?('BeginningDate cannot be in the past')
+              e[:title] == 'Invalid beginDate' &&
+              e[:detail] == 'Begin date for the Veteran\'s new address.'
           end).to be true
         end
       end
@@ -721,7 +721,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         it 'returns validation error for invalid date order' do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
-          expect(errors.any? { |e| e[:detail].include?('BeginningDate cannot be after endingDate') }).to be true
+          expect(errors.any? { |e| e[:detail] == 'Begin date for the Veteran\'s new address.' }).to be true
         end
       end
 

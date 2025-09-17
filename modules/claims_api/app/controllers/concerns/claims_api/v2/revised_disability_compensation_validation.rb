@@ -207,7 +207,7 @@ module ClaimsApi
 
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          detail: 'Title 10 activation is missing the anticipated separation date'
+          detail: 'Anticipated date of separation. Date must be in the future.'
         )
       end
 
@@ -245,7 +245,7 @@ module ClaimsApi
         if federal_activation['anticipatedSeparationDate'].blank?
           collect_error(
             source: '/serviceInformation/federalActivation',
-            detail: 'anticipatedSeparationDate is missing or blank'
+            detail: 'Anticipated date of separation. Date must be in the future.'
           )
         end
 
@@ -254,7 +254,7 @@ module ClaimsApi
         if activation_date && activation_date > Date.current
           collect_error(
             source: '/serviceInformation/federalActivation',
-            detail: "Federal activation date is in the future: #{federal_activation['activationDate']}"
+            detail: 'Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.'
           )
         end
       end
@@ -287,10 +287,10 @@ module ClaimsApi
         begin_date = parse_date_safely(change_of_address.dig('dates', 'beginDate'))
         end_date = parse_date_safely(change_of_address.dig('dates', 'endDate'))
 
-        # FES Val Section 5.c.iii: beginningDate must be in the future if TEMPORARY
+        # FES Val Section 5.c.iii: beginDate must be in the future if TEMPORARY
         validate_temporary_begin_date_future!(begin_date)
 
-        # FES Val Section 5.c.iv: beginningDate and endingDate must be in chronological order
+        # FES Val Section 5.c.iv: beginDate and endDate must be in chronological order
         validate_dates_chronological_order!(begin_date, end_date)
       end
 
@@ -299,8 +299,8 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/dates/beginDate',
-          title: 'Invalid beginningDate',
-          detail: "BeginningDate cannot be in the past: #{begin_date}"
+          title: 'Invalid beginDate',
+          detail: 'Begin date for the Veteran\'s new address.'
         )
       end
 
@@ -309,8 +309,8 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/dates/beginDate',
-          title: 'Invalid beginningDate',
-          detail: "BeginningDate cannot be after endingDate: #{begin_date}"
+          title: 'Invalid beginDate',
+          detail: 'Begin date for the Veteran\'s new address.'
         )
       end
 
@@ -436,14 +436,14 @@ module ClaimsApi
         if dates['beginDate'].blank?
           collect_error(
             source: '/changeOfAddress/dates/beginDate',
-            detail: 'beginningDate is required for temporary address'
+            detail: 'Begin date for the Veteran\'s new address.'
           )
         end
 
         if dates['endDate'].blank?
           collect_error(
             source: '/changeOfAddress/dates/endDate',
-            detail: 'EndingDate is required for temporary address'
+            detail: 'Date in YYYY-MM-DD the changed address expires, if change is temporary.'
           )
         end
       end
@@ -453,7 +453,8 @@ module ClaimsApi
         return if change_of_address.dig('dates', 'endDate').blank?
 
         collect_error(
-          source: '/changeOfAddress/dates/endDate', detail: 'EndingDate cannot be provided for a permanent address'
+          source: '/changeOfAddress/dates/endDate',
+          detail: 'Date in YYYY-MM-DD the changed address expires, if change is temporary.'
         )
       end
 
