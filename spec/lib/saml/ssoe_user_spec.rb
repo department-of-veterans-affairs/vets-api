@@ -727,11 +727,10 @@ RSpec.describe SAML::User do
       context 'with two ids string' do
         let(:sec_id) { '1234567890,0987654321' }
 
-        it 'logs a warning to sentry' do
-          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            'User attributes contains multiple sec_id values',
-            'warn',
-            { sec_id: }
+        it 'logs a warning to Rails logger' do
+          expect(Rails.logger).to receive(:warn).with(
+            '[SAML][SSOe] User attributes contains multiple sec_id values',
+            sec_id:
           )
           subject.validate!
         end

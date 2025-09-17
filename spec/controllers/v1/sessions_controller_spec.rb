@@ -905,7 +905,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       it 'redirects to an auth failure page' do
-        expect(controller).to receive(:log_message_to_sentry)
+        expect(controller).to receive(:conditional_log_message_to_sentry).and_call_original
         expect(call_endpoint).to redirect_to(expected_redirect)
         expect(response).to have_http_status(:found)
       end
@@ -915,7 +915,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           uuid: login_uuid,
           payload: { type: 'idme', application: 'vaweb' }
         )
-        expect(controller).to receive(:log_message_to_sentry)
+        expect(controller).to receive(:conditional_log_message_to_sentry).and_call_original
         expect { call_endpoint }
           .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLRESPONSE_KEY,
                                        tags: ['type:idme',
@@ -966,7 +966,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         let(:expected_redirect_params) { { auth: 'fail', code: error_code, request_id:, type: }.to_query }
 
         it 'redirects to an auth failure page' do
-          expect(controller).to receive(:log_message_to_sentry)
+          expect(controller).to receive(:conditional_log_message_to_sentry).and_call_original
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
@@ -1138,10 +1138,10 @@ RSpec.describe V1::SessionsController, type: :controller do
           it 'logs a message to Sentry' do
             allow(saml_user).to receive(:changing_multifactor?).and_return(true)
             expect(Sentry).to receive(:set_extras).with(current_user_uuid: user.uuid, current_user_icn: '11111111111')
-            expect(Sentry).to receive(:set_extras).with({ saml_uuid: 'invalid', saml_icn: '11111111111' })
-            expect(Sentry).to receive(:capture_message).with(
-              "Couldn't locate existing user after MFA establishment",
-              level: 'warning'
+            expect(Rails.logger).to receive(:warn).with(
+              "[Models][UserSessionForm]Couldn't locate existing user after MFA establishment,",
+              saml_uuid: 'invalid',
+              saml_icn: '11111111111'
             )
             expect(Sentry).to receive(:set_extras).at_least(:once) # From PostURLService#initialize
             with_settings(Settings.sentry, dsn: 'T') { call_endpoint }
@@ -1224,11 +1224,11 @@ RSpec.describe V1::SessionsController, type: :controller do
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_unknown_error) }
 
         it 'logs a generic error', :aggregate_failures do
-          expect(controller).to receive(:log_message_to_sentry)
+          expect(controller).to receive(:conditional_log_message_to_sentry).and_call_original
             .with(
               'Login Failed! Other SAML Response Error(s)',
               :error,
-              extra_context: [{ code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
+              [{ code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                                 tag: :unknown,
                                 short_message: 'Other SAML Response Error(s)',
                                 level: :error,
@@ -1273,11 +1273,11 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'logs status_detail message to sentry' do
-          expect(controller).to receive(:log_message_to_sentry)
+          expect(controller).to receive(:conditional_log_message_to_sentry).and_call_original
             .with(
               "<fim:FIMStatusDetail MessageID='could_not_perform_token_exchange'/>",
               :error,
-              extra_context: [
+              [
                 { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                   tag: :unknown,
                   short_message: 'Other SAML Response Error(s)',
@@ -1353,11 +1353,11 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'logs a generic error' do
-          expect(controller).to receive(:log_message_to_sentry)
+          expect(controller).to receive(:conditional_log_message_to_sentry).and_call_original
             .with(
               'Login Failed! Subject did not consent to attribute release Multiple SAML Errors',
               :warn,
-              extra_context: [{ code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE,
+              [{ code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE,
                                 tag: :clicked_deny,
                                 short_message: 'Subject did not consent to attribute release',
                                 level: :warn,
@@ -1426,7 +1426,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
         it 'redirects to the auth failed endpoint with a specific code', :aggregate_failures do
-          expect(controller).to receive(:log_message_to_sentry)
+          expect(controller).to receive(:conditional_log_message_to_sentry).and_call_original
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
@@ -1453,7 +1453,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
         it 'logs a generic user validation error', :aggregate_failures do
-          expect(controller).to receive(:log_message_to_sentry)
+          expect(controller).to receive(:conditional_log_message_to_sentry).and_call_original
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
