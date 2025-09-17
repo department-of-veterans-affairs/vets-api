@@ -146,8 +146,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   end
 
   def validate_686_form_data
-    errors.add(:parsed_form, "SSN can't be blank") if parsed_form['veteran_information']['ssn'].blank?
     errors.add(:parsed_form, "Dependent application can't be blank") if parsed_form['dependents_application'].blank?
+    veteran_information = parsed_form['veteran_information'] ||
+                          parsed_form['dependents_application']['veteran_information']
+    errors.add(:parsed_form, "SSN can't be blank") if veteran_information['ssn'].blank?
   end
 
   # SavedClaims require regional_office to be defined
