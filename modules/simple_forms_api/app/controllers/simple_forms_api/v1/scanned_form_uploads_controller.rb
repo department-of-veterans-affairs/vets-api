@@ -31,7 +31,7 @@ module SimpleFormsApi
         attachment = PersistentAttachments::VAForm.new
         attachment.form_id = params['form_id']
         attachment.file = params['file']
-        
+
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
         # Process supporting evidence: convert to PDF and validate
