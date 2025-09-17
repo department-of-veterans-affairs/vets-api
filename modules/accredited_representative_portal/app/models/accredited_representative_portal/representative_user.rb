@@ -30,11 +30,25 @@ module AccreditedRepresentativePortal
       presence: true
     )
 
+    delegate(
+      :power_of_attorney_holders,
+      :registration_numbers,
+      to: :power_of_attorney_holder_memberships
+    )
+
+    def representative?
+      power_of_attorney_holder_memberships.present?
+    end
+
+    def power_of_attorney_holder_memberships
+      @power_of_attorney_holder_memberships ||=
+        PowerOfAttorneyHolderMemberships.new(
+          icn:, emails: all_emails
+        )
+    end
+
     def user_account
-      @user_account ||=
-        RepresentativeUserAccount.find(user_account_uuid).tap do |account|
-          account.set_all_emails(all_emails)
-        end
+      @user_account ||= UserAccount.find(user_account_uuid)
     end
 
     def flipper_id

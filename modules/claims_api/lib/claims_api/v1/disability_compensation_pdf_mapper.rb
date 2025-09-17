@@ -7,6 +7,20 @@ module ClaimsApi
     class DisabilityCompensationPdfMapper
       include PdfMapperBase
 
+      HOMELESSNESS_RISK_SITUATION_TYPES = {
+        'fleeing' => 'FLEEING_CURRENT_RESIDENCE',
+        'shelter' => 'LIVING_IN_A_HOMELESS_SHELTER',
+        'notShelter' => 'NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT',
+        'anotherPerson' => 'STAYING_WITH_ANOTHER_PERSON',
+        'other' => 'OTHER'
+      }.freeze
+
+      RISK_OF_BECOMING_HOMELESS_TYPES = {
+        'losingHousing' => 'HOUSING_WILL_BE_LOST_IN_30_DAYS',
+        'leavingShelter' => 'LEAVING_PUBLICLY_FUNDED_SYSTEM_OF_CARE',
+        'other' => 'OTHER'
+      }.freeze
+
       def initialize(auto_claim, pdf_data, auth_headers, middle_initial)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
@@ -19,6 +33,8 @@ module ClaimsApi
         section_1_veteran_identification
         section_2_change_of_address
         section_3_homeless_information
+        section_5_disabilities
+        section_5_treatment_centers
 
         @pdf_data
       end
@@ -226,7 +242,8 @@ module ClaimsApi
         phone_object = point_of_contact_info&.dig('primaryPhone')
         phone_number = phone_object.values.join
 
-        @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber] = convert_phone(phone_number)
+        @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber] =
+          { telephone: convert_phone(phone_number) }
       end
 
       # if "currentlyHomeless" is present "homelessSituationType", "otherLivingSituation" are required by the schema
@@ -237,7 +254,8 @@ module ClaimsApi
         set_pdf_data_for_currently_homeless_information
         currently_homeless_base = @pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
 
-        currently_homeless_base[:homelessSituationOptions] = currently_homeless_info['homelessSituationType']
+        currently_homeless_base[:homelessSituationOptions] =
+          HOMELESSNESS_RISK_SITUATION_TYPES[currently_homeless_info['homelessSituationType']]
         currently_homeless_base[:otherDescription] = currently_homeless_info['otherLivingSituation']
       end
 
@@ -255,7 +273,8 @@ module ClaimsApi
         set_pdf_data_for_homelessness_risk_information
         risk_of_homeless_base = @pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
 
-        risk_of_homeless_base[:livingSituationOptions] = homelessness_risk_info['homelessnessRiskSituationType']
+        risk_of_homeless_base[:livingSituationOptions] =
+          RISK_OF_BECOMING_HOMELESS_TYPES[homelessness_risk_info['homelessnessRiskSituationType']]
         risk_of_homeless_base[:otherDescription] = homelessness_risk_info['otherLivingSituation']
       end
 
@@ -263,6 +282,127 @@ module ClaimsApi
         return if @pdf_data[:data][:attributes][:homelessInformation]&.key?(:riskOfBecomingHomeless)
 
         @pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless] = {}
+      end
+
+      # Section 4 has no mapped properties in v1
+
+      # "disabilities" are required
+      # "disabilityActionType", "name" are required inside "disabilities" via the schema
+      def section_5_disabilities
+        set_pdf_data_for_claim_information
+        set_pdf_data_for_disabilities
+
+        @pdf_data[:data][:attributes][:claimInformation][:disabilities] = transform_disabilities
+      end
+
+      def set_pdf_data_for_claim_information
+        return if @pdf_data[:data][:attributes]&.key?(:claimInformation)
+
+        @pdf_data[:data][:attributes][:claimInformation] = {}
+      end
+
+      def set_pdf_data_for_disabilities
+        return if @pdf_data[:data][:attributes][:claimInformation]&.key?(:disabilities)
+
+        @pdf_data[:data][:attributes][:claimInformation][:disabilities] = {}
+      end
+
+      def transform_disabilities
+        @auto_claim['disabilities'].flat_map do |disability|
+          primary_disability = build_primary_disability(disability)
+          secondary_disabilities = if disability['secondaryDisabilities'].present?
+                                     build_secondary_disabilities(disability)
+                                   end
+
+          [primary_disability, *secondary_disabilities]
+        end
+      end
+
+      def build_primary_disability(disability)
+        dis_name = disability['name']
+        dis_date = format_disability_date(disability['approximateBeginDate'])
+        service_relevance = disability['serviceRelevance']
+
+        build_disability_item(dis_name, dis_date, service_relevance)
+      end
+
+      def build_secondary_disabilities(disability)
+        disability['secondaryDisabilities'].map do |secondary_disability|
+          dis_name = "#{secondary_disability['name']} secondary to: #{disability['name']}"
+          dis_date = format_disability_date(secondary_disability['approximateBeginDate'])
+          service_relevance = secondary_disability['serviceRelevance']
+
+          build_disability_item(dis_name, dis_date, service_relevance)
+        end
+      end
+
+      def format_disability_date(begin_date)
+        return nil if begin_date.blank?
+
+        make_date_string_month_first(begin_date, begin_date.length)
+      end
+
+      # 'treatments' is optional
+      # If 'treatments' is provided 'treatedDisabilityNames' and 'center' are required via the schema
+      def section_5_treatment_centers
+        treatment_info = @auto_claim&.dig('treatments')
+        return if treatment_info.blank?
+
+        set_pdf_data_for_claim_information
+        set_pdf_data_for_treatments
+
+        treatments = get_treatments(treatment_info)
+        treatment_details = treatments.map(&:deep_symbolize_keys)
+
+        @pdf_data[:data][:attributes][:claimInformation][:treatments] = treatment_details
+      end
+
+      def set_pdf_data_for_treatments
+        return if @pdf_data[:data][:attributes][:claimInformation]&.key?(:treatments)
+
+        @pdf_data[:data][:attributes][:claimInformation][:treatments] = {}
+      end
+
+      def get_treatments(treatment_info)
+        [].tap do |treatments_list|
+          treatment_info.map do |tx|
+            treatment_details = build_treatment_details(tx)
+            treatment_start_date = build_treatment_start_date(tx)
+            do_not_have_date = treatment_start_date.blank? || nil
+
+            treatments_list << build_treatment_item(treatment_details, treatment_start_date, do_not_have_date)
+          end
+        end.flatten
+      end
+
+      # String that is a composite of the treatment name and center name
+      def build_treatment_details(treatment)
+        if treatment['center'].present?
+          center_data = treatment['center'].transform_keys(&:to_sym)
+          center = center_data.values_at(:name, :country).compact.map(&:presence).compact.join(', ')
+        end
+
+        names = treatment['treatedDisabilityNames']
+        name = names.join(', ') if names.present?
+        [name, center].compact.join(' - ')
+      end
+
+      def build_treatment_start_date(treatment)
+        return if treatment['startDate'].blank?
+
+        start_date = parse_treatment_date(treatment['startDate'])
+        make_date_object(start_date, start_date.length)
+      end
+
+      # The PDF Generator only wants month and year for this field
+      # The date value sent in is in the format of YYYY-MM-DD
+      def parse_treatment_date(date)
+        date.length > 7 ? date[0..-4] : date
+      end
+
+      def build_treatment_item(treatment_details, treatment_start_date, do_not_have_date)
+        { treatmentDetails: treatment_details, dateOfTreatment: treatment_start_date,
+          doNotHaveDate: do_not_have_date }.compact
       end
     end
   end

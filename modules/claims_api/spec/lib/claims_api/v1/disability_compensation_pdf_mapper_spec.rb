@@ -260,7 +260,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
           homeless_base = pdf_data[:data][:attributes][:homelessInformation]
 
           expect(homeless_base[:pointOfContact]).to eq('Firstname Lastname')
-          expect(homeless_base[:pointOfContactNumber]).to eq('123-555-1234')
+          expect(homeless_base[:pointOfContactNumber][:telephone]).to eq('123-555-1234')
         end
 
         it 'does not map anything if not included' do
@@ -309,7 +309,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
 
           currently_homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
 
-          expect(currently_homeless_base[:homelessSituationOptions]).to eq('fleeing')
+          expect(currently_homeless_base[:homelessSituationOptions]).to eq('FLEEING_CURRENT_RESIDENCE')
           expect(currently_homeless_base[:otherDescription]).to eq('none')
         end
 
@@ -320,6 +320,62 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
           homeless_base = pdf_data[:data][:attributes][:homelessInformation]
 
           expect(homeless_base).not_to have_key(:currentlyHomeless)
+        end
+
+        context 'mapping the enums' do
+          before do
+            form_attributes['veteran']['homelessness']['currentlyHomeless'] = {}
+          end
+
+          it "maps 'fleeing' to 'FLEEING_CURRENT_RESIDENCE'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'fleeing'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('FLEEING_CURRENT_RESIDENCE')
+          end
+
+          it "maps 'shelter' to 'LIVING_IN_A_HOMELESS_SHELTER'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'shelter'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('LIVING_IN_A_HOMELESS_SHELTER')
+          end
+
+          it "maps 'notShelter' to 'NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'notShelter'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT')
+          end
+
+          it "maps 'anotherPerson' to 'STAYING_WITH_ANOTHER_PERSON'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'anotherPerson'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('STAYING_WITH_ANOTHER_PERSON')
+          end
+
+          it "maps 'other' to 'OTHER'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'other'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('OTHER')
+          end
         end
       end
 
@@ -361,7 +417,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
 
           risk_of_homeless_base = pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
 
-          expect(risk_of_homeless_base[:livingSituationOptions]).to eq('other')
+          expect(risk_of_homeless_base[:livingSituationOptions]).to eq('OTHER')
           expect(risk_of_homeless_base[:otherDescription]).to eq('Other situation')
         end
 
@@ -373,6 +429,42 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
 
           expect(homeless_base).not_to have_key(:riskOfBecomingHomeless)
         end
+
+        context 'mapping the enums' do
+          before do
+            form_attributes['veteran']['homelessness']['homelessnessRisk'] = {}
+            form_attributes['veteran']['homelessness']['homelessnessRisk']['otherLivingSituation'] = 'Other situation'
+          end
+
+          it "maps 'other' to 'OTHER'" do
+            form_attributes['veteran']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType'] = 'other'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation]
+
+            expect(homeless_base[:riskOfBecomingHomeless][:livingSituationOptions]).to eq('OTHER')
+          end
+
+          it "maps 'leavingShelter' to 'LEAVING_PUBLICLY_FUNDED_SYSTEM_OF_CARE'" do
+            form_attributes['veteran']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType'] =
+              'leavingShelter'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
+
+            expect(homeless_base[:livingSituationOptions]).to eq('LEAVING_PUBLICLY_FUNDED_SYSTEM_OF_CARE')
+          end
+
+          it "maps 'losingHousing' to 'HOUSING_WILL_BE_LOST_IN_30_DAYS'" do
+            form_attributes['veteran']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType'] =
+              'losingHousing'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
+
+            expect(homeless_base[:livingSituationOptions]).to eq('HOUSING_WILL_BE_LOST_IN_30_DAYS')
+          end
+        end
       end
     end
 
@@ -382,6 +474,204 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         expect(pdf_data[:data][:attributes]).not_to have_key(:homelessInformation)
+      end
+    end
+  end
+
+  context 'section 5, disabilities' do
+    let(:disabilities_object) do
+      [
+        {
+          'disabilityActionType' => 'NEW',
+          'name' => 'Arthritis',
+          'serviceRelevance' => 'Caused by in-service injury'
+        },
+        {
+          'disabilityActionType' => 'NEW',
+          'name' => 'Left Knee Injury',
+          'ratedDisabilityId' => '1100583',
+          'diagnosticCode' => 9999,
+          'approximateBeginDate' => '2018-04-02',
+          'secondaryDisabilities' => [
+            {
+              'name' => 'Left Hip Pain',
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by a service-connected disability',
+              'approximateBeginDate' => '2018-05-02'
+            }
+          ]
+        }
+      ]
+    end
+
+    describe '#set_pdf_data_for_claim_information' do
+      context 'when the claimInformation key does not exist' do
+        before do
+          @pdf_data = pdf_data
+        end
+
+        it 'sets the claimInformation key to an empty hash' do
+          res = mapper.send(:set_pdf_data_for_claim_information)
+
+          expect(res).to eq({})
+        end
+      end
+
+      context 'when the claimInformation key already exists' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:claimInformation] = {}
+        end
+
+        it 'returns early without modifying the existing data' do
+          res = mapper.send(:set_pdf_data_for_claim_information)
+
+          expect(res).to be_nil
+        end
+      end
+    end
+
+    describe '#set_pdf_data_for_disabilities' do
+      context 'when the disabilities key does not exist' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:claimInformation] = {}
+        end
+
+        it 'sets the disabilities key to an empty hash' do
+          res = mapper.send(:set_pdf_data_for_disabilities)
+
+          expect(res).to eq({})
+        end
+      end
+
+      context 'when the disabilities key already exists' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:claimInformation] = {}
+          @pdf_data[:data][:attributes][:claimInformation][:disabilities] = {}
+        end
+
+        it 'returns early without modifying the existing data' do
+          res = mapper.send(:set_pdf_data_for_disabilities)
+
+          expect(res).to be_nil
+        end
+      end
+    end
+
+    it 'maps the attributes' do
+      form_attributes['disabilities'] = disabilities_object
+      mapper.map_claim
+
+      disabilities_base = pdf_data[:data][:attributes][:claimInformation][:disabilities]
+
+      expect(disabilities_base[0][:disability]).to eq('Arthritis')
+      expect(disabilities_base[0][:serviceRelevance]).to eq('Caused by in-service injury')
+      expect(disabilities_base[0]).not_to have_key(:approximateDate)
+      expect(disabilities_base[1][:disability]).to eq('Left Knee Injury')
+      expect(disabilities_base[1][:serviceRelevance]).to be_nil
+      expect(disabilities_base[1][:approximateDate]).to eq('04/02/2018')
+      expect(disabilities_base[2][:disability]).to eq('Left Hip Pain secondary to: Left Knee Injury')
+      expect(disabilities_base[2][:serviceRelevance]).to eq('Caused by a service-connected disability')
+      expect(disabilities_base[2][:approximateDate]).to eq('05/02/2018')
+    end
+  end
+
+  describe 'section 5, treatment centers' do
+    let(:treatments) do
+      [
+        {
+          'startDate' => '2020-01-01',
+          'endDate' => '2022-01-01',
+          'treatedDisabilityNames' => [
+            'Arthritis'
+          ],
+          'center' => {
+            'name' => 'Private Facility Name',
+            'country' => 'USA'
+          }
+        },
+        {
+          'startDate' => '2022-01',
+          'treatedDisabilityNames' => [
+            'Bad Knee'
+          ],
+          'center' => {
+            'name' => 'Another Private Facility Name',
+            'country' => 'USA'
+          }
+        },
+        {
+          'treatedDisabilityNames' => [
+            'Bad Elbow'
+          ],
+          'center' => {
+            'name' => 'Public Facility Name',
+            'country' => 'USA'
+          }
+        }
+      ]
+    end
+
+    describe '#set_pdf_data_for_claim_information' do
+      context 'when the claimInformation key does not exist' do
+        before do
+          @pdf_data = pdf_data
+        end
+
+        it 'sets the claimInformation key to an empty hash' do
+          res = mapper.send(:set_pdf_data_for_claim_information)
+
+          expect(res).to eq({})
+        end
+      end
+
+      context 'when the claimInformation key already exists' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:claimInformation] = {}
+        end
+
+        it 'returns early without modifying the existing data' do
+          res = mapper.send(:set_pdf_data_for_claim_information)
+
+          expect(res).to be_nil
+        end
+      end
+    end
+
+    context 'when treatments information is not provided' do
+      before do
+        @pdf_data = pdf_data
+        @pdf_data[:data][:attributes][:claimInformation] = {}
+      end
+
+      it 'does not add any treatment key to the data object' do
+        mapper.map_claim
+
+        claim_information_base = pdf_data[:data][:attributes][:claimInformation]
+
+        expect(claim_information_base).not_to have_key(:treatments)
+      end
+    end
+
+    context 'when treatments information is provided' do
+      it 'maps the attributes' do
+        form_attributes['treatments'] = treatments
+        mapper.map_claim
+
+        treatments_base = pdf_data[:data][:attributes][:claimInformation][:treatments]
+
+        expect(treatments_base[0][:treatmentDetails]).to eq('Arthritis - Private Facility Name, USA')
+        expect(treatments_base[0][:dateOfTreatment]).to eq({ month: '01', year: '2020' })
+        expect(treatments_base[0]).not_to have_key(:doNotHaveDate)
+        expect(treatments_base[1][:treatmentDetails]).to eq('Bad Knee - Another Private Facility Name, USA')
+        expect(treatments_base[1][:dateOfTreatment]).to eq({ month: '01', year: '2022' })
+        expect(treatments_base[0]).not_to have_key(:doNotHaveDate)
+        expect(treatments_base[2][:treatmentDetails]).to eq('Bad Elbow - Public Facility Name, USA')
+        expect(treatments_base[2]).not_to have_key(:dateOfTreatment)
+        expect(treatments_base[2][:doNotHaveDate]).to be(true)
       end
     end
   end
