@@ -2064,7 +2064,7 @@ spec/support/schemas/user_loa3.json @department-of-veterans-affairs/octo-identit
 spec/support/schemas/va_profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/vaos @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/veteran_verification @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
-spec/support/schemas/vre @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-iir
+spec/support/schemas/vre @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 spec/support/serializer_spec_helper.rb @department-of-veterans-affairs/backend-review-group
 spec/support/shared_examples_for_mhv.rb @department-of-veterans-affairs/octo-identity
 spec/support/sidekiq/batch.rb @department-of-veterans-affairs/backend-review-group
@@ -2213,7 +2213,7 @@ spec/support/vcr_cassettes/veteran_readiness_employment @department-of-veterans-
 spec/support/vcr_cassettes/vetext @department-of-veterans-affairs/mobile-api-team
 spec/support/vcr_cassettes/vha/sharepoint/update_list_item_fields_400.yml @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/vha/sharepoint/upload_pdf_400_response.yml @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
-spec/support/vcr_cassettes/vre @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-iir
+spec/support/vcr_cassettes/vre @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_multipart_matcher_helper.rb @department-of-veterans-affairs/backend-review-group
 spec/support/vcr.rb @department-of-veterans-affairs/backend-review-group
 spec/swagger_helper.rb @department-of-veterans-affairs/backend-review-group
