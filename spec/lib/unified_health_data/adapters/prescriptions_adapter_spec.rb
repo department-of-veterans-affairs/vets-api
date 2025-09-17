@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'unified_health_data/models/prescription_attributes'
 require 'unified_health_data/models/prescription'
 require 'unified_health_data/adapters/prescriptions_adapter'
 require 'unified_health_data/adapters/oracle_health_prescription_adapter'
