@@ -21,22 +21,19 @@ module AccreditedRepresentativePortal
       @claim =
         ::SavedClaim.find(saved_claim_id)
 
-      @lighthouse_service =
-        ##
-        # Rather than:
-        # ```
-        # BenefitsIntakeService::Service.new(with_upload_location: true)
-        # ```
-        #
-        BenefitsIntakeService::Service.new.tap do |service|
-          service.define_singleton_method(:config) do
-            BenefitsIntake::Service.configuration
-          end
+      @lighthouse_service = if Flipper.enabled?(:accredited_representative_portal_lighthouse_api_key)
+                              ::AccreditedRepresentativePortal::BenefitsIntakeService.new
+                            else
+                              ::BenefitsIntakeService::Service.new.tap do |service|
+                                service.define_singleton_method(:config) do
+                                  BenefitsIntake::Service.configuration
+                                end
 
-          upload = service.get_location_and_uuid
-          service.instance_variable_set(:@uuid, upload[:uuid])
-          service.instance_variable_set(:@location, upload[:location])
-        end
+                                upload = service.get_location_and_uuid
+                                service.instance_variable_set(:@uuid, upload[:uuid])
+                                service.instance_variable_set(:@location, upload[:location])
+                              end
+                            end
     end
 
     ##
