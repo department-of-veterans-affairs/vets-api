@@ -342,6 +342,5 @@ module TravelClaim
       log_message(:error, 'Failed to format appointment date', error: e.message)
       @appointment_date
     end
-
   end
 end
