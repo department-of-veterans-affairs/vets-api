@@ -543,14 +543,13 @@ module ClaimsApi
         )
       end
 
-      ### FES Val Section 7: Disability action type and name validations
+      ### FES Val Section 7: Disability action type validations
       def validate_disability_action_type_and_name!
         disabilities = form_attributes['disabilities']
         return if disabilities.blank?
 
         disabilities.each_with_index do |disability, index|
           validate_disability_action_type_none!(disability, index)
-          validate_disability_name_length!(disability, index)
         end
       end
 
@@ -562,17 +561,6 @@ module ClaimsApi
           source: "/disabilities/#{index}/disabilityActionType",
           detail: 'The request failed disability validation: The disability Action Type of "NONE" ' \
                   'is not currently supported.'
-        )
-      end
-
-      # FES Val Section 7.n: name cannot be over 255 characters
-      def validate_disability_name_length!(disability, index)
-        return if disability['name'].blank?
-        return unless disability['name'].length > 255
-
-        collect_error(
-          source: "/disabilities/#{index}/name",
-          detail: 'The disability name must be less than 256 characters'
         )
       end
 

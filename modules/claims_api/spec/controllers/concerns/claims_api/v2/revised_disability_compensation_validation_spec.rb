@@ -873,52 +873,6 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
       end
 
-      context 'when disability name exceeds 255 characters' do
-        let(:form_attributes) do
-          base_form_attributes.merge(
-            'disabilities' => [
-              {
-                'name' => 'A' * 256,
-                'disabilityActionType' => 'NEW'
-              }
-            ]
-          )
-        end
-
-        it 'returns validation error for length' do
-          errors = subject.validate_form_526_fes_values
-          expect(errors).to be_an(Array)
-          # Should have both format and length errors
-          length_error = errors.find { |e| e[:detail].include?('less than 256 characters') }
-          expect(length_error).not_to be_nil
-          expect(length_error[:source]).to eq('/disabilities/0/name')
-          expect(length_error[:title]).to eq('Unprocessable Entity')
-          expect(length_error[:detail]).to eq('The disability name must be less than 256 characters')
-        end
-      end
-
-      context 'when disability name is exactly 255 characters' do
-        let(:form_attributes) do
-          base_form_attributes.merge(
-            'disabilities' => [
-              {
-                'name' => 'A' * 255,
-                'disabilityActionType' => 'NEW'
-              }
-            ]
-          )
-        end
-
-        it 'returns no length error' do
-          errors = subject.validate_form_526_fes_values
-          # May have format error but no length error
-          if errors
-            length_error = errors.find { |e| e[:detail].include?('less than 256 characters') }
-            expect(length_error).to be_nil
-          end
-        end
-      end
-
       context 'with multiple disabilities having different issues' do
         let(:form_attributes) do
           base_form_attributes.merge(
