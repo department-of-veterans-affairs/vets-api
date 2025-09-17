@@ -62,13 +62,11 @@ module SimpleFormsApi
     def validate_pdf
       Rails.logger.info("Validating PDF for attachment #{attachment.guid}")
       file_path = attachment.file.open.path
-
       validator = PDFUtilities::PDFValidator::Validator.new(file_path, PDF_VALIDATOR_OPTIONS)
       validation_result = validator.validate
 
       unless validation_result.valid_pdf?
         Rails.logger.error("PDF validation failed: #{validation_result.errors}")
-
         validation_result.errors.each do |error|
           attachment.warnings << error
         end
