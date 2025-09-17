@@ -57,7 +57,7 @@ module TravelClaim
       log_message(:error, 'Unexpected error', error_class: e.class.name)
       # Send error notification if feature flag is enabled
       send_error_notification_if_enabled(e)
-      raise_backend_service_exception('An unexpected error occurred')
+      raise e
     end
 
     private
@@ -91,6 +91,25 @@ module TravelClaim
       raise_backend_service_exception('Appointment date is required', 400, 'VA902') if @appointment_date.blank?
       raise_backend_service_exception('Facility type is required', 400, 'VA903') if @facility_type.blank?
       raise_backend_service_exception('Uuid is required', 400, 'VA904') if @uuid.blank?
+
+      validate_appointment_date_format
+    end
+
+    ##
+    # Validates that appointment_date is in proper ISO 8601 format with time component
+    #
+    # @raise [ArgumentError] if appointment_date is not in valid ISO 8601 format
+    #
+    def validate_appointment_date_format
+      return if @appointment_date.blank?
+
+      # Check if it starts with YYYY-MM-DD format
+      date_pattern = /^\d{4}-\d{2}-\d{2}/
+
+      unless @appointment_date.match?(date_pattern)
+        raise_backend_service_exception('Appointment date must start with YYYY-MM-DD format (e.g., 2025-09-16)', 400,
+                                        'VA905')
+      end
     end
 
     ##
@@ -106,7 +125,6 @@ module TravelClaim
       appointment_id = response.body.dig('data', 0, 'id')
 
       unless appointment_id
-        log_metric('APPOINTMENT_ERROR')
         raise_backend_service_exception('Appointment could not be found or created', response.status)
       end
 
@@ -126,10 +144,7 @@ module TravelClaim
       response = client.send_claim_request(appointment_id:)
       claim_id = response.body.dig('data', 'claimId')
 
-      unless claim_id
-        log_metric('CLAIM_CREATE_ERROR')
-        raise_backend_service_exception('Failed to create claim', response.status)
-      end
+      raise_backend_service_exception('Failed to create claim', response.status) unless claim_id
 
       claim_id
     end
@@ -145,10 +160,7 @@ module TravelClaim
 
       response = client.send_mileage_expense_request(claim_id:, date_incurred: @appointment_date)
 
-      unless response.status == 200
-        log_metric('EXPENSE_ADD_ERROR')
-        raise_backend_service_exception('Failed to add expense', response.status)
-      end
+      raise_backend_service_exception('Failed to add expense', response.status) unless response.status == 200
     end
 
     ##
@@ -319,6 +331,53 @@ module TravelClaim
     rescue => e
       log_message(:error, 'Failed to format appointment date', error: e.message)
       @appointment_date
+    end
+
+    ##
+    # Extracts the error message from a BackendServiceException
+    # First tries the detail field, then falls back to parsing the original_body for the message
+    #
+    # @param error [Common::Exceptions::BackendServiceException] The backend service error
+    # @return [String, nil] The extracted message or nil
+    #
+    def extract_backend_service_error_message(error)
+      # First try the detail field
+      return error.response_values[:detail] if error.response_values[:detail].present?
+
+      # Fall back to parsing the original_body for the Travel Pay API message
+      return nil unless error.original_body
+
+      parsed_body = if error.original_body.is_a?(String)
+                      JSON.parse(error.original_body)
+                    else
+                      error.original_body
+                    end
+
+      parsed_body['message']
+    rescue JSON::ParserError => e
+      log_message(:error, 'Failed to parse backend service error response', error: e.message, body: error.original_body)
+      nil
+    end
+
+    ##
+    # Extracts the error message from a ClientError response body
+    #
+    # @param error [Common::Client::Errors::ClientError] The client error
+    # @return [String, nil] The extracted message or nil
+    #
+    def extract_client_error_message(error)
+      return nil unless error.body
+
+      parsed_body = if error.body.is_a?(String)
+                      JSON.parse(error.body)
+                    else
+                      error.body
+                    end
+
+      parsed_body['message']
+    rescue JSON::ParserError => e
+      log_message(:error, 'Failed to parse client error response', error: e.message, body: error.body)
+      nil
     end
   end
 end

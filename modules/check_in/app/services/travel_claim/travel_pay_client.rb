@@ -112,6 +112,10 @@ module TravelClaim
           perform(:post, 'api/v3/appointments/find-or-add', body, headers)
         end
       end
+    rescue Common::Client::Errors::ClientError => e
+      handle_client_error(e)
+    rescue Common::Exceptions::BackendServiceException => e
+      handle_backend_service_exception(e)
     end
 
     # Sends a request to create a new claim.
@@ -132,11 +136,9 @@ module TravelClaim
         end
       end
     rescue Common::Client::Errors::ClientError => e
-      log_existing_claim_error if e.status == 400
-      raise
+      handle_client_error(e)
     rescue Common::Exceptions::BackendServiceException => e
-      log_existing_claim_error if e.original_status == 400
-      raise
+      handle_backend_service_exception(e)
     end
 
     ##
@@ -159,6 +161,10 @@ module TravelClaim
           perform(:post, 'api/v3/expenses/mileage', body, headers)
         end
       end
+    rescue Common::Client::Errors::ClientError => e
+      handle_client_error(e)
+    rescue Common::Exceptions::BackendServiceException => e
+      handle_backend_service_exception(e)
     end
 
     ##
@@ -173,6 +179,10 @@ module TravelClaim
           perform(:get, "api/v3/claims/#{claim_id}", nil, headers)
         end
       end
+    rescue Common::Client::Errors::ClientError => e
+      handle_client_error(e)
+    rescue Common::Exceptions::BackendServiceException => e
+      handle_backend_service_exception(e)
     end
 
     ##
@@ -187,6 +197,10 @@ module TravelClaim
           perform(:patch, "api/v3/claims/#{claim_id}/submit", nil, headers)
         end
       end
+    rescue Common::Client::Errors::ClientError => e
+      handle_client_error(e)
+    rescue Common::Exceptions::BackendServiceException => e
+      handle_backend_service_exception(e)
     end
 
     ##
@@ -430,6 +444,56 @@ module TravelClaim
                            uuid_hash: safe_uuid_reference,
                            message: 'Validation failed: A claim has already been created for this appointment.'
                          })
+    end
+
+    def extract_message_from_response(body)
+      return nil unless body
+
+      parsed = if body.is_a?(String)
+                 JSON.parse(body)
+               else
+                 body
+               end
+
+      parsed['message']
+    rescue JSON::ParserError
+      nil
+    end
+
+    def handle_client_error(error)
+      log_api_error(error.status, error.body)
+      # Extract specific message from Travel Pay API and re-raise with it
+      message = extract_message_from_response(error.body) || 'Failed to create claim'
+      raise Common::Exceptions::BackendServiceException.new('VA900', { detail: message }, error.status)
+    end
+
+    def handle_backend_service_exception(error)
+      log_api_error(error.original_status, error.original_body)
+      # Extract message from original body if detail is nil
+      if error.response_values[:detail].nil? && error.original_body
+        message = extract_message_from_response(error.original_body)
+        if message
+          raise Common::Exceptions::BackendServiceException.new(
+            error.key,
+            error.response_values.merge(detail: message),
+            error.original_status,
+            error.original_body
+          )
+        end
+      end
+      raise
+    end
+
+    def log_api_error(status, body)
+      return unless status
+
+      case status
+      when 400
+        parsed_message = extract_message_from_response(body)
+        log_existing_claim_error if parsed_message&.include?('already been created')
+      when 401
+        log_auth_error('API_401', status)
+      end
     end
   end
 end
