@@ -42,7 +42,6 @@ module DebtsApi
       def create_legacy!
         result = process_submission
         if result[:success]
-          StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.success")
           render json: { message: result[:message], submission_id: result[:submission_id] }, status: :ok
         else
           StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
