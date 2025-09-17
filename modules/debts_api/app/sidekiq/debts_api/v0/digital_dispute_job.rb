@@ -21,6 +21,7 @@ module DebtsApi
     end
 
     def perform(submission_id)
+      Rails.logger.info("Starting DigitalDisputeJob for submission_id #{submission_id}")
       submission = DebtsApi::V0::DigitalDisputeSubmission.find(submission_id)
       user_account = submission.user_account
       mpi_response = MPI::Service.new.find_profile_by_identifier(identifier: user_account.icn, identifier_type: MPI::Constants::ICN)
