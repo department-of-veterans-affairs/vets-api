@@ -1,0 +1,45 @@
+# frozen_string_literal: true
+
+require 'common/client/base'
+require_relative 'configuration'
+
+module UnifiedHealthData
+  class Client < Common::Client::Base
+    STATSD_KEY_PREFIX = 'api.uhd'
+    include Common::Client::Concerns::Monitoring
+
+    configuration UnifiedHealthData::Configuration
+
+    def get_labs_by_date(patient_id:, start_date:, end_date:)
+      headers = request_headers
+      path = "#{config.base_path}labs?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+      perform(:get, path, nil, headers)
+    end
+
+    private
+
+    def fetch_access_token
+      with_monitoring do
+        response = connection.post(config.token_path) do |req|
+          req.headers['Content-Type'] = 'application/json'
+          req.body = {
+            appId: config.app_id,
+            appToken: config.app_token,
+            subject: config.subject,
+            userType: config.user_type
+          }.to_json
+        end
+        response.headers['authorization']
+      end
+    end
+
+    def request_headers(include_content_type: false)
+      headers = {
+        'Authorization' => fetch_access_token,
+        'x-api-key' => config.x_api_key
+      }
+      headers['Content-Type'] = 'application/json' if include_content_type
+      headers
+    end
+  end
+end

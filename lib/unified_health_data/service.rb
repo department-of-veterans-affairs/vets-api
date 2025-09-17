@@ -11,6 +11,7 @@ require_relative 'adapters/conditions_adapter'
 require_relative 'adapters/lab_or_test_adapter'
 require_relative 'reference_range_formatter'
 require_relative 'logging'
+require_relative 'client'
 
 module UnifiedHealthData
   class Service < Common::Client::Base
@@ -26,10 +27,7 @@ module UnifiedHealthData
 
     def get_labs(start_date:, end_date:)
       with_monitoring do
-        headers = request_headers
-        patient_id = @user.icn
-        path = "#{config.base_path}labs?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, headers)
+        response = uhd_client.get_labs_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)
@@ -141,29 +139,29 @@ module UnifiedHealthData
     private
 
     # Shared
-    def fetch_access_token
-      with_monitoring do
-        response = connection.post(config.token_path) do |req|
-          req.headers['Content-Type'] = 'application/json'
-          req.body = {
-            appId: config.app_id,
-            appToken: config.app_token,
-            subject: config.subject,
-            userType: config.user_type
-          }.to_json
-        end
-        response.headers['authorization']
-      end
-    end
+    # def fetch_access_token
+    #   with_monitoring do
+    #     response = connection.post(config.token_path) do |req|
+    #       req.headers['Content-Type'] = 'application/json'
+    #       req.body = {
+    #         appId: config.app_id,
+    #         appToken: config.app_token,
+    #         subject: config.subject,
+    #         userType: config.user_type
+    #       }.to_json
+    #     end
+    #     response.headers['authorization']
+    #   end
+    # end
 
-    def request_headers(include_content_type: false)
-      headers = {
-        'Authorization' => fetch_access_token,
-        'x-api-key' => config.x_api_key
-      }
-      headers['Content-Type'] = 'application/json' if include_content_type
-      headers
-    end
+    # def request_headers(include_content_type: false)
+    #   headers = {
+    #     'Authorization' => fetch_access_token,
+    #     'x-api-key' => config.x_api_key
+    #   }
+    #   headers['Content-Type'] = 'application/json' if include_content_type
+    #   headers
+    # end
 
     def parse_response_body(body)
       # FIXME: workaround for testing
@@ -303,6 +301,11 @@ module UnifiedHealthData
     end
 
     # Instantiate adapters, etc. once per service instance
+
+    def uhd_client
+      @uhd_client ||= UnifiedHealthData::Client.new
+    end
+
     def lab_or_test_adapter
       @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new
     end
