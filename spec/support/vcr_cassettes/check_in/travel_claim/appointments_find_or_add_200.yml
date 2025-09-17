@@ -62,8 +62,23 @@ http_interactions:
         "statusCode": 200,
         "message": "Appointment found or created successfully",
         "success": true,
-        "data": {
-          "id": "appt-123"
+        "data": [
+          {
+            "id": "11111111-2222-3333-4444-555555555555",
+            "appointmentSource": "API",
+            "appointmentDateTime": "2025-09-16T16:30:00Z",
+            "appointmentName": "Customer created appointment at (21st) Century Oncology of Las Vegas (3006)",
+            "appointmentType": "Other",
+            "facilityId": "11111111-2222-3333-4444-555555555555",
+            "facilityName": "(21st) Century Oncology of Las Vegas (3006)",
+            "serviceConnectedDisability": 421750001,
+            "currentStatus": "",
+            "appointmentStatus": "",
+            "externalAppointmentId": null,
+            "associatedClaimId": null,
+            "associatedClaimNumber": null,
+            "isCompleted": false
         }
+        ]
       }'
   recorded_at: Wed, 27 Aug 2025 21:54:27 GMT
