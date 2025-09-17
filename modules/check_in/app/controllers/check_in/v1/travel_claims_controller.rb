@@ -59,6 +59,8 @@ module CheckIn
 
       def handle_backend_service_error(exception)
         mapped_status = case exception.original_status
+                        when 401
+                          :unauthorized
                         when 429
                           :service_unavailable
                         when 400..499
