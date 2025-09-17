@@ -14,11 +14,11 @@ require_relative 'logging'
 require_relative 'client'
 
 module UnifiedHealthData
-  class Service < Common::Client::Base
+  class Service
     STATSD_KEY_PREFIX = 'api.uhd'
     include Common::Client::Concerns::Monitoring
 
-    configuration UnifiedHealthData::Configuration
+    # configuration UnifiedHealthData::Configuration
 
     def initialize(user)
       super()
@@ -56,9 +56,6 @@ module UnifiedHealthData
 
     def get_prescriptions
       with_monitoring do
-        # patient_id = @user.icn
-        # path = "#{config.base_path}medications?patientId=#{patient_id}"
-
         response = uhd_client.get_all_prescriptions(@user.icn)
         body = parse_response_body(response.body)
 
@@ -77,10 +74,8 @@ module UnifiedHealthData
 
     def refill_prescription(orders)
       with_monitoring do
-        # path = "#{config.base_path}medications/rx/refill"
-        # request_body = build_refill_request_body(orders)
-        # response = perform(:post, path, request_body.to_json, request_headers(include_content_type: true))
-        response = build_refill_request_body(build_refill_request_body(orders))
+        # byebug
+        response = uhd_client.refill_prescription(build_refill_request_body(orders))
         parse_refill_response(response)
       end
     rescue => e
@@ -108,38 +103,23 @@ module UnifiedHealthData
     def get_single_summary_or_note(note_id)
       with_monitoring do
         # TODO: we will replace this with a direct call to the API once available
-        all_notes = get_care_summaries_and_notes
-        all_notes.select { |note| note['id'] == note_id }
+        start_date = '1900-01-01'
+        end_date = Time.zone.today.to_s
+
+        response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = parse_response_body(response.body)
+
+        combined_records = fetch_combined_records(body)
+
+        filtered = combined_records.select { |record| record['resource']['id'] == note_id }
+
+        parse_single_note(filtered[0])
       end
     end
 
     private
 
     # Shared
-    # def fetch_access_token
-    #   with_monitoring do
-    #     response = connection.post(config.token_path) do |req|
-    #       req.headers['Content-Type'] = 'application/json'
-    #       req.body = {
-    #         appId: config.app_id,
-    #         appToken: config.app_token,
-    #         subject: config.subject,
-    #         userType: config.user_type
-    #       }.to_json
-    #     end
-    #     response.headers['authorization']
-    #   end
-    # end
-
-    # def request_headers(include_content_type: false)
-    #   headers = {
-    #     'Authorization' => fetch_access_token,
-    #     'x-api-key' => config.x_api_key
-    #   }
-    #   headers['Content-Type'] = 'application/json' if include_content_type
-    #   headers
-    # end
-
     def parse_response_body(body)
       # FIXME: workaround for testing
       body.is_a?(String) ? JSON.parse(body) : body
@@ -277,7 +257,7 @@ module UnifiedHealthData
       clinical_notes_adapter.parse(record)
     end
 
-    # Instantiate adapters, etc. once per service instance
+    # Instantiate client, adapters, etc. once per service instance
 
     def uhd_client
       @uhd_client ||= UnifiedHealthData::Client.new
