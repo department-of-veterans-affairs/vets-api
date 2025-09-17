@@ -114,7 +114,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeJob, type: :worker do
       # Let the hook load the record for real, but assert failure handling on it
       expect(DebtsApi::V0::DigitalDisputeSubmission).to receive(:find).with(submission.id).and_call_original
       expect_any_instance_of(DebtsApi::V0::DigitalDisputeSubmission)
-        .to receive(:register_failure).with('VBASubmissionJob#perform: kaput')
+        .to receive(:register_failure).with('DigitalDisputeJob#perform: kaput')
 
       expect(Rails.logger).to receive(:error).with(expected_log)
 
