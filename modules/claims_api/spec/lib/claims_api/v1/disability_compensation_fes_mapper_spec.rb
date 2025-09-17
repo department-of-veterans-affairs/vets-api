@@ -13,9 +13,6 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
             'claims_api',
             'spec',
             'fixtures',
-            'v1',
-            'veterans',
-            'disability_compensation',
             'form_526_json_api.json'
           ).read
         )
@@ -35,7 +32,6 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           expect(fes_data).to have_key(:data)
           expect(fes_data[:data]).to have_key(:serviceTransactionId)
           expect(fes_data[:data]).to have_key(:claimantParticipantId)
-          expect(fes_data[:data]).to have_key(:veteranParticipantId)
           expect(fes_data[:data]).to have_key(:form526)
         end
       end

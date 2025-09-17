@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
 require 'claims_api/v1/disability_compensation_pdf_mapper'
 require 'pdf_generator_service/pdf_client'
 
@@ -84,16 +83,14 @@ module ClaimsApi
         raise e
       end
 
-      # rubocop:enable Metrics/MethodLength
-
       private
 
       def start_docker_container_job(auto_claim)
-        docker_container_service.perform_async(auto_claim)
+        form_526_establishment_upload_service.perform_async(auto_claim)
       end
 
-      def docker_container_service
-        ClaimsApi::V1::DisabilityCompensationDockerContainerUpload
+      def form_526_establishment_upload_service
+        ClaimsApi::V1::Form526EstablishmentUpload
       end
 
       def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial)
