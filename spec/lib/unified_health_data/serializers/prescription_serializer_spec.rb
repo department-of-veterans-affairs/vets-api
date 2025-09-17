@@ -34,7 +34,7 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
     it 'includes all expected attributes' do
       result = subject.serializable_hash
 
-      expect(result[:data][:type]).to eq(:Prescription)
+      expect(result[:data][:type]).to eq(:prescription)
       expect(result[:data][:id]).to eq('12345')
 
       attributes = result[:data][:attributes]
@@ -59,7 +59,7 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
     it 'sets correct type and id' do
       result = subject.serializable_hash
 
-      expect(result[:data][:type]).to eq(:Prescription)
+      expect(result[:data][:type]).to eq(:prescription)
       expect(result[:data][:id]).to eq('12345')
     end
 

@@ -966,7 +966,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(vista_prescription.facility_name).to eq('DAYT29')
           expect(vista_prescription.prescription_name).to eq('BACITRACIN 500 UNIT/GM OINT 30GM')
           expect(vista_prescription.instructions).to eq('APPLY SMALL AMOUNT TO AFFECTED AREA WEEKLY FOR 30 DAYS')
-          expect(vista_prescription.refillable?).to be true
+          expect(vista_prescription.is_refillable).to be true
           expect(vista_prescription.station_number).to eq('989')
           expect(vista_prescription.prescription_number).to eq('2721174')
         end
@@ -984,7 +984,7 @@ describe UnifiedHealthData::Service, type: :service do
             'See Instructions. This should not be dispensed to the patient but should be dispensed to clinic for ' \
             'in-clinic administration.. Refills: 5.'
           )
-          expect(oracle_prescription.refillable?).to be false
+          expect(oracle_prescription.is_refillable).to be false
           expect(oracle_prescription.ordered_date).to eq('Fri, 27 Jun 2025 00:00:00 EDT')
         end
       end
@@ -1019,7 +1019,7 @@ describe UnifiedHealthData::Service, type: :service do
           # Test prescription with completed status mapping
           completed_prescription = prescriptions.find { |p| p.prescription_id == '15214166467' }
           expect(completed_prescription.refill_status).to eq('completed')
-          expect(completed_prescription.refillable?).to be false
+          expect(completed_prescription.is_refillable).to be false
           expect(completed_prescription.refill_date).to eq('2025-05-22T21:03:45Z')
         end
       end

@@ -249,7 +249,6 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
           expect(result).to be_a(UnifiedHealthData::Prescription)
           expect(result.id).to eq('12345')
-          expect(result.type).to eq('Prescription')
         end
       end
 

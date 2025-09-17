@@ -7,7 +7,6 @@ module UnifiedHealthData
     include Vets::Model
 
     attribute :id, String
-    attribute :type, String
     attribute :refill_status, String
     attribute :refill_submit_date, String
     attribute :refill_date, String
@@ -30,14 +29,6 @@ module UnifiedHealthData
     # Method aliases to match serializer expectations
     def prescription_id
       id
-    end
-
-    def refillable?
-      is_refillable
-    end
-
-    def trackable?
-      is_trackable
     end
   end
 end
