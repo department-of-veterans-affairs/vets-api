@@ -22,8 +22,11 @@ module ClaimsApi
         # Validate veteran information
         validate_veteran!
 
-        # Validate disabilities
-        validate_disabilities!
+        # Validate disability special issues and duplicates
+        validate_disability_special_issues_and_duplicates!
+
+        # Validate special circumstances
+        validate_special_circumstances!
 
         # Return collected errors
         error_collection if @errors
@@ -449,7 +452,8 @@ module ClaimsApi
         return if change_of_address.dig('dates', 'endDate').blank?
 
         collect_error(
-          source: '/changeOfAddress/dates/endDate', detail: 'EndingDate cannot be provided for a permanent address'
+          source: '/changeOfAddress/dates/endDate',
+          detail: 'EndingDate cannot be provided for a permanent address'
         )
       end
 
@@ -482,7 +486,8 @@ module ClaimsApi
         return if change_of_address['city'].present?
 
         collect_error(
-          source: '/changeOfAddress/city', detail: 'City is required'
+          source: '/changeOfAddress/city',
+          detail: 'City is required'
         )
       end
 
@@ -491,7 +496,8 @@ module ClaimsApi
         return if change_of_address['state'].present?
 
         collect_error(
-          source: '/changeOfAddress/state', detail: 'State is required'
+          source: '/changeOfAddress/state',
+          detail: 'State is required'
         )
       end
 
@@ -500,7 +506,8 @@ module ClaimsApi
         return if change_of_address['zipFirstFive'].present?
 
         collect_error(
-          source: '/changeOfAddress/zipFirstFive',          detail: 'ZipFirstFive is required'
+          source: '/changeOfAddress/zipFirstFive',
+          detail: 'ZipFirstFive is required'
         )
       end
 
@@ -515,7 +522,8 @@ module ClaimsApi
         return if change_of_address['city'].present?
 
         collect_error(
-          source: '/changeOfAddress/city', detail: 'City is required'
+          source: '/changeOfAddress/city',
+          detail: 'City is required'
         )
       end
 
@@ -524,7 +532,8 @@ module ClaimsApi
         return if change_of_address['country'].present?
 
         collect_error(
-          source: '/changeOfAddress/country', detail: 'Country is required'
+          source: '/changeOfAddress/country',
+          detail: 'Country is required'
         )
       end
 
@@ -533,7 +542,8 @@ module ClaimsApi
         return if change_of_address['internationalPostalCode'].present?
 
         collect_error(
-          source: '/changeOfAddress/internationalPostalCode', detail: 'InternationalPostalCode is required'
+          source: '/changeOfAddress/internationalPostalCode',
+          detail: 'InternationalPostalCode is required'
         )
       end
 
@@ -548,6 +558,112 @@ module ClaimsApi
         collect_error(
           source: '/disabilities',
           detail: "Number of disabilities (#{disabilities.size}) exceeds maximum allowed (150)"
+        )
+      end
+
+      ### FES Val Section 7: Disability special issues and duplicate validations
+      def validate_disability_special_issues_and_duplicates!
+        disabilities = form_attributes['disabilities']
+        return if disabilities.blank?
+
+        # FES Val Section 7.x: Check for duplicate disability names
+        validate_duplicate_disability_names!(disabilities)
+
+        disabilities.each_with_index do |disability, index|
+          # FES Val Section 7.u: specialIssues validation for INCREASE disabilities
+          validate_special_issues_for_increase!(disability, index)
+
+          # FES Val Section 7.v: HEPC specialIssue validation
+          validate_hepc_special_issue!(disability, index)
+
+          # FES Val Section 7.w: POW specialIssue validation
+          validate_pow_special_issue!(disability, index)
+        end
+      end
+
+      # FES Val Section 7.u: specialIssues must be null for INCREASE unless EMP or RRD
+      def validate_special_issues_for_increase!(disability, index)
+        return unless disability['disabilityActionType'] == 'INCREASE'
+
+        special_issues = disability['specialIssues']
+        return if special_issues.blank?
+
+        # EMP and RRD are allowed for INCREASE
+        allowed_special_issues = %w[EMP RRD]
+        invalid_issues = special_issues - allowed_special_issues
+
+        return if invalid_issues.empty?
+
+        collect_error(
+          source: "/disabilities/#{index}/specialIssues",
+          title: 'Invalid value',
+          detail: 'A Special Issue cannot be added to a primary disability after the disability has been rated'
+        )
+      end
+
+      # FES Val Section 7.v: HEPC special issue only valid for Hepatitis
+      def validate_hepc_special_issue!(disability, index)
+        special_issues = disability['specialIssues']
+        return unless special_issues&.include?('HEPC')
+
+        disability_name = disability['name']&.downcase
+        return if disability_name&.include?('hepatitis')
+
+        collect_error(
+          source: "/disabilities/#{index}/specialIssues",
+          title: 'Invalid value',
+          detail: 'A special issue of HEPC can only exist for the disability Hepatitis'
+        )
+      end
+
+      # FES Val Section 7.w: POW special issue requires confinements
+      def validate_pow_special_issue!(disability, index)
+        special_issues = disability['specialIssues']
+        return unless special_issues&.include?('POW')
+
+        confinements = form_attributes['confinements']
+        return if confinements.present? && !confinements.empty?
+
+        collect_error(
+          source: "/disabilities/#{index}/specialIssues",
+          title: 'Invalid value',
+          detail: 'A prisoner of war must have at least one period of confinement record'
+        )
+      end
+
+      # FES Val Section 7.x: Check for duplicate disability names
+      def validate_duplicate_disability_names!(disabilities)
+        name_counts = Hash.new(0)
+
+        disabilities.each_with_index do |disability, index|
+          name = disability['name']
+          next if name.blank?
+
+          name_counts[name.downcase] += 1
+
+          # Report error on the second occurrence
+          next unless name_counts[name.downcase] == 2
+
+          collect_error(
+            source: "/disabilities/#{index}/name",
+            title: 'Invalid value',
+            detail: "Duplicate disability name found: #{name}"
+          )
+        end
+      end
+
+      ### FES Val Section 10: Special circumstances validation
+      def validate_special_circumstances!
+        special_circumstances = form_attributes['specialCircumstances']
+        return if special_circumstances.blank?
+
+        # FES Val Section 10.b: Maximum 100 special circumstances
+        return unless special_circumstances.size > 100
+
+        collect_error(
+          source: '/specialCircumstances',
+          title: 'Invalid array',
+          detail: "Number of special circumstances #{special_circumstances.size} must be between 0 and 100 inclusive"
         )
       end
 
