@@ -328,7 +328,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
           submission.reload
           classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
-          expect(classification_codes).to eq([9012, 8994, 8989, 8997])\
+          expect(classification_codes).to eq([9012, 8994, 8989, 8997]) \
         end
       end
 
