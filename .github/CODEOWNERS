@@ -1145,10 +1145,11 @@ spec/controllers/v0/sign_in_controller_callback_basic_spec.rb @department-of-vet
 spec/controllers/v0/sign_in_controller_callback_dslogon_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_callback_idme_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_callback_logingov_spec.rb @department-of-veterans-affairs/octo-identity
+spec/controllers/v0/sign_in_controller_logingov_logout_proxy_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_logout_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_refresh_spec.rb @department-of-veterans-affairs/octo-identity
+spec/controllers/v0/sign_in_controller_revoke_all_sessions_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_revoke_spec.rb @department-of-veterans-affairs/octo-identity
-spec/controllers/v0/sign_in_controller_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_token_authorization_code_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_token_basic_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_token_exchange_spec.rb @department-of-veterans-affairs/octo-identity
