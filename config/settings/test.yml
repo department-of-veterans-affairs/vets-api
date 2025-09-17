@@ -9,6 +9,7 @@ accredited_representative_portal:
       base_uri: https://not.real.com
       path: not_real.csv
       repo: faked/fakeness
+  frontend_base_url: http://localhost:3001/representative
 adapted_housing:
   prefill: true
 argocd:
@@ -417,13 +418,6 @@ evss:
   mock_disabilities_form: true
   mock_gi_bill_status: false
   mock_letters: false
-  mock_pciu: true
-  mock_pciu_address: false
-  mock_vso_search: false
-  pciu:
-    timeout: 30
-  pciu_address:
-    timeout: 30
   prefill: true
   root_cert_path: ~
   s3:
@@ -713,6 +707,19 @@ lighthouse:
     url: https://sandbox-api.va.gov
     veterans_health:
       url: ~
+  healthcare_cost_and_coverage:
+    access_token:
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/fake1tcityDg93hgKkd#/v1/token
+      client_id: fake_client_id
+      rsa_key: path/to/fake/pem
+    host: https://test-api.va.gov
+    scopes:
+      - system/ChargeItem.read
+      - system/Invoice.read
+      - system/PaymentReconciliation.read
+      - launch
+    timeout: 30
+    use_mocks: false
   letters_generator:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token
@@ -794,7 +801,7 @@ maintenance:
     bucket: ~
     region: ~
     secret_access_key: ~
-  pagerduty_api_token: FAKE
+  pagerduty_api_token: <%= ENV['maintenance__pagerduty_api_token'] || 'FAKE_PAGER_DUTY_API_TOKEN' %>
   pagerduty_api_url: https://api.pagerduty.com
   service_query_prefix: 'External: '
   services:
@@ -1637,8 +1644,6 @@ vaos:
       hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 vba_documents:
   custom_metadata_allow_list: ~
-  documentation:
-    path_enabled_flag: false
   enable_download_endpoint: true
   enable_status_override: ~
   enable_validate_document_endpoint: true

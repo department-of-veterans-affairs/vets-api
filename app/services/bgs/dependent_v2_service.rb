@@ -22,6 +22,7 @@ module BGS
     STATS_KEY = 'bgs.dependent_service'
 
     class PDFSubmissionError < StandardError; end
+    class BgsServicesError < StandardError; end
 
     def initialize(user)
       @first_name = user.first_name
@@ -61,10 +62,7 @@ module BGS
     rescue PDFSubmissionError
       submit_to_central_service(claim:, encrypted_vet_info:)
     rescue => e
-      @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
-                           "#{STATS_KEY}.failure", { error: e.message })
-      log_exception_to_sentry(e, { uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
-
+      log_bgs_errors(e)
       raise e
     end
 
@@ -72,6 +70,42 @@ module BGS
 
     def service
       @service ||= BGS::Services.new(external_uid: icn, external_key:)
+    end
+
+    def log_bgs_errors(error)
+      increment_non_validation_error(error) if Flipper.enabled?(:va_dependents_bgs_extra_error_logging)
+
+      # Temporarily logging a few iterations of status code to see what BGS returns in the error
+      @monitor.track_event(
+        'warn', 'BGS::DependentService#submit_686c_form method failed!',
+        "#{STATS_KEY}.failure",
+        {
+          error: error.message,
+          status: error.try(:status) || 'no status',
+          status_code: error.try(:status_code) || 'no status code',
+          code: error.try(:code) || 'no code'
+        }
+      )
+    end
+
+    def increment_non_validation_error(error)
+      error_messages = ['HTTP error (302)', 'HTTP error (500)', 'HTTP error (502)', 'HTTP error (504)']
+      error_type_map = {
+        'HTTP error (302)' => '302',
+        'HTTP error (500)' => '500',
+        'HTTP error (502)' => '502',
+        'HTTP error (504)' => '504'
+      }
+      nested_error_message = error.cause&.message
+
+      error_type = error_messages.find do |et|
+        nested_error_message&.include?(et)
+      end
+
+      if error_type.present?
+        error_status = error_type_map[error_type]
+        StatsD.increment("#{STATS_KEY}.non_validation_error.#{error_status}", tags: ["form_id:#{BGS::SubmitForm686cV2Job::FORM_ID}"])
+      end
     end
 
     def folder_identifier
@@ -107,10 +141,11 @@ module BGS
 
       @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
-    rescue
+    rescue => e
+      error = Flipper.enabled?(:dependents_log_vbms_errors) ? e.message : '[REDACTED]'
       @monitor.track_event('warn',
                            'BGS::DependentV2Service#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
-                           "#{STATS_KEY}.submit_pdf.failure")
+                           "#{STATS_KEY}.submit_pdf.failure", { error: })
       raise PDFSubmissionError
     end
 
@@ -170,17 +205,17 @@ module BGS
     def submit_to_standard_service(claim:, encrypted_vet_info:)
       if claim.submittable_686?
         BGS::SubmitForm686cV2Job.perform_async(
-          uuid, icn, claim.id, encrypted_vet_info
+          uuid, claim.id, encrypted_vet_info
         )
       else
         BGS::SubmitForm674V2Job.perform_async(
-          uuid, icn, claim.id, encrypted_vet_info
+          uuid, claim.id, encrypted_vet_info
         )
       end
     end
 
     def submit_to_central_service(claim:, encrypted_vet_info:)
-      vet_info = JSON.parse(claim.form)['dependents_application']
+      vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
 
       user = BGS::SubmitForm686cV2Job.generate_user_struct(vet_info)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job.perform_async(
@@ -216,6 +251,11 @@ module BGS
       # submission failed.
 
       generate_hash_from_details
+    rescue
+      @monitor.track_event('warn',
+                           'BGS::DependentV2Service#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
+                           "#{STATS_KEY}.submit_pdf.failure")
+      raise BgsServicesError
     end
 
     def generate_hash_from_details

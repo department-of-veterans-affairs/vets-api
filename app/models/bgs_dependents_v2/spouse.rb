@@ -40,6 +40,7 @@ module BGSDependentsV2
     attribute :va_file_number, String
     attribute :ever_married_ind, String
     attribute :martl_status_type_cd, String
+    attribute :marriage_method_name, String
     attribute :spouse_income, String
 
     def initialize(dependents_application) # rubocop:disable Lint/MissingSuper
@@ -67,6 +68,7 @@ module BGSDependentsV2
       @vet_ind = spouse_is_veteran
       @address = spouse_address
       @spouse_income = spouse_income
+      @marriage_method_name = marriage_method_name
       @first = @spouse_information['full_name']['first']
       @middle = @spouse_information['full_name']['middle']
       @last = @spouse_information['full_name']['last']
@@ -100,6 +102,10 @@ module BGSDependentsV2
         lives_with_vet: @dependents_application['does_live_with_spouse']['spouse_does_live_with_veteran'],
         alt_address: @dependents_application.dig('does_live_with_spouse', 'address')
       )
+    end
+
+    def marriage_method_name
+      @dependents_application.dig('current_marriage_information', 'type_of_marriage')
     end
   end
 end

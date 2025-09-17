@@ -67,8 +67,8 @@ describe VAOS::V2::AppointmentsReasonCodeService do
     it 'extract valid reason code fields for va request' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       subject.extract_reason_code_fields(appt)
-      expect(appt[:contact][:telecom][0]).to eq({ type: 'phone', value: '6195551234' })
-      expect(appt[:contact][:telecom][1]).to eq({ type: 'email', value: 'myemail72585885@unattended.com' })
+      expect(appt[:contact][:telecom][0]).to match({ type: 'phone', value: '6195551234' })
+      expect(appt[:contact][:telecom][1]).to match({ type: 'email', value: 'myemail72585885@unattended.com' })
       expect(appt[:patient_comments]).to eq('colon:in:comment')
       expect(appt[:reason_for_appointment]).to eq('Routine/Follow-up')
       expect(appt[:preferred_dates]).to eq(['Wednesday, June 26, 2024 in the morning',
@@ -80,8 +80,8 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       it 'extract only valid reason code fields for va request' do
         appt = build(:appointment_form_v2, :va_proposed_valid_and_invalid_reason_code_text).attributes
         subject.extract_reason_code_fields(appt)
-        expect(appt[:contact][:telecom][0]).to eq({ type: 'phone', value: '6195551234' })
-        expect(appt[:contact][:telecom][1]).to eq({ type: 'email', value: 'myemail72585885@unattended.com' })
+        expect(appt[:contact][:telecom][0]).to match({ type: 'phone', value: '6195551234' })
+        expect(appt[:contact][:telecom][1]).to match({ type: 'email', value: 'myemail72585885@unattended.com' })
         expect(appt[:patient_comments]).to be_nil
         expect(appt[:reason_for_appointment]).to be_nil
         expect(appt[:preferred_dates]).to eq(['Wednesday, June 26, 2024 in the morning',
