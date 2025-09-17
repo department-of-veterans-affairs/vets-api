@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "https://dev.integration.d365.va.gov/fake_template_id/oauth2/token"
+    uri: "https://login.microsoftonline.us/fake_template_id/oauth2/token"
     body:
       encoding: UTF-8
       string: "client_id=fake_client_id&client_secret=fake_client_secret&client_type=1&scope=fake_scope&grant_type=client_credentials&resource=fake_resource"

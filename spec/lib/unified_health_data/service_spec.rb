@@ -1085,59 +1085,51 @@ describe UnifiedHealthData::Service, type: :service do
   end
 
   describe '#refill_prescription' do
-    let(:refill_response) do
-      JSON.parse(Rails.root.join(
-        'spec', 'fixtures', 'unified_health_data', 'refill_response.json'
-      ).read)
-    end
-
-    context 'with valid refill request' do
-      before do
-        allow(service).to receive_messages(fetch_access_token: 'token',
-                                           perform: double(body: refill_response, status: 200),
-                                           parse_response_body: refill_response)
-      end
-
+    context 'with valid refill request', :vcr do
       it 'submits refill requests and returns success/failure breakdown' do
-        orders = [
-          { id: '28148665', stationNumber: '570' },
-          { id: '28148545', stationNumber: '556' }
-        ]
-        result = service.refill_prescription(orders)
+        VCR.use_cassette('unified_health_data/refill_prescription_success') do
+          orders = [
+            { id: '15220389459', stationNumber: '556' },
+            { id: '0000000000001', stationNumber: '570' }
+          ]
+          result = service.refill_prescription(orders)
 
-        expect(result).to have_key(:success)
-        expect(result).to have_key(:failed)
+          expect(result).to have_key(:success)
+          expect(result).to have_key(:failed)
 
-        expect(result[:success]).to contain_exactly(
-          { id: '28148665', status: 'submitted' }
-        )
+          expect(result[:success]).to contain_exactly(
+            { id: '15220389459', status: 'Already in Queue', station_number: '556' }
+          )
 
-        expect(result[:failed]).to contain_exactly(
-          { id: '28148545', error: 'Prescription already has pending refill request' }
-        )
+          expect(result[:failed]).to contain_exactly(
+            { id: '0000000000001', error: 'Prescription is not Found', station_number: '570' }
+          )
+        end
       end
 
       it 'formats request body correctly' do
-        orders = [
-          { id: '12345', stationNumber: '570' },
-          { id: '67890', stationNumber: '556' }
-        ]
-        expected_body = {
-          patientId: user.icn,
-          orders: [
+        VCR.use_cassette('unified_health_data/refill_prescription_success') do
+          orders = [
             { id: '12345', stationNumber: '570' },
             { id: '67890', stationNumber: '556' }
           ]
-        }.to_json
+          expected_body = {
+            patientId: user.icn,
+            orders: [
+              { orderId: '12345', stationNumber: '570' },
+              { orderId: '67890', stationNumber: '556' }
+            ]
+          }.to_json
 
-        expect(service).to receive(:perform).with(
-          :post,
-          anything,
-          expected_body,
-          hash_including('Content-Type' => 'application/json')
-        ).and_return(double(body: refill_response))
+          expect(service).to receive(:perform).with(
+            :post,
+            anything,
+            expected_body,
+            hash_including('Content-Type' => 'application/json')
+          ).and_call_original
 
-        service.refill_prescription(orders)
+          service.refill_prescription(orders)
+        end
       end
     end
 
@@ -1150,7 +1142,7 @@ describe UnifiedHealthData::Service, type: :service do
 
         expect(result[:success]).to eq([])
         expect(result[:failed]).to contain_exactly(
-          { id: '12345', error: 'Service unavailable' }
+          { id: '12345', error: 'Service unavailable', station_number: '570' }
         )
       end
 
@@ -1164,18 +1156,14 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
 
-    context 'with malformed response' do
-      before do
-        allow(service).to receive_messages(fetch_access_token: 'token',
-                                           perform: double(body: '{}'),
-                                           parse_response_body: {})
-      end
-
+    context 'with malformed response', :vcr do
       it 'handles empty response gracefully' do
-        result = service.refill_prescription([{ id: '12345', stationNumber: '570' }])
+        VCR.use_cassette('unified_health_data/refill_prescription_empty') do
+          result = service.refill_prescription([{ id: '12345', stationNumber: '570' }])
 
-        expect(result[:success]).to eq([])
-        expect(result[:failed]).to eq([])
+          expect(result[:success]).to eq([])
+          expect(result[:failed]).to eq([])
+        end
       end
     end
   end
@@ -1241,6 +1229,181 @@ describe UnifiedHealthData::Service, type: :service do
         expect do
           uhd_service.get_single_summary_or_note('banana')
         end.to raise_error(StandardError, 'Unknown fetch error')
+      end
+    end
+  end
+
+  # Conditions
+  describe '#get_conditions' do
+    let(:conditions_sample_response) do
+      JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'conditions_sample_response.json').read)
+    end
+    let(:conditions_empty_vista_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'conditions_empty_vista_response.json'
+      ).read)
+    end
+    let(:conditions_empty_oh_response) do
+      JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'conditions_empty_oh_response.json').read)
+    end
+    let(:conditions_empty_response) do
+      JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'conditions_empty_response.json').read)
+    end
+
+    let(:condition_attributes) do
+      {
+        'id' => be_a(String),
+        'name' => be_a(String),
+        'date' => be_a(String).or(be_nil),
+        'provider' => be_a(String).or(be_nil),
+        'facility' => be_a(String).or(be_nil),
+        'comments' => be_an(Array).or(be_nil)
+      }
+    end
+
+    before do
+      allow(service).to receive(:fetch_access_token).and_return('token')
+    end
+
+    it 'returns conditions from both VistA and Oracle Health' do
+      allow(service).to receive_messages(
+        perform: double(body: conditions_sample_response),
+        parse_response_body: conditions_sample_response
+      )
+
+      conditions = service.get_conditions
+      expect(conditions.size).to eq(18)
+      expect(conditions).to all(be_a(UnifiedHealthData::Condition))
+      expect(conditions).to all(have_attributes(condition_attributes))
+    end
+
+    it 'returns conditions from both VistA and Oracle Health with real sample data' do
+      allow(service).to receive_messages(
+        perform: double(body: conditions_sample_response),
+        parse_response_body: conditions_sample_response
+      )
+
+      conditions = service.get_conditions
+      expect(conditions.size).to eq(18)
+      expect(conditions).to all(be_a(UnifiedHealthData::Condition))
+      expect(conditions).to all(have_attributes(condition_attributes))
+
+      vista_conditions = conditions.select { |c| c.id.include?('-') }
+      oh_conditions = conditions.reject { |c| c.id.include?('-') }
+      expect(vista_conditions).not_to be_empty
+      expect(oh_conditions).not_to be_empty
+
+      depression_condition = conditions.find { |c| c.id == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+      covid_condition = conditions.find { |c| c.id == 'p1533314061' }
+
+      expect(depression_condition).to have_attributes(
+        name: 'Major depressive disorder, recurrent, moderate',
+        provider: 'BORLAND,VICTORIA A',
+        facility: 'CHYSHR TEST LAB'
+      )
+
+      expect(covid_condition).to have_attributes(
+        name: 'Disease caused by 2019-nCoV',
+        provider: 'SYSTEM, SYSTEM Cerner, Cerner Managed Acct',
+        facility: 'WAMC Bariatric Surgery'
+      )
+    end
+
+    it 'returns empty array when no data exists' do
+      allow(service).to receive_messages(
+        perform: double(body: conditions_empty_response),
+        parse_response_body: conditions_empty_response
+      )
+
+      conditions = service.get_conditions
+      expect(conditions).to eq([])
+    end
+
+    it 'returns conditions from Oracle Health only when VistA is empty' do
+      allow(service).to receive_messages(
+        perform: double(body: conditions_empty_vista_response),
+        parse_response_body: conditions_empty_vista_response
+      )
+
+      conditions = service.get_conditions
+      expect(conditions.size).to eq(2)
+      expect(conditions).to all(be_a(UnifiedHealthData::Condition))
+      covid_condition = conditions.find { |c| c.id == 'p1533314061' }
+      expect(covid_condition.name).to eq('Disease caused by 2019-nCoV')
+    end
+
+    it 'returns conditions from VistA only when Oracle Health is empty' do
+      allow(service).to receive_messages(
+        perform: double(body: conditions_empty_oh_response),
+        parse_response_body: conditions_empty_oh_response
+      )
+
+      conditions = service.get_conditions
+      expect(conditions.size).to eq(16)
+      expect(conditions).to all(be_a(UnifiedHealthData::Condition))
+      first_condition = conditions.find { |c| c.id == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+      expect(first_condition.name).to eq('Major depressive disorder, recurrent, moderate')
+    end
+
+    it 'handles malformed responses gracefully' do
+      allow(service).to receive_messages(
+        perform: double(body: 'invalid'),
+        parse_response_body: nil
+      )
+
+      expect { service.get_conditions }.not_to raise_error
+      expect(service.get_conditions).to eq([])
+    end
+
+    it 'handles missing data sections without errors' do
+      modified_response = JSON.parse(conditions_sample_response.to_json)
+      modified_response['vista'] = nil
+      modified_response['oracle-health'] = nil
+      allow(service).to receive_messages(
+        perform: double(body: conditions_sample_response),
+        parse_response_body: modified_response
+      )
+
+      expect { service.get_conditions }.not_to raise_error
+      expect(service.get_conditions).to be_an(Array)
+    end
+
+    describe '#get_single_condition' do
+      let(:condition_id) { '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+
+      it 'returns a single condition when found' do
+        allow(service).to receive_messages(
+          perform: double(body: conditions_sample_response),
+          parse_response_body: conditions_sample_response
+        )
+
+        condition = service.get_single_condition(condition_id)
+        expect(condition).to be_a(UnifiedHealthData::Condition)
+        expect(condition.id).to eq(condition_id)
+        expect(condition.name).to eq('Major depressive disorder, recurrent, moderate')
+        expect(condition.provider).to eq('BORLAND,VICTORIA A')
+        expect(condition.facility).to eq('CHYSHR TEST LAB')
+      end
+
+      it 'returns nil when condition not found' do
+        allow(service).to receive_messages(
+          perform: double(body: conditions_empty_response),
+          parse_response_body: conditions_empty_response
+        )
+
+        condition = service.get_single_condition('nonexistent-id')
+        expect(condition).to be_nil
+      end
+
+      it 'handles malformed responses gracefully' do
+        allow(service).to receive_messages(
+          perform: double(body: 'invalid'),
+          parse_response_body: nil
+        )
+
+        expect { service.get_single_condition(condition_id) }.not_to raise_error
+        condition = service.get_single_condition(condition_id)
+        expect(condition).to be_nil
       end
     end
   end

@@ -95,10 +95,6 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       uploaded_forms << form_id
       save
     end
-  rescue => e
-    Rails.logger.debug('DependencyClaim: Issue Uploading to VBMS in upload_pdf method',
-                       { saved_claim_id: id, form_id:, error: e })
-    raise e
   end
 
   def process_pdf(pdf_path, timestamp = nil, form_id = nil, iterator = nil)
@@ -184,6 +180,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     )
 
     uploader.upload! unless Rails.env.development?
+  rescue
+    # Do not directly expose the error message in case it contains PII (despite PII scrubbing efforts).
+    monitor.track_pdf_upload_error
+    raise StandardError, 'VBMS Upload Error'
   end
 
   def form_matches_schema
