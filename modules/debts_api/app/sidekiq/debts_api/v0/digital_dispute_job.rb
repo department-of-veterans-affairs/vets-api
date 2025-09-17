@@ -24,12 +24,12 @@ module DebtsApi
       submission = DebtsApi::V0::DigitalDisputeSubmission.find(submission_id)
       user_account = submission.user_account
       mpi_response = MPI::Service.new.find_profile_by_identifier(identifier: user_account.icn, identifier_type: MPI::Constants::ICN)
-      user = OpenStruct.new(participant_id: mpi_response.profile.participant_id, ssn: mpi_response.profile.ssn)
+      user = OpenStruct.new(participant_id: mpi_response.profile.participant_id, ssn: mpi_response.profile.ssn, user_uuid: submission.user_uuid)
 
       DebtsApi::V0::DigitalDisputeDmcService.new(user, submission).call!
 
       submission.register_success
-      in_progress_form&.destroy
+      in_progress_form(user)&.destroy
     rescue => e
       Rails.logger.error("DigitalDisputeJob failed for submission_id #{submission_id}: #{e.message}")
       raise e
@@ -37,8 +37,8 @@ module DebtsApi
 
     private
 
-    def in_progress_form
-      InProgressForm.form_for_user('DISPUTE-DEBT', current_user)
+    def in_progress_form(user)
+      InProgressForm.form_for_user('DISPUTE-DEBT', user)
     end
   end
 end
