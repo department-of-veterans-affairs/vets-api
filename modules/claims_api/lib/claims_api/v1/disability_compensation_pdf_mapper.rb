@@ -7,6 +7,20 @@ module ClaimsApi
     class DisabilityCompensationPdfMapper
       include PdfMapperBase
 
+      HOMELESSNESS_RISK_SITUATION_TYPES = {
+        'fleeing' => 'FLEEING_CURRENT_RESIDENCE',
+        'shelter' => 'LIVING_IN_A_HOMELESS_SHELTER',
+        'notShelter' => 'NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT',
+        'anotherPerson' => 'STAYING_WITH_ANOTHER_PERSON',
+        'other' => 'OTHER'
+      }.freeze
+
+      RISK_OF_BECOMING_HOMELESS_TYPES = {
+        'losingHousing' => 'HOUSING_WILL_BE_LOST_IN_30_DAYS',
+        'leavingShelter' => 'LEAVING_PUBLICLY_FUNDED_SYSTEM_OF_CARE',
+        'other' => 'OTHER'
+      }.freeze
+
       def initialize(auto_claim, pdf_data, auth_headers, middle_initial)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
@@ -228,7 +242,8 @@ module ClaimsApi
         phone_object = point_of_contact_info&.dig('primaryPhone')
         phone_number = phone_object.values.join
 
-        @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber] = convert_phone(phone_number)
+        @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber] =
+          { telephone: convert_phone(phone_number) }
       end
 
       # if "currentlyHomeless" is present "homelessSituationType", "otherLivingSituation" are required by the schema
@@ -239,7 +254,8 @@ module ClaimsApi
         set_pdf_data_for_currently_homeless_information
         currently_homeless_base = @pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
 
-        currently_homeless_base[:homelessSituationOptions] = currently_homeless_info['homelessSituationType']
+        currently_homeless_base[:homelessSituationOptions] =
+          HOMELESSNESS_RISK_SITUATION_TYPES[currently_homeless_info['homelessSituationType']]
         currently_homeless_base[:otherDescription] = currently_homeless_info['otherLivingSituation']
       end
 
@@ -257,7 +273,8 @@ module ClaimsApi
         set_pdf_data_for_homelessness_risk_information
         risk_of_homeless_base = @pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
 
-        risk_of_homeless_base[:livingSituationOptions] = homelessness_risk_info['homelessnessRiskSituationType']
+        risk_of_homeless_base[:livingSituationOptions] =
+          RISK_OF_BECOMING_HOMELESS_TYPES[homelessness_risk_info['homelessnessRiskSituationType']]
         risk_of_homeless_base[:otherDescription] = homelessness_risk_info['otherLivingSituation']
       end
 

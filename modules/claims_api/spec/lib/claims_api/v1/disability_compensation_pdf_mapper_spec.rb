@@ -260,7 +260,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
           homeless_base = pdf_data[:data][:attributes][:homelessInformation]
 
           expect(homeless_base[:pointOfContact]).to eq('Firstname Lastname')
-          expect(homeless_base[:pointOfContactNumber]).to eq('123-555-1234')
+          expect(homeless_base[:pointOfContactNumber][:telephone]).to eq('123-555-1234')
         end
 
         it 'does not map anything if not included' do
@@ -309,7 +309,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
 
           currently_homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
 
-          expect(currently_homeless_base[:homelessSituationOptions]).to eq('fleeing')
+          expect(currently_homeless_base[:homelessSituationOptions]).to eq('FLEEING_CURRENT_RESIDENCE')
           expect(currently_homeless_base[:otherDescription]).to eq('none')
         end
 
@@ -320,6 +320,62 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
           homeless_base = pdf_data[:data][:attributes][:homelessInformation]
 
           expect(homeless_base).not_to have_key(:currentlyHomeless)
+        end
+
+        context 'mapping the enums' do
+          before do
+            form_attributes['veteran']['homelessness']['currentlyHomeless'] = {}
+          end
+
+          it "maps 'fleeing' to 'FLEEING_CURRENT_RESIDENCE'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'fleeing'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('FLEEING_CURRENT_RESIDENCE')
+          end
+
+          it "maps 'shelter' to 'LIVING_IN_A_HOMELESS_SHELTER'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'shelter'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('LIVING_IN_A_HOMELESS_SHELTER')
+          end
+
+          it "maps 'notShelter' to 'NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'notShelter'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT')
+          end
+
+          it "maps 'anotherPerson' to 'STAYING_WITH_ANOTHER_PERSON'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'anotherPerson'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('STAYING_WITH_ANOTHER_PERSON')
+          end
+
+          it "maps 'other' to 'OTHER'" do
+            form_attributes['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] =
+              'other'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
+
+            expect(homeless_base[:homelessSituationOptions]).to eq('OTHER')
+          end
         end
       end
 
@@ -361,7 +417,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
 
           risk_of_homeless_base = pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
 
-          expect(risk_of_homeless_base[:livingSituationOptions]).to eq('other')
+          expect(risk_of_homeless_base[:livingSituationOptions]).to eq('OTHER')
           expect(risk_of_homeless_base[:otherDescription]).to eq('Other situation')
         end
 
@@ -372,6 +428,42 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
           homeless_base = pdf_data[:data][:attributes][:homelessInformation]
 
           expect(homeless_base).not_to have_key(:riskOfBecomingHomeless)
+        end
+
+        context 'mapping the enums' do
+          before do
+            form_attributes['veteran']['homelessness']['homelessnessRisk'] = {}
+            form_attributes['veteran']['homelessness']['homelessnessRisk']['otherLivingSituation'] = 'Other situation'
+          end
+
+          it "maps 'other' to 'OTHER'" do
+            form_attributes['veteran']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType'] = 'other'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation]
+
+            expect(homeless_base[:riskOfBecomingHomeless][:livingSituationOptions]).to eq('OTHER')
+          end
+
+          it "maps 'leavingShelter' to 'LEAVING_PUBLICLY_FUNDED_SYSTEM_OF_CARE'" do
+            form_attributes['veteran']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType'] =
+              'leavingShelter'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
+
+            expect(homeless_base[:livingSituationOptions]).to eq('LEAVING_PUBLICLY_FUNDED_SYSTEM_OF_CARE')
+          end
+
+          it "maps 'losingHousing' to 'HOUSING_WILL_BE_LOST_IN_30_DAYS'" do
+            form_attributes['veteran']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType'] =
+              'losingHousing'
+            mapper.map_claim
+
+            homeless_base = pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
+
+            expect(homeless_base[:livingSituationOptions]).to eq('HOUSING_WILL_BE_LOST_IN_30_DAYS')
+          end
         end
       end
     end
