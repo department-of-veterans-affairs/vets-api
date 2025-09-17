@@ -109,6 +109,160 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(vista_prescription).to be_present
         expect(oracle_prescription).to be_present
       end
+
+      context 'with focused_only: false (default)' do
+        it 'returns all prescriptions without filtering' do
+          prescriptions = subject.parse(unified_response, focused_only: false)
+
+          expect(prescriptions.size).to eq(2)
+          expect(prescriptions).to all(be_a(UnifiedHealthData::Prescription))
+        end
+      end
+
+      context 'with focused_only: true' do
+        let(:vista_medication_pf) do
+          vista_medication_data.merge('prescriptionSource' => 'PF')
+        end
+
+        let(:vista_medication_nv) do
+          vista_medication_data.merge('prescriptionSource' => 'NV')
+        end
+
+        let(:vista_medication_expired_old) do
+          vista_medication_data.merge(
+            'refillStatus' => 'expired',
+            'expirationDate' => 200.days.ago.strftime('%a, %d %b %Y %H:%M:%S %Z')
+          )
+        end
+
+        let(:oracle_medication_reported) do
+          oracle_health_medication_data.merge('reportedBoolean' => true)
+        end
+
+        context 'filters out PF (Partial Fill) prescriptions' do
+          let(:response_with_pf) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [vista_medication_pf] } },
+              'oracle-health' => { 'entry' => [] }
+            }
+          end
+
+          it 'excludes PF prescriptions' do
+            allow(Rails.logger).to receive(:info)
+
+            prescriptions = subject.parse(response_with_pf, focused_only: true)
+
+            expect(prescriptions).to be_empty
+            expect(Rails.logger).to have_received(:info).with(
+              hash_including(
+                message: 'Applied focused filtering to prescriptions',
+                original_count: 1,
+                filtered_count: 0,
+                excluded_count: 1
+              )
+            )
+          end
+        end
+
+        context 'filters out NV (Non-VA) prescriptions' do
+          let(:response_with_nv) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [vista_medication_nv] } },
+              'oracle-health' => { 'entry' => [] }
+            }
+          end
+
+          it 'excludes NV prescriptions' do
+            allow(Rails.logger).to receive(:info)
+
+            prescriptions = subject.parse(response_with_nv, focused_only: true)
+
+            expect(prescriptions).to be_empty
+            expect(Rails.logger).to have_received(:info).with(
+              hash_including(
+                message: 'Applied focused filtering to prescriptions',
+                excluded_count: 1
+              )
+            )
+          end
+        end
+
+        context 'filters out old discontinued/expired prescriptions' do
+          let(:response_with_old_expired) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [vista_medication_expired_old] } },
+              'oracle-health' => { 'entry' => [] }
+            }
+          end
+
+          it 'excludes expired prescriptions older than 180 days' do
+            allow(Rails.logger).to receive(:info)
+
+            prescriptions = subject.parse(response_with_old_expired, focused_only: true)
+
+            expect(prescriptions).to be_empty
+            expect(Rails.logger).to have_received(:info).with(
+              hash_including(
+                message: 'Applied focused filtering to prescriptions',
+                excluded_count: 1
+              )
+            )
+          end
+        end
+
+        context 'handles invalid expiration dates gracefully' do
+          let(:vista_medication_invalid_date) do
+            vista_medication_data.merge(
+              'refillStatus' => 'expired',
+              'expirationDate' => 'invalid-date'
+            )
+          end
+
+          let(:response_with_invalid_date) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [vista_medication_invalid_date] } },
+              'oracle-health' => { 'entry' => [] }
+            }
+          end
+
+          it 'logs warning and does not exclude based on date' do
+            allow(Rails.logger).to receive(:warn)
+            allow(Rails.logger).to receive(:info)
+
+            prescriptions = subject.parse(response_with_invalid_date, focused_only: true)
+
+            expect(prescriptions.size).to eq(1)
+            expect(Rails.logger).to have_received(:warn).with(
+              /Invalid expiration date format for prescription ending in \d{4}: invalid-date/
+            )
+          end
+        end
+
+        context 'does not filter Oracle Health reported prescriptions' do
+          let(:response_with_reported) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [] } },
+              'oracle-health' => { 'entry' => [{ 'resource' => oracle_medication_reported }] }
+            }
+          end
+
+          it 'filters out reported prescriptions marked as NV source' do
+            allow(Rails.logger).to receive(:info)
+
+            # The Oracle Health adapter should create the prescription with NV source
+            # Then the main adapter should filter it out when focused_only: true
+            prescriptions = subject.parse(response_with_reported, focused_only: true)
+
+            expect(prescriptions).to be_empty
+            expect(Rails.logger).to have_received(:info).with(
+              hash_including(
+                message: 'Applied focused filtering to prescriptions',
+                excluded_count: 1
+              )
+            )
+          end
+        end
+      end
     end
 
     context 'with VistA-only data' do
@@ -252,6 +406,24 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         end
       end
 
+      context 'with reportedBoolean true' do
+        let(:reported_resource) { base_resource.merge('reportedBoolean' => true) }
+
+        it 'returns prescription source NV' do
+          result = subject.parse(reported_resource)
+          expect(result.prescription_source).to eq('NV') # Should be marked as NV for filtering
+        end
+      end
+
+      context 'with reportedBoolean false' do
+        let(:not_reported_resource) { base_resource.merge('reportedBoolean' => false) }
+
+        it 'returns prescription object for non-reported medications' do
+          result = subject.parse(not_reported_resource)
+          expect(result.prescription_source).to eq('')
+        end
+      end
+
       context 'with nil resource' do
         it 'returns nil' do
           expect(subject.parse(nil)).to be_nil
@@ -282,6 +454,15 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:error).with('Error parsing Oracle Health prescription: Test error')
+        end
+      end
+    end
+
+    describe '#extract_prescription_source' do
+      context 'with reportedBoolean nil' do
+        it 'returns empty string for default VA medications' do
+          result = subject.send(:extract_prescription_source, base_resource)
+          expect(result).to eq('')
         end
       end
     end

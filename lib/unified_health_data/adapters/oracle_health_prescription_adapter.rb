@@ -3,6 +3,10 @@
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
+      # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
+      # @return [UnifiedHealthData::Prescription, nil] Parsed prescription or nil if invalid
       def parse(resource)
         return nil if resource.nil? || resource['id'].nil?
 
@@ -144,9 +148,8 @@ module UnifiedHealthData
         nil
       end
 
-      def extract_prescription_source(_resource)
-        # TODO: Identify non-VA meds, if/when possible
-        ''
+      def extract_prescription_source(resource)
+        resource['reportedBoolean'] == true ? 'NV' : ''
       end
 
       def build_instruction_text(instruction)

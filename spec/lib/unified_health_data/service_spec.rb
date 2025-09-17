@@ -956,6 +956,24 @@ describe UnifiedHealthData::Service, type: :service do
         end
       end
 
+      context 'with focused_only: false (default)' do
+        it 'returns all prescriptions without filtering' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            prescriptions = service.get_prescriptions(focused_only: false)
+            expect(prescriptions.size).to eq(78)
+          end
+        end
+      end
+
+      context 'with focused_only: true' do
+        it 'applies filtering to exclude certain prescription types' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            filtered_prescriptions = service.get_prescriptions(focused_only: true)
+            expect(filtered_prescriptions.size).to eq(72)
+          end
+        end
+      end
+
       it 'properly maps VistA prescription fields' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
           prescriptions = service.get_prescriptions
