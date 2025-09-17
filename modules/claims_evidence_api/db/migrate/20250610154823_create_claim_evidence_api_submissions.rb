@@ -1,4 +1,9 @@
+# frozen_string_literal: true
+
+# create submissions table
 class CreateClaimEvidenceApiSubmissions < ActiveRecord::Migration[7.2]
+
+  # create the table
   def change
     create_table :claims_evidence_api_submissions do |t|
       t.string :form_id, null: false, comment: 'form type of the submission'
