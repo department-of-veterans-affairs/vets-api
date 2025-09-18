@@ -9,23 +9,26 @@ module Lighthouse
     module MedicationDispense
       class Service < Common::Client::Base
         configuration Lighthouse::HealthcareCostAndCoverage::Configuration
-        STATSD_KEY_PREFIX = 'api.lighthouse.hccc.invoice'
+        STATSD_KEY_PREFIX = 'api.lighthouse.hccc.medication_dispense'
 
         def initialize(icn)
           @icn = icn
           raise ArgumentError, 'no ICN passed in for HCCC request' if icn.blank?
-
           super()
         end
 
-        def list(count: 50, id: nil, **extra)
-          endpoint = 'r4/Invoice'
-          params = { patient: @icn, _count: count }.merge(extra)
-          params[:_id] = id if id
+        def list(id: nil, patient: @icn, **params)
+          endpoint = 'r4/MedicationDispense'
+          query = {}
 
-          config.get(endpoint, params:, icn: @icn).body
-        rescue Faraday::TimeoutError, Faraday::ClientError, Faraday::ServerError => e
-          handle_error(e, endpoint)
+          if id
+            query[:_id] = id
+          else
+            query[:patient] = patient
+          end
+
+          query.merge!(params) if params && !params.empty?
+          config.get(endpoint, params: query, icn: @icn).body
         end
 
         private
@@ -34,7 +37,7 @@ module Lighthouse
           Lighthouse::ServiceException.send_error(
             error,
             self.class.to_s.underscore,
-            nil, # lighthouse_client_id not used in HCCC
+            nil,
             "#{config.base_api_path}/#{endpoint}"
           )
         end

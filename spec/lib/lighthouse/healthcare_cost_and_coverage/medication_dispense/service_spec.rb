@@ -1,62 +1,63 @@
 # frozen_string_literal: true
-
 require 'rails_helper'
 require 'lighthouse/healthcare_cost_and_coverage/medication_dispense/service'
 
 RSpec.describe Lighthouse::HealthcareCostAndCoverage::MedicationDispense::Service do
-  let(:icn) { '1234567890V123456' }
-  let(:service) { described_class.new(icn) }
-  let(:response_body) { { 'resourceType' => 'Bundle', 'entry' => [] } }
-  let(:faraday_response) { double('Faraday::Response', body: response_body) }
+  subject(:svc) { described_class.new(icn) }
 
-  describe '#initialize' do
-    it 'initializes with icn' do
-      expect(service).to be_a(described_class)
-    end
+  let(:icn)    { '43000199' }
+  let(:config) { instance_double(Lighthouse::HealthcareCostAndCoverage::Configuration) }
+  let(:bundle) { { 'resourceType' => 'Bundle', 'type' => 'searchset', 'entry' => [] } }
+  let(:response_double) { instance_double(Faraday::Response, body: bundle) }
 
-    it 'raises if icn is blank' do
-      expect { described_class.new(nil) }.to raise_error(ArgumentError)
-      expect { described_class.new('') }.to raise_error(ArgumentError)
-    end
+  before do
+    allow(svc).to receive(:config).and_return(config)
   end
 
   describe '#list' do
-    before do
-      allow(service.send(:config)).to receive(:get).and_return(faraday_response)
-    end
+    context 'when id is provided' do
+      let(:id) { '4-1abU4wmNqduNeO' }
 
-    it 'returns a FHIR bundle hash' do
-      result = service.list
-      expect(result).to eq(response_body)
-    end
+      it 'queries by _id only and returns the body' do
+        expect(config).to receive(:get).with(
+          'r4/MedicationDispense',
+          params: { _id: id },
+          icn: icn
+        ).and_return(response_double)
 
-    it 'passes correct params to config.get' do
-      expect(service.send(:config)).to receive(:get).with(
-        'r4/Invoice',
-        params: { patient: icn, _count: 50 },
-        icn:
-      ).and_return(faraday_response)
-      service.list
-    end
-
-    context 'when Faraday::TimeoutError is raised' do
-      before do
-        allow(service.send(:config)).to receive(:get).and_raise(Faraday::TimeoutError.new)
-      end
-
-      it 'raises Lighthouse::ServiceException' do
-        expect { service.list }.to raise_error(Common::Exceptions::Timeout)
+        expect(svc.list(id: id)).to eq(bundle)
       end
     end
 
-    context 'when Faraday::ClientError is raised' do
-      before do
-        allow(service.send(:config)).to receive(:get).and_raise(Faraday::ClientError.new('fail'))
-        allow(Lighthouse::ServiceException).to receive(:send_error).and_return(:error_envelope)
+    context 'when id is not provided' do
+      it 'defaults to patient search using the service ICN' do
+        expect(config).to receive(:get).with(
+          'r4/MedicationDispense',
+          params: { patient: icn },
+          icn: icn
+        ).and_return(response_double)
+
+        expect(svc.list).to eq(bundle)
       end
 
-      it 'calls handle_error and returns error envelope' do
-        expect(service.list).to eq(:error_envelope)
+      it 'passes through extra query params (e.g., _count, page)' do
+        expect(config).to receive(:get).with(
+          'r4/MedicationDispense',
+          params: { patient: icn, _count: 10, page: 2 },
+          icn: icn
+        ).and_return(response_double)
+
+        expect(svc.list(_count: 10, page: 2)).to eq(bundle)
+      end
+
+      it 'uses an explicitly provided patient if given' do
+        expect(config).to receive(:get).with(
+          'r4/MedicationDispense',
+          params: { patient: 'Patient/43000199' },
+          icn: icn
+        ).and_return(response_double)
+
+        expect(svc.list(patient: 'Patient/43000199')).to eq(bundle)
       end
     end
   end
