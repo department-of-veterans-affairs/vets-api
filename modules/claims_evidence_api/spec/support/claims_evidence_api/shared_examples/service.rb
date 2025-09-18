@@ -17,6 +17,7 @@ shared_examples_for 'a ClaimsEvidenceApi::Service class' do
       response = build(:claims_evidence_service_files_response, :success)
 
       # 'request' is a method within the `super` chain
+      expect(service).to receive(:request_headers).and_return({})
       expect(service).to receive(:request).with(*args).and_return response
       expect(monitor).to receive(:track_api_request).with(:get, 'test/path', 200, 'OK', call_location: anything)
 
@@ -28,6 +29,7 @@ shared_examples_for 'a ClaimsEvidenceApi::Service class' do
       error = build(:claims_evidence_service_files_error, :error)
 
       # 'request' is a method within the `super` chain
+      expect(service).to receive(:request_headers).and_return({})
       expect(service).to receive(:request).with(*args).and_raise error
       expect(monitor).to receive(:track_api_request).with(:get, 'test/path', 503, 'VEFSERR40009',
                                                           call_location: anything)

@@ -27,7 +27,7 @@ module ClaimsEvidenceApi
       # @see Common::Client::Base#perform
       def perform(method, path, params, headers = {}, options = {})
         call_location = caller_locations.first # eg. ClaimsEvidenceApi::Service::Files#upload
-        headers = headers.merge({ 'Authorization' => "Bearer #{encode_jwt}" })
+        headers = headers.merge(request_headers)
 
         response = super(method, path, params, headers, options) # returns Faraday::Env
 
@@ -58,6 +58,11 @@ module ClaimsEvidenceApi
       # @see ClaimsEvidenceApi::Monitor::Service
       def monitor
         @monitor ||= ClaimsEvidenceApi::Monitor::Service.new
+      end
+
+      # additional request headers
+      def request_headers
+        { 'Authorization' => "Bearer #{encode_jwt}" }
       end
 
       # @return [String] the encoded jwt
