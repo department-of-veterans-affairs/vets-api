@@ -1801,6 +1801,31 @@
                                     }
                                   }
                                 }
+                              },
+                              "if": {
+                                "required": [
+                                  "federalActivation"
+                                ]
+                              },
+                              "then": {
+                                "required": [
+                                  "reservesNationalGuardService"
+                                ],
+                                "properties": {
+                                  "reservesNationalGuardService": {
+                                    "required": [
+                                      "obligationTermsOfService"
+                                    ],
+                                    "properties": {
+                                      "obligationTermsOfService": {
+                                        "required": [
+                                          "beginDate",
+                                          "endDate"
+                                        ]
+                                      }
+                                    }
+                                  }
+                                }
                               }
                             },
                             "servicePay": {
@@ -2148,6 +2173,28 @@
                           "detail": "The request body is not a valid JSON object: This is not valid JSON",
                           "source": {
                             "pointer": null
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "when federalActivation is present but obligationTermsOfService is missing": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Unprocessable entity",
+                          "detail": "The property /serviceInformation/reservesNationalGuardService/obligationTermsOfService did not contain the required key beginDate",
+                          "status": "422",
+                          "source": {
+                            "pointer": "data/attributes/serviceInformation/reservesNationalGuardService/obligationTermsOfService"
+                          }
+                        },
+                        {
+                          "title": "Unprocessable entity",
+                          "detail": "The property /serviceInformation/reservesNationalGuardService/obligationTermsOfService did not contain the required key endDate",
+                          "status": "422",
+                          "source": {
+                            "pointer": "data/attributes/serviceInformation/reservesNationalGuardService/obligationTermsOfService"
                           }
                         }
                       ]
@@ -3181,6 +3228,31 @@
                                       "nullable": false,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                       "example": "2018-06-06 or 2018-06"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "if": {
+                              "required": [
+                                "federalActivation"
+                              ]
+                            },
+                            "then": {
+                              "required": [
+                                "reservesNationalGuardService"
+                              ],
+                              "properties": {
+                                "reservesNationalGuardService": {
+                                  "required": [
+                                    "obligationTermsOfService"
+                                  ],
+                                  "properties": {
+                                    "obligationTermsOfService": {
+                                      "required": [
+                                        "beginDate",
+                                        "endDate"
+                                      ]
                                     }
                                   }
                                 }
@@ -5335,6 +5407,31 @@
                                       "nullable": false,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                       "example": "2018-06-06 or 2018-06"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "if": {
+                              "required": [
+                                "federalActivation"
+                              ]
+                            },
+                            "then": {
+                              "required": [
+                                "reservesNationalGuardService"
+                              ],
+                              "properties": {
+                                "reservesNationalGuardService": {
+                                  "required": [
+                                    "obligationTermsOfService"
+                                  ],
+                                  "properties": {
+                                    "obligationTermsOfService": {
+                                      "required": [
+                                        "beginDate",
+                                        "endDate"
+                                      ]
                                     }
                                   }
                                 }
