@@ -7,6 +7,20 @@ module ClaimsApi
     class DisabilityCompensationPdfMapper
       include PdfMapperBase
 
+      HOMELESSNESS_RISK_SITUATION_TYPES = {
+        'fleeing' => 'FLEEING_CURRENT_RESIDENCE',
+        'shelter' => 'LIVING_IN_A_HOMELESS_SHELTER',
+        'notShelter' => 'NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT',
+        'anotherPerson' => 'STAYING_WITH_ANOTHER_PERSON',
+        'other' => 'OTHER'
+      }.freeze
+
+      RISK_OF_BECOMING_HOMELESS_TYPES = {
+        'losingHousing' => 'HOUSING_WILL_BE_LOST_IN_30_DAYS',
+        'leavingShelter' => 'LEAVING_PUBLICLY_FUNDED_SYSTEM_OF_CARE',
+        'other' => 'OTHER'
+      }.freeze
+
       def initialize(auto_claim, pdf_data, auth_headers, middle_initial)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
@@ -20,6 +34,8 @@ module ClaimsApi
         section_2_change_of_address
         section_3_homeless_information
         section_5_disabilities
+        section_5_treatment_centers
+        section_6_service_information
 
         @pdf_data
       end
@@ -227,7 +243,8 @@ module ClaimsApi
         phone_object = point_of_contact_info&.dig('primaryPhone')
         phone_number = phone_object.values.join
 
-        @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber] = convert_phone(phone_number)
+        @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber] =
+          { telephone: convert_phone(phone_number) }
       end
 
       # if "currentlyHomeless" is present "homelessSituationType", "otherLivingSituation" are required by the schema
@@ -238,7 +255,8 @@ module ClaimsApi
         set_pdf_data_for_currently_homeless_information
         currently_homeless_base = @pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless]
 
-        currently_homeless_base[:homelessSituationOptions] = currently_homeless_info['homelessSituationType']
+        currently_homeless_base[:homelessSituationOptions] =
+          HOMELESSNESS_RISK_SITUATION_TYPES[currently_homeless_info['homelessSituationType']]
         currently_homeless_base[:otherDescription] = currently_homeless_info['otherLivingSituation']
       end
 
@@ -256,7 +274,8 @@ module ClaimsApi
         set_pdf_data_for_homelessness_risk_information
         risk_of_homeless_base = @pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless]
 
-        risk_of_homeless_base[:livingSituationOptions] = homelessness_risk_info['homelessnessRiskSituationType']
+        risk_of_homeless_base[:livingSituationOptions] =
+          RISK_OF_BECOMING_HOMELESS_TYPES[homelessness_risk_info['homelessnessRiskSituationType']]
         risk_of_homeless_base[:otherDescription] = homelessness_risk_info['otherLivingSituation']
       end
 
@@ -322,6 +341,134 @@ module ClaimsApi
         return nil if begin_date.blank?
 
         make_date_string_month_first(begin_date, begin_date.length)
+      end
+
+      # 'treatments' is optional
+      # If 'treatments' is provided 'treatedDisabilityNames' and 'center' are required via the schema
+      def section_5_treatment_centers
+        treatment_info = @auto_claim&.dig('treatments')
+        return if treatment_info.blank?
+
+        set_pdf_data_for_claim_information
+        set_pdf_data_for_treatments
+
+        treatments = get_treatments(treatment_info)
+        treatment_details = treatments.map(&:deep_symbolize_keys)
+
+        @pdf_data[:data][:attributes][:claimInformation][:treatments] = treatment_details
+      end
+
+      def set_pdf_data_for_treatments
+        return if @pdf_data[:data][:attributes][:claimInformation]&.key?(:treatments)
+
+        @pdf_data[:data][:attributes][:claimInformation][:treatments] = {}
+      end
+
+      def get_treatments(treatment_info)
+        [].tap do |treatments_list|
+          treatment_info.map do |tx|
+            treatment_details = build_treatment_details(tx)
+            treatment_start_date = build_treatment_start_date(tx)
+            do_not_have_date = treatment_start_date.blank? || nil
+
+            treatments_list << build_treatment_item(treatment_details, treatment_start_date, do_not_have_date)
+          end
+        end.flatten
+      end
+
+      # String that is a composite of the treatment name and center name
+      def build_treatment_details(treatment)
+        if treatment['center'].present?
+          center_data = treatment['center'].transform_keys(&:to_sym)
+          center = center_data.values_at(:name, :country).compact.map(&:presence).compact.join(', ')
+        end
+
+        names = treatment['treatedDisabilityNames']
+        name = names.join(', ') if names.present?
+        [name, center].compact.join(' - ')
+      end
+
+      def build_treatment_start_date(treatment)
+        return if treatment['startDate'].blank?
+
+        start_date = parse_treatment_date(treatment['startDate'])
+        make_date_object(start_date, start_date.length)
+      end
+
+      # The PDF Generator only wants month and year for this field
+      # The date value sent in is in the format of YYYY-MM-DD
+      def parse_treatment_date(date)
+        date.length > 7 ? date[0..-4] : date
+      end
+
+      def build_treatment_item(treatment_details, treatment_start_date, do_not_have_date)
+        { treatmentDetails: treatment_details, dateOfTreatment: treatment_start_date,
+          doNotHaveDate: do_not_have_date }.compact
+      end
+
+      def section_6_service_information
+        set_pdf_data_for_service_information
+
+        service_periods
+      end
+
+      def set_pdf_data_for_service_information
+        return if @pdf_data[:data][:attributes]&.key?(:serviceInformation)
+
+        @pdf_data[:data][:attributes][:serviceInformation] = {}
+      end
+
+      # 'serviceBranch', 'activeDutyBeginDate' & 'activeDutyEndDate' are required via the schema
+      def service_periods
+        set_pdf_data_for_most_recent_service_period
+        service_periods_data = @auto_claim.dig('serviceInformation', 'servicePeriods')
+        most_recent_service_period = service_periods_data.max_by do |sp|
+          sp['activeDutyEndDate'].presence || {}
+        end
+        most_recent_branch = most_recent_service_period['serviceBranch']
+        most_recent_service_period(most_recent_service_period, most_recent_branch)
+
+        remaining_periods = service_periods_data - [most_recent_service_period]
+        additional_service_periods(remaining_periods) if remaining_periods
+      end
+
+      def set_pdf_data_for_most_recent_service_period
+        return if @pdf_data[:data][:attributes][:serviceInformation]&.key?(:mostRecentActiveService)
+
+        @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService] = {}
+      end
+
+      # 'separationLocationCode' is optional
+      def most_recent_service_period(service_period, branch)
+        location_code = service_period['separationLocationCode']
+        begin_date = service_period['activeDutyBeginDate']
+        end_date = service_period['activeDutyEndDate']
+
+        @pdf_data[:data][:attributes][:serviceInformation][:branchOfService] = { branch: }
+        if location_code
+          @pdf_data[:data][:attributes][:serviceInformation][:placeOfLastOrAnticipatedSeparation] =
+            location_code
+        end
+        @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService][:start] = make_date_object(
+          begin_date, begin_date.length
+        )
+        @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService][:end] = make_date_object(
+          end_date, end_date.length
+        )
+      end
+
+      def additional_service_periods(remaining_periods)
+        additional_periods = []
+        remaining_periods.each do |rp|
+          start_date = make_date_object(rp['activeDutyBeginDate'], rp['activeDutyBeginDate'].length)
+          end_date = make_date_object(rp['activeDutyEndDate'], rp['activeDutyEndDate'].length)
+
+          additional_periods << {
+            start: start_date,
+            end: end_date
+          }
+        end
+        @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = additional_periods
       end
     end
   end

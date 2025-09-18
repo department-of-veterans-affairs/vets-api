@@ -39,12 +39,16 @@ properties:
         required:
           - id
           - emailAddress
+          - updatedAt
         properties:
           id:
             type: integer
             example: 157032
-          contactEmail:
+          emailAddress:
             type: string
             example: "person@example.com"
+          updatedAt:
+            type: string
+            example: "2018-04-21T20:09:50Z"
 
 
