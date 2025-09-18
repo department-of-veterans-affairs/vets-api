@@ -53,7 +53,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
       expect(monitor).to receive(:submit_event).with(
         :error,
         "#{described_class} Form526 SavedClaim save error",
-        described_class::CLAIM_STATS_KEY,
+        "#{described_class::CLAIM_STATS_KEY}.failure",
         form_id: '21-526EZ-ALLCLAIMS',
         in_progress_form_id: in_progress_form.id,
         errors: [{ form: mock_form_error }].to_s,
