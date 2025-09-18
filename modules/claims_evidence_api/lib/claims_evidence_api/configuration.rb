@@ -25,24 +25,17 @@ module ClaimsEvidenceApi
     end
 
     # @return [Hash] The basic headers required for any API call
-    def request_headers
-      headers = {'Authorization' => "Bearer #{encoder.encode_jwt}"}
-      self.base_request_headers.merge(headers)
+    def self.base_request_headers
+      headers = {}
+      super.merge(headers)
     end
-
-    # @return [ClaimsEvidenceApi::JwtGenerator] the jwt encoder
-    def encoder
-      @_encoder = ClaimsEvidenceApi::JwtGenerator.new
-    end
-
-    attr_reader :_encoder
 
     # Creates a connection with json parsing and breaker functionality.
     #
     # @return [Faraday::Connection] a Faraday connection instance.
     def connection
       options = {
-        headers: request_headers,
+        headers: base_request_headers,
         request: request_options,
         ssl: { verify: service_settings.ssl }
       }

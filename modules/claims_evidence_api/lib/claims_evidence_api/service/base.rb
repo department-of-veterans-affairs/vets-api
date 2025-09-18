@@ -20,14 +20,17 @@ module ClaimsEvidenceApi
 
       def initialize
         # assigning configuration here so subclass will inherit
-        @config = self.class.configuration(ClaimsEvidenceApi::Configuration)
+        self.class.configuration ClaimsEvidenceApi::Configuration
         super
       end
 
       # @see Common::Client::Base#perform
-      def perform(method, path, params, headers = nil, options = nil)
+      def perform(method, path, params, headers = {}, options = {})
         call_location = caller_locations.first # eg. ClaimsEvidenceApi::Service::Files#upload
+        headers = headers.merge({ 'Authorization' => "Bearer #{encode_jwt}" })
+
         response = super(method, path, params, headers, options) # returns Faraday::Env
+
         monitor.track_api_request(method, path, response.status, response.reason_phrase, call_location:)
         response
       rescue => e
@@ -56,6 +59,13 @@ module ClaimsEvidenceApi
       def monitor
         @monitor ||= ClaimsEvidenceApi::Monitor::Service.new
       end
+
+      # @return [ClaimsEvidenceApi::JwtGenerator] the jwt encoder
+      def encode_jwt
+        ClaimsEvidenceApi::JwtGenerator.encode_jwt
+      end
+
+      attr_reader :_encoder
     end
 
     # end Service
