@@ -17,14 +17,14 @@ module VRE
 
     def request_headers
       {
-        'Appian-API-Key': Settings.res.api_key
+        'Appian-API-Key' => Settings.res.api_key
       }
     end
 
     private
 
     def end_point
-      "#{Settings.res.base_url}/suite/webapi/form281900"
+      "#{Settings.res.base_url}/suite/webapi/#{api_path}"
     end
   end
 end

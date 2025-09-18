@@ -53,10 +53,10 @@ describe TravelPay::ExpensesService do
           'costRequested' => 125.50,
           'expenseType' => 'lodging',
           'expenseReceipt' => {
-            'contentType' => 'text/plain',
-            'length' => 11,
-            'fileName' => 'placeholder.txt',
-            'fileData' => 'cGxhY2Vob2xkZXI='
+            'contentType' => 'image/bmp',
+            'length' => 58,
+            'fileName' => 'placeholder.bmp',
+            'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
           }
         }
 
@@ -85,10 +85,10 @@ describe TravelPay::ExpensesService do
           'costRequested' => 15.75,
           'expenseType' => 'meal',
           'expenseReceipt' => {
-            'contentType' => 'text/plain',
-            'length' => 11,
-            'fileName' => 'placeholder.txt',
-            'fileData' => 'cGxhY2Vob2xkZXI='
+            'contentType' => 'image/bmp',
+            'length' => 58,
+            'fileName' => 'placeholder.bmp',
+            'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
           }
         }
 
@@ -117,10 +117,10 @@ describe TravelPay::ExpensesService do
           'costRequested' => 10.00,
           'expenseType' => 'other',
           'expenseReceipt' => {
-            'contentType' => 'text/plain',
-            'length' => 11,
-            'fileName' => 'placeholder.txt',
-            'fileData' => 'cGxhY2Vob2xkZXI='
+            'contentType' => 'image/bmp',
+            'length' => 58,
+            'fileName' => 'placeholder.bmp',
+            'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
           }
         }
 
@@ -205,10 +205,10 @@ describe TravelPay::ExpensesService do
             'costRequested' => 10.00,
             'expenseType' => 'other',
             'expenseReceipt' => {
-              'contentType' => 'text/plain',
-              'length' => 11,
-              'fileName' => 'placeholder.txt',
-              'fileData' => 'cGxhY2Vob2xkZXI='
+              'contentType' => 'image/bmp',
+              'length' => 58,
+              'fileName' => 'placeholder.bmp',
+              'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
             }
           }
 
