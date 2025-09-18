@@ -6,8 +6,6 @@ module AccreditedRepresentativePortal
 
     def initialize(*)
       super(*)
-      @uuid = get_location_and_uuid[:uuid]
-      @location = get_location_and_uuid[:location]
     end
   end
 end

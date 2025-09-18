@@ -28,11 +28,11 @@ module AccreditedRepresentativePortal
                                 service.define_singleton_method(:config) do
                                   BenefitsIntake::Service.configuration
                                 end
-
-                                upload = service.get_location_and_uuid
-                                service.instance_variable_set(:@uuid, upload[:uuid])
-                                service.instance_variable_set(:@location, upload[:location])
                               end
+                            end.tap do |service|
+                              upload = service.get_location_and_uuid
+                              service.instance_variable_set(:@uuid, upload[:uuid])
+                              service.instance_variable_set(:@location, upload[:location])
                             end
     end
 
