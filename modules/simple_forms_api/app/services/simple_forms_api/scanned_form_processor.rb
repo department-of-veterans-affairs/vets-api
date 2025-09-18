@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# simple_forms_api/app/services/scanned_form_processor.rb
 module SimpleFormsApi
   class ScannedFormProcessor
     PDF_VALIDATOR_OPTIONS = {

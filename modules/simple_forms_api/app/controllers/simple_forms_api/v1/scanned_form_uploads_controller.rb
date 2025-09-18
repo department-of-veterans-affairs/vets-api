@@ -67,17 +67,10 @@ module SimpleFormsApi
         status, confirmation_number = upload_pdf_with_attachments(main_file_path, supporting_attachments, metadata)
 
         file_size = File.size(main_file_path).to_f / (2**20)
-        total_attachments = supporting_attachments.count
-
+        
         Rails.logger.info(
           'Simple forms api - scanned form uploaded',
-          {
-            form_number: params[:form_number],
-            status:,
-            confirmation_number:,
-            file_size:,
-            supporting_attachments_count: total_attachments
-          }
+           { form_number: params[:form_number], status:, confirmation_number:, file_size: }
         )
         [status, confirmation_number]
       end
