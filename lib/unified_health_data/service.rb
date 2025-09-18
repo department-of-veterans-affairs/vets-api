@@ -119,9 +119,7 @@ module UnifiedHealthData
         parse_refill_response(response)
       end
     rescue Common::Exceptions::BackendServiceException => e
-      if e.original_status && e.original_status >= 500
-        raise e
-      end
+      raise e if e.original_status && e.original_status >= 500
     rescue => e
       Rails.logger.error("Error submitting prescription refill: #{e.message}")
       build_error_response(orders)
