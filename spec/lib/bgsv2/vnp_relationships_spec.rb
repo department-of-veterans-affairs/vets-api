@@ -136,6 +136,7 @@ RSpec.describe BGSV2::VnpRelationships do
             event_date: nil,
             marriage_state: 'FL',
             marriage_city: 'Tampa',
+            marriage_method_name: 'CIVIL',
             divorce_state: nil,
             divorce_city: nil,
             marriage_termination_type_code: nil,
@@ -154,7 +155,8 @@ RSpec.describe BGSV2::VnpRelationships do
             participant_relationship_type_name: 'Spouse',
             family_relationship_type_name: 'Spouse',
             marriage_state: 'FL',
-            marriage_city: 'Tampa'
+            marriage_city: 'Tampa',
+            marriage_method_name: 'CIVIL'
           )
         end
       end

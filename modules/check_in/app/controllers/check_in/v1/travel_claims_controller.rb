@@ -71,6 +71,39 @@ module CheckIn
 
         :bad_gateway
       end
+
+      def handle_parameter_missing_error(exception)
+        render json: {
+          errors: [{
+            title: 'Bad Request',
+            detail: exception.message,
+            code: 'MISSING_PARAMETER',
+            status: '400'
+          }]
+        }, status: :bad_request
+      end
+
+      def handle_backend_service_error(exception)
+        mapped_status = case exception.original_status
+                        when 401
+                          :unauthorized
+                        when 429
+                          :service_unavailable
+                        when 400..499
+                          :bad_request
+                        else
+                          :bad_gateway
+                        end
+
+        render json: {
+          errors: [{
+            title: 'Operation failed',
+            detail: exception.response_values[:detail] || 'Travel claim operation failed',
+            code: exception.key,
+            status: Rack::Utils::SYMBOL_TO_STATUS_CODE[mapped_status].to_s
+          }]
+        }, status: mapped_status
+      end
     end
   end
 end

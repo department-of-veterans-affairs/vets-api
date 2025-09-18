@@ -63,6 +63,8 @@ module TravelClaim
       with_btsss_op('claims#submit') do |h|
         request(:patch, "api/v3/claims/#{claim_id}/submit", {}, h).body
       end
+    rescue Common::Exceptions::BackendServiceException => e
+      handle_backend_service_exception(e)
     end
 
     ##
@@ -75,6 +77,8 @@ module TravelClaim
       with_btsss_op('claims#get') do |h|
         perform(:get, "api/v3/claims/#{claim_id}", nil, h)
       end
+    rescue Common::Exceptions::BackendServiceException => e
+      handle_backend_service_exception(e)
     end
 
     # ---------- Auth wrapper ----------
@@ -88,6 +92,8 @@ module TravelClaim
         bootstrap_tokens!
         yield(base_headers)
       end
+    rescue Common::Exceptions::BackendServiceException => e
+      handle_backend_service_exception(e)
     end
 
     # ---------- Token lifecycle ----------

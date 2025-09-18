@@ -36,13 +36,28 @@ module TravelPay
       # Build the request body for the API
       request_body = build_expense_request_body(params)
 
-      begin
-        response = client.add_expense(veis_token, btsss_token, params['expense_type'], request_body)
-        response.body['data']
-      rescue Faraday::Error => e
-        Rails.logger.error("Failed to create expense via API: #{e.message}")
-        raise TravelPay::ServiceError.raise_mapped_error(e)
-      end
+      response = client.add_expense(veis_token, btsss_token, params['expense_type'], request_body)
+      response.body['data']
+    rescue Faraday::Error => e
+      Rails.logger.error("Failed to create expense via API: #{e.message}")
+      TravelPay::ServiceError.raise_mapped_error(e)
+    end
+
+    # Method to retrieve an expense by ID via the API
+    def get_expense(expense_type, expense_id)
+      @auth_manager.authorize => { veis_token:, btsss_token: }
+
+      # Validate required params
+      raise ArgumentError, 'You must provide an expense type to get an expense.' if expense_type.blank?
+      raise ArgumentError, 'You must provide an expense ID to get an expense.' if expense_id.blank?
+
+      Rails.logger.info("Getting expense of type: #{expense_type} with ID: #{expense_id}")
+
+      response = client.get_expense(veis_token, btsss_token, expense_type, expense_id)
+      response.body['data']
+    rescue Faraday::Error => e
+      Rails.logger.error("Failed to get expense via API: #{e.message}")
+      TravelPay::ServiceError.raise_mapped_error(e)
     end
 
     private
@@ -76,12 +91,14 @@ module TravelPay
     # @return [Hash] The minimal placeholder receipt data
     #
     def build_placeholder_receipt
-      placeholder_data = 'placeholder'
+      # Minimal valid BMP (1x1 white pixel) - 58 bytes
+      bmp_base64 = 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
+
       {
-        'contentType' => 'text/plain',
-        'length' => placeholder_data.length,
-        'fileName' => 'placeholder.txt',
-        'fileData' => Base64.strict_encode64(placeholder_data)
+        'contentType' => 'image/bmp',
+        'length' => 58,
+        'fileName' => 'placeholder.bmp',
+        'fileData' => bmp_base64
       }
     end
 
