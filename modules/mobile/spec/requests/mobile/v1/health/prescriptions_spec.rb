@@ -13,7 +13,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
   before do
     allow_any_instance_of(User).to receive(:va_patient?).and_return(va_patient)
     sign_in_as(user)
-    allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, user).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
   end
 
   describe 'GET /mobile/v1/health/rx/prescriptions' do
@@ -27,7 +27,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
     context 'with feature flag disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(false)
       end
 
       it 'returns forbidden error' do

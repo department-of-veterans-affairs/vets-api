@@ -13,18 +13,18 @@ module Mobile
       def index
         pagination_params
 
-        Rails.logger.info('Mobile V1 Prescriptions API call started')
+        prescriptions = unified_health_service.get_prescriptions(current_only: true)
+        has_non_va_meds = non_va_meds? prescriptions
+        prescriptions = prescriptions.reject { |item| item.prescription_source == 'NV' }
 
-        prescriptions = unified_health_service.get_prescriptions(focused_only: true)
-
-        meta = generate_mobile_metadata(prescriptions)
+        meta = generate_mobile_metadata(prescriptions:, has_non_va_meds:)
         serialized_data = UnifiedHealthData::Serializers::PrescriptionSerializer.new(prescriptions).serializable_hash
         render json: { **serialized_data, meta: }
       end
 
       def refill
         # Get all prescriptions to validate IDs and extract station numbers
-        prescriptions = unified_health_service.get_prescriptions(focused_only: true)
+        prescriptions = unified_health_service.get_prescriptions(current_only: true)
 
         # Build orders array with id and stationNumber for each requested prescription
         orders = ids.map do |prescription_id|
@@ -43,30 +43,31 @@ module Mobile
       private
 
       def unified_health_service
-        @unified_health_service ||= UnifiedHealthData::Service.new(current_user)
+        @unified_health_service ||= UnifiedHealthData::Service.new(@current_user)
       end
 
       def validate_feature_flag
-        unless Flipper.enabled?(:mhv_medications_cerner_pilot, current_user)
-          render json: {
-            error: {
-              code: 'FEATURE_NOT_AVAILABLE',
-              message: 'This feature is not currently available'
-            }
-          }, status: :forbidden
-        end
+        return if Flipper.enabled?(:mhv_medications_cerner_pilot, @current_user)
+
+        render json: {
+          error: {
+            code: 'FEATURE_NOT_AVAILABLE',
+            message: 'This feature is not currently available'
+          }
+        }, status: :forbidden
       end
 
-      def generate_mobile_metadata(prescriptions)
+      def generate_mobile_metadata(prescriptions:, has_non_va_meds:)
         # Legacy signature kept for backwards compatibility inside controller during refactor
         generate_mobile_metadata_with_pagination(
-          prescriptions,
+          prescriptions:,
           page: params[:page]&.to_i || 1,
-          per_page: params[:per_page]&.to_i || 20
+          per_page: params[:per_page]&.to_i || 20,
+          has_non_va_meds:
         )
       end
 
-      def generate_mobile_metadata_with_pagination(prescriptions, page:, per_page:)
+      def generate_mobile_metadata_with_pagination(prescriptions:, page:, per_page:, has_non_va_meds:)
         total_entries = prescriptions.is_a?(Array) ? prescriptions.length : 0
         total_pages = (total_entries.to_f / per_page).ceil
 
@@ -78,7 +79,7 @@ module Mobile
             total_entries:
           },
           prescriptionStatusCount: prescription_status_counts(prescriptions),
-          hasNonVaMeds: non_va_meds?(prescriptions)
+          hasNonVaMeds: has_non_va_meds
         }
       end
 
