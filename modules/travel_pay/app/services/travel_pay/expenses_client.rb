@@ -2,19 +2,11 @@
 
 require 'securerandom'
 require_relative './base_client'
+require_relative '../../../lib/travel_pay/constants'
 
 module TravelPay
   class ExpensesClient < TravelPay::BaseClient
-    UUID_REGEX = /\A[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}\z/i
-
-    BASE_PATHS = {
-      meal: 'api/v1/expenses/meal',
-      mileage: 'api/v2/expenses/mileage',
-      parking: 'api/v1/expenses/parking',
-      other: 'api/v1/expenses/other'
-    }.freeze
-
-    ENDPOINT_MAP = BASE_PATHS.transform_values do |base|
+    ENDPOINT_MAP = TravelPay::Constants::BASE_EXPENSE_PATHS.transform_values do |base|
       { add: base, delete: "#{base}/%<expense_id>s" }
     end.freeze
 
