@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# TODO: Remove this file after confirming no references remain
+# DO NOT USE - This serializer is deprecated. Please use unified_health_data/serializers/lab_or_test_serializer
 class LabOrTestSerializer
   include JSONAPI::Serializer
 
