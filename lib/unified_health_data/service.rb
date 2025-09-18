@@ -131,7 +131,11 @@ module UnifiedHealthData
         combined_records = fetch_combined_records(body)
         filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
 
-        parse_notes(filtered)
+        parsed_notes = parse_notes(filtered)
+
+        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes)
+
+        parsed_notes
       end
     end
 
@@ -317,10 +321,10 @@ module UnifiedHealthData
       end
     end
 
+    # Care Summaries and Notes methods
     def parse_notes(records)
       return [] if records.blank?
 
-      # Parse using the adapter
       parsed = records.map { |record| parse_single_note(record) }
       parsed.compact
     end
@@ -330,6 +334,10 @@ module UnifiedHealthData
 
       # Parse using the adapter
       clinical_notes_adapter.parse(record)
+    end
+
+    def log_loinc_codes_enabled?
+      Flipper.enabled?(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, @user)
     end
 
     # Instantiate all adapters, etc.
