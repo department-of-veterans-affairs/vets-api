@@ -94,6 +94,7 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
       allow(File).to receive(:exist?).with(temp_file_path).and_return(true)
       allow(File).to receive(:delete).with(temp_file_path)
       allow(controller).to receive(:send_data)
+      allow(StatsD).to receive(:increment).and_call_original
     end
 
     it 'successfully downloads a PDF' do
@@ -113,6 +114,7 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
         type: 'application/pdf',
         disposition: 'attachment'
       )
+      expect(StatsD).to have_received(:increment).with('api.education_benefits_claim.pdf_download.221990.success')
     end
 
     it 'cleans up the temporary file after successful download' do
@@ -145,6 +147,18 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
         get :download_pdf, params: { id: education_benefits_claim.id.to_s }
 
         expect(EducationBenefitsClaim).to have_received(:find).with(education_benefits_claim.id)
+      end
+    end
+
+    context 'when pdf generation fails' do
+      before do
+        allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, 'Failed to fill form')
+      end
+
+      it 'increments the failed metric and returns 500' do
+        get :download_pdf, params: { id: education_benefits_claim.id }
+        expect(response).to have_http_status(:internal_server_error)
+        expect(StatsD).to have_received(:increment).with('api.education_benefits_claim.pdf_download.221990.failure')
       end
     end
   end

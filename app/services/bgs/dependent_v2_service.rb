@@ -253,19 +253,17 @@ module BGS
       generate_hash_from_details
     rescue
       @monitor.track_event('warn',
-                           'BGS::DependentV2Service#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
-                           "#{STATS_KEY}.submit_pdf.failure")
+                           'BGS::DependentV2Service#get_form_hash_686c failed',
+                           "#{STATS_KEY}.get_form_hash.failure", { error: 'Could not retrieve file number from BGS' })
       raise BgsServicesError
     end
 
     def generate_hash_from_details
+      full_name = { 'first' => first_name, 'last' => last_name }
+      full_name['middle'] = middle_name unless middle_name.nil? # nil middle name breaks prod validation
       {
         'veteran_information' => {
-          'full_name' => {
-            'first' => first_name,
-            'middle' => middle_name,
-            'last' => last_name
-          },
+          'full_name' => full_name,
           'common_name' => common_name,
           'va_profile_email' => @va_profile_email,
           'email' => email,
