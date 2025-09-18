@@ -1226,8 +1226,8 @@ describe UnifiedHealthData::Service, type: :service do
       it 'formats request body correctly' do
         VCR.use_cassette('unified_health_data/refill_prescription_success') do
           orders = [
-            { id: '12345', stationNumber: '570' },
-            { id: '67890', stationNumber: '556' }
+            { 'id' => '12345', 'stationNumber' => '570' },
+            { 'id' => '67890', 'stationNumber' => '556' }
           ]
           expected_body = {
             patientId: user.icn,
