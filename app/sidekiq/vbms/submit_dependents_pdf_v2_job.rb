@@ -39,7 +39,7 @@ module VBMS
       monitor.track_event('error', 'VBMS::SubmitDependentsPdfJob failed!',
                           "#{STATSD_KEY}.failure", { error: })
       @saved_claim_id = saved_claim_id
-      raise
+      raise e
     end
 
     private
