@@ -166,6 +166,12 @@ features:
     description: "Gateway: Enable decision letter email notifications for EP120 reopened pension claims"
   event_bus_gateway_ep180_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP180 initial pension claims"
+  event_bus_gateway_ep310_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP310 higher level reviews"
+  event_bus_gateway_ep600_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP600 higher level reviews"
+  event_bus_gateway_ep930_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP930 higher level reviews"
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -1266,6 +1272,10 @@ features:
     actor_type: user
     description: Control whether vets-api applies filtering logic to UHD lab records
     enable_in_development: false
+  mhv_accelerated_delivery_uhd_loinc_logging_enabled:
+    actor_type: user
+    description: Control whether vets-api logs LOINC codes returned from UHD notes records
+    enable_in_development: false
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
@@ -2018,6 +2028,10 @@ features:
     actor_type: user
     description: Enables CC direct scheduling.
     enable_in_development: true
+  va_online_scheduling_cc_direct_scheduling_chiropractic:
+    actor_type: user
+    description: Adds chiropractic to the list of services that can be direct scheduled.
+    enable_in_development: true
   va_online_scheduling_use_vpg:
     actor_type: user
     enable_in_development: true
@@ -2038,6 +2052,22 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
+  va_online_scheduling_list_view_clinic_info:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to display clinic name and location on appointment list and print views.
+  va_online_scheduling_add_OH_avs:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to include After Visit Summary in Oracle Health appointments.
+  va_online_scheduling_immediate_care_alert:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for using the new immediate care alert page at the start of the scheduling flow.
+  va_online_scheduling_remove_facility_config_check:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to remove the redundant call to facility configurations when determining patient eligibility.
   vaos_appointment_notification_callback:
     actor_type: user
     enable_in_development: true
