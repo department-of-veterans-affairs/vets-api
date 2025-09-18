@@ -1457,6 +1457,7 @@ spec/lib/lighthouse/letters_generator @department-of-veterans-affairs/benefits-m
 spec/lib/lighthouse/veteran_verification @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/veterans_health @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/healthcare_cost_and_coverage/configuration_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+spec/lib/lighthouse/healthcare_cost_and_coverage/medication_dispense/service_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/lib/logging @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 spec/lib/mail_automation @department-of-veterans-affairs/backend-review-group
 spec/lib/map @department-of-veterans-affairs/octo-identity
