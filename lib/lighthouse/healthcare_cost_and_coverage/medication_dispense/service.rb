@@ -6,7 +6,7 @@ require 'lighthouse/service_exception'
 
 module Lighthouse
   module HealthcareCostAndCoverage
-    module MedicationExpense
+    module MedicationDispense
       class Service < Common::Client::Base
         configuration Lighthouse::HealthcareCostAndCoverage::Configuration
         STATSD_KEY_PREFIX = 'api.lighthouse.hccc.invoice'

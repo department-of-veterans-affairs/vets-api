@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'lighthouse/healthcare_cost_and_coverage/medication_expense/service'
+require 'lighthouse/healthcare_cost_and_coverage/medication_dispense/service'
 
-RSpec.describe Lighthouse::HealthcareCostAndCoverage::MedicationExpense::Service do
+RSpec.describe Lighthouse::HealthcareCostAndCoverage::MedicationDispense::Service do
   let(:icn) { '1234567890V123456' }
   let(:service) { described_class.new(icn) }
   let(:response_body) { { 'resourceType' => 'Bundle', 'entry' => [] } }
