@@ -470,8 +470,9 @@ describe UnifiedHealthData::Service, type: :service do
 
     context 'LOINC code logging' do
       before do
-        allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_sample_response),
-                                           parse_response_body: notes_sample_response)
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
         allow(Rails.logger).to receive(:info)
       end
 
