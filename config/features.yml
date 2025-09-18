@@ -2293,6 +2293,10 @@ features:
     actor_type: user
     description: Implement multiple page response pattern
     enable_in_development: true
+  pension_pdf_form_alignment:
+    actor_type: user
+    description: Align digital form with PDF form
+    enable_in_development: true
   pension_form_profile_module_enabled:
     actor_type: user
     description: Use the module version of the FormProfile
