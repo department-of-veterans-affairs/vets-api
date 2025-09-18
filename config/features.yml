@@ -2048,6 +2048,22 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
+  va_online_scheduling_list_view_clinic_info:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to display clinic name and location on appointment list and print views.
+  va_online_scheduling_add_OH_avs:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to include After Visit Summary in Oracle Health appointments.
+  va_online_scheduling_immediate_care_alert:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for using the new immediate care alert page at the start of the scheduling flow.
+  va_online_scheduling_remove_facility_config_check:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to remove the redundant call to facility configurations when determining patient eligibility.
   vaos_appointment_notification_callback:
     actor_type: user
     enable_in_development: true
