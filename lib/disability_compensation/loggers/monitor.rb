@@ -47,8 +47,7 @@ module DisabilityCompensation
       # Logs SavedClaim ActiveRecord save successes
       #
       # We use these logs to track when
-      # SavedClaim::DisabilityCompensation::Form526AllClaim saves to the database. Includes in_progress_form_id, since
-      # we can use it to inspect Veteran's form choices in the production console
+      # SavedClaim::DisabilityCompensation::Form526AllClaim saves to the database.
       #
       # @param claim [SavedClaim::DisabilityCompensation::Form526AllClaim] the claim that was successfully saved
       # @param user_account_uuid [uuid] uuid of the user attempting to save the claim
@@ -57,6 +56,7 @@ module DisabilityCompensation
           :info,
           "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}",
           "#{claim_stats_key}.success",
+          claim:,
           user_account_uuid:,
           form_id: claim_stats_key
         )
