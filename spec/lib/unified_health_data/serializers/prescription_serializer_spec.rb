@@ -56,23 +56,5 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       # tracking
       expect(attributes[:tracking_information]).to eq({})
     end
-
-    context 'when tracking_information is empty' do
-      let(:prescription) do
-        UnifiedHealthData::Prescription.new(
-          id: '67890',
-          refill_status: 'active',
-          prescription_name: 'LISINOPRIL 10MG TAB',
-          is_refillable: false,
-          is_trackable: false,
-          prescription_source: 'VA'
-        )
-      end
-
-      it 'includes empty tracking_information hash' do
-        result = subject.serializable_hash
-        expect(result[:data][:attributes][:tracking_information]).to eq({})
-      end
-    end
   end
 end
