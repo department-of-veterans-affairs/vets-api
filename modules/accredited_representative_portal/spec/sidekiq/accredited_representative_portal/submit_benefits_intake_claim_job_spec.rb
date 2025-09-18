@@ -69,7 +69,7 @@ RSpec.describe AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob do
 
   it 'performs' do
     use_cassette('performs', vcr_options) do
-      expect_any_instance_of(BenefitsIntakeService::Service).to(
+      expect_any_instance_of(AccreditedRepresentativePortal::BenefitsIntakeService).to(
         receive(:upload_doc).and_call_original
       )
 
