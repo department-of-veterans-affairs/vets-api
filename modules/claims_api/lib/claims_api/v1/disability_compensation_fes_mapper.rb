@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
-# require_relative 'lighthouse_military_address_validator'
-
 module ClaimsApi
   module V1
     class DisabilityCompensationFesMapper
-      # include LighthouseMilitaryAddressValidator
       def initialize(auto_claim)
         @auto_claim = auto_claim
         @data = auto_claim&.form_data&.deep_symbolize_keys
@@ -27,8 +24,6 @@ module ClaimsApi
           }
         }
       end
-
-      def claim_attributes; end
 
       def extract_claimant_participant_id
         @auto_claim.auth_headers.dig('dependent', 'participant_id')

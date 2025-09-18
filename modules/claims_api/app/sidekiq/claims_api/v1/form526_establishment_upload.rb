@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
 require 'pdf_generator_service/pdf_client'
 require 'claims_api/v1/disability_compensation_fes_mapper'
 require 'fes_service/base'
 
 module ClaimsApi
   module V1
+    # rubocop:disable Metrics/MethodLength
     class Form526EstablishmentUpload < ClaimsApi::ServiceBase
       LOG_TAG = '526_v1_establishment_upload'
       sidekiq_options expires_in: 48.hours, retry: true
