@@ -25,24 +25,19 @@ module Mobile
         )
         serialized_data = UnifiedHealthData::Serializers::PrescriptionSerializer.new(prescriptions).serializable_hash
         render json: { **serialized_data, meta: }
+      rescue Common::Exceptions::BackendServiceException => e
+        raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
       end
 
       def refill
-        # Get all prescriptions to validate IDs and extract station numbers
-        prescriptions = unified_health_service.get_prescriptions(current_only: true)
-
-        # Build orders array with id and stationNumber for each requested prescription
-        orders = ids.map do |prescription_id|
-          prescription = prescriptions.find { |p| p.prescription_id == prescription_id.to_s }
-          unless prescription
-            raise Common::Exceptions::ResourceNotFound.new(detail: "Prescription not found: #{prescription_id}")
-          end
-
-          { id: prescription_id.to_s, stationNumber: prescription.station_number }
-        end
-
         result = unified_health_service.refill_prescription(orders)
         render_batch_refill_result(result)
+      rescue Common::Exceptions::BackendServiceException => e
+        Rails.logger.error("Caught BackendServiceException: #{e.message}")
+        raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
+      rescue => e
+        Rails.logger.error("Caught unexpected error: #{e.class}, #{e.message}")
+        raise e
       end
 
       private
@@ -103,15 +98,36 @@ module Mobile
         prescriptions.any? { |rx| rx.prescription_source == 'NV' }
       end
 
-      def ids
-        ids = params.require(:ids)
-        raise Common::Exceptions::InvalidFieldValue.new('ids', ids) unless ids.is_a? Array
-
-        ids.map(&:to_i)
+      def orders
+        parsed_orders = JSON.parse(request.body.read)
+        
+        # Validate that orders is an array
+        unless parsed_orders.is_a?(Array)
+          raise Common::Exceptions::InvalidFieldValue.new('orders', 'Must be an array')
+        end
+        
+        # Validate that orders array is not empty
+        if parsed_orders.empty?
+          raise Common::Exceptions::ParameterMissing.new('prescriptions')
+        end
+        
+        # Validate that each order has required fields
+        parsed_orders.each_with_index do |order, index|
+          unless order.is_a?(Hash) && order['stationNumber'] && order['id']
+            raise Common::Exceptions::InvalidFieldValue.new(
+              "orders[#{index}]", 
+              'Each order must contain stationNumber and id fields'
+            )
+          end
+        end
+        
+        parsed_orders
+      rescue JSON::ParserError
+        raise Common::Exceptions::InvalidFieldValue.new('orders', 'Invalid JSON format')
       end
 
       def render_batch_refill_result(result)
-        if result[:success]
+        if result[:success].length > 0
           # Use the v1 serializer to maintain consistent format
           render json: Mobile::V1::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
         else

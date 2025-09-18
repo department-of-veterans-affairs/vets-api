@@ -136,7 +136,9 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
       let!(:user) { sis_user }
 
       it 'returns a 403 forbidden response' do
-        put '/mobile/v1/health/rx/prescriptions/refill', params: { ids: %w[25804851] }, headers: sis_headers
+        put '/mobile/v1/health/rx/prescriptions/refill', 
+            params: [{ stationNumber: '123', id: '25804851' }].to_json,
+            headers: sis_headers.merge('Content-Type' => 'application/json')
 
         expect(response).to have_http_status(:forbidden)
         expect(response.parsed_body).to eq({ 'errors' =>
@@ -156,7 +158,9 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
         it 'returns success response for batch refill' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
             VCR.use_cassette('unified_health_data/refill_prescription_success') do
-              put '/mobile/v1/health/rx/prescriptions/refill', params: { ids: %w[25804851] }, headers: sis_headers
+              put '/mobile/v1/health/rx/prescriptions/refill', 
+                  params: [{ stationNumber: '358', id: '25804851' }].to_json,
+                  headers: sis_headers.merge('Content-Type' => 'application/json')
 
               expect(response).to have_http_status(:ok)
               expect(response.parsed_body).to have_key('data')
@@ -176,21 +180,26 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
         end
       end
 
-      context 'when prescription does not exist for refill' do
-        it 'returns not found error' do
-          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-            put '/mobile/v1/health/rx/prescriptions/refill', params: { ids: %w[nonexistent] }, headers: sis_headers
+      context 'when prescription refill fails' do
+        it 'returns 502 error for upstream service failure' do
+          VCR.use_cassette('unified_health_data/refill_prescription_failure') do
+            put '/mobile/v1/health/rx/prescriptions/refill', 
+                params: [{ stationNumber: '123', id: '99999999999999' }].to_json,
+                headers: sis_headers.merge('Content-Type' => 'application/json')
 
-            expect(response).to have_http_status(:not_found)
-            expect(response.parsed_body['errors'][0]['detail']).to include('Prescription not found')
+            expect(response).to have_http_status(:bad_gateway)
+            expect(response.parsed_body['errors'][0]['code']).to eq('MOBL_502_upstream_error')
+            expect(response.parsed_body['errors'][0]['detail']).to include('invalid response from the upstream server')
           end
         end
       end
 
-      context 'when no ids parameter provided' do
+      context 'when no prescriptions provided' do
         it 'returns parameter required error' do
-          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-            put '/mobile/v1/health/rx/prescriptions/refill', headers: sis_headers
+          VCR.use_cassette('unified_health_data/refill_prescription_success') do
+            put '/mobile/v1/health/rx/prescriptions/refill', 
+                params: '[]',
+                headers: sis_headers.merge('Content-Type' => 'application/json')
 
             expect(response).to have_http_status(:bad_request)
           end
