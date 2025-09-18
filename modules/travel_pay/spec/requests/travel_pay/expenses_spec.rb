@@ -139,7 +139,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
     end
 
     context 'for different expense types' do
-      %w[mileage lodging meal other].each do |expense_type|
+      %w[meal mileage parking other].each do |expense_type|
         it "accepts #{expense_type} expense type" do
           allow(expenses_service).to receive(:create_expense).and_return({
                                                                            'id' => SecureRandom.uuid,

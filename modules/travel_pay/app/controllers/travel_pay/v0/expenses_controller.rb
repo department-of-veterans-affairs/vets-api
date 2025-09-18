@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
+require 'travel_pay/constants'
+
 module TravelPay
   module V0
     class ExpensesController < ApplicationController
       include FeatureFlagHelper
+      include IdValidation
 
-      before_action :validate_claim_id
-      before_action :validate_expense_type
-      before_action :check_feature_flag, only: [:create]
+      before_action :validate_claim_id!, only: [:create]
+      before_action :validate_expense_id!, only: [:destroy]
+      before_action :validate_expense_type!, only: %i[create destroy]
+      before_action :check_feature_flag, only: %i[create destroy]
 
       def create
         Rails.logger.info(message: 'Travel Pay expense submission START')
@@ -26,6 +30,26 @@ module TravelPay
         end
 
         render json: created_expense, status: :created
+      end
+
+      def destroy
+        expense_type = params[:expense_type]
+        expense_id = params[:expense_id]
+
+        Rails.logger.info(
+          message: "Deleting expense of type '#{expense_type}' with expense id #{expense_id&.first(8)}"
+        )
+
+        response_data = expense_service.delete_expense(expense_id:, expense_type:)
+
+        render json: { expenseId: response_data['id'] }, status: :ok
+      rescue ArgumentError => e
+        raise Common::Exceptions::BadRequest, detail: e.message
+      rescue Faraday::ClientError, Faraday::ServerError => e
+        TravelPay::ServiceError.raise_mapped_error(e)
+      rescue Common::Exceptions::BackendServiceException => e
+        Rails.logger.error("Error deleting expense: #{e.message} (Backend response: #{e.original_message})}")
+        render json: { error: 'Error deleting expense' }, status: e.original_status
       end
 
       private
@@ -55,11 +79,15 @@ module TravelPay
         raise Common::Exceptions::UnprocessableEntity, detail: expense.errors.full_messages.join(', ')
       end
 
-      def validate_claim_id
-        raise Common::Exceptions::BadRequest, detail: 'Claim ID is required' if params[:claim_id].blank?
+      def validate_claim_id!
+        validate_uuid_exists!(params[:claim_id], 'Claim')
       end
 
-      def validate_expense_type
+      def validate_expense_id!
+        validate_uuid_exists!(params[:expense_id], 'Expense')
+      end
+
+      def validate_expense_type!
         raise Common::Exceptions::BadRequest, detail: 'Expense type is required' if params[:expense_type].blank?
 
         unless valid_expense_types.include?(params[:expense_type])
@@ -69,7 +97,7 @@ module TravelPay
       end
 
       def valid_expense_types
-        %w[mileage lodging meal other]
+        TravelPay::Constants::BASE_EXPENSE_PATHS.keys.map(&:to_s)
       end
 
       def build_expense_from_params
