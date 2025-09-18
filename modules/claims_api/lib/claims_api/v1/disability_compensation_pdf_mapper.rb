@@ -35,6 +35,7 @@ module ClaimsApi
         section_3_homeless_information
         section_5_disabilities
         section_5_treatment_centers
+        section_6_service_information
 
         @pdf_data
       end
@@ -403,6 +404,71 @@ module ClaimsApi
       def build_treatment_item(treatment_details, treatment_start_date, do_not_have_date)
         { treatmentDetails: treatment_details, dateOfTreatment: treatment_start_date,
           doNotHaveDate: do_not_have_date }.compact
+      end
+
+      def section_6_service_information
+        set_pdf_data_for_service_information
+
+        service_periods
+      end
+
+      def set_pdf_data_for_service_information
+        return if @pdf_data[:data][:attributes]&.key?(:serviceInformation)
+
+        @pdf_data[:data][:attributes][:serviceInformation] = {}
+      end
+
+      # 'serviceBranch', 'activeDutyBeginDate' & 'activeDutyEndDate' are required via the schema
+      def service_periods
+        set_pdf_data_for_most_recent_service_period
+        service_periods_data = @auto_claim.dig('serviceInformation', 'servicePeriods')
+        most_recent_service_period = service_periods_data.max_by do |sp|
+          sp['activeDutyEndDate'].presence || {}
+        end
+        most_recent_branch = most_recent_service_period['serviceBranch']
+        most_recent_service_period(most_recent_service_period, most_recent_branch)
+
+        remaining_periods = service_periods_data - [most_recent_service_period]
+        additional_service_periods(remaining_periods) if remaining_periods
+      end
+
+      def set_pdf_data_for_most_recent_service_period
+        return if @pdf_data[:data][:attributes][:serviceInformation]&.key?(:mostRecentActiveService)
+
+        @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService] = {}
+      end
+
+      # 'separationLocationCode' is optional
+      def most_recent_service_period(service_period, branch)
+        location_code = service_period['separationLocationCode']
+        begin_date = service_period['activeDutyBeginDate']
+        end_date = service_period['activeDutyEndDate']
+
+        @pdf_data[:data][:attributes][:serviceInformation][:branchOfService] = { branch: }
+        if location_code
+          @pdf_data[:data][:attributes][:serviceInformation][:placeOfLastOrAnticipatedSeparation] =
+            location_code
+        end
+        @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService][:start] = make_date_object(
+          begin_date, begin_date.length
+        )
+        @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService][:end] = make_date_object(
+          end_date, end_date.length
+        )
+      end
+
+      def additional_service_periods(remaining_periods)
+        additional_periods = []
+        remaining_periods.each do |rp|
+          start_date = make_date_object(rp['activeDutyBeginDate'], rp['activeDutyBeginDate'].length)
+          end_date = make_date_object(rp['activeDutyEndDate'], rp['activeDutyEndDate'].length)
+
+          additional_periods << {
+            start: start_date,
+            end: end_date
+          }
+        end
+        @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = additional_periods
       end
     end
   end

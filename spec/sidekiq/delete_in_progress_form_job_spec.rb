@@ -11,7 +11,7 @@ RSpec.describe DeleteInProgressFormJob, type: :job do
     create(:in_progress_form, form_id:, user_uuid: current_user.uuid)
   end
 
-  let(:log_expectation_meta) { "[10-10EZ][user_uuid:#{current_user.uuid}]" }
+  let(:log_expectation_meta) { "[#{form_id}][user_uuid:#{current_user.uuid}]" }
   let(:log_expectation_success) { 'InProgressForm successfully deleted: true' }
   let(:log_expectation_failure) { 'InProgressForm successfully deleted: false' }
 
