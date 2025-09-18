@@ -85,19 +85,6 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
       end.to raise_error(StandardError, 'Attachment error')
     end
 
-    it 'updates form with VBMS document id' do
-      allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload!)
-        .and_return({ vbms_document_series_ref_id: '123' })
-      claim.upload_to_vbms(user: build(:user))
-      expect(claim.parsed_form['documentId']).to eq('123')
-    end
-
-    it 'handles missing email for VBMS confirmation' do
-      user_without_va_profile_email = OpenStruct.new(user.to_h.merge(va_profile_email: nil))
-      expect(Rails.logger).to receive(:warn)
-      claim.send_vbms_confirmation_email(user_without_va_profile_email)
-    end
-
     context 'when VBMS response is VBMSDownForMaintenance' do
       before do
         allow(OpenSSL::PKCS12).to receive(:new).and_return(double.as_null_object)
@@ -202,6 +189,12 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
 
       subject
     end
+
+    it 'handles missing email for VBMS confirmation' do
+      user_without_va_profile_email = OpenStruct.new(user.to_h.merge(va_profile_email: nil))
+      expect(Rails.logger).to receive(:warn)
+      claim.send_vbms_confirmation_email(user_without_va_profile_email)
+    end
   end
 
   describe '#send_lighthouse_confirmation_email' do
@@ -230,6 +223,15 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
       allow(PersistentAttachment).to receive(:where).and_return(double(find_each: true))
       allow_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform).and_return(true)
       expect(claim.process_attachments!).to be_truthy
+    end
+  end
+
+  describe '#upload_to_vbms' do
+    it 'updates form with VBMS document id' do
+      allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload!)
+        .and_return({ vbms_document_series_ref_id: '123' })
+      claim.upload_to_vbms(user: build(:user))
+      expect(claim.parsed_form['documentId']).to eq('123')
     end
   end
 end
