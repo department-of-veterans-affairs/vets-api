@@ -31,6 +31,29 @@ module DependentsVerification
             question_text: "VETERAN'S LAST NAME"
           }
         },
+        'veteranFullNameOverflow' => {
+          'first' => {
+            key: key_name('1', 'VeteranName', 'FirstOverflow'),
+            limit: 0,
+            question_num: 1,
+            question_text: "VETERAN'S FIRST NAME",
+            overflow_only: true
+          },
+          'middleInitial' => {
+            key: key_name('1', 'VeteranName', 'MIOverflow'),
+            limit: 0,
+            question_num: 1,
+            question_text: "VETERAN'S MIDDLE INITIAL",
+            overflow_only: true
+          },
+          'last' => {
+            key: key_name('1', 'VeteranName', 'LastOverflow'),
+            limit: 0,
+            question_num: 1,
+            question_text: "VETERAN'S LAST NAME",
+            overflow_only: true
+          }
+        },
         # 2
         'veteranSSN' => {
           'first' => {
@@ -131,6 +154,66 @@ module DependentsVerification
             }
           }
         },
+        'veteranAddressOverflow' => {
+          'street' => {
+            key: key_name('5', 'VeteranAddress', 'StreetOverflow'),
+            limit: 0,
+            question_num: 5,
+            question_suffix: 'a',
+            question_text: 'STREET ADDRESS',
+            overflow_only: true
+          },
+          'city' => {
+            key: key_name('5', 'VeteranAddress', 'CityOverflow'),
+            limit: 0,
+            question_num: 5,
+            question_suffix: 'b',
+            question_text: 'CITY',
+            overflow_only: true
+          },
+          'unit_number' => {
+            key: key_name('5', 'VeteranAddress', 'UnitNumberOverflow'),
+            limit: 0,
+            question_num: 5,
+            question_suffix: 'c',
+            question_text: 'UNIT NUMBER',
+            overflow_only: true
+          },
+          'country' => {
+            key: key_name('5', 'VeteranAddress', 'CountryOverflow'),
+            limit: 0,
+            question_num: 5,
+            question_suffix: 'd',
+            question_text: 'COUNTRY',
+            overflow_only: true
+          },
+          'state' => {
+            key: key_name('5', 'VeteranAddress', 'StateOverflow'),
+            limit: 0,
+            question_num: 5,
+            question_suffix: 'e',
+            question_text: 'STATE',
+            overflow_only: true
+          },
+          'postal_code' => {
+            'firstFive' => {
+              key: key_name('5', 'VeteranAddress', 'PostalCode', 'FirstOverflow'),
+              limit: 0,
+              question_num: 5,
+              question_suffix: 'f',
+              question_text: 'POSTAL CODE - FIRST FIVE',
+              overflow_only: true
+            },
+            'lastFour' => {
+              key: key_name('5', 'VeteranAddress', 'PostalCode', 'SecondOverflow'),
+              limit: 0,
+              question_num: 5,
+              question_suffix: 'g',
+              question_text: 'POSTAL CODE - LAST FOUR',
+              overflow_only: true
+            }
+          }
+        },
         # 6
         'veteranPhone' => {
           'phone_area_code' => {
@@ -176,6 +259,24 @@ module DependentsVerification
             question_text: 'EMAIL - SECOND PART'
           }
         },
+        'veteranEmailOverflow' => {
+          'firstPart' => {
+            key: key_name('7', 'VeteranEmail', 'FirstOverflow'),
+            limit: 0,
+            question_num: 7,
+            question_suffix: 'a',
+            question_text: 'EMAIL - FIRST PART',
+            overflow_only: true
+          },
+          'secondPart' => {
+            key: key_name('7', 'VeteranEmail', 'SecondOverflow'),
+            limit: 0,
+            question_num: 7,
+            question_suffix: 'b',
+            question_text: 'EMAIL - SECOND PART',
+            overflow_only: true
+          }
+        },
         'veteranEmailAgree' => {
           key: key_name('7', 'VeteranEmail', 'Agree')
         }
@@ -201,6 +302,8 @@ module DependentsVerification
         form_data['veteranAddress'] = expand_address(form_data['address'])
         form_data['veteranEmail'] = expand_email(form_data['email'])
         form_data['veteranEmailAgree'] = select_checkbox(form_data['electronicCorrespondence'])
+
+        handle_overflows(form_data)
 
         expand_phone_numbers(form_data)
         form_data
@@ -240,8 +343,102 @@ module DependentsVerification
 
         {
           'firstPart' => email[0..17],
-          'secondPart' => email[18..35]
+          'secondPart' => email[18..]
         }
+      end
+
+      # this method handle overflows for address, email, first name, and last name based on new rules.
+      # if any part of address overflows, address should appear blank on pdf and show all on overflow page
+      # if email overflows, email should appear blank on pdf and show whole email on overflow page
+      # if first or last name overflows, truncate the value on pdf and show full value on overflow page.
+      def handle_overflows(form_data)
+        address_overflow = check_for_multiple_overflow(form_data['veteranAddress'], 'veteranAddress') if form_data['veteranAddress'].present? # rubocop:disable Layout/LineLength
+        email_overflow = check_for_multiple_overflow(form_data['veteranEmail'], 'veteranEmail') if form_data['veteranEmail'].present? # rubocop:disable Layout/LineLength
+
+        first_name_overflow = check_for_single_overflow(form_data['veteranFullName']['first'],
+                                                        'veteranFullName', 'first')
+        last_name_overflow = check_for_single_overflow(form_data['veteranFullName']['last'],
+                                                       'veteranFullName', 'last')
+
+        clear_section(form_data, 'veteranAddress') if address_overflow
+        clear_section(form_data, 'veteranEmail') if email_overflow
+
+        truncate_section(form_data, %w[veteranFullNameOverflow first], %w[veteranFullName first]) if first_name_overflow
+        truncate_section(form_data, %w[veteranFullNameOverflow last], %w[veteranFullName last]) if last_name_overflow
+
+        form_data
+      end
+
+      # if any part of the address or email overflows, then the entire section
+      # should be blank, and instead the entire section should be printed on the
+      # overflow page. This method checks against limits and returns whether there is overflow
+      def check_for_multiple_overflow(form_data, key_name)
+        attribute_limit = get_sizes(form_data)
+        key_limit = get_limits(KEY[key_name])
+
+        attribute_limit.each do |k, v|
+          return true if v > key_limit[k]
+        end
+        false
+      end
+
+      # checks the passed in attribute against the limit for the fields passed in.
+      def check_for_single_overflow(data, *params)
+        data.size > KEY.dig(*params)[:limit]
+      end
+
+      # if any part of the address overflows, then the entire address section
+      # should be blank, and instead the entire address should be printed on the
+      # overflow page. This method clears the relevant data
+      def clear_section(form_data, key_name)
+        form_data["#{key_name}Overflow"] = form_data[key_name]
+        form_data[key_name] = {}
+        form_data
+      end
+
+      # this truncates the attribute length to the limit of the box on the pdf.
+      def truncate_section(form_data, overflow, original)
+        deep_set(form_data, overflow, form_data.dig(*original))
+        deep_set(form_data, original, form_data.dig(*original)[0..(KEY.dig(*original)[:limit] - 1)])
+        form_data
+      end
+
+      # this method helps set a value no matter how deep in the has it is.
+      # this is useful for when swapping into the overflow fields for a single attribute
+      def deep_set(form_data, keys, value)
+        keys.reduce(form_data) do |hash, key|
+          if key == keys.last
+            hash[key] = value
+          else
+            hash[key] ||= {} # Create a new hash if the key doesn't exist
+          end
+        end
+        form_data # Return the modified hash
+      end
+
+      # this method gets the sizes of each attribute in the passed in form_data
+      def get_sizes(data, size_map = {})
+        data.map do |k, v|
+          v = v.to_s if v.is_a?(Numeric)
+          if v.is_a?(String)
+            size_map[k] = v.size
+          elsif v.is_a?(Hash)
+            get_sizes(v, size_map)
+          end
+        end
+        size_map
+      end
+
+      # this method gets the sizes of the limits in the key for the passed in section name
+      def get_limits(data, limit_map = {})
+        data.map do |k, v|
+          if v[:limit].present?
+            limit_map[k] = v[:limit]
+          elsif v.is_a?(Hash)
+            get_limits(v, limit_map)
+          end
+        end
+        limit_map
       end
     end
   end

@@ -675,4 +675,113 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       end
     end
   end
+
+  context 'section 6, service information' do
+    let(:service_periods_object) do
+      [
+        {
+          'serviceBranch' => 'Navy',
+          'activeDutyBeginDate' => '2015-11-14',
+          'activeDutyEndDate' => '2018-11-30',
+          'separationLocationCode' => '99876'
+        },
+        {
+          'serviceBranch' => 'Army',
+          'activeDutyBeginDate' => '2012-11-14',
+          'activeDutyEndDate' => '2014-11-30'
+        },
+        {
+          'serviceBranch' => 'Marines',
+          'activeDutyBeginDate' => '2010-11-14',
+          'activeDutyEndDate' => '2012-11-29',
+          'separationLocationCode' => '99875'
+        }
+      ]
+    end
+
+    describe '#set_pdf_data_for_service_information' do
+      context 'when the serviceInformation key does not exist' do
+        before do
+          @pdf_data = pdf_data
+        end
+
+        it 'sets the serviceInformation key to an empty hash' do
+          res = mapper.send(:set_pdf_data_for_service_information)
+
+          expect(res).to eq({})
+        end
+      end
+
+      context 'when the serviceInformation key already exists' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:serviceInformation] = {}
+        end
+
+        it 'returns early without modifying the existing data' do
+          res = mapper.send(:set_pdf_data_for_service_information)
+
+          expect(res).to be_nil
+        end
+      end
+    end
+
+    describe '#set_pdf_data_for_most_recent_service_period' do
+      context 'when the mostRecentActiveService key does not exist' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:serviceInformation] = {}
+        end
+
+        it 'sets the mostRecentActiveService key to an empty hash' do
+          res = mapper.send(:set_pdf_data_for_most_recent_service_period)
+
+          expect(res).to eq({})
+        end
+      end
+
+      context 'when the mostRecentActiveService key already exists' do
+        before do
+          @pdf_data = pdf_data
+          @pdf_data[:data][:attributes][:serviceInformation] = {}
+          @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService] = {}
+        end
+
+        it 'returns early without modifying the existing data' do
+          res = mapper.send(:set_pdf_data_for_most_recent_service_period)
+
+          expect(res).to be_nil
+        end
+      end
+    end
+
+    it 'maps the most recent service period attributes' do
+      form_attributes['serviceInformation']['servicePeriods'] = service_periods_object
+      mapper.map_claim
+
+      service_period_base = pdf_data[:data][:attributes][:serviceInformation]
+
+      expect(service_period_base[:branchOfService][:branch]).to eq('Navy')
+      expect(service_period_base[:placeOfLastOrAnticipatedSeparation]).to eq('99876')
+      expect(service_period_base[:mostRecentActiveService][:start]).to eq({ year: '2015', month: '11',
+                                                                            day: '14' })
+      expect(service_period_base[:mostRecentActiveService][:end]).to eq({ year: '2018', month: '11',
+                                                                          day: '30' })
+    end
+
+    it 'maps the additional periods of service' do
+      form_attributes['serviceInformation']['servicePeriods'] = service_periods_object
+      mapper.map_claim
+
+      service_period_base = pdf_data[:data][:attributes][:serviceInformation]
+
+      expect(service_period_base).to have_key(:additionalPeriodsOfService)
+      expect(service_period_base[:additionalPeriodsOfService][0][:start]).to eq({ year: '2012', month: '11',
+                                                                                  day: '14' })
+      expect(service_period_base[:additionalPeriodsOfService][0][:end]).to eq({ year: '2014', month: '11', day: '30' })
+      expect(service_period_base[:additionalPeriodsOfService][1][:start]).to eq({ year: '2010', month: '11',
+                                                                                  day: '14' })
+      expect(service_period_base[:additionalPeriodsOfService][1][:end]).to eq({ year: '2012', month: '11', day: '29' })
+    end
+  end
 end
