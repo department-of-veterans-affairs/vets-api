@@ -305,7 +305,7 @@ module UnifiedHealthData
     end
 
     def clinical_notes_adapter
-      @clinical_notes_adapter ||= UnifiedHealthData::Adapters::ClinicalNotesAdapter.new
+      @clinical_notes_adapter ||= UnifiedHealthData::V2::Adapters::ClinicalNotesAdapter.new
     end
 
     def conditions_adapter
