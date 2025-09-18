@@ -32,7 +32,7 @@ module UnifiedHealthData
           quantity: medication['quantity'],
           expiration_date: medication['expirationDate'],
           prescription_number: medication['prescriptionNumber'],
-          prescription_name: medication['prescriptionName'],
+          prescription_name: medication['prescriptionName'].presence || medication['orderableItem'],
           dispensed_date: medication['dispensedDate'],
           station_number: medication['stationNumber'],
           is_refillable: medication['isRefillable'],
