@@ -20,8 +20,6 @@ module UnifiedHealthData
     STATSD_KEY_PREFIX = 'api.uhd'
     include Common::Client::Concerns::Monitoring
 
-    # configuration UnifiedHealthData::Configuration
-
     def initialize(user)
       super()
       @user = user
@@ -276,7 +274,6 @@ module UnifiedHealthData
       end
     end
 
-    # Care Summaries and Notes methods
     def parse_notes(records)
       return [] if records.blank?
 
@@ -316,4 +313,4 @@ module UnifiedHealthData
       @logger ||= UnifiedHealthData::Logging.new(@user)
     end
   end
-end # rubocop:enable Metrics/ClassLength
+end

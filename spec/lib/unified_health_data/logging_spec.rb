@@ -249,6 +249,7 @@ RSpec.describe UnifiedHealthData::Logging do
     let(:normal_name_record) do
       UnifiedHealthData::LabOrTest.new(
         id: '123',
+        type: 'DiagnosticReport',
         display: 'Chemistry Test',
         test_code: 'CH',
         date_completed: '2023-01-01',
@@ -264,6 +265,7 @@ RSpec.describe UnifiedHealthData::Logging do
     let(:short_name_record_ch) do
       UnifiedHealthData::LabOrTest.new(
         id: '456',
+        type: 'DiagnosticReport',
         display: 'CH',
         test_code: 'CH',
         date_completed: '2023-01-01',
@@ -279,6 +281,7 @@ RSpec.describe UnifiedHealthData::Logging do
     let(:short_name_record_sp) do
       UnifiedHealthData::LabOrTest.new(
         id: '789',
+        type: 'DiagnosticReport',
         display: 'SP',
         test_code: 'SP',
         date_completed: '2023-01-01',
@@ -294,6 +297,7 @@ RSpec.describe UnifiedHealthData::Logging do
     let(:short_name_record_three_chars) do
       UnifiedHealthData::LabOrTest.new(
         id: '999',
+        type: 'DiagnosticReport',
         display: 'ABC',
         test_code: 'MB',
         date_completed: '2023-01-01',
@@ -356,6 +360,7 @@ RSpec.describe UnifiedHealthData::Logging do
     it 'does not call log_short_test_name_issue when test name is empty' do
       empty_name_record = UnifiedHealthData::LabOrTest.new(
         id: '111',
+        type: 'DiagnosticReport',
         display: '',
         test_code: 'CH',
         date_completed: '2023-01-01',

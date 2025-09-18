@@ -909,7 +909,7 @@ describe UnifiedHealthData::Service, type: :service do
       expect(first_condition.name).to eq('Major depressive disorder, recurrent, moderate')
     end
 
-    # TODO: This does actually raise an error
+    # TODO: This DOES actually raise an error, which seems accurate
     #
     # it 'handles malformed responses gracefully' do
     #   allow_any_instance_of(UnifiedHealthData::Client)
