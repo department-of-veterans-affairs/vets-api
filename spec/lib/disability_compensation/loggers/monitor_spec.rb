@@ -105,10 +105,8 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
 
       monitor.track_saved_claim_save_success(
         claim,
-        in_progress_form.id,
         user.uuid
       )
     end
-
   end
 end
