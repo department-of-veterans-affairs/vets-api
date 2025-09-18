@@ -26,6 +26,7 @@ require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
 require 'pdf_fill/forms/va2210215a'
 require 'pdf_fill/forms/va221919'
+require 'pdf_fill/forms/va2210275'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
 require 'utilities/date_parser'
 require 'forwardable'
@@ -82,7 +83,8 @@ module PdfFill
       '22-10216' => PdfFill::Forms::Va2210216,
       '22-10215' => PdfFill::Forms::Va2210215,
       '22-10215a' => PdfFill::Forms::Va2210215a,
-      '22-1919' => PdfFill::Forms::Va221919
+      '22-1919' => PdfFill::Forms::Va221919,
+      '22-10275' => PdfFill::Forms::Va2210275
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
     end
@@ -137,7 +139,10 @@ module PdfFill
         end
       end
 
-      target.write(new_file_path)
+      # NOTE: In deployed environments we use the `flatten` flag when calling `fill_form`, which removes
+      # all of the form metadata. HexaPDF validation fails when the form metadata has been removed,
+      # so we should not validate the merged document in deployed environments
+      target.write(new_file_path, validate: !Rails.env.production?)
     end
 
     ##
@@ -204,7 +209,6 @@ module PdfFill
 
       hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
       new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
-
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
       unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,

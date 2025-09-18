@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'debts_api/v0/digital_dispute_submission_service'
-require 'debts_api/v0/digital_dispute_dmc_service'
 
 module DebtsApi
   module V0
@@ -20,11 +19,9 @@ module DebtsApi
 
         begin
           submission.save!
-          dmc_service(submission).call!
+          DebtsApi::V0::DigitalDisputeJob.perform_async(submission.id)
 
-          StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.success")
-          in_progress_form&.destroy
-          render_success(submission)
+          render json: { message: 'Submission received', submission_id: submission.id }, status: :ok
         rescue ActiveRecord::RecordInvalid => e
           StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
           errors_hash = e.record.errors.to_hash
@@ -42,14 +39,9 @@ module DebtsApi
         end
       end
 
-      def in_progress_form
-        InProgressForm.form_for_user('DISPUTE-DEBT', current_user)
-      end
-
       def create_legacy!
         result = process_submission
         if result[:success]
-          StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.success")
           render json: { message: result[:message], submission_id: result[:submission_id] }, status: :ok
         else
           StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
@@ -64,14 +56,6 @@ module DebtsApi
           state: :pending,
           metadata: submission_params[:metadata]
         ).tap { |s| s.files.attach(submission_params[:files]) }
-      end
-
-      def dmc_service(submission)
-        DebtsApi::V0::DigitalDisputeDmcService.new(current_user, submission)
-      end
-
-      def render_success(submission)
-        render json: { message: 'Submission received', submission_id: submission.id }, status: :ok
       end
 
       def render_validation_error(record)

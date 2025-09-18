@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_09_221715) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_16_114106) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -27,6 +27,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_09_221715) do
   create_enum "claims_evidence_api_submission_status", ["pending", "accepted", "failed"]
   create_enum "itf_remediation_status", ["unprocessed"]
   create_enum "lighthouse_submission_status", ["pending", "submitted", "failure", "vbms", "manually"]
+  create_enum "saved_claim_group_status", ["pending", "accepted", "failure", "processing", "success"]
   create_enum "user_action_status", ["initial", "success", "error"]
 
   create_table "account_login_stats", force: :cascade do |t|
@@ -646,6 +647,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_09_221715) do
     t.uuid "record_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "encrypted_kms_key"
+    t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_claims_api_record_metadata_on_needs_kms_rotation"
     t.index ["record_type", "record_id"], name: "index_record_metadata_on_type_and_id"
   end
 
@@ -1445,6 +1449,20 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_09_221715) do
     t.index ["tracking_number"], name: "index_preneed_submissions_on_tracking_number", unique: true
   end
 
+  create_table "saved_claim_groups", force: :cascade do |t|
+    t.uuid "claim_group_guid", null: false
+    t.integer "parent_claim_id", null: false, comment: "ID of the saved claim in vets-api"
+    t.integer "saved_claim_id", null: false, comment: "ID of the saved claim in vets-api"
+    t.enum "status", default: "pending", enum_type: "saved_claim_group_status"
+    t.jsonb "user_data_ciphertext", comment: "encrypted data that can be used to identify the associated user"
+    t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
+    t.boolean "needs_kms_rotation", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["claim_group_guid"], name: "index_saved_claim_groups_on_claim_group_guid"
+    t.index ["needs_kms_rotation"], name: "index_saved_claim_groups_on_needs_kms_rotation"
+  end
+
   create_table "saved_claims", id: :serial, force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -1769,6 +1787,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_09_221715) do
     t.datetime "updated_at", null: false
     t.string "backing_idme_uuid"
     t.boolean "locked", default: false, null: false
+    t.string "credential_attributes_digest"
     t.index ["backing_idme_uuid"], name: "index_user_verifications_on_backing_idme_uuid"
     t.index ["dslogon_uuid"], name: "index_user_verifications_on_dslogon_uuid", unique: true
     t.index ["idme_uuid"], name: "index_user_verifications_on_idme_uuid", unique: true
@@ -2170,6 +2189,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_09_221715) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
+  add_foreign_key "saved_claim_groups", "saved_claims", column: "parent_claim_id", validate: false
+  add_foreign_key "saved_claim_groups", "saved_claims", validate: false
   add_foreign_key "schema_contract_validations", "user_accounts", validate: false
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "test_user_dashboard_tud_account_availability_logs", "user_accounts"
