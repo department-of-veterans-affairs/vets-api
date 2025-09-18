@@ -169,7 +169,7 @@ module IncomeAndAssets
         Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
         @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
       rescue => e
-        monitor.track_file_cleanup_error(@claim, @intake_service, @claim.user_account_id, e)
+        monitor.track_file_cleanup_error(@claim, @intake_service, @claim&.user_account_id, e)
       end
     end
   end

@@ -26,7 +26,7 @@ RSpec.describe 'Income and Assets End to End', type: :request do
 
   it 'successfully completes the submission process' do
     # form submission
-    # NOTE: This e2e tests assumes that the user is NOT authenticated
+    # NOTE: This e2e test assumes that the user is NOT authenticated
     expect(IncomeAndAssets::SavedClaim).to receive(:new).with(form: form.form,
                                                               user_account_id: nil).and_call_original
     expect(monitor).to receive(:track_create_attempt).and_call_original
