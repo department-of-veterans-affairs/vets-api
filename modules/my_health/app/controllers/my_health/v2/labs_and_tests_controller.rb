@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'unified_health_data/service'
-require 'lab_or_test_serializer'
+require 'unified_health_data/serializers/lab_or_test_serializer'
 
 module MyHealth
   module V2
@@ -12,7 +12,7 @@ module MyHealth
         start_date = params[:start_date]
         end_date = params[:end_date]
         labs = service.get_labs(start_date:, end_date:)
-        render json: labs.map { |record| LabOrTestSerializer.serialize(record) }
+        render json: UnifiedHealthData::LabOrTestSerializer.serialize(labs).serializable_hash[:data]
       end
 
       private

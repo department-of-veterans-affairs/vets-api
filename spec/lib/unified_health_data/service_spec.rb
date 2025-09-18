@@ -50,7 +50,7 @@ describe UnifiedHealthData::Service, type: :service do
           allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
           labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
           expect(labs.size).to eq(3)
-          expect(labs.map { |l| l.attributes.test_code }).to contain_exactly('CH', 'SP', 'MB')
+          expect(labs.map(&:test_code)).to contain_exactly('CH', 'SP', 'MB')
         end
       end
 
@@ -86,7 +86,7 @@ describe UnifiedHealthData::Service, type: :service do
           labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
 
           expect(labs.size).to eq(3)
-          expect(labs.map { |l| l.attributes.test_code }).to contain_exactly('CH', 'SP', 'MB')
+          expect(labs.map(&:test_code)).to contain_exactly('CH', 'SP', 'MB')
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
               message: 'UHD filtering disabled - returning all records',
@@ -135,7 +135,7 @@ describe UnifiedHealthData::Service, type: :service do
           allow(Rails.logger).to receive(:info)
           labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
           expect(labs.size).to eq(1)
-          expect(labs.first.attributes.test_code).to eq('CH')
+          expect(labs.first.test_code).to eq('CH')
         end
       end
 
@@ -167,10 +167,10 @@ describe UnifiedHealthData::Service, type: :service do
   end
 
   describe '#filter_records' do
-    let(:record_ch) { double(attributes: double(test_code: 'CH')) }
-    let(:record_sp) { double(attributes: double(test_code: 'SP')) }
-    let(:record_mb) { double(attributes: double(test_code: 'MB')) }
-    let(:record_other) { double(attributes: double(test_code: 'OTHER')) }
+    let(:record_ch) { double(test_code: 'CH') }
+    let(:record_sp) { double(test_code: 'SP') }
+    let(:record_mb) { double(test_code: 'MB') }
+    let(:record_other) { double(test_code: 'OTHER') }
     let(:records) { [record_ch, record_sp, record_mb, record_other] }
 
     context 'when filtering is disabled' do
@@ -253,100 +253,100 @@ describe UnifiedHealthData::Service, type: :service do
     end
   end
 
-  describe '#fetch_location' do
+  describe '#get_location' do
     it 'returns the organization name if present' do
       record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Organization', 'name' => 'LabX' }] } }
-      expect(service.send(:fetch_location, record)).to eq('LabX')
+      expect(service.send(:get_location, record)).to eq('LabX')
     end
 
     it 'returns nil if no organization' do
       record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Other' }] } }
-      expect(service.send(:fetch_location, record)).to be_nil
+      expect(service.send(:get_location, record)).to be_nil
     end
   end
 
-  describe '#fetch_ordered_by' do
+  describe '#get_ordered_by' do
     it 'returns practitioner full name if present' do
       record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Practitioner',
                                                    'name' => [{ 'given' => ['A'], 'family' => 'B' }] }] } }
-      expect(service.send(:fetch_ordered_by, record)).to eq('A B')
+      expect(service.send(:get_ordered_by, record)).to eq('A B')
     end
 
     it 'returns nil if no practitioner' do
       record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Other' }] } }
-      expect(service.send(:fetch_ordered_by, record)).to be_nil
+      expect(service.send(:get_ordered_by, record)).to be_nil
     end
   end
 
-  describe '#fetch_observation_value' do
+  describe '#format_observation_value' do
     it 'returns quantity type and text' do
       obs = { 'valueQuantity' => { 'value' => 5, 'unit' => 'mg' } }
-      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: '5 mg' })
+      expect(service.send(:format_observation_value, obs)).to eq({ type: 'quantity', text: '5 mg' })
     end
 
     it 'includes the less-than comparator in the text result when present' do
       obs = { 'valueQuantity' => { 'value' => 50, 'comparator' => '<', 'unit' => 'mmol/L' } }
-      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: '<50 mmol/L' })
+      expect(service.send(:format_observation_value, obs)).to eq({ type: 'quantity', text: '<50 mmol/L' })
     end
 
     it 'includes the greater-than comparator in the text result when present' do
       obs = { 'valueQuantity' => { 'value' => 120, 'comparator' => '>', 'unit' => 'mg/dL' } }
-      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: '>120 mg/dL' })
+      expect(service.send(:format_observation_value, obs)).to eq({ type: 'quantity', text: '>120 mg/dL' })
     end
 
     it 'includes the less-than-or-equal comparator in the text result when present' do
       obs = { 'valueQuantity' => { 'value' => 6.5, 'comparator' => '<=', 'unit' => '%' } }
-      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: '<=6.5 %' })
+      expect(service.send(:format_observation_value, obs)).to eq({ type: 'quantity', text: '<=6.5 %' })
     end
 
     it 'includes the greater-than-or-equal comparator in the text result when present' do
       obs = { 'valueQuantity' => { 'value' => 8.0, 'comparator' => '>=', 'unit' => 'ng/mL' } }
-      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: '>=8.0 ng/mL' })
+      expect(service.send(:format_observation_value, obs)).to eq({ type: 'quantity', text: '>=8.0 ng/mL' })
     end
 
     it 'includes the "sufficient to achieve" (ad) comparator in the text result when present' do
       obs = { 'valueQuantity' => { 'value' => 12.3, 'comparator' => 'ad', 'unit' => 'mol/L' } }
-      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: 'ad12.3 mol/L' })
+      expect(service.send(:format_observation_value, obs)).to eq({ type: 'quantity', text: 'ad12.3 mol/L' })
     end
 
     it 'handles valueQuantity with no unit correctly' do
       obs = { 'valueQuantity' => { 'value' => 10, 'comparator' => '>' } }
-      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: '>10' })
+      expect(service.send(:format_observation_value, obs)).to eq({ type: 'quantity', text: '>10' })
     end
 
     it 'handles empty or nil comparator gracefully' do
       obs = { 'valueQuantity' => { 'value' => 75, 'comparator' => '', 'unit' => 'pg/mL' } }
-      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'quantity', text: '75 pg/mL' })
+      expect(service.send(:format_observation_value, obs)).to eq({ type: 'quantity', text: '75 pg/mL' })
     end
 
     it 'returns codeable-concept type and text' do
       obs = { 'valueCodeableConcept' => { 'text' => 'POS' } }
-      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'codeable-concept', text: 'POS' })
+      expect(service.send(:format_observation_value, obs)).to eq({ type: 'codeable-concept', text: 'POS' })
     end
 
     it 'returns string type and text' do
       obs = { 'valueString' => 'abc' }
-      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'string', text: 'abc' })
+      expect(service.send(:format_observation_value, obs)).to eq({ type: 'string', text: 'abc' })
     end
 
     it 'returns date-time type and text' do
       obs = { 'valueDateTime' => '2024-06-01T00:00:00Z' }
-      expect(service.send(:fetch_observation_value, obs)).to eq({ type: 'date-time', text: '2024-06-01T00:00:00Z' })
+      expect(service.send(:format_observation_value, obs)).to eq({ type: 'date-time', text: '2024-06-01T00:00:00Z' })
     end
 
     it 'returns nils for unsupported types' do
       obs = {}
-      expect(service.send(:fetch_observation_value, obs)).to eq({ type: nil, text: nil })
+      expect(service.send(:format_observation_value, obs)).to eq({ type: nil, text: nil })
     end
   end
 
-  describe '#fetch_body_site' do
+  describe '#get_body_site' do
     context 'when contained is nil' do
       it 'returns an empty string' do
         resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/123' }] }
         contained = nil
 
-        result = service.send(:fetch_body_site, resource, contained)
+        result = service.send(:get_body_site, resource, contained)
 
         expect(result).to eq('')
       end
@@ -357,20 +357,20 @@ describe UnifiedHealthData::Service, type: :service do
         resource = {}
         contained = [{ 'resourceType' => 'ServiceRequest', 'id' => '123' }]
 
-        result = service.send(:fetch_body_site, resource, contained)
+        result = service.send(:get_body_site, resource, contained)
 
         expect(result).to eq('')
       end
     end
   end
 
-  describe '#fetch_sample_tested' do
+  describe '#get_sample_tested' do
     context 'when contained is nil' do
       it 'returns an empty string' do
         record = { 'specimen' => { 'reference' => 'Specimen/123' } }
         contained = nil
 
-        result = service.send(:fetch_sample_tested, record, contained)
+        result = service.send(:get_sample_tested, record, contained)
 
         expect(result).to eq('')
       end
@@ -381,19 +381,19 @@ describe UnifiedHealthData::Service, type: :service do
         record = {}
         contained = [{ 'resourceType' => 'Specimen', 'id' => '123' }]
 
-        result = service.send(:fetch_sample_tested, record, contained)
+        result = service.send(:get_sample_tested, record, contained)
 
         expect(result).to eq('')
       end
     end
   end
 
-  describe '#fetch_observations' do
+  describe '#get_observations' do
     context 'when contained is nil' do
       it 'returns an empty array' do
         record = { 'resource' => { 'contained' => nil } }
 
-        result = service.send(:fetch_observations, record)
+        result = service.send(:get_observations, record)
 
         expect(result).to eq([])
       end
@@ -417,7 +417,7 @@ describe UnifiedHealthData::Service, type: :service do
             ]
           }
         }
-        result = service.send(:fetch_observations, record)
+        result = service.send(:get_observations, record)
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq('70-110 mg/dL')
       end
@@ -440,7 +440,7 @@ describe UnifiedHealthData::Service, type: :service do
             ]
           }
         }
-        result = service.send(:fetch_observations, record)
+        result = service.send(:get_observations, record)
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq('8.5-10.5 mg/dL, Lab-specific: 9-11 mg/dL')
       end
@@ -481,7 +481,7 @@ describe UnifiedHealthData::Service, type: :service do
             ]
           }
         }
-        result = service.send(:fetch_observations, record)
+        result = service.send(:get_observations, record)
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq('Normal Range: 0.7 - 4.5 mIU/L')
       end
@@ -542,7 +542,7 @@ describe UnifiedHealthData::Service, type: :service do
             ]
           }
         }
-        result = service.send(:fetch_observations, record)
+        result = service.send(:get_observations, record)
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq(
           'Normal Range: 0.7 - 4.5 mIU/L, ' \
@@ -564,7 +564,7 @@ describe UnifiedHealthData::Service, type: :service do
             ]
           }
         }
-        result = service.send(:fetch_observations, record)
+        result = service.send(:get_observations, record)
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq('')
       end
@@ -601,7 +601,7 @@ describe UnifiedHealthData::Service, type: :service do
             ]
           }
         }
-        result = service.send(:fetch_observations, record)
+        result = service.send(:get_observations, record)
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq('Normal Range: >= 94 %')
       end
@@ -638,7 +638,7 @@ describe UnifiedHealthData::Service, type: :service do
             ]
           }
         }
-        result = service.send(:fetch_observations, record)
+        result = service.send(:get_observations, record)
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq('Normal Range: <= 120 mg/dL')
       end
@@ -671,19 +671,19 @@ describe UnifiedHealthData::Service, type: :service do
             ]
           }
         }
-        result = service.send(:fetch_observations, record)
+        result = service.send(:get_observations, record)
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq('YELLOW, <= 10, >= 1, >= 2, <= 8')
       end
     end
   end
 
-  describe '#fetch_code' do
+  describe '#get_code' do
     context 'when category is nil' do
       it 'returns nil' do
         record = { 'resource' => { 'category' => nil } }
 
-        result = service.send(:fetch_code, record)
+        result = service.send(:get_code, record)
 
         expect(result).to be_nil
       end
@@ -693,7 +693,7 @@ describe UnifiedHealthData::Service, type: :service do
       it 'returns nil' do
         record = { 'resource' => { 'category' => [] } }
 
-        result = service.send(:fetch_code, record)
+        result = service.send(:get_code, record)
 
         expect(result).to be_nil
       end
@@ -749,7 +749,7 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
 
-    describe '#fetch_display' do
+    describe '#format_display' do
       it 'uses code.text if ServiceRequest is not found' do
         record = {
           'resource' => {
@@ -759,7 +759,7 @@ describe UnifiedHealthData::Service, type: :service do
             'code' => { 'text' => 'Fallback Test' }
           }
         }
-        expect(service.send(:fetch_display, record)).to eq('Fallback Test')
+        expect(service.send(:format_display, record)).to eq('Fallback Test')
       end
 
       it 'returns empty string if neither ServiceRequest nor code.text is present' do
@@ -770,7 +770,7 @@ describe UnifiedHealthData::Service, type: :service do
             ]
           }
         }
-        expect(service.send(:fetch_display, record)).to eq('')
+        expect(service.send(:format_display, record)).to eq('')
       end
     end
   end
