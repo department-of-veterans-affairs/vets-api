@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../models/clinical_notes'
+
 module UnifiedHealthData
   module V2
     module Adapters
