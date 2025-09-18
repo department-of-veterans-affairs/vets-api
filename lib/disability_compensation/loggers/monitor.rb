@@ -39,7 +39,7 @@ module DisabilityCompensation
           "#{claim_stats_key}.failure",
           in_progress_form_id:,
           user_account_uuid:,
-          form_id: claim_stats_key,
+          form_id:,
           errors: format_active_model_errors(errors)
         )
       end
