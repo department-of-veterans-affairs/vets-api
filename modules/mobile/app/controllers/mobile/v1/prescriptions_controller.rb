@@ -2,6 +2,7 @@
 
 require 'unified_health_data/service'
 require 'unified_health_data/serializers/prescription_serializer'
+require 'unified_health_data/serializers/prescriptions_refills_serializer'
 require 'securerandom'
 
 module Mobile
@@ -25,7 +26,7 @@ module Mobile
         )
         serialized_data = UnifiedHealthData::Serializers::PrescriptionSerializer.new(prescriptions).serializable_hash
         render json: { **serialized_data, meta: }
-      rescue Common::Exceptions::BackendServiceException => e
+      rescue Common::Exceptions::BackendServiceException
         raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
       end
 
@@ -100,36 +101,32 @@ module Mobile
 
       def orders
         parsed_orders = JSON.parse(request.body.read)
-        
+
         # Validate that orders is an array
-        unless parsed_orders.is_a?(Array)
-          raise Common::Exceptions::InvalidFieldValue.new('orders', 'Must be an array')
-        end
-        
+        raise Common::Exceptions::InvalidFieldValue.new('orders', 'Must be an array') unless parsed_orders.is_a?(Array)
+
         # Validate that orders array is not empty
-        if parsed_orders.empty?
-          raise Common::Exceptions::ParameterMissing.new('prescriptions')
-        end
-        
+        raise Common::Exceptions::ParameterMissing, 'prescriptions' if parsed_orders.empty?
+
         # Validate that each order has required fields
         parsed_orders.each_with_index do |order, index|
           unless order.is_a?(Hash) && order['stationNumber'] && order['id']
             raise Common::Exceptions::InvalidFieldValue.new(
-              "orders[#{index}]", 
+              "orders[#{index}]",
               'Each order must contain stationNumber and id fields'
             )
           end
         end
-        
+
         parsed_orders
       rescue JSON::ParserError
         raise Common::Exceptions::InvalidFieldValue.new('orders', 'Invalid JSON format')
       end
 
       def render_batch_refill_result(result)
-        if result[:success].length > 0
-          # Use the v1 serializer to maintain consistent format
-          render json: Mobile::V1::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
+        if result[:success].length.positive?
+          # Use the unified health data serializer to maintain consistent format
+          render json: UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
         else
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: result[:error] || 'Unable to process refill request'

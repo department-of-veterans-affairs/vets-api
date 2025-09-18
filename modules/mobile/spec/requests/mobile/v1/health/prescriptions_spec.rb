@@ -136,7 +136,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
       let!(:user) { sis_user }
 
       it 'returns a 403 forbidden response' do
-        put '/mobile/v1/health/rx/prescriptions/refill', 
+        put '/mobile/v1/health/rx/prescriptions/refill',
             params: [{ stationNumber: '123', id: '25804851' }].to_json,
             headers: sis_headers.merge('Content-Type' => 'application/json')
 
@@ -158,7 +158,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
         it 'returns success response for batch refill' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
             VCR.use_cassette('unified_health_data/refill_prescription_success') do
-              put '/mobile/v1/health/rx/prescriptions/refill', 
+              put '/mobile/v1/health/rx/prescriptions/refill',
                   params: [{ stationNumber: '358', id: '25804851' }].to_json,
                   headers: sis_headers.merge('Content-Type' => 'application/json')
 
@@ -183,7 +183,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
       context 'when prescription refill fails' do
         it 'returns 502 error for upstream service failure' do
           VCR.use_cassette('unified_health_data/refill_prescription_failure') do
-            put '/mobile/v1/health/rx/prescriptions/refill', 
+            put '/mobile/v1/health/rx/prescriptions/refill',
                 params: [{ stationNumber: '123', id: '99999999999999' }].to_json,
                 headers: sis_headers.merge('Content-Type' => 'application/json')
 
@@ -197,7 +197,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
       context 'when no prescriptions provided' do
         it 'returns parameter required error' do
           VCR.use_cassette('unified_health_data/refill_prescription_success') do
-            put '/mobile/v1/health/rx/prescriptions/refill', 
+            put '/mobile/v1/health/rx/prescriptions/refill',
                 params: '[]',
                 headers: sis_headers.merge('Content-Type' => 'application/json')
 
