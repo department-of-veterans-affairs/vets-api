@@ -5,7 +5,7 @@ http_interactions:
     uri: "<TRAVEL_CLAIM_API_URL>/api/v3/claims"
     body:
       encoding: UTF-8
-      string: '{"appointmentId":"appt-123"}'
+      string: '{"appointmentId":"appt-123","claimName":"Travel Reimbursement","claimantType":"Veteran"}'
     headers:
       Accept:
       - application/json
@@ -14,13 +14,13 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer <TOKEN>
+      - Bearer fake_veis_token_123
       X-BTSSS-Token:
-      - <BTSSS_TOKEN>
+      - fake_btsss_token_456
       X-Correlation-ID:
       - e359e352-10d8-4475-a453-9feec6bb8a10
       Ocp-Apim-Subscription-Key:
-      - <SUBSCRIPTION_KEY>
+      - fake_subscription_key
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -63,7 +63,7 @@ http_interactions:
         "message": "Claim created successfully.",
         "success": true,
         "data": {
-            "claimId": "97d2e536-017e-f011-b4cc-001dd806c742"
+            "claimId": "claim-456"
         }
       }'
   recorded_at: Wed, 27 Aug 2025 21:54:27 GMT

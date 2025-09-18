@@ -27,6 +27,8 @@ module UniqueUserEvents
   # @example
   #   UniqueUserEvents.log_event(user_id: user.uuid, event_name: 'appointments_viewed')
   def self.log_event(user_id:, event_name:)
+    return false unless Flipper.enabled?(:unique_user_metrics_logging)
+
     start_time = Time.current
     result = Service.log_event(user_id:, event_name:)
     duration = (Time.current - start_time) * 1000.0 # Convert to milliseconds
@@ -42,7 +44,7 @@ module UniqueUserEvents
   #
   # @param user_id [String] UUID of the user
   # @param event_name [String] Name of the event to check
-  # @return [Boolean] true if event exists, false otherwise or if feature disabled
+  # @return [Boolean] true if event exists, false otherwise
   # @raise [ArgumentError] if parameters are invalid
   #
   # @example

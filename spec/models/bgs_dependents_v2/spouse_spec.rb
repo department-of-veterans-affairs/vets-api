@@ -16,7 +16,8 @@ RSpec.describe BGSDependentsV2::Spouse do
       'middle' => 'Lauren',
       'last' => 'McCarthy',
       'suffix' => 'Sr.',
-      'va_file_number' => '00000000'
+      'va_file_number' => '00000000',
+      'marriage_method_name' => 'OTHER'
     }
   end
   let(:address_output_v2) do

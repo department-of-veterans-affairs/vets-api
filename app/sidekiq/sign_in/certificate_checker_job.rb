@@ -18,10 +18,10 @@ class SignIn::CertificateCheckerJob
   private
 
   def check_certificates(config)
-    return if config.certs.active.any?
+    return if config.certs.expiring_later.any?
 
-    if config.certs.expiring.any?
-      log_expiring_certs(config)
+    if config.certs.expiring_soon.any?
+      log_expiring_soon_certs(config)
     elsif config.certs.expired.any?
       log_expired_certs(config)
     end
@@ -33,9 +33,9 @@ class SignIn::CertificateCheckerJob
     end
   end
 
-  def log_expiring_certs(config)
-    config.certs.expiring.each do |cert|
-      log_warning('expiring_certificate', config, cert)
+  def log_expiring_soon_certs(config)
+    config.certs.expiring_soon.each do |cert|
+      log_warning('expiring_soon_certificate', config, cert)
     end
   end
 

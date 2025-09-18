@@ -137,11 +137,11 @@ check_in:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
   travel_reimbursement_api_v2:
-    auth_url: https://login.microsoftonline.us
+    auth_url: https://fake.service.us
     auth_url_v2: ~
     claims_base_path: ~
-    claims_url: https://dev.integration.d365.va.gov
-    claims_url_v2: ~
+    claims_url: https://fake.dev.va.gov
+    claims_url_v2: https://fake.dev.va.gov
     client_id: ~
     client_number: ~
     client_number_oh: ~
@@ -154,7 +154,7 @@ check_in:
     subscription_key: ~
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     travel_pay_client_id: ~
-    travel_pay_client_secret: ~
+    travel_pay_client_secret: secret
     travel_pay_resource: ~
   vaos:
     mock: false
@@ -419,13 +419,6 @@ evss:
   mock_disabilities_form: true
   mock_gi_bill_status: false
   mock_letters: false
-  mock_pciu: true
-  mock_pciu_address: false
-  mock_vso_search: false
-  pciu:
-    timeout: 30
-  pciu_address:
-    timeout: 30
   prefill: true
   root_cert_path: ~
   s3:
@@ -715,6 +708,19 @@ lighthouse:
     url: https://sandbox-api.va.gov
     veterans_health:
       url: ~
+  healthcare_cost_and_coverage:
+    access_token:
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/fake1tcityDg93hgKkd#/v1/token
+      client_id: fake_client_id
+      rsa_key: path/to/fake/pem
+    host: https://test-api.va.gov
+    scopes:
+      - system/ChargeItem.read
+      - system/Invoice.read
+      - system/PaymentReconciliation.read
+      - launch
+    timeout: 30
+    use_mocks: false
   letters_generator:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token
@@ -1170,7 +1176,7 @@ reports:
       - adam.freemer@accenturefederal.com
 res:
   api_key: ~
-  base_url: ~
+  base_url: https://fake_url.com
   mock_ch_31: ~
 review_instance_slug: ~
 rrd:
@@ -1639,8 +1645,6 @@ vaos:
       hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 vba_documents:
   custom_metadata_allow_list: ~
-  documentation:
-    path_enabled_flag: false
   enable_download_endpoint: ~
   enable_status_override: ~
   enable_validate_document_endpoint: true

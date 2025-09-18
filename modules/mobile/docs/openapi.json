@@ -20262,9 +20262,9 @@
                 "example": "2022-10-28T04:00:00.000Z"
               },
               "quantity": {
-                "type": "integer",
+                "type": "string",
                 "nullable": true,
-                "example": 10
+                "example": "10"
               },
               "expirationDate": {
                 "type": "string",
@@ -20582,7 +20582,8 @@
               "Civil Service Preference Letter",
               "Benefit Summary Letter",
               "Dependent Benefit Summary Letter",
-              "Benefit Verification Letter"
+              "Benefit Verification Letter",
+              "Certificate of Eligibility for Home Loan Letter"
             ]
           },
           "letterType": {
@@ -20597,7 +20598,8 @@
               "benefit_summary",
               "benefit_summary_dependent",
               "benefit_verification",
-              "certificate_of_eligibility"
+              "certificate_of_eligibility",
+              "certificate_of_eligibility_home_loan"
             ]
           }
         }
@@ -23133,7 +23135,8 @@
           "meta": {
             "type": "object",
             "required": [
-              "sort"
+              "sort",
+              "careSystems"
             ],
             "properties": {
               "sort": {
@@ -23163,6 +23166,16 @@
               "friendlyTriageTeamPilotFacilities": {
                 "type": "string",
                 "example": "979,989"
+              },
+              "careSystems": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "stationNumber",
+                    "healthCareSystemName"
+                  ]
+                }
               }
             }
           }
@@ -24328,7 +24341,9 @@
                   "prescriptions": false,
                   "scheduleAppointments": true,
                   "secureMessaging": false,
-                  "userProfileUpdate": true
+                  "userProfileUpdate": true,
+                  "secureMessagingOracleHealthEnabled": false,
+                  "medicationsOracleHealthEnabled": false
                 }
               }
             }
@@ -24521,16 +24536,21 @@
                 "nullable": true,
                 "required": [
                   "id",
-                  "emailAddress"
+                  "emailAddress",
+                  "updatedAt"
                 ],
                 "properties": {
                   "id": {
                     "type": "integer",
                     "example": 157032
                   },
-                  "contactEmail": {
+                  "emailAddress": {
                     "type": "string",
                     "example": "person@example.com"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "example": "2018-04-21T20:09:50Z"
                   }
                 }
               }

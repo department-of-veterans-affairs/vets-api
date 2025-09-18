@@ -3,9 +3,10 @@
 MyHealth::Engine.routes.draw do
   namespace :v2 do
     scope :medical_records do
-      resources :clinical_notes, only: %i[index], defaults: { format: :json }
+      resources :clinical_notes, only: %i[index show], defaults: { format: :json }
       resources :labs_and_tests, only: %i[index], defaults: { format: :json }
       resources :immunizations, only: %i[index show], defaults: { format: :json }
+      resources :conditions, only: %i[index show], defaults: { format: :json }
     end
   end
 
@@ -13,6 +14,8 @@ MyHealth::Engine.routes.draw do
     resources :tooltips, only: %i[index create update], controller: 'tooltips', defaults: { format: :json }
 
     resources :aal, only: %i[create], controller: 'aal', defaults: { format: :json }
+
+    resources :unique_user_metrics, only: %i[create], controller: 'unique_user_metrics', defaults: { format: :json }
 
     scope :medical_records do
       resources :vaccines, only: %i[index show], defaults: { format: :json } do

@@ -37,18 +37,27 @@ module TravelClaim
     # Submits a travel claim for processing through the Travel Pay API.
     # Validates parameters, then executes the complete claim submission flow.
     #
-    # @return [Hash] success response with claim ID
+    # @return [Hash] success response with claim ID and notification data
     # @raise [Common::Exceptions::BackendServiceException] for API failures
     # @raise [ArgumentError] for validation failures
     #
     def submit_claim
       validate_parameters
-      process_claim_submission
+      result = process_claim_submission
+
+      # Send notification if feature flag is enabled
+      send_notification_if_enabled if result['success']
+
+      result
     rescue Common::Exceptions::BackendServiceException => e
+      # Send error notification if feature flag is enabled
+      send_error_notification_if_enabled(e)
       raise e
     rescue => e
       log_message(:error, 'Unexpected error', error_class: e.class.name)
-      raise_backend_service_exception('An unexpected error occurred')
+      # Send error notification if feature flag is enabled
+      send_error_notification_if_enabled(e)
+      raise e
     end
 
     private
@@ -64,7 +73,10 @@ module TravelClaim
       appointment_id = get_appointment_id
       claim_id = create_new_claim(appointment_id)
       add_expense_to_claim(claim_id)
-      submit_claim_for_processing(claim_id)
+      submission_response = submit_claim_for_processing(claim_id)
+
+      # Extract claim data from submission response for notifications
+      @claim_number_last_four = extract_claim_number_last_four(submission_response)
 
       { 'success' => true, 'claimId' => claim_id }
     end
@@ -79,6 +91,27 @@ module TravelClaim
       raise_backend_service_exception('Appointment date is required', 400, 'VA902') if @appointment_date.blank?
       raise_backend_service_exception('Facility type is required', 400, 'VA903') if @facility_type.blank?
       raise_backend_service_exception('Uuid is required', 400, 'VA904') if @uuid.blank?
+
+      validate_appointment_date_format
+    end
+
+    ##
+    # Validates that appointment_date is in proper ISO 8601 format with time component
+    #
+    # @raise [ArgumentError] if appointment_date is not in valid ISO 8601 format
+    #
+    def validate_appointment_date_format
+      return if @appointment_date.blank?
+
+      begin
+        DateTime.iso8601(@appointment_date)
+      rescue ArgumentError
+        raise_backend_service_exception(
+          'Appointment date must be a valid ISO 8601 date-time (e.g., 2025-09-16T10:00:00Z)',
+          400,
+          'VA905'
+        )
+      end
     end
 
     ##
@@ -91,7 +124,7 @@ module TravelClaim
       log_message(:info, 'Get appointment ID', uuid: @uuid)
 
       response = client.send_appointment_request
-      appointment_id = response.body.dig('data', 'id')
+      appointment_id = response.body.dig('data', 0, 'id')
 
       unless appointment_id
         raise_backend_service_exception('Appointment could not be found or created', response.status)
@@ -136,6 +169,7 @@ module TravelClaim
     # Submits the claim for final processing.
     #
     # @param claim_id [String] the claim ID
+    # @return [Faraday::Response] the submission response
     # @raise [Common::Exceptions::BackendServiceException] if submission fails
     #
     def submit_claim_for_processing(claim_id)
@@ -144,6 +178,8 @@ module TravelClaim
       response = client.send_claim_submission_request(claim_id:)
 
       raise_backend_service_exception('Failed to submit claim', response.status) unless response.status == 200
+
+      response
     end
 
     ##
@@ -154,7 +190,8 @@ module TravelClaim
     def client
       @client ||= TravelClaim::TravelPayClient.new(
         uuid: @uuid,
-        appointment_date_time: @appointment_date
+        appointment_date_time: @appointment_date,
+        check_in_uuid: @check_in.uuid
       )
     end
 
@@ -190,6 +227,123 @@ module TravelClaim
         { detail: },
         status
       )
+    end
+
+    ##
+    # Extracts the last four digits of the claim number from API response
+    #
+    # @param response [Faraday::Response] the API response
+    # @return [String] last four digits of claim ID, or 'unknown' if not found
+    #
+    def extract_claim_number_last_four(response)
+      response_body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      claim_id = response_body.dig('data', 'claimId')
+      claim_id&.last(4) || 'unknown'
+    rescue => e
+      log_message(:error, 'Failed to extract claim number', error: e.message)
+      'unknown'
+    end
+
+    ##
+    # Sends a success notification if feature flag is enabled
+    #
+    def send_notification_if_enabled
+      return unless notification_enabled?
+
+      template_id = success_template_id
+      claim_number_last_four = @claim_number_last_four
+
+      log_message(:info, 'Sending success notification',
+                  template_id:, claim_last_four: claim_number_last_four)
+
+      CheckIn::TravelClaimNotificationJob.perform_async(
+        @uuid,
+        format_appointment_date,
+        template_id,
+        claim_number_last_four
+      )
+    end
+
+    ##
+    # Sends an error notification if feature flag is enabled
+    #
+    # @param error [Exception] the error that occurred
+    #
+    def send_error_notification_if_enabled(error)
+      return unless notification_enabled?
+
+      template_id = determine_error_template_id(error)
+      claim_number_last_four = @claim_number_last_four || 'unknown'
+
+      log_message(:info, 'Sending error notification',
+                  template_id:, error_class: error.class.name)
+
+      CheckIn::TravelClaimNotificationJob.perform_async(
+        @uuid,
+        format_appointment_date,
+        template_id,
+        claim_number_last_four
+      )
+    end
+
+    ##
+    # Determines if notifications are enabled via feature flag
+    # Uses the same flag as V1 travel reimbursement feature
+    #
+    # @return [Boolean] true if notifications should be sent
+    #
+    def notification_enabled?
+      Flipper.enabled?(:check_in_experience_travel_reimbursement)
+    end
+
+    ##
+    # Returns the appropriate success template ID based on facility type
+    #
+    # @return [String] template ID for success notifications
+    #
+    def success_template_id
+      if @facility_type&.downcase == 'oh'
+        CheckIn::Constants::OH_SUCCESS_TEMPLATE_ID
+      else
+        CheckIn::Constants::CIE_SUCCESS_TEMPLATE_ID
+      end
+    end
+
+    ##
+    # Returns the appropriate error template ID based on facility type
+    #
+    # @return [String] template ID for error notifications
+    #
+    def error_template_id
+      if @facility_type&.downcase == 'oh'
+        CheckIn::Constants::OH_ERROR_TEMPLATE_ID
+      else
+        CheckIn::Constants::CIE_ERROR_TEMPLATE_ID
+      end
+    end
+
+    ##
+    # Determines the appropriate error template ID based on the error type
+    #
+    def determine_error_template_id(error)
+      if error.is_a?(Common::Exceptions::BackendServiceException) &&
+         error.response_values[:detail]&.include?('already been created')
+        @facility_type&.downcase == 'oh' ? CheckIn::Constants::OH_DUPLICATE_TEMPLATE_ID : CheckIn::Constants::CIE_DUPLICATE_TEMPLATE_ID
+      else
+        error_template_id
+      end
+    end
+
+    ##
+    # Formats the appointment date for notification
+    #
+    # @return [String] appointment date in YYYY-MM-DD format
+    #
+    def format_appointment_date
+      Date.parse(@appointment_date).strftime('%Y-%m-%d')
+    rescue => e
+      log_message(:error, 'Failed to format appointment date', error: e.message)
+      @appointment_date
     end
   end
 end
