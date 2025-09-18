@@ -106,7 +106,7 @@ gem 'json-schema'
 gem 'json_schemer'
 gem 'jwe'
 gem 'jwt'
-gem 'karafka-core', '2.5.5' # Temporary lock until new release of karafka-rdkafka (dependency of karafka-core) is available
+gem 'karafka-core', '2.5.5', force_ruby_platform: true # Temporary lock until new release of karafka-rdkafka (dependency of karafka-core) is available
 gem 'kms_encrypted'
 gem 'liquid'
 gem 'lockbox'
