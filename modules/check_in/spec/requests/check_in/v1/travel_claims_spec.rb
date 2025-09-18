@@ -76,7 +76,7 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
             end
           end
 
-          expect(response).to have_http_status(:ok)
+          expect(response).to have_http_status(:created)
           expect(response.content_type).to include('application/json')
 
           json_response = JSON.parse(response.body)
@@ -257,11 +257,13 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
             end
           end
 
-          # Verify that the specific error log was called
+          # Verify that the API error log was called
           expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient existing claim error',
+            'TravelPayClient API error',
             hash_including(
-              message: 'Validation failed: A claim has already been created for this appointment.'
+              status: 400,
+              code: 'duplicate_claim',
+              operation: 'claims#create'
             )
           )
         end

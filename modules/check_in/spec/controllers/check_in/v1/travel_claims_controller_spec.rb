@@ -60,7 +60,7 @@ RSpec.describe CheckIn::V1::TravelClaimsController, type: :controller do
 
       it 'returns success response' do
         post :create, params: valid_params
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:created)
         expect(JSON.parse(response.body)).to include('success' => true)
         expect(JSON.parse(response.body)).to include('claimId' => 'claim-456')
       end
