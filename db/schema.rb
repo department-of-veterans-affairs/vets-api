@@ -26,7 +26,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_16_114106) do
   create_enum "bpds_submission_status", ["pending", "submitted", "failure"]
   create_enum "claims_evidence_api_submission_status", ["pending", "accepted", "failed"]
   create_enum "itf_remediation_status", ["unprocessed"]
-  create_enum "lighthouse_submission_status", ["pending", "submitted"]
+  create_enum "lighthouse_submission_status", ["pending", "submitted", "failure", "vbms", "manually"]
   create_enum "saved_claim_group_status", ["pending", "accepted", "failure", "processing", "success"]
   create_enum "user_action_status", ["initial", "success", "error"]
 
