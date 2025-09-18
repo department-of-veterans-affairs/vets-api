@@ -24,7 +24,10 @@ RSpec.describe AccreditedRepresentativePortal::Monitoring do
 
   describe '#track_count' do
     it 'increments the StatsD metric with the correct tags' do
-      expect(StatsD).to receive(:increment).with(metric_name, tags: array_including(*default_tags, *custom_tags))
+      expect(StatsD).to receive(:increment).with(
+        metric_name,
+        tags: array_including(*default_tags, *custom_tags)
+      )
 
       subject.track_count(metric_name, tags: custom_tags)
     end
@@ -34,8 +37,11 @@ RSpec.describe AccreditedRepresentativePortal::Monitoring do
     it 'sends duration in milliseconds to StatsD' do
       expected_duration = ((to - from) * 1000).to_i
 
-      expect(StatsD).to receive(:distribution).with(metric_name, expected_duration,
-                                                    tags: array_including(*default_tags, *custom_tags))
+      expect(StatsD).to receive(:distribution).with(
+        metric_name,
+        expected_duration,
+        tags: array_including(*default_tags, *custom_tags)
+      )
 
       subject.track_duration(metric_name, from:, to:, tags: custom_tags)
     end
@@ -43,13 +49,16 @@ RSpec.describe AccreditedRepresentativePortal::Monitoring do
 
   describe '#trace' do
     let(:span_name) { 'test.span' }
-    let(:initial_span_tags) { { initial_tag: 'initial_value' } }
+    # Use a dotted key to ensure tags with periods work end-to-end.
+    let(:initial_span_tags) { { 'initial.tag' => 'initial_value' } }
     let(:dynamic_span_tag) { { dynamic_tag: 'dynamic_value' } }
     let(:mock_span) { instance_double(Datadog::Tracing::Span) }
+    let(:mock_trace) { double('Trace', set_tag: true) }
 
     before do
       allow(Datadog::Tracing).to receive(:trace).and_yield(mock_span)
       allow(mock_span).to receive(:set_error)
+      allow(Datadog::Tracing).to receive(:active_trace).and_return(nil)
     end
 
     it 'calls Datadog::Tracing.trace with the correct span name and service' do
@@ -64,6 +73,15 @@ RSpec.describe AccreditedRepresentativePortal::Monitoring do
       subject.trace(span_name, tags: initial_span_tags) { 'block_executed' }
     end
 
+    it 'sets root trace tags when provided' do
+      allow(Datadog::Tracing).to receive(:active_trace).and_return(mock_trace)
+      root_tags = { 'poa_request.poa_code' => '123', 'org' => 'ABC' }
+      root_tags.each do |k, v|
+        expect(mock_trace).to receive(:set_tag).with(k, v)
+      end
+      subject.trace(span_name, root_tags:) { 'block_executed' }
+    end
+
     it 'yields the span to the block' do
       expect do |b|
         subject.trace(span_name, &b)
@@ -75,6 +93,22 @@ RSpec.describe AccreditedRepresentativePortal::Monitoring do
       subject.trace(span_name) do |span|
         span.set_tag(dynamic_span_tag.keys.first, dynamic_span_tag.values.first)
       end
+    end
+
+    it 'filters out nil/blank tag values but keeps false/zero' do
+      tags = {
+        'drop.nil' => nil,
+        'drop.blank' => '',
+        'keep.zero' => 0,
+        'keep.false' => false,
+        'keep.str' => 'ok'
+      }
+
+      expect(mock_span).to receive(:set_tag).with('keep.zero', 0)
+      expect(mock_span).to receive(:set_tag).with('keep.false', false)
+      expect(mock_span).to receive(:set_tag).with('keep.str', 'ok')
+      # No expectations for nil/blank keys
+      subject.trace(span_name, tags:) { 'block_executed' }
     end
 
     context 'when an exception occurs in the block' do
