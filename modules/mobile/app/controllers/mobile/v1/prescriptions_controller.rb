@@ -78,7 +78,7 @@ module Mobile
             total_pages:,
             total_entries:
           },
-          prescriptionStatusCount: prescription_status_counts(prescriptions),
+          **status_meta(prescriptions),
           hasNonVaMeds: has_non_va_meds
         }
       end
@@ -89,17 +89,18 @@ module Mobile
         [page, per_page]
       end
 
-      def prescription_status_counts(prescriptions)
-        counts = prescriptions.group_by(&:refill_status).transform_values(&:count)
+      def status_meta(prescriptions)
         {
-          active: counts['active'] || 0,
-          expired: counts['expired'] || 0,
-          transferred: counts['transferred'] || 0,
-          submitted: counts['submitted'] || 0,
-          hold: counts['hold'] || 0,
-          discontinued: counts['discontinued'] || 0,
-          pending: counts['pending'] || 0,
-          unknown: counts['unknown'] || 0
+          prescription_status_count: prescriptions.each_with_object(Hash.new(0)) do |obj, hash|
+            hash['isRefillable'] += 1 if obj.is_refillable
+
+            if obj.is_trackable || %w[active submitted providerHold activeParked
+                                      refillinprocess].include?(obj.refill_status)
+              hash['active'] += 1
+            else
+              hash[obj.refill_status] += 1
+            end
+          end
         }
       end
 

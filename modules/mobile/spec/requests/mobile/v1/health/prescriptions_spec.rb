@@ -103,6 +103,28 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
         end
       end
 
+      context 'counting prescription statuses' do
+        it 'returns meta with prescription status counts including refillable and active prescriptions' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            get '/mobile/v1/health/rx/prescriptions', headers: sis_headers
+
+            expect(response).to have_http_status(:ok)
+            expect(response.parsed_body['meta']).to have_key('prescriptionStatusCount')
+            
+            status_count = response.parsed_body['meta']['prescriptionStatusCount']
+            expect(status_count).to be_a(Hash)
+            
+            # Verify the structure includes expected keys
+            expected_keys = %w[isRefillable active]
+            expected_keys.each do |key|
+              expect(status_count).to have_key(key)
+              expect(status_count[key]).to be_a(Integer)
+              expect(status_count[key]).to be >= 0
+            end
+          end
+        end
+      end
+
       context 'when UHD service returns empty results' do
         it 'returns empty array with correct metadata' do
           VCR.use_cassette('unified_health_data/get_prescriptions_empty') do
@@ -111,6 +133,8 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
             expect(response).to have_http_status(:ok)
             expect(response.parsed_body['data']).to eq([])
             expect(response.parsed_body['meta']['pagination']['totalEntries']).to eq(0)
+            expect(response.parsed_body['meta']).to have_key('prescriptionStatusCount')
+            expect(response.parsed_body['meta']['prescriptionStatusCount']).to be_a(Hash)
           end
         end
       end
