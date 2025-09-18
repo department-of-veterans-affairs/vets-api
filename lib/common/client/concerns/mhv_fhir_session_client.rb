@@ -124,7 +124,8 @@ module Common
         # @return [MedicalRecords::ClientSession] the updated session
         #
         def save_session
-          new_session = @session.class.new(user_id: session.user_id.to_s,
+          new_session = @session.class.new(user_uuid: session.user_uuid,
+                                           user_id: session.user_id.to_s,
                                            patient_fhir_id: session.patient_fhir_id,
                                            icn: session.icn,
                                            expires_at: session.expires_at,
