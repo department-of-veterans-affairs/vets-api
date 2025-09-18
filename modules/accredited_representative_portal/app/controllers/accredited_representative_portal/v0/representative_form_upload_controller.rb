@@ -50,6 +50,7 @@ module AccreditedRepresentativePortal
           span.set_tag('error.specific_reason', 'wrong_attachments')
           raise Common::Exceptions::UnprocessableEntity, detail: e.message
         rescue service::TooManyRequestsError
+          span.set_tag('error.specific_reason', 'too_many_requests')
           raise Common::Exceptions::ServiceUnavailable, detail: 'Temporary system issue'
         rescue service::UnknownError => e
           span.set_tag('error.specific_reason', 'unknown_error')
