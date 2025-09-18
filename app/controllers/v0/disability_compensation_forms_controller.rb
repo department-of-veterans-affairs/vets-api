@@ -15,11 +15,6 @@ module V0
     before_action :auth_rating_info, only: [:rating_info]
     before_action :validate_name_part, only: [:suggested_conditions]
 
-    def initialize
-      @monitor = DisabilityCompensation::Loggers::Monitor.new
-      super()
-    end
-
     def rated_disabilities
       invoker = 'V0::DisabilityCompensationFormsController#rated_disabilities'
       api_provider = ApiProviderFactory.call(
@@ -169,7 +164,7 @@ module V0
           in_progress_form =
             @current_user ? InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user) : nil
         ensure
-          @monitor.track_saved_claim_save_error(
+          monitor.track_saved_claim_save_error(
             # Array of ActiveModel::Error instances from the claim that failed to save
             claim&.errors&.errors,
             in_progress_form&.id,
@@ -182,7 +177,7 @@ module V0
     end
 
     def log_success(claim)
-      @monitor.track_saved_claim_save_success(
+      monitor.track_saved_claim_save_success(
         claim,
         @current_user.uuid
       )
@@ -275,5 +270,9 @@ module V0
       )
     end
     # END TEMPORARY
+
+    def monitor
+      @monitor ||= DisabilityCompensation::Loggers::Monitor.new
+    end
   end
 end
