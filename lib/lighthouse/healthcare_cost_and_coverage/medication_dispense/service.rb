@@ -14,6 +14,7 @@ module Lighthouse
         def initialize(icn)
           @icn = icn
           raise ArgumentError, 'no ICN passed in for HCCC request' if icn.blank?
+
           super()
         end
 
@@ -27,7 +28,7 @@ module Lighthouse
             query[:patient] = patient
           end
 
-          query.merge!(params) if params && !params.empty?
+          query.merge!(params) if params.present?
           config.get(endpoint, params: query, icn: @icn).body
         end
 

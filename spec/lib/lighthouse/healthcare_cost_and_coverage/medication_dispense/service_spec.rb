@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'lighthouse/healthcare_cost_and_coverage/medication_dispense/service'
 
@@ -11,7 +12,7 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::MedicationDispense::Servic
   let(:response_double) { instance_double(Faraday::Response, body: bundle) }
 
   before do
-    allow(svc).to receive(:config).and_return(config)
+    allow(described_class).to receive(:configuration).and_return(config)
   end
 
   describe '#list' do
@@ -22,10 +23,10 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::MedicationDispense::Servic
         expect(config).to receive(:get).with(
           'r4/MedicationDispense',
           params: { _id: id },
-          icn: icn
+          icn:
         ).and_return(response_double)
 
-        expect(svc.list(id: id)).to eq(bundle)
+        expect(svc.list(id:)).to eq(bundle)
       end
     end
 
@@ -34,7 +35,7 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::MedicationDispense::Servic
         expect(config).to receive(:get).with(
           'r4/MedicationDispense',
           params: { patient: icn },
-          icn: icn
+          icn:
         ).and_return(response_double)
 
         expect(svc.list).to eq(bundle)
@@ -44,7 +45,7 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::MedicationDispense::Servic
         expect(config).to receive(:get).with(
           'r4/MedicationDispense',
           params: { patient: icn, _count: 10, page: 2 },
-          icn: icn
+          icn:
         ).and_return(response_double)
 
         expect(svc.list(_count: 10, page: 2)).to eq(bundle)
@@ -54,7 +55,7 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::MedicationDispense::Servic
         expect(config).to receive(:get).with(
           'r4/MedicationDispense',
           params: { patient: 'Patient/43000199' },
-          icn: icn
+          icn:
         ).and_return(response_double)
 
         expect(svc.list(patient: 'Patient/43000199')).to eq(bundle)
