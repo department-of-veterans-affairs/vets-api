@@ -31,13 +31,16 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
   end
 
   describe 'serialization' do
-    it 'includes all expected attributes' do
+    it 'serializes core, aliased, and tracking attributes' do
       result = subject.serializable_hash
+      data = result[:data]
+      attributes = data[:attributes]
 
-      expect(result[:data][:type]).to eq(:prescription)
-      expect(result[:data][:id]).to eq('12345')
+      # type/id
+      expect(data[:type]).to eq(:prescription)
+      expect(data[:id]).to eq('12345')
 
-      attributes = result[:data][:attributes]
+      # core attributes
       expect(attributes[:refill_status]).to eq('active')
       expect(attributes[:refill_remaining]).to eq(2)
       expect(attributes[:facility_name]).to eq('VA Medical Center')
@@ -45,22 +48,13 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       expect(attributes[:is_refillable]).to be(true)
       expect(attributes[:is_trackable]).to be(true)
       expect(attributes[:prescription_source]).to eq('VA')
-      expect(attributes[:tracking_information]).to eq({})
-    end
 
-    it 'includes aliased attributes' do
-      result = subject.serializable_hash
-      attributes = result[:data][:attributes]
-
+      # aliased attributes
       expect(attributes[:instructions]).to eq('Take twice daily with meals')
       expect(attributes[:facility_phone_number]).to eq('555-123-4567')
-    end
 
-    it 'sets correct type and id' do
-      result = subject.serializable_hash
-
-      expect(result[:data][:type]).to eq(:prescription)
-      expect(result[:data][:id]).to eq('12345')
+      # tracking
+      expect(attributes[:tracking_information]).to eq({})
     end
 
     context 'when tracking_information is empty' do
@@ -77,9 +71,7 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
 
       it 'includes empty tracking_information hash' do
         result = subject.serializable_hash
-        attributes = result[:data][:attributes]
-
-        expect(attributes[:tracking_information]).to eq({})
+        expect(result[:data][:attributes][:tracking_information]).to eq({})
       end
     end
   end
