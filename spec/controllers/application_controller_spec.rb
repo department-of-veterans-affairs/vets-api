@@ -678,6 +678,27 @@ RSpec.describe ApplicationController, type: :controller do
       session_object = Session.create(uuid: user.uuid, token:)
       User.create(user)
       session_object.to_hash.each { |k, v| session[k] = v }
+      sign_in_as(user, session_object.token)
+    end
+
+    context 'with controller name logging' do
+      context 'when controller has a name' do
+        it 'adds controller name to logs within around_action' do
+          expect(SemanticLogger).to receive(:named_tagged).with(controller_name: 'anonymous').and_call_original
+          expect(Rails.logger).to receive(:info).with(expected_result)
+          subject
+        end
+      end
+
+      context 'when controller has no name' do
+        before { allow(controller).to receive(:controller_name).and_return('') }
+
+        it 'does not call SemanticLogger.named_tagged' do
+          expect(SemanticLogger).not_to receive(:named_tagged)
+          expect(Rails.logger).to receive(:info).with(expected_result)
+          subject
+        end
+      end
     end
 
     context 'when the current user and session object exist' do
