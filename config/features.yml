@@ -1266,6 +1266,10 @@ features:
     actor_type: user
     description: Control whether vets-api applies filtering logic to UHD lab records
     enable_in_development: false
+  mhv_accelerated_delivery_uhd_loinc_logging_enabled:
+    actor_type: user
+    description: Control whether vets-api logs LOINC codes returned from UHD notes records
+    enable_in_development: false
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
