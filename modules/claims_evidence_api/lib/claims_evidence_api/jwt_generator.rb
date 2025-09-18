@@ -25,6 +25,12 @@ module ClaimsEvidenceApi
     # Algorithm used to encode and decode the JWT
     ALGORITHM = 'HS256'
 
+    # static method
+    # @see #encode_jwt
+    def self.encode_jwt
+      new.encode_jwt
+    end
+
     # Returns a JWT token for use in Bearer auth
     def encode_jwt
       JWT.encode(payload, private_key, ALGORITHM, headers)
@@ -53,12 +59,12 @@ module ClaimsEvidenceApi
 
     # set the token expiration date
     def expiration_time
-      Time.zone.now + VALIDITY_LENGTH
+      created_time + VALIDITY_LENGTH
     end
 
     # set the token created time
     def created_time
-      Time.zone.now
+      @created_time ||= Time.zone.now
     end
 
     # retrieve the secret from settings
