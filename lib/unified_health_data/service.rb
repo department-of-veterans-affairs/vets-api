@@ -118,6 +118,10 @@ module UnifiedHealthData
         response = perform(:post, path, request_body.to_json, request_headers(include_content_type: true))
         parse_refill_response(response)
       end
+    rescue Common::Exceptions::BackendServiceException => e
+      if e.original_status && e.original_status >= 500
+        raise e
+      end
     rescue => e
       Rails.logger.error("Error submitting prescription refill: #{e.message}")
       build_error_response(orders)
@@ -456,8 +460,8 @@ module UnifiedHealthData
         patientId: @user.icn,
         orders: orders.map do |order|
           {
-            orderId: order[:id].to_s,
-            stationNumber: order[:stationNumber].to_s
+            orderId: order['id'].to_s,
+            stationNumber: order['stationNumber'].to_s
           }
         end
       }

@@ -284,6 +284,22 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(prescriptions.first.prescription_id).to eq('28148665')
         expect(prescriptions.first.prescription_name).to eq('COAL TAR 2.5% TOP SOLN')
       end
+
+      it 'falls back to orderableItem when prescriptionName is missing' do
+        vista_data_without_name = vista_medication_data.merge(
+          'prescriptionName' => nil,
+          'orderableItem' => 'METFORMIN 500MG TABLET'
+        )
+        response = {
+          'vista' => { 'medicationList' => { 'medication' => [vista_data_without_name] } },
+          'oracle-health' => nil
+        }
+
+        prescriptions = subject.parse(response)
+
+        expect(prescriptions.size).to eq(1)
+        expect(prescriptions.first.prescription_name).to eq('METFORMIN 500MG TABLET')
+      end
     end
 
     context 'with Oracle Health-only data' do
