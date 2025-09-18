@@ -562,7 +562,7 @@ paths:
               schema:
                 type: object
                 description: >
-                  The returned object is a 
+                  The returned object is a
                   <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-common-api/blob/development/src/main/java/gov/va/med/mhv/common/api/dto/PatientDTO.java'>PatientDTO object</a>.
           description: OK
         "401":
@@ -589,7 +589,7 @@ paths:
               schema:
                 type: object
                 description: >
-                  The returned object is a 
+                  The returned object is a
                   <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-bluebutton-api/blob/development/mhv-bluebutton-portal-data-jpa/src/main/java/gov/va/med/mhv/bluebutton/model/phr/PhrDemographics.java'>PhrDemographics object</a>.
           description: OK
         "401":
@@ -1958,14 +1958,32 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/prescriptions/list_refillable_prescriptions
+  /v1/tooltips:
+    get:
+      description: Get tooltips
+      operationId: get_tooltips
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Tooltips.yml
+          description: OK
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+      summary: /v1/tooltips
   /v1/unique_user_metrics:
     post:
       description: |
-        Log unique user metrics events for analytics tracking. Processes multiple events in a single batch operation 
-        and returns the status of each event. Events are logged only once per user - subsequent submissions of the 
+        Log unique user metrics events for analytics tracking. Processes multiple events in a single batch operation
+        and returns the status of each event. Events are logged only once per user - subsequent submissions of the
         same event for the same user will return a status of 'exists' rather than creating duplicates.
 
-        This endpoint is used for tracking unique user interactions with MHV Portal features to provide 
+        This endpoint is used for tracking unique user interactions with MHV Portal features to provide
         opt-out-free analytics that are more accurate than Google Analytics.
       operationId: log_unique_user_metrics
       requestBody:
@@ -1975,7 +1993,7 @@ paths:
               $ref: ./schemas/UniqueUserMetricsRequest.yml
         description: |
           Array of event names to log for the authenticated user.
-          
+
           <strong>NOTES:</strong>
           <ul>
             <li>Each event will only be logged once per user</li>
@@ -2102,5 +2120,20 @@ components:
         type: string
         enum: [camel, snake]
       description: Instructs the API to return camelCase keys rather than snake_case
+  responses:
+    Unauthorized: &Unauthorized
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/Errors.yml'
+
+    Forbidden: &Forbidden
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/Errors.yml'
+
 security:
   - CookieAuth: []
