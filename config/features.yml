@@ -1493,9 +1493,9 @@ features:
     actor_type: user
     description: Use UUID instead of ICN for locking MHV JWT sessions
     enable_in_development: true
-  mhv_medications_display_documentation_content:
+  mhv_medications_display_allergies:
     actor_type: user
-    description: Enables/disables documentation-related content for Medications on VA.gov
+    description: Enables/disables allergies and reactions data
     enable_in_development: true
   mhv_medications_display_filter:
     actor_type: user
