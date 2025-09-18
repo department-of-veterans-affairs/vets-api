@@ -55,7 +55,6 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
     end
 
     it 'is unable to find user_account' do
-      expect(IncomeAndAssets::SavedClaim).not_to receive(:find)
       expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
@@ -71,8 +70,7 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
     it 'is unable to find saved_claim_id' do
       allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(nil)
 
-      expect(UserAccount).to receive(:find)
-
+      expect(UserAccount).not_to receive(:find)
       expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
