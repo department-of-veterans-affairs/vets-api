@@ -919,7 +919,7 @@ mhv:
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
-    collection_caching_enabled: <%= ENV['mhv__rx__collection_caching_enabled'] %>
+    collection_caching_enabled: false
     gw_base_path: <%= ENV['mhv__rx__gw_base_path'] %>
     host: <%= ENV['mhv__rx__host'] %>
     mock: <%= ENV['mhv__rx__mock'] %>
