@@ -100,10 +100,10 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
             expect(response).to have_http_status(:ok)
             expect(response.parsed_body['meta']).to have_key('prescriptionStatusCount')
-            
+
             status_count = response.parsed_body['meta']['prescriptionStatusCount']
             expect(status_count).to be_a(Hash)
-            
+
             # Verify the structure includes expected keys
             expected_keys = %w[isRefillable active]
             expected_keys.each do |key|
