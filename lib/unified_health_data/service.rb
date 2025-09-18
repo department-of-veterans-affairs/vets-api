@@ -96,7 +96,7 @@ module UnifiedHealthData
 
     def refill_prescription(orders)
       with_monitoring do
-        response = uhd_client.refill_prescription(build_refill_request_body(orders))
+        response = uhd_client.refill_prescription_orders(build_refill_request_body(orders))
         parse_refill_response(response)
       end
     rescue Common::Exceptions::BackendServiceException => e

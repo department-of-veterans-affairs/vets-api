@@ -30,9 +30,8 @@ module UnifiedHealthData
       perform(:get, path, nil, request_headers)
     end
 
-    def refill_prescription(request_body)
+    def refill_prescription_orders(request_body)
       path = "#{config.base_path}medications/rx/refill"
-      # request_body = build_refill_request_body(orders)
       perform(:post, path, request_body.to_json, request_headers(include_content_type: true))
     end
 
