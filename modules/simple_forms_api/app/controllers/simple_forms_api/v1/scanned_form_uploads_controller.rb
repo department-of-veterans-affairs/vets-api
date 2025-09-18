@@ -74,7 +74,7 @@ module SimpleFormsApi
 
         Rails.logger.info(
           'Simple forms api - scanned form uploaded',
-          { form_number: params[:form_number], status:, confirmation_number:, file_size:}
+          { form_number: params[:form_number], status:, confirmation_number:, file_size: }
         )
         [status, confirmation_number]
       end

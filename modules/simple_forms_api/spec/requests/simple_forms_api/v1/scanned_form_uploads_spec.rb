@@ -11,7 +11,6 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
   let(:valid_image_file) { fixture_file_upload('doctors-note.jpg', 'image/jpeg') }
   let(:large_file) { fixture_file_upload('too_large.pdf', 'application/pdf') }
 
-
   before do
     sign_in(user)
   end
@@ -137,6 +136,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
     end
+
     context 'when feature toggles' do
       before do
         allow(Flipper).to receive(:enabled?)
@@ -341,7 +341,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         .with(:simple_forms_upload_supporting_documents, anything)
         .and_return(false)
       params = { form_id: '123', file: valid_pdf_file }
-      post '/simple_forms_api/v1/supporting_documents_upload', params: params
+      post('/simple_forms_api/v1/supporting_documents_upload', params:)
       expect(response).to have_http_status(:not_found)
     end
   end
