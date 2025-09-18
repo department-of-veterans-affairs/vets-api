@@ -105,8 +105,8 @@ module Mobile
         # Validate that orders is an array
         raise Common::Exceptions::InvalidFieldValue.new('orders', 'Must be an array') unless parsed_orders.is_a?(Array)
 
-        # Validate that orders array is not empty
-        raise Common::Exceptions::ParameterMissing, 'prescriptions' if parsed_orders.empty?
+        # Validate that orders array is not empty (treat empty array same as missing required parameter)
+        raise Common::Exceptions::ParameterMissing, 'orders' if parsed_orders.empty?
 
         # Validate that each order has required fields
         parsed_orders.each_with_index do |order, index|

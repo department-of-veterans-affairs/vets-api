@@ -202,6 +202,13 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
                 headers: sis_headers.merge('Content-Type' => 'application/json')
 
             expect(response).to have_http_status(:bad_request)
+            # Assert structured VA.gov error envelope for missing required parameter
+            error = response.parsed_body['errors']&.first
+            expect(error).to be_present
+            expect(error['title']).to eq('Missing parameter')
+            expect(error['status']).to eq('400')
+            expect(error['code']).to eq('108')
+            expect(error['detail']).to include('orders')
           end
         end
       end
