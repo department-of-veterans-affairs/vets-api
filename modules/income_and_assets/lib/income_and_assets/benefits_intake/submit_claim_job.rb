@@ -33,12 +33,11 @@ module IncomeAndAssets
       # Process income and assets pdfs and upload to Benefits Intake API
       #
       # @param saved_claim_id [Integer] the pension claim id
-      # @param user_account_uuid [UUID] the user submitting the form
       #
       # @return [UUID] benefits intake upload uuid
       #
-      def perform(saved_claim_id, user_account_uuid = nil)
-        init(saved_claim_id, user_account_uuid)
+      def perform(saved_claim_id)
+        init(saved_claim_id)
 
         # generate and validate claim pdf documents
         @form_path = process_document(@claim.to_pdf(@claim.id, { extras_redesign: true,
@@ -50,11 +49,11 @@ module IncomeAndAssets
         upload_document
 
         send_submitted_email
-        monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
+        monitor.track_submission_success(@claim, @intake_service, @claim.user_account_id)
 
         @intake_service.uuid
       rescue => e
-        monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e)
+        monitor.track_submission_retry(@claim, @intake_service, @claim.user_account_id, e)
         @lighthouse_submission_attempt&.fail!
         raise e
       ensure
@@ -64,16 +63,17 @@ module IncomeAndAssets
       private
 
       # Instantiate instance variables for _this_ job
-      def init(saved_claim_id, user_account_uuid)
-        @user_account_uuid = user_account_uuid
-        @user_account = UserAccount.find(@user_account_uuid) if @user_account_uuid.present?
-        # UserAccount.find will raise an error if unable to find the user_account record
-
+      def init(saved_claim_id)
         @claim = IncomeAndAssets::SavedClaim.find(saved_claim_id)
         unless @claim
           raise IncomeAndAssetsBenefitIntakeError,
                 "Unable to find IncomeAndAssets::SavedClaim #{saved_claim_id}"
         end
+
+        user_account_id = @claim.user_account_id
+        # Check to make sure that the user_account_id points to an actual user_account record
+        # UserAccount.find will raise an error if unable to find the user_account record
+        UserAccount.find(user_account_id) if user_account_id.present?
 
         @intake_service = ::BenefitsIntake::Service.new
       end
@@ -125,7 +125,7 @@ module IncomeAndAssets
       # Upload generated pdf to Benefits Intake API
       def upload_document
         @intake_service.request_upload
-        monitor.track_submission_begun(@claim, @intake_service, @user_account_uuid)
+        monitor.track_submission_begun(@claim, @intake_service, @claim.user_account_id)
         lighthouse_submission_polling
 
         payload = {
@@ -135,7 +135,7 @@ module IncomeAndAssets
           attachments: @attachment_paths
         }
 
-        monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, payload)
+        monitor.track_submission_attempted(@claim, @intake_service, @claim.user_account_id, payload)
         response = @intake_service.perform_upload(**payload)
         raise IncomeAndAssetsBenefitIntakeError, response.to_s unless response.success?
       end
@@ -162,7 +162,7 @@ module IncomeAndAssets
       def send_submitted_email
         IncomeAndAssets::NotificationEmail.new(@claim.id).deliver(:submitted)
       rescue => e
-        monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'submitted', e)
+        monitor.track_send_email_failure(@claim, @intake_service, @claim.user_accountid, 'submitted', e)
       end
 
       # Delete temporary stamped PDF files for this instance.
@@ -170,7 +170,7 @@ module IncomeAndAssets
         Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
         @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
       rescue => e
-        monitor.track_file_cleanup_error(@claim, @intake_service, @user_account_uuid, e)
+        monitor.track_file_cleanup_error(@claim, @intake_service, @claim.user_account_id, e)
       end
     end
   end
