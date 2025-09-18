@@ -102,6 +102,9 @@ module Logging
       return data unless Flipper.enabled?(:logging_data_scrubber)
 
       scrub_value(data)
+    rescue => e
+      Rails.logger.error("DataScrubber failed: #{e.class} - #{e.message}")
+      data # Return original data on failure to avoid blocking logging
     end
 
     # Internal recursive method that handles different data types.
