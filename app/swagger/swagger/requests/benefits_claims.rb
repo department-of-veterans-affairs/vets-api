@@ -23,7 +23,7 @@ module Swagger
               key :type, :array
 
               items do
-                key :$ref, :EvidenceSubmission
+                key :$ref, :FailedEvidenceSubmission
               end
             end
           end

@@ -21,7 +21,7 @@
           "type": "string"
         },
         "failed_date": {
-          "type": ["string", "null"]
+          "type": "string"
         },
         "file_name": {
           "type": "string"

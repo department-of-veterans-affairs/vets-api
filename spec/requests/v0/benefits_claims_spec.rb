@@ -81,7 +81,7 @@ RSpec.describe 'V0::BenefitsClaims', type: :request do
           end
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('evidence_submissions')
+          expect(response).to match_response_schema('failed_evidence_submissions')
         end
       end
     end
