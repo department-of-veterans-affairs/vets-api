@@ -78,6 +78,33 @@ module V0
       render json: res
     end
 
+    def failed_upload_evidence_submissions
+      if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
+        claims = service.get_claims
+        claim_ids = claims['data'].map { |claim| claim['id'].to_i }
+        # Get failed evidence submissions for all claims
+        failed_evidence_submissions = EvidenceSubmission.where(
+          claim_id: claim_ids
+        ).failed.group_by(&:claim_id)
+
+        failed_uploads = []
+        # Filter the evidence submissions and then populate the 'failed_uploads' array
+        claims['data'].each do |claim|
+          update_claim_type_language(claim)
+          tracked_items = claim['attributes']['trackedItems']
+          evidence_submissions = failed_evidence_submissions[claim['id'].to_i] || []
+
+          filtered_evidence_submissions = filter_evidence_submissions(evidence_submissions, tracked_items)
+
+          failed_uploads.concat(filtered_evidence_submissions) if filtered_evidence_submissions.any?
+        end
+
+        render json: failed_uploads
+      else
+        render json: []
+      end
+    end
+
     private
 
     def claims_scope
