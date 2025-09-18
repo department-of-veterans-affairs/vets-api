@@ -84,4 +84,31 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
       )
     end
   end
+
+  describe('#track_saved_claim_save_success') do
+    let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
+    let(:in_progress_form) { create(:in_progress_form) }
+
+    let(:claim) do
+      claim = SavedClaim::DisabilityCompensation::Form526AllClaim.new
+      claim
+    end
+
+    it 'logs the success' do
+      expect(monitor).to receive(:submit_event).with(
+        :info,
+        "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}",
+        "#{described_class::CLAIM_STATS_KEY}.success",
+        form_id: '21-526EZ-ALLCLAIMS',
+        user_account_uuid: user.uuid
+      )
+
+      monitor.track_saved_claim_save_success(
+        claim,
+        in_progress_form.id,
+        user.uuid
+      )
+    end
+
+  end
 end

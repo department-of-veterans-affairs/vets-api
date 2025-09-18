@@ -58,7 +58,7 @@ module DisabilityCompensation
           "#{claim_stats_key}.success",
           claim:,
           user_account_uuid:,
-          form_id: claim_stats_key
+          form_id:
         )
       end
 
