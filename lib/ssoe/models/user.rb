@@ -1,9 +1,15 @@
 # frozen_string_literal: true
 
+require 'active_model'
+
 module SSOe
   module Models
     class User
+      include ActiveModel::Validations
+
       attr_reader :first_name, :last_name, :birth_date, :ssn, :email, :phone
+
+      validates :first_name, :last_name, :birth_date, :ssn, :email, :phone, presence: true
 
       # rubocop:disable Metrics/ParameterLists
       def initialize(first_name:, last_name:, birth_date:, ssn:, email:, phone:)

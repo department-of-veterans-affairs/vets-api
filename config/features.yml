@@ -166,6 +166,12 @@ features:
     description: "Gateway: Enable decision letter email notifications for EP120 reopened pension claims"
   event_bus_gateway_ep180_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP180 initial pension claims"
+  event_bus_gateway_ep310_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP310 higher level reviews"
+  event_bus_gateway_ep600_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP600 higher level reviews"
+  event_bus_gateway_ep930_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP930 higher level reviews"
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -183,6 +189,10 @@ features:
     actor_type: user
     description: Add logging for the 10-10EZ around cleaning up InProgressForms after submission
     enable_in_development: true
+  hca_in_progress_form_delete_async:
+    actor_type: user
+    description: Enables deleting an InProgressForm in a sidekiq job
+    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -193,6 +203,9 @@ features:
   hca_ez_kafka_submission_enabled:
     actor_type: cookie_id
     description: Enables the 10-10EZ Kafka Event Bus submission
+  hca_disable_sentry_logging:
+    actor_type: user
+    description: Disables Sentry logging in the 10-10EZ and 10-10EZR
   hca_health_facilities_update_job:
     actor_type: user
     description: Enables the health facilities import job - should only run daily by default in prod, staging, and sandbox.
@@ -652,9 +665,17 @@ features:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
     enable_in_development: true
+  dependents_enable_form_viewer_mfe:
+    actor_type: user
+    description: enables display of form viewer microfrontend on 686 post-submission page
+    enable_in_development: true
   dependents_enqueue_with_user_struct:
     actor_type: user
     description: Manage whether the enqueued job for 686c and 674 will be with a User model or the new User struct
+    enable_in_development: true
+  dependents_log_vbms_errors:
+    actor_type: user
+    description: Log VBMS errors when submitting 686c and 674
     enable_in_development: true
   dependents_module_enabled:
     actor_type: user
@@ -1081,6 +1102,9 @@ features:
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
+  form_pdf_change_detection:
+    actor_type: user
+    description: If enabled runs the FormPdfChangeDetectionJob daily
   get_help_ask_form:
     actor_type: user
     description: Enables inquiry form for users to submit questions, suggestions, and complaints.
@@ -1181,6 +1205,22 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
+  medical_expense_reports_form_enabled:
+    actor_type: user
+    description: Enables the Medical Expense Reports form (Form 21P-8416)
+    enable_in_development: true
+  medical_expense_reports_browser_monitoring_enabled:
+    actor_type: user
+    description: Medical Expense Reports Datadog RUM monitoring
+  medical_expense_reports_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  medical_expense_reports_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  medical_expense_reports_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
   mhv_accelerated_delivery_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching MR data from LightHouse
@@ -1231,6 +1271,10 @@ features:
   mhv_accelerated_delivery_uhd_filtering_enabled:
     actor_type: user
     description: Control whether vets-api applies filtering logic to UHD lab records
+    enable_in_development: false
+  mhv_accelerated_delivery_uhd_loinc_logging_enabled:
+    actor_type: user
+    description: Control whether vets-api logs LOINC codes returned from UHD notes records
     enable_in_development: false
   mhv_va_health_chat_enabled:
     actor_type: user
@@ -1445,6 +1489,10 @@ features:
     actor_type: user
     description: Enables/disables the use of pre-transformed vital objects
     enable_in_development: true
+  mhv_medical_records_uuid_for_jwt_session_locking:
+    actor_type: user
+    description: Use UUID instead of ICN for locking MHV JWT sessions
+    enable_in_development: true
   mhv_medications_display_documentation_content:
     actor_type: user
     description: Enables/disables documentation-related content for Medications on VA.gov
@@ -1538,14 +1586,6 @@ features:
   pdf_fill_redesign_overflow_jumplinks:
     actor_type: user
     description: Enable jumplinks from overflow page back to form, when using v2 PDF overflow generator
-  pension_income_and_assets_clarification:
-    actor_type: user
-    description: >
-      When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
-  pension_medical_evidence_clarification:
-    actor_type: user
-    description: >
-      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -1561,6 +1601,10 @@ features:
   pension_itf_validate_data_logger:
     actor_type: user
     description: Toggle sending of the ITF Validate Data to Rails Logger
+    enable_in_development: true
+  pension_pdf_form_alignment:
+    actor_type: user
+    description: Toggle for the new PDF form alignment update
     enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
@@ -1945,10 +1989,13 @@ features:
     description: Toggles new features for the dependents verification form
   va_dependents_v2:
     actor_type: user
-    description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
+    description: Allows us to toggle between V1 and V2 of the 686c-674 forms.
   va_dependents_v2_banner:
     actor_type: user
     description: Allows us to toggle a form maintenance banner on the V1 form for pre-launch.
+  va_dependents_v3:
+    actor_type: user
+    description: Allows us to toggle v3 of the 686c-674 form.
   va_dependents_bgs_extra_error_logging:
     actor_type: user
     description: Allows us to toggle extra error logging for BGS in 686C-674
@@ -1981,6 +2028,10 @@ features:
     actor_type: user
     description: Enables CC direct scheduling.
     enable_in_development: true
+  va_online_scheduling_cc_direct_scheduling_chiropractic:
+    actor_type: user
+    description: Adds chiropractic to the list of services that can be direct scheduled.
+    enable_in_development: true
   va_online_scheduling_use_vpg:
     actor_type: user
     enable_in_development: true
@@ -2001,6 +2052,22 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
+  va_online_scheduling_list_view_clinic_info:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to display clinic name and location on appointment list and print views.
+  va_online_scheduling_add_OH_avs:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to include After Visit Summary in Oracle Health appointments.
+  va_online_scheduling_immediate_care_alert:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for using the new immediate care alert page at the start of the scheduling flow.
+  va_online_scheduling_remove_facility_config_check:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to remove the redundant call to facility configurations when determining patient eligibility.
   vaos_appointment_notification_callback:
     actor_type: user
     enable_in_development: true
@@ -2294,6 +2361,13 @@ features:
       A switch that toggles the availability of the expense and document submission features for travel pay claims. This feature flag can be retired when the feature is deployed to 100% of logged-in users in production for > 30 days.
       Enabled - Requests are handled as normal. Users can submit various types of expenses (mileage, lodging, meal, other) to their travel pay claims. Users can upload documents to their travel claims.
       Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
+  travel_pay_exclude_expense_placeholder_receipt:
+    actor_type: user
+    enable_in_development: false
+    description: >-
+      A switch for a workaround for the API's requirement of receipts with expenses.
+      Enabled - Excludes the placeholder expenseReceipt object on Travel Pay expense create
+      Disabled - Placeholder receipt is included
   travel_pay_submit_mileage_expense:
     actor_type: user
     enable_in_development: true
@@ -2321,6 +2395,13 @@ features:
       The intention behind this flag is to be able deploy the decision reason parsing functionality ahead of the front-end display (travel_pay_claims_management_decision_reason) to gather data logs and ensure a working state.
       Enabled - Decision letter documents are parsed and the decision reason is extracted.
       Disabled - Decision letter documents are not parsed for the decision reason.
+  travel_pay_appt_add_v4_upgrade:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the use of the v4 Travel Pay API for /appointments/find-or-add.
+      Enabled - The find_or_create method will use Travel Pay API v4.
+      Disabled - The find_or_create method will use Travel Pay API v2.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
@@ -2352,10 +2433,6 @@ features:
   search_use_v2_gsa:
     actor_type: cookie_id
     description: Swaps the Search Service's for one with an updated api.gsa.gov address
-    enable_in_development: true
-  override_address_pou:
-    actor_type: user
-    description: If enabled, ADDRESS_POU == RESIDENCE/CHOICE
     enable_in_development: true
   show_yellow_ribbon_table:
     actor_type: cookie_id

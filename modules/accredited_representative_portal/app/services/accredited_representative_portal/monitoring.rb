@@ -18,9 +18,18 @@ module AccreditedRepresentativePortal
       StatsD.distribution(metric, duration_time_ms, tags: merge_tags(tags))
     end
 
-    def trace(span_name, tags: {})
+    def trace(span_name, tags: {}, root_tags: {})
+      span_tags  = compact_tags(tags)
+      trace_tags = compact_tags(root_tags)
+
       Datadog::Tracing.trace(span_name, service: @service) do |span|
-        tags.each { |k, v| span.set_tag(k, v) }
+        # span-level tags
+        span_tags.each { |k, v| span.set_tag(k, v) }
+
+        # optional root/trace-level tags (use sparingly)
+        if (trace = Datadog::Tracing.active_trace)
+          trace_tags.each { |k, v| trace.set_tag(k, v) }
+        end
 
         begin
           yield(span)
@@ -39,6 +48,14 @@ module AccreditedRepresentativePortal
 
     def default_service_tags
       [@default_tags, "service:#{@service}"].flatten.compact
+    end
+
+    def compact_tags(h)
+      (h || {}).each_with_object({}) do |(k, v), acc|
+        next if v.nil? || (v.respond_to?(:empty?) && v.empty?)
+
+        acc[k] = v
+      end
     end
   end
 end
