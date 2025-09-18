@@ -92,7 +92,7 @@ module UnifiedHealthData
 
     def refill_prescription(orders)
       with_monitoring do
-        # byebug
+        
         response = uhd_client.refill_prescription(build_refill_request_body(orders))
         parse_refill_response(response)
       end
