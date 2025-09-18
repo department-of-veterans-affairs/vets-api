@@ -55,6 +55,5 @@ module BPDS
     def expiration_time
       @created_time + VALIDITY_LENGTH
     end
-
   end
 end

@@ -42,6 +42,11 @@ module ClaimsEvidenceApi
 
     private
 
+    # Returns the headers for the JWT token
+    def headers
+      { typ: 'JWT', alg: ALGORITHM }
+    end
+
     # Returns the payload for the JWT token
     def payload
       {
