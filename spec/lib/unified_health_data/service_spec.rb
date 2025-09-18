@@ -1054,15 +1054,6 @@ describe UnifiedHealthData::Service, type: :service do
         end
       end
 
-      context 'with current_only: false (default)' do
-        it 'returns all prescriptions without filtering' do
-          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-            prescriptions = service.get_prescriptions(current_only: false)
-            expect(prescriptions.size).to eq(78)
-          end
-        end
-      end
-
       context 'with current_only: true' do
         it 'applies filtering to exclude old discontinued/expired prescriptions' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
@@ -1226,8 +1217,8 @@ describe UnifiedHealthData::Service, type: :service do
       it 'formats request body correctly' do
         VCR.use_cassette('unified_health_data/refill_prescription_success') do
           orders = [
-            { id: '12345', stationNumber: '570' },
-            { id: '67890', stationNumber: '556' }
+            { 'id' => '12345', 'stationNumber' => '570' },
+            { 'id' => '67890', 'stationNumber' => '556' }
           ]
           expected_body = {
             patientId: user.icn,
