@@ -51,7 +51,7 @@ module IncomeAndAssets
 
         process_attachments(in_progress_form, claim)
 
-        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, claim.user_account_id)
+        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.perform_async(claim.id)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
 

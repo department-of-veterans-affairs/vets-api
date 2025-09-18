@@ -53,7 +53,7 @@ module IncomeAndAssets
 
         @intake_service.uuid
       rescue => e
-        monitor.track_submission_retry(@claim, @intake_service, @claim.user_account_id, e)
+        monitor.track_submission_retry(@claim, @intake_service, @claim&.user_account_id, e)
         @lighthouse_submission_attempt&.fail!
         raise e
       ensure
@@ -70,10 +70,9 @@ module IncomeAndAssets
                 "Unable to find IncomeAndAssets::SavedClaim #{saved_claim_id}"
         end
 
-        user_account_id = @claim.user_account_id
         # Check to make sure that the user_account_id points to an actual user_account record
         # UserAccount.find will raise an error if unable to find the user_account record
-        UserAccount.find(user_account_id) if user_account_id.present?
+        UserAccount.find(@claim.user_account_id) if @claim.user_account_id.present?
 
         @intake_service = ::BenefitsIntake::Service.new
       end
@@ -162,7 +161,7 @@ module IncomeAndAssets
       def send_submitted_email
         IncomeAndAssets::NotificationEmail.new(@claim.id).deliver(:submitted)
       rescue => e
-        monitor.track_send_email_failure(@claim, @intake_service, @claim.user_accountid, 'submitted', e)
+        monitor.track_send_email_failure(@claim, @intake_service, @claim.user_account_id, 'submitted', e)
       end
 
       # Delete temporary stamped PDF files for this instance.
