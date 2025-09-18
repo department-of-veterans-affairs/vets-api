@@ -4,16 +4,14 @@ require 'jwt'
 
 module Common
   module Client
-    # Usage:
-    # Prior to use, Settings.claims_evidence_api.jwt_secret must be set.
-    # API requests will fail even with a valid token unless on the VA API.
+    # @see https://www.jwt.io/introduction#when-to-use-json-web-tokens
+    # @see https://www.jwt.io/
+    #
     # Create token:
-    # > require 'claims_evidence_api/jwt_generator'
-    # > encoder = ClaimsEvidenceApi::JwtGenerator.new
-    # > token = encoder.encode_jwt
+    # > encoder = Common::Client::JwtGenerator.new
+    # > token = encoder.encode_jwt(jwt_secret)
     # Use token:
-    # > curl -X GET https://claimevidence-api-test.dev.bip.va.gov/api/v1/rest/swagger-ui.html \
-    # > -- 'Authentication: Bearer [TOKEN]'
+    # > curl -X GET https://api.example.com -- 'Authentication: Bearer [TOKEN]'
     class JwtGenerator
       # Algorithm used to encode and decode the JWT
       ALGORITHM = 'HS256'
@@ -26,8 +24,8 @@ module Common
 
       # static method
       # @see #encode_jwt
-      def self.encode_jwt
-        new.encode_jwt
+      def self.encode_jwt(jwt_secret = nil)
+        new.encode_jwt(jwt_secret)
       end
 
       # Returns a JWT token for use in Bearer auth

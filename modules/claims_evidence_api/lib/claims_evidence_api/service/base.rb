@@ -16,7 +16,7 @@ module ClaimsEvidenceApi
       include ClaimsEvidenceApi::Exceptions::Service
       include ClaimsEvidenceApi::Validation
 
-      attr_reader :folder_identifier, :config
+      attr_reader :folder_identifier
 
       def initialize
         # assigning configuration here so subclass will inherit
@@ -60,12 +60,10 @@ module ClaimsEvidenceApi
         @monitor ||= ClaimsEvidenceApi::Monitor::Service.new
       end
 
-      # @return [ClaimsEvidenceApi::JwtGenerator] the jwt encoder
+      # @return [String] the encoded jwt
       def encode_jwt
         ClaimsEvidenceApi::JwtGenerator.encode_jwt
       end
-
-      attr_reader :_encoder
     end
 
     # end Service

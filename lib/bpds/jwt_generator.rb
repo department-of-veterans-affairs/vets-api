@@ -4,7 +4,7 @@ require 'common/client/jwt_generator'
 
 module BPDS
   # Encoder to be used with BPDS service
-  class JwtEncoder < Common::Client::JwtGenerator
+  class JwtGenerator < Common::Client::JwtGenerator
     # expiration period
     VALIDITY_LENGTH = 30.minutes
 
