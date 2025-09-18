@@ -24,7 +24,9 @@ module Common
 
         def user_key
           if Flipper.enabled?(:mhv_hash_id_for_mhv_session_locking)
-            Digest::SHA256.hexdigest(session.user_id)
+            return nil if session.user_id.nil?
+
+            Digest::SHA256.hexdigest(session.user_id.to_s)
           else
             session.user_id
           end

@@ -19,7 +19,7 @@ describe Common::Client::Concerns::MHVSessionBasedClient do
   let(:dummy_instance) { dummy_class.new(session: session_data) }
 
   describe '#user_key' do
-    let(:session_data) { OpenStruct.new(user_id: '00000', icn: 'ABC') }
+    let(:session_data) { OpenStruct.new(user_id: 12_345, icn: 'ABC') }
 
     context 'when feature flag is enabled' do
       before do
@@ -27,7 +27,7 @@ describe Common::Client::Concerns::MHVSessionBasedClient do
       end
 
       it 'returns a hashed user_id' do
-        expected_digest = Digest::SHA256.hexdigest('00000')
+        expected_digest = Digest::SHA256.hexdigest(12_345.to_s)
 
         user_key = dummy_instance.send(:user_key)
         expect(user_key).to eq(expected_digest)
@@ -42,7 +42,7 @@ describe Common::Client::Concerns::MHVSessionBasedClient do
 
       it 'returns the raw user_id' do
         user_key = dummy_instance.send(:user_key)
-        expect(user_key).to eq('00000')
+        expect(user_key).to eq(12_345)
       end
     end
   end
