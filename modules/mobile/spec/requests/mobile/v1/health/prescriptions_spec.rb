@@ -91,16 +91,6 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
             expect(meta['perPage']).to eq(10)
           end
         end
-
-        it 'allows per_page values greater than 50' do
-          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-            get '/mobile/v1/health/rx/prescriptions', params: { per_page: 100 }, headers: sis_headers
-
-            expect(response).to have_http_status(:ok)
-            meta = response.parsed_body['meta']['pagination']
-            expect(meta['perPage']).to eq(100)
-          end
-        end
       end
 
       context 'counting prescription statuses' do

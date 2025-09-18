@@ -17,7 +17,12 @@ module Mobile
         has_non_va_meds = non_va_meds? prescriptions
         prescriptions = prescriptions.reject { |item| item.prescription_source == 'NV' }
 
-        meta = generate_mobile_metadata(prescriptions:, has_non_va_meds:)
+        meta = generate_mobile_metadata_with_pagination(
+          prescriptions:,
+          page: params[:page]&.to_i || 1,
+          per_page: params[:per_page]&.to_i || 20,
+          has_non_va_meds:
+        )
         serialized_data = UnifiedHealthData::Serializers::PrescriptionSerializer.new(prescriptions).serializable_hash
         render json: { **serialized_data, meta: }
       end
@@ -57,16 +62,6 @@ module Mobile
         }, status: :forbidden
       end
 
-      def generate_mobile_metadata(prescriptions:, has_non_va_meds:)
-        # Legacy signature kept for backwards compatibility inside controller during refactor
-        generate_mobile_metadata_with_pagination(
-          prescriptions:,
-          page: params[:page]&.to_i || 1,
-          per_page: params[:per_page]&.to_i || 20,
-          has_non_va_meds:
-        )
-      end
-
       def generate_mobile_metadata_with_pagination(prescriptions:, page:, per_page:, has_non_va_meds:)
         total_entries = prescriptions.is_a?(Array) ? prescriptions.length : 0
         total_pages = (total_entries.to_f / per_page).ceil
@@ -79,7 +74,7 @@ module Mobile
             total_entries:
           },
           **status_meta(prescriptions),
-          hasNonVaMeds: has_non_va_meds
+          has_non_va_meds:
         }
       end
 
