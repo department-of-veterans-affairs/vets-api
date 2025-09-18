@@ -12,7 +12,7 @@ accredited_representative_portal:
   frontend_base_url: http://localhost:3001/representative
   lighthouse:
     benefits_intake:
-      api_key: ~
+      api_key: fake_api_key
       host: https://sandbox-api.va.gov
       path: "/services/vba_documents"
       report:
