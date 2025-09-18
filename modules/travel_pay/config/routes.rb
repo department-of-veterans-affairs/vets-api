@@ -9,6 +9,9 @@ TravelPay::Engine.routes.draw do
       post 'expenses/:expense_type', to: 'expenses#create', constraints: { expense_type: %r{[^/]+} }
     end
 
+    delete 'expenses/:expense_type/:expense_id', to: 'expenses#destroy',
+                                                 constraints: { expense_type: %r{[^/]+}, expense_id: %r{[^/]+} }
+
     resources :complex_claims, only: %i[create], param: :claim_id do
       member do
         patch :submit
