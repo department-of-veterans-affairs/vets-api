@@ -47,15 +47,15 @@ module TravelPay
 
     # Method to handle expense deletion via the API
     def delete_expense(expense_id:, expense_type:)
+      raise ArgumentError, 'You must provide an expense ID to create an expense.' if expense_id.blank?
+      raise ArgumentError, 'You must provide an expense type to create an expense.' if expense_type.blank?
+
       @auth_manager.authorize => { veis_token:, btsss_token: }
 
       Rails.logger.info("Deleting general expense of type: #{expense_type}")
 
       response = client.delete_expense(veis_token, btsss_token, expense_id, expense_type)
       response.body['data']
-    rescue Faraday::Error => e
-      Rails.logger.error("Failed to delete expense via API: #{e.message}")
-      raise TravelPay::ServiceError.raise_mapped_error(e)
     end
 
     private
