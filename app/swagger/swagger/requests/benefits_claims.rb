@@ -9,6 +9,7 @@ module Swagger
         operation :get do
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::ForbiddenError
+          extend Swagger::Responses::RecordNotFoundError
 
           key :description,
               'Get a list of failed evidence submissions for all claims for a user.'
@@ -26,6 +27,11 @@ module Swagger
                 key :$ref, :FailedEvidenceSubmission
               end
             end
+          end
+
+          response 504 do
+            key :description, 'Gateway Timeout: Lighthouse failed to respond in a timely manner'
+            schema '$ref': :Errors
           end
         end
       end
