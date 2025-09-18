@@ -7,6 +7,10 @@ require 'common/file_helpers'
 RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
   let(:user) { build(:user, :loa3) }
   let(:form_number) { '21-0779' }
+  let(:valid_pdf_file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
+  let(:valid_image_file) { fixture_file_upload('doctors-note.jpg', 'image/jpeg') }
+  let(:large_file) { fixture_file_upload('too_large.pdf', 'application/pdf') }
+
 
   before do
     sign_in(user)
@@ -133,8 +137,13 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
     end
+    context 'when feature toggles' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:simple_forms_upload_supporting_documents, @current_user)
+          .and_return(true)
+      end
 
-    context 'successful processing' do
       it 'processes files through ScannedFormProcessor and returns success' do
         expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new) do |attachment|
           expect(attachment).to be_a(PersistentAttachments::VAForm)
@@ -323,6 +332,17 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       post('/simple_forms_api/v1/submit_scanned_form', params: base_params)
 
       expect(response).to have_http_status(:ok)
+    end
+  end
+
+  context 'when feature toggle is disabled' do
+    it 'returns not found' do
+      allow(Flipper).to receive(:enabled?)
+        .with(:simple_forms_upload_supporting_documents, anything)
+        .and_return(false)
+      params = { form_id: '123', file: valid_pdf_file }
+      post '/simple_forms_api/v1/supporting_documents_upload', params: params
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

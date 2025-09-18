@@ -2594,3 +2594,8 @@ features:
   form_1919_release:
     actor_type: user
     description: If enabled, show link to digitized form instead of PDF download on SCO page
+  simple_forms_upload_supporting_documents:
+    actor_type: user
+    description: >
+      Enables the upload_supporting_documents endpoint for scanned form uploads for supporting evidence.
+      Owned by Simple Forms API team.
