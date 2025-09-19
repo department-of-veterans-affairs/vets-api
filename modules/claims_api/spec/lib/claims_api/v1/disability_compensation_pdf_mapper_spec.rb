@@ -860,5 +860,44 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
                                                                                       day: '01' })
       end
     end
+
+    context 'alternate names' do
+      let(:alternate_names_data) do
+        [
+          {
+            'firstName' => 'Jane',
+            'lastName' => 'Doe'
+          },
+          {
+            'firstName' => 'January',
+            'middleName' => 'E',
+            'lastName' => 'Doe'
+          },
+          {
+            'firstName' => 'J'
+          }
+        ]
+      end
+
+      it 'maps the alternate names' do
+        form_attributes['serviceInformation']['alternateNames'] = alternate_names_data
+        mapper.map_claim
+
+        alt_names_base = pdf_data[:data][:attributes][:serviceInformation][:alternateNames]
+
+        expect(alt_names_base[0]).to eq('Jane Doe')
+        expect(alt_names_base[1]).to eq('January E Doe')
+        expect(alt_names_base[2]).to eq('J')
+      end
+
+      it 'handles as expected when no alternate names are included' do
+        form_attributes['serviceInformation']['alternateNames'] = nil
+        mapper.map_claim
+
+        service_info_base = pdf_data[:data][:attributes][:serviceInformation]
+
+        expect(service_info_base).not_to have_key(:alternateNames)
+      end
+    end
   end
 end

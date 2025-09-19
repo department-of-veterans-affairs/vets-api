@@ -4,7 +4,7 @@ require_relative '../pdf_mapper_base'
 
 module ClaimsApi
   module V1
-    class DisabilityCompensationPdfMapper
+    class DisabilityCompensationPdfMapper # rubocop:disable Metrics/ClassLength
       include PdfMapperBase
 
       SECTIONS = %i[
@@ -415,6 +415,7 @@ module ClaimsApi
 
         service_periods
         reserves_national_guard_service if @auto_claim.dig('serviceInformation', 'reservesNationalGuardService')
+        alternate_names if @auto_claim.dig('serviceInformation', 'alternateNames')
       end
 
       def set_pdf_data_for_service_information
@@ -544,6 +545,16 @@ module ClaimsApi
           activationDate: activation_date,
           anticipatedSeparationDate: anticipated_separation_date
         }
+      end
+
+      def alternate_names
+        alt_names = @auto_claim.dig('serviceInformation', 'alternateNames')
+
+        names = alt_names.map do |n|
+          n.values_at('firstName', 'middleName', 'lastName').compact.join(' ')
+        end
+
+        @pdf_data[:data][:attributes][:serviceInformation][:alternateNames] = names
       end
     end
   end
