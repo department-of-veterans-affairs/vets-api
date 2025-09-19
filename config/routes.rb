@@ -156,6 +156,7 @@ Rails.application.routes.draw do
     resources :benefits_claims, only: %i[index show] do
       post :submit5103, on: :member
       post 'benefits_documents', to: 'benefits_documents#create'
+      get :failed_upload_evidence_submissions, on: :collection
     end
 
     resources :evidence_submissions, only: %i[index]
