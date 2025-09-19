@@ -92,46 +92,34 @@ module TravelClaim
       raise_backend_service_exception('Facility type is required', 400, 'VA903') if @facility_type.blank?
       raise_backend_service_exception('Uuid is required', 400, 'VA904') if @uuid.blank?
 
-      normalize_appointment_datetime!
+      # Initialize date fields early so they're available for error notifications
+      appointment_date_yyyy_mm_dd
     end
 
-    # Validates @appointment_date and derives normalized forms for reuse.
-    # - @appointment_datetime_utc: full ISO8601 with Z (e.g. "2025-09-16T10:00:00Z")
-    # - @appointment_date_yyyy_mm_dd: date-only (e.g. "2025-09-16")
-    def normalize_appointment_datetime!
-      return if @appointment_datetime_utc.present? && @appointment_date_yyyy_mm_dd.present?
+    def normalized_appointment_datetime
+      @normalized_appointment_datetime ||= begin
+        # Require a time component (e.g., "T10:00:00")
+        unless @appointment_date.is_a?(String) && @appointment_date.include?('T')
+          raise_backend_service_exception(
+            'Appointment date must include a time component (e.g., 2025-09-16T10:00:00Z)',
+            400,
+            'VA905'
+          )
+        end
 
-      ts = parse_appointment_date
-      validate_parsed_timestamp(ts)
-      set_normalized_datetime_fields(ts)
-    end
-
-    def parse_appointment_date
-      case @appointment_date
-      when Time
-        @appointment_date
-      when Date
+        t_utc = TravelPay::DateUtils.strip_timezone(@appointment_date)
+        t_utc.iso8601 # "YYYY-MM-DDTHH:MM:SSZ"
+      rescue
         raise_backend_service_exception(
-          'Appointment date must include a time component (e.g., 2025-09-16T10:00:00Z)',
-          400, 'VA905'
+          'Appointment date must be a valid ISO 8601 date-time (e.g., 2025-09-16T10:00:00Z)',
+          400,
+          'VA905'
         )
-      when String
-        Time.zone.parse(@appointment_date)
       end
     end
 
-    def validate_parsed_timestamp(ts)
-      return if ts
-
-      raise_backend_service_exception(
-        'Appointment date must be a valid ISO 8601 date-time (e.g., 2025-09-16T10:00:00Z)',
-        400, 'VA905'
-      )
-    end
-
-    def set_normalized_datetime_fields(ts)
-      @appointment_datetime_utc    = ts.utc.iso8601
-      @appointment_date_yyyy_mm_dd = ts.utc.to_date.iso8601
+    def appointment_date_yyyy_mm_dd
+      @appointment_date_yyyy_mm_dd ||= Time.iso8601(normalized_appointment_datetime).to_date.iso8601
     end
 
     ##
@@ -182,7 +170,7 @@ module TravelClaim
 
       response = client.send_mileage_expense_request(
         claim_id:,
-        date_incurred: @appointment_date_yyyy_mm_dd
+        date_incurred: appointment_date_yyyy_mm_dd
       )
 
       raise_backend_service_exception('Failed to add expense', response.status) unless response.status == 200
@@ -213,7 +201,7 @@ module TravelClaim
     def client
       @client ||= TravelClaim::TravelPayClient.new(
         uuid: @uuid,
-        appointment_date_time: @appointment_datetime_utc,
+        appointment_date_time: normalized_appointment_datetime,
         check_in_uuid: @check_in.uuid
       )
     end
