@@ -688,7 +688,7 @@
             "description": "Name(s) of disabilities treated in this time frame.",
             "type": ["array", "null"],
             "nullable": true,
-            "maxItems": 101,
+            "maxItems": 150,
             "items": {
               "type": "string",
               "additionalProperties": false,
