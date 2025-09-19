@@ -10,67 +10,67 @@ module PdfFill
       KEY = {
         'institutionDetails' => {
           'facilityCode' => {
-            key: 'institution[facility_code]'
+            key: 'institution_facility_code'
           }
         },
         'institutionNameAndAddress' => {
-          key: 'institution[address]'
+          key: 'institution_address'
         },
         'primaryOfficialDetails' => {
           'fullName' => {
-            key: 'primary_certifying_official[name]'
+            key: 'primary_certifying_official_name'
           },
           'title' => {
-            key: 'primary_certifying_official[title]'
+            key: 'primary_certifying_official_title'
           },
           'phoneNumber' => {
-            key: 'primary_certifying_official[phone]'
+            key: 'primary_certifying_official_phone'
           },
           'emailAddress' => {
-            key: 'primary_certifying_official[email]'
+            key: 'primary_certifying_official_email'
           },
           'signature' => {
-            key: 'primary_certifying_official[signature]'
+            key: 'primary_certifying_official_signature'
           },
           'receivesBenefits' => {
-            key: 'primary_certifying_official[receives_benefits]'
+            key: 'primary_certifying_official_receives_benefits'
           }
         },
         'primaryOfficialTraining' => {
           'trainingCompletionDate' => {
-            key: 'primary_certifying_official[section305_date]'
+            key: 'primary_certifying_official_section305_date'
           }
         },
         'additionalCertifyingOfficials' => {
           limit: 7,
           label_all: true,
           'fullName' => {
-            key: "additional_certifying_officials[#{ITERATOR}][name]"
+            key: "additional_certifying_officials_#{ITERATOR}_name"
           },
           'title' => {
-            key: "additional_certifying_officials[#{ITERATOR}][title]"
+            key: "additional_certifying_officials_#{ITERATOR}_title"
           },
           'phoneNumber' => {
-            key: "additional_certifying_officials[#{ITERATOR}][phone]"
+            key: "additional_certifying_officials_#{ITERATOR}_phone"
           },
           'emailAddress' => {
-            key: "additional_certifying_officials[#{ITERATOR}][email]"
+            key: "additional_certifying_officials_#{ITERATOR}_email"
           },
           'trainingCompletionDate' => {
-            key: "additional_certifying_officials[#{ITERATOR}][section305_date]"
+            key: "additional_certifying_officials_#{ITERATOR}_section305_date"
           },
           'signature' => {
-            key: "additional_certifying_officials[#{ITERATOR}][signature]"
+            key: "additional_certifying_officials_#{ITERATOR}_signature"
           },
           'receivesBenefits' => {
-            key: "additional_certifying_officials[#{ITERATOR}][receives_benefits]"
+            key: "additional_certifying_officials_#{ITERATOR}_receives_benefits"
           }
         },
         'readOnlyCertifyingOfficial' => {
           limit: 4,
           label_all: true,
           'name' => {
-            key: "read_only_scos[#{ITERATOR}][name]"
+            key: "read_only_scos_#{ITERATOR}_name"
           }
         },
         'remarks' => {
