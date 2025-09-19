@@ -1787,6 +1787,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_16_114106) do
     t.datetime "updated_at", null: false
     t.string "backing_idme_uuid"
     t.boolean "locked", default: false, null: false
+    t.string "credential_attributes_digest"
     t.index ["backing_idme_uuid"], name: "index_user_verifications_on_backing_idme_uuid"
     t.index ["dslogon_uuid"], name: "index_user_verifications_on_dslogon_uuid", unique: true
     t.index ["idme_uuid"], name: "index_user_verifications_on_idme_uuid", unique: true
