@@ -155,8 +155,7 @@ module ClaimsApi
 
       begin
         url = "#{Settings.bgs.url}/#{endpoint}"
-        # setting action to nil to intentionally create an error:
-        body = full_body(action: nil, body:, namespace: namespace(connection, endpoint), namespaces:)
+        body = full_body(action:, body:, namespace: namespace(connection, endpoint), namespaces:)
         headers = {
           'Content-Type' => 'text/xml;charset=UTF-8',
           'Host' => "#{@env}.vba.va.gov",
@@ -174,7 +173,6 @@ module ClaimsApi
       end
 
       if response.status != 200
-        # TODO: override the UUID and record type with real info
         ClaimsApi::RecordMetadata.create(
           request_url: url,
           request_headers: headers&.to_s,
