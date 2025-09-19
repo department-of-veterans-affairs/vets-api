@@ -9,18 +9,37 @@ module TravelPay
       include IdValidation
 
       before_action :validate_claim_id!, only: [:create]
-      before_action :validate_expense_id!, only: [:destroy]
+      before_action :validate_expense_id!, only: %i[destroy show]
       before_action :validate_expense_type!, only: %i[create destroy]
-      before_action :check_feature_flag, only: %i[create destroy]
+      before_action :check_feature_flag, only: %i[create destroy show]
 
+      def show
+        Rails.logger.info(message: 'Travel Pay expense retrieval START')
+        Rails.logger.info(message: <<~LOG_MESSAGE.strip)
+          Getting expense of type '#{params[:expense_type]}'
+          with ID #{params[:expense_id].slice(0, 8)}
+          for claim #{params[:claim_id].slice(0, 8)}
+        LOG_MESSAGE
+
+        expense = expense_service.get_expense(params[:expense_type], params[:expense_id])
+
+        Rails.logger.info(message: 'Travel Pay expense retrieval END')
+
+        render json: expense, status: :ok
+      rescue ArgumentError => e
+        raise Common::Exceptions::BadRequest, detail: e.message
+      rescue Faraday::Error => e
+        TravelPay::ServiceError.raise_mapped_error(e)
+      end
+      
       def create
         Rails.logger.info(message: 'Travel Pay expense submission START')
         Rails.logger.info(
           message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
         )
-        begin
-          expense = create_and_validate_expense
-          created_expense = expense_service.create_expense(expense_params_for_service(expense))
+
+        expense = create_and_validate_expense
+        created_expense = expense_service.create_expense(expense_params_for_service(expense))
 
           Rails.logger.info(message: 'Travel Pay expense submission END')
         rescue ArgumentError => e
@@ -30,6 +49,10 @@ module TravelPay
         end
 
         render json: created_expense, status: :created
+      rescue ArgumentError => e
+        raise Common::Exceptions::BadRequest, detail: e.message
+      rescue Faraday::Error => e
+        TravelPay::ServiceError.raise_mapped_error(e)
       end
 
       def destroy
@@ -92,6 +115,18 @@ module TravelPay
         unless valid_expense_types.include?(params[:expense_type])
           raise Common::Exceptions::BadRequest,
                 detail: "Invalid expense type. Must be one of: #{valid_expense_types.join(', ')}"
+        end
+      end
+
+      def validate_expense_id
+        raise Common::Exceptions::BadRequest, detail: 'Expense ID is required' if params[:expense_id].blank?
+
+        uuid_all_version_format = /\A[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}\z/i
+
+        unless uuid_all_version_format.match?(params[:expense_id])
+          raise Common::Exceptions::BadRequest.new(
+            detail: 'Expense ID is invalid'
+          )
         end
       end
 

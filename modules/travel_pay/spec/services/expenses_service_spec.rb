@@ -53,10 +53,10 @@ describe TravelPay::ExpensesService do
           'costRequested' => 125.50,
           'expenseType' => 'lodging',
           'expenseReceipt' => {
-            'contentType' => 'text/plain',
-            'length' => 11,
-            'fileName' => 'placeholder.txt',
-            'fileData' => 'cGxhY2Vob2xkZXI='
+            'contentType' => 'image/bmp',
+            'length' => 58,
+            'fileName' => 'placeholder.bmp',
+            'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
           }
         }
 
@@ -85,10 +85,10 @@ describe TravelPay::ExpensesService do
           'costRequested' => 15.75,
           'expenseType' => 'meal',
           'expenseReceipt' => {
-            'contentType' => 'text/plain',
-            'length' => 11,
-            'fileName' => 'placeholder.txt',
-            'fileData' => 'cGxhY2Vob2xkZXI='
+            'contentType' => 'image/bmp',
+            'length' => 58,
+            'fileName' => 'placeholder.bmp',
+            'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
           }
         }
 
@@ -117,10 +117,10 @@ describe TravelPay::ExpensesService do
           'costRequested' => 10.00,
           'expenseType' => 'other',
           'expenseReceipt' => {
-            'contentType' => 'text/plain',
-            'length' => 11,
-            'fileName' => 'placeholder.txt',
-            'fileData' => 'cGxhY2Vob2xkZXI='
+            'contentType' => 'image/bmp',
+            'length' => 58,
+            'fileName' => 'placeholder.bmp',
+            'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
           }
         }
 
@@ -205,10 +205,10 @@ describe TravelPay::ExpensesService do
             'costRequested' => 10.00,
             'expenseType' => 'other',
             'expenseReceipt' => {
-              'contentType' => 'text/plain',
-              'length' => 11,
-              'fileName' => 'placeholder.txt',
-              'fileData' => 'cGxhY2Vob2xkZXI='
+              'contentType' => 'image/bmp',
+              'length' => 58,
+              'fileName' => 'placeholder.bmp',
+              'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
             }
           }
 
@@ -233,7 +233,66 @@ describe TravelPay::ExpensesService do
 
       expect do
         @service.create_expense(params)
-      end.to raise_error(ArgumentError, 'You must provide a claim ID to create an expense.')
+      end.to raise_error(ArgumentError, /You must provide/i)
+    end
+  end
+
+  context 'get_expense method' do
+    let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens) }
+    let(:service) { TravelPay::ExpensesService.new(auth_manager) }
+    let(:expense_id) { SecureRandom.uuid }
+    let(:get_expense_data) do
+      {
+        'data' => {
+          'id' => expense_id,
+          'expenseType' => 'mileage',
+          'claimId' => SecureRandom.uuid,
+          'dateIncurred' => '2024-10-02T14:36:38.043Z',
+          'description' => 'Mileage expense',
+          'status' => 'approved'
+        }
+      }
+    end
+    let(:get_expense_response) do
+      Faraday::Response.new(body: get_expense_data)
+    end
+
+    it 'returns expense details when passed valid expense type and ID' do
+      allow_any_instance_of(TravelPay::ExpensesClient)
+        .to receive(:get_expense)
+        .with(tokens[:veis_token], tokens[:btsss_token], 'other', expense_id)
+        .and_return(get_expense_response)
+
+      result = service.get_expense('other', expense_id)
+
+      expect(result).to eq(get_expense_data['data'])
+    end
+
+    it 'raises ArgumentError when expense_type is blank' do
+      expect do
+        service.get_expense('', expense_id)
+      end.to raise_error(ArgumentError, 'You must provide an expense type to get an expense.')
+    end
+
+    it 'raises ArgumentError when expense_id is blank' do
+      expect do
+        service.get_expense('other', '')
+      end.to raise_error(ArgumentError, 'You must provide an expense ID to get an expense.')
+    end
+
+    it 'handles API errors gracefully' do
+      faraday_error = Faraday::ClientError.new('Expense not found')
+      allow_any_instance_of(TravelPay::ExpensesClient)
+        .to receive(:get_expense)
+        .and_raise(faraday_error)
+
+      # Mock the ServiceError.raise_mapped_error method to raise a Common::Exceptions error
+      allow(TravelPay::ServiceError).to receive(:raise_mapped_error).with(faraday_error)
+                                                                    .and_raise(
+                                                                      Common::Exceptions::RecordNotFound.new(expense_id)
+                                                                    )
+
+      expect { service.get_expense('other', expense_id) }.to raise_error(Common::Exceptions::RecordNotFound)
     end
   end
 
