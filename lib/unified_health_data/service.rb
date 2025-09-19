@@ -6,13 +6,12 @@ require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
-require_relative 'models/clinical_notes'
-require_relative 'models/condition'
 require_relative 'models/prescription'
 require_relative 'adapters/clinical_notes_adapter'
+require_relative 'adapters/conditions_adapter'
+require_relative 'adapters/lab_or_test_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'reference_range_formatter'
-require_relative 'adapters/conditions_adapter'
 require_relative 'logging'
 
 module UnifiedHealthData
@@ -36,7 +35,7 @@ module UnifiedHealthData
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)
-        parsed_records = parse_labs(combined_records)
+        parsed_records = lab_or_test_adapter.parse_labs(combined_records)
         filtered_records = filter_records(parsed_records)
 
         # Log test code distribution after filtering is applied
@@ -437,11 +436,6 @@ module UnifiedHealthData
       end
     end
 
-    # Conditions methods
-    def conditions_adapter
-      @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
-    end
-
     # Prescription refill helper methods
     def build_refill_request_body(orders)
       {
@@ -538,6 +532,14 @@ module UnifiedHealthData
 
     def clinical_notes_adapter
       @clinical_notes_adapter ||= UnifiedHealthData::V2::Adapters::ClinicalNotesAdapter.new
+    end
+
+    def conditions_adapter
+      @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
+    end
+
+    def lab_or_test_adapter
+      @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new
     end
 
     def logger
