@@ -140,7 +140,9 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
         context 'with only VA prescriptions (no Non-VA present)' do
           let(:rx_va1) do
             OpenStruct.new(
-              id: 'rx-va-only-1', refill_status: 'active', refill_submit_date: nil, refill_date: nil, refill_remaining: 2,
+              id: 'rx-va-only-1',
+              refill_status: 'active', refill_submit_date: nil, refill_date: nil,
+              refill_remaining: 2,
               facility_name: 'VA FAC', ordered_date: nil, quantity: 60, expiration_date: nil,
               prescription_number: '456', prescription_name: 'VA MED A', dispensed_date: nil, station_number: '500',
               is_refillable: true, is_trackable: false, tracking_information: {}, prescription_source: 'RX',
@@ -149,7 +151,9 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
           end
           let(:rx_va2) do
             OpenStruct.new(
-              id: 'rx-va-only-2', refill_status: 'active', refill_submit_date: nil, refill_date: nil, refill_remaining: 0,
+              id: 'rx-va-only-2',
+              refill_status: 'active', refill_submit_date: nil, refill_date: nil,
+              refill_remaining: 0,
               facility_name: 'VA FAC', ordered_date: nil, quantity: 15, expiration_date: nil,
               prescription_number: '789', prescription_name: 'VA MED B', dispensed_date: nil, station_number: '500',
               is_refillable: false, is_trackable: false, tracking_information: {}, prescription_source: 'RX',
