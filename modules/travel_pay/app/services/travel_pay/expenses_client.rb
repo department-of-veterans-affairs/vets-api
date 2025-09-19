@@ -7,7 +7,7 @@ require_relative '../../../lib/travel_pay/constants'
 module TravelPay
   class ExpensesClient < TravelPay::BaseClient
     ENDPOINT_MAP = TravelPay::Constants::BASE_EXPENSE_PATHS.transform_values do |base|
-      { add: base, delete: "#{base}/%<expense_id>s" }
+      { add: base, delete: "#{base}/%<expense_id>s", get: "#{base}/%<expense_id>s" }
     end.freeze
 
     ##
@@ -54,7 +54,8 @@ module TravelPay
     def get_expense(veis_token, btsss_token, expense_type, expense_id)
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      endpoint = "#{expense_endpoint_for_type(expense_type)}/#{expense_id}"
+      endpoint_template = expense_endpoint_for_type(expense_type, :get)
+      endpoint = format(endpoint_template, expense_id: expense_id) # rubocop:disable Style/HashSyntax
 
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       Rails.logger.info(message: "Getting #{expense_type} expense from endpoint: #{endpoint}")
@@ -144,12 +145,13 @@ module TravelPay
 
     ##
     # Returns the appropriate API endpoint for the given expense type
+    #
     # @param expense_type [String] The type of expense
     # @return [String] The API endpoint path
     #
     def expense_endpoint_for_type(expense_type, action = :add)
       endpoint_data = ENDPOINT_MAP[expense_type.to_sym]
-      raise ArgumentError, "Unsupported expense_type: #{expense_type}" unless endpoint_data
+      raise ArgumentError, "Unsupported expense type: #{expense_type}" unless endpoint_data
 
       endpoint_data[action]
     end
