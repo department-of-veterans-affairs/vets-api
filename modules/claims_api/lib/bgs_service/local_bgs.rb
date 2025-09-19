@@ -155,7 +155,8 @@ module ClaimsApi
 
       begin
         url = "#{Settings.bgs.url}/#{endpoint}"
-        body = full_body(action:, body:, namespace: namespace(connection, endpoint), namespaces:)
+        # setting action to nil to intentionally create an error:
+        body = full_body(action: nil, body:, namespace: namespace(connection, endpoint), namespaces:)
         headers = {
           'Content-Type' => 'text/xml;charset=UTF-8',
           'Host' => "#{@env}.vba.va.gov",
@@ -175,13 +176,10 @@ module ClaimsApi
       if response.status != 200
         # TODO: override the UUID and record type with real info
         ClaimsApi::RecordMetadata.create(
-          metadata: {
-            url:,
-            headers:,
-            request: Hash.from_xml(body),
-            response: Hash.from_xml(response.body)
-          }.deep_stringify_keys.to_s,
-          record_type: 'unset', record_id: SecureRandom.uuid
+          request_url: url,
+          request_headers: headers&.to_s,
+          request: safe_xml(body),
+          response: safe_xml(response.body)
         )
         errors = soap_error_handler.handle_errors(response)
         return errors
@@ -191,6 +189,12 @@ module ClaimsApi
         parsed_response = parse_response(response, action:, key:)
         transform_response ? transform_keys(parsed_response) : parsed_response
       end
+    end
+
+    def safe_xml(content)
+      Hash.from_xml(content).deep_stringify_keys.to_s
+    rescue
+      content
     end
 
     def namespace(connection, endpoint)

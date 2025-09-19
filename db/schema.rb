@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_19_164027) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -642,15 +642,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
   end
 
   create_table "claims_api_record_metadata", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.text "metadata_ciphertext", null: false
-    t.string "record_type", null: false
-    t.uuid "record_id", null: false
+    t.text "metadata_ciphertext"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.string "request_url_ciphertext"
+    t.text "request_ciphertext"
+    t.text "response_ciphertext"
+    t.text "request_headers_ciphertext"
     t.index ["needs_kms_rotation"], name: "index_claims_api_record_metadata_on_needs_kms_rotation"
-    t.index ["record_type", "record_id"], name: "index_record_metadata_on_type_and_id"
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
