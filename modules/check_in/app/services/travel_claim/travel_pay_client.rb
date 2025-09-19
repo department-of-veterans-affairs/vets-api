@@ -301,7 +301,6 @@ module TravelClaim
     def btsss_token!
       return @current_btsss_token if @current_btsss_token.present?
 
-      # Be defensive in case someone ever calls this directly.
       veis_token! if @current_veis_token.blank?
 
       if @icn.blank?
