@@ -6,23 +6,6 @@ require_relative '../../../lib/travel_pay/constants'
 
 module TravelPay
   class ExpensesClient < TravelPay::BaseClient
-    # Maps each expense type (e.g., :other, :lodging) to its API endpoints.
-    # Each expense type supports three actions:
-    #   - :add    => endpoint for creating a new expense (no expense ID required)
-    #   - :get    => endpoint for retrieving a specific expense (requires expense ID)
-    #   - :delete => endpoint for deleting a specific expense (requires expense ID)
-    #
-    # Usage:
-    #  Add a new expense (no ID needed)
-    #    add_endpoint = ENDPOINT_MAP[:mileage][:add]
-    #  Get/Delete a specific expense by Expense ID
-    #    template = ENDPOINT_MAP[:mileage][:get]
-    #    endpoint = format(template, expense_id: '123e4567-e89b-12d3-a456-426614174000')
-    #
-    ENDPOINT_MAP = TravelPay::Constants::BASE_EXPENSE_PATHS.transform_values do |base|
-      { add: base, delete: "#{base}/%<expense_id>s", get: "#{base}/%<expense_id>s" }
-    end.freeze
-
     ##
     # Generic HTTP POST call to the BTSSS 'expenses' endpoints to add a new expense
     # Routes to appropriate endpoint based on expense type
@@ -157,13 +140,31 @@ module TravelPay
     private
 
     ##
-    # Returns the appropriate API endpoint for the given expense type
+    # Returns the API endpoint for the given expense type and action.
+    #
+    # Each expense type supports three actions:
+    #   - :add    => endpoint for creating a new expense (no expense ID required)
+    #   - :get    => endpoint for retrieving a specific expense (requires expense ID)
+    #   - :delete => endpoint for deleting a specific expense (requires expense ID)
+    #
+    # Example usage:
+    #  Add a new expense (no ID needed)
+    #    endpoint = expense_endpoint_for_type('other', :add)
+    #  Get a specific expense by Expense ID
+    #    endpoint_template = expense_endpoint_for_type('other', :get)
+    #    endpoint = format(endpoint_template, expense_id: '123e4567-e89b-12d3-a456-426614174000')
+    #  Delete a specific expense by Expense ID
+    #    endpoint_template = expense_endpoint_for_type('mileage', :delete)
+    #    endpoint = format(endpoint_template, expense_id: '123e4567-e89b-12d3-a456-426614174000')
     #
     # @param expense_type [String] The type of expense
     # @return [String] The API endpoint path
     #
     def expense_endpoint_for_type(expense_type, action = :add)
-      endpoint_data = ENDPOINT_MAP[expense_type.to_sym]
+      endpoints = TravelPay::Constants::BASE_EXPENSE_PATHS.transform_values do |base|
+        { add: base, delete: "#{base}/%<expense_id>s", get: "#{base}/%<expense_id>s" }
+      end
+      endpoint_data = endpoints[expense_type.to_sym]
       raise ArgumentError, "Unsupported expense type: #{expense_type}" unless endpoint_data
 
       endpoint_data[action]
