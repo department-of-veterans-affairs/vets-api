@@ -346,25 +346,6 @@ module TravelClaim
       raise
     end
 
-    def fetch_btsss_token!
-      if @icn.blank?
-        Rails.logger.error('TravelPayClient BTSSS token mint aborted (missing ICN)', {
-                             correlation_id: @correlation_id,
-                             icn_present: false
-                           })
-        raise ArgumentError, 'ICN is required to request BTSSS token'
-      end
-
-      btsss_response = system_access_token_request(
-        veis_access_token: @current_veis_token,
-        icn: @icn
-      )
-      @current_btsss_token = btsss_response.body.dig('data', 'accessToken')
-    rescue Common::Exceptions::BackendServiceException => e
-      log_token_error('BTSSS', 'token_request_failed')
-      raise e
-    end
-
     def refresh_tokens!
       @current_veis_token  = nil
       @current_btsss_token = nil
