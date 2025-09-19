@@ -7,6 +7,16 @@ module ClaimsApi
     class DisabilityCompensationPdfMapper
       include PdfMapperBase
 
+      SECTIONS = %i[
+        section_0_claim_attributes
+        section_1_veteran_identification
+        section_2_change_of_address
+        section_3_homeless_information
+        section_5_disabilities
+        section_5_treatment_centers
+        section_6_service_information
+      ].freeze
+
       HOMELESSNESS_RISK_SITUATION_TYPES = {
         'fleeing' => 'FLEEING_CURRENT_RESIDENCE',
         'shelter' => 'LIVING_IN_A_HOMELESS_SHELTER',
@@ -29,13 +39,7 @@ module ClaimsApi
       end
 
       def map_claim
-        section_0_claim_attributes
-        section_1_veteran_identification
-        section_2_change_of_address
-        section_3_homeless_information
-        section_5_disabilities
-        section_5_treatment_centers
-        section_6_service_information
+        SECTIONS.each { |section| send(section) }
 
         @pdf_data
       end
@@ -506,7 +510,6 @@ module ClaimsApi
         reserves_data = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService')
 
         unit_phone(reserves_data) if reserves_data['unitPhone']
-
         inactive_duty_training_pay(reserves_data) if reserves_data.key?('receivingInactiveDutyTrainingPay')
       end
 
