@@ -2590,3 +2590,6 @@ features:
   form_1919_release:
     actor_type: user
     description: If enabled, show link to digitized form instead of PDF download on SCO page
+  auth_exp_email_verification_enabled:
+    actor_type: user
+    description: If enabled, a user will be required to verify their contact email address
