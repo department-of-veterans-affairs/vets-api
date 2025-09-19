@@ -221,7 +221,14 @@ module TravelClaim
     # Fetches tokens from Redis cache or fetches new ones if needed.
     #
     def headers
-      raise ArgumentError, 'BTSSS token missing when building request headers' if @current_btsss_token.blank?
+      if @current_veis_token.blank? || @current_btsss_token.blank?
+        Rails.logger.error('TravelPayClient building headers without tokens', {
+                             correlation_id: @correlation_id,
+                             veis_token_present: @current_veis_token.present?,
+                             btsss_token_present: @current_btsss_token.present?
+                           })
+        raise TravelClaim::InvalidArgument, 'Missing auth token(s) for request headers'
+      end
 
       {
         'Content-Type' => 'application/json',
@@ -252,15 +259,15 @@ module TravelClaim
       @station_number = @redis_client.station_number(uuid: @uuid)
     rescue Redis::BaseError
       log_redis_error('load_user_data')
-      raise ArgumentError,
+      raise TravelClaim::InvalidArgument,
             "Failed to load data from Redis for check_in_session UUID #{@check_in_uuid} " \
             "and station number #{@station_number}"
     end
 
     def validate_required_arguments
-      raise ArgumentError, 'UUID cannot be blank' if @uuid.blank?
-      raise ArgumentError, 'Check-in UUID cannot be blank' if @check_in_uuid.blank?
-      raise ArgumentError, 'appointment date time cannot be blank' if @appointment_date_time.blank?
+      raise TravelClaim::InvalidArgument, 'UUID cannot be blank' if @uuid.blank?
+      raise TravelClaim::InvalidArgument, 'Check-in UUID cannot be blank' if @check_in_uuid.blank?
+      raise TravelClaim::InvalidArgument, 'appointment date time cannot be blank' if @appointment_date_time.blank?
     end
 
     def validate_redis_data
@@ -270,7 +277,7 @@ module TravelClaim
 
       unless missing.empty?
         log_initialization_error(missing)
-        raise ArgumentError, "Missing required arguments: #{missing.join(', ')}"
+        raise TravelClaim::InvalidArgument, "Missing required arguments: #{missing.join(', ')}"
       end
     end
 
@@ -287,34 +294,35 @@ module TravelClaim
         missing = []
         missing << 'ICN' unless icn_ok
         missing << 'station number' unless stn_ok
-        raise ArgumentError, "Missing required arguments: #{missing.join(', ')}"
+        raise TravelClaim::InvalidArgument, "Missing required arguments: #{missing.join(', ')}"
       end
     end
 
     def btsss_token!
       return @current_btsss_token if @current_btsss_token.present?
 
+      # Be defensive in case someone ever calls this directly.
+      veis_token! if @current_veis_token.blank?
+
       if @icn.blank?
         Rails.logger.error('TravelPayClient BTSSS token mint aborted (missing ICN)',
                            correlation_id: @correlation_id, icn_present: false)
-        raise ArgumentError, 'ICN is required to request BTSSS token'
+        raise TravelClaim::InvalidArgument, 'ICN is required to request BTSSS token'
       end
 
       Rails.logger.debug('TravelPayClient BTSSS auth preflight',
                          correlation_id: @correlation_id, icn_present: true)
 
-      resp   = system_access_token_request(veis_access_token: @current_veis_token, icn: @icn)
-      token  = resp.body.dig('data', 'accessToken')
+      resp  = system_access_token_request(veis_access_token: @current_veis_token, icn: @icn)
+      token = resp.body.dig('data', 'accessToken')
       if token.blank?
-        Rails.logger.error('TravelPayClient BTSSS token response missing accessToken', correlation_id: @correlation_id)
-        raise Common::Exceptions::BackendServiceException.new('VA900', { detail: 'BTSSS auth missing accessToken' },
-                                                              502)
+        Rails.logger.error('TravelPayClient BTSSS token response missing accessToken',
+                           correlation_id: @correlation_id)
+        raise Common::Exceptions::BackendServiceException.new('VA900',
+                                                              { detail: 'BTSSS auth missing accessToken' }, 502)
       end
 
       @current_btsss_token = token
-    rescue Common::Exceptions::BackendServiceException
-      log_token_error('BTSSS', 'token_request_failed')
-      raise
     end
 
     def veis_token!
@@ -399,7 +407,7 @@ module TravelClaim
       missing << 'VEIS token'  unless veis_ok
       missing << 'BTSSS token' unless btsss_ok
       missing << 'ICN'         unless icn_ok
-      raise ArgumentError, "Auth context missing: #{missing.join(', ')}"
+      raise TravelClaim::InvalidArgument, "Auth context missing: #{missing.join(', ')}"
     end
 
     # ------------ Env & perform ------------
@@ -539,4 +547,6 @@ module TravelClaim
       end
     end
   end
+
+  InvalidArgument = Class.new(ArgumentError)
 end
