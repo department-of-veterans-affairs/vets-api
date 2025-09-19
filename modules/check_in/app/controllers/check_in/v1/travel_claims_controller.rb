@@ -21,6 +21,8 @@ module CheckIn
         submit_travel_claim(check_in_session)
       rescue ActionController::ParameterMissing => e
         handle_parameter_missing_error(e)
+      rescue ArgumentError => e
+        handle_argument_error(e)
       rescue Common::Exceptions::BackendServiceException => e
         handle_backend_service_error(e)
       end
@@ -52,6 +54,17 @@ module CheckIn
             title: 'Bad Request',
             detail: exception.message,
             code: 'MISSING_PARAMETER',
+            status: '400'
+          }]
+        }, status: :bad_request
+      end
+
+      def handle_argument_error(exception)
+        render json: {
+          errors: [{
+            title: 'Bad Request',
+            detail: exception.message,
+            code: 'INVALID_ARGUMENT',
             status: '400'
           }]
         }, status: :bad_request
