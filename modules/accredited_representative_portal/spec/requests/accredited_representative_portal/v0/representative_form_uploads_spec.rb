@@ -35,14 +35,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
   before do
     login_as(representative_user)
-
-    allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
-      receive(:perform) do |_instance, saved_claim_id|
-        claim = SavedClaim.find(saved_claim_id)
-        claim.form_submissions << create(:form_submission, :pending)
-        claim.save!
-      end
-    )
   end
 
   describe '#submit' do
@@ -132,7 +124,40 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       end
     end
 
+    context 'LH benefits intake - too many requests error' do
+      let(:service) { double }
+
+      before do
+        allow_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:process_record).and_return 'pdf_path'
+        allow_any_instance_of(BenefitsIntakeService::Service).to receive(:get_upload_docs).and_return(['{}', nil])
+      end
+
+      it 'returns a 429 error' do
+        VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
+        VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
+        VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+        VCR.use_cassette("#{arp_vcr_path}lighthouse/429_response") do
+          post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+          expect(response).to have_http_status(:service_unavailable)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq 'Temporary system issue'
+        end
+        VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+        VCR.eject_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
+        VCR.eject_cassette("#{arp_vcr_path}mpi/valid_icn_full")
+      end
+    end
+
     context '21-686c form' do
+      before do
+        allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+          receive(:perform) do |_instance, saved_claim_id|
+            claim = SavedClaim.find(saved_claim_id)
+            claim.form_submissions << create(:form_submission, :pending)
+            claim.save!
+          end
+        )
+      end
+
       context 'claimant with matching claims agent POA found' do
         let!(:claims_agent) do
           create(
@@ -281,6 +306,16 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       let!(:attachment) { PersistentAttachments::VAForm.create!(guid: attachment_guid, form_id: '21-526EZ') }
       let!(:supporting_attachment) do
         PersistentAttachments::VAFormDocumentation.create!(guid: supporting_attachment_guid, form_id: '21-526EZ')
+      end
+
+      before do
+        allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+          receive(:perform) do |_instance, saved_claim_id|
+            claim = SavedClaim.find(saved_claim_id)
+            claim.form_submissions << create(:form_submission, :pending)
+            claim.save!
+          end
+        )
       end
 
       around do |example|
