@@ -1960,7 +1960,7 @@ paths:
       summary: /v1/prescriptions/list_refillable_prescriptions
   /v1/tooltips:
     get:
-      description: Get tooltips
+      description: Get tooltips for mhv-medications In-production Education (IPE) settings
       operationId: get_tooltips
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
@@ -1975,7 +1975,37 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
-      summary: /v1/tooltips
+    post:
+      description: Post tooltip for mhv-medications In-production Education (IPE) settings
+      operationId: post_tooltip
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tooltip:
+                  type: object
+                  properties:
+                    tooltip_name:
+                      type: string
+                      example: mhv_medications_tooltip_filter_accordion
+                    hidden:
+                      type: boolean
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Tooltip.yml
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    summary: /v1/tooltips
   /v1/unique_user_metrics:
     post:
       description: |
@@ -2121,14 +2151,13 @@ components:
         enum: [camel, snake]
       description: Instructs the API to return camelCase keys rather than snake_case
   responses:
-    Unauthorized: &Unauthorized
+    Unauthorized:
       description: Unauthorized
       content:
         application/json:
           schema:
             $ref: './schemas/Errors.yml'
-
-    Forbidden: &Forbidden
+    Forbidden:
       description: Forbidden
       content:
         application/json:
