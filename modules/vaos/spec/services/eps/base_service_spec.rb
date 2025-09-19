@@ -75,4 +75,66 @@ describe Eps::BaseService do
       end
     end
   end
+
+  describe 'sanitization helpers' do
+    before do
+      allow(VAOS::Anonymizers).to receive(:anonymize_icns) do |text|
+        text.to_s.gsub(/\b\d{9}V\d{6}\b/, '[REDACTED-ICN]')
+      end
+      allow(VAOS::Anonymizers).to receive(:anonymize_uri_icn) do |uri|
+        str = uri.is_a?(String) ? uri : uri.to_s
+        URI(str.gsub(/\b\d{9}V\d{6}\b/, '[REDACTED-ICN]'))
+      end
+    end
+
+    describe '#sanitize_url' do
+      it 'anonymizes ICNs in URLs' do
+        url = 'https://api.example.com/patients/123456789V123456/appointments'
+        sanitized = service.send(:sanitize_url, url)
+        expect(sanitized).not_to include('123456789V123456')
+      end
+
+      it 'returns [Invalid URL] for malformed URLs' do
+        sanitized = service.send(:sanitize_url, ':::bad::url')
+        expect(sanitized).to eq('[Invalid URL]')
+      end
+
+      it 'returns nil for nil' do
+        expect(service.send(:sanitize_url, nil)).to be_nil
+      end
+    end
+
+    describe '#sanitize_response_body' do
+      it 'anonymizes ICNs in body' do
+        body = 'Patient ICN 123456789V123456 had an error'
+        sanitized = service.send(:sanitize_response_body, body)
+        expect(sanitized).not_to include('123456789V123456')
+      end
+
+      it 'redacts SSNs' do
+        body = 'SSN 123-45-6789 present'
+        sanitized = service.send(:sanitize_response_body, body)
+        expect(sanitized).to include('[REDACTED-SSN]')
+        expect(sanitized).not_to include('123-45-6789')
+      end
+
+      it 'redacts 9 digit numbers' do
+        body = 'Record 123456789 found'
+        sanitized = service.send(:sanitize_response_body, body)
+        expect(sanitized).to include('[REDACTED-NUMBER]')
+        expect(sanitized).not_to include('123456789')
+      end
+
+      it 'redacts emails' do
+        body = 'Contact test.user@example.com for help'
+        sanitized = service.send(:sanitize_response_body, body)
+        expect(sanitized).to include('[REDACTED-EMAIL]')
+        expect(sanitized).not_to include('test.user@example.com')
+      end
+
+      it 'returns nil for nil' do
+        expect(service.send(:sanitize_response_body, nil)).to be_nil
+      end
+    end
+  end
 end

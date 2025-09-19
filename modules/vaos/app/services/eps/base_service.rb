@@ -57,7 +57,51 @@ module Eps
       raise_eps_error(error_value, response)
     end
 
+    def handle_eps_error!(e, method_name)
+      error_context = {
+        service: 'EPS',
+        method: method_name,
+        error_class: e.class.name,
+        timestamp: Time.current.iso8601
+      }.merge(parse_eps_backend_fields(e.message.to_s)).compact
+
+      Rails.logger.error("#{CC_APPOINTMENTS}: EPS service error", error_context)
+    end
+
     private
+
+    def parse_eps_backend_fields(raw_message)
+      code = raw_message[/:code=>"([^"]+)"/, 1]
+      status = raw_message[/:vamf_status=>(\d+)/, 1]&.to_i
+      body = raw_message[/:vamf_body=>"(.+?)"/, 1]
+      url = raw_message[/:vamf_url=>#<URI::\w+\s+([^>]+)>/, 1] || raw_message[/:vamf_url=>"(.+?)"/, 1]
+
+      {
+        code:,
+        vamf_status: status,
+        vamf_url: sanitize_url(url),
+        vamf_body: sanitize_response_body(body)
+      }
+    end
+
+    # Sanitize helpers to ensure no PHI/PII in logs
+    def sanitize_url(url)
+      return nil if url.nil?
+
+      uri = url.is_a?(String) ? URI(url) : url
+      VAOS::Anonymizers.anonymize_uri_icn(uri)&.to_s
+    rescue URI::InvalidURIError
+      '[Invalid URL]'
+    end
+
+    def sanitize_response_body(body)
+      return nil if body.nil?
+
+      sanitized = VAOS::Anonymizers.anonymize_icns(body.to_s)
+      sanitized.gsub(/\b\d{3}-\d{2}-\d{4}\b/, '[REDACTED-SSN]')
+               .gsub(/\b\d{9}\b/, '[REDACTED-NUMBER]')
+               .gsub(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/, '[REDACTED-EMAIL]')
+    end
 
     ##
     # Get appropriate headers with correlation ID based on whether mocks are enabled.
