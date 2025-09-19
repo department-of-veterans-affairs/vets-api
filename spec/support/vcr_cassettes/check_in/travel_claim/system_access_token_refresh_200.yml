@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: post
-      uri: "https://dev.integration.d365.va.gov/api/v4/auth/system-access-token"
+      uri: "<TRAVEL_CLAIM_API_URL>/api/v4/auth/system-access-token"
       body:
         encoding: UTF-8
         string: '{"grant_type":"client_credentials","client_id":"fake_client_id","client_secret":"fake_client_secret"}'
