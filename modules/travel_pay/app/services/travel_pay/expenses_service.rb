@@ -51,9 +51,8 @@ module TravelPay
       raise ArgumentError, 'You must provide an expense type to create an expense.' if expense_type.blank?
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
-
       Rails.logger.info("Deleting general expense of type: #{expense_type}")
-
+      
       response = client.delete_expense(veis_token, btsss_token, expense_id, expense_type)
       response.body['data']
     end
