@@ -36,15 +36,6 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
       }
     end
 
-    let(:auth_manager) { instance_double(TravelPay::AuthManager) }
-    let(:expenses_service) { instance_double(TravelPay::ExpensesService) }
-
-    before do
-      allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
-      allow(TravelPay::AuthManager).to receive(:new).and_return(auth_manager)
-      allow(TravelPay::ExpensesService).to receive(:new).with(auth_manager).and_return(expenses_service)
-    end
-
     context 'when creating a valid expense' do
       it 'creates an expense successfully', :vcr do
         VCR.use_cassette('travel_pay/expenses/create/200_other_success') do
@@ -145,17 +136,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
 
   # DELETE /travel_pay/v0/expenses/:expense_type/:expense_id
   describe 'DELETE #destroy' do
-    before do
-      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({ veis_token: 'veis_token',
-                                                                                        btsss_token: 'btsss_token' })
-      allow_any_instance_of(TravelPay::V0::ExpensesController).to receive(:current_user).and_return(user)
-    end
-
     context 'when feature flag is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
-      end
-
       context 'vcr tests' do
         context 'when the expense is successfully deleted' do
           it 'returns the expense data for expense type: other' do
@@ -168,6 +149,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
               expect(body['expenseId']).to eq(expense_id)
             end
           end
+
           it 'returns the expense data for expense type: mileage' do
             VCR.use_cassette('travel_pay/expenses/delete/200_mileage_ok', match_requests_on: %i[method path]) do
               delete(expense_path('mileage'))
@@ -178,6 +160,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
               expect(body['expenseId']).to eq(expense_id)
             end
           end
+
           it 'returns the expense data for expense type: parking' do
             VCR.use_cassette('travel_pay/expenses/delete/200_parking_ok', match_requests_on: %i[method path]) do
               delete(expense_path('parking'))
@@ -188,6 +171,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
               expect(body['expenseId']).to eq(expense_id)
             end
           end
+
           it 'returns the expense data for expense type: meal' do
             VCR.use_cassette('travel_pay/expenses/delete/200_meal_ok', match_requests_on: %i[method path]) do
               delete(expense_path('meal'))
@@ -205,6 +189,9 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         let(:expenses_service) { instance_double(TravelPay::ExpensesService) }
 
         before do
+          allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({ veis_token: 'veis_token',
+                                                                                            btsss_token: 'btsss_token' })
+          allow_any_instance_of(TravelPay::V0::ExpensesController).to receive(:current_user).and_return(user)
           allow(TravelPay::ExpensesService).to receive(:new).and_return(expenses_service)
         end
 
