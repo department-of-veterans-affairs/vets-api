@@ -13,8 +13,7 @@ lib/unified_health_data/
 ├── models/                      # Data models using Vets::Model
 │   ├── clinical_notes.rb       # Clinical notes model
 │   ├── lab_or_test.rb          # Lab results and tests model
-│   ├── prescription.rb         # Prescription model
-│   └── prescription_attributes.rb # Prescription attributes
+│   └── prescription.rb         # Prescription model
 ├── adapters/                    # Data source adapters
 │   ├── clinical_notes_adapter.rb          # Clinical notes parser (V2 namespace)
 │   ├── prescriptions_adapter.rb           # Main prescription parser
@@ -257,16 +256,13 @@ For testing individual components:
 
 ```ruby
 # Test model creation
-attrs = UnifiedHealthData::PrescriptionAttributes.new({
-  prescription_name: 'Test Drug',
-  refill_remaining: 3,
-  is_refillable: true
-})
-
 prescription = UnifiedHealthData::Prescription.new({
   id: '12345',
   type: 'Prescription',
-  attributes: attrs
+  prescription_name: 'Test Drug',
+  refill_remaining: 3,
+  is_refillable: true,
+  instructions: 'Take as directed'
 })
 
 # Test adapter parsing - VistA
