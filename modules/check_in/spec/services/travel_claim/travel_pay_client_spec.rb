@@ -579,8 +579,9 @@ RSpec.describe TravelClaim::TravelPayClient do
       allow(client).to receive(:veis_token_request)
         .and_return(double('Response', body: { 'access_token' => 'new-token' }))
       allow(client.redis_client).to receive(:save_token).with(token: 'new-token')
-      allow(client).to receive(:fetch_btsss_token!) do
+      allow(client).to receive(:system_access_token_request) do
         client.instance_variable_set(:@current_btsss_token, 'new-btsss-token')
+        double('Response', body: { 'data' => { 'accessToken' => 'new-btsss-token' } })
       end
 
       client.send(:refresh_tokens!)
