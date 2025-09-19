@@ -935,6 +935,39 @@ describe UnifiedHealthData::Service, type: :service do
         end.to raise_error(StandardError, 'Unknown fetch error')
       end
     end
+
+    context 'LOINC code logging' do
+      before do
+        allow(service).to receive_messages(fetch_access_token: 'token', perform: double(body: notes_sample_response),
+                                           parse_response_body: notes_sample_response)
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'logs LOINC code distribution when flipper enabled' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
+                                                  user).and_return(true)
+
+        service.get_care_summaries_and_notes
+
+        expect(Rails.logger).to have_received(:info).with(
+          {
+            message: 'UHD LOINC code distribution',
+            loinc_code_distribution: '11506-3:3,11488-4:1,4189665:1,18842-5:1,4189666:1,96339-7:1',
+            total_codes: 6,
+            total_records: 6,
+            service: 'unified_health_data'
+          }
+        )
+      end
+
+      it 'does not log LOINC code distribution when flipper disabled' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
+                                                  user).and_return(false)
+
+        expect(Rails.logger).not_to receive(:info)
+        service.get_care_summaries_and_notes
+      end
+    end
   end
 
   describe '#get_single_summary_or_note' do
@@ -1021,6 +1054,15 @@ describe UnifiedHealthData::Service, type: :service do
         end
       end
 
+      context 'with current_only: true' do
+        it 'applies filtering to exclude old discontinued/expired prescriptions' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            filtered_prescriptions = service.get_prescriptions(current_only: true)
+            expect(filtered_prescriptions.size).to eq(77)
+          end
+        end
+      end
+
       it 'properly maps VistA prescription fields' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
           prescriptions = service.get_prescriptions
@@ -1030,8 +1072,8 @@ describe UnifiedHealthData::Service, type: :service do
           expect(vista_prescription.refill_remaining).to eq(2)
           expect(vista_prescription.facility_name).to eq('DAYT29')
           expect(vista_prescription.prescription_name).to eq('BACITRACIN 500 UNIT/GM OINT 30GM')
-          expect(vista_prescription.sig).to eq('APPLY SMALL AMOUNT TO AFFECTED AREA WEEKLY FOR 30 DAYS')
-          expect(vista_prescription.refillable?).to be true
+          expect(vista_prescription.instructions).to eq('APPLY SMALL AMOUNT TO AFFECTED AREA WEEKLY FOR 30 DAYS')
+          expect(vista_prescription.is_refillable).to be true
           expect(vista_prescription.station_number).to eq('989')
           expect(vista_prescription.prescription_number).to eq('2721174')
         end
@@ -1045,11 +1087,11 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription.refill_status).to eq('active')
           expect(oracle_prescription.refill_remaining).to eq(5)
           expect(oracle_prescription.prescription_name).to eq('1.5 ML Buprenorphine 200 MG/ML Prefilled Syringe')
-          expect(oracle_prescription.sig).to eq(
+          expect(oracle_prescription.instructions).to eq(
             'See Instructions. This should not be dispensed to the patient but should be dispensed to clinic for ' \
             'in-clinic administration.. Refills: 5.'
           )
-          expect(oracle_prescription.refillable?).to be false
+          expect(oracle_prescription.is_refillable).to be false
           expect(oracle_prescription.ordered_date).to eq('Fri, 27 Jun 2025 00:00:00 EDT')
         end
       end
@@ -1074,7 +1116,7 @@ describe UnifiedHealthData::Service, type: :service do
 
           # Test prescription with patientInstruction (should prefer over text)
           oracle_prescription_with_patient_instruction = prescriptions.find { |p| p.prescription_id == '15214174591' }
-          expect(oracle_prescription_with_patient_instruction.sig).to eq(
+          expect(oracle_prescription_with_patient_instruction.instructions).to eq(
             '2 Inhalation Inhalation (breathe in) every 4 hours as needed shortness of breath or wheezing. ' \
             'Refills: 2.'
           )
@@ -1084,7 +1126,7 @@ describe UnifiedHealthData::Service, type: :service do
           # Test prescription with completed status mapping
           completed_prescription = prescriptions.find { |p| p.prescription_id == '15214166467' }
           expect(completed_prescription.refill_status).to eq('completed')
-          expect(completed_prescription.refillable?).to be false
+          expect(completed_prescription.is_refillable).to be false
           expect(completed_prescription.refill_date).to eq('2025-05-22T21:03:45Z')
         end
       end
@@ -1175,8 +1217,8 @@ describe UnifiedHealthData::Service, type: :service do
       it 'formats request body correctly' do
         VCR.use_cassette('unified_health_data/refill_prescription_success') do
           orders = [
-            { id: '12345', stationNumber: '570' },
-            { id: '67890', stationNumber: '556' }
+            { 'id' => '12345', 'stationNumber' => '570' },
+            { 'id' => '67890', 'stationNumber' => '556' }
           ]
           expected_body = {
             patientId: user.icn,
