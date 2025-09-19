@@ -1960,7 +1960,7 @@ paths:
       summary: /v1/prescriptions/list_refillable_prescriptions
   /v1/tooltips:
     get:
-      description: Get tooltips for mhv-medications In-production Education (IPE) settings
+      description: Retrieve tooltips settings for mhv-medications In-production Education (IPE)
       operationId: get_tooltips
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
@@ -1976,7 +1976,7 @@ paths:
         "403":
           $ref: "#/components/responses/Forbidden"
     post:
-      description: Post tooltip for mhv-medications In-production Education (IPE) settings
+      description: Create tooltip setting for mhv-medications In-production Education (IPE)
       operationId: post_tooltip
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
@@ -2006,6 +2006,46 @@ paths:
         "403":
           $ref: "#/components/responses/Forbidden"
     summary: /v1/tooltips
+  /v1/tooltips/{id}:
+    patch:
+      description: Update tooltip setting for mhv-medications In-production Education (IPE)
+      operationId: patch_tooltip
+      parameters:
+        - description: The id of the tooltip
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: increment_counter
+          schema:
+            type: boolean
+          description: Value indicates if counter will be incremented
+        - $ref: "#/components/parameters/InflectionHeader"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tooltip:
+                  type: object
+                  properties:
+                    hidden:
+                      type: boolean
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Tooltip.yml
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    summary: /v1/tooltips/{id}
   /v1/unique_user_metrics:
     post:
       description: |
