@@ -59,7 +59,7 @@ module DependentsBenefits
       # @return [String] The VA Form 21-686c form_id
       #
       def form_id
-        '21-686c'
+        '21-686C'
       end
     end
   end

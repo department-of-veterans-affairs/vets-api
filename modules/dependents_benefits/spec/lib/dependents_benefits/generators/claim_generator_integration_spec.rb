@@ -84,7 +84,7 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
         claim674 = generator674.generate
 
         # Claims should have different form_ids
-        expect(claim_686c.form_id).to eq('21-686c')
+        expect(claim_686c.form_id).to eq('21-686C')
         expect(claim674.form_id).to eq('21-674')
 
         # Should have different form data
