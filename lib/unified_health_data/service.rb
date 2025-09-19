@@ -6,7 +6,8 @@ require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
-require_relative 'models/prescription_attributes'
+require_relative 'models/clinical_notes'
+require_relative 'models/condition'
 require_relative 'models/prescription'
 require_relative 'adapters/clinical_notes_adapter'
 require_relative 'adapters/prescriptions_adapter'
@@ -82,7 +83,13 @@ module UnifiedHealthData
       end
     end
 
-    def get_prescriptions
+    # Retrieves prescriptions for the current user from unified health data sources
+    #
+    # @param current_only [Boolean] When true, applies filtering logic to exclude:
+    #   - Discontinued/expired medications older than 180 days
+    #   Defaults to false to return all prescriptions without filtering
+    # @return [Array<UnifiedHealthData::Prescription>] Array of prescription objects
+    def get_prescriptions(current_only: false)
       with_monitoring do
         patient_id = @user.icn
         path = "#{config.base_path}medications?patientId=#{patient_id}"
@@ -90,12 +97,13 @@ module UnifiedHealthData
         response = perform(:get, path, nil, request_headers)
         body = parse_response_body(response.body)
 
-        adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new
-        prescriptions = adapter.parse(body)
+        adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new(@user)
+        prescriptions = adapter.parse(body, current_only:)
 
         Rails.logger.info(
           message: 'UHD prescriptions retrieved',
           total_prescriptions: prescriptions.size,
+          current_filtering_applied: current_only,
           service: 'unified_health_data'
         )
 
@@ -110,6 +118,8 @@ module UnifiedHealthData
         response = perform(:post, path, request_body.to_json, request_headers(include_content_type: true))
         parse_refill_response(response)
       end
+    rescue Common::Exceptions::BackendServiceException => e
+      raise e if e.original_status && e.original_status >= 500
     rescue => e
       Rails.logger.error("Error submitting prescription refill: #{e.message}")
       build_error_response(orders)
@@ -452,8 +462,8 @@ module UnifiedHealthData
         patientId: @user.icn,
         orders: orders.map do |order|
           {
-            orderId: order[:id].to_s,
-            stationNumber: order[:stationNumber].to_s
+            orderId: order['id'].to_s,
+            stationNumber: order['stationNumber'].to_s
           }
         end
       }

@@ -119,6 +119,8 @@ Mobile::Engine.routes.draw do
   namespace :v1 do
     get '/health/immunizations', to: 'immunizations#index'
     get '/health/labs-and-tests', to: 'labs_and_tests#index'
+    get '/health/rx/prescriptions', to: 'prescriptions#index'
+    put '/health/rx/prescriptions/refill', to: 'prescriptions#refill'
     get '/messaging/health/messages/:id/thread', to: 'messages#thread'
     get '/user', to: 'users#show'
   end
