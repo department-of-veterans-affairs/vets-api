@@ -1945,7 +1945,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Tooltips'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tooltip'
           description: OK
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -4361,12 +4363,6 @@ components:
         updated_at:
           type: string
           format: date-time
-      required:
-        - tooltip_name
-    Tooltips:
-      type: array
-      items:
-        $ref: '#/components/schemas/Tooltip'
     UniqueUserMetricsRequest:
       type: object
       required:

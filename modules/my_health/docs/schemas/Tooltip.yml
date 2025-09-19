@@ -24,5 +24,3 @@ properties:
   updated_at:
     type: string
     format: date-time
-required:
-  - tooltip_name

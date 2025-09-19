@@ -1969,7 +1969,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/Tooltips.yml
+                type: array
+                items:
+                  $ref: ./schemas/Tooltip.yml
           description: OK
         "401":
           $ref: "#/components/responses/Unauthorized"
