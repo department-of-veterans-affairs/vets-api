@@ -41,4 +41,11 @@ module Traceable
   rescue => e
     Rails.logger.error('Error setting service tag', class: self.class.name, message: e.message)
   end
+
+  # Wraps controller methods with the controller name.
+  def tag_with_controller_name(&)
+    return yield if controller_name.blank?
+
+    SemanticLogger.named_tagged(controller_name:, &)
+  end
 end

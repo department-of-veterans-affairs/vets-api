@@ -22,6 +22,9 @@ module ClaimsApi
         # Validate veteran information
         validate_veteran!
 
+        # Validate disability action type and name format
+        validate_disability_action_type_and_name!
+
         # Return collected errors
         error_collection if @errors
       end
@@ -169,7 +172,6 @@ module ClaimsApi
         if rng_service['obligationTermOfServiceFromDate'].blank?
           collect_error(
             source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService",
-            title: 'Missing required field',
             detail: 'The service period is missing a required start date for the obligation terms of service'
           )
         end
@@ -177,7 +179,6 @@ module ClaimsApi
         if rng_service['obligationTermOfServiceToDate'].blank?
           collect_error(
             source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService",
-            title: 'Missing required field',
             detail: 'The service period is missing a required end date for the obligation terms of service'
           )
         end
@@ -204,7 +205,6 @@ module ClaimsApi
 
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          title: 'Missing required field',
           detail: 'Title 10 activation is missing the anticipated separation date'
         )
       end
@@ -214,7 +214,6 @@ module ClaimsApi
 
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          title: 'Invalid value',
           detail: 'Reserves national guard title 10 activation date ' \
                   "(#{activation['title10ActivationDate']}) is before the earliest active duty begin date " \
                   "(#{period['activeDutyBeginDate']})"
@@ -226,7 +225,6 @@ module ClaimsApi
 
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          title: 'Invalid value',
           detail: 'Reserves national guard title 10 activation date is in the future: ' \
                   "#{activation['title10ActivationDate']}"
         )
@@ -245,7 +243,6 @@ module ClaimsApi
         if federal_activation['anticipatedSeparationDate'].blank?
           collect_error(
             source: '/serviceInformation/federalActivation',
-            title: 'Missing required field',
             detail: 'anticipatedSeparationDate is missing or blank'
           )
         end
@@ -255,7 +252,6 @@ module ClaimsApi
         if activation_date && activation_date > Date.current
           collect_error(
             source: '/serviceInformation/federalActivation',
-            title: 'Invalid value',
             detail: "Federal activation date is in the future: #{federal_activation['activationDate']}"
           )
         end
@@ -321,8 +317,15 @@ module ClaimsApi
         mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
         return if mailing_address.blank?
 
-        # FES Val Section 5.b.ii-iv: Address field validations for USA
-        validate_usa_mailing_address!(mailing_address) if mailing_address['country'] == 'USA'
+        # FES Val Section 5.b.ii-iv: Address field validations
+        # Determine address type based on country field or presence of international fields
+        if mailing_address['country'] == 'USA'
+          validate_usa_mailing_address!(mailing_address)
+        elsif mailing_address['country'] != 'USA' || mailing_address['internationalPostalCode'].present?
+          # FES Val Section 5.b.iii: Address field validations for INTERNATIONAL
+          # Treat as international if country is non-USA or has internationalPostalCode
+          validate_international_mailing_address!(mailing_address)
+        end
 
         # FES Val Section 5.b.vi: Validate country against reference data
         validate_address_country!(mailing_address, 'mailingAddress')
@@ -331,12 +334,29 @@ module ClaimsApi
         validate_international_postal_code!(mailing_address)
       end
 
+      def validate_international_mailing_address!(mailing_address)
+        # FES Val Section 5.b.iii.2: City required for INTERNATIONAL addresses
+        if mailing_address['city'].blank?
+          collect_error(
+            source: '/veteranIdentification/mailingAddress/city',
+            detail: 'City is required'
+          )
+        end
+
+        # FES Val Section 5.b.iii.3: Country required for INTERNATIONAL addresses
+        if mailing_address['country'].blank?
+          collect_error(
+            source: '/veteranIdentification/mailingAddress/country',
+            detail: 'The country provided is not valid.'
+          )
+        end
+      end
+
       def validate_usa_mailing_address!(mailing_address)
         # FES Val Section 5.b.ii.3: State required for USA addresses
         if mailing_address['state'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/state',
-            title: 'Missing state',
             detail: 'State is required for USA addresses'
           )
         end
@@ -345,7 +365,6 @@ module ClaimsApi
         if mailing_address['zipFirstFive'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/zipFirstFive',
-            title: 'Missing zipFirstFive',
             detail: 'ZipFirstFive is required for USA addresses'
           )
         end
@@ -355,7 +374,6 @@ module ClaimsApi
 
         collect_error(
           source: '/veteranIdentification/mailingAddress/internationalPostalCode',
-          title: 'Invalid field',
           detail: 'InternationalPostalCode should not be provided for USA addresses'
         )
       end
@@ -393,7 +411,6 @@ module ClaimsApi
         if country != 'USA' && mailing_address['internationalPostalCode'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/internationalPostalCode',
-            title: 'Missing internationalPostalCode',
             detail: 'InternationalPostalCode is required for non-USA addresses'
           )
         end
@@ -415,7 +432,6 @@ module ClaimsApi
         if dates['beginDate'].blank?
           collect_error(
             source: '/changeOfAddress/dates/beginDate',
-            title: 'Missing beginningDate',
             detail: 'beginningDate is required for temporary address'
           )
         end
@@ -423,7 +439,6 @@ module ClaimsApi
         if dates['endDate'].blank?
           collect_error(
             source: '/changeOfAddress/dates/endDate',
-            title: 'Missing endingDate',
             detail: 'EndingDate is required for temporary address'
           )
         end
@@ -434,9 +449,7 @@ module ClaimsApi
         return if change_of_address.dig('dates', 'endDate').blank?
 
         collect_error(
-          source: '/changeOfAddress/dates/endDate',
-          title: 'Cannot provide endingDate',
-          detail: 'EndingDate cannot be provided for a permanent address'
+          source: '/changeOfAddress/dates/endDate', detail: 'EndingDate cannot be provided for a permanent address'
         )
       end
 
@@ -470,7 +483,6 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/city',
-          title: 'Missing city',
           detail: 'City is required'
         )
       end
@@ -481,7 +493,6 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/state',
-          title: 'Missing state',
           detail: 'State is required'
         )
       end
@@ -492,7 +503,6 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/zipFirstFive',
-          title: 'Missing zipFirstFive',
           detail: 'ZipFirstFive is required'
         )
       end
@@ -509,7 +519,6 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/city',
-          title: 'Missing city',
           detail: 'City is required'
         )
       end
@@ -520,7 +529,6 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/country',
-          title: 'Missing country',
           detail: 'Country is required'
         )
       end
@@ -531,8 +539,28 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/internationalPostalCode',
-          title: 'Missing internationalPostalCode',
           detail: 'InternationalPostalCode is required'
+        )
+      end
+
+      ### FES Val Section 7: Disability action type validations
+      def validate_disability_action_type_and_name!
+        disabilities = form_attributes['disabilities']
+        return if disabilities.blank?
+
+        disabilities.each_with_index do |disability, index|
+          validate_disability_action_type_none!(disability, index)
+        end
+      end
+
+      # FES Val Section 7.f: disabilityActionType NONE is not supported
+      def validate_disability_action_type_none!(disability, index)
+        return unless disability['disabilityActionType'] == 'NONE'
+
+        collect_error(
+          source: "/disabilities/#{index}/disabilityActionType",
+          detail: 'The request failed disability validation: The disability Action Type of "NONE" ' \
+                  'is not currently supported.'
         )
       end
 
@@ -547,7 +575,7 @@ module ClaimsApi
         @errors ||= []
       end
 
-      def collect_error(source:, title:, detail:)
+      def collect_error(source:, detail:, title: 'Unprocessable Entity')
         errors_array.push(
           {
             source:,
