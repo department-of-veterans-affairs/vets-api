@@ -235,14 +235,7 @@ module TravelClaim
 
     def ensure_tokens!
       ensure_identity_context!
-
-      # VEIS: use cached token if present; otherwise mint
-      cached_veis = @redis_client.token
-      if @current_veis_token.blank?
-        @current_veis_token = cached_veis.presence || veis_token_request.body['access_token']
-        @redis_client.save_token(token: @current_veis_token)
-      end
-
+      veis_token!
       btsss_token!
     end
 
@@ -301,8 +294,56 @@ module TravelClaim
     def btsss_token!
       return @current_btsss_token if @current_btsss_token.present?
 
-      fetch_btsss_token!
-      @current_btsss_token
+      if @icn.blank?
+        Rails.logger.error('TravelPayClient BTSSS token mint aborted (missing ICN)',
+                           correlation_id: @correlation_id, icn_present: false)
+        raise ArgumentError, 'ICN is required to request BTSSS token'
+      end
+
+      Rails.logger.debug('TravelPayClient BTSSS auth preflight',
+                         correlation_id: @correlation_id, icn_present: true)
+
+      resp   = system_access_token_request(veis_access_token: @current_veis_token, icn: @icn)
+      token  = resp.body.dig('data', 'accessToken')
+      if token.blank?
+        Rails.logger.error('TravelPayClient BTSSS token response missing accessToken', correlation_id: @correlation_id)
+        raise Common::Exceptions::BackendServiceException.new('VA900', { detail: 'BTSSS auth missing accessToken' },
+                                                              502)
+      end
+
+      @current_btsss_token = token
+    rescue Common::Exceptions::BackendServiceException
+      log_token_error('BTSSS', 'token_request_failed')
+      raise
+    end
+
+    def veis_token!
+      return @current_veis_token if @current_veis_token.present?
+
+      cached = @redis_client.token
+      if cached.present?
+        @current_veis_token = cached
+        Rails.logger.debug('TravelPayClient VEIS token from cache', correlation_id: @correlation_id)
+      else
+        @current_veis_token = mint_veis_token
+        @redis_client.save_token(token: @current_veis_token)
+      end
+
+      @current_veis_token
+    end
+
+    def mint_veis_token
+      resp  = veis_token_request
+      token = resp.body['access_token']
+      if token.blank?
+        Rails.logger.error('TravelPayClient VEIS token response missing access_token', correlation_id: @correlation_id)
+        raise Common::Exceptions::BackendServiceException.new('VA900', { detail: 'VEIS auth missing access_token' },
+                                                              502)
+      end
+      token
+    rescue Common::Exceptions::BackendServiceException
+      log_token_error('VEIS', 'token_request_failed')
+      raise
     end
 
     def fetch_btsss_token!
@@ -356,28 +397,28 @@ module TravelClaim
         log_auth_error(e.class.name, e.respond_to?(:original_status) ? e.original_status : nil)
         raise
       else
-        raise e
+        raise
       end
     end
 
     def assert_auth_context!
-      veis_ok   = @current_veis_token.present?
-      btsss_ok  = @current_btsss_token.present?
-      icn_ok    = @icn.present?
+      veis_ok  = @current_veis_token.present?
+      btsss_ok = @current_btsss_token.present?
+      icn_ok   = @icn.present?
 
-      unless veis_ok && btsss_ok && icn_ok
-        Rails.logger.error('TravelPayClient auth context incomplete', {
-                             correlation_id: @correlation_id,
-                             veis_token_present: veis_ok,
-                             btsss_token_present: btsss_ok,
-                             icn_present: icn_ok
-                           })
-        missing = []
-        missing << 'VEIS token'  unless veis_ok
-        missing << 'BTSSS token' unless btsss_ok
-        missing << 'ICN'         unless icn_ok
-        raise ArgumentError, "Auth context missing: #{missing.join(', ')}"
-      end
+      return if veis_ok && btsss_ok && icn_ok
+
+      Rails.logger.error('TravelPayClient auth context incomplete', {
+                           correlation_id: @correlation_id,
+                           veis_token_present: veis_ok,
+                           btsss_token_present: btsss_ok,
+                           icn_present: icn_ok
+                         })
+      missing = []
+      missing << 'VEIS token'  unless veis_ok
+      missing << 'BTSSS token' unless btsss_ok
+      missing << 'ICN'         unless icn_ok
+      raise ArgumentError, "Auth context missing: #{missing.join(', ')}"
     end
 
     # ------------ Env & perform ------------
