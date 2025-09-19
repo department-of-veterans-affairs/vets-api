@@ -121,19 +121,6 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         expect(response).to have_http_status(:service_unavailable)
       end
     end
-
-    context 'for different expense types' do
-      %w[meal mileage parking other].each do |expense_type|
-        it "accepts #{expense_type} expense type" do
-          allow(expenses_service).to receive(:create_expense).and_return({
-                                                                           'id' => SecureRandom.uuid,
-                                                                           'expense_type' => expense_type,
-                                                                           'status' => 'created'
-                                                                         })
-
-          post "/travel_pay/v0/claims/#{claim_id}/expenses/#{expense_type}",
-               params: expense_params,
-               headers: { 'Authorization' => 'Bearer vagov_token' }
   end
 
   # GET /travel_pay/v0/claims/:claim_id/expenses/:expense_type/:expense_id
@@ -146,7 +133,12 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
           get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{expense_id}",
               headers: { 'Authorization' => 'Bearer vagov_token' }
 
-        expect(response).to have_http_status(:service_unavailable)
+          expect(response).to have_http_status(:ok)
+          response_body = JSON.parse(response.body)
+          expect(response_body).to have_key('id')
+          expect(response_body).to have_key('expenseType')
+          expect(response_body).to have_key('description')
+        end
       end
     end
   end
