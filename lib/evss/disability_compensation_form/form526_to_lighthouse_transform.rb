@@ -606,14 +606,20 @@ module EVSS
       # @param approximate_date_source Hash EVSS format data object
       # @param short boolean (optional) return a shortened date YYYY-MM
       def convert_approximate_date(approximate_date_source, short: false)
-        approximate_date = approximate_date_source['year'].to_s
-        approximate_date += "-#{approximate_date_source['month']}" if approximate_date_source['month']
+        year  = approximate_date_source['year'].to_s.strip
+        month = approximate_date_source['month'].to_s.strip
+        day   = approximate_date_source['day'].to_s.strip
 
-        # returns YYYY-MM if only "short" date is requested
+        # Treat blanks and "XX" placeholders as absent
+        month = nil if month.blank? || month == 'XX'
+        day   = nil if day.blank?   || day == 'XX'
+
+        approximate_date = year
+        approximate_date += "-#{month}" if month
+
         return approximate_date if short
 
-        approximate_date += "-#{approximate_date_source['day']}" if approximate_date_source['day']
-
+        approximate_date += "-#{day}" if day
         approximate_date
       end
 
@@ -635,6 +641,9 @@ module EVSS
           if disability_source['cause'].present?
             dis.exposure_or_event_or_injury = format_exposure_text(disability_source['cause'],
                                                                    dis.is_related_to_toxic_exposure)
+          end
+          if disability_source['approximateDate'].present?
+            dis.approximate_date = convert_approximate_date(disability_source['approximateDate'])
           end
 
           dis
