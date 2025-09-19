@@ -40,6 +40,7 @@ module TravelPay
 
         expense = create_and_validate_expense
         created_expense = expense_service.create_expense(expense_params_for_service(expense))
+
         Rails.logger.info(message: 'Travel Pay expense submission END')
 
         render json: created_expense, status: :created
