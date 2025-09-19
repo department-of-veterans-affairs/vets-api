@@ -36,10 +36,10 @@ module DisabilityCompensation
         submit_event(
           :error,
           "#{self.class.name} Form526 SavedClaim save error",
-          "#{claim_stats_key}.failure",
+          "#{self.class::CLAIM_STATS_KEY}.failure",
           in_progress_form_id:,
           user_account_uuid:,
-          form_id:,
+          form_id: self.class::FORM_ID,
           errors: format_active_model_errors(errors)
         )
       end
@@ -55,10 +55,10 @@ module DisabilityCompensation
         submit_event(
           :info,
           "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}",
-          "#{claim_stats_key}.success",
+          "#{self.class::CLAIM_STATS_KEY}.success",
           claim:,
           user_account_uuid:,
-          form_id:
+          form_id: self.class::FORM_ID
         )
       end
 

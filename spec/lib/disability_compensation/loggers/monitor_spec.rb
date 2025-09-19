@@ -54,7 +54,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         :error,
         "#{described_class} Form526 SavedClaim save error",
         "#{described_class::CLAIM_STATS_KEY}.failure",
-        form_id: '21-526EZ-ALLCLAIMS',
+        form_id: described_class::FORM_ID,
         in_progress_form_id: in_progress_form.id,
         errors: [{ form: mock_form_error }].to_s,
         user_account_uuid: user.uuid
@@ -87,19 +87,14 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
 
   describe('#track_saved_claim_save_success') do
     let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
-    let(:in_progress_form) { create(:in_progress_form) }
-
-    let(:claim) do
-      claim = SavedClaim::DisabilityCompensation::Form526AllClaim.new
-      claim
-    end
+    let(:claim) { create(:fake_saved_claim, form_id: described_class::FORM_ID, confirmation_number: '1234') }
 
     it 'logs the success' do
       expect(monitor).to receive(:submit_event).with(
         :info,
         "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}",
         "#{described_class::CLAIM_STATS_KEY}.success",
-        form_id: '21-526EZ-ALLCLAIMS',
+        form_id: described_class::FORM_ID,
         user_account_uuid: user.uuid
       )
 
