@@ -14,13 +14,13 @@ accredited_representative_portal:
   lighthouse:
     benefits_intake:
       api_key: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__api_key'] %>
-      host: https://sandbox-api.va.gov
-      path: "/services/vba_documents"
+      host: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__host'] %>
+      path: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__path'] %>
       report:
-        batch_size: 1000
-        stale_sla: 10
-      use_mocks: false
-      version: v1
+        batch_size: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__report__batch_size'] %>
+        stale_sla: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__report__stale_sla'] %>
+      use_mocks: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__use_mocks'] %>
+      version: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__version'] %>
 adapted_housing:
   prefill: true
 argocd:
