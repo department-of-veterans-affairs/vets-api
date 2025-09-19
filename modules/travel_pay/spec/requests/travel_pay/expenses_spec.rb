@@ -189,8 +189,9 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         let(:expenses_service) { instance_double(TravelPay::ExpensesService) }
 
         before do
-          allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({ veis_token: 'veis_token',
-                                                                                            btsss_token: 'btsss_token' })
+          allow_any_instance_of(TravelPay::AuthManager)
+            .to receive(:authorize).and_return({ veis_token: 'veis_token',
+                                                 btsss_token: 'btsss_token' })
           allow_any_instance_of(TravelPay::V0::ExpensesController).to receive(:current_user).and_return(user)
           allow(TravelPay::ExpensesService).to receive(:new).and_return(expenses_service)
         end
@@ -230,7 +231,8 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
 
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(false)
       end
 
       it 'returns service unavailable' do
