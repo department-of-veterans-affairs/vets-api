@@ -34,18 +34,9 @@ module MyHealth
 
       def show
         id = params[:id].try(:to_i)
-        resource = if Flipper.enabled?(:mhv_medications_display_grouping, current_user)
-                     get_single_rx_from_grouped_list(collection_resource.data, id)
-                   else
-                     client.get_rx_details(id)
-                   end
+        resource = get_single_rx_from_grouped_list(collection_resource.data, id)
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
-
-        options = if Flipper.enabled?(:mhv_medications_display_grouping, current_user)
-                    { meta: client.get_rx_details(id).metadata }
-                  else
-                    { meta: resource.metadata }
-                  end
+        options = { meta: client.get_rx_details(id).metadata }
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource, options)
       end
 
@@ -180,7 +171,7 @@ module MyHealth
       end
 
       def resource_data_modifications(resource)
-        display_grouping = Flipper.enabled?(:mhv_medications_display_grouping, current_user)
+        # display_grouping = Flipper.enabled?(:mhv_medications_display_grouping, current_user)
         display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, current_user)
         # according to business logic filter for all medications is the only list that should contain PD meds
         resource.records = if params[:filter].blank? && display_pending_meds
@@ -189,8 +180,8 @@ module MyHealth
                              # TODO: remove this line when PF and PD are allowed on va.gov
                              resource.records = remove_pf_pd(resource.data)
                            end
-        resource.records = group_prescriptions(resource.data) if display_grouping
-        resource.records = filter_non_va_meds(resource.data)
+        resource.records = group_prescriptions(resource.data)
+        # resource.records = filter_non_va_meds(resource.data)
       end
 
       def set_filter_metadata(list, non_modified_collection)
