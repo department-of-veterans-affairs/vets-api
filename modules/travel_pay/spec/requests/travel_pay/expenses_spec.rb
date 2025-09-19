@@ -6,13 +6,14 @@ require 'securerandom'
 RSpec.describe TravelPay::V0::ExpensesController, type: :request do
   let(:user) { build(:user) }
   let(:claim_id) { SecureRandom.uuid }
+  let(:expense_id) { '123e4567-e89b-12d3-a456-426614174500' }
 
   before do
     sign_in(user)
     allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
   end
 
+  # POST /travel_pay/v0/claims/:claim_id/expenses/:expense_type
   describe 'POST #create' do
     let(:expense_params) do
       {
@@ -28,6 +29,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
     let(:expenses_service) { instance_double(TravelPay::ExpensesService) }
 
     before do
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
       allow(TravelPay::AuthManager).to receive(:new).and_return(auth_manager)
       allow(TravelPay::ExpensesService).to receive(:new).with(auth_manager).and_return(expenses_service)
     end
@@ -155,5 +157,91 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         end
       end
     end
+  end
+
+  describe 'DELETE #destroy' do
+    before do
+      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({ veis_token: 'veis_token',
+                                                                                        btsss_token: 'btsss_token' })
+      allow_any_instance_of(TravelPay::V0::ExpensesController).to receive(:current_user).and_return(user)
+    end
+
+    context 'when feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
+      end
+
+      context 'vcr tests' do
+        context 'when the expense is successfully deleted' do
+          it 'returns the expense data with correct headers' do
+            VCR.use_cassette('travel_pay/expenses/delete/200_other_ok', match_requests_on: %i[method path]) do
+              delete(expense_path('other'))
+
+              expect(response).to have_http_status(:ok)
+              body = JSON.parse(response.body)
+
+              expect(body['expenseId']).to eq(expense_id)
+            end
+          end
+        end
+      end
+
+      context 'with stubbed service' do
+        let(:expenses_service) { instance_double(TravelPay::ExpensesService) }
+
+        before do
+          allow(TravelPay::ExpensesService).to receive(:new).and_return(expenses_service)
+        end
+
+        it 'returns bad request for invalid expense_id' do
+          delete(expense_path('other', 'invalid-uuid'))
+
+          expect(response).to have_http_status(:bad_request)
+          body = JSON.parse(response.body)
+          expect(body['errors'].first['detail']).to include('Expense ID is invalid')
+        end
+
+        it 'returns bad request for invalid expense_type' do
+          delete(expense_path('invalid_type'))
+
+          expect(response).to have_http_status(:bad_request)
+          body = JSON.parse(response.body)
+          expect(body['errors'].first['detail']).to include('Invalid expense type')
+        end
+
+        it 'returns not found when the expense does not exist' do
+          allow(expenses_service).to receive(:delete_expense).and_raise(
+            Common::Exceptions::BackendServiceException.new(
+              nil,
+              { source: 'BTSSS', code: 404, detail: 'Expense not found' },
+              404
+            )
+          )
+          delete(expense_path('other'))
+
+          expect(response).to have_http_status(:not_found)
+          body = JSON.parse(response.body)
+          expect(body['error']).to include('Error deleting expense')
+        end
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(false)
+      end
+
+      it 'returns service unavailable' do
+        delete(expense_path('other'))
+
+        expect(response).to have_http_status(:service_unavailable)
+        body = JSON.parse(response.body)
+        expect(body['errors'].first['detail']).to include('Travel Pay expense endpoint unavailable per feature toggle')
+      end
+    end
+  end
+
+  def expense_path(expense_type, id = nil)
+    "/travel_pay/v0/expenses/#{expense_type}/#{id || expense_id}"
   end
 end
