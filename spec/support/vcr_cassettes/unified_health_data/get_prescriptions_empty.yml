@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 10 Sep 2025 15:45:13 GMT
+      - Fri, 19 Sep 2025 22:40:22 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -29,7 +29,7 @@ http_interactions:
       X-Oneagent-Js-Injection:
       - 'true'
       Server-Timing:
-      - dtRpid;desc="2087606213", dtSInfo;desc="0"
+      - dtRpid;desc="1963179543", dtSInfo;desc="0"
       Vary:
       - Access-Control-Request-Headers
       - Access-Control-Request-Method
@@ -52,10 +52,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"id":702,"name":"VA.gov SCDF Proxy Client","permissions":["system/Practitioner.read","system/Condition.read","system/MedicationDispense.read","system/Appointment.read","system/ServiceRequest.read","Patient","system/Immunization.read","system/Person.read","system/MedicationRequest.read","system/Location.read","system/Procedure.read","System","system/DiagnosticReport.read","system/AllergyIntolerance.read","system/Patient.read","system/Organization.read","system/RelatedPerson.read","system/DocumentReference.read","PHR-RW","system/Observation.read","system/Binary.read","system/Encounter.read"]}'
-  recorded_at: Wed, 10 Sep 2025 15:45:12 GMT
+  recorded_at: Fri, 19 Sep 2025 22:40:20 GMT
 - request:
     method: get
-    uri: "<MHV_UHD_HOST>/v1/medicalrecords/medications?patientId=1000123456V123456"
+    uri: "<MHV_UHD_HOST>/v1/medicalrecords/medications?endDate=2025-09-19&patientId=1000123456V123456&startDate=1900-01-01"
     body:
       encoding: US-ASCII
       string: ''
@@ -75,17 +75,17 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 10 Sep 2025 15:45:13 GMT
+      - Fri, 19 Sep 2025 22:40:22 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '278575'
+      - '460747'
       X-Amzn-Requestid:
-      - 444338bb-ffa7-4c38-b54d-0b3c14826c56
+      - 0de095c3-93be-47b6-b447-4d50dde0b6ed
       X-Xss-Protection:
       - '0'
       X-Amzn-Remapped-Content-Length:
-      - '278575'
+      - '460747'
       X-Frame-Options:
       - DENY
       X-Oneagent-Js-Injection:
@@ -93,41 +93,23 @@ http_interactions:
       X-Amzn-Remapped-Connection:
       - keep-alive
       X-Amz-Apigw-Id:
-      - QsV5lGccvHMFv9Q=
+      - RK9JlEgGPHMFg3g=
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
       Expires:
       - '0'
       Server-Timing:
-      - dtRpid;desc="280417056", dtSInfo;desc="0"
+      - dtRpid;desc="192302236", dtSInfo;desc="0"
       X-Content-Type-Options:
       - nosniff
       Pragma:
       - no-cache
       X-Amzn-Remapped-Date:
-      - Wed, 10 Sep 2025 15:45:13 GMT
+      - Fri, 19 Sep 2025 22:40:22 GMT
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: ASCII-8BIT
-      string: '{"vista":{"failedStationList":"","successfulStationList":null,"lastUpdatedTime":"Wed,
-        10 Sep 2025 11:42:22 EDT","medicationList":{"medication":[]},"errors":[],"infoMessages":[]},"oracle-health":{"resourceType":"Bundle","total":46,"entry":[{"resource":{"resourceType":"Patient","id":"66889959","meta":{"versionId":"15","lastUpdated":"2025-07-03T17:28:11.000Z"},"text":{"status":"generated","div":"<div
-        xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Patient</b></p><p><b>Name</b>:
-        BPTESTSYSSEVEN, EASTON H</p><p><b>Status</b>: Active</p><p><b>DOB</b>: Nov  1,
-        1989</p><p><b>Administrative Gender</b>: Male</p></div>"},"extension":[{"url":"http://hl7.org/fhir/us/core/StructureDefinition/us-core-race","extension":[{"url":"detailed","valueCoding":{"system":"urn:oid:2.16.840.1.113883.6.238","code":"2131-1","display":"Other
-        Race","userSelected":false}},{"url":"text","valueString":"Prefer Not To Answer"}]},{"url":"http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity","extension":[{"url":"text","valueString":"Prefer
-        Not To Answer"}]}],"identifier":[{"id":"CI-7546034934-0","use":"usual","type":{"coding":[{"system":"https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4","code":"10","display":"MRN","userSelected":true},{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"MR","display":"Medical
-        record number","userSelected":false}],"text":"MRN"},"_system":{"extension":[{"url":"http://hl7.org/fhir/StructureDefinition/data-absent-reason","valueCode":"unknown"}]},"value":"83620411000001","_value":{"extension":[{"url":"http://hl7.org/fhir/StructureDefinition/rendered-value","valueString":"83620411000001"}]},"period":{"start":"2025-04-01T21:21:39.000Z"}},{"id":"CI-7546034928-2","use":"usual","type":{"coding":[{"system":"https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4","code":"22","display":"DOD
-        ID","userSelected":true}],"text":"DOD ID"},"system":"urn:oid:2.16.840.1.113883.3.42.10001.100001.12","value":"2117100076","_value":{"extension":[{"url":"http://hl7.org/fhir/StructureDefinition/rendered-value","valueString":"2117100076"}]},"period":{"start":"2025-04-01T21:21:39.000Z"}},{"id":"CI-7546367581-3","use":"usual","type":{"coding":[{"system":"https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4","code":"670843","display":"Messaging","userSelected":true},{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"U","display":"Unspecified
-        identifier","userSelected":false}],"text":"Messaging"},"system":"urn:oid:2.16.840.1.113883.3.8901.2","value":"1000123456V123456","_value":{"extension":[{"url":"http://hl7.org/fhir/StructureDefinition/rendered-value","valueString":"1000123456V123456"}]},"period":{"start":"2025-05-08T15:25:38.000Z"}},{"id":"CI-7546367579-4","use":"usual","type":{"coding":[{"system":"https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4","code":"165915171","display":"Federated
-        Person Principal","userSelected":true},{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"AN","display":"Account
-        number","userSelected":false}],"text":"Federated Person Principal"},"system":"urn:oid:2.16.840.1.113883.3.13.6","value":"URN:CERNER:IDENTITY-FEDERATION:REALM:F0FDED0D-D00B-4B28-9190-853247FD9F9D:PRINCIPAL:2117100076","_value":{"extension":[{"url":"http://hl7.org/fhir/StructureDefinition/rendered-value","valueString":"URN:CERNER:IDENTITY-FEDERATION:REALM:F0FDED0D-D00B-4B28-9190-853247FD9F9D:PRINCIPAL:2117100076"}]},"period":{"start":"2025-05-08T15:25:38.000Z"}},{"id":"CI-7546367583-5","use":"usual","type":{"coding":[{"system":"https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4","code":"165915179","display":"MIllennium
-        Person Identifier","userSelected":true}],"text":"MIllennium Person Identifier"},"_system":{"extension":[{"url":"http://hl7.org/fhir/StructureDefinition/data-absent-reason","valueCode":"unknown"}]},"value":"3329146","_value":{"extension":[{"url":"http://hl7.org/fhir/StructureDefinition/rendered-value","valueString":"3329146"}]},"period":{"start":"2025-05-08T15:25:39.000Z"}},{"id":"CI-7546034930-6","use":"usual","type":{"coding":[{"system":"https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4","code":"246779987","display":"Veteran
-        ID","userSelected":true}],"text":"Veteran ID"},"system":"urn:oid:2.16.840.1.113883.4.349","value":"1000123456V123456","_value":{"extension":[{"url":"http://hl7.org/fhir/StructureDefinition/rendered-value","valueString":"1000123456V123456"}]},"period":{"start":"2025-04-01T21:21:39.000Z"}}],"active":true,"name":[{"id":"CI-66889959-0","use":"official","text":"BPTESTSYSSEVEN,
-        EASTON H","family":"BPTESTSYSSEVEN","given":["EASTON","H"],"period":{"start":"2025-04-01T21:21:39.000Z"}}],"telecom":[{"id":"CI-PH-707303130-0","extension":[{"url":"http://hl7.org/fhir/StructureDefinition/iso21090-TEL-address","valueUrl":"(541)555-1234"}],"system":"phone","value":"5415551234","use":"mobile","rank":1,"period":{"start":"2025-05-27T19:38:28.000Z"}},{"id":"CI-EM-707321494-0","system":"email","value":"bhavin.patel2@va.gov","use":"home","rank":1,"period":{"start":"2025-07-03T17:21:06.000Z"}}],"gender":"male","birthDate":"1989-11-01","address":[{"id":"CI-738941127-0","use":"home","text":"1234
-        MAIN STREET\nWALLA WALLA, WA 99362\nUS","line":["1234 MAIN STREET"],"city":"WALLA
-        WALLA","state":"WA","postalCode":"99362","country":"US","period":{"start":"2025-05-27T19:38:28.000Z"}},{"id":"CI-738941125-1","use":"billing","text":"1234
-        MAIN STREET\nWALLA WALLA, WA 99362\nUS","line":["1234 MAIN STREET"],"city":"WALLA
-        WALLA","state":"WA","postalCode":"99362","country":"US","period":{"start":"2025-05-27T19:38:28.000Z"}}]}}]}}'
-  recorded_at: Wed, 10 Sep 2025 15:45:13 GMT
+      string: '{"vista":{},"oracle-health":{}}'
+  recorded_at: Fri, 19 Sep 2025 22:40:20 GMT
 recorded_with: VCR 6.3.1

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../../../support/helpers/rails_helper'
+require 'unified_health_data/service'
 
 RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
   include JsonSchemaMatchers
@@ -14,6 +15,8 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
     allow_any_instance_of(User).to receive(:va_patient?).and_return(va_patient)
     sign_in_as(user)
     allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
+    # Freeze today so service default_end_date is deterministic for VCR cassettes
+    allow(Time.zone).to receive(:today).and_return(Date.new(2025, 9, 19))
   end
 
   describe 'GET /mobile/v1/health/rx/prescriptions' do
@@ -81,14 +84,99 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
           end
         end
 
-        it 'handles pagination parameters correctly' do
+        it 'handles pagination parameters correctly (nested page[number], page[size])' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-            get '/mobile/v1/health/rx/prescriptions', params: { page: 2, per_page: 10 }, headers: sis_headers
-
+            get '/mobile/v1/health/rx/prescriptions',
+                params: { page: { number: 2, size: 10 }, sort: 'refill_status' },
+                headers: sis_headers
             expect(response).to have_http_status(:ok)
             meta = response.parsed_body['meta']['pagination']
             expect(meta['currentPage']).to eq(2)
             expect(meta['perPage']).to eq(10)
+            expect(response.parsed_body['data'].length).to be <= 10
+          end
+        end
+
+        context 'with a mix of VA and Non-VA prescriptions' do
+          let(:rx_va) do
+            OpenStruct.new(
+              id: 'rx-va-1',
+              refill_status: 'active', refill_submit_date: nil, refill_date: nil, refill_remaining: 1,
+              facility_name: 'VA FAC', ordered_date: nil, quantity: 30, expiration_date: nil,
+              prescription_number: '123', prescription_name: 'VA MED', dispensed_date: nil, station_number: '500',
+              is_refillable: true, is_trackable: false, tracking_information: {}, prescription_source: 'RX',
+              instructions: 'Take daily', facility_phone_number: '555-555-5555'
+            )
+          end
+          let(:rx_non_va) do
+            OpenStruct.new(
+              id: 'rx-nv-1',
+              refill_status: 'active', refill_submit_date: nil, refill_date: nil, refill_remaining: 1,
+              facility_name: 'NON VA', ordered_date: nil, quantity: 10, expiration_date: nil,
+              prescription_number: 'NV1', prescription_name: 'NON VA MED', dispensed_date: nil, station_number: '600',
+              is_refillable: false, is_trackable: false, tracking_information: {}, prescription_source: 'NV',
+              instructions: 'As needed', facility_phone_number: '555-000-0000'
+            )
+          end
+
+          before do
+            allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_prescriptions)
+              .and_return([rx_va, rx_non_va])
+          end
+
+          it 'filters out Non-VA meds and sets hasNonVaMeds meta true' do
+            get '/mobile/v1/health/rx/prescriptions',
+                params: { page: { number: 1, size: 10 } },
+                headers: sis_headers
+
+            expect(response).to have_http_status(:ok)
+            body = response.parsed_body
+            expect(body['data'].length).to eq(1)
+            names = body['data'].map { |d| d['attributes']['prescriptionName'] }
+            expect(names).to include('VA MED')
+            expect(names).not_to include('NON VA MED')
+            expect(body['meta']['hasNonVaMeds']).to be true
+          end
+        end
+
+        context 'with only VA prescriptions (no Non-VA present)' do
+          let(:rx_va1) do
+            OpenStruct.new(
+              id: 'rx-va-only-1',
+              refill_status: 'active', refill_submit_date: nil, refill_date: nil,
+              refill_remaining: 2,
+              facility_name: 'VA FAC', ordered_date: nil, quantity: 60, expiration_date: nil,
+              prescription_number: '456', prescription_name: 'VA MED A', dispensed_date: nil, station_number: '500',
+              is_refillable: true, is_trackable: false, tracking_information: {}, prescription_source: 'RX',
+              instructions: 'Daily', facility_phone_number: '555-555-5555'
+            )
+          end
+          let(:rx_va2) do
+            OpenStruct.new(
+              id: 'rx-va-only-2',
+              refill_status: 'active', refill_submit_date: nil, refill_date: nil,
+              refill_remaining: 0,
+              facility_name: 'VA FAC', ordered_date: nil, quantity: 15, expiration_date: nil,
+              prescription_number: '789', prescription_name: 'VA MED B', dispensed_date: nil, station_number: '500',
+              is_refillable: false, is_trackable: false, tracking_information: {}, prescription_source: 'RX',
+              instructions: 'Bid', facility_phone_number: '555-555-5555'
+            )
+          end
+
+          before do
+            allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_prescriptions)
+              .and_return([rx_va1, rx_va2])
+          end
+
+          it 'does not set hasNonVaMeds meta flag' do
+            get '/mobile/v1/health/rx/prescriptions',
+                params: { page: { number: 1, size: 10 } },
+                headers: sis_headers
+
+            expect(response).to have_http_status(:ok)
+            body = response.parsed_body
+            expect(body['data'].length).to eq(2)
+            expect(body['meta']['hasNonVaMeds']).to be false
           end
         end
       end
