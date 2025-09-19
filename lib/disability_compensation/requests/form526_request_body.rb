@@ -89,6 +89,7 @@ module Requests
     include Vets::Model
 
     attribute :name, String
+    attribute :approximate_date, String
     attribute :disability_action_type, String
     attribute :classification_code, String
     attribute :service_relevance, String
@@ -99,6 +100,7 @@ module Requests
 
     attribute :disability_action_type, String
     attribute :name, String
+    attribute :approximate_date, String
     attribute :classification_code, String
     attribute :service_relevance, String
     attribute :is_related_to_toxic_exposure, Bool
