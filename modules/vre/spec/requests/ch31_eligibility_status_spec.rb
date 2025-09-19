@@ -8,8 +8,27 @@ RSpec.describe 'VRE::V0::Ch31EligibilityStatus', type: :request do
   before { sign_in_as(user) }
 
   describe 'GET vre/v0/ch31_eligibility_status' do
+    let(:icn) { '1018616478V531227' }
+    let(:substitute_icn) { '1012667122V019349' }
+
+    before { allow(Flipper).to receive(:enabled?).with(:vre_substitute_icn).and_return(false) }
+
     context 'when eligibility status available' do
-      let(:user) { create(:user, icn: '1018616478V531227') }
+      let(:user) { create(:user, icn:) }
+
+      it 'returns 200 response' do
+        VCR.use_cassette('vre/ch31_eligibility/200') do
+          get '/vre/v0/ch31_eligibility_status'
+          expect(response).to match_response_schema('vre/ch31_eligibility_status')
+          assert_response :success
+        end
+      end
+    end
+
+    context 'when vre_substitute_icn flipper enabled' do
+      let(:user) { create(:user, icn: substitute_icn) }
+
+      before { allow(Flipper).to receive(:enabled?).with(:vre_substitute_icn).and_return(true) }
 
       it 'returns 200 response' do
         VCR.use_cassette('vre/ch31_eligibility/200') do

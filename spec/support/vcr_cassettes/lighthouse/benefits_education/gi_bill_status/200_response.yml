@@ -42,7 +42,7 @@ http_interactions:
   recorded_at: Wed, 28 Feb 2024 12:39:14 GMT
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/benefits-education/v1/education/chapter33?icn=1012667145V762142
+    uri: https://sandbox-api.va.gov/services/benefits-education/v1/education/chapter33?icn=1018616478V531227
     body:
       encoding: US-ASCII
       string: ''

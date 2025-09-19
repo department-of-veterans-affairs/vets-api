@@ -2557,3 +2557,6 @@ features:
   form_1919_release:
     actor_type: user
     description: If enabled, show link to digitized form instead of PDF download on SCO page
+  vre_substitute_icn:
+    actor_type: user
+    description: (Staging only) If enabled, swap out ICN for subset of test users with a substitute ICN that matches RES test record
