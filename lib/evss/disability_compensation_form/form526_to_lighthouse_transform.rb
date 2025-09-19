@@ -624,22 +624,50 @@ module EVSS
       end
 
       def transform_disabilities(disabilities_source, toxic_exposure_conditions)
-        disabilities_source.map do |disability_source|
+        tox_present = toxic_exposure_conditions.present? && toxic_exposure_conditions.any?
+
+        disabilities_source.map do |src|
           dis = Requests::Disability.new
-          dis.disability_action_type = disability_source['disabilityActionType']
-          dis.name                   = disability_source['name']
-          dis.is_related_to_toxic_exposure = related_to_toxic_exposure?(dis.name, toxic_exposure_conditions) if toxic_exposure_conditions.present? && toxic_exposure_conditions.any?
-          dis.classification_code    = disability_source['classificationCode'] if disability_source['classificationCode']
-          dis.service_relevance      = disability_source['serviceRelevance'] || ''
-          dis.rated_disability_id    = disability_source['ratedDisabilityId'] if disability_source['ratedDisabilityId']
-          dis.diagnostic_code        = disability_source['diagnosticCode'] if disability_source['diagnosticCode']
-          dis.secondary_disabilities = transform_secondary_disabilities(disability_source) if disability_source['secondaryDisabilities']
-          dis.exposure_or_event_or_injury = format_exposure_text(disability_source['cause'], dis.is_related_to_toxic_exposure) if disability_source['cause'].present?
-          dis.approximate_date       = convert_approximate_date(disability_source['approximateDate']) if disability_source['approximateDate'].present?
+          dis.disability_action_type = src['disabilityActionType']
+          dis.name = src['name']
+
+          if tox_present
+            dis.is_related_to_toxic_exposure =
+              related_to_toxic_exposure?(dis.name, toxic_exposure_conditions)
+          end
+
+          dis.classification_code = src['classificationCode'] if src['classificationCode']
+          dis.service_relevance   = src['serviceRelevance'] || ''
+          dis.rated_disability_id = src['ratedDisabilityId'] if src['ratedDisabilityId']
+          dis.diagnostic_code     = src['diagnosticCode'] if src['diagnosticCode']
+
+          assign_secondary!(dis, src)
+          assign_exposure!(dis, src)
+          assign_approximate_date!(dis, src)
+
           dis
         end
       end
 
+      private
+
+      def assign_secondary!(dis, src)
+        return unless src['secondaryDisabilities']
+        dis.secondary_disabilities = transform_secondary_disabilities(src)
+      end
+
+      def assign_exposure!(dis, src)
+        cause = src['cause']
+        return unless cause.present?
+        dis.exposure_or_event_or_injury =
+          format_exposure_text(cause, dis.is_related_to_toxic_exposure)
+      end
+
+      def assign_approximate_date!(dis, src)
+        approx = src['approximateDate']
+        return unless approx.present?
+        dis.approximate_date = convert_approximate_date(approx)
+      end
 
       def format_exposure_text(cause, related_to_toxic_exposure)
         cause_text = TOXIC_EXPOSURE_CAUSE_MAP[cause.upcase.to_sym].dup
