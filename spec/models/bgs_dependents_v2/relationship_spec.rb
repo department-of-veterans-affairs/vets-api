@@ -11,7 +11,6 @@ RSpec.describe BGSDependentsV2::Relationship do
       family_relationship_type_name: 'Spouse',
       marriage_state: 'FL',
       marriage_city: 'Tampa',
-      marriage_method_name: 'CIVIL',
       event_date:
     }
   end
@@ -22,7 +21,6 @@ RSpec.describe BGSDependentsV2::Relationship do
       vnp_ptcpnt_id_b: '146189',
       ptcpnt_rlnshp_type_nm: 'Spouse',
       family_rlnshp_type_nm: 'Spouse',
-      marage_mthd_nm: 'CIVIL',
       event_dt: DateTime.parse("#{event_date} 12:00:00").to_time.iso8601
     }
   end
