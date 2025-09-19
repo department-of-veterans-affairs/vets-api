@@ -410,6 +410,7 @@ module ClaimsApi
         set_pdf_data_for_service_information
 
         service_periods
+        reserves_national_guard_service if @auto_claim.dig('serviceInformation', 'reservesNationalGuardService')
       end
 
       def set_pdf_data_for_service_information
@@ -469,6 +470,59 @@ module ClaimsApi
           }
         end
         @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = additional_periods
+      end
+
+      # If reserves are present
+      # 'obligationTermOfServiceFromDate', 'obligationTermOfServiceToDate' & 'unitName' are required via the schema
+      def reserves_national_guard_service
+        set_pdf_data_for_serves_national_guard_service
+
+        required_reserves_data
+        optional_reserves_data
+      end
+
+      def set_pdf_data_for_serves_national_guard_service
+        return if @pdf_data[:data][:attributes][:serviceInformation]&.key?(:reservesNationalGuardService)
+
+        @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService] = {}
+      end
+
+      def required_reserves_data
+        reserves_data_object_base = @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+        unit_name = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService', 'unitName')
+        begin_date = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService',
+                                     'obligationTermOfServiceFromDate')
+        end_date = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService',
+                                   'obligationTermOfServiceToDate')
+
+        reserves_data_object_base[:unitName] = unit_name
+        reserves_data_object_base[:obligationTermsOfService] = {
+          start: make_date_object(begin_date, begin_date.length),
+          end: make_date_object(end_date, end_date.length)
+        }
+      end
+
+      def optional_reserves_data
+        reserves_data = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService')
+
+        unit_phone(reserves_data) if reserves_data['unitPhone']
+
+        inactive_duty_training_pay(reserves_data) if reserves_data.key?('receivingInactiveDutyTrainingPay')
+      end
+
+      def unit_phone(reserves_data)
+        if reserves_data&.dig('unitPhone')
+          @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:unitPhoneNumber] = [
+            reserves_data&.dig('unitPhone', 'areaCode'),
+            reserves_data&.dig('unitPhone', 'phoneNumber')&.tr('-', '')
+          ].compact.join
+        end
+      end
+
+      def inactive_duty_training_pay(reserves_data)
+        reserves_data_object_base = @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+        reserves_data_object_base[:receivingInactiveDutyTrainingPay] =
+          reserves_data['receivingInactiveDutyTrainingPay']
       end
     end
   end
