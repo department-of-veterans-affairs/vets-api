@@ -1,16 +1,6 @@
 # frozen_string_literal: true
 
-# Patch for rails_semantic_logger to prevent logging of send_data filename parameters
-# which may contain PII (Personal Identifiable Information) in veteran uploaded file names.
-#
-# The rails_semantic_logger gem automatically subscribes to ActiveSupport::Notifications
-# for 'send_data.action_controller' events and logs the filename parameter. This bypasses
-# Rails' filter_parameters configuration, potentially exposing sensitive information.
-#
-# This patch unsubscribes from that notification to prevent PII exposure in logs.
-#
-# Reference: https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/issues/4376
-# Reference: https://github.com/reidmorrison/rails_semantic_logger/issues/230
+# Unsubscribe from rails_semantic_logger's send_data notifications to prevent PII in filenames from being logged
 
 Rails.application.config.after_initialize do
   # Unsubscribe from send_data.action_controller notifications to prevent
