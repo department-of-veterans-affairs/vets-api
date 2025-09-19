@@ -84,10 +84,9 @@ module CheckIn
 
         render json: {
           errors: [{
-            title: Rack::Utils::HTTP_STATUS_CODES[Rack::Utils::SYMBOL_TO_STATUS_CODE[mapped]],
             detail: e.response_values[:detail] || 'Travel claim operation failed',
             code: e.key,
-            status: Rack::Utils::SYMBOL_TO_STATUS_CODE[mapped].to_s
+            status: mapped
           }]
         }, status: mapped
       end
