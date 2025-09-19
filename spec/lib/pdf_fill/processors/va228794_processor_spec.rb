@@ -32,7 +32,7 @@ describe PdfFill::Processors::VA228794Processor do
       it 'fills in the form fields' do
         described_class.new(form_data, filler).process
         fields = PdfForms.new(Settings.binaries.pdftk).get_fields('tmp/pdfs/22-8794.pdf')
-        expect(get_field_value(fields, 'institution[facility_code]')).to eq '12345678'
+        expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
         expect(get_field_value(fields, 'signature_email')).to eq 'john.doe@example.com'
       end
     end
@@ -49,7 +49,7 @@ describe PdfFill::Processors::VA228794Processor do
       it 'fills in the form fields' do
         described_class.new(form_data, filler).process
         fields = PdfForms.new(Settings.binaries.pdftk).get_fields('tmp/pdfs/22-8794_final.pdf')
-        expect(get_field_value(fields, 'institution[facility_code]')).to eq '12345678'
+        expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
         expect(get_field_value(fields, 'signature_email')).to eq 'john.doe@example.com'
       end
     end
