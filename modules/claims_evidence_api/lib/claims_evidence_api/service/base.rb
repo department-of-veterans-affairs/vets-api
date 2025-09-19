@@ -25,9 +25,12 @@ module ClaimsEvidenceApi
       end
 
       # @see Common::Client::Base#perform
-      def perform(method, path, params, headers = nil, options = nil)
+      def perform(method, path, params, headers = {}, options = {})
         call_location = caller_locations.first # eg. ClaimsEvidenceApi::Service::Files#upload
+        headers = headers.merge(request_headers)
+
         response = super(method, path, params, headers, options) # returns Faraday::Env
+
         monitor.track_api_request(method, path, response.status, response.reason_phrase, call_location:)
         response
       rescue => e
@@ -55,6 +58,16 @@ module ClaimsEvidenceApi
       # @see ClaimsEvidenceApi::Monitor::Service
       def monitor
         @monitor ||= ClaimsEvidenceApi::Monitor::Service.new
+      end
+
+      # additional request headers
+      def request_headers
+        { 'Authorization' => "Bearer #{encode_jwt}" }
+      end
+
+      # @return [String] the encoded jwt
+      def encode_jwt
+        ClaimsEvidenceApi::JwtGenerator.encode_jwt
       end
     end
 

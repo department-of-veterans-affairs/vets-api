@@ -26,7 +26,8 @@ module ClaimsEvidenceApi
 
     # @return [Hash] The basic headers required for any API call
     def self.base_request_headers
-      super.merge('Authorization' => "Bearer #{ClaimsEvidenceApi::JwtGenerator.new.encode_jwt}")
+      headers = {}
+      super.merge(headers)
     end
 
     # Creates a connection with json parsing and breaker functionality.

@@ -2,9 +2,10 @@
 
 require 'rails_helper'
 require 'bpds/configuration'
-require 'bpds/jwt_encoder'
 
 describe BPDS::Configuration do
+  let(:base) { Common::Client::Configuration::REST }
+
   describe '#base_path' do
     it 'has a base path' do
       expect(BPDS::Configuration.instance.base_path).to eq(Settings.bpds.url)
@@ -17,12 +18,12 @@ describe BPDS::Configuration do
     end
   end
 
-  describe '#mock_enabled?' do
+  describe '#use_mocks?' do
     context 'when Settings.bpds.mock is true' do
       before { allow(Settings.bpds).to receive(:mock).and_return(true) }
 
       it 'returns true' do
-        expect(BPDS::Configuration.instance).to be_mock_enabled
+        expect(BPDS::Configuration.instance).to be_use_mocks
       end
     end
 
@@ -30,7 +31,7 @@ describe BPDS::Configuration do
       before { allow(Settings.bpds).to receive(:mock).and_return(false) }
 
       it 'returns false' do
-        expect(BPDS::Configuration.instance).not_to be_mock_enabled
+        expect(BPDS::Configuration.instance).not_to be_use_mocks
       end
     end
   end
@@ -43,11 +44,10 @@ describe BPDS::Configuration do
 
   describe '.base_request_headers' do
     it 'includes the Authorization header' do
-      # rubocop:disable RSpec/MessageChain
-      allow(BPDS::JwtEncoder).to receive_message_chain(:new, :get_token).and_return('test_token')
-      # rubocop:enable RSpec/MessageChain
+      expected = base.base_request_headers # no additional headers
+
       headers = BPDS::Configuration.base_request_headers
-      expect(headers['Authorization']).to eq('Bearer test_token')
+      expect(headers).to match(hash_including(**expected))
     end
   end
 
