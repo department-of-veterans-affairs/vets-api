@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 
+# rubocop:disable RSpec/DescribeClass
 RSpec.describe 'Rails Semantic Logger Patch' do
   describe 'send_data.action_controller unsubscription' do
     it 'does not have any subscribers for send_data.action_controller notifications' do
@@ -25,8 +26,8 @@ RSpec.describe 'Rails Semantic Logger Patch' do
 
       # Publish a notification that would normally be logged by rails_semantic_logger
       ActiveSupport::Notifications.instrument('send_data.action_controller',
-                                             filename: 'John_Doe_SSN_123456789.pdf',
-                                             type: 'application/pdf')
+                                              filename: 'John_Doe_SSN_123456789.pdf',
+                                              type: 'application/pdf')
 
       # Verify no send_data events were logged
       expect(logged_events).to be_empty
@@ -52,15 +53,15 @@ RSpec.describe 'Rails Semantic Logger Patch' do
         begin
           # Publish a notification with PII in the filename
           ActiveSupport::Notifications.instrument('send_data.action_controller',
-                                                 filename: 'John_Doe_SSN_123456789.pdf',
-                                                 type: 'application/pdf')
+                                                  filename: 'John_Doe_SSN_123456789.pdf',
+                                                  type: 'application/pdf')
 
           # This demonstrates the PII leak - the full filename with SSN would be logged
           expect(logged_data).to eq({
-            event_name: 'send_data.action_controller',
-            filename: 'John_Doe_SSN_123456789.pdf',  # <-- PII exposed here!
-            type: 'application/pdf'
-          })
+                                      event_name: 'send_data.action_controller',
+                                      filename: 'John_Doe_SSN_123456789.pdf', # <-- PII exposed here!
+                                      type: 'application/pdf'
+                                    })
 
           # Verify the PII is present in what would have been logged
           expect(logged_data[:filename]).to include('123456789')  # SSN exposed
@@ -101,3 +102,4 @@ RSpec.describe 'Rails Semantic Logger Patch' do
     end
   end
 end
+# rubocop:enable RSpec/DescribeClass
