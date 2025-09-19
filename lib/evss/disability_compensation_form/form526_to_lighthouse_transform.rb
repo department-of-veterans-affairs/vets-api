@@ -624,7 +624,7 @@ module EVSS
       end
 
       def transform_disabilities(disabilities_source, toxic_exposure_conditions)
-        tox_present = toxic_exposure_conditions.present? && toxic_exposure_conditions.any?
+        tox_present = toxic_exposure_conditions.present?
 
         disabilities_source.map do |src|
           dis = Requests::Disability.new
@@ -633,7 +633,7 @@ module EVSS
 
           if tox_present
             dis.is_related_to_toxic_exposure =
-              related_to_toxic_exposure?(dis.name, toxic_exposure_conditions)
+              related_to_toxic_exposure(dis.name, toxic_exposure_conditions)
           end
 
           dis.classification_code = src['classificationCode'] if src['classificationCode']
@@ -641,31 +641,32 @@ module EVSS
           dis.rated_disability_id = src['ratedDisabilityId'] if src['ratedDisabilityId']
           dis.diagnostic_code     = src['diagnosticCode'] if src['diagnosticCode']
 
-          assign_secondary!(dis, src)
-          assign_exposure!(dis, src)
-          assign_approximate_date!(dis, src)
+          assign_secondary(dis, src)
+          assign_exposure(dis, src)
+          assign_approximate_date(dis, src)
 
           dis
         end
       end
 
-      private
-
-      def assign_secondary!(dis, src)
+      def assign_secondary(dis, src)
         return unless src['secondaryDisabilities']
+
         dis.secondary_disabilities = transform_secondary_disabilities(src)
       end
 
-      def assign_exposure!(dis, src)
+      def assign_exposure(dis, src)
         cause = src['cause']
-        return unless cause.present?
+        return if cause.blank?
+
         dis.exposure_or_event_or_injury =
           format_exposure_text(cause, dis.is_related_to_toxic_exposure)
       end
 
-      def assign_approximate_date!(dis, src)
+      def assign_approximate_date(dis, src)
         approx = src['approximateDate']
-        return unless approx.present?
+        return if approx.blank?
+
         dis.approximate_date = convert_approximate_date(approx)
       end
 
@@ -674,7 +675,7 @@ module EVSS
         related_to_toxic_exposure ? cause_text.sub!(/[.]?$/, '; toxic exposure.') : cause_text
       end
 
-      def related_to_toxic_exposure?(condition_name, toxic_exposure_conditions)
+      def related_to_toxic_exposure(condition_name, toxic_exposure_conditions)
         regex_non_word = /[^\w]/
         normalized_condition_name = condition_name.gsub(regex_non_word, '').downcase
         toxic_exposure_conditions[normalized_condition_name].present?
