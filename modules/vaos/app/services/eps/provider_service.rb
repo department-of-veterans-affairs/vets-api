@@ -30,9 +30,10 @@ module Eps
       end
 
       with_monitoring do
-        query_object_array = provider_ids.map { |id| "id=#{id}" }
+        # Use comma-separated format: id=provider1,provider2,provider3
+        query_params = { id: provider_ids.join(',') }
         response = perform(:get, "/#{config.base_path}/provider-services",
-                           query_object_array, request_headers_with_correlation_id)
+                           query_params, request_headers_with_correlation_id)
 
         OpenStruct.new(response.body)
       end
