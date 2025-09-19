@@ -78,12 +78,32 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
   end
 
   describe '#extension_allowlist' do
-    it 'allows valid file extensions' do
-      expect(uploader.extension_allowlist).to include('pdf', 'doc', 'docx', 'jpg', 'jpeg', 'rtf', 'png')
+    context ':hca_heic_attachments_enabled enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(true)
+      end
+
+      it 'allows valid file extensions' do
+        expect(uploader.extension_allowlist).to include('pdf', 'doc', 'docx', 'jpg', 'jpeg', 'rtf', 'png', 'heic')
+      end
+
+      it 'does not allow invalid file extensions' do
+        expect(uploader.extension_allowlist).not_to include('exe', 'bat', 'zip')
+      end
     end
 
-    it 'does not allow invalid file extensions' do
-      expect(uploader.extension_allowlist).not_to include('exe', 'bat', 'zip')
+    context ':hca_heic_attachments_enabled disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(false)
+      end
+
+      it 'allows valid file extensions' do
+        expect(uploader.extension_allowlist).to include('pdf', 'doc', 'docx', 'jpg', 'jpeg', 'rtf', 'png')
+      end
+
+      it 'does not allow invalid file extensions' do
+        expect(uploader.extension_allowlist).not_to include('exe', 'bat', 'zip')
+      end
     end
   end
 
@@ -114,6 +134,24 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
           Rails.root.join('spec', 'fixtures', 'files', 'steelers.heic'),
           'image/png'
         )
+      end
+
+      context ':hca_heic_attachments_enabled enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(true)
+        end
+
+        it 'converts the file to HEIC' do
+          expect(uploader).to receive(:convert).with('jpg')
+
+          uploader.store!(file)
+        end
+      end
+
+      context ':hca_heic_attachments_enabled disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(true)
+        end
       end
 
       it 'converts the file to HEIC' do
