@@ -565,6 +565,7 @@ describe UnifiedHealthData::Service, type: :service do
       # Freeze today so the generated end_date in service matches VCR cassette date range expectations
       allow(Time.zone).to receive(:today).and_return(Date.new(2025, 9, 19))
     end
+
     context 'with valid prescription responses', :vcr do
       it 'returns prescriptions from both VistA and Oracle Health' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
@@ -688,7 +689,8 @@ describe UnifiedHealthData::Service, type: :service do
           prescriptions = service.get_prescriptions
           expect(prescriptions.size).to eq(10)
           expect(prescriptions.map(&:prescription_id)).to contain_exactly(
-"25804851", "25804852", "25804853", "25804854", "25804855", "25804856", "25804858", "25804859", "25804860", "25804848"
+            '25804851', '25804852', '25804853', '25804854', '25804855',
+            '25804856', '25804858', '25804859', '25804860', '25804848'
           )
         end
       end
