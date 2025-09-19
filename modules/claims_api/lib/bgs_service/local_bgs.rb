@@ -173,12 +173,6 @@ module ClaimsApi
       end
 
       if response.status != 200
-        ClaimsApi::RecordMetadata.create(
-          request_url: url,
-          request_headers: headers&.to_s,
-          request: safe_xml(body),
-          response: safe_xml(response.body)
-        )
         errors = soap_error_handler.handle_errors(response)
         return errors
       end
@@ -187,12 +181,6 @@ module ClaimsApi
         parsed_response = parse_response(response, action:, key:)
         transform_response ? transform_keys(parsed_response) : parsed_response
       end
-    end
-
-    def safe_xml(content)
-      Hash.from_xml(content).deep_stringify_keys.to_s
-    rescue
-      content
     end
 
     def namespace(connection, endpoint)
