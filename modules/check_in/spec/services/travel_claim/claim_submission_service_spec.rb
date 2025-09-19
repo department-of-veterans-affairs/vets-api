@@ -199,10 +199,10 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
 
     context 'when claim already exists for appointment' do
       before do
-        allow(travel_pay_client).to receive(:send_appointment_request).and_return(
+        allow(travel_pay_client).to receive(:find_or_add_appointment!).and_return(
           double(body: { 'data' => [{ 'id' => 'appointment-123' }] })
         )
-        allow(travel_pay_client).to receive(:send_claim_request).and_raise(
+        allow(travel_pay_client).to receive(:create_claim!).and_raise(
           Common::Exceptions::BackendServiceException.new(
             'VA900',
             { detail: 'Validation failed: A claim has already been created for this appointment.' },
@@ -223,7 +223,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
       end
 
       context 'with CIE facility type' do
-        let(:facility_type) { 'vamc' }
+        let(:facility_type) { 'cie' }
 
         it 'sends duplicate claim notification for CIE facility' do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
@@ -261,7 +261,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
     context 'when authentication fails' do
       context 'when VEIS token request fails' do
         it 'raises authentication error' do
-          allow(travel_pay_client).to receive(:send_appointment_request)
+          allow(travel_pay_client).to receive(:find_or_add_appointment!)
             .and_raise(Common::Exceptions::BackendServiceException.new(
                          'VA900',
                          { detail: 'VEIS response missing access_token' },
@@ -276,7 +276,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
 
       context 'when system access token request fails' do
         it 'raises authentication error' do
-          allow(travel_pay_client).to receive(:send_appointment_request)
+          allow(travel_pay_client).to receive(:find_or_add_appointment!)
             .and_raise(Common::Exceptions::BackendServiceException.new(
                          'VA900',
                          { detail: 'BTSSS response missing accessToken in data' },
@@ -423,46 +423,44 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
 
     describe '#extract_claim_number_last_four' do
       context 'with valid response body' do
-        let(:response) do
-          double(body: {
-                   'data' => {
-                     'claimId' => '97d2e536-017e-f011-b4cc-001dd8066789'
-                   }
-                 })
+        let(:body) do
+          {
+            'data' => {
+              'claimId' => '97d2e536-017e-f011-b4cc-001dd8066789'
+            }
+          }
         end
 
         it 'extracts last four digits of claim ID' do
-          result = service.send(:extract_claim_number_last_four, response)
+          result = service.send(:extract_claim_number_last_four, body)
           expect(result).to eq('6789')
         end
       end
 
       context 'with JSON string response body' do
-        let(:response) do
-          double(body: '{"data":{"claimId":"97d2e536-017e-f011-b4cc-001dd8066789"}}')
-        end
+        let(:body) { '{"data":{"claimId":"97d2e536-017e-f011-b4cc-001dd8066789"}}' }
 
         it 'parses JSON and extracts last four digits' do
-          result = service.send(:extract_claim_number_last_four, response)
+          result = service.send(:extract_claim_number_last_four, body)
           expect(result).to eq('6789')
         end
       end
 
       context 'with missing claim ID' do
-        let(:response) { double(body: { 'data' => {} }) }
+        let(:body) { { 'data' => {} } }
 
         it 'returns unknown for missing claim ID' do
-          result = service.send(:extract_claim_number_last_four, response)
+          result = service.send(:extract_claim_number_last_four, body)
           expect(result).to eq('unknown')
         end
       end
 
       context 'with malformed response' do
-        let(:response) { double(body: 'invalid json') }
+        let(:body) { 'invalid json' }
 
         it 'returns unknown for parsing errors' do
           allow(Rails.logger).to receive(:error)
-          result = service.send(:extract_claim_number_last_four, response)
+          result = service.send(:extract_claim_number_last_four, body)
           expect(result).to eq('unknown')
         end
       end
@@ -542,13 +540,10 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
   # Helper methods for common mock setups
   def mock_successful_flow
     allow(travel_pay_client).to receive_messages(
-      send_appointment_request: double(body: { 'data' => [{ 'id' => 'appointment-123' }] }, status: 200),
-      send_claim_request: double(body: { 'data' => { 'claimId' => 'claim-456' } }, status: 200),
-      send_mileage_expense_request: double(status: 200),
-      send_claim_submission_request: double(
-        body: { 'data' => { 'claimId' => 'claim-456-6789' } },
-        status: 200
-      )
+      find_or_add_appointment!: 'appointment-123',
+      create_claim!: 'claim-456',
+      add_mileage_expense!: nil,
+      submit_claim!: { 'data' => { 'claimId' => 'claim-456-6789' } }
     )
   end
 
@@ -565,71 +560,73 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
       'success' => true,
       'statusCode' => 200
     }
-    allow(travel_pay_client).to receive(:send_claim_submission_request)
-      .and_return(double(body: response_body, status: 200))
+    allow(travel_pay_client).to receive(:submit_claim!)
+      .and_return(response_body)
   end
 
   def mock_appointment_failure(status = 400)
-    allow(travel_pay_client).to receive(:send_appointment_request)
-      .and_return(double(body: { 'error' => 'Appointment not found' }, status:))
+    allow(travel_pay_client).to receive(:find_or_add_appointment!)
+      .and_raise(Common::Exceptions::BackendServiceException.new('VA900', { detail: 'Appointment not found' }, status))
   end
 
   def mock_claim_creation_failure(status = 400)
     mock_successful_appointment
-    allow(travel_pay_client).to receive(:send_claim_request)
-      .and_return(double(body: { 'error' => 'Claim creation failed' }, status:))
+    allow(travel_pay_client).to receive(:create_claim!)
+      .and_raise(Common::Exceptions::BackendServiceException.new('VA900', { detail: 'Claim creation failed' }, status))
   end
 
   def mock_expense_failure(status = 400)
     mock_successful_appointment
     mock_successful_claim_creation
-    allow(travel_pay_client).to receive(:send_mileage_expense_request)
-      .and_return(double(status:))
+    allow(travel_pay_client).to receive(:add_mileage_expense!)
+      .and_raise(Common::Exceptions::BackendServiceException.new('VA900', { detail: 'Expense addition failed' },
+                                                                 status))
   end
 
   def mock_submission_failure(status = 400)
     mock_successful_appointment
     mock_successful_claim_creation
     mock_successful_expense
-    allow(travel_pay_client).to receive(:send_claim_submission_request)
-      .and_return(double(status:))
+    allow(travel_pay_client).to receive(:submit_claim!)
+      .and_raise(Common::Exceptions::BackendServiceException.new('VA900', { detail: 'Claim submission failed' },
+                                                                 status))
   end
 
   def mock_successful_appointment
-    allow(travel_pay_client).to receive(:send_appointment_request)
-      .and_return(double(body: { 'data' => [{ 'id' => 'appointment-123' }] }, status: 200))
+    allow(travel_pay_client).to receive(:find_or_add_appointment!)
+      .and_return('appointment-123')
   end
 
   def mock_successful_claim_creation
-    allow(travel_pay_client).to receive(:send_claim_request)
-      .and_return(double(body: { 'data' => { 'claimId' => 'claim-456' } }, status: 200))
+    allow(travel_pay_client).to receive(:create_claim!)
+      .and_return('claim-456')
   end
 
   def mock_successful_expense
-    allow(travel_pay_client).to receive(:send_mileage_expense_request)
-      .and_return(double(status: 200))
+    allow(travel_pay_client).to receive(:add_mileage_expense!)
+      .and_return(nil)
   end
 
-  def mock_malformed_response(endpoint, response_body = {})
+  def mock_malformed_response(endpoint, _response_body = {})
     case endpoint
     when :appointment
-      allow(travel_pay_client).to receive(:send_appointment_request)
-        .and_return(double(body: response_body, status: 200))
+      allow(travel_pay_client).to receive(:find_or_add_appointment!)
+        .and_return(nil) # Return nil to simulate missing appointment ID
     when :claim
       mock_successful_appointment
-      allow(travel_pay_client).to receive(:send_claim_request)
-        .and_return(double(body: response_body, status: 200))
+      allow(travel_pay_client).to receive(:create_claim!)
+        .and_return(nil) # Return nil to simulate missing claim ID
     when :expense
       mock_successful_appointment
       mock_successful_claim_creation
-      allow(travel_pay_client).to receive(:send_mileage_expense_request)
-        .and_return(double(status: 400)) # Non-200 status to trigger failure
+      allow(travel_pay_client).to receive(:add_mileage_expense!)
+        .and_raise(Common::Exceptions::BackendServiceException.new('VA900', { detail: 'Expense failed' }, 400))
     when :submission
       mock_successful_appointment
       mock_successful_claim_creation
       mock_successful_expense
-      allow(travel_pay_client).to receive(:send_claim_submission_request)
-        .and_return(double(status: 400)) # Non-200 status to trigger failure
+      allow(travel_pay_client).to receive(:submit_claim!)
+        .and_raise(Common::Exceptions::BackendServiceException.new('VA900', { detail: 'Submission failed' }, 400))
     end
   end
 end

@@ -66,13 +66,6 @@ unless Rails.env.test?
       TravelClaim::Client.statsd_count_success method, "api.check_in.v0.travel_claim.#{method}.count"
       TravelClaim::Client.statsd_measure method, "api.check_in.v0.travel_claim.#{method}.measure"
     end
-
-    TravelClaim::TravelPayClient.extend(StatsD::Instrument)
-    %i[send_appointment_request send_claim_request send_mileage_expense_request
-       send_claim_submission_request].each do |method|
-      TravelClaim::TravelPayClient.statsd_count_success method, "api.check_in.v1.travel_claim.client.#{method}.count"
-      TravelClaim::TravelPayClient.statsd_measure method, "api.check_in.v1.travel_claim.client.#{method}.measure"
-    end
   end
 
   private
