@@ -16,7 +16,7 @@ class DeleteInProgressFormJob
 
     in_progress_form_after = InProgressForm.find_by(form_id:, user_uuid:)
 
-    Rails.logger.info("[10-10EZ][user_uuid:#{user_uuid}]" \
+    Rails.logger.info("[#{form_id}][user_uuid:#{user_uuid}]" \
                       "[ipf_id_before:#{in_progress_form_before&.id}, ipf_id_after:#{in_progress_form_after&.id}]" \
                       " - InProgressForm successfully deleted: #{in_progress_form_after.nil?}")
   end
