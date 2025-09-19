@@ -854,7 +854,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
         reserves_base = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
 
         expect(reserves_base[:unitPhoneNumber]).to eq('1231231234')
-        expect(reserves_base[:receivingInactiveDutyTrainingPay]).to be(false)
+        expect(reserves_base[:receivingInactiveDutyTrainingPay]).to be('NO')
       end
     end
   end

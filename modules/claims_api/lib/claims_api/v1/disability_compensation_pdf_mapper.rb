@@ -525,7 +525,7 @@ module ClaimsApi
       def inactive_duty_training_pay(reserves_data)
         reserves_data_object_base = @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
         reserves_data_object_base[:receivingInactiveDutyTrainingPay] =
-          reserves_data['receivingInactiveDutyTrainingPay']
+          handle_yes_no(reserves_data['receivingInactiveDutyTrainingPay'])
       end
     end
   end
