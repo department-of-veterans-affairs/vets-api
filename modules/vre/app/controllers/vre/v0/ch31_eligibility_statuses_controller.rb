@@ -30,7 +30,7 @@ module VRE
       # until new test users can be created
       def icn_or_substitute
         incoming_icn = @current_user&.icn
-        return incoming_icn unless Flipper.enabled?(:vre_substitute_icn) && !Rails.env.production?
+        return incoming_icn unless Flipper.enabled?(:vre_substitute_icn)
 
         ICN_SUBSTIUTIONS[incoming_icn] || incoming_icn
       end
