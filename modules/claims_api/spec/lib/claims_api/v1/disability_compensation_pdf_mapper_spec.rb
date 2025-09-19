@@ -791,7 +791,7 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
     context 'reserves national guard service' do
       let(:reserves) do
         {
-          'title10Activation' => { # not mapped by PDF generator
+          'title10Activation' => {
             'anticipatedSeparationDate' => '2025-12-01',
             'title10ActivationDate' => '2023-01-01'
           },
@@ -855,6 +855,9 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
 
         expect(reserves_base[:unitPhoneNumber]).to eq('1231231234')
         expect(reserves_base[:receivingInactiveDutyTrainingPay]).to be('NO')
+        expect(reserves_base[:federalActivation][:activationDate]).to eq({ year: '2023', month: '01', day: '01' })
+        expect(reserves_base[:federalActivation][:anticipatedSeparationDate]).to eq({ year: '2025', month: '12',
+                                                                                      day: '01' })
       end
     end
   end

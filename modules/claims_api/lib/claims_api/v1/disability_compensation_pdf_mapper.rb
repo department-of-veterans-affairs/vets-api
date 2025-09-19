@@ -511,6 +511,7 @@ module ClaimsApi
 
         unit_phone(reserves_data) if reserves_data['unitPhone']
         inactive_duty_training_pay(reserves_data) if reserves_data.key?('receivingInactiveDutyTrainingPay')
+        title_10_activation if reserves_data['title10Activation']
       end
 
       def unit_phone(reserves_data)
@@ -526,6 +527,23 @@ module ClaimsApi
         reserves_data_object_base = @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
         reserves_data_object_base[:receivingInactiveDutyTrainingPay] =
           handle_yes_no(reserves_data['receivingInactiveDutyTrainingPay'])
+      end
+
+      # if 'title_10_activation' is present
+      # 'anticipatedSeparationDate' & 'title10ActivationDate'
+      def title_10_activation
+        title_10_data = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService', 'title10Activation')
+        activation_date_data = title_10_data['title10ActivationDate']
+        anticipated_separation_date_data = title_10_data['anticipatedSeparationDate']
+        activation_date = make_date_object(activation_date_data, activation_date_data.length)
+        anticipated_separation_date = make_date_object(
+          anticipated_separation_date_data, anticipated_separation_date_data.length
+        )
+
+        @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:federalActivation] = {
+          activationDate: activation_date,
+          anticipatedSeparationDate: anticipated_separation_date
+        }
       end
     end
   end
