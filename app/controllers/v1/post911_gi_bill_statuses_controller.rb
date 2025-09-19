@@ -6,7 +6,7 @@ require 'lighthouse/benefits_education/service'
 module V1
   class Post911GIBillStatusesController < ApplicationController
     include IgnoreNotFound
-    include SentryLogging
+
     service_tag 'gibill-statement'
 
     STATSD_KEY_PREFIX = 'api.post911_gi_bill_status'
