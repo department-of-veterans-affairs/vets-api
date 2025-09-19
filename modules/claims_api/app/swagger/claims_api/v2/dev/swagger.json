@@ -343,7 +343,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "8b177c35-480f-4b1c-804d-d8760aa8ec72",
+                        "id": "f2ef0462-4393-46fe-9341-3ea75c4ca77a",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -382,8 +382,8 @@
                             "zipFirstFive": "12345",
                             "zipLastFour": "9897",
                             "dates": {
-                              "beginDate": "2026-06-04",
-                              "endDate": "2026-12-04"
+                              "beginDate": "2023-06-04",
+                              "endDate": "2023-12-04"
                             }
                           },
                           "homeless": {
@@ -528,7 +528,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-09-21"
+                              "anticipatedSeparationDate": "2025-08-01"
                             },
                             "confinements": [
                               {
@@ -574,7 +574,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "330081ae-3c4c-4ed4-8dd2-7824ce468679",
+                        "id": "f825e0f7-bd96-4307-883f-6c654474a8e9",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -613,8 +613,8 @@
                             "zipFirstFive": "12345",
                             "zipLastFour": "9897",
                             "dates": {
-                              "beginDate": "2026-06-04",
-                              "endDate": "2026-12-04"
+                              "beginDate": "2023-06-04",
+                              "endDate": "2023-12-04"
                             }
                           },
                           "homeless": {
@@ -738,7 +738,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2025-09-21",
+                                "activeDutyEndDate": "2025-08-01",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -759,7 +759,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-09-21"
+                              "anticipatedSeparationDate": "2025-08-01"
                             },
                             "confinements": [
                               {
@@ -1801,31 +1801,6 @@
                                     }
                                   }
                                 }
-                              },
-                              "if": {
-                                "required": [
-                                  "federalActivation"
-                                ]
-                              },
-                              "then": {
-                                "required": [
-                                  "reservesNationalGuardService"
-                                ],
-                                "properties": {
-                                  "reservesNationalGuardService": {
-                                    "required": [
-                                      "obligationTermsOfService"
-                                    ],
-                                    "properties": {
-                                      "obligationTermsOfService": {
-                                        "required": [
-                                          "beginDate",
-                                          "endDate"
-                                        ]
-                                      }
-                                    }
-                                  }
-                                }
                               }
                             },
                             "servicePay": {
@@ -2173,28 +2148,6 @@
                           "detail": "The request body is not a valid JSON object: This is not valid JSON",
                           "source": {
                             "pointer": null
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  "when federalActivation is present but obligationTermsOfService is missing": {
-                    "value": {
-                      "errors": [
-                        {
-                          "title": "Unprocessable entity",
-                          "detail": "The property /serviceInformation/reservesNationalGuardService/obligationTermsOfService did not contain the required key beginDate",
-                          "status": "422",
-                          "source": {
-                            "pointer": "data/attributes/serviceInformation/reservesNationalGuardService/obligationTermsOfService"
-                          }
-                        },
-                        {
-                          "title": "Unprocessable entity",
-                          "detail": "The property /serviceInformation/reservesNationalGuardService/obligationTermsOfService did not contain the required key endDate",
-                          "status": "422",
-                          "source": {
-                            "pointer": "data/attributes/serviceInformation/reservesNationalGuardService/obligationTermsOfService"
                           }
                         }
                       ]
@@ -3232,31 +3185,6 @@
                                   }
                                 }
                               }
-                            },
-                            "if": {
-                              "required": [
-                                "federalActivation"
-                              ]
-                            },
-                            "then": {
-                              "required": [
-                                "reservesNationalGuardService"
-                              ],
-                              "properties": {
-                                "reservesNationalGuardService": {
-                                  "required": [
-                                    "obligationTermsOfService"
-                                  ],
-                                  "properties": {
-                                    "obligationTermsOfService": {
-                                      "required": [
-                                        "beginDate",
-                                        "endDate"
-                                      ]
-                                    }
-                                  }
-                                }
-                              }
                             }
                           },
                           "servicePay": {
@@ -3722,8 +3650,8 @@
                           "zipFirstFive": "12345",
                           "zipLastFour": "9897",
                           "dates": {
-                            "beginDate": "2026-06-04",
-                            "endDate": "2026-12-04"
+                            "beginDate": "2023-06-04",
+                            "endDate": "2023-12-04"
                           }
                         },
                         "homeless": {
@@ -3949,8 +3877,8 @@
                           "zipFirstFive": "12345",
                           "zipLastFour": "9897",
                           "dates": {
-                            "beginDate": "2026-06-04",
-                            "endDate": "2026-12-04"
+                            "beginDate": "2023-06-04",
+                            "endDate": "2023-12-04"
                           }
                         },
                         "homeless": {
@@ -4074,7 +4002,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2025-09-21",
+                              "activeDutyEndDate": "2025-08-01",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -4095,7 +4023,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2025-09-21"
+                            "anticipatedSeparationDate": "2025-08-01"
                           },
                           "confinements": [
                             {
@@ -5407,31 +5335,6 @@
                                       "nullable": false,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                                       "example": "2018-06-06 or 2018-06"
-                                    }
-                                  }
-                                }
-                              }
-                            },
-                            "if": {
-                              "required": [
-                                "federalActivation"
-                              ]
-                            },
-                            "then": {
-                              "required": [
-                                "reservesNationalGuardService"
-                              ],
-                              "properties": {
-                                "reservesNationalGuardService": {
-                                  "required": [
-                                    "obligationTermsOfService"
-                                  ],
-                                  "properties": {
-                                    "obligationTermsOfService": {
-                                      "required": [
-                                        "beginDate",
-                                        "endDate"
-                                      ]
                                     }
                                   }
                                 }
@@ -9600,7 +9503,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:172:in `representative'"
+                        "pointer": "/app/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:168:in `representative'"
                       }
                     }
                   ]
@@ -9697,7 +9600,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d87dc31b-579a-4b1a-9518-81ea46bb08f8",
+                    "id": "ab86feb8-66a7-4fa4-bdd1-7673b36b4c6b",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
@@ -11415,29 +11318,29 @@
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
-                        "firstName": null,
-                        "middleName": null,
-                        "lastName": null
+                        "firstName": "ANDREA",
+                        "middleName": "L",
+                        "lastName": "MITCHELL"
                       },
                       "claimant": {
                         "firstName": null,
                         "lastName": null
                       },
                       "address": {
-                        "city": null,
-                        "stateCode": null,
-                        "zipCode": null,
-                        "countryCode": null
+                        "city": "Portland",
+                        "stateCode": "OR",
+                        "zipCode": "56789",
+                        "countryCode": "USA"
                       },
                       "representative": {
-                        "poaCode": null
+                        "poaCode": "074"
                       },
-                      "receivedDate": null,
-                      "actionedDate": null,
-                      "status": null,
+                      "receivedDate": "2024-10-30T08:22:07-05:00",
+                      "actionedDate": "2025-01-09T10:19:26-06:00",
+                      "status": "Accepted",
                       "declinedReason": null,
-                      "consentAddressChange": false,
-                      "recordConsent": false
+                      "consentAddressChange": true,
+                      "recordConsent": true
                     }
                   }
                 },
@@ -12551,7 +12454,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "26d4fd1b-4423-4577-8381-888ba6222300",
+                    "id": "3b6f67f9-05d7-4700-92ae-5a553dd56b77",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -14048,7 +13951,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3c9072d4-0db3-4874-bbcd-af0e3a54a81f",
+                    "id": "a8c232c4-1f16-4672-bed8-447d5fc33a61",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14896,10 +14799,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a11948b1-f7e4-404d-a8ce-38a323f3cd9f",
+                    "id": "03e2bc2f-37c7-4ee2-ba76-f07d599aacaf",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2025-09-19 14:45:20 UTC",
+                      "createdAt": "2025-07-30 13:37:05 UTC",
                       "representative": {
                         "poaCode": "074"
                       },
