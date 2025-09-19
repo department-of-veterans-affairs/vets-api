@@ -21,7 +21,7 @@ module CheckIn
         submit_travel_claim(check_in_session)
       rescue ActionController::ParameterMissing => e
         handle_parameter_missing_error(e)
-      rescue ArgumentError => e
+      rescue TravelClaim::InvalidArgument => e
         handle_argument_error(e)
       rescue Common::Exceptions::BackendServiceException => e
         handle_backend_service_error(e)
@@ -70,26 +70,26 @@ module CheckIn
         }, status: :bad_request
       end
 
-      def handle_backend_service_error(exception)
-        mapped_status = case exception.original_status
-                        when 401
-                          :unauthorized
-                        when 429
-                          :service_unavailable
-                        when 400..499
-                          :bad_request
-                        else
-                          :bad_gateway
-                        end
+      def handle_backend_service_error(e)
+        mapped = case e.original_status
+                 when 400 then :bad_request
+                 when 401 then :unauthorized
+                 when 403 then :forbidden
+                 when 404 then :not_found
+                 when 409 then :conflict
+                 when 422 then :unprocessable_entity
+                 when 429 then :too_many_requests
+                 else :bad_gateway
+                 end
 
         render json: {
           errors: [{
-            title: 'Operation failed',
-            detail: exception.response_values[:detail] || 'Travel claim operation failed',
-            code: exception.key,
-            status: Rack::Utils::SYMBOL_TO_STATUS_CODE[mapped_status].to_s
+            title: Rack::Utils::HTTP_STATUS_CODES[Rack::Utils::SYMBOL_TO_STATUS_CODE[mapped]],
+            detail: e.response_values[:detail] || 'Travel claim operation failed',
+            code: e.key,
+            status: Rack::Utils::SYMBOL_TO_STATUS_CODE[mapped].to_s
           }]
-        }, status: mapped_status
+        }, status: mapped
       end
     end
   end
