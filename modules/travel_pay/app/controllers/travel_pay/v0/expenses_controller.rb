@@ -39,7 +39,6 @@ module TravelPay
         Rails.logger.info(
           message: "Deleting expense of type '#{expense_type}' with expense id #{expense_id&.first(8)}"
         )
-
         response_data = expense_service.delete_expense(expense_id:, expense_type:)
 
         render json: { expenseId: response_data['id'] }, status: :ok
@@ -48,7 +47,7 @@ module TravelPay
       rescue Faraday::ClientError, Faraday::ServerError => e
         TravelPay::ServiceError.raise_mapped_error(e)
       rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.error("Error deleting expense: #{e.message} (Backend response: #{e.original_message})}")
+        Rails.logger.error("Error deleting expense: #{e.message}")
         render json: { error: 'Error deleting expense' }, status: e.original_status
       end
 
@@ -66,7 +65,7 @@ module TravelPay
         verify_feature_flag!(
           :travel_pay_enable_complex_claims,
           current_user,
-          error_message: 'Travel Pay expense submission unavailable per feature toggle'
+          error_message: 'Travel Pay expense endpoint unavailable per feature toggle'
         )
       end
 
