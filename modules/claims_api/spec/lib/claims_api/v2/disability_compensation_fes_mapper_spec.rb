@@ -143,7 +143,7 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
         context 'change of address' do
           it 'maps change of address when present' do
             form_data['data']['attributes']['changeOfAddress'] = {
-              'addressChangeType' => 'TEMPORARY',
+              'typeOfAddressChange' => 'TEMPORARY',
               'numberAndStreet' => '10 Peach St',
               'apartmentOrUnitNumber' => 'Unit 4',
               'city' => 'Schenectady',
