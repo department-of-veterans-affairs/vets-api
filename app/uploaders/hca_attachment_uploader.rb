@@ -10,6 +10,7 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   process(convert: 'jpg', if: :png?)
+  process(convert: 'jpg', if: :heic?)
 
   def initialize(guid)
     super
@@ -27,7 +28,7 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
 
   def extension_allowlist
     # accepted by enrollment system: PDF,WORD,JPG,RTF
-    %w[pdf doc docx jpg jpeg rtf png]
+    %w[pdf doc docx jpg jpeg rtf png heic]
   end
 
   def store_dir
@@ -42,5 +43,9 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
 
   def png?(file)
     file.content_type == 'image/png'
+  end
+
+  def heic?(file)
+    file.content_type =~ %r{^image/(heic|heif)$}
   end
 end

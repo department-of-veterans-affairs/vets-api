@@ -107,5 +107,20 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
         uploader.store!(file)
       end
     end
+
+    context 'when the file is a HEIC' do
+      let(:file) do
+        Rack::Test::UploadedFile.new(
+          Rails.root.join('spec', 'fixtures', 'files', 'steelers.heic'),
+          'image/png'
+        )
+      end
+
+      it 'converts the file to HEIC' do
+        expect(uploader).to receive(:convert).with('jpg')
+
+        uploader.store!(file)
+      end
+    end
   end
 end
