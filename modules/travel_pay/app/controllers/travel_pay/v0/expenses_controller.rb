@@ -8,10 +8,10 @@ module TravelPay
       include FeatureFlagHelper
       include IdValidation
 
-      before_action :validate_claim_id!, only: [:create]
+      before_action :validate_claim_id!, only: %i[create show]
       before_action :validate_expense_id!, only: %i[destroy show]
-      before_action :validate_expense_type!, only: %i[create destroy]
-      before_action :check_feature_flag, only: %i[create destroy show]
+      before_action :validate_expense_type!
+      before_action :check_feature_flag
 
       def show
         Rails.logger.info(message: 'Travel Pay expense retrieval START')
@@ -31,7 +31,7 @@ module TravelPay
       rescue Faraday::Error => e
         TravelPay::ServiceError.raise_mapped_error(e)
       end
-      
+
       def create
         Rails.logger.info(message: 'Travel Pay expense submission START')
         Rails.logger.info(
@@ -40,13 +40,7 @@ module TravelPay
 
         expense = create_and_validate_expense
         created_expense = expense_service.create_expense(expense_params_for_service(expense))
-
-          Rails.logger.info(message: 'Travel Pay expense submission END')
-        rescue ArgumentError => e
-          raise Common::Exceptions::BadRequest, detail: e.message
-        rescue Faraday::ClientError, Faraday::ServerError => e
-          TravelPay::ServiceError.raise_mapped_error(e)
-        end
+        Rails.logger.info(message: 'Travel Pay expense submission END')
 
         render json: created_expense, status: :created
       rescue ArgumentError => e
