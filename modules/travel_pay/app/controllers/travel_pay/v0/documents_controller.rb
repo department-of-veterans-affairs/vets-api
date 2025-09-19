@@ -94,7 +94,7 @@ module TravelPay
         verify_feature_flag!(
           :travel_pay_enable_complex_claims,
           current_user,
-          error_message: 'Travel Pay create document unavailable per feature toggle'
+          error_message: 'Travel Pay document endpoint unavailable per feature toggle'
         )
       end
 
