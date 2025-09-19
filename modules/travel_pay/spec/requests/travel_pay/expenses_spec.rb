@@ -47,7 +47,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
 
     context 'when creating a valid expense' do
       it 'creates an expense successfully', :vcr do
-        VCR.use_cassette('travel_pay/expenses/create_other_expense_success') do
+        VCR.use_cassette('travel_pay/expenses/create/200_other_success') do
           post "/travel_pay/v0/claims/#{claim_id}/expenses/other",
                params: expense_params,
                headers: { 'Authorization' => 'Bearer vagov_token' }
@@ -134,12 +134,15 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
           post "/travel_pay/v0/claims/#{claim_id}/expenses/#{expense_type}",
                params: expense_params,
                headers: { 'Authorization' => 'Bearer vagov_token' }
+  end
+
+  # GET /travel_pay/v0/claims/:claim_id/expenses/:expense_type/:expense_id
   describe 'GET #show' do
     let(:expense_id) { '550e8400-e29b-41d4-a716-446655440000' }
 
     context 'when retrieving a valid expense' do
       it 'retrieves an expense successfully', :vcr do
-        VCR.use_cassette('travel_pay/expenses/get_other_expense_success') do
+        VCR.use_cassette('travel_pay/expenses/get/200_other_success') do
           get "/travel_pay/v0/claims/#{claim_id}/expenses/other/#{expense_id}",
               headers: { 'Authorization' => 'Bearer vagov_token' }
 
@@ -148,119 +151,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
     end
   end
 
-  describe 'DELETE #destroy' do
-    before do
-      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({ veis_token: 'veis_token',
-                                                                                        btsss_token: 'btsss_token' })
-      allow_any_instance_of(TravelPay::V0::ExpensesController).to receive(:current_user).and_return(user)
-    end
-
-    context 'when feature flag is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
-      end
-
-      context 'vcr tests' do
-        context 'when the expense is successfully deleted' do
-          it 'returns the expense data for expense type: other' do
-            VCR.use_cassette('travel_pay/expenses/delete/200_other_ok', match_requests_on: %i[method path]) do
-              delete(expense_path('other'))
-
-              expect(response).to have_http_status(:ok)
-              body = JSON.parse(response.body)
-
-              expect(body['expenseId']).to eq(expense_id)
-            end
-          end
-
-          it 'returns the expense data for expense type: mileage' do
-            VCR.use_cassette('travel_pay/expenses/delete/200_mileage_ok', match_requests_on: %i[method path]) do
-              delete(expense_path('mileage'))
-
-              expect(response).to have_http_status(:ok)
-              body = JSON.parse(response.body)
-
-              expect(body['expenseId']).to eq(expense_id)
-            end
-          end
-          it 'returns the expense data for expense type: parking' do
-            VCR.use_cassette('travel_pay/expenses/delete/200_parking_ok', match_requests_on: %i[method path]) do
-              delete(expense_path('parking'))
-
-              expect(response).to have_http_status(:ok)
-              body = JSON.parse(response.body)
-
-              expect(body['expenseId']).to eq(expense_id)
-            end
-          end
-          it 'returns the expense data for expense type: meal' do
-            VCR.use_cassette('travel_pay/expenses/delete/200_meal_ok', match_requests_on: %i[method path]) do
-              delete(expense_path('meal'))
-
-              expect(response).to have_http_status(:ok)
-              body = JSON.parse(response.body)
-
-              expect(body['expenseId']).to eq(expense_id)
-            end
-          end
-        end
-      end
-
-      context 'with stubbed service' do
-        let(:expenses_service) { instance_double(TravelPay::ExpensesService) }
-
-        before do
-          allow(TravelPay::ExpensesService).to receive(:new).and_return(expenses_service)
-        end
-
-        it 'returns bad request for invalid expense_id' do
-          delete(expense_path('other', 'invalid-uuid'))
-
-          expect(response).to have_http_status(:bad_request)
-          body = JSON.parse(response.body)
-          expect(body['errors'].first['detail']).to include('Expense ID is invalid')
-        end
-
-        it 'returns bad request for invalid expense_type' do
-          delete(expense_path('invalid_type'))
-
-          expect(response).to have_http_status(:bad_request)
-          body = JSON.parse(response.body)
-          expect(body['errors'].first['detail']).to include('Invalid expense type')
-        end
-
-        it 'returns not found when the expense does not exist' do
-          allow(expenses_service).to receive(:delete_expense).and_raise(
-            Common::Exceptions::BackendServiceException.new(
-              nil,
-              { source: 'BTSSS', code: 404, detail: 'Expense not found' },
-              404
-            )
-          )
-          delete(expense_path('other'))
-
-          expect(response).to have_http_status(:not_found)
-          body = JSON.parse(response.body)
-          expect(body['error']).to include('Error deleting expense')
-        end
-      end
-    end
-
-    context 'when feature flag is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(false)
-      end
-
-      it 'returns service unavailable' do
-        delete(expense_path('other'))
-
-        expect(response).to have_http_status(:service_unavailable)
-        body = JSON.parse(response.body)
-        expect(body['errors'].first['detail']).to include('Travel Pay expense endpoint unavailable per feature toggle')
-      end
-    end
-  end
-
+  # DELETE /travel_pay/v0/expenses/:expense_type/:expense_id
   describe 'DELETE #destroy' do
     before do
       allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({ veis_token: 'veis_token',
