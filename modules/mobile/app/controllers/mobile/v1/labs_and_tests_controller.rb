@@ -12,8 +12,8 @@ module Mobile
         start_date = params[:startDate]
         end_date = params[:endDate]
         labs = service.get_labs(start_date:, end_date:)
-        response = UnifiedHealthData::LabOrTestSerializer.serialize(labs)
-        render json: response
+        response = UnifiedHealthData::LabOrTestSerializer.new(labs)
+        render json: response, status: :ok
       end
 
       private
