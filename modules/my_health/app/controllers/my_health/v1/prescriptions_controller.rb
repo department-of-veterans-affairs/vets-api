@@ -34,11 +34,10 @@ module MyHealth
 
       def show
         id = params[:id].try(:to_i)
-        collection = collection_resource
-        resource = get_single_rx_from_grouped_list(collection.data, id)
+        resource = get_single_rx_from_grouped_list(collection_resource.data, id)
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
-
-        options = { meta: collection.metadata }
+        
+        options = { meta: client.get_rx_details(id).metadata }
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource, options)
       end
 
