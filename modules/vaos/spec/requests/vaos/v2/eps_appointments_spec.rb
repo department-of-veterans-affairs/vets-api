@@ -160,7 +160,9 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
         let(:perform_request) do
           lambda do
             # Raise Eps::ServiceException from within the service method flow so the rescue runs
-            message = 'BackendServiceException: {:code=>"VAOS_400", :source=>{:vamf_status=>400, :vamf_url=>"https://api.wellhive.com/care-navigation/v1", :vamf_body=>"{\\"error\\": \\\"conflict\\\", \\\"id\\\": \\\"qdm61cJ5\\\"}"}}'
+            message = 'BackendServiceException: {:code=>"VAOS_400", :source=>{:vamf_status=>400, ' \
+                      ':vamf_url=>"https://api.wellhive.com/care-navigation/v1", ' \
+                      ':vamf_body=>"{\\"error\\": \\\"conflict\\\", \\\"id\\\": \\\"qdm61cJ5\\\"}"}}'
             allow_any_instance_of(Eps::AppointmentService).to receive(:perform)
               .and_raise(Eps::ServiceException.new(message))
 
