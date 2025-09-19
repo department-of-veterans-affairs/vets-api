@@ -141,6 +141,9 @@ module TravelPay
     end
 
     private
+
+    ##
+    # Returns the appropriate API endpoint for the given expense type
     # @param expense_type [String] The type of expense
     # @return [String] The API endpoint path
     #
