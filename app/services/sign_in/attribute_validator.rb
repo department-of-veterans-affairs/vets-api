@@ -2,42 +2,15 @@
 
 module SignIn
   class AttributeValidator
-    attr_reader :idme_uuid,
-                :logingov_uuid,
-                :auto_uplevel,
-                :current_ial,
-                :service_name,
-                :first_name,
-                :last_name,
-                :birth_date,
-                :credential_email,
-                :address,
-                :ssn,
-                :mhv_icn,
-                :edipi,
-                :mhv_credential_uuid
-
     def initialize(user_attributes:)
-      @idme_uuid = user_attributes[:idme_uuid]
-      @logingov_uuid = user_attributes[:logingov_uuid]
-      @auto_uplevel = user_attributes[:auto_uplevel]
-      @current_ial = user_attributes[:current_ial]
-      @service_name = user_attributes[:service_name]
-      @first_name = user_attributes[:first_name]
-      @last_name = user_attributes[:last_name]
-      @birth_date = user_attributes[:birth_date]
-      @credential_email = user_attributes[:csp_email]
-      @address = user_attributes[:address]
-      @ssn = user_attributes[:ssn]
-      @mhv_icn = user_attributes[:mhv_icn]
-      @edipi = user_attributes[:edipi]
-      @mhv_credential_uuid = user_attributes[:mhv_credential_uuid]
+      @user_attributes = user_attributes
     end
 
     def perform
       return unless verified_credential?
 
       validate_credential_attributes
+      update_credential_attributes_digest
 
       if mhv_auth?
         validate_mhv_mpi_record
@@ -56,6 +29,8 @@ module SignIn
 
     private
 
+    attr_reader :user_attributes
+
     def validate_existing_mpi_attributes
       check_lock_flag(mpi_response_profile.id_theft_flag, 'Theft Flag', Constants::ErrorCode::MPI_LOCKED_ACCOUNT)
       check_lock_flag(mpi_response_profile.deceased_date, 'Death Flag', Constants::ErrorCode::MPI_LOCKED_ACCOUNT)
@@ -72,14 +47,7 @@ module SignIn
     end
 
     def add_mpi_user
-      add_person_response = mpi_service.add_person_implicit_search(first_name:,
-                                                                   last_name:,
-                                                                   ssn:,
-                                                                   birth_date:,
-                                                                   email: credential_email,
-                                                                   address:,
-                                                                   idme_uuid:,
-                                                                   logingov_uuid:)
+      add_person_response = mpi_service.add_person_implicit_search(**mpi_credential_attributes.except(:icn, :edipi))
       unless add_person_response.ok?
         handle_error('User MPI record cannot be created',
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
@@ -91,16 +59,10 @@ module SignIn
       return if auto_uplevel
 
       user_attribute_mismatch_checks
-      update_profile_response = mpi_service.update_profile(last_name:,
-                                                           ssn:,
-                                                           birth_date:,
-                                                           icn: verified_icn,
-                                                           email: credential_email,
-                                                           address:,
-                                                           idme_uuid:,
-                                                           logingov_uuid:,
-                                                           edipi:,
-                                                           first_name:)
+
+      return unless credential_attributes_digest_changed?
+
+      update_profile_response = mpi_service.update_profile(**mpi_credential_attributes)
       unless update_profile_response&.ok?
         handle_error('User MPI record cannot be updated', Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE)
       end
@@ -124,6 +86,12 @@ module SignIn
       end
       credential_attribute_check(:uuid, logingov_uuid || idme_uuid)
       credential_attribute_check(:email, credential_email)
+    end
+
+    def update_credential_attributes_digest
+      return unless user_verification && credential_attributes_digest.present?
+
+      user_verification.update(credential_attributes_digest:)
     end
 
     def credential_attribute_check(type, credential_attribute)
@@ -168,6 +136,21 @@ module SignIn
                      code,
                      error: Errors::MPIMalformedAccountError, raise_error:)
       end
+    end
+
+    def credential_attributes_digest_changed?
+      return false if user_verification.blank?
+
+      if user_verification&.saved_change_to_attribute?(:credential_attributes_digest)
+        Rails.logger.info('[SignIn][AttributeValidator] Credential attributes have changed, updating MPI record',
+                          user_verification_id: user_verification.id)
+        return true
+      end
+
+      Rails.logger.info('[SignIn][AttributeValidator] Credential attributes have not changed, skipping MPI update',
+                        user_verification_id: user_verification.id)
+
+      false
     end
 
     def handle_error(error_message, error_code, error: nil, raise_error: true)
@@ -232,6 +215,56 @@ module SignIn
 
     def verified_credential?
       current_ial == Constants::Auth::IAL_TWO
+    end
+
+    def user_verification
+      @user_verification ||= UserVerification.find_by(user_verification_type => user_verification_identifier)
+    end
+
+    def credential_attributes_digest
+      @credential_attributes_digest ||= CredentialAttributesDigester
+                                        .new(credential_attributes: mpi_credential_attributes)
+                                        .perform
+    end
+
+    def mpi_credential_attributes
+      @mpi_credential_attributes ||= {
+        last_name:,
+        ssn:,
+        birth_date:,
+        icn: verified_icn,
+        email: credential_email,
+        address:,
+        idme_uuid:,
+        logingov_uuid:,
+        edipi:,
+        first_name:
+      }
+    end
+
+    def idme_uuid              = user_attributes[:idme_uuid]
+    def logingov_uuid          = user_attributes[:logingov_uuid]
+    def auto_uplevel           = user_attributes[:auto_uplevel]
+    def current_ial            = user_attributes[:current_ial]
+    def service_name           = user_attributes[:service_name]
+    def first_name             = user_attributes[:first_name]
+    def last_name              = user_attributes[:last_name]
+    def birth_date             = user_attributes[:birth_date]
+    def credential_email       = user_attributes[:csp_email]
+    def address                = user_attributes[:address]
+    def ssn                    = user_attributes[:ssn]
+    def mhv_icn                = user_attributes[:mhv_icn]
+    def edipi                  = user_attributes[:edipi]
+    def mhv_credential_uuid    = user_attributes[:mhv_credential_uuid]
+    def user_verification_type = "#{service_name}_uuid"
+
+    def user_verification_identifier
+      case service_name
+      when Constants::Auth::MHV      then mhv_credential_uuid
+      when Constants::Auth::IDME     then idme_uuid
+      when Constants::Auth::DSLOGON  then edipi
+      when Constants::Auth::LOGINGOV then logingov_uuid
+      end
     end
 
     def sign_in_logger
