@@ -45,10 +45,10 @@ module V0
                 filename: client_file_name,
                 type: 'application/pdf',
                 disposition: 'attachment'
-      StatsD.increment("api.education_benefits_claim.pdf_download.22#{form_type}.success")
+      StatsD.increment("api.education_benefits_claim.pdf_download.22#{education_claim.form_type}.success")
     rescue => e
-      StatsD.increment("api.education_benefits_claim.pdf_download.22#{form_type}.failure")
-      Rails.logger.info "EducationBenefitsClaims::download_pdf Failed to download pdf ClaimID=#{claim.id} #{e.message}"
+      StatsD.increment("api.education_benefits_claim.pdf_download.22#{education_claim.form_type}.failure")
+      Rails.logger.info "EBCC::download_pdf Failed to download pdf ClaimID=#{education_claim.id} #{e.message}"
       raise e
     ensure
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
