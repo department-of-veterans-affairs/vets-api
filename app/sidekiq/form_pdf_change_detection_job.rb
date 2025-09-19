@@ -43,7 +43,7 @@ class FormPdfChangeDetectionJob
 
     Rails.logger.info("#{META_DATA} - Job finished successfully.")
   rescue => e
-    Rails.logger.error "#{META_DATA} - Job raised an error: #{e.message}"
+    Rails.logger.error("#{META_DATA} - Job raised an error: #{e.message}")
     raise e
   end
 
@@ -71,7 +71,7 @@ class FormPdfChangeDetectionJob
         form:
       }
     rescue => e
-      Rails.logger.error "#{META_DATA} - Error processing form #{form&.dig('id')}: #{e.message}"
+      Rails.logger.error("#{META_DATA} - Error processing form #{form&.dig('id')}: #{e.message}")
     end
 
     [cache_keys, current_sha_map]
