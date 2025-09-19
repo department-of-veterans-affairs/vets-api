@@ -173,9 +173,39 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
 
       context 'vcr tests' do
         context 'when the expense is successfully deleted' do
-          it 'returns the expense data with correct headers' do
+          it 'returns the expense data for expense type: other' do
             VCR.use_cassette('travel_pay/expenses/delete/200_other_ok', match_requests_on: %i[method path]) do
               delete(expense_path('other'))
+
+              expect(response).to have_http_status(:ok)
+              body = JSON.parse(response.body)
+
+              expect(body['expenseId']).to eq(expense_id)
+            end
+          end
+          it 'returns the expense data for expense type: mileage' do
+            VCR.use_cassette('travel_pay/expenses/delete/200_mileage_ok', match_requests_on: %i[method path]) do
+              delete(expense_path('mileage'))
+
+              expect(response).to have_http_status(:ok)
+              body = JSON.parse(response.body)
+
+              expect(body['expenseId']).to eq(expense_id)
+            end
+          end
+          it 'returns the expense data for expense type: parking' do
+            VCR.use_cassette('travel_pay/expenses/delete/200_parking_ok', match_requests_on: %i[method path]) do
+              delete(expense_path('parking'))
+
+              expect(response).to have_http_status(:ok)
+              body = JSON.parse(response.body)
+
+              expect(body['expenseId']).to eq(expense_id)
+            end
+          end
+          it 'returns the expense data for expense type: meal' do
+            VCR.use_cassette('travel_pay/expenses/delete/200_meal_ok', match_requests_on: %i[method path]) do
+              delete(expense_path('meal'))
 
               expect(response).to have_http_status(:ok)
               body = JSON.parse(response.body)
