@@ -17,16 +17,12 @@ module Crm
       crm_env.merge!(
         'production' => 'ava'
       )
-    end
 
-    if Flipper.enabled?(:ask_va_api_preprod_for_end_to_end_testing)
-      crm_env.merge!(
-        'staging' => 'ava-preprod'
-      )
+      Rails.logger.info(message: "patsr flipper => #{crm_env["staging"]}")
     end
-
+    
     CRM_ENV = crm_env.freeze
-
+    
     def_delegators :settings,
                    :base_url,
                    :veis_api_path,
@@ -34,17 +30,24 @@ module Crm
                    :service_name,
                    :e_subscription_key,
                    :s_subscription_key
-
+    
     def initialize(icn:, logger: LogService.new)
       @settings = Settings.ask_va_api.crm_api
       @icn = icn
       @token = CrmToken.new.call
-      @logger = logger
+      @logger = logger    
     end
 
     # Calls the CRM API with given method, endpoint, and optional payload
     def call(endpoint:, method: :get, payload: {})
       organization = CRM_ENV[vsp_environment]
+
+      if Flipper.enabled?(:ask_va_api_preprod_for_end_to_end_testing)
+        organization = 'ava-preprod'
+
+        Rails.logger.info(message: "preprod flipper => #{organization}")
+      end
+
       uri = build_uri(endpoint, method, organization)
       response = conn(url: base_url).public_send(method, uri, request_body(method, payload, organization)) do |req|
         req.headers = request_headers
