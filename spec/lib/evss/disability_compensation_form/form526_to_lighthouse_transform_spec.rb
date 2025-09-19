@@ -339,6 +339,46 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       # last condition is not a toxic exposure condition
       expect(results.last.exposure_or_event_or_injury).to eq(cause_map[:SECONDARY])
     end
+
+    context 'when approximateDate is provided' do
+      let(:base_source) { data_without_te.first.deep_dup }
+
+      it 'leaves approximate_date nil when approximateDate is absent' do
+        source = base_source.except('approximateDate')
+        result = transformer.send(:transform_disabilities, [source], nil).first
+        expect(result.approximate_date).to be_nil
+      end
+
+      it 'sets YYYY when only year is provided' do
+        source = base_source.merge('approximateDate' => { 'year' => '1973' })
+        result = transformer.send(:transform_disabilities, [source], nil).first
+        expect(result.approximate_date).to eq('1973')
+      end
+
+      it 'sets YYYY-MM when year and month are provided' do
+        source = base_source.merge('approximateDate' => { 'year' => '1973', 'month' => '03' })
+        result = transformer.send(:transform_disabilities, [source], nil).first
+        expect(result.approximate_date).to eq('1973-03')
+      end
+
+      it 'sets YYYY-MM-DD when year, month, and day are provided' do
+        source = base_source.merge('approximateDate' => { 'year' => '1973', 'month' => '03', 'day' => '22' })
+        result = transformer.send(:transform_disabilities, [source], nil).first
+        expect(result.approximate_date).to eq('1973-03-22')
+      end
+
+      it 'leaves approximate_date nil when approximateDate is an empty hash' do
+        source = base_source.merge('approximateDate' => {})
+        result = transformer.send(:transform_disabilities, [source], nil).first
+        expect(result.approximate_date).to be_nil
+      end
+
+      it 'ignores blank month/day strings' do
+        source = base_source.merge('approximateDate' => { 'year' => '1973', 'month' => '', 'day' => '' })
+        result = transformer.send(:transform_disabilities, [source], nil).first
+        expect(result.approximate_date).to eq('1973')
+      end
+    end
   end
 
   describe 'transform direct deposit' do
