@@ -15,6 +15,8 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
     allow_any_instance_of(User).to receive(:va_patient?).and_return(va_patient)
     sign_in_as(user)
     allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
+    # Freeze today so service default_end_date is deterministic for VCR cassettes
+    allow(Time.zone).to receive(:today).and_return(Date.new(2025, 9, 19))
   end
 
   describe 'GET /mobile/v1/health/rx/prescriptions' do
