@@ -1,5 +1,5 @@
 {                    
-  "form1[0].#subform[0].applicantLastName2[0]":                          "<%= form.data.dig('applicant_name', 'last') %>",
+  "form1[0].#subform[0].applicantLastName2[0]":                          "<%= [form.data.dig('applicant_name', 'last'), form.data.dig('applicant_name', 'suffix')].compact.join(' ') %>",
   "form1[0].#subform[0].applicantFirstName2[0]":                         "<%= form.data.dig('applicant_name', 'first') %>",
   "form1[0].#subform[0].applicantMiddleInitial2[0]":                     "<%= form.data.dig('applicant_name', 'middle') %>",
   "form1[0].#subform[0].SSN[0]":                                         "<%= form.data.dig('applicant_ssn') %>",
