@@ -3,7 +3,7 @@
 module DependentsBenefits
   # DependentsBenefit 21-509 Active::Record
   # @see app/model/saved_claim
-  class ParentDependency < ::SavedClaim
+  class ParentDependency < DependentsBenefits::SavedClaim
     # DependentsBenefit Form ID
     FORM = DependentsBenefits::PARENT_DEPENDENCY
 

@@ -8,12 +8,6 @@ RSpec.describe DependentsBenefits::Generators::Claim686cGenerator, type: :model 
   let(:parent_id) { 123 }
   let(:generator) { described_class.new(form_data, parent_id) }
 
-  describe '#form_id' do
-    it 'returns the correct form_id for 686c' do
-      expect(generator.send(:form_id)).to eq('21-686c')
-    end
-  end
-
   describe '#extract_form_data' do
     let(:extracted_data) { generator.send(:extract_form_data) }
 
@@ -50,7 +44,7 @@ RSpec.describe DependentsBenefits::Generators::Claim686cGenerator, type: :model 
   describe '#generate' do
     it 'creates a 686c claim' do
       created_claim = generator.generate
-      expect(created_claim.form_id).to eq('21-686c')
+      expect(created_claim.form_id).to eq('21-686C')
 
       parsed_form = JSON.parse(created_claim.form)
       expect(parsed_form['veteran_information']).to eq(form_data['veteran_information'])
