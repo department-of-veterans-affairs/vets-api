@@ -71,27 +71,27 @@ module Eps
     private
 
     def parse_eps_backend_fields(raw_message)
+      # Debug: log the raw message to understand the format
+      Rails.logger.debug { "Raw error message: #{raw_message}" }
+
+      # Extract code from the top level
       code = raw_message[/:code=>"([^"]+)"/, 1]
+
+      # Extract status from the source hash
       status = raw_message[/:vamf_status=>(\d+)/, 1]&.to_i
-      body = raw_message[/:vamf_body=>"(.+?)"/, 1]
-      url = raw_message[/:vamf_url=>#<URI::\w+\s+([^>]+)>/, 1] || raw_message[/:vamf_url=>"(.+?)"/, 1]
 
-      {
-        code:,
-        vamf_status: status,
-        vamf_url: sanitize_url(url),
-        vamf_body: sanitize_response_body(body)
-      }
-    end
+      # Extract body from the source hash - need to handle escaped quotes
+      body = raw_message[/:vamf_body=>"((?:\\.|[^"\\])*)"/, 1]
 
-    # Sanitize helpers to ensure no PHI/PII in logs
-    def sanitize_url(url)
-      return nil if url.nil?
+      # Only return the fields we actually want to log
+      result = {}
+      result[:code] = code if code
+      result[:upstream_status] = status if status
+      result[:upstream_body] = sanitize_response_body(body) if body
 
-      uri = url.is_a?(String) ? URI(url) : url
-      VAOS::Anonymizers.anonymize_uri_icn(uri)&.to_s
-    rescue URI::InvalidURIError
-      '[Invalid URL]'
+      # Debug: log what we're returning
+      Rails.logger.debug { "Parsed fields: #{result}" }
+      result
     end
 
     def sanitize_response_body(body)

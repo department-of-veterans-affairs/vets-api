@@ -87,23 +87,6 @@ describe Eps::BaseService do
       end
     end
 
-    describe '#sanitize_url' do
-      it 'anonymizes ICNs in URLs' do
-        url = 'https://api.example.com/patients/123456789V123456/appointments'
-        sanitized = service.send(:sanitize_url, url)
-        expect(sanitized).not_to include('123456789V123456')
-      end
-
-      it 'returns [Invalid URL] for malformed URLs' do
-        sanitized = service.send(:sanitize_url, ':::bad::url')
-        expect(sanitized).to eq('[Invalid URL]')
-      end
-
-      it 'returns nil for nil' do
-        expect(service.send(:sanitize_url, nil)).to be_nil
-      end
-    end
-
     describe '#sanitize_response_body' do
       it 'anonymizes ICNs in body' do
         body = 'Patient ICN 123456789V123456 had an error'
