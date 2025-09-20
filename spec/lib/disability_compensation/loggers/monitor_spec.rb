@@ -87,15 +87,16 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
 
   describe('#track_saved_claim_save_success') do
     let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
-    let(:claim) { create(:fake_saved_claim, form_id: described_class::FORM_ID, confirmation_number: '1234') }
+    let(:claim) { build(:fake_saved_claim, form_id: described_class::FORM_ID, guid: '1234') }
 
     it 'logs the success' do
       expect(monitor).to receive(:submit_event).with(
         :info,
         "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}",
         "#{described_class::CLAIM_STATS_KEY}.success",
-        form_id: described_class::FORM_ID,
-        user_account_uuid: user.uuid
+        claim:,
+        user_account_uuid: user.uuid,
+        form_id: described_class::FORM_ID
       )
 
       monitor.track_saved_claim_save_success(
