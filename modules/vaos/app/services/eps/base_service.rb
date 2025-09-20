@@ -97,10 +97,8 @@ module Eps
     def sanitize_response_body(body)
       return nil if body.nil?
 
-      sanitized = VAOS::Anonymizers.anonymize_icns(body.to_s)
-      sanitized.gsub(/\b\d{3}-\d{2}-\d{4}\b/, '[REDACTED-SSN]')
-               .gsub(/\b\d{9}\b/, '[REDACTED-NUMBER]')
-               .gsub(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/, '[REDACTED-EMAIL]')
+      # Use VAOS anonymization pattern for consistency with other VAOS services
+      VAOS::Anonymizers.anonymize_icns(body.to_s)
     end
 
     ##

@@ -77,46 +77,31 @@ describe Eps::BaseService do
   end
 
   describe 'sanitization helpers' do
-    before do
-      allow(VAOS::Anonymizers).to receive(:anonymize_icns) do |text|
-        text.to_s.gsub(/\b\d{9}V\d{6}\b/, '[REDACTED-ICN]')
-      end
-      allow(VAOS::Anonymizers).to receive(:anonymize_uri_icn) do |uri|
-        str = uri.is_a?(String) ? uri : uri.to_s
-        URI(str.gsub(/\b\d{9}V\d{6}\b/, '[REDACTED-ICN]'))
-      end
-    end
-
     describe '#sanitize_response_body' do
+      it 'delegates to VAOS::Anonymizers.anonymize_icns' do
+        body = 'Patient ICN 1234567890V123456 had an error'
+        expect(VAOS::Anonymizers).to receive(:anonymize_icns).with(body).and_call_original
+        service.send(:sanitize_response_body, body)
+      end
+
       it 'anonymizes ICNs in body' do
-        body = 'Patient ICN 123456789V123456 had an error'
+        body = 'Patient ICN 1234567890V123456 had an error'
         sanitized = service.send(:sanitize_response_body, body)
-        expect(sanitized).not_to include('123456789V123456')
-      end
-
-      it 'redacts SSNs' do
-        body = 'SSN 123-45-6789 present'
-        sanitized = service.send(:sanitize_response_body, body)
-        expect(sanitized).to include('[REDACTED-SSN]')
-        expect(sanitized).not_to include('123-45-6789')
-      end
-
-      it 'redacts 9 digit numbers' do
-        body = 'Record 123456789 found'
-        sanitized = service.send(:sanitize_response_body, body)
-        expect(sanitized).to include('[REDACTED-NUMBER]')
-        expect(sanitized).not_to include('123456789')
-      end
-
-      it 'redacts emails' do
-        body = 'Contact test.user@example.com for help'
-        sanitized = service.send(:sanitize_response_body, body)
-        expect(sanitized).to include('[REDACTED-EMAIL]')
-        expect(sanitized).not_to include('test.user@example.com')
+        expect(sanitized).not_to include('1234567890V123456')
+        expect(sanitized).to include('441ab560b8fc574c6bf84d6c6105318b79455321a931ef701d39f4ff91894c64')
       end
 
       it 'returns nil for nil' do
         expect(service.send(:sanitize_response_body, nil)).to be_nil
+      end
+
+      it 'handles empty strings' do
+        expect(service.send(:sanitize_response_body, '')).to eq('')
+      end
+
+      it 'handles strings without ICNs' do
+        body = 'No sensitive data here'
+        expect(service.send(:sanitize_response_body, body)).to eq(body)
       end
     end
   end
