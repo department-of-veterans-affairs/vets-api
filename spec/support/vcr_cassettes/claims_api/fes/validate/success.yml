@@ -1,0 +1,141 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <CLAIMS_API_BD_URL>/oauth2/benefits-documents/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=< valid data >
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 19 Aug 2025 17:02:03 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Ratelimit-Reset:
+      - '57'
+      X-Ratelimit-Remaining-Minute:
+      - '239'
+      X-Ratelimit-Limit-Minute:
+      - '240'
+      Ratelimit-Remaining:
+      - '239'
+      Ratelimit-Limit:
+      - '240'
+      Vary:
+      - Origin
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Etag:
+      - W/"408-7HBBIyvsQmjErfQxzfXgppB2T+w:dtagent10317250630095842XDWE"
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="-1309335573"
+      X-Envoy-Upstream-Service-Time:
+      - '399'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - 82b2b688-b1a9-473e-bec4-8df90240b134#469388
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"token","token_type":"Bearer","scope":"documents.write
+        documents.read","expires_in":600,"state":null}'
+  recorded_at: Tue, 19 Aug 2025 17:02:03 GMT
+- request:
+    method: post
+    uri: "<FES_BASE_URL>/form526-establishment-service/v1/validate"
+    body:
+      encoding: UTF-8
+      string: '{"data":{"serviceTransactionId":"claims-api-6913cb91-f077-4368-baf3-1bb642ffc0dd-1755612075","claimantParticipantId":"600049703","veteranParticipantId":"600049703","form526":{"serviceInformation":{"servicePeriods":[{"serviceBranch":"Air
+        Force","activeDutyBeginDate":"2015-11-14","activeDutyEndDate":"2018-11-30"}]},"veteran":{"currentMailingAddress":{"addressLine1":"1234
+        Couch Street","country":"USA","zipFirstFive":"12345","addressType":"DOMESTIC","city":"Portland","state":"OR"}},"disabilities":[{"name":"hearing
+        loss","disabilityActionType":"NEW","approximateBeginDate":{"year":2017,"month":7}}],"claimDate":"2025-08-19"}}}'
+    headers:
+      Va-Eauth-Csid:
+      - DSLogon
+      Va-Eauth-Authenticationmethod:
+      - DSLogon
+      Va-Eauth-Pnidtype:
+      - SSN
+      Va-Eauth-Assurancelevel:
+      - '3'
+      Va-Eauth-Firstname:
+      - Pauline
+      Va-Eauth-Lastname:
+      - Foster
+      Va-Eauth-Issueinstant:
+      - '2025-08-19T13:57:05Z'
+      Va-Eauth-Dodedipnid:
+      - '1243413229'
+      Va-Eauth-Birlsfilenumber:
+      - '123456'
+      Va-Eauth-Pid:
+      - '600049703'
+      Va-Eauth-Pnid:
+      - '796330625'
+      Va-Eauth-Birthdate:
+      - '1976-06-09T00:00:00+00:00'
+      Va-Eauth-Authorization:
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796330625","edi":"1243413229","firstName":"Pauline","lastName":"Foster",
+        "birthDate":"1976-06-09T00:00:00+00:00","gender":"MALE"}}'
+      Va-Eauth-Authenticationauthority:
+      - eauth
+      Va-Eauth-Service-Transaction-Id:
+      - 00000000-0000-0000-0000-000000000000
+      Authorization: Bearer <TOKEN>
+      Content-Type:
+      - application/json; charset=UTF-8
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 19 Aug 2025 17:02:04 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-524490677", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      Cache-Control:
+      - no-cache, no-store
+      X-Envoy-Upstream-Service-Time:
+      - '199'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"data":{"valid":true,"success":{"validationToken":"0.0.0.0.0.0.","validUntil":111111111111}}}'
+  recorded_at: Tue, 19 Aug 2025 17:02:04 GMT
+recorded_with: VCR 6.3.1

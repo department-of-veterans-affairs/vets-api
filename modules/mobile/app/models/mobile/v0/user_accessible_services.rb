@@ -29,11 +29,13 @@ module Mobile
           genderIdentity: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           lettersAndDocuments: access?(lighthouse: :access?),
           militaryServiceHistory: access?(vet360: :military_access?),
+          medicationsOracleHealthEnabled: Flipper.enabled?(:mhv_medications_cerner_pilot, @user),
           paymentHistory: access?(bgs: :access?),
           preferredName: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           prescriptions: access?(mhv_prescriptions: :access?),
           scheduleAppointments: access?(schedule_appointment: :access?),
           secureMessaging: access?(mhv_messaging: :mobile_access?),
+          secureMessagingOracleHealthEnabled: Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, @user),
           userProfileUpdate: access?(va_profile: :access_to_v2?)
         }
       end

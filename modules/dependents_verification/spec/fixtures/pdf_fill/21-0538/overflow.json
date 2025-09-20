@@ -1,0 +1,49 @@
+{
+  "veteranInformation": {
+    "ssnLastFour": "4445",
+    "ssn": "333224445",
+    "vaFileNumber": "1234567890123456789",
+    "fullName": {
+      "first": "VeryLongFirstNameThatExceedsTheLimit",
+      "middle": "ExtremelyLongMiddleNameThatGoesWayBeyondOneCharacter",
+      "last": "SuperLongLastNameThatDefinitelyExceedsEighteenCharacterLimitOverflow"
+    },
+    "birthDate": "2020-01-01"
+  },
+  "address": {
+    "addressType": "DOMESTIC",
+    "street": "This is an extremely long street address that definitely exceeds thirty characters",
+    "street2": "Unit4B567890",
+    "city": "VeryLongCityNameThatExceedsLimit",
+    "state": "CALIFORNIA",
+    "postalCode": "123456789012345-123456789",
+    "country": "UNITED_STATES_OF_AMERICA"
+  },
+  "dependents": [
+    {
+      "awardIndicator": "Y",
+      "dateOfBirth": "07/07/1970",
+      "firstName": "SPOUSY",
+      "gender": "F",
+      "lastName": "FOSTER",
+      "proofOfDependency": "N",
+      "ptcpntId": "600055042",
+      "relatedToVet": "Y",
+      "relationship": "Spouse",
+      "ssn": "3332",
+      "ssnVerifyStatus": "0",
+      "veteranIndicator": "N",
+      "dob": "July 7, 1970",
+      "fullName": "SPOUSY FOSTER",
+      "age": 55,
+      "removalDate": ""
+    }
+  ],
+  "hasDependentsStatusChanged": "N",
+  "email": "extremelylongemailexamplethatverymuchexceedsthelimitthatisstated@example.com",
+  "phone": "15551234567890123456789",
+  "internationalPhone": "15552229999123456789012345678901234567890",
+  "electronicCorrespondence": "true",
+  "statementOfTruthSignature": "VeryLongFirstNameThatExceedsTheLimit ExtremelyLongMiddleNameThatGoesWayBeyondOneCharacter SuperLongLastNameThatDefinitelyExceedsEighteenCharacterLimitOverflow",
+  "statementOfTruthCertified": true
+}

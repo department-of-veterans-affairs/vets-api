@@ -9,6 +9,7 @@ module V0
   class HealthCareApplicationsController < ApplicationController
     include IgnoreNotFound
     include RetriableConcern
+    include PdfFilenameGenerator
 
     service_tag 'healthcare-application'
     FORM_ID = '1010ez'
@@ -42,13 +43,21 @@ module V0
       health_care_application.google_analytics_client_id = params[:ga_client_id]
       health_care_application.user = current_user
 
+      log_in_progress_form if current_user
+
       begin
         result = health_care_application.process!
       rescue HCA::SOAPParser::ValidationError
         raise Common::Exceptions::BackendServiceException.new('HCA422', status: 422)
       end
 
-      clear_saved_form(FORM_ID)
+      if current_user
+        if Flipper.enabled?(:hca_in_progress_form_delete_async)
+          DeleteInProgressFormJob.perform_in(5.minutes, FORM_ID, current_user.uuid)
+        else
+          clear_in_progress_form
+        end
+      end
 
       if result[:id]
         render json: HealthCareApplicationSerializer.new(result)
@@ -62,7 +71,7 @@ module V0
 
       icn = if loa3
               current_user.icn
-            elsif request.get? && Flipper.enabled?(:hca_enrollment_status_filter_get)
+            elsif request.get?
               # Return nil if `GET` request and user is not loa3
               nil
             else
@@ -95,7 +104,7 @@ module V0
         PdfFill::Filler.fill_form(health_care_application, file_name)
       end
 
-      client_file_name = file_name_for_pdf(health_care_application.parsed_form)
+      client_file_name = file_name_for_pdf(health_care_application.parsed_form, 'veteranFullName', '10-10EZ')
       file_contents    = File.read(source_file_path)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
@@ -105,11 +114,62 @@ module V0
 
     private
 
-    def file_name_for_pdf(parsed_form)
-      veteran_name = parsed_form.try(:[], 'veteranFullName')
-      first_name = veteran_name.try(:[], 'first') || 'First'
-      last_name = veteran_name.try(:[], 'last') || 'Last'
-      "10-10EZ_#{first_name}_#{last_name}.pdf"
+    def log_in_progress_form
+      return unless Flipper.enabled?(:hca_in_progress_form_logging)
+
+      in_progress_form = InProgressForm.form_for_user(FORM_ID, current_user)
+      Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}] " \
+                        "- HealthCareApplication has InProgressForm: #{!in_progress_form.nil?}")
+    end
+
+    def clear_in_progress_form
+      in_progress_form_before = nil
+      if Flipper.enabled?(:hca_in_progress_form_logging)
+        in_progress_form_before = InProgressForm.form_for_user(FORM_ID, current_user)
+        Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}][#{hca_id}, " \
+                          "form_submission_id: #{health_care_application.form_submission_id_string}] - " \
+                          "InProgressForm exists before attempted delete: #{!in_progress_form_before.nil?}")
+
+      end
+
+      clear_saved_form(FORM_ID)
+
+      if Flipper.enabled?(:hca_in_progress_form_logging) && in_progress_form_before
+        in_progress_form_after = InProgressForm.form_for_user(FORM_ID, current_user)
+        Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}][#{hca_id}]" \
+                          "[ipf_id_before:#{in_progress_form_before&.id}, ipf_id_after:#{in_progress_form_after&.id}]" \
+                          " - InProgressForm successfully deleted: #{in_progress_form_after.nil?}")
+        increment_in_progress_metric(in_progress_form_after)
+      end
+    rescue => e
+      Rails.logger.warn("[10-10EZ][#{user_uuid},#{user_account_id}][#{hca_id}] - " \
+                        "Failed to clear saved form: #{e.message}")
+    end
+
+    def increment_in_progress_metric(in_progress_form_after)
+      metric_text = if in_progress_form_after.nil?
+                      'in_progress_form_deleted'
+                    else
+                      'in_progress_form_not_deleted'
+                    end
+      StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.#{metric_text}",
+                       tags: [hca_id, user_uuid, user_account_id])
+    end
+
+    def hca_id
+      "health_care_application_id:#{health_care_application.id}"
+    end
+
+    def user_uuid
+      user_uuid = current_user.uuid || 'none'
+
+      "user_uuid:#{user_uuid}"
+    end
+
+    def user_account_id
+      user_account_id = current_user&.user_account&.id || 'none'
+
+      "user_account_id:#{user_account_id}"
     end
 
     def health_care_application

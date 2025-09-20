@@ -157,12 +157,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Daily find POAs caching
   mgr.register('0 2 * * *', 'ClaimsApi::FindPoasJob')
 
-  # Off-peak hours job to fill in header_hash for ClaimsApi::PowerOfAttorney and AutoEstablishedClaim
-  # Two jobs are registered to run hourly at "late evening" and "early morning"
-  # The batch will spawn multiple jobs throughout the hour using perform_in, so ending at 3am will fill out runs to 4am
-  mgr.register('10 21-23 * * *', 'ClaimsApi::OneOff::HeaderHashFillerBatchJob') # 9:10pm-11:10pm
-  mgr.register('10 0-3 * * *', 'ClaimsApi::OneOff::HeaderHashFillerBatchJob')   # 12:10am-3:10am
-
   # TODO: Document this job
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
 
@@ -250,6 +244,12 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every 15min job that syncs ARP's allowlist
   mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')
 
+  # Expire stale POA request records every night at 12:30 AM
+  mgr.register('30 0 * * *', 'AccreditedRepresentativePortal::ExpirePowerOfAttorneyRequestsJob')
+
+  # Redact expired POA request records every night at 1 AM (staggered to avoid resource contention)
+  mgr.register('0 1 * * *', 'AccreditedRepresentativePortal::RedactPowerOfAttorneyRequestsJob')
+
   # Engine version: Sync non-final DR SavedClaims to LH status
   mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')
   mgr.register('15 1-21/4 * * *', 'DecisionReviews::NodStatusUpdaterJob')
@@ -280,4 +280,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Daily cron job to send Failure Notification Emails to Veterans for their failed evidence submissions.
   mgr.register('5 0 * * *', 'Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob')
+
+  # Daily cron job to check for PDF Form version changes
+  mgr.register('0 12 * * *', 'FormPdfChangeDetectionJob')
 }

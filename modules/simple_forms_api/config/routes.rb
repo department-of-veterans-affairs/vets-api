@@ -8,5 +8,7 @@ SimpleFormsApi::Engine.routes.draw do
 
     post '/submit_scanned_form', to: 'scanned_form_uploads#submit'
     post '/scanned_form_upload', to: 'scanned_form_uploads#upload_scanned_form'
+
+    resources :cemeteries, only: [:index]
   end
 end

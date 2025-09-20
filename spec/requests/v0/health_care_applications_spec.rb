@@ -124,36 +124,14 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           }
         end
 
-        context ':hca_enrollment_status_filter_get enabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:hca_enrollment_status_filter_get).and_return(true)
-          end
+        it 'returns 404 unless signed in' do
+          allow(HealthCareApplication).to receive(:user_icn).and_return('123')
+          allow(HealthCareApplication).to receive(:enrollment_status).with(
+            '123', nil
+          ).and_return(loa1_response)
 
-          it 'returns 404 unless signed in' do
-            allow(HealthCareApplication).to receive(:user_icn).and_return('123')
-            allow(HealthCareApplication).to receive(:enrollment_status).with(
-              '123', nil
-            ).and_return(loa1_response)
-
-            get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
-            expect(response).to have_http_status(:not_found)
-          end
-        end
-
-        context ':hca_enrollment_status_filter_get disabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:hca_enrollment_status_filter_get).and_return(false)
-          end
-
-          it 'returns 200' do
-            allow(HealthCareApplication).to receive(:user_icn).and_return('123')
-            allow(HealthCareApplication).to receive(:enrollment_status).with(
-              '123', nil
-            ).and_return(loa1_response)
-
-            get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
-            expect(response).to have_http_status(:ok)
-          end
+          get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
+          expect(response).to have_http_status(:not_found)
         end
       end
 
@@ -494,14 +472,234 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         before do
           sign_in_as(current_user)
           test_veteran.delete('email')
+          allow(Flipper).to receive(:enabled?).with(:hca_in_progress_form_logging).and_return(false)
         end
 
-        it 'renders success and delete the saved form', run_at: '2017-01-31' do
-          VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
-            expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('1010ez').once
-            expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
-            subject
-            expect(JSON.parse(response.body)).to eq(body)
+        context ':hca_in_progress_form_delete_async feature disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:hca_in_progress_form_delete_async).and_return(false)
+          end
+
+          it 'renders success and delete the saved form', run_at: '2017-01-31' do
+            VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+              expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('1010ez').once
+              expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+              subject
+              expect(JSON.parse(response.body)).to eq(body)
+            end
+          end
+
+          it 'renders success and logs failed attempt to delete the saved form', run_at: '2017-01-31' do
+            VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+              expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+              expect_any_instance_of(ApplicationController).to receive(:clear_saved_form)
+                .with('1010ez')
+                .and_raise(StandardError, 'Database connection failed')
+
+              logger_regex = [
+                /\[10-10EZ\]/,
+                /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                /\[health_care_application_id:\d+\]/,
+                /  - Failed to clear saved form: Database connection failed/
+              ]
+              expect(Rails.logger).to receive(:warn).with(
+                a_string_matching(Regexp.union(logger_regex))
+              )
+
+              subject
+              expect(JSON.parse(response.body)).to eq(body)
+            end
+          end
+
+          context ':hca_in_progress_form_logging feature enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:hca_in_progress_form_logging).and_return(true)
+            end
+
+            context 'does not have InProgressForm' do
+              it 'renders success and delete the saved form', run_at: '2017-01-31' do
+                VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+                  expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+
+                  allow(Rails.logger).to receive(:info)
+                  expect(Rails.logger).to receive(:info)
+                    .with("[10-10EZ][user_uuid:#{current_user.uuid},user_account_id:none]" \
+                          ' - HealthCareApplication has InProgressForm: false')
+
+                  logger_regex = [
+                    /\[10-10EZ\]/,
+                    /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                    /\[health_care_application_id:\d+, form_submission_id: 436426340\]/,
+                    / - InProgressForm exists before attempted delete: false/
+                  ]
+                  expect(Rails.logger).to receive(:info).with(
+                    a_string_matching(Regexp.union(logger_regex))
+                  )
+
+                  subject
+                  expect(JSON.parse(response.body)).to eq(body)
+                end
+              end
+
+              it 'renders success and logs failed attempt to delete the saved form', run_at: '2017-01-31' do
+                VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+                  expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+                  expect_any_instance_of(ApplicationController).to receive(:clear_saved_form)
+                    .with('1010ez')
+                    .and_raise(StandardError, 'Database connection failed')
+
+                  logger_regex = [
+                    /\[10-10EZ\]/,
+                    /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                    /\[health_care_application_id:\d+\]/,
+                    / - Failed to clear saved form: Database connection failed/
+                  ]
+                  expect(Rails.logger).to receive(:warn).with(
+                    a_string_matching(Regexp.union(logger_regex))
+                  )
+
+                  subject
+                  expect(JSON.parse(response.body)).to eq(body)
+                end
+              end
+            end
+
+            context 'has InProgressForm' do
+              let!(:in_progress_form) { create(:in_progress_form, user_uuid: current_user.uuid, form_id: '1010ez') }
+
+              before { allow(StatsD).to receive(:increment) }
+
+              it 'renders success and delete the saved form', run_at: '2017-01-31' do
+                VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+                  expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+
+                  allow(Rails.logger).to receive(:info)
+                  expect(Rails.logger).to receive(:info)
+                    .with("[10-10EZ][user_uuid:#{current_user.uuid},user_account_id:none]" \
+                          ' - HealthCareApplication has InProgressForm: true')
+
+                  logger_regex_before = [
+                    /\[10-10EZ\]/,
+                    /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                    /\[health_care_application_id:\d+, form_submission_id: 436426340\]/,
+                    / - InProgressForm exists before attempted delete: true/
+                  ]
+                  expect(Rails.logger).to receive(:info).with(
+                    a_string_matching(Regexp.union(logger_regex_before))
+                  )
+
+                  logger_regex_after = [
+                    /\[10-10EZ\]/,
+                    /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                    /\[health_care_application_id:\d+\]/,
+                    /\[ipf_id_before:\d+,ipf_id_after:\d+\]/,
+                    / - InProgressForm successfully deleted: true/
+                  ]
+
+                  expect(Rails.logger).to receive(:info).with(
+                    a_string_matching(Regexp.union(logger_regex_after))
+                  )
+
+                  expect(StatsD).to receive(:increment).with('api.1010ez.in_progress_form_deleted', anything)
+
+                  subject
+                  expect(JSON.parse(response.body)).to eq(body)
+                end
+              end
+
+              context 'form is not deleted' do
+                before do
+                  allow(InProgressForm).to receive(:form_for_user)
+                    .with('1010ez', anything)
+                    .and_return(in_progress_form, in_progress_form)
+                end
+
+                it 'renders success and logs InProgressForm delete info', run_at: '2017-01-31' do
+                  VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+                    expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+
+                    allow(Rails.logger).to receive(:info)
+                    expect(Rails.logger).to receive(:info)
+                      .with("[10-10EZ][user_uuid:#{current_user.uuid},user_account_id:none]" \
+                            ' - HealthCareApplication has InProgressForm: true')
+
+                    logger_regex_before = [
+                      /\[10-10EZ\]/,
+                      /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                      /\[health_care_application_id:\d+, form_submission_id: 436426340\]/,
+                      / - InProgressForm exists before attempted delete: true/
+                    ]
+                    expect(Rails.logger).to receive(:info).with(
+                      a_string_matching(Regexp.union(logger_regex_before))
+                    )
+
+                    logger_regex_after = [
+                      /\[10-10EZ\]/,
+                      /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                      /\[health_care_application_id:\d+\]/,
+                      /\[ipf_id_before:\d+,ipf_id_after:\d+\]/,
+                      / - InProgressForm successfully deleted: false/
+                    ]
+
+                    expect(Rails.logger).to receive(:info).with(
+                      a_string_matching(Regexp.union(logger_regex_after))
+                    )
+
+                    expect(StatsD).to receive(:increment).with('api.1010ez.in_progress_form_not_deleted',
+                                                               anything)
+
+                    subject
+                    expect(JSON.parse(response.body)).to eq(body)
+                  end
+                end
+              end
+
+              it 'renders success and logs failed attempt to delete the saved form', run_at: '2017-01-31' do
+                VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+                  expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+                  expect_any_instance_of(ApplicationController).to receive(:clear_saved_form)
+                    .with('1010ez')
+                    .and_raise(StandardError, 'Database connection failed')
+
+                  logger_regex = [
+                    /\[10-10EZ\]/,
+                    /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
+                    /\[health_care_application_id:\d+\]/,
+                    / - Failed to clear saved form: Database connection failed/
+                  ]
+
+                  expect(Rails.logger).to receive(:warn).with(
+                    a_string_matching(Regexp.union(logger_regex))
+                  )
+
+                  subject
+                  expect(JSON.parse(response.body)).to eq(body)
+                end
+              end
+            end
+          end
+        end
+
+        context ':hca_in_progress_form_delete_async feature enabled' do
+          let!(:in_progress_form) { create(:in_progress_form, user_uuid: current_user.uuid, form_id: '1010ez') }
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(:hca_in_progress_form_delete_async).and_return(true)
+          end
+
+          it 'renders success and delete the saved form', run_at: '2017-01-31' do
+            VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+              expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
+
+              expect(DeleteInProgressFormJob).to receive(:perform_in).with(
+                5.minutes,
+                '1010ez',
+                current_user.uuid
+              )
+
+              subject
+              expect(JSON.parse(response.body)).to eq(body)
+            end
           end
         end
       end
@@ -540,115 +738,58 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       end
 
       context 'when hca service raises an error' do
-        context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is enabled" do
-          before do
-            test_veteran.delete('email')
-            allow_any_instance_of(HCA::Service).to receive(:submit_form) do
-              raise error
-            end
-          end
-
-          context 'with a validation error' do
-            let(:error) { HCA::SOAPParser::ValidationError.new }
-
-            it 'renders error message' do
-              expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
-
-              subject
-
-              expect(response).to have_http_status(:unprocessable_entity)
-              expect(JSON.parse(response.body)).to eq(
-                'errors' => [
-                  {
-                    'title' => 'Operation failed',
-                    'detail' => 'Validation error',
-                    'code' => 'HCA422',
-                    'status' => '422'
-                  }
-                ]
-              )
-            end
-          end
-
-          context 'with a SOAP error' do
-            let(:error) { Common::Client::Errors::HTTPError.new('error message') }
-
-            before do
-              allow(Settings.sentry).to receive(:dsn).and_return('asdf')
-            end
-
-            it 'renders error message' do
-              expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
-
-              subject
-
-              expect(response).to have_http_status(:bad_request)
-              expect(JSON.parse(response.body)).to eq(
-                'errors' => [
-                  {
-                    'title' => 'Operation failed',
-                    'detail' => 'error message',
-                    'code' => 'VA900',
-                    'status' => '400'
-                  }
-                ]
-              )
-            end
+        before do
+          test_veteran.delete('email')
+          allow_any_instance_of(HCA::Service).to receive(:submit_form) do
+            raise error
           end
         end
 
-        context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is disabled" do
+        context 'with a validation error' do
+          let(:error) { HCA::SOAPParser::ValidationError.new }
+
+          it 'renders error message' do
+            expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
+
+            subject
+
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(JSON.parse(response.body)).to eq(
+              'errors' => [
+                {
+                  'title' => 'Operation failed',
+                  'detail' => 'Validation error',
+                  'code' => 'HCA422',
+                  'status' => '422'
+                }
+              ]
+            )
+          end
+        end
+
+        context 'with a SOAP error' do
+          let(:error) { Common::Client::Errors::HTTPError.new('error message') }
+
           before do
-            Flipper.disable(:va1010_forms_enrollment_system_service_enabled)
-            test_veteran.delete('email')
-            allow(HealthCareApplication).to receive(:user_icn).and_return('123')
-            allow_any_instance_of(HCA::Service).to receive(:post) do
-              raise error
-            end
+            allow(Settings.sentry).to receive(:dsn).and_return('asdf')
           end
 
-          context 'with a validation error' do
-            let(:error) { HCA::SOAPParser::ValidationError.new }
+          it 'renders error message' do
+            expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
 
-            it 'renders error message' do
-              subject
+            subject
 
-              expect(response).to have_http_status(:unprocessable_entity)
-              expect(JSON.parse(response.body)).to eq(
-                'errors' => [
-                  {
-                    'title' => 'Operation failed',
-                    'detail' => 'Validation error',
-                    'code' => 'HCA422',
-                    'status' => '422'
-                  }
-                ]
-              )
-            end
-          end
-
-          context 'with a SOAP error' do
-            let(:error) { Common::Client::Errors::HTTPError.new('error message') }
-
-            before do
-              allow(Settings.sentry).to receive(:dsn).and_return('asdf')
-            end
-
-            it 'renders error message' do
-              subject
-
-              expect(response).to have_http_status(:bad_request)
-              expect(JSON.parse(response.body)).to eq(
-                'errors' => [
-                  {
-                    'title' => 'Operation failed',
-                    'detail' => 'error message',
-                    'code' => 'VA900',
-                    'status' => '400'
-                  }
-                ]
-              )
-            end
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body)).to eq(
+              'errors' => [
+                {
+                  'title' => 'Operation failed',
+                  'detail' => 'error message',
+                  'code' => 'VA900',
+                  'status' => '400'
+                }
+              ]
+            )
           end
         end
       end
