@@ -46,21 +46,37 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
 
   describe 'POST create' do
     context 'with valid params and flipper enabled' do
+      before do
+        allow_any_instance_of(BGSV2::Service).to receive(:create_proc).and_return({ vnp_proc_id: '21875' })
+      end
+
       it 'validates successfully' do
-        post(:create, params: test_form, as: :json)
+        response = post(:create, params: test_form, as: :json)
         expect(response).to have_http_status(:ok)
       end
 
-      it 'creates a saved claim' do
+      it 'creates saved claims' do
         expect do
           post(:create, params: test_form, as: :json)
-        end.to change(DependentsBenefits::SavedClaim, :count).by(1)
+        end.to change(DependentsBenefits::SavedClaim, :count).by(3)
       end
 
       it 'logs the success' do
+        expect(Rails.logger).to receive(:info).with('DependentsBenefits::SavedClaim Skipping tracking PDF overflow',
+                                                    instance_of(Hash)).at_least(:once)
+        expect(Rails.logger).to receive(:info).with(match(/TODO: Link claim \d+ to parent/)).at_least(:once)
         expect(Rails.logger).to receive(:info).with(match(/Successfully created claim/),
                                                     include({ statsd: 'api.dependents_application.create_success' }))
         post(:create, params: test_form, as: :json)
+      end
+
+      it 'calls ClaimProcessor with correct parameters' do
+        expect(DependentsBenefits::ClaimProcessor).to receive(:enqueue_submissions)
+          .with(a_kind_of(Integer), '21875')
+          .and_return({ data: { jobs_enqueued: 2 }, error: nil })
+
+        post(:create, params: test_form, as: :json)
+        expect(response).to have_http_status(:ok)
       end
     end
 

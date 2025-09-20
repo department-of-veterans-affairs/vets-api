@@ -228,4 +228,51 @@ describe ClaimsApi::PdfMapperBase do
       expect(res).to be_nil
     end
   end
+
+  describe '#build_disability_item' do
+    it 'returns hash with all keys when exposure is provided' do
+      result = subject.build_disability_item(
+        'PTSD',
+        '2020-01-01',
+        'Combat related',
+        'Agent Orange'
+      )
+
+      expect(result).to eq({
+                             disability: 'PTSD',
+                             approximateDate: '2020-01-01',
+                             exposureOrEventOrInjury: 'Agent Orange',
+                             serviceRelevance: 'Combat related'
+                           })
+    end
+
+    it 'handles no exposure key' do
+      result = subject.build_disability_item(
+        'Hearing Loss',
+        '2019-06-15',
+        'Artillery exposure'
+      )
+
+      expect(result).to eq({
+                             disability: 'Hearing Loss',
+                             approximateDate: '2019-06-15',
+                             serviceRelevance: 'Artillery exposure'
+                           })
+      expect(result).not_to have_key(:exposureOrEventOrInjury)
+    end
+  end
+
+  describe '#handle_yes_no' do
+    it "return 'NO' when sent false" do
+      res = subject.handle_yes_no(false)
+
+      expect(res).to eq('NO')
+    end
+
+    it "return 'YES' when sent true" do
+      res = subject.handle_yes_no(true)
+
+      expect(res).to eq('YES')
+    end
+  end
 end
