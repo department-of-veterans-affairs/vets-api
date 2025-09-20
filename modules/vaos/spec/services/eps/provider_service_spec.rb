@@ -63,6 +63,48 @@ describe Eps::ProviderService do
       end
     end
 
+    context 'when Eps::ServiceException is raised' do
+      let(:eps_exception) do
+        # Create exception with properly formatted message that parse_eps_backend_fields can parse
+        exception = Eps::ServiceException.new(
+          'VAOS_401',
+          { code: 'VAOS_401', detail: 'Unauthorized' },
+          401,
+          '{"name": "Unauthorized"}'
+        )
+        # Mock the message to include the parseable format
+        allow(exception).to receive(:message).and_return(
+          'BackendServiceException: {:code=>"VAOS_401", ' \
+          ':source=>{:vamf_status=>401, :vamf_body=>"{\"name\": \"Unauthorized\"}"}}'
+        )
+        exception
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(eps_exception)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs EPS error with sanitized context and re-raises' do
+        expect(Rails.logger).to receive(:error).with(
+          'Community Care Appointments: EPS service error',
+          hash_including(
+            service: 'EPS',
+            method: 'get_provider_service',
+            error_class: 'Eps::ServiceException',
+            timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+            code: 'VAOS_401',
+            upstream_status: 401,
+            upstream_body: '{\"name\": \"Unauthorized\"}'
+          )
+        )
+
+        expect do
+          service.get_provider_service(provider_id:)
+        end.to raise_error(Eps::ServiceException)
+      end
+    end
+
     context 'when provider_id parameter is missing or blank' do
       it 'raises ArgumentError and logs StatsD metric and Rails warning when provider_id is nil' do
         expect(StatsD).to receive(:increment).with(
@@ -169,6 +211,48 @@ describe Eps::ProviderService do
         expect { service.get_networks }.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
       end
     end
+
+    context 'when Eps::ServiceException is raised' do
+      let(:eps_exception) do
+        # Create exception with properly formatted message that parse_eps_backend_fields can parse
+        exception = Eps::ServiceException.new(
+          'VAOS_500',
+          { code: 'VAOS_500', detail: 'Internal server error' },
+          500,
+          '{"error": "Internal Service Exception"}'
+        )
+        # Mock the message to include the parseable format
+        allow(exception).to receive(:message).and_return(
+          'BackendServiceException: {:code=>"VAOS_500", ' \
+          ':source=>{:vamf_status=>500, :vamf_body=>"{\"error\": \"Internal Service Exception\"}"}}'
+        )
+        exception
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(eps_exception)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs EPS error with sanitized context and re-raises' do
+        expect(Rails.logger).to receive(:error).with(
+          'Community Care Appointments: EPS service error',
+          hash_including(
+            service: 'EPS',
+            method: 'get_networks',
+            error_class: 'Eps::ServiceException',
+            timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+            code: 'VAOS_500',
+            upstream_status: 500,
+            upstream_body: '{\"error\": \"Internal Service Exception\"}'
+          )
+        )
+
+        expect do
+          service.get_networks
+        end.to raise_error(Eps::ServiceException)
+      end
+    end
   end
 
   describe '#get_provider_services_by_ids' do
@@ -219,6 +303,48 @@ describe Eps::ProviderService do
         expect do
           service.get_provider_services_by_ids(provider_ids:)
         end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+
+    context 'when Eps::ServiceException is raised' do
+      let(:eps_exception) do
+        # Create exception with properly formatted message that parse_eps_backend_fields can parse
+        exception = Eps::ServiceException.new(
+          'VAOS_401',
+          { code: 'VAOS_401', detail: 'Unauthorized' },
+          401,
+          '{"name": "Unauthorized"}'
+        )
+        # Mock the message to include the parseable format
+        allow(exception).to receive(:message).and_return(
+          'BackendServiceException: {:code=>"VAOS_401", ' \
+          ':source=>{:vamf_status=>401, :vamf_body=>"{\"name\": \"Unauthorized\"}"}}'
+        )
+        exception
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(eps_exception)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs EPS error with sanitized context and re-raises' do
+        expect(Rails.logger).to receive(:error).with(
+          'Community Care Appointments: EPS service error',
+          hash_including(
+            service: 'EPS',
+            method: 'get_provider_services_by_ids',
+            error_class: 'Eps::ServiceException',
+            timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+            code: 'VAOS_401',
+            upstream_status: 401,
+            upstream_body: '{\"name\": \"Unauthorized\"}'
+          )
+        )
+
+        expect do
+          service.get_provider_services_by_ids(provider_ids:)
+        end.to raise_error(Eps::ServiceException)
       end
     end
 
@@ -331,6 +457,54 @@ describe Eps::ProviderService do
         expect do
           service.get_drive_times(destinations:, origin:)
         end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+
+    context 'when Eps::ServiceException is raised' do
+      let(:eps_exception) do
+        # Create exception with properly formatted message that parse_eps_backend_fields can parse
+        exception = Eps::ServiceException.new(
+          'VAOS_400',
+          { code: 'VAOS_400', detail: 'Invalid location data' },
+          400,
+          '{"name":"invalid_range","id":"aVFqt9NH",' \
+          '"message":"body.latitude must be lesser or equal than 90 but got value 91",' \
+          '"temporary":false,"timeout":false,"fault":false}'
+        )
+        # Mock the message to include the parseable format
+        allow(exception).to receive(:message).and_return(
+          'BackendServiceException: {:code=>"VAOS_400", ' \
+          ':source=>{:vamf_status=>400, :vamf_body=>"{\"name\":\"invalid_range\",' \
+          '\"id\":\"aVFqt9NH\",\"message\":\"body.latitude must be lesser or equal than 90 but got value 91\",' \
+          '\"temporary\":false,\"timeout\":false,\"fault\":false}"}}'
+        )
+        exception
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(eps_exception)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs EPS error with sanitized context and re-raises' do
+        expect(Rails.logger).to receive(:error).with(
+          'Community Care Appointments: EPS service error',
+          hash_including(
+            service: 'EPS',
+            method: 'get_drive_times',
+            error_class: 'Eps::ServiceException',
+            timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+            code: 'VAOS_400',
+            upstream_status: 400,
+            upstream_body: '{\"name\":\"invalid_range\",\"id\":\"aVFqt9NH\",' \
+                           '\"message\":\"body.latitude must be lesser or equal than 90 but got value 91\",' \
+                           '\"temporary\":false,\"timeout\":false,\"fault\":false}'
+          )
+        )
+
+        expect do
+          service.get_drive_times(destinations:, origin:)
+        end.to raise_error(Eps::ServiceException)
       end
     end
   end
