@@ -1,0 +1,112 @@
+The Decision Reviews API allows you to interact with a Veteran's decision reviews, also known as benefit appeals. This API provides a secure and efficient alternative to paper or fax submissions and follows the AMA process. To view the status of all decision reviews and benefits appeals submitted according to the legacy benefits appeals process, use the [Appeals Status API](/explore/appeals/docs/appeals?version=current).
+
+Information about the decision reviews process and types of decision reviews is available on the [VA decision reviews and appeals page](https://www.va.gov/decision-reviews/#request-a-decision-review-or-appeal).
+
+### Background
+The Decision Reviews API passes data through to Caseflow, a case management system. The API converts decision review data into structured data that can be used for processing and reporting.
+
+Because this application is designed to allow third-parties to request information on behalf of a Veteran, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe).
+
+### Authorization and Access
+To gain access to the decision reviews API you must [request an API Key](/support/contact-us). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.
+
+### Test data
+Our sandbox environment is populated with [claimant test data](/explore/api/decision-reviews/test-users) that can be used to test various response scenarios. This sandbox data contains no PII or PHI, but mimics real claimant account information.
+
+### Submission Statuses
+
+Use the correct GET endpoint to check the appeal's submission status. The endpoint returns the current status of the submission to VA but not the status of the appeal in the AMA process.
+
+### Decision Review/Appeal Submission Statuses
+
+The submission statuses begin with pending and end with complete.
+
+| Status      | What it means |
+| ---        |     ---     |
+| pending      | Initial status of the submission when no supporting documents have been uploaded. |
+| submitting   | Data is transferring to upstream systems but is not yet complete. |
+| submitted   | A submitted status means the data was successfully transferred to the central mail portal.<br /><br />A submitted status is confirmation from the central mail portal that they have received the PDF, but the data is not yet being processed. The Date of Receipt is set when this status is achieved.<br /><br />Submitted is the final status in the sandbox environment.<p> |
+| processing   | Indicates intake has begun, the Intake, Conversion and Mail Handling Services (ICMHS) group is processing the appeal data. |
+| success   | The centralized mail portal, Digital Mail Handling System (DHMS), has received the data. |
+| complete   | Final status. Indicates the document package has been successfully associated with the Veteran and has been received in the correct business area for processing. |
+| error   | An error occurred. See the error code and message for further information. |
+
+#### Status Simulation
+
+Sandbox test submissions do not progress through the same statuses as in the Production environment. In the lower environments (i.e. Sandbox or Staging), the final status of a submission is `submitted`. In the lower environments, we allow passing a `Status-Simulation` header on the show endpoints so that you can simulate the other statuses.
+
+Statuses can be simulated for all submissions as well as evidence document uploads.
+
+The **submission statuses** available for simulation are the statuses listed in the Submission Statuses table above.
+
+The **evidence upload** statuses available for simulation are the statuses listed in the Evidence Upload Statuses table below (for simulating the status of uploaded evidence documents).
+
+### Evidence Uploads
+
+Our Notice of Disagreement (NOD) and Supplemental Claim (SC) evidence submission endpoints allow a client to upload a document package (documents and metadata) of supporting evidence for their submission by following these steps.
+
+1. Use the POST endpoint `/notice_of_disagreements/evidence_submissions` or `/supplemental_claims/evidence_submissions` to return a JSON service response with the attributes listed below.
+
+- `guid`: An identifier used for subsequent evidence upload status requests (not to be confused with the NOD or SC submission GUID)
+- `location`: A URL to which the actual document package payload can be submitted in the next step. The URL is specific to this upload request, and should not be re-used for subsequent uploads. The URL is valid for 900 seconds (15 minutes) from the time of this response. If the location is not used within 15 minutes, the GUID will expire. Once expired, status checks on the GUID will return a status of `expired`.
+
+2. Client Request: PUT to the location URL returned in step 1.
+
+- Request body should be encoded as binary multipart/form-data, equivalent to that generated by an HTML form submission or using “curl -F…”.
+- No `apikey` authorization header is required for this request, as authorization is embedded in the signed location URL.
+- The metadata.json file uploaded to the location URL with the evidence documents MUST contain all required information.  See example below.
+- The JSON key for the metadata.json file is "metadata", the initial file is "content". Any subsequent file will be "attachment1", "attachment2", and so forth.
+
+3. The service response will include:
+
+- HTTP status to indicate whether the evidence document upload was successful.
+- ETag header containing an MD5 hash of the submitted payload. This can be compared to the submitted payload to ensure data integrity of the upload.
+
+Example `metadata.json` file:
+```
+{
+    "veteranFirstName": "Jane",
+    "veteranLastName": "Doe",
+    "fileNumber": "012345678",
+    "zipCode": "94402",
+    "source": "Vets.gov",
+    "docType": "316"
+}
+```
+The Decision Review API will set the businessLine for your Evidence submission to ensure the documents are routed to the correct group within VA.
+You may check the status of your evidence document upload by using `GET` `/notice_of_disagreements/evidence_submissions/{uuid}` or `GET` `/supplemental_claims/evidence_submissions/{uuid}`. If, after you've uploaded a document, the status hasn't changed to `uploaded` before 15 minutes has elapsed, we recommend retrying the submission to make sure the document properly reaches our servers.
+
+For NODs, evidence may only be uploaded within 90 days of the NOD reaching submitted status. After 90 days an error will be returned if evidence uploads related to this NOD are attempted.
+For Supplemental Claims, evidence must be uploaded immediately after the SC reaching submitted status. After 2 days an error will be returned if evidence uploads related to this SC are attempted.
+
+### Evidence Upload Statuses
+
+The evidence document upload statuses begin with pending and end with vbms.
+
+Note that until a document status of “received”, “processing”, “success”, or "vbms" is returned, a client cannot consider the document as received by VA. In particular a status of “uploaded” means that the document package has been transmitted, but possibly not validated. Any errors with the document package (unreadable PDF, etc) may cause the status to change to “error”.
+
+The metadata.json file only supports a limited set of characters within the ascii character space. Refer to the `documentUploadMetadata` schema for more details.
+
+| Status    | What it means |
+|-----------|---------------|
+| pending   | This is the initial status. Indicates no document submission has been uploaded yet. |
+| uploaded  | Indicates document submission has been successfully uploaded (PUT) to the API server and is waiting to be sent to VA's mail handling system.<br /><br /> Submission has not yet been validated.<br /><br /> Any errors with the evidence submission, such as having an unreadable PDF, may cause an Error status. |
+| received  | Indicates document submission has been received downstream of the API and is awaiting processing.<br /><br /> Any errors with the document submission, such as having an unreadable PDF, may cause an Error status. |
+| processing | Indicates the evidence package is being validated, processed, and made ready to route and work.<br /><br /> Any errors with the evidence submission, such as having an unreadable PDF, may cause an Error status. |
+| success   | Indicates the evidence submission has been successfully received within VA's mail handling system.<br /><br /> Success is the final status for a small percentage of submissions with exception processes that are not worked in VBMS. A true value in the `finalStatus` attribute will indicate this.<br /><br /> Most submissions reach a Success status within 1 business day.<br /><br /> A small portion will take longer. However, some submissions may take up to 2 weeks to reach a Success status. |
+| vbms      | Indicates the evidence submission was successfully uploaded into a Veteran's eFolder within VBMS. On average, submissions reach VBMS status within 3 business days. However, processing times vary and some submissions may remain in a Success status for several weeks before reaching a VBMS status.<br /><br /> Some document packages are worked in VA systems other than VBMS. For these submissions, Success is the final status. |
+| error     | Indicates that there was an error. Refer to the error code and detail for further information. |
+
+Evidence submissions have a finalStatus attribute that indicates whether the status of the evidence is final. Submissions with a finalStatus of true will no longer update to a new status.
+
+### Status Caching
+
+Due to current system limitations, data for the status attribute for the following endpoints is cached for one hour.
+
+- GET `/higher_level_reviews/{uuid}`
+- GET `/notice_of_disagreements/{uuid}`
+- GET `/notice_of_disagreements/evidence_submission/{uuid}`
+- GET `/supplemental_claims/{uuid}`
+- GET `/supplemental_claims/evidence_submission/{uuid}`
+
+The updated_at field indicates the last time the status for a given GUID was updated.
