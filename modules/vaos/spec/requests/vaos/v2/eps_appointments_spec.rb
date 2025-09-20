@@ -10,15 +10,6 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
   let(:described_class) { VAOS::V2::EpsAppointmentsController }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
-  # Shared examples for error logging
-  shared_examples 'logs EPS service error' do |_expected_method, _expected_code, _expected_detail, _expected_body_pattern| # rubocop:disable Layout/LineLength
-    it 'logs the error to Rails logger and Sentry' do
-      expect(Rails.logger).to receive(:error).at_least(:once)
-
-      perform_request.call
-    end
-  end
-
   before do
     allow(Settings.mhv).to receive(:facility_range).and_return([[1, 999]])
     sign_in_as(current_user)
@@ -109,8 +100,29 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
           end
         end
 
-        it_behaves_like 'logs EPS service error', 'rescue in get_appointment', 'PARSE_ERROR', 'Error parsing failed',
-                        /Not Found/
+        it 'logs EPS error with sanitized context' do
+          allow(Rails.logger).to receive(:error)
+
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/404', match_requests_on: %i[method path]) do
+              get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+            end
+          end
+
+          # The service logs the error when processing real VCR responses
+          expect(Rails.logger).to have_received(:error).with(
+            'Community Care Appointments: EPS service error',
+            hash_including(
+              service: 'EPS',
+              method: 'get_appointment',
+              error_class: 'Eps::ServiceException',
+              timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+              code: 'VAOS_404',
+              upstream_status: 404,
+              upstream_body: '{\"name\": \"Not Found\"}'
+            )
+          )
+        end
       end
 
       context 'when the upstream service returns a 500 error' do
@@ -134,8 +146,29 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
           end
         end
 
-        it_behaves_like 'logs EPS service error', 'rescue in get_appointment', 'PARSE_ERROR', 'Error parsing failed',
-                        /Internal Server Error/
+        it 'logs EPS error with sanitized context' do
+          allow(Rails.logger).to receive(:error)
+
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/500', match_requests_on: %i[method path]) do
+              get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+            end
+          end
+
+          # The service logs the error when processing real VCR responses
+          expect(Rails.logger).to have_received(:error).with(
+            'Community Care Appointments: EPS service error',
+            hash_including(
+              service: 'EPS',
+              method: 'get_appointment',
+              error_class: 'Eps::ServiceException',
+              timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+              code: 'VAOS_502',
+              upstream_status: 500,
+              upstream_body: '{\"isFault\": true,\"isTemporary\": true,\"name\": \"Internal Server Error\"}'
+            )
+          )
+        end
       end
 
       context 'draft appointment' do
@@ -152,19 +185,16 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
       end
 
       context 'when response contains error field' do
-        before do
-          # Define the service exception class used by the EPS service if not loaded
-          module Eps; class ServiceException < StandardError; end; end unless defined?(Eps::ServiceException)
-        end
-
         let(:perform_request) do
           lambda do
-            # Raise Eps::ServiceException from within the service method flow so the rescue runs
-            message = 'BackendServiceException: {:code=>"VAOS_400", :source=>{:vamf_status=>400, ' \
-                      ':vamf_url=>"https://api.wellhive.com/care-navigation/v1", ' \
-                      ':vamf_body=>"{\\"error\\": \\\"conflict\\\", \\\"id\\\": \\\"qdm61cJ5\\\"}"}}'
-            allow_any_instance_of(Eps::AppointmentService).to receive(:perform)
-              .and_raise(Eps::ServiceException.new(message))
+            # Raise Eps::ServiceException with proper BackendServiceException parameters
+            allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointment)
+              .and_raise(Eps::ServiceException.new(
+                           'VAOS_400',
+                           { code: 'VAOS_400', detail: 'conflict' },
+                           400,
+                           '{"error": "conflict", "id": "qdm61cJ5"}'
+                         ))
 
             get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
           end
@@ -175,7 +205,22 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
           expect(response).to have_http_status(:bad_request)
         end
 
-        it_behaves_like 'logs EPS service error', 'rescue in get_appointment', 'VAOS_400', 'Bad Request', /conflict/
+        it 'logs EPS error with sanitized context' do
+          allow(Rails.logger).to receive(:error)
+
+          perform_request.call
+
+          # The global exception handler logs BackendServiceException differently
+          expect(Rails.logger).to have_received(:error).with(
+            a_string_including('BackendServiceException'),
+            hash_including(
+              title: 'Bad Request',
+              detail: 'conflict',
+              code: 'VAOS_400',
+              status: '400'
+            )
+          )
+        end
       end
     end
   end
