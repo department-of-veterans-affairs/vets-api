@@ -726,62 +726,139 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       end
     end
 
-    describe '#set_pdf_data_for_most_recent_service_period' do
-      context 'when the mostRecentActiveService key does not exist' do
-        before do
-          @pdf_data = pdf_data
-          @pdf_data[:data][:attributes][:serviceInformation] = {}
+    context 'service periods' do
+      describe '#set_pdf_data_for_most_recent_service_period' do
+        context 'when the mostRecentActiveService key does not exist' do
+          before do
+            @pdf_data = pdf_data
+            @pdf_data[:data][:attributes][:serviceInformation] = {}
+          end
+
+          it 'sets the mostRecentActiveService key to an empty hash' do
+            res = mapper.send(:set_pdf_data_for_most_recent_service_period)
+
+            expect(res).to eq({})
+          end
         end
 
-        it 'sets the mostRecentActiveService key to an empty hash' do
-          res = mapper.send(:set_pdf_data_for_most_recent_service_period)
+        context 'when the mostRecentActiveService key already exists' do
+          before do
+            @pdf_data = pdf_data
+            @pdf_data[:data][:attributes][:serviceInformation] = {}
+            @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService] = {}
+          end
 
-          expect(res).to eq({})
+          it 'returns early without modifying the existing data' do
+            res = mapper.send(:set_pdf_data_for_most_recent_service_period)
+
+            expect(res).to be_nil
+          end
         end
       end
 
-      context 'when the mostRecentActiveService key already exists' do
-        before do
-          @pdf_data = pdf_data
-          @pdf_data[:data][:attributes][:serviceInformation] = {}
-          @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService] = {}
-        end
+      it 'maps the most recent service period attributes' do
+        form_attributes['serviceInformation']['servicePeriods'] = service_periods_object
+        mapper.map_claim
 
-        it 'returns early without modifying the existing data' do
-          res = mapper.send(:set_pdf_data_for_most_recent_service_period)
+        service_period_base = pdf_data[:data][:attributes][:serviceInformation]
 
-          expect(res).to be_nil
-        end
+        expect(service_period_base[:branchOfService][:branch]).to eq('Navy')
+        expect(service_period_base[:placeOfLastOrAnticipatedSeparation]).to eq('99876')
+        expect(service_period_base[:mostRecentActiveService][:start]).to eq({ year: '2015', month: '11',
+                                                                              day: '14' })
+        expect(service_period_base[:mostRecentActiveService][:end]).to eq({ year: '2018', month: '11',
+                                                                            day: '30' })
+      end
+
+      it 'maps the additional periods of service' do
+        form_attributes['serviceInformation']['servicePeriods'] = service_periods_object
+        mapper.map_claim
+
+        service_period_base = pdf_data[:data][:attributes][:serviceInformation]
+
+        expect(service_period_base).to have_key(:additionalPeriodsOfService)
+        expect(service_period_base[:additionalPeriodsOfService][0][:start]).to eq({ year: '2012', month: '11',
+                                                                                    day: '14' })
+        expect(service_period_base[:additionalPeriodsOfService][0][:end]).to eq({ year: '2014', month: '11',
+                                                                                  day: '30' })
+        expect(service_period_base[:additionalPeriodsOfService][1][:start]).to eq({ year: '2010', month: '11',
+                                                                                    day: '14' })
+        expect(service_period_base[:additionalPeriodsOfService][1][:end]).to eq({ year: '2012', month: '11',
+                                                                                  day: '29' })
       end
     end
 
-    it 'maps the most recent service period attributes' do
-      form_attributes['serviceInformation']['servicePeriods'] = service_periods_object
-      mapper.map_claim
+    context 'reserves national guard service' do
+      let(:reserves) do
+        {
+          'title10Activation' => {
+            'anticipatedSeparationDate' => '2025-12-01',
+            'title10ActivationDate' => '2023-01-01'
+          },
+          'obligationTermOfServiceFromDate' => '2023-01-01',
+          'obligationTermOfServiceToDate' => '2023-12-01',
+          'unitName' => 'Unit Name',
+          'unitPhone' => {
+            'areaCode' => '123',
+            'phoneNumber' => '1231234'
+          },
+          'receivingInactiveDutyTrainingPay' => false
+        }
+      end
 
-      service_period_base = pdf_data[:data][:attributes][:serviceInformation]
+      describe '#set_pdf_data_for_serves_national_guard_service' do
+        context 'when the mostRecentActiveService key does not exist' do
+          before do
+            @pdf_data = pdf_data
+            @pdf_data[:data][:attributes][:serviceInformation] = {}
+          end
 
-      expect(service_period_base[:branchOfService][:branch]).to eq('Navy')
-      expect(service_period_base[:placeOfLastOrAnticipatedSeparation]).to eq('99876')
-      expect(service_period_base[:mostRecentActiveService][:start]).to eq({ year: '2015', month: '11',
-                                                                            day: '14' })
-      expect(service_period_base[:mostRecentActiveService][:end]).to eq({ year: '2018', month: '11',
-                                                                          day: '30' })
-    end
+          it 'sets the mostRecentActiveService key to an empty hash' do
+            res = mapper.send(:set_pdf_data_for_serves_national_guard_service)
 
-    it 'maps the additional periods of service' do
-      form_attributes['serviceInformation']['servicePeriods'] = service_periods_object
-      mapper.map_claim
+            expect(res).to eq({})
+          end
+        end
 
-      service_period_base = pdf_data[:data][:attributes][:serviceInformation]
+        context 'when the mostRecentActiveService key already exists' do
+          before do
+            @pdf_data = pdf_data
+            @pdf_data[:data][:attributes][:serviceInformation] = {}
+            @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService] = {}
+          end
 
-      expect(service_period_base).to have_key(:additionalPeriodsOfService)
-      expect(service_period_base[:additionalPeriodsOfService][0][:start]).to eq({ year: '2012', month: '11',
-                                                                                  day: '14' })
-      expect(service_period_base[:additionalPeriodsOfService][0][:end]).to eq({ year: '2014', month: '11', day: '30' })
-      expect(service_period_base[:additionalPeriodsOfService][1][:start]).to eq({ year: '2010', month: '11',
-                                                                                  day: '14' })
-      expect(service_period_base[:additionalPeriodsOfService][1][:end]).to eq({ year: '2012', month: '11', day: '29' })
+          it 'returns early without modifying the existing data' do
+            res = mapper.send(:set_pdf_data_for_serves_national_guard_service)
+
+            expect(res).to be_nil
+          end
+        end
+      end
+
+      it 'maps the required attributes when reserves is present' do
+        form_attributes['serviceInformation']['reservesNationalGuardService'] = reserves
+        mapper.map_claim
+
+        reserves_base = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+
+        expect(reserves_base).not_to be_nil
+        expect(reserves_base[:unitName]).to eq('Unit Name')
+        expect(reserves_base[:obligationTermsOfService][:start]).to eq({ year: '2023', month: '01', day: '01' })
+        expect(reserves_base[:obligationTermsOfService][:end]).to eq({ year: '2023', month: '12', day: '01' })
+      end
+
+      it 'maps the optional attributes when present' do
+        form_attributes['serviceInformation']['reservesNationalGuardService'] = reserves
+        mapper.map_claim
+
+        reserves_base = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+
+        expect(reserves_base[:unitPhoneNumber]).to eq('1231231234')
+        expect(reserves_base[:receivingInactiveDutyTrainingPay]).to be('NO')
+        expect(reserves_base[:federalActivation][:activationDate]).to eq({ year: '2023', month: '01', day: '01' })
+        expect(reserves_base[:federalActivation][:anticipatedSeparationDate]).to eq({ year: '2025', month: '12',
+                                                                                      day: '01' })
+      end
     end
   end
 end
