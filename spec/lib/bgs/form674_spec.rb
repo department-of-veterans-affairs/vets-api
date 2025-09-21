@@ -4,16 +4,6 @@ require 'rails_helper'
 require 'bgs/form674'
 
 RSpec.describe BGS::Form674 do
-  # Performance tweak
-  # This can be removed. Benchmarked all tests to see which tests are slowest.
-  around do |example|
-    puts "\nStarting: #{example.full_description}"
-    start_time = Time.now
-    example.run
-    duration = Time.now - start_time
-    puts "Finished: #{example.full_description} (#{duration.round(2)}s)\n\n"
-  end
-
   let(:user_object) { create(:evss_user, :loa3) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:all_flows_v2_payload) { build(:form686c_674_v2) }
@@ -23,7 +13,8 @@ RSpec.describe BGS::Form674 do
 
   before do
     allow(Flipper).to receive(:enabled?).and_call_original
-    # Stub out the pdf_overflow_tracking method to speed up tests
+
+    # Stub out pdf_overflow_tracking to speed up tests
     allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
   end
 
