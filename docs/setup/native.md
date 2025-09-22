@@ -137,6 +137,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    - Download the Postgres.app with PostgreSQL 15
    - Install Instructions here: https://postgresapp.com/
    - `sudo mkdir -p /etc/paths.d && echo /Applications/Postgres.app/Contents/Versions/latest/bin | sudo tee /etc/paths.d/postgresapp`
+   - - > ⚠️ If you are running `vets-api` on Apple silicon, e.g. Apple M4 (most current, as of the time of this writing), you may have an additional step to run here before the next one. If installing the `pg` gem fails and the logs complain about `llhttp-ffi-0.4.0/ext/aarch64-darwin`, you may need to run the following first: `bundle config build.pg --with-pg-config=/opt/homebrew/opt/libpq/bin/pg_config`.
    - `ARCHFLAGS="-arch x86_64" gem install pg -v 1.5.6`
    2. Alternatively Postgresql 15 & PostGIS 3 can be installed with homebrew
       - `brew install postgresql@15`
@@ -198,6 +199,8 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    ```
 
 2. Install PostGIS
+
+   > ⚠️ It is important to note which version of Ubuntu you are running. PostgreSQL 16.x on Ubuntu 24.04 does appear to work, but is not yet officially supported by `vets-api`. This is worth mentioning as you may have to install `postgresql-16-postgis-3` as Ubuntu 24.04 ships with PostgreSQL 16.x as its default.
 
    ```bash
    sudo apt install -y postgresql-15-postgis-3
