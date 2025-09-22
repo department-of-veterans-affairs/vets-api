@@ -199,6 +199,8 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 
 2. Install PostGIS
 
+> ⚠️ Ubuntu 24.04 ships with PostgreSQL 16.x as its default. 16.x does appear to work but is not yet officially supported by `vets-api`. This is worth mentioning as you may have to install `postgresql-16-postgis-3`.
+
    ```bash
    sudo apt install -y postgresql-15-postgis-3
    sudo -i -u postgres
@@ -212,22 +214,22 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    \q
    ```
 
-3. Install Redis
+4. Install Redis
    ```bash
    sudo apt install -y redis-server
    sudo sed -i 's/^supervised no/supervised systemd/' /etc/redis/redis.conf
    sudo systemctl restart redis.service
    sudo systemctl status redis # ctrl+c to exit
    ```
-4. Install ImageMagick
+5. Install ImageMagick
    - `sudo apt install -y imagemagick`
-5. Install Poppler
+6. Install Poppler
    - `sudo apt install -y poppler-utils`
-6. Install pdftk
+7. Install pdftk
    - `sudo apt install -y pdftk`
-7. continue with [Base setup](native.md#base-setup)
+8. continue with [Base setup](native.md#base-setup)
 
-8. Updating Postgres and PostGIS if you already have them installed
+9. Updating Postgres and PostGIS if you already have them installed
 
    Backup your existing database
    ```bash
