@@ -234,6 +234,23 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           end
         end
 
+        context 'with ml classification toggle disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:contention_classification_ml_classifier,
+                                                      anything).and_return(false)
+          end
+
+          it 'uses the expanded lookup endpoint' do
+            mock_cc_client = instance_double(ContentionClassification::Client)
+            allow(ContentionClassification::Client).to receive(:new).and_return(mock_cc_client)
+            allow(mock_cc_client).to receive(:classify_vagov_contentions_expanded)
+            expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
+            expect(mock_cc_client).to receive(:classify_vagov_contentions_expanded)
+            subject.perform_async(submission.id)
+            described_class.drain
+          end
+        end
+
         context 'when diagnostic code is not set' do
           let(:submission) do
             create(:form526_submission,
@@ -329,6 +346,25 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           submission.reload
           classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
           expect(classification_codes).to eq([9012, 8994, 8989, 8997])
+        end
+      end
+
+      context 'with ml classification toggle disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:contention_classification_ml_classifier,
+                                                    anything).and_return(false)
+        end
+
+        it 'uses expanded classification to classify contentions' do
+          subject.perform_async(submission.id)
+          expect do
+            VCR.use_cassette('contention_classification/expanded_classification') do
+              described_class.drain
+            end
+          end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+          submission.reload
+          classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+          expect(classification_codes).to eq([9012, 8994, nil, 8997])
         end
       end
 
