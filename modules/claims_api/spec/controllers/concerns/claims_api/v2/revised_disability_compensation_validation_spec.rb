@@ -603,7 +603,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
       end
 
-      # FES Val Section 5.c.ii: PERMANENT address cannot have endDate
+      # FES Val Section 5.c.ii: PERMANENT address endDate is allowed but ignored
       context 'when PERMANENT address has endDate' do
         let(:form_attributes) do
           base_form_attributes.merge(
@@ -622,12 +622,9 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           )
         end
 
-        it 'returns validation error' do
+        it 'returns no errors (endDate is ignored for permanent addresses)' do
           errors = subject.validate_form_526_fes_values
-          expect(errors).to be_an(Array)
-          expect(errors.first[:source]).to eq('/changeOfAddress/dates/endDate')
-          expect(errors.first[:title]).to eq('Unprocessable Entity')
-          expect(errors.first[:detail]).to eq('Date in YYYY-MM-DD the changed address expires, if change is temporary.')
+          expect(errors).to be_nil
         end
       end
 
@@ -702,7 +699,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors).to be_an(Array)
           expect(errors.any? do |e|
             e[:source] == '/changeOfAddress/dates/beginDate' &&
-              e[:title] == 'Invalid beginDate' &&
+              e[:title] == 'Unprocessable Entity' &&
               e[:detail] == 'Begin date for the Veteran\'s new address.'
           end).to be true
         end
