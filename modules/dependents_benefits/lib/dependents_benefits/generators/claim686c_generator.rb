@@ -53,13 +53,8 @@ module DependentsBenefits
         form_686c_data
       end
 
-      ##
-      # Return the form_id for VA Form 21-686c claims
-      #
-      # @return [String] The VA Form 21-686c form_id
-      #
-      def form_id
-        '21-686C'
+      def claim_class
+        AddRemoveDependent
       end
     end
   end

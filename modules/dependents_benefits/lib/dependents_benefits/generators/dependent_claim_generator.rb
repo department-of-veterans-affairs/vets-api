@@ -52,10 +52,7 @@ module DependentsBenefits
       # @raise [ActiveRecord::RecordInvalid] if the claim is invalid
       #
       def create_claim(extracted_data)
-        claim = DependentsBenefits::SavedClaim.new(
-          form: extracted_data.to_json,
-          form_id:
-        )
+        claim = claim_class.new(form: extracted_data.to_json)
 
         claim.save!
         claim
@@ -78,14 +75,13 @@ module DependentsBenefits
       end
 
       ##
-      # Return the form_id for this claim type
+      # Return the claim class for this claim type
       # Must be implemented by subclasses
-      #
-      # @return [String] The form_id
+      # @return [Class] The claim class (e.g., DependentsBenefits::SavedClaim)
       # @raise [NotImplementedError] if not implemented by subclass
       #
-      def form_id
-        raise NotImplementedError, 'Subclasses must implement form_id'
+      def claim_class
+        raise NotImplementedError, 'Subclasses must implement claim_class'
       end
     end
   end

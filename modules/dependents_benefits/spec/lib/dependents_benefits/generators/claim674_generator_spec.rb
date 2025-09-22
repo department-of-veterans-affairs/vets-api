@@ -13,12 +13,6 @@ RSpec.describe DependentsBenefits::Generators::Claim674Generator, type: :model d
   let(:parent_id) { parent_claim.id }
   let(:generator) { described_class.new(form_data, parent_id, student_data) }
 
-  describe '#form_id' do
-    it 'returns the correct form_id for 674' do
-      expect(generator.send(:form_id)).to eq('21-674')
-    end
-  end
-
   describe '#extract_form_data' do
     let(:extracted_data) { generator.send(:extract_form_data) }
 
