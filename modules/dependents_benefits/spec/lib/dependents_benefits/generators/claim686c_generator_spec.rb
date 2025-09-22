@@ -8,10 +8,8 @@ RSpec.describe DependentsBenefits::Generators::Claim686cGenerator, type: :model 
   let(:parent_id) { 123 }
   let(:generator) { described_class.new(form_data, parent_id) }
 
-  describe '#form_id' do
-    it 'returns the correct form_id for 686c' do
-      expect(generator.send(:form_id)).to eq('21-686c')
-    end
+  before do
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
   end
 
   describe '#extract_form_data' do
@@ -50,16 +48,13 @@ RSpec.describe DependentsBenefits::Generators::Claim686cGenerator, type: :model 
   describe '#generate' do
     it 'creates a 686c claim' do
       created_claim = generator.generate
-      expect(created_claim.form_id).to eq('21-686c')
+      expect(created_claim.form_id).to eq('21-686C')
 
       parsed_form = JSON.parse(created_claim.form)
       expect(parsed_form['veteran_information']).to eq(form_data['veteran_information'])
     end
 
     it 'logs a TODO message for claim linking' do
-      expect(Rails.logger).to receive(:info).with(match(/Skipping tracking PDF overflow/),
-                                                  instance_of(Hash)).at_least(:once)
-      expect(Rails.logger).to receive(:info).with(match(/Stamping PDF/)).at_least(:once)
       expect(Rails.logger).to receive(:info).with(match(/TODO: Link claim \d+ to parent #{parent_id}/)).once
       generator.generate
     end

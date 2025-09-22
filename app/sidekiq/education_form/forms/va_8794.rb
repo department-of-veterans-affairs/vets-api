@@ -5,7 +5,7 @@ module EducationForm::Forms
     def initialize(education_benefits_claim)
       @education_benefits_claim = education_benefits_claim
       @applicant = education_benefits_claim.parsed_form
-      super()
+      super(education_benefits_claim)
     end
 
     def designating_official_name

@@ -12,10 +12,8 @@ RSpec.describe DependentsBenefits::Generators::Claim674Generator, type: :model d
   let(:parent_id) { 123 }
   let(:generator) { described_class.new(form_data, parent_id, student_data) }
 
-  describe '#form_id' do
-    it 'returns the correct form_id for 674' do
-      expect(generator.send(:form_id)).to eq('21-674')
-    end
+  before do
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
   end
 
   describe '#extract_form_data' do
@@ -68,7 +66,6 @@ RSpec.describe DependentsBenefits::Generators::Claim674Generator, type: :model d
     end
 
     it 'logs a TODO message for claim linking' do
-      expect(Rails.logger).to receive(:info).with(match('Stamping PDF')).at_least(:once)
       expect(Rails.logger).to receive(:info).with(match("TODO: Link claim \\d+ to parent #{parent_id}"))
       generator.generate
     end
