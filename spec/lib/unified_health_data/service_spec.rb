@@ -611,14 +611,15 @@ describe UnifiedHealthData::Service, type: :service do
       it 'properly maps Oracle Health prescription fields' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
           prescriptions = service.get_prescriptions
-          oracle_prescription = prescriptions.find { |p| p.prescription_id == '25804853' }
+          oracle_prescription = prescriptions.find { |p| p.prescription_id == '15214174591' }
 
           expect(oracle_prescription.refill_status).to eq('active')
           expect(oracle_prescription.refill_remaining).to eq(2)
-          expect(oracle_prescription.prescription_name).to eq('ECHOTHIOPHATE 0.03% OPHTH SOLN 5ML')
-          expect(oracle_prescription.instructions).to eq('INSTILL 1ML WEEKLY FOR 60 DAYS TEST INDI')
+          expect(oracle_prescription.prescription_name).to eq('albuterol (albuterol 90 mcg inhaler [8.5g])')
+          expect(oracle_prescription.instructions).to eq('2 Inhalation Inhalation (breathe in) every 4 hours as needed shortness of breath or wheezing. Refills: 2.')
           expect(oracle_prescription.is_refillable).to be true
-          expect(oracle_prescription.ordered_date).to eq('Sun, 29 Sep 2024 00:00:00 EDT')
+          expect(oracle_prescription.ordered_date).to eq('2025-05-30T17:58:09Z')
+          expect(oracle_prescription.station_number).to eq('556-RX-MAIN-OP')
         end
       end
 

@@ -587,6 +587,67 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       end
     end
 
+    describe '#extract_station_number' do
+      context 'with medication dispense location in contained resources' do
+        let(:resource_with_station) do
+          base_resource.merge(
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'location' => {
+                  'display' => '556-RX-MAIN-OP'
+                },
+                'whenHandedOver' => '2025-06-24T21:05:53.000Z'
+              }
+            ]
+          )
+        end
+
+        it 'returns the location display as station number' do
+          result = subject.send(:extract_station_number, resource_with_station)
+          expect(result).to eq('556-RX-MAIN-OP')
+        end
+      end
+
+      context 'with multiple medication dispenses' do
+        let(:resource_with_multiple_dispenses) do
+          base_resource.merge(
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'location' => {
+                  'display' => 'Old-Station'
+                },
+                'whenHandedOver' => '2025-05-24T21:05:53.000Z'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-2',
+                'location' => {
+                  'display' => '556-RX-MAIN-OP'
+                },
+                'whenHandedOver' => '2025-06-24T21:05:53.000Z'
+              }
+            ]
+          )
+        end
+
+        it 'returns the location display from the most recent dispense' do
+          result = subject.send(:extract_station_number, resource_with_multiple_dispenses)
+          expect(result).to eq('556-RX-MAIN-OP')
+        end
+      end
+
+      context 'with no medication dispense or location information' do
+        it 'returns nil' do
+          result = subject.send(:extract_station_number, base_resource)
+          expect(result).to be_nil
+        end
+      end
+    end
+
     describe '#extract_is_refillable' do
       context 'with active status and remaining refills' do
         let(:resource) do

@@ -111,7 +111,13 @@ module UnifiedHealthData
       end
 
       def extract_station_number(resource)
-        resource.dig('dispenseRequest', 'performer', 'identifier', 'value')
+        # Extract from most recent contained MedicationDispense
+        if resource['contained']
+          dispense = find_most_recent_medication_dispense(resource['contained'])
+          return dispense.dig('location', 'display') if dispense
+        end
+
+        nil
       end
 
       def extract_is_refillable(resource)
