@@ -7,7 +7,7 @@ RSpec.describe TravelPay::Constants do
   describe 'BASE_EXPENSE_PATHS' do
     it 'includes the expected expense types' do
       expect(described_class::BASE_EXPENSE_PATHS.keys).to contain_exactly(
-        :meal, :mileage, :parking, :other
+        :meal, :mileage, :parking, :other, :toll
       )
     end
 
@@ -16,6 +16,7 @@ RSpec.describe TravelPay::Constants do
       expect(described_class::BASE_EXPENSE_PATHS[:mileage]).to eq('api/v2/expenses/mileage')
       expect(described_class::BASE_EXPENSE_PATHS[:parking]).to eq('api/v1/expenses/parking')
       expect(described_class::BASE_EXPENSE_PATHS[:other]).to eq('api/v1/expenses/other')
+      expect(described_class::BASE_EXPENSE_PATHS[:toll]).to eq('api/v1/expenses/toll')
     end
 
     it 'is frozen' do
@@ -26,7 +27,7 @@ RSpec.describe TravelPay::Constants do
   describe 'EXPENSE_TYPES' do
     it 'includes the expected expense types' do
       expect(described_class::EXPENSE_TYPES.keys).to contain_exactly(
-        :meal, :mileage, :parking, :other
+        :meal, :mileage, :parking, :other, :toll
       )
     end
 
@@ -35,6 +36,7 @@ RSpec.describe TravelPay::Constants do
       expect(described_class::EXPENSE_TYPES[:mileage]).to eq('mileage')
       expect(described_class::EXPENSE_TYPES[:parking]).to eq('parking')
       expect(described_class::EXPENSE_TYPES[:other]).to eq('other')
+      expect(described_class::EXPENSE_TYPES[:toll]).to eq('toll')
     end
 
     it 'is frozen' do
