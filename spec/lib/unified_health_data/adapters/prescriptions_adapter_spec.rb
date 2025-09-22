@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'unified_health_data/models/prescription_attributes'
 require 'unified_health_data/models/prescription'
 require 'unified_health_data/adapters/prescriptions_adapter'
 require 'unified_health_data/adapters/oracle_health_prescription_adapter'
 
 describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
-  subject { described_class.new }
+  subject { described_class.new(user) }
 
+  let(:user) { build(:user, :loa3, icn: '1000123456V123456') }
   let(:vista_medication_data) do
     {
       'prescriptionId' => '28148665',
@@ -31,7 +31,6 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       'dataSourceSystem' => 'VISTA'
     }
   end
-
   let(:oracle_health_medication_data) do
     {
       'resourceType' => 'MedicationRequest',
@@ -78,7 +77,6 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       ]
     }
   end
-
   let(:unified_response) do
     {
       'vista' => {
@@ -98,6 +96,11 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
   describe '#parse' do
     context 'with unified response data' do
+      before do
+        # Ensure business rules filtering doesn't interfere with basic parsing tests
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, user).and_return(false)
+      end
+
       it 'returns prescriptions from both VistA and Oracle Health' do
         prescriptions = subject.parse(unified_response)
 
@@ -109,6 +112,160 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
         expect(vista_prescription).to be_present
         expect(oracle_prescription).to be_present
+      end
+
+      context 'business rules filtering (applied regardless of current_only)' do
+        context 'when display_pending_meds flipper is enabled' do
+          let(:vista_medication_pf) do
+            vista_medication_data.merge('prescriptionSource' => 'PF')
+          end
+
+          let(:vista_medication_pd) do
+            vista_medication_data.merge('prescriptionSource' => 'PD')
+          end
+
+          let(:response_with_pf) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [vista_medication_pf] } },
+              'oracle-health' => { 'entry' => [] }
+            }
+          end
+
+          let(:response_with_pd) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [vista_medication_pd] } },
+              'oracle-health' => { 'entry' => [] }
+            }
+          end
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, user).and_return(true)
+          end
+
+          it 'excludes PF (Partial Fill) prescriptions only' do
+            prescriptions = subject.parse(response_with_pf)
+            expect(prescriptions).to be_empty
+          end
+
+          it 'includes PD (Pending) prescriptions when flag is enabled' do
+            prescriptions = subject.parse(response_with_pd)
+            expect(prescriptions.size).to eq(1)
+            expect(prescriptions.first.prescription_source).to eq('PD')
+          end
+        end
+
+        context 'when display_pending_meds flipper is disabled' do
+          let(:vista_medication_pf) do
+            vista_medication_data.merge('prescriptionSource' => 'PF')
+          end
+
+          let(:vista_medication_pd) do
+            vista_medication_data.merge('prescriptionSource' => 'PD')
+          end
+
+          let(:response_with_pf_and_pd) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [vista_medication_pf, vista_medication_pd] } },
+              'oracle-health' => { 'entry' => [] }
+            }
+          end
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, user).and_return(false)
+          end
+
+          it 'excludes both PF and PD prescriptions' do
+            prescriptions = subject.parse(response_with_pf_and_pd)
+            expect(prescriptions).to be_empty
+          end
+        end
+      end
+
+      context 'with current_only: false (default)' do
+        it 'returns all prescriptions without filtering' do
+          prescriptions = subject.parse(unified_response, current_only: false)
+
+          expect(prescriptions.size).to eq(2)
+          expect(prescriptions).to all(be_a(UnifiedHealthData::Prescription))
+        end
+      end
+
+      context 'with current_only: true' do
+        let(:vista_medication_expired_old) do
+          vista_medication_data.merge(
+            'refillStatus' => 'expired',
+            'expirationDate' => 200.days.ago.strftime('%a, %d %b %Y %H:%M:%S %Z')
+          )
+        end
+
+        context 'filters out old discontinued/expired prescriptions' do
+          let(:response_with_old_expired) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [vista_medication_expired_old] } },
+              'oracle-health' => { 'entry' => [] }
+            }
+          end
+
+          it 'excludes expired prescriptions older than 180 days' do
+            allow(Rails.logger).to receive(:info)
+
+            prescriptions = subject.parse(response_with_old_expired, current_only: true)
+
+            expect(prescriptions).to be_empty
+            expect(Rails.logger).to have_received(:info).with(
+              hash_including(
+                message: 'Applied current filtering to prescriptions',
+                excluded_count: 1
+              )
+            )
+          end
+        end
+
+        context 'handles invalid expiration dates gracefully' do
+          let(:vista_medication_invalid_date) do
+            vista_medication_data.merge(
+              'refillStatus' => 'expired',
+              'expirationDate' => 'invalid-date'
+            )
+          end
+
+          let(:response_with_invalid_date) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [vista_medication_invalid_date] } },
+              'oracle-health' => { 'entry' => [] }
+            }
+          end
+
+          it 'logs warning and does not exclude based on date' do
+            allow(Rails.logger).to receive(:warn)
+            allow(Rails.logger).to receive(:info)
+
+            prescriptions = subject.parse(response_with_invalid_date, current_only: true)
+
+            expect(prescriptions.size).to eq(1)
+            expect(Rails.logger).to have_received(:warn).with(
+              /Invalid expiration date for rx ending in \d{4}: invalid-date/
+            )
+          end
+        end
+
+        context 'does not filter active or recent prescriptions' do
+          it 'includes active prescriptions regardless of expiration date' do
+            allow(Rails.logger).to receive(:info)
+
+            prescriptions = subject.parse(unified_response, current_only: true)
+
+            expect(prescriptions.size).to eq(2)
+            expect(Rails.logger).to have_received(:info).with(
+              hash_including(
+                message: 'Applied current filtering to prescriptions',
+                original_count: 2,
+                filtered_count: 2,
+                excluded_count: 0
+              )
+            )
+          end
+        end
       end
     end
 
@@ -126,6 +283,22 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(prescriptions.size).to eq(1)
         expect(prescriptions.first.prescription_id).to eq('28148665')
         expect(prescriptions.first.prescription_name).to eq('COAL TAR 2.5% TOP SOLN')
+      end
+
+      it 'falls back to orderableItem when prescriptionName is missing' do
+        vista_data_without_name = vista_medication_data.merge(
+          'prescriptionName' => nil,
+          'orderableItem' => 'METFORMIN 500MG TABLET'
+        )
+        response = {
+          'vista' => { 'medicationList' => { 'medication' => [vista_data_without_name] } },
+          'oracle-health' => nil
+        }
+
+        prescriptions = subject.parse(response)
+
+        expect(prescriptions.size).to eq(1)
+        expect(prescriptions.first.prescription_name).to eq('METFORMIN 500MG TABLET')
       end
     end
 
@@ -250,7 +423,24 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
           expect(result).to be_a(UnifiedHealthData::Prescription)
           expect(result.id).to eq('12345')
-          expect(result.type).to eq('Prescription')
+        end
+      end
+
+      context 'with reportedBoolean true' do
+        let(:reported_resource) { base_resource.merge('reportedBoolean' => true) }
+
+        it 'returns prescription source NV' do
+          result = subject.parse(reported_resource)
+          expect(result.prescription_source).to eq('NV') # Should be marked as NV for filtering
+        end
+      end
+
+      context 'with reportedBoolean false' do
+        let(:not_reported_resource) { base_resource.merge('reportedBoolean' => false) }
+
+        it 'returns prescription object for non-reported medications' do
+          result = subject.parse(not_reported_resource)
+          expect(result.prescription_source).to eq('')
         end
       end
 
@@ -271,7 +461,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       context 'when parsing raises an error' do
         let(:adapter_with_error) do
           adapter = described_class.new
-          allow(adapter).to receive(:build_prescription_attributes).and_raise(StandardError, 'Test error')
+          allow(adapter).to receive(:extract_refill_date).and_raise(StandardError, 'Test error')
           adapter
         end
 
@@ -284,6 +474,15 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:error).with('Error parsing Oracle Health prescription: Test error')
+        end
+      end
+    end
+
+    describe '#extract_prescription_source' do
+      context 'with reportedBoolean nil' do
+        it 'returns empty string for default VA medications' do
+          result = subject.send(:extract_prescription_source, base_resource)
+          expect(result).to eq('')
         end
       end
     end
