@@ -33,7 +33,7 @@ module UnifiedHealthData
           expiration_date: extract_expiration_date(resource),
           prescription_number: extract_prescription_number(resource),
           prescription_name: extract_prescription_name(resource),
-          dispensed_date: extract_dispensed_date(resource),
+          dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
           is_refillable: extract_is_refillable(resource),
           is_trackable: false, # Default for Oracle Health
@@ -46,8 +46,7 @@ module UnifiedHealthData
 
       def extract_refill_date(resource)
         dispense = find_most_recent_medication_dispense(resource.dig('contained'))
-        refill_date = dispense.dig('whenHandedOver') if dispense
-        return refill_date if refill_date
+        return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
 
         nil
       end
@@ -99,14 +98,6 @@ module UnifiedHealthData
       def extract_prescription_name(resource)
         resource.dig('medicationCodeableConcept', 'text') ||
           resource.dig('medicationReference', 'display')
-      end
-
-      def extract_dispensed_date(resource)
-        dispense = find_most_recent_medication_dispense(resource.dig('contained'))
-        return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
-
-        # Fallback to initial fill date
-        resource.dig('dispenseRequest', 'initialFill', 'date')
       end
 
       def extract_station_number(resource)
