@@ -39,11 +39,6 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
 
         # Should have correct form_id
         expect(claim_686c.form_id).to eq('21-686C')
-
-        # Should log TODO message for claim linking
-        expect(Rails.logger).to have_received(:info).with(
-          "TODO: Link claim #{claim_686c.id} to parent #{parent_claim_id}"
-        )
       end
     end
 
