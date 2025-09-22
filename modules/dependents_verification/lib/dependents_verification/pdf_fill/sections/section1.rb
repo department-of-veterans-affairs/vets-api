@@ -330,7 +330,7 @@ module DependentsVerification
 
         {
           'street' => address['street'],
-          'unit_number' => address['unitNumber'],
+          'unit_number' => address['street2'],
           'city' => address['city'],
           'state' => address['state'],
           'postal_code' => split_postal_code(address),

@@ -51,18 +51,17 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
       )
       expect(job).to receive(:cleanup_file_paths)
 
-      job.perform(claim.id, :user_account_uuid)
+      job.perform(claim.id)
     end
 
     it 'is unable to find user_account' do
-      expect(IncomeAndAssets::SavedClaim).not_to receive(:find)
       expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
       expect(job).to receive(:cleanup_file_paths)
       expect(monitor).to receive(:track_submission_retry)
 
-      expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
+      expect { job.perform(claim.id) }.to raise_error(
         ActiveRecord::RecordNotFound,
         /Couldn't find UserAccount/
       )
@@ -71,15 +70,14 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
     it 'is unable to find saved_claim_id' do
       allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(nil)
 
-      expect(UserAccount).to receive(:find)
-
+      expect(UserAccount).not_to receive(:find)
       expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
       expect(job).to receive(:cleanup_file_paths)
       expect(monitor).to receive(:track_submission_retry)
 
-      expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
+      expect { job.perform(claim.id) }.to raise_error(
         IncomeAndAssets::BenefitsIntake::SubmitClaimJob::IncomeAndAssetsBenefitIntakeError,
         "Unable to find IncomeAndAssets::SavedClaim #{claim.id}"
       )
@@ -115,6 +113,7 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
 
   describe '#cleanup_file_paths' do
     before do
+      job.instance_variable_set(:@claim, claim)
       job.instance_variable_set(:@form_path, 'path/file.pdf')
       job.instance_variable_set(:@attachment_paths, '/invalid_path/should_be_an_array.failure')
 
