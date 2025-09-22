@@ -19,7 +19,7 @@ class Form526JobStatus < ApplicationRecord
     try: 'try',
     success: 'success',
     retryable_error: 'retryable_error',
-    pdf_not_found: 'pdf_not_found'
+    pdf_not_found: 'pdf_not_found',
     pdf_found_later: 'pdf_found_later',
     pdf_success_on_backup_path: 'pdf_success_on_backup_path',
     pdf_manually_uploaded: 'pdf_manually_uploaded',
