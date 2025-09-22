@@ -13,7 +13,7 @@
   "address": {
     "addressType": "DOMESTIC",
     "street": "This is an extremely long street address that definitely exceeds thirty characters",
-    "unitNumber": "Unit4B567890",
+    "street2": "Unit4B567890",
     "city": "VeryLongCityNameThatExceedsLimit",
     "state": "CALIFORNIA",
     "postalCode": "123456789012345-123456789",

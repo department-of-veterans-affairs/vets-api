@@ -34,7 +34,7 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
         expect(parsed_form['dependents_application']).not_to have_key('program_information')
 
         # Should have correct form_id
-        expect(claim_686c.form_id).to eq('21-686c')
+        expect(claim_686c.form_id).to eq('21-686C')
 
         # Should log TODO message for claim linking
         expect(Rails.logger).to have_received(:info).with(
@@ -90,7 +90,7 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
         claim674 = generator674.generate
 
         # Claims should have different form_ids
-        expect(claim_686c.form_id).to eq('21-686c')
+        expect(claim_686c.form_id).to eq('21-686C')
         expect(claim674.form_id).to eq('21-674')
 
         # Should have different form data

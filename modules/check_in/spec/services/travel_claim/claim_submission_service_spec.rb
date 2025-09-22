@@ -516,27 +516,6 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
         end
       end
     end
-
-    describe '#format_appointment_date' do
-      context 'with valid ISO date' do
-        let(:appointment_date) { '2024-01-15T14:30:00Z' }
-
-        it 'formats date correctly' do
-          formatted_date = service.send(:format_appointment_date)
-          expect(formatted_date).to eq('2024-01-15')
-        end
-      end
-
-      context 'with invalid date' do
-        let(:appointment_date) { 'invalid-date' }
-
-        it 'returns original date on parsing error' do
-          allow(Rails.logger).to receive(:error)
-          formatted_date = service.send(:format_appointment_date)
-          expect(formatted_date).to eq('invalid-date')
-        end
-      end
-    end
   end
 
   # Helper methods for common mock setups

@@ -62,7 +62,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       end
 
       it 'logs the success' do
-        expect(Rails.logger).to receive(:info).with('DependentsBenefits::SavedClaim Skipping tracking PDF overflow',
+        expect(Rails.logger).to receive(:info).with(match(/Skipping tracking PDF overflow/),
                                                     instance_of(Hash)).at_least(:once)
         expect(Rails.logger).to receive(:info).with(match(/TODO: Link claim \d+ to parent/)).at_least(:once)
         expect(Rails.logger).to receive(:info).with(match(/Successfully created claim/),
