@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'vye/dgib/authentication_token_service'
 
-Rspec.describe Vye::DGIB::AuthenticationTokenService do
+RSpec.describe Vye::DGIB::AuthenticationTokenService do
   describe '.call' do
     let(:token) { described_class.call }
 
