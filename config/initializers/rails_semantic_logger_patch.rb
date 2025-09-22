@@ -19,5 +19,5 @@ Rails.application.config.after_initialize do
   end
 
   # Log that we've unsubscribed for debugging purposes
-  Rails.logger.info('Unsubscribed rails_semantic_logger from send_data.action_controller notifications to prevent PII logging')
+  Rails.logger.info('Unsubscribed rails_semantic_logger from send_data.action_controller to prevent PII logging')
 end
