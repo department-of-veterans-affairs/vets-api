@@ -49,7 +49,7 @@ module Mobile
       end
 
       def pagination_contract
-        Mobile::V1::Contracts::Prescriptions.new.call(
+        Mobile::V0::Contracts::Prescriptions.new.call(
           page_number: params.dig(:page, :number),
           page_size: params.dig(:page, :size),
           filter: nil,
