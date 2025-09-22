@@ -9,17 +9,26 @@ class Form526JobStatus < ApplicationRecord
     non_retryable_error: 'non_retryable_error',
     exhausted: 'exhausted'
   }.freeze
+  SUCCESS_STATUSES={
+    success: 'success',
+    pdf_found_later: 'pdf_found_later',
+    pdf_success_on_backup_path: 'pdf_success_on_backup_path',
+    pdf_manually_uploaded: 'pdf_manually_uploaded',
+  }.freeze
   STATUS = {
     try: 'try',
     success: 'success',
     retryable_error: 'retryable_error',
     pdf_not_found: 'pdf_not_found'
+    pdf_found_later: 'pdf_found_later',
+    pdf_success_on_backup_path: 'pdf_success_on_backup_path',
+    pdf_manually_uploaded: 'pdf_manually_uploaded',
   }.merge(FAILURE_STATUSES).freeze
 
   store_accessor :bgjob_errors
 
   def success?
-    status == STATUS[:success]
+    SUCCESS_STATUSES.values.include?(status) || status == STATUS[:success]
   end
 
   def unsuccessful?
