@@ -46,19 +46,15 @@
         }
       },
       "required": [
-        "acknowledgement_date",
         "claim_id",
         "created_at",
-        "delete_date",
         "document_type",
         "failed_date",
         "file_name",
         "id",
         "lighthouse_upload",
-        "tracked_item_id",
         "tracked_item_display_name",
-        "upload_status",
-        "va_notify_status"
+        "upload_status"
       ]
     }
 }
