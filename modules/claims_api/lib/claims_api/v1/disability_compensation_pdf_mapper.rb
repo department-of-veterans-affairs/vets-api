@@ -5,7 +5,7 @@ require_relative 'mapper_helpers/pdf_data_builder'
 
 module ClaimsApi
   module V1
-    class DisabilityCompensationPdfMapper # rubocop:disable Metrics/ClassLength
+    class DisabilityCompensationPdfMapper
       include PdfMapperBase
       include PdfDataBuilder # build_pdf_path
 
@@ -337,7 +337,7 @@ module ClaimsApi
 
         service_periods(service_info_pdf_path)
         reserves_national_guard_service if @auto_claim.dig('serviceInformation', 'reservesNationalGuardService')
-        alternate_names if @auto_claim.dig('serviceInformation', 'alternateNames')
+        alternate_names(service_info_pdf_path) if @auto_claim.dig('serviceInformation', 'alternateNames')
       end
 
       # 'serviceBranch', 'activeDutyBeginDate' & 'activeDutyEndDate' are required via the schema
@@ -445,14 +445,14 @@ module ClaimsApi
         }
       end
 
-      def alternate_names
+      def alternate_names(service_info_pdf_path)
         alt_names = @auto_claim.dig('serviceInformation', 'alternateNames')
 
         names = alt_names.map do |n|
           n.values_at('firstName', 'middleName', 'lastName').compact.join(' ')
         end
 
-        @pdf_data[:data][:attributes][:serviceInformation][:alternateNames] = names
+        service_info_pdf_path[:alternateNames] = names
       end
     end
   end
