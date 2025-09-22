@@ -185,10 +185,6 @@ features:
     actor_type: user
     description: Enables the upgraded insurance section of the Health Care Application
     enable_in_development: true
-  hca_in_progress_form_delete_async:
-    actor_type: user
-    description: Enables deleting an InProgressForm in a sidekiq job
-    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
