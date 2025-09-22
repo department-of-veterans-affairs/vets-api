@@ -1986,16 +1986,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                tooltip:
-                  type: object
-                  properties:
-                    tooltip_name:
-                      type: string
-                      example: mhv_medications_tooltip_filter_accordion
-                    hidden:
-                      type: boolean
+              $ref: './schemas/TooltipParams.yml'
       responses:
         "201":
           description: Created
@@ -2007,10 +1998,12 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
     summary: /v1/tooltips
   /v1/tooltips/{id}:
     patch:
-      description: Update tooltip setting for mhv-medications In-Product Education (IPE)
+      description: Update tooltip setting for mhv-medications In-Product Education (IPE), typically used for setting 'hidden' attribute
       operationId: patch_tooltip
       parameters:
         - description: The id of the tooltip
@@ -2021,6 +2014,7 @@ paths:
             type: string
         - in: query
           name: increment_counter
+          required: false
           schema:
             type: boolean
           description: Value indicates if counter will be incremented
@@ -2029,16 +2023,10 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                tooltip:
-                  type: object
-                  properties:
-                    hidden:
-                      type: boolean
+              $ref: './schemas/TooltipParams.yml'
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           content:
             application/json:
               schema:
@@ -2047,6 +2035,8 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
     summary: /v1/tooltips/{id}
   /v1/unique_user_metrics:
     post:
@@ -2201,6 +2191,12 @@ components:
             $ref: './schemas/Errors.yml'
     Forbidden:
       description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/Errors.yml'
+    UnprocessableEntity:
+      description: Unprocessable Entity
       content:
         application/json:
           schema:
