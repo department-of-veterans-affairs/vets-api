@@ -5,7 +5,7 @@ require_relative 'mapper_helpers/auto_claim_lookup'
 
 module ClaimsApi
   module V1
-    class DisabilityCompensationPdfMapper
+    class DisabilityCompensationPdfMapper # rubocop:disable Metrics/ClassLength
       include PdfMapperBase
       include AutoClaimLookup # lookup_in_auto_claim
 
@@ -418,7 +418,9 @@ module ClaimsApi
         set_pdf_data_for_service_information
 
         service_periods
+
         reserves_national_guard_service if lookup_in_auto_claim(:reserves_service)
+        alternate_names if lookup_in_auto_claim(:reserves_alternate_names)
       end
 
       def set_pdf_data_for_service_information
@@ -546,6 +548,16 @@ module ClaimsApi
           activationDate: activation_date,
           anticipatedSeparationDate: anticipated_separation_date
         }
+      end
+
+      def alternate_names
+        alt_names = lookup_in_auto_claim(:reserves_alternate_names)
+
+        names = alt_names.map do |n|
+          n.values_at('firstName', 'middleName', 'lastName').compact.join(' ')
+        end
+
+        @pdf_data[:data][:attributes][:serviceInformation][:alternateNames] = names
       end
     end
   end

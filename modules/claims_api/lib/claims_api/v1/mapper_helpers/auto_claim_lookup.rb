@@ -24,7 +24,8 @@ module ClaimsApi
         reserves_unit_phone: %w[serviceInformation reservesNationalGuardService unitPhone],
         reserves_obligation_from: %w[serviceInformation reservesNationalGuardService obligationTermOfServiceFromDate],
         reserves_obligation_to: %w[serviceInformation reservesNationalGuardService obligationTermOfServiceToDate],
-        reserves_title_10_activation: %w[serviceInformation reservesNationalGuardService title10Activation]
+        reserves_title_10_activation: %w[serviceInformation reservesNationalGuardService title10Activation],
+        reserves_alternate_names: %w[serviceInformation alternateNames]
       }.freeze
 
       def lookup_in_auto_claim(path_key)

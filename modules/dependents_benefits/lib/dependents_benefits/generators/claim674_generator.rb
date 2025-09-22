@@ -50,12 +50,8 @@ module DependentsBenefits
           .merge('dependents_application' => form_674_data.merge('student_information' => student_data))
       end
 
-      # Return the form_id for VA Form 21-674 claims
-      #
-      # @return [String] The VA Form 21-674 form_id
-      #
-      def form_id
-        '21-674'
+      def claim_class
+        SchoolAttendanceApproval
       end
     end
   end
