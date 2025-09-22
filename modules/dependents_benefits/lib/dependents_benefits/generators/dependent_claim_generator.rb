@@ -69,7 +69,7 @@ module DependentsBenefits
         claim_group = SavedClaimGroup.new(claim_group_guid: parent_claim_group.claim_group_guid,
                                           parent_claim_id: parent_id,
                                           saved_claim_id: claim.id)
-        raise ValidationErrors unless claim_group.save!
+        claim_group.save!
 
         claim_group
       end
