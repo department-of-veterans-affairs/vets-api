@@ -1550,7 +1550,7 @@
                                     "description": "Name(s) of disabilities treated in this time frame.",
                                     "type": "array",
                                     "nullable": true,
-                                    "maxItems": 101,
+                                    "maxItems": 150,
                                     "items": {
                                       "type": "string",
                                       "additionalProperties": false,
@@ -2934,7 +2934,7 @@
                                   "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
-                                  "maxItems": 101,
+                                  "maxItems": 150,
                                   "items": {
                                     "type": "string",
                                     "additionalProperties": false,
@@ -5088,7 +5088,7 @@
                                   "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
-                                  "maxItems": 101,
+                                  "maxItems": 150,
                                   "items": {
                                     "type": "string",
                                     "additionalProperties": false,
