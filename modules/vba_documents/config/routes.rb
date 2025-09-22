@@ -6,8 +6,6 @@ VBADocuments::Engine.routes.draw do
   get '/v1/healthcheck', to: 'metadata#healthcheck'
   get '/v1/upstream_healthcheck', to: 'metadata#upstream_healthcheck'
 
-  post '/v2/uploads/submit', to: 'v2/uploads#submit' if Settings.vba_documents.v2_upload_endpoint_enabled
-
   namespace :internal, defaults: { format: 'json' } do
     namespace :v1 do
       resources :upload_complete, only: [:create]
