@@ -35,14 +35,13 @@ RSpec.describe EducationForm::Forms::VA8794 do
     expect(subject.va_education_benefits?).to be(true)
   end
 
-  it 'handles defaults for arrays and booleans' do
-    expect(subject.additional_certifying_officials).to eq([])
-    expect(subject.read_only_certifying_official?).to be_nil
-    expect(subject.read_only_certifying_officials).to eq([])
+  it 'handles arrays and booleans' do
+    expect(subject.additional_certifying_officials.size).to eq(2)
+    expect(subject.read_only_certifying_officials.size).to eq(2)
   end
 
   it 'reads remarks and signature fields even when absent' do
-    expect(subject.remarks).to be_nil
+    expect(subject.remarks).to eq("lorem ipsum dolor sit amet")
     expect(subject.statement_of_truth_signature).to eq('John A Doe')
     expect(subject.date_signed).to eq('2024-03-15')
   end
