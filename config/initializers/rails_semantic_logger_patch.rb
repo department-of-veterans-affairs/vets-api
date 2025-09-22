@@ -3,9 +3,13 @@
 # Unsubscribe from rails_semantic_logger's send_data notifications to prevent PII in filenames from being logged
 
 Rails.application.config.after_initialize do
-  # Unsubscribe from send_data.action_controller notifications to prevent
-  # logging of filenames that may contain PII
-  ActiveSupport::Notifications.unsubscribe('send_data.action_controller')
+  # Unsubscribe only rails_semantic_logger from send_data.action_controller notifications
+  # to prevent logging of filenames that may contain PII
+  ActiveSupport::Notifications.notifier.listeners_for('send_data.action_controller').each do |subscriber|
+    if subscriber.respond_to?(:delegate) && subscriber.delegate.class.name.include?('SemanticLogger')
+      ActiveSupport::Notifications.unsubscribe(subscriber)
+    end
+  end
 
   # As an additional safeguard, ensure 'filename' is not in the filter parameters allowlist
   # Note: This won't affect rails_semantic_logger's direct logging, but ensures
@@ -15,5 +19,5 @@ Rails.application.config.after_initialize do
   end
 
   # Log that we've unsubscribed for debugging purposes
-  Rails.logger.info('Unsubscribed from send_data.action_controller notifications to prevent PII logging')
+  Rails.logger.info('Unsubscribed rails_semantic_logger from send_data.action_controller notifications to prevent PII logging')
 end
