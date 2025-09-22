@@ -23,6 +23,25 @@ RSpec.describe TravelPay::Constants do
     end
   end
 
+  describe 'EXPENSE_TYPES' do
+    it 'includes the expected expense types' do
+      expect(described_class::EXPENSE_TYPES.keys).to contain_exactly(
+        :meal, :mileage, :parking, :other
+      )
+    end
+
+    it 'maps expense types to correct strings' do
+      expect(described_class::EXPENSE_TYPES[:meal]).to eq('meal')
+      expect(described_class::EXPENSE_TYPES[:mileage]).to eq('mileage')
+      expect(described_class::EXPENSE_TYPES[:parking]).to eq('parking')
+      expect(described_class::EXPENSE_TYPES[:other]).to eq('other')
+    end
+
+    it 'is frozen' do
+      expect(described_class::EXPENSE_TYPES).to be_frozen
+    end
+  end
+
   describe 'UUID_REGEX' do
     let(:valid_uuid)   { SecureRandom.uuid } # Any UUID format accepted (not limited to v4)
     let(:invalid_uuid) { 'not-a-uuid' }
