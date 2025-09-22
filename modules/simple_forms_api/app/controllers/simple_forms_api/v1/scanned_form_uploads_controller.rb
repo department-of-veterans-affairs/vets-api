@@ -32,6 +32,7 @@ module SimpleFormsApi
           render json: { error: 'Feature not available' }, status: :not_found
           return
         end
+
         attachment = PersistentAttachments::VAForm.new
         attachment.form_id = params['form_id']
         attachment.file = params['file']
@@ -54,6 +55,30 @@ module SimpleFormsApi
       end
 
       def upload_response
+        if Flipper.enabled?(:simple_forms_upload_supporting_documents, @current_user)
+          upload_response_with_supporting_documents
+        else
+          upload_response_legacy
+        end
+      end
+
+      def upload_response_legacy
+        file_path = find_attachment_path(params[:confirmation_code])
+        stamper = PdfStamper.new(stamped_template_path: file_path, current_loa: @current_user.loa[:current],
+                                 timestamp: Time.current)
+        stamper.stamp_pdf
+        metadata = validated_metadata
+        status, confirmation_number = upload_pdf(file_path, metadata)
+        file_size = File.size(file_path).to_f / (2**20)
+
+        Rails.logger.info(
+          'Simple forms api - scanned form uploaded',
+          { form_number: params[:form_number], status:, confirmation_number:, file_size: }
+        )
+        [status, confirmation_number]
+      end
+
+      def upload_response_with_supporting_documents
         main_attachment = PersistentAttachment.find_by(guid: params[:confirmation_code])
         main_file_path = main_attachment.file.open.path
 
@@ -101,6 +126,13 @@ module SimpleFormsApi
           'businessLine' => 'CMP'
         }
         SimpleFormsApiSubmission::MetadataValidator.validate(raw_metadata)
+      end
+
+      def upload_pdf(file_path, metadata)
+        location, uuid = prepare_for_upload
+        log_upload_details(location, uuid)
+        response = perform_pdf_upload(location, file_path, metadata)
+        [response.status, uuid]
       end
 
       def upload_pdf_with_attachments(main_file_path, supporting_attachments, metadata)
