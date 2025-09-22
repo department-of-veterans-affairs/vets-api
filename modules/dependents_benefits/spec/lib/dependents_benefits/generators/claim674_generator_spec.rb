@@ -13,6 +13,10 @@ RSpec.describe DependentsBenefits::Generators::Claim674Generator, type: :model d
   let(:parent_id) { parent_claim.id }
   let(:generator) { described_class.new(form_data, parent_id, student_data) }
 
+  before do
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+  end
+
   describe '#extract_form_data' do
     let(:extracted_data) { generator.send(:extract_form_data) }
 

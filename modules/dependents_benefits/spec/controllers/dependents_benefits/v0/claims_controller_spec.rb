@@ -11,6 +11,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
   before do
     sign_in_as(user)
     allow(Flipper).to receive(:enabled?).with(:dependents_module_enabled, instance_of(User)).and_return(true)
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
   end
 
   describe '#show' do

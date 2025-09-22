@@ -9,6 +9,10 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
   let(:parent_claim_group) { create(:saved_claim_group) }
   let(:parent_claim_id) { parent_claim_group.parent_claim_id }
 
+  before do
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+  end
+
   describe 'Creating 686c and 674 claims from combined form data' do
     before do
       allow(Rails.logger).to receive(:info)

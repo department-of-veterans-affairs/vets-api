@@ -10,6 +10,8 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
 
   before do
     allow(generator).to receive(:claim_class).and_return(DependentsBenefits::SavedClaim)
+
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
   end
 
   describe 'initialization' do
