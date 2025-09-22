@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: "https://api.example.com/api/v3/appointments/find-or-add"
+    uri: "https://dev.integration.d365.va.gov/api/v3/appointments/find-or-add"
     body:
       encoding: UTF-8
-      string: '{"appointmentDateTime":"2025-08-15T11:00:00Z","facilityStationNumber":"46ac2b1a-20d4-eb11-8235-001dd80493e7"}'
+      string: '{"appointmentDateTime":"2024-01-15T10:00:00Z","facilityStationNumber":"facility-123"}'
     headers:
       Accept:
       - application/json
@@ -14,13 +14,13 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer <TOKEN>
+      - Bearer fake_veis_token_123
       X-BTSSS-Token:
-      - <BTSSS_TOKEN>
+      - fake_btsss_token_456
       X-Correlation-ID:
       - e359e352-10d8-4475-a453-9feec6bb8a10
       Ocp-Apim-Subscription-Key:
-      - <SUBSCRIPTION_KEY>
+      - fake_subscription_key
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -29,7 +29,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 20 Aug 2025 20:07:09 GMT
+      - Wed, 27 Aug 2025 21:54:27 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
@@ -57,31 +57,28 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{
-        "pageNumber": 1,
-        "pageSize": 1,
-        "totalRecordCount": 1,
         "correlationId": "e359e352-10d8-4475-a453-9feec6bb8a10",
-        "timeStamp": "2025-08-20T20:07:09.4474906Z",
+        "timeStamp": "2025-08-27T21:54:27.178363Z",
         "statusCode": 200,
-        "message": "Data retrieved successfully.",
+        "message": "Appointment found or created successfully",
         "success": true,
         "data": [
-            {
-                "id": "97d2e536-017e-f011-b4cc-001dd806c742",
-                "appointmentSource": "API",
-                "appointmentDateTime": "2025-08-15T11:00:00Z",
-                "appointmentName": "Customer created appointment at (21st) Century Oncology of Las Vegas (3006)",
-                "appointmentType": "Other",
-                "facilityId": "46ac2b1a-20d4-eb11-8235-001dd80493e7",
-                "facilityName": "(21st) Century Oncology of Las Vegas (3006)",
-                "serviceConnectedDisability": 421750001,
-                "currentStatus": "",
-                "appointmentStatus": "",
-                "externalAppointmentId": null,
-                "associatedClaimId": null,
-                "associatedClaimNumber": null,
-                "isCompleted": false
-            }
+          {
+            "id": "11111111-2222-3333-4444-555555555555",
+            "appointmentSource": "API",
+            "appointmentDateTime": "2025-09-16T16:30:00Z",
+            "appointmentName": "Customer created appointment at (21st) Century Oncology of Las Vegas (3006)",
+            "appointmentType": "Other",
+            "facilityId": "11111111-2222-3333-4444-555555555555",
+            "facilityName": "(21st) Century Oncology of Las Vegas (3006)",
+            "serviceConnectedDisability": 421750001,
+            "currentStatus": "",
+            "appointmentStatus": "",
+            "externalAppointmentId": null,
+            "associatedClaimId": null,
+            "associatedClaimNumber": null,
+            "isCompleted": false
+        }
         ]
-    }'
-  recorded_at: Wed, 20 Aug 2025 20:07:09 GMT
+      }'
+  recorded_at: Wed, 27 Aug 2025 21:54:27 GMT

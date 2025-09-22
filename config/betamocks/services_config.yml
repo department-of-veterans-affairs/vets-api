@@ -52,6 +52,10 @@
       :path: "/veis/api/btsss/travelclaim/api/v2/appointments"
       :file_path: "/travel_pay/appointments/default"
       :response_delay: 0.3
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v2/appointments/find-or-add"
+      :file_path: "/travel_pay/appointments/default"
+      :response_delay: 0.3
     - :method: :patch
       :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/submit"
       :file_path: "/travel_pay/claims/submit"
@@ -63,16 +67,21 @@
       :path: "/veis/api/btsss/travelclaim/api/v2/claims"
       :file_path: "/travel_pay/claims/create/default"
       :response_delay: 0.3
-    - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v2/expenses/mileage"
-      :file_path: "/travel_pay/expenses/default"
-      :response_delay: 0.3
     - :method: :get
       :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/documents/*"
       :file_path: "/travel_pay/documents"
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents\/(.+)'
+      :response_delay: 0.3
+    ## Expenses
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v2/expenses/mileage"
+      :file_path: "/travel_pay/expenses/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v1/expenses/other"
+      :file_path: "/travel_pay/expenses/other/create"
       :response_delay: 0.3
 
 #CRM Token post
@@ -307,64 +316,6 @@
 - :name: 'EVSS'
   :base_uri: <%= "#{URI(Settings.evss.url).host}:#{URI(Settings.evss.url).port}" %>
   :endpoints:
-  # PCIU email
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/emailAddress"
-    :file_path: "evss/pciu/email"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  - :method: :post
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/emailAddress"
-    :file_path: "evss/pciu/post_email"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  # PCIU primary phone
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/primaryPhoneNumber"
-    :file_path: "evss/pciu/primary_phone"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  - :method: :post
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/primaryPhoneNumber"
-    :file_path: "evss/pciu/post_primary_phone"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  # PCIU alternate phone
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/secondaryPhoneNumber"
-    :file_path: "evss/pciu/alternate_phone"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  - :method: :post
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/secondaryPhoneNumber"
-    :file_path: "evss/pciu/post_alternate_phone"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  # PCIUAddress
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
-    :file_path: "evss/pciu_address/states"
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/countries"
-    :file_path: "evss/pciu_address/countries"
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/mailingAddress"
-    :file_path: "evss/pciu_address/address"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  - :method: :post
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/mailingAddress"
-    :file_path: "evss/pciu_address/address_update"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
 
   # Intent To File
   - :method: :get
@@ -730,27 +681,55 @@
         :uid_location: url
         :uid_locator: '\/data\/(.+)'
 
-#Travel Claim VEIS Auth (BTSSS)
+#CheckIn Travel Claim VEIS Auth (BTSSS)
 - :name: "Travel Claim VEIS Auth Service"
   :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api_v2.auth_url).host}:#{URI(Settings.check_in.travel_reimbursement_api_v2.auth_url).port}" %>
   :endpoints:
     - :method: :post
       :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.tenant_id}/oauth2/v2.0/token" %>
-      :file_path: "/travel_claim/token/default"
+      :file_path: "/travel_claim/v0/token/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.tenant_id}/oauth2/token" %>
+      :file_path: "/travel_claim/v1/token/default"
       :response_delay: 0.3
 
-#Travel Claim Ingest Service (BTSSS)
-- :name: "Travel Claim Ingest Service"
+#CheckIn Travel Claim Service (BTSSS)
+- :name: "CheckIn Travel Claim Service"
   :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api_v2.claims_url).host}:#{URI(Settings.check_in.travel_reimbursement_api_v2.claims_url).port}" %>
   :endpoints:
     - :method: :post
       :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.claims_base_path}/api/ClaimIngest/submitclaim" %>
-      :file_path: "/travel_claim/submitclaim/default"
-      :response_delay: 15
+      :file_path: "/travel_claim/v0/submitclaim/default"
+      :response_delay: 0.3
     - :method: :post
       :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.claims_base_path}/api/ClaimIngest/V1/GetClaimsStatus" %>
-      :file_path: "/travel_claim/claimstatus/default"
-      :response_delay: 1
+      :file_path: "/travel_claim/v0/claimstatus/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/api/v4/auth/system-access-token"
+      :file_path: "/travel_claim/v1/btsss_token/default"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/api/v3/claims"
+      :file_path: "/travel_claim/claims/index/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/api/v3/appointments/find-or-add"
+      :file_path: "/travel_claim/v1/appointments/default"
+      :response_delay: 0.3
+    - :method: :patch
+      :path: "/api/v3/claims/*/submit"
+      :file_path: "/travel_claim/v1/claims/submit/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/api/v3/claims"
+      :file_path: "/travel_claim/v1/claims/create/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/api/v3/expenses/mileage"
+      :file_path: "/travel_claim/v1/expenses/create/default"
+      :response_delay: 0.3
 
 #CHIP
 - :name: "CHIP"
@@ -1063,8 +1042,31 @@
   :base_uri: <%= "#{URI(Settings.mhv.uhd.host).host}:#{URI(Settings.mhv.uhd.host).port}" %>
   :endpoints:
     - :method: :get
-      :path: "/mhvapi/v1/medicalrecords/labs"
+      :path: "/v1/medicalrecords/labs"
       :file_path: "mhv/uhd/labs"
       :cache_multiple_responses:
         :uid_location: "query"
         :uid_locator: "patient-id"
+    - :method: :get
+      :path: "/v1/medicalrecords/conditions"
+      :file_path: "mhv/uhd/conditions"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patientId"
+    - :method: :get
+      :path: "/v1/medicalrecords/notes"
+      :file_path: "mhv/uhd/notes"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patient-id"
+
+# VRE
+- :name: "VRE"
+  :base_uri: <%= "#{URI(Settings.res.base_url).host}:#{URI(Settings.res.base_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/suite/webapi/chapter31-eligibility-details-search"
+      :file_path: "vre/ch31_eligibility"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'icn":"(\w+)"'

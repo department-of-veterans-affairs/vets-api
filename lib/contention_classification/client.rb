@@ -22,6 +22,19 @@ module ContentionClassification
       raise e
     end
 
+    def classify_vagov_contentions_hybrid(params)
+      with_monitoring do
+        perform(:post, Settings.contention_classification_api.hybrid_contention_classification_path,
+                params.to_json, request_headers)
+      end
+    rescue Faraday::Error => e
+      Rails.logger.error(
+        'ContentionClassification::Client Faraday error on path ' \
+        "#{Settings.contention_classification_api.hybrid_contention_classification_path}: #{e.message}"
+      )
+      raise e
+    end
+
     private
 
     def request_headers

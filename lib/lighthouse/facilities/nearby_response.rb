@@ -1,28 +1,30 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 require_relative 'nearby_facility'
 
 module Lighthouse
   module Facilities
-    class NearbyResponse < Common::Base
+    class NearbyResponse
+      include Vets::Model
+
       attribute :body, String
       attribute :current_page, Integer
-      attribute :data, Object
-      attribute :links, Object
-      attribute :meta, Object
+      attribute :data, Hash, array: true
+      attribute :links, Hash
+      attribute :meta, Hash
       attribute :per_page, Integer
       attribute :status, Integer
       attribute :total_entries, Integer
 
       def initialize(body, status)
         super()
-        self.body = body
-        self.status = status
+        @body = body
+        @status = status
         parsed_body = JSON.parse(body)
-        self.data = parsed_body['data']
-        self.meta = parsed_body['meta']
-        self.links = parsed_body['links']
+        @data = Array.wrap(parsed_body['data']) # normalize data to array
+        @meta = parsed_body['meta']
+        @links = parsed_body['links']
         # This endpoint is not currently responding with a JSONAPI meta element
       end
 

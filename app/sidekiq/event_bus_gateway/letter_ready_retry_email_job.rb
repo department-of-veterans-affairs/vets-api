@@ -38,6 +38,7 @@ module EventBusGateway
       StatsD.increment("#{STATSD_METRIC_PREFIX}.success", tags: Constants::DD_TAGS)
     rescue => e
       record_email_send_failure(e)
+      raise
     end
 
     private

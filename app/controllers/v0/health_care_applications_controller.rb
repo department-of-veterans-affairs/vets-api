@@ -49,10 +49,12 @@ module V0
         raise Common::Exceptions::BackendServiceException.new('HCA422', status: 422)
       end
 
-      begin
-        clear_saved_form(FORM_ID) if current_user
-      rescue => e
-        Rails.logger.warn("[10-10EZ] - Failed to clear saved form: #{e.message}")
+      if current_user
+        if Flipper.enabled?(:hca_in_progress_form_delete_async)
+          DeleteInProgressFormJob.perform_in(5.minutes, FORM_ID, current_user.uuid)
+        else
+          clear_saved_form(FORM_ID)
+        end
       end
 
       if result[:id]

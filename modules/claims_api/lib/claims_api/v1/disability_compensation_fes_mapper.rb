@@ -7,13 +7,9 @@ module ClaimsApi
         @auto_claim = auto_claim
         @data = auto_claim&.form_data&.deep_symbolize_keys
         @fes_claim = {}
-        @veteran_participant_id = auto_claim.auth_headers&.dig('va_eauth_pid')
-        @transaction_id = auto_claim.auth_headers&.dig('va_eauth_service_transaction_id')
       end
 
       def map_claim
-        validate_required_fields!
-
         wrap_in_request_structure
       end
 
@@ -22,21 +18,15 @@ module ClaimsApi
       def wrap_in_request_structure
         {
           data: {
-            serviceTransactionId: @transaction_id,
-            veteranParticipantId: @veteran_participant_id,
-            claimantParticipantId: @veteran_participant_id,
-            form526: {}
+            serviceTransactionId: @auto_claim.auth_headers['va_eauth_service_transaction_id'],
+            claimantParticipantId: extract_claimant_participant_id,
+            form526: @fes_claim
           }
         }
       end
 
-      def validate_required_fields!
-        if @veteran_participant_id.blank?
-          raise ArgumentError, 'Missing veteranParticipantId - auth_headers do not contain valid participant ID'
-        end
-        if @transaction_id.blank?
-          raise ArgumentError, 'Missing serviceTransactionId - auth_headers do not contain valid service transaction ID'
-        end
+      def extract_claimant_participant_id
+        @auto_claim.auth_headers.dig('dependent', 'participant_id')
       end
     end
   end

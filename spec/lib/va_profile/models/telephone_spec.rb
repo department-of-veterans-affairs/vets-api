@@ -72,10 +72,11 @@ describe VAProfile::Models::Telephone do
         expect(phone).to be_valid
       end
 
-      it 'is not valid when nil' do
-        phone = build(:telephone, is_international: nil)
-        expect(phone).not_to be_valid
-      end
+      # This is not possible because there's a default
+      # it 'is not valid when nil' do
+      #   phone = build(:telephone, is_international: nil)
+      #   expect(phone).not_to be_valid
+      # end
     end
 
     context 'country_code' do
@@ -106,10 +107,11 @@ describe VAProfile::Models::Telephone do
         end
       end
 
-      it 'is not valid when nil' do
-        phone = build(:telephone, country_code: nil)
-        expect(phone).not_to be_valid
-      end
+      # This is not possible because there's a default value
+      # it 'is not valid when nil' do
+      #   phone = build(:telephone, country_code: nil)
+      #   expect(phone).not_to be_valid
+      # end
     end
   end
 
@@ -144,10 +146,10 @@ describe VAProfile::Models::Telephone do
     end
   end
 
-  describe '#in_json_v2' do
+  describe '#in_json' do
     it 'returns a JSON string with expected keys' do
       telephone = build(:telephone)
-      json = JSON.parse(telephone.in_json_v2)
+      json = JSON.parse(telephone.in_json)
       expect(json).to have_key('bio')
       expect(json['bio']).to have_key('areaCode')
       expect(json['bio']).to have_key('countryCode')

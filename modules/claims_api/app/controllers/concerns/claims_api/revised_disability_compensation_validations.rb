@@ -18,6 +18,8 @@ module ClaimsApi
       validate_service_periods_quantity!
       validate_service_periods_chronology!
       validate_form_526_no_active_duty_end_date_more_than_180_days_in_future!
+      # ensure 'servicePeriods.activeDutyBeginDate' values are in the past
+      validate_form_526_service_periods_begin_in_past!
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
       validate_form_526_title10_activation_date!
       # ensure 'currentMailingAddress' attributes are valid
@@ -35,17 +37,13 @@ module ClaimsApi
 
     def retrieve_separation_locations
       ClaimsApi::BRD.new.intake_sites
-    rescue
-      exception_msg = 'Failed To Obtain Intake Sites (Request Failed)'
-      raise ::Common::Exceptions::ServiceUnavailable.new({ source: 'intake_sites', detail: exception_msg })
     end
 
     def validate_form_526_submission_claim_date!
       return if form_attributes['claimDate'].blank?
       return if DateTime.parse(form_attributes['claimDate']) <= Time.zone.now
 
-      exception_msg = 'The request failed validation, because the claim date was in the future.'
-      raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', exception_msg)
+      raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', form_attributes['claimDate'])
     end
 
     def validate_form_526_location_codes!
@@ -58,12 +56,23 @@ module ClaimsApi
       form_attributes['serviceInformation']['servicePeriods'].each do |service_period|
         next if Date.parse(service_period['activeDutyEndDate']) <= Time.zone.today
         next if separation_locations.any? do |location|
-                  location[:id]&.to_s == service_period['separationLocationCode']
-                end
+          location[:id]&.to_s == service_period['separationLocationCode']
+        end
 
-        exception_msg = "Provided separation location code is not valid: #{service_period['separationLocationCode']}"
-        raise ::Common::Exceptions::InvalidFieldValue.new('Invalid separation location code',
-                                                          exception_msg)
+        raise ::Common::Exceptions::InvalidFieldValue.new('separationLocationCode',
+                                                          service_period['separationLocationCode'])
+      end
+    end
+
+    def validate_form_526_service_periods_begin_in_past!
+      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
+
+      service_periods.each do |service_period|
+        begin_date = service_period['activeDutyBeginDate']
+        next if Date.parse(begin_date) < Time.zone.today
+
+        raise ::Common::Exceptions::InvalidFieldValue.new('servicePeriods.activeDutyBeginDate',
+                                                          "A service period's activeDutyBeginDate must be in the past")
       end
     end
 

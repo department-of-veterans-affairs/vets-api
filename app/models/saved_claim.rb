@@ -27,6 +27,7 @@ class SavedClaim < ApplicationRecord
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
   has_many :claim_va_notifications, dependent: :destroy
+
   has_many :form_submissions, dependent: :nullify
   has_many :bpds_submissions, class_name: 'BPDS::Submission', dependent: :nullify
   has_many :lighthouse_submissions, class_name: 'Lighthouse::Submission', dependent: :nullify
@@ -40,7 +41,9 @@ class SavedClaim < ApplicationRecord
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
   after_initialize do
-    self.form_id = self.class::FORM.upcase unless [SavedClaim::DependencyClaim].any? { |k| instance_of?(k) }
+    unless [SavedClaim::DependencyClaim, DependentsBenefits::SavedClaim].any? { |k| instance_of?(k) }
+      self.form_id = self.class::FORM.upcase
+    end
   end
 
   def self.add_form_and_validation(form_id)
@@ -131,11 +134,9 @@ class SavedClaim < ApplicationRecord
     nil
   end
 
-  ##
   # insert notifcation after VANotify email send
   #
   # @see ClaimVANotification
-  #
   def insert_notification(email_template_id)
     claim_va_notifications.create!(
       form_type: form_id,
@@ -144,12 +145,10 @@ class SavedClaim < ApplicationRecord
     )
   end
 
-  ##
   # Find notifcation by args*
   #
   # @param email_template_id
   # @see ClaimVANotification
-  #
   def va_notification?(email_template_id)
     claim_va_notifications.find_by(
       form_type: form_id,
@@ -159,6 +158,16 @@ class SavedClaim < ApplicationRecord
 
   def regional_office
     []
+  end
+
+  # retrieve claim groups _this_ claim is a parent of
+  def parent_of_groups
+    SavedClaimGroup.where(parent_claim_id: id)
+  end
+
+  # retrieve claim groups _this_ claim is a child of
+  def child_of_groups
+    SavedClaimGroup.where(saved_claim_id: id)
   end
 
   private

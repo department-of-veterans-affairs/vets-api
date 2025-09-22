@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: "us-gov-west-1"
@@ -30,7 +30,7 @@ jobs:
 
       - name:  Check codeowner changes
         id: check-codeowner-changes
-        uses: tj-actions/changed-files@v46.0.5 # v46 has a CVE
+        uses: tj-actions/changed-files@v47.0.0 # v46 has a CVE
         with:
           files: |
             .github/CODEOWNERS

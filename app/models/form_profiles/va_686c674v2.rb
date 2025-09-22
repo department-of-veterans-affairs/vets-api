@@ -4,6 +4,16 @@ require 'vets/model'
 require 'bid/awards/service'
 
 class FormProfiles::VA686c674v2 < FormProfile
+  class DependentInformation
+    include Vets::Model
+
+    attribute :full_name, FormFullName
+    attribute :date_of_birth, Date
+    attribute :ssn, String
+    attribute :relationship_to_veteran, String
+    attribute :award_indicator, String
+  end
+
   class FormAddress
     include Vets::Model
 
@@ -19,9 +29,11 @@ class FormProfiles::VA686c674v2 < FormProfile
   end
 
   attribute :form_address, FormAddress
+  attribute :dependents_information, DependentInformation, array: true
 
   def prefill
     prefill_form_address
+    prefill_dependents_information
 
     super
   end
@@ -38,11 +50,7 @@ class FormProfiles::VA686c674v2 < FormProfile
 
   def prefill_form_address
     begin
-      mailing_address = if user.icn.present? && Flipper.enabled?(:remove_pciu, user)
-                          VAProfileRedis::V2::ContactInformation.for_user(user).mailing_address
-                        elsif user.vet360_id.present?
-                          VAProfileRedis::ContactInformation.for_user(user).mailing_address
-                        end
+      mailing_address = VAProfileRedis::V2::ContactInformation.for_user(user).mailing_address
     rescue
       nil
     end
@@ -100,7 +108,69 @@ class FormProfiles::VA686c674v2 < FormProfile
     end
   end
 
+  ##
+  # This method retrieves the dependents from the BGS service and maps them to the DependentInformation model.
+  # If no dependents are found or if they are not active for benefits, it returns an empty array.
+  def prefill_dependents_information
+    dependents = dependent_service.get_dependents
+    persons = if dependents.nil? || dependents[:persons].blank?
+                []
+              else
+                dependents[:persons]
+              end
+    @dependents_information = persons.filter_map do |person|
+      person_to_dependent_information(person)
+    end
+  rescue => e
+    monitor.track_event('warn', 'Failure initializing dependents_information', 'dependents.prefill.error',
+                        { error: e&.message })
+    @dependents_information = []
+  end
+
+  ##
+  # Assigns a dependent's information to the DependentInformation model.
+  #
+  # @param person [Hash] The dependent's information as a hash
+  # @return [DependentInformation] The dependent's information mapped to the model
+  def person_to_dependent_information(person)
+    parsed_date = parse_date_safely(person[:date_of_birth])
+
+    DependentInformation.new(
+      full_name: FormFullName.new({
+                                    first: person[:first_name],
+                                    middle: person[:middle_name],
+                                    last: person[:last_name]
+                                  }),
+      date_of_birth: parsed_date,
+      ssn: person[:ssn],
+      relationship_to_veteran: person[:relationship],
+      award_indicator: person[:award_indicator]
+    )
+  end
+
+  def dependent_service
+    @dependent_service ||= BGS::DependentService.new(user)
+  end
+
   def pension_award_service
     @pension_award_service ||= BID::Awards::Service.new(user)
+  end
+
+  def monitor
+    @monitor ||= Dependents::Monitor.new(nil)
+  end
+
+  ##
+  # Safely parses a date string, handling various formats
+  #
+  # @param date_string [String, Date, nil] The date to parse
+  # @return [Date, nil] The parsed date or nil if parsing fails
+  def parse_date_safely(date_string)
+    return nil if date_string.blank?
+    return date_string if date_string.is_a?(Date)
+
+    Date.parse(date_string.to_s)
+  rescue ArgumentError, TypeError
+    nil
   end
 end

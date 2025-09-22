@@ -35,7 +35,6 @@ RSpec.describe BGS::DependentService do
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:dependents_claims_evidence_api_upload).and_return(false)
   end
 
@@ -61,7 +60,7 @@ RSpec.describe BGS::DependentService do
           service = BGS::DependentService.new(user)
           expect(service).not_to receive(:log_exception_to_sentry)
           expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -81,7 +80,7 @@ RSpec.describe BGS::DependentService do
           service = BGS::DependentService.new(user)
           expect(service).not_to receive(:log_exception_to_sentry)
           expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -99,7 +98,7 @@ RSpec.describe BGS::DependentService do
         service = BGS::DependentService.new(user)
         expect(service).not_to receive(:log_exception_to_sentry)
         expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           encrypted_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -119,7 +118,7 @@ RSpec.describe BGS::DependentService do
         expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -139,7 +138,7 @@ RSpec.describe BGS::DependentService do
         expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -159,7 +158,7 @@ RSpec.describe BGS::DependentService do
         expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -249,7 +248,7 @@ RSpec.describe BGS::DependentService do
           service = BGS::DependentService.new(user)
           expect(service).not_to receive(:log_exception_to_sentry)
           expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -269,7 +268,7 @@ RSpec.describe BGS::DependentService do
           service = BGS::DependentService.new(user)
           expect(service).not_to receive(:log_exception_to_sentry)
           expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -287,7 +286,7 @@ RSpec.describe BGS::DependentService do
         service = BGS::DependentService.new(user)
         expect(service).not_to receive(:log_exception_to_sentry)
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           encrypted_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -307,7 +306,7 @@ RSpec.describe BGS::DependentService do
         expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -327,7 +326,7 @@ RSpec.describe BGS::DependentService do
         expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -347,7 +346,7 @@ RSpec.describe BGS::DependentService do
         expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
