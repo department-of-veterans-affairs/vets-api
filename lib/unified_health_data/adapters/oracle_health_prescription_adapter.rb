@@ -45,7 +45,11 @@ module UnifiedHealthData
       # rubocop:enable Metrics/MethodLength
 
       def extract_refill_date(resource)
-        resource.dig('dispenseRequest', 'validityPeriod', 'start')
+        dispense = find_most_recent_medication_dispense(resource.dig('contained'))
+        refill_date = dispense.dig('whenHandedOver') if dispense
+        return refill_date if refill_date
+
+        nil
       end
 
       def extract_refill_remaining(resource)
@@ -75,10 +79,8 @@ module UnifiedHealthData
         return quantity if quantity
 
         # Fallback: check contained MedicationDispense
-        if resource['contained']
-          dispense = find_most_recent_medication_dispense(resource['contained'])
-          return dispense.dig('quantity', 'value') if dispense
-        end
+        dispense = find_most_recent_medication_dispense(resource.dig('contained'))
+        return dispense.dig('quantity', 'value') if dispense
 
         nil
       end
@@ -100,22 +102,16 @@ module UnifiedHealthData
       end
 
       def extract_dispensed_date(resource)
-        # Check for contained MedicationDispense resources
-        if resource['contained']
-          dispense = find_most_recent_medication_dispense(resource['contained'])
-          return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
-        end
+        dispense = find_most_recent_medication_dispense(resource.dig('contained'))
+        return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
 
         # Fallback to initial fill date
         resource.dig('dispenseRequest', 'initialFill', 'date')
       end
 
       def extract_station_number(resource)
-        # Extract from most recent contained MedicationDispense
-        if resource['contained']
-          dispense = find_most_recent_medication_dispense(resource['contained'])
-          return dispense.dig('location', 'display') if dispense
-        end
+        dispense = find_most_recent_medication_dispense(resource.dig('contained'))
+        return dispense.dig('location', 'display') if dispense
 
         nil
       end
