@@ -512,6 +512,34 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       end
     end
 
+    context 'confinements' do
+      let(:confinement_periods) do
+        [
+          {
+            'confinementBeginDate' => '2007-08-01',
+            'confinementEndDate' => '2007-09-01'
+          },
+          {
+            'confinementBeginDate' => '2007-11-01',
+            'confinementEndDate' => '2007-12-01'
+          }
+        ]
+      end
+
+      it 'maps the confinement periods' do
+        form_attributes['serviceInformation']['confinements'] = confinement_periods
+        mapper.map_claim
+
+        confinements_base = pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement]
+
+        expect(confinements_base).to have_key(:confinementDates)
+        expect(confinements_base[:confinementDates][0][:start]).to eq({ year: '2007', month: '08', day: '01' })
+        expect(confinements_base[:confinementDates][0][:end]).to eq({ year: '2007', month: '09', day: '01' })
+        expect(confinements_base[:confinementDates][1][:start]).to eq({ year: '2007', month: '11', day: '01' })
+        expect(confinements_base[:confinementDates][1][:end]).to eq({ year: '2007', month: '12', day: '01' })
+      end
+    end
+
     context 'reserves national guard service' do
       let(:reserves) do
         {

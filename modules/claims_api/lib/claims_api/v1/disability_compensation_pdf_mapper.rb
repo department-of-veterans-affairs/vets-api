@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require_relative '../pdf_mapper_base'
+require_relative 'mapper_helpers/auth_headers_lookup'
 require_relative 'mapper_helpers/pdf_data_builder'
 
 module ClaimsApi
   module V1
     class DisabilityCompensationPdfMapper
       include PdfMapperBase
+      include AuthHeadersLookup # get_auth_header
       include PdfDataBuilder # build_pdf_path
 
       SECTIONS = %i[
@@ -109,20 +111,20 @@ module ClaimsApi
       end
 
       def veteran_ssn(identification_info_pdf_path)
-        ssn = @auth_headers[:va_eauth_pnid]
+        ssn = get_auth_header(:pnid)
         identification_info_pdf_path[:ssn] = format_ssn(ssn) if ssn.present?
       end
 
       def veteran_file_number(identification_info_pdf_path)
-        file_number = @auth_headers[:va_eauth_birlsfilenumber]
+        file_number = get_auth_header(:birls_file_number)
         identification_info_pdf_path[:vaFileNumber] = file_number
       end
 
       def veteran_name
         veteran_name_base = build_pdf_path(:identification_name)
 
-        fname = @auth_headers[:va_eauth_firstName]
-        lname = @auth_headers[:va_eauth_lastName]
+        fname = get_auth_header(:first_name)
+        lname = get_auth_header(:last_name)
 
         veteran_name_base[:firstName] = fname
         veteran_name_base[:lastName] = lname
@@ -130,7 +132,7 @@ module ClaimsApi
       end
 
       def veteran_birth_date(identification_info_pdf_path)
-        birth_date_data = @auth_headers[:va_eauth_birthdate]
+        birth_date_data = get_auth_header(:birth_date)
         birth_date = format_birth_date(birth_date_data) if birth_date_data
 
         identification_info_pdf_path[:dateOfBirth] = birth_date
@@ -336,6 +338,8 @@ module ClaimsApi
         service_info_pdf_path = build_pdf_path(:service_info)
 
         service_periods(service_info_pdf_path)
+
+        confinements(service_info_pdf_path) if @auto_claim.dig('serviceInformation', 'confinements')
         reserves_national_guard_service if @auto_claim.dig('serviceInformation', 'reservesNationalGuardService')
         alternate_names(service_info_pdf_path) if @auto_claim.dig('serviceInformation', 'alternateNames')
       end
@@ -344,13 +348,14 @@ module ClaimsApi
       def service_periods(service_info_pdf_path)
         most_recent_pdf_path = build_pdf_path(:service_most_recent)
         service_periods_data = @auto_claim.dig('serviceInformation', 'servicePeriods')
-        most_recent_period = service_periods_data.max_by do |sp|
+        most_recent_service_period_data = service_periods_data.max_by do |sp|
           sp['activeDutyEndDate'].presence || {}
         end
-        most_recent_branch = most_recent_period['serviceBranch']
-        most_recent_service_period(most_recent_period, most_recent_branch, most_recent_pdf_path, service_info_pdf_path)
+        most_recent_branch = most_recent_service_period_data['serviceBranch']
+        most_recent_service_period(most_recent_service_period_data, most_recent_branch, most_recent_pdf_path,
+                                   service_info_pdf_path)
 
-        remaining_periods = service_periods_data - [most_recent_period]
+        remaining_periods = service_periods_data - [most_recent_service_period_data]
         additional_service_periods(remaining_periods, service_info_pdf_path) if remaining_periods
       end
 
@@ -378,6 +383,20 @@ module ClaimsApi
           }
         end
         service_info_pdf_path[:additionalPeriodsOfService] = additional_periods
+      end
+
+      # 'confinementBeginDate' & 'confinementEndDate' are required via the schema if confinements are present
+      def confinements(service_info_pdf_path)
+        confinements_data = @auto_claim.dig('serviceInformation', 'confinements')
+
+        periods_of_confinement = []
+        confinements_data.each do |c|
+          begin_date = make_date_object(c['confinementBeginDate'], c['confinementBeginDate'].length)
+          end_date = make_date_object(c['confinementEndDate'], c['confinementEndDate'].length)
+
+          periods_of_confinement << { start: begin_date, end: end_date }
+        end
+        service_info_pdf_path[:prisonerOfWarConfinement] = { confinementDates: periods_of_confinement }
       end
 
       # If reserves are present
