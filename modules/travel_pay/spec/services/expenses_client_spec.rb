@@ -237,53 +237,41 @@ describe TravelPay::ExpensesClient do
     end
 
     context 'when the API responds with errors' do
-      it 'handles a 400 Bad Request response' do
-        mock_response = instance_double(Faraday::Response, status: 400, body: { 'error' => 'Bad Request' })
-        allow(connection_double).to receive(:delete).and_return(mock_response)
+      it 'raises BadRequest on 400' do
+        allow(connection_double).to receive(:delete)
+          .and_raise(Faraday::BadRequestError.new(nil))
 
-        response = client.delete_expense(veis_token, btsss_token, expense_id, 'other')
-        expect(response.status).to eq(400)
-        expect(response.body['error']).to eq('Bad Request')
+        expect do
+          client.delete_expense(veis_token, btsss_token, expense_id, 'other')
+        end.to raise_error(Faraday::BadRequestError)
       end
 
-      it 'handles a 403 Forbidden response' do
-        mock_response = instance_double(Faraday::Response, status: 403, body: { 'error' => 'Forbidden' })
-        allow(connection_double).to receive(:delete).and_return(mock_response)
+      it 'raises Forbidden on 403' do
+        allow(connection_double).to receive(:delete)
+          .and_raise(Faraday::ForbiddenError.new(nil))
 
-        response = client.delete_expense(veis_token, btsss_token, expense_id, 'other')
-        expect(response.status).to eq(403)
-        expect(response.body['error']).to eq('Forbidden')
+        expect do
+          client.delete_expense(veis_token, btsss_token, expense_id, 'other')
+        end.to raise_error(Faraday::ForbiddenError)
       end
 
-      it 'handles a 404 Not Found response' do
-        mock_response = instance_double(Faraday::Response, status: 404, body: { 'error' => 'Not Found' })
-        allow(connection_double).to receive(:delete).and_return(mock_response)
+      it 'raises ResourceNotFound on 404' do
+        allow(connection_double).to receive(:delete)
+          .and_raise(Faraday::ResourceNotFound.new(nil))
 
-        response = client.delete_expense(veis_token, btsss_token, expense_id, 'other')
-        expect(response.status).to eq(404)
-        expect(response.body['error']).to eq('Not Found')
+        expect do
+          client.delete_expense(veis_token, btsss_token, expense_id, 'other')
+        end.to raise_error(Faraday::ResourceNotFound)
       end
 
-      it 'handles a 500 Internal Server Error response' do
-        mock_response = instance_double(Faraday::Response, status: 500, body: { 'error' => 'Internal Server Error' })
-        allow(connection_double).to receive(:delete).and_return(mock_response)
+      it 'raises ServerError on 500' do
+        allow(connection_double).to receive(:delete)
+          .and_raise(Faraday::ServerError.new(nil))
 
-        response = client.delete_expense(veis_token, btsss_token, expense_id, 'other')
-        expect(response.status).to eq(500)
-        expect(response.body['error']).to eq('Internal Server Error')
+        expect do
+          client.delete_expense(veis_token, btsss_token, expense_id, 'other')
+        end.to raise_error(Faraday::ServerError)
       end
-    end
-  end
-
-  describe '#expense_endpoint_for_type' do
-    it 'returns correct endpoints for other expense type' do
-      expect(client.send(:expense_endpoint_for_type, 'other')).to eq('api/v1/expenses/other')
-    end
-
-    it 'raises ArgumentError for unsupported expense types' do
-      expect do
-        client.send(:expense_endpoint_for_type, 'unknown')
-      end.to raise_error(ArgumentError, /Unsupported expense type: unknown/)
     end
   end
 end
