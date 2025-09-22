@@ -185,10 +185,6 @@ features:
     actor_type: user
     description: Enables the upgraded insurance section of the Health Care Application
     enable_in_development: true
-  hca_in_progress_form_logging:
-    actor_type: user
-    description: Add logging for the 10-10EZ around cleaning up InProgressForms after submission
-    enable_in_development: true
   hca_in_progress_form_delete_async:
     actor_type: user
     description: Enables deleting an InProgressForm in a sidekiq job
@@ -2590,3 +2586,6 @@ features:
   form_1919_release:
     actor_type: user
     description: If enabled, show link to digitized form instead of PDF download on SCO page
+  auth_exp_email_verification_enabled:
+    actor_type: user
+    description: If enabled, a user will be required to verify their contact email address
