@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 require_relative '../pdf_mapper_base'
+require_relative 'mapper_helpers/auth_headers_lookup'
 
 module ClaimsApi
   module V1
     class DisabilityCompensationPdfMapper # rubocop:disable Metrics/ClassLength
       include PdfMapperBase
+      include AuthHeadersLookup
 
       SECTIONS = %i[
         section_0_claim_attributes
@@ -109,20 +111,20 @@ module ClaimsApi
       end
 
       def veteran_ssn
-        ssn = @auth_headers[:va_eauth_pnid]
+        ssn = get_auth_header(:pnid)
         @pdf_data[:data][:attributes][:identificationInformation][:ssn] = format_ssn(ssn) if ssn.present?
       end
 
       def veteran_file_number
-        file_number = @auth_headers[:va_eauth_birlsfilenumber]
+        file_number = get_auth_header(:birls_file_number)
         @pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber] = file_number
       end
 
       def veteran_name
         set_veteran_name
 
-        fname = @auth_headers[:va_eauth_firstName]
-        lname = @auth_headers[:va_eauth_lastName]
+        fname = get_auth_header(:first_name)
+        lname = get_auth_header(:last_name)
 
         @pdf_data[:data][:attributes][:identificationInformation][:name][:firstName] = fname
         @pdf_data[:data][:attributes][:identificationInformation][:name][:lastName] = lname
@@ -130,7 +132,7 @@ module ClaimsApi
       end
 
       def veteran_birth_date
-        birth_date_data = @auth_headers[:va_eauth_birthdate]
+        birth_date_data = get_auth_header(:birth_date)
         birth_date = format_birth_date(birth_date_data) if birth_date_data
 
         @pdf_data[:data][:attributes][:identificationInformation][:dateOfBirth] = birth_date
@@ -414,6 +416,8 @@ module ClaimsApi
         set_pdf_data_for_service_information
 
         service_periods
+
+        confinements if @auto_claim.dig('serviceInformation', 'confinements')
         reserves_national_guard_service if @auto_claim.dig('serviceInformation', 'reservesNationalGuardService')
         alternate_names if @auto_claim.dig('serviceInformation', 'alternateNames')
       end
@@ -428,13 +432,13 @@ module ClaimsApi
       def service_periods
         set_pdf_data_for_most_recent_service_period
         service_periods_data = @auto_claim.dig('serviceInformation', 'servicePeriods')
-        most_recent_service_period = service_periods_data.max_by do |sp|
+        most_recent_service_period_data = service_periods_data.max_by do |sp|
           sp['activeDutyEndDate'].presence || {}
         end
-        most_recent_branch = most_recent_service_period['serviceBranch']
-        most_recent_service_period(most_recent_service_period, most_recent_branch)
+        most_recent_branch = most_recent_service_period_data['serviceBranch']
+        most_recent_service_period(most_recent_service_period_data, most_recent_branch)
 
-        remaining_periods = service_periods_data - [most_recent_service_period]
+        remaining_periods = service_periods_data - [most_recent_service_period_data]
         additional_service_periods(remaining_periods) if remaining_periods
       end
 
@@ -475,6 +479,33 @@ module ClaimsApi
           }
         end
         @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = additional_periods
+      end
+
+      def confinements
+        set_pdf_data_for_pow_confinement
+
+        confinement_periods
+      end
+
+      def set_pdf_data_for_pow_confinement
+        return if @pdf_data[:data][:attributes][:serviceInformation]&.key?(:prisonerOfWarConfinement)
+
+        @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] = {}
+      end
+
+      # 'confinementBeginDate' & 'confinementEndDate' are required via the schema if confinements are present
+      def confinement_periods
+        confinements_data = @auto_claim.dig('serviceInformation', 'confinements')
+
+        periods_of_confinement = []
+        confinements_data.each do |c|
+          begin_date = make_date_object(c['confinementBeginDate'], c['confinementBeginDate'].length)
+          end_date = make_date_object(c['confinementEndDate'], c['confinementEndDate'].length)
+
+          periods_of_confinement << { start: begin_date, end: end_date }
+        end
+        @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] =
+          { confinementDates: periods_of_confinement }
       end
 
       # If reserves are present
