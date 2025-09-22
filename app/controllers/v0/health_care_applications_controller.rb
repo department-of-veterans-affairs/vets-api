@@ -117,7 +117,7 @@ module V0
     end
 
     def import_facilities_if_empty
-      HCA::StdInstitutionImportJob.new.import_facilities unless HealthFacility.exists?
+      HCA::StdInstitutionImportJob.new.import_facilities(run_sync: true) unless HealthFacility.exists?
     end
 
     def record_submission_attempt
