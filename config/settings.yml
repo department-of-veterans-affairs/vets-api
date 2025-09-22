@@ -246,10 +246,9 @@ connected_apps_api:
     auth_access_key: <%= ENV['connected_apps_api__connected_apps__auth_access_key'] %>
     revoke_url: <%= ENV['connected_apps_api__connected_apps__revoke_url'] %>
     url: <%= ENV['connected_apps_api__connected_apps__url'] %>
-contention-classification-api:
-  url: <%= ENV['contention-classification-api__url'] %>
 contention_classification_api:
   expanded_contention_classification_path: expanded-contention-classification
+  hybrid_contention_classification_path: hybrid-contention-classification
   open_timeout: 5
   read_timeout: 10
   url: <%= ENV['contention_classification_api__url'] %>
@@ -719,6 +718,7 @@ lighthouse:
       - system/ChargeItem.read
       - system/Invoice.read
       - system/PaymentReconciliation.read
+      - system/MedicationDispense.read
       - launch
     timeout: 30
     use_mocks: false
@@ -918,7 +918,7 @@ mhv:
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
-    collection_caching_enabled: <%= ENV['mhv__rx__collection_caching_enabled'] %>
+    collection_caching_enabled: false
     gw_base_path: <%= ENV['mhv__rx__gw_base_path'] %>
     host: <%= ENV['mhv__rx__host'] %>
     mock: <%= ENV['mhv__rx__mock'] %>

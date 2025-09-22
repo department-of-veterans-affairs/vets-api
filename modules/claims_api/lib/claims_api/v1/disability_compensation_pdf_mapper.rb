@@ -4,8 +4,18 @@ require_relative '../pdf_mapper_base'
 
 module ClaimsApi
   module V1
-    class DisabilityCompensationPdfMapper
+    class DisabilityCompensationPdfMapper # rubocop:disable Metrics/ClassLength
       include PdfMapperBase
+
+      SECTIONS = %i[
+        section_0_claim_attributes
+        section_1_veteran_identification
+        section_2_change_of_address
+        section_3_homeless_information
+        section_5_disabilities
+        section_5_treatment_centers
+        section_6_service_information
+      ].freeze
 
       HOMELESSNESS_RISK_SITUATION_TYPES = {
         'fleeing' => 'FLEEING_CURRENT_RESIDENCE',
@@ -29,13 +39,7 @@ module ClaimsApi
       end
 
       def map_claim
-        section_0_claim_attributes
-        section_1_veteran_identification
-        section_2_change_of_address
-        section_3_homeless_information
-        section_5_disabilities
-        section_5_treatment_centers
-        section_6_service_information
+        SECTIONS.each { |section| send(section) }
 
         @pdf_data
       end
@@ -410,7 +414,10 @@ module ClaimsApi
         set_pdf_data_for_service_information
 
         service_periods
+
         confinements if @auto_claim.dig('serviceInformation', 'confinements')
+        reserves_national_guard_service if @auto_claim.dig('serviceInformation', 'reservesNationalGuardService')
+        alternate_names if @auto_claim.dig('serviceInformation', 'alternateNames')
       end
 
       def set_pdf_data_for_service_information
@@ -497,6 +504,86 @@ module ClaimsApi
         end
         @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] =
           { confinementDates: periods_of_confinement }
+      end
+
+      # If reserves are present
+      # 'obligationTermOfServiceFromDate', 'obligationTermOfServiceToDate' & 'unitName' are required via the schema
+      def reserves_national_guard_service
+        set_pdf_data_for_serves_national_guard_service
+
+        required_reserves_data
+        optional_reserves_data
+      end
+
+      def set_pdf_data_for_serves_national_guard_service
+        return if @pdf_data[:data][:attributes][:serviceInformation]&.key?(:reservesNationalGuardService)
+
+        @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService] = {}
+      end
+
+      def required_reserves_data
+        reserves_data_object_base = @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+        unit_name = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService', 'unitName')
+        begin_date = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService',
+                                     'obligationTermOfServiceFromDate')
+        end_date = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService',
+                                   'obligationTermOfServiceToDate')
+
+        reserves_data_object_base[:unitName] = unit_name
+        reserves_data_object_base[:obligationTermsOfService] = {
+          start: make_date_object(begin_date, begin_date.length),
+          end: make_date_object(end_date, end_date.length)
+        }
+      end
+
+      def optional_reserves_data
+        reserves_data = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService')
+
+        unit_phone(reserves_data) if reserves_data['unitPhone']
+        inactive_duty_training_pay(reserves_data) if reserves_data.key?('receivingInactiveDutyTrainingPay')
+        title_10_activation if reserves_data['title10Activation']
+      end
+
+      def unit_phone(reserves_data)
+        if reserves_data&.dig('unitPhone')
+          @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:unitPhoneNumber] = [
+            reserves_data&.dig('unitPhone', 'areaCode'),
+            reserves_data&.dig('unitPhone', 'phoneNumber')&.tr('-', '')
+          ].compact.join
+        end
+      end
+
+      def inactive_duty_training_pay(reserves_data)
+        reserves_data_object_base = @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+        reserves_data_object_base[:receivingInactiveDutyTrainingPay] =
+          handle_yes_no(reserves_data['receivingInactiveDutyTrainingPay'])
+      end
+
+      # if 'title_10_activation' is present
+      # 'anticipatedSeparationDate' & 'title10ActivationDate'
+      def title_10_activation
+        title_10_data = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService', 'title10Activation')
+        activation_date_data = title_10_data['title10ActivationDate']
+        anticipated_separation_date_data = title_10_data['anticipatedSeparationDate']
+        activation_date = make_date_object(activation_date_data, activation_date_data.length)
+        anticipated_separation_date = make_date_object(
+          anticipated_separation_date_data, anticipated_separation_date_data.length
+        )
+
+        @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:federalActivation] = {
+          activationDate: activation_date,
+          anticipatedSeparationDate: anticipated_separation_date
+        }
+      end
+
+      def alternate_names
+        alt_names = @auto_claim.dig('serviceInformation', 'alternateNames')
+
+        names = alt_names.map do |n|
+          n.values_at('firstName', 'middleName', 'lastName').compact.join(' ')
+        end
+
+        @pdf_data[:data][:attributes][:serviceInformation][:alternateNames] = names
       end
     end
   end

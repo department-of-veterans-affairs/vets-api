@@ -844,5 +844,117 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
         expect(confinements_base[:confinementDates][1][:end]).to eq({ year: '2007', month: '12', day: '01' })
       end
     end
+
+    context 'reserves national guard service' do
+      let(:reserves) do
+        {
+          'title10Activation' => {
+            'anticipatedSeparationDate' => '2025-12-01',
+            'title10ActivationDate' => '2023-01-01'
+          },
+          'obligationTermOfServiceFromDate' => '2023-01-01',
+          'obligationTermOfServiceToDate' => '2023-12-01',
+          'unitName' => 'Unit Name',
+          'unitPhone' => {
+            'areaCode' => '123',
+            'phoneNumber' => '1231234'
+          },
+          'receivingInactiveDutyTrainingPay' => false
+        }
+      end
+
+      describe '#set_pdf_data_for_serves_national_guard_service' do
+        context 'when the mostRecentActiveService key does not exist' do
+          before do
+            @pdf_data = pdf_data
+            @pdf_data[:data][:attributes][:serviceInformation] = {}
+          end
+
+          it 'sets the mostRecentActiveService key to an empty hash' do
+            res = mapper.send(:set_pdf_data_for_serves_national_guard_service)
+
+            expect(res).to eq({})
+          end
+        end
+
+        context 'when the mostRecentActiveService key already exists' do
+          before do
+            @pdf_data = pdf_data
+            @pdf_data[:data][:attributes][:serviceInformation] = {}
+            @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService] = {}
+          end
+
+          it 'returns early without modifying the existing data' do
+            res = mapper.send(:set_pdf_data_for_serves_national_guard_service)
+
+            expect(res).to be_nil
+          end
+        end
+      end
+
+      it 'maps the required attributes when reserves is present' do
+        form_attributes['serviceInformation']['reservesNationalGuardService'] = reserves
+        mapper.map_claim
+
+        reserves_base = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+
+        expect(reserves_base).not_to be_nil
+        expect(reserves_base[:unitName]).to eq('Unit Name')
+        expect(reserves_base[:obligationTermsOfService][:start]).to eq({ year: '2023', month: '01', day: '01' })
+        expect(reserves_base[:obligationTermsOfService][:end]).to eq({ year: '2023', month: '12', day: '01' })
+      end
+
+      it 'maps the optional attributes when present' do
+        form_attributes['serviceInformation']['reservesNationalGuardService'] = reserves
+        mapper.map_claim
+
+        reserves_base = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+
+        expect(reserves_base[:unitPhoneNumber]).to eq('1231231234')
+        expect(reserves_base[:receivingInactiveDutyTrainingPay]).to be('NO')
+        expect(reserves_base[:federalActivation][:activationDate]).to eq({ year: '2023', month: '01', day: '01' })
+        expect(reserves_base[:federalActivation][:anticipatedSeparationDate]).to eq({ year: '2025', month: '12',
+                                                                                      day: '01' })
+      end
+    end
+
+    context 'alternate names' do
+      let(:alternate_names_data) do
+        [
+          {
+            'firstName' => 'Jane',
+            'lastName' => 'Doe'
+          },
+          {
+            'firstName' => 'January',
+            'middleName' => 'E',
+            'lastName' => 'Doe'
+          },
+          {
+            'firstName' => 'J'
+          }
+        ]
+      end
+
+      it 'maps the alternate names' do
+        form_attributes['serviceInformation']['alternateNames'] = alternate_names_data
+        mapper.map_claim
+
+        alt_names_base = pdf_data[:data][:attributes][:serviceInformation][:alternateNames]
+
+        expect(alt_names_base[0]).to eq('Jane Doe')
+        expect(alt_names_base[1]).to eq('January E Doe')
+        expect(alt_names_base[2]).to eq('J')
+      end
+
+      it 'handles as expected when no alternate names are included' do
+        form_attributes['serviceInformation']['alternateNames'] = nil
+        mapper.map_claim
+
+        service_info_base = pdf_data[:data][:attributes][:serviceInformation]
+
+        expect(service_info_base).not_to have_key(:alternateNames)
+      end
+    end
   end
 end
