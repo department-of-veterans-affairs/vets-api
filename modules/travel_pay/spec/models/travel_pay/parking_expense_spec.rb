@@ -59,4 +59,11 @@ RSpec.describe TravelPay::ParkingExpense, type: :model do
       expect(parking_expense.receipt_association).to eq(fake_receipt)
     end
   end
+
+  describe '#to_h' do
+    it 'includes the correct expense_type' do
+      hash = parking_expense.to_h
+      expect(hash['expense_type']).to eq(TravelPay::Constants::EXPENSE_TYPES[:parking])
+    end
+  end
 end
