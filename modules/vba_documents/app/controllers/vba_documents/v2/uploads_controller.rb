@@ -13,29 +13,6 @@ module VBADocuments
       include VBADocuments::UploadValidations
       include Webhooks::Utilities
       skip_before_action(:authenticate)
-      before_action :verify_settings, only: [:download]
-
-      def show
-        submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
-
-        if submission.nil?
-          raise Common::Exceptions::RecordNotFound, params[:id]
-        elsif Settings.vba_documents.enable_status_override && request.headers['Status-Override']
-          submission.status = request.headers['Status-Override']
-          submission.save
-        else
-          begin
-            submission.refresh_status! unless submission.status == 'expired'
-          rescue Common::Exceptions::GatewayTimeout, Common::Exceptions::BadGateway => e
-            # Rescue and log (but don't raise exception), so that last cached status is returned
-            message = "Status refresh failed for submission on #{controller_name}##{action_name}, GUID: #{params[:id]}"
-            Rails.logger.warn(message, e)
-          end
-        end
-
-        options = { params: { render_location: false } }
-        render json: VBADocuments::V2::UploadSerializer.new(submission, options)
-      end
 
       #  rubocop:disable Metrics/MethodLength
       def create
@@ -66,18 +43,6 @@ module VBADocuments
         render json: VBADocuments::V2::UploadSerializer.new(submission, options), status: :accepted
       rescue JSON::ParserError => e
         raise Common::Exceptions::SchemaValidationErrors, ["invalid JSON. #{e.message}"] if e.is_a? JSON::ParserError
-      end
-
-      def download
-        submission = VBADocuments::UploadSubmission.find_by(guid: params[:upload_id])
-
-        zip_file_name = VBADocuments::PayloadManager.zip(submission)
-
-        File.open(zip_file_name, 'r') do |f|
-          send_data f.read, filename: "#{submission.guid}.zip", type: 'application/zip'
-        end
-
-        File.delete(zip_file_name)
       end
 
       def submit
@@ -111,12 +76,6 @@ module VBADocuments
         render json: VBADocuments::V2::UploadSerializer.new(upload_model), status:
       end
       # rubocop:enable Metrics/MethodLength
-
-      private
-
-      def verify_settings
-        render plain: 'Not found', status: :not_found unless Settings.vba_documents.enable_download_endpoint
-      end
     end
   end
 end
