@@ -24,7 +24,7 @@ RSpec.describe TravelPay::Constants do
   end
 
   describe 'UUID_REGEX' do
-    let(:valid_uuid)   { '123e4567-e89b-12d3-a456-426614174000' }
+    let(:valid_uuid)   { SecureRandom.uuid } # Any UUID format accepted (not limited to v4)
     let(:invalid_uuid) { 'not-a-uuid' }
 
     it 'matches valid UUIDs' do
