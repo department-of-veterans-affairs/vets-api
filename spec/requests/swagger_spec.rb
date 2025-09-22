@@ -2834,7 +2834,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       let(:invalid_headers) { { '_headers' => { 'Cookie' => sign_in(invalid_user, nil, true) } } }
 
       describe 'GET /v0/benefits_claims/failed_upload_evidence_submissions' do
-        context 'when the user is not signed in' do 
+        context 'when the user is not signed in' do
           it 'returns a status of 401' do
             expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 401)
           end
@@ -2842,7 +2842,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
         context 'when the user is signed in, but does not have valid credentials' do
           it 'returns a status of 403' do
-            expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 403, invalid_headers)
+            expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 403,
+                                        invalid_headers)
           end
         end
 
@@ -2852,18 +2853,20 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
           end
 
-          context 'when the ICN is not found' do  
+          context 'when the ICN is not found' do
             it 'returns a status of 404' do
               VCR.use_cassette('lighthouse/benefits_claims/index/404_response') do
-                expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 404, headers)
+                expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 404,
+                                            headers)
               end
             end
           end
-  
+
           context 'when there is a gateway timeout' do
             it 'returns a status of 504' do
               VCR.use_cassette('lighthouse/benefits_claims/index/504_response') do
-                expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 504, headers)
+                expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 504,
+                                            headers)
               end
             end
           end
