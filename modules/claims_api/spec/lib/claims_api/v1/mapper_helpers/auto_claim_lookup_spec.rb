@@ -42,7 +42,7 @@ describe ClaimsApi::V1::AutoClaimLookup do
 
     it 'looks up nested information correctly' do
       result = instance.lookup_in_auto_claim(:veteran_current_mailing_address)
-      
+
       expect(result).to eq({ 'city' => 'Portland', 'state' => 'OR' })
     end
   end
