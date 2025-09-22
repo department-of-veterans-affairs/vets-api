@@ -2,6 +2,7 @@
 
 require_relative '../pdf_mapper_base'
 require_relative 'mapper_helpers/auth_headers_lookup'
+require_relative 'mapper_helpers/auto_claim_lookup'
 require_relative 'mapper_helpers/pdf_data_builder'
 
 module ClaimsApi
@@ -9,6 +10,7 @@ module ClaimsApi
     class DisabilityCompensationPdfMapper
       include PdfMapperBase
       include AuthHeadersLookup # get_auth_header
+      include AutoClaimLookup # lookup_in_auto_claim
       include PdfDataBuilder # build_pdf_path
 
       SECTIONS = %i[
@@ -51,14 +53,15 @@ module ClaimsApi
       private
 
       def section_0_claim_attributes
-        claim_process_type = @auto_claim['standardClaim'] ? 'STANDARD_CLAIM_PROCESS' : 'FDC_PROGRAM'
+        claim_process_type = lookup_in_auto_claim(:standard_claim) ? 'STANDARD_CLAIM_PROCESS' : 'FDC_PROGRAM'
         claim_process_type = 'BDD_PROGRAM' if any_service_end_dates_in_bdd_window?
 
         @pdf_data[:data][:attributes][:claimProcessType] = claim_process_type
       end
 
       def any_service_end_dates_in_bdd_window?
-        @auto_claim['serviceInformation']['servicePeriods'].each do |sp|
+        service_periods_data = lookup_in_auto_claim(:service_periods)
+        service_periods_data.each do |sp|
           end_date = sp['activeDutyEndDate'].to_date
           if end_date >= 90.days.from_now.to_date && end_date <= 180.days.from_now.to_date
             identification_info = build_pdf_path(:identification_info)
@@ -86,7 +89,7 @@ module ClaimsApi
       end
 
       def mailing_address
-        mailing_addr = @auto_claim&.dig('veteran', 'currentMailingAddress')
+        mailing_addr = lookup_in_auto_claim(:veteran_current_mailing_address)
         return if mailing_addr.blank?
 
         mailing_address_pdf_path = build_pdf_path(:identification_mailing_address)
@@ -104,7 +107,7 @@ module ClaimsApi
       end
 
       def va_employee_status(identification_info_pdf_path)
-        employee_status = @auto_claim&.dig('veteran', 'currentlyVAEmployee')
+        employee_status = lookup_in_auto_claim(:veteran_current_va_employee)
         return if employee_status.nil?
 
         identification_info_pdf_path[:currentVaEmployee] = employee_status
@@ -139,7 +142,7 @@ module ClaimsApi
       end
 
       def section_2_change_of_address
-        address_info = @auto_claim&.dig('veteran', 'changeOfAddress')
+        address_info = lookup_in_auto_claim(:veteran_change_of_address)
         return if address_info.blank?
 
         change_of_address_pdf_path = build_pdf_path(:change_of_address)
@@ -186,7 +189,7 @@ module ClaimsApi
       end
 
       def section_3_homeless_information
-        homeless_info = @auto_claim&.dig('veteran', 'homelessness')
+        homeless_info = lookup_in_auto_claim(:veteran_homelessness)
         return if homeless_info.blank?
 
         homeless_info_pdf_path = build_pdf_path(:homeless_info)
@@ -199,7 +202,7 @@ module ClaimsApi
       # If "pointOfContact" is on the form "pointOfContactName", "primaryPhone" are required via the schema
       # "primaryPhone" requires both "areaCode" and "phoneNumber" via the schema
       def point_of_contact(homeless_info_pdf_path)
-        point_of_contact_info = @auto_claim&.dig('veteran', 'homelessness', 'pointOfContact')
+        point_of_contact_info = lookup_in_auto_claim(:veteran_homelessness_point_of_contact)
         return if point_of_contact_info.blank?
 
         homeless_info_pdf_path[:pointOfContact] = point_of_contact_info&.dig('pointOfContactName')
@@ -211,7 +214,7 @@ module ClaimsApi
 
       # if "currentlyHomeless" is present "homelessSituationType", "otherLivingSituation" are required by the schema
       def currently_homeless
-        currently_homeless_info = @auto_claim&.dig('veteran', 'homelessness', 'currentlyHomeless')
+        currently_homeless_info = lookup_in_auto_claim(:veteran_homelessness_currently_homeless)
         return if currently_homeless_info.blank?
 
         currnetly_homeless_pdf_path = build_pdf_path(:homeless_currently)
@@ -223,7 +226,7 @@ module ClaimsApi
 
       # if "homelessnessRisk" is on the submission "homelessnessRiskSituationType", "otherLivingSituation" are required
       def homelessness_risk
-        homelessness_risk_info = @auto_claim&.dig('veteran', 'homelessness', 'homelessnessRisk')
+        homelessness_risk_info = lookup_in_auto_claim(:veteran_homelessness_risk)
         return if homelessness_risk_info.blank?
 
         risk_of_homelessness_pdf_path = build_pdf_path(:homeless_risk)
@@ -244,7 +247,8 @@ module ClaimsApi
       end
 
       def transform_disabilities
-        @auto_claim['disabilities'].flat_map do |disability|
+        disabilities_data = lookup_in_auto_claim(:disabilities)
+        disabilities_data.flat_map do |disability|
           primary_disability = build_primary_disability(disability)
           secondary_disabilities = if disability['secondaryDisabilities'].present?
                                      build_secondary_disabilities(disability)
@@ -281,7 +285,7 @@ module ClaimsApi
       # 'treatments' is optional
       # If 'treatments' is provided 'treatedDisabilityNames' and 'center' are required via the schema
       def section_5_treatment_centers
-        treatment_info = @auto_claim&.dig('treatments')
+        treatment_info = lookup_in_auto_claim(:treatments)
         return if treatment_info.blank?
 
         treatments_pdf_path = build_pdf_path(:claim_info)
@@ -339,15 +343,16 @@ module ClaimsApi
 
         service_periods(service_info_pdf_path)
 
-        confinements(service_info_pdf_path) if @auto_claim.dig('serviceInformation', 'confinements')
-        reserves_national_guard_service if @auto_claim.dig('serviceInformation', 'reservesNationalGuardService')
-        alternate_names(service_info_pdf_path) if @auto_claim.dig('serviceInformation', 'alternateNames')
+        confinements(service_info_pdf_path) if lookup_in_auto_claim(:service_confinements)
+        reserves_national_guard_service if lookup_in_auto_claim(:reserves_service)
+        alternate_names(service_info_pdf_path) if lookup_in_auto_claim(:reserves_alternate_names)
       end
 
       # 'serviceBranch', 'activeDutyBeginDate' & 'activeDutyEndDate' are required via the schema
       def service_periods(service_info_pdf_path)
         most_recent_pdf_path = build_pdf_path(:service_most_recent)
-        service_periods_data = @auto_claim.dig('serviceInformation', 'servicePeriods')
+        service_periods_data = lookup_in_auto_claim(:service_periods)
+
         most_recent_service_period_data = service_periods_data.max_by do |sp|
           sp['activeDutyEndDate'].presence || {}
         end
@@ -387,7 +392,7 @@ module ClaimsApi
 
       # 'confinementBeginDate' & 'confinementEndDate' are required via the schema if confinements are present
       def confinements(service_info_pdf_path)
-        confinements_data = @auto_claim.dig('serviceInformation', 'confinements')
+        confinements_data = lookup_in_auto_claim(:service_confinements)
 
         periods_of_confinement = []
         confinements_data.each do |c|
@@ -409,11 +414,9 @@ module ClaimsApi
       end
 
       def required_reserves_data(reserves_pdf_path)
-        unit_name = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService', 'unitName')
-        begin_date = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService',
-                                     'obligationTermOfServiceFromDate')
-        end_date = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService',
-                                   'obligationTermOfServiceToDate')
+        unit_name = lookup_in_auto_claim(:reserves_unit_name)
+        begin_date = lookup_in_auto_claim(:reserves_obligation_from)
+        end_date = lookup_in_auto_claim(:reserves_obligation_to)
 
         reserves_pdf_path[:unitName] = unit_name
         reserves_pdf_path[:obligationTermsOfService] = {
@@ -423,7 +426,7 @@ module ClaimsApi
       end
 
       def optional_reserves_data(reserves_pdf_path)
-        reserves_data = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService')
+        reserves_data = lookup_in_auto_claim(:reserves_service)
 
         unit_phone(reserves_data, reserves_pdf_path) if reserves_data['unitPhone']
         if reserves_data.key?('receivingInactiveDutyTrainingPay')
@@ -450,7 +453,7 @@ module ClaimsApi
       # if 'title_10_activation' is present
       # 'anticipatedSeparationDate' & 'title10ActivationDate'
       def title_10_activation(reserves_pdf_path)
-        title_10_data = @auto_claim.dig('serviceInformation', 'reservesNationalGuardService', 'title10Activation')
+        title_10_data = lookup_in_auto_claim(:reserves_title_10_activation)
         activation_date_data = title_10_data['title10ActivationDate']
         anticipated_separation_date_data = title_10_data['anticipatedSeparationDate']
         activation_date = make_date_object(activation_date_data, activation_date_data.length)
@@ -465,7 +468,7 @@ module ClaimsApi
       end
 
       def alternate_names(service_info_pdf_path)
-        alt_names = @auto_claim.dig('serviceInformation', 'alternateNames')
+        alt_names = lookup_in_auto_claim(:reserves_alternate_names)
 
         names = alt_names.map do |n|
           n.values_at('firstName', 'middleName', 'lastName').compact.join(' ')

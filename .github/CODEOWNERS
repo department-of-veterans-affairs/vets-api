@@ -113,7 +113,6 @@ app/controllers/v0/veteran_readiness_employment_claims_controller.rb @department
 app/controllers/v1/apidocs_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/v1/gids @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 app/controllers/v1/post911_gi_bill_statuses_controller.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
-app/controllers/v1/post911_gi_bill_statuses_controller.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 app/controllers/v1/profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/controllers/v1/sessions_controller.rb @department-of-veterans-affairs/octo-identity
 app/helpers/parameter_filter_helper.rb @department-of-veterans-affairs/backend-review-group
