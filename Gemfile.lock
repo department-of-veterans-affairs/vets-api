@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: c78f4d3f0aa9eea7b7bb1ebe390286e28d293392
+  revision: 40306e3de819eb3edb9b49aff8d0f6deeada94e2
   branch: master
   specs:
-    vets_json_schema (25.2.3)
+    vets_json_schema (25.2.4)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -368,10 +368,10 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.19.0)
+    datadog (2.21.0)
       datadog-ruby_core_source (~> 3.4, >= 3.4.1)
       libdatadog (~> 18.1.0.1.0)
-      libddwaf (~> 1.24.1.0.3)
+      libddwaf (~> 1.24.1.2.1)
       logger
       msgpack
     datadog-ruby_core_source (3.4.1)
@@ -638,8 +638,8 @@ GEM
     jar-dependencies (0.5.5)
     jmespath (1.6.2)
     jruby-openssl (0.15.5-java)
-    json (2.13.2)
-    json (2.13.2-java)
+    json (2.14.1)
+    json (2.14.1-java)
     json-schema (5.2.2)
       addressable (~> 2.8)
       bigdecimal (~> 3.1)
@@ -656,24 +656,16 @@ GEM
       base64
     jwt (2.10.2)
       base64
-    karafka-core (2.5.6)
-      karafka-rdkafka (>= 0.20.0)
+    karafka-core (2.5.5)
+      karafka-rdkafka (>= 0.19.2, < 0.21.0)
       logger (>= 1.6.0)
-    karafka-rdkafka (0.21.0)
+    karafka-rdkafka (0.20.1)
       ffi (~> 1.15)
-      json (> 2.0)
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
-    karafka-rdkafka (0.21.0-aarch64-linux-gnu)
+    karafka-rdkafka (0.20.1-x86_64-linux-gnu)
       ffi (~> 1.15)
-      json (> 2.0)
-      logger
-      mini_portile2 (~> 2.6)
-      rake (> 12)
-    karafka-rdkafka (0.21.0-x86_64-linux-gnu)
-      ffi (~> 1.15)
-      json (> 2.0)
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
@@ -688,11 +680,11 @@ GEM
     libdatadog (18.1.0.1.0)
     libdatadog (18.1.0.1.0-aarch64-linux)
     libdatadog (18.1.0.1.0-x86_64-linux)
-    libddwaf (1.24.1.0.3)
+    libddwaf (1.24.1.2.1)
       ffi (~> 1.0)
-    libddwaf (1.24.1.0.3-aarch64-linux)
+    libddwaf (1.24.1.2.1-aarch64-linux)
       ffi (~> 1.0)
-    libddwaf (1.24.1.0.3-x86_64-linux)
+    libddwaf (1.24.1.2.1-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
     liquid (5.8.7)
@@ -759,14 +751,14 @@ GEM
     nio4r (2.7.4-java)
     nkf (0.2.0)
     nkf (0.2.0-java)
-    nokogiri (1.18.9)
+    nokogiri (1.18.10)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.18.9-aarch64-linux-gnu)
+    nokogiri (1.18.10-aarch64-linux-gnu)
       racc (~> 1.4)
-    nokogiri (1.18.9-java)
+    nokogiri (1.18.10-java)
       racc (~> 1.4)
-    nokogiri (1.18.9-x86_64-linux-gnu)
+    nokogiri (1.18.10-x86_64-linux-gnu)
       racc (~> 1.4)
     nori (2.7.1)
       bigdecimal
@@ -863,9 +855,9 @@ GEM
       date
       jar-dependencies (>= 0.1.7)
     public_suffix (6.0.2)
-    puma (7.0.2)
+    puma (7.0.3)
       nio4r (~> 2.0)
-    puma (7.0.2-java)
+    puma (7.0.3-java)
       nio4r (~> 2.0)
     pundit (2.5.1)
       activesupport (>= 3.0.0)
@@ -962,7 +954,7 @@ GEM
       hashie (>= 1.2.0, < 6.0)
       jwt (>= 1.5.6)
     retriable (3.1.2)
-    rexml (3.4.1)
+    rexml (3.4.2)
     rgeo (3.0.1)
     rgeo-activerecord (8.0.0)
       activerecord (>= 7.0)
@@ -1324,7 +1316,7 @@ DEPENDENCIES
   jsonapi-serializer
   jwe
   jwt
-  karafka-core (= 2.5.6)
+  karafka-core (= 2.5.5)
   kms_encrypted
   liquid
   lockbox

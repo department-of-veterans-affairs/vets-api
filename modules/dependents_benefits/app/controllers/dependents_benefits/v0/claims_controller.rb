@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-require 'dependents_benefits/monitor'
+require 'bgsv2/service'
+require 'dependents_benefits/claim_processor'
 require 'dependents_benefits/generators/claim674_generator'
 require 'dependents_benefits/generators/claim686c_generator'
+require 'dependents_benefits/monitor'
 
 module DependentsBenefits
   module V0
@@ -34,27 +36,28 @@ module DependentsBenefits
 
         raise Common::Exceptions::ValidationErrors, claim unless claim.save
 
-        # TODO: Create a claim group to associate multiple claims together
-        claim_group_id = nil
+        # Matching parent_claim_id and saved_claim_id indicates this is a parent claim
+        SavedClaimGroup.new(claim_group_guid: claim.guid, parent_claim_id: claim.id, saved_claim_id: claim.id).save!
         form_data = claim.parsed_form
 
         raise Common::Exceptions::ValidationErrors if !claim.submittable_686? && !claim.submittable_674?
 
         # Create a 686c claim for dependent benefits
-        if claim.submittable_686?
-          DependentsBenefits::Generators::Claim686cGenerator.new(form_data,
-                                                                 claim_group_id).generate
-        end
+        DependentsBenefits::Generators::Claim686cGenerator.new(form_data, claim.id).generate if claim.submittable_686?
 
         if claim.submittable_674?
           # Create a 674 claim for student benefits
           form_data.dig('dependents_application', 'student_information')&.each do |student|
-            DependentsBenefits::Generators::Claim674Generator.new(form_data, claim_group_id, student).generate
+            DependentsBenefits::Generators::Claim674Generator.new(form_data, claim.id, student).generate
           end
         end
 
         monitor.track_info_event('Successfully created claim', "#{stats_key}.create_success",
                                  { claim_id: claim.id, user_account_uuid: current_user&.user_account_uuid })
+
+        proc_id = create_proc_id
+        # Enqueue all submission jobs for the created claims
+        DependentsBenefits::ClaimProcessor.enqueue_submissions(claim.id, proc_id)
 
         render json: SavedClaimSerializer.new(claim)
       end
@@ -100,6 +103,11 @@ module DependentsBenefits
 
       def monitor
         DependentsBenefits::Monitor.new
+      end
+
+      def create_proc_id
+        vnp_response = BGSV2::Service.new(current_user).create_proc(proc_state: 'Started')
+        vnp_response[:vnp_proc_id]
       end
     end
   end
