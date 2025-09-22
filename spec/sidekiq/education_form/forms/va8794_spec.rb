@@ -41,7 +41,7 @@ RSpec.describe EducationForm::Forms::VA8794 do
   end
 
   it 'reads remarks and signature fields even when absent' do
-    expect(subject.remarks).to eq("lorem ipsum dolor sit amet")
+    expect(subject.remarks).to eq('lorem ipsum dolor sit amet')
     expect(subject.statement_of_truth_signature).to eq('John A Doe')
     expect(subject.date_signed).to eq('2024-03-15')
   end
