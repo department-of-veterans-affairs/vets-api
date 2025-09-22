@@ -299,7 +299,6 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/dates/beginDate',
-          title: 'Invalid beginDate',
           detail: 'Begin date for the Veteran\'s new address.'
         )
       end
@@ -309,7 +308,6 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/dates/beginDate',
-          title: 'Invalid beginDate',
           detail: 'Begin date for the Veteran\'s new address.'
         )
       end
@@ -449,13 +447,8 @@ module ClaimsApi
       end
 
       def validate_permanent_address_dates!(change_of_address)
-        # FES Val Section 5.c.ii: PERMANENT cannot have endDate
-        return if change_of_address.dig('dates', 'endDate').blank?
-
-        collect_error(
-          source: '/changeOfAddress/dates/endDate',
-          detail: 'Date in YYYY-MM-DD the changed address expires, if change is temporary.'
-        )
+        # FES Val Section 5.c.ii: PERMANENT addresses don't have date requirements
+        # endDate is allowed but ignored for permanent address changes
       end
 
       # FES Val Section 5.c.v-viii: Address field validations
