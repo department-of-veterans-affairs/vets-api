@@ -5,7 +5,7 @@ require 'unified_health_data/adapters/clinical_notes_adapter'
 require 'unified_health_data/models/clinical_notes'
 
 RSpec.describe 'ClinicalNotesAdapter' do
-  let(:adapter) { UnifiedHealthData::V2::Adapters::ClinicalNotesAdapter.new }
+  let(:adapter) { UnifiedHealthData::Adapters::ClinicalNotesAdapter.new }
   let(:notes_sample_response) do
     JSON.parse(Rails.root.join(
       'spec', 'fixtures', 'unified_health_data', 'notes_sample_response.json'
