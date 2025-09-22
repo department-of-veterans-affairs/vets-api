@@ -49,6 +49,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VETS360_URL>') { Settings.vet360.url }
   c.filter_sensitive_data('<MULESOFT_SECRET>') { Settings.form_10_10cg.carma.mulesoft.client_secret }
   c.filter_sensitive_data('<SHAREPOINT_CLIENT_SECRET>') { Settings.vha.sharepoint.client_secret }
+  c.filter_sensitive_data('<TRAVEL_PAY_BASE_URL>') { Settings.travel_pay.base_url }
   c.filter_sensitive_data('<ADDRESS_VALIDATION>') { VAProfile::Configuration::SETTINGS.address_validation.hostname }
   c.filter_sensitive_data('<X_API_KEY>') { Settings.mhv.rx.x_api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_EDUCATION_RSA_KEY_PATH>') do
@@ -80,6 +81,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VAOS_EPS_TOKEN_URL>') { Settings.vaos.eps.access_token_url }
   c.filter_sensitive_data('<VAOS_EPS_API_URL>') { Settings.vaos.eps.api_url }
   c.filter_sensitive_data('<VAOS_EPS_API_PATH>') { Settings.vaos.eps.base_path }
+  c.filter_sensitive_data('<TRAVEL_CLAIM_API_URL>') { Settings.check_in.travel_reimbursement_api_v2.claims_url_v2 }
   c.filter_sensitive_data('<VETERAN_ENROLLMENT_SYSTEM_BASE_URI>') do
     "#{Settings.veteran_enrollment_system.host}:#{Settings.veteran_enrollment_system.port}"
   end

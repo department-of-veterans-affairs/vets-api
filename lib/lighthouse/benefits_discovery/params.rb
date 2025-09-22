@@ -50,7 +50,10 @@ module BenefitsDiscovery
 
     def disability_rating
       # guard should be moved to controller once this is being called from a controller
-      return nil unless @user.authorize(:lighthouse, :access?)
+      unless @user.authorize(:lighthouse, :access?)
+        Rails.logger.info('BenefitsDiscoveryParams: user does not have lighthouse access')
+        return nil
+      end
 
       service = VeteranVerification::Service.new
       response = service.get_rated_disabilities(@user.icn)

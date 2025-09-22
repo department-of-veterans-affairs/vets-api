@@ -441,6 +441,7 @@ module VAOS
         get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
       end
 
+      # rubocop:disable Metrics/MethodLength
       def prepare_appointment(appointment, include = {})
         # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
         set_cancellable_false(appointment) if cannot_be_cancelled?(appointment)
@@ -467,7 +468,12 @@ module VAOS
           find_and_merge_provider_name(appointment)
         end
 
-        merge_clinic(appointment) if include[:clinics]
+        if VAOS::AppointmentsHelper.cerner?(appointment)
+          appointment[:is_cerner] = true
+        else
+          appointment[:is_cerner] = false
+          merge_clinic(appointment) if include[:clinics]
+        end
 
         merge_facility(appointment) if include[:facilities]
 
@@ -480,7 +486,10 @@ module VAOS
         set_derived_appointment_date_fields(appointment)
 
         appointment[:show_schedule_link] = schedulable?(appointment) if appointment[:status] == 'cancelled'
+
+        log_telehealth_issue(appointment) if appointment[:modality] == 'vaVideoCareAtHome'
       end
+      # rubocop:enable Metrics/MethodLength
 
       def find_and_merge_provider_name(appointment)
         practitioners_list = appointment[:practitioners]
@@ -565,7 +574,7 @@ module VAOS
       # or nil if the input ICN was nil.
       #
       def normalize_icn(icn)
-        icn&.gsub(/V[\d]{6}$/, '')
+        icn&.gsub(/V\d{6}$/, '')
       end
 
       # Checks equality between two ICNs (Integration Control Numbers)
@@ -655,20 +664,6 @@ module VAOS
       def filter_reason_code_text(request_object_body)
         text = request_object_body&.dig(:reason_code, :text)
         VAOS::Strings.filter_ascii_characters(text) if text.present?
-      end
-
-      # Determines if the appointment is a Cerner (Oracle Health) appointment.
-      # This is determined by the presence of a 'CERN' prefix in the appointment's id.
-      #
-      # @param appt [Hash] the appointment to check
-      # @return [Boolean] true if the appointment is a Cerner appointment, false otherwise
-      #
-      # @raise [ArgumentError] if the appointment is nil
-      #
-      def cerner?(appt)
-        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
-
-        appt[:id].start_with?('CERN')
       end
 
       # Checks if the appointment is booked.
@@ -901,7 +896,7 @@ module VAOS
       end
 
       def set_type(appointment)
-        type = if cerner?(appointment)
+        type = if VAOS::AppointmentsHelper.cerner?(appointment)
                  cerner_type(appointment)
                else
                  non_cerner_type(appointment)
@@ -953,8 +948,8 @@ module VAOS
         if appointment[:telehealth] && appointment[:modality] == 'vaVideoCareAtHome' && appointment[:start]
           # if current time is between 30 minutes prior to appointment.start and 4 hours after appointment.start, set
           # telehealth_visible to true
-          appointment[:telehealth][:displayLink] = (appointment[:start].to_datetime - 30.minutes) <= Time.now.utc &&
-                                                   (appointment[:start].to_datetime + 4.hours) >= Time.now.utc
+          appointment[:telehealth][:display_link] = (appointment[:start].to_datetime - 30.minutes) <= Time.now.utc &&
+                                                    (appointment[:start].to_datetime + 4.hours) >= Time.now.utc
         end
       end
 
@@ -986,6 +981,32 @@ module VAOS
         appointment[:future] = future?(appointment)
       end
 
+      # rubocop:disable Metrics/MethodLength
+      def log_telehealth_issue(appointment)
+        if appointment[:start]
+          start_time = appointment[:start].to_datetime
+          time_now = Time.now.utc
+          fifteen_before = start_time - 15.minutes
+          fifteen_after = start_time + 15.minutes
+          context = {
+            displayLink: appointment.dig(:telehealth, :display_link),
+            kind: appointment[:kind],
+            modality: appointment[:modality],
+            telehealthUrl: appointment.dig(:telehealth, :url),
+            vvsVistaVideoAppt: appointment.dig(:extension, :vvs_vista_video_appt),
+            facilityId: appointment[:location_id],
+            clinicId: appointment[:clinic],
+            primaryStopCode: appointment.dig(:extension, :clinic, :primary_stop_code),
+            secondaryStopCode: appointment.dig(:extension, :clinic, :secondary_stop_code),
+            afterFiveBeforeStart: time_now >= start_time - 5.minutes
+          }
+          Rails.logger.warn('VAOS video telehealth issue', context.to_json) if context[:telehealthUrl].blank? &&
+                                                                               time_now >= fifteen_before &&
+                                                                               time_now <= fifteen_after
+        end
+      end
+      # rubocop:enable Metrics/MethodLength
+
       def log_modality_failure(appointment)
         context = {
           service_type: appointment[:service_type],
@@ -1013,7 +1034,7 @@ module VAOS
 
       # This should be called after set_type has been called
       def schedulable?(appointment)
-        return false if cerner?(appointment) || cnp?(appointment) || telehealth?(appointment)
+        return false if VAOS::AppointmentsHelper.cerner?(appointment) || cnp?(appointment) || telehealth?(appointment)
         return appointment[:type] == APPOINTMENT_TYPES[:cc_request] if cc?(appointment)
         return true if appointment[:type] == APPOINTMENT_TYPES[:request]
         if appointment[:type] == APPOINTMENT_TYPES[:va] &&

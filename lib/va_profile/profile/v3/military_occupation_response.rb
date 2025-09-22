@@ -5,8 +5,8 @@ require 'va_profile/models/military_occupation'
 
 module VAProfile::Profile::V3
   class MilitaryOccupationResponse < VAProfile::Response
-    attribute :military_occupations, Array[VAProfile::Models::MilitaryOccupation]
-    attribute :messages, Array[VAProfile::Models::Message]
+    attribute :military_occupations, VAProfile::Models::MilitaryOccupation, array: true, default: []
+    attribute :messages, VAProfile::Models::Message, array: true, default: []
 
     def initialize(response)
       attributes = {

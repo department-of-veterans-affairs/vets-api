@@ -8,57 +8,14 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
 
   describe 'baseline coverage for existing methods' do
     # Action methods
-    describe '#submit' do
-      it 'handles submit flow' do
-        allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return(true)
-        allow(controller).to receive_messages(shared_submit_methods: auto_claim, render: nil,
-                                              url_for: 'http://example.com')
-        controller.send(:submit)
-        expect(controller).to have_received(:render)
-      end
-
-      it 'processes claim when not load testing' do
-        allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return(false)
-        allow(controller).to receive_messages(shared_submit_methods: auto_claim, process_claim: nil,
-                                              render: nil, url_for: 'http://example.com')
-        controller.send(:submit)
-        expect(controller).to have_received(:process_claim)
-      end
-    end
-
-    describe '#attachments' do
-      it 'validates attachment count' do
-        params = (1..11).to_h { |i| ["attachment#{i}", 'file'] }
-        allow(controller).to receive(:params).and_return(ActionController::Parameters.new(params))
-        expect { controller.send(:attachments) }
-          .to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity, /Too many attachments/)
-      end
-
-      it 'validates claim exists' do
-        allow(controller).to receive(:params).and_return(ActionController::Parameters.new('id' => '999'))
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(nil)
-        expect { controller.send(:attachments) }
-          .to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound)
-      end
-
-      it 'processes valid request' do
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(auto_claim)
-        service = instance_double(ClaimsApi::V2::DisabilityCompensationDocuments, process_documents: nil)
-        allow(controller).to receive_messages(params: ActionController::Parameters.new('id' => '1'),
-                                              documents_service: service, render: nil,
-                                              url_for: 'http://example.com')
-        controller.send(:attachments)
-        expect(service).to have_received(:process_documents)
-      end
-    end
 
     describe '#synchronous' do
-      let(:docker) { instance_double(ClaimsApi::DisabilityCompensation::DockerContainerService, upload: nil) }
+      let(:docker) { instance_double(ClaimsApi::DisabilityCompensation::Form526EstablishmentService, upload: nil) }
 
       it 'handles synchronous flow' do
         allow(controller).to receive_messages(shared_submit_methods: auto_claim, claims_load_testing: false,
                                               mocking: true, veteran_middle_initial: 'M',
-                                              docker_container_service: docker, queue_flash_updater: nil,
+                                              form526_establishment_service: docker, queue_flash_updater: nil,
                                               start_bd_uploader_job: nil, render: nil,
                                               url_for: 'http://example.com')
         controller.send(:synchronous)
@@ -68,7 +25,7 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
       it 'generates PDF when needed' do
         allow(controller).to receive_messages(shared_submit_methods: auto_claim, claims_load_testing: false,
                                               mocking: false, veteran_middle_initial: 'M',
-                                              generate_pdf_from_service!: nil, docker_container_service: docker,
+                                              generate_pdf_from_service!: nil, form526_establishment_service: docker,
                                               queue_flash_updater: nil, start_bd_uploader_job: nil,
                                               render: nil, url_for: 'http://example.com')
         controller.send(:synchronous)
@@ -89,9 +46,9 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
           .to be_a(ClaimsApi::DisabilityCompensation::PdfGenerationService)
       end
 
-      it '#docker_container_service' do
-        expect(controller.send(:docker_container_service))
-          .to be_a(ClaimsApi::DisabilityCompensation::DockerContainerService)
+      it '#form526_establishment_service' do
+        expect(controller.send(:form526_establishment_service))
+          .to be_a(ClaimsApi::DisabilityCompensation::Form526EstablishmentService)
       end
 
       it '#queue_flash_updater' do
@@ -141,17 +98,6 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
           .to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity)
       end
 
-      it '#documents_service' do
-        expect(controller.send(:documents_service, {}, auto_claim))
-          .to be_a(ClaimsApi::V2::DisabilityCompensationDocuments)
-      end
-
-      it '#process_claim' do
-        allow(controller).to receive(:veteran_middle_initial).and_return('M')
-        expect(ClaimsApi::V2::DisabilityCompensationPdfGenerator).to receive(:perform_async).with('456', 'M')
-        controller.send(:process_claim, double(id: '456'))
-      end
-
       it '#shared_submit_methods error handling' do
         allow(controller).to receive_messages(auth_headers: {},
                                               form_attributes: { 'disabilities' => [] },
@@ -160,7 +106,10 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
                                               token: double(payload: {}),
                                               target_veteran: double(mpi: double(icn: '123')))
         allow(ClaimsApi::AutoEstablishedClaim).to receive(:create)
-          .and_return(double(errors: double(present?: true, messages: { base: ['error'] }), id: nil))
+          .and_return(double(
+                        errors: double(present?: true,
+                                       messages: { base: ['error'] }), id: nil
+                      ))
         expect { controller.send(:shared_submit_methods) }
           .to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity)
       end

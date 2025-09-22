@@ -16,10 +16,6 @@ RSpec.describe FormProfiles::MDOT, type: :model do
   let(:user) { build(:user, :loa3, user_details) }
 
   describe '#prefill_form' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-    end
-
     it 'prefills the MDOT form' do
       VCR.insert_cassette(
         'mdot/get_supplies_200',

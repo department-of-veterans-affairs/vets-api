@@ -23,7 +23,8 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
       let(:auto_claim) do
         create(:auto_established_claim,
                form_data: form_data['data']['attributes'],
-               auth_headers: { 'va_eauth_pid' => '600061742' })
+               auth_headers: { 'va_eauth_pid' => '600061742',
+                               'va_eauth_service_transaction_id' => '00000000-0000-0000-0000-000000000000' })
       end
       let(:fes_data) do
         ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim).map_claim
@@ -43,8 +44,22 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
           expect(fes_data[:data][:veteranParticipantId]).to eq('600061742')
         end
 
-        it 'generates a unique service transaction ID' do
-          expect(fes_data[:data][:serviceTransactionId]).to match(/claims-api-#{auto_claim.id}-\d+/)
+        it 'maps the transaction ID provided in headers to the serviceTransactionId' do
+          expect(fes_data[:data][:serviceTransactionId]).to match(
+            auto_claim.auth_headers['va_eauth_service_transaction_id']
+          )
+        end
+
+        context 'when auto claim has no transaction ID in headers' do
+          let(:auto_claim) do
+            create(:auto_established_claim,
+                   form_data: form_data['data']['attributes'],
+                   auth_headers: { 'va_eauth_pid' => '600061742' })
+          end
+
+          it 'sets serviceTransactionId to nil' do
+            expect(fes_data[:data][:serviceTransactionId]).to be_nil
+          end
         end
       end
 
@@ -128,7 +143,7 @@ describe ClaimsApi::V2::DisabilityCompensationFesMapper do
         context 'change of address' do
           it 'maps change of address when present' do
             form_data['data']['attributes']['changeOfAddress'] = {
-              'addressChangeType' => 'TEMPORARY',
+              'typeOfAddressChange' => 'TEMPORARY',
               'numberAndStreet' => '10 Peach St',
               'apartmentOrUnitNumber' => 'Unit 4',
               'city' => 'Schenectady',

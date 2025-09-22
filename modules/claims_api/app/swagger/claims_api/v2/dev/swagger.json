@@ -1550,7 +1550,7 @@
                                     "description": "Name(s) of disabilities treated in this time frame.",
                                     "type": "array",
                                     "nullable": true,
-                                    "maxItems": 101,
+                                    "maxItems": 150,
                                     "items": {
                                       "type": "string",
                                       "additionalProperties": false,
@@ -1648,7 +1648,7 @@
                                         ]
                                       },
                                       "activeDutyBeginDate": {
-                                        "description": "Date started active duty.",
+                                        "description": "Date started active duty. This date must be in the past.",
                                         "type": "string",
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
@@ -2934,7 +2934,7 @@
                                   "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
-                                  "maxItems": 101,
+                                  "maxItems": 150,
                                   "items": {
                                     "type": "string",
                                     "additionalProperties": false,
@@ -3032,7 +3032,7 @@
                                       ]
                                     },
                                     "activeDutyBeginDate": {
-                                      "description": "Date started active duty.",
+                                      "description": "Date started active duty. This date must be in the past.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
@@ -5088,7 +5088,7 @@
                                   "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
-                                  "maxItems": 101,
+                                  "maxItems": 150,
                                   "items": {
                                     "type": "string",
                                     "additionalProperties": false,
@@ -5186,7 +5186,7 @@
                                       ]
                                     },
                                     "activeDutyBeginDate": {
-                                      "description": "Date started active duty.",
+                                      "description": "Date started active duty. This date must be in the past.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
@@ -6705,7 +6705,7 @@
                                       ]
                                     },
                                     "activeDutyBeginDate": {
-                                      "description": "Date started active duty.",
+                                      "description": "Date started active duty. This date must be in the past.",
                                       "type": "string",
                                       "pattern": "^(?:\\d{4})-(?:\\d{2})-(?:\\d{2})$",
                                       "example": "2018-06-06"

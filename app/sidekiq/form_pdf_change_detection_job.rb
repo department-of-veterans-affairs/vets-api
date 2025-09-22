@@ -29,6 +29,9 @@ class FormPdfChangeDetectionJob
   CACHE_PREFIX = 'form_pdf_revision_sha256'
 
   def perform
+    return unless Flipper.enabled?(:form_pdf_change_detection)
+
+    Rails.logger.info("[#{self.class.name}] - Job started.")
     forms = fetch_forms_data
 
     cache_keys, current_sha_map = get_current_form_data(forms)
@@ -36,8 +39,10 @@ class FormPdfChangeDetectionJob
 
     log_form_revisions(current_sha_map, cached_sha_map)
     update_cached_values(current_sha_map)
+
+    Rails.logger.info("[#{self.class.name}] - Job finished successfully.")
   rescue => e
-    Rails.logger.error "Error in #{self.class.name}: #{e.message}"
+    Rails.logger.error "[#{self.class.name}] - Job raised an error: #{e.message}"
     raise e
   end
 

@@ -100,6 +100,7 @@ class SimpleCovHelper
     add_group 'ClaimsEvidenceApi', 'modules/claims_evidence_api/'
     add_group 'CovidResearch', 'modules/covid_research/'
     add_group 'DebtsApi', 'modules/debts_api/'
+    add_group 'DecisionReviews', 'modules/decision_reviews'
     add_group 'DependentsBenefits', 'modules/dependents_benefits/'
     add_group 'DependentsVerification', 'modules/dependents_verification/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'

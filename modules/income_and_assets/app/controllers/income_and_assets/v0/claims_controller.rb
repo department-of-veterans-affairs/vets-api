@@ -37,7 +37,7 @@ module IncomeAndAssets
 
       # POST creates and validates an instance of `claim_class`
       def create
-        claim = claim_class.new(form: filtered_params[:form])
+        claim = claim_class.new(form: filtered_params[:form], user_account_id: current_user&.user_account_uuid)
         monitor.track_create_attempt(claim, current_user)
 
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
@@ -51,7 +51,7 @@ module IncomeAndAssets
 
         process_attachments(in_progress_form, claim)
 
-        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
+        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.perform_async(claim.id)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
 

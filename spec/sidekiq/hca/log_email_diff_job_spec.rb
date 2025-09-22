@@ -9,7 +9,6 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
   end
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     allow(User).to receive(:find).with(user.uuid).and_return(user)
   end
 
