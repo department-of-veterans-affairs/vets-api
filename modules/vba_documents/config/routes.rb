@@ -14,12 +14,6 @@ VBADocuments::Engine.routes.draw do
     end
   end
 
-  if Settings.vba_documents.v2_enabled
-    namespace :v2, defaults: { format: 'json' } do
-      resources :uploads, only: %i[create]
-    end
-  end
-
   namespace :v1, defaults: { format: 'json' } do
     post '/uploads/validate_document', to: 'uploads#validate_document'
 
