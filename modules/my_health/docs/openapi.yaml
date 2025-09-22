@@ -1960,7 +1960,7 @@ paths:
       summary: /v1/prescriptions/list_refillable_prescriptions
   /v1/tooltips:
     get:
-      description: Retrieve tooltips settings for mhv-medications In-production Education (IPE)
+      description: Retrieve tooltips settings for mhv-medications In-Product Education (IPE)
       operationId: get_tooltips
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
@@ -1978,7 +1978,7 @@ paths:
         "403":
           $ref: "#/components/responses/Forbidden"
     post:
-      description: Create tooltip setting for mhv-medications In-production Education (IPE)
+      description: Create tooltip setting for mhv-medications In-Product Education (IPE)
       operationId: post_tooltip
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
@@ -2010,7 +2010,7 @@ paths:
     summary: /v1/tooltips
   /v1/tooltips/{id}:
     patch:
-      description: Update tooltip setting for mhv-medications In-production Education (IPE)
+      description: Update tooltip setting for mhv-medications In-Product Education (IPE)
       operationId: patch_tooltip
       parameters:
         - description: The id of the tooltip
