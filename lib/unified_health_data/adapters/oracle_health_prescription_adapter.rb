@@ -45,7 +45,7 @@ module UnifiedHealthData
       # rubocop:enable Metrics/MethodLength
 
       def extract_refill_date(resource)
-        dispense = find_most_recent_medication_dispense(resource.dig('contained'))
+        dispense = find_most_recent_medication_dispense(resource['contained'])
         return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
 
         nil
@@ -78,7 +78,7 @@ module UnifiedHealthData
         return quantity if quantity
 
         # Fallback: check contained MedicationDispense
-        dispense = find_most_recent_medication_dispense(resource.dig('contained'))
+        dispense = find_most_recent_medication_dispense(resource['contained'])
         return dispense.dig('quantity', 'value') if dispense
 
         nil
@@ -101,7 +101,7 @@ module UnifiedHealthData
       end
 
       def extract_station_number(resource)
-        dispense = find_most_recent_medication_dispense(resource.dig('contained'))
+        dispense = find_most_recent_medication_dispense(resource['contained'])
         return dispense.dig('location', 'display') if dispense
 
         nil

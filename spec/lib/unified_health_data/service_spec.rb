@@ -614,7 +614,7 @@ describe UnifiedHealthData::Service, type: :service do
           oracle_prescription = prescriptions.find { |p| p.prescription_id == '15214174591' }
 
           expect(oracle_prescription.refill_status).to eq('active')
-          expect(oracle_prescription.refill_submit_date).to be nil
+          expect(oracle_prescription.refill_submit_date).to be_nil
           expect(oracle_prescription.refill_date).to eq('2025-06-24T21:05:53.000Z')
           expect(oracle_prescription.refill_remaining).to eq(2)
           expect(oracle_prescription.facility_name).to eq('Ambulatory Pharmacy')
@@ -623,14 +623,16 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription.expiration_date).to eq('2026-05-30T04:59:59Z')
           expect(oracle_prescription.prescription_number).to eq('15214174591')
           expect(oracle_prescription.prescription_name).to eq('albuterol (albuterol 90 mcg inhaler [8.5g])')
-          expect(oracle_prescription.dispensed_date).to be nil
+          expect(oracle_prescription.dispensed_date).to be_nil
           expect(oracle_prescription.station_number).to eq('556-RX-MAIN-OP')
           expect(oracle_prescription.is_refillable).to be true
           expect(oracle_prescription.is_trackable).to be false
           expect(oracle_prescription.tracking_information).to eq({})
           expect(oracle_prescription.prescription_source).to eq('')
-          expect(oracle_prescription.instructions).to eq('2 Inhalation Inhalation (breathe in) every 4 hours as needed shortness of breath or wheezing. Refills: 2.')
-          expect(oracle_prescription.facility_phone_number).to be nil
+          expect(oracle_prescription.instructions).to eq(
+            '2 Inhalation Inhalation (breathe in) every 4 hours as needed shortness of breath or wheezing. Refills: 2.'
+          )
+          expect(oracle_prescription.facility_phone_number).to be_nil
         end
       end
 
