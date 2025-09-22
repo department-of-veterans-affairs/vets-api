@@ -1,0 +1,41 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: "<TRAVEL_CLAIM_API_URL>/api/v4/auth/system-access-token"
+      body:
+        encoding: UTF-8
+        string: '{"grant_type":"client_credentials","client_id":"fake_client_id","client_secret":"fake_client_secret"}'
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Authorization:
+          - Bearer new_veis_token_456
+        X-Correlation-ID:
+          - e359e352-10d8-4475-a453-9feec6bb8a10
+        Ocp-Apim-Subscription-Key:
+          - <SUBSCRIPTION_KEY>
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Content-Type:
+          - application/json
+        Date:
+          - Mon, 15 Jan 2024 10:00:02 GMT
+        Server:
+          - Microsoft-IIS/10.0
+        X-Powered-By:
+          - ASP.NET
+      body:
+        encoding: UTF-8
+        string: '{"data":{"accessToken":"new_btsss_token_789","expiresIn":3600},"success":true}'
+      http_version:
+    recorded_at: Mon, 15 Jan 2024 10:00:02 GMT
