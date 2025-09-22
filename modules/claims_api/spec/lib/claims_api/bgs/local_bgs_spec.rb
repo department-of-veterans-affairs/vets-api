@@ -38,7 +38,7 @@ describe ClaimsApi::LocalBGS do
 
     it 'returns the original content when XML parsing fails' do
       invalid_inputs = ['invalid xml', '{not: xml}', '<incomplete>xml', nil]
-      
+
       invalid_inputs.each do |input|
         expect(subject_instance.safe_xml(input)).to eq(input)
       end
@@ -47,7 +47,7 @@ describe ClaimsApi::LocalBGS do
     it 'converts valid XML to a stringified hash' do
       valid_xml = '<?xml version="1.0" encoding="UTF-8"?><root><child>value</child></root>'
       result = subject_instance.safe_xml(valid_xml)
-      
+
       expect(result).to be_a(String)
       expect(result).to include('"root"=>')
       expect(result).to include('"child"=>"value"')
@@ -56,9 +56,9 @@ describe ClaimsApi::LocalBGS do
     it 'preserves nested structure in the hash representation' do
       nested_xml = '<?xml version="1.0" encoding="UTF-8"?><root><parent><child>value</child></parent></root>'
       result = subject_instance.safe_xml(nested_xml)
-      
+
       expect(result).to be_a(String)
-      parsed = JSON.parse(result.gsub("=>", ":").gsub(":nil,", ":null,"))
+      parsed = JSON.parse(result.gsub('=>', ':').gsub(':nil,', ':null,'))
       expect(parsed['root']['parent']['child']).to eq('value')
     end
   end
