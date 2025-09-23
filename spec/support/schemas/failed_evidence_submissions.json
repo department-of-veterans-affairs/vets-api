@@ -36,7 +36,7 @@
           "type": ["integer", "null"]
         },
         "tracked_item_display_name": {
-          "type": "string"
+          "type": ["string", "null"]
         },
         "upload_status": {
           "type": "string"
@@ -53,7 +53,6 @@
         "file_name",
         "id",
         "lighthouse_upload",
-        "tracked_item_display_name",
         "upload_status"
       ]
     }

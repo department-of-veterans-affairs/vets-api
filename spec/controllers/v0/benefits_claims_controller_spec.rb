@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe V0::BenefitsClaimsController, type: :controller do
-  let(:user) { create(:user, :loa3, :accountable, :legacy_icn, uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
+  let(:user) { create(:user, :loa3, :accountable, :legacy_icn) }
   let(:user_account) { create(:user_account, id: user.uuid) }
   let(:dependent_user) { build(:dependent_user_with_relationship, :loa3) }
   let(:claim_id) { 600_383_363 } # This is the claim in the vcr cassettes that we are using
@@ -22,6 +22,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
   end
 
   before do
+    user.user_account_uuid = user_account.id
+    user.save!
     sign_in_as(user)
 
     token = 'fake_access_token'
@@ -619,9 +621,13 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
 
         context 'when the user is signed in and has valid credentials' do
+          before do
+            create(:bd_lh_evidence_submission_failed_type2_error, claim_id:, user_account:)
+          end
+
           context 'when the ICN is not found' do
             it 'returns a status of 404' do
-              VCR.use_cassette('lighthouse/benefits_claims/index/404_response') do
+              VCR.use_cassette('lighthouse/benefits_claims/show/404_response') do
                 subject
               end
 
@@ -631,7 +637,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
           context 'when there is a gateway timeout' do
             it 'returns a status of 504' do
-              VCR.use_cassette('lighthouse/benefits_claims/index/504_response') do
+              VCR.use_cassette('lighthouse/benefits_claims/show/504_response') do
                 subject
               end
 
@@ -652,11 +658,13 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
       context 'when successful' do
         before do
-          2.times { create(:bd_lh_evidence_submission_failed_type2_error, claim_id:, user_account:) }
+          create(:bd_lh_evidence_submission_success, claim_id:, user_account:)
+          create(:bd_lh_evidence_submission_failed_type1_error, claim_id:, user_account:)
+          create(:bd_lh_evidence_submission_failed_type2_error, claim_id:, user_account:)
         end
 
-        it 'returns an array of failed evidence submissions' do
-          VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+        it 'returns an array of only the failed evidence submissions' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             subject
           end
 
@@ -665,6 +673,57 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           expect(parsed_response['data'].size).to eq(2)
           expect(parsed_response['data'].first['document_type']).to eq('Birth Certificate')
           expect(parsed_response['data'].second['document_type']).to eq('Birth Certificate')
+        end
+
+        context 'when there are multiple failed submissions for the same claim' do
+          before do
+            create(:bd_lh_evidence_submission_failed_type1_error, claim_id:, user_account:)
+            create(:bd_lh_evidence_submission_failed_type2_error, claim_id:, user_account:)
+          end
+
+          it 'returns all failed submissions for the claim' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              subject
+            end
+
+            expect(response).to have_http_status(:ok)
+            parsed_response = JSON.parse(response.body)
+            expect(parsed_response['data'].size).to eq(4)
+          end
+        end
+
+        context 'when multiple claims are returned for the evidence submission records' do
+          before do
+            create(:bd_lh_evidence_submission_failed_type1_error, claim_id:, user_account:)
+            create(:bd_lh_evidence_submission_failed_type1_error, claim_id: 600_229_972, user_account:)
+          end
+
+          it 'returns evidence submissions for all claims' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              VCR.use_cassette('lighthouse/benefits_claims/show/200_death_claim_response') do
+                subject
+              end
+            end
+
+            expect(response).to have_http_status(:ok)
+            parsed_response = JSON.parse(response.body)
+            expect(parsed_response['data'].size).to eq(4)
+          end
+        end
+
+        context 'when no failed submissions exist' do
+          before do
+            EvidenceSubmission.destroy_all
+          end
+
+          it 'returns an empty array' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              subject
+            end
+
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)).to eq({ 'data' => [] })
+          end
         end
       end
     end
@@ -707,7 +766,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         context 'when the user is signed in and has valid credentials' do
           it 'returns an empty array' do
-            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
               subject
             end
 
@@ -718,7 +777,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
       context 'when successful' do
         it 'returns an empty array' do
-          VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             subject
           end
 

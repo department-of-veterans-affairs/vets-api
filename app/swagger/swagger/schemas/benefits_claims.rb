@@ -16,7 +16,7 @@ module Swagger
         property :id, type: :integer
         property :lighthouse_upload, type: :boolean
         property :tracked_item_id, type: %i[integer null]
-        property :tracked_item_display_name, type: :string
+        property :tracked_item_display_name, type: %i[string null]
         property :upload_status, type: :string
         property :va_notify_status, type: %i[string null]
       end
