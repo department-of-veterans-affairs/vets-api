@@ -8,7 +8,7 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
       description: 'Travel to appointment',
       cost_requested: 50.00,
       purchase_date: Time.current,
-      trip_type: 'ONE_WAY'
+      trip_type: 'OneWay'
     }
   end
 
@@ -20,7 +20,7 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
 
   describe 'constants' do
     it 'defines VALID_TRIP_TYPES constant' do
-      expect(described_class::VALID_TRIP_TYPES).to eq(%w[ONE_WAY ROUND_TRIP])
+      expect(described_class::VALID_TRIP_TYPES).to eq(%w[OneWay RoundTrip Unspecified])
     end
   end
 
@@ -41,15 +41,22 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
       end
 
       it 'accepts valid trip_type values' do
-        subject.trip_type = 'ONE_WAY'
+        subject.trip_type = 'OneWay'
         expect(subject).to be_valid
 
-        subject.trip_type = 'ROUND_TRIP'
+        subject.trip_type = 'RoundTrip'
+        expect(subject).to be_valid
+
+        subject.trip_type = 'Unspecified'
         expect(subject).to be_valid
       end
 
       it 'rejects invalid casing' do
         subject.trip_type = 'one_way'
+        expect(subject).not_to be_valid
+        expect(subject.errors[:trip_type]).to include('is not included in the list')
+
+        subject.trip_type = 'ONE_WAY'
         expect(subject).not_to be_valid
         expect(subject.errors[:trip_type]).to include('is not included in the list')
       end
@@ -91,7 +98,7 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
 
     it 'returns a hash representation including mileage-specific attributes' do
       json = subject.to_h
-      expect(json['trip_type']).to eq('ONE_WAY')
+      expect(json['trip_type']).to eq('OneWay')
       expect(json['requested_mileage']).to eq(42.5)
       expect(json['expense_type']).to eq('mileage')
     end
@@ -108,7 +115,7 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
       subject.requested_mileage = nil
       json = subject.to_h
       expect(json['requested_mileage']).to be_nil
-      expect(json['trip_type']).to eq('ONE_WAY')
+      expect(json['trip_type']).to eq('OneWay')
     end
   end
 
@@ -119,7 +126,7 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
           description: 'Travel for medical appointment',
           cost_requested: 25.00,
           purchase_date: Date.current,
-          trip_type: 'ROUND_TRIP',
+          trip_type: 'RoundTrip',
           requested_mileage: 35.2,
           claim_id: 'uuid-123'
         )
@@ -127,7 +134,7 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
 
       it 'creates a valid mileage expense' do
         expect(expense).to be_valid
-        expect(expense.trip_type).to eq('ROUND_TRIP')
+        expect(expense.trip_type).to eq('RoundTrip')
         expect(expense.requested_mileage).to eq(35.2)
         expect(expense.claim_id).to eq('uuid-123')
         expect(expense.expense_type).to eq('mileage')

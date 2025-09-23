@@ -2,7 +2,7 @@
 
 module TravelPay
   class MileageExpense < BaseExpense
-    VALID_TRIP_TYPES = %w[ONE_WAY ROUND_TRIP].freeze
+    VALID_TRIP_TYPES = %w[OneWay RoundTrip Unspecified].freeze
 
     attribute :trip_type, :string
     attribute :requested_mileage, :float
