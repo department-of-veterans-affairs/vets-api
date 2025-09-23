@@ -112,10 +112,7 @@
   <%# 4. E-Mail Address (max 30 characters) %>
   "form1[0].Page2[0].VeteransLastName[1]": "<%= form.data.dig('recipient', 'email')&.[](0..29) %>",
 
-  <%# 5A. Signature %>
-  "form1[0].Page2[0].Signature[0]": "<%= form.data.dig('recipient', 'signature') %>",
-
-  <%# 5B. Date Signed - using form.signature_date like the examples %>
+  <%# 5B. Date Signed - using form.signature_date %>
   "form1[0].Page2[0].DOBmonth[4]": "<%= form.signature_date&.strftime('%m') %>",
   "form1[0].Page2[0].DOBday[3]": "<%= form.signature_date&.strftime('%d') %>",
   "form1[0].Page2[0].DOByear[3]": "<%= form.signature_date&.strftime('%Y') %>"
