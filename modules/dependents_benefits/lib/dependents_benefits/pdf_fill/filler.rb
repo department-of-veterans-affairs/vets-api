@@ -8,7 +8,6 @@ require 'dependents_benefits/pdf_fill/va21674v2'
 require 'utilities/date_parser'
 require 'forwardable'
 
-# rubocop:disable Metrics/ModuleLength
 module DependentsBenefits
   module PdfFill
     # Provides functionality to fill and process PDF forms.
@@ -170,34 +169,15 @@ module DependentsBenefits
         combine_extras(file_path, hash_converter.extras_generator, form_class)
       end
 
-      def make_hash_converter(form_id, form_class, submit_date, fill_options)
-        extras_generator =
-          if fill_options.fetch(:extras_redesign, false)
-            ExtrasGeneratorV2.new(
-              form_name: form_id.sub(/V2\z/, ''),
-              submit_date:,
-              question_key: form_class::QUESTION_KEY,
-              start_page: form_class::START_PAGE,
-              sections: form_class::SECTIONS,
-              label_width: form_class::DEFAULT_LABEL_WIDTH,
-              show_jumplinks: fill_options.fetch(:show_jumplinks, false)
-            )
-          else
-            ExtrasGenerator.new
-          end
+      def make_hash_converter(_form_id, form_class, _submit_date, _fill_options)
+        extras_generator = ExtrasGenerator.new
         HashConverter.new(form_class.date_strftime, extras_generator)
       end
 
-      def should_stamp_form?(form_id, fill_options, submit_date)
+      def should_stamp_form?(_form_id, fill_options, submit_date)
         return false if fill_options[:omit_esign_stamp]
 
-        # special exception for dependents that isn't in extras_redesign
-        dependents = %w[686C-674 686C-674-V2 21-674 21-674-V2].include?(form_id)
-
-        # If the form is being generated with the overflow redesign, stamp the top and bottom of the document before the
-        # form is combined with the extras overflow pages. This allows the stamps to be placed correctly for the
-        # redesign implemented in lib/pdf_fill/extras_generator_v2.rb.
-        (fill_options[:extras_redesign] || dependents) && submit_date.present?
+        submit_date.present?
       end
 
       def stamp_form(file_path, submit_date)
@@ -228,4 +208,3 @@ module DependentsBenefits
     end
   end
 end
-# rubocop:enable Metrics/ModuleLength
