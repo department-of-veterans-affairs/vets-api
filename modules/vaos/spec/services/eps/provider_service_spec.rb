@@ -223,7 +223,7 @@ describe Eps::ProviderService do
     end
 
     context 'when provider_ids parameter is missing or blank' do
-      it 'raises ArgumentError and logs StatsD metric and Rails warning when provider_ids is nil' do
+      it 'returns empty provider_services and logs StatsD metric and Rails warning when provider_ids is nil' do
         expect(StatsD).to receive(:increment).with(
           'api.vaos.provider_service.no_params',
           tags: ['service:community_care_appointments']
@@ -236,12 +236,11 @@ describe Eps::ProviderService do
           )
         )
 
-        expect do
-          service.get_provider_services_by_ids(provider_ids: nil)
-        end.to raise_error(ArgumentError, 'provider_ids is required and cannot be blank')
+        result = service.get_provider_services_by_ids(provider_ids: nil)
+        expect(result).to eq(OpenStruct.new(provider_services: []))
       end
 
-      it 'raises ArgumentError and logs StatsD metric and Rails warning when provider_ids is empty array' do
+      it 'returns empty provider_services and logs StatsD metric and Rails warning when provider_ids is empty array' do
         expect(StatsD).to receive(:increment).with(
           'api.vaos.provider_service.no_params',
           tags: ['service:community_care_appointments']
@@ -254,9 +253,8 @@ describe Eps::ProviderService do
           )
         )
 
-        expect do
-          service.get_provider_services_by_ids(provider_ids: [])
-        end.to raise_error(ArgumentError, 'provider_ids is required and cannot be blank')
+        result = service.get_provider_services_by_ids(provider_ids: [])
+        expect(result).to eq(OpenStruct.new(provider_services: []))
       end
     end
   end
