@@ -61,14 +61,14 @@ module PdfFill
         extra_certifying_officials.each_with_index do |official_data, i|
           hash_converter.extras_generator.add_text(certifying_official_to_text(official_data), {
                                                      question_num: i + 1,
-                                                     question_text: 'Additional Certifying Official'
+                                                     question_text: 'ADDITIONAL CERTIFYING OFFICIAL'
                                                    })
         end
 
         extra_read_only_officials.each_with_index do |rof_data, i|
           hash_converter.extras_generator.add_text(read_only_official_to_text(rof_data), {
                                                      question_num: extra_certifying_officials.size + i + 1,
-                                                     question_text: 'Additional Read Only Official'
+                                                     question_text: 'READ ONLY OFFICIAL'
                                                    })
         end
 
@@ -86,18 +86,20 @@ module PdfFill
 
       def certifying_official_to_text(official_data)
         <<~TEXT
-          #{official_data['fullName']}, #{official_data['title']}
-          #{official_data['emailAddress']}
-          #{official_data['phoneNumber']}
-          Training Date: #{official_data['trainingCompletionDate']}
-          Receives Benefits: #{official_data['recievesBenegits'] ? 'Yes' : 'No'}
+          NAME: #{official_data['fullName']}
+          TITLE: #{official_data['title']}
+          EMAIL: #{official_data['emailAddress']}
+          PHONE: #{official_data['phoneNumber']}
+          TRAINING DATE: #{official_data['trainingCompletionDate']}
+          RECEIVES BENEFITS: #{official_data['recievesBenegits'] ? 'Yes' : 'No'}
         TEXT
       end
 
       def read_only_official_to_text(official_data)
-        %w[first middle last].map do |k|
+        full_name = %w[first middle last].map do |k|
           official_data.dig('fullName', k)
         end.join(' ')
+        "NAME: #{full_name}"
       end
     end
   end
