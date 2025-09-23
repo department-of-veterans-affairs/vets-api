@@ -21,6 +21,10 @@ module TravelPay
     }.freeze
 
     # Usage:
+    # TravelPay::Constants::TRIP_TYPES
+    TRIP_TYPES = %w[OneWay RoundTrip Unspecified].freeze
+
+    # Usage:
     # TravelPay::Constants::UUID_REGEX.match?(uuid_string)
     UUID_REGEX = /\A[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}\z/i
   end
