@@ -1652,8 +1652,6 @@ vba_documents:
     region: us-gov-west-1
     topic_arns: <%= ENV['vba_documents__sns__topic_arns'] %>
   updater_enabled: <%= ENV['vba_documents__updater_enabled'] %>
-  v2_enabled: <%= ENV['vba_documents__v2_enabled'] %>
-  v2_upload_endpoint_enabled: <%= ENV['vba_documents__v2_upload_endpoint_enabled'] %>
   webhooks:
     registration_max_retries: 3
     registration_next_run_in_minutes: 15

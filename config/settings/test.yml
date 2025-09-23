@@ -1672,8 +1672,6 @@ vba_documents:
       - vetsgov-arn
       - vagov-arn
   updater_enabled: ~
-  v2_enabled: true
-  v2_upload_endpoint_enabled: true
   webhooks:
     registration_max_retries: 3
     registration_next_run_in_minutes: 15
