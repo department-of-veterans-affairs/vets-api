@@ -97,12 +97,12 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
         allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(false)
       end
 
-      it 'allows valid file extensions' do
+      it 'allows valid file extensions - no heic files' do
         expect(uploader.extension_allowlist).to include('pdf', 'doc', 'docx', 'jpg', 'jpeg', 'rtf', 'png')
       end
 
       it 'does not allow invalid file extensions' do
-        expect(uploader.extension_allowlist).not_to include('exe', 'bat', 'zip')
+        expect(uploader.extension_allowlist).not_to include('exe', 'bat', 'zip', 'heic')
       end
     end
   end
@@ -132,7 +132,7 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
       let(:file) do
         Rack::Test::UploadedFile.new(
           Rails.root.join('spec', 'fixtures', 'files', 'steelers.heic'),
-          'image/png'
+          'image/heic'
         )
       end
 
@@ -141,7 +141,7 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
           allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(true)
         end
 
-        it 'converts the file to HEIC' do
+        it 'converts the file to jpg' do
           expect(uploader).to receive(:convert).with('jpg')
 
           uploader.store!(file)
@@ -150,14 +150,17 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
 
       context ':hca_heic_attachments_enabled disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(false)
         end
-      end
 
-      it 'converts the file to HEIC' do
-        expect(uploader).to receive(:convert).with('jpg')
-
-        uploader.store!(file)
+        it 'raises invalid file type error' do
+          expect { uploader.store!(file) }.to raise_error do |error|
+            expect(error).to be_instance_of(CarrierWave::IntegrityError)
+            expect(error.message).to eq(
+              'You can’t upload "heic" files. The allowed file types are: pdf, doc, docx, jpg, jpeg, rtf, png'
+            )
+          end
+        end
       end
     end
   end
