@@ -25,6 +25,7 @@ module Mobile
         medicare_partd
         minimum_essential_coverage
       ].freeze
+      COE_STATUSES = %w[AVAILABLE ELIGIBLE].freeze
       COE_LETTER_TYPE = 'certificate_of_eligibility_home_loan'
       COE_APP_VERSION = '2.58.0'
 
@@ -47,7 +48,7 @@ module Mobile
           begin
             coe_status = lgy_service.coe_status
 
-            if coe_status[:status] == 'AVAILABLE'
+            if coe_status[:status].in?(COE_STATUSES)
               response.append(Mobile::V0::Letter.new(
                                 letter_type: COE_LETTER_TYPE, name: 'Certificate of Eligibility for Home Loan Letter'
                               ))
