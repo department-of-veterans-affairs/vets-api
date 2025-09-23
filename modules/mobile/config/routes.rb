@@ -59,6 +59,7 @@ Mobile::Engine.routes.draw do
     get '/medical_copays/download/:id', to: 'medical_copays#download'
     get '/messaging/health/folders', to: 'folders#index'
     post '/messaging/health/folders', to: 'folders#create'
+    get '/messaging/health/folders/:folder_id/messages', to: 'messages#index'
     get '/messaging/health/folders/:folder_id/threads', to: 'threads#index'
     get '/messaging/health/folders/:id', to: 'folders#show', as: 'folder'
     delete '/messaging/health/folders/:id', to: 'folders#destroy'
