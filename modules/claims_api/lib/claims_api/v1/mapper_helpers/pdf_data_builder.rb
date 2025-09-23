@@ -10,7 +10,7 @@ module ClaimsApi
         identification_name: %i[identificationInformation name],
         identification_mailing_address: %i[identificationInformation mailingAddress],
         # Change of address section
-        change_of_address: [:changeOfAddress],
+        change_of_address: %i[changeOfAddress],
         change_of_address_dates: %i[changeOfAddress effectiveDates],
         change_of_address_new_address: %i[changeOfAddress newAddress],
         # Homelessness section
@@ -18,12 +18,16 @@ module ClaimsApi
         homeless_currently: %i[homelessInformation currentlyHomeless],
         homeless_risk: %i[homelessInformation riskOfBecomingHomeless],
         # Claim information section
-        claim_info: [:claimInformation],
-        # Service information section
-        service_info: [:serviceInformation],
+        claim_info: %i[claimInformation],
+        # SECTION 6: Service information section
+        service_info: %i[serviceInformation],
         service_most_recent: %i[serviceInformation mostRecentActiveService],
         service_reserves: %i[serviceInformation reservesNationalGuardService],
-        service_branch_info: %i[serviceInformation branchOfService]
+        service_branch_info: %i[serviceInformation branchOfService],
+        # SECTION &: Service Pay
+        service_pay_info: %i[servicePay],
+        service_pay_retired_military: %i[servicePay militaryRetiredPay],
+        service_pay_separation_severance_pay: %i[servicePay separationSeverancePay]
       }.freeze
 
       def build_pdf_path(path_key)
