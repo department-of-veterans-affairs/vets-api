@@ -1042,7 +1042,7 @@
   :base_uri: <%= "#{URI(Settings.mhv.uhd.host).host}:#{URI(Settings.mhv.uhd.host).port}" %>
   :endpoints:
     - :method: :get
-      :path: "/mhvapi/v1/medicalrecords/labs"
+      :path: "/v1/medicalrecords/labs"
       :file_path: "mhv/uhd/labs"
       :cache_multiple_responses:
         :uid_location: "query"
