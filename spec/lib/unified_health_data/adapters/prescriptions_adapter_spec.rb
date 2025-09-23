@@ -344,7 +344,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
 
         # Should use the most recent whenHandedOver date: '2025-01-29T14:30:00Z'
-        expect(oracle_prescription.dispensed_date).to eq('2025-01-29T14:30:00Z')
+        expect(oracle_prescription.refill_date).to eq('2025-01-29T14:30:00Z')
       end
     end
 
