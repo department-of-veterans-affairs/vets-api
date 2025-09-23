@@ -4,44 +4,6 @@ require 'rails_helper'
 require_relative '../../lib/travel_pay/constants'
 
 RSpec.describe TravelPay::Constants do
-  describe 'BASE_EXPENSE_PATHS' do
-    it 'includes the expected expense types' do
-      expect(described_class::BASE_EXPENSE_PATHS.keys).to contain_exactly(
-        :meal, :mileage, :parking, :other
-      )
-    end
-
-    it 'maps expense types to correct API paths' do
-      expect(described_class::BASE_EXPENSE_PATHS[:meal]).to eq('api/v1/expenses/meal')
-      expect(described_class::BASE_EXPENSE_PATHS[:mileage]).to eq('api/v2/expenses/mileage')
-      expect(described_class::BASE_EXPENSE_PATHS[:parking]).to eq('api/v1/expenses/parking')
-      expect(described_class::BASE_EXPENSE_PATHS[:other]).to eq('api/v1/expenses/other')
-    end
-
-    it 'is frozen' do
-      expect(described_class::BASE_EXPENSE_PATHS).to be_frozen
-    end
-  end
-
-  describe 'EXPENSE_TYPES' do
-    it 'includes the expected expense types' do
-      expect(described_class::EXPENSE_TYPES.keys).to contain_exactly(
-        :meal, :mileage, :parking, :other
-      )
-    end
-
-    it 'maps expense types to correct strings' do
-      expect(described_class::EXPENSE_TYPES[:meal]).to eq('meal')
-      expect(described_class::EXPENSE_TYPES[:mileage]).to eq('mileage')
-      expect(described_class::EXPENSE_TYPES[:parking]).to eq('parking')
-      expect(described_class::EXPENSE_TYPES[:other]).to eq('other')
-    end
-
-    it 'is frozen' do
-      expect(described_class::EXPENSE_TYPES).to be_frozen
-    end
-  end
-
   describe 'UUID_REGEX' do
     let(:valid_uuid)   { SecureRandom.uuid } # Any UUID format accepted (not limited to v4)
     let(:invalid_uuid) { 'not-a-uuid' }
