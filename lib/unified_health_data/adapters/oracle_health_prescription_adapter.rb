@@ -33,7 +33,7 @@ module UnifiedHealthData
           expiration_date: extract_expiration_date(resource),
           prescription_number: extract_prescription_number(resource),
           prescription_name: extract_prescription_name(resource),
-          dispensed_date: extract_dispensed_date(resource),
+          dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
           is_refillable: extract_is_refillable(resource),
           is_trackable: false, # Default for Oracle Health
@@ -45,7 +45,10 @@ module UnifiedHealthData
       # rubocop:enable Metrics/MethodLength
 
       def extract_refill_date(resource)
-        resource.dig('dispenseRequest', 'validityPeriod', 'start')
+        dispense = find_most_recent_medication_dispense(resource['contained'])
+        return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
+
+        nil
       end
 
       def extract_refill_remaining(resource)
@@ -75,10 +78,8 @@ module UnifiedHealthData
         return quantity if quantity
 
         # Fallback: check contained MedicationDispense
-        if resource['contained']
-          dispense = find_most_recent_medication_dispense(resource['contained'])
-          return dispense.dig('quantity', 'value') if dispense
-        end
+        dispense = find_most_recent_medication_dispense(resource['contained'])
+        return dispense.dig('quantity', 'value') if dispense
 
         nil
       end
@@ -99,19 +100,11 @@ module UnifiedHealthData
           resource.dig('medicationReference', 'display')
       end
 
-      def extract_dispensed_date(resource)
-        # Check for contained MedicationDispense resources
-        if resource['contained']
-          dispense = find_most_recent_medication_dispense(resource['contained'])
-          return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
-        end
-
-        # Fallback to initial fill date
-        resource.dig('dispenseRequest', 'initialFill', 'date')
-      end
-
       def extract_station_number(resource)
-        resource.dig('dispenseRequest', 'performer', 'identifier', 'value')
+        dispense = find_most_recent_medication_dispense(resource['contained'])
+        return dispense.dig('location', 'display') if dispense
+
+        nil
       end
 
       def extract_is_refillable(resource)
