@@ -30,10 +30,11 @@ module Eps
       end
 
       with_monitoring do
-        # Use comma-separated format: id=provider1,provider2,provider3
-        query_params = { id: provider_ids.join(',') }
-        response = perform(:get, "/#{config.base_path}/provider-services",
-                           query_params, request_headers_with_correlation_id)
+        # Build query string manually to get: ?id=val1&id=val2
+        # This is required by the backend service (not standard, but necessary)
+        query_string = provider_ids.map { |id| "id=#{CGI.escape(id.to_s)}" }.join('&')
+        url_with_params = "/#{config.base_path}/provider-services?#{query_string}"
+        response = perform(:get, url_with_params, {}, request_headers_with_correlation_id)
 
         OpenStruct.new(response.body)
       end

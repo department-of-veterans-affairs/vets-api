@@ -204,12 +204,12 @@ describe Eps::ProviderService do
         expect(result).to eq(OpenStruct.new(response.body))
       end
 
-      it 'calls perform with comma-separated id parameter' do
-        expected_params = { id: 'provider1,provider2' }
+      it 'calls perform with multiple id parameters as required by backend' do
+        expected_url = '/api/v1/provider-services?id=provider1&id=provider2'
         expect_any_instance_of(VAOS::SessionService).to receive(:perform).with(
           :get,
-          '/api/v1/provider-services',
-          expected_params,
+          expected_url,
+          {},
           headers
         ).and_return(response)
 
