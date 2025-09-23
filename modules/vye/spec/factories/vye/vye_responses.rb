@@ -1,5 +1,13 @@
 # frozen_string_literal: true
 
+ERROR_RESPONSE_BODY = {
+  'claimant_id' => nil,
+  'delimiting_date' => nil,
+  'enrollment_verifications' => nil,
+  'verified_details' => nil,
+  'payment_on_hold' => nil
+}.freeze
+
 FactoryBot.define do
   factory :claimant_lookup_response, class: 'Vye::DGIB::ClaimantLookupResponse' do
     status { 200 }
@@ -18,16 +26,6 @@ FactoryBot.define do
   end
 
   factory :verification_record_response, class: 'Vye::DGIB::VerificationRecordResponse' do
-    # rubocop:disable Lint/ConstantDefinitionInBlock
-    ERROR_RESPONSE_BODY = {
-      'claimant_id' => nil,
-      'delimiting_date' => nil,
-      'enrollment_verifications' => nil,
-      'verified_details' => nil,
-      'payment_on_hold' => nil
-    }.freeze
-    # rubocop:enable Lint/ConstantDefinitionInBlock
-
     status { 200 }
     claimant_id { 1 }
     delimiting_date { '2024-01-15' }
