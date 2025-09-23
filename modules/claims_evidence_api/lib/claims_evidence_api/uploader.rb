@@ -131,12 +131,19 @@ module ClaimsEvidenceApi
     def perform_upload(file_path, va_received_at = Time.zone.now, doctype = 10)
       attempt.metadata = provider_data = {
         contentSource: ClaimsEvidenceApi::CONTENT_SOURCE,
-        dateVaReceivedDocument: DateTime.parse(va_received_at.to_s).strftime('%Y-%m-%d'),
+        dateVaReceivedDocument: format_datetime(va_received_at),
         documentTypeId: doctype
       }
       attempt.save
 
       @response = @service.upload(file_path, provider_data:)
+    end
+
+    # modify the file upload date to be in the expected zone and format
+    #
+    # @param datetime [DateTime] datetime of when the va received the file
+    def format_datetime(datetime)
+      DateTime.parse(datetime.to_s).in_time_zone(ClaimsEvidenceApi::TIMEZONE).strftime('%Y-%m-%d')
     end
 
     # update the tracking records with the result of the attempt
