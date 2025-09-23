@@ -9,7 +9,7 @@ RSpec.describe VRE::NotificationEmail do
     let(:notification_email) { described_class.new(saved_claim.id) }
 
     %i[confirmation_vbms confirmation_lighthouse error].each do |email_type|
-      it 'successfully sends an email' do
+      it 'successfully sends an email using correct values from Settings' do
         expect(SavedClaim::VeteranReadinessEmploymentClaim)
           .to receive(:find).with(saved_claim.id).and_return(saved_claim)
 
@@ -24,6 +24,16 @@ RSpec.describe VRE::NotificationEmail do
         expect(VANotify::EmailJob).to receive(:perform_async).with(*args)
 
         notification_email.deliver(email_type)
+        service_config = notification_email.instance_variable_get(:@service_config)
+        settings = Settings.vanotify.services.veteran_readiness_and_employment
+
+        expect(service_config.api_key).to eq(settings.api_key)
+        expect(service_config.email.confirmation_lighthouse.template_id)
+          .to eq(settings.email.confirmation_lighthouse.template_id)
+        expect(service_config.email.confirmation_vbms.template_id)
+          .to eq(settings.email.confirmation_vbms.template_id)
+        expect(service_config.email.error.template_id)
+          .to eq(settings.email.error.template_id)
       end
     end
   end
