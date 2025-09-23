@@ -151,8 +151,8 @@ module UnifiedHealthData
     def get_allergies
       with_monitoring do
         # NOTE: we must pass in a startDate and endDate to SCDF
-        start_date = '1900-01-01'
-        end_date = Time.zone.today.to_s
+        start_date = default_start_date
+        end_date = default_end_date
 
         response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
@@ -167,8 +167,8 @@ module UnifiedHealthData
     def get_single_allergy(allergy_id)
       with_monitoring do
         # NOTE: we must pass in a startDate and endDate to SCDF
-        start_date = '1900-01-01'
-        end_date = Time.zone.today.to_s
+        start_date = default_start_date
+        end_date = default_end_date
 
         response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
@@ -311,6 +311,7 @@ module UnifiedHealthData
 
     # Allergies methods
     def remap_vista_identifier(records)
+      # TODO: Placeholder; will transition to a vista_uid
       records['vista']['entry']&.each do |allergy|
         vista_identifier = allergy['resource']['identifier'].find { |id| id['system'].starts_with?('https://va.gov/systems/') }
         next unless vista_identifier && vista_identifier['value']
