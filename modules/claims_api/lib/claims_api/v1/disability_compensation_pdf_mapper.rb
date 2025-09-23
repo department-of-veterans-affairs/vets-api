@@ -668,7 +668,7 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:servicePay][:receivedSeparationOrSeverancePay] =
           handle_yes_no(serverance_or_separation_pay)
 
-        set_spearation_severance_pay_pdf_data
+        set_separation_severance_pay_pdf_data
 
         received_date = lookup_in_auto_claim(:separation_pay_received_date)
         if received_date
@@ -686,7 +686,7 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:preTaxAmountReceived] = amount if amount
       end
 
-      def set_spearation_severance_pay_pdf_data
+      def set_separation_severance_pay_pdf_data
         return if @pdf_data[:data][:attributes][:servicePay]&.key?(:separationSeverancePay)
 
         @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay] = {}
