@@ -3,7 +3,6 @@
 module MyHealth
   module V1
     class MessagesController < SMController
-
       def show
         message_id = params[:id].try(:to_i)
         response = client.get_message(message_id)
