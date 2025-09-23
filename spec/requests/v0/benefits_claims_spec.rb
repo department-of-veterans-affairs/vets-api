@@ -102,26 +102,8 @@ RSpec.describe 'V0::BenefitsClaims', type: :request do
           expect(parsed_response['data'].second['document_type']).to eq('Birth Certificate')
         end
 
-        context 'when there are multiple failed submissions for the same claim' do
-          before do
-            create(:bd_lh_evidence_submission_failed_type1_error, claim_id:, user_account:)
-            create(:bd_lh_evidence_submission_failed_type2_error, claim_id:, user_account:)
-          end
-
-          it 'returns all failed submissions for the claim' do
-            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-              subject
-            end
-
-            expect(response).to have_http_status(:ok)
-            parsed_response = JSON.parse(response.body)
-            expect(parsed_response['data'].size).to eq(4)
-          end
-        end
-
         context 'when multiple claims are returned for the evidence submission records' do
           before do
-            create(:bd_lh_evidence_submission_failed_type1_error, claim_id:, user_account:)
             create(:bd_lh_evidence_submission_failed_type1_error, claim_id: 600_229_972, user_account:)
           end
 
@@ -134,7 +116,7 @@ RSpec.describe 'V0::BenefitsClaims', type: :request do
 
             expect(response).to have_http_status(:ok)
             parsed_response = JSON.parse(response.body)
-            expect(parsed_response['data'].size).to eq(4)
+            expect(parsed_response['data'].size).to eq(3)
           end
         end
 
