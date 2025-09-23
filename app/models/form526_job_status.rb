@@ -11,9 +11,9 @@ class Form526JobStatus < ApplicationRecord
   }.freeze
   SUCCESS_STATUSES = {
     success: 'success',
-    pdf_found_later: 'pdf_found_later',
-    pdf_success_on_backup_path: 'pdf_success_on_backup_path',
-    pdf_manually_uploaded: 'pdf_manually_uploaded'
+    pdf_found_later: 'pdf_found_later', # manually applied by dev when PDF is found after initial failure
+    pdf_success_on_backup_path: 'pdf_success_on_backup_path', # manually applied by dev when PDF created via backup path
+    pdf_manually_uploaded: 'pdf_manually_uploaded' # manually applied by dev when PDF is uploaded manually
   }.freeze
   STATUS = {
     try: 'try',
