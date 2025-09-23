@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'unique_user_events/oracle_health'
+
 # Top-level module for Unique User Metrics system
 #
 # This module provides the main entry point for logging unique user events
@@ -23,25 +25,19 @@ module UniqueUserEvents
 
     # Log a unique user event with DataDog metrics
     #
-    # @param user_id [String] UUID of the authenticated user
+    # @param user [User] the authenticated User object
     # @param event_name [String] Name of the event being logged
-    # @return [Boolean] true if new event was logged, false if already existed
-    def self.log_event(user_id:, event_name:)
-      # Record the event to database/cache
-      new_event_created = MHVMetricsUniqueUserEvent.record_event(
-        user_id:,
-        event_name:
-      )
+    # @return [Array<Hash>] Array of event results with event_name, status, and new_event keys
+    def self.log_event(user:, event_name:)
+      user_id = extract_user_id(user)
 
-      # Increment DataDog counter only for new events
-      if new_event_created
-        increment_statsd_counter(event_name)
-        Rails.logger.info('UUM: New unique event logged with metrics', { user_id:, event_name: })
-      else
-        Rails.logger.debug('UUM: Duplicate event, no metrics increment', { user_id:, event_name: })
+      # Get all events to be logged (original + OH events)
+      events_to_log = get_all_events_to_log(user:, event_name:)
+
+      # Log each event and collect results
+      events_to_log.map do |event_name_to_log|
+        log_single_event(user_id:, event_name: event_name_to_log)
       end
-
-      new_event_created
     rescue => e
       Rails.logger.error('UUM: Failed to log event', { user_id:, event_name:, error: e.message })
       # Don't raise - this is analytics, shouldn't break user flow
@@ -50,10 +46,11 @@ module UniqueUserEvents
 
     # Check if an event has been logged for a user
     #
-    # @param user_id [String] UUID of the user
+    # @param user [User] the authenticated User object
     # @param event_name [String] Name of the event
     # @return [Boolean] true if event exists, false otherwise
-    def self.event_logged?(user_id:, event_name:)
+    def self.event_logged?(user:, event_name:)
+      user_id = extract_user_id(user)
       MHVMetricsUniqueUserEvent.event_exists?(user_id:, event_name:)
     rescue => e
       Rails.logger.error('UUM: Failed to check event', { user_id:, event_name:, error: e.message })
@@ -71,6 +68,91 @@ module UniqueUserEvents
       # Don't raise - metrics failure shouldn't break the main flow
     end
 
-    private_class_method :increment_statsd_counter
+    # Get all events to be logged (original + Oracle Health events)
+    #
+    # @param user [User] the authenticated User object
+    # @param event_name [String] Name of the original event
+    # @return [Array<String>] Array of all event names to be logged
+    def self.get_all_events_to_log(user:, event_name:)
+      events = [event_name]
+
+      # Add Oracle Health events if applicable
+      oh_events = OracleHealth.generate_events(user:, event_name:)
+      events.concat(oh_events)
+
+      events
+    end
+
+    # Log a single event.
+    #
+    # @param user_id [String] User account UUID
+    # @param event_name [String] Name of the event to log
+    # @return [Hash] Event result hash with event_name, status, and new_event
+    def self.log_single_event(user_id:, event_name:)
+      event_created = MHVMetricsUniqueUserEvent.record_event(user_id:, event_name:)
+
+      if event_created
+        increment_statsd_counter(event_name)
+        Rails.logger.info('UUM: New event logged', { user_id:, event_name: })
+      end
+
+      build_event_result(event_name, event_created)
+    rescue => e
+      Rails.logger.error('UUM: Failed to log event', {
+                           user_id:,
+                           event_name:,
+                           error: e.message
+                         })
+      build_error_result(event_name)
+    end
+
+    # Extract user ID from user object
+    #
+    # @param user [User] the authenticated User object
+    # @return [String] User account UUID
+    def self.extract_user_id(user)
+      user.user_account_uuid
+    end
+
+    # Build event result hash for API response
+    #
+    # @param event_name [String] Name of the event
+    # @param was_created [Boolean] Whether the event was newly created
+    # @return [Hash] Event result hash
+    def self.build_event_result(event_name, was_created)
+      {
+        event_name:,
+        status: was_created ? 'created' : 'exists',
+        new_event: was_created
+      }
+    end
+
+    # Build error result hash for API response
+    #
+    # @param event_name [String] Name of the event
+    # @return [Hash] Error result hash
+    def self.build_error_result(event_name)
+      {
+        event_name:,
+        status: 'error',
+        new_event: false,
+        error: 'Failed to process event'
+      }
+    end
+
+    # Build disabled result hash for API response
+    #
+    # @param event_name [String] Name of the event
+    # @return [Hash] Disabled result hash
+    def self.build_disabled_result(event_name)
+      {
+        event_name:,
+        status: 'disabled',
+        new_event: false
+      }
+    end
+
+    private_class_method :increment_statsd_counter, :get_all_events_to_log, :log_single_event, :extract_user_id,
+                         :build_event_result
   end
 end
