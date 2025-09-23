@@ -62,6 +62,8 @@ module VANotify
 
       signature_from_header = request.headers['x-enp-signature'].to_s.strip
 
+      return unless signature_from_header
+
       api_key = get_api_key_value(@notification.service_api_key_path)
 
       signature = VANotify::CallbackSignatureGenerator.call(request.raw_post, api_key)
