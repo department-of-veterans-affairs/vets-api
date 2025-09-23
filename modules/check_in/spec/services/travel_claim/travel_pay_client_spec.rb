@@ -16,13 +16,13 @@ RSpec.describe TravelClaim::TravelPayClient do
   let(:test_veis_token) { 'fake_veis_token_123' }
   let(:test_btsss_token) { 'fake_btsss_token_456' }
   let(:test_appointment_id) { 'appt-123' }
-  let(:test_claim_id) { 'claim-123' }
+  let(:test_claim_id) { 'claim-456' }
   let(:test_date_incurred) { '2024-01-15' }
   let(:test_client_number) { 'fake_client_number' }
   let(:test_veis_access_token) { 'fake_veis_token_123' }
 
   # Settings constants
-  let(:auth_url) { 'https://dev.integration.d365.va.gov' }
+  let(:auth_url) { 'https://login.microsoftonline.us' }
   let(:tenant_id) { 'fake_template_id' }
   let(:travel_pay_client_id) { 'fake_client_id' }
   let(:travel_pay_client_secret) { 'fake_client_secret' }
@@ -380,7 +380,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
       expect(new_headers).not_to eq(initial_headers)
       expect(new_headers['Authorization']).to eq("Bearer #{new_veis_token}")
-      expect(new_headers['X-BTSSS-Token']).to eq(new_btsss_token)
+      expect(new_headers['BTSSS-Access-Token']).to eq(new_btsss_token)
     end
 
     it 'includes all required headers' do
@@ -389,7 +389,7 @@ RSpec.describe TravelClaim::TravelPayClient do
       expect(headers).to include(
         'Content-Type' => 'application/json',
         'Authorization' => "Bearer #{test_veis_token_for_headers}",
-        'X-BTSSS-Token' => test_btsss_token_for_headers,
+        'BTSSS-Access-Token' => test_btsss_token_for_headers,
         'X-Correlation-ID' => client.instance_variable_get(:@correlation_id)
       )
     end
@@ -430,6 +430,8 @@ RSpec.describe TravelClaim::TravelPayClient do
       # Set up tokens
       client.instance_variable_set(:@current_veis_token, test_veis_token)
       client.instance_variable_set(:@current_btsss_token, test_btsss_token)
+      allow(client.redis_client).to receive(:token).and_return(test_veis_token)
+      allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
 
       # First call raises 401, second call succeeds
       call_count = 0
@@ -452,6 +454,8 @@ RSpec.describe TravelClaim::TravelPayClient do
       # Set up tokens
       client.instance_variable_set(:@current_veis_token, test_veis_token)
       client.instance_variable_set(:@current_btsss_token, test_btsss_token)
+      allow(client.redis_client).to receive(:token).and_return(test_veis_token)
+      allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
 
       # First call raises 401, token refresh fails
       allow(client).to receive(:perform).and_raise(
@@ -472,6 +476,8 @@ RSpec.describe TravelClaim::TravelPayClient do
       # Set up tokens
       client.instance_variable_set(:@current_veis_token, test_veis_token)
       client.instance_variable_set(:@current_btsss_token, test_btsss_token)
+      allow(client.redis_client).to receive(:token).and_return(test_veis_token)
+      allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
 
       # Multiple 401 responses should only trigger one retry
       allow(client).to receive(:perform).and_raise(
@@ -486,10 +492,54 @@ RSpec.describe TravelClaim::TravelPayClient do
       end.to raise_error(Common::Exceptions::BackendServiceException)
     end
 
+    it 'logs auth retry when 401 error occurs' do
+      # Mock Rails.logger to capture log calls
+      allow(Rails.logger).to receive(:error)
+
+      # Set up tokens
+      client.instance_variable_set(:@current_veis_token, test_veis_token)
+      client.instance_variable_set(:@current_btsss_token, test_btsss_token)
+      allow(client.redis_client).to receive(:token).and_return(test_veis_token)
+      allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
+
+      # First call raises 401, second call succeeds
+      call_count = 0
+      allow(client).to receive(:perform) do
+        call_count += 1
+        if call_count == 1
+          raise Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
+        else
+          double('Response', status: 200, success?: true)
+        end
+      end
+
+      # Mock the refresh_tokens! method to simulate successful token refresh
+      allow(client).to receive(:refresh_tokens!) do
+        client.instance_variable_set(:@current_veis_token, 'new-veis-token')
+        client.instance_variable_set(:@current_btsss_token, 'new-btsss-token')
+      end
+
+      client.send(:with_auth) do
+        client.send(:perform, :get, '/test', {}, {})
+      end
+
+      # Verify that the auth retry log was called
+      expect(Rails.logger).to have_received(:error).with(
+        'TravelPayClient 401 error - retrying authentication',
+        hash_including(
+          correlation_id: be_present,
+          uuid_hash: uuid,
+          veis_token_present: true,
+          btsss_token_present: true
+        )
+      )
+    end
+
     it 'uses cached VEIS token from Redis when available' do
       cached_veis_token = 'cached-veis'
       allow(client.redis_client).to receive(:token).and_return(cached_veis_token)
-      expect(client).to receive(:fetch_btsss_token!)
+      allow(client.redis_client).to receive(:save_token).with(token: cached_veis_token)
+      expect(client).to receive(:btsss_token!)
 
       client.send(:ensure_tokens!)
 
@@ -505,13 +555,16 @@ RSpec.describe TravelClaim::TravelPayClient do
       headers = client.send(:headers)
 
       expect(headers['Authorization']).to eq("Bearer #{test_veis}")
-      expect(headers['X-BTSSS-Token']).to eq(test_btsss)
+      expect(headers['BTSSS-Access-Token']).to eq(test_btsss)
       expect(headers['X-Correlation-ID']).to eq(client.instance_variable_get(:@correlation_id))
     end
 
     it 'fetches fresh tokens when none are cached' do
       allow(client.redis_client).to receive(:token).and_return(nil)
-      expect(client).to receive(:fetch_tokens!)
+      allow(client).to receive(:veis_token_request)
+        .and_return(double('Response', body: { 'access_token' => 'new-token' }))
+      allow(client.redis_client).to receive(:save_token).with(token: 'new-token')
+      expect(client).to receive(:btsss_token!)
 
       client.send(:ensure_tokens!)
     end
@@ -521,13 +574,21 @@ RSpec.describe TravelClaim::TravelPayClient do
       old_btsss_token = 'old-btsss'
       client.instance_variable_set(:@current_veis_token, old_veis_token)
       client.instance_variable_set(:@current_btsss_token, old_btsss_token)
-      expect(client).to receive(:fetch_tokens!)
-      expect(client.redis_client).to receive(:save_token).with(token: nil)
+      allow(client.redis_client).to receive(:save_token).with(token: nil)
+      allow(client.redis_client).to receive(:token).and_return(nil)
+      allow(client).to receive(:veis_token_request)
+        .and_return(double('Response', body: { 'access_token' => 'new-token' }))
+      allow(client.redis_client).to receive(:save_token).with(token: 'new-token')
+      allow(client).to receive(:system_access_token_request) do
+        client.instance_variable_set(:@current_btsss_token, 'new-btsss-token')
+        double('Response', body: { 'data' => { 'accessToken' => 'new-btsss-token' } })
+      end
 
       client.send(:refresh_tokens!)
 
-      expect(client.instance_variable_get(:@current_veis_token)).to be_nil
-      expect(client.instance_variable_get(:@current_btsss_token)).to be_nil
+      # After refresh, tokens should be cleared initially, then new ones fetched
+      expect(client.instance_variable_get(:@current_veis_token)).to eq('new-token')
+      expect(client.instance_variable_get(:@current_btsss_token)).to eq('new-btsss-token')
     end
   end
 

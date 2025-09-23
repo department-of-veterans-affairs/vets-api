@@ -15,6 +15,10 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
     # Enable travel claim logging for tests
     allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(true)
+    # Enable travel reimbursement (includes notifications) for tests
+    allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_reimbursement).and_return(true)
+    # Mock the notification job
+    allow(CheckIn::TravelClaimNotificationJob).to receive(:perform_async)
   end
 
   describe '#submit_claim' do
@@ -83,6 +87,50 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
         expect(result['success']).to be true
         expect(result['claimId']).to eq('claim-456')
       end
+
+      it 'sends success notification when feature flag is enabled' do
+        mock_successful_flow_with_claim_response
+
+        service.submit_claim
+
+        expect(CheckIn::TravelClaimNotificationJob).to have_received(:perform_async).with(
+          'test-uuid',
+          '2024-01-01',
+          CheckIn::Constants::OH_SUCCESS_TEMPLATE_ID,
+          '6789'
+        )
+      end
+
+      context 'with CIE facility type' do
+        let(:facility_type) { 'cie' }
+
+        it 'sends success notification with CIE template' do
+          mock_successful_flow_with_claim_response
+
+          service.submit_claim
+
+          expect(CheckIn::TravelClaimNotificationJob).to have_received(:perform_async).with(
+            'test-uuid',
+            '2024-01-01',
+            CheckIn::Constants::CIE_SUCCESS_TEMPLATE_ID,
+            '6789'
+          )
+        end
+      end
+
+      context 'when notification feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_reimbursement).and_return(false)
+        end
+
+        it 'does not send notification' do
+          mock_successful_flow
+
+          service.submit_claim
+
+          expect(CheckIn::TravelClaimNotificationJob).not_to have_received(:perform_async)
+        end
+      end
     end
 
     context 'when appointment request fails' do
@@ -93,6 +141,50 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           Common::Exceptions::BackendServiceException
         )
       end
+
+      it 'sends error notification when feature flag is enabled' do
+        mock_appointment_failure(400)
+
+        expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
+
+        expect(CheckIn::TravelClaimNotificationJob).to have_received(:perform_async).with(
+          'test-uuid',
+          '2024-01-01',
+          CheckIn::Constants::OH_ERROR_TEMPLATE_ID,
+          'unknown'
+        )
+      end
+
+      context 'with CIE facility type' do
+        let(:facility_type) { 'cie' }
+
+        it 'sends error notification with CIE template' do
+          mock_appointment_failure(400)
+
+          expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
+
+          expect(CheckIn::TravelClaimNotificationJob).to have_received(:perform_async).with(
+            'test-uuid',
+            '2024-01-01',
+            CheckIn::Constants::CIE_ERROR_TEMPLATE_ID,
+            'unknown'
+          )
+        end
+      end
+
+      context 'when notification feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_reimbursement).and_return(false)
+        end
+
+        it 'does not send error notification' do
+          mock_appointment_failure(400)
+
+          expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
+
+          expect(CheckIn::TravelClaimNotificationJob).not_to have_received(:perform_async)
+        end
+      end
     end
 
     context 'when claim creation fails' do
@@ -102,6 +194,47 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
         expect { service.submit_claim }.to raise_error(
           Common::Exceptions::BackendServiceException
         )
+      end
+    end
+
+    context 'when claim already exists for appointment' do
+      before do
+        allow(travel_pay_client).to receive(:send_appointment_request).and_return(
+          double(body: { 'data' => [{ 'id' => 'appointment-123' }] })
+        )
+        allow(travel_pay_client).to receive(:send_claim_request).and_raise(
+          Common::Exceptions::BackendServiceException.new(
+            'VA900',
+            { detail: 'Validation failed: A claim has already been created for this appointment.' },
+            400
+          )
+        )
+      end
+
+      it 'sends duplicate claim notification for OH facility' do
+        expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
+
+        expect(CheckIn::TravelClaimNotificationJob).to have_received(:perform_async).with(
+          'test-uuid',
+          '2024-01-01',
+          CheckIn::Constants::OH_DUPLICATE_TEMPLATE_ID,
+          'unknown'
+        )
+      end
+
+      context 'with CIE facility type' do
+        let(:facility_type) { 'vamc' }
+
+        it 'sends duplicate claim notification for CIE facility' do
+          expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
+
+          expect(CheckIn::TravelClaimNotificationJob).to have_received(:perform_async).with(
+            'test-uuid',
+            '2024-01-01',
+            CheckIn::Constants::CIE_DUPLICATE_TEMPLATE_ID,
+            'unknown'
+          )
+        end
       end
     end
 
@@ -284,14 +417,135 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
     end
   end
 
+  describe 'notification helper methods' do
+    let(:uuid) { 'test-uuid' }
+    let(:service) { described_class.new(check_in: check_in_session, appointment_date:, facility_type:, uuid:) }
+
+    describe '#extract_claim_number_last_four' do
+      context 'with valid response body' do
+        let(:response) do
+          double(body: {
+                   'data' => {
+                     'claimId' => '97d2e536-017e-f011-b4cc-001dd8066789'
+                   }
+                 })
+        end
+
+        it 'extracts last four digits of claim ID' do
+          result = service.send(:extract_claim_number_last_four, response)
+          expect(result).to eq('6789')
+        end
+      end
+
+      context 'with JSON string response body' do
+        let(:response) do
+          double(body: '{"data":{"claimId":"97d2e536-017e-f011-b4cc-001dd8066789"}}')
+        end
+
+        it 'parses JSON and extracts last four digits' do
+          result = service.send(:extract_claim_number_last_four, response)
+          expect(result).to eq('6789')
+        end
+      end
+
+      context 'with missing claim ID' do
+        let(:response) { double(body: { 'data' => {} }) }
+
+        it 'returns unknown for missing claim ID' do
+          result = service.send(:extract_claim_number_last_four, response)
+          expect(result).to eq('unknown')
+        end
+      end
+
+      context 'with malformed response' do
+        let(:response) { double(body: 'invalid json') }
+
+        it 'returns unknown for parsing errors' do
+          allow(Rails.logger).to receive(:error)
+          result = service.send(:extract_claim_number_last_four, response)
+          expect(result).to eq('unknown')
+        end
+      end
+    end
+
+    describe '#success_template_id' do
+      context 'with OH facility type' do
+        let(:facility_type) { 'oh' }
+
+        it 'returns OH success template' do
+          template_id = service.send(:success_template_id)
+          expect(template_id).to eq(CheckIn::Constants::OH_SUCCESS_TEMPLATE_ID)
+        end
+      end
+
+      context 'with CIE facility type' do
+        let(:facility_type) { 'cie' }
+
+        it 'returns CIE success template' do
+          template_id = service.send(:success_template_id)
+          expect(template_id).to eq(CheckIn::Constants::CIE_SUCCESS_TEMPLATE_ID)
+        end
+      end
+
+      context 'with unknown facility type' do
+        let(:facility_type) { 'unknown' }
+
+        it 'defaults to CIE success template' do
+          template_id = service.send(:success_template_id)
+          expect(template_id).to eq(CheckIn::Constants::CIE_SUCCESS_TEMPLATE_ID)
+        end
+      end
+    end
+
+    describe '#error_template_id' do
+      context 'with OH facility type' do
+        let(:facility_type) { 'oh' }
+
+        it 'returns OH error template' do
+          template_id = service.send(:error_template_id)
+          expect(template_id).to eq(CheckIn::Constants::OH_ERROR_TEMPLATE_ID)
+        end
+      end
+
+      context 'with CIE facility type' do
+        let(:facility_type) { 'cie' }
+
+        it 'returns CIE error template' do
+          template_id = service.send(:error_template_id)
+          expect(template_id).to eq(CheckIn::Constants::CIE_ERROR_TEMPLATE_ID)
+        end
+      end
+    end
+  end
+
   # Helper methods for common mock setups
   def mock_successful_flow
     allow(travel_pay_client).to receive_messages(
       send_appointment_request: double(body: { 'data' => [{ 'id' => 'appointment-123' }] }, status: 200),
       send_claim_request: double(body: { 'data' => { 'claimId' => 'claim-456' } }, status: 200),
       send_mileage_expense_request: double(status: 200),
-      send_claim_submission_request: double(status: 200)
+      send_claim_submission_request: double(
+        body: { 'data' => { 'claimId' => 'claim-456-6789' } },
+        status: 200
+      )
     )
+  end
+
+  def mock_successful_flow_with_claim_response
+    mock_successful_appointment
+    mock_successful_claim_creation
+    mock_successful_expense
+    mock_successful_claim_submission_with_response
+  end
+
+  def mock_successful_claim_submission_with_response
+    response_body = {
+      'data' => { 'claimId' => '97d2e536-017e-f011-b4cc-001dd8066789' },
+      'success' => true,
+      'statusCode' => 200
+    }
+    allow(travel_pay_client).to receive(:send_claim_submission_request)
+      .and_return(double(body: response_body, status: 200))
   end
 
   def mock_appointment_failure(status = 400)
