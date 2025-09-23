@@ -139,7 +139,7 @@ class Message
 
   def each_upload_size_validation
     uploads.each do |upload|
-      next if upload.size <= max_single_file_size_mb.megabyte
+      next if upload.size <= max_single_file_size_mb.megabytes
 
       errors.add(:base, "The #{upload.original_filename} exceeds file size limit of #{max_single_file_size_mb} MB")
     end
