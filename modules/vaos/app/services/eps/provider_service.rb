@@ -26,7 +26,7 @@ module Eps
     def get_provider_services_by_ids(provider_ids:)
       if provider_ids.blank?
         log_no_params_metric('get_provider_services_by_ids')
-        raise ArgumentError, 'provider_ids is required and cannot be blank'
+        return OpenStruct.new(provider_services: [])
       end
 
       with_monitoring do
