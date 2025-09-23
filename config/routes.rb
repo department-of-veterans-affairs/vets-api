@@ -149,6 +149,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :dependents_benefits, only: %i[create index]
+
     resources :dependents_verifications, only: %i[create index]
 
     resources :benefits_claims, only: %i[index show] do
@@ -394,6 +396,7 @@ Rails.application.routes.draw do
   mount CheckIn::Engine, at: '/check_in'
   mount ClaimsEvidenceApi::Engine, at: '/claims_evidence_api'
   mount DebtsApi::Engine, at: '/debts_api'
+  mount DependentsBenefits::Engine, at: '/dependents_benefits'
   mount DependentsVerification::Engine, at: '/dependents_verification'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'

@@ -689,7 +689,7 @@ describe 'PowerOfAttorney',
             allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
               .to receive(:process_poa_decision).and_return(OpenStruct.new(id: '1234'))
             allow_any_instance_of(
-              ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+              ClaimsApi::PowerOfAttorneyRequestService::Decide
             ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
 
             mock_ccg(scopes) do
@@ -720,7 +720,11 @@ describe 'PowerOfAttorney',
           let(:data) do
             {
               'data' => {
-                'attributes' => {}
+                'attributes' => {
+                  'decision' => 'DECLINED',
+                  'declinedReason' => 'RSWAG POA test reason',
+                  'representativeId' => '918273645463'
+                }
               }
             }
           end

@@ -29,11 +29,11 @@ jobs:
     steps:
       - name: Checkout PR
         if: ${{ github.event_name != 'pull_request' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Checkout PR HEAD ref
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -45,7 +45,7 @@ jobs:
           bundler-cache: true
 
       - name: Run bundle-audit (checks gems for CVE issues)
-        run: bundle exec bundle-audit check --update --ignore CVE-2024-27456
+        run: bundle exec bundle-audit check --update
 
       - name: Run Rubocop
         run: bundle exec rubocop --parallel --format github
@@ -84,11 +84,11 @@ jobs:
     steps:
       - name: Checkout PR
         if: ${{ github.event_name != 'pull_request' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Checkout PR HEAD ref
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -102,7 +102,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: us-gov-west-1
@@ -212,7 +212,7 @@ jobs:
     runs-on: ubuntu-16-cores-latest
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
 
       - name: Publish Test Results to GitHub
         if: always()

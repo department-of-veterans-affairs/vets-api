@@ -15,6 +15,8 @@ RSpec.describe SignIn::CodeValidator do
     let(:code_verifier) { 'some-code-verifier' }
     let(:client_assertion) { 'some-client-assertion' }
     let(:client_assertion_type) { 'some-client-assertion-type' }
+    let(:token_path) { "https://#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
+    let(:aud) { token_path }
 
     context 'when code container that matches code does not exist' do
       let(:code) { 'some-arbitrary-code' }
@@ -64,7 +66,7 @@ RSpec.describe SignIn::CodeValidator do
           context 'and user verification uuid in code container does not match with a user verification' do
             let(:user_verification_id) { 'some-arbitrary-user-verification-uuid' }
             let(:expected_error) { ActiveRecord::RecordNotFound }
-            let(:expected_error_message) { "Couldn't find UserVerification with 'id'=#{user_verification_id}" }
+            let(:expected_error_message) { "Couldn't find UserVerification with 'id'=\"#{user_verification_id}\"" }
 
             it 'raises a user verification not found error' do
               expect { subject }.to raise_exception(expected_error, expected_error_message)
@@ -111,14 +113,16 @@ RSpec.describe SignIn::CodeValidator do
             aud:,
             sub:,
             jti:,
-            exp:
+            exp:,
+            iat:
           }
         end
         let(:iss) { 'some-iss' }
-        let(:aud) { 'some-aud' }
+        let(:aud) { token_path }
         let(:sub) { 'some-sub' }
         let(:jti) { 'some-jti' }
         let(:exp) { 1.month.since.to_i }
+        let(:iat) { Time.current.to_i }
         let(:client_assertion_encode_algorithm) { SignIn::Constants::Auth::ASSERTION_ENCODE_ALGORITHM }
         let(:client_assertion) do
           JWT.encode(client_assertion_payload, private_key, client_assertion_encode_algorithm)
@@ -177,7 +181,7 @@ RSpec.describe SignIn::CodeValidator do
             context 'and iss does not equal client id' do
               let(:iss) { 'some-iss' }
               let(:expected_error) { SignIn::Errors::ClientAssertionAttributesError }
-              let(:expected_error_message) { 'Client assertion issuer is not valid' }
+              let(:expected_error_message) { "Invalid issuer. Expected [\"#{client_id}\"], received #{iss}" }
 
               it 'raises client assertion attributes error' do
                 expect { subject }.to raise_error(expected_error, expected_error_message)
@@ -190,7 +194,7 @@ RSpec.describe SignIn::CodeValidator do
               context 'and sub does not equal client id' do
                 let(:sub) { 'some-sub' }
                 let(:expected_error) { SignIn::Errors::ClientAssertionAttributesError }
-                let(:expected_error_message) { 'Client assertion subject is not valid' }
+                let(:expected_error_message) { "Invalid subject. Expected #{client_id}, received #{sub}" }
 
                 it 'raises client assertion attributes error' do
                   expect { subject }.to raise_error(expected_error, expected_error_message)
@@ -203,7 +207,7 @@ RSpec.describe SignIn::CodeValidator do
                 context 'and aud does not equal token route' do
                   let(:aud) { 'some-aud' }
                   let(:expected_error) { SignIn::Errors::ClientAssertionAttributesError }
-                  let(:expected_error_message) { 'Client assertion audience is not valid' }
+                  let(:expected_error_message) { "Invalid audience. Expected [\"#{token_path}\"], received #{aud}" }
 
                   it 'raises client assertion attributes error' do
                     expect { subject }.to raise_error(expected_error, expected_error_message)
@@ -217,7 +221,7 @@ RSpec.describe SignIn::CodeValidator do
                     let(:user_verification_id) { 'some-arbitrary-user-verification-uuid' }
                     let(:expected_error) { ActiveRecord::RecordNotFound }
                     let(:expected_error_message) do
-                      "Couldn't find UserVerification with 'id'=#{user_verification_id}"
+                      /Couldn't find UserVerification with 'id'/
                     end
 
                     it 'raises a user verification not found error' do

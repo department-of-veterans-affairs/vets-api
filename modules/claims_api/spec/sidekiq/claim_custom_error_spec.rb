@@ -218,4 +218,57 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
       end
     end
   end
+
+  describe 'FES errors' do
+    let(:response_values) do
+      { status: 400, detail: nil, code: 'VA_400', source: nil }
+    end
+    let(:bad_request_detail) do
+      { errors: [
+        {
+          detail: 'Http Message Not Readable (Unrecognized Property)', status: 400, title: 'Bad Request',
+          instance: 'b3a8fe91', diagnostics: '285vwsmYlv='
+        }
+      ] }
+    end
+    let(:invalid_data_detail) do
+      { data: {
+        valid: false,
+        errors: [
+          { status: '400', title: 'Invalid service period branch name',
+            detail: 'Provided service period branch name is not valid: AIR\\n Force',
+            source: {
+              pointer: '/data/form526/serviceInformation/servicePeriods/0/serviceBranch'
+            } }
+        ]
+      } }
+    end
+
+    # (key = nil, response_values = {}, original_status = nil, original_body = nil)
+    let(:bad_request) do
+      Common::Exceptions::BackendServiceException.new('VA_400', response_values, 400, bad_request_detail)
+    end
+
+    let(:invalid_data) do
+      Common::Exceptions::BackendServiceException.new('VA_400', response_values, 400, invalid_data_detail)
+    end
+
+    it 'handles returning a message when :errors is inside the original_body not :messages' do
+      ClaimsApi::CustomError.new(bad_request, bad_request_detail, false).build_error
+    rescue => e
+      expect(e.errors[0][:status]).to eq('422') # standards require this to be a string
+      expect(e.errors[0][:title]).to eq('Backend Service Exception')
+      expect(e.errors[0][:detail]).to eq('The claim could not be established - Http Message Not Readable ' \
+                                         '(Unrecognized Property).')
+    end
+
+    it 'handles returning a message when :errors is inside :data in the original_body not :messages' do
+      ClaimsApi::CustomError.new(invalid_data, invalid_data_detail, false).build_error
+    rescue => e
+      expect(e.errors[0][:status]).to eq('422') # standards require this to be a string
+      expect(e.errors[0][:title]).to eq('Backend Service Exception')
+      expect(e.errors[0][:detail]).to eq('The claim could not be established - Provided service period branch ' \
+                                         'name is not valid: AIR\\n Force.')
+    end
+  end
 end

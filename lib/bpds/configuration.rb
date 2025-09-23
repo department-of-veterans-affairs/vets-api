@@ -8,55 +8,65 @@ require 'faraday/multipart'
 module BPDS
   # Configuration for BPDS service
   class Configuration < Common::Client::Configuration::REST
-    # settings bpds url
-    #
-    # @return [String] Base path
-    def base_path
-      Settings.bpds.url
+    # @return [Config::Options] Settings for benefits_claims API.
+    def service_settings
+      Settings.bpds
     end
 
-    # service name function
-    #
+    # @see Common::Client::Configuration::Base#base_path
+    # @return [String] Base path
+    def service_path
+      service_settings.url
+    end
+    alias base_path service_path
+
     # @return [String] Service name to use in breakers and metrics.
     def service_name
       'BPDS::Service'
     end
 
-    # generate request headers
-    #
-    # @return [Hash] The basic headers required for any Lighthouse API call
+    # @return [Hash] The basic headers required for any API call
     def self.base_request_headers
-      super.merge('Authorization' => "Bearer #{BPDS::JwtEncoder.new.get_token}")
+      headers = {}
+      super.merge(headers)
     end
 
     # Creates a connection with json parsing and breaker functionality.
     #
     # @return [Faraday::Connection] a Faraday connection instance.
     def connection
-      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options,
-                                       ssl: { verify: Settings.bpds&.ssl || false }) do |faraday|
+      options = {
+        headers: base_request_headers,
+        request: request_options,
+        ssl: { verify: service_settings.ssl }
+      }
+      @conn ||= Faraday.new(service_path, **options) do |faraday|
         faraday.use(:breakers, service_name:)
         faraday.use Faraday::Response::RaiseError
 
         faraday.request :multipart
         faraday.request :json
 
-        faraday.response :betamocks if mock_enabled?
+        faraday.response :betamocks if use_mocks?
+        faraday.response :raise_error, include_request: include_request?
         faraday.response :json
         faraday.adapter Faraday.default_adapter
       end
     end
 
-    # should the service be mocked
-    #
     # @return [Boolean] Should the service use mock data in lower environments.
-    def mock_enabled?
-      Settings.bpds.mock || false
+    def use_mocks?
+      service_settings.mock || false
     end
 
-    # breakers will be tripped if error rate reaches 80% over a two minute period.
+    # @return [Boolean] Should the service include the request method and url in error messages.
+    def include_request?
+      service_settings.include_request || false
+    end
+
+    # breakers will be tripped if error rate exceeds the threshold over a two minute period.
     def breakers_error_threshold
-      80
+      service_settings.breakers_error_threshold || 80
     end
   end
 end
