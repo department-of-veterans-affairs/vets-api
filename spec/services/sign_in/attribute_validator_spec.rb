@@ -295,15 +295,34 @@ RSpec.describe SignIn::AttributeValidator do
                 birth_date:,
                 given_names: [first_name],
                 family_name: last_name,
-                sec_id:)
+                sec_id:,
+                full_mvi_ids:)
         end
 
         shared_examples 'a missing sec_id' do
           let(:expected_sec_id_log) { 'mpi record missing sec_id' }
 
-          it 'logs that the sec_id is missing' do
-            subject
-            expect(sign_in_logger).to have_received(:info).with(a_string_including(expected_sec_id_log), icn:)
+          context 'and sec_id identifier is completely missing' do
+            let(:expected_pce_status) { false }
+
+            it 'logs that the sec_id is missing' do
+              subject
+              expect(sign_in_logger).to have_received(:info).with(a_string_including(expected_sec_id_log),
+                                                                  icn:,
+                                                                  pce_status: expected_pce_status)
+            end
+          end
+
+          context 'and sec_id identifier is missing due to PCE status' do
+            let(:expected_pce_status) { true }
+            let(:full_mvi_ids) { ['some-sec-id^PN^200PROV^USDVA^PCE'] }
+
+            it 'logs that the sec_id is missing' do
+              subject
+              expect(sign_in_logger).to have_received(:info).with(a_string_including(expected_sec_id_log),
+                                                                  icn:,
+                                                                  pce_status: expected_pce_status)
+            end
           end
         end
 
@@ -315,6 +334,7 @@ RSpec.describe SignIn::AttributeValidator do
         let(:participant_ids) { ['some-participant-id'] }
         let(:birls_ids) { ['some-birls-id'] }
         let(:sec_id) { 'some-sec-id' }
+        let(:full_mvi_ids) { ['some-full-mvi-ids'] }
 
         context 'and mpi record exists for user' do
           it_behaves_like 'mpi attribute validations'
