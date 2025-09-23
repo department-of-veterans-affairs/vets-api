@@ -27,6 +27,7 @@ module VANotify
         @notification.update(notification_params)
         Rails.logger.info("va_notify callbacks - Updating notification: #{@notification.id}",
                           {
+                            notification_id: @notification.id,
                             source_location: @notification.source_location,
                             template_id: @notification.template_id,
                             callback_metadata: @notification.callback_metadata,

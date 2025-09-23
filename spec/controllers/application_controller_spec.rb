@@ -117,7 +117,7 @@ RSpec.describe ApplicationController, type: :controller do
 
       describe '#log_exception_to_rails' do
         it 'warn logs to Rails logger' do
-          expect(Rails.logger).to receive(:error).with("#{exception.message}.")
+          expect(Rails.logger).to receive(:error).with(exception)
           subject.log_exception_to_rails(exception)
         end
       end
@@ -146,6 +146,128 @@ RSpec.describe ApplicationController, type: :controller do
           expect(Sentry).to receive(:capture_exception).exactly(0).times
           subject.log_exception_to_sentry(exception)
         end
+      end
+    end
+  end
+
+  describe 'SharedLogging (Rails logger routing)' do
+    subject { described_class.new }
+
+    describe '#log_message_to_rails' do
+      it 'routes info level to Rails.logger.info with formatted context' do
+        expect(Rails.logger).to receive(:info).with('hello : {:foo=>"bar"}')
+        subject.log_message_to_rails('hello', 'info', { foo: 'bar' })
+      end
+
+      it 'routes warn level to Rails.logger.warn' do
+        expect(Rails.logger).to receive(:warn).with('warn-only')
+        subject.log_message_to_rails('warn-only', 'warn', {})
+      end
+
+      it 'falls back unknown level to Rails.logger.error' do
+        expect(Rails.logger).to receive(:error).with('unknown')
+        subject.log_message_to_rails('unknown', 'unknown', {})
+      end
+
+      it "maps 'warning' to Rails.warn level" do
+        expect(Rails.logger).to receive(:warn).with('legacy-warning')
+        subject.log_message_to_rails('legacy-warning', 'warning', {})
+      end
+
+      it 'defaults nil message to placeholder' do
+        expect(Rails.logger).to receive(:info).with('[No Message Provided]')
+        subject.log_message_to_rails(nil, 'info', {})
+      end
+
+      it 'defaults empty message to placeholder and keeps context' do
+        expect(Rails.logger).to receive(:info).with('[No Message Provided] : {:foo=>"bar"}')
+        subject.log_message_to_rails('', 'info', { foo: 'bar' })
+      end
+
+      it 'handles nil extra_context safely' do
+        expect(Rails.logger).to receive(:info).with('test message')
+        subject.log_message_to_rails('test message', 'info', nil)
+      end
+
+      it 'handles integer extra_context safely' do
+        expect(Rails.logger).to receive(:info).with('test message : 42')
+        subject.log_message_to_rails('test message', 'info', 42)
+      end
+
+      it 'handles custom object extra_context safely' do
+        custom_obj = Object.new
+        expect(Rails.logger).to receive(:info).with("test message : #{custom_obj}")
+        subject.log_message_to_rails('test message', 'info', custom_obj)
+      end
+    end
+
+    describe '#log_exception_to_rails' do
+      it 'logs at error level by default' do
+        ex = StandardError.new('boom')
+        expect(Rails.logger).to receive(:error).with(anything)
+        subject.log_exception_to_rails(ex)
+      end
+
+      it 'logs at specified level (warn)' do
+        ex = RuntimeError.new('oops')
+        expect(Rails.logger).to receive(:warn).with(anything)
+        subject.log_exception_to_rails(ex, 'warn')
+      end
+
+      it 'falls back unknown level to error when logging exceptions' do
+        ex = ArgumentError.new('bad')
+        expect(Rails.logger).to receive(:error).with(anything)
+        subject.log_exception_to_rails(ex, 'unknown')
+      end
+
+      it 'logs BackendServiceException with key:value error details' do
+        ex = Common::Exceptions::BackendServiceException.new('RX139', { code: 'RX139', detail: 'x' })
+        # Expect the final Rails.logger.error call with formatted message including error details
+        expect(Rails.logger).to receive(:error).with(/RX139.*title.*detail.*code.*status.*backtrace/m)
+        subject.log_exception_to_rails(ex, 'error')
+      end
+
+      it 'logs BackendServiceException safely when errors array is empty' do
+        empty_errors_exception_class = Class.new(Common::Exceptions::BackendServiceException) do
+          def errors
+            [] # simulate unexpected empty error list
+          end
+        end
+        ex = empty_errors_exception_class.new('RX139', { code: 'RX139', detail: 'x' })
+        # Should still log the exception message and backtrace even with empty errors
+        expect(Rails.logger).to receive(:error).with(/RX139.*backtrace/m)
+        # Should not raise
+        expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
+      end
+
+      it 'logs BackendServiceException safely when error attributes contain nil values' do
+        nil_attrs_exception_class = Class.new(Common::Exceptions::BackendServiceException) do
+          def errors
+            [OpenStruct.new(attributes: { title: 'Error', detail: nil, code: '', status: 422 })]
+          end
+        end
+        ex = nil_attrs_exception_class.new('RX139', { code: 'RX139', detail: 'x' })
+        # Should filter out nil and empty values, keeping only valid attributes
+        expect(Rails.logger).to receive(:error).with(/RX139.*title.*status.*backtrace/m)
+        expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
+      end
+
+      it 'logs BackendServiceException safely when error attributes are all nil/empty' do
+        all_empty_attrs_exception_class = Class.new(Common::Exceptions::BackendServiceException) do
+          def errors
+            [OpenStruct.new(attributes: { title: nil, detail: '', code: nil, status: '' })]
+          end
+        end
+        ex = all_empty_attrs_exception_class.new('RX139', { code: 'RX139', detail: 'x' })
+        # Should still log with just backtrace when all attributes are nil/empty
+        expect(Rails.logger).to receive(:error).with(/RX139.*backtrace/m)
+        expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
+      end
+
+      it 'handles nil exception gracefully by logging placeholder message' do
+        expect(Rails.logger).to receive(:error).with('[No Exception Provided]')
+        # Should not raise when exception is nil
+        expect { subject.log_exception_to_rails(nil, 'error') }.not_to raise_error
       end
     end
   end
@@ -556,6 +678,27 @@ RSpec.describe ApplicationController, type: :controller do
       session_object = Session.create(uuid: user.uuid, token:)
       User.create(user)
       session_object.to_hash.each { |k, v| session[k] = v }
+      sign_in_as(user, session_object.token)
+    end
+
+    context 'with controller name logging' do
+      context 'when controller has a name' do
+        it 'adds controller name to logs within around_action' do
+          expect(SemanticLogger).to receive(:named_tagged).with(controller_name: 'anonymous').and_call_original
+          expect(Rails.logger).to receive(:info).with(expected_result)
+          subject
+        end
+      end
+
+      context 'when controller has no name' do
+        before { allow(controller).to receive(:controller_name).and_return('') }
+
+        it 'does not call SemanticLogger.named_tagged' do
+          expect(SemanticLogger).not_to receive(:named_tagged)
+          expect(Rails.logger).to receive(:info).with(expected_result)
+          subject
+        end
+      end
     end
 
     context 'when the current user and session object exist' do

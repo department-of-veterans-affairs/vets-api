@@ -4,9 +4,8 @@ module AccreditedRepresentativePortal
   class ClaimantRepresentative <
     Data.define(
       :claimant_id,
-      :power_of_attorney_holder_type,
-      :power_of_attorney_holder_poa_code,
-      :accredited_individual_registration_number
+      :accredited_individual_registration_number,
+      :power_of_attorney_holder
     )
     class << self
       def find(...)
@@ -26,41 +25,26 @@ module AccreditedRepresentativePortal
       end
 
       def perform
-        @claimant.power_of_attorney_holder.present? or
+        @claimant.poa_code.present? or
           return nil
 
-        common_membership =
-          @power_of_attorney_holder_memberships.load.find do |membership|
-            ##
-            # Might be nice to instead have a `PowerOfAttorneyHolder#==` method
-            # with a semantics that matches what is needed here.
-            #
-            holder = membership.power_of_attorney_holder
-            holder.poa_code == @claimant.power_of_attorney_holder.poa_code &&
-              holder.type == @claimant.power_of_attorney_holder.type
-          end
+        membership =
+          @power_of_attorney_holder_memberships.find(
+            @claimant.poa_code
+          )
 
-        common_membership.present? or
+        membership.present? or
           return nil
-
-        build(common_membership)
-      rescue
-        raise Error
-      end
-
-      private
-
-      def build(membership)
-        holder =
-          membership.power_of_attorney_holder
 
         ClaimantRepresentative.new(
           claimant_id: @claimant.id,
-          power_of_attorney_holder_type: holder.type,
-          power_of_attorney_holder_poa_code: holder.poa_code,
           accredited_individual_registration_number:
-            membership.registration_number
+            membership.registration_number,
+          power_of_attorney_holder:
+            membership.power_of_attorney_holder
         )
+      rescue
+        raise Error
       end
     end
 
@@ -79,27 +63,15 @@ module AccreditedRepresentativePortal
 
       delegate :id, to: :identifier
 
-      def power_of_attorney_holder
-        defined?(@power_of_attorney_holder) and
-          return @power_of_attorney_holder
+      def poa_code
+        defined?(@poa_code) and
+          return @poa_code
 
-        @power_of_attorney_holder =
+        @poa_code =
           begin
             service = BenefitsClaims::Service.new(identifier.icn)
             response = service.get_power_of_attorney['data'].to_h
-
-            ##
-            # FYI, the API does not fully distinguish types like we do.
-            # The value 'individual' is returned for both claims agents and
-            # attorneys.
-            #
-            if response['type'] == 'organization'
-              PowerOfAttorneyHolder.new(
-                type: PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
-                poa_code: response.dig('attributes', 'code'),
-                can_accept_digital_poa_requests: nil
-              )
-            end
+            response.dig('attributes', 'code')
           end
       end
 
