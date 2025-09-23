@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 require 'unified_health_data/service'
-require 'unified_health_data/serializers/condition_serializer'
+require 'unified_health_data/serializers/allergy_serializer'
 
 module MyHealth
   module V2
-    class ConditionsController < ApplicationController
+    class AllergiesController < ApplicationController
       service_tag 'mhv-medical-records'
 
       def index
-        conditions = service.get_conditions
-        render json: UnifiedHealthData::Serializers::ConditionSerializer.new(conditions),
+        allergies = service.get_allergies
+        serialized_allergies = UnifiedHealthData::AllergySerializer.new(allergies)
+        render json: serialized_allergies,
                status: :ok
       rescue Common::Client::Errors::ClientError,
              Common::Exceptions::BackendServiceException,
@@ -19,15 +20,15 @@ module MyHealth
       end
 
       def show
-        condition = service.get_single_condition(params[:id])
-        unless condition
-          render_error('Condition Not Found',
-                       'The requested condition record was not found',
+        allergy = service.get_single_allergy(params['id'])
+        unless allergy
+          render_error('Record Not Found',
+                       'The requested record was not found',
                        '404', 404, :not_found)
           return
         end
-        serialized_condition = UnifiedHealthData::Serializers::ConditionSerializer.new(condition)
-        render json: serialized_condition,
+        serialized_allergy = UnifiedHealthData::AllergySerializer.new(allergy)
+        render json: serialized_allergy,
                status: :ok
       rescue Common::Client::Errors::ClientError,
              Common::Exceptions::BackendServiceException,
@@ -47,7 +48,7 @@ module MyHealth
           render json: { errors: error.errors }, status: :bad_gateway
         else
           render_error('Internal Server Error',
-                       'An unexpected error occurred while retrieving conditions.',
+                       'An unexpected error occurred while retrieving clinical notes.',
                        '500', 500, :internal_server_error)
         end
       end
@@ -55,11 +56,11 @@ module MyHealth
       def log_error(error)
         message = case error
                   when Common::Client::Errors::ClientError
-                    "Conditions FHIR API error: #{error.message}"
+                    "Notes FHIR API error: #{error.message}"
                   when Common::Exceptions::BackendServiceException
                     "Backend service exception: #{error.errors.first&.detail}"
                   else
-                    "Unexpected error in conditions controller: #{error.message}"
+                    "Unexpected error in notes controller: #{error.message}"
                   end
         Rails.logger.error(message)
       end
@@ -75,7 +76,7 @@ module MyHealth
       end
 
       def service
-        @service ||= UnifiedHealthData::Service.new(@current_user)
+        @service ||= UnifiedHealthData::Service.new(test_user)
       end
     end
   end
