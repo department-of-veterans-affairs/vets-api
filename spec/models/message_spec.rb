@@ -104,7 +104,8 @@ RSpec.describe Message do
 
               large_message = build(:message, is_large_attachment_upload: true, uploads: [big_large_file])
               expect(large_message).not_to be_valid
-              expect(large_message.errors[:base]).to include('The big_large_file.jpg exceeds file size limit of 25.0 MB')
+              expect(large_message.errors[:base])
+                .to include('The big_large_file.jpg exceeds file size limit of 25.0 MB')
             end
 
             it 'allows for more than 4 uploads and up to 10 when is_large_attachment_upload is true' do
