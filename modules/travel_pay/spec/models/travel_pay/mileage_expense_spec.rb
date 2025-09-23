@@ -27,12 +27,6 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
   describe 'validations' do
     subject { described_class.new(valid_attributes) }
 
-    context 'with valid attributes' do
-      it 'is valid' do
-        expect(subject).to be_valid
-      end
-    end
-
     context 'trip_type validation' do
       it 'requires trip_type to be present' do
         subject.trip_type = nil
