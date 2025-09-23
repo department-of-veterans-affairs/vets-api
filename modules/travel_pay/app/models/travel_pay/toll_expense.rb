@@ -8,7 +8,7 @@ module TravelPay
     #
     # @return [String] the expense type
     def expense_type
-      TravelPay::Constants::EXPENSE_TYPES[:parking]
+      TravelPay::Constants::EXPENSE_TYPES[:toll]
     end
   end
 end
