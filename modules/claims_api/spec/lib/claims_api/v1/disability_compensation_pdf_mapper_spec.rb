@@ -957,4 +957,79 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       end
     end
   end
+
+  context 'section 7 service pay' do
+    let(:service_pay_data) do
+      {
+        'waiveVABenefitsToRetainTrainingPay' => false,
+        'waiveVABenefitsToRetainRetiredPay' => false,
+        'militaryRetiredPay' => {
+          'receiving' => true,
+          'payment' => {
+            'serviceBranch' => 'Air Force',
+            'amount' => 500
+          },
+          'willReceiveInFuture' => true,
+          'futurePayExplanation' => 'Future payment explanation'
+        },
+        'separationPay' => {
+          'received' => false,
+          'payment' => {
+            'serviceBranch' => 'Marine Corps',
+            'amount' => 2000
+          },
+          'receivedDate' => '1990-02-01'
+        }
+      }
+    end
+
+    let(:min_service_pay_data) do
+      {
+        'waiveVABenefitsToRetainTrainingPay' => true,
+        'waiveVABenefitsToRetainRetiredPay' => true
+      }
+    end
+
+    it 'maps nothing if not included on the submission' do
+      form_attributes['service_pay'] = nil
+      mapper.map_claim
+
+      claim_data_base = pdf_data[:data][:attributes]
+
+      expect(claim_data_base).not_to have_key(:servicePay)
+    end
+
+    it 'maps the attributes' do
+      form_attributes['servicePay'] = service_pay_data
+      mapper.map_claim
+
+      service_pay_base = pdf_data[:data][:attributes][:servicePay]
+      service_pay_military_pay_base = pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay]
+      separation_pay_base = pdf_data[:data][:attributes][:servicePay][:separationSeverancePay]
+
+      expect(service_pay_base).not_to be_nil
+      expect(service_pay_base[:favorTrainingPay]).to be(false)
+      expect(service_pay_base[:favorMilitaryRetiredPay]).to be(false)
+      expect(service_pay_base[:receivingMilitaryRetiredPay]).to be('YES')
+      expect(service_pay_base[:futureMilitaryRetiredPay]).to be('YES')
+      expect(service_pay_base[:futureMilitaryRetiredPayExplanation]).to eq('Future payment explanation')
+      expect(service_pay_military_pay_base[:branchOfService][:branch]).to eq('Air Force')
+      expect(service_pay_military_pay_base[:monthlyAmount]).to eq(500)
+      expect(service_pay_base[:receivedSeparationOrSeverancePay]).to be('NO')
+      expect(separation_pay_base[:datePaymentReceived]).to eq({ year: '1990', month: '02', day: '01' })
+      expect(separation_pay_base[:branchOfService][:branch]).to eq('Marine Corps')
+      expect(separation_pay_base[:preTaxAmountReceived]).to eq(2000)
+    end
+
+    it 'maps the attributes with a minimum request' do
+      form_attributes['servicePay'] = min_service_pay_data
+      mapper.map_claim
+
+      service_pay_base = pdf_data[:data][:attributes][:servicePay]
+
+      expect(service_pay_base).not_to be_nil
+      expect(service_pay_base[:favorTrainingPay]).to be(true)
+      expect(service_pay_base[:favorMilitaryRetiredPay]).to be(true)
+    end
+  end
 end
