@@ -52,6 +52,16 @@ module DependentsBenefits
       track_info_event(message, PROCESSOR_STATS_KEY, options)
     end
 
+    def track_submission_info(message, action, options = {})
+      options[:tags] = ["action:#{action}"]
+      track_info_event(message, SUBMISSION_STATS_KEY, options)
+    end
+
+    def track_submission_error(message, action, options = {})
+      options[:tags] = ["action:#{action}"]
+      track_error_event(message, SUBMISSION_STATS_KEY, options)
+    end
+
     private
 
     ##

@@ -30,6 +30,23 @@ class SavedClaimGroup < ApplicationRecord
   after_create { track_event(:create) }
   after_destroy { track_event(:destroy) }
 
+  # Claim submission statuses
+  STATUSES = {
+    PENDING: 'pending', # default - waiting to be processed
+    ACCEPTED: 'accepted', # submitted to Sidekiq jobs and/or services
+    FAILURE: 'failure', # submission failed
+    PROCESSING: 'processing', # reached service, waiting for decision
+    SUCCESS: 'success' # submission succeeded
+  }.freeze
+
+  def parent
+    @parent_claim ||= ::SavedClaim.find(parent_claim_id)
+  end
+
+  def child
+    @child_claim ||= ::SavedClaim.find(saved_claim_id)
+  end
+
   # return all the child claims associated with this group
   def saved_claim_children
     child_ids = SavedClaimGroup.where(claim_group_guid:, parent_claim_id:).map(&:saved_claim_id)
@@ -42,6 +59,18 @@ class SavedClaimGroup < ApplicationRecord
 
   def children_of_group
     SavedClaimGroup.where(parent_claim_id:).where.not(saved_claim_id: parent_claim_id)
+  end
+
+  def completed?
+    status.in?([STATUSES[:SUCCESS], STATUSES[:FAILURE]])
+  end
+
+  def failed?
+    status == STATUSES[:FAILURE]
+  end
+
+  def succeeded?
+    status == STATUSES[:SUCCESS]
   end
 
   private
