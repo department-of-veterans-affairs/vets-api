@@ -46,11 +46,7 @@ module BBInternal
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        self.class.custom_base_path || "#{Settings.mhv.api_gateway.hosts.bluebutton}/v1/"
-      else
-        "#{Settings.mhv.medical_records.host}/mhvapi/v1/"
-      end
+      self.class.custom_base_path || "#{Settings.mhv.api_gateway.hosts.bluebutton}/v1/"
     end
 
     def base_path_non_gateway

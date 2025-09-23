@@ -72,9 +72,8 @@ module V0
 
     def itf_creation(form)
       itf_valid_form = Lighthouse::CreateIntentToFileJob::ITF_FORMS.include?(form.form_id)
-      itf_synchronous = Flipper.enabled?(:intent_to_file_synchronous_enabled, @current_user)
 
-      if itf_valid_form && itf_synchronous
+      if itf_valid_form
         itf_monitor.track_create_itf_initiated(form.form_id, form.created_at, @current_user.uuid, form.id)
 
         begin

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module BenefitsEducation
   ##
@@ -19,7 +19,9 @@ module BenefitsEducation
   # @!attribute change_effective_date
   #   @return [String] The date the amendment takes effect
   #
-  class Amendment < Common::Base
+  class Amendment
+    include Vets::Model
+
     attribute :on_campus_hours, Float
     attribute :online_hours, Float
     attribute :yellow_ribbon_amount, Float

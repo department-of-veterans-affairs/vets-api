@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm686cJob, type: :job do
-  let(:job) { subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info) }
+  let(:job) { subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info) }
   let(:user) { create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
@@ -60,82 +60,59 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
       expect { job }.not_to raise_error
     end
 
-    context 'with separate emails by form' do
-      it 'sends confirmation email for 686c only' do
-        expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
-        expect(client_stub).to receive(:submit).once
-        allow(Flipper).to receive(:enabled?).with(:dependents_separate_confirmation_email).and_return(true)
+    it 'sends confirmation email for 686c only' do
+      expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(client_stub).to receive(:submit).once
 
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          user.va_profile_email,
-          'fake_received686',
-          { 'confirmation_number' => dependency_claim.confirmation_number,
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'first_name' => 'WESLEY' },
-          'fake_secret',
-          { callback_klass: 'Dependents::NotificationCallback',
-            callback_metadata: { email_template_id: 'fake_received686',
-                                 email_type: :received686,
-                                 form_id: '686C-674',
-                                 saved_claim_id: dependency_claim.id,
-                                 service_name: 'dependents' } }
-        )
+      expect(VANotify::EmailJob).to receive(:perform_async).with(
+        user.va_profile_email,
+        'fake_received686',
+        { 'confirmation_number' => dependency_claim.confirmation_number,
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'first_name' => 'WESLEY' },
+        'fake_secret',
+        { callback_klass: 'Dependents::NotificationCallback',
+          callback_metadata: { email_template_id: 'fake_received686',
+                               email_type: :received686,
+                               form_id: '686C-674',
+                               saved_claim_id: dependency_claim.id,
+                               service_name: 'dependents' } }
+      )
 
-        expect { job }.not_to raise_error
-      end
-
-      it 'does not send confirmation email for 686c_674 combo' do
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
-        expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
-        expect(client_stub).to receive(:submit).once
-        allow(Flipper).to receive(:enabled?).with(:dependents_separate_confirmation_email).and_return(true)
-
-        expect(VANotify::EmailJob).not_to receive(:perform_async)
-
-        expect { job }.not_to raise_error
-      end
+      expect { job }.not_to raise_error
     end
 
-    context 'without separate emails by form' do
-      it 'sends confirmation email' do
-        expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
-        expect(client_stub).to receive(:submit).once
-        allow(Flipper).to receive(:enabled?).with(:dependents_separate_confirmation_email).and_return(false)
+    it 'does not send confirmation email for 686c_674 combo' do
+      allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
+      expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(client_stub).to receive(:submit).once
 
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          user.va_profile_email,
-          'fake_template_id',
-          {
-            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-            'first_name' => 'WESLEY'
-          }
-        )
+      expect(VANotify::EmailJob).not_to receive(:perform_async)
 
-        expect { job }.not_to raise_error
-      end
+      expect { job }.not_to raise_error
     end
+  end
 
-    context 'Claim is submittable_674' do
-      it 'enqueues SubmitForm674Job' do
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
-        expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
-        expect(client_stub).to receive(:submit).once
-        expect(BGS::SubmitForm674Job).to receive(:perform_async).with(user.uuid, user.icn,
-                                                                      dependency_claim.id, encrypted_vet_info,
-                                                                      an_instance_of(String))
+  context 'Claim is submittable_674' do
+    it 'enqueues SubmitForm674Job' do
+      allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
+      expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(client_stub).to receive(:submit).once
+      expect(BGS::SubmitForm674Job).to receive(:perform_async).with(user.uuid,
+                                                                    dependency_claim.id, encrypted_vet_info,
+                                                                    an_instance_of(String))
 
-        expect { job }.not_to raise_error
-      end
+      expect { job }.not_to raise_error
     end
+  end
 
-    context 'Claim is not submittable_674' do
-      it 'does not enqueue SubmitForm674Job' do
-        expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
-        expect(client_stub).to receive(:submit).once
-        expect(BGS::SubmitForm674Job).not_to receive(:perform_async)
+  context 'Claim is not submittable_674' do
+    it 'does not enqueue SubmitForm674Job' do
+      expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(client_stub).to receive(:submit).once
+      expect(BGS::SubmitForm674Job).not_to receive(:perform_async)
 
-        expect { job }.not_to raise_error
-      end
+      expect { job }.not_to raise_error
     end
   end
 
