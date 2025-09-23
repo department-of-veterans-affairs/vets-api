@@ -31,15 +31,16 @@ module UnifiedHealthData
         resource = record['resource']
 
         UnifiedHealthData::Allergy.new(
-          id: resource['id'], # DONE
-          name: resource.dig('code', 'coding', 0, 'display') || resource.dig('code', 'text') || '', # DONE
-          date: resource['onsetDateTime'] || resource['recordedDate'] || nil, # VistA sample has neither; OH has both and each are different
-          categories: resource['category'] || [], # DONE
-          reactions: extract_reactions(resource), # DONE
-          location: extract_location(resource), # Not sure about this - no contained array or location names in samples
-          observedHistoric: extract_observed_historic(resource), # TODO: Only in VistA data?
-          notes: extract_allergy_comments(resource), # DONE
-          provider: extract_allergy_provider(resource) # DONE
+          id: resource['id'],
+          name: resource.dig('code', 'coding', 0, 'display') || resource.dig('code', 'text') || '',
+          # VistA samples have neither; OH has both but each are different
+          date: resource['onsetDateTime'] || resource['recordedDate'] || nil,
+          categories: resource['category'] || [],
+          reactions: extract_reactions(resource),
+          location: extract_location(resource), # No contained array or location names in samples
+          observedHistoric: extract_observed_historic(resource), # Only in VistA data
+          notes: extract_allergy_comments(resource),
+          provider: extract_allergy_provider(resource)
         )
       end
 
@@ -76,16 +77,17 @@ module UnifiedHealthData
       end
 
       def extract_allergy_provider(resource)
-        # reference = resource.dig('recorder', 'reference')
         # TODO: This won't work, allergy samples have no contained array
+
+        # reference = resource.dig('recorder', 'reference')
         # return nil unless reference && resource['contained']
         # provider = find_contained(
         #   record,
-        #   record['recorder']['reference'],
+        #   reference,
         #   FHIR_RESOURCE_TYPES[:PRACTITIONER]
         # )
         # name = provider['name']&.find { |n| n['text'] }
-        # format_name_first_to_last(name) if name
+        # format_practitioner_name(name) if name
 
         format_practitioner_name(resource['recorder']['display'])
       rescue
@@ -101,6 +103,7 @@ module UnifiedHealthData
         nil
       end
 
+      # None of the sample data has a contained array, so probably unnecessary
       def find_contained(record, reference, type = nil)
         return nil unless reference && record['contained']
 
