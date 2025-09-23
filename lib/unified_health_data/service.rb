@@ -6,6 +6,7 @@ require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/prescription'
+require_relative 'adapters/allergy_adapter'
 require_relative 'adapters/clinical_notes_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'adapters/conditions_adapter'
@@ -145,6 +146,41 @@ module UnifiedHealthData
       end
     end
 
+    def get_allergies
+      with_monitoring do
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = '1900-01-01'
+        end_date = Time.zone.today.to_s
+
+        response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = parse_response_body(response.body)
+
+        remap_vista_identifier(body)
+        combined_records = fetch_combined_records(body)
+
+        allergy_adapter.parse(combined_records)
+      end
+    end
+
+    def get_single_allergy(allergy_id)
+      with_monitoring do
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = '1900-01-01'
+        end_date = Time.zone.today.to_s
+
+        response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = parse_response_body(response.body)
+
+        remap_vista_identifier(body)
+        combined_records = fetch_combined_records(body)
+
+        filtered = combined_records.find { |record| record['resource']['id'] == allergy_id }
+        return nil unless filtered
+
+        allergy_adapter.parse_single_allergy(filtered)
+      end
+    end
+
     private
 
     # Shared
@@ -271,6 +307,16 @@ module UnifiedHealthData
       end
     end
 
+    # Allergies methods
+    def remap_vista_identifier(records)
+      records['vista']['entry']&.each do |allergy|
+        vista_identifier = allergy['resource']['identifier'].find { |id| id['system'].starts_with?('https://va.gov/systems/') }
+        next unless vista_identifier && vista_identifier['value']
+
+        allergy['resource']['id'] = vista_identifier['value']
+      end
+    end
+
     # Care Summaries and Notes methods
     def remap_vista_uid(records)
       records['vista']['entry']&.each do |note|
@@ -303,6 +349,10 @@ module UnifiedHealthData
 
     def uhd_client
       @uhd_client ||= UnifiedHealthData::Client.new
+    end
+
+    def allergy_adapter
+      @allergy_adapter ||= UnifiedHealthData::Adapters::AllergyAdapter.new
     end
 
     def lab_or_test_adapter
