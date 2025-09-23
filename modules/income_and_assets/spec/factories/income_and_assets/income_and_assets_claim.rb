@@ -3,7 +3,6 @@
 FactoryBot.define do
   factory :income_and_assets_claim, class: 'IncomeAndAssets::SavedClaim' do
     form_id { '21P-0969' }
-    user_account_id { '123' }
     form do
       {
         veteranFullName: {
