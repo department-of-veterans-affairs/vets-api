@@ -843,14 +843,28 @@ describe UnifiedHealthData::Service, type: :service do
       it 'properly maps Oracle Health prescription fields' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
           prescriptions = service.get_prescriptions
-          oracle_prescription = prescriptions.find { |p| p.prescription_id == '25804853' }
+          oracle_prescription = prescriptions.find { |p| p.prescription_id == '15214174591' }
 
           expect(oracle_prescription.refill_status).to eq('active')
+          expect(oracle_prescription.refill_submit_date).to be_nil
+          expect(oracle_prescription.refill_date).to eq('2025-06-24T21:05:53.000Z')
           expect(oracle_prescription.refill_remaining).to eq(2)
-          expect(oracle_prescription.prescription_name).to eq('ECHOTHIOPHATE 0.03% OPHTH SOLN 5ML')
-          expect(oracle_prescription.instructions).to eq('INSTILL 1ML WEEKLY FOR 60 DAYS TEST INDI')
+          expect(oracle_prescription.facility_name).to eq('Ambulatory Pharmacy')
+          expect(oracle_prescription.ordered_date).to eq('2025-05-30T17:58:09Z')
+          expect(oracle_prescription.quantity).to eq('8.5')
+          expect(oracle_prescription.expiration_date).to eq('2026-05-30T04:59:59Z')
+          expect(oracle_prescription.prescription_number).to eq('15214174591')
+          expect(oracle_prescription.prescription_name).to eq('albuterol (albuterol 90 mcg inhaler [8.5g])')
+          expect(oracle_prescription.dispensed_date).to be_nil
+          expect(oracle_prescription.station_number).to eq('556-RX-MAIN-OP')
           expect(oracle_prescription.is_refillable).to be true
-          expect(oracle_prescription.ordered_date).to eq('Sun, 29 Sep 2024 00:00:00 EDT')
+          expect(oracle_prescription.is_trackable).to be false
+          expect(oracle_prescription.tracking_information).to eq({})
+          expect(oracle_prescription.prescription_source).to eq('')
+          expect(oracle_prescription.instructions).to eq(
+            '2 Inhalation Inhalation (breathe in) every 4 hours as needed shortness of breath or wheezing. Refills: 2.'
+          )
+          expect(oracle_prescription.facility_phone_number).to be_nil
         end
       end
 
@@ -879,13 +893,14 @@ describe UnifiedHealthData::Service, type: :service do
             'Refills: 2.'
           )
           expect(oracle_prescription_with_patient_instruction.facility_name).to eq('Ambulatory Pharmacy')
-          expect(oracle_prescription_with_patient_instruction.dispensed_date).to eq('2025-06-24T21:05:53.000Z')
+          expect(oracle_prescription_with_patient_instruction.refill_date).to eq('2025-06-24T21:05:53.000Z')
+          expect(oracle_prescription_with_patient_instruction.dispensed_date).to be_nil
 
           # Test prescription with completed status mapping
           completed_prescription = prescriptions.find { |p| p.prescription_id == '15214166467' }
           expect(completed_prescription.refill_status).to eq('completed')
           expect(completed_prescription.is_refillable).to be false
-          expect(completed_prescription.refill_date).to eq('2025-05-22T21:03:45Z')
+          expect(completed_prescription.refill_date).to be_nil
         end
       end
 
