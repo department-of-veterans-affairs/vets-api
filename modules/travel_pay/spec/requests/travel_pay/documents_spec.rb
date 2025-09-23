@@ -73,13 +73,6 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
       end
 
       context 'vcr tests' do
-        let(:headers) do
-          {
-            'Authorization' => 'Bearer vagov_token',
-            'X-Correlation-ID' => 'test-correlation-id-123'
-          }
-        end
-
         context 'when the document is successfully deleted' do
           it 'returns the document data with correct headers' do
             VCR.use_cassette('travel_pay/documents/delete/success', match_requests_on: %i[method path]) do
@@ -256,6 +249,8 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
         post("/travel_pay/v0/claims/#{claim_id}/documents", params: { Document: valid_document })
 
         expect(response).to have_http_status(:service_unavailable)
+        body = JSON.parse(response.body)
+        expect(body['errors'].first['detail']).to include('Travel Pay document endpoint unavailable per feature toggle')
       end
     end
   end
