@@ -793,20 +793,25 @@ describe UnifiedHealthData::Service, type: :service do
 
   # Prescriptions
   describe '#get_prescriptions' do
+    before do
+      # Freeze today so the generated end_date in service matches VCR cassette date range expectations
+      allow(Time.zone).to receive(:today).and_return(Date.new(2025, 9, 19))
+    end
+
     context 'with valid prescription responses', :vcr do
       it 'returns prescriptions from both VistA and Oracle Health' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
           prescriptions = service.get_prescriptions
-          expect(prescriptions.size).to eq(78)
+          expect(prescriptions.size).to eq(55)
 
           # Check that prescriptions are UnifiedHealthData::Prescription objects
           expect(prescriptions).to all(be_a(UnifiedHealthData::Prescription))
 
           # Verify delegation methods work
-          expect(prescriptions.map(&:prescription_id)).to include('25809921', '26058413', '26046248', '15214174591',
-                                                                  '15215168033', '15216187241')
-          expect(prescriptions.map(&:prescription_name)).to include('ezetimibe 10 MG Oral Tablet',
-                                                                    'Sertraline 25 MG Oral Tablet')
+          expect(prescriptions.map(&:prescription_id)).to include('25804853', '25804854', '25804855', '15218955729',
+                                                                  '15214174423', '15214303643')
+          expect(prescriptions.map(&:prescription_name)).to include('albuterol (albuterol 90 mcg inhaler [8.5g])',
+                                                                    'warfarin (warfarin 5 mg oral tablet)')
         end
       end
 
@@ -814,7 +819,7 @@ describe UnifiedHealthData::Service, type: :service do
         it 'applies filtering to exclude old discontinued/expired prescriptions' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
             filtered_prescriptions = service.get_prescriptions(current_only: true)
-            expect(filtered_prescriptions.size).to eq(77)
+            expect(filtered_prescriptions.size).to eq(54)
           end
         end
       end
@@ -838,17 +843,14 @@ describe UnifiedHealthData::Service, type: :service do
       it 'properly maps Oracle Health prescription fields' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
           prescriptions = service.get_prescriptions
-          oracle_prescription = prescriptions.find { |p| p.prescription_id == '25809921' }
+          oracle_prescription = prescriptions.find { |p| p.prescription_id == '25804853' }
 
           expect(oracle_prescription.refill_status).to eq('active')
-          expect(oracle_prescription.refill_remaining).to eq(5)
-          expect(oracle_prescription.prescription_name).to eq('1.5 ML Buprenorphine 200 MG/ML Prefilled Syringe')
-          expect(oracle_prescription.instructions).to eq(
-            'See Instructions. This should not be dispensed to the patient but should be dispensed to clinic for ' \
-            'in-clinic administration.. Refills: 5.'
-          )
-          expect(oracle_prescription.is_refillable).to be false
-          expect(oracle_prescription.ordered_date).to eq('Fri, 27 Jun 2025 00:00:00 EDT')
+          expect(oracle_prescription.refill_remaining).to eq(2)
+          expect(oracle_prescription.prescription_name).to eq('ECHOTHIOPHATE 0.03% OPHTH SOLN 5ML')
+          expect(oracle_prescription.instructions).to eq('INSTILL 1ML WEEKLY FOR 60 DAYS TEST INDI')
+          expect(oracle_prescription.is_refillable).to be true
+          expect(oracle_prescription.ordered_date).to eq('Sun, 29 Sep 2024 00:00:00 EDT')
         end
       end
 
@@ -896,7 +898,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
               message: 'UHD prescriptions retrieved',
-              total_prescriptions: 78,
+              total_prescriptions: 55,
               service: 'unified_health_data'
             )
           )
@@ -917,13 +919,10 @@ describe UnifiedHealthData::Service, type: :service do
       it 'handles VistA-only data' do
         VCR.use_cassette('unified_health_data/get_prescriptions_vista_only') do
           prescriptions = service.get_prescriptions
-          expect(prescriptions.size).to eq(33)
+          expect(prescriptions.size).to eq(10)
           expect(prescriptions.map(&:prescription_id)).to contain_exactly(
-            '25804851', '25804852', '25804853', '25804854', '25804855', '25804856', '25804858', '25804859',
-            '25804860', '25806260', '25804815', '25804816', '25804820', '25804822', '25804825', '25804826',
-            '25804828', '25804831', '25804832', '25804834', '25804836', '25804837', '25804841', '25804842',
-            '25804843', '25804844', '25804848', '25893955', '25859533', '25859534', '25809921', '26058413',
-            '26046248'
+            '25804851', '25804852', '25804853', '25804854', '25804855',
+            '25804856', '25804858', '25804859', '25804860', '25804848'
           )
         end
       end
