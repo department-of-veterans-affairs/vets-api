@@ -132,7 +132,7 @@ class Message
   end
 
   def total_upload_size_validation
-    return unless total_upload_size > max_total_file_size.megabyte
+    return unless total_upload_size > max_total_file_size.megabytes
 
     errors.add(:base, "Total size of uploads exceeds #{max_total_file_size} MB")
   end
