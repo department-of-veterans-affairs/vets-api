@@ -23,15 +23,6 @@ module TravelPay
     }.freeze
 
     # Usage:
-    # TravelPay::Constants::EXPENSE_TYPES[:parking]
-    EXPENSE_TYPES = {
-      meal: 'meal',
-      mileage: 'mileage',
-      parking: 'parking',
-      other: 'other'
-    }.freeze
-
-    # Usage:
     # TravelPay::Constants::UUID_REGEX.match?(uuid_string)
     UUID_REGEX = /\A[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}\z/i
   end
