@@ -107,7 +107,7 @@ module ClaimsEvidenceApi
     # create/retrieve the submission record for the claim and attachment
     # and create a new submission_attempt
     #
-    # @param saved_claim [SavedClaim] the claim to be submitted
+    # @param saved_claim_id [Integer] the db id for the claim to be submitted
     # @param persistent_attachment_id [Integer] the db id for the attachment
     #
     # @return [ClaimsEvidenceApi::SubmissionAttempt]
