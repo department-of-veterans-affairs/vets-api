@@ -1652,9 +1652,6 @@ vba_documents:
     region: us-gov-west-1
     topic_arns: <%= ENV['vba_documents__sns__topic_arns'] %>
   updater_enabled: <%= ENV['vba_documents__updater_enabled'] %>
-  webhooks:
-    registration_max_retries: 3
-    registration_next_run_in_minutes: 15
 vbms:
   ca_cert: <%= ENV['vbms__ca_cert'] %>
   cert: <%= ENV['vbms__cert'] %>

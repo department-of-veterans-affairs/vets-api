@@ -1673,9 +1673,6 @@ vba_documents:
       - vetsgov-arn
       - vagov-arn
   updater_enabled: ~
-  webhooks:
-    registration_max_retries: 3
-    registration_next_run_in_minutes: 15
 vbms:
   ca_cert: VBMS-Client-Signing-CA.crt
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
