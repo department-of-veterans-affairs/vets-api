@@ -21,6 +21,13 @@ class SavedClaimGroup < ApplicationRecord
 
   scope :child_claims_for, ->(parent_id) { where(parent_claim_id: parent_id).where.not(saved_claim_id: parent_id) }
 
+  # Claim submission statuses
+  PENDING = 'pending' # default - waiting to be processed
+  ACCEPTED = 'accepted' # submitted to Sidekiq jobs and/or services
+  FAILURE = 'failure' # submission failed
+  PROCESSING = 'processing' # reached service, waiting for decision
+  SUCCESS = 'success' # submission succeeded
+
   def parent
     @parent_claim ||= ::SavedClaim.find(parent_claim_id)
   end
@@ -33,6 +40,18 @@ class SavedClaimGroup < ApplicationRecord
   def children
     child_ids = SavedClaimGroup.where(claim_group_guid:, parent_claim_id:).map(&:saved_claim_id)
     ::SavedClaim.where(id: child_ids)
+  end
+
+  def completed?
+    status.in?([SUCCESS, FAILURE])
+  end
+
+  def failed?
+    status == FAILURE
+  end
+
+  def succeeded?
+    status == SUCCESS
   end
 
   private
