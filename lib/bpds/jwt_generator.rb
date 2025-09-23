@@ -2,7 +2,8 @@
 
 module BPDS
   # Encoder to be used with BPDS service
-  class JwtEncoder
+  # @see https://www.jwt.io/introduction#when-to-use-json-web-tokens
+  class JwtGenerator
     # expiration period
     VALIDITY_LENGTH = 30.minutes
 
@@ -12,8 +13,14 @@ module BPDS
     # issuer constant
     ISSUER = 'vets-api'
 
-    # uses HMAC symmetric signing algorithm
-    def get_token
+    # static method
+    # @see #encode_jwt
+    def self.encode_jwt
+      new.encode_jwt
+    end
+
+    # Returns a JWT token for use in Bearer auth
+    def encode_jwt
       JWT.encode(payload, private_key, ALGORITHM, headers)
     end
 
@@ -27,10 +34,10 @@ module BPDS
     # the generated payload to be encoded
     def payload
       {
-        iss: ISSUER, # issuer
         jti: SecureRandom.uuid, # random id to identify a unique JWT
-        expires: expiration_time.to_i, # expiration date
-        iat: created_time.to_i # issued_at
+        iat: created_time.to_i,
+        expires: expiration_time.to_i,
+        iss: ISSUER
       }
     end
 
@@ -39,14 +46,14 @@ module BPDS
       Settings.bpds.jwt_secret
     end
 
-    # set the token expiration date (expires)
-    def expiration_time
-      created_time + VALIDITY_LENGTH
+    # set the token created time
+    def created_time
+      @created_time = Time.zone.now
     end
 
-    # set the token created time (iat)
-    def created_time
-      @created_time ||= Time.zone.now
+    # set the token expiration date
+    def expiration_time
+      @created_time + VALIDITY_LENGTH
     end
   end
 end

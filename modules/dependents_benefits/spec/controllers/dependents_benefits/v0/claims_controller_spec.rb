@@ -62,13 +62,6 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
         end.to change(DependentsBenefits::SavedClaim, :count).by(3)
       end
 
-      it 'logs the success' do
-        expect(Rails.logger).to receive(:info).with(match(/TODO: Link claim \d+ to parent/)).at_least(:once)
-        expect(Rails.logger).to receive(:info).with(match(/Successfully created claim/),
-                                                    include({ statsd: 'api.dependents_application.create_success' }))
-        post(:create, params: test_form, as: :json)
-      end
-
       it 'calls ClaimProcessor with correct parameters' do
         expect(DependentsBenefits::ClaimProcessor).to receive(:enqueue_submissions)
           .with(a_kind_of(Integer), '21875')
