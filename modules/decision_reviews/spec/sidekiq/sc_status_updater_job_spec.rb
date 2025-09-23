@@ -964,7 +964,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
             )
           end
 
-
           it 'does NOT log warning when form transitions to final_status: true' do
             allow(benefits_intake_service).to receive(:get_status)
               .with(uuid: secondary_form.guid).and_return(response_error_final)
@@ -990,7 +989,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
             secondary_form.reload
             parsed_status = JSON.parse(secondary_form.status)
             expect(parsed_status['status']).to eq('error')
-            expect(parsed_status['final_status']).to eq(true)
+            expect(parsed_status['final_status']).to be(true)
             expect(parsed_status['detail']).to eq('Document processing failed')
           end
 
