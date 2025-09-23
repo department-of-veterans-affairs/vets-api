@@ -96,32 +96,43 @@ module V0
 
     def failed_upload_evidence_submissions
       if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
-        claims = service.get_claims
-        claim_ids = claims['data'].map { |claim| claim['id'].to_i }
-        # Get failed evidence submissions for all claims
-        failed_evidence_submissions = EvidenceSubmission.where(
-          claim_id: claim_ids
-        ).failed.group_by(&:claim_id)
-
-        failed_uploads = []
-        # Filter the evidence submissions and then populate the 'failed_uploads' array
-        claims['data'].each do |claim|
-          update_claim_type_language(claim)
-          tracked_items = claim['attributes']['trackedItems']
-          evidence_submissions = failed_evidence_submissions[claim['id'].to_i] || []
-
-          filtered_evidence_submissions = filter_evidence_submissions(evidence_submissions, tracked_items)
-
-          failed_uploads.concat(filtered_evidence_submissions) if filtered_evidence_submissions.any?
-        end
-
-        render json: failed_uploads
+        render json: { data: filter_failed_evidence_submissions }
       else
-        render json: []
+        render json: { data: [] }
       end
     end
 
     private
+
+    def filter_failed_evidence_submissions
+      filtered_evidence_submissions = []
+      claims = {}
+
+      failed_evidence_submissions.each do |es|
+        # When we get a claim we add it to claims so that we prevent calling lighthouse multiple times
+        # to get the same claim.
+        claim = claims[es.claim_id]
+
+        if claim.nil?
+          claim = service.get_claim(es.claim_id)
+          claims[es.claim_id] = claim
+        end
+
+        tracked_items = claim['data']['attributes']['trackedItems']
+
+        filtered_evidence_submissions.push(build_filtered_evidence_submission_record(es, tracked_items))
+      end
+
+      filtered_evidence_submissions
+    end
+
+    def failed_evidence_submissions
+      @failed_evidence_submissions ||= EvidenceSubmission.failed.where(user_account: current_user_account.id)
+    end
+
+    def current_user_account
+      UserAccount.find(@current_user.user_account_uuid)
+    end
 
     def claims_scope
       EVSSClaim.for_user(@current_user)
@@ -178,10 +189,10 @@ module V0
       evidence_submissions = EvidenceSubmission.where(claim_id: claim['id'])
       tracked_items = claim['attributes']['trackedItems']
 
-      filter_evidence_submissions(evidence_submissions, tracked_items)
+      filter_evidence_submissions_for_claim(evidence_submissions, tracked_items)
     end
 
-    def filter_evidence_submissions(evidence_submissions, tracked_items)
+    def filter_evidence_submissions_for_claim(evidence_submissions, tracked_items)
       filtered_evidence_submissions = []
       evidence_submissions.each do |es|
         filtered_evidence_submissions.push(build_filtered_evidence_submission_record(es, tracked_items))

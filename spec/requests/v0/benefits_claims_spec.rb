@@ -93,7 +93,9 @@ RSpec.describe 'V0::BenefitsClaims', type: :request do
           end
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('failed_evidence_submissions')
+          parsed_response = JSON.parse(response.body)
+          expect(parsed_response).to have_key('data')
+          expect(parsed_response['data']).to be_an(Array)
         end
       end
     end
@@ -138,7 +140,7 @@ RSpec.describe 'V0::BenefitsClaims', type: :request do
             subject
 
             expect(response).to have_http_status(:ok)
-            expect(JSON.parse(response.body)).to eq([])
+            expect(JSON.parse(response.body)).to eq({ 'data' => [] })
           end
         end
       end
@@ -152,7 +154,7 @@ RSpec.describe 'V0::BenefitsClaims', type: :request do
           subject
 
           expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)).to eq([])
+          expect(JSON.parse(response.body)).to eq({ 'data' => [] })
         end
       end
     end

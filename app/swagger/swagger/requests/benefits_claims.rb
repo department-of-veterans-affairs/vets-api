@@ -21,10 +21,14 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :type, :array
+              key :type, :object
+              key :required, [:data]
 
-              items do
-                key :$ref, :FailedEvidenceSubmission
+              property :data do
+                key :type, :array
+                items do
+                  key :$ref, :FailedEvidenceSubmission
+                end
               end
             end
           end

@@ -661,9 +661,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           end
 
           expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body).size).to eq(2)
-          expect(JSON.parse(response.body).first['document_type']).to eq('Birth Certificate')
-          expect(JSON.parse(response.body).second['document_type']).to eq('Birth Certificate')
+          parsed_response = JSON.parse(response.body)
+          expect(parsed_response['data'].size).to eq(2)
+          expect(parsed_response['data'].first['document_type']).to eq('Birth Certificate')
+          expect(parsed_response['data'].second['document_type']).to eq('Birth Certificate')
         end
       end
     end
@@ -710,7 +711,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
               subject
             end
 
-            expect(JSON.parse(response.body)).to eq([])
+            expect(JSON.parse(response.body)).to eq({ 'data' => [] })
           end
         end
       end
@@ -721,7 +722,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             subject
           end
 
-          expect(JSON.parse(response.body)).to eq([])
+          expect(JSON.parse(response.body)).to eq({ 'data' => [] })
         end
       end
     end
