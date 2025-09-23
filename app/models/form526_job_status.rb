@@ -28,7 +28,7 @@ class Form526JobStatus < ApplicationRecord
   store_accessor :bgjob_errors
 
   def success?
-    SUCCESS_STATUSES.values.include?(status) || status == STATUS[:success]
+    SUCCESS_STATUSES.values.include?(status)
   end
 
   def unsuccessful?
