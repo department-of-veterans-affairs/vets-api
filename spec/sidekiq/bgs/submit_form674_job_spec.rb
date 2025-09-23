@@ -154,6 +154,38 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       subject.perform(user.uuid, dependency_claim_674_only.id, encrypted_vet_info, encrypted_user_struct)
     end
   end
+
+  context 'sidekiq_retries_exhausted' do
+    it 'tracks exhaustion event and sends backup submission' do
+      msg = {
+        'args' => [user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct],
+        'error_message' => 'Connection timeout'
+      }
+      error = StandardError.new('Job failed')
+
+      # Mock the monitor
+      monitor_double = instance_double(Dependents::Monitor)
+      expect(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
+
+      # Expect the monitor to track the exhaustion event
+      expect(monitor_double).to receive(:track_event).with(
+        'error',
+        'BGS::SubmitForm674Job failed, retries exhausted! Last error: Connection timeout',
+        'worker.submit_674_bgs.exhaustion'
+      )
+
+      # Expect the backup submission to be called
+      expect(BGS::SubmitForm674Job).to receive(:send_backup_submission).with(
+        encrypted_user_struct,
+        vet_info,
+        dependency_claim.id,
+        user.uuid
+      )
+
+      # Call the sidekiq_retries_exhausted callback
+      described_class.sidekiq_retries_exhausted_block.call(msg, error)
+    end
+  end
 end
 
 def raise_nested_err
