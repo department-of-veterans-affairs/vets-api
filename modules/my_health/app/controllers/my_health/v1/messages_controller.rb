@@ -5,6 +5,8 @@ module MyHealth
     class MessagesController < SMController
       include Filterable
 
+      MAX_STANDARD_FILES = 4
+
       def index
         resource = client.get_folder_messages(@current_user.uuid, params[:folder_id].to_s, use_cache?)
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
@@ -157,7 +159,7 @@ module MyHealth
       end
 
       def total_file_count_too_large
-        Array(upload_params[:uploads]).size > 4
+        Array(upload_params[:uploads]).size > MAX_STANDARD_FILES
       end
 
       def use_large_attachment_upload
