@@ -42,8 +42,8 @@ module UnifiedHealthData
 
     def get_conditions
       with_monitoring do
-        start_date = '1900-01-01'
-        end_date = Time.zone.today.to_s
+        start_date = default_start_date
+        end_date = default_end_date
 
         response = uhd_client.get_conditions_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
@@ -55,8 +55,8 @@ module UnifiedHealthData
 
     def get_single_condition(condition_id)
       with_monitoring do
-        start_date = '1900-01-01'
-        end_date = Time.zone.today.to_s
+        start_date = default_start_date
+        end_date = default_end_date
 
         response = uhd_client.get_conditions_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
@@ -77,7 +77,9 @@ module UnifiedHealthData
     # @return [Array<UnifiedHealthData::Prescription>] Array of prescription objects
     def get_prescriptions(current_only: false)
       with_monitoring do
-        response = uhd_client.get_all_prescriptions(@user.icn)
+        start_date = default_start_date
+        end_date = default_end_date
+        response = uhd_client.get_prescriptions_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
         adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new(@user)
@@ -109,8 +111,8 @@ module UnifiedHealthData
     def get_care_summaries_and_notes
       with_monitoring do
         # NOTE: we must pass in a startDate and endDate to SCDF
-        start_date = '1900-01-01'
-        end_date = Time.zone.today.to_s
+        start_date = default_start_date
+        end_date = default_end_date
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
@@ -130,8 +132,8 @@ module UnifiedHealthData
     def get_single_summary_or_note(note_id)
       with_monitoring do
         # TODO: we will replace this with a direct call to the API once available
-        start_date = '1900-01-01'
-        end_date = Time.zone.today.to_s
+        start_date = default_start_date
+        end_date = default_end_date
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
@@ -319,6 +321,15 @@ module UnifiedHealthData
 
     def logger
       @logger ||= UnifiedHealthData::Logging.new(@user)
+    end
+
+    # Date helpers (single source for default UHD date range)
+    def default_start_date
+      '1900-01-01'
+    end
+
+    def default_end_date
+      Time.zone.today.to_s
     end
   end
 end
