@@ -788,6 +788,63 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       end
     end
 
+    context 'confinements' do
+      let(:confinement_periods) do
+        [
+          {
+            'confinementBeginDate' => '2007-08-01',
+            'confinementEndDate' => '2007-09-01'
+          },
+          {
+            'confinementBeginDate' => '2007-11-01',
+            'confinementEndDate' => '2007-12-01'
+          }
+        ]
+      end
+
+      describe '#set_pdf_data_for_pow_confinement' do
+        context 'when the prisonerOfWarConfinement key does not exist' do
+          before do
+            @pdf_data = pdf_data
+            @pdf_data[:data][:attributes][:serviceInformation] = {}
+          end
+
+          it 'sets the prisonerOfWarConfinement key to an empty hash' do
+            res = mapper.send(:set_pdf_data_for_pow_confinement)
+
+            expect(res).to eq({})
+          end
+        end
+
+        context 'when the prisonerOfWarConfinement key already exists' do
+          before do
+            @pdf_data = pdf_data
+            @pdf_data[:data][:attributes][:serviceInformation] = {}
+            @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] = {}
+          end
+
+          it 'returns early without modifying the existing data' do
+            res = mapper.send(:set_pdf_data_for_pow_confinement)
+
+            expect(res).to be_nil
+          end
+        end
+      end
+
+      it 'maps the confinement periods' do
+        form_attributes['serviceInformation']['confinements'] = confinement_periods
+        mapper.map_claim
+
+        confinements_base = pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement]
+
+        expect(confinements_base).to have_key(:confinementDates)
+        expect(confinements_base[:confinementDates][0][:start]).to eq({ year: '2007', month: '08', day: '01' })
+        expect(confinements_base[:confinementDates][0][:end]).to eq({ year: '2007', month: '09', day: '01' })
+        expect(confinements_base[:confinementDates][1][:start]).to eq({ year: '2007', month: '11', day: '01' })
+        expect(confinements_base[:confinementDates][1][:end]).to eq({ year: '2007', month: '12', day: '01' })
+      end
+    end
+
     context 'reserves national guard service' do
       let(:reserves) do
         {
