@@ -41,7 +41,9 @@ module ClaimsApi
         service_pay_separation_or_severance_pay_received: %w[servicePay separationPay received],
         separation_pay_received_date: %w[servicePay separationPay receivedDate],
         separation_pay_branch_of_service: %w[servicePay separationPay payment serviceBranch],
-        separation_pay_amount: %w[servicePay separationPay payment amount]
+        separation_pay_amount: %w[servicePay separationPay payment amount],
+        # SECTION 9: Claim Certification and Signature
+        claim_date: %w[claimDate]
       }.freeze
 
       def lookup_in_auto_claim(path_key)
