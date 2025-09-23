@@ -14,6 +14,10 @@ RSpec.describe DependentsBenefits::Monitor do
   let(:current_user) { create(:user) }
   let(:monitor_error) { create(:monitor_error) }
 
+  before do
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+  end
+
   def base_payload(extras = {})
     {
       confirmation_number: claim.confirmation_number,

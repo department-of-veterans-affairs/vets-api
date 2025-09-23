@@ -3,15 +3,14 @@
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
+      # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
+      # @return [UnifiedHealthData::Prescription, nil] Parsed prescription or nil if invalid
       def parse(resource)
         return nil if resource.nil? || resource['id'].nil?
 
-        attributes = build_prescription_attributes(resource)
-        UnifiedHealthData::Prescription.new({
-                                              id: resource['id'],
-                                              type: 'Prescription',
-                                              attributes:
-                                            })
+        UnifiedHealthData::Prescription.new(build_prescription_attributes(resource))
       rescue => e
         Rails.logger.error("Error parsing Oracle Health prescription: #{e.message}")
         nil
@@ -19,31 +18,37 @@ module UnifiedHealthData
 
       private
 
+      # rubocop:disable Metrics/MethodLength
       def build_prescription_attributes(resource)
-        UnifiedHealthData::PrescriptionAttributes.new({
-                                                        refill_status: resource['status'],
-                                                        refill_submit_date: nil, # Not available in FHIR
-                                                        refill_date: extract_refill_date(resource),
-                                                        refill_remaining:
-                                                          extract_refill_remaining(resource),
-                                                        facility_name: extract_facility_name(resource),
-                                                        ordered_date: resource['authoredOn'],
-                                                        quantity: extract_quantity(resource),
-                                                        expiration_date: extract_expiration_date(resource),
-                                                        prescription_number:
-                                                          extract_prescription_number(resource),
-                                                        prescription_name:
-                                                          extract_prescription_name(resource),
-                                                        dispensed_date: extract_dispensed_date(resource),
-                                                        station_number: extract_station_number(resource),
-                                                        is_refillable: extract_is_refillable(resource),
-                                                        is_trackable: false, # Default for Oracle Health
-                                                        instructions: extract_instructions(resource)
-                                                      })
+        {
+          id: resource['id'],
+          type: 'Prescription',
+          refill_status: resource['status'],
+          refill_submit_date: nil, # Not available in FHIR
+          refill_date: extract_refill_date(resource),
+          refill_remaining: extract_refill_remaining(resource),
+          facility_name: extract_facility_name(resource),
+          ordered_date: resource['authoredOn'],
+          quantity: extract_quantity(resource),
+          expiration_date: extract_expiration_date(resource),
+          prescription_number: extract_prescription_number(resource),
+          prescription_name: extract_prescription_name(resource),
+          dispensed_date: nil, # Not available in FHIR
+          station_number: extract_station_number(resource),
+          is_refillable: extract_is_refillable(resource),
+          is_trackable: false, # Default for Oracle Health
+          instructions: extract_instructions(resource),
+          cmop_division_phone: extract_facility_phone_number(resource),
+          prescription_source: extract_prescription_source(resource)
+        }
       end
+      # rubocop:enable Metrics/MethodLength
 
       def extract_refill_date(resource)
-        resource.dig('dispenseRequest', 'validityPeriod', 'start')
+        dispense = find_most_recent_medication_dispense(resource['contained'])
+        return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
+
+        nil
       end
 
       def extract_refill_remaining(resource)
@@ -73,10 +78,8 @@ module UnifiedHealthData
         return quantity if quantity
 
         # Fallback: check contained MedicationDispense
-        if resource['contained']
-          dispense = find_most_recent_medication_dispense(resource['contained'])
-          return dispense.dig('quantity', 'value') if dispense
-        end
+        dispense = find_most_recent_medication_dispense(resource['contained'])
+        return dispense.dig('quantity', 'value') if dispense
 
         nil
       end
@@ -97,19 +100,11 @@ module UnifiedHealthData
           resource.dig('medicationReference', 'display')
       end
 
-      def extract_dispensed_date(resource)
-        # Check for contained MedicationDispense resources
-        if resource['contained']
-          dispense = find_most_recent_medication_dispense(resource['contained'])
-          return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
-        end
-
-        # Fallback to initial fill date
-        resource.dig('dispenseRequest', 'initialFill', 'date')
-      end
-
       def extract_station_number(resource)
-        resource.dig('dispenseRequest', 'performer', 'identifier', 'value')
+        dispense = find_most_recent_medication_dispense(resource['contained'])
+        return dispense.dig('location', 'display') if dispense
+
+        nil
       end
 
       def extract_is_refillable(resource)
@@ -144,6 +139,10 @@ module UnifiedHealthData
         # This might be in an extension or contained Organization resource
         # For now, return nil as it's not typically in standard FHIR
         nil
+      end
+
+      def extract_prescription_source(resource)
+        resource['reportedBoolean'] == true ? 'NV' : ''
       end
 
       def build_instruction_text(instruction)

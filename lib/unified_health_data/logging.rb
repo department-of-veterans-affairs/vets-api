@@ -49,8 +49,8 @@ module UnifiedHealthData
       test_name_counts = Hash.new(0)
 
       records.each do |record|
-        test_code = record.attributes.test_code
-        test_name = record.attributes.display
+        test_code = record.test_code
+        test_name = record.display
 
         test_code_counts[test_code] += 1 if test_code.present?
         test_name_counts[test_name] += 1 if test_name.present?
@@ -87,11 +87,11 @@ module UnifiedHealthData
     def log_short_test_name_issue(record)
       data = {
         icn: @user.icn,
-        test_code: record.attributes.test_code,
-        test_name: record.attributes.display,
+        test_code: record.test_code,
+        test_name: record.display,
         record_id: record.id,
         resource_type: record.type,
-        date_completed: record.attributes.date_completed,
+        date_completed: record.date_completed,
         service: 'unified_health_data'
       }
 

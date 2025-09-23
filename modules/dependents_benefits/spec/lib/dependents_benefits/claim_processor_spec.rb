@@ -13,6 +13,8 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
     allow(DependentsBenefits::Monitor).to receive(:new).and_return(mock_monitor)
     allow(mock_monitor).to receive(:track_processor_info)
     allow(mock_monitor).to receive(:track_processor_error)
+
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
   end
 
   describe '.enqueue_submissions' do
