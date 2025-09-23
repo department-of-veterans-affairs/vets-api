@@ -86,4 +86,48 @@ RSpec.describe BenefitsDiscovery::Service do
       end
     end
   end
+
+  describe '#proxy_request' do
+    let(:mock_post_request) do
+      req = ActionDispatch::TestRequest.create
+      req.request_method = 'POST'
+      req.set_header('CONTENT_TYPE', 'application/json')
+      req.remote_addr = '1.2.3.4'
+      req.env['action_dispatch.request.request_parameters'] = {}
+      req.env['RAW_POST_DATA'] = '{}'
+      req.params['path'] = 'v0/recommendations'
+      req
+    end
+
+    it 'returns recommendations when v0/recommendations is called' do
+      VCR.use_cassette('lighthouse/benefits_discovery/200_response_without_params',
+                       match_requests_on: %i[method uri body]) do
+        response = subject.proxy_request(mock_post_request)
+        expect(response).to eq(
+          {
+            'undetermined' => [
+              {
+                'benefit_name' => 'Health',
+                'benefit_url' => 'https://www.va.gov/health-care/'
+              }
+            ],
+            'recommended' => [],
+            'not_recommended' => [{
+              'benefit_name' => 'Life Insurance (VALife)',
+              'benefit_url' => 'https://www.va.gov/life-insurance/'
+            }]
+          }
+        )
+      end
+    end
+
+    it 'calls perform with correct arguments and sets X-Forwarded-For' do
+      expect(subject).to receive(:perform).with(:post, # rubocop:disable RSpec/SubjectStub
+                                                'benefits-discovery-service/v0/recommendations',
+                                                '{}',
+                                                hash_including('X-Forwarded-For' => '1.2.3.4'))
+                                          .and_return(double('response', body: nil))
+      subject.proxy_request(mock_post_request)
+    end
+  end
 end

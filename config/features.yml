@@ -127,6 +127,10 @@ features:
     actor_type: user
     description: Enables the After Visit Summary API.
     enable_in_development: true
+  bds_gateway_enabled:
+    actor_type: user
+    description: Enables the BDS Gateway to proxy requests to Benefits Discovery Service
+    enable_in_development: true
   benefits_documents_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
