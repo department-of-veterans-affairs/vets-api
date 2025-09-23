@@ -19,6 +19,7 @@ module ClaimsApi
         section_5_disabilities
         section_5_treatment_centers
         section_6_service_information
+        section_7_service_pay
       ].freeze
 
       HOMELESSNESS_RISK_SITUATION_TYPES = {
@@ -589,6 +590,106 @@ module ClaimsApi
         end
 
         @pdf_data[:data][:attributes][:serviceInformation][:alternateNames] = names
+      end
+
+      def section_7_service_pay
+        return unless lookup_in_auto_claim(:service_pay)
+
+        set_pdf_data_for_service_pay
+
+        service_pay_base = @pdf_data[:data][:attributes][:servicePay]
+        claim_service_pay_data = lookup_in_auto_claim(:service_pay)
+
+        training_pay = lookup_in_auto_claim(:service_pay_retain_training_pay)
+        if claim_service_pay_data.key?('waiveVABenefitsToRetainTrainingPay')
+          service_pay_base[:favorTrainingPay] = training_pay
+        end
+
+        retain_retired_pay = lookup_in_auto_claim(:service_pay_retain_retired_pay)
+        if claim_service_pay_data.key?('waiveVABenefitsToRetainRetiredPay')
+          service_pay_base[:favorMilitaryRetiredPay] = retain_retired_pay
+        end
+
+        military_retired_pay = lookup_in_auto_claim(:service_pay_military_retired_pay)
+        map_military_retired_pay(military_retired_pay, service_pay_base) if military_retired_pay.present?
+
+        map_separation_pay if lookup_in_auto_claim(:service_pay_separation_pay)
+      end
+
+      def set_pdf_data_for_service_pay
+        return if @pdf_data[:data][:attributes]&.key?(:servicePay)
+
+        @pdf_data[:data][:attributes][:servicePay] = {}
+      end
+
+      # if 'militaryRetiredPay' is included
+      # 'receiving' & 'payment' are required via the schema
+      def map_military_retired_pay(military_retired_pay_data, service_pay_base)
+        retired_pay = lookup_in_auto_claim(:service_pay_receiving_retired_pay)
+        service_pay_base[:receivingMilitaryRetiredPay] = handle_yes_no(retired_pay)
+
+        future_retired_pay = lookup_in_auto_claim(:service_pay_future_military_pay)
+        if military_retired_pay_data.key?('willReceiveInFuture')
+          service_pay_base[:futureMilitaryRetiredPay] = handle_yes_no(future_retired_pay)
+        end
+
+        explanation = lookup_in_auto_claim(:service_pay_future_pay_explanation)
+        service_pay_base[:futureMilitaryRetiredPayExplanation] = explanation if explanation
+
+        retired_pay_payment if lookup_in_auto_claim(:military_retired_pay_payment)
+      end
+
+      # if 'payment' is included
+      # 'serviceBranch' is required via the schema
+      def retired_pay_payment
+        set_pdf_path_for_military_retired_pay
+
+        retired_branch_of_service = lookup_in_auto_claim(:military_retired_pay_service_branch)
+        @pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay][:branchOfService] =
+          { branch: retired_branch_of_service }
+
+        retired_pay_amount = lookup_in_auto_claim(:military_retired_pay_amount)
+        if retired_pay_amount
+          @pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay][:monthlyAmount] =
+            retired_pay_amount
+        end
+      end
+
+      def set_pdf_path_for_military_retired_pay
+        return if @pdf_data[:data][:attributes][:servicePay]&.key?(:militaryRetiredPay)
+
+        @pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay] = {}
+      end
+
+      # if 'separationPay' is included
+      # 'received' is required via the schema
+      def map_separation_pay
+        serverance_or_separation_pay = lookup_in_auto_claim(:service_pay_separation_or_severance_pay_received)
+        @pdf_data[:data][:attributes][:servicePay][:receivedSeparationOrSeverancePay] =
+          handle_yes_no(serverance_or_separation_pay)
+
+        set_separation_severance_pay_pdf_data
+
+        received_date = lookup_in_auto_claim(:separation_pay_received_date)
+        if received_date
+          @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:datePaymentReceived] =
+            make_date_object(received_date, received_date.length)
+        end
+
+        separation_pay_branch = lookup_in_auto_claim(:separation_pay_branch_of_service)
+        if separation_pay_branch
+          @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:branchOfService] =
+            { branch: separation_pay_branch }
+        end
+
+        amount = lookup_in_auto_claim(:separation_pay_amount)
+        @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:preTaxAmountReceived] = amount if amount
+      end
+
+      def set_separation_severance_pay_pdf_data
+        return if @pdf_data[:data][:attributes][:servicePay]&.key?(:separationSeverancePay)
+
+        @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay] = {}
       end
     end
   end
