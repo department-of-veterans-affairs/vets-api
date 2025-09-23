@@ -140,4 +140,107 @@ describe TravelPay::AppointmentsClient do
       expect(actual_appt_ids).to eq(expected_ids)
     end
   end
+
+  context '/appointments/find-or-add' do
+    let(:appointment_params) do
+      {
+        'appointment_date_time' => '2024-01-01T12:45:34.465Z',
+        'facility_station_number' => '123',
+        'appointment_type' => 'Other',
+        'is_complete' => false
+      }
+    end
+
+    let(:expected_response_data) do
+      [
+        {
+          'id' => 'uuid1',
+          'appointmentSource' => 'API',
+          'appointmentDateTime' => '2024-01-01T12:45:34.465Z',
+          'appointmentName' => 'string',
+          'appointmentType' => 'Other',
+          'facilityName' => 'Test Facility',
+          'serviceConnectedDisability' => 30,
+          'currentStatus' => 'string',
+          'appointmentStatus' => 'Completed',
+          'externalAppointmentId' => '12345678-0000-0000-0000-000000000001',
+          'associatedClaimId' => nil,
+          'associatedClaimNumber' => nil,
+          'isCompleted' => false
+        }
+      ]
+    end
+
+    let(:expected_log_prefix) { 'travel_pay.appointments.response_time' }
+    let(:expected_log_tag) { ['travel_pay:find_or_create'] }
+
+    context 'when use_v4_api is false' do
+      it 'calls the v2 API endpoint' do
+        @stubs.post('/api/v2/appointments/find-or-add') do
+          [
+            200,
+            {},
+            {
+              'data' => expected_response_data
+            }
+          ]
+        end
+
+        client = TravelPay::AppointmentsClient.new
+        response = client.find_or_create(*tokens, appointment_params, use_v4_api: false)
+
+        expect(response.body['data']).to eq(expected_response_data)
+        expect(StatsD).to have_received(:measure)
+          .with(expected_log_prefix,
+                kind_of(Numeric),
+                tags: expected_log_tag)
+      end
+    end
+
+    context 'when use_v4_api is true' do
+      it 'calls the v4 API endpoint' do
+        @stubs.post('/api/v4/appointments/find-or-add') do
+          [
+            200,
+            {},
+            {
+              'data' => expected_response_data
+            }
+          ]
+        end
+
+        client = TravelPay::AppointmentsClient.new
+        response = client.find_or_create(*tokens, appointment_params, use_v4_api: true)
+
+        expect(response.body['data']).to eq(expected_response_data)
+        expect(StatsD).to have_received(:measure)
+          .with(expected_log_prefix,
+                kind_of(Numeric),
+                tags: expected_log_tag)
+      end
+    end
+
+    context 'when use_v4_api is not provided (defaults to false)' do
+      it 'calls the v2 API endpoint' do
+        @stubs.post('/api/v2/appointments/find-or-add') do
+          [
+            200,
+            {},
+            {
+              'data' => expected_response_data
+            }
+          ]
+        end
+
+        client = TravelPay::AppointmentsClient.new
+        response = client.find_or_create(*tokens, appointment_params)
+
+        expect(response.body['data']).to eq(expected_response_data)
+        expect(StatsD).to have_received(:measure)
+          .with(expected_log_prefix,
+                kind_of(Numeric),
+                tags: expected_log_tag)
+      end
+    end
+  end
 end

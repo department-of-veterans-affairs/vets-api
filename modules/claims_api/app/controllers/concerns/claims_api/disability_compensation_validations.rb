@@ -26,6 +26,8 @@ module ClaimsApi
       validate_service_after_13th_birthday!
       # ensure 'militaryRetiredPay.receiving' and 'militaryRetiredPay.willReceiveInFuture' are not same non-null values
       validate_form_526_service_pay!
+      # ensure 'servicePeriods.activeDutyBeginDate' values are in the past
+      validate_form_526_service_periods_begin_in_past!
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
       validate_form_526_title10_activation_date!
       # ensure 'title10Activation.anticipatedSeparationDate' is in the future
@@ -109,6 +111,18 @@ module ClaimsApi
       return if valid_countries.include?(change_of_address['country'])
 
       raise ::Common::Exceptions::InvalidFieldValue.new('country', change_of_address['country'])
+    end
+
+    def validate_form_526_service_periods_begin_in_past!
+      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
+
+      service_periods.each do |service_period|
+        begin_date = service_period['activeDutyBeginDate']
+        next if Date.parse(begin_date) < Time.zone.today
+
+        raise ::Common::Exceptions::InvalidFieldValue.new('servicePeriods.activeDutyBeginDate',
+                                                          "A service period's activeDutyBeginDate must be in the past")
+      end
     end
 
     def validate_form_526_title10_activation_date!

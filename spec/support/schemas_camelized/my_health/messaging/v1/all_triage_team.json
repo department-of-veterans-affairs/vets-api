@@ -16,7 +16,8 @@
     "groupTypeEnumVal",
     "subGroupTypeEnumVal",
     "groupTypePatientDisplay",
-    "subGroupTypePatientDisplay"
+    "subGroupTypePatientDisplay",
+    "ohTriageGroup"
   ],
   "properties": {
     "triageTeamId": {
@@ -63,6 +64,9 @@
     },
     "subGroupTypePatientDisplay": {
       "type": "string"
+    },
+    "ohTriageGroup": {
+      "type": "boolean"
     }
   }
 }

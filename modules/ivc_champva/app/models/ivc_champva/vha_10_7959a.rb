@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module IvcChampva
   class VHA107959a
     ADDITIONAL_PDF_KEY = 'claims'
     ADDITIONAL_PDF_COUNT = 1
     STATS_KEY = 'api.ivc_champva_form.10_7959a'
 
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
     include Attachments
 
-    attribute :data
+    attribute :data, Hash
     attr_reader :form_id
 
     def initialize(data)
@@ -54,11 +56,12 @@ module IvcChampva
     # in the main form PDF file. See IvcChampva::PdfStamper.add_blank_page_and_stamp
     # @return [Hash] hash of metadata we want to stamp and an attachment ID to associate with the stamped page
     def stamp_metadata
-      # If it's a resubmission, we want to stamp resubmission-specific values on a blank
-      # page in the PDF
-      if @data['claim_status'] == 'resubmission'
+      # Only generate a stamped metadata page for PDI resubmissions when feature flag is enabled
+      if Flipper.enabled?(:champva_resubmission_attachment_ids) &&
+         @data['claim_status'] == 'resubmission' &&
+         @data['pdi_or_claim_number'] == 'PDI number'
         { metadata: add_resubmission_properties,
-          attachment_id: @data['pdi_or_claim_number'] }
+          attachment_id: 'CVA Bene Response' }
       end
     end
 
@@ -119,7 +122,7 @@ module IvcChampva
 
       {
         'pdi_number' => pdi_or_claim == 'PDI number' ? identifying_number : '',
-        'claim_number' => pdi_or_claim == 'Claim control number' ? identifying_number : ''
+        'claim_number' => pdi_or_claim == 'Control number' ? identifying_number : ''
       }.compact_blank
     end
   end

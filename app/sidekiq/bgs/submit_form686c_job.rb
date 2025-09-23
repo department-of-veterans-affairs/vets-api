@@ -19,7 +19,7 @@ module BGS
     sidekiq_options retry: 16
 
     sidekiq_retries_exhausted do |msg, _error|
-      user_uuid, _icn, saved_claim_id, encrypted_vet_info = msg['args']
+      user_uuid, saved_claim_id, encrypted_vet_info = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
 
       monitor = ::Dependents::Monitor.new(saved_claim_id)
@@ -31,29 +31,20 @@ module BGS
     end
 
     # method length lint disabled because this will be cut in half when flipper is removed
-    def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info) # rubocop:disable Metrics/MethodLength
+    def perform(user_uuid, saved_claim_id, encrypted_vet_info)
       @monitor = init_monitor(saved_claim_id)
       @monitor.track_event('info', 'BGS::SubmitForm686cJob running!', "#{STATS_KEY}.begin")
-      instance_params(encrypted_vet_info, icn, user_uuid, saved_claim_id)
+      instance_params(encrypted_vet_info, user_uuid, saved_claim_id)
 
-      if Flipper.enabled?(:dependents_separate_confirmation_email)
-        submit_686c
-        @monitor.track_event('info', 'BGS::SubmitForm686cJob succeeded!', "#{STATS_KEY}.success")
+      submit_686c
+      @monitor.track_event('info', 'BGS::SubmitForm686cJob succeeded!', "#{STATS_KEY}.success")
 
-        if claim.submittable_674?
-          enqueue_674_job(encrypted_vet_info)
-        else
-          # if no 674, form submission is complete
-          send_686c_confirmation_email
-          InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
-        end
+      if claim.submittable_674?
+        enqueue_674_job(encrypted_vet_info)
       else
-        submit_forms(encrypted_vet_info)
-
-        send_confirmation_email
-
-        @monitor.track_event('info', 'BGS::SubmitForm686cJob succeeded!', "#{STATS_KEY}.success")
-        InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:) unless claim.submittable_674?
+        # if no 674, form submission is complete
+        send_686c_confirmation_email
+        InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
       end
     rescue => e
       handle_filtered_errors!(e:, encrypted_vet_info:)
@@ -75,10 +66,10 @@ module BGS
       raise Sidekiq::JobRetry::Skip
     end
 
-    def instance_params(encrypted_vet_info, icn, user_uuid, saved_claim_id)
+    def instance_params(encrypted_vet_info, user_uuid, saved_claim_id)
       @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       @user = BGS::SubmitForm686cJob.generate_user_struct(@vet_info)
-      @icn = icn
+      @icn = @user.icn
       @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
       @claim ||= SavedClaim::DependencyClaim.find(saved_claim_id)
@@ -128,7 +119,7 @@ module BGS
       BGS::Form686c.new(user, claim).submit(claim_data)
 
       # If Form 686c job succeeds, then enqueue 674 job.
-      BGS::SubmitForm674Job.perform_async(user_uuid, icn, saved_claim_id, encrypted_vet_info, KmsEncrypted::Box.new.encrypt(user.to_h.to_json)) if claim.submittable_674? # rubocop:disable Layout/LineLength
+      BGS::SubmitForm674Job.perform_async(user_uuid, saved_claim_id, encrypted_vet_info, KmsEncrypted::Box.new.encrypt(user.to_h.to_json)) if claim.submittable_674? # rubocop:disable Layout/LineLength
     end
 
     def submit_686c
@@ -142,7 +133,7 @@ module BGS
     end
 
     def enqueue_674_job(encrypted_vet_info)
-      BGS::SubmitForm674Job.perform_async(user_uuid, icn, saved_claim_id, encrypted_vet_info,
+      BGS::SubmitForm674Job.perform_async(user_uuid, saved_claim_id, encrypted_vet_info,
                                           KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
     end
 

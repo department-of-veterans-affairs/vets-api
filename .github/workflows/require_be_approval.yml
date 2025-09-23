@@ -20,7 +20,7 @@ jobs:
       pr_labels: ${{ steps.pr_data.outputs.pr_labels }}
     steps:
       - name: Checkout PR HEAD ref
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -96,7 +96,7 @@ jobs:
       backend_approval_required: ${{ steps.verify_approval.outputs.backend_approval_required }}
     steps:
       - name: Checkout PR HEAD ref
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -104,7 +104,7 @@ jobs:
           fetch-depth: 0
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: "us-gov-west-1"
@@ -123,7 +123,9 @@ jobs:
           author_is_backend=false
           backend_approval_required=true
           exempt_be_review=false
-          PR_LABELS="${{ env.pr_labels }}"
+          backend_approval=false
+          review_complete=false
+
           EXEMPT_TEAMS=(
             octo-identity
             lighthouse-dash
@@ -140,65 +142,139 @@ jobs:
 
           # Get PR author
           PR_AUTHOR=${{ github.event.pull_request.user.login }}
-          if echo "$PR_AUTHOR" | grep -qiE "^($BACKEND_REVIEWERS)$"; then
+          if echo "$PR_AUTHOR" | grep -iqE "^($BACKEND_REVIEWERS)$"; then
             echo "PR author '$PR_AUTHOR' is a backend-review-group member."
             author_is_backend=true
           fi
 
-          APPROVED=$(gh api /repos/${{ github.repository }}/pulls/${{ env.pr_number }}/reviews --jq '
-            [ .[]
-            | select(.state == "APPROVED")
-            ]
-            | sort_by(.submitted_at)
-            | last
-            | .user.login // ""
-          ' || true)
+          readarray -t APPROVED < <(
+            gh api /repos/${{ github.repository }}/pulls/${pr_number}/reviews --jq '
+              [ .[]
+              | select(.state == "APPROVED")
+              ]
+              | sort_by(.submitted_at)
+              | reverse
+              | unique_by(.user.login)
+              | .[].user.login
+            ' || true
+          )
+          echo "Approvers: ${APPROVED[@]}"
 
-          echo "Approvals: $APPROVED"
+
+          readarray -t DISMISSED < <(
+            gh api /repos/${{ github.repository }}/pulls/${pr_number}/reviews --jq '
+              [ .[]
+              | select(.state == "DISMISSED")
+              ]
+              | sort_by(.submitted_at)
+              | reverse
+              | unique_by(.user.login)
+              | .[].user.login
+            ' || true
+          )
+          echo "DISMISSED: ${DISMISSED[@]}"
 
           for TEAM in "${EXEMPT_TEAMS[@]}"; do
-            echo "Fetching members of team: $TEAM"
-            TEAM_MEMBERS=$(gh api /orgs/department-of-veterans-affairs/teams/${TEAM}/members --paginate --jq '.[].login')
-            while IFS= read -r MEMBER; do
-              while IFS= read -r REVIEWER; do
-                if [[ -n "$MEMBER" && -n "$REVIEWER" && "$MEMBER" == "$REVIEWER" ]]; then
-                  echo "$REVIEWER is in exempt $TEAM"
-                  exempt_be_review=true
-                  break 3
-                fi
-              done <<< "$APPROVED"
-            done <<< "$TEAM_MEMBERS"
-          done
+            echo "Non BE Requested Team: $TEAM"
 
-          if [[ "${exempt_be_review}" == "true" ]]; then
-            backend_approval_required=false
-            team_approval_status=confirmed
-            approval_status=confirmed
-          elif echo "$PR_LABELS" | jq -e '. | index("exempt-be-review")' > /dev/null || \
-              echo "$PR_LABELS" | jq -e '. | index("final-review-confirmed")' > /dev/null; then
-            team_approval_status=confirmed
-            approval_status=confirmed
-            backend_approval_required=false
-          else
-            backend_approval_required=true
-            BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
-            echo "Backend Approvals: $BE_APPROVALS"
-            if [ -z "$BE_APPROVALS" ]; then
-              echo "BE APPROVAL NOT CONFIRMED"
-              approval_status=not_confirmed
-            else
-              echo "BE APPROVAL CONFIRMED"
-              approval_status=confirmed
+            if [[ "$author_is_backend" == "false" ]]; then
+              author_membership_state=$(gh api -X GET \
+                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
+                --jq '.state' 2>/dev/null || echo "")
+              if [[ "$author_membership_state" == "active" ]]; then
+                echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
+                exempt_be_review=true
+                backend_approval_required=false
+              fi
             fi
 
-            TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
+            if [ "${#APPROVED[@]}" -gt 0 ]; then
+              for approve in "${APPROVED[@]}"; do
+                echo "Checking approver: $approve"
+                if ! echo "$approve" | grep -iqE "^($BACKEND_REVIEWERS)$"; then
+                  echo "PR Reviewer '$approve' is NOT a backend-review-group member."
+                  team_approval_status=confirmed
+                  membership_state=$(gh api -X GET \
+                    "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$approve" \
+                    --jq '.state' 2>/dev/null || echo "")
+                  if [[ "$membership_state" == "active" || "$exempt_be_review" == "true" ]]; then
+                    echo "$approve is an active member of $TEAM"
+                    review_complete=true
+                    exempt_be_review=true
+                    backend_approval_required=false
+                    approval_status=confirmed
+                  fi
+                else
+                  echo "PR Reviewer '$approve' is a backend-review-group member."
+                  backend_approval=true
+                fi
+              done
+            else
+              if [ "${#DISMISSED[@]}" -gt 0 ]; then
+                echo "DISMISSED: ${DISMISSED[@]}"
+                for dismiss in "${DISMISSED[@]}"; do
+                  echo "Checking dismissed review: $dismiss"
+                  if ! echo "$dismiss" | grep -iqE "^($BACKEND_REVIEWERS)$"; then
+                    membership_state=$(gh api -X GET \
+                      "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$dismiss" \
+                      --jq '.state' 2>/dev/null || echo "")
+                    if [[ "$membership_state" == "active" ]]; then
+                      echo "$dismiss is an active member of $TEAM"
+                      exempt_be_review=true
+                      backend_approval_required=false
+                      break
+                    fi
+                  fi
+                done
+              fi
+            fi
+          done
+
+          if [[ "${author_is_backend}" == "true" && "${backend_approval}" == "true" ]]; then
+            backend_approval_required=true
+            team_approval_status=confirmed
+            approval_status=confirmed
+            review_complete=true
+          fi
+
+          if [[ "${review_complete}" == "false" ]]; then
+            # Check PR Labels
+            PR_LABELS="${pr_labels}"
+            echo "$PR_LABELS" | jq -r '.[]' | while read -r LABEL; do
+              echo "Fetching label: $LABEL"
+              if [[ "$LABEL" == "exempt-be-review" ]]; then
+                echo "$LABEL exists"
+                exempt_be_review=true
+                backend_approval_required=false
+              fi
+              if [[ "$LABEL" == "final-review-confirmed" ]]; then
+                echo "$LABEL exists"
+                team_approval_status=confirmed
+                approval_status=confirmed
+              fi
+            done
+
             echo "Team Approvals: $TEAM_APPROVALS"
-            if [ -z "$TEAM_APPROVALS" ]; then
+            if [ "${team_approval_status}" == "required" ]; then
               echo "TEAM APPROVAL REQUIRED"
               team_approval_status=required
             else
               echo "TEAM APPROVAL CONFIRMED"
               team_approval_status=confirmed
+              if [[ "${exempt_be_review}" == "true" ]]; then
+                echo "Approvals Confirmed"
+                approval_status=confirmed
+              fi
+            fi
+
+            if [[ "${exempt_be_review}" == "false" ]]; then
+              if [[ "${backend_approval}" == "false" ]]; then
+                echo "BE APPROVAL NOT CONFIRMED"
+                approval_status=required
+              else
+                echo "BE APPROVAL CONFIRMED"
+                approval_status=confirmed
+              fi
             fi
           fi
 
@@ -234,10 +310,6 @@ jobs:
 
       - name: Fail if draft or failures
         if: steps.verify_approval.outputs.approval_status == 'required'
-        run: exit 1
-
-      - name: Fail if backend approval not confirmed
-        if: steps.verify_approval.outputs.approval_status == 'not_confirmed'
         run: exit 1
 
       - name: Exit for non backend approvals
