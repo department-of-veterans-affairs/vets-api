@@ -662,13 +662,13 @@ describe UnifiedHealthData::Service, type: :service do
           )
           expect(oracle_prescription_with_patient_instruction.facility_name).to eq('Ambulatory Pharmacy')
           expect(oracle_prescription_with_patient_instruction.refill_date).to eq('2025-06-24T21:05:53.000Z')
-          expect(oracle_prescription_with_patient_instruction.dispensed_date).to be nil
+          expect(oracle_prescription_with_patient_instruction.dispensed_date).to be_nil
 
           # Test prescription with completed status mapping
           completed_prescription = prescriptions.find { |p| p.prescription_id == '15214166467' }
           expect(completed_prescription.refill_status).to eq('completed')
           expect(completed_prescription.is_refillable).to be false
-          expect(completed_prescription.refill_date).to be nil
+          expect(completed_prescription.refill_date).to be_nil
         end
       end
 
