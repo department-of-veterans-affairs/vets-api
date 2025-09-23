@@ -91,7 +91,7 @@ module PdfFill
           EMAIL: #{official_data['emailAddress']}
           PHONE: #{official_data['phoneNumber']}
           TRAINING DATE: #{official_data['trainingCompletionDate']}
-          RECEIVES BENEFITS: #{official_data['recievesBenegits'] ? 'Yes' : 'No'}
+          RECEIVES BENEFITS: #{official_data['receivesBenefits']}
         TEXT
       end
 
