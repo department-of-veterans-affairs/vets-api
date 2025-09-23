@@ -488,6 +488,50 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:champva_use_hexapdf_to_unlock_pdfs, @current_user).and_return(true)
+    end
+
+    context 'with locked PDF and no provided password' do
+      let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
+
+      it 'rejects locked PDFs if no password is provided' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents', params: { form_id: '10-10D', file: locked_file }
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(
+          response.parsed_body['errors'].first['title']
+        ).to eq("File #{I18n.t('errors.messages.uploads.pdf.invalid')}")
+      end
+
+      it 'accepts locked PDFs with the correct password' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: locked_file, password: 'test' }
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'rejects locked PDFs with the incorrect password' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: locked_file, password: 'bad' }
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    it 'handles non-PDF files' do
+      non_pdf_file = fixture_file_upload('doctors-note.gif')
+      expect(controller.send(:unlock_file, non_pdf_file, nil)).to eq(non_pdf_file)
+    end
+
+    it 'handles PDFs with no password' do
+      expect(controller.send(:unlock_file, file, nil)).to eq(file)
+    end
+  end
+
+  describe '#unlock_file via pdftk' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:file) { fixture_file_upload('locked_pdf_password_is_test.pdf') }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:champva_use_hexapdf_to_unlock_pdfs, @current_user).and_return(false)
     end
 
     context 'with locked PDF and no provided password' do
@@ -545,6 +589,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     let(:mock_user) { double('User', loa: { current: 3 }) }
 
     before do
+      allow(Flipper).to receive(:enabled?).with(:champva_form_versioning, anything).and_return(false)
       allow(controller).to receive_messages(
         params: { form_number: '10-10D' },
         current_user: mock_user
@@ -707,7 +752,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           {
             'form_number' => '10-7959A',
             'claim_status' => 'resubmission',
-            'pdi_or_claim_number' => 'Claim control number',
+            'pdi_or_claim_number' => 'Control number',
             'identifying_number' => 'CLAIM789',
             'claims' => [
               { 'provider_name' => 'Test Provider' }
@@ -745,7 +790,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           {
             'form_number' => '10-7959A',
             'claim_status' => 'resubmission',
-            'pdi_or_claim_number' => 'Claim control number',
+            'pdi_or_claim_number' => 'Control number',
             'identifying_number' => 'CLAIM789',
             'claims' => [
               { 'provider_name' => 'Test Provider' }
@@ -776,6 +821,58 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           # Verify: when feature flag is disabled, uses default behavior (no special resubmission logic)
           expect(attachment_ids).to eq(['vha_10_7959a', 'Medical Records'])
           expect(form).to be_a(IvcChampva::VHA107959a)
+        end
+      end
+
+      context 'metadata generation for resubmissions' do
+        context 'when PDI number is selected' do
+          let(:pdi_form_data) do
+            {
+              'form_number' => '10-7959A',
+              'claim_status' => 'resubmission',
+              'pdi_or_claim_number' => 'PDI number',
+              'identifying_number' => 'PDI123456',
+              'applicant_name' => { 'first' => 'Test', 'last' => 'User' },
+              'applicant_address' => { 'postal_code' => '12345' },
+              'applicant_member_number' => '123456789',
+              'primary_contact_info' => { 'email' => 'test@example.com' }
+            }
+          end
+
+          it 'includes pdi_number in metadata and excludes claim_number' do
+            form = IvcChampva::VHA107959a.new(pdi_form_data)
+            metadata = form.metadata
+
+            expect(metadata['pdi_number']).to eq('PDI123456')
+            expect(metadata['claim_number']).to be_nil
+            expect(metadata['pdi_or_claim_number']).to eq('PDI number')
+            expect(metadata['claim_status']).to eq('resubmission')
+          end
+        end
+
+        context 'when Control number is selected' do
+          let(:claim_form_data) do
+            {
+              'form_number' => '10-7959A',
+              'claim_status' => 'resubmission',
+              'pdi_or_claim_number' => 'Control number',
+              'identifying_number' => 'CLAIM789',
+              'applicant_name' => { 'first' => 'Test', 'last' => 'User' },
+              'applicant_address' => { 'postal_code' => '12345' },
+              'applicant_member_number' => '123456789',
+              'primary_contact_info' => { 'email' => 'test@example.com' }
+            }
+          end
+
+          it 'includes claim_number in metadata and excludes pdi_number' do
+            form = IvcChampva::VHA107959a.new(claim_form_data)
+            metadata = form.metadata
+
+            expect(metadata['claim_number']).to eq('CLAIM789')
+            expect(metadata['pdi_number']).to be_nil
+            expect(metadata['pdi_or_claim_number']).to eq('Control number')
+            expect(metadata['claim_status']).to eq('resubmission')
+          end
         end
       end
     end
@@ -1462,7 +1559,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             form_id,
             attachment_guid,
             attachment.id,
-            'EOB'
+            'EOB',
+            anything
           )
 
           controller.send(:launch_background_job, attachment, form_id, 'EOB')
@@ -1473,16 +1571,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           expect(llm_job).to receive(:perform_async).with(
             form_id,
             attachment_guid,
-            match(%r{^/.*\.pdf$}), # PDF path after conversion
-            'EOB'
+            attachment.id, # attachment record ID instead of PDF path
+            'EOB',
+            anything
           )
-          # Mock the tempfile_from_attachment method to return a temp file
-          allow(controller).to receive(:tempfile_from_attachment).and_return(double(path: '/tmp/test_file.pdf'))
-          # Mock the Common::ConvertToPdf class to avoid loading issues
-          converter_double = double('ConvertToPdf')
-          allow(converter_double).to receive(:run).and_return('/tmp/converted.pdf')
-          stub_const('Common::ConvertToPdf', double('Class'))
-          allow(Common::ConvertToPdf).to receive(:new).and_return(converter_double)
 
           controller.send(:launch_background_job, attachment, form_id, 'EOB')
         end
@@ -1556,7 +1648,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
 
         expect(tmpfile).to be_a(Tempfile)
-        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w\-]+\.gif$/)
+        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w-]+\.gif$/)
         tmpfile.rewind
         expect(tmpfile.read).to eq(file_content)
         tmpfile.close
@@ -1579,7 +1671,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         tmpfile = controller.send(:tempfile_from_attachment, attachment, form_id)
 
         expect(tmpfile).to be_a(Tempfile)
-        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w\-]+\.png$/)
+        expect(File.basename(tmpfile.path)).to match(/^10-7959A_attachment_[\w-]+\.png$/)
         tmpfile.rewind
         expect(tmpfile.read).to eq(file_content)
         tmpfile.close

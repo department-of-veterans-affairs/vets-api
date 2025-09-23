@@ -17,14 +17,14 @@ jobs:
         run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
       - name: Git Version
         id: version
-        uses: codacy/git-version@2.8.4
+        uses: codacy/git-version@2.8.6
         with:
           release-branch: master
       - name: Echo the version
         run: |
           echo ${{ steps.version.outputs.version }}
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: us-gov-west-1
           role-to-assume: arn:aws-us-gov:iam::008577686731:role/prt-gha-oidc-role

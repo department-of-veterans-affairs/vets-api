@@ -18,6 +18,8 @@ module ClaimsApi
       validate_service_periods_quantity!
       validate_service_periods_chronology!
       validate_form_526_no_active_duty_end_date_more_than_180_days_in_future!
+      # ensure 'servicePeriods.activeDutyBeginDate' values are in the past
+      validate_form_526_service_periods_begin_in_past!
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
       validate_form_526_title10_activation_date!
       # ensure 'currentMailingAddress' attributes are valid
@@ -26,22 +28,22 @@ module ClaimsApi
       validate_form_526_change_of_address!
       # ensure no more than 150 disabilities are provided
       # ensure any provided 'disability.classificationCode' is a known value in BGS
+      # ensure any provided 'disability.approximateBeginDate' is in the past
+      # ensure a 'disability.specialIssue' of 'HEPC' has a `disability.name` of 'hepatitis'
+      # ensure a 'disability.specialIssue' of 'POW' has a valid 'serviceInformation.confinement'
+      # ensure any provided 'disability.name' is unique across all disabilities
       validate_form_526_disabilities!
     end
 
     def retrieve_separation_locations
       ClaimsApi::BRD.new.intake_sites
-    rescue
-      exception_msg = 'Failed To Obtain Intake Sites (Request Failed)'
-      raise ::Common::Exceptions::ServiceUnavailable.new({ source: 'intake_sites', detail: exception_msg })
     end
 
     def validate_form_526_submission_claim_date!
       return if form_attributes['claimDate'].blank?
       return if DateTime.parse(form_attributes['claimDate']) <= Time.zone.now
 
-      exception_msg = 'The request failed validation, because the claim date was in the future.'
-      raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', exception_msg)
+      raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', form_attributes['claimDate'])
     end
 
     def validate_form_526_location_codes!
@@ -54,12 +56,23 @@ module ClaimsApi
       form_attributes['serviceInformation']['servicePeriods'].each do |service_period|
         next if Date.parse(service_period['activeDutyEndDate']) <= Time.zone.today
         next if separation_locations.any? do |location|
-                  location[:id]&.to_s == service_period['separationLocationCode']
-                end
+          location[:id]&.to_s == service_period['separationLocationCode']
+        end
 
-        exception_msg = "Provided separation location code is not valid: #{service_period['separationLocationCode']}"
-        raise ::Common::Exceptions::InvalidFieldValue.new('Invalid separation location code',
-                                                          exception_msg)
+        raise ::Common::Exceptions::InvalidFieldValue.new('separationLocationCode',
+                                                          service_period['separationLocationCode'])
+      end
+    end
+
+    def validate_form_526_service_periods_begin_in_past!
+      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
+
+      service_periods.each do |service_period|
+        begin_date = service_period['activeDutyBeginDate']
+        next if Date.parse(begin_date) < Time.zone.today
+
+        raise ::Common::Exceptions::InvalidFieldValue.new('servicePeriods.activeDutyBeginDate',
+                                                          "A service period's activeDutyBeginDate must be in the past")
       end
     end
 
@@ -209,9 +222,7 @@ module ClaimsApi
       validate_form_526_disability_classification_code!
       validate_form_526_disability_approximate_begin_date!
       validate_form_526_special_issues!
-      # TODO: These will be added in a followup
-      # validate_form_526_disability_unique_names!
-      # validate_form_526_disability_names!
+      validate_form_526_disability_unique_names!
     end
 
     def validate_form_526_fewer_than_150_disabilities!
@@ -321,6 +332,29 @@ module ClaimsApi
       # if 'specialIssues' includes 'EMP' or 'RRD', then EVSS allows the disability to be submitted with a type of
       # INCREASE otherwise, the disability must not have any special issues
       !(special_issues.include?('EMP') || special_issues.include?('RRD'))
+    end
+
+    def validate_form_526_disability_unique_names!
+      disabilities = form_attributes['disabilities']
+      return if disabilities.blank?
+
+      names = disabilities.map { |d| d['name'].downcase }
+      duplicates = names.select { |name| names.count(name) > 1 }.uniq
+      masked_duplicates = duplicates.map { |name| mask_all_but_first_character(name) }
+
+      unless duplicates.empty?
+        raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.name',
+                                                          'Duplicate disability name found: ' \
+                                                          "#{masked_duplicates.join(', ')}")
+      end
+    end
+
+    def mask_all_but_first_character(value)
+      return value if value.blank?
+      return value unless value.is_a? String
+
+      # Mask all but the first character of the string
+      value[0] + ('*' * (value.length - 1))
     end
   end
 end

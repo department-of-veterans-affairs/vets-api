@@ -183,6 +183,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Request updated statuses for benefits intake submissions
   mgr.register('45 * * * *', 'VBADocuments::UploadStatusBatch')
 
+  # Request updated statuses for benefits intake submissions with upstream processing errors
+  mgr.register('13 */6 * * *', 'VBADocuments::UploadStatusErrorBatch')
+
   # Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status
   mgr.register('5 */2 * * *', 'VBADocuments::RunUnsuccessfulSubmissions')
 
@@ -280,4 +283,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Daily cron job to send Failure Notification Emails to Veterans for their failed evidence submissions.
   mgr.register('5 0 * * *', 'Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob')
+
+  # Daily cron job to check for PDF Form version changes
+  mgr.register('0 12 * * *', 'FormPdfChangeDetectionJob')
 }

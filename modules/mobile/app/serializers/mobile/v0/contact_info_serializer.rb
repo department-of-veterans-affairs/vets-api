@@ -25,6 +25,7 @@ module Mobile
       EMAIL_KEYS = %i[
         id
         email_address
+        updated_at
       ].freeze
 
       PHONE_KEYS = %i[

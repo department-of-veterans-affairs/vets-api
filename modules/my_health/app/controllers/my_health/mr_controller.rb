@@ -61,7 +61,8 @@ module MyHealth
 
     def create_medical_records_client
       medical_records_client = MedicalRecords::Client.new(
-        session: { user_id: current_user.mhv_correlation_id,
+        session: { user_uuid: current_user.user_account_uuid,
+                   user_id: current_user.mhv_correlation_id,
                    icn: current_user.icn }
       )
       if Flipper.enabled?(:mhv_accelerated_delivery_uhd_vista_lab_type_logging_enabled, @current_user)

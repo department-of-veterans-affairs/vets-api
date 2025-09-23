@@ -20,13 +20,8 @@ module AccreditedRepresentativePortal
 
       # rubocop:disable Metrics/MethodLength
       def submit
-        ar_monitoring.trace('ar.claims.form_upload.submit') do |span|
+        ar_monitoring(with_organization: true).trace('ar.claims.form_upload.submit') do |span|
           service = SavedClaimService::Create
-          current_form_number = metadata[:formNumber]
-
-          # Tags for tracing
-          span.set_tag('form_id', current_form_number)
-          Datadog::Tracing.active_trace&.set_tag('form_id', current_form_number)
 
           saved_claim = service.perform(
             type: form_class,
@@ -41,6 +36,7 @@ module AccreditedRepresentativePortal
 
           span.set_tag('form_submission.status', '200')
           span.set_tag('form_submission.confirmation_number', confirmation_number)
+          trace_key_tags(span, form_id:, org: organization)
 
           send_confirmation_email(saved_claim)
           render json: {
@@ -53,6 +49,9 @@ module AccreditedRepresentativePortal
         rescue service::WrongAttachmentsError => e
           span.set_tag('error.specific_reason', 'wrong_attachments')
           raise Common::Exceptions::UnprocessableEntity, detail: e.message
+        rescue service::TooManyRequestsError
+          span.set_tag('error.specific_reason', 'too_many_requests')
+          raise Common::Exceptions::ServiceUnavailable, detail: 'Temporary system issue'
         rescue service::UnknownError => e
           span.set_tag('error.specific_reason', 'unknown_error')
           raise Common::Exceptions::InternalServerError, e.cause
@@ -61,7 +60,7 @@ module AccreditedRepresentativePortal
       # rubocop:enable Metrics/MethodLength
 
       def upload_scanned_form
-        ar_monitoring.trace('ar.claims.form_upload.upload_scanned_form') do |_span|
+        ar_monitoring(with_organization: false).trace('ar.claims.form_upload.upload_scanned_form') do |_span|
           handle_attachment_upload(
             PersistentAttachments::VAForm,
             PersistentAttachmentVAFormSerializer
@@ -70,7 +69,7 @@ module AccreditedRepresentativePortal
       end
 
       def upload_supporting_documents
-        ar_monitoring.trace('ar.claims.form_upload.upload_supporting_documents') do |_span|
+        ar_monitoring(with_organization: false).trace('ar.claims.form_upload.upload_supporting_documents') do |_span|
           handle_attachment_upload(
             PersistentAttachments::VAFormDocumentation,
             PersistentAttachmentSerializer
@@ -91,7 +90,8 @@ module AccreditedRepresentativePortal
       def send_confirmation_email(saved_claim)
         AccreditedRepresentativePortal::NotificationEmail.new(saved_claim.id).deliver(:confirmation)
       rescue => e
-        monitor(saved_claim).track_send_email_failure(saved_claim, intake_service, user_account_id, 'confirmation', e)
+        monitor(saved_claim).track_send_email_failure(saved_claim, intake_service, current_user.user_account_uuid,
+                                                      'confirmation', e)
       end
 
       def monitor(claim)
@@ -102,28 +102,12 @@ module AccreditedRepresentativePortal
         @intake_service ||= ::BenefitsIntake::Service.new
       end
 
-      def user_account_id
-        return @user_account_id if defined?(@user_account_id)
-
-        unless current_user&.icn
-          @user_account_id = nil
-          return @user_account_id
-        end
-
-        user_account = UserAccount.find_by(icn: current_user.icn)
-        @user_account_id = user_account&.id
-
-        Rails.logger.warn("UserAccount not found for ICN: #{current_user.icn}") unless @user_account_id
-
-        @user_account_id
-      end
-
       def authorize_attachment_upload
         authorize(nil, policy_class: RepresentativeFormUploadPolicy)
       end
 
       def authorize_submission
-        ar_monitoring.trace('ar.claims.form_upload.authorize_submission') do |_span|
+        ar_monitoring(with_organization: true).trace('ar.claims.form_upload.authorize_submission') do |_span|
           claimant_icn.present? or
             raise Common::Exceptions::RecordNotFound,
                   'Could not lookup claimant with given information.'
@@ -137,7 +121,7 @@ module AccreditedRepresentativePortal
 
       # rubocop:disable Metrics/MethodLength
       def handle_attachment_upload(model_klass, serializer_klass)
-        ar_monitoring.trace('ar.claims.form_upload.handle_attachment_upload') do |span|
+        ar_monitoring(with_organization: false).trace('ar.claims.form_upload.handle_attachment_upload') do |span|
           service = SavedClaimService::Attach
 
           attachment = service.perform(
@@ -146,17 +130,16 @@ module AccreditedRepresentativePortal
             form_id: form_class::PROPER_FORM_ID
           )
 
-          # Trace tags
           span.set_tag('form_upload.form_id', attachment.form_id)
           span.set_tag('form_upload.attachment_type', model_klass.name)
+          trace_key_tags(span, form_id:)
+
           if params[:file].respond_to?(:original_filename)
             span.set_tag('form_upload.file_name', params[:file].original_filename)
           end
           span.set_tag('form_upload.file_size', params[:file].size) if params[:file].respond_to?(:size)
 
-          json = serializer_klass.new(attachment).as_json.deep_transform_keys! do |key|
-            key.camelize(:lower)
-          end
+          json = serializer_klass.new(attachment).as_json.deep_transform_keys! { |key| key.camelize(:lower) }
 
           render json:
         rescue service::RecordInvalidError => e
@@ -172,15 +155,32 @@ module AccreditedRepresentativePortal
       end
       # rubocop:enable Metrics/MethodLength
 
-      def ar_monitoring
+      def ar_monitoring(with_organization:)
+        org_tag = "org:#{organization}" if with_organization
+
         @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
           AccreditedRepresentativePortal::Monitoring::NAME,
-          default_tags: ["controller:#{controller_name}", "action:#{action_name}"]
+          default_tags: [
+            "controller:#{controller_name}",
+            "action:#{action_name}",
+            org_tag
+          ].compact
         )
       end
 
       def form_class
         SavedClaim::BenefitsIntake.form_class_from_proper_form_id(form_id)
+      end
+
+      def organization
+        claimant_representative&.power_of_attorney_holder&.poa_code
+      end
+
+      def trace_key_tags(span, **tags)
+        tags.each do |tag, value|
+          span.set_tag(tag, value) if value.present?
+          Datadog::Tracing.active_trace&.set_tag(tag, value) if value.present?
+        end
       end
     end
   end
