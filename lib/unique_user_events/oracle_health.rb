@@ -7,7 +7,7 @@ module UniqueUserEvents
   # based on user facility registrations and tracked events.
   module OracleHealth
     # Tracked facility IDs that should generate OH events
-    TRACKED_FACILITY_IDS = %w[757 442].freeze
+    TRACKED_FACILITY_IDS = %w[757].freeze
 
     # Events that should generate Oracle Health site-specific events
     # These must match events from
