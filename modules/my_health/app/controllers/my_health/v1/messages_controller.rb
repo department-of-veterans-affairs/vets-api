@@ -145,7 +145,7 @@ module MyHealth
       end
 
       def oh_triage_group?
-        params[:is_oh_triage_group].present?
+        ActiveModel::Type::Boolean.new.cast(params[:is_oh_triage_group])
       end
 
       def any_file_too_large

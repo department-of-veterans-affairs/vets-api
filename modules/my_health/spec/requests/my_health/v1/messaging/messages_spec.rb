@@ -172,6 +172,18 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(response).to match_response_schema('my_health/messaging/v1/message_with_attachment')
         end
 
+        it 'with attachments and is_oh_triage_group param false' do
+          VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
+            post '/my_health/v1/messaging/messages?is_oh_triage_group=false', params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
+          expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
+          expect(response).to match_response_schema('my_health/messaging/v1/message_with_attachment')
+        end
+
         it 'with attachments when camel-inflected' do
           VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
             post '/my_health/v1/messaging/messages', params: params_with_attachments, headers: inflection_header
@@ -229,6 +241,19 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         it 'with attachments and is_oh_triage_group param' do
           VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
             post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=true",
+                 params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
+          expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
+          expect(response).to match_response_schema('my_health/messaging/v1/message_with_attachment')
+        end
+
+        it 'with attachments and is_oh_triage_group param false' do
+          VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
+            post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=false",
                  params: params_with_attachments
           end
 
