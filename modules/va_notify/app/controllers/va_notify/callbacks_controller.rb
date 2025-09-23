@@ -62,7 +62,7 @@ module VANotify
 
       signature_from_header = request.headers['x-enp-signature'].to_s.strip
 
-      return unless signature_from_header.present?
+      return if signature_from_header.blank?
 
       api_key = get_api_key_value(@notification.service_api_key_path)
 
