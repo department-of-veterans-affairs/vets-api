@@ -10,6 +10,15 @@ module V0
     before_action { authorize :lighthouse, :access? }
     service_tag 'claims-shared'
 
+    STATSD_METRIC_PREFIX = 'api.benefits_claims'
+    STATSD_TAGS = [
+      'service:benefits-claims',
+      'team:cross-benefits-crew',
+      'team:benefits',
+      'itportfolio:benefits-delivery',
+      'dependency:lighthouse'
+    ].freeze
+
     def index
       claims = service.get_claims
 
@@ -19,12 +28,16 @@ module V0
       claims['data'].each do |claim|
         update_claim_type_language(claim)
         # Add has_failed_uploads field for document uploads that were added
-        if Flipper.enabled?(:cst_show_document_upload_status)
+        if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
           claim['attributes']['hasFailedUploads'] = add_has_failed_uploads(claim)
         end
       end
 
       tap_claims(claims['data'])
+
+      # Report metrics for evidence submission upload statuses
+      claim_ids = claims['data'].map { |claim| claim['id'] }
+      report_evidence_submission_metrics('index', claim_ids)
 
       render json: claims
     end
@@ -38,7 +51,7 @@ module V0
       # This should be removed when the items are re-categorized by BGS
       # We are not doing this in the Lighthouse service because we want web and mobile to have
       # separate rollouts and testing.
-      claim = rename_rv1(claim) if Flipper.enabled?(:cst_override_reserve_records_website)
+      claim = rename_rv1(claim)
 
       # https://github.com/department-of-veterans-affairs/va.gov-team/issues/98364
       # This should be removed when the items are removed by BGS
@@ -49,7 +62,7 @@ module V0
       claim['data']['attributes']['canUpload'] = !@current_user.birls_id.nil?
 
       # Add Evidence Submissions section for document uploads that were added
-      if Flipper.enabled?(:cst_show_document_upload_status)
+      if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
         claim['data']['attributes']['evidenceSubmissions'] = add_evidence_submissions(claim['data'])
       end
 
@@ -57,6 +70,9 @@ module V0
       log_claim_details(claim['data']['attributes'])
 
       tap_claims([claim['data']])
+
+      # Report metrics for evidence submission upload statuses
+      report_evidence_submission_metrics('show', params[:id])
 
       render json: claim
     end
@@ -211,6 +227,27 @@ module V0
 
       tracked_items.reject! { |i| BenefitsClaims::Service::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
       claim
+    end
+
+    def report_evidence_submission_metrics(endpoint, claim_ids)
+      claim_ids = Array(claim_ids) # Ensure it's always an array
+
+      # Get upload status counts for the claim(s)
+      status_counts = EvidenceSubmission.where(claim_id: claim_ids)
+                                        .group(:upload_status)
+                                        .count
+
+      # Increment metrics for each status found
+      BenefitsDocuments::Constants::UPLOAD_STATUS.each_value do |status|
+        count = status_counts[status] || 0
+        next if count.zero?
+
+        StatsD.increment("#{STATSD_METRIC_PREFIX}.#{endpoint}", count, tags: STATSD_TAGS + ["status:#{status}"])
+      end
+    rescue => e
+      ::Rails.logger.error(
+        "BenefitsClaimsController##{endpoint} Error reporting evidence submission upload status metrics: #{e.message}"
+      )
     end
   end
 end

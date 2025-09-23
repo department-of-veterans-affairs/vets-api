@@ -1,0 +1,113 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <CLAIMS_API_BD_URL>/oauth2/benefits-documents/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=< valid data >
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 19 Aug 2025 16:34:01 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '240'
+      Ratelimit-Reset:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '239'
+      Ratelimit-Limit:
+      - '240'
+      Ratelimit-Remaining:
+      - '239'
+      Vary:
+      - Origin
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Etag:
+      - W/"408-OinxO51BIW1qzZ1arDZRrja6ckE:dtagent10317250630095842XDWE"
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="1705696286"
+      X-Envoy-Upstream-Service-Time:
+      - '361'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - 0625aa56-2142-4d4b-864b-17c3ebdbd255#444017
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"token","token_type":"Bearer","scope":"documents.write
+        documents.read","expires_in":600,"state":null}'
+  recorded_at: Tue, 19 Aug 2025 16:34:01 GMT
+- request:
+    method: post
+    uri: "<FES_BASE_URL>/form526-establishment-service/v1/validate"
+    body:
+      encoding: UTF-8
+      string: '{"claimProcessType":"STANDARD_CLAIM_PROCESS","veteranIdentification":{"mailingAddress":{"addressLine1":"1234
+        Couch Street","city":"Portland","state":"OR","country":"USA","zipFirstFive":"12345"},"currentVaEmployee":false},"disabilities":[{"name":"hearing
+        loss","serviceRelevance":"Heavy equipment operator in service","approximateDate":"2017-07","disabilityActionType":"NEW"}],"serviceInformation":{"servicePeriods":[{"serviceBranch":"Air
+        Force","serviceComponent":"Active","activeDutyBeginDate":"2015-11-14","activeDutyEndDate":"2018-11-30"}]},"claimantCertification":true}'
+    headers:
+      Va-Eauth-Pid:
+      - '600043201'
+      Authorization: Bearer <TOKEN>
+      Content-Type:
+      - application/json; charset=UTF-8
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Tue, 19 Aug 2025 16:34:01 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-460259840", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      Cache-Control:
+      - no-cache, no-store
+      X-Envoy-Upstream-Service-Time:
+      - '67'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"detail":"Http Message Not Readable (Unrecognized Property)","status":400,"title":"Bad
+        Request","instance":"496ed49c-76e9-4685-a292-d03389806bcd","diagnostics":"PK7LqDEMZqL75pthXoGykgmuf7vHwwXrCyBg2CislR5PAJicnr9wGtm0HEDiP+6Uje3CWQeMi0Rh6yzYt8Dlz1PE9ydHLs0xilBAAFwPtlZNe5I3XS3lQR9vge5Uo8y2Lvl3YFxfHfiTXhhPQOEFjFo6wjp5C+GHaornQm5FzuFTx8yCyPOQ9Cq5A70/fmu4YvHxVzmGsImVjpkGpMaX/pJ8wESX3XfUvN3Q4+TLoba5BKk14EUQfbsK4rz6g5ImuvDXK8lb+NcD8akwS5T3r01keZ0eO/MYZVLGUo/Cle0JZLXmBdgfoQHMiJVO5W1dVrCkLFuAXomdQc+YBY9Un+6b2aGJOzRG0KEL0BD8s6b0mE0RLZtJTmP07aClEAsXHEWqnRDY7ZDWAzb5fNJ7cWd83qHWT54+HD5Y9tcGXz5eRhzW3bYMPg0uQZEpZ+ANAQyCGF9MK1EpyXxclEVJtT/HDR6k3mvHyishte9Jf/FxDqApfVWHA0GER4lJ9cTAMdlSY/ge5Fclm7Jw9+NDVmkmvO6PbVKVkPdJTdFKg3dIOg+Sspv1pxgI8LMBMEVE4pUOuDuJsXFKyjaFgeCp5kVbJPSO6APbHXZ92CEphgZaNbzUkzHiQLiKLP+IBh7jb9Y882wqv5/RlDAZhq7RnxgDqYTitpujOGDqMo2WUme5Lav6//iIou4FBOLIw/bvJmueuYCfIpaZC6D2+CQYCgI2b1KBUE8L9TZYYXna/tS4Chi0gyeaXlQCU5nEy6Q7TVdYwckYq6rZyRunopvWpywPctjeDI1uCLO/A8FONYvKbwgG9Yoa5TcQP9NQ3L6azLA6/h/g/OFaFvUx776SHhN2axRWn5A98WrgjXpMQUv3avpIuMA06U4qlR9ixQRLQw6RG27VEaVwjwIBHkLVvf0jNVLwBsQAC07BSdg/lTtyCF1gFb/lUulVlHSNemI1cbU91nealqdnKLpWpgCbuRZnfwpZHcuChe6Lvcrai3wScy178dyY9P868KJsHQW+NWJWsWNTCR+k7WoIZDV7R5dPZxBisIr9Znj/pQJVWyqW3cg5yzpq6VKHKch9DuMwV13DcX2hopmY2kOP1PjX31A0p+c13AthJ9bS22hrQgbtXlHxCKevergYjn5VzuXHR80jrcKF9G/lk0sdN/d77rvZWYXfWOX64Krx9F9zxKDZjj5yulvFPEuvW9hqhZQPtd/9hX+DRuVAt9sQm1TJDOD/QNhbT8BZe/hFO2R9OxKrkOnguqMYQBfYDDJYDoGcrY9EhEAbwqlQKbCASoEqNvwZYg=="}]}'
+  recorded_at: Tue, 19 Aug 2025 16:34:01 GMT
+recorded_with: VCR 6.3.1

@@ -10,6 +10,7 @@ accredited_representative_portal:
       base_uri: https://api.github.com
       path: <%= ENV['accredited_representative_portal__allow_list__github__path'] %>
       repo: department-of-veterans-affairs/va.gov-team-sensitive
+  frontend_base_url: <%= ENV['accredited_representative_portal__frontend_base_url'] %>
 adapted_housing:
   prefill: true
 argocd:
@@ -154,6 +155,7 @@ check_in:
     tenant_id: <%= ENV['check_in__travel_reimbursement_api_v2__tenant_id'] %>
     travel_pay_client_id: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_id'] %>
     travel_pay_client_secret: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_secret'] %>
+    travel_pay_resource: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_resource'] %>
   vaos:
     mock: <%= ENV['check_in__vaos__mock'] %>
 chip:
@@ -244,10 +246,9 @@ connected_apps_api:
     auth_access_key: <%= ENV['connected_apps_api__connected_apps__auth_access_key'] %>
     revoke_url: <%= ENV['connected_apps_api__connected_apps__revoke_url'] %>
     url: <%= ENV['connected_apps_api__connected_apps__url'] %>
-contention-classification-api:
-  url: <%= ENV['contention-classification-api__url'] %>
 contention_classification_api:
   expanded_contention_classification_path: expanded-contention-classification
+  hybrid_contention_classification_path: hybrid-contention-classification
   open_timeout: 5
   read_timeout: 10
   url: <%= ENV['contention_classification_api__url'] %>
@@ -418,13 +419,6 @@ evss:
   mock_disabilities_form: <%= ENV['evss__mock_disabilities_form'] %>
   mock_gi_bill_status: <%= ENV['evss__mock_gi_bill_status'] %>
   mock_letters: <%= ENV['evss__mock_letters'] %>
-  mock_pciu: <%= ENV['evss__mock_pciu'] %>
-  mock_pciu_address: <%= ENV['evss__mock_pciu_address'] %>
-  mock_vso_search: <%= ENV['evss__mock_vso_search'] %>
-  pciu:
-    timeout: 30
-  pciu_address:
-    timeout: 30
   prefill: true
   root_cert_path: <%= ENV['evss__root_cert_path'] %>
   s3:
@@ -714,6 +708,20 @@ lighthouse:
     url: <%= ENV['lighthouse__facilities__url'] %>
     veterans_health:
       url: <%= ENV['lighthouse__facilities__veterans_health__url'] %>
+  healthcare_cost_and_coverage:
+    access_token:
+      aud_claim_url: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__aud_claim_url'] %>
+      client_id: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__client_id'] %>
+      rsa_key: /srv/vets-api/secret/lighthouse-hccc.key
+    host: <%= ENV['lighthouse__healthcare_cost_and_coverage__host'] %>
+    scopes:
+      - system/ChargeItem.read
+      - system/Invoice.read
+      - system/PaymentReconciliation.read
+      - system/MedicationDispense.read
+      - launch
+    timeout: 30
+    use_mocks: false
   letters_generator:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__letters_generator__access_token__aud_claim_url'] %>
@@ -910,7 +918,7 @@ mhv:
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
-    collection_caching_enabled: <%= ENV['mhv__rx__collection_caching_enabled'] %>
+    collection_caching_enabled: false
     gw_base_path: <%= ENV['mhv__rx__gw_base_path'] %>
     host: <%= ENV['mhv__rx__host'] %>
     mock: <%= ENV['mhv__rx__mock'] %>
@@ -1309,6 +1317,7 @@ va_profile:
     enabled: <%= ENV['va_profile__veteran_status__enabled'] %>
     mock: <%= ENV['va_profile__veteran_status__mock'] %>
     timeout: 30
+valid_va_file_number: false
 vanotify:
   callback_url: <%= ENV['vanotify__callback_url'] %>
   client_url: <%= ENV['vanotify__client_url'] %>
@@ -1626,8 +1635,6 @@ vaos:
       hex_secret: <%= ENV['vaos__referral__encryption__hex_secret'] %>
 vba_documents:
   custom_metadata_allow_list: <%= ENV['vba_documents__custom_metadata_allow_list'] %>
-  documentation:
-    path_enabled_flag: <%= ENV['vba_documents__documentation__path_enabled_flag'] %>
   enable_download_endpoint: <%= ENV['vba_documents__enable_download_endpoint'] %>
   enable_status_override: <%= ENV['vba_documents__enable_status_override'] %>
   enable_validate_document_endpoint: true

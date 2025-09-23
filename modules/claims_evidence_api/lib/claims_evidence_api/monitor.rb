@@ -116,11 +116,11 @@ module ClaimsEvidenceApi
 
       # track evidence upload
       #
-      # @param message [String] a message to accompany the log
+      # @param error [String] the error message to accompany the log
       # @param context [Mixed] key-value pairs to be included in tracking
-      def track_upload(stage, message = nil, **context)
+      def track_upload(stage, error = nil, **context)
         msg = "upload #{stage}"
-        msg += " - #{message}" if message
+        msg += " - #{error}" if error
 
         tags = { action: stage.to_s }
         tags[:content_source] = context[:content_source].to_s.downcase if context[:content_source]
@@ -130,7 +130,7 @@ module ClaimsEvidenceApi
         msg = format_message(msg)
         tags = format_tags(tags)
 
-        track_request(level, msg, METRIC, call_location:, message:, tags:, **context)
+        track_request(level, msg, METRIC, call_location:, tags:, error:, **context)
       end
     end
   end

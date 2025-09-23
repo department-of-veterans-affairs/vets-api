@@ -46,115 +46,176 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
 
-        it 'filters out claims with certain statuses and base end product codes' do
-          allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_codes).and_return(true)
-          VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
-            response = service.get_claims
-            expect(response['data'].length).to eq(6)
+        # rubocop:disable Naming/VariableNumber
+        context 'EP code filtering' do
+          # Test with both flags enabled
+          it 'filters out claims with both EP codes when both flags are enabled' do
+            allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_960).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_290).and_return(true)
+
+            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+              response = service.get_claims
+              expect(response['data'].length).to eq(6)
+            end
+          end
+
+          # Test with only EP 960 flag enabled
+          it 'filters out only EP code 960 when only that flag is enabled' do
+            allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_960).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_290).and_return(false)
+
+            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+              response = service.get_claims
+              # Should have 7 claims (8 original - 1 filtered EP 960)
+              expect(response['data'].length).to eq(7)
+              # Verify no claims with EP code 960 remain
+              ep_codes = response['data'].map { |claim| claim.dig('attributes', 'baseEndProductCode') }
+              expect(ep_codes).not_to include('960')
+              # But EP code 290 should still be present
+              expect(ep_codes).to include('290')
+            end
+          end
+
+          # Test with only EP 290 flag enabled
+          it 'filters out only EP code 290 when only that flag is enabled' do
+            allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_960).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_290).and_return(true)
+
+            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+              response = service.get_claims
+              # Should have 7 claims (8 original - 1 filtered EP 290)
+              expect(response['data'].length).to eq(7)
+              # Verify no claims with EP code 290 remain
+              ep_codes = response['data'].map { |claim| claim.dig('attributes', 'baseEndProductCode') }
+              expect(ep_codes).not_to include('290')
+              # But EP code 960 should still be present
+              expect(ep_codes).to include('960')
+            end
+          end
+
+          # Test with both flags disabled
+          it 'does not filter out any EP codes when both flags are disabled' do
+            allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_960).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_290).and_return(false)
+
+            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+              response = service.get_claims
+              expect(response['data'].length).to eq(8)
+            end
           end
         end
 
-        it 'does not filter out claims with certain base end product codes' do
-          allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_codes).and_return(false)
-          VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
-            response = service.get_claims
-            expect(response['data'].length).to eq(8)
+        # Test the helper methods directly with mock data
+        context 'filter methods' do
+          let(:mock_data) do
+            [
+              { 'id' => '600561746',
+                'type' => 'claim',
+                'attributes' =>
+                  { 'baseEndProductCode' => '020',
+                    'claimDate' => '2024-09-24',
+                    'claimPhaseDates' => { 'phaseChangeDate' => '2024-11-20', 'phaseType' => 'COMPLETE' },
+                    'claimType' => 'Compensation',
+                    'claimTypeCode' => '020SUPP',
+                    'closeDate' => '2024-11-20',
+                    'decisionLetterSent' => true,
+                    'developmentLetterSent' => false,
+                    'documentsNeeded' => false,
+                    'endProductCode' => '020',
+                    'evidenceWaiverSubmitted5103' => false,
+                    'lighthouseId' => '2615b33c-cfe8-4dbe-a331-c69f01863750',
+                    'status' => 'OPEN' } },
+              { 'id' => '600561747',
+                'type' => 'claim',
+                'attributes' =>
+                  { 'baseEndProductCode' => '960',
+                    'claimDate' => '2024-09-24',
+                    'claimPhaseDates' => { 'phaseChangeDate' => '2024-11-20', 'phaseType' => 'PENDING' },
+                    'claimType' => nil,
+                    'claimTypeCode' => '960ADMER',
+                    'closeDate' => '2024-11-20',
+                    'decisionLetterSent' => true,
+                    'developmentLetterSent' => false,
+                    'documentsNeeded' => false,
+                    'endProductCode' => '961',
+                    'evidenceWaiverSubmitted5103' => false,
+                    'lighthouseId' => 'c72af21b-a82c-4ef2-a953-2a8b9afcb44a',
+                    'status' => 'COMPLETE' } },
+              { 'id' => '600561748',
+                'type' => 'claim',
+                'attributes' =>
+                  { 'baseEndProductCode' => '290',
+                    'claimDate' => '2024-09-24',
+                    'claimPhaseDates' => { 'phaseChangeDate' => '2024-11-20', 'phaseType' => 'PENDING' },
+                    'claimType' => nil,
+                    'claimTypeCode' => '290HE7131R',
+                    'closeDate' => '2024-11-20',
+                    'decisionLetterSent' => true,
+                    'developmentLetterSent' => false,
+                    'documentsNeeded' => false,
+                    'endProductCode' => '291',
+                    'evidenceWaiverSubmitted5103' => false,
+                    'lighthouseId' => 'c72af21b-a82c-4ef2-a953-2a8b9afcb44b',
+                    'status' => 'COMPLETE' } }
+            ]
+          end
+
+          describe '#apply_configured_ep_filters' do
+            it 'filters based on enabled feature flags' do
+              allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_960).and_return(true)
+              allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_290).and_return(true)
+
+              results = service.send(:apply_configured_ep_filters, mock_data)
+              expect(results.length).to eq(1)
+              expect(results.first.dig('attributes', 'baseEndProductCode')).to eq('020')
+            end
+
+            it 'filters only EP 960 when only that flag is enabled' do
+              allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_960).and_return(true)
+              allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_290).and_return(false)
+
+              results = service.send(:apply_configured_ep_filters, mock_data)
+              expect(results.length).to eq(2)
+              expect(results.map { |r| r.dig('attributes', 'baseEndProductCode') }).to eq(%w[020 290])
+            end
+
+            it 'filters only EP 290 when only that flag is enabled' do
+              allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_960).and_return(false)
+              allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_290).and_return(true)
+
+              results = service.send(:apply_configured_ep_filters, mock_data)
+              expect(results.length).to eq(2)
+              expect(results.map { |r| r.dig('attributes', 'baseEndProductCode') }).to eq(%w[020 960])
+            end
+
+            it 'returns all data when no flags are enabled' do
+              allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_960).and_return(false)
+              allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_290).and_return(false)
+
+              results = service.send(:apply_configured_ep_filters, mock_data)
+              expect(results.length).to eq(3)
+            end
           end
         end
-
-        it 'filters out claims with certain base end product codes' do
-          data = [{ 'id' => '600561746',
-                    'type' => 'claim',
-                    'attributes' =>
-                     { 'baseEndProductCode' => '020',
-                       'claimDate' => '2024-09-24',
-                       'claimPhaseDates' => { 'phaseChangeDate' => '2024-11-20', 'phaseType' => 'COMPLETE' },
-                       'claimType' => 'Compensation',
-                       'claimTypeCode' => '020SUPP',
-                       'closeDate' => '2024-11-20',
-                       'decisionLetterSent' => true,
-                       'developmentLetterSent' => false,
-                       'documentsNeeded' => false,
-                       'endProductCode' => '020',
-                       'evidenceWaiverSubmitted5103' => false,
-                       'lighthouseId' => '2615b33c-cfe8-4dbe-a331-c69f01863750',
-                       'status' => 'OPEN' } },
-                  { 'id' => '600561747',
-                    'type' => 'claim',
-                    'attributes' =>
-                      { 'baseEndProductCode' => '960',
-                        'claimDate' => '2024-09-24',
-                        'claimPhaseDates' => { 'phaseChangeDate' => '2024-11-20', 'phaseType' => 'PENDING' },
-                        'claimType' => nil,
-                        'claimTypeCode' => '960ADMER',
-                        'closeDate' => '2024-11-20',
-                        'decisionLetterSent' => true,
-                        'developmentLetterSent' => false,
-                        'documentsNeeded' => false,
-                        'endProductCode' => '961',
-                        'evidenceWaiverSubmitted5103' => false,
-                        'lighthouseId' => 'c72af21b-a82c-4ef2-a953-2a8b9afcb44a',
-                        'status' => 'COMPLETE' } },
-                  { 'id' => '600561748',
-                    'type' => 'claim',
-                    'attributes' =>
-                      { 'baseEndProductCode' => '290',
-                        'claimDate' => '2024-09-24',
-                        'claimPhaseDates' => { 'phaseChangeDate' => '2024-11-20', 'phaseType' => 'PENDING' },
-                        'claimType' => nil,
-                        'claimTypeCode' => '290HE7131R',
-                        'closeDate' => '2024-11-20',
-                        'decisionLetterSent' => true,
-                        'developmentLetterSent' => false,
-                        'documentsNeeded' => false,
-                        'endProductCode' => '291',
-                        'evidenceWaiverSubmitted5103' => false,
-                        'lighthouseId' => 'c72af21b-a82c-4ef2-a953-2a8b9afcb44b',
-                        'status' => 'COMPLETE' } }]
-
-          # #110154 - it should filter out the base end product codes 960 and 290
-          results = service.send(:filter_by_ep_code, data)
-          expect(results.length).to eq(1)
-        end
+        # rubocop:enable Naming/VariableNumber
       end
 
       describe 'when requesting one single benefit claim' do
         before { allow(Flipper).to receive(:enabled?).and_call_original }
 
-        context 'when the PMR Pending override flipper is enabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:cst_override_pmr_pending_tracked_items).and_return(true)
-          end
-
-          it 'has overridden PMR Pending tracked items to the NEEDED_FROM_OTHERS status and readable name' do
-            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-              response = service.get_claim('600383363')
-              # In the cassette, the status is NEEDED_FROM_YOU
-              expect(response.dig('data', 'attributes', 'trackedItems', 0, 'status')).to eq('NEEDED_FROM_OTHERS')
-              expect(response.dig('data', 'attributes', 'trackedItems', 0,
-                                  'displayName')).to eq('PMR Pending')
-              expect(response.dig('data', 'attributes', 'trackedItems', 1, 'status')).to eq('NEEDED_FROM_OTHERS')
-              expect(response.dig('data', 'attributes', 'trackedItems', 1,
-                                  'displayName')).to eq('Proof of service (DD214, etc.)')
-              expect(response.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
-              expect(response.dig('data', 'attributes', 'trackedItems', 2,
-                                  'displayName')).to eq('NG1 - National Guard Records Request')
-            end
-          end
-        end
-
-        context 'when the PMR Pending override flipper is disabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:cst_override_pmr_pending_tracked_items).and_return(false)
-          end
-
-          it 'has overridden PMR Pending tracked items to the NEEDED_FROM_OTHERS status and readable name' do
-            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-              response = service.get_claim('600383363')
-              # In the cassette, the status is NEEDED_FROM_YOU
-              expect(response.dig('data', 'attributes', 'trackedItems', 0, 'status')).to eq('NEEDED_FROM_YOU')
-              expect(response.dig('data', 'attributes', 'trackedItems', 0, 'displayName')).to eq('PMR Pending')
-            end
+        it 'has overridden PMR Pending tracked items to the NEEDED_FROM_OTHERS status and readable name' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            response = service.get_claim('600383363')
+            # In the cassette, the status is NEEDED_FROM_YOU
+            expect(response.dig('data', 'attributes', 'trackedItems', 0, 'status')).to eq('NEEDED_FROM_OTHERS')
+            expect(response.dig('data', 'attributes', 'trackedItems', 0,
+                                'displayName')).to eq('PMR Pending')
+            expect(response.dig('data', 'attributes', 'trackedItems', 1, 'status')).to eq('NEEDED_FROM_OTHERS')
+            expect(response.dig('data', 'attributes', 'trackedItems', 1,
+                                'displayName')).to eq('Proof of service (DD214, etc.)')
+            expect(response.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
+            expect(response.dig('data', 'attributes', 'trackedItems', 2,
+                                'displayName')).to eq('NG1 - National Guard Records Request')
           end
         end
       end

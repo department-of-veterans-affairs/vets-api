@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: c2e33402fd8f59eddb55c2f630ec199ff9584897
+  revision: 40306e3de819eb3edb9b49aff8d0f6deeada94e2
   branch: master
   specs:
-    vets_json_schema (25.1.8)
+    vets_json_schema (25.2.4)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -103,6 +103,7 @@ PATH
     debts_api (0.1.0)
     decision_reviews (0.1.0)
       rails (>= 7.1.4.1)
+    dependents_benefits (0.1.0)
     dependents_verification (0.1.0)
     dhp_connected_devices (0.1.0)
     facilities_api (0.1.0)
@@ -245,8 +246,8 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1149.0)
-    aws-sdk-core (3.229.0)
+    aws-partitions (1.1156.0)
+    aws-sdk-core (3.232.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -257,15 +258,15 @@ GEM
     aws-sdk-kafka (1.89.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-kms (1.110.0)
-      aws-sdk-core (~> 3, >= 3.228.0)
+    aws-sdk-kms (1.112.0)
+      aws-sdk-core (~> 3, >= 3.231.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.197.0)
-      aws-sdk-core (~> 3, >= 3.228.0)
+    aws-sdk-s3 (1.199.0)
+      aws-sdk-core (~> 3, >= 3.231.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
-    aws-sdk-sns (1.104.0)
-      aws-sdk-core (~> 3, >= 3.228.0)
+    aws-sdk-sns (1.106.0)
+      aws-sdk-core (~> 3, >= 3.231.0)
       aws-sigv4 (~> 1.5)
     aws-sigv4 (1.12.1)
       aws-eventstream (~> 1, >= 1.0.2)
@@ -277,13 +278,13 @@ GEM
     bcp47 (0.3.3)
       i18n
     benchmark (0.4.1)
-    bigdecimal (3.2.2)
-    bigdecimal (3.2.2-java)
+    bigdecimal (3.2.3)
+    bigdecimal (3.2.3-java)
     bindex (0.8.1)
     blind_index (2.7.0)
       activesupport (>= 7.1)
       argon2-kdf (>= 0.2)
-    blueprinter (1.1.2)
+    blueprinter (1.2.1)
     bootsnap (1.18.6)
       msgpack (~> 1.2)
     brakeman (7.1.0)
@@ -335,7 +336,7 @@ GEM
     config (5.6.1)
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
-    connection_pool (2.5.3)
+    connection_pool (2.5.4)
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
@@ -367,10 +368,10 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.19.0)
+    datadog (2.21.0)
       datadog-ruby_core_source (~> 3.4, >= 3.4.1)
       libdatadog (~> 18.1.0.1.0)
-      libddwaf (~> 1.24.1.0.3)
+      libddwaf (~> 1.24.1.2.1)
       logger
       msgpack
     datadog-ruby_core_source (3.4.1)
@@ -442,9 +443,9 @@ GEM
       tzinfo
     ethon (0.17.0)
       ffi (>= 1.15.0)
-    factory_bot (6.5.4)
+    factory_bot (6.5.5)
       activesupport (>= 6.1.0)
-    factory_bot_rails (6.5.0)
+    factory_bot_rails (6.5.1)
       factory_bot (~> 6.5)
       railties (>= 6.1.0)
     faker (3.5.2)
@@ -546,32 +547,32 @@ GEM
       google-apis-core (>= 0.15.0, < 2.a)
       google-apis-discovery_v1 (~> 0.18)
       thor (>= 0.20, < 2.a)
-    google-cloud-env (2.3.0)
+    google-cloud-env (2.3.1)
       base64 (~> 0.2)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.2.0)
-    google-protobuf (4.32.0)
+    google-protobuf (4.32.1)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.32.0-aarch64-linux-gnu)
+    google-protobuf (4.32.1-aarch64-linux-gnu)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.32.0-java)
+    google-protobuf (4.32.1-java)
       bigdecimal
       ffi (~> 1)
       ffi-compiler (~> 1)
       rake (>= 13)
-    google-protobuf (4.32.0-x86-mingw32)
+    google-protobuf (4.32.1-x86-mingw32)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.32.0-x86_64-linux-gnu)
+    google-protobuf (4.32.1-x86_64-linux-gnu)
       bigdecimal
       rake (>= 13)
-    googleauth (1.14.0)
+    googleauth (1.15.0)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
-      jwt (>= 1.4, < 3.0)
+      jwt (>= 1.4, < 4.0)
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
@@ -637,8 +638,8 @@ GEM
     jar-dependencies (0.5.5)
     jmespath (1.6.2)
     jruby-openssl (0.15.5-java)
-    json (2.13.2)
-    json (2.13.2-java)
+    json (2.14.1)
+    json (2.14.1-java)
     json-schema (5.2.2)
       addressable (~> 2.8)
       bigdecimal (~> 3.1)
@@ -679,11 +680,11 @@ GEM
     libdatadog (18.1.0.1.0)
     libdatadog (18.1.0.1.0-aarch64-linux)
     libdatadog (18.1.0.1.0-x86_64-linux)
-    libddwaf (1.24.1.0.3)
+    libddwaf (1.24.1.2.1)
       ffi (~> 1.0)
-    libddwaf (1.24.1.0.3-aarch64-linux)
+    libddwaf (1.24.1.2.1-aarch64-linux)
       ffi (~> 1.0)
-    libddwaf (1.24.1.0.3-x86_64-linux)
+    libddwaf (1.24.1.2.1-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
     liquid (5.8.7)
@@ -750,14 +751,14 @@ GEM
     nio4r (2.7.4-java)
     nkf (0.2.0)
     nkf (0.2.0-java)
-    nokogiri (1.18.9)
+    nokogiri (1.18.10)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.18.9-aarch64-linux-gnu)
+    nokogiri (1.18.10-aarch64-linux-gnu)
       racc (~> 1.4)
-    nokogiri (1.18.9-java)
+    nokogiri (1.18.10-java)
       racc (~> 1.4)
-    nokogiri (1.18.9-x86_64-linux-gnu)
+    nokogiri (1.18.10-x86_64-linux-gnu)
       racc (~> 1.4)
     nori (2.7.1)
       bigdecimal
@@ -815,7 +816,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pg (1.6.1)
+    pg (1.6.2)
     pg_query (6.1.0)
       google-protobuf (>= 3.25.3)
     pg_search (2.3.7)
@@ -854,11 +855,11 @@ GEM
       date
       jar-dependencies (>= 0.1.7)
     public_suffix (6.0.2)
-    puma (6.6.1)
+    puma (7.0.3)
       nio4r (~> 2.0)
-    puma (6.6.1-java)
+    puma (7.0.3-java)
       nio4r (~> 2.0)
-    pundit (2.5.0)
+    pundit (2.5.1)
       activesupport (>= 3.0.0)
     raabro (1.4.0)
     racc (1.8.1)
@@ -953,7 +954,7 @@ GEM
       hashie (>= 1.2.0, < 6.0)
       jwt (>= 1.5.6)
     retriable (3.1.2)
-    rexml (3.4.1)
+    rexml (3.4.2)
     rgeo (3.0.1)
     rgeo-activerecord (8.0.0)
       activerecord (>= 7.0)
@@ -1009,7 +1010,7 @@ GEM
       actionpack (>= 5.2, < 8.1)
       railties (>= 5.2, < 8.1)
     rtesseract (3.1.4)
-    rubocop (1.79.1)
+    rubocop (1.80.2)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -1036,7 +1037,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.44.0, < 2.0)
-    rubocop-rspec (3.6.0)
+    rubocop-rspec (3.7.0)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     rubocop-rspec_rails (2.31.0)
@@ -1080,7 +1081,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.17.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.26.0)
+    sentry-ruby (5.27.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
@@ -1097,10 +1098,10 @@ GEM
     sign_in_service (0.4.0)
       faraday (~> 2.7)
       jwt (~> 2.8)
-    signet (0.20.0)
+    signet (0.21.0)
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
-      jwt (>= 1.5, < 3.0)
+      jwt (>= 1.5, < 4.0)
       multi_json (~> 1.10)
     simplecov (0.22.0)
       docile (~> 1.1)
@@ -1265,6 +1266,7 @@ DEPENDENCIES
   debts_api!
   debug
   decision_reviews!
+  dependents_benefits!
   dependents_verification!
   dhp_connected_devices!
   dogstatsd-ruby
@@ -1314,6 +1316,7 @@ DEPENDENCIES
   jsonapi-serializer
   jwe
   jwt
+  karafka-core (= 2.5.5)
   kms_encrypted
   liquid
   lockbox
@@ -1426,7 +1429,7 @@ DEPENDENCIES
   vre!
   vye!
   warden-github
-  waterdrop
+  waterdrop (= 2.8.6)
   web-console
   webmock
   webrick

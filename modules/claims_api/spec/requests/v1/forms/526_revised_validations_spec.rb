@@ -142,7 +142,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       before do
         allow(ClaimsApi::BRD).to receive(:new).and_return(brd_client)
         allow(brd_client).to receive(:intake_sites).and_raise(
-          StandardError.new('Failed to retrieve intake sites')
+          Common::Exceptions::ServiceUnavailable
         )
       end
 
@@ -443,6 +443,80 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       it 'raises an InvalidFieldValue error' do
         expect { subject.validate_form_526_no_active_duty_end_date_more_than_180_days_in_future! }
           .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
+  describe '#validate_form_526_service_periods_begin_in_past!' do
+    context 'when all begin dates are in the past' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              { 'activeDutyBeginDate' => 3.days.ago.to_date.to_s },
+              { 'activeDutyBeginDate' => 5.days.ago.to_date.to_s }
+            ]
+          }
+        }
+      end
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_service_periods_begin_in_past! }.not_to raise_error
+      end
+    end
+
+    context 'when a begin date is today' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              { 'activeDutyBeginDate' => Time.zone.now.to_date.to_s }
+            ]
+          }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect do
+          subject.validate_form_526_service_periods_begin_in_past!
+        end.to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when a begin date is in the future' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              { 'activeDutyBeginDate' => 2.days.from_now.to_date.to_s }
+            ]
+          }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect do
+          subject.validate_form_526_service_periods_begin_in_past!
+        end.to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when multiple service periods and one is invalid' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              { 'activeDutyBeginDate' => 2.days.ago.to_date.to_s },
+              { 'activeDutyBeginDate' => 2.days.from_now.to_date.to_s }
+            ]
+          }
+        }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect do
+          subject.validate_form_526_service_periods_begin_in_past!
+        end.to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
   end
@@ -925,6 +999,58 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
         expect { subject.validate_form_526_special_issues! }
           .to raise_error(Common::Exceptions::InvalidFieldValue)
       end
+    end
+  end
+
+  describe '#validate_form_526_disability_unique_names!' do
+    context 'when all disability names are unique' do
+      let(:form_attributes) do
+        { 'disabilities' => [
+          { 'name' => 'PTSD' },
+          { 'name' => 'Back Pain' },
+          { 'name' => 'Hearing Loss' }
+        ] }
+      end
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_disability_unique_names! }.not_to raise_error
+      end
+    end
+
+    context 'when there are duplicate disability names (case-insensitive)' do
+      let(:form_attributes) do
+        { 'disabilities' => [
+          { 'name' => 'PTSD' },
+          { 'name' => 'ptsd' },
+          { 'name' => 'Back Pain' }
+        ] }
+      end
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_disability_unique_names! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
+  describe '#mask_all_but_first_character' do
+    it 'returns nil if value is blank' do
+      expect(subject.mask_all_but_first_character(nil)).to be_nil
+      expect(subject.mask_all_but_first_character('')).to eq('')
+    end
+
+    it 'returns the value if it is not a String' do
+      expect(subject.mask_all_but_first_character(123)).to eq(123)
+      expect(subject.mask_all_but_first_character([])).to eq([])
+    end
+
+    it 'returns the value if it is a single character' do
+      expect(subject.mask_all_but_first_character('A')).to eq('A')
+    end
+
+    it 'masks all but the first character for longer strings' do
+      expect(subject.mask_all_but_first_character('PTSD')).to eq('P***')
+      expect(subject.mask_all_but_first_character('hepatitis')).to eq('h********')
     end
   end
 end

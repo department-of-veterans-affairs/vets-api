@@ -7,12 +7,27 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
   let(:dependent_user) { build(:dependent_user_with_relationship, :loa3) }
   let(:claim_id) { 600_383_363 } # This is the claim in the vcr cassettes that we are using
 
+  def expect_metric(endpoint, upload_status, expected_calls = 1)
+    expected_tags = [
+      'service:benefits-claims',
+      'team:cross-benefits-crew',
+      'team:benefits',
+      'itportfolio:benefits-delivery',
+      'dependency:lighthouse',
+      "status:#{upload_status}"
+    ]
+    expect(StatsD).to have_received(:increment)
+      .with("api.benefits_claims.#{endpoint}", expected_calls, tags: expected_tags)
+  end
+
   before do
     sign_in_as(user)
 
     token = 'fake_access_token'
 
     allow(Rails.logger).to receive(:info)
+    allow(Rails.logger).to receive(:error)
+    allow(StatsD).to receive(:increment)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
   end
 
@@ -52,7 +67,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       context 'when :cst_show_document_upload_status is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(
+            :cst_show_document_upload_status,
+            instance_of(User)
+          ).and_return(false)
         end
 
         it 'does not return hasFailedUploads field' do
@@ -68,7 +86,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       context 'when :cst_show_document_upload_status is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(
+            :cst_show_document_upload_status,
+            instance_of(User)
+          ).and_return(true)
         end
 
         context 'when record has a SUCCESS upload status' do
@@ -86,6 +107,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
               claim['id'] == claim_id.to_s
             end[0]['attributes']['hasFailedUploads'])
               .to be false
+            expect_metric('index', 'SUCCESS')
           end
         end
 
@@ -104,6 +126,51 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
               claim['id'] == claim_id.to_s
             end[0]['attributes']['hasFailedUploads'])
               .to be true
+            expect_metric('index', 'FAILED')
+          end
+        end
+
+        context 'when multiple records with different upload statuses are returned' do
+          before do
+            create(:bd_evidence_submission_created, claim_id:)
+            create(:bd_evidence_submission_queued, claim_id:)
+            create(:bd_evidence_submission_pending, claim_id:)
+            create(:bd_lh_evidence_submission_failed_type1_error, claim_id:)
+            create(:bd_lh_evidence_submission_failed_type2_error, claim_id:)
+            create(:bd_lh_evidence_submission_success, claim_id:)
+            create(:bd_lh_evidence_submission_success, claim_id:)
+          end
+
+          it 'increments the metric for each status' do
+            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+              get(:index)
+            end
+            expect_metric('index', 'CREATED', 1)
+            expect_metric('index', 'QUEUED', 1)
+            expect_metric('index', 'IN_PROGRESS', 1)
+            expect_metric('index', 'FAILED', 2)
+            expect_metric('index', 'SUCCESS', 2)
+          end
+        end
+
+        context 'when evidence submission metrics reporting fails' do
+          before do
+            # Allow normal EvidenceSubmission calls to work
+            allow(EvidenceSubmission).to receive(:where).and_call_original
+
+            # Mock specifically for the metrics method pattern (claim_id with an array)
+            allow(EvidenceSubmission).to receive(:where).with(claim_id: kind_of(Array))
+                                                        .and_raise(StandardError, 'Database connection error')
+          end
+
+          it 'logs the error and continues processing' do
+            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+              get(:index)
+            end
+
+            expect(response).to have_http_status(:ok)
+            expect(Rails.logger).to have_received(:error)
+              .with(a_string_including('BenefitsClaimsController#index'))
           end
         end
       end
@@ -231,38 +298,15 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(support_alias_values).to include(['DBQ PSYCH Mental Disorders'])
       end
 
-      context 'when cst_override_reserve_records_website flipper is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(true)
+      it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get(:show, params: { id: '600383363' })
         end
-
-        it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get(:show, params: { id: '600383363' })
-          end
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4,
-                                 'displayName')).to eq('RV1 - Reserve Records Request')
-          # In the cassette, this value is NEEDED_FROM_YOU
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4, 'status')).to eq('NEEDED_FROM_OTHERS')
-        end
-      end
-
-      context 'when cst_override_reserve_records_website flipper is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(false)
-        end
-
-        it 'leaves the tracked item status as NEEDED_FROM_YOU' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get(:show, params: { id: '600383363' })
-          end
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4,
-                                 'displayName')).to eq('RV1 - Reserve Records Request')
-          # Do not modify the cassette value
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4, 'status')).to eq('NEEDED_FROM_YOU')
-        end
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4,
+                               'displayName')).to eq('RV1 - Reserve Records Request')
+        # In the cassette, this value is NEEDED_FROM_YOU
+        expect(parsed_body.dig('data', 'attributes', 'trackedItems', 4, 'status')).to eq('NEEDED_FROM_OTHERS')
       end
 
       context 'when :cst_suppress_evidence_requests_website is enabled' do
@@ -301,7 +345,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
       context 'when :cst_show_document_upload_status is disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(
+            :cst_show_document_upload_status,
+            instance_of(User)
+          ).and_return(false)
         end
 
         it 'doesnt show the evidenceSubmissions section in claim attributes' do
@@ -316,7 +363,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       context 'when :cst_show_document_upload_status is enabled' do
         context 'when record does not have a tracked item' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(
+              :cst_show_document_upload_status,
+              instance_of(User)
+            ).and_return(true)
             create(:bd_lh_evidence_submission_success, claim_id:)
           end
 
@@ -326,6 +376,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             end
             parsed_body = JSON.parse(response.body)
             expect(parsed_body.dig('data', 'attributes', 'evidenceSubmissions').size).to eq(1)
+            expect_metric('show', 'SUCCESS')
           end
         end
 
@@ -333,7 +384,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           let(:tracked_item_id) { 394_443 }
 
           before do
-            allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(
+              :cst_show_document_upload_status,
+              instance_of(User)
+            ).and_return(true)
             create(:bd_lh_evidence_submission_success, claim_id:, tracked_item_id:)
           end
 
@@ -345,6 +399,29 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             evidence_submissions = parsed_body.dig('data', 'attributes', 'evidenceSubmissions')
             expect(evidence_submissions.size).to eq(1)
             expect(evidence_submissions[0]['tracked_item_id']).to eq(tracked_item_id)
+            expect_metric('show', 'SUCCESS')
+          end
+        end
+
+        context 'when evidence submission metrics reporting fails' do
+          before do
+            # Allow normal EvidenceSubmission calls to work
+            allow(EvidenceSubmission).to receive(:where).and_call_original
+
+            # Mock specifically for the metrics method pattern (claim_id with an array)
+            # Show endpoint passes a single ID converted to array in the metrics method
+            allow(EvidenceSubmission).to receive(:where).with(claim_id: kind_of(Array))
+                                                        .and_raise(StandardError, 'Database connection error')
+          end
+
+          it 'logs the error and continues processing' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              get(:show, params: { id: claim_id })
+            end
+
+            expect(response).to have_http_status(:ok)
+            expect(Rails.logger).to have_received(:error)
+              .with(a_string_including('BenefitsClaimsController#show'))
           end
         end
       end
