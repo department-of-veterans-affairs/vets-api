@@ -909,12 +909,13 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         reserves_base = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+        service_info_base = pdf_data[:data][:attributes][:serviceInformation]
 
         expect(reserves_base[:unitPhoneNumber]).to eq('1231231234')
         expect(reserves_base[:receivingInactiveDutyTrainingPay]).to be('NO')
-        expect(reserves_base[:federalActivation][:activationDate]).to eq({ year: '2023', month: '01', day: '01' })
-        expect(reserves_base[:federalActivation][:anticipatedSeparationDate]).to eq({ year: '2025', month: '12',
-                                                                                      day: '01' })
+        expect(service_info_base[:federalActivation][:activationDate]).to eq({ year: '2023', month: '01', day: '01' })
+        expect(service_info_base[:federalActivation][:anticipatedSeparationDate]).to eq({ year: '2025', month: '12',
+                                                                                          day: '01' })
       end
     end
 

@@ -576,7 +576,7 @@ module ClaimsApi
           anticipated_separation_date_data, anticipated_separation_date_data.length
         )
 
-        @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:federalActivation] = {
+        @pdf_data[:data][:attributes][:serviceInformation][:federalActivation] = {
           activationDate: activation_date,
           anticipatedSeparationDate: anticipated_separation_date
         }
