@@ -22,13 +22,12 @@ module TravelClaim
                    :scope, :claims_url_v2, :subscription_key, :e_subscription_key, :s_subscription_key,
                    :client_number, :travel_pay_resource, :client_secret
 
-    def initialize(uuid:, check_in_uuid:, appointment_date_time:)
-      @uuid               = uuid
-      @check_in_uuid      = check_in_uuid
+    def initialize(check_in_uuid:, appointment_date_time:)
+      @check_in_uuid = check_in_uuid
       @appointment_date_time = appointment_date_time
-      @redis_client       = TravelClaim::RedisClient.build
-      @settings           = Settings.check_in.travel_reimbursement_api_v2
-      @correlation_id     = SecureRandom.uuid
+      @redis_client = TravelClaim::RedisClient.build
+      @settings = Settings.check_in.travel_reimbursement_api_v2
+      @correlation_id = SecureRandom.uuid
       @current_veis_token = nil
       @current_btsss_token = nil
 
@@ -256,18 +255,20 @@ module TravelClaim
     #
     def load_redis_data
       @icn = @redis_client.icn(uuid: @check_in_uuid)
-      @station_number = @redis_client.station_number(uuid: @uuid)
+      @station_number = @redis_client.station_number(uuid: @check_in_uuid)
     rescue Redis::BaseError
       log_redis_error('load_user_data')
       raise TravelClaim::InvalidArgument,
-            "Failed to load data from Redis for check_in_session UUID #{@check_in_uuid} " \
-            "and station number #{@station_number}"
+            "Failed to load data from Redis for check-in UUID #{@check_in_uuid}"
     end
 
     def validate_required_arguments
-      raise TravelClaim::InvalidArgument, 'UUID cannot be blank' if @uuid.blank?
       raise TravelClaim::InvalidArgument, 'Check-in UUID cannot be blank' if @check_in_uuid.blank?
-      raise TravelClaim::InvalidArgument, 'appointment date time cannot be blank' if @appointment_date_time.blank?
+
+      if @appointment_date_time.blank?
+        raise TravelClaim::InvalidArgument,
+              'appointment date time cannot be blank'
+      end
     end
 
     def validate_redis_data
@@ -441,7 +442,7 @@ module TravelClaim
     def log_initialization_error(missing_args)
       Rails.logger.error('TravelPayClient initialization failed', {
                            correlation_id: @correlation_id,
-                           uuid_hash: @uuid,
+                           check_in_uuid: @check_in_uuid,
                            missing_arguments: missing_args,
                            redis_data_loaded: @icn.present? && @station_number.present?
                          })
@@ -450,7 +451,7 @@ module TravelClaim
     def log_redis_error(operation)
       Rails.logger.error('TravelPayClient Redis error', {
                            correlation_id: @correlation_id,
-                           uuid_hash: @uuid,
+                           check_in_uuid: @check_in_uuid,
                            operation:,
                            icn_present: @icn.present?,
                            station_number_present: @station_number.present?
@@ -460,7 +461,7 @@ module TravelClaim
     def log_auth_retry
       Rails.logger.error('TravelPayClient 401 error - retrying authentication', {
                            correlation_id: @correlation_id,
-                           uuid_hash: @uuid,
+                           check_in_uuid: @check_in_uuid,
                            veis_token_present: @current_veis_token.present?,
                            btsss_token_present: @current_btsss_token.present?
                          })
@@ -469,7 +470,7 @@ module TravelClaim
     def log_auth_error(error_type, status_code)
       Rails.logger.error('TravelPayClient authentication failed', {
                            correlation_id: @correlation_id,
-                           uuid_hash: @uuid,
+                           check_in_uuid: @check_in_uuid,
                            error_type:,
                            status_code:,
                            veis_token_present: @current_veis_token.present?,
@@ -480,7 +481,7 @@ module TravelClaim
     def log_token_error(service, issue)
       Rails.logger.error('TravelPayClient token error', {
                            correlation_id: @correlation_id,
-                           uuid_hash: @uuid,
+                           check_in_uuid: @check_in_uuid,
                            service:,
                            issue:,
                            veis_token_present: @current_veis_token.present?,
@@ -491,7 +492,7 @@ module TravelClaim
     def log_existing_claim_error
       Rails.logger.error('TravelPayClient existing claim error', {
                            correlation_id: @correlation_id,
-                           uuid_hash: @uuid,
+                           check_in_uuid: @check_in_uuid,
                            message: 'Validation failed: A claim has already been created for this appointment.'
                          })
     end
