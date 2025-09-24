@@ -264,5 +264,6 @@
     "role": "YellowRibbonProgramPOC"
   },
   "statementOfTruthSignature": "John Hancock",
-  "dateSigned": "2025-03-10"
+  "dateSigned": "2025-03-10",
+  "isAuthenticated": true
 }
