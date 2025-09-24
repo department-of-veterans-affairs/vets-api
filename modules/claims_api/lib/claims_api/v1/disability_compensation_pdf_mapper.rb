@@ -20,6 +20,7 @@ module ClaimsApi
         section_5_treatment_centers
         section_6_service_information
         section_7_service_pay
+        section_8_direct_deposit
         section_9_claim_certification_and_signature
       ].freeze
 
@@ -578,7 +579,7 @@ module ClaimsApi
           anticipated_separation_date_data, anticipated_separation_date_data.length
         )
 
-        @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:federalActivation] = {
+        @pdf_data[:data][:attributes][:serviceInformation][:federalActivation] = {
           activationDate: activation_date,
           anticipatedSeparationDate: anticipated_separation_date
         }
@@ -692,6 +693,37 @@ module ClaimsApi
         return if @pdf_data[:data][:attributes][:servicePay]&.key?(:separationSeverancePay)
 
         @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay] = {}
+      end
+
+      # if 'drectDeposit' is included
+      # 'accountType', 'accountNumber' & 'routingNumber' are required via the schema
+      def section_8_direct_deposit
+        return unless lookup_in_auto_claim(:direct_deposit)
+
+        set_direct_deposit_pdf_data
+
+        direct_deposit_required_fields
+        direct_deposit_optional_fields if lookup_in_auto_claim(:direct_deposit_bank_name)
+      end
+
+      def direct_deposit_required_fields
+        @pdf_data[:data][:attributes][:directDepositInformation][:accountType] =
+          lookup_in_auto_claim(:direct_deposit_account_type)
+        @pdf_data[:data][:attributes][:directDepositInformation][:accountNumber] =
+          lookup_in_auto_claim(:direct_deposit_account_number)
+        @pdf_data[:data][:attributes][:directDepositInformation][:routingNumber] =
+          lookup_in_auto_claim(:direct_deposit_routing_number)
+      end
+
+      def direct_deposit_optional_fields
+        @pdf_data[:data][:attributes][:directDepositInformation][:financialInstitutionName] =
+          lookup_in_auto_claim(:direct_deposit_bank_name)
+      end
+
+      def set_direct_deposit_pdf_data
+        return if @pdf_data[:data][:attributes]&.key?(:directDepositInformation)
+
+        @pdf_data[:data][:attributes][:directDepositInformation] = {}
       end
 
       def section_9_claim_certification_and_signature
