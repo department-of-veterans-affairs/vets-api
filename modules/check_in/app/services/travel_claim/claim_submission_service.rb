@@ -19,6 +19,36 @@ module TravelClaim
     attr_reader :appointment_date, :facility_type, :check_in_uuid
 
     ##
+    # Metric type constants
+    #
+    APPOINTMENT_ERROR = 'appointment_error'
+    CLAIM_CREATE_ERROR = 'claim_create_error'
+    EXPENSE_ADD_ERROR = 'expense_add_error'
+    CLAIM_SUBMIT_ERROR = 'claim_submit_error'
+
+    ##
+    # Maps metric types to their corresponding constants
+    #
+    ERROR_METRICS = {
+      APPOINTMENT_ERROR => {
+        cie: CheckIn::Constants::CIE_STATSD_APPOINTMENT_ERROR,
+        oh: CheckIn::Constants::OH_STATSD_APPOINTMENT_ERROR
+      },
+      CLAIM_CREATE_ERROR => {
+        cie: CheckIn::Constants::CIE_STATSD_CLAIM_CREATE_ERROR,
+        oh: CheckIn::Constants::OH_STATSD_CLAIM_CREATE_ERROR
+      },
+      EXPENSE_ADD_ERROR => {
+        cie: CheckIn::Constants::CIE_STATSD_EXPENSE_ADD_ERROR,
+        oh: CheckIn::Constants::OH_STATSD_EXPENSE_ADD_ERROR
+      },
+      CLAIM_SUBMIT_ERROR => {
+        cie: CheckIn::Constants::CIE_STATSD_CLAIM_SUBMIT_ERROR,
+        oh: CheckIn::Constants::OH_STATSD_CLAIM_SUBMIT_ERROR
+      }
+    }.freeze
+
+    ##
     # Initialize the service with required parameters.
     #
     # @param appointment_date [String] ISO 8601 formatted appointment date
@@ -374,36 +404,6 @@ module TravelClaim
         CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS
       )
     end
-
-    ##
-    # Metric type constants
-    #
-    APPOINTMENT_ERROR = 'appointment_error'
-    CLAIM_CREATE_ERROR = 'claim_create_error'
-    EXPENSE_ADD_ERROR = 'expense_add_error'
-    CLAIM_SUBMIT_ERROR = 'claim_submit_error'
-
-    ##
-    # Maps metric types to their corresponding constants
-    #
-    ERROR_METRICS = {
-      APPOINTMENT_ERROR => {
-        cie: CheckIn::Constants::CIE_STATSD_APPOINTMENT_ERROR,
-        oh: CheckIn::Constants::OH_STATSD_APPOINTMENT_ERROR
-      },
-      CLAIM_CREATE_ERROR => {
-        cie: CheckIn::Constants::CIE_STATSD_CLAIM_CREATE_ERROR,
-        oh: CheckIn::Constants::OH_STATSD_CLAIM_CREATE_ERROR
-      },
-      EXPENSE_ADD_ERROR => {
-        cie: CheckIn::Constants::CIE_STATSD_EXPENSE_ADD_ERROR,
-        oh: CheckIn::Constants::OH_STATSD_EXPENSE_ADD_ERROR
-      },
-      CLAIM_SUBMIT_ERROR => {
-        cie: CheckIn::Constants::CIE_STATSD_CLAIM_SUBMIT_ERROR,
-        oh: CheckIn::Constants::OH_STATSD_CLAIM_SUBMIT_ERROR
-      }
-    }.freeze
 
     ##
     # Increments the appropriate error metric based on facility type
