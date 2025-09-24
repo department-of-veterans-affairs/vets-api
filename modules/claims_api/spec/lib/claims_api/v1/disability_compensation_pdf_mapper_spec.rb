@@ -788,6 +788,63 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       end
     end
 
+    context 'confinements' do
+      let(:confinement_periods) do
+        [
+          {
+            'confinementBeginDate' => '2007-08-01',
+            'confinementEndDate' => '2007-09-01'
+          },
+          {
+            'confinementBeginDate' => '2007-11-01',
+            'confinementEndDate' => '2007-12-01'
+          }
+        ]
+      end
+
+      describe '#set_pdf_data_for_pow_confinement' do
+        context 'when the prisonerOfWarConfinement key does not exist' do
+          before do
+            @pdf_data = pdf_data
+            @pdf_data[:data][:attributes][:serviceInformation] = {}
+          end
+
+          it 'sets the prisonerOfWarConfinement key to an empty hash' do
+            res = mapper.send(:set_pdf_data_for_pow_confinement)
+
+            expect(res).to eq({})
+          end
+        end
+
+        context 'when the prisonerOfWarConfinement key already exists' do
+          before do
+            @pdf_data = pdf_data
+            @pdf_data[:data][:attributes][:serviceInformation] = {}
+            @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] = {}
+          end
+
+          it 'returns early without modifying the existing data' do
+            res = mapper.send(:set_pdf_data_for_pow_confinement)
+
+            expect(res).to be_nil
+          end
+        end
+      end
+
+      it 'maps the confinement periods' do
+        form_attributes['serviceInformation']['confinements'] = confinement_periods
+        mapper.map_claim
+
+        confinements_base = pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement]
+
+        expect(confinements_base).to have_key(:confinementDates)
+        expect(confinements_base[:confinementDates][0][:start]).to eq({ year: '2007', month: '08', day: '01' })
+        expect(confinements_base[:confinementDates][0][:end]).to eq({ year: '2007', month: '09', day: '01' })
+        expect(confinements_base[:confinementDates][1][:start]).to eq({ year: '2007', month: '11', day: '01' })
+        expect(confinements_base[:confinementDates][1][:end]).to eq({ year: '2007', month: '12', day: '01' })
+      end
+    end
+
     context 'reserves national guard service' do
       let(:reserves) do
         {
@@ -852,13 +909,180 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         reserves_base = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+        service_info_base = pdf_data[:data][:attributes][:serviceInformation]
 
         expect(reserves_base[:unitPhoneNumber]).to eq('1231231234')
         expect(reserves_base[:receivingInactiveDutyTrainingPay]).to be('NO')
-        expect(reserves_base[:federalActivation][:activationDate]).to eq({ year: '2023', month: '01', day: '01' })
-        expect(reserves_base[:federalActivation][:anticipatedSeparationDate]).to eq({ year: '2025', month: '12',
-                                                                                      day: '01' })
+        expect(service_info_base[:federalActivation][:activationDate]).to eq({ year: '2023', month: '01', day: '01' })
+        expect(service_info_base[:federalActivation][:anticipatedSeparationDate]).to eq({ year: '2025', month: '12',
+                                                                                          day: '01' })
       end
+    end
+
+    context 'alternate names' do
+      let(:alternate_names_data) do
+        [
+          {
+            'firstName' => 'Jane',
+            'lastName' => 'Doe'
+          },
+          {
+            'firstName' => 'January',
+            'middleName' => 'E',
+            'lastName' => 'Doe'
+          },
+          {
+            'firstName' => 'J'
+          }
+        ]
+      end
+
+      it 'maps the alternate names' do
+        form_attributes['serviceInformation']['alternateNames'] = alternate_names_data
+        mapper.map_claim
+
+        alt_names_base = pdf_data[:data][:attributes][:serviceInformation][:alternateNames]
+
+        expect(alt_names_base[0]).to eq('Jane Doe')
+        expect(alt_names_base[1]).to eq('January E Doe')
+        expect(alt_names_base[2]).to eq('J')
+      end
+
+      it 'handles as expected when no alternate names are included' do
+        form_attributes['serviceInformation']['alternateNames'] = nil
+        mapper.map_claim
+
+        service_info_base = pdf_data[:data][:attributes][:serviceInformation]
+
+        expect(service_info_base).not_to have_key(:alternateNames)
+      end
+    end
+  end
+
+  context 'section 7 service pay' do
+    let(:service_pay_data) do
+      {
+        'waiveVABenefitsToRetainTrainingPay' => false,
+        'waiveVABenefitsToRetainRetiredPay' => false,
+        'militaryRetiredPay' => {
+          'receiving' => true,
+          'payment' => {
+            'serviceBranch' => 'Air Force',
+            'amount' => 500
+          },
+          'willReceiveInFuture' => true,
+          'futurePayExplanation' => 'Future payment explanation'
+        },
+        'separationPay' => {
+          'received' => false,
+          'payment' => {
+            'serviceBranch' => 'Marine Corps',
+            'amount' => 2000
+          },
+          'receivedDate' => '1990-02-01'
+        }
+      }
+    end
+
+    let(:min_service_pay_data) do
+      {
+        'waiveVABenefitsToRetainTrainingPay' => true,
+        'waiveVABenefitsToRetainRetiredPay' => true
+      }
+    end
+
+    it 'maps nothing if not included on the submission' do
+      form_attributes['service_pay'] = nil
+      mapper.map_claim
+
+      claim_data_base = pdf_data[:data][:attributes]
+
+      expect(claim_data_base).not_to have_key(:servicePay)
+    end
+
+    it 'maps the attributes' do
+      form_attributes['servicePay'] = service_pay_data
+      mapper.map_claim
+
+      service_pay_base = pdf_data[:data][:attributes][:servicePay]
+      service_pay_military_pay_base = pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay]
+      separation_pay_base = pdf_data[:data][:attributes][:servicePay][:separationSeverancePay]
+
+      expect(service_pay_base).not_to be_nil
+      expect(service_pay_base[:favorTrainingPay]).to be(false)
+      expect(service_pay_base[:favorMilitaryRetiredPay]).to be(false)
+      expect(service_pay_base[:receivingMilitaryRetiredPay]).to be('YES')
+      expect(service_pay_base[:futureMilitaryRetiredPay]).to be('YES')
+      expect(service_pay_base[:futureMilitaryRetiredPayExplanation]).to eq('Future payment explanation')
+      expect(service_pay_military_pay_base[:branchOfService][:branch]).to eq('Air Force')
+      expect(service_pay_military_pay_base[:monthlyAmount]).to eq(500)
+      expect(service_pay_base[:receivedSeparationOrSeverancePay]).to be('NO')
+      expect(separation_pay_base[:datePaymentReceived]).to eq({ year: '1990', month: '02', day: '01' })
+      expect(separation_pay_base[:branchOfService][:branch]).to eq('Marine Corps')
+      expect(separation_pay_base[:preTaxAmountReceived]).to eq(2000)
+    end
+
+    it 'maps the attributes with a minimum request' do
+      form_attributes['servicePay'] = min_service_pay_data
+      mapper.map_claim
+
+      service_pay_base = pdf_data[:data][:attributes][:servicePay]
+
+      expect(service_pay_base).not_to be_nil
+      expect(service_pay_base[:favorTrainingPay]).to be(true)
+      expect(service_pay_base[:favorMilitaryRetiredPay]).to be(true)
+    end
+  end
+
+  context 'section 8 direct deposit' do
+    let(:direct_deposit_data) do
+      {
+        'accountType' => 'CHECKING',
+        'accountNumber' => '123123123123',
+        'routingNumber' => '123123123',
+        'bankName' => 'ABC Bank'
+      }
+    end
+
+    let(:min_direct_deposit_data) do
+      {
+        'accountType' => 'SAVINGS',
+        'accountNumber' => '123123123124',
+        'routingNumber' => '123123124'
+      }
+    end
+
+    it 'maps nothing if not included on the submission' do
+      form_attributes['directDeposit'] = nil
+      mapper.map_claim
+
+      claim_data_base = pdf_data[:data][:attributes]
+
+      expect(claim_data_base).not_to have_key(:directDepositInformation)
+    end
+
+    it 'maps the attributes' do
+      form_attributes['directDeposit'] = direct_deposit_data
+      mapper.map_claim
+
+      direct_deposit_base = pdf_data[:data][:attributes][:directDepositInformation]
+
+      expect(direct_deposit_base).not_to be_nil
+      expect(direct_deposit_base[:accountType]).to eq('CHECKING')
+      expect(direct_deposit_base[:accountNumber]).to eq('123123123123')
+      expect(direct_deposit_base[:routingNumber]).to eq('123123123')
+      expect(direct_deposit_base[:financialInstitutionName]).to eq('ABC Bank')
+    end
+
+    it 'handles mapping optional attributes' do
+      form_attributes['directDeposit'] = min_direct_deposit_data
+      mapper.map_claim
+
+      direct_deposit_base = pdf_data[:data][:attributes][:directDepositInformation]
+      expect(direct_deposit_base[:accountType]).to eq('SAVINGS')
+      expect(direct_deposit_base[:accountNumber]).to eq('123123123124')
+      expect(direct_deposit_base[:routingNumber]).to eq('123123124')
+      expect(direct_deposit_base).not_to have_key(:financialInstitutionName)
     end
   end
 end
