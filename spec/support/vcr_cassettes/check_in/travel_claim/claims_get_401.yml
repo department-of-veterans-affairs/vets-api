@@ -1,0 +1,67 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<TRAVEL_CLAIM_API_URL>/api/v3/claims/claim-123"
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer <TOKEN>
+      X-BTSSS-Token:
+      - <BTSSS_TOKEN>
+      X-Correlation-ID:
+      - e359e352-10d8-4475-a453-9feec6bb8a10
+      Ocp-Apim-Subscription-Key:
+      - <SUBSCRIPTION_KEY>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Wed, 27 Aug 2025 21:54:27 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Reset:
+      - '25'
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{
+        "correlationId": "e359e352-10d8-4475-a453-9feec6bb8a10",
+        "timeStamp": "2025-08-27T21:54:27.178363Z",
+        "statusCode": 401,
+        "message": "Unauthorized",
+        "success": false,
+        "data": null
+      }'
+  recorded_at: Wed, 27 Aug 2025 21:54:27 GMT

@@ -17,7 +17,6 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
   let(:aal_client) { instance_spy(AAL::MRClient) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_enable_aal_integration).and_return(true)
 
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
@@ -71,12 +70,31 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
     end
 
     describe 'GET #download' do
-      it 'succeeds' do
+      it 'succeeds for XML (default)' do
         VCR.use_cassette('mr_client/get_ccd_download') do
           get '/my_health/v1/medical_records/ccd/download?date=2025-05-06T09:26:08.000-0400'
         end
+        expect(response).to have_http_status(:ok)
+        expect(response.content_type).to include('application/xml').or include('text/xml')
+      end
+
+      it 'succeeds for PDF' do
+        VCR.use_cassette('mr_client/get_ccd_download_pdf') do
+          get '/my_health/v1/medical_records/ccd/download.pdf?date=2025-05-06T09:26:08.000-0400'
+        end
 
         expect(response).to have_http_status(:ok)
+        expect(response.content_type).to include('application/pdf')
+        expect(response.headers['Content-Disposition']).to include('attachment')
+      end
+
+      it 'succeeds for HTML' do
+        VCR.use_cassette('mr_client/get_ccd_download_html') do
+          get '/my_health/v1/medical_records/ccd/download.html?date=2025-05-06T09:26:08.000-0400'
+        end
+        expect(response).to have_http_status(:ok)
+        expect(response.content_type).to include('text/html')
+        expect(response.headers['Content-Disposition']).to include('attachment')
       end
 
       it 'returns 500 and logs an AAL error when API call fails' do

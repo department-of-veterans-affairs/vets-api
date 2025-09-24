@@ -13,6 +13,7 @@ FactoryBot.define do
       address_line1 { '37 1st st' }
       city { 'Brooklyn' }
       state_code { 'NY' }
+      country_name {}
       zip_code { '11249' }
     end
 

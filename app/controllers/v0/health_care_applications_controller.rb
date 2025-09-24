@@ -9,6 +9,7 @@ module V0
   class HealthCareApplicationsController < ApplicationController
     include IgnoreNotFound
     include RetriableConcern
+    include PdfFilenameGenerator
 
     service_tag 'healthcare-application'
     FORM_ID = '1010ez'
@@ -48,7 +49,13 @@ module V0
         raise Common::Exceptions::BackendServiceException.new('HCA422', status: 422)
       end
 
-      clear_saved_form(FORM_ID)
+      if current_user
+        if Flipper.enabled?(:hca_in_progress_form_delete_async)
+          DeleteInProgressFormJob.perform_in(5.minutes, FORM_ID, current_user.uuid)
+        else
+          clear_saved_form(FORM_ID)
+        end
+      end
 
       if result[:id]
         render json: HealthCareApplicationSerializer.new(result)
@@ -62,7 +69,7 @@ module V0
 
       icn = if loa3
               current_user.icn
-            elsif request.get? && Flipper.enabled?(:hca_enrollment_status_filter_get)
+            elsif request.get?
               # Return nil if `GET` request and user is not loa3
               nil
             else
@@ -95,7 +102,7 @@ module V0
         PdfFill::Filler.fill_form(health_care_application, file_name)
       end
 
-      client_file_name = file_name_for_pdf(health_care_application.parsed_form)
+      client_file_name = file_name_for_pdf(health_care_application.parsed_form, 'veteranFullName', '10-10EZ')
       file_contents    = File.read(source_file_path)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
@@ -104,13 +111,6 @@ module V0
     end
 
     private
-
-    def file_name_for_pdf(parsed_form)
-      veteran_name = parsed_form.try(:[], 'veteranFullName')
-      first_name = veteran_name.try(:[], 'first') || 'First'
-      last_name = veteran_name.try(:[], 'last') || 'Last'
-      "10-10EZ_#{first_name}_#{last_name}.pdf"
-    end
 
     def health_care_application
       @health_care_application ||= HealthCareApplication.new(params.permit(:form))

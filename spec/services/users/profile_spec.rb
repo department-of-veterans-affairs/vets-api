@@ -428,7 +428,7 @@ RSpec.describe Users::Profile do
 
     describe '#vet360_contact_information' do
       context 'with an loa1 user' do
-        let(:user) { build(:user, :loa1) }
+        let(:user) { build(:user, :loa1, vet360_id: nil, icn: nil) }
 
         it 'returns an empty hash', :aggregate_failures do
           expect(user.vet360_contact_info).to be_nil
@@ -437,7 +437,7 @@ RSpec.describe Users::Profile do
       end
 
       context 'with a valid user' do
-        let(:user) { build(:user, :loa3, vet360_id: '1') }
+        let(:user) { build(:user, :loa3) }
         let(:vet360_info) { subject.vet360_contact_information }
 
         it 'is populated', :aggregate_failures do
@@ -521,6 +521,67 @@ RSpec.describe Users::Profile do
       it 'with a transaction in the Session shows a SSOe authentication' do
         expect(scaffold_with_ssoe.session)
           .to eq({ auth_broker: SAML::URLService::BROKER_CODE, ssoe: true, transactionid: 'a' })
+      end
+    end
+
+    describe '#log_external_service_error' do
+      let(:logging_user) { build(:user, :loa3, vet360_id: '1', uuid: 'test-uuid') }
+      let(:logging_profile) { described_class.new(logging_user) }
+
+      context 'when VA Profile service returns an error' do
+        let(:vet360_error) do
+          Common::Client::Errors::ClientError.new('Vet360 error', 502, {})
+        end
+        let(:vet_status_error) do
+          Common::Client::Errors::ClientError.new('VAProfile error', 502, {})
+        end
+        let(:expected_va_profile_log_hash) do
+          {
+            'user_uuid' => 'test-uuid',
+            'loa' => { 'current' => 3, 'highest' => 3 },
+            'error' => hash_including('external_service' => 'VAProfile')
+          }
+        end
+
+        it 'logs errors for vet360_contact_information' do
+          allow(logging_user).to receive(:vet360_contact_info).and_raise(vet360_error)
+          expect(Rails.logger).to receive(:warn) do |log_arg|
+            log_hash = JSON.parse(log_arg)
+            expect(log_hash).to include(expected_va_profile_log_hash)
+          end
+          logging_profile.send(:vet360_contact_information)
+        end
+
+        it 'logs errors for veteran_status' do
+          allow(logging_user).to receive(:veteran?).and_raise(vet_status_error)
+          expect(Rails.logger).to receive(:warn) do |log_arg|
+            log_hash = JSON.parse(log_arg)
+            expect(log_hash).to include(expected_va_profile_log_hash)
+          end
+          logging_profile.send(:veteran_status)
+        end
+      end
+
+      context 'when MPI service returns an error' do
+        let(:mpi_error) { Common::Client::Errors::ClientError.new('MPI error', 502, {}) }
+        let(:expected_mpi_log_hash) do
+          {
+            'user_uuid' => 'test-uuid',
+            'loa' => { 'current' => 3, 'highest' => 3 },
+            'error' => hash_including('external_service' => 'MVI')
+          }
+        end
+
+        it 'logs errors for mpi_profile' do
+          allow(logging_user).to receive_messages(
+            mpi_status: :error, mpi_error:
+          )
+          expect(Rails.logger).to receive(:warn) do |log_arg|
+            log_hash = JSON.parse(log_arg)
+            expect(log_hash).to include(expected_mpi_log_hash)
+          end
+          logging_profile.send(:mpi_profile)
+        end
       end
     end
   end
