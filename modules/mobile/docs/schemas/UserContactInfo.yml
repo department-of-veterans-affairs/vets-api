@@ -39,6 +39,7 @@ properties:
         required:
           - id
           - emailAddress
+          - confirmationDate
           - updatedAt
         properties:
           id:
@@ -47,6 +48,10 @@ properties:
           emailAddress:
             type: string
             example: "person@example.com"
+          confirmationDate:
+            type: string
+            nullable: true
+            example: "2018-04-21T20:09:50Z"
           updatedAt:
             type: string
             example: "2018-04-21T20:09:50Z"
