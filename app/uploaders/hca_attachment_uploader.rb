@@ -50,8 +50,6 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def heic?(file)
-    return unless Flipper.enabled?(:hca_heic_attachments_enabled)
-
     file.content_type =~ %r{^image/(heic|heif)$}
   end
 end
