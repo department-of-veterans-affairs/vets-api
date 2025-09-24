@@ -146,7 +146,7 @@ module TravelClaim
       appointment_id = response.body.dig('data', 0, 'id')
 
       unless appointment_id
-        increment_error_metric(CheckIn::Constants::CIE_STATSD_APPOINTMENT_ERROR)
+        increment_error_metric(APPOINTMENT_ERROR)
         raise_backend_service_exception('Appointment could not be found or created', response.status)
       end
 
@@ -167,7 +167,7 @@ module TravelClaim
       claim_id = response.body.dig('data', 'claimId')
 
       unless claim_id
-        increment_error_metric(CheckIn::Constants::CIE_STATSD_CLAIM_CREATE_ERROR)
+        increment_error_metric(CLAIM_CREATE_ERROR)
         raise_backend_service_exception('Failed to create claim', response.status)
       end
 
@@ -189,7 +189,7 @@ module TravelClaim
       )
 
       unless response.status == 200
-        increment_error_metric(CheckIn::Constants::CIE_STATSD_EXPENSE_ADD_ERROR)
+        increment_error_metric(EXPENSE_ADD_ERROR)
         raise_backend_service_exception('Failed to add expense', response.status)
       end
     end
@@ -207,7 +207,7 @@ module TravelClaim
       response = client.send_claim_submission_request(claim_id:)
 
       unless response.status == 200
-        increment_error_metric(CheckIn::Constants::CIE_STATSD_CLAIM_SUBMIT_ERROR)
+        increment_error_metric(CLAIM_SUBMIT_ERROR)
         raise_backend_service_exception('Failed to submit claim', response.status)
       end
 
@@ -377,18 +377,45 @@ module TravelClaim
     end
 
     ##
+    # Metric type constants
+    #
+    APPOINTMENT_ERROR = 'appointment_error'
+    CLAIM_CREATE_ERROR = 'claim_create_error'
+    EXPENSE_ADD_ERROR = 'expense_add_error'
+    CLAIM_SUBMIT_ERROR = 'claim_submit_error'
+
+    ##
+    # Maps metric types to their corresponding constants
+    #
+    ERROR_METRICS = {
+      APPOINTMENT_ERROR => {
+        cie: CheckIn::Constants::CIE_STATSD_APPOINTMENT_ERROR,
+        oh: CheckIn::Constants::OH_STATSD_APPOINTMENT_ERROR
+      },
+      CLAIM_CREATE_ERROR => {
+        cie: CheckIn::Constants::CIE_STATSD_CLAIM_CREATE_ERROR,
+        oh: CheckIn::Constants::OH_STATSD_CLAIM_CREATE_ERROR
+      },
+      EXPENSE_ADD_ERROR => {
+        cie: CheckIn::Constants::CIE_STATSD_EXPENSE_ADD_ERROR,
+        oh: CheckIn::Constants::OH_STATSD_EXPENSE_ADD_ERROR
+      },
+      CLAIM_SUBMIT_ERROR => {
+        cie: CheckIn::Constants::CIE_STATSD_CLAIM_SUBMIT_ERROR,
+        oh: CheckIn::Constants::OH_STATSD_CLAIM_SUBMIT_ERROR
+      }
+    }.freeze
+
+    ##
     # Increments the appropriate error metric based on facility type
     #
-    # @param metric_key [String] the metric key to increment
+    # @param metric_type [String] the metric type constant
     #
-    def increment_error_metric(metric_key)
-      if @facility_type&.downcase == 'oh'
-        # Convert CIE metric to OH metric
-        oh_metric = metric_key.gsub('check_in', 'oracle_health')
-        StatsD.increment(oh_metric)
-      else
-        StatsD.increment(metric_key)
-      end
+    def increment_error_metric(metric_type)
+      facility_key = @facility_type&.downcase == 'oh' ? :oh : :cie
+      metric = ERROR_METRICS.dig(metric_type, facility_key)
+
+      StatsD.increment(metric) if metric
     end
 
     ##
