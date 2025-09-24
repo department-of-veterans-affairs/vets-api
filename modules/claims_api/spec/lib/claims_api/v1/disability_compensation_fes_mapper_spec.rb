@@ -17,11 +17,16 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           ).read
         )
       end
+      let(:auth_headers) do
+        {
+          'va_eauth_pid' => '600061742',
+          'va_eauth_service_transaction_id' => '00000000-0000-0000-0000-000000000000'
+        }
+      end
       let(:auto_claim) do
         create(:auto_established_claim,
                form_data: form_data['data']['attributes'],
-               auth_headers: { 'va_eauth_pid' => '600061742',
-                               'va_eauth_service_transaction_id' => '00000000-0000-0000-0000-000000000000' })
+               auth_headers:)
       end
       let(:fes_data) do
         ClaimsApi::V1::DisabilityCompensationFesMapper.new(auto_claim).map_claim
@@ -31,8 +36,16 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
         it 'wraps data in proper FES request structure' do
           expect(fes_data).to have_key(:data)
           expect(fes_data[:data]).to have_key(:serviceTransactionId)
+          expect(fes_data[:data]).to have_key(:veteranParticipantId)
           expect(fes_data[:data]).to have_key(:claimantParticipantId)
           expect(fes_data[:data]).to have_key(:form526)
+        end
+
+        it 'finds the dependent participant_id as expected' do
+          auth_headers['dependent'] = {}
+          auth_headers['dependent']['participant_id'] = '8675309'
+
+          expect(fes_data[:data][:claimantParticipantId]).to eq('8675309')
         end
       end
 
