@@ -627,6 +627,16 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           expect(service.send(:duplicate_claim_error?, error)).to be true
         end
 
+        it 'returns true for error with standardized duplicate claim code' do
+          error = Common::Exceptions::BackendServiceException.new(
+            'VA900',
+            { detail: 'CLM_002_CLAIM_EXISTS: A claim has already been created for this appointment' },
+            400
+          )
+
+          expect(service.send(:duplicate_claim_error?, error)).to be true
+        end
+
         it 'returns false for other errors' do
           error = Common::Exceptions::BackendServiceException.new(
             'VA900',
