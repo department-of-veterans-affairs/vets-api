@@ -4,13 +4,18 @@ require 'rails_helper'
 require 'dependents_benefits/generators/claim674_generator'
 
 RSpec.describe DependentsBenefits::Generators::Claim674Generator, type: :model do
-  let(:form_data) { create(:dependents_claim).parsed_form }
+  let(:parent_claim) { create(:dependents_claim) }
+  let(:form_data) { parent_claim.parsed_form }
   let(:student_data) do
     form_data['dependents_application']['student_information'][0]
   end
 
-  let(:parent_id) { 123 }
+  let(:parent_id) { parent_claim.id }
   let(:generator) { described_class.new(form_data, parent_id, student_data) }
+
+  before do
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+  end
 
   describe '#extract_form_data' do
     let(:extracted_data) { generator.send(:extract_form_data) }
@@ -53,18 +58,18 @@ RSpec.describe DependentsBenefits::Generators::Claim674Generator, type: :model d
   end
 
   describe '#generate' do
+    let(:mock_group) { create(:saved_claim_group) }
+
+    before do
+      allow(SavedClaimGroup).to receive(:find_by).and_return(mock_group)
+    end
+
     it 'creates a 674 claim with extracted student data' do
       created_claim = generator.generate
       expect(created_claim.form_id).to eq('21-674')
 
       parsed_form = JSON.parse(created_claim.form)
       expect(parsed_form['dependents_application']['student_information']).to eq(student_data)
-    end
-
-    it 'logs a TODO message for claim linking' do
-      expect(Rails.logger).to receive(:info).with(match('Stamping PDF')).at_least(:once)
-      expect(Rails.logger).to receive(:info).with(match("TODO: Link claim \\d+ to parent #{parent_id}"))
-      generator.generate
     end
   end
 end

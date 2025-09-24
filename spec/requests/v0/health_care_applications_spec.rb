@@ -323,7 +323,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
       import_job = instance_double(HCA::StdInstitutionImportJob)
       expect(HCA::StdInstitutionImportJob).to receive(:new).and_return(import_job)
-      expect(import_job).to receive(:perform)
+      expect(import_job).to receive(:import_facilities).with(run_sync: true)
 
       get(facilities_v0_health_care_applications_path(state: 'OH'))
     end

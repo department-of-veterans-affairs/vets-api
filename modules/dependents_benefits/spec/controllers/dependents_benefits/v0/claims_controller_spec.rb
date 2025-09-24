@@ -11,6 +11,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
   before do
     sign_in_as(user)
     allow(Flipper).to receive(:enabled?).with(:dependents_module_enabled, instance_of(User)).and_return(true)
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
   end
 
   describe '#show' do
@@ -59,15 +60,6 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
         expect do
           post(:create, params: test_form, as: :json)
         end.to change(DependentsBenefits::SavedClaim, :count).by(3)
-      end
-
-      it 'logs the success' do
-        expect(Rails.logger).to receive(:info).with(match(/Skipping tracking PDF overflow/),
-                                                    instance_of(Hash)).at_least(:once)
-        expect(Rails.logger).to receive(:info).with(match(/TODO: Link claim \d+ to parent/)).at_least(:once)
-        expect(Rails.logger).to receive(:info).with(match(/Successfully created claim/),
-                                                    include({ statsd: 'api.dependents_application.create_success' }))
-        post(:create, params: test_form, as: :json)
       end
 
       it 'calls ClaimProcessor with correct parameters' do
