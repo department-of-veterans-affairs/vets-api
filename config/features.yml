@@ -188,6 +188,7 @@ features:
   hca_heic_attachments_enabled:
     actor_type: user
     description: Enables .heic files as attachments that get converted to .jpg files
+    enable_in_development: true
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the upgraded insurance section of the Health Care Application
