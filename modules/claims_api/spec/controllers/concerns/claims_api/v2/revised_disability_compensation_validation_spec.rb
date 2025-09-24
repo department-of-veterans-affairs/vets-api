@@ -240,7 +240,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
     # FES Val Section 5.b: mailingAddress USA field validations
     context 'mailingAddress USA validation' do
       before do
-        allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+        allow_any_instance_of(described_class).to receive(:fetch_countries_list).and_return(%w[USA GBR CAN])
       end
 
       context 'when USA address missing state' do
@@ -385,7 +385,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
     # FES Val Section 5.b.iii: mailingAddress INTERNATIONAL field validations
     context 'mailingAddress INTERNATIONAL validation' do
       before do
-        allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+        allow_any_instance_of(described_class).to receive(:fetch_countries_list).and_return(%w[USA GBR CAN])
       end
 
       context 'when INTERNATIONAL address missing city' do
@@ -472,7 +472,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
 
         before do
-          allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          allow_any_instance_of(described_class).to receive(:fetch_countries_list).and_return(%w[USA GBR CAN])
         end
 
         it 'returns validation error' do
@@ -499,7 +499,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
 
         before do
-          allow_any_instance_of(described_class).to receive(:valid_countries).and_return(nil)
+          allow_any_instance_of(described_class).to receive(:fetch_countries_list).and_return(nil)
         end
 
         it 'returns BRD service error' do
@@ -527,7 +527,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
 
         before do
-          allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          allow_any_instance_of(described_class).to receive(:fetch_countries_list).and_return(%w[USA GBR CAN])
         end
 
         it 'returns validation error' do
@@ -619,7 +619,9 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/changeOfAddress/dates/endDate')
           expect(errors.first[:title]).to eq('Unprocessable Entity')
-          expect(errors.first[:detail]).to eq('EndingDate cannot be provided for a permanent address')
+          expect(errors.first[:detail]).to eq(
+            'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT'
+          )
         end
       end
 
@@ -793,7 +795,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             errors = subject.validate_form_526_fes_values
             expect(errors).to be_an(Array)
             expect(errors.first[:source]).to eq('/disabilities/0/specialIssues')
-            expect(errors.first[:title]).to eq('Invalid value')
+            expect(errors.first[:title]).to eq('Unprocessable Entity')
             expect(errors.first[:detail]).to eq('A Special Issue cannot be added to a primary disability ' \
                                                 'after the disability has been rated')
           end
@@ -896,7 +898,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             errors = subject.validate_form_526_fes_values
             expect(errors).to be_an(Array)
             expect(errors.first[:source]).to eq('/disabilities/0/specialIssues')
-            expect(errors.first[:title]).to eq('Invalid value')
+            expect(errors.first[:title]).to eq('Unprocessable Entity')
             expect(errors.first[:detail]).to eq('A special issue of HEPC can only exist for the disability Hepatitis')
           end
         end
@@ -958,22 +960,25 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             errors = subject.validate_form_526_fes_values
             expect(errors).to be_an(Array)
             expect(errors.first[:source]).to eq('/disabilities/0/specialIssues')
-            expect(errors.first[:title]).to eq('Invalid value')
-            expect(errors.first[:detail]).to eq('A prisoner of war must have at least one period of confinement record')
+            expect(errors.first[:title]).to eq('Unprocessable Entity')
+            expect(errors.first[:detail]).to eq(
+              'serviceInformation.confinements (0) is required if specialIssues includes POW.'
+            )
           end
         end
 
         context 'when POW special issue is used with empty confinements' do
           let(:form_attributes) do
-            base_form_attributes.merge(
+            base_attrs = base_form_attributes.dup
+            base_attrs['serviceInformation'] = base_attrs['serviceInformation'].merge('confinements' => [])
+            base_attrs.merge(
               'disabilities' => [
                 {
                   'disabilityActionType' => 'NEW',
                   'name' => 'PTSD',
                   'specialIssues' => ['POW']
                 }
-              ],
-              'confinements' => []
+              ]
             )
           end
 
@@ -981,24 +986,29 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             errors = subject.validate_form_526_fes_values
             expect(errors).to be_an(Array)
             expect(errors.first[:source]).to eq('/disabilities/0/specialIssues')
-            expect(errors.first[:detail]).to eq('A prisoner of war must have at least one period of confinement record')
+            expect(errors.first[:detail]).to eq(
+              'serviceInformation.confinements (0) is required if specialIssues includes POW.'
+            )
           end
         end
 
         context 'when POW special issue is used with valid confinements' do
           let(:form_attributes) do
-            base_form_attributes.merge(
+            base_attrs = base_form_attributes.dup
+            base_attrs['serviceInformation'] = base_attrs['serviceInformation'].merge(
+              'confinements' => [
+                {
+                  'approximateBeginDate' => { 'year' => '1970', 'month' => '6' },
+                  'approximateEndDate' => { 'year' => '1971', 'month' => '3' }
+                }
+              ]
+            )
+            base_attrs.merge(
               'disabilities' => [
                 {
                   'disabilityActionType' => 'NEW',
                   'name' => 'PTSD',
                   'specialIssues' => ['POW']
-                }
-              ],
-              'confinements' => [
-                {
-                  'approximateBeginDate' => { 'year' => '1970', 'month' => '6' },
-                  'approximateEndDate' => { 'year' => '1971', 'month' => '3' }
                 }
               ]
             )
@@ -1051,7 +1061,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             errors = subject.validate_form_526_fes_values
             expect(errors).to be_an(Array)
             expect(errors.first[:source]).to eq('/disabilities/1/name')
-            expect(errors.first[:title]).to eq('Invalid value')
+            expect(errors.first[:title]).to eq('Unprocessable Entity')
             expect(errors.first[:detail]).to eq('Duplicate disability name found: PTSD')
           end
         end
@@ -1182,7 +1192,9 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
 
           # Check for POW error
           pow_error = errors.find { |e| e[:source] == '/disabilities/3/specialIssues' }
-          expect(pow_error[:detail]).to eq('A prisoner of war must have at least one period of confinement record')
+          expect(pow_error[:detail]).to eq(
+            'serviceInformation.confinements (3) is required if specialIssues includes POW.'
+          )
         end
       end
     end
@@ -1203,12 +1215,9 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           )
         end
 
-        it 'returns validation error' do
+        it 'returns no errors (specialCircumstances field does not exist in schema)' do
           errors = subject.validate_form_526_fes_values
-          expect(errors).to be_an(Array)
-          expect(errors.first[:source]).to eq('/specialCircumstances')
-          expect(errors.first[:title]).to eq('Invalid array')
-          expect(errors.first[:detail]).to eq('Number of special circumstances 101 must be between 0 and 100 inclusive')
+          expect(errors).to be_nil
         end
       end
 

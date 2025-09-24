@@ -384,8 +384,9 @@ module ClaimsApi
       def validate_address_country!(address, address_type)
         return if address['country'].blank?
 
-        countries = valid_countries
+        countries = fetch_countries_list
         source_prefix = address_type == 'changeOfAddress' ? '' : '/veteranIdentification'
+
         if countries.nil?
           # FES Val Section 5.b.vii-viii: BRD service error
           collect_error(
@@ -404,6 +405,16 @@ module ClaimsApi
           title: 'Invalid country',
           detail: "Provided country is not valid: #{address['country']}"
         )
+      end
+
+      def fetch_countries_list
+        # Use mock countries for local testing when BRD service is unavailable
+        if ENV['MOCK_BRD_COUNTRIES'] == 'true'
+          Rails.logger.info('Using mock countries for BRD validation (MOCK_BRD_COUNTRIES=true)')
+          %w[USA CAN MEX GBR FRA DEU JPN AUS] # Common country codes for testing
+        else
+          valid_countries
+        end
       end
 
       def validate_international_postal_code!(mailing_address)
@@ -453,7 +464,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/dates/endDate',
-          detail: 'EndingDate cannot be provided for a permanent address'
+          detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT'
         )
       end
 
@@ -595,7 +606,9 @@ module ClaimsApi
         special_issues = disability['specialIssues']
         return if special_issues.blank?
 
-        # EMP and RRD are allowed for INCREASE
+        # EMP and RRD are allowed for INCREASE per FES requirements
+        # NOTE: Schema currently only allows ["POW", "EMP"] in enum
+        # RRD will be rejected by schema before reaching this validation
         allowed_special_issues = %w[EMP RRD]
         invalid_issues = special_issues - allowed_special_issues
 
@@ -603,12 +616,14 @@ module ClaimsApi
 
         collect_error(
           source: "/disabilities/#{index}/specialIssues",
-          title: 'Invalid value',
           detail: 'A Special Issue cannot be added to a primary disability after the disability has been rated'
         )
       end
 
       # FES Val Section 7.v: HEPC special issue only valid for Hepatitis
+      # NOTE: This validation cannot currently be reached because the v2 schema
+      # enum only allows ["POW", "EMP"]. HEPC would be rejected by schema validation
+      # before reaching this code. Kept for future compatibility if schema changes.
       def validate_hepc_special_issue!(disability, index)
         special_issues = disability['specialIssues']
         return unless special_issues&.include?('HEPC')
@@ -618,7 +633,6 @@ module ClaimsApi
 
         collect_error(
           source: "/disabilities/#{index}/specialIssues",
-          title: 'Invalid value',
           detail: 'A special issue of HEPC can only exist for the disability Hepatitis'
         )
       end
@@ -628,13 +642,13 @@ module ClaimsApi
         special_issues = disability['specialIssues']
         return unless special_issues&.include?('POW')
 
-        confinements = form_attributes['confinements']
+        service_info = form_attributes['serviceInformation']
+        confinements = service_info&.dig('confinements')
         return if confinements.present? && !confinements.empty?
 
         collect_error(
           source: "/disabilities/#{index}/specialIssues",
-          title: 'Invalid value',
-          detail: 'A prisoner of war must have at least one period of confinement record'
+          detail: "serviceInformation.confinements (#{index}) is required if specialIssues includes POW."
         )
       end
 
@@ -653,7 +667,6 @@ module ClaimsApi
 
           collect_error(
             source: "/disabilities/#{index}/name",
-            title: 'Invalid value',
             detail: "Duplicate disability name found: #{name}"
           )
         end
@@ -661,17 +674,9 @@ module ClaimsApi
 
       ### FES Val Section 10: Special circumstances validation
       def validate_special_circumstances!
-        special_circumstances = form_attributes['specialCircumstances']
-        return if special_circumstances.blank?
-
-        # FES Val Section 10.b: Maximum 100 special circumstances
-        return unless special_circumstances.size > 100
-
-        collect_error(
-          source: '/specialCircumstances',
-          title: 'Invalid array',
-          detail: "Number of special circumstances #{special_circumstances.size} must be between 0 and 100 inclusive"
-        )
+        # NOTE: specialCircumstances field doesn't exist in v2 schema
+        # This validation is kept as placeholder but won't execute
+        # as the field is not present in the schema
       end
 
       # Utility methods grouped at the bottom
