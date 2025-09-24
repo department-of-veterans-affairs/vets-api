@@ -226,7 +226,11 @@ module TravelClaim
                              veis_token_present: @current_veis_token.present?,
                              btsss_token_present: @current_btsss_token.present?
                            })
-        raise TravelClaim::Errors::InvalidArgument, 'Missing auth token(s) for request headers'
+        missing_tokens = []
+        missing_tokens << 'VEIS token' if @current_veis_token.blank?
+        missing_tokens << 'BTSSS token' if @current_btsss_token.blank?
+        raise TravelClaim::Errors::InvalidArgument,
+              "Missing auth token(s) for request headers: #{missing_tokens.join(', ')}"
       end
 
       {
