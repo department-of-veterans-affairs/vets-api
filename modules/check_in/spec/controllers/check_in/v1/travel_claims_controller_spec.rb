@@ -112,7 +112,7 @@ RSpec.describe CheckIn::V1::TravelClaimsController, type: :controller do
 
         before do
           allow(service).to receive(:submit_claim).and_raise(
-            Common::Exceptions::BackendServiceException.new('CHECK_IN_400',
+            Common::Exceptions::BackendServiceException.new('VA901',
                                                             { detail: 'Appointment date is required' }, 400)
           )
         end
