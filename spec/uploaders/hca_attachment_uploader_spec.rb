@@ -84,7 +84,8 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
       end
 
       it 'allows valid file extensions' do
-        expect(uploader.extension_allowlist).to include('pdf', 'doc', 'docx', 'jpg', 'jpeg', 'rtf', 'png', 'heic')
+        expect(uploader.extension_allowlist).to include('pdf', 'doc', 'docx', 'jpg', 'jpeg', 'rtf', 'png', 'heic',
+                                                        'heif')
       end
 
       it 'does not allow invalid file extensions' do
@@ -102,7 +103,7 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
       end
 
       it 'does not allow invalid file extensions' do
-        expect(uploader.extension_allowlist).not_to include('exe', 'bat', 'zip', 'heic')
+        expect(uploader.extension_allowlist).not_to include('exe', 'bat', 'zip', 'heic', 'heif')
       end
     end
   end
@@ -158,6 +159,42 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
             expect(error).to be_instance_of(CarrierWave::IntegrityError)
             expect(error.message).to eq(
               'You can’t upload "heic" files. The allowed file types are: pdf, doc, docx, jpg, jpeg, rtf, png'
+            )
+          end
+        end
+      end
+    end
+
+    context 'when the file is a HEIF' do
+      let(:file) do
+        Rack::Test::UploadedFile.new(
+          Rails.root.join('spec', 'fixtures', 'files', 'steelers.heif'),
+          'image/heif'
+        )
+      end
+
+      context ':hca_heic_attachments_enabled enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(true)
+        end
+
+        it 'converts the file to jpg' do
+          expect(uploader).to receive(:convert).with('jpg')
+
+          uploader.store!(file)
+        end
+      end
+
+      context ':hca_heic_attachments_enabled disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(false)
+        end
+
+        it 'raises invalid file type error' do
+          expect { uploader.store!(file) }.to raise_error do |error|
+            expect(error).to be_instance_of(CarrierWave::IntegrityError)
+            expect(error.message).to eq(
+              'You can’t upload "heif" files. The allowed file types are: pdf, doc, docx, jpg, jpeg, rtf, png'
             )
           end
         end
