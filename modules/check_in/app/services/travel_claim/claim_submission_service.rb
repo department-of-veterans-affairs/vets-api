@@ -49,7 +49,7 @@ module TravelClaim
       result
     rescue Common::Exceptions::BackendServiceException => e
       # Check if this is a duplicate claim error
-      handle_duplicate_claim_error(e) if duplicate_claim_error?(e)
+      handle_duplicate_claim_error if duplicate_claim_error?(e)
       # Send error notification if feature flag is enabled
       send_error_notification_if_enabled(e)
       raise e
@@ -369,11 +369,10 @@ module TravelClaim
     # Increments the appropriate success metric based on facility type
     #
     def increment_success_metric
-      if @facility_type&.downcase == 'oh'
-        StatsD.increment(CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS)
-      else
-        StatsD.increment(CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS)
-      end
+      increment_metric_by_facility_type(
+        CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS,
+        CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS
+      )
     end
 
     ##
@@ -419,13 +418,16 @@ module TravelClaim
     end
 
     ##
-    # Checks if the error indicates a duplicate claim
+    # Checks if the error indicates a duplicate claim based on response code
     #
     # @param error [Common::Exceptions::BackendServiceException] the error to check
     # @return [Boolean] true if this is a duplicate claim error
     #
     def duplicate_claim_error?(error)
-      error.response_values[:detail]&.include?('already been created') ||
+      # Check if the error detail contains the standardized duplicate claim code
+      error.response_values[:detail]&.include?(TravelClaim::Response::CODE_CLAIM_EXISTS) ||
+        # Fallback to string matching for backward compatibility
+        error.response_values[:detail]&.include?('already been created') ||
         error.response_values[:detail]&.include?('already exists') ||
         error.response_values[:detail]&.include?('duplicate')
     end
@@ -433,11 +435,24 @@ module TravelClaim
     ##
     # Handles duplicate claim error by incrementing the appropriate metric
     #
-    def handle_duplicate_claim_error(_error)
+    def handle_duplicate_claim_error
+      increment_metric_by_facility_type(
+        CheckIn::Constants::CIE_STATSD_BTSSS_DUPLICATE,
+        CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE
+      )
+    end
+
+    ##
+    # Increments the appropriate metric based on facility type
+    #
+    # @param cie_metric [String] the CIE metric constant
+    # @param oh_metric [String] the OH metric constant
+    #
+    def increment_metric_by_facility_type(cie_metric, oh_metric)
       if @facility_type&.downcase == 'oh'
-        StatsD.increment(CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE)
+        StatsD.increment(oh_metric)
       else
-        StatsD.increment(CheckIn::Constants::CIE_STATSD_BTSSS_DUPLICATE)
+        StatsD.increment(cie_metric)
       end
     end
   end
