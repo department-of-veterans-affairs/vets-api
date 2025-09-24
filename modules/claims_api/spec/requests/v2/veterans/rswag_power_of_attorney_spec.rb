@@ -660,7 +660,7 @@ describe 'PowerOfAttorney',
           schema JSON.load_file(File.expand_path('rswag/create/200.json', __dir__))
 
           let(:data) { body_schema[:example] }
-          let(:poa_request_service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Show) }
+          let(:poa_request_service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Decide) }
           let(:get_poa_request_response) do
             {
               'VSOUserEmail' => nil, 'VSOUserFirstName' => 'vets-api',
@@ -684,13 +684,16 @@ describe 'PowerOfAttorney',
                                                           poa_code: '003')
             allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController).to receive(:fetch_ptcpnt_id)
               .with(anything).and_return('600049322')
-            allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(poa_request_service)
-            allow(poa_request_service).to receive(:get_poa_request).and_return(get_poa_request_response)
+            allow(ClaimsApi::PowerOfAttorneyRequestService::Decide).to receive(:new).and_return(poa_request_service)
+            allow(poa_request_service).to receive(:handle_poa_response).and_return(get_poa_request_response)
             allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
               .to receive(:process_poa_decision).and_return(OpenStruct.new(id: '1234'))
-            allow_any_instance_of(
-              ClaimsApi::PowerOfAttorneyRequestService::Decide
-            ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
+            allow(poa_request_service).to receive(
+              :validate_decide_representative_params!
+            ).with(anything, anything).and_return(nil)
+            allow(poa_request_service).to receive(
+              :build_veteran_and_dependent_data
+            ).with(anything, anything).and_return(nil)
 
             mock_ccg(scopes) do
               VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
