@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe TravelClaim::ClaimSubmissionService do
-  let(:check_in_session) { instance_double(CheckIn::V2::Session, uuid: 'test-uuid') }
   let(:appointment_date) { '2024-01-01T12:00:00Z' }
   let(:facility_type) { 'oh' }
+  let(:check_in_uuid) { 'test-uuid' }
   let(:redis_client) { instance_double(TravelClaim::RedisClient) }
   let(:travel_pay_client) { instance_double(TravelClaim::TravelPayClient) }
 
@@ -23,8 +23,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
 
   describe '#submit_claim' do
     let(:icn) { 'test-icn' }
-    let(:uuid) { 'test-uuid' }
-    let(:service) { described_class.new(check_in: check_in_session, appointment_date:, facility_type:, uuid:) }
+    let(:service) { described_class.new(appointment_date:, facility_type:, check_in_uuid:) }
 
     before do
       allow(redis_client).to receive_messages(
@@ -36,18 +35,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
     end
 
     context 'when validation fails' do
-      context 'when check_in is missing' do
-        let(:service) { described_class.new(check_in: nil, appointment_date:, facility_type:, uuid:) }
-
-        it 'raises BackendServiceException for missing check_in' do
-          expect { service.submit_claim }.to raise_error(
-            Common::Exceptions::BackendServiceException
-          )
-        end
-      end
-
       context 'when appointment_date is missing' do
-        let(:service) { described_class.new(check_in: check_in_session, appointment_date: nil, facility_type:, uuid:) }
+        let(:service) { described_class.new(appointment_date: nil, facility_type:, check_in_uuid:) }
 
         it 'raises BackendServiceException for missing appointment_date' do
           expect { service.submit_claim }.to raise_error(
@@ -57,7 +46,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
       end
 
       context 'when facility_type is missing' do
-        let(:service) { described_class.new(check_in: check_in_session, appointment_date:, facility_type: nil, uuid:) }
+        let(:service) { described_class.new(appointment_date:, facility_type: nil, check_in_uuid:) }
 
         it 'raises BackendServiceException for missing facility_type' do
           expect { service.submit_claim }.to raise_error(
@@ -66,10 +55,10 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
         end
       end
 
-      context 'when uuid is missing' do
-        let(:service) { described_class.new(check_in: check_in_session, appointment_date:, facility_type:, uuid: nil) }
+      context 'when check_in_uuid is missing' do
+        let(:service) { described_class.new(appointment_date:, facility_type:, check_in_uuid: nil) }
 
-        it 'raises BackendServiceException for missing uuid' do
+        it 'raises BackendServiceException for missing check_in_uuid' do
           expect { service.submit_claim }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
@@ -380,8 +369,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
   end
 
   describe '#log_message' do
-    let(:uuid) { 'test-uuid' }
-    let(:service) { described_class.new(check_in: check_in_session, appointment_date:, facility_type:, uuid:) }
+    let(:service) { described_class.new(appointment_date:, facility_type:, check_in_uuid:) }
 
     context 'when check_in_experience_travel_claim_logging feature flag is enabled' do
       before do
@@ -418,8 +406,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
   end
 
   describe 'notification helper methods' do
-    let(:uuid) { 'test-uuid' }
-    let(:service) { described_class.new(check_in: check_in_session, appointment_date:, facility_type:, uuid:) }
+    let(:service) { described_class.new(appointment_date:, facility_type:, check_in_uuid:) }
 
     describe '#extract_claim_number_last_four' do
       context 'with valid response body' do

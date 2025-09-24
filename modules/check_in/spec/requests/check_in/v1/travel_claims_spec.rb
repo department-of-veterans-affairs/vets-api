@@ -455,7 +455,7 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
             'TravelPayClient 401 error - retrying authentication',
             hash_including(
               correlation_id: be_present,
-              uuid_hash: uuid,
+              check_in_uuid: uuid,
               veis_token_present: true,
               btsss_token_present: true
             )
