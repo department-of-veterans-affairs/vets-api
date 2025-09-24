@@ -118,13 +118,14 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
       let(:created_at_time) { Time.zone.local(2023, 7, 15, 14, 30, 0) }
       let(:submission_with_claim_date) { create(:form526_submission, :with_everything, user_account:) }
       let(:submission_without_claim_date) { create(:form526_submission, user_account:) }
+      let(:captured_form_json) { {} }
 
       before do
         # Mock the response so we don't make actual API calls
         klass = LighthouseGeneratePdfProvider
         allow_any_instance_of(klass).to receive(:generate_526_pdf) do |_instance, form_json, _transaction_id|
-          # Capture the form_json that's being sent
-          @captured_form_json = JSON.parse(form_json)
+          # Capture the form_json that's being sent (mutate the existing hash rather than reassigning)
+          captured_form_json.replace(JSON.parse(form_json))
           Faraday::Response.new(status: 200, body: '526pdf')
         end
       end
@@ -138,7 +139,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           processor.get_form526_pdf
 
           # Verify claimDate was set to the formatted created_at date
-          expect(@captured_form_json['form526']['claimDate']).to eq('2023-07-15')
+          expect(captured_form_json['form526']['claimDate']).to eq('2023-07-15')
         end
       end
 
@@ -156,7 +157,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           processor.get_form526_pdf
 
           # Verify claimDate was set to the formatted created_at date
-          expect(@captured_form_json['form526']['claimDate']).to eq('2023-07-15')
+          expect(captured_form_json['form526']['claimDate']).to eq('2023-07-15')
         end
       end
 
@@ -174,7 +175,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           processor.get_form526_pdf
 
           # Verify claimDate was set to the formatted created_at date
-          expect(@captured_form_json['form526']['claimDate']).to eq('2023-07-15')
+          expect(captured_form_json['form526']['claimDate']).to eq('2023-07-15')
         end
       end
 
@@ -195,7 +196,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           processor = subject.new(submission_without_claim_date.id, get_upload_location_on_instantiation: false)
           processor.get_form526_pdf
 
-          expect(@captured_form_json['form526']['claimDate']).to eq(expected_formats[index])
+          expect(captured_form_json['form526']['claimDate']).to eq(expected_formats[index])
         end
       end
     end

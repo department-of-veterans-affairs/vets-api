@@ -5,6 +5,8 @@ require 'disability_compensation/requests/form526_request_body'
 module EVSS
   module DisabilityCompensationForm
     class Form526ToLighthouseTransform # rubocop:disable Metrics/ClassLength
+      VALID_LH_DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})$/
+
       TOXIC_EXPOSURE_CAUSE_MAP = {
         NEW: 'My condition was caused by an injury or exposure during my military service.',
         WORSENED: 'My condition existed before I served in the military, but it got worse because of my military ' \
@@ -114,11 +116,15 @@ module EVSS
 
       private
 
+      def valid_date_for_lighthouse?(date_string)
+        date_string =~ VALID_LH_DATE_REGEX
+      end
+
       def transform_claim_notes_and_date(form526, lh_request_body)
         lh_request_body.claim_notes = form526['overflowText']
 
         claim_date = form526['claimDate']
-        lh_request_body.claim_date = claim_date if claim_date.present? && (claim_date =~ /^(\d{4})-(\d{2})-(\d{2})$/)
+        lh_request_body.claim_date = claim_date if claim_date.present? && valid_date_for_lighthouse?(claim_date)
       end
 
       # returns "STANDARD_CLAIM_PROCESS", "BDD_PROGRAM", or "FDC_PROGRAM"
