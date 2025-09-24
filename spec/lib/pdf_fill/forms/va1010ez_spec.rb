@@ -201,23 +201,46 @@ describe PdfFill::Forms::Va1010ez do
         end
 
         context 'and more than one child dependent' do
-          let(:form_data) do
-            { 'dependents' => [
-              { 'receivedSupportLastYear' => false },
-              { 'receivedSupportLastYear' => false }
-            ], 'provideSupportLastYear' => false }
+          context 'where no support was provided' do
+            let(:form_data) do
+              { 'dependents' => [
+                { 'receivedSupportLastYear' => false },
+                { 'receivedSupportLastYear' => false }
+              ], 'provideSupportLastYear' => false }
+            end
+
+            it 'merges based on provideSupportLastYear value and dependent receivedSupportLastYear' do
+              expect(merged_fields).to include(
+                'provideSupportLastYear' => 2
+              )
+              expect(merged_fields['dependents'].first).to include(
+                'receivedSupportLastYear' => 'NO'
+              )
+              expect(merged_fields['dependents'].second).to include(
+                'receivedSupportLastYear' => 'NO'
+              )
+            end
           end
 
-          it 'merges based on provideSupportLastYear value and dependent receivedSupportLastYear' do
-            expect(merged_fields).to include(
-              'provideSupportLastYear' => 2
-            )
-            expect(merged_fields['dependents'].first).to include(
-              'receivedSupportLastYear' => 'NO'
-            )
-            expect(merged_fields['dependents'].second).to include(
-              'receivedSupportLastYear' => 'NO'
-            )
+          context 'where at least one has support provided' do
+            let(:form_data) do
+              { 'dependents' => [
+                { 'receivedSupportLastYear' => false },
+                { 'receivedSupportLastYear' => true }
+              ], 'provideSupportLastYear' => false }
+            end
+
+            it 'merges based on provideSupportLastYear value and dependent receivedSupportLastYear' do
+              expect(merged_fields).to include(
+                'provideSupportLastYear' => 1
+              )
+              expect(merged_fields['dependents'].first).to include(
+                'receivedSupportLastYear' => 'NO'
+              )
+              expect(merged_fields['dependents'].second).to include(
+                'receivedSupportLastYear' => 'YES'
+              )
+            end
           end
         end
       end
