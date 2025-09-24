@@ -259,7 +259,7 @@ module PdfFill
         end
 
         dependent_provided_support = @form_data['dependents'].any? do |dependent|
-          dependent['receivedSupportLastYear'] == true
+          dependent['receivedSupportLastYear']
         end
 
         @form_data['provideSupportLastYear'] =
