@@ -588,48 +588,524 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
     end
 
     describe '#extract_is_refillable' do
-      context 'with active status and remaining refills' do
-        let(:resource) do
-          {
-            'status' => 'active',
-            'dispenseRequest' => {
-              'numberOfRepeatsAllowed' => 5
+      let(:base_refillable_resource) do
+        {
+          'status' => 'active',
+          'reportedBoolean' => false,
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 5,
+            'validityPeriod' => {
+              'end' => 1.year.from_now.iso8601
             }
-          }
-        end
+          },
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-15T10:00:00Z'
+            }
+          ]
+        }
+      end
 
+      context 'with all conditions met for refillable prescription' do
         it 'returns true' do
-          expect(subject.send(:extract_is_refillable, resource)).to be true
+          expect(subject.send(:extract_is_refillable, base_refillable_resource)).to be true
         end
       end
 
-      context 'with active status but no remaining refills' do
-        let(:resource) do
-          {
-            'status' => 'active',
-            'dispenseRequest' => {
-              'numberOfRepeatsAllowed' => 0
-            }
-          }
+      context 'with non-VA medication (reportedBoolean true)' do
+        let(:non_va_resource) do
+          base_refillable_resource.merge('reportedBoolean' => true)
         end
 
-        it 'returns false' do
-          expect(subject.send(:extract_is_refillable, resource)).to be false
+        it 'returns false for non-VA medications' do
+          expect(subject.send(:extract_is_refillable, non_va_resource)).to be false
         end
       end
 
       context 'with inactive status' do
-        let(:resource) do
+        let(:inactive_resource) do
+          base_refillable_resource.merge('status' => 'completed')
+        end
+
+        it 'returns false when status is not active' do
+          expect(subject.send(:extract_is_refillable, inactive_resource)).to be false
+        end
+      end
+
+      context 'with null status' do
+        let(:null_status_resource) do
+          base_refillable_resource.merge('status' => nil)
+        end
+
+        it 'returns false when status is null' do
+          expect(subject.send(:extract_is_refillable, null_status_resource)).to be false
+        end
+      end
+
+      context 'with expired prescription' do
+        let(:expired_resource) do
+          expired_date = 1.day.ago.iso8601
+          base_refillable_resource.deep_merge(
+            'dispenseRequest' => {
+              'validityPeriod' => {
+                'end' => expired_date
+              }
+            }
+          )
+        end
+
+        it 'returns false when prescription is expired' do
+          expect(subject.send(:extract_is_refillable, expired_resource)).to be false
+        end
+      end
+
+      context 'with no expiration date' do
+        let(:no_expiration_resource) do
+          resource = base_refillable_resource.dup
+          resource['dispenseRequest'].delete('validityPeriod')
+          resource
+        end
+
+        it 'returns false when no expiration date (safety default)' do
+          expect(subject.send(:extract_is_refillable, no_expiration_resource)).to be false
+        end
+      end
+
+      context 'with invalid expiration date' do
+        let(:invalid_expiration_resource) do
+          base_refillable_resource.deep_merge(
+            'dispenseRequest' => {
+              'validityPeriod' => {
+                'end' => 'invalid-date'
+              }
+            }
+          )
+        end
+
+        before do
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'returns false and logs warning for invalid dates' do
+          expect(subject.send(:extract_is_refillable, invalid_expiration_resource)).to be false
+          expect(Rails.logger).to have_received(:warn).with(
+            /Invalid expiration date for prescription.*: invalid-date/
+          )
+        end
+      end
+
+      context 'with no refills remaining' do
+        let(:no_refills_resource) do
+          base_refillable_resource.merge(
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 0,
+              'validityPeriod' => {
+                'end' => 1.year.from_now.iso8601
+              }
+            }
+          )
+        end
+
+        it 'returns false when no refills remaining' do
+          expect(subject.send(:extract_is_refillable, no_refills_resource)).to be false
+        end
+      end
+
+      context 'with multiple failing conditions' do
+        let(:multiple_fail_resource) do
           {
             'status' => 'completed',
+            'reportedBoolean' => true,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 0,
+              'validityPeriod' => {
+                'end' => 1.day.ago.iso8601
+              }
+            }
+          }
+        end
+
+        it 'returns false when multiple conditions fail' do
+          expect(subject.send(:extract_is_refillable, multiple_fail_resource)).to be false
+        end
+      end
+
+      context 'with future expiration and active status' do
+        let(:future_expiration_resource) do
+          base_refillable_resource.deep_merge(
+            'dispenseRequest' => {
+              'validityPeriod' => {
+                'end' => 6.months.from_now.iso8601
+              }
+            }
+          )
+        end
+
+        it 'returns true when expiration is in the future' do
+          expect(subject.send(:extract_is_refillable, future_expiration_resource)).to be true
+        end
+      end
+
+      context 'with exactly one refill remaining' do
+        let(:one_refill_resource) do
+          base_refillable_resource.merge(
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 2,
+              'validityPeriod' => {
+                'end' => 1.year.from_now.iso8601
+              }
+            },
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-2',
+                'status' => 'completed'
+              }
+            ]
+          )
+        end
+
+        it 'returns true when exactly one refill remains' do
+          expect(subject.send(:extract_is_refillable, one_refill_resource)).to be true
+        end
+      end
+    end
+
+    describe '#extract_station_number' do
+      let(:resource_with_station_number) do
+        {
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'location' => { 'display' => '556-RX-MAIN-OP' }
+            }
+          ]
+        }
+      end
+
+      context 'with valid 3-digit station number format' do
+        it 'extracts the first 3 digits' do
+          result = subject.send(:extract_station_number, resource_with_station_number)
+          expect(result).to eq('556')
+        end
+      end
+
+      context 'with format that has less than 3 leading digits' do
+        let(:resource_with_short_digits) do
+          {
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'location' => { 'display' => '12-PHARMACY' }
+              }
+            ]
+          }
+        end
+
+        before do
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'falls back to original value and logs warning' do
+          result = subject.send(:extract_station_number, resource_with_short_digits)
+          expect(result).to eq('12-PHARMACY')
+          expect(Rails.logger).to have_received(:warn).with(
+            'Unable to extract 3-digit station number from: 12-PHARMACY'
+          )
+        end
+      end
+
+      context 'with no MedicationDispense in contained resources' do
+        let(:resource_without_dispense) do
+          {
+            'contained' => [
+              {
+                'resourceType' => 'Encounter',
+                'id' => 'encounter-1'
+              }
+            ]
+          }
+        end
+
+        it 'returns nil' do
+          result = subject.send(:extract_station_number, resource_without_dispense)
+          expect(result).to be_nil
+        end
+      end
+    end
+
+    describe '#extract_refill_remaining' do
+      context 'with non-VA medication' do
+        let(:non_va_resource) do
+          {
+            'reportedBoolean' => true,
             'dispenseRequest' => {
               'numberOfRepeatsAllowed' => 5
             }
           }
         end
 
-        it 'returns false' do
-          expect(subject.send(:extract_is_refillable, resource)).to be false
+        it 'returns 0 for non-VA medications' do
+          result = subject.send(:extract_refill_remaining, non_va_resource)
+          expect(result).to eq(0)
+        end
+      end
+
+      context 'with VA medication and no completed dispenses' do
+        let(:resource_no_dispenses) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 5
+            }
+          }
+        end
+
+        it 'returns the full number of repeats allowed' do
+          result = subject.send(:extract_refill_remaining, resource_no_dispenses)
+          expect(result).to eq(5)
+        end
+      end
+
+      context 'with VA medication and one completed dispense (initial fill)' do
+        let(:resource_one_dispense) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 5
+            },
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'status' => 'completed'
+              }
+            ]
+          }
+        end
+
+        it 'returns the full number of repeats (initial fill does not count against refills)' do
+          result = subject.send(:extract_refill_remaining, resource_one_dispense)
+          expect(result).to eq(5)
+        end
+      end
+
+      context 'with VA medication and multiple completed dispenses' do
+        let(:resource_multiple_dispenses) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 5
+            },
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-2',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-3',
+                'status' => 'completed'
+              }
+            ]
+          }
+        end
+
+        it 'subtracts refills used (excluding initial fill)' do
+          # 3 completed dispenses = 1 initial + 2 refills used
+          # 5 allowed - 2 used = 3 remaining
+          result = subject.send(:extract_refill_remaining, resource_multiple_dispenses)
+          expect(result).to eq(3)
+        end
+      end
+
+      context 'with VA medication and all refills used' do
+        let(:resource_all_refills_used) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 2
+            },
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-2',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-3',
+                'status' => 'completed'
+              }
+            ]
+          }
+        end
+
+        it 'returns 0 when all refills are used' do
+          # 3 completed dispenses = 1 initial + 2 refills used
+          # 2 allowed - 2 used = 0 remaining
+          result = subject.send(:extract_refill_remaining, resource_all_refills_used)
+          expect(result).to eq(0)
+        end
+      end
+
+      context 'with VA medication and over-dispensed (more dispenses than allowed)' do
+        let(:resource_over_dispensed) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 1
+            },
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-2',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-3',
+                'status' => 'completed'
+              }
+            ]
+          }
+        end
+
+        it 'returns 0 when more dispenses than allowed' do
+          # 3 completed dispenses = 1 initial + 2 refills used
+          # 1 allowed - 2 used = -1, but should return 0
+          result = subject.send(:extract_refill_remaining, resource_over_dispensed)
+          expect(result).to eq(0)
+        end
+      end
+
+      context 'with mixed dispense statuses' do
+        let(:resource_mixed_statuses) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 5
+            },
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-2',
+                'status' => 'in-progress'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-3',
+                'status' => 'completed'
+              }
+            ]
+          }
+        end
+
+        it 'only counts completed dispenses' do
+          # 2 completed dispenses = 1 initial + 1 refill used
+          # 5 allowed - 1 used = 4 remaining
+          result = subject.send(:extract_refill_remaining, resource_mixed_statuses)
+          expect(result).to eq(4)
+        end
+      end
+
+      context 'with no numberOfRepeatsAllowed specified' do
+        let(:resource_no_repeats) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {}
+          }
+        end
+
+        it 'defaults to 0 repeats allowed' do
+          result = subject.send(:extract_refill_remaining, resource_no_repeats)
+          expect(result).to eq(0)
+        end
+      end
+
+      context 'with no dispenseRequest' do
+        let(:resource_no_dispense_request) do
+          {
+            'reportedBoolean' => false
+          }
+        end
+
+        it 'defaults to 0 repeats allowed' do
+          result = subject.send(:extract_refill_remaining, resource_no_dispense_request)
+          expect(result).to eq(0)
+        end
+      end
+
+      context 'with no contained resources' do
+        let(:resource_no_contained) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 3
+            }
+          }
+        end
+
+        it 'returns the full number of repeats allowed' do
+          result = subject.send(:extract_refill_remaining, resource_no_contained)
+          expect(result).to eq(3)
+        end
+      end
+
+      context 'with non-MedicationDispense resources in contained' do
+        let(:resource_no_med_dispenses) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 4
+            },
+            'contained' => [
+              {
+                'resourceType' => 'Encounter',
+                'id' => 'encounter-1'
+              },
+              {
+                'resourceType' => 'Organization',
+                'id' => 'org-1'
+              }
+            ]
+          }
+        end
+
+        it 'returns the full number of repeats allowed when no MedicationDispense resources' do
+          result = subject.send(:extract_refill_remaining, resource_no_med_dispenses)
+          expect(result).to eq(4)
         end
       end
     end
