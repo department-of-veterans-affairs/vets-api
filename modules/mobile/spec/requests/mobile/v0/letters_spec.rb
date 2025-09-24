@@ -251,6 +251,22 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
               end
             end
           end
+
+          it 'includes the COE letter if eligible' do
+            VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/lgy/determination_eligible', match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/lgy/application_not_found', match_requests_on: %i[method uri]) do
+                  get '/mobile/v0/letters', headers: sis_headers({ 'App-Version' => '2.59.0' })
+                  expect(response).to have_http_status(:ok)
+                  expect(JSON.parse(response.body)['data']['attributes']['letters']).to include(
+                    { 'name' => 'Certificate of Eligibility for Home Loan Letter',
+                      'letterType' => 'certificate_of_eligibility_home_loan' }
+                  )
+                  expect(response.body).to match_json_schema('letters')
+                end
+              end
+            end
+          end
         end
 
         context 'with an app version that does not support COE letters' do

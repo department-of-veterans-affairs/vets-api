@@ -12,6 +12,7 @@ module VAProfile
       VALID_EMAIL_REGEX = /.+@.+\..+/i
 
       attribute :created_at, Vets::Type::ISO8601Time
+      attribute :confirmation_date, Vets::Type::ISO8601Time
       attribute :email_address, String
       attribute :effective_end_date, Vets::Type::ISO8601Time
       attribute :effective_start_date, Vets::Type::ISO8601Time
@@ -36,13 +37,14 @@ module VAProfile
       def in_json
         {
           bio: {
-            emailAddressText: @email_address,
-            emailId: @id,
+            emailAddressText: email_address,
+            emailId: id,
             originatingSourceSystem: SOURCE_SYSTEM,
-            sourceSystemUser: @source_system_user,
-            sourceDate: @source_date,
-            effectiveStartDate: @effective_start_date,
-            effectiveEndDate: @effective_end_date
+            sourceSystemUser: source_system_user,
+            sourceDate: source_date,
+            effectiveStartDate: effective_start_date,
+            effectiveEndDate: effective_end_date,
+            confirmationDate: confirmation_date
           }
         }.to_json
       end
@@ -53,6 +55,7 @@ module VAProfile
       def self.build_from(body)
         VAProfile::Models::Email.new(
           created_at: body['create_date'],
+          confirmation_date: body['confirmation_date'],
           email_address: body['email_address_text'],
           effective_end_date: body['effective_end_date'],
           effective_start_date: body['effective_start_date'],
