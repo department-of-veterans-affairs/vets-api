@@ -200,7 +200,7 @@ properties:
         type: string
         nullable: true
         example: "1,1"
-      groupedMedications:
+      grouped_medications:
         type: array
         nullable: true
         items:
