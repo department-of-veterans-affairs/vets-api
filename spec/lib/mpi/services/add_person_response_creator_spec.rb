@@ -12,7 +12,7 @@ describe MPI::Services::AddPersonResponseCreator do
     let(:error) { 'some-error' }
 
     shared_examples 'error response' do
-      let(:expected_error_message) { "[MPI][AddPersonResponseCreator] MPI #{type} response error" }
+      let(:expected_error_message) { "[MPI][Services][AddPersonResponseCreator] MPI #{type} response error" }
       let(:rails_logger_context) { { error_message: expected_error.message } }
       let(:expected_status) { :server_error }
 

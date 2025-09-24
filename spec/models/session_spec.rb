@@ -114,7 +114,7 @@ RSpec.describe Session, type: :model do
 
         it 'logs info to Rails logger' do
           expect(Rails.logger).to receive(:info).with(
-            '[Models][Session] Maximum Session Duration Reached',
+            '[Session] Maximum Session Duration Reached',
             session_token: described_class.obscure_token(subject.token)
           )
           subject.save

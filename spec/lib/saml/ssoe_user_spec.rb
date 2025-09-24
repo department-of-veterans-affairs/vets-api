@@ -729,7 +729,7 @@ RSpec.describe SAML::User do
 
         it 'logs a warning to Rails logger' do
           expect(Rails.logger).to receive(:warn).with(
-            '[SAML][SSOe] User attributes contains multiple sec_id values',
+            '[SAML][UserAttributes][SSOe] User attributes contains multiple sec_id values',
             sec_id:
           )
           subject.validate!

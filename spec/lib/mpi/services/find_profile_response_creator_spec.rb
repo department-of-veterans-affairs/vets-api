@@ -12,7 +12,7 @@ describe MPI::Services::FindProfileResponseCreator do
     let(:error) { 'some-error' }
 
     shared_examples 'error response' do
-      let(:expected_error_message) { "[MPI][FindProfileResponseCreator] MPI #{type} response error" }
+      let(:expected_error_message) { "[MPI][Services][FindProfileResponseCreator] MPI #{type} response error" }
       let(:error_details) do
         { error_details: { ack_detail_code:,
                            id_extension:,

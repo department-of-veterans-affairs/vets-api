@@ -466,11 +466,11 @@ describe MPI::Responses::ProfileParser do
 
     it 'logs warning about inactive IDs to Rails logger' do
       expect(Rails.logger).to receive(:info).with(
-        '[MPI][ProfileParser] Inactive MHV correlation IDs present',
+        '[MPI][Responses][ProfileParser] Inactive MHV correlation IDs present',
         ids: %w[12345678901 12345678902]
       )
       expect(Rails.logger).to receive(:warn).with(
-        '[MPI][ProfileParser] Returning inactive MHV correlation ID as first identifier',
+        '[MPI][Responses][ProfileParser] Returning inactive MHV correlation ID as first identifier',
         ids: %w[12345678901 12345678902]
       )
 

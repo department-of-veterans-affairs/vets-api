@@ -66,7 +66,7 @@ RSpec.describe IAMUserIdentity, type: :model do
     it 'logs a warning to Rails logger' do
       attrs = mhv_attrs.merge(fediam_mhv_ien: '123456,7890123')
       expect(Rails.logger).to receive(:warn).with(
-        '[Models][IAMUserIdentity] OAuth: Multiple MHV IDs present',
+        '[IAMUserIdentity] OAuth: Multiple MHV IDs present',
         mhv_ien: '123456,7890123'
       )
       described_class.build_from_iam_profile(attrs)
