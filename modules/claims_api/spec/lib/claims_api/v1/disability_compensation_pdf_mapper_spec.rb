@@ -909,12 +909,13 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         reserves_base = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+        service_info_base = pdf_data[:data][:attributes][:serviceInformation]
 
         expect(reserves_base[:unitPhoneNumber]).to eq('1231231234')
         expect(reserves_base[:receivingInactiveDutyTrainingPay]).to be('NO')
-        expect(reserves_base[:federalActivation][:activationDate]).to eq({ year: '2023', month: '01', day: '01' })
-        expect(reserves_base[:federalActivation][:anticipatedSeparationDate]).to eq({ year: '2025', month: '12',
-                                                                                      day: '01' })
+        expect(service_info_base[:federalActivation][:activationDate]).to eq({ year: '2023', month: '01', day: '01' })
+        expect(service_info_base[:federalActivation][:anticipatedSeparationDate]).to eq({ year: '2025', month: '12',
+                                                                                          day: '01' })
       end
     end
 
@@ -1030,6 +1031,58 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       expect(service_pay_base).not_to be_nil
       expect(service_pay_base[:favorTrainingPay]).to be(true)
       expect(service_pay_base[:favorMilitaryRetiredPay]).to be(true)
+    end
+  end
+
+  context 'section 8 direct deposit' do
+    let(:direct_deposit_data) do
+      {
+        'accountType' => 'CHECKING',
+        'accountNumber' => '123123123123',
+        'routingNumber' => '123123123',
+        'bankName' => 'ABC Bank'
+      }
+    end
+
+    let(:min_direct_deposit_data) do
+      {
+        'accountType' => 'SAVINGS',
+        'accountNumber' => '123123123124',
+        'routingNumber' => '123123124'
+      }
+    end
+
+    it 'maps nothing if not included on the submission' do
+      form_attributes['directDeposit'] = nil
+      mapper.map_claim
+
+      claim_data_base = pdf_data[:data][:attributes]
+
+      expect(claim_data_base).not_to have_key(:directDepositInformation)
+    end
+
+    it 'maps the attributes' do
+      form_attributes['directDeposit'] = direct_deposit_data
+      mapper.map_claim
+
+      direct_deposit_base = pdf_data[:data][:attributes][:directDepositInformation]
+
+      expect(direct_deposit_base).not_to be_nil
+      expect(direct_deposit_base[:accountType]).to eq('CHECKING')
+      expect(direct_deposit_base[:accountNumber]).to eq('123123123123')
+      expect(direct_deposit_base[:routingNumber]).to eq('123123123')
+      expect(direct_deposit_base[:financialInstitutionName]).to eq('ABC Bank')
+    end
+
+    it 'handles mapping optional attributes' do
+      form_attributes['directDeposit'] = min_direct_deposit_data
+      mapper.map_claim
+
+      direct_deposit_base = pdf_data[:data][:attributes][:directDepositInformation]
+      expect(direct_deposit_base[:accountType]).to eq('SAVINGS')
+      expect(direct_deposit_base[:accountNumber]).to eq('123123123124')
+      expect(direct_deposit_base[:routingNumber]).to eq('123123124')
+      expect(direct_deposit_base).not_to have_key(:financialInstitutionName)
     end
   end
 end
