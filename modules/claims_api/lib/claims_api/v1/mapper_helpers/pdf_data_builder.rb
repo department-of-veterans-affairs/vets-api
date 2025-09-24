@@ -24,10 +24,14 @@ module ClaimsApi
         service_most_recent: %i[serviceInformation mostRecentActiveService],
         service_reserves: %i[serviceInformation reservesNationalGuardService],
         service_branch_info: %i[serviceInformation branchOfService],
-        # SECTION &: Service Pay
+        # SECTION 7: Service Pay
         service_pay_info: %i[servicePay],
         service_pay_retired_military: %i[servicePay militaryRetiredPay],
-        service_pay_separation_severance_pay: %i[servicePay separationSeverancePay]
+        service_pay_separation_severance_pay: %i[servicePay separationSeverancePay],
+        # SECTION 8: Direct Deposit
+        direct_deposit: %i[directDepositInformation],
+        # SECTION : Claim Certification
+        claim_certification: %i[claimCertificationAndSignature]
       }.freeze
 
       def build_pdf_path(path_key)

@@ -25,13 +25,14 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
   end
   let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
   let(:user) { create(:user, :loa3) }
+  let(:created_at) { Timecop.freeze(Time.zone.now) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
   let(:middle_initial) { 'L' }
-
   let(:mapper) do
-    ClaimsApi::V1::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, auth_headers, middle_initial)
+    ClaimsApi::V1::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, auth_headers, middle_initial,
+                                                       created_at)
   end
 
   context '526 section 0, claim attributes', run_at: '2025-09-03 11:57:45.709631 -0500' do
@@ -575,12 +576,13 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         reserves_base = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+        service_info_base = pdf_data[:data][:attributes][:serviceInformation]
 
         expect(reserves_base[:unitPhoneNumber]).to eq('1231231234')
         expect(reserves_base[:receivingInactiveDutyTrainingPay]).to be('NO')
-        expect(reserves_base[:federalActivation][:activationDate]).to eq({ year: '2023', month: '01', day: '01' })
-        expect(reserves_base[:federalActivation][:anticipatedSeparationDate]).to eq({ year: '2025', month: '12',
-                                                                                      day: '01' })
+        expect(service_info_base[:federalActivation][:activationDate]).to eq({ year: '2023', month: '01', day: '01' })
+        expect(service_info_base[:federalActivation][:anticipatedSeparationDate]).to eq({ year: '2025', month: '12',
+                                                                                          day: '01' })
       end
     end
 
@@ -696,6 +698,125 @@ describe ClaimsApi::V1::DisabilityCompensationPdfMapper do
       expect(service_pay_base).not_to be_nil
       expect(service_pay_base[:favorTrainingPay]).to be(true)
       expect(service_pay_base[:favorMilitaryRetiredPay]).to be(true)
+    end
+  end
+
+  context 'section 8 direct deposit' do
+    let(:direct_deposit_data) do
+      {
+        'accountType' => 'CHECKING',
+        'accountNumber' => '123123123123',
+        'routingNumber' => '123123123',
+        'bankName' => 'ABC Bank'
+      }
+    end
+
+    let(:min_direct_deposit_data) do
+      {
+        'accountType' => 'SAVINGS',
+        'accountNumber' => '123123123124',
+        'routingNumber' => '123123124'
+      }
+    end
+
+    it 'maps nothing if not included on the submission' do
+      form_attributes['directDeposit'] = nil
+      mapper.map_claim
+
+      claim_data_base = pdf_data[:data][:attributes]
+
+      expect(claim_data_base).not_to have_key(:directDepositInformation)
+    end
+
+    it 'maps the attributes' do
+      form_attributes['directDeposit'] = direct_deposit_data
+      mapper.map_claim
+
+      direct_deposit_base = pdf_data[:data][:attributes][:directDepositInformation]
+
+      expect(direct_deposit_base).not_to be_nil
+      expect(direct_deposit_base[:accountType]).to eq('CHECKING')
+      expect(direct_deposit_base[:accountNumber]).to eq('123123123123')
+      expect(direct_deposit_base[:routingNumber]).to eq('123123123')
+      expect(direct_deposit_base[:financialInstitutionName]).to eq('ABC Bank')
+    end
+
+    it 'handles mapping optional attributes' do
+      form_attributes['directDeposit'] = min_direct_deposit_data
+      mapper.map_claim
+
+      direct_deposit_base = pdf_data[:data][:attributes][:directDepositInformation]
+      expect(direct_deposit_base[:accountType]).to eq('SAVINGS')
+      expect(direct_deposit_base[:accountNumber]).to eq('123123123124')
+      expect(direct_deposit_base[:routingNumber]).to eq('123123124')
+      expect(direct_deposit_base).not_to have_key(:financialInstitutionName)
+    end
+  end
+
+  context 'section 9 claim date and signature' do
+    let(:claim_date_data) { '2018-08-28T19:53:45+00:00' }
+    let(:first_name) { auth_headers['va_eauth_firstName'] }
+    let(:last_name) { auth_headers['va_eauth_lastName'] }
+    let(:created_at_object) do
+      {
+        year: created_at.strftime('%Y').to_s,
+        month: created_at.strftime('%m').to_s,
+        day: created_at.strftime('%d').to_s
+      }
+    end
+
+    it 'maps the attributes' do
+      form_attributes['claimDate'] = claim_date_data
+      mapper.map_claim
+
+      claim_cert_base = pdf_data[:data][:attributes][:claimCertificationAndSignature]
+
+      expect(claim_cert_base[:dateSigned]).to eq({ year: '2018', month: '08', day: '28' })
+      expect(claim_cert_base[:signature]).not_to be_nil
+    end
+
+    it 'maps claimDate correctly if not provided' do
+      form_attributes['claimDate'] = nil
+      mapper.map_claim
+
+      claim_cert_base = pdf_data[:data][:attributes][:claimCertificationAndSignature]
+
+      expect(claim_cert_base[:dateSigned]).to eq(created_at_object)
+      expect(claim_cert_base[:signature]).not_to be_nil
+    end
+  end
+
+  describe '#extract_date_safely' do
+    it 'uses a date with timezone offset' do
+      res = mapper.send(:extract_date_safely, '2018-08-28T19:53:45+00:00')
+
+      expect(res).to eq('2018-08-28')
+    end
+
+    it 'uses a date with just UTC indicator' do
+      res = mapper.send(:extract_date_safely, '2023-12-31T23:59:59Z')
+
+      expect(res).to eq('2023-12-31')
+    end
+
+    it 'uses a date in YYYY-MM-DD pattern' do
+      res = mapper.send(:extract_date_safely, '2020-11-22')
+
+      expect(res).to eq('2020-11-22')
+    end
+  end
+
+  describe '#valid_date?' do
+    it 'returns false an invalid date' do
+      res = mapper.send(:valid_date?, '2024-13-15')
+
+      expect(res).to be(false)
+    end
+
+    it 'returns true a valid date' do
+      res = mapper.send(:valid_date?, '2024-09-15')
+
+      expect(res).to be(true)
     end
   end
 end

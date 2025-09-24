@@ -7,7 +7,7 @@ require_relative 'mapper_helpers/pdf_data_builder'
 
 module ClaimsApi
   module V1
-    class DisabilityCompensationPdfMapper
+    class DisabilityCompensationPdfMapper # rubocop:disable Metrics/ClassLength
       include PdfMapperBase
       include AuthHeadersLookup # get_auth_header
       include AutoClaimLookup # lookup_in_auto_claim
@@ -22,6 +22,8 @@ module ClaimsApi
         section_5_treatment_centers
         section_6_service_information
         section_7_service_pay
+        section_8_direct_deposit
+        section_9_claim_certification_and_signature
       ].freeze
 
       HOMELESSNESS_RISK_SITUATION_TYPES = {
@@ -38,11 +40,12 @@ module ClaimsApi
         'other' => 'OTHER'
       }.freeze
 
-      def initialize(auto_claim, pdf_data, auth_headers, middle_initial)
+      def initialize(auto_claim, pdf_data, auth_headers, middle_initial, created_at)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
         @auth_headers = auth_headers&.deep_symbolize_keys
         @middle_initial = middle_initial
+        @created_at = created_at.strftime('%Y-%m-%d').to_s
       end
 
       def map_claim
@@ -85,8 +88,6 @@ module ClaimsApi
         veteran_file_number(identification_info_pdf_path)
         veteran_name
         veteran_birth_date(identification_info_pdf_path)
-
-        @pdf_data
       end
 
       def mailing_address
@@ -190,8 +191,7 @@ module ClaimsApi
       end
 
       def section_3_homeless_information
-        homeless_info = lookup_in_auto_claim(:veteran_homelessness)
-        return if homeless_info.blank?
+        return if lookup_in_auto_claim(:veteran_homelessness).blank?
 
         homeless_info_pdf_path = build_pdf_path(:homeless_info)
 
@@ -317,8 +317,8 @@ module ClaimsApi
         end
 
         names = treatment['treatedDisabilityNames']
-        name = names.join(', ') if names.present?
-        [name, center].compact.join(' - ')
+        compiled_name = names.join(', ') if names.present?
+        [compiled_name, center].compact.join(' - ')
       end
 
       def build_treatment_start_date(treatment)
@@ -453,7 +453,7 @@ module ClaimsApi
 
       # if 'title_10_activation' is present
       # 'anticipatedSeparationDate' & 'title10ActivationDate'
-      def title_10_activation(reserves_pdf_path)
+      def title_10_activation(_reserves_pdf_path)
         title_10_data = lookup_in_auto_claim(:reserves_title_10_activation)
         activation_date_data = title_10_data['title10ActivationDate']
         anticipated_separation_date_data = title_10_data['anticipatedSeparationDate']
@@ -462,7 +462,9 @@ module ClaimsApi
           anticipated_separation_date_data, anticipated_separation_date_data.length
         )
 
-        reserves_pdf_path[:federalActivation] = {
+        service_info_pdf_path = build_pdf_path(:service_info)
+
+        service_info_pdf_path[:federalActivation] = {
           activationDate: activation_date,
           anticipatedSeparationDate: anticipated_separation_date
         }
@@ -474,7 +476,6 @@ module ClaimsApi
         names = alt_names.map do |n|
           n.values_at('firstName', 'middleName', 'lastName').compact.join(' ')
         end
-
         service_info_pdf_path[:alternateNames] = names
       end
 
@@ -549,6 +550,63 @@ module ClaimsApi
 
         amount = lookup_in_auto_claim(:separation_pay_amount)
         severance_or_separation_pay_pdf_path[:preTaxAmountReceived] = amount if amount
+      end
+
+      # if 'drectDeposit' is included
+      # 'accountType', 'accountNumber' & 'routingNumber' are required via the schema
+      def section_8_direct_deposit
+        return unless lookup_in_auto_claim(:direct_deposit)
+
+        direct_deposit_pdf_path = build_pdf_path(:direct_deposit)
+
+        direct_deposit_required_fields(direct_deposit_pdf_path)
+        direct_deposit_optional_fields(direct_deposit_pdf_path) if lookup_in_auto_claim(:direct_deposit_bank_name)
+      end
+
+      def direct_deposit_required_fields(direct_deposit_pdf_path)
+        direct_deposit_pdf_path[:accountType] = lookup_in_auto_claim(:direct_deposit_account_type)
+        direct_deposit_pdf_path[:accountNumber] = lookup_in_auto_claim(:direct_deposit_account_number)
+        direct_deposit_pdf_path[:routingNumber] = lookup_in_auto_claim(:direct_deposit_routing_number)
+      end
+
+      def direct_deposit_optional_fields(direct_deposit_pdf_path)
+        direct_deposit_pdf_path[:financialInstitutionName] = lookup_in_auto_claim(:direct_deposit_bank_name)
+      end
+
+      def section_9_claim_certification_and_signature
+        claim_cert_pdf_path = build_pdf_path(:claim_certification)
+
+        claim_date_raw = lookup_in_auto_claim(:claim_date)
+        claim_date_str = extract_date_safely(claim_date_raw)
+
+        claim_cert_pdf_path[:dateSigned] = if claim_date_str && valid_date?(claim_date_str)
+                                             make_date_object(claim_date_str, claim_date_str.length)
+                                           else
+                                             make_date_object(@created_at, @created_at.length)
+                                           end
+
+        signature = "#{get_auth_header(:first_name)} #{get_auth_header(:last_name)}"
+        claim_cert_pdf_path[:signature] = signature
+      end
+
+      def extract_date_safely(date_input)
+        return nil if date_input.blank?
+
+        # schema suggests this format, but does not enforce it enough for us to trust
+        if date_input.include?('T')
+          date_input.split('T').first
+        else
+          date_input
+        end
+      end
+
+      def valid_date?(date_string)
+        return false if date_string.blank?
+
+        Date.parse(date_string)
+        true
+      rescue ArgumentError, TypeError
+        false
       end
     end
   end
