@@ -190,7 +190,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/power-of-attorney-request', production: false do
+  path '/veterans/{veteranId}/power-of-attorney-request' do
     post 'Creates power of attorney request for an accredited representative' do
       description 'Request the appointment of an accredited representative, on behalf of a claimant.'
       tags 'Power of Attorney'
@@ -342,7 +342,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/power-of-attorney-requests', production: false do
+  path '/veterans/power-of-attorney-requests' do
     post 'Retrieves power of attorney requests for accredited representatives' do
       tags 'Power of Attorney'
       operationId 'searchPowerOfAttorneyRequests'
@@ -484,7 +484,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/power-of-attorney-requests/{id}', production: false do
+  path '/veterans/power-of-attorney-requests/{id}' do
     get 'Retrieves a power of attorney request' do
       tags 'Power of Attorney'
       operationId 'getPowerOfAttorneyRequest'
@@ -608,7 +608,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/power-of-attorney-requests/{id}/decide', production: false do
+  path '/veterans/power-of-attorney-requests/{id}/decide' do
     post 'Submits representative decision for a power of attorney request' do
       tags 'Power of Attorney'
       operationId 'createPowerOfAttorneyRequestDecisions'
