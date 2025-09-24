@@ -14,10 +14,10 @@ module ClaimsApi
         veteran_homelessness_point_of_contact: %w[veteran homelessness pointOfContact],
         veteran_homelessness_currently_homeless: %w[veteran homelessness currentlyHomeless],
         veteran_homelessness_risk: %w[veteran homelessness homelessnessRisk],
-        # Treatment and disability paths
+        # SECTION 5: Treatment and disability paths
         treatments: %w[treatments],
         disabilities: %w[disabilities],
-        # Service information paths
+        # SECTION 6: Service information paths
         service_periods: %w[serviceInformation servicePeriods],
         reserves_service: %w[serviceInformation reservesNationalGuardService],
         reserves_unit_name: %w[serviceInformation reservesNationalGuardService unitName],
@@ -25,7 +25,23 @@ module ClaimsApi
         reserves_obligation_from: %w[serviceInformation reservesNationalGuardService obligationTermOfServiceFromDate],
         reserves_obligation_to: %w[serviceInformation reservesNationalGuardService obligationTermOfServiceToDate],
         reserves_title_10_activation: %w[serviceInformation reservesNationalGuardService title10Activation],
-        reserves_alternate_names: %w[serviceInformation alternateNames]
+        reserves_alternate_names: %w[serviceInformation alternateNames],
+        # SECTION 7: Service Pay
+        service_pay: %w[servicePay],
+        service_pay_military_retired_pay: %w[servicePay militaryRetiredPay],
+        service_pay_retain_training_pay: %w[servicePay waiveVABenefitsToRetainTrainingPay],
+        service_pay_retain_retired_pay: %w[servicePay waiveVABenefitsToRetainRetiredPay],
+        service_pay_receiving_retired_pay: %w[servicePay militaryRetiredPay receiving],
+        service_pay_future_military_pay: %w[servicePay militaryRetiredPay willReceiveInFuture],
+        service_pay_future_pay_explanation: %w[servicePay militaryRetiredPay futurePayExplanation],
+        military_retired_pay_payment: %w[servicePay militaryRetiredPay payment],
+        military_retired_pay_service_branch: %w[servicePay militaryRetiredPay payment serviceBranch],
+        military_retired_pay_amount: %w[servicePay militaryRetiredPay payment amount],
+        service_pay_separation_pay: %w[servicePay separationPay],
+        service_pay_separation_or_severance_pay_received: %w[servicePay separationPay received],
+        separation_pay_received_date: %w[servicePay separationPay receivedDate],
+        separation_pay_branch_of_service: %w[servicePay separationPay payment serviceBranch],
+        separation_pay_amount: %w[servicePay separationPay payment amount]
       }.freeze
 
       def lookup_in_auto_claim(path_key)
