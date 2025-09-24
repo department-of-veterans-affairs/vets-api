@@ -6,6 +6,11 @@ module PdfFill
       include FormHelper
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
+      AGREEMENT_TYPES = {
+        'startNewOpenEndedAgreement' => 'New open-ended agreement',
+        'modifyExistingAgreement' => 'Modification to existing agreement',
+        'withdrawFromYellowRibbonProgram' => 'Withdrawl of Yellow Ribbon agreement'
+      }.freeze
 
       KEY = {
         'primaryInstitution' => {
@@ -133,31 +138,10 @@ module PdfFill
         convert_full_name(form_data, %w[pointOfContactTwo fullName])
         convert_full_name(form_data, %w[authorizedOfficial fullName])
 
-        form_data['agreementType'] = case form_data['agreementType']
-                                     when 'startNewOpenEndedAgreement' then 'New open-ended agreement'
-                                     when 'modifyExistingAgreement' then 'Modification to existing agreement'
-                                     when 'withdrawFromYellowRibbonProgram' then 'Withdrawl of Yellow Ribbon agreement'
-                                     end
+        format_agreement_type(form_data)
+        format_institutions(form_data)
+        format_schools(form_data)
 
-        if form_data['institutionDetails'].present?
-          form_data['primaryInstitution'] = form_data['institutionDetails'].first
-          form_data['primaryInstitution']['institutionAddress'] =
-            combine_full_address(form_data['primaryInstitution']['institutionAddress'])
-
-          form_data['branchCampuses'] = form_data['institutionDetails'][1..].map do |d|
-            d.merge({
-                      'nameAndAddress' => "#{d['institutionName']}\n#{combine_full_address(d['institutionAddress'])}"
-                    })
-          end
-        end
-
-        programs = form_data['yellowRibbonProgramAgreementRequest'] || []
-        form_data['usSchools'] = programs.filter { |s| s['currencyType'] == 'USD' }
-        form_data['foreignSchools'] = programs.filter { |s| s['currencyType'] != 'USD' }
-
-        form_data['academicYear'] = format_date_range(programs.first['yearRange']) if programs.size.positive?
-
-        form_data['numEligibleStudents'] = programs.sum { |program| program['eligibleIndividuals'] }
         form_data['authenticatedUser'] =
           form_data['isAuthenticated'] ? 'Filled out by authenticated user' : 'Filled out by unauthenticated user'
 
@@ -173,9 +157,37 @@ module PdfFill
       end
 
       def format_date_range(range)
-        return '' unless range.present?
+        return '' if range.blank?
 
         "#{range['from']} to #{range['to']}"
+      end
+
+      def format_agreement_type(form_data)
+        form_data['agreementType'] = AGREEMENT_TYPES[form_data['agreementType']] || form_data['agreementType']
+      end
+
+      def format_institutions(form_data)
+        if form_data['institutionDetails'].present?
+          form_data['primaryInstitution'] = form_data['institutionDetails'].first
+          form_data['primaryInstitution']['institutionAddress'] =
+            combine_full_address(form_data['primaryInstitution']['institutionAddress'])
+
+          form_data['branchCampuses'] = form_data['institutionDetails'][1..].map do |d|
+            d.merge({
+                      'nameAndAddress' => "#{d['institutionName']}\n#{combine_full_address(d['institutionAddress'])}"
+                    })
+          end
+        end
+      end
+
+      def format_schools(form_data)
+        programs = form_data['yellowRibbonProgramAgreementRequest'] || []
+        form_data['usSchools'] = programs.filter { |s| s['currencyType'] == 'USD' }
+        form_data['foreignSchools'] = programs.filter { |s| s['currencyType'] != 'USD' }
+
+        form_data['academicYear'] = format_date_range(programs.first['yearRange']) if programs.size.positive?
+
+        form_data['numEligibleStudents'] = programs.sum { |program| program['maximumNumberofStudents'] }
       end
     end
   end

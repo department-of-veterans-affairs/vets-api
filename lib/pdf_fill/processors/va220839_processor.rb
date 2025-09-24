@@ -25,7 +25,7 @@ module PdfFill
         merged_form_data = FORM_CLASS.new(@form_data).merge_fields
         hash_converter = HashConverter.new(FORM_CLASS.date_strftime, ExtrasGenerator.new)
 
-        us_schools = (@form_data['yellowRibbonProgramAgreementRequest'] || []).filter{ |s| s['currencyType'] == 'USD' }
+        us_schools = (@form_data['yellowRibbonProgramAgreementRequest'] || []).filter { |s| s['currencyType'] == 'USD' }
 
         if us_schools.size <= DEFAULT_US_SCHOOLS_LIMIT
           generate_default_form(merged_form_data, hash_converter)

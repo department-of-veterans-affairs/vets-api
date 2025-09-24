@@ -201,7 +201,7 @@ module PdfFill
       if form_id == '22-10215' && form_data['programs'] && form_data['programs'].length > 16
         return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options)
       end
-      
+
       return PdfFill::Processors::VA220839Processor.new(form_data, self).process if form_id == '22-0839'
 
       folder = 'tmp/pdfs'
