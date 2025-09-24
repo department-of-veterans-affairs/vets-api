@@ -24537,6 +24537,7 @@
                 "required": [
                   "id",
                   "emailAddress",
+                  "confirmationDate",
                   "updatedAt"
                 ],
                 "properties": {
@@ -24547,6 +24548,11 @@
                   "emailAddress": {
                     "type": "string",
                     "example": "person@example.com"
+                  },
+                  "confirmationDate": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "2018-04-21T20:09:50Z"
                   },
                   "updatedAt": {
                     "type": "string",

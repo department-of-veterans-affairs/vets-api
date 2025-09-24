@@ -105,13 +105,7 @@ module SimpleFormsApi
       end
 
       def find_attachment_path(confirmation_code)
-        attachment = PersistentAttachment.find_by(guid: confirmation_code)
-
-        if attachment.file.metadata['mime_type'] == 'application/pdf'
-          attachment.file.open.path
-        else
-          attachment.to_pdf.to_s
-        end
+        PersistentAttachment.find_by(guid: confirmation_code).to_pdf.to_s
       end
 
       def validated_metadata
