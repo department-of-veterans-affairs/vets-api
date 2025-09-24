@@ -78,9 +78,9 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
   end
 
   describe '#extension_allowlist' do
-    context ':hca_heic_attachments_enabled enabled' do
+    context ':hca_heif_attachments_enabled enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:hca_heif_attachments_enabled).and_return(true)
       end
 
       it 'allows valid file extensions' do
@@ -93,9 +93,9 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
       end
     end
 
-    context ':hca_heic_attachments_enabled disabled' do
+    context ':hca_heif_attachments_enabled disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:hca_heif_attachments_enabled).and_return(false)
       end
 
       it 'allows valid file extensions - no heic files' do
@@ -137,9 +137,9 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
         )
       end
 
-      context ':hca_heic_attachments_enabled enabled' do
+      context ':hca_heif_attachments_enabled enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:hca_heif_attachments_enabled).and_return(true)
         end
 
         it 'converts the file to jpg' do
@@ -149,9 +149,9 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
         end
       end
 
-      context ':hca_heic_attachments_enabled disabled' do
+      context ':hca_heif_attachments_enabled disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:hca_heif_attachments_enabled).and_return(false)
         end
 
         it 'raises invalid file type error' do
@@ -173,9 +173,9 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
         )
       end
 
-      context ':hca_heic_attachments_enabled enabled' do
+      context ':hca_heif_attachments_enabled enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:hca_heif_attachments_enabled).and_return(true)
         end
 
         it 'converts the file to jpg' do
@@ -185,9 +185,9 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
         end
       end
 
-      context ':hca_heic_attachments_enabled disabled' do
+      context ':hca_heif_attachments_enabled disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:hca_heic_attachments_enabled).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:hca_heif_attachments_enabled).and_return(false)
         end
 
         it 'raises invalid file type error' do

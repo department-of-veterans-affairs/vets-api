@@ -185,9 +185,9 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
-  hca_heic_attachments_enabled:
+  hca_heif_attachments_enabled:
     actor_type: user
-    description: Enables .heic files as attachments that get converted to .jpg files
+    description: Enables HEIF files as attachments that get converted to .jpg files
     enable_in_development: true
   hca_insurance_v2_enabled:
     actor_type: user

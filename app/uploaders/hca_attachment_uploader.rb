@@ -28,7 +28,7 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
 
   # accepted by enrollment system: PDF,WORD,JPG,RTF
   def extension_allowlist
-    if Flipper.enabled?(:hca_heic_attachments_enabled)
+    if Flipper.enabled?(:hca_heif_attachments_enabled)
       %w[pdf doc docx jpg jpeg rtf png heic heif]
     else
       %w[pdf doc docx jpg jpeg rtf png]
