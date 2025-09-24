@@ -157,9 +157,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         it 'returns validation error' do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
-          expect(errors.first[:detail]).to eq('Date Completed Active Duty. If in the future, ' \
-                                              'separationLocationCode is required. Cannot be more than 180 days ' \
-                                              'in the future, unless past service is also included.')
+          expect(errors.first[:detail]).to eq('activeDutyEndDate (0) needs to be after activeDutyBeginDate.')
         end
       end
 
@@ -234,9 +232,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
 
           error_details = errors.map { |e| e[:detail] }
           expect(error_details).to include(match(/claim date was in the future/))
-          expect(error_details).to include('Date Completed Active Duty. If in the future, ' \
-                                           'separationLocationCode is required. Cannot be more than 180 days ' \
-                                           'in the future, unless past service is also included.')
+          expect(error_details).to include('activeDutyEndDate (0) needs to be after activeDutyBeginDate.')
         end
       end
     end
@@ -700,7 +696,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors.any? do |e|
             e[:source] == '/changeOfAddress/dates/beginDate' &&
               e[:title] == 'Unprocessable Entity' &&
-              e[:detail] == 'Begin date for the Veteran\'s new address.'
+              e[:detail] == 'beginDate is not a valid date.'
           end).to be true
         end
       end
@@ -726,7 +722,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         it 'returns validation error for invalid date order' do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
-          expect(errors.any? { |e| e[:detail] == 'Begin date for the Veteran\'s new address.' }).to be true
+          expect(errors.any? { |e| e[:detail] == 'endDate needs to be after beginDate.' }).to be true
         end
       end
 
