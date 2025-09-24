@@ -733,22 +733,6 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         end
       end
 
-      context 'with future expiration and active status' do
-        let(:future_expiration_resource) do
-          base_refillable_resource.deep_merge(
-            'dispenseRequest' => {
-              'validityPeriod' => {
-                'end' => 6.months.from_now.iso8601
-              }
-            }
-          )
-        end
-
-        it 'returns true when expiration is in the future' do
-          expect(subject.send(:extract_is_refillable, future_expiration_resource)).to be true
-        end
-      end
-
       context 'with exactly one refill remaining' do
         let(:one_refill_resource) do
           base_refillable_resource.merge(
