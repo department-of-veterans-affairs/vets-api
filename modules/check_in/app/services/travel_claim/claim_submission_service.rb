@@ -16,21 +16,19 @@ module TravelClaim
   #   result = service.submit_claim
   #
   class ClaimSubmissionService
-    attr_reader :check_in, :appointment_date, :facility_type, :uuid
+    attr_reader :appointment_date, :facility_type, :check_in_uuid
 
     ##
     # Initialize the service with required parameters.
     #
-    # @param check_in [CheckIn::V2::Session] authenticated session
     # @param appointment_date [String] ISO 8601 formatted appointment date
     # @param facility_type [String] facility type ('oh' or 'vamc')
-    # @param uuid [String] user UUID from request parameters
+    # @param check_in_uuid [String] check-in UUID from request parameters
     #
-    def initialize(check_in:, appointment_date:, facility_type:, uuid:)
-      @check_in = check_in
+    def initialize(appointment_date:, facility_type:, check_in_uuid:)
       @appointment_date = appointment_date
       @facility_type = facility_type
-      @uuid = uuid
+      @check_in_uuid = check_in_uuid
     end
 
     ##
@@ -87,31 +85,47 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if any required parameter is missing
     #
     def validate_parameters
-      raise_backend_service_exception('CheckIn object is required', 400, 'VA901') if @check_in.nil?
       raise_backend_service_exception('Appointment date is required', 400, 'VA902') if @appointment_date.blank?
       raise_backend_service_exception('Facility type is required', 400, 'VA903') if @facility_type.blank?
-      raise_backend_service_exception('Uuid is required', 400, 'VA904') if @uuid.blank?
+      raise_backend_service_exception('Check-in UUID is required', 400, 'VA904') if @check_in_uuid.blank?
 
-      validate_appointment_date_format
+      # Initialize date fields early so they're available for error notifications
+      normalized_appointment_datetime
+      appointment_date_yyyy_mm_dd
     end
 
-    ##
-    # Validates that appointment_date is in proper ISO 8601 format with time component
-    #
-    # @raise [ArgumentError] if appointment_date is not in valid ISO 8601 format
-    #
-    def validate_appointment_date_format
-      return if @appointment_date.blank?
+    def normalized_time_utc
+      @normalized_time_utc ||= begin
+        s = @appointment_date
 
-      begin
-        DateTime.iso8601(@appointment_date)
+        unless s.is_a?(String) && s.include?('T')
+          raise_backend_service_exception(
+            'Appointment date must include a time component (e.g., 2025-09-16T10:00:00Z)',
+            400, 'VA905'
+          )
+        end
+
+        # Strict ISO8601 parsing; raises ArgumentError on bad input.
+        t = Time.iso8601(s)
+
+        # Rebuild as UTC using the same wall-clock fields (ignores original offset).
+        Time.utc(t.year, t.month, t.day, t.hour, t.min, t.sec)
       rescue ArgumentError
         raise_backend_service_exception(
           'Appointment date must be a valid ISO 8601 date-time (e.g., 2025-09-16T10:00:00Z)',
-          400,
-          'VA905'
+          400, 'VA905'
         )
       end
+    end
+
+    # Full ISO8601 with Z for API calls
+    def normalized_appointment_datetime
+      @normalized_appointment_datetime ||= normalized_time_utc.iso8601
+    end
+
+    # YYYY-MM-DD for expense date & notifications
+    def appointment_date_yyyy_mm_dd
+      @appointment_date_yyyy_mm_dd ||= normalized_time_utc.to_date.iso8601
     end
 
     ##
@@ -121,7 +135,7 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if appointment not found/created
     #
     def get_appointment_id
-      log_message(:info, 'Get appointment ID', uuid: @uuid)
+      log_message(:info, 'Get appointment ID', check_in_uuid: @check_in_uuid)
 
       response = client.send_appointment_request
       appointment_id = response.body.dig('data', 0, 'id')
@@ -141,7 +155,7 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if claim creation fails
     #
     def create_new_claim(appointment_id)
-      log_message(:info, 'Create claim', uuid: @uuid)
+      log_message(:info, 'Create claim', check_in_uuid: @check_in_uuid)
 
       response = client.send_claim_request(appointment_id:)
       claim_id = response.body.dig('data', 'claimId')
@@ -158,9 +172,12 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if expense addition fails
     #
     def add_expense_to_claim(claim_id)
-      log_message(:info, 'Add expense to claim', uuid: @uuid)
+      log_message(:info, 'Add expense to claim', check_in_uuid: @check_in_uuid)
 
-      response = client.send_mileage_expense_request(claim_id:, date_incurred: @appointment_date)
+      response = client.send_mileage_expense_request(
+        claim_id:,
+        date_incurred: appointment_date_yyyy_mm_dd
+      )
 
       raise_backend_service_exception('Failed to add expense', response.status) unless response.status == 200
     end
@@ -173,7 +190,7 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if submission fails
     #
     def submit_claim_for_processing(claim_id)
-      log_message(:info, 'Submit claim', uuid: @uuid)
+      log_message(:info, 'Submit claim', check_in_uuid: @check_in_uuid)
 
       response = client.send_claim_submission_request(claim_id:)
 
@@ -189,9 +206,8 @@ module TravelClaim
     #
     def client
       @client ||= TravelClaim::TravelPayClient.new(
-        uuid: @uuid,
-        appointment_date_time: @appointment_date,
-        check_in_uuid: @check_in.uuid
+        check_in_uuid: @check_in_uuid,
+        appointment_date_time: normalized_appointment_datetime
       )
     end
 
@@ -208,7 +224,7 @@ module TravelClaim
       log_data = {
         message: "CIE Travel Claim Submission: #{message}",
         facility_type: @facility_type,
-        check_in_uuid: @uuid
+        check_in_uuid: @check_in_uuid
       }.merge(additional_data)
 
       Rails.logger.public_send(level, log_data)
@@ -257,8 +273,8 @@ module TravelClaim
                   template_id:, claim_last_four: claim_number_last_four)
 
       CheckIn::TravelClaimNotificationJob.perform_async(
-        @uuid,
-        format_appointment_date,
+        @check_in_uuid,
+        @appointment_date_yyyy_mm_dd,
         template_id,
         claim_number_last_four
       )
@@ -279,8 +295,8 @@ module TravelClaim
                   template_id:, error_class: error.class.name)
 
       CheckIn::TravelClaimNotificationJob.perform_async(
-        @uuid,
-        format_appointment_date,
+        @check_in_uuid,
+        @appointment_date_yyyy_mm_dd,
         template_id,
         claim_number_last_four
       )
@@ -332,18 +348,6 @@ module TravelClaim
       else
         error_template_id
       end
-    end
-
-    ##
-    # Formats the appointment date for notification
-    #
-    # @return [String] appointment date in YYYY-MM-DD format
-    #
-    def format_appointment_date
-      Date.parse(@appointment_date).strftime('%Y-%m-%d')
-    rescue => e
-      log_message(:error, 'Failed to format appointment date', error: e.message)
-      @appointment_date
     end
   end
 end

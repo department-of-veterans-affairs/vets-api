@@ -245,10 +245,9 @@ connected_apps_api:
     auth_access_key: ~
     revoke_url: https://sandbox-api.va.gov/internal/auth/v3/user/consent
     url: https://sandbox-api.va.gov/internal/auth/v3/user/connected-apps
-contention-classification-api:
-  url: ~
 contention_classification_api:
   expanded_contention_classification_path: expanded-contention-classification
+  hybrid_contention_classification_path: hybrid-contention-classification
   open_timeout: 5
   read_timeout: 10
   url: http://contention-classification-api-dev.vfs.va.gov/
@@ -717,6 +716,7 @@ lighthouse:
       - system/ChargeItem.read
       - system/Invoice.read
       - system/PaymentReconciliation.read
+      - system/MedicationDispense.read
       - launch
     timeout: 30
     use_mocks: false
@@ -1541,6 +1541,9 @@ vanotify:
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
+        contact_email_address_change_confirmation_needed_email: contact_email_address_change_confirmation_needed_email_fake_template_id
+        contact_email_address_confirmation_needed_email: contact_email_address_confirmation_needed_email_fake_template_id
+        contact_email_address_confirmed_email: contact_email_address_confirmed_email_fake_template_id
         contact_info_change: fake_template_id
         covid_vaccine_registration: ~
         direct_deposit: direct_deposit_template_id

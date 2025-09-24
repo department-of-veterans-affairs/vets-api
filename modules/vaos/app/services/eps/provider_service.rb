@@ -26,13 +26,15 @@ module Eps
     def get_provider_services_by_ids(provider_ids:)
       if provider_ids.blank?
         log_no_params_metric('get_provider_services_by_ids')
-        raise ArgumentError, 'provider_ids is required and cannot be blank'
+        return OpenStruct.new(provider_services: [])
       end
 
       with_monitoring do
-        query_object_array = provider_ids.map { |id| "id=#{id}" }
-        response = perform(:get, "/#{config.base_path}/provider-services",
-                           query_object_array, request_headers_with_correlation_id)
+        # Build query string manually to get: ?id=val1&id=val2
+        # This is required by the backend service (not standard, but necessary)
+        query_string = provider_ids.map { |id| "id=#{CGI.escape(id.to_s)}" }.join('&')
+        url_with_params = "/#{config.base_path}/provider-services?#{query_string}"
+        response = perform(:get, url_with_params, {}, request_headers_with_correlation_id)
 
         OpenStruct.new(response.body)
       end
