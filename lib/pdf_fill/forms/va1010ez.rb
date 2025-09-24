@@ -258,12 +258,12 @@ module PdfFill
           return
         end
 
-        dependent_provided_support = @form_data['dependents'].any? do |dependent|
+        dependent_received_support = @form_data['dependents'].any? do |dependent|
           dependent['receivedSupportLastYear']
         end
 
         @form_data['provideSupportLastYear'] =
-          map_radio_box_value(@form_data['provideSupportLastYear'] || dependent_provided_support)
+          map_radio_box_value(@form_data['provideSupportLastYear'] || dependent_received_support)
       end
 
       def merge_single_dependent
