@@ -108,6 +108,13 @@ module EVSS
         lh_request_body.toxic_exposure = transform_toxic_exposure(toxic_exposure) if toxic_exposure.present?
 
         lh_request_body.claim_notes = form526['overflowText']
+
+        claim_date = form526['claimDate']
+
+        if claim_date.present? && claim_date.present? && (claim_date =~ /^(\d{4})-(\d{2})-(\d{2})$/)
+          lh_request_body.claim_date = claim_date
+        end
+
         lh_request_body
       end
 
