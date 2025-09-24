@@ -20,6 +20,8 @@ module ClaimsApi
         section_5_treatment_centers
         section_6_service_information
         section_7_service_pay
+        section_8_direct_deposit
+        section_9_claim_certification_and_signature
       ].freeze
 
       HOMELESSNESS_RISK_SITUATION_TYPES = {
@@ -36,11 +38,12 @@ module ClaimsApi
         'other' => 'OTHER'
       }.freeze
 
-      def initialize(auto_claim, pdf_data, auth_headers, middle_initial)
+      def initialize(auto_claim, pdf_data, auth_headers, middle_initial, created_at)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
         @auth_headers = auth_headers&.deep_symbolize_keys
         @middle_initial = middle_initial
+        @created_at = created_at.strftime('%Y-%m-%d').to_s
       end
 
       def map_claim
@@ -690,6 +693,81 @@ module ClaimsApi
         return if @pdf_data[:data][:attributes][:servicePay]&.key?(:separationSeverancePay)
 
         @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay] = {}
+      end
+
+      # if 'drectDeposit' is included
+      # 'accountType', 'accountNumber' & 'routingNumber' are required via the schema
+      def section_8_direct_deposit
+        return unless lookup_in_auto_claim(:direct_deposit)
+
+        set_direct_deposit_pdf_data
+
+        direct_deposit_required_fields
+        direct_deposit_optional_fields if lookup_in_auto_claim(:direct_deposit_bank_name)
+      end
+
+      def direct_deposit_required_fields
+        @pdf_data[:data][:attributes][:directDepositInformation][:accountType] =
+          lookup_in_auto_claim(:direct_deposit_account_type)
+        @pdf_data[:data][:attributes][:directDepositInformation][:accountNumber] =
+          lookup_in_auto_claim(:direct_deposit_account_number)
+        @pdf_data[:data][:attributes][:directDepositInformation][:routingNumber] =
+          lookup_in_auto_claim(:direct_deposit_routing_number)
+      end
+
+      def direct_deposit_optional_fields
+        @pdf_data[:data][:attributes][:directDepositInformation][:financialInstitutionName] =
+          lookup_in_auto_claim(:direct_deposit_bank_name)
+      end
+
+      def set_direct_deposit_pdf_data
+        return if @pdf_data[:data][:attributes]&.key?(:directDepositInformation)
+
+        @pdf_data[:data][:attributes][:directDepositInformation] = {}
+      end
+
+      def section_9_claim_certification_and_signature
+        set_claim_cert_pdf_data
+
+        claim_date_raw = lookup_in_auto_claim(:claim_date)
+        claim_date_str = extract_date_safely(claim_date_raw)
+
+        if claim_date_str && valid_date?(claim_date_str)
+          @pdf_data[:data][:attributes][:claimCertificationAndSignature][:dateSigned] =
+            make_date_object(claim_date_str, claim_date_str.length)
+        else
+          @pdf_data[:data][:attributes][:claimCertificationAndSignature][:dateSigned] =
+            make_date_object(@created_at, @created_at.length)
+        end
+
+        signature = "#{get_auth_header(:first_name)} #{get_auth_header(:last_name)}"
+        @pdf_data[:data][:attributes][:claimCertificationAndSignature][:signature] = signature
+      end
+
+      def set_claim_cert_pdf_data
+        return if @pdf_data[:data][:attributes]&.key?(:claimCertificationAndSignature)
+
+        @pdf_data[:data][:attributes][:claimCertificationAndSignature] = {}
+      end
+
+      def extract_date_safely(date_input)
+        return nil if date_input.blank?
+
+        # schema specifies this format, but does not enforce it enough for us to trust
+        if date_input.include?('T')
+          date_input.split('T').first
+        else
+          date_input
+        end
+      end
+
+      def valid_date?(date_string)
+        return false if date_string.blank?
+
+        Date.parse(date_string)
+        true
+      rescue ArgumentError, TypeError
+        false
       end
     end
   end
