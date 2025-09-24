@@ -379,19 +379,8 @@ module V1
                 else
                   exc.message
                 end
-      if invalid_message_timestamp_error?(message)
-        Rails.logger.warn("SessionsController version:v1 context:#{context} message:#{message}")
-      else
-        full_message = "[SessionsController] #{message}"
-        case level
-        when :error
-          Rails.logger.error(full_message)
-        when :warn
-          Rails.logger.warn(full_message)
-        else
-          Rails.logger.info(full_message)
-        end
-      end
+
+      log_callback_error(message, level, context)
       Rails.logger.info("SessionsController version:v1 saml_callback failure, user_uuid=#{@current_user&.uuid}")
 
       unless performed?
@@ -409,6 +398,22 @@ module V1
       )
     end
     # rubocop:enable Metrics/ParameterLists
+
+    def log_callback_error(message, level, context)
+      if invalid_message_timestamp_error?(message)
+        Rails.logger.warn("SessionsController version:v1 context:#{context} message:#{message}")
+      else
+        full_message = "[SessionsController] #{message}"
+        case level
+        when :error
+          Rails.logger.error(full_message)
+        when :warn
+          Rails.logger.warn(full_message)
+        else
+          Rails.logger.info(full_message)
+        end
+      end
+    end
 
     def invalid_message_timestamp_error?(message)
       message.match(FIM_INVALID_MESSAGE_TIMESTAMP)
