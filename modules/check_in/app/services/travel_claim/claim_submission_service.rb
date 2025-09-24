@@ -18,17 +18,11 @@ module TravelClaim
   class ClaimSubmissionService
     attr_reader :appointment_date, :facility_type, :check_in_uuid
 
-    ##
-    # Metric type constants
-    #
+    CODE_CLAIM_EXISTS = TravelClaim::Response::CODE_CLAIM_EXISTS
     APPOINTMENT_ERROR = 'appointment_error'
     CLAIM_CREATE_ERROR = 'claim_create_error'
     EXPENSE_ADD_ERROR = 'expense_add_error'
     CLAIM_SUBMIT_ERROR = 'claim_submit_error'
-
-    ##
-    # Maps metric types to their corresponding constants
-    #
     ERROR_METRICS = {
       APPOINTMENT_ERROR => {
         cie: CheckIn::Constants::CIE_STATSD_APPOINTMENT_ERROR,
@@ -425,7 +419,7 @@ module TravelClaim
     #
     def duplicate_claim_error?(error)
       # Check if the error detail contains the standardized duplicate claim code
-      error.response_values[:detail]&.include?(TravelClaim::Response::CODE_CLAIM_EXISTS) ||
+      error.response_values[:detail]&.include?(CODE_CLAIM_EXISTS) ||
         # Fallback to string matching for backward compatibility
         error.response_values[:detail]&.include?('already been created') ||
         error.response_values[:detail]&.include?('already exists') ||
