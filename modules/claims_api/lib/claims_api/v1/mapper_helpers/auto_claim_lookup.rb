@@ -3,7 +3,7 @@
 module ClaimsApi
   module V1
     module AutoClaimLookup
-      # Paths used to navigate elements in the auto_claim variable
+      # Paths used to navigate elements in the auto_claim variable, these match what is in the 526.json schema
       AUTO_CLAIM_PATHS = {
         standard_claim: %w[standardClaim],
         # Veteran information paths
@@ -41,7 +41,13 @@ module ClaimsApi
         service_pay_separation_or_severance_pay_received: %w[servicePay separationPay received],
         separation_pay_received_date: %w[servicePay separationPay receivedDate],
         separation_pay_branch_of_service: %w[servicePay separationPay payment serviceBranch],
-        separation_pay_amount: %w[servicePay separationPay payment amount]
+        separation_pay_amount: %w[servicePay separationPay payment amount],
+        # SECTION 8: Direct Deposit
+        direct_deposit: %w[directDeposit],
+        direct_deposit_account_type: %w[directDeposit accountType],
+        direct_deposit_account_number: %w[directDeposit accountNumber],
+        direct_deposit_routing_number: %w[directDeposit routingNumber],
+        direct_deposit_bank_name: %w[directDeposit bankName]
       }.freeze
 
       def lookup_in_auto_claim(path_key)
