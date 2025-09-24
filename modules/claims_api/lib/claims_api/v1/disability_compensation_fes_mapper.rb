@@ -58,6 +58,7 @@ module ClaimsApi
             secondaries = secondary_disability_data.map do |secondary|
               secondary_copy = secondary.dup
               secondary_copy[:name] = secondary[:name]
+              secondary_copy[:disabilityActionType] = 'NEW'
               secondary_copy
             end
             list.concat(secondaries)

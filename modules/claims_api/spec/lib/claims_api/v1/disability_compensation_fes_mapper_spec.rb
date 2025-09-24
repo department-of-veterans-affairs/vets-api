@@ -92,10 +92,11 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           expect(disability_object[1]).not_to have_key(:classificationCode)
           expect(disability_object[1]).not_to have_key(:ratedDisabilityId)
           expect(disability_object[1]).not_to have_key(:diagnosticCode)
-          expect(disability_object[1][:disabilityActionType]).to eq('SECONDARY')
+          expect(disability_object[1][:disabilityActionType]).to eq('NEW')
           expect(disability_object[1]).not_to have_key(:specialIssues)
           expect(disability_object[1][:approximateBeginDate]).to eq({ year: '2018', month: '05' })
           expect(disability_object[2][:name]).to eq('Left Elbow Pain')
+          expect(disability_object[2][:disabilityActionType]).to eq('NEW')
           expect(disability_object[2][:approximateBeginDate]).to eq({ year: '2019' })
         end
 
