@@ -118,7 +118,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
       let(:created_at_time) { Time.zone.local(2023, 7, 15, 14, 30, 0) }
       let(:submission_with_claim_date) { create(:form526_submission, :with_everything, user_account:) }
       let(:submission_without_claim_date) { create(:form526_submission, user_account:) }
-      let(:captured_form_json) { {} }
+      let!(:captured_form_json) { {} }
 
       before do
         # Mock the response so we don't make actual API calls
