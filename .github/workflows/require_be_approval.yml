@@ -132,8 +132,7 @@ jobs:
             lighthouse-pivot
             lighthouse-banana-peels
             mobile-api-team
-            accredited-representatives-admin
-            benefits-admin
+            fed-eng-admin
           )
 
           BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
