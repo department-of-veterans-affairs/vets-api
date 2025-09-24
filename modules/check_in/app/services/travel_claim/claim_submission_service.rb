@@ -48,6 +48,8 @@ module TravelClaim
 
       result
     rescue Common::Exceptions::BackendServiceException => e
+      # Check if this is a duplicate claim error
+      handle_duplicate_claim_error(e) if duplicate_claim_error?(e)
       # Send error notification if feature flag is enabled
       send_error_notification_if_enabled(e)
       raise e
@@ -75,6 +77,9 @@ module TravelClaim
 
       # Extract claim data from submission response for notifications
       @claim_number_last_four = extract_claim_number_last_four(submission_response)
+
+      # Increment success metric
+      increment_success_metric
 
       { 'success' => true, 'claimId' => claim_id }
     end
@@ -141,6 +146,7 @@ module TravelClaim
       appointment_id = response.body.dig('data', 0, 'id')
 
       unless appointment_id
+        increment_error_metric(CheckIn::Constants::CIE_STATSD_APPOINTMENT_ERROR)
         raise_backend_service_exception('Appointment could not be found or created', response.status)
       end
 
@@ -160,7 +166,10 @@ module TravelClaim
       response = client.send_claim_request(appointment_id:)
       claim_id = response.body.dig('data', 'claimId')
 
-      raise_backend_service_exception('Failed to create claim', response.status) unless claim_id
+      unless claim_id
+        increment_error_metric(CheckIn::Constants::CIE_STATSD_CLAIM_CREATE_ERROR)
+        raise_backend_service_exception('Failed to create claim', response.status)
+      end
 
       claim_id
     end
@@ -179,7 +188,10 @@ module TravelClaim
         date_incurred: appointment_date_yyyy_mm_dd
       )
 
-      raise_backend_service_exception('Failed to add expense', response.status) unless response.status == 200
+      unless response.status == 200
+        increment_error_metric(CheckIn::Constants::CIE_STATSD_EXPENSE_ADD_ERROR)
+        raise_backend_service_exception('Failed to add expense', response.status)
+      end
     end
 
     ##
@@ -194,7 +206,10 @@ module TravelClaim
 
       response = client.send_claim_submission_request(claim_id:)
 
-      raise_backend_service_exception('Failed to submit claim', response.status) unless response.status == 200
+      unless response.status == 200
+        increment_error_metric(CheckIn::Constants::CIE_STATSD_CLAIM_SUBMIT_ERROR)
+        raise_backend_service_exception('Failed to submit claim', response.status)
+      end
 
       response
     end
@@ -347,6 +362,55 @@ module TravelClaim
         @facility_type&.downcase == 'oh' ? CheckIn::Constants::OH_DUPLICATE_TEMPLATE_ID : CheckIn::Constants::CIE_DUPLICATE_TEMPLATE_ID
       else
         error_template_id
+      end
+    end
+
+    ##
+    # Increments the appropriate success metric based on facility type
+    #
+    def increment_success_metric
+      if @facility_type&.downcase == 'oh'
+        StatsD.increment(CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS)
+      else
+        StatsD.increment(CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS)
+      end
+    end
+
+    ##
+    # Increments the appropriate error metric based on facility type
+    #
+    # @param metric_key [String] the metric key to increment
+    #
+    def increment_error_metric(metric_key)
+      if @facility_type&.downcase == 'oh'
+        # Convert CIE metric to OH metric
+        oh_metric = metric_key.gsub('check_in', 'oracle_health')
+        StatsD.increment(oh_metric)
+      else
+        StatsD.increment(metric_key)
+      end
+    end
+
+    ##
+    # Checks if the error indicates a duplicate claim
+    #
+    # @param error [Common::Exceptions::BackendServiceException] the error to check
+    # @return [Boolean] true if this is a duplicate claim error
+    #
+    def duplicate_claim_error?(error)
+      error.response_values[:detail]&.include?('already been created') ||
+        error.response_values[:detail]&.include?('already exists') ||
+        error.response_values[:detail]&.include?('duplicate')
+    end
+
+    ##
+    # Handles duplicate claim error by incrementing the appropriate metric
+    #
+    def handle_duplicate_claim_error(_error)
+      if @facility_type&.downcase == 'oh'
+        StatsD.increment(CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE)
+      else
+        StatsD.increment(CheckIn::Constants::CIE_STATSD_BTSSS_DUPLICATE)
       end
     end
   end
