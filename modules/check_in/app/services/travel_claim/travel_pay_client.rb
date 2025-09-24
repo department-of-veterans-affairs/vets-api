@@ -264,7 +264,11 @@ module TravelClaim
 
     def validate_required_arguments
       raise TravelClaim::Errors::InvalidArgument, 'Check-in UUID cannot be blank' if @check_in_uuid.blank?
-      raise TravelClaim::Errors::InvalidArgument, 'appointment date time cannot be blank' if @appointment_date_time.blank?
+
+      if @appointment_date_time.blank?
+        raise TravelClaim::Errors::InvalidArgument,
+              'appointment date time cannot be blank'
+      end
     end
 
     def validate_redis_data
