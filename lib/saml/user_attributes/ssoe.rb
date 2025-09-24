@@ -212,7 +212,7 @@ module SAML
         check_id_mismatch(edipi_ids[:edipis], :multiple_edipis)
         check_id_mismatch(mhv_iens, :multiple_mhv_ids, raise_error: false)
         if sec_id_mismatch?
-          Rails.logger.warn('[SAML][SSOe] User attributes contains multiple sec_id values',
+          Rails.logger.warn('[SAML][UserAttributes][SSOe] User attributes contains multiple sec_id values',
                             sec_id: @attributes['va_eauth_secid'])
         end
       end

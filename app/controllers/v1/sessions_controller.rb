@@ -37,7 +37,6 @@ module V1
                        VERIFY_PAGE_AUTHENTICATED = 'verify_page_authenticated',
                        VERIFY_PAGE_UNAUTHENTICATED = 'verify_page_unauthenticated'].freeze
     CERNER_ELIGIBLE_COOKIE_NAME = 'CERNER_ELIGIBLE'
-    LOG_PREFIX = '[V1][SessionsController]'
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -380,7 +379,19 @@ module V1
                 else
                   exc.message
                 end
-      conditional_log_message_to_sentry(message, level, context)
+      if invalid_message_timestamp_error?(message)
+        Rails.logger.warn("SessionsController version:v1 context:#{context} message:#{message}")
+      else
+        full_message = "[SessionsController] #{message}"
+        case level
+        when :error
+          Rails.logger.error(full_message)
+        when :warn
+          Rails.logger.warn(full_message)
+        else
+          Rails.logger.info(full_message)
+        end
+      end
       Rails.logger.info("SessionsController version:v1 saml_callback failure, user_uuid=#{@current_user&.uuid}")
 
       unless performed?
@@ -398,26 +409,6 @@ module V1
       )
     end
     # rubocop:enable Metrics/ParameterLists
-
-    def conditional_log_message_to_sentry(message, level, context)
-      # If the user has an invalid message timestamp
-      # error, this means they have waited too long in the log in page to progress, so it's not really an
-      # appropriate Sentry error
-      if invalid_message_timestamp_error?(message)
-        Rails.logger.warn("SessionsController version:v1 context:#{context} message:#{message}")
-      else
-        full_message = "#{LOG_PREFIX} #{message}"
-
-        case level
-        when :error
-          Rails.logger.error(full_message)
-        when :warn
-          Rails.logger.warn(full_message)
-        else
-          Rails.logger.info(full_message)
-        end
-      end
-    end
 
     def invalid_message_timestamp_error?(message)
       message.match(FIM_INVALID_MESSAGE_TIMESTAMP)

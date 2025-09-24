@@ -221,15 +221,15 @@ module MPI
         return if mhv_ids.blank?
 
         if (mhv_ids - active_mhv_ids).present?
-          Rails.logger.info('[MPI][ProfileParser] Inactive MHV correlation IDs present',
+          Rails.logger.info('[MPI][Responses][ProfileParser] Inactive MHV correlation IDs present',
                             ids: mhv_ids)
         end
         unless active_mhv_ids.include?(mhv_ids.first)
-          Rails.logger.warn('[MPI][ProfileParser] Returning inactive MHV correlation ID as first identifier',
+          Rails.logger.warn('[MPI][Responses][ProfileParser] Returning inactive MHV correlation ID as first identifier',
                             ids: mhv_ids)
         end
         if active_mhv_ids.uniq.size > 1
-          Rails.logger.info('[MPI][ProfileParser] Multiple active MHV correlation IDs present',
+          Rails.logger.info('[MPI][Responses][ProfileParser] Multiple active MHV correlation IDs present',
                             ids: active_mhv_ids)
         end
       end

@@ -79,7 +79,7 @@ class UserSessionForm
                                                                birth_date: saml_user_attributes[:birth_date],
                                                                idme_uuid:)
     unless mpi_response.ok?
-      Rails.logger.warn('[Models][UserSessionForm] Failed Add CSP ID to MPI FAILED', idme: idme_uuid)
+      Rails.logger.warn('[UserSessionForm] Failed Add CSP ID to MPI FAILED', idme: idme_uuid)
     end
   end
 
@@ -169,6 +169,6 @@ class UserSessionForm
 
   def log_existing_user_warning(saml_uuid, saml_icn)
     message = "Couldn't locate existing user after MFA establishment"
-    Rails.logger.warn("[Models][UserSessionForm]#{message},", saml_uuid:, saml_icn:)
+    Rails.logger.warn("[UserSessionForm]#{message},", saml_uuid:, saml_icn:)
   end
 end

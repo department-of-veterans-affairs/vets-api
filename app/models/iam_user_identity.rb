@@ -83,7 +83,7 @@ class IAMUserIdentity < UserIdentity
     mhv_ids = (id_from_profile == 'NOT_FOUND' ? nil : id_from_profile)
     mhv_ids = mhv_ids&.split(',')&.uniq
     if mhv_ids&.size.to_i > 1
-      Rails.logger.warn('[Models][IAMUserIdentity] OAuth: Multiple MHV IDs present', mhv_ien: id_from_profile)
+      Rails.logger.warn('[IAMUserIdentity] OAuth: Multiple MHV IDs present', mhv_ien: id_from_profile)
     end
     mhv_ids&.first
   end

@@ -44,7 +44,7 @@ module MPI
 
       def log_error_response
         if error || profile_parser.multiple_match? || profile_parser.failed_request?
-          Rails.logger.warn("[MPI][FindProfileResponseCreator] MPI #{type} response error",
+          Rails.logger.warn("[MPI][Services][FindProfileResponseCreator] MPI #{type} response error",
                             error_message: detailed_error&.message)
         elsif profile_parser.invalid_request? || profile_parser.no_match? || profile_parser.unknown_error?
           info_log("Record Not Found, transaction_id=#{parsed_profile.transaction_id}")
