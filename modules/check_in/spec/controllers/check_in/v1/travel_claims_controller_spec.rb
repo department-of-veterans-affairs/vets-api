@@ -105,10 +105,7 @@ RSpec.describe CheckIn::V1::TravelClaimsController, type: :controller do
         let(:invalid_params) do
           {
             travel_claims: {
-              uuid:,
-              appointment_date:,
-              facility_type:
-              # missing time_to_complete is optional, so this should work
+              uuid:
             }
           }
         end

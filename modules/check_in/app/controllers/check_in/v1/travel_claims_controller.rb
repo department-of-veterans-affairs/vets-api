@@ -21,7 +21,7 @@ module CheckIn
         submit_travel_claim
       rescue ActionController::ParameterMissing => e
         handle_parameter_missing_error(e)
-      rescue TravelClaim::InvalidArgument => e
+      rescue TravelClaim::Errors::InvalidArgument => e
         handle_argument_error(e)
       rescue Common::Exceptions::BackendServiceException => e
         handle_backend_service_error(e)
