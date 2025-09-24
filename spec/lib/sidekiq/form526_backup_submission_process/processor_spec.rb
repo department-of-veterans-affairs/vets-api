@@ -106,7 +106,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
 
       before do
         # Mock the response so we don't make actual API calls
-        allow_any_instance_of(LighthouseGeneratePdfProvider).to receive(:generate_526_pdf) do |_instance, form_json, _transaction_id|
+        klass = LighthouseGeneratePdfProvider
+        allow_any_instance_of(klass).to receive(:generate_526_pdf) do |_instance, form_json, _transaction_id|
           # Capture the form_json that's being sent
           @captured_form_json = JSON.parse(form_json)
           Faraday::Response.new(status: 200, body: '526pdf')

@@ -107,18 +107,19 @@ module EVSS
         toxic_exposure = form526['toxicExposure']
         lh_request_body.toxic_exposure = transform_toxic_exposure(toxic_exposure) if toxic_exposure.present?
 
-        lh_request_body.claim_notes = form526['overflowText']
-
-        claim_date = form526['claimDate']
-
-        if claim_date.present? && claim_date.present? && (claim_date =~ /^(\d{4})-(\d{2})-(\d{2})$/)
-          lh_request_body.claim_date = claim_date
-        end
+        transform_claim_notes_and_date(form526, lh_request_body)
 
         lh_request_body
       end
 
       private
+
+      def transform_claim_notes_and_date(form526, lh_request_body)
+        lh_request_body.claim_notes = form526['overflowText']
+
+        claim_date = form526['claimDate']
+        lh_request_body.claim_date = claim_date if claim_date.present? && (claim_date =~ /^(\d{4})-(\d{2})-(\d{2})$/)
+      end
 
       # returns "STANDARD_CLAIM_PROCESS", "BDD_PROGRAM", or "FDC_PROGRAM"
       # based off of a few attributes in the evss data
