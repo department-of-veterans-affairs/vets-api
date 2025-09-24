@@ -48,7 +48,7 @@ module MyHealth
           render json: { errors: error.errors }, status: :bad_gateway
         else
           render_error('Internal Server Error',
-                       'An unexpected error occurred while retrieving clinical notes.',
+                       'An unexpected error occurred while retrieving allergies.',
                        '500', 500, :internal_server_error)
         end
       end
@@ -56,11 +56,11 @@ module MyHealth
       def log_error(error)
         message = case error
                   when Common::Client::Errors::ClientError
-                    "Notes FHIR API error: #{error.message}"
+                    "Allergies FHIR API error: #{error.message}"
                   when Common::Exceptions::BackendServiceException
                     "Backend service exception: #{error.errors.first&.detail}"
                   else
-                    "Unexpected error in notes controller: #{error.message}"
+                    "Unexpected error in allergies controller: #{error.message}"
                   end
         Rails.logger.error(message)
       end
@@ -76,7 +76,7 @@ module MyHealth
       end
 
       def service
-        @service ||= UnifiedHealthData::Service.new(test_user)
+        @service ||= UnifiedHealthData::Service.new(@current_user)
       end
     end
   end
