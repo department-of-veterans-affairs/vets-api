@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require_relative 'lighthouse_military_address_validator'
+
 module ClaimsApi
   module V1
     class DisabilityCompensationFesMapper
+      include LighthouseMilitaryAddressValidator
+
       def initialize(auto_claim)
         @auto_claim = auto_claim
         @data = auto_claim&.form_data&.deep_symbolize_keys
@@ -10,34 +14,39 @@ module ClaimsApi
       end
 
       def map_claim
+
+        claim_attributes
+        claim_meta
+
         wrap_in_request_structure
       end
 
       private
 
+      def claim_attributes
+        veteran_identification_info
+        change_of_address
+      end
+
+      def claim_meta
+        @fes_claim[:claimDate] = @data[:claimDate] || Time.zone.today.to_s
+      end
+
       def wrap_in_request_structure
         {
           data: {
             serviceTransactionId: @auto_claim.auth_headers['va_eauth_service_transaction_id'],
-            claimantParticipantId: extract_claimant_participant_id,
             form526: @fes_claim
           }
         }
       end
 
-      def extract_claimant_participant_id
-        @auto_claim.auth_headers.dig('dependent', 'participant_id')
-      end
-
       def veteran_identification_info
-        # this will be the parent method for all the mailing info
-      end
-
-      def disability_claim_info
-
-      end
-
-      def military_service_info
+        if address_is_military?(veteran_mailing_address)
+          handle_military_address
+        else
+          handle_domestic_or_international_address
+        end
       end
 
       def handle_military_address
@@ -102,6 +111,59 @@ module ClaimsApi
 
         @fes_claim[:veteran] ||= {}
         @fes_claim[:veteran][:changeOfAddress] = addr.compact_blank
+      end
+
+      def veteran_mailing_address
+        # V2 format: veteranIdentification.mailingAddress
+        # V1 format: veteran.currentMailingAddress
+        @data.dig(:veteranIdentification, :mailingAddress) || @data.dig(:veteran, :currentMailingAddress)
+      end
+
+      def format_address_line(street, unit)
+        # Handle both formats:
+        # 1. numberAndStreet + apartmentOrUnitNumber (Claims API format)
+        # 2. addressLine1 already combined (test format)
+        return street if street.present? && unit.nil?
+        return nil if street.blank?
+
+        [street, unit].compact.join(' ')
+      end
+
+      def build_change_of_address_base(change_data)
+        # Handle both field formats
+        line1 = change_data[:addressLine1] ||
+                format_address_line(change_data[:numberAndStreet], change_data[:apartmentOrUnitNumber])
+
+        {
+          addressChangeType: change_data[:typeOfAddressChange],
+          beginningDate: change_data[:beginningDate] || change_data.dig(:dates, :beginDate),
+          endingDate: change_data[:endingDate] || change_data.dig(:dates, :endDate),
+          addressLine1: line1,
+          addressLine2: change_data[:addressLine2],
+          addressLine3: change_data[:addressLine3],
+          country: change_data[:country] || 'USA'
+        }.compact_blank
+      end
+
+      def apply_address_type_fields(addr, change_data)
+        if address_is_military?(change_data)
+          addr.merge!(
+            militaryPostOfficeTypeCode: military_city(change_data),
+            militaryStateCode: military_state(change_data),
+            addressType: 'MILITARY'
+          )
+        elsif change_data[:internationalPostalCode].present?
+          addr.merge!(
+            internationalPostalCode: change_data[:internationalPostalCode],
+            addressType: 'INTERNATIONAL'
+          )
+        else
+          addr.merge!(
+            city: change_data[:city],
+            state: change_data[:state],
+            addressType: 'DOMESTIC'
+          )
+        end
       end
 
     end
