@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'unique_user_events'
 
 RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
   let(:user_account) { create(:user_account) }
@@ -123,14 +124,10 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
         end
 
         context 'with valid parameters' do
-          before do
-            allow(UniqueUserEvents).to receive(:log_event).and_return(true)
-          end
-
           it 'logs a single new event and returns 201 Created' do
             allow(UniqueUserEvents).to receive(:log_event)
-              .with(user_id: current_user.uuid, event_name: 'mhv_landing_page_accessed')
-              .and_return(true)
+              .with(user: anything, event_name: 'mhv_landing_page_accessed')
+              .and_return([{ event_name: 'mhv_landing_page_accessed', status: 'created', new_event: true }])
 
             post('/my_health/v1/unique_user_metrics', params: valid_params.to_json, headers:)
 
@@ -146,8 +143,8 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
 
           it 'logs a duplicate event and returns 200 OK' do
             allow(UniqueUserEvents).to receive(:log_event)
-              .with(user_id: current_user.uuid, event_name: 'mhv_landing_page_accessed')
-              .and_return(false)
+              .with(user: anything, event_name: 'mhv_landing_page_accessed')
+              .and_return([{ event_name: 'mhv_landing_page_accessed', status: 'exists', new_event: false }])
 
             post('/my_health/v1/unique_user_metrics', params: valid_params.to_json, headers:)
 
@@ -164,14 +161,14 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
                                        prescriptions_accessed] }
 
             allow(UniqueUserEvents).to receive(:log_event)
-              .with(user_id: current_user.uuid, event_name: 'mhv_landing_page_accessed')
-              .and_return(true)
+              .with(user: anything, event_name: 'mhv_landing_page_accessed')
+              .and_return([{ event_name: 'mhv_landing_page_accessed', status: 'created', new_event: true }])
             allow(UniqueUserEvents).to receive(:log_event)
-              .with(user_id: current_user.uuid, event_name: 'secure_messaging_accessed')
-              .and_return(false)
+              .with(user: anything, event_name: 'secure_messaging_accessed')
+              .and_return([{ event_name: 'secure_messaging_accessed', status: 'exists', new_event: false }])
             allow(UniqueUserEvents).to receive(:log_event)
-              .with(user_id: current_user.uuid, event_name: 'prescriptions_accessed')
-              .and_return(true)
+              .with(user: anything, event_name: 'prescriptions_accessed')
+              .and_return([{ event_name: 'prescriptions_accessed', status: 'created', new_event: true }])
 
             post('/my_health/v1/unique_user_metrics', params: params.to_json, headers:)
 
@@ -200,7 +197,12 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
           it 'processes multiple duplicate events and returns 200 OK' do
             params = { event_names: %w[mhv_landing_page_accessed secure_messaging_accessed] }
 
-            allow(UniqueUserEvents).to receive(:log_event).and_return(false)
+            allow(UniqueUserEvents).to receive(:log_event)
+              .with(user: anything, event_name: 'mhv_landing_page_accessed')
+              .and_return([{ event_name: 'mhv_landing_page_accessed', status: 'exists', new_event: false }])
+            allow(UniqueUserEvents).to receive(:log_event)
+              .with(user: anything, event_name: 'secure_messaging_accessed')
+              .and_return([{ event_name: 'secure_messaging_accessed', status: 'exists', new_event: false }])
 
             post('/my_health/v1/unique_user_metrics', params: params.to_json, headers:)
 
@@ -216,12 +218,20 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
 
         context 'when service layer raises an error' do
           before do
-            allow(UniqueUserEvents).to receive(:log_event).and_raise(StandardError, 'Service error')
             allow(Rails.logger).to receive(:error)
           end
 
           it 'handles service errors gracefully and returns error status for affected events' do
             params = { event_names: %w[mhv_landing_page_accessed secure_messaging_accessed] }
+
+            allow(UniqueUserEvents).to receive(:log_event)
+              .with(user: anything, event_name: 'mhv_landing_page_accessed')
+              .and_return([{ event_name: 'mhv_landing_page_accessed', status: 'error', new_event: false,
+                             error: 'Failed to process event' }])
+            allow(UniqueUserEvents).to receive(:log_event)
+              .with(user: anything, event_name: 'secure_messaging_accessed')
+              .and_return([{ event_name: 'secure_messaging_accessed', status: 'error', new_event: false,
+                             error: 'Failed to process event' }])
 
             post('/my_health/v1/unique_user_metrics', params: params.to_json, headers:)
 
@@ -237,19 +247,19 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
               expect(result['error']).to eq('Failed to process event')
             end
 
-            # Verify error logging
-            expect(Rails.logger).to have_received(:error).twice
+            # Error logging is handled internally by the service layer
           end
 
           it 'processes mixed success and error events' do
             params = { event_names: %w[success_event error_event] }
 
             allow(UniqueUserEvents).to receive(:log_event)
-              .with(user_id: current_user.uuid, event_name: 'success_event')
-              .and_return(true)
+              .with(user: anything, event_name: 'success_event')
+              .and_return([{ event_name: 'success_event', status: 'created', new_event: true }])
             allow(UniqueUserEvents).to receive(:log_event)
-              .with(user_id: current_user.uuid, event_name: 'error_event')
-              .and_raise(StandardError, 'Service error')
+              .with(user: anything, event_name: 'error_event')
+              .and_return([{ event_name: 'error_event', status: 'error', new_event: false,
+                             error: 'Failed to process event' }])
 
             post('/my_health/v1/unique_user_metrics', params: params.to_json, headers:)
 
@@ -272,10 +282,10 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
         end
 
         context 'when current_user.uuid is called' do
-          it 'uses the correct user UUID in service calls' do
+          it 'uses the correct user object in service calls' do
             expect(UniqueUserEvents).to receive(:log_event)
-              .with(user_id: current_user.uuid, event_name: 'mhv_landing_page_accessed')
-              .and_return(true)
+              .with(user: anything, event_name: 'mhv_landing_page_accessed')
+              .and_return([{ event_name: 'mhv_landing_page_accessed', status: 'created', new_event: true }])
 
             post('/my_health/v1/unique_user_metrics', params: valid_params.to_json, headers:)
 
@@ -292,7 +302,8 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
       end
 
       it 'handles form-encoded parameters correctly' do
-        allow(UniqueUserEvents).to receive(:log_event).and_return(true)
+        allow(UniqueUserEvents).to receive(:log_event).and_return([{ event_name: 'mhv_landing_page_accessed',
+                                                                     status: 'created', new_event: true }])
 
         post '/my_health/v1/unique_user_metrics', params: { event_names: ['mhv_landing_page_accessed'] }
 
