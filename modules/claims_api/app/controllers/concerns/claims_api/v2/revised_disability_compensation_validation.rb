@@ -149,9 +149,7 @@ module ClaimsApi
 
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/activeDutyEndDate",
-          title: 'Invalid service period duty dates',
-          detail: 'Date Completed Active Duty. If in the future, separationLocationCode is required. ' \
-                  'Cannot be more than 180 days in the future, unless past service is also included.'
+          detail: "activeDutyEndDate (#{index}) needs to be after activeDutyBeginDate."
         )
       end
 
@@ -207,7 +205,7 @@ module ClaimsApi
 
         collect_error(
           source: "/serviceInformation/servicePeriods/#{index}/reservesNationalGuardService/title10Activation",
-          detail: 'Anticipated date of separation. Date must be in the future.'
+          detail: 'anticipatedSeparationDate is missing or blank'
         )
       end
 
@@ -245,7 +243,7 @@ module ClaimsApi
         if federal_activation['anticipatedSeparationDate'].blank?
           collect_error(
             source: '/serviceInformation/federalActivation',
-            detail: 'Anticipated date of separation. Date must be in the future.'
+            detail: 'anticipatedSeparationDate is missing or blank'
           )
         end
 
@@ -299,7 +297,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/dates/beginDate',
-          detail: 'Begin date for the Veteran\'s new address.'
+          detail: 'beginDate is not a valid date.'
         )
       end
 
@@ -308,7 +306,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/dates/beginDate',
-          detail: 'Begin date for the Veteran\'s new address.'
+          detail: 'endDate needs to be after beginDate.'
         )
       end
 
