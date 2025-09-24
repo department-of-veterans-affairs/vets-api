@@ -595,7 +595,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
           'dispenseRequest' => {
             'numberOfRepeatsAllowed' => 5,
             'validityPeriod' => {
-              'end' => 1.year.from_now.iso8601
+              'end' => 1.minute.from_now.in_time_zone('Pacific/Honolulu').iso8601
             }
           },
           'contained' => [
@@ -647,7 +647,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
       context 'with expired prescription' do
         let(:expired_resource) do
-          expired_date = 1.day.ago.iso8601
+          expired_date = 1.minute.ago.in_time_zone('America/Los_Angeles').iso8601
           base_refillable_resource.deep_merge(
             'dispenseRequest' => {
               'validityPeriod' => {
