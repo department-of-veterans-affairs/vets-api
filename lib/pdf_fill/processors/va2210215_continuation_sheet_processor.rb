@@ -10,7 +10,14 @@ module PdfFill
 
       def_delegators :@main_form_filler, :make_hash_converter
 
-      PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
+      ##
+      # Creates a fresh PdfForms instance for handling PDF forms.
+      #
+      # @return [PdfForms] A new PdfForms instance configured with the pdftk binary path.
+      #
+      def self.pdf_forms
+        PdfForms.new(Settings.binaries.pdftk)
+      end
       CONTINUATION_SHEET_FORM_ID = '22-10215a'
       CONTINUATION_SHEET_INTRO_PDF_PATH = 'lib/pdf_fill/forms/pdfs/22-10215a-Intro.pdf'
       CONTINUATION_SHEET_PDF_PATH = 'lib/pdf_fill/forms/pdfs/22-10215a.pdf'
@@ -96,12 +103,12 @@ module PdfFill
         hash_converter = make_hash_converter(form_id, form_class, submit_date, @fill_options)
         new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
 
-        PDF_FORMS.fill_form(template_path, output_path, new_hash, flatten: Rails.env.production?)
+        self.class.pdf_forms.fill_form(template_path, output_path, new_hash, flatten: Rails.env.production?)
       end
 
       def combine_pdf_pages
         final_file_path = "#{@folder}/22-10215_#{@file_name_extension}.pdf"
-        PDF_FORMS.cat(*@pdf_files, final_file_path)
+        self.class.pdf_forms.cat(*@pdf_files, final_file_path)
 
         log_completion(final_file_path)
         final_file_path

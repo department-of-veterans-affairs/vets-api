@@ -71,7 +71,7 @@ module AppealsApi
       end
 
       def pdftk
-        @pdftk ||= PdfForms.new(Settings.binaries.pdftk)
+        PdfForms.new(Settings.binaries.pdftk)
       end
 
       def pdf_template_path

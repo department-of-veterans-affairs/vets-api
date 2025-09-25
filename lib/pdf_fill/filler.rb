@@ -42,11 +42,23 @@ module PdfFill
     class PdfFillerException < StandardError; end
     module_function
 
-    # A PdfForms instance for handling standard PDF forms.
-    PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
+    ##
+    # Creates a fresh PdfForms instance for handling standard PDF forms.
+    #
+    # @return [PdfForms] A new PdfForms instance configured with the pdftk binary path.
+    #
+    def pdf_forms
+      PdfForms.new(Settings.binaries.pdftk)
+    end
 
-    # A PdfForms instance for handling Unicode PDF forms with XFdf data format.
-    UNICODE_PDF_FORMS = PdfForms.new(Settings.binaries.pdftk, data_format: 'XFdf', utf8_fields: true)
+    ##
+    # Creates a fresh PdfForms instance for handling Unicode PDF forms with XFdf data format.
+    #
+    # @return [PdfForms] A new PdfForms instance configured for Unicode handling.
+    #
+    def unicode_pdf_forms
+      PdfForms.new(Settings.binaries.pdftk, data_format: 'XFdf', utf8_fields: true)
+    end
 
     # A hash mapping form IDs to their corresponding form classes.
     # This constant is intentionally mutable.
@@ -219,7 +231,7 @@ module PdfFill
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
       unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,
                                EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2]
-      (form_id.in?(unicode_pdf_form_list) ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
+      (form_id.in?(unicode_pdf_form_list) ? unicode_pdf_forms : pdf_forms).fill_form(
         template_path, file_path, new_hash, flatten: Rails.env.production?
       )
 

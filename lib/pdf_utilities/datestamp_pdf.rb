@@ -5,8 +5,14 @@ require 'pdf_utilities/exception_handling'
 
 # Utility classes and functions for VA PDF
 module PDFUtilities
-  # @see https://github.com/jkraemer/pdf-forms
-  PDFTK = PdfForms.new(Settings.binaries.pdftk)
+  ##
+  # Creates a fresh PdfForms instance for PDF utilities.
+  #
+  # @return [PdfForms] A new PdfForms instance configured with the pdftk binary path.
+  #
+  def self.pdftk
+    PdfForms.new(Settings.binaries.pdftk)
+  end
 
   # add a watermark datestamp to an existing pdf
   class DatestampPdf
@@ -141,9 +147,9 @@ module PDFUtilities
       @stamped_pdf = "#{Common::FileHelpers.random_file_path}.pdf"
 
       if multistamp
-        PDFUtilities::PDFTK.multistamp(file_path, stamp_path, stamped_pdf)
+        PDFUtilities.pdftk.multistamp(file_path, stamp_path, stamped_pdf)
       else
-        PDFUtilities::PDFTK.stamp(file_path, stamp_path, stamped_pdf)
+        PDFUtilities.pdftk.stamp(file_path, stamp_path, stamped_pdf)
       end
 
       raise StampGenerationError, 'Stamped PDF was not created' unless File.exist?(stamped_pdf)

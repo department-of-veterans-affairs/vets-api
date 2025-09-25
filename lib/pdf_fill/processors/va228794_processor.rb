@@ -9,7 +9,14 @@ module PdfFill
 
       def_delegators :@main_form_filler, :combine_extras
 
-      PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
+      ##
+      # Creates a fresh PdfForms instance for handling PDF forms.
+      #
+      # @return [PdfForms] A new PdfForms instance configured with the pdftk binary path.
+      #
+      def self.pdf_forms
+        PdfForms.new(Settings.binaries.pdftk)
+      end
       DEFAULT_TEMPLATE_PATH = 'lib/pdf_fill/forms/pdfs/22-8794.pdf'
       DEFAULT_FORM_OFFICIALS_LIMIT = 7
       DEFAULT_FORM_READ_ONLY_SCO_LIMIT = 4
@@ -42,7 +49,7 @@ module PdfFill
         pdf_data_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: FORM_CLASS::KEY)
 
         file_path = File.join(TMP_DIR, '22-8794.pdf')
-        PDF_FORMS.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
+        self.class.pdf_forms.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
         file_path
       end
 
@@ -74,7 +81,7 @@ module PdfFill
 
         # fill in pdf and append extra pages
         file_path = File.join(TMP_DIR, '22-8794.pdf')
-        PDF_FORMS.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
+        self.class.pdf_forms.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
         combine_extras(file_path, hash_converter.extras_generator, FORM_CLASS)
       end
 
