@@ -47,7 +47,9 @@ module ClaimsApi
         direct_deposit_account_type: %w[directDeposit accountType],
         direct_deposit_account_number: %w[directDeposit accountNumber],
         direct_deposit_routing_number: %w[directDeposit routingNumber],
-        direct_deposit_bank_name: %w[directDeposit bankName]
+        direct_deposit_bank_name: %w[directDeposit bankName],
+        # SECTION 9: Claim Certification and Signature
+        claim_date: %w[claimDate]
       }.freeze
 
       def lookup_in_auto_claim(path_key)

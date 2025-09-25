@@ -28,7 +28,8 @@ RSpec.describe BGS::DependentV2Service do
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
 
   before do
-    allow(claim).to receive_messages(id: '1234', use_v2: true, user_account_id: user.user_account_uuid,
+    # TODO: add user_account_id back once the DB migration is done
+    allow(claim).to receive_messages(id: '1234', use_v2: true,
                                      submittable_686?: false, submittable_674?: true, add_veteran_info: true,
                                      valid?: true, persistent_attachments: [], upload_pdf: true)
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)

@@ -920,37 +920,6 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/folders/{id}
-  /v1/messaging/folders/{id}/messages:
-    get:
-      description: |
-        List messages in a secure messaging folder.
-
-        When listing messages, the response for each message will include most but not all of the message attributes.
-        Specifically, the message body and attachment information is not included. Those attributes can be obtained by
-        getting the specific message resource.
-      operationId: get_folder_messages
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/SecureMessageList.yml
-          description: OK
-        "401":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Unauthorized
-        "403":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Not authorized for access to secure messages
-      summary: /v1/messaging/folders/{id}/messages
-      parameters:
-        - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/folders/{id}/threads:
     get:
       description: List threads in a secure messaging folder.
