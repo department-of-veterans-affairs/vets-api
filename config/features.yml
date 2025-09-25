@@ -1172,6 +1172,10 @@ features:
     actor_type: user
     description: Lighthouse Benefits Claims API uses MPI birls_id as filenumber parameter to BDS search
     enable_in_development: true
+  lighthouse_claims_api_save_failed_soap_requests:
+    actor_type: user
+    description: Enable saving the request/response of failed SOAP requests made by ClaimsApi
+    enable_in_development: true
   lighthouse_document_convert_to_unlocked_pdf_use_hexapdf:
     description: Enables the LighthouseDocument class's convert_to_unlocked_pdf method to use hexapdf to unlock encrypted pdfs
   log_eligible_benefits:
