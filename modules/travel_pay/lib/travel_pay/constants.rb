@@ -21,8 +21,12 @@ module TravelPay
     }.freeze
 
     # Usage:
-    # TravelPay::Constants::TRIP_TYPES
-    TRIP_TYPES = %w[OneWay RoundTrip Unspecified].freeze
+    # TravelPay::Constants::TRIP_TYPES[:one_way]
+    TRIP_TYPES = {
+      one_way: 'OneWay',
+      round_trip: 'RoundTrip',
+      unspecified: 'Unspecified'
+    }.freeze
 
     # Usage:
     # TravelPay::Constants::UUID_REGEX.match?(uuid_string)

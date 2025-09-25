@@ -7,7 +7,7 @@ FactoryBot.define do
     purchase_date { Time.current }
     claim_id { nil }
     receipt { nil }
-    trip_type { 'ONE_WAY' }
+    trip_type { TravelPay::Constants::TRIP_TYPES[:one_way] }
     requested_mileage { nil }
 
     trait :with_claim_id do
@@ -31,11 +31,11 @@ FactoryBot.define do
     end
 
     trait :round_trip do
-      trip_type { 'ROUND_TRIP' }
+      trip_type { TravelPay::Constants::TRIP_TYPES[:round_trip] }
     end
 
     trait :one_way do
-      trip_type { 'ONE_WAY' }
+      trip_type { TravelPay::Constants::TRIP_TYPES[:one_way] }
     end
 
     trait :with_requested_mileage do

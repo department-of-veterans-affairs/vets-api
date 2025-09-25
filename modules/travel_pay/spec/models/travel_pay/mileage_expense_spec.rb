@@ -20,7 +20,7 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
 
   describe 'constants' do
     it 'uses TRIP_TYPES from Constants module' do
-      expect(TravelPay::Constants::TRIP_TYPES).to eq(%w[OneWay RoundTrip Unspecified])
+      expect(TravelPay::Constants::TRIP_TYPES.values).to eq(%w[OneWay RoundTrip Unspecified])
     end
   end
 
