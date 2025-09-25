@@ -477,7 +477,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/city',
-          detail: 'The city is required if the country is USA'
+          detail: 'The city is required for /changeOfAddress.'
         )
       end
 
