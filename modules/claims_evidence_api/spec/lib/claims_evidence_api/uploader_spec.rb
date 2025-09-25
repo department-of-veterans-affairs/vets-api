@@ -38,6 +38,20 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
     allow(pa).to receive(:to_pdf).and_return pdf_path
   end
 
+  describe '#format_datetime' do
+    it 'converts UTC to expected date' do
+      future_utc = 'Tue, 23 Sep 2025 00:44:24.175627000 +0000'
+      expected = '2025-09-22'
+      expect(expected).to eq uploader.send(:format_datetime, future_utc)
+    end
+
+    it 'returns the same day' do
+      same_day = 'Tue, 23 Sep 2025 00:44:24.175627000 -0400'
+      expected = '2025-09-23'
+      expect(expected).to eq uploader.send(:format_datetime, same_day)
+    end
+  end
+
   context 'with generating the pdf and stamping' do
     it 'creates tracking entries on successful upload' do
       args = { saved_claim_id: claim.id, persistent_attachment_id: nil, form_id: claim.form_id }
