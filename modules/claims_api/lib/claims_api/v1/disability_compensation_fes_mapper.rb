@@ -19,6 +19,7 @@ module ClaimsApi
       def map_claim
         claim_attributes
         claim_meta
+
         wrap_in_request_structure
       end
 
@@ -197,7 +198,9 @@ module ClaimsApi
         end
       end
 
+ 
       def extract_veteran_participant_id
+        # Try auth_headers first, then fall back to other sources
         @auto_claim.auth_headers&.dig('va_eauth_pid') ||
           @auto_claim.auth_headers&.dig('participant_id')
       end

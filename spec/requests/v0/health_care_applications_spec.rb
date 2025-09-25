@@ -323,7 +323,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
       import_job = instance_double(HCA::StdInstitutionImportJob)
       expect(HCA::StdInstitutionImportJob).to receive(:new).and_return(import_job)
-      expect(import_job).to receive(:perform)
+      expect(import_job).to receive(:import_facilities).with(run_sync: true)
 
       get(facilities_v0_health_care_applications_path(state: 'OH'))
     end
@@ -460,6 +460,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       end
 
       context 'while authenticated', :skip_mvi do
+        let!(:in_progress_form) { create(:in_progress_form, user_uuid: current_user.uuid, form_id: '1010ez') }
         let(:current_user) { build(:user, :mhv) }
         let(:body) do
           {
@@ -474,41 +475,18 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           test_veteran.delete('email')
         end
 
-        context ':hca_in_progress_form_delete_async feature disabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:hca_in_progress_form_delete_async).and_return(false)
-          end
+        it 'renders success and enqueues job to delete InProgressForm', run_at: '2017-01-31' do
+          VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+            expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
 
-          it 'renders success and delete the saved form', run_at: '2017-01-31' do
-            VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
-              expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('1010ez').once
-              expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
-              subject
-              expect(JSON.parse(response.body)).to eq(body)
-            end
-          end
-        end
+            expect(DeleteInProgressFormJob).to receive(:perform_in).with(
+              5.minutes,
+              '1010ez',
+              current_user.uuid
+            )
 
-        context ':hca_in_progress_form_delete_async feature enabled' do
-          let!(:in_progress_form) { create(:in_progress_form, user_uuid: current_user.uuid, form_id: '1010ez') }
-
-          before do
-            allow(Flipper).to receive(:enabled?).with(:hca_in_progress_form_delete_async).and_return(true)
-          end
-
-          it 'renders success and delete the saved form', run_at: '2017-01-31' do
-            VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
-              expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
-
-              expect(DeleteInProgressFormJob).to receive(:perform_in).with(
-                5.minutes,
-                '1010ez',
-                current_user.uuid
-              )
-
-              subject
-              expect(JSON.parse(response.body)).to eq(body)
-            end
+            subject
+            expect(JSON.parse(response.body)).to eq(body)
           end
         end
       end

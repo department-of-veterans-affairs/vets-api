@@ -30,6 +30,10 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
                form_data: form_data['data']['attributes'],
                auth_headers:)
       end
+      let(:fes_data) do
+        ClaimsApi::V1::DisabilityCompensationFesMapper.new(auto_claim).map_claim
+
+      end
 
       let(:fes_data) { described_class.new(auto_claim).map_claim }
 
@@ -155,6 +159,8 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
         let(:fes_data) { described_class.new(auto_claim).map_claim }
         let(:disability_object) { fes_data[:data][:form526][:disabilities] }
 
+      context 'section 5 disabilities' do
+
         let(:secondary_disability) do
           [
             {
@@ -175,6 +181,8 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
         it 'maps the FES attributes' do
           form_data['data']['attributes']['disabilities'][0]['classificationCode'] = '123456'
           form_data['data']['attributes']['disabilities'][0]['approximateBeginDate'] = '2018-02-22'
+          disability_object = fes_data[:data][:form526][:disabilities]
+
           expect(disability_object).not_to be_nil
           expect(disability_object[0][:name]).to eq('PTSD (post traumatic stress disorder)')
           expect(disability_object[0][:classificationCode]).to eq('123456')
@@ -182,18 +190,22 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           expect(disability_object[0][:diagnosticCode]).to eq(9999)
           expect(disability_object[0][:disabilityActionType]).to eq('NEW')
           expect(disability_object[0][:specialIssues]).to eq(['Fully Developed Claim', 'PTSD/2'])
-          expect(disability_object[0][:approximateBeginDate]).to eq({ year: 2018, month: 0o2, day: 22 })
+          expect(disability_object[0][:approximateBeginDate]).to eq({ year: 2018, month: 02, day: 22 })
+
         end
 
         it 'maps secondary disabilities if included' do
           form_data['data']['attributes']['disabilities'][0]['secondaryDisabilities'] = secondary_disability
+
+          disability_object = fes_data[:data][:form526][:disabilities]
+
           expect(disability_object[1][:name]).to eq('Left Hip Pain')
           expect(disability_object[1]).not_to have_key(:classificationCode)
           expect(disability_object[1]).not_to have_key(:ratedDisabilityId)
           expect(disability_object[1]).not_to have_key(:diagnosticCode)
           expect(disability_object[1][:disabilityActionType]).to eq('NEW')
           expect(disability_object[1]).not_to have_key(:specialIssues)
-          expect(disability_object[1][:approximateBeginDate]).to eq({ year: 2018, month: 0o5 })
+          expect(disability_object[1][:approximateBeginDate]).to eq({ year: 2018, month: 05 })
           expect(disability_object[2][:name]).to eq('Left Elbow Pain')
           expect(disability_object[2][:disabilityActionType]).to eq('NEW')
           expect(disability_object[2][:approximateBeginDate]).to eq({ year: 2019 })
@@ -201,6 +213,8 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
 
         it 'does not map the ignored fields' do
           form_data['data']['attributes']['disabilities'][0]['serviceRelevance'] = 'Hurt while working.'
+          disability_object = fes_data[:data][:form526][:disabilities]
+
           expect(disability_object[0]).not_to have_key(:serviceRelevance)
           expect(disability_object[0]).not_to have_key(:secondaryDisabilities)
         end
@@ -209,6 +223,8 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           form_data['data']['attributes']['disabilities'][0]['ratedDisabilityId'] = ' '
           form_data['data']['attributes']['disabilities'][0]['diagnosticCode'] = nil
           form_data['data']['attributes']['disabilities'][0]['specialIssues'] = []
+          disability_object = fes_data[:data][:form526][:disabilities]
+
           expect(disability_object[0]).not_to have_key(:classificationCode)
           expect(disability_object[0]).not_to have_key(:ratedDisabilityId)
           expect(disability_object[0]).not_to have_key(:diagnosticCode)
