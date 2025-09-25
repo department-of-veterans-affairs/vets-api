@@ -83,7 +83,7 @@ module UnifiedHealthData
         {
           prescription_name: extract_prescription_name(resource),
           prescription_number: prescription_number || extract_prescription_number(resource),
-          ndc_number: extract_ndc_number(resource),
+          ndc_number: extract_ndc_number(dispense),
           prescription_id: resource['id'].to_i,
           tracking_number:,
           shipped_date:,
@@ -97,8 +97,8 @@ module UnifiedHealthData
         identifier&.dig('value')
       end
 
-      def extract_ndc_number(resource)
-        coding = resource.dig('medicationCodeableConcept', 'coding') || []
+      def extract_ndc_number(dispense)
+        coding = dispense.dig('medicationCodeableConcept', 'coding') || []
         ndc_coding = coding.find { |c| c['system'] == 'http://hl7.org/fhir/sid/ndc' }
         ndc_coding&.dig('code')
       end

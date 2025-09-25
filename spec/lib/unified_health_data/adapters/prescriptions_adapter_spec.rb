@@ -1119,17 +1119,19 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
                     'type' => { 'text' => 'Shipped Date' },
                     'value' => '2022-10-15T00:00:00.000Z'
                   }
-                ]
+                ],
+                'medicationCodeableConcept' => {
+                  'coding' => [
+                    {
+                      'system' => 'http://hl7.org/fhir/sid/ndc',
+                      'code' => '00013264681'
+                    }
+                  ]
+                }
               }
             ],
             'medicationCodeableConcept' => {
-              'text' => 'HALCINONIDE 0.1% OINT',
-              'coding' => [
-                {
-                  'system' => 'http://hl7.org/fhir/sid/ndc',
-                  'code' => '00013264681'
-                }
-              ]
+              'text' => 'HALCINONIDE 0.1% OINT'
             }
           )
         end
@@ -1250,8 +1252,10 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
     describe '#extract_ndc_number' do
       context 'with NDC coding in medicationCodeableConcept' do
-        let(:resource_with_ndc) do
-          base_resource.merge(
+        let(:dispense_with_ndc) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-1',
             'medicationCodeableConcept' => {
               'coding' => [
                 {
@@ -1264,18 +1268,25 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
                 }
               ]
             }
-          )
+          }
         end
 
         it 'returns the NDC code' do
-          result = subject.send(:extract_ndc_number, resource_with_ndc)
+          result = subject.send(:extract_ndc_number, dispense_with_ndc)
           expect(result).to eq('12345-678-90')
         end
       end
 
       context 'without NDC coding' do
+        let(:dispense_without_ndc) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-1'
+          }
+        end
+
         it 'returns nil' do
-          result = subject.send(:extract_ndc_number, base_resource)
+          result = subject.send(:extract_ndc_number, dispense_without_ndc)
           expect(result).to be_nil
         end
       end
