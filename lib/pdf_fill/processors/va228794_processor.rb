@@ -9,14 +9,6 @@ module PdfFill
 
       def_delegators :@main_form_filler, :combine_extras
 
-      ##
-      # Creates a fresh PdfForms instance for handling PDF forms.
-      #
-      # @return [PdfForms] A new PdfForms instance configured with the pdftk binary path.
-      #
-      def self.pdf_forms
-        PdfForms.new(Settings.binaries.pdftk)
-      end
       DEFAULT_TEMPLATE_PATH = 'lib/pdf_fill/forms/pdfs/22-8794.pdf'
       DEFAULT_FORM_OFFICIALS_LIMIT = 7
       DEFAULT_FORM_READ_ONLY_SCO_LIMIT = 4
@@ -41,6 +33,15 @@ module PdfFill
         else
           generate_extended_form(merged_form_data, hash_converter)
         end
+      end
+
+      ##
+      # Creates a fresh PdfForms instance for handling PDF forms.
+      #
+      # @return [PdfForms] A new PdfForms instance configured with the pdftk binary path.
+      #
+      def self.pdf_forms
+        PdfForms.new(Settings.binaries.pdftk)
       end
 
       private

@@ -144,7 +144,8 @@ describe PdfFill::Filler, type: :model do
         generated_pdf_path = described_class.fill_ancillary_form(form_data, claim_id, form_id)
         expect(File).to exist(generated_pdf_path)
 
-        # Verify that unicode_pdf_forms is used (not pdf_forms) for form 21-0781V2
+        # Verify that unicode_pdf_forms is used (not pdf_forms) for form 21-0781V2 with Unicode content
+        # This ensures Unicode characters in the form are properly handled by the Unicode PDF processor
         expect(described_class).to have_received(:unicode_pdf_forms).at_least(:once)
         expect(described_class).not_to have_received(:pdf_forms)
 

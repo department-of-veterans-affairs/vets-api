@@ -10,14 +10,6 @@ module PdfFill
 
       def_delegators :@main_form_filler, :make_hash_converter
 
-      ##
-      # Creates a fresh PdfForms instance for handling PDF forms.
-      #
-      # @return [PdfForms] A new PdfForms instance configured with the pdftk binary path.
-      #
-      def self.pdf_forms
-        PdfForms.new(Settings.binaries.pdftk)
-      end
       CONTINUATION_SHEET_FORM_ID = '22-10215a'
       CONTINUATION_SHEET_INTRO_PDF_PATH = 'lib/pdf_fill/forms/pdfs/22-10215a-Intro.pdf'
       CONTINUATION_SHEET_PDF_PATH = 'lib/pdf_fill/forms/pdfs/22-10215a.pdf'
@@ -40,6 +32,15 @@ module PdfFill
         combine_pdf_pages
       ensure
         cleanup_temporary_files
+      end
+
+      ##
+      # Creates a fresh PdfForms instance for handling PDF forms.
+      #
+      # @return [PdfForms] A new PdfForms instance configured with the pdftk binary path.
+      #
+      def self.pdf_forms
+        PdfForms.new(Settings.binaries.pdftk)
       end
 
       private
