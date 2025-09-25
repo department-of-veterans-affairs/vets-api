@@ -172,7 +172,7 @@ gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'warden-github'
-gem 'waterdrop', '2.8.6' # to temporarily undo dependabot commit 1fd3c5de899081010bbb27b7bfcedb8f27be2a53
+gem 'waterdrop', '2.8.10' # to temporarily undo dependabot commit 1fd3c5de899081010bbb27b7bfcedb8f27be2a53
 gem 'will_paginate'
 gem 'with_advisory_lock'
 
