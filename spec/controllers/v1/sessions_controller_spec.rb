@@ -1139,7 +1139,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             allow(saml_user).to receive(:changing_multifactor?).and_return(true)
             expect(Sentry).to receive(:set_extras).with(current_user_uuid: user.uuid, current_user_icn: '11111111111')
             expect(Rails.logger).to receive(:warn).with(
-              "[UserSessionForm]Couldn't locate existing user after MFA establishment,",
+              "[UserSessionForm] Couldn't locate existing user after MFA establishment",
               saml_uuid: 'invalid',
               saml_icn: '11111111111'
             )
@@ -1325,7 +1325,8 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'logs a generic error' do
           expect(Rails.logger).to receive(:warn)
-            .with('[SessionsController] Login Failed! Subject did not consent to attribute release Multiple SAML Errors')
+            .with('[SessionsController] Login Failed! Subject did not ' \
+                  'consent to attribute release Multiple SAML Errors')
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
