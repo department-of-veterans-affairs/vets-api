@@ -6,7 +6,7 @@
   <%# Page 1 - Letter/Cover Page %>
 
   <%# In Reply Refer To field %>
-  "form1[0].Page1[0].InReply[0]": "<%= form.data['inReplyReferTo'] %>",
+  "form1[0].Page1[0].InReply[0]": "<%= form.data['in_reply_refer_to'] %>",
 
   <%# Regional Office Director Signature - left blank (signature field for VA office use) %>
   "form1[0].Page1[0].Signature[0]": "",
@@ -14,37 +14,37 @@
   <%# Page 2 - Marital Status Questionnaire %>
 
   <%# Question 1A: Have you remarried since the death of the veteran? %>
-  "form1[0].Page2[0].RadioButtonList[0]": "<%= form.data['hasRemarried'] ? 'YES' : 'NO' %>",
+  "form1[0].Page2[0].RadioButtonList[0]": "<%= form.data['has_remarried'] ? 'YES' : 'NO' %>",
 
-  <% if form.data['hasRemarried'] %>
+  <% if form.data['has_remarried'] %>
     <%# 1B. Date of Marriage (only if remarried) %>
-    "form1[0].Page2[0].DOBmonth[0]": "<%= form.data.dig('remarriage', 'dateOfMarriage', 'month') %>",
-    "form1[0].Page2[0].DOBday[0]": "<%= form.data.dig('remarriage', 'dateOfMarriage', 'day') %>",
-    "form1[0].Page2[0].DOByear[0]": "<%= form.data.dig('remarriage', 'dateOfMarriage', 'year') %>",
+    "form1[0].Page2[0].DOBmonth[0]": "<%= form.data.dig('remarriage', 'date_of_marriage', 'month') %>",
+    "form1[0].Page2[0].DOBday[0]": "<%= form.data.dig('remarriage', 'date_of_marriage', 'day') %>",
+    "form1[0].Page2[0].DOByear[0]": "<%= form.data.dig('remarriage', 'date_of_marriage', 'year') %>",
 
     <%# 1C. Name of Spouse (if remarried) - respect max lengths %>
-    "form1[0].Page2[0].VeteransLastName[0]": "<%= form.data.dig('remarriage', 'spouseName', 'last')&.[](0..17) %>",
-    "form1[0].Page2[0].VeteransMiddleInitial1[0]": "<%= form.data.dig('remarriage', 'spouseName', 'middle')&.[](0) %>",
-    "form1[0].Page2[0].VeteransFirstName[0]": "<%= form.data.dig('remarriage', 'spouseName', 'first')&.[](0..11) %>",
+    "form1[0].Page2[0].VeteransLastName[0]": "<%= form.data.dig('remarriage', 'spouse_name', 'last')&.[](0..17) %>",
+    "form1[0].Page2[0].VeteransMiddleInitial1[0]": "<%= form.data.dig('remarriage', 'spouse_name', 'middle')&.[](0) %>",
+    "form1[0].Page2[0].VeteransFirstName[0]": "<%= form.data.dig('remarriage', 'spouse_name', 'first')&.[](0..11) %>",
 
     <%# 1D. Spouse Date of Birth %>
-    "form1[0].Page2[0].DOBmonth[3]": "<%= form.data.dig('remarriage', 'spouseDateOfBirth', 'month') %>",
-    "form1[0].Page2[0].DOBday[2]": "<%= form.data.dig('remarriage', 'spouseDateOfBirth', 'day') %>",
-    "form1[0].Page2[0].DOByear[2]": "<%= form.data.dig('remarriage', 'spouseDateOfBirth', 'year') %>",
+    "form1[0].Page2[0].DOBmonth[3]": "<%= form.data.dig('remarriage', 'spouse_date_of_birth', 'month') %>",
+    "form1[0].Page2[0].DOBday[2]": "<%= form.data.dig('remarriage', 'spouse_date_of_birth', 'day') %>",
+    "form1[0].Page2[0].DOByear[2]": "<%= form.data.dig('remarriage', 'spouse_date_of_birth', 'year') %>",
 
     <%# 1E. Is your spouse a veteran? %>
-    "form1[0].Page2[0].RadioButtonList[1]": "<%= form.data.dig('remarriage', 'spouseIsVeteran') ? 'YES' : 'NO' %>",
+    "form1[0].Page2[0].RadioButtonList[1]": "<%= form.data.dig('remarriage', 'spouse_is_veteran') ? 'YES' : 'NO' %>",
 
-    <% if form.data.dig('remarriage', 'spouseIsVeteran') %>
+    <% if form.data.dig('remarriage', 'spouse_is_veteran') %>
       <%# 1F. If "YES," provide your new spouse's VA File Number or Social Security Number %>
-      <% if form.data.dig('remarriage', 'spouseVAFileNumber').present? %>
+      <% if form.data.dig('remarriage', 'spouse_va_file_number').present? %>
         <%# VA File Number (max 9 digits) %>
-        "form1[0].Page2[0].VAFileNumber[0]": "<%= form.data.dig('remarriage', 'spouseVAFileNumber')&.[](0..8) %>",
+        "form1[0].Page2[0].VAFileNumber[0]": "<%= form.data.dig('remarriage', 'spouse_va_file_number')&.[](0..8) %>",
       <% else %>
         <%# OR Social Security Number %>
-        "form1[0].Page2[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": "<%= form.data.dig('remarriage', 'spouseSSN', 'first3') %>",
-        "form1[0].Page2[0].VeteransSocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data.dig('remarriage', 'spouseSSN', 'middle2') %>",
-        "form1[0].Page2[0].VeteransSocialSecurityNumber_LastFourNumbers[0]": "<%= form.data.dig('remarriage', 'spouseSSN', 'last4') %>",
+        "form1[0].Page2[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": "<%= form.data.dig('remarriage', 'spouse_ssn', 'first3') %>",
+        "form1[0].Page2[0].VeteransSocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data.dig('remarriage', 'spouse_ssn', 'middle2') %>",
+        "form1[0].Page2[0].VeteransSocialSecurityNumber_LastFourNumbers[0]": "<%= form.data.dig('remarriage', 'spouse_ssn', 'last4') %>",
       <% end %>
     <% else %>
       <%# Leave VA File Number and SSN fields empty if spouse is not a veteran %>
@@ -55,19 +55,19 @@
     <% end %>
 
     <%# 1G. What was your age at the time of your marriage? (max 2 digits) %>
-    "form1[0].Page2[0].DOBmonth[1]": "<%= form.data.dig('remarriage', 'ageAtMarriage')&.[](0..1) %>",
+    "form1[0].Page2[0].DOBmonth[1]": "<%= form.data.dig('remarriage', 'age_at_marriage')&.[](0..1) %>",
 
     <%# 2A. Has your remarriage been terminated? %>
-    "form1[0].Page2[0].RadioButtonList[2]": "<%= form.data.dig('remarriage', 'hasTerminated') ? 'YES' : 'NO' %>",
+    "form1[0].Page2[0].RadioButtonList[2]": "<%= form.data.dig('remarriage', 'has_terminated') ? 'YES' : 'NO' %>",
 
-    <% if form.data.dig('remarriage', 'hasTerminated') %>
+    <% if form.data.dig('remarriage', 'has_terminated') %>
       <%# 2B. Date of Termination (only if terminated) %>
-      "form1[0].Page2[0].DOBmonth[2]": "<%= form.data.dig('remarriage', 'terminationDate', 'month') %>",
-      "form1[0].Page2[0].DOBday[1]": "<%= form.data.dig('remarriage', 'terminationDate', 'day') %>",
-      "form1[0].Page2[0].DOByear[1]": "<%= form.data.dig('remarriage', 'terminationDate', 'year') %>",
+      "form1[0].Page2[0].DOBmonth[2]": "<%= form.data.dig('remarriage', 'termination_date', 'month') %>",
+      "form1[0].Page2[0].DOBday[1]": "<%= form.data.dig('remarriage', 'termination_date', 'day') %>",
+      "form1[0].Page2[0].DOByear[1]": "<%= form.data.dig('remarriage', 'termination_date', 'year') %>",
 
       <%# 2C. Reason for Termination %>
-      "form1[0].Page2[0].TERMINATION_REASON[0]": "<%= form.data.dig('remarriage', 'terminationReason') %>",
+      "form1[0].Page2[0].TERMINATION_REASON[0]": "<%= form.data.dig('remarriage', 'termination_reason') %>",
     <% else %>
       <%# Leave termination fields empty if not terminated %>
       "form1[0].Page2[0].DOBmonth[2]": "",
@@ -100,14 +100,14 @@
   <% end %>
 
   <%# 3A. Daytime Telephone Number (always populate) %>
-  "form1[0].Page2[0].Daytime1[0]": "<%= form.data.dig('recipient', 'phone', 'daytime', 'areaCode') %>",
+  "form1[0].Page2[0].Daytime1[0]": "<%= form.data.dig('recipient', 'phone', 'daytime', 'area_code') %>",
   "form1[0].Page2[0].Daytime2[0]": "<%= form.data.dig('recipient', 'phone', 'daytime', 'prefix') %>",
-  "form1[0].Page2[0].Daytime3[0]": "<%= form.data.dig('recipient', 'phone', 'daytime', 'lineNumber') %>",
+  "form1[0].Page2[0].Daytime3[0]": "<%= form.data.dig('recipient', 'phone', 'daytime', 'line_number') %>",
 
   <%# 3B. Evening Telephone Number (always populate) %>
-  "form1[0].Page2[0].Daytime1[1]": "<%= form.data.dig('recipient', 'phone', 'evening', 'areaCode') %>",
+  "form1[0].Page2[0].Daytime1[1]": "<%= form.data.dig('recipient', 'phone', 'evening', 'area_code') %>",
   "form1[0].Page2[0].Daytime2[1]": "<%= form.data.dig('recipient', 'phone', 'evening', 'prefix') %>",
-  "form1[0].Page2[0].Daytime3[1]": "<%= form.data.dig('recipient', 'phone', 'evening', 'lineNumber') %>",
+  "form1[0].Page2[0].Daytime3[1]": "<%= form.data.dig('recipient', 'phone', 'evening', 'line_number') %>",
 
   <%# 4. E-Mail Address (max 30 characters) %>
   "form1[0].Page2[0].VeteransLastName[1]": "<%= form.data.dig('recipient', 'email')&.[](0..29) %>",
