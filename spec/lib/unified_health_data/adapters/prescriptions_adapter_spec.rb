@@ -1093,5 +1093,192 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         end
       end
     end
+
+    describe '#build_tracking_information' do
+      context 'with MedicationDispense containing tracking identifiers' do
+        let(:resource_with_tracking) do
+          base_resource.merge(
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => '21142623',
+                'identifier' => [
+                  {
+                    'type' => { 'text' => 'Tracking Number' },
+                    'value' => '77298027203980000000398'
+                  },
+                  {
+                    'type' => { 'text' => 'Prescription Number' },
+                    'value' => '2720334'
+                  },
+                  {
+                    'type' => { 'text' => 'Carrier' },
+                    'value' => 'UPS'
+                  },
+                  {
+                    'type' => { 'text' => 'Shipped Date' },
+                    'value' => '2022-10-15T00:00:00.000Z'
+                  }
+                ]
+              }
+            ],
+            'medicationCodeableConcept' => {
+              'text' => 'HALCINONIDE 0.1% OINT',
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/ndc',
+                  'code' => '00013264681'
+                }
+              ]
+            }
+          )
+        end
+
+        it 'returns tracking information with all fields' do
+          result = subject.send(:build_tracking_information, resource_with_tracking)
+
+          expect(result).to be_an(Array)
+          expect(result.length).to eq(1)
+
+          tracking = result.first
+          expect(tracking).to include(
+            prescription_name: 'HALCINONIDE 0.1% OINT',
+            prescription_number: '2720334',
+            ndc_number: '00013264681',
+            prescription_id: 12_345,
+            tracking_number: '77298027203980000000398',
+            shipped_date: '2022-10-15T00:00:00.000Z',
+            carrier: 'UPS',
+            other_prescriptions: []
+          )
+        end
+
+        it 'sets is_trackable to true when tracking data exists' do
+          result = subject.parse(resource_with_tracking)
+          expect(result.is_trackable).to be(true)
+        end
+      end
+
+      context 'with MedicationDispense without tracking identifiers' do
+        let(:resource_no_tracking) do
+          base_resource.merge(
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => '123456',
+                'identifier' => [
+                  {
+                    'type' => { 'text' => 'Other ID' },
+                    'value' => 'some-other-value'
+                  }
+                ]
+              }
+            ]
+          )
+        end
+
+        it 'returns empty array when no tracking number is found' do
+          result = subject.send(:build_tracking_information, resource_no_tracking)
+          expect(result).to eq([])
+        end
+
+        it 'sets is_trackable to false when no tracking data exists' do
+          result = subject.parse(resource_no_tracking)
+          expect(result.is_trackable).to be(false)
+        end
+      end
+
+      context 'with multiple MedicationDispense resources' do
+        let(:resource_multiple_dispenses) do
+          base_resource.merge(
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => '111',
+                'identifier' => [
+                  {
+                    'type' => { 'text' => 'Tracking Number' },
+                    'value' => 'TRACK111'
+                  },
+                  {
+                    'type' => { 'text' => 'Carrier' },
+                    'value' => 'USPS'
+                  }
+                ]
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => '222',
+                'identifier' => [
+                  {
+                    'type' => { 'text' => 'Tracking Number' },
+                    'value' => 'TRACK222'
+                  },
+                  {
+                    'type' => { 'text' => 'Carrier' },
+                    'value' => 'FedEx'
+                  }
+                ]
+              }
+            ]
+          )
+        end
+
+        it 'returns tracking information for all dispenses with tracking numbers' do
+          result = subject.send(:build_tracking_information, resource_multiple_dispenses)
+
+          expect(result).to be_an(Array)
+          expect(result.length).to eq(2)
+
+          expect(result.map { |t| t[:tracking_number] }).to contain_exactly('TRACK111', 'TRACK222')
+          expect(result.map { |t| t[:carrier] }).to contain_exactly('USPS', 'FedEx')
+        end
+      end
+
+      context 'with no contained resources' do
+        it 'returns empty array' do
+          result = subject.send(:build_tracking_information, base_resource)
+          expect(result).to eq([])
+        end
+
+        it 'sets is_trackable to false' do
+          result = subject.parse(base_resource)
+          expect(result.is_trackable).to be(false)
+        end
+      end
+    end
+
+    describe '#extract_ndc_number' do
+      context 'with NDC coding in medicationCodeableConcept' do
+        let(:resource_with_ndc) do
+          base_resource.merge(
+            'medicationCodeableConcept' => {
+              'coding' => [
+                {
+                  'system' => 'http://hl7.org/fhir/sid/ndc',
+                  'code' => '12345-678-90'
+                },
+                {
+                  'system' => 'http://other.system',
+                  'code' => 'OTHER123'
+                }
+              ]
+            }
+          )
+        end
+
+        it 'returns the NDC code' do
+          result = subject.send(:extract_ndc_number, resource_with_ndc)
+          expect(result).to eq('12345-678-90')
+        end
+      end
+
+      context 'without NDC coding' do
+        it 'returns nil' do
+          result = subject.send(:extract_ndc_number, base_resource)
+          expect(result).to be_nil
+        end
+      end
+    end
   end
 end
