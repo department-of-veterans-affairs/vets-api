@@ -4,11 +4,10 @@ require 'rails_helper'
 require 'webmock/rspec'
 
 RSpec.describe TravelClaim::TravelPayClient do
-  let(:uuid) { 'test-uuid-123' }
-  let(:check_in_uuid) { 'check-in-uuid-456' }
+  let(:check_in_uuid) { 'test-uuid-123' }
   let(:appointment_date_time) { '2024-01-01T12:00:00Z' }
   let(:redis_client) { instance_double(TravelClaim::RedisClient) }
-  let(:client) { described_class.new(uuid:, appointment_date_time:, check_in_uuid:) }
+  let(:client) { described_class.new(check_in_uuid:, appointment_date_time:) }
 
   # Test data constants
   let(:test_icn) { '1234567890V123456' }
@@ -36,9 +35,9 @@ RSpec.describe TravelClaim::TravelPayClient do
   before do
     allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
     # Default Redis behavior - can be overridden in individual tests
-    # ICN is retrieved using check_in_uuid, station_number using uuid
+    # Both ICN and station_number are retrieved using the same uuid
     allow(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(test_icn)
-    allow(redis_client).to receive(:station_number).with(uuid:).and_return(test_station_number)
+    allow(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_return(test_station_number)
   end
 
   # Settings are configured in individual tests using with_settings
@@ -47,9 +46,9 @@ RSpec.describe TravelClaim::TravelPayClient do
     context 'when Redis operations succeed' do
       it 'loads ICN and station number successfully' do
         expect(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(test_icn)
-        expect(redis_client).to receive(:station_number).with(uuid:).and_return(test_station_number)
+        expect(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_return(test_station_number)
 
-        client = described_class.new(uuid:, appointment_date_time:, check_in_uuid:)
+        client = described_class.new(check_in_uuid:, appointment_date_time:)
 
         expect(client.instance_variable_get(:@icn)).to eq(test_icn)
         expect(client.instance_variable_get(:@station_number)).to eq(test_station_number)
@@ -62,34 +61,32 @@ RSpec.describe TravelClaim::TravelPayClient do
                                             .and_raise(Redis::ConnectionError, 'Connection refused')
 
         expect do
-          described_class.new(uuid:, appointment_date_time:, check_in_uuid:)
+          described_class.new(check_in_uuid:, appointment_date_time:)
         end.to raise_error(ArgumentError,
-                           "Failed to load data from Redis for check_in_session UUID #{check_in_uuid} and " \
-                           'station number ')
+                           "Failed to load data from Redis for check-in UUID #{check_in_uuid}")
       end
     end
 
     context 'when Redis station number lookup fails' do
       it 'raises ArgumentError with clear error message' do
         allow(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(test_icn)
-        allow(redis_client).to receive(:station_number).with(uuid:).and_raise(Redis::TimeoutError,
-                                                                              'Operation timed out')
+        allow(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_raise(Redis::TimeoutError,
+                                                                                            'Operation timed out')
 
         expect do
-          described_class.new(uuid:, appointment_date_time:, check_in_uuid:)
+          described_class.new(check_in_uuid:, appointment_date_time:)
         end.to raise_error(ArgumentError,
-                           "Failed to load data from Redis for check_in_session UUID #{check_in_uuid} and " \
-                           'station number ')
+                           "Failed to load data from Redis for check-in UUID #{check_in_uuid}")
       end
     end
 
     context 'when Redis returns nil values' do
       it 'raises ArgumentError with clear error message' do
         allow(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(nil)
-        allow(redis_client).to receive(:station_number).with(uuid:).and_return(nil)
+        allow(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_return(nil)
 
         expect do
-          described_class.new(uuid:, appointment_date_time:, check_in_uuid:)
+          described_class.new(check_in_uuid:, appointment_date_time:)
         end.to raise_error(ArgumentError, 'Missing required arguments: ICN, station number')
       end
     end
@@ -99,7 +96,7 @@ RSpec.describe TravelClaim::TravelPayClient do
         allow(TravelClaim::RedisClient).to receive(:build).and_raise(StandardError, 'Redis server not available')
 
         expect do
-          described_class.new(uuid:, appointment_date_time:, check_in_uuid:)
+          described_class.new(check_in_uuid:, appointment_date_time:)
         end.to raise_error(StandardError, 'Redis server not available')
       end
     end
@@ -410,17 +407,17 @@ RSpec.describe TravelClaim::TravelPayClient do
 
   describe 'initialization' do
     it 'raises error when UUID is blank' do
-      expect { described_class.new(uuid: '', appointment_date_time:, check_in_uuid:) }
-        .to raise_error(ArgumentError, 'UUID cannot be blank')
-    end
-
-    it 'raises error when check_in_uuid is blank' do
-      expect { described_class.new(uuid:, appointment_date_time:, check_in_uuid: '') }
+      expect { described_class.new(check_in_uuid: '', appointment_date_time:) }
         .to raise_error(ArgumentError, 'Check-in UUID cannot be blank')
     end
 
-    it 'accepts both uuid and check_in_uuid parameters' do
-      expect { described_class.new(uuid:, appointment_date_time:, check_in_uuid:) }
+    it 'raises error when appointment_date_time is blank' do
+      expect { described_class.new(check_in_uuid:, appointment_date_time: '') }
+        .to raise_error(ArgumentError, 'appointment date time cannot be blank')
+    end
+
+    it 'accepts check_in_uuid and appointment_date_time parameters' do
+      expect { described_class.new(check_in_uuid:, appointment_date_time:) }
         .not_to raise_error
     end
   end
@@ -528,7 +525,7 @@ RSpec.describe TravelClaim::TravelPayClient do
         'TravelPayClient 401 error - retrying authentication',
         hash_including(
           correlation_id: be_present,
-          uuid_hash: uuid,
+          check_in_uuid:,
           veis_token_present: true,
           btsss_token_present: true
         )

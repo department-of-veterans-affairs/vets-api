@@ -19,6 +19,9 @@ module ClaimsApi
         section_5_disabilities
         section_5_treatment_centers
         section_6_service_information
+        section_7_service_pay
+        section_8_direct_deposit
+        section_9_claim_certification_and_signature
       ].freeze
 
       HOMELESSNESS_RISK_SITUATION_TYPES = {
@@ -35,11 +38,12 @@ module ClaimsApi
         'other' => 'OTHER'
       }.freeze
 
-      def initialize(auto_claim, pdf_data, auth_headers, middle_initial)
+      def initialize(auto_claim, pdf_data, auth_headers, middle_initial, created_at)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
         @auth_headers = auth_headers&.deep_symbolize_keys
         @middle_initial = middle_initial
+        @created_at = created_at.strftime('%Y-%m-%d').to_s
       end
 
       def map_claim
@@ -575,7 +579,7 @@ module ClaimsApi
           anticipated_separation_date_data, anticipated_separation_date_data.length
         )
 
-        @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:federalActivation] = {
+        @pdf_data[:data][:attributes][:serviceInformation][:federalActivation] = {
           activationDate: activation_date,
           anticipatedSeparationDate: anticipated_separation_date
         }
@@ -589,6 +593,181 @@ module ClaimsApi
         end
 
         @pdf_data[:data][:attributes][:serviceInformation][:alternateNames] = names
+      end
+
+      def section_7_service_pay
+        return unless lookup_in_auto_claim(:service_pay)
+
+        set_pdf_data_for_service_pay
+
+        service_pay_base = @pdf_data[:data][:attributes][:servicePay]
+        claim_service_pay_data = lookup_in_auto_claim(:service_pay)
+
+        training_pay = lookup_in_auto_claim(:service_pay_retain_training_pay)
+        if claim_service_pay_data.key?('waiveVABenefitsToRetainTrainingPay')
+          service_pay_base[:favorTrainingPay] = training_pay
+        end
+
+        retain_retired_pay = lookup_in_auto_claim(:service_pay_retain_retired_pay)
+        if claim_service_pay_data.key?('waiveVABenefitsToRetainRetiredPay')
+          service_pay_base[:favorMilitaryRetiredPay] = retain_retired_pay
+        end
+
+        military_retired_pay = lookup_in_auto_claim(:service_pay_military_retired_pay)
+        map_military_retired_pay(military_retired_pay, service_pay_base) if military_retired_pay.present?
+
+        map_separation_pay if lookup_in_auto_claim(:service_pay_separation_pay)
+      end
+
+      def set_pdf_data_for_service_pay
+        return if @pdf_data[:data][:attributes]&.key?(:servicePay)
+
+        @pdf_data[:data][:attributes][:servicePay] = {}
+      end
+
+      # if 'militaryRetiredPay' is included
+      # 'receiving' & 'payment' are required via the schema
+      def map_military_retired_pay(military_retired_pay_data, service_pay_base)
+        retired_pay = lookup_in_auto_claim(:service_pay_receiving_retired_pay)
+        service_pay_base[:receivingMilitaryRetiredPay] = handle_yes_no(retired_pay)
+
+        future_retired_pay = lookup_in_auto_claim(:service_pay_future_military_pay)
+        if military_retired_pay_data.key?('willReceiveInFuture')
+          service_pay_base[:futureMilitaryRetiredPay] = handle_yes_no(future_retired_pay)
+        end
+
+        explanation = lookup_in_auto_claim(:service_pay_future_pay_explanation)
+        service_pay_base[:futureMilitaryRetiredPayExplanation] = explanation if explanation
+
+        retired_pay_payment if lookup_in_auto_claim(:military_retired_pay_payment)
+      end
+
+      # if 'payment' is included
+      # 'serviceBranch' is required via the schema
+      def retired_pay_payment
+        set_pdf_path_for_military_retired_pay
+
+        retired_branch_of_service = lookup_in_auto_claim(:military_retired_pay_service_branch)
+        @pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay][:branchOfService] =
+          { branch: retired_branch_of_service }
+
+        retired_pay_amount = lookup_in_auto_claim(:military_retired_pay_amount)
+        if retired_pay_amount
+          @pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay][:monthlyAmount] =
+            retired_pay_amount
+        end
+      end
+
+      def set_pdf_path_for_military_retired_pay
+        return if @pdf_data[:data][:attributes][:servicePay]&.key?(:militaryRetiredPay)
+
+        @pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay] = {}
+      end
+
+      # if 'separationPay' is included
+      # 'received' is required via the schema
+      def map_separation_pay
+        serverance_or_separation_pay = lookup_in_auto_claim(:service_pay_separation_or_severance_pay_received)
+        @pdf_data[:data][:attributes][:servicePay][:receivedSeparationOrSeverancePay] =
+          handle_yes_no(serverance_or_separation_pay)
+
+        set_separation_severance_pay_pdf_data
+
+        received_date = lookup_in_auto_claim(:separation_pay_received_date)
+        if received_date
+          @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:datePaymentReceived] =
+            make_date_object(received_date, received_date.length)
+        end
+
+        separation_pay_branch = lookup_in_auto_claim(:separation_pay_branch_of_service)
+        if separation_pay_branch
+          @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:branchOfService] =
+            { branch: separation_pay_branch }
+        end
+
+        amount = lookup_in_auto_claim(:separation_pay_amount)
+        @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:preTaxAmountReceived] = amount if amount
+      end
+
+      def set_separation_severance_pay_pdf_data
+        return if @pdf_data[:data][:attributes][:servicePay]&.key?(:separationSeverancePay)
+
+        @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay] = {}
+      end
+
+      # if 'drectDeposit' is included
+      # 'accountType', 'accountNumber' & 'routingNumber' are required via the schema
+      def section_8_direct_deposit
+        return unless lookup_in_auto_claim(:direct_deposit)
+
+        set_direct_deposit_pdf_data
+
+        direct_deposit_required_fields
+        direct_deposit_optional_fields if lookup_in_auto_claim(:direct_deposit_bank_name)
+      end
+
+      def direct_deposit_required_fields
+        @pdf_data[:data][:attributes][:directDepositInformation][:accountType] =
+          lookup_in_auto_claim(:direct_deposit_account_type)
+        @pdf_data[:data][:attributes][:directDepositInformation][:accountNumber] =
+          lookup_in_auto_claim(:direct_deposit_account_number)
+        @pdf_data[:data][:attributes][:directDepositInformation][:routingNumber] =
+          lookup_in_auto_claim(:direct_deposit_routing_number)
+      end
+
+      def direct_deposit_optional_fields
+        @pdf_data[:data][:attributes][:directDepositInformation][:financialInstitutionName] =
+          lookup_in_auto_claim(:direct_deposit_bank_name)
+      end
+
+      def set_direct_deposit_pdf_data
+        return if @pdf_data[:data][:attributes]&.key?(:directDepositInformation)
+
+        @pdf_data[:data][:attributes][:directDepositInformation] = {}
+      end
+
+      def section_9_claim_certification_and_signature
+        set_claim_cert_pdf_data
+
+        claim_date_raw = lookup_in_auto_claim(:claim_date)
+        claim_date_str = extract_date_safely(claim_date_raw)
+
+        if claim_date_str && valid_date?(claim_date_str)
+          @pdf_data[:data][:attributes][:claimCertificationAndSignature][:dateSigned] =
+            make_date_object(claim_date_str, claim_date_str.length)
+        else
+          @pdf_data[:data][:attributes][:claimCertificationAndSignature][:dateSigned] =
+            make_date_object(@created_at, @created_at.length)
+        end
+
+        signature = "#{get_auth_header(:first_name)} #{get_auth_header(:last_name)}"
+        @pdf_data[:data][:attributes][:claimCertificationAndSignature][:signature] = signature
+      end
+
+      def set_claim_cert_pdf_data
+        return if @pdf_data[:data][:attributes]&.key?(:claimCertificationAndSignature)
+
+        @pdf_data[:data][:attributes][:claimCertificationAndSignature] = {}
+      end
+
+      def extract_date_safely(date_input)
+        return nil if date_input.blank?
+
+        # schema specifies this format, but does not enforce it enough for us to trust
+        if date_input.include?('T')
+          date_input.split('T').first
+        else
+          date_input
+        end
+      end
+
+      def valid_date?(date_string)
+        return false if date_string.blank?
+
+        Date.parse(date_string)
+        true
+      rescue ArgumentError, TypeError
+        false
       end
     end
   end
