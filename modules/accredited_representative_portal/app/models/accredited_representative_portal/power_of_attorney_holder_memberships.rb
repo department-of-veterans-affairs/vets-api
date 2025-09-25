@@ -38,13 +38,15 @@ module AccreditedRepresentativePortal
 
     ##
     # `#all` returns an `Array` of `Membership` objects with:
-    # - <= 1 instance where `power_of_attorney_holder.type` is `CLAIMS_AGENT`
-    # - <= 1 instance where `power_of_attorney_holder.type` is `ATTORNEY`
-    # - Any number where `power_of_attorney_holder.type` is `VETERAN_SERVICE_ORGANIZATION`
-    # - `registration_number` that is shared _always and only_ among the same `power_of_attorney_holder.type`
+    # - <= 1 instance where `type` is `CLAIMS_AGENT`
+    # - <= 1 instance where `type` is `ATTORNEY`
+    # - >= 0 where `type` is `VETERAN_SERVICE_ORGANIZATION`
+    # - `registration_number` that is shared _always and only_ among the same `type`
     # - >= 1 instance
     #
-    # When any of the above properties is violated, an exception is raised.
+    # When above properties that concern registrations (but not properties that
+    # concern the multiplicity of memberships associated to registrations) are
+    # violated, an exception is raised.
     #
     def all # rubocop:disable Metrics/MethodLength
       @memberships ||=
