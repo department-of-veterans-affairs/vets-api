@@ -131,22 +131,39 @@ describe PdfFill::Filler, type: :model do
       let(:file_path) { 'tmp/pdfs/21-0781V2_12346.pdf' }
       let(:claim_id) { '12346' }
 
-      it 'uses UNICODE_PDF_FORMS to fill the form for form_id 21-0781V2' do
+      it 'uses unicode_pdf_forms to fill the form for form_id 21-0781V2' do
         # Mock the hash converter and its behavior
         allow(extras_generator).to receive(:text?).once.and_return(true)
         allow(extras_generator).to receive(:add_text)
         allow(hash_converter).to receive(:transform_data).and_return(new_hash)
 
-        # Mock unicode_pdf_forms and pdf_forms methods to verify the correct one is used
-        allow(described_class).to receive(:unicode_pdf_forms).and_call_original
+        # Capture the actual arguments passed to unicode_pdf_forms
+        actual_form_data = nil
+        unicode_pdf_forms_mock = double('unicode_pdf_forms')
+        allow(described_class).to receive(:unicode_pdf_forms).and_return(unicode_pdf_forms_mock)
         allow(described_class).to receive(:pdf_forms).and_call_original
+
+        # Mock fill_form to capture arguments and create file
+        allow(unicode_pdf_forms_mock).to receive(:fill_form) do |template, output_path, form_hash, *_args|
+          actual_form_data = form_hash
+          FileUtils.cp(template, output_path)
+          true
+        end
 
         generated_pdf_path = described_class.fill_ancillary_form(form_data, claim_id, form_id)
         expect(File).to exist(generated_pdf_path)
 
-        # Verify that unicode_pdf_forms is used (not pdf_forms) for form 21-0781V2 with Unicode content
-        # This ensures Unicode characters in the form are properly handled by the Unicode PDF processor
-        expect(described_class).to have_received(:unicode_pdf_forms).at_least(:once)
+        # Extract the actual Unicode text that was processed
+        unicode_text = actual_form_data['F[0].#subform[5].Remarks_If_Any[0]']
+
+        # Verify that unicode_pdf_forms is used with the Unicode text content
+        expect(unicode_pdf_forms_mock).to have_received(:fill_form).with(
+          template_path, generated_pdf_path, hash_including('F[0].#subform[5].Remarks_If_Any[0]' => unicode_text),
+          flatten: false
+        )
+        # Verify the text contains Unicode characters
+        expect(unicode_text).to include('á', 'é', 'í', 'ó', 'ú', 'Ñ', '‒', '–', '—')
+        # Verify that regular pdf_forms is not used
         expect(described_class).not_to have_received(:pdf_forms)
 
         File.delete(file_path)
