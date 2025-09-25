@@ -204,7 +204,11 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
     end
 
     context 'when feature flag is disabled' do
-      before { allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(false) }
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:travel_pay_enable_complex_claims, instance_of(User))
+          .and_return(false)
+      end
 
       it 'returns service unavailable' do
         patch expense_path('other'), params: expense_params

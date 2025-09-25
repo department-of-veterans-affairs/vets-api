@@ -37,8 +37,8 @@ module TravelPay
         Rails.logger.info(
           message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
         )
-        expense = create_and_validate_expense(true)
-        created_expense = expense_service.create_expense(expense_params_for_service(expense, true))
+        expense = create_and_validate_expense(include_claim_id: true)
+        created_expense = expense_service.create_expense(expense_params_for_service(expense, include_claim_id: true))
 
         Rails.logger.info(message: 'Travel Pay expense submission END')
 
@@ -56,7 +56,7 @@ module TravelPay
           message: "Updating expense of type '#{expense_type}' with expense id #{expense_id&.first(8)}"
         )
         expense = create_and_validate_expense
-        response_data = expense_service.update_expense(expense_id, expense_type,  expense_params_for_service(expense))
+        response_data = expense_service.update_expense(expense_id, expense_type, expense_params_for_service(expense))
 
         render json: { expenseId: response_data['id'] }, status: :ok
       rescue ArgumentError => e
@@ -105,8 +105,8 @@ module TravelPay
         )
       end
 
-      def create_and_validate_expense(include_claim_id = false)
-        expense = build_expense_from_params(include_claim_id)
+      def create_and_validate_expense(include_claim_id: false)
+        expense = build_expense_from_params(include_claim_id:)
 
         return expense if expense.valid?
 
@@ -147,7 +147,7 @@ module TravelPay
         TravelPay::Constants::BASE_EXPENSE_PATHS.keys.map(&:to_s)
       end
 
-      def build_expense_from_params(include_claim_id = false)
+      def build_expense_from_params(include_claim_id: false)
         expense_class = expense_class_for_type(params[:expense_type])
         expense_params = permitted_params.to_h
         expense_params[:claim_id] = params[:claim_id] if include_claim_id
@@ -170,7 +170,7 @@ module TravelPay
         )
       end
 
-      def expense_params_for_service(expense, include_claim_id = false)
+      def expense_params_for_service(expense, include_claim_id: false)
         params = {
           'purchase_date' => format_purchase_date(expense.purchase_date),
           'description' => expense.description,

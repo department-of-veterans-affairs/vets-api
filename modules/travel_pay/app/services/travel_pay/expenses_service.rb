@@ -34,7 +34,7 @@ module TravelPay
       Rails.logger.info("Creating general expense of type: #{params['expense_type']}")
 
       # Build the request body for the API
-      request_body = build_expense_request_body(params, true)
+      request_body = build_expense_request_body(params, include_claim_id: true)
 
       response = client.add_expense(veis_token, btsss_token, params['expense_type'], request_body)
       response.body['data']
@@ -96,7 +96,7 @@ module TravelPay
     # @param params [Hash] The expense parameters
     # @return [Hash] The formatted request body
     #
-    def build_expense_request_body(params, include_claim_id = false)
+    def build_expense_request_body(params, include_claim_id: false)
       request_body = {
         'dateIncurred' => params['purchase_date'],
         'description' => params['description'],
