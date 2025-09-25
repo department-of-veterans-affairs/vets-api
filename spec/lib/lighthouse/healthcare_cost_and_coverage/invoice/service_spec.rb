@@ -42,10 +42,11 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Invoice::Service do
     context 'when Faraday::TimeoutError is raised' do
       before do
         allow(service.send(:config)).to receive(:get).and_raise(Faraday::TimeoutError.new)
+        allow(Lighthouse::ServiceException).to receive(:send_error).and_return(:error_envelope)
       end
 
-      it 'raises Lighthouse::ServiceException' do
-        expect { service.list }.to raise_error(Common::Exceptions::Timeout)
+      it 'calls handle_error and returns error envelope' do
+        expect(service.list).to eq(:error_envelope)
       end
     end
 
