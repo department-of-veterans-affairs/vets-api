@@ -34,14 +34,14 @@ describe PdfFill::Filler, type: :model do
                   FileUtils.compare_file(extras_path, expected_path)
                 ).to be(true)
 
-                File.delete(extras_path)
+                FileUtils.rm_f(extras_path)
               end
 
               expected_path = "modules/dependents_verification/spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf"
 
               expect(file_path).to match_pdf_fields(expected_path)
 
-              File.delete(file_path)
+              FileUtils.rm_f(file_path)
             end
           end
         end

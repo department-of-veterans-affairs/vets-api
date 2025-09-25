@@ -57,13 +57,13 @@ describe PdfFill::Filler, type: :model do
                 fixture_pdf = fixture_pdf_base + overflow_file_suffix(extras_redesign, show_jumplinks)
                 expect(extras_path).to match_file_exactly(fixture_pdf)
 
-                File.delete(extras_path)
+                FileUtils.rm_f(extras_path)
               end
 
               fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign.pdf' : '.pdf')
               expect(file_path).to match_pdf_fields(fixture_pdf)
 
-              File.delete(file_path)
+              FileUtils.rm_f(file_path)
             end
           end
         end

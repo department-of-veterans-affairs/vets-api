@@ -985,7 +985,7 @@ describe PdfFill::ExtrasGeneratorV2 do
     it 'returns an object with the correct positions' do
       expect(subject.calculate_text_box_position(pdf, mock_section_title, 100, sections[0]))
         .to eq({ width: 63, x: 83, y: 95 })
-      File.delete(subject.generate)
+      FileUtils.rm_f(subject.generate)
     end
   end
 
@@ -995,7 +995,7 @@ describe PdfFill::ExtrasGeneratorV2 do
     it 'returns the correct information' do
       expect(subject.create_formatted_text_options('Test Text'))
         .to eq([{ text: 'Test Text', color: '005EA2', size: 10.5, styles: [:underline] }])
-      File.delete(subject.generate)
+      FileUtils.rm_f(subject.generate)
     end
   end
 
@@ -1005,7 +1005,7 @@ describe PdfFill::ExtrasGeneratorV2 do
     it 'returns the correct information' do
       expect(subject.store_section_coordinates(pdf, 0, { width: 100, height: 50, x: 10, y: 20 }))
         .to eq([{ section: 0, page: 3, x: 55, y: 60, width: 100, height: 20, dest: 'Section_I' }])
-      File.delete(subject.generate)
+      FileUtils.rm_f(subject.generate)
     end
   end
 
@@ -1024,7 +1024,7 @@ describe PdfFill::ExtrasGeneratorV2 do
       expect(pdf).to have_received(:markup).with(
         '<h2>Section I</h2>'
       )
-      File.delete(subject.generate)
+      FileUtils.rm_f(subject.generate)
     end
   end
 
@@ -1048,7 +1048,7 @@ describe PdfFill::ExtrasGeneratorV2 do
            text: 'Back to Section I' }],
         { align: :right, at: [0, 7], height: 15, width: 63 }
       )
-      File.delete(subject.generate)
+      FileUtils.rm_f(subject.generate)
     end
   end
 end
