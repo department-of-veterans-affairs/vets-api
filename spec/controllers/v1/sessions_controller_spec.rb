@@ -1225,7 +1225,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'logs a generic error', :aggregate_failures do
           expect(Rails.logger).to receive(:error)
-          .with('[SessionsController] Login Failed! Other SAML Response Error(s)')
+            .with('[SessionsController] Login Failed! Other SAML Response Error(s)')
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
@@ -1265,7 +1265,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'logs status_detail message to sentry' do
           expect(Rails.logger).to receive(:error)
-          .with("[SessionsController] <fim:FIMStatusDetail MessageID='could_not_perform_token_exchange'/>")
+            .with("[SessionsController] <fim:FIMStatusDetail MessageID='could_not_perform_token_exchange'/>")
           call_endpoint
         end
       end
