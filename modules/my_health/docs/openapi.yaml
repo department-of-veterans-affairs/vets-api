@@ -562,7 +562,7 @@ paths:
               schema:
                 type: object
                 description: >
-                  The returned object is a 
+                  The returned object is a
                   <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-common-api/blob/development/src/main/java/gov/va/med/mhv/common/api/dto/PatientDTO.java'>PatientDTO object</a>.
           description: OK
         "401":
@@ -589,7 +589,7 @@ paths:
               schema:
                 type: object
                 description: >
-                  The returned object is a 
+                  The returned object is a
                   <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-bluebutton-api/blob/development/mhv-bluebutton-portal-data-jpa/src/main/java/gov/va/med/mhv/bluebutton/model/phr/PhrDemographics.java'>PhrDemographics object</a>.
           description: OK
         "401":
@@ -920,37 +920,6 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/folders/{id}
-  /v1/messaging/folders/{id}/messages:
-    get:
-      description: |
-        List messages in a secure messaging folder.
-
-        When listing messages, the response for each message will include most but not all of the message attributes.
-        Specifically, the message body and attachment information is not included. Those attributes can be obtained by
-        getting the specific message resource.
-      operationId: get_folder_messages
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/SecureMessageList.yml
-          description: OK
-        "401":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Unauthorized
-        "403":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Not authorized for access to secure messages
-      summary: /v1/messaging/folders/{id}/messages
-      parameters:
-        - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/folders/{id}/threads:
     get:
       description: List threads in a secure messaging folder.
@@ -1970,14 +1939,94 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/prescriptions/list_refillable_prescriptions
+  /v1/tooltips:
+    get:
+      description: Retrieve tooltips settings for mhv-medications In-Product Education (IPE)
+      operationId: get_tooltips
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./schemas/Tooltip.yml
+          description: OK
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      description: Create tooltip setting for mhv-medications In-Product Education (IPE)
+      operationId: post_tooltip
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/TooltipParams.yml'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Tooltip.yml
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+    summary: /v1/tooltips
+  /v1/tooltips/{id}:
+    patch:
+      description: Update tooltip setting for mhv-medications In-Product Education (IPE), typically used for setting 'hidden' attribute
+      operationId: patch_tooltip
+      parameters:
+        - description: The id of the tooltip
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: increment_counter
+          required: false
+          schema:
+            type: boolean
+          description: Value indicates if counter will be incremented
+        - $ref: "#/components/parameters/InflectionHeader"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/TooltipParams.yml'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Tooltip.yml
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+    summary: /v1/tooltips/{id}
   /v1/unique_user_metrics:
     post:
       description: |
-        Log unique user metrics events for analytics tracking. Processes multiple events in a single batch operation 
-        and returns the status of each event. Events are logged only once per user - subsequent submissions of the 
+        Log unique user metrics events for analytics tracking. Processes multiple events in a single batch operation
+        and returns the status of each event. Events are logged only once per user - subsequent submissions of the
         same event for the same user will return a status of 'exists' rather than creating duplicates.
 
-        This endpoint is used for tracking unique user interactions with MHV Portal features to provide 
+        This endpoint is used for tracking unique user interactions with MHV Portal features to provide
         opt-out-free analytics that are more accurate than Google Analytics.
       operationId: log_unique_user_metrics
       requestBody:
@@ -2114,5 +2163,25 @@ components:
         type: string
         enum: [camel, snake]
       description: Instructs the API to return camelCase keys rather than snake_case
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/Errors.yml'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/Errors.yml'
+    UnprocessableEntity:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/Errors.yml'
+
 security:
   - CookieAuth: []

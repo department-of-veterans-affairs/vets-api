@@ -3,23 +3,6 @@
 module MyHealth
   module V1
     class MessagesController < SMController
-      include Filterable
-
-      MAX_STANDARD_FILES = 4
-
-      def index
-        resource = client.get_folder_messages(@current_user.uuid, params[:folder_id].to_s, use_cache?)
-        raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
-
-        resource = resource.find_by(filter_params) if params[:filter].present?
-        resource = resource.sort(params[:sort])
-        resource = resource.paginate(**pagination_params) if pagination_params[:per_page] != '-1'
-
-        links = pagination_links(resource)
-        options = { meta: resource.metadata, links: }
-        render json: MessagesSerializer.new(resource.data, options)
-      end
-
       def show
         message_id = params[:id].try(:to_i)
         response = client.get_message(message_id)

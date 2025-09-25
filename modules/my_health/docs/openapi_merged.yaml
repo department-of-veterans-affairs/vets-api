@@ -549,7 +549,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  The returned object is a  <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-common-api/blob/development/src/main/java/gov/va/med/mhv/common/api/dto/PatientDTO.java'>PatientDTO object</a>.
+                  The returned object is a <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-common-api/blob/development/src/main/java/gov/va/med/mhv/common/api/dto/PatientDTO.java'>PatientDTO object</a>.
           description: OK
         '401':
           content:
@@ -575,7 +575,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  The returned object is a  <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-bluebutton-api/blob/development/mhv-bluebutton-portal-data-jpa/src/main/java/gov/va/med/mhv/bluebutton/model/phr/PhrDemographics.java'>PhrDemographics object</a>.
+                  The returned object is a <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-bluebutton-api/blob/development/mhv-bluebutton-portal-data-jpa/src/main/java/gov/va/med/mhv/bluebutton/model/phr/PhrDemographics.java'>PhrDemographics object</a>.
           description: OK
         '401':
           content:
@@ -1946,14 +1946,94 @@ paths:
                 $ref: '#/components/schemas/Errors'
           description: Not authorized for access to secure messages
       summary: /v1/prescriptions/list_refillable_prescriptions
+  /v1/tooltips:
+    get:
+      description: Retrieve tooltips settings for mhv-medications In-Product Education (IPE)
+      operationId: get_tooltips
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tooltip'
+          description: OK
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      description: Create tooltip setting for mhv-medications In-Product Education (IPE)
+      operationId: post_tooltip
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TooltipParams'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tooltip'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    summary: /v1/tooltips
+  /v1/tooltips/{id}:
+    patch:
+      description: Update tooltip setting for mhv-medications In-Product Education (IPE), typically used for setting 'hidden' attribute
+      operationId: patch_tooltip
+      parameters:
+        - description: The id of the tooltip
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: increment_counter
+          required: false
+          schema:
+            type: boolean
+          description: Value indicates if counter will be incremented
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TooltipParams'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tooltip'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    summary: /v1/tooltips/{id}
   /v1/unique_user_metrics:
     post:
       description: |
-        Log unique user metrics events for analytics tracking. Processes multiple events in a single batch operation 
-        and returns the status of each event. Events are logged only once per user - subsequent submissions of the 
+        Log unique user metrics events for analytics tracking. Processes multiple events in a single batch operation
+        and returns the status of each event. Events are logged only once per user - subsequent submissions of the
         same event for the same user will return a status of 'exists' rather than creating duplicates.
 
-        This endpoint is used for tracking unique user interactions with MHV Portal features to provide 
+        This endpoint is used for tracking unique user interactions with MHV Portal features to provide
         opt-out-free analytics that are more accurate than Google Analytics.
       operationId: log_unique_user_metrics
       requestBody:
@@ -2091,6 +2171,25 @@ components:
           - camel
           - snake
       description: Instructs the API to return camelCase keys rather than snake_case
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    UnprocessableEntity:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
   schemas:
     Error:
       type: object
@@ -4245,6 +4344,47 @@ components:
             failedStationList:
               type: string
               nullable: true
+    Tooltip:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_account_id:
+          type: string
+          format: uuid
+        tooltip_name:
+          type: string
+          description: Name of the tooltip in the UI
+          example: mhv_medications_tooltip_filter_accordion
+        last_signed_in:
+          type: string
+          format: date-time
+        counter:
+          type: integer
+        hidden:
+          type: boolean
+          description: Hide the tooltip with tooltip_name when true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    TooltipParams:
+      type: object
+      properties:
+        tooltip:
+          type: object
+          properties:
+            tooltip_name:
+              type: string
+              example: mhv_medications_tooltip_filter_accordion
+            hidden:
+              type: boolean
+            counter:
+              type: integer
+              example: 0
     UniqueUserMetricsRequest:
       type: object
       required:
