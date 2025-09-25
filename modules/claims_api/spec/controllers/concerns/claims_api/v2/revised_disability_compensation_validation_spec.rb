@@ -778,7 +778,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
     # FES Val Section 7: Disability special issues and duplicate validations
     context 'disability special issues and duplicate validations' do
       context 'specialIssues validation for INCREASE disabilities' do
-        context 'when INCREASE disability has invalid special issues' do
+        context 'when INCREASE disability has POW special issue' do
           let(:form_attributes) do
             base_form_attributes.merge(
               'disabilities' => [
@@ -791,13 +791,17 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             )
           end
 
-          it 'returns validation error' do
+          it 'returns multiple validation errors' do
             errors = subject.validate_form_526_fes_values
             expect(errors).to be_an(Array)
-            expect(errors.first[:source]).to eq('/disabilities/0/specialIssues')
-            expect(errors.first[:title]).to eq('Unprocessable Entity')
-            expect(errors.first[:detail]).to eq('A Special Issue cannot be added to a primary disability ' \
-                                                'after the disability has been rated')
+            expect(errors.size).to eq(3) # Generic INCREASE, POW+INCREASE, and POW requires confinements
+
+            # Check for all three errors
+            expect(errors.any? { |e| e[:detail].include?('cannot be added to a primary disability') }).to be true
+            expect(errors.any? do |e|
+              e[:detail].include?('cannot be INCREASE if specialIssues includes POW')
+            end).to be true
+            expect(errors.any? { |e| e[:detail].include?('confinements (0) is required') }).to be true
           end
         end
 
@@ -1083,13 +1087,16 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         it 'returns errors for all issues' do
           errors = subject.validate_form_526_fes_values
           expect(errors).to be_an(Array)
-          expect(errors.size).to eq(4) # POW on INCREASE triggers 2 errors
+          expect(errors.size).to eq(5) # POW on INCREASE triggers 3 errors
 
           # Check for special issue error for INCREASE disability with POW
           special_issue_errors = errors.select { |e| e[:source] == '/disabilities/0/specialIssues' }
-          expect(special_issue_errors.size).to eq(2) # Both INCREASE validation and POW confinement validation
+          expect(special_issue_errors.size).to eq(3) # Generic INCREASE, POW+INCREASE, and confinement validation
           expect(special_issue_errors.any? do |e|
             e[:detail].include?('cannot be added to a primary disability')
+          end).to be true
+          expect(special_issue_errors.any? do |e|
+            e[:detail].include?('cannot be INCREASE if specialIssues includes POW')
           end).to be true
           expect(special_issue_errors.any? do |e|
             e[:detail].include?('serviceInformation.confinements (0)')

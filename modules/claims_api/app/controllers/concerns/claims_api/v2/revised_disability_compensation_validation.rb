@@ -637,11 +637,20 @@ module ClaimsApi
         )
       end
 
-      # FES Val Section 7.w: POW special issue requires confinements
+      # FES Val Section 7.w: POW special issue requires confinements and cannot be INCREASE
       def validate_pow_special_issue!(disability, index)
         special_issues = disability['specialIssues']
         return unless special_issues&.include?('POW')
 
+        # Check if POW is used with INCREASE action type (not allowed)
+        if disability['disabilityActionType'] == 'INCREASE'
+          collect_error(
+            source: "/disabilities/#{index}/specialIssues",
+            detail: "disabilityActionType (#{index}) cannot be INCREASE if specialIssues includes POW for."
+          )
+        end
+
+        # Check if confinements are present when POW is used
         service_info = form_attributes['serviceInformation']
         confinements = service_info&.dig('confinements')
         return if confinements.present? && !confinements.empty?
