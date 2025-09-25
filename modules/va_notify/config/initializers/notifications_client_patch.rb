@@ -2,13 +2,9 @@
 
 module NotificationsClientPatch
   def validate_uuids!
-    unless valid_uuid?(@service_id)
-      raise ArgumentError, "Invalid service_id format: #{@service_id}"
-    end
+    raise ArgumentError, "Invalid service_id format: #{@service_id}" unless valid_uuid?(@service_id)
 
-    unless valid_token?(@secret_token)
-      raise ArgumentError, "Invalid secret_token format: #{@secret_token}"
-    end
+    raise ArgumentError, "Invalid secret_token format: #{@secret_token}" unless valid_token?(@secret_token)
   end
 
   private
@@ -36,6 +32,6 @@ end
 # prevents a race condition when booting up Rails
 # Speaker.prepend inserts a method signature for validate_uuids! which patches the original version
 Rails.configuration.to_prepare do
-  require "notifications/client"
+  require 'notifications/client'
   Notifications::Client::Speaker.prepend(NotificationsClientPatch)
 end
