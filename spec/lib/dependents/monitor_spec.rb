@@ -181,6 +181,25 @@ RSpec.describe Dependents::Monitor do
 
         monitor_v1.track_event('warn', 'Oops!', 'test.monitor.failure', { error: 'test' })
       end
+
+      it 'logs an error when it fails' do
+        allow(monitor_v1).to receive(:submit_event).and_raise(StandardError.new('test error'))
+
+        expect(Rails.logger)
+          .to receive(:error)
+          .with(
+            'Dependents::Monitor#track_event error',
+            {
+              level: 'info',
+              message: 'test error',
+              stats_key: 'test.monitor.error',
+              payload: { error: 'test error' },
+              error: 'test error'
+            }
+          )
+
+        monitor_v1.track_event('info', 'test error', 'test.monitor.error', { error: 'test error' })
+      end
     end
   end
 
