@@ -61,15 +61,22 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
   describe '#collect_child_claims' do
     let!(:parent_group) { create(:parent_claim_group, parent_claim:) }
-    let!(:form_674_group) { create(:saved_claim_group, saved_claim: form_674_claim, parent_claim:) }
-    let!(:form_686_group) { create(:saved_claim_group, saved_claim: form_686_claim, parent_claim:) }
 
     it 'tracks and returns child claims' do
+      create(:saved_claim_group, saved_claim: form_674_claim, parent_claim:)
+      create(:saved_claim_group, saved_claim: form_686_claim, parent_claim:)
       result = processor.send(:collect_child_claims)
 
       expect(result).to contain_exactly(form_674_claim, form_686_claim)
       expect(mock_monitor).to have_received(:track_processor_info).with(
         'Collected child claims for processing', 'collect_children', { parent_claim_id:, child_claims_count: 2 }
+      )
+    end
+
+    it 'raises error when no child claims found' do
+      # Don't create any child claim groups - only parent group exists
+      expect { processor.send(:collect_child_claims) }.to raise_error(
+        StandardError, "No child claims found for parent claim #{parent_claim_id}"
       )
     end
   end
