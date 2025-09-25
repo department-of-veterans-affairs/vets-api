@@ -189,10 +189,6 @@ features:
     actor_type: user
     description: Enables the upgraded insurance section of the Health Care Application
     enable_in_development: true
-  hca_in_progress_form_delete_async:
-    actor_type: user
-    description: Enables deleting an InProgressForm in a sidekiq job
-    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -2593,9 +2589,3 @@ features:
   auth_exp_email_verification_enabled:
     actor_type: user
     description: If enabled, a user will be required to verify their contact email address
-  simple_forms_upload_supporting_documents:
-    actor_type: user
-    description: >
-      Enables the upload_supporting_documents endpoint for scanned form uploads for supporting evidence.
-      Owned by Simple Forms API team.
-
