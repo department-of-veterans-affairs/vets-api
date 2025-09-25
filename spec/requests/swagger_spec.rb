@@ -2828,6 +2828,74 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
+    describe 'benefits claims' do
+      let(:user) { create(:user, :loa3, :accountable, :legacy_icn, uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
+      let(:invalid_user) { create(:user, :loa3, :accountable, :legacy_icn, participant_id: nil) }
+      let(:user_account) { create(:user_account, id: user.uuid) }
+      let(:claim_id) { 600_383_363 }
+      let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
+      let(:invalid_headers) { { '_headers' => { 'Cookie' => sign_in(invalid_user, nil, true) } } }
+
+      describe 'GET /v0/benefits_claims/failed_upload_evidence_submissions' do
+        before do
+          user.user_account_uuid = user_account.id
+          user.save!
+        end
+
+        context 'when the user is not signed in' do
+          it 'returns a status of 401' do
+            expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 401)
+          end
+        end
+
+        context 'when the user is signed in, but does not have valid credentials' do
+          it 'returns a status of 403' do
+            expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 403,
+                                        invalid_headers)
+          end
+        end
+
+        context 'when the user is signed in and has valid credentials' do
+          before do
+            token = 'fake_access_token'
+            allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
+            create(:bd_lh_evidence_submission_failed_type2_error, claim_id:, user_account:)
+          end
+
+          context 'when the ICN is not found' do
+            it 'returns a status of 404' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/404_response') do
+                expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 404,
+                                            headers)
+              end
+            end
+          end
+
+          context 'when there is a gateway timeout' do
+            it 'returns a status of 504' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/504_response') do
+                expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 504,
+                                            headers)
+              end
+            end
+          end
+
+          context 'when Lighthouse takes too long to respond' do
+            it 'returns a status of 504' do
+              allow_any_instance_of(BenefitsClaims::Configuration).to receive(:get).and_raise(Faraday::TimeoutError)
+              expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 504, headers)
+            end
+          end
+
+          it 'returns a status of 200' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 200, headers)
+            end
+          end
+        end
+      end
+    end
+
     describe 'coe' do
       # The vcr_cassettes used in spec/requests/v0/lgy_coe_request_spec.rb
       # rely on this specific user's edipi and icn, and we are using those
