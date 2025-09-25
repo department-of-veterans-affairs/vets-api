@@ -23,6 +23,7 @@ class MessageThread
   attribute :thread_has_attachment, Bool, default: false
   attribute :unsent_drafts, Bool, default: false
   attribute :unread_messages, Bool, default: false
+  attribute :is_oh_message, Bool, default: false
   attribute :suggested_name_display, String
 
   def initialize(attributes = {})
