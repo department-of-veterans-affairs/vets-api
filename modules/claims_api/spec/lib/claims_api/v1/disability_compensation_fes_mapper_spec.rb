@@ -32,10 +32,7 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
       end
       let(:fes_data) do
         ClaimsApi::V1::DisabilityCompensationFesMapper.new(auto_claim).map_claim
-
       end
-
-      let(:fes_data) { described_class.new(auto_claim).map_claim }
 
       context 'request structure' do
         it 'wraps data in proper FES request structure' do
@@ -159,8 +156,6 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
         let(:fes_data) { described_class.new(auto_claim).map_claim }
         let(:disability_object) { fes_data[:data][:form526][:disabilities] }
 
-      context 'section 5 disabilities' do
-
         let(:secondary_disability) do
           [
             {
@@ -191,7 +186,6 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           expect(disability_object[0][:disabilityActionType]).to eq('NEW')
           expect(disability_object[0][:specialIssues]).to eq(['Fully Developed Claim', 'PTSD/2'])
           expect(disability_object[0][:approximateBeginDate]).to eq({ year: 2018, month: 02, day: 22 })
-
         end
 
         it 'maps secondary disabilities if included' do

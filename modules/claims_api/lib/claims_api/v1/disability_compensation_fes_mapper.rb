@@ -31,14 +31,15 @@ module ClaimsApi
       end
 
       def claim_meta
+        @fes_claim[:claimDate] = @data[:claimDate] if @data[:claimDate].present?
         disabilities
       end
 
       # a 'disability' is required via the schema
       # 'disabilityActionType' & 'name' are required via the schema
       def disabilities
-        disablities_data = flatten_disabilities(@data[:disabilities])
-        @fes_claim[:disabilities] = disablities_data.map do |disability|
+        disabilities_data = flatten_disabilities(@data[:disabilities])
+        @fes_claim[:disabilities] = disabilities_data.map do |disability|
           transform_disability_values!(disability.deep_dup)
         end
       end
@@ -198,7 +199,6 @@ module ClaimsApi
         end
       end
 
- 
       def extract_veteran_participant_id
         # Try auth_headers first, then fall back to other sources
         @auto_claim.auth_headers&.dig('va_eauth_pid') ||
