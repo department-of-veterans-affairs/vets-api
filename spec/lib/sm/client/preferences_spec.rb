@@ -57,7 +57,8 @@ describe 'sm client' do
     end
 
     it 'sets the signature preferences' do
-      VCR.use_cassette('sm_client/preferences/sets_the_signature_preferences', match_requests_on: %i[method uri body]) do
+      VCR.use_cassette('sm_client/preferences/sets_the_signature_preferences',
+                       match_requests_on: %i[method uri body]) do
         params = { signature_name: 'Test Mark', include_signature: false, signature_title: 'Test Title API' }
         client_response = client.post_signature(params)[:data]
         expect(client_response[:include_signature]).to be(true)
