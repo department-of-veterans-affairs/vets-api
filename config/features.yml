@@ -663,7 +663,7 @@ features:
     enable_in_development: true
   dependency_verification_browser_monitoring_enabled:
     actor_type: user
-    description: enable Datadog RUM/LOG monitoring for the form 21-0538
+    description: Enable Datadog RUM/LOG monitoring for the form 21-0538
   dependents_enable_form_viewer_mfe:
     actor_type: user
     description: enables display of form viewer microfrontend on 686 post-submission page
