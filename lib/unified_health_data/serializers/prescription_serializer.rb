@@ -23,6 +23,7 @@ module UnifiedHealthData
                  :is_refillable,
                  :is_trackable,
                  :tracking_information,
+                 :tracking,
                  :prescription_source,
                  :instructions,
                  :facility_phone_number
