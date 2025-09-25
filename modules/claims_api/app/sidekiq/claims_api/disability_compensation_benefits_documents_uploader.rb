@@ -21,7 +21,7 @@ module ClaimsApi
 
       bd_upload_body(auto_claim:, file_body:)
 
-      log_job_progress(claim_id, "Uploaded 526 PDF to BD")
+      log_job_progress(claim_id, 'Uploaded 526 PDF to BD')
       # at this point in the workflow the claim is 'established'
       set_established_state_on_claim(auto_claim)
       log_job_progress(claim_id, "#{version_prefix} BD upload succeeded, Claim workflow finished")
