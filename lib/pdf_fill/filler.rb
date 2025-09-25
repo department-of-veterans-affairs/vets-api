@@ -27,6 +27,7 @@ require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
 require 'pdf_fill/forms/va2210215a'
 require 'pdf_fill/forms/va221919'
+require 'pdf_fill/forms/va228794'
 require 'pdf_fill/forms/va2210275'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
 require 'pdf_fill/processors/va220839_processor'
@@ -83,6 +84,7 @@ module PdfFill
       '26-1880' => PdfFill::Forms::Va261880,
       '5655' => PdfFill::Forms::Va5655,
       '22-0839' => PdfFill::Forms::Va220839,
+      '22-8794' => PdfFill::Forms::Va228794,
       '22-10216' => PdfFill::Forms::Va2210216,
       '22-10215' => PdfFill::Forms::Va2210215,
       '22-10215a' => PdfFill::Forms::Va2210215a,
@@ -203,6 +205,9 @@ module PdfFill
       end
 
       return PdfFill::Processors::VA220839Processor.new(form_data, self).process if form_id == '22-0839'
+
+      # Handle 22-8794 has the potential to overflow a lot and require special overflow handling
+      return PdfFill::Processors::VA228794Processor.new(form_data, self).process if form_id == '22-8794'
 
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
