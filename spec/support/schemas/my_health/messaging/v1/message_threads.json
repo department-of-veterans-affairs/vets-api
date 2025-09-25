@@ -33,7 +33,6 @@
               "has_attachment",
               "unsent_drafts",
               "unread_messages",
-              "is_oh_message",
               "suggested_name_display"
             ],
             "properties": {
@@ -64,7 +63,6 @@
               "has_attachment": { "type": "boolean" },
               "unsent_drafts": { "type": "boolean" },
               "unread_messages": { "type": "boolean" },
-              "is_oh_message": { "type": "boolean" },
               "suggested_name_display": { "type": ["null", "string"] }
             }
           },

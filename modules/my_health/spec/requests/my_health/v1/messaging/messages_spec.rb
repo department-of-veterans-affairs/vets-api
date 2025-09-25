@@ -306,20 +306,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         expect(first_message['threadId']).to eq(3_188_781)
         expect(first_message['senderId']).to eq(251_391)
       end
-
-      it 'responds to GET #thread when requires_oh_messages param is provided' do
-        VCR.use_cassette('sm_client/messages/gets_a_message_thread_oh_messages') do
-          get "/my_health/v1/messaging/messages/#{thread_id}/thread?requires_oh_messages=1"
-        end
-
-        expect(response).to be_successful
-
-        json_response = JSON.parse(response.body)
-        data = json_response['data']
-
-        first_message = data.first['attributes']
-        expect(first_message['is_oh_message']).to be(true)
-      end
     end
 
     describe '#destroy' do
