@@ -14,7 +14,6 @@ module ClaimsApi
       end
 
       def map_claim
-
         claim_attributes
         claim_meta
 
@@ -165,7 +164,6 @@ module ClaimsApi
           )
         end
       end
-
     end
   end
 end
