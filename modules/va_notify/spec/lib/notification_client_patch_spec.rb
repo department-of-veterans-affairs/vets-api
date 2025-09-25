@@ -31,7 +31,7 @@ RSpec.describe NotificationsClientPatch do
 
       it 'does not raise error for valid UUID service_id and token_urlsafe secret_token' do
         service_id = '550e8400-e29b-41d4-a716-446655440000'
-        secret_token = ('abcDEF123_-' * 9) + 'ab' # 86 chars with valid URL-safe base64 chars
+        secret_token = "#{'abcDEF123_-' * 9}ab" # 86 chars with valid URL-safe base64 chars
 
         expect { speaker_class.new(service_id, secret_token) }.not_to raise_error
       end
@@ -88,7 +88,7 @@ RSpec.describe NotificationsClientPatch do
 
       it 'raises ArgumentError for token with invalid characters' do
         valid_service_id = '550e8400-e29b-41d4-a716-446655440000'
-        invalid_token = ('a' * 86) + '@#$'
+        invalid_token = "#{'a' * 86}@\#$"
 
         expect { speaker_class.new(valid_service_id, invalid_token) }
           .to raise_error(ArgumentError, "Invalid secret_token format: #{invalid_token}")
