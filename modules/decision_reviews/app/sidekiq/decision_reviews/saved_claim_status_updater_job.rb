@@ -186,9 +186,9 @@ module DecisionReviews
 
           handle_secondary_form_status_metrics_and_logging(form, attributes['status'])
           update_secondary_form_status_enhanced(form, attributes)
+          current_status = attributes
         end
 
-        # Monitor ALL forms stuck in a non-final error state
         monitor_temporary_error_form(form, current_status)
       end
 
