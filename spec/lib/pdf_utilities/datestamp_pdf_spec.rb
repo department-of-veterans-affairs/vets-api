@@ -109,7 +109,11 @@ RSpec.describe PDFUtilities::DatestampPdf do
       context 'when an error occurs in #stamp' do
         subject(:run) { instance.run(text: 'Received via vets.gov at', x: 10, y: 10) }
 
-        before { allow(PDFUtilities::PDFTK).to receive(:stamp).and_raise(error_message) }
+        before do
+          allow(PDFUtilities).to receive(:pdftk).and_return(
+            double.tap { |d| d.stub(:stamp).and_raise(error_message) }
+          )
+        end
 
         it 'logs and reraise the error and clean up after itself' do
           expect(File).to receive(:delete).twice.and_call_original

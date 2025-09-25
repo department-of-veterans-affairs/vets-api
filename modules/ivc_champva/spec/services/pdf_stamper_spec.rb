@@ -233,7 +233,9 @@ describe IvcChampva::PdfStamper do
       before do
         allow(Common::FileHelpers).to receive(:random_file_path).and_return(random_path)
         allow(Common::FileHelpers).to receive(:delete_file_if_exists)
-        allow(PdfFill::Filler::PDF_FORMS).to receive(:multistamp).and_raise(StandardError, 'pdftk error')
+        allow(PdfFill::Filler).to receive(:pdf_forms).and_return(
+          double.tap { |d| d.stub(:multistamp).and_raise(StandardError, 'pdftk error') }
+        )
       end
 
       it 'attempts to delete the temporary stamping file' do

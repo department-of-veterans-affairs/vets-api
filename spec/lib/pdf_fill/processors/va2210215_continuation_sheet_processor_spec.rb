@@ -24,7 +24,7 @@ describe PdfFill::Processors::VA2210215ContinuationSheetProcessor do
   end
 
   before do
-    stub_const('PdfFill::Processors::VA2210215ContinuationSheetProcessor::PDF_FORMS', pdf_forms_mock)
+    allow(described_class).to receive(:pdf_forms).and_return(pdf_forms_mock)
     stub_const('FileUtils', file_utils_mock)
 
     allow(file_utils_mock).to receive(:mkdir_p)

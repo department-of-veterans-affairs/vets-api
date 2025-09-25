@@ -13,27 +13,10 @@ module DependentsBenefits
     # Provides functionality to fill and process PDF forms.
     #
     # This module includes methods to register form classes, fill out PDF forms, and handle extra PDF generation.
+    # rubocop:disable Metrics/ModuleLength
     module Filler
       class PdfFillerException < StandardError; end
       module_function
-
-      ##
-      # Creates a fresh PdfForms instance for handling standard PDF forms.
-      #
-      # @return [PdfForms] A new PdfForms instance configured with the pdftk binary path.
-      #
-      def pdf_forms
-        PdfForms.new(Settings.binaries.pdftk)
-      end
-
-      ##
-      # Creates a fresh PdfForms instance for handling Unicode PDF forms with XFdf data format.
-      #
-      # @return [PdfForms] A new PdfForms instance configured for Unicode handling.
-      #
-      def unicode_pdf_forms
-        PdfForms.new(Settings.binaries.pdftk, data_format: 'XFdf', utf8_fields: true)
-      end
 
       # A hash mapping form IDs to their corresponding form classes.
       # This constant is intentionally mutable.
@@ -55,6 +38,24 @@ module DependentsBenefits
         '21-674-V2' => DependentsBenefits::PdfFill::Va21674v2
       }.each do |form_id, form_class|
         register_form(form_id, form_class)
+      end
+
+      ##
+      # Creates a fresh PdfForms instance for handling standard PDF forms.
+      #
+      # @return [PdfForms] A new PdfForms instance configured with the pdftk binary path.
+      #
+      def pdf_forms
+        PdfForms.new(Settings.binaries.pdftk)
+      end
+
+      ##
+      # Creates a fresh PdfForms instance for handling Unicode PDF forms with XFdf data format.
+      #
+      # @return [PdfForms] A new PdfForms instance configured for Unicode handling.
+      #
+      def unicode_pdf_forms
+        PdfForms.new(Settings.binaries.pdftk, data_format: 'XFdf', utf8_fields: true)
       end
 
       ##
@@ -218,5 +219,6 @@ module DependentsBenefits
         "#{datetime.utc.strftime('%H:%M')} UTC #{datetime.utc.strftime('%Y-%m-%d')}"
       end
     end
+    # rubocop:enable Metrics/ModuleLength
   end
 end

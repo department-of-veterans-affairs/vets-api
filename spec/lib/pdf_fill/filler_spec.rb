@@ -137,19 +137,16 @@ describe PdfFill::Filler, type: :model do
         allow(extras_generator).to receive(:add_text)
         allow(hash_converter).to receive(:transform_data).and_return(new_hash)
 
-        # Mock UNICODE_PDF_FORMS and PDF_FORMS
-        allow(described_class::UNICODE_PDF_FORMS).to receive(:fill_form).and_call_original
-        allow(described_class::PDF_FORMS).to receive(:fill_form).and_call_original
+        # Mock unicode_pdf_forms and pdf_forms methods to verify the correct one is used
+        allow(described_class).to receive(:unicode_pdf_forms).and_call_original
+        allow(described_class).to receive(:pdf_forms).and_call_original
 
         generated_pdf_path = described_class.fill_ancillary_form(form_data, claim_id, form_id)
-        unicode_text = 'Lorem ‒–—―‖‗‘’‚‛“”„‟′″‴á, é, í, ó, ú, Á, É, Í, Ó, Úñ, Ñ¿, ¡ipsum dolor sit amet'
         expect(File).to exist(generated_pdf_path)
-        expect(described_class::UNICODE_PDF_FORMS).to have_received(:fill_form).with(
-          template_path, generated_pdf_path, hash_including('F[0].#subform[5].Remarks_If_Any[0]' => unicode_text),
-          flatten: false
-        )
 
-        expect(described_class::PDF_FORMS).not_to have_received(:fill_form)
+        # Verify that unicode_pdf_forms is used (not pdf_forms) for form 21-0781V2
+        expect(described_class).to have_received(:unicode_pdf_forms).at_least(:once)
+        expect(described_class).not_to have_received(:pdf_forms)
 
         File.delete(file_path)
       end

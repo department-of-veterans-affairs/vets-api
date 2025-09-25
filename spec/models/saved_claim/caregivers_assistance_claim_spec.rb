@@ -23,7 +23,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
       claim.parsed_form['veteran']['fullName']['first'] = unicode
       pdf_file = claim.to_pdf(sign: true)
 
-      expect(PdfFill::Filler::UNICODE_PDF_FORMS.get_fields(pdf_file).map(&:value).find do |val|
+      expect(PdfFill::Filler.unicode_pdf_forms.get_fields(pdf_file).map(&:value).find do |val|
         val == unicode
       end).to eq(unicode)
 

@@ -180,7 +180,7 @@ module IvcChampva
     def self.perform_multistamp(stamped_template_path, stamp_path)
       Rails.logger.info 'IVC Champva Forms - PdfStamper: entered perform_multistamp'
       out_path = "#{Common::FileHelpers.random_file_path}.pdf"
-      pdftk = PdfFill::Filler::PDF_FORMS
+      pdftk = PdfFill::Filler.pdf_forms
       Rails.logger.info 'IVC Champva Forms - PdfStamper: perform_multistamp calling pdftk.multistamp'
       pdftk.multistamp(stamped_template_path, stamp_path, out_path)
       Rails.logger.info 'IVC Champva Forms - PdfStamper: perform_multistamp post pdftk.multistamp delete'

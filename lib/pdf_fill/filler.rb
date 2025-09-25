@@ -42,24 +42,6 @@ module PdfFill
     class PdfFillerException < StandardError; end
     module_function
 
-    ##
-    # Creates a fresh PdfForms instance for handling standard PDF forms.
-    #
-    # @return [PdfForms] A new PdfForms instance configured with the pdftk binary path.
-    #
-    def pdf_forms
-      PdfForms.new(Settings.binaries.pdftk)
-    end
-
-    ##
-    # Creates a fresh PdfForms instance for handling Unicode PDF forms with XFdf data format.
-    #
-    # @return [PdfForms] A new PdfForms instance configured for Unicode handling.
-    #
-    def unicode_pdf_forms
-      PdfForms.new(Settings.binaries.pdftk, data_format: 'XFdf', utf8_fields: true)
-    end
-
     # A hash mapping form IDs to their corresponding form classes.
     # This constant is intentionally mutable.
     FORM_CLASSES = {} # rubocop:disable Style/MutableConstant
@@ -102,6 +84,24 @@ module PdfFill
       '22-10275' => PdfFill::Forms::Va2210275
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
+    end
+
+    ##
+    # Creates a fresh PdfForms instance for handling standard PDF forms.
+    #
+    # @return [PdfForms] A new PdfForms instance configured with the pdftk binary path.
+    #
+    def pdf_forms
+      PdfForms.new(Settings.binaries.pdftk)
+    end
+
+    ##
+    # Creates a fresh PdfForms instance for handling Unicode PDF forms with XFdf data format.
+    #
+    # @return [PdfForms] A new PdfForms instance configured for Unicode handling.
+    #
+    def unicode_pdf_forms
+      PdfForms.new(Settings.binaries.pdftk, data_format: 'XFdf', utf8_fields: true)
     end
 
     ##

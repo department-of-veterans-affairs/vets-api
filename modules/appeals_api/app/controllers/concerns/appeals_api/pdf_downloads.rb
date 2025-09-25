@@ -56,7 +56,7 @@ module AppealsApi
         end
       end
 
-      PdfFill::Filler::PDF_FORMS.multistamp(input_path, stamp_path, output_path)
+      PdfFill::Filler.pdf_forms.multistamp(input_path, stamp_path, output_path)
       FileUtils.rm_f(stamp_path)
 
       output_path

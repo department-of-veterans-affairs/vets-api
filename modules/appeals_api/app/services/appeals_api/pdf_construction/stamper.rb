@@ -12,7 +12,7 @@ module AppealsApi
 
       def call
         stamped_pdf = "#{Common::FileHelpers.random_file_path}.pdf"
-        PDFUtilities::PDFTK.stamp(date_and_consumer_stamp_path, veteran_stamp_path, stamped_pdf)
+        PDFUtilities.pdftk.stamp(date_and_consumer_stamp_path, veteran_stamp_path, stamped_pdf)
 
         stamped_pdf
       end
