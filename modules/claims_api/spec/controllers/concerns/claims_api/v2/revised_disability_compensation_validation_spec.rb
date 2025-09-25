@@ -240,7 +240,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
     # FES Val Section 5.b: mailingAddress USA field validations
     context 'mailingAddress USA validation' do
       before do
-        allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+        allow_any_instance_of(described_class).to receive(:fetch_countries_list).and_return(%w[USA GBR CAN])
       end
 
       context 'when USA address missing state' do
@@ -262,8 +262,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/state')
           expect(errors.first[:title]).to eq('Unprocessable Entity')
-          expect(errors.first[:detail]).to eq('State for the Veteran\'s current mailing address. ' \
-                                              'Required if country is USA.')
+          expect(errors.first[:detail]).to eq('The state is required if the country is USA')
         end
       end
 
@@ -286,8 +285,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/zipFirstFive')
           expect(errors.first[:title]).to eq('Unprocessable Entity')
-          expect(errors.first[:detail]).to eq('Zip code (First 5 digits) for the Veteran\'s current mailing address. ' \
-                                              'Required if country is USA.')
+          expect(errors.first[:detail]).to eq('The zipFirstFive is required if the country is USA.')
         end
       end
 
@@ -312,8 +310,8 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/internationalPostalCode')
           expect(errors.first[:title]).to eq('Unprocessable Entity')
-          expect(errors.first[:detail]).to eq('International postal code for the Veteran\'s current mailing address. ' \
-                                              'Do not include if country is USA.')
+          expect(errors.first[:detail])
+            .to eq('The internationalPostalCode should not be provided if the country is USA')
         end
       end
 
@@ -388,7 +386,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
     # FES Val Section 5.b.iii: mailingAddress INTERNATIONAL field validations
     context 'mailingAddress INTERNATIONAL validation' do
       before do
-        allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+        allow_any_instance_of(described_class).to receive(:fetch_countries_list).and_return(%w[USA GBR CAN])
       end
 
       context 'when INTERNATIONAL address missing city' do
@@ -475,7 +473,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
 
         before do
-          allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          allow_any_instance_of(described_class).to receive(:fetch_countries_list).and_return(%w[USA GBR CAN])
         end
 
         it 'returns validation error' do
@@ -502,7 +500,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
 
         before do
-          allow_any_instance_of(described_class).to receive(:valid_countries).and_return(nil)
+          allow_any_instance_of(described_class).to receive(:fetch_countries_list).and_return(nil)
         end
 
         it 'returns BRD service error' do
@@ -530,7 +528,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
         end
 
         before do
-          allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA GBR CAN])
+          allow_any_instance_of(described_class).to receive(:fetch_countries_list).and_return(%w[USA GBR CAN])
         end
 
         it 'returns validation error' do
@@ -538,8 +536,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           expect(errors).to be_an(Array)
           expect(errors.first[:source]).to eq('/veteranIdentification/mailingAddress/internationalPostalCode')
           expect(errors.first[:title]).to eq('Unprocessable Entity')
-          expect(errors.first[:detail]).to eq('International postal code for the Veteran\'s current mailing address. ' \
-                                              'Do not include if country is USA.')
+          expect(errors.first[:detail]).to eq('The internationalPostalCode is required if the country is not USA')
         end
       end
     end
@@ -769,37 +766,15 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             expect(errors.map do |e|
               e[:detail]
             end).to contain_exactly('City for the Veteran\'s new address.',
-                                    'International postal code for the Veteran\'s new address. ' \
-                                    'Do not include if country is USA.')
+                                    'The internationalPostalCode is required if the country is not USA')
           end
         end
       end
     end
 
-    # FES Val Section 7: Disability REOPEN and approximateDate validations
-    context 'disability action type REOPEN and date validations' do
-      context 'when disability has actionType REOPEN' do
-        let(:form_attributes) do
-          base_form_attributes.merge(
-            'disabilities' => [
-              {
-                'disabilityActionType' => 'REOPEN',
-                'name' => 'PTSD'
-              }
-            ]
-          )
-        end
-
-        it 'returns validation error' do
-          errors = subject.validate_form_526_fes_values
-          expect(errors).to be_an(Array)
-          expect(errors.first[:source]).to eq('/disabilities/0/disabilityActionType')
-          expect(errors.first[:title]).to eq('Unprocessable Entity')
-          expect(errors.first[:detail]).to eq('The request failed disability validation: ' \
-                                              'The disability Action Type of "REOPEN" is not currently supported. ' \
-                                              'REOPEN will be supported in a future release')
-        end
-      end
+    # FES Val Section 7: Disability approximateDate validations
+    context 'disability approximateDate validations' do
+      # NOTE: REOPEN validation removed - schema already handles the enum values
 
       context 'approximateDate validations' do
         # NOTE: Schema regex handles month range (01-12) and day range (01-31) validation
@@ -823,7 +798,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             expect(errors).to be_an(Array)
             expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
             expect(errors.first[:title]).to eq('Unprocessable Entity')
-            expect(errors.first[:detail]).to eq('The approximateDate is not a valid date')
+            expect(errors.first[:detail]).to eq('2018-02-30 is not a valid date.')
           end
         end
 
@@ -845,7 +820,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             expect(errors).to be_an(Array)
             expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
             expect(errors.first[:title]).to eq('Unprocessable Entity')
-            expect(errors.first[:detail]).to eq('The approximateDate is not a valid date')
+            expect(errors.first[:detail]).to eq('2018-02-30 is not a valid date.')
           end
         end
 
@@ -856,7 +831,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
                 {
                   'disabilityActionType' => 'NEW',
                   'name' => 'PTSD',
-                  'approximateDate' => '2021-02-29'  # 2021 is not a leap year
+                  'approximateDate' => '2021-02-29' # 2021 is not a leap year
                 }
               ]
             )
@@ -867,7 +842,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
             expect(errors).to be_an(Array)
             expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
             expect(errors.first[:title]).to eq('Unprocessable Entity')
-            expect(errors.first[:detail]).to eq('The approximateDate is not a valid date')
+            expect(errors.first[:detail]).to eq('2018-02-30 is not a valid date.')
           end
         end
 
@@ -891,8 +866,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
               expect(errors).to be_an(Array)
               expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
               expect(errors.first[:title]).to eq('Unprocessable Entity')
-              expect(errors.first[:detail]).to eq('Approximate date disability began. Date must be in the past. ' \
-                                                  'Format can be either YYYY-MM-DD or YYYY-MM or YYYY')
+              expect(errors.first[:detail]).to eq('The approximateDate (0) is not valid.')
             end
           end
 
@@ -915,8 +889,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
               expect(errors).to be_an(Array)
               expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
               expect(errors.first[:title]).to eq('Unprocessable Entity')
-              expect(errors.first[:detail]).to eq('Approximate date disability began. Date must be in the past. ' \
-                                                  'Format can be either YYYY-MM-DD or YYYY-MM or YYYY')
+              expect(errors.first[:detail]).to eq('The approximateDate (0) is not valid.')
             end
           end
 
@@ -939,8 +912,7 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
               expect(errors).to be_an(Array)
               expect(errors.first[:source]).to eq('/disabilities/0/approximateDate')
               expect(errors.first[:title]).to eq('Unprocessable Entity')
-              expect(errors.first[:detail]).to eq('Approximate date disability began. Date must be in the past. ' \
-                                                  'Format can be either YYYY-MM-DD or YYYY-MM or YYYY')
+              expect(errors.first[:detail]).to eq('The approximateDate (0) is not valid.')
             end
           end
 
@@ -1085,14 +1057,11 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           let(:form_attributes) do
             base_form_attributes.merge(
               'disabilities' => [
-                {
-                  'disabilityActionType' => 'REOPEN',
-                  'name' => 'PTSD'
-                },
+                # NOTE: REOPEN validation removed - handled by schema
                 {
                   'disabilityActionType' => 'NEW',
                   'name' => 'Back Pain',
-                  'approximateDate' => '2020-02-30'  # Invalid calendar date
+                  'approximateDate' => '2020-02-30' # Invalid calendar date
                 },
                 {
                   'disabilityActionType' => 'NEW',
@@ -1106,23 +1075,18 @@ RSpec.describe ClaimsApi::V2::RevisedDisabilityCompensationValidation do
           it 'returns errors for each invalid disability' do
             errors = subject.validate_form_526_fes_values
             expect(errors).to be_an(Array)
-            expect(errors.size).to eq(3)
-
-            # Check for REOPEN error
-            reopen_error = errors.find { |e| e[:source] == '/disabilities/0/disabilityActionType' }
-            expect(reopen_error[:title]).to eq('Unprocessable Entity')
-            expect(reopen_error[:detail]).to include('REOPEN')
+            # NOTE: REOPEN is now handled by schema, so we only get 2 errors
+            expect(errors.size).to eq(2)
 
             # Check for invalid calendar date error
-            calendar_error = errors.find { |e| e[:source] == '/disabilities/1/approximateDate' }
+            calendar_error = errors.find { |e| e[:source] == '/disabilities/0/approximateDate' }
             expect(calendar_error[:title]).to eq('Unprocessable Entity')
-            expect(calendar_error[:detail]).to eq('The approximateDate is not a valid date')
+            expect(calendar_error[:detail]).to eq('2018-02-30 is not a valid date.')
 
             # Check for future date error
-            future_error = errors.find { |e| e[:source] == '/disabilities/2/approximateDate' }
+            future_error = errors.find { |e| e[:source] == '/disabilities/1/approximateDate' }
             expect(future_error[:title]).to eq('Unprocessable Entity')
-            expect(future_error[:detail]).to eq('Approximate date disability began. Date must be in the past. ' \
-                                                'Format can be either YYYY-MM-DD or YYYY-MM or YYYY')
+            expect(future_error[:detail]).to eq('The approximateDate (1) is not valid.')
           end
         end
       end

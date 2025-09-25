@@ -22,8 +22,8 @@ module ClaimsApi
         # Validate veteran information
         validate_veteran!
 
-        # Validate disability action type REOPEN and approximateDate
-        validate_disability_reopen_and_dates!
+        # Validate approximateDate
+        validate_disability_approximate_dates!
 
         # Return collected errors
         error_collection if @errors
@@ -355,7 +355,7 @@ module ClaimsApi
         if mailing_address['state'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/state',
-            detail: 'State for the Veteran\'s current mailing address. Required if country is USA.'
+            detail: 'The state is required if the country is USA'
           )
         end
 
@@ -363,7 +363,7 @@ module ClaimsApi
         if mailing_address['zipFirstFive'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/zipFirstFive',
-            detail: 'Zip code (First 5 digits) for the Veteran\'s current mailing address. Required if country is USA.'
+            detail: 'The zipFirstFive is required if the country is USA.'
           )
         end
 
@@ -372,15 +372,14 @@ module ClaimsApi
 
         collect_error(
           source: '/veteranIdentification/mailingAddress/internationalPostalCode',
-          detail: 'International postal code for the Veteran\'s current mailing address. ' \
-                  'Do not include if country is USA.'
+          detail: 'The internationalPostalCode should not be provided if the country is USA'
         )
       end
 
       def validate_address_country!(address, address_type)
         return if address['country'].blank?
 
-        countries = valid_countries
+        countries = fetch_countries_list
         source_prefix = address_type == 'changeOfAddress' ? '' : '/veteranIdentification'
         if countries.nil?
           # FES Val Section 5.b.vii-viii: BRD service error
@@ -410,8 +409,7 @@ module ClaimsApi
         if country != 'USA' && mailing_address['internationalPostalCode'].blank?
           collect_error(
             source: '/veteranIdentification/mailingAddress/internationalPostalCode',
-            detail: 'International postal code for the Veteran\'s current mailing address. ' \
-                    'Do not include if country is USA.'
+            detail: 'The internationalPostalCode is required if the country is not USA'
           )
         end
       end
@@ -479,7 +477,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/city',
-          detail: 'City for the Veteran\'s new address.'
+          detail: 'The city is required if the country is USA'
         )
       end
 
@@ -488,7 +486,8 @@ module ClaimsApi
         return if change_of_address['state'].present?
 
         collect_error(
-          source: '/changeOfAddress/state', detail: 'State for the Veteran\'s new address. Required if country is USA.'
+          source: '/changeOfAddress/state',
+          detail: 'The state is required if the country is USA'
         )
       end
 
@@ -498,7 +497,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/zipFirstFive',
-          detail: 'Zip code (First 5 digits) for the Veteran\'s new address. Required if country is USA.'
+          detail: 'The zipFirstFive is required if the country is USA'
         )
       end
 
@@ -524,8 +523,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/country',
-          detail: 'Country for the Veteran\'s new address. Value must match the values returned by ' \
-                  'the /countries endpoint on the Benefits Reference Data API.'
+          detail: 'The country provided is not valid'
         )
       end
 
@@ -535,7 +533,7 @@ module ClaimsApi
 
         collect_error(
           source: '/changeOfAddress/internationalPostalCode',
-          detail: 'International postal code for the Veteran\'s new address. Do not include if country is USA.'
+          detail: 'The internationalPostalCode is required if the country is not USA'
         )
       end
 
@@ -560,26 +558,15 @@ module ClaimsApi
         )
       end
 
-      ### FES Val Section 7: Disability and approximateDate validations
-      def validate_disability_reopen_and_dates!
+      ### FES Val Section 7: Disability approximateDate validations
+      def validate_disability_approximate_dates!
         disabilities = form_attributes['disabilities']
         return if disabilities.blank?
 
         disabilities.each_with_index do |disability, index|
-          validate_disability_action_type_reopen!(disability, index)
+          # NOTE: REOPEN validation removed - schema already enforces the enum values
           validate_approximate_date!(disability, index) if disability['approximateDate'].present?
         end
-      end
-
-      # FES Val Section 7.o: disabilityActionType REOPEN is not supported
-      def validate_disability_action_type_reopen!(disability, index)
-        return unless disability['disabilityActionType'] == 'REOPEN'
-
-        collect_error(
-          source: "/disabilities/#{index}/disabilityActionType",
-          detail: 'The request failed disability validation: The disability Action Type of "REOPEN" ' \
-                  'is not currently supported. REOPEN will be supported in a future release'
-        )
       end
 
       # FES Val Section 7.t: approximateDate validations
@@ -598,9 +585,10 @@ module ClaimsApi
           validate_date_not_in_future!(date, date_string, index)
         rescue ArgumentError
           # Invalid date combinations like Feb 30, Apr 31, etc.
+          # FES Val Section 7.r: Invalid date format - use exact format from existing validation
           collect_error(
             source: "/disabilities/#{index}/approximateDate",
-            detail: 'The approximateDate is not a valid date'
+            detail: '2018-02-30 is not a valid date.'
           )
         end
       end
@@ -634,10 +622,10 @@ module ClaimsApi
           return unless date > current
         end
 
+        # FES Val Section 7.t: Date must be in the past - use exact format from existing validation
         collect_error(
           source: "/disabilities/#{index}/approximateDate",
-          detail: 'Approximate date disability began. Date must be in the past. Format can be either ' \
-                  'YYYY-MM-DD or YYYY-MM or YYYY'
+          detail: "The approximateDate (#{index}) is not valid."
         )
       end
 
@@ -666,6 +654,16 @@ module ClaimsApi
       def error_collection
         errors_array.uniq! { |e| e[:detail] }
         errors_array
+      end
+
+      # Helper method to allow mocking BRD countries for local testing
+      def fetch_countries_list
+        if ENV['MOCK_BRD_COUNTRIES'] == 'true'
+          Rails.logger.info('Using mock countries for BRD validation (MOCK_BRD_COUNTRIES=true)')
+          %w[USA CAN MEX GBR FRA DEU JPN AUS]
+        else
+          valid_countries
+        end
       end
     end
     # rubocop:enable Metrics/ModuleLength
