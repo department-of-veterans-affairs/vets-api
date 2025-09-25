@@ -254,4 +254,36 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
   end
 
   # end RSpec.describe
+
+  describe 'VFF monitoring' do
+    it 'invokes VFF::Monitor for VFF forms on error status' do
+      form_submission = create(:form_submission, form_type: '21-4142')
+      pending_attempt = create(:form_submission_attempt, :pending, form_submission:)
+      batch_uuids = [pending_attempt.benefits_intake_uuid]
+      data = batch_uuids.map do |id|
+        { 'id' => id, 'attributes' => { 'status' => 'error', 'code' => '400', 'detail' => 'Bad Request' } }
+      end
+      response = double(success?: true, body: { 'data' => data })
+
+      expect_any_instance_of(VFF::Monitor).to receive(:log_silent_failure_no_confirmation)
+
+      allow_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status).and_return(response)
+
+      described_class.new.perform
+    end
+
+    describe '.vff_form?' do
+      it 'returns true for VFF form IDs' do
+        expect(VFF::Monitor.vff_form?('21-4142')).to be true
+        expect(VFF::Monitor.vff_form?('21-0966')).to be true
+        expect(VFF::Monitor.vff_form?('20-10206')).to be true
+      end
+
+      it 'returns false for non-VFF form IDs' do
+        expect(VFF::Monitor.vff_form?('28-8832')).to be false
+        expect(VFF::Monitor.vff_form?('28-1900')).to be false
+        expect(VFF::Monitor.vff_form?('686C-674')).to be false
+      end
+    end
+  end
 end
