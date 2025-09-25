@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../app/helpers/parameter_filter_helper'
+require 'logging/helper/parameter_filter'
 
-RSpec.describe ParameterFilterHelper do
+RSpec.describe Logging::Helper::ParameterFilter do
   describe '.filter_params' do
     it 'filters sensitive values from a hash' do
       params = { password: 'secret', 'ssn' => '123-45-6789' }

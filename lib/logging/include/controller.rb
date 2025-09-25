@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Logging
-  module Controller
+  module Include
     # Monitor class for tracking claim controller events
-    module Monitor
+    module Controller
       ##
       # log GET 404 from controller
       # @see ClaimsController
