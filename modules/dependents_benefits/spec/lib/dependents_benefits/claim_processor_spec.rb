@@ -99,9 +99,9 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
       expect(mock_monitor).to receive(:track_processor_error).with(
         'Failed to enqueue submission jobs', 'enqueue_failure', instance_of(Hash)
       )
-      expect(claim_group).to receive(:update!).with(status: 'failure')
 
       processor.send(:handle_enqueue_failure, error)
+      expect(claim_group.status).to eq('failure')
     end
   end
 end
