@@ -856,7 +856,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription.prescription_number).to eq('15214174591')
           expect(oracle_prescription.prescription_name).to eq('albuterol (albuterol 90 mcg inhaler [8.5g])')
           expect(oracle_prescription.dispensed_date).to be_nil
-          expect(oracle_prescription.station_number).to eq('556-RX-MAIN-OP')
+          expect(oracle_prescription.station_number).to eq('556')
           expect(oracle_prescription.is_refillable).to be true
           expect(oracle_prescription.is_trackable).to be false
           expect(oracle_prescription.tracking_information).to eq({})
