@@ -27,7 +27,7 @@ module DependentsBenefits
     def form_matches_schema
       return unless form_is_string
 
-      schema = VetsJsonSchema::SCHEMAS[form_id]
+      schema = VetsJsonSchema::SCHEMAS["#{self.class::FORM}-V2"]
 
       schema_errors = validate_schema(schema)
       unless schema_errors.empty?
