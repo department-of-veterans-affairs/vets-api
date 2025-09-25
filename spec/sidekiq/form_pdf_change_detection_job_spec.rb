@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe FormPdfChangeDetectionJob, type: :job do
+  let(:meta_data) { "[#{described_class.name}]" }
+
   let(:forms_response) do
     {
       'data' => [
@@ -63,6 +65,10 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
         expect(Rails.cache).not_to receive(:write_multi)
         expect(StatsD).not_to receive(:increment)
 
+        expect(Rails.logger).not_to receive(:info).with(
+          "#{meta_data} - Job started."
+        )
+
         subject.perform
       end
     end
@@ -88,6 +94,12 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
       end
 
       it 'completes successfully with valid form data' do
+        expect(Rails.logger).to receive(:info).with(
+          "#{meta_data} - Job started."
+        )
+        expect(Rails.logger).to receive(:info).with(
+          "#{meta_data} - Job finished successfully."
+        )
         expect { subject.perform }.not_to raise_error
       end
 
@@ -131,10 +143,17 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
         it 'logs revision information' do
           form = forms_response['data'][0]
           attributes = form['attributes']
+          expect(Rails.logger).to receive(:info).with(
+            "#{meta_data} - Job started."
+          )
+
+          expect(Rails.logger).to receive(:info).with(
+            "#{meta_data} - Job finished successfully."
+          )
 
           expect(Rails.logger).to receive(:info).with(
             a_string_including(
-              "PDF form #{attributes['form_name']} (form_id: #{form['id']}) was revised. " \
+              "#{meta_data} - PDF form #{attributes['form_name']} (form_id: #{form['id']}) was revised. " \
               "Last revised on date: #{attributes['last_revision_on']}. " \
               "URL: #{attributes['url']}"
             )
@@ -177,8 +196,14 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
         end
 
         it 'logs the error and re-raises' do
+          expect(Rails.logger).to receive(:info).with(
+            "#{meta_data} - Job started."
+          )
+          expect(Rails.logger).not_to receive(:info).with(
+            "#{meta_data} - Job finished successfully."
+          )
           expect(Rails.logger).to receive(:error)
-            .with('Error in FormPdfChangeDetectionJob: API Error')
+            .with("#{meta_data} - Job raised an error: API Error")
 
           expect { subject.perform }.to raise_error(StandardError, 'API Error')
         end
@@ -219,7 +244,7 @@ RSpec.describe FormPdfChangeDetectionJob, type: :job do
 
         it 'catches the exception and logs the error' do
           expect(Rails.logger).to receive(:error)
-            .with('Error processing form 10-10EZ: Simulated processing error')
+            .with("#{meta_data} - Error processing form 10-10EZ: Simulated processing error")
 
           expect { subject.perform }.not_to raise_error
         end

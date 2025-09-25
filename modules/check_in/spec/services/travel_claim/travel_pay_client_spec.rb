@@ -4,11 +4,10 @@ require 'rails_helper'
 require 'webmock/rspec'
 
 RSpec.describe TravelClaim::TravelPayClient do
-  let(:uuid) { 'test-uuid-123' }
-  let(:check_in_uuid) { 'check-in-uuid-456' }
+  let(:check_in_uuid) { 'test-uuid-123' }
   let(:appointment_date_time) { '2024-01-01T12:00:00Z' }
   let(:redis_client) { instance_double(TravelClaim::RedisClient) }
-  let(:client) { described_class.new(uuid:, appointment_date_time:, check_in_uuid:) }
+  let(:client) { described_class.new(check_in_uuid:, appointment_date_time:) }
 
   # Test data constants
   let(:test_icn) { '1234567890V123456' }
@@ -36,9 +35,9 @@ RSpec.describe TravelClaim::TravelPayClient do
   before do
     allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
     # Default Redis behavior - can be overridden in individual tests
-    # ICN is retrieved using check_in_uuid, station_number using uuid
+    # Both ICN and station_number are retrieved using the same uuid
     allow(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(test_icn)
-    allow(redis_client).to receive(:station_number).with(uuid:).and_return(test_station_number)
+    allow(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_return(test_station_number)
   end
 
   # Settings are configured in individual tests using with_settings
@@ -47,9 +46,9 @@ RSpec.describe TravelClaim::TravelPayClient do
     context 'when Redis operations succeed' do
       it 'loads ICN and station number successfully' do
         expect(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(test_icn)
-        expect(redis_client).to receive(:station_number).with(uuid:).and_return(test_station_number)
+        expect(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_return(test_station_number)
 
-        client = described_class.new(uuid:, appointment_date_time:, check_in_uuid:)
+        client = described_class.new(check_in_uuid:, appointment_date_time:)
 
         expect(client.instance_variable_get(:@icn)).to eq(test_icn)
         expect(client.instance_variable_get(:@station_number)).to eq(test_station_number)
@@ -62,34 +61,32 @@ RSpec.describe TravelClaim::TravelPayClient do
                                             .and_raise(Redis::ConnectionError, 'Connection refused')
 
         expect do
-          described_class.new(uuid:, appointment_date_time:, check_in_uuid:)
+          described_class.new(check_in_uuid:, appointment_date_time:)
         end.to raise_error(ArgumentError,
-                           "Failed to load data from Redis for check_in_session UUID #{check_in_uuid} and " \
-                           'station number ')
+                           "Failed to load data from Redis for check-in UUID #{check_in_uuid}")
       end
     end
 
     context 'when Redis station number lookup fails' do
       it 'raises ArgumentError with clear error message' do
         allow(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(test_icn)
-        allow(redis_client).to receive(:station_number).with(uuid:).and_raise(Redis::TimeoutError,
-                                                                              'Operation timed out')
+        allow(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_raise(Redis::TimeoutError,
+                                                                                            'Operation timed out')
 
         expect do
-          described_class.new(uuid:, appointment_date_time:, check_in_uuid:)
+          described_class.new(check_in_uuid:, appointment_date_time:)
         end.to raise_error(ArgumentError,
-                           "Failed to load data from Redis for check_in_session UUID #{check_in_uuid} and " \
-                           'station number ')
+                           "Failed to load data from Redis for check-in UUID #{check_in_uuid}")
       end
     end
 
     context 'when Redis returns nil values' do
       it 'raises ArgumentError with clear error message' do
         allow(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(nil)
-        allow(redis_client).to receive(:station_number).with(uuid:).and_return(nil)
+        allow(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_return(nil)
 
         expect do
-          described_class.new(uuid:, appointment_date_time:, check_in_uuid:)
+          described_class.new(check_in_uuid:, appointment_date_time:)
         end.to raise_error(ArgumentError, 'Missing required arguments: ICN, station number')
       end
     end
@@ -99,7 +96,7 @@ RSpec.describe TravelClaim::TravelPayClient do
         allow(TravelClaim::RedisClient).to receive(:build).and_raise(StandardError, 'Redis server not available')
 
         expect do
-          described_class.new(uuid:, appointment_date_time:, check_in_uuid:)
+          described_class.new(check_in_uuid:, appointment_date_time:)
         end.to raise_error(StandardError, 'Redis server not available')
       end
     end
@@ -410,17 +407,17 @@ RSpec.describe TravelClaim::TravelPayClient do
 
   describe 'initialization' do
     it 'raises error when UUID is blank' do
-      expect { described_class.new(uuid: '', appointment_date_time:, check_in_uuid:) }
-        .to raise_error(ArgumentError, 'UUID cannot be blank')
-    end
-
-    it 'raises error when check_in_uuid is blank' do
-      expect { described_class.new(uuid:, appointment_date_time:, check_in_uuid: '') }
+      expect { described_class.new(check_in_uuid: '', appointment_date_time:) }
         .to raise_error(ArgumentError, 'Check-in UUID cannot be blank')
     end
 
-    it 'accepts both uuid and check_in_uuid parameters' do
-      expect { described_class.new(uuid:, appointment_date_time:, check_in_uuid:) }
+    it 'raises error when appointment_date_time is blank' do
+      expect { described_class.new(check_in_uuid:, appointment_date_time: '') }
+        .to raise_error(ArgumentError, 'appointment date time cannot be blank')
+    end
+
+    it 'accepts check_in_uuid and appointment_date_time parameters' do
+      expect { described_class.new(check_in_uuid:, appointment_date_time:) }
         .not_to raise_error
     end
   end
@@ -430,6 +427,8 @@ RSpec.describe TravelClaim::TravelPayClient do
       # Set up tokens
       client.instance_variable_set(:@current_veis_token, test_veis_token)
       client.instance_variable_set(:@current_btsss_token, test_btsss_token)
+      allow(client.redis_client).to receive(:token).and_return(test_veis_token)
+      allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
 
       # First call raises 401, second call succeeds
       call_count = 0
@@ -452,6 +451,8 @@ RSpec.describe TravelClaim::TravelPayClient do
       # Set up tokens
       client.instance_variable_set(:@current_veis_token, test_veis_token)
       client.instance_variable_set(:@current_btsss_token, test_btsss_token)
+      allow(client.redis_client).to receive(:token).and_return(test_veis_token)
+      allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
 
       # First call raises 401, token refresh fails
       allow(client).to receive(:perform).and_raise(
@@ -472,6 +473,8 @@ RSpec.describe TravelClaim::TravelPayClient do
       # Set up tokens
       client.instance_variable_set(:@current_veis_token, test_veis_token)
       client.instance_variable_set(:@current_btsss_token, test_btsss_token)
+      allow(client.redis_client).to receive(:token).and_return(test_veis_token)
+      allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
 
       # Multiple 401 responses should only trigger one retry
       allow(client).to receive(:perform).and_raise(
@@ -486,10 +489,54 @@ RSpec.describe TravelClaim::TravelPayClient do
       end.to raise_error(Common::Exceptions::BackendServiceException)
     end
 
+    it 'logs auth retry when 401 error occurs' do
+      # Mock Rails.logger to capture log calls
+      allow(Rails.logger).to receive(:error)
+
+      # Set up tokens
+      client.instance_variable_set(:@current_veis_token, test_veis_token)
+      client.instance_variable_set(:@current_btsss_token, test_btsss_token)
+      allow(client.redis_client).to receive(:token).and_return(test_veis_token)
+      allow(client.redis_client).to receive(:save_token).with(token: test_veis_token)
+
+      # First call raises 401, second call succeeds
+      call_count = 0
+      allow(client).to receive(:perform) do
+        call_count += 1
+        if call_count == 1
+          raise Common::Exceptions::BackendServiceException.new('TEST', {}, 401, 'Unauthorized')
+        else
+          double('Response', status: 200, success?: true)
+        end
+      end
+
+      # Mock the refresh_tokens! method to simulate successful token refresh
+      allow(client).to receive(:refresh_tokens!) do
+        client.instance_variable_set(:@current_veis_token, 'new-veis-token')
+        client.instance_variable_set(:@current_btsss_token, 'new-btsss-token')
+      end
+
+      client.send(:with_auth) do
+        client.send(:perform, :get, '/test', {}, {})
+      end
+
+      # Verify that the auth retry log was called
+      expect(Rails.logger).to have_received(:error).with(
+        'TravelPayClient 401 error - retrying authentication',
+        hash_including(
+          correlation_id: be_present,
+          check_in_uuid:,
+          veis_token_present: true,
+          btsss_token_present: true
+        )
+      )
+    end
+
     it 'uses cached VEIS token from Redis when available' do
       cached_veis_token = 'cached-veis'
       allow(client.redis_client).to receive(:token).and_return(cached_veis_token)
-      expect(client).to receive(:fetch_btsss_token!)
+      allow(client.redis_client).to receive(:save_token).with(token: cached_veis_token)
+      expect(client).to receive(:btsss_token!)
 
       client.send(:ensure_tokens!)
 
@@ -511,7 +558,10 @@ RSpec.describe TravelClaim::TravelPayClient do
 
     it 'fetches fresh tokens when none are cached' do
       allow(client.redis_client).to receive(:token).and_return(nil)
-      expect(client).to receive(:fetch_tokens!)
+      allow(client).to receive(:veis_token_request)
+        .and_return(double('Response', body: { 'access_token' => 'new-token' }))
+      allow(client.redis_client).to receive(:save_token).with(token: 'new-token')
+      expect(client).to receive(:btsss_token!)
 
       client.send(:ensure_tokens!)
     end
@@ -521,13 +571,21 @@ RSpec.describe TravelClaim::TravelPayClient do
       old_btsss_token = 'old-btsss'
       client.instance_variable_set(:@current_veis_token, old_veis_token)
       client.instance_variable_set(:@current_btsss_token, old_btsss_token)
-      expect(client).to receive(:fetch_tokens!)
-      expect(client.redis_client).to receive(:save_token).with(token: nil)
+      allow(client.redis_client).to receive(:save_token).with(token: nil)
+      allow(client.redis_client).to receive(:token).and_return(nil)
+      allow(client).to receive(:veis_token_request)
+        .and_return(double('Response', body: { 'access_token' => 'new-token' }))
+      allow(client.redis_client).to receive(:save_token).with(token: 'new-token')
+      allow(client).to receive(:system_access_token_request) do
+        client.instance_variable_set(:@current_btsss_token, 'new-btsss-token')
+        double('Response', body: { 'data' => { 'accessToken' => 'new-btsss-token' } })
+      end
 
       client.send(:refresh_tokens!)
 
-      expect(client.instance_variable_get(:@current_veis_token)).to be_nil
-      expect(client.instance_variable_get(:@current_btsss_token)).to be_nil
+      # After refresh, tokens should be cleared initially, then new ones fetched
+      expect(client.instance_variable_get(:@current_veis_token)).to eq('new-token')
+      expect(client.instance_variable_get(:@current_btsss_token)).to eq('new-btsss-token')
     end
   end
 

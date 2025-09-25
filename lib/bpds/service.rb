@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 require 'bpds/configuration'
-require 'bpds/jwt_encoder'
+require 'bpds/jwt_generator'
 
 module BPDS
   ##
@@ -36,7 +36,7 @@ module BPDS
     # @raise [StandardError] If an error occurs during submission.
     def submit_json(claim, participant_id = nil, file_number = nil)
       payload = default_payload(claim, participant_id, file_number)
-      response = perform(:post, '', payload.to_json, config.base_request_headers)
+      response = perform(:post, '', payload.to_json, headers)
 
       response.body
     end
@@ -50,12 +50,16 @@ module BPDS
     # @return [String] The JSON response body from the BPDS service.
     # @raise [StandardError] If the request fails, the error is tracked and re-raised.
     def get_json_by_bpds_uuid(bpds_uuid)
-      response = perform(:get, bpds_uuid.to_s, nil, config.base_request_headers)
+      response = perform(:get, bpds_uuid.to_s, nil, headers)
 
       response.body
     end
 
     private
+
+    def headers
+      { 'Authorization' => "Bearer #{BPDS::JwtGenerator.encode_jwt}" }
+    end
 
     # Generates the default payload for a given claim.
     #

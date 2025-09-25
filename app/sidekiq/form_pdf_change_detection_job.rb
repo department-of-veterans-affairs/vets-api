@@ -27,10 +27,12 @@ class FormPdfChangeDetectionJob
 
   CACHE_TTL = 7.days.to_i.freeze # Keep longer than daily job frequency
   CACHE_PREFIX = 'form_pdf_revision_sha256'
+  META_DATA = "[#{name}]".freeze
 
   def perform
     return unless Flipper.enabled?(:form_pdf_change_detection)
 
+    Rails.logger.info("#{META_DATA} - Job started.")
     forms = fetch_forms_data
 
     cache_keys, current_sha_map = get_current_form_data(forms)
@@ -38,8 +40,10 @@ class FormPdfChangeDetectionJob
 
     log_form_revisions(current_sha_map, cached_sha_map)
     update_cached_values(current_sha_map)
+
+    Rails.logger.info("#{META_DATA} - Job finished successfully.")
   rescue => e
-    Rails.logger.error "Error in #{self.class.name}: #{e.message}"
+    Rails.logger.error("#{META_DATA} - Job raised an error: #{e.message}")
     raise e
   end
 
@@ -67,7 +71,7 @@ class FormPdfChangeDetectionJob
         form:
       }
     rescue => e
-      Rails.logger.error "Error processing form #{form&.dig('id')}: #{e.message}"
+      Rails.logger.error("#{META_DATA} - Error processing form #{form&.dig('id')}: #{e.message}")
     end
 
     [cache_keys, current_sha_map]
@@ -95,7 +99,7 @@ class FormPdfChangeDetectionJob
 
     StatsD.increment('form.pdf.change.detected', tags: ["form:#{form_name}", "form_id:#{form_id}"])
     Rails.logger.info(
-      "PDF form #{form_name} (form_id: #{form_id}) was revised. " \
+      "#{META_DATA} - PDF form #{form_name} (form_id: #{form_id}) was revised. " \
       "Last revised on date: #{last_revision_on}. " \
       "URL: #{url}"
     )
