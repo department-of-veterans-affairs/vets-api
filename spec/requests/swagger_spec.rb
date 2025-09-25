@@ -950,6 +950,9 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         before { allow(Flipper).to receive(:enabled?).with(:hca_cache_facilities).and_return(false) }
 
         it 'supports returning list of active facilities' do
+          mock_job = instance_double(HCA::HealthFacilitiesImportJob)
+          expect(HCA::HealthFacilitiesImportJob).to receive(:new).and_return(mock_job)
+          expect(mock_job).to receive(:perform)
           VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
             expect(subject).to validate(
               :get,

@@ -101,7 +101,7 @@ module Mobile
       def validate_letter_type!
         unless lighthouse_service.valid_type?(params[:type]) || (
           Flipper.enabled?(:mobile_coe_letter_use_lgy_service,
-                           @current_user) && params[:type] == COE_LETTER_TYPE && coe_app_version?
+                           @current_user) && params[:type] == COE_LETTER_TYPE
         )
           raise Common::Exceptions::BadRequest.new(
             {
