@@ -30,6 +30,7 @@ require 'pdf_fill/forms/va221919'
 require 'pdf_fill/forms/va228794'
 require 'pdf_fill/forms/va2210275'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
+require 'pdf_fill/processors/va228794_processor'
 require 'pdf_fill/processors/va220839_processor'
 require 'utilities/date_parser'
 require 'forwardable'
@@ -199,15 +200,20 @@ module PdfFill
         fill_options[:show_jumplinks] = Flipper.enabled?(:pdf_fill_redesign_overflow_jumplinks)
       end
 
-      # Handle 22-10215 overflow with continuation sheets
-      if form_id == '22-10215' && form_data['programs'] && form_data['programs'].length > 16
-        return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options)
+      # more complex logic is handled by a dedicated 'processor' class
+      case form_id
+      when '22-10215'
+        if form_data['programs'] && form_data['programs'].length > 16
+          return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension,
+                                                       fill_options)
+        end
+      when '22-0839'
+        return PdfFill::Processors::VA220839Processor.new(form_data, self).process
+      when '22-8794'
+        return PdfFill::Processors::VA228794Processor.new(form_data, self).process
       end
 
-      return PdfFill::Processors::VA220839Processor.new(form_data, self).process if form_id == '22-0839'
-
       # Handle 22-8794 has the potential to overflow a lot and require special overflow handling
-      return PdfFill::Processors::VA228794Processor.new(form_data, self).process if form_id == '22-8794'
 
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
