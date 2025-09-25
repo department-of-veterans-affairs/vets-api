@@ -5,7 +5,7 @@ require 'dependents_benefits/generators/claim686c_generator'
 
 RSpec.describe DependentsBenefits::Generators::Claim686cGenerator, type: :model do
   let(:form_data) { create(:dependents_claim).parsed_form }
-  let(:parent_id) { 123 }
+  let(:parent_id) { create(:dependents_claim).id }
   let(:generator) { described_class.new(form_data, parent_id) }
 
   before do
@@ -46,17 +46,18 @@ RSpec.describe DependentsBenefits::Generators::Claim686cGenerator, type: :model 
   end
 
   describe '#generate' do
+    let(:mock_group) { create(:saved_claim_group) }
+
+    before do
+      allow(SavedClaimGroup).to receive(:find_by).and_return(mock_group)
+    end
+
     it 'creates a 686c claim' do
       created_claim = generator.generate
       expect(created_claim.form_id).to eq('21-686C')
 
       parsed_form = JSON.parse(created_claim.form)
       expect(parsed_form['veteran_information']).to eq(form_data['veteran_information'])
-    end
-
-    it 'logs a TODO message for claim linking' do
-      expect(Rails.logger).to receive(:info).with(match(/TODO: Link claim \d+ to parent #{parent_id}/)).once
-      generator.generate
     end
   end
 end
