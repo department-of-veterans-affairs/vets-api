@@ -21,6 +21,7 @@ module ClaimsApi
 
       def claim_attributes
         disabilities
+        service_information
       end
 
       # a 'disability' is required via the schema
@@ -97,6 +98,61 @@ module ClaimsApi
             form526: @fes_claim
           }
         }
+      end
+
+      # 'servicePeriods' are required via the schema
+      def service_information
+        info = @data[:serviceInformation]
+
+        map_service_periods(info)
+        map_confinements(info) if info&.dig(:confinements).present?
+        map_reserves(info) if info&.dig(:reservesNationalGuardService).present?
+        map_title_10_activation(info) if info&.dig(:reservesNationalGuardService, :title10Activation).present?
+      end
+
+      # 'serviceBranch', 'activeDutyBeginDate' & 'activeDutyEndDate' are required via the schema
+      def map_service_periods(info)
+        @fes_claim[:serviceInformation] = {
+          servicePeriods: info[:servicePeriods].map(&:compact)
+        }
+      end
+
+      # 'confinementBeginDate' & 'confinementEndDate' are required via the schema
+      def map_confinements(info)
+        @fes_claim[:serviceInformation].merge!(
+          { confinements: info[:confinements] }
+        )
+      end
+
+      def map_reserves(info)
+        reserves_info = info[:reservesNationalGuardService]
+
+        @fes_claim[:serviceInformation][:reservesNationalGuardService] ||= {}
+        @fes_claim[:serviceInformation][:reservesNationalGuardService].merge!({
+          obligationTermOfServiceFromDate: reserves_info&.dig(:obligationTermOfServiceFromDate),
+          obligationTermOfServiceToDate: reserves_info&.dig(:obligationTermOfServiceToDate)
+        }.compact_blank)
+      end
+
+      def map_title_10_activation(info)
+        title_ten_info = info[:reservesNationalGuardService][:title10Activation]
+
+        title_ten = build_title_ten_activation(title_ten_info)
+
+        @fes_claim[:serviceInformation][:reservesNationalGuardService].merge!({
+          title10Activation: title_ten
+        }.compact_blank)
+      end
+
+      def build_title_ten_activation(title_ten_info)
+        title_ten = {}
+        if title_ten_info[:title10ActivationDate].present?
+          title_ten[:title10ActivationDate] = title_ten_info[:title10ActivationDate]
+        end
+        if title_ten_info[:anticipatedSeparationDate].present?
+          title_ten[:anticipatedSeparationDate] = title_ten_info[:anticipatedSeparationDate]
+        end
+        title_ten
       end
 
       def extract_veteran_participant_id
