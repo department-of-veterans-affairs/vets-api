@@ -246,10 +246,9 @@ connected_apps_api:
     auth_access_key: <%= ENV['connected_apps_api__connected_apps__auth_access_key'] %>
     revoke_url: <%= ENV['connected_apps_api__connected_apps__revoke_url'] %>
     url: <%= ENV['connected_apps_api__connected_apps__url'] %>
-contention-classification-api:
-  url: <%= ENV['contention-classification-api__url'] %>
 contention_classification_api:
   expanded_contention_classification_path: expanded-contention-classification
+  hybrid_contention_classification_path: hybrid-contention-classification
   open_timeout: 5
   read_timeout: 10
   url: <%= ENV['contention_classification_api__url'] %>
@@ -707,15 +706,19 @@ lighthouse:
     hqva_mobile:
       url: <%= ENV['hqva_mobile__url'] %>
     url: <%= ENV['lighthouse__facilities__url'] %>
+    veterans_health:
+      url: <%= ENV['lighthouse__facilities__veterans_health__url'] %>
   healthcare_cost_and_coverage:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__aud_claim_url'] %>
       client_id: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__client_id'] %>
-      rsa_key: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__rsa_key'] %>
+      rsa_key: /srv/vets-api/secret/lighthouse-hccc.key
     host: <%= ENV['lighthouse__healthcare_cost_and_coverage__host'] %>
     scopes:
       - system/ChargeItem.read
       - system/Invoice.read
+      - system/PaymentReconciliation.read
+      - system/MedicationDispense.read
       - launch
     timeout: 30
     use_mocks: false
@@ -797,11 +800,11 @@ maintenance:
   services:
     1010ez: <%= ENV['maintenance__services__1010ez'] %>
     1010ezr: <%= ENV['maintenance__services__1010ezr'] %>
-    appeals: P9S4RFU
+    appeals: <%= ENV['maintenance__services__appeals'] %>
     arcgis: <%= ENV['maintenance__services__arcgis'] %>
     askva: <%= ENV['maintenance__services__askva'] %>
     avs: <%= ENV['maintenance__services__avs'] %>
-    bgs: P5Q2OCZ
+    bgs: <%= ENV['maintenance__services__bgs'] %>
     carma: <%= ENV['maintenance__services__carma'] %>
     caseflow: <%= ENV['maintenance__services__caseflow'] %>
     cie: <%= ENV['maintenance__services__cie'] %>
@@ -813,31 +816,31 @@ maintenance:
     dslogon: <%= ENV['maintenance__services__dslogon'] %>
     es: <%= ENV['maintenance__services__es'] %>
     evss: <%= ENV['maintenance__services__evss'] %>
-    form1010d: P69N8ZY
-    form107959a: POTKY39
-    form107959c: PEP32F2
-    form107959f1: P63EKXC
-    form107959f2: PZWR9XI
-    global: PLPSIB0
-    hcq: PWGA814
+    form1010d:  <%= ENV['maintenance__services__form1010d'] %>
+    form107959a: <%= ENV['maintenance__services__form107959a'] %>
+    form107959c: <%= ENV['maintenance__services__form107959c'] %>
+    form107959f1: <%= ENV['maintenance__services__form107959f1'] %>
+    form107959f2: <%= ENV['maintenance__services__form107959f2'] %>
+    global: <%= ENV['maintenance__services__global'] %>
+    hcq: <%= ENV['maintenance__services__hcq'] %>
     idme: <%= ENV['maintenance__services__idme'] %>
     lighthouse_benefits_claims: <%= ENV['maintenance__services__lighthouse_benefits_claims'] %>
     lighthouse_benefits_education: <%= ENV['maintenance__services__lighthouse_benefits_education'] %>
     lighthouse_benefits_intake: <%= ENV['maintenance__services__lighthouse_benefits_intake'] %>
     lighthouse_direct_deposit: <%= ENV['maintenance__services__lighthouse_direct_deposit'] %>
     lighthouse_vshe: <%= ENV['maintenance__services__lighthouse_vshe'] %>
-    logingov: P2SHMM9
+    logingov: <%= ENV['maintenance__services__logingov'] %>
     mdot: <%= ENV['maintenance__services__mdot'] %>
     mhv: <%= ENV['maintenance__services__mhv'] %>
     mhv_meds: <%= ENV['maintenance__services__mhv_meds'] %>
     mhv_mr: <%= ENV['maintenance__services__mhv_mr'] %>
     mhv_platform: <%= ENV['maintenance__services__mhv_platform'] %>
     mhv_sm: <%= ENV['maintenance__services__mhv_sm'] %>
-    mvi: PCIPVGJ
+    mvi: <%= ENV['maintenance__services__mvi'] %>
     pcie: <%= ENV['maintenance__services__pcie'] %>
     pega: <%= ENV['maintenance__services__pega'] %>
     sahsha: <%= ENV['maintenance__services__sahsha'] %>
-    search: PRG8HJI
+    search: <%= ENV['maintenance__services__search'] %>
     ssoe: <%= ENV['maintenance__services__ssoe'] %>
     ssoe_oauth: <%= ENV['maintenance__services__ssoe_oauth'] %>
     tc: <%= ENV['maintenance__services__tc'] %>
@@ -915,7 +918,7 @@ mhv:
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
-    collection_caching_enabled: <%= ENV['mhv__rx__collection_caching_enabled'] %>
+    collection_caching_enabled: false
     gw_base_path: <%= ENV['mhv__rx__gw_base_path'] %>
     host: <%= ENV['mhv__rx__host'] %>
     mock: <%= ENV['mhv__rx__mock'] %>
@@ -1520,6 +1523,9 @@ vanotify:
         career_counseling_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__career_counseling_confirmation_email'] %>
         ch31_central_mail_form_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
         ch31_vbms_form_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
+        contact_email_address_change_confirmation_needed_email: <%= ENV['vanotify__services__va_gov__template_id__contact_email_address_change_confirmation_needed_email'] %>
+        contact_email_address_confirmation_needed_email: <%= ENV['vanotify__services__va_gov__template_id__contact_email_address_confirmation_needed_email'] %>
+        contact_email_address_confirmed_email: <%= ENV['vanotify__services__va_gov__template_id__contact_email_address_confirmed_email'] %>
         contact_info_change: <%= ENV['vanotify__services__va_gov__template_id__contact_info_change'] %>
         covid_vaccine_registration: <%= ENV['vanotify__services__va_gov__template_id__covid_vaccine_registration'] %>
         direct_deposit: <%= ENV['vanotify__services__va_gov__template_id__direct_deposit'] %>
@@ -1623,8 +1629,6 @@ vaos:
       hex_secret: <%= ENV['vaos__referral__encryption__hex_secret'] %>
 vba_documents:
   custom_metadata_allow_list: <%= ENV['vba_documents__custom_metadata_allow_list'] %>
-  documentation:
-    path_enabled_flag: <%= ENV['vba_documents__documentation__path_enabled_flag'] %>
   enable_download_endpoint: <%= ENV['vba_documents__enable_download_endpoint'] %>
   enable_status_override: <%= ENV['vba_documents__enable_status_override'] %>
   enable_validate_document_endpoint: true

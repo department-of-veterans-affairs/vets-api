@@ -51,7 +51,7 @@ module Lighthouse
       private
 
       def base_request_headers
-        super.merge('Accept' => 'application/fhir+json')
+        super.merge('Accept' => 'application/json+fhir')
       end
 
       def access_token(options = {})

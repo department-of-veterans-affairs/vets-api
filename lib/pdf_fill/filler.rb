@@ -26,7 +26,10 @@ require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
 require 'pdf_fill/forms/va2210215a'
 require 'pdf_fill/forms/va221919'
+require 'pdf_fill/forms/va228794'
+require 'pdf_fill/forms/va2210275'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
+require 'pdf_fill/processors/va228794_processor'
 require 'utilities/date_parser'
 require 'forwardable'
 
@@ -79,10 +82,12 @@ module PdfFill
       '21-674-V2' => PdfFill::Forms::Va21674v2,
       '26-1880' => PdfFill::Forms::Va261880,
       '5655' => PdfFill::Forms::Va5655,
+      '22-8794' => PdfFill::Forms::Va228794,
       '22-10216' => PdfFill::Forms::Va2210216,
       '22-10215' => PdfFill::Forms::Va2210215,
       '22-10215a' => PdfFill::Forms::Va2210215a,
-      '22-1919' => PdfFill::Forms::Va221919
+      '22-1919' => PdfFill::Forms::Va221919,
+      '22-10275' => PdfFill::Forms::Va2210275
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
     end
@@ -137,7 +142,10 @@ module PdfFill
         end
       end
 
-      target.write(new_file_path)
+      # NOTE: In deployed environments we use the `flatten` flag when calling `fill_form`, which removes
+      # all of the form metadata. HexaPDF validation fails when the form metadata has been removed,
+      # so we should not validate the merged document in deployed environments
+      target.write(new_file_path, validate: !Rails.env.production?)
     end
 
     ##
@@ -194,6 +202,9 @@ module PdfFill
         return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options)
       end
 
+      # Handle 22-8794 has the potential to overflow a lot and require special overflow handling
+      return PdfFill::Processors::VA228794Processor.new(form_data, self).process if form_id == '22-8794'
+
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
@@ -204,7 +215,6 @@ module PdfFill
 
       hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
       new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
-
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
       unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,

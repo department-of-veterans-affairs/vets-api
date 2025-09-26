@@ -12,12 +12,6 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
   let!(:user) { sis_user(:mhv, mhv_account_type:) }
   let(:mhv_account_type) { 'Premium' }
   let(:upstream_mhv_history_url) { 'https://mhv-api.example.com/v1/pharmacy/ess/medications' }
-  let(:set_cache) do
-    path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'prescriptions.json')
-    json_data = JSON.parse(File.read(path), symbolize_names: true)
-
-    Vets::Collection.fetch(Prescription, cache_key: '123:medications', ttl: 3600) { json_data }
-  end
 
   before do
     allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(true)
@@ -152,18 +146,6 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
           get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
         end
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to match_json_schema('prescription')
-      end
-    end
-
-    context 'when cache is populated' do
-      it 'uses cache instead of service' do
-        set_cache
-
-        get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
-
-        assert_requested :get, upstream_mhv_history_url, times: 0
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription')
       end

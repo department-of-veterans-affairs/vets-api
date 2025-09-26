@@ -16,39 +16,72 @@ module TravelClaim
   #   result = service.submit_claim
   #
   class ClaimSubmissionService
-    attr_reader :check_in, :appointment_date, :facility_type, :uuid
+    attr_reader :appointment_date, :facility_type, :check_in_uuid
+
+    CODE_CLAIM_EXISTS = TravelClaim::Response::CODE_CLAIM_EXISTS
+    APPOINTMENT_ERROR = 'appointment_error'
+    CLAIM_CREATE_ERROR = 'claim_create_error'
+    EXPENSE_ADD_ERROR = 'expense_add_error'
+    CLAIM_SUBMIT_ERROR = 'claim_submit_error'
+    ERROR_METRICS = {
+      APPOINTMENT_ERROR => {
+        cie: CheckIn::Constants::CIE_STATSD_APPOINTMENT_ERROR,
+        oh: CheckIn::Constants::OH_STATSD_APPOINTMENT_ERROR
+      },
+      CLAIM_CREATE_ERROR => {
+        cie: CheckIn::Constants::CIE_STATSD_CLAIM_CREATE_ERROR,
+        oh: CheckIn::Constants::OH_STATSD_CLAIM_CREATE_ERROR
+      },
+      EXPENSE_ADD_ERROR => {
+        cie: CheckIn::Constants::CIE_STATSD_EXPENSE_ADD_ERROR,
+        oh: CheckIn::Constants::OH_STATSD_EXPENSE_ADD_ERROR
+      },
+      CLAIM_SUBMIT_ERROR => {
+        cie: CheckIn::Constants::CIE_STATSD_CLAIM_SUBMIT_ERROR,
+        oh: CheckIn::Constants::OH_STATSD_CLAIM_SUBMIT_ERROR
+      }
+    }.freeze
 
     ##
     # Initialize the service with required parameters.
     #
-    # @param check_in [CheckIn::V2::Session] authenticated session
     # @param appointment_date [String] ISO 8601 formatted appointment date
     # @param facility_type [String] facility type ('oh' or 'vamc')
-    # @param uuid [String] user UUID from request parameters
+    # @param check_in_uuid [String] check-in UUID from request parameters
     #
-    def initialize(check_in:, appointment_date:, facility_type:, uuid:)
-      @check_in = check_in
+    def initialize(appointment_date:, facility_type:, check_in_uuid:)
       @appointment_date = appointment_date
       @facility_type = facility_type
-      @uuid = uuid
+      @check_in_uuid = check_in_uuid
     end
 
     ##
     # Submits a travel claim for processing through the Travel Pay API.
     # Validates parameters, then executes the complete claim submission flow.
     #
-    # @return [Hash] success response with claim ID
+    # @return [Hash] success response with claim ID and notification data
     # @raise [Common::Exceptions::BackendServiceException] for API failures
     # @raise [ArgumentError] for validation failures
     #
     def submit_claim
       validate_parameters
-      process_claim_submission
+      result = process_claim_submission
+
+      # Send notification if feature flag is enabled
+      send_notification_if_enabled if result['success']
+
+      result
     rescue Common::Exceptions::BackendServiceException => e
+      # Check if this is a duplicate claim error
+      handle_duplicate_claim_error if duplicate_claim_error?(e)
+      # Send error notification if feature flag is enabled
+      send_error_notification_if_enabled(e)
       raise e
     rescue => e
       log_message(:error, 'Unexpected error', error_class: e.class.name)
-      raise_backend_service_exception('An unexpected error occurred')
+      # Send error notification if feature flag is enabled
+      send_error_notification_if_enabled(e)
+      raise e
     end
 
     private
@@ -64,7 +97,13 @@ module TravelClaim
       appointment_id = get_appointment_id
       claim_id = create_new_claim(appointment_id)
       add_expense_to_claim(claim_id)
-      submit_claim_for_processing(claim_id)
+      submission_response = submit_claim_for_processing(claim_id)
+
+      # Extract claim data from submission response for notifications
+      @claim_number_last_four = extract_claim_number_last_four(submission_response)
+
+      # Increment success metric
+      increment_success_metric
 
       { 'success' => true, 'claimId' => claim_id }
     end
@@ -75,10 +114,47 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if any required parameter is missing
     #
     def validate_parameters
-      raise_backend_service_exception('CheckIn object is required', 400, 'VA901') if @check_in.nil?
       raise_backend_service_exception('Appointment date is required', 400, 'VA902') if @appointment_date.blank?
       raise_backend_service_exception('Facility type is required', 400, 'VA903') if @facility_type.blank?
-      raise_backend_service_exception('Uuid is required', 400, 'VA904') if @uuid.blank?
+      raise_backend_service_exception('Check-in UUID is required', 400, 'VA904') if @check_in_uuid.blank?
+
+      # Initialize date fields early so they're available for error notifications
+      normalized_appointment_datetime
+      appointment_date_yyyy_mm_dd
+    end
+
+    def normalized_time_utc
+      @normalized_time_utc ||= begin
+        s = @appointment_date
+
+        unless s.is_a?(String) && s.include?('T')
+          raise_backend_service_exception(
+            'Appointment date must include a time component (e.g., 2025-09-16T10:00:00Z)',
+            400, 'VA905'
+          )
+        end
+
+        # Strict ISO8601 parsing; raises ArgumentError on bad input.
+        t = Time.iso8601(s)
+
+        # Rebuild as UTC using the same wall-clock fields (ignores original offset).
+        Time.utc(t.year, t.month, t.day, t.hour, t.min, t.sec)
+      rescue ArgumentError
+        raise_backend_service_exception(
+          'Appointment date must be a valid ISO 8601 date-time (e.g., 2025-09-16T10:00:00Z)',
+          400, 'VA905'
+        )
+      end
+    end
+
+    # Full ISO8601 with Z for API calls
+    def normalized_appointment_datetime
+      @normalized_appointment_datetime ||= normalized_time_utc.iso8601
+    end
+
+    # YYYY-MM-DD for expense date & notifications
+    def appointment_date_yyyy_mm_dd
+      @appointment_date_yyyy_mm_dd ||= normalized_time_utc.to_date.iso8601
     end
 
     ##
@@ -88,12 +164,13 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if appointment not found/created
     #
     def get_appointment_id
-      log_message(:info, 'Get appointment ID', uuid: @uuid)
+      log_message(:info, 'Get appointment ID', check_in_uuid: @check_in_uuid)
 
       response = client.send_appointment_request
       appointment_id = response.body.dig('data', 0, 'id')
 
       unless appointment_id
+        increment_error_metric(APPOINTMENT_ERROR)
         raise_backend_service_exception('Appointment could not be found or created', response.status)
       end
 
@@ -108,12 +185,15 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if claim creation fails
     #
     def create_new_claim(appointment_id)
-      log_message(:info, 'Create claim', uuid: @uuid)
+      log_message(:info, 'Create claim', check_in_uuid: @check_in_uuid)
 
       response = client.send_claim_request(appointment_id:)
       claim_id = response.body.dig('data', 'claimId')
 
-      raise_backend_service_exception('Failed to create claim', response.status) unless claim_id
+      unless claim_id
+        increment_error_metric(CLAIM_CREATE_ERROR)
+        raise_backend_service_exception('Failed to create claim', response.status)
+      end
 
       claim_id
     end
@@ -125,25 +205,37 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if expense addition fails
     #
     def add_expense_to_claim(claim_id)
-      log_message(:info, 'Add expense to claim', uuid: @uuid)
+      log_message(:info, 'Add expense to claim', check_in_uuid: @check_in_uuid)
 
-      response = client.send_mileage_expense_request(claim_id:, date_incurred: @appointment_date)
+      response = client.send_mileage_expense_request(
+        claim_id:,
+        date_incurred: appointment_date_yyyy_mm_dd
+      )
 
-      raise_backend_service_exception('Failed to add expense', response.status) unless response.status == 200
+      unless response.status == 200
+        increment_error_metric(EXPENSE_ADD_ERROR)
+        raise_backend_service_exception('Failed to add expense', response.status)
+      end
     end
 
     ##
     # Submits the claim for final processing.
     #
     # @param claim_id [String] the claim ID
+    # @return [Faraday::Response] the submission response
     # @raise [Common::Exceptions::BackendServiceException] if submission fails
     #
     def submit_claim_for_processing(claim_id)
-      log_message(:info, 'Submit claim', uuid: @uuid)
+      log_message(:info, 'Submit claim', check_in_uuid: @check_in_uuid)
 
       response = client.send_claim_submission_request(claim_id:)
 
-      raise_backend_service_exception('Failed to submit claim', response.status) unless response.status == 200
+      unless response.status == 200
+        increment_error_metric(CLAIM_SUBMIT_ERROR)
+        raise_backend_service_exception('Failed to submit claim', response.status)
+      end
+
+      response
     end
 
     ##
@@ -153,9 +245,8 @@ module TravelClaim
     #
     def client
       @client ||= TravelClaim::TravelPayClient.new(
-        uuid: @uuid,
-        appointment_date_time: @appointment_date,
-        check_in_uuid: @check_in.uuid
+        check_in_uuid: @check_in_uuid,
+        appointment_date_time: normalized_appointment_datetime
       )
     end
 
@@ -172,7 +263,7 @@ module TravelClaim
       log_data = {
         message: "CIE Travel Claim Submission: #{message}",
         facility_type: @facility_type,
-        check_in_uuid: @uuid
+        check_in_uuid: @check_in_uuid
       }.merge(additional_data)
 
       Rails.logger.public_send(level, log_data)
@@ -191,6 +282,172 @@ module TravelClaim
         { detail: },
         status
       )
+    end
+
+    ##
+    # Extracts the last four digits of the claim number from API response
+    #
+    # @param response [Faraday::Response] the API response
+    # @return [String] last four digits of claim ID, or 'unknown' if not found
+    #
+    def extract_claim_number_last_four(response)
+      response_body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      claim_id = response_body.dig('data', 'claimId')
+      claim_id&.last(4) || 'unknown'
+    rescue => e
+      log_message(:error, 'Failed to extract claim number', error: e.message)
+      'unknown'
+    end
+
+    ##
+    # Sends a success notification if feature flag is enabled
+    #
+    def send_notification_if_enabled
+      return unless notification_enabled?
+
+      template_id = success_template_id
+      claim_number_last_four = @claim_number_last_four
+
+      log_message(:info, 'Sending success notification',
+                  template_id:, claim_last_four: claim_number_last_four)
+
+      CheckIn::TravelClaimNotificationJob.perform_async(
+        @check_in_uuid,
+        @appointment_date_yyyy_mm_dd,
+        template_id,
+        claim_number_last_four
+      )
+    end
+
+    ##
+    # Sends an error notification if feature flag is enabled
+    #
+    # @param error [Exception] the error that occurred
+    #
+    def send_error_notification_if_enabled(error)
+      return unless notification_enabled?
+
+      template_id = determine_error_template_id(error)
+      claim_number_last_four = @claim_number_last_four || 'unknown'
+
+      log_message(:info, 'Sending error notification',
+                  template_id:, error_class: error.class.name)
+
+      CheckIn::TravelClaimNotificationJob.perform_async(
+        @check_in_uuid,
+        @appointment_date_yyyy_mm_dd,
+        template_id,
+        claim_number_last_four
+      )
+    end
+
+    ##
+    # Determines if notifications are enabled via feature flag
+    # Uses the same flag as V1 travel reimbursement feature
+    #
+    # @return [Boolean] true if notifications should be sent
+    #
+    def notification_enabled?
+      Flipper.enabled?(:check_in_experience_travel_reimbursement)
+    end
+
+    ##
+    # Returns the appropriate success template ID based on facility type
+    #
+    # @return [String] template ID for success notifications
+    #
+    def success_template_id
+      if @facility_type&.downcase == 'oh'
+        CheckIn::Constants::OH_SUCCESS_TEMPLATE_ID
+      else
+        CheckIn::Constants::CIE_SUCCESS_TEMPLATE_ID
+      end
+    end
+
+    ##
+    # Returns the appropriate error template ID based on facility type
+    #
+    # @return [String] template ID for error notifications
+    #
+    def error_template_id
+      if @facility_type&.downcase == 'oh'
+        CheckIn::Constants::OH_ERROR_TEMPLATE_ID
+      else
+        CheckIn::Constants::CIE_ERROR_TEMPLATE_ID
+      end
+    end
+
+    ##
+    # Determines the appropriate error template ID based on the error type
+    #
+    def determine_error_template_id(error)
+      if error.is_a?(Common::Exceptions::BackendServiceException) &&
+         error.response_values[:detail]&.include?('already been created')
+        @facility_type&.downcase == 'oh' ? CheckIn::Constants::OH_DUPLICATE_TEMPLATE_ID : CheckIn::Constants::CIE_DUPLICATE_TEMPLATE_ID
+      else
+        error_template_id
+      end
+    end
+
+    ##
+    # Increments the appropriate success metric based on facility type
+    #
+    def increment_success_metric
+      increment_metric_by_facility_type(
+        CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS,
+        CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS
+      )
+    end
+
+    ##
+    # Increments the appropriate error metric based on facility type
+    #
+    # @param metric_type [String] the metric type constant
+    #
+    def increment_error_metric(metric_type)
+      facility_key = @facility_type&.downcase == 'oh' ? :oh : :cie
+      metric = ERROR_METRICS.dig(metric_type, facility_key)
+
+      StatsD.increment(metric) if metric
+    end
+
+    ##
+    # Checks if the error indicates a duplicate claim based on response code
+    #
+    # @param error [Common::Exceptions::BackendServiceException] the error to check
+    # @return [Boolean] true if this is a duplicate claim error
+    #
+    def duplicate_claim_error?(error)
+      # Check if the error detail contains the standardized duplicate claim code
+      error.response_values[:detail]&.include?(CODE_CLAIM_EXISTS) ||
+        # Fallback to string matching for backward compatibility
+        error.response_values[:detail]&.include?('already been created') ||
+        error.response_values[:detail]&.include?('already exists') ||
+        error.response_values[:detail]&.include?('duplicate')
+    end
+
+    ##
+    # Handles duplicate claim error by incrementing the appropriate metric
+    #
+    def handle_duplicate_claim_error
+      increment_metric_by_facility_type(
+        CheckIn::Constants::CIE_STATSD_BTSSS_DUPLICATE,
+        CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE
+      )
+    end
+
+    ##
+    # Increments the appropriate metric based on facility type
+    #
+    # @param cie_metric [String] the CIE metric constant
+    # @param oh_metric [String] the OH metric constant
+    #
+    def increment_metric_by_facility_type(cie_metric, oh_metric)
+      if @facility_type&.downcase == 'oh'
+        StatsD.increment(oh_metric)
+      else
+        StatsD.increment(cie_metric)
+      end
     end
   end
 end
