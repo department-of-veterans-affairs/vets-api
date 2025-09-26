@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'claims_evidence_api/uploader'
 
 RSpec.describe ClaimsEvidenceApi::Uploader do
-  let(:created_at) { Time.current.utc }
+  let(:created_at) { Time.current }
   let(:claim) { build(:fake_saved_claim, id: 23, created_at:) }
   let(:pa) { build(:claim_evidence, id: 42, created_at:) }
   let(:submission) { build(:claims_evidence_submission) }
@@ -22,7 +22,7 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
   let(:attachment_stamp_set) { [anything] }
 
   around do |example|
-    Timecop.freeze(Time.current.utc) do
+    Timecop.freeze(Time.now.utc) do
       example.run
     end
   end
