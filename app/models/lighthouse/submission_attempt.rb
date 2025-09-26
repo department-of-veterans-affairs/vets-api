@@ -9,7 +9,7 @@ class Lighthouse::SubmissionAttempt < SubmissionAttempt
                           inverse_of: :submission_attempts
   has_one :saved_claim, through: :submission
 
-  enum status: {
+  enum :status, {
     pending: 'pending',
     submitted: 'submitted',
     vbms: 'vbms',
