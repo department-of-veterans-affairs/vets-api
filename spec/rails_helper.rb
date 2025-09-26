@@ -29,6 +29,7 @@ require 'support/poa_stub'
 require 'support/sm_spec_helper'
 require 'support/rx_spec_helper'
 require 'support/vcr_multipart_matcher_helper'
+require 'support/pdf_test_helpers'
 require 'support/request_helper'
 require 'support/uploader_helpers'
 require 'support/sign_in'
@@ -129,6 +130,17 @@ RSpec.configure do |config|
   config.include(SAML, type: :controller)
   config.include(AwsHelpers, type: :aws_helpers)
   config.include(UploaderHelpers, uploader_helpers: true)
+  config.include(PdfTestHelpers)
+
+  config.before(:suite) do
+    # Clean up any existing process temp directories
+    FileUtils.rm_rf(Dir.glob(Rails.root.join("tmp/test_pdfs/process_*")))
+  end
+
+  config.after(:each) do
+    # Clean up after each test
+    cleanup_process_temp_dir if respond_to?(:cleanup_process_temp_dir)
+  end
 
   %i[controller mdot_helpers request].each do |type|
     config.include(MDOTHelpers, type:)

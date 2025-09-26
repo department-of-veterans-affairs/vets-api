@@ -4,6 +4,7 @@ require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe SimpleFormsApi::PdfFiller do
+  include PdfTestHelpers
   forms = %w[
     vba_21_0966
     vba_21_0966-min
@@ -50,8 +51,8 @@ describe SimpleFormsApi::PdfFiller do
       context "when mapping the pdf data given JSON file: #{file_name}" do
         let(:form_number) { file_name.gsub('-min', '') }
         let(:pseudorandom_value) { 'abc123' }
-        let(:expected_pdf_path) { Rails.root.join("tmp/#{name}-#{pseudorandom_value}-tmp.pdf") }
-        let(:expected_stamped_path) { Rails.root.join("tmp/#{name}-#{pseudorandom_value}-stamped.pdf") }
+        let(:expected_pdf_path) { pdf_temp_path("#{name}-#{pseudorandom_value}-tmp.pdf") }
+        let(:expected_stamped_path) { pdf_temp_path("#{name}-#{pseudorandom_value}-stamped.pdf") }
         let(:data) { JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{file_name}.json")) }
         let(:form) { "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data) }
         let(:name) { SecureRandom.hex }

@@ -6,6 +6,7 @@ require 'lib/pdf_fill/fill_form_examples'
 
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
+  include PdfTestHelpers
 
   describe '#combine_extras' do
     subject do
@@ -13,7 +14,7 @@ describe PdfFill::Filler, type: :model do
     end
 
     let(:extras_generator) { double }
-    let(:old_file_path) { 'tmp/pdfs/file_path.pdf' }
+    let(:old_file_path) { pdf_temp_path('file_path.pdf').to_s }
     let(:form_class) { PdfFill::Forms::Va210781v2 }
 
     context 'when extras_generator doesnt have text' do
@@ -30,7 +31,7 @@ describe PdfFill::Filler, type: :model do
       end
 
       it 'generates extras and combine the files' do
-        file_path = 'tmp/pdfs/file_path_final.pdf'
+        file_path = pdf_temp_path('file_path_final.pdf').to_s
         expect(extras_generator).to receive(:generate).once.and_return('extras.pdf')
         expect(described_class).to receive(:merge_pdfs).once.with(old_file_path, 'extras.pdf', file_path)
         expect(File).to receive(:delete).once.with('extras.pdf')
@@ -128,7 +129,7 @@ describe PdfFill::Filler, type: :model do
         hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: PdfFill::Forms::Va210781v2::KEY)
       end
       let(:template_path) { 'lib/pdf_fill/forms/pdfs/21-0781V2.pdf' }
-      let(:file_path) { 'tmp/pdfs/21-0781V2_12346.pdf' }
+      let(:file_path) { pdf_temp_path('21-0781V2_12346.pdf').to_s }
       let(:claim_id) { '12346' }
 
       it 'uses unicode_pdf_forms to fill the form for form_id 21-0781V2' do
