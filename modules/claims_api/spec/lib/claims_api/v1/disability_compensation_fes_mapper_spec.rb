@@ -185,7 +185,7 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           expect(disability_object[0][:diagnosticCode]).to eq(9999)
           expect(disability_object[0][:disabilityActionType]).to eq('NEW')
           expect(disability_object[0][:specialIssues]).to eq(['Fully Developed Claim', 'PTSD/2'])
-          expect(disability_object[0][:approximateBeginDate]).to eq({ year: 2018, month: 2, day: 22 })
+          expect(disability_object[0][:approximateBeginDate]).to eq({ year: 2018, month: 0o2, day: 22 })
         end
 
         it 'maps secondary disabilities if included' do
@@ -199,7 +199,7 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           expect(disability_object[1]).not_to have_key(:diagnosticCode)
           expect(disability_object[1][:disabilityActionType]).to eq('NEW')
           expect(disability_object[1]).not_to have_key(:specialIssues)
-          expect(disability_object[1][:approximateBeginDate]).to eq({ year: 2018, month: 5 })
+          expect(disability_object[1][:approximateBeginDate]).to eq({ year: 2018, month: 0o5 })
           expect(disability_object[2][:name]).to eq('Left Elbow Pain')
           expect(disability_object[2][:disabilityActionType]).to eq('NEW')
           expect(disability_object[2][:approximateBeginDate]).to eq({ year: 2019 })
