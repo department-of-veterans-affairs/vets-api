@@ -30,7 +30,7 @@ RSpec.describe PDFUtilities::PDFStamper do
     def assert_pdf_stamp(file, stamp)
       pdf_reader = PDF::Reader.new(file)
       expect(pdf_reader.pages[0].text).to eq(stamp)
-      File.delete(file)
+      FileUtils.rm_f(file)
     end
 
     it 'adds text with a datestamp at the given location' do

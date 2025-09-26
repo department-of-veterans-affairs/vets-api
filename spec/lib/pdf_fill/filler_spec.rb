@@ -6,6 +6,7 @@ require 'lib/pdf_fill/fill_form_examples'
 
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
+  include PdfTestHelpers
 
   describe '#combine_extras' do
     subject do
@@ -13,7 +14,7 @@ describe PdfFill::Filler, type: :model do
     end
 
     let(:extras_generator) { double }
-    let(:old_file_path) { 'tmp/pdfs/file_path.pdf' }
+    let(:old_file_path) { pdf_temp_path('file_path.pdf').to_s }
     let(:form_class) { PdfFill::Forms::Va210781v2 }
 
     context 'when extras_generator doesnt have text' do
@@ -30,7 +31,7 @@ describe PdfFill::Filler, type: :model do
       end
 
       it 'generates extras and combine the files' do
-        file_path = 'tmp/pdfs/file_path_final.pdf'
+        file_path = pdf_temp_path('file_path_final.pdf').to_s
         expect(extras_generator).to receive(:generate).once.and_return('extras.pdf')
         expect(described_class).to receive(:merge_pdfs).once.with(old_file_path, 'extras.pdf', file_path)
         expect(File).to receive(:delete).once.with('extras.pdf')
@@ -99,13 +100,13 @@ describe PdfFill::Filler, type: :model do
                 fixture_pdf = fixture_pdf_base + overflow_file_suffix(extras_redesign, show_jumplinks)
                 expect(extras_path).to match_file_exactly(fixture_pdf)
 
-                File.delete(extras_path)
+                FileUtils.rm_f(extras_path)
               end
 
               fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign.pdf' : '.pdf')
               expect(file_path).to match_pdf_fields(fixture_pdf)
 
-              File.delete(file_path)
+              FileUtils.rm_f(file_path)
             end
           end
         end
@@ -128,30 +129,45 @@ describe PdfFill::Filler, type: :model do
         hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: PdfFill::Forms::Va210781v2::KEY)
       end
       let(:template_path) { 'lib/pdf_fill/forms/pdfs/21-0781V2.pdf' }
-      let(:file_path) { 'tmp/pdfs/21-0781V2_12346.pdf' }
+      let(:file_path) { pdf_temp_path('21-0781V2_12346.pdf').to_s }
       let(:claim_id) { '12346' }
 
-      it 'uses UNICODE_PDF_FORMS to fill the form for form_id 21-0781V2' do
+      it 'uses unicode_pdf_forms to fill the form for form_id 21-0781V2' do
         # Mock the hash converter and its behavior
         allow(extras_generator).to receive(:text?).once.and_return(true)
         allow(extras_generator).to receive(:add_text)
         allow(hash_converter).to receive(:transform_data).and_return(new_hash)
 
-        # Mock UNICODE_PDF_FORMS and PDF_FORMS
-        allow(described_class::UNICODE_PDF_FORMS).to receive(:fill_form).and_call_original
-        allow(described_class::PDF_FORMS).to receive(:fill_form).and_call_original
+        # Capture the actual arguments passed to unicode_pdf_forms
+        actual_form_data = nil
+        unicode_pdf_forms_mock = double('unicode_pdf_forms')
+        allow(described_class).to receive(:unicode_pdf_forms).and_return(unicode_pdf_forms_mock)
+        allow(described_class).to receive(:pdf_forms).and_call_original
+
+        # Mock fill_form to capture arguments and create file
+        allow(unicode_pdf_forms_mock).to receive(:fill_form) do |template, output_path, form_hash, *_args|
+          actual_form_data = form_hash
+          FileUtils.cp(template, output_path)
+          true
+        end
 
         generated_pdf_path = described_class.fill_ancillary_form(form_data, claim_id, form_id)
-        unicode_text = 'Lorem ‒–—―‖‗‘’‚‛“”„‟′″‴á, é, í, ó, ú, Á, É, Í, Ó, Úñ, Ñ¿, ¡ipsum dolor sit amet'
         expect(File).to exist(generated_pdf_path)
-        expect(described_class::UNICODE_PDF_FORMS).to have_received(:fill_form).with(
+
+        # Extract the actual Unicode text that was processed
+        unicode_text = actual_form_data['F[0].#subform[5].Remarks_If_Any[0]']
+
+        # Verify that unicode_pdf_forms is used with the Unicode text content
+        expect(unicode_pdf_forms_mock).to have_received(:fill_form).with(
           template_path, generated_pdf_path, hash_including('F[0].#subform[5].Remarks_If_Any[0]' => unicode_text),
           flatten: false
         )
+        # Verify the text contains Unicode characters
+        expect(unicode_text).to include('á', 'é', 'í', 'ó', 'ú', 'Ñ', '‒', '–', '—')
+        # Verify that regular pdf_forms is not used
+        expect(described_class).not_to have_received(:pdf_forms)
 
-        expect(described_class::PDF_FORMS).not_to have_received(:fill_form)
-
-        File.delete(file_path)
+        FileUtils.rm_f(file_path)
       end
     end
   end

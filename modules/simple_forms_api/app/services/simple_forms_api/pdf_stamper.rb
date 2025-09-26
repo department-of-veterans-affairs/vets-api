@@ -48,7 +48,7 @@ module SimpleFormsApi
     private
 
     def pdftk
-      @pdftk ||= PdfFill::Filler::PDF_FORMS
+      PdfFill::Filler.pdf_forms
     end
 
     def all_form_stamps

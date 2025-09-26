@@ -63,7 +63,7 @@ describe PdfFill::ExtrasGenerator do
         question_text: 'foo',
         i: 1
       )
-      File.delete(subject.generate)
+      FileUtils.rm_f(subject.generate)
     end
 
     it 'generates the pdf' do
@@ -78,7 +78,7 @@ describe PdfFill::ExtrasGenerator do
 
       expect(file_path).to match_file_exactly('spec/fixtures/pdf_fill/extras.pdf')
 
-      File.delete(file_path)
+      FileUtils.rm_f(file_path)
     end
   end
 end

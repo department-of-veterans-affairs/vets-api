@@ -202,7 +202,7 @@ module ClaimsApi
         def stamp(file_path, stamp_path, delete_source: true)
           output_path = "#{::Common::FileHelpers.random_file_path}.pdf"
 
-          PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, output_path)
+          PdfFill::Filler.pdf_forms.stamp(file_path, stamp_path, output_path)
           File.delete(file_path) if delete_source
 
           output_path
