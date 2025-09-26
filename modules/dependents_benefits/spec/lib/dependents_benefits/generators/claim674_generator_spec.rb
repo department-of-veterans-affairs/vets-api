@@ -74,7 +74,7 @@ RSpec.describe DependentsBenefits::Generators::Claim674Generator, type: :model d
 
       # Verify that a new claim group was created linking the new claim to the parent
       new_claim_group = SavedClaimGroup.find_by(
-        parent_claim_id: parent_claim.id, 
+        parent_claim_id: parent_claim.id,
         saved_claim_id: created_claim.id
       )
       expect(new_claim_group).to be_present
