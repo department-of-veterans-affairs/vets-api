@@ -27,8 +27,7 @@ module DependentsBenefits
     def form_matches_schema
       return unless form_is_string
 
-      # TODO: Use the form_id from the saved claim when we have multiple forms
-      schema = VetsJsonSchema::SCHEMAS['686C-674-V2']
+      schema = VetsJsonSchema::SCHEMAS["#{self.class::FORM}-V2"]
 
       schema_errors = validate_schema(schema)
       unless schema_errors.empty?
