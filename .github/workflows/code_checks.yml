@@ -70,7 +70,7 @@ jobs:
 
   build:
     name: Build Docker Image
-    runs-on: ubuntu-32-cores-latest
+    runs-on: ubuntu-latest
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       ECR_REGISTRY_WITH_SLASH: "${{ secrets.ECR_REGISTRY }}/"
@@ -125,13 +125,13 @@ jobs:
 
   tests:
     name: Test (Group ${{ matrix.test_group }})
-    runs-on: ubuntu-32-cores-latest
+    runs-on: ubuntu-latest
     permissions: write-all
     needs: build
     strategy:
       fail-fast: false
       matrix:
-        test_group: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+        test_group: [1, 2, 3, 4, 5, 6, 7, 8]
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       ECR_REGISTRY_WITH_SLASH: "${{ secrets.ECR_REGISTRY }}/"
@@ -186,7 +186,7 @@ jobs:
           max_attempts: 3
           command: >
             ${{ env.COMPOSE_BASH_CMD }}
-            "bundle exec rake parallel:setup[24] && bundle exec rake db:test:prepare"
+            "bundle exec rake parallel:setup[8] && bundle exec rake db:test:prepare"
 
       - name: Setup system tmp dir
         run: >
@@ -199,7 +199,7 @@ jobs:
           TEST_ENV_NUMBER: ${{ matrix.test_group }}
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
-          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --single ${{ matrix.test_group }} --groups 24"
+          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 8"
 
       - name: Upload Coverage Report
         if: always()
