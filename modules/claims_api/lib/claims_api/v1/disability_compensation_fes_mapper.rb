@@ -28,11 +28,11 @@ module ClaimsApi
       def claim_attributes
         veteran_identification_info
         change_of_address
+        disabilities
       end
 
       def claim_meta
         @fes_claim[:claimDate] = @data[:claimDate] if @data[:claimDate].present?
-        disabilities
       end
 
       # a 'disability' is required via the schema
@@ -141,7 +141,7 @@ module ClaimsApi
       end
 
       def change_of_address
-        change_data = @data[:changeOfAddress]
+        change_data = @data[:veteran][:changeOfAddress]
         return if change_data.blank?
 
         addr = build_change_of_address_base(change_data)
