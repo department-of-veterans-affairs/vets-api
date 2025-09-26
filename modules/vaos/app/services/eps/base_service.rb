@@ -71,10 +71,7 @@ module Eps
     private
 
     def parse_eps_backend_fields(raw_message)
-      # Debug: log the raw message to understand the format
-      Rails.logger.debug { "Raw error message: #{raw_message}" }
-
-      # Extract code from the top level
+       # Extract code from the top level
       code = raw_message[/:code=>"([^"]+)"/, 1]
 
       # Extract status from the source hash
@@ -89,8 +86,6 @@ module Eps
       result[:upstream_status] = status if status
       result[:upstream_body] = sanitize_response_body(body) if body
 
-      # Debug: log what we're returning
-      Rails.logger.debug { "Parsed fields: #{result}" }
       result
     end
 
