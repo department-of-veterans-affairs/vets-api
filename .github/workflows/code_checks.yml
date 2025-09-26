@@ -254,19 +254,6 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Remove Test Failure label
-        if: ${{ success() && github.event_name == 'pull_request' }}
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-failure
-
-      - name: Add Test Failure label
-        if: ${{ failure() && github.event_name == 'pull_request' }}
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-failure
 
   publish_results:
     name: Publish Test Results and Coverage
@@ -304,3 +291,17 @@ jobs:
           result_path: Coverage Report Group*/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove Test Failure label
+        if: ${{ success() && github.event_name == 'pull_request' }}
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: test-failure
+
+      - name: Add Test Failure label
+        if: ${{ failure() && github.event_name == 'pull_request' }}
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: test-failure
