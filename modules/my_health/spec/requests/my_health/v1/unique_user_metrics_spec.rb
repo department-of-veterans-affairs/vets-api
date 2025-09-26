@@ -27,13 +27,42 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
           allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_logging).and_return(false)
         end
 
-        it 'returns 501 Not Implemented' do
+        it 'returns 200 OK with disabled status for all events' do
           post('/my_health/v1/unique_user_metrics', params: valid_params.to_json, headers:)
 
-          expect(response).to have_http_status(:not_implemented)
+          expect(response).to have_http_status(:ok)
           json = JSON.parse(response.body)
-          expect(json['errors'].first['title']).to eq('Not Implemented')
-          expect(json['errors'].first['detail']).to eq('Unique user metrics logging is not currently available')
+
+          expect(json['results']).to be_an(Array)
+          expect(json['results'].length).to eq(1)
+          expect(json['results'].first['event_name']).to eq('mhv_landing_page_accessed')
+          expect(json['results'].first['status']).to eq('disabled')
+          expect(json['results'].first['new_event']).to be(false)
+        end
+
+        it 'returns 200 OK with disabled status for multiple events' do
+          params = { event_names: %w[mhv_landing_page_accessed secure_messaging_accessed prescriptions_accessed] }
+
+          post('/my_health/v1/unique_user_metrics', params: params.to_json, headers:)
+
+          expect(response).to have_http_status(:ok)
+          json = JSON.parse(response.body)
+
+          expect(json['results']).to be_an(Array)
+          expect(json['results'].length).to eq(3)
+
+          # Check all events have disabled status
+          expect(json['results'][0]['event_name']).to eq('mhv_landing_page_accessed')
+          expect(json['results'][0]['status']).to eq('disabled')
+          expect(json['results'][0]['new_event']).to be(false)
+
+          expect(json['results'][1]['event_name']).to eq('secure_messaging_accessed')
+          expect(json['results'][1]['status']).to eq('disabled')
+          expect(json['results'][1]['new_event']).to be(false)
+
+          expect(json['results'][2]['event_name']).to eq('prescriptions_accessed')
+          expect(json['results'][2]['status']).to eq('disabled')
+          expect(json['results'][2]['new_event']).to be(false)
         end
       end
 

@@ -1042,14 +1042,37 @@
   :base_uri: <%= "#{URI(Settings.mhv.uhd.host).host}:#{URI(Settings.mhv.uhd.host).port}" %>
   :endpoints:
     - :method: :get
-      :path: "/mhvapi/v1/medicalrecords/labs"
+      :path: "/v1/medicalrecords/allergies"
+      :file_path: "mhv/uhd/allergies"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patientId"
+    - :method: :get
+      :path: "/v1/medicalrecords/labs"
       :file_path: "mhv/uhd/labs"
       :cache_multiple_responses:
         :uid_location: "query"
         :uid_locator: "patient-id"
+    - :method: :get
+      :path: "/v1/medicalrecords/conditions"
+      :file_path: "mhv/uhd/conditions"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patientId"
     - :method: :get
       :path: "/v1/medicalrecords/notes"
       :file_path: "mhv/uhd/notes"
       :cache_multiple_responses:
         :uid_location: "query"
         :uid_locator: "patient-id"
+
+# VRE
+- :name: "VRE"
+  :base_uri: <%= "#{URI(Settings.res.base_url).host}:#{URI(Settings.res.base_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/suite/webapi/chapter31-eligibility-details-search"
+      :file_path: "vre/ch31_eligibility"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'icn":"(\w+)"'

@@ -17,21 +17,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
   end
   let(:service) { BenefitsIntakeService::Service.new }
   let(:pdf_path) { 'random/path/to/pdf' }
-  let!(:accredited_individual) do
-    create(
-      :user_account_accredited_individual,
-      user_account_email: representative_user.email,
-      user_account_icn: representative_user.icn,
-      accredited_individual_registration_number: '357458',
-      poa_code:
-    )
-  end
   let!(:representative) do
     create(
       :representative,
       :vso,
       email: representative_user.email,
-      representative_id: accredited_individual.accredited_individual_registration_number,
+      representative_id: '357458',
       poa_codes: [poa_code]
     )
   end
@@ -44,14 +35,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
   before do
     login_as(representative_user)
-
-    allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
-      receive(:perform) do |_instance, saved_claim_id|
-        claim = SavedClaim.find(saved_claim_id)
-        claim.form_submissions << create(:form_submission, :pending)
-        claim.save!
-      end
-    )
   end
 
   describe '#submit' do
@@ -116,9 +99,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
         '21_686c_empty_form.pdf'
       )
     end
-    let!(:representative_user_account) do
-      AccreditedRepresentativePortal::RepresentativeUserAccount.create!(icn: representative_user.icn)
-    end
 
     before do
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('<TOKEN>')
@@ -144,24 +124,61 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       end
     end
 
-    context '21-686c form' do
-      around do |example|
+    context 'LH benefits intake - too many requests error' do
+      let(:service) { double }
+
+      before do
+        allow_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:process_record).and_return 'pdf_path'
+        allow_any_instance_of(BenefitsIntakeService::Service).to receive(:get_upload_docs).and_return(['{}', nil])
+      end
+
+      it 'returns a 429 error' do
         VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
         VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
         VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
-        VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
-        example.run
-        VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+        VCR.use_cassette("#{arp_vcr_path}lighthouse/429_response") do
+          post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+          expect(response).to have_http_status(:service_unavailable)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq 'Temporary system issue'
+        end
         VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
         VCR.eject_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
         VCR.eject_cassette("#{arp_vcr_path}mpi/valid_icn_full")
       end
+    end
 
-      context 'claimant with matching poa found' do
-        before do
-          notification_double = double('notification')
-          allow(AccreditedRepresentativePortal::NotificationEmail).to receive(:new).and_return(notification_double)
-          expect(notification_double).to receive(:deliver).with(:confirmation)
+    context '21-686c form' do
+      before do
+        allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+          receive(:perform) do |_instance, saved_claim_id|
+            claim = SavedClaim.find(saved_claim_id)
+            claim.form_submissions << create(:form_submission, :pending)
+            claim.save!
+          end
+        )
+      end
+
+      context 'claimant with matching claims agent POA found' do
+        let!(:claims_agent) do
+          create(
+            :representative,
+            :claim_agents,
+            email: representative_user.email,
+            representative_id: '468569',
+            poa_codes: ['068']
+          )
+        end
+
+        around do |example|
+          VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
+          VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_individual_response")
+          VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+          VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+          example.run
+          VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+          VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+          VCR.eject_cassette("#{arp_vcr_path}lighthouse/200_type_individual_response")
+          VCR.eject_cassette("#{arp_vcr_path}mpi/valid_icn_full")
         end
 
         it 'makes the veteran request' do
@@ -174,27 +191,60 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
             }
           )
         end
+      end
 
-        it 'makes the veteran request with multiple attachments' do
-          post('/accredited_representative_portal/v0/submit_representative_form', params: multi_form_veteran_params)
-          expect(response).to have_http_status(:ok)
-          expect(parsed_response).to eq(
-            {
-              'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
-              'status' => '200'
-            }
-          )
+      context 'claimant with matching VSO POA found' do
+        around do |example|
+          VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
+          VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
+          VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+          VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+          example.run
+          VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+          VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+          VCR.eject_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
+          VCR.eject_cassette("#{arp_vcr_path}mpi/valid_icn_full")
         end
 
-        it 'makes the claimant request' do
-          post('/accredited_representative_portal/v0/submit_representative_form', params: claimant_params)
-          expect(response).to have_http_status(:ok)
-          expect(parsed_response).to eq(
-            {
-              'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
-              'status' => '200'
-            }
-          )
+        context 'when email sending succeeds' do
+          before do
+            notification_double = double('notification')
+            allow(AccreditedRepresentativePortal::NotificationEmail).to receive(:new).and_return(notification_double)
+            expect(notification_double).to receive(:deliver).with(:confirmation)
+          end
+
+          it 'makes the veteran request' do
+            post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+            expect(response).to have_http_status(:ok)
+            expect(parsed_response).to eq(
+              {
+                'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
+                'status' => '200'
+              }
+            )
+          end
+
+          it 'makes the veteran request with multiple attachments' do
+            post('/accredited_representative_portal/v0/submit_representative_form', params: multi_form_veteran_params)
+            expect(response).to have_http_status(:ok)
+            expect(parsed_response).to eq(
+              {
+                'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
+                'status' => '200'
+              }
+            )
+          end
+
+          it 'makes the claimant request' do
+            post('/accredited_representative_portal/v0/submit_representative_form', params: claimant_params)
+            expect(response).to have_http_status(:ok)
+            expect(parsed_response).to eq(
+              {
+                'confirmationNumber' => FormSubmissionAttempt.order(created_at: :desc).first.benefits_intake_uuid,
+                'status' => '200'
+              }
+            )
+          end
         end
 
         it 'applies form_id and org tags on span and root trace during submit' do
@@ -225,16 +275,16 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
           expect(trace_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'form_id' }, form_number)
           expect(trace_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'org' }, '067')
         end
-      end
 
-      context 'when email sending fails' do
-        it 'still returns success but logs the error' do
-          allow(AccreditedRepresentativePortal::NotificationEmail)
-            .to receive(:new).and_raise(StandardError.new('Email failed'))
-          expect_any_instance_of(AccreditedRepresentativePortal::Monitor).to receive(:track_send_email_failure)
+        context 'when email sending fails' do
+          it 'still returns success but logs the error' do
+            allow(AccreditedRepresentativePortal::NotificationEmail)
+              .to receive(:new).and_raise(StandardError.new('Email failed'))
+            expect_any_instance_of(AccreditedRepresentativePortal::Monitor).to receive(:track_send_email_failure)
 
-          post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
-          expect(response).to have_http_status(:ok)
+            post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+            expect(response).to have_http_status(:ok)
+          end
         end
       end
     end
@@ -256,6 +306,16 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       let!(:attachment) { PersistentAttachments::VAForm.create!(guid: attachment_guid, form_id: '21-526EZ') }
       let!(:supporting_attachment) do
         PersistentAttachments::VAFormDocumentation.create!(guid: supporting_attachment_guid, form_id: '21-526EZ')
+      end
+
+      before do
+        allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+          receive(:perform) do |_instance, saved_claim_id|
+            claim = SavedClaim.find(saved_claim_id)
+            claim.form_submissions << create(:form_submission, :pending)
+            claim.save!
+          end
+        )
       end
 
       around do |example|
@@ -384,10 +444,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       expect(response).to have_http_status(:ok)
 
       expect(span_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'form_id' }, form_number)
-      expect(span_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'org' }, 'Org Name')
 
       expect(trace_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'form_id' }, form_number)
-      expect(trace_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'org' }, 'Org Name')
 
       expect(span_double).to have_received(:set_tag).with(satisfy { |k| k.to_s == 'form_upload.form_id' }, form_number)
       expect(span_double).to have_received(:set_tag).with(

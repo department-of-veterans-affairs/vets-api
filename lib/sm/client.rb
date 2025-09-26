@@ -79,7 +79,8 @@ module SM
     # @return [Sting] json response
     #
     def post_signature(params)
-      perform(:post, 'preferences/signature', params.to_h, token_headers).body
+      request_body = MessagingSignature.new(params).to_h
+      perform(:post, 'preferences/signature', request_body, token_headers).body
     end
     # @!endgroup
 
@@ -98,7 +99,7 @@ module SM
       get_cached_or_fetch_data(use_cache, cache_key, Folder) do
         json = perform(:get, path, nil, token_headers).body
         data = Vets::Collection.new(json[:data], Folder, metadata: json[:metadata], errors: json[:errors])
-        Folder.set_cached(cache_key, data.records)
+        Folder.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         data
       end
     end
@@ -171,7 +172,7 @@ module SM
           page += 1
         end
         messages = Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
-        Message.set_cached(cache_key, messages.records)
+        Message.set_cached(cache_key, messages.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         messages
       end
     end
@@ -481,37 +482,39 @@ module SM
 
     ##
     # Retrieve a message attachment
-    # Endpoint returns either a binary file response or a AWS S3 URL depending on attachment upload method.
-    # If the response is a URL, it will fetch the file from that URL.
+    # Endpoint returns either a binary file response, or object with AWS S3 URL details.
+    # If the response is a URL (string or object format), it will fetch the file from that URL.
+    # Object format includes: { "url": URL, "mimeType": "application/pdf", "name": "filename.pdf" }
     # 10MB limit of the MHV API gateway.
     #
     # @param message_id [Fixnum] the message id
     # @param attachment_id [Fixnum] the attachment id
-    # @return [Hash] an object with attachment response details
+    # @return [Hash] an object with binary file content and filename { body: binary_data, filename: string }
     #
     def get_attachment(message_id, attachment_id)
       path = "message/#{message_id}/attachment/#{attachment_id}"
       response = perform(:get, path, nil, token_headers)
       data = response.body[:data] if response.body.is_a?(Hash)
 
-      # If response body is a string and looks like a URL, fetch the file from the URL
-      if data.is_a?(String) && data.match?(%r{^https?://})
-        url = data
+      # Attachments that are stored in AWS S3 via presigned URL return an object with URL details
+      if data.is_a?(Hash) && data[:url] && data[:mime_type] && data[:name]
+        url = data[:url]
         uri = URI.parse(url)
         file_response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
           http.get(uri.request_uri)
         end
         unless file_response.is_a?(Net::HTTPSuccess)
-          Rails.logger.error("Failed to fetch attachment from presigned URL: \\#{file_response.body}")
-          raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', 500)
+          Rails.logger.error('Failed to fetch attachment from presigned URL')
+          raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', {},
+                                                                file_response.code)
         end
-        filename = uri.path.split('/').last
-        { body: file_response.body, filename: }
-      else
-        # Default: treat as binary file response
-        filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '').gsub(/%22|"/, '')
-        { body: response.body, filename: }
+        filename = data[:name]
+        return { body: file_response.body, filename: }
       end
+
+      # Default: treat as binary file response
+      filename = response.response_headers['content-disposition']&.gsub(CONTENT_DISPOSITION, '')&.gsub(/%22|"/, '')
+      { body: response.body, filename: }
     end
     # @!endgroup
 
@@ -527,7 +530,7 @@ module SM
       get_cached_or_fetch_data(use_cache, cache_key, TriageTeam) do
         json = perform(:get, 'triageteam', nil, token_headers).body
         data = Vets::Collection.new(json[:data], TriageTeam, metadata: json[:metadata], errors: json[:errors])
-        TriageTeam.set_cached(cache_key, data.records)
+        TriageTeam.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         data
       end
     end
@@ -545,7 +548,7 @@ module SM
         path = append_requires_oh_messages_query('alltriageteams', 'requiresOHTriageGroup')
         json = perform(:get, path, nil, token_headers).body
         data = Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata], errors: json[:errors])
-        AllTriageTeams.set_cached(cache_key, data.records)
+        AllTriageTeams.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         data
       end
     end

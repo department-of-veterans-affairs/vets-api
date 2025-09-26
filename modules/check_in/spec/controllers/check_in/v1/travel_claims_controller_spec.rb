@@ -46,10 +46,9 @@ RSpec.describe CheckIn::V1::TravelClaimsController, type: :controller do
       it 'builds the claim submission service' do
         post :create, params: valid_params
         expect(TravelClaim::ClaimSubmissionService).to have_received(:new).with(
-          check_in: check_in_session,
           appointment_date:,
           facility_type:,
-          uuid:
+          check_in_uuid: uuid
         )
       end
 
@@ -107,14 +106,14 @@ RSpec.describe CheckIn::V1::TravelClaimsController, type: :controller do
           {
             travel_claims: {
               uuid:
-              # missing appointment_date and facility_type
             }
           }
         end
 
         before do
           allow(service).to receive(:submit_claim).and_raise(
-            Common::Exceptions::BackendServiceException.new('VA900', { detail: 'Appointment date is required' }, 502)
+            Common::Exceptions::BackendServiceException.new('VA901',
+                                                            { detail: 'Appointment date is required' }, 400)
           )
         end
 
