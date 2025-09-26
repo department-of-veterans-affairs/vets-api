@@ -34,7 +34,17 @@ class SavedClaimGroup < ApplicationRecord
   after_create { track_event(:create) }
   after_destroy { track_event(:destroy) }
 
-  # Returns all child claims for the same group and parent
+  scope :child_claims_for, ->(parent_id) { where(parent_claim_id: parent_id).where.not(saved_claim_id: parent_id) }
+
+  def parent
+    @parent_claim ||= ::SavedClaim.find(parent_claim_id)
+  end
+
+  def child
+    @child_claim ||= ::SavedClaim.find(saved_claim_id)
+  end
+
+  # return all the
   def children
     SavedClaim.joins(:child_of_groups)
               .merge(self.class.siblings_of(self))

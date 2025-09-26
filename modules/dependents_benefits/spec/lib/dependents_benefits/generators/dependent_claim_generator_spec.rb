@@ -5,7 +5,7 @@ require 'dependents_benefits/generators/dependent_claim_generator'
 
 RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :model do
   let(:form_data) { { 'test' => 'data' } }
-  let(:parent_id) { create(:dependents_claim).id }
+  let(:parent_id) { 123 }
   let(:generator) { described_class.new(form_data, parent_id) }
 
   before do
@@ -63,8 +63,12 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
     end
 
     describe '#create_claim_group_item' do
-      let(:mock_claim) { create(:dependents_claim, id: 456) }
-      let(:mock_group) { create(:saved_claim_group) }
+      let!(:parent_claim) { create(:dependents_claim, id: parent_id) }
+      let(:mock_claim) { create(:dependents_claim) }
+      let(:claim_group_guid) { SecureRandom.uuid }
+      let(:mock_group) do
+        instance_double(SavedClaimGroup, parent_claim_id: parent_id, claim_group_guid:)
+      end
 
       before do
         allow(Rails.logger).to receive(:info)
@@ -80,10 +84,6 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
           saved_claim_id: mock_claim.id
         ).and_call_original
 
-        generator.send(:create_claim_group_item, mock_claim)
-      end
-
-      it 'returns the created claim group' do
         result = generator.send(:create_claim_group_item, mock_claim)
         expect(result).to be_a(SavedClaimGroup)
       end
