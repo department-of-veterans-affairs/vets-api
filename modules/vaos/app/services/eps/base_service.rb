@@ -71,7 +71,7 @@ module Eps
     private
 
     def parse_eps_backend_fields(raw_message)
-       # Extract code from the top level
+      # Extract code from the top level
       code = raw_message[/:code=>"([^"]+)"/, 1]
 
       # Extract status from the source hash
