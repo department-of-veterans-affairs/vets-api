@@ -97,13 +97,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Login to ECR
-        uses: aws-actions/amazon-ecr-login@v2
-        id: login-ecr-public
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
         with:
-          registry-type: public
-          aws-region: us-east-1
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
+          aws-region: us-gov-west-1
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2.0.1
+        with:
           mask-password: true
+
+      - name: Set Environment Variable
+        run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
