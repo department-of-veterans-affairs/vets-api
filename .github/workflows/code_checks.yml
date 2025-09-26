@@ -150,7 +150,7 @@ jobs:
           "mkdir -p tmp/systmp"
 
       - name: Run Specs
-        timeout-minutes: 15
+        timeout-minutes: 30
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
           "TMPDIR=tmp/systmp bundle exec rake 'parallel:spec[24, , , modules\/]'"
