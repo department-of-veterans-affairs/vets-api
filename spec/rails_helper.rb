@@ -134,10 +134,10 @@ RSpec.configure do |config|
 
   config.before(:suite) do
     # Clean up any existing process temp directories
-    FileUtils.rm_rf(Dir.glob(Rails.root.join("tmp/test_pdfs/process_*")))
+    FileUtils.rm_rf(Rails.root.glob('tmp/test_pdfs/process_*'))
   end
 
-  config.after(:each) do
+  config.after do
     # Clean up after each test
     cleanup_process_temp_dir if respond_to?(:cleanup_process_temp_dir)
   end

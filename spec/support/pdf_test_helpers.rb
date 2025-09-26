@@ -19,6 +19,6 @@ module PdfTestHelpers
   end
 
   def cleanup_process_temp_dir
-    FileUtils.rm_rf(process_specific_temp_dir) if File.exist?(process_specific_temp_dir)
+    FileUtils.rm_rf(process_specific_temp_dir)
   end
 end
