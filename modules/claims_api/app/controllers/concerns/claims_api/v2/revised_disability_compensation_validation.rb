@@ -22,7 +22,7 @@ module ClaimsApi
       YYYY_YYYYMM_REGEX = '^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$'.freeze
       YYYY_MM_DD_REGEX = '^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$'.freeze
 
-      def validate_form_526_submission_values(target_veteran)
+      def validate_form_526_fes_values(target_veteran)
         return if form_attributes.empty?
 
         validate_claim_process_type_bdd if bdd_claim?
@@ -1285,7 +1285,13 @@ module ClaimsApi
 
       def collect_error_messages(detail: 'Missing or invalid attribute', source: '/',
                                  title: 'Unprocessable Entity', status: '422')
-        errors_array.push({ detail:, source:, title:, status: })
+        # Convert source string to pointer object format to match schema validation format
+        source_value = if source.is_a?(String)
+                         { pointer: "data/attributes/#{source.gsub(%r{^/}, '').chomp('/')}" }
+                       else
+                         source
+                       end
+        errors_array.push({ detail:, source: source_value, title:, status: })
       end
 
       def error_collection
