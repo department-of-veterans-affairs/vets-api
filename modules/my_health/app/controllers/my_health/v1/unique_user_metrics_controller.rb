@@ -39,15 +39,11 @@ module MyHealth
       #   }
       #
       def create
-        user_id = current_user.user_account_uuid
         event_names = metrics_params[:event_names]
 
-        # Check if feature is enabled
-        return handle_disabled_feature(event_names) unless Flipper.enabled?(:unique_user_metrics_logging)
-
         # Process all events and collect results
-        results = event_names.map do |event_name|
-          process_single_event(user_id, event_name)
+        results = event_names.flat_map do |event_name|
+          UniqueUserEvents.log_event(user: current_user, event_name:)
         end
 
         # Return 201 if any new events were logged, otherwise 200
@@ -65,54 +61,6 @@ module MyHealth
       #
       def metrics_params
         params.permit(event_names: [])
-      end
-
-      ##
-      # Processes a single event and returns result information.
-      #
-      # @param user_id [String] UUID of the authenticated user
-      # @param event_name [String] Name of the event to log
-      # @return [Hash] Result hash with event_name, status, and new_event flag
-      #
-      def process_single_event(user_id, event_name)
-        was_new_event = UniqueUserEvents.log_event(user_id:, event_name:)
-
-        {
-          event_name:,
-          status: was_new_event ? 'created' : 'exists',
-          new_event: was_new_event
-        }
-      rescue => e
-        Rails.logger.error(
-          'UUM: Failed to process event in controller',
-          { user_id:, event_name:, error: e.message }
-        )
-
-        {
-          event_name:,
-          status: 'error',
-          new_event: false,
-          error: 'Failed to process event'
-        }
-      end
-
-      ##
-      # Handles the case when the feature flag is disabled.
-      # Returns a 200 OK response with disabled status for all events.
-      #
-      # @param event_names [Array<String>] Array of event names to mark as disabled
-      # @return [void] Renders JSON response and returns
-      #
-      def handle_disabled_feature(event_names)
-        results = event_names.map do |event_name|
-          {
-            event_name:,
-            status: 'disabled',
-            new_event: false
-          }
-        end
-
-        render json: { results: }, status: :ok
       end
 
       ##
