@@ -549,7 +549,7 @@ RSpec.describe Dependents::Monitor do
 
     describe '#submission_stats_key' do
       it 'returns the submission stats key' do
-        expect(monitor_v1.send(:submission_stats_key)).to eq('worker.submit_686c_674_job')
+        expect(monitor_v1.send(:submission_stats_key)).to eq('worker.submit_686c_674_backup_submission')
       end
     end
   end
