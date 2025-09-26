@@ -115,7 +115,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and Push Docker Image
+      - name: Build Docker Image
         id: build
         uses: docker/build-push-action@v6
         env:
@@ -125,10 +125,21 @@ jobs:
             BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
             USER_ID=${{ env.VETS_API_USER_ID }}
           context: .
-          push: true
-          tags: ${{ secrets.ECR_REGISTRY }}/vets-api:${{ github.sha }}
+          load: true
+          tags: vets-api:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Save Docker Image
+        run: |
+          docker save vets-api:${{ github.sha }} | gzip > vets-api-${{ github.sha }}.tar.gz
+
+      - name: Upload Docker Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vets-api-image
+          path: vets-api-${{ github.sha }}.tar.gz
+          retention-days: 1
 
   tests:
     name: Test (Group ${{ matrix.test_group }})
@@ -162,28 +173,15 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
+      - name: Download Docker Image Artifact
+        uses: actions/download-artifact@v4
         with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          name: vets-api-image
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
-          aws-region: us-gov-west-1
-
-      - name: Login to Amazon ECR
-        id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v2.0.1
-        with:
-          mask-password: true
-
-      - name: Pull Docker Image
+      - name: Load Docker Image
         run: |
-          docker pull ${{ secrets.ECR_REGISTRY }}/vets-api:${{ github.sha }}
-          docker tag ${{ secrets.ECR_REGISTRY }}/vets-api:${{ github.sha }} vets-api
+          docker load < vets-api-${{ github.sha }}.tar.gz
+          docker tag vets-api:${{ github.sha }} vets-api
 
       - name: Setup Database
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
