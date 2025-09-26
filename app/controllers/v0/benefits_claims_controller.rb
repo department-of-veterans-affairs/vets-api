@@ -94,7 +94,23 @@ module V0
       render json: res
     end
 
+    def failed_upload_evidence_submissions
+      if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
+        render json: { data: filter_failed_evidence_submissions }
+      else
+        render json: { data: [] }
+      end
+    end
+
     private
+
+    def failed_evidence_submissions
+      @failed_evidence_submissions ||= EvidenceSubmission.failed.where(user_account: current_user_account.id)
+    end
+
+    def current_user_account
+      UserAccount.find(@current_user.user_account_uuid)
+    end
 
     def claims_scope
       EVSSClaim.for_user(@current_user)
@@ -157,6 +173,28 @@ module V0
     def filter_evidence_submissions(evidence_submissions, tracked_items)
       filtered_evidence_submissions = []
       evidence_submissions.each do |es|
+        filtered_evidence_submissions.push(build_filtered_evidence_submission_record(es, tracked_items))
+      end
+
+      filtered_evidence_submissions
+    end
+
+    def filter_failed_evidence_submissions
+      filtered_evidence_submissions = []
+      claims = {}
+
+      failed_evidence_submissions.each do |es|
+        # When we get a claim we add it to claims so that we prevent calling lighthouse multiple times
+        # to get the same claim.
+        claim = claims[es.claim_id]
+
+        if claim.nil?
+          claim = service.get_claim(es.claim_id)
+          claims[es.claim_id] = claim
+        end
+
+        tracked_items = claim['data']['attributes']['trackedItems']
+
         filtered_evidence_submissions.push(build_filtered_evidence_submission_record(es, tracked_items))
       end
 
