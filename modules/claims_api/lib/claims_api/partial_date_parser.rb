@@ -4,30 +4,39 @@ require 'date'
 
 module ClaimsApi
   class PartialDateParser
-    FORMATS = %w[%Y %Y-%m %Y-%m-%d %m-%Y %m-%d-%Y].freeze
+    FORMATS = %w[%Y-%m-%d %m-%d-%Y %Y-%m %m-%Y %Y].freeze
+
     def self.to_fes(string_date) # rubocop:disable Metrics/MethodLength
       input = string_date.to_s.strip
       return nil if input.empty?
 
       FORMATS.each do |format_date|
-        begin
-          date_formatted = Date.strptime(input, format_date)
-        rescue ArgumentError
-          next
-        end
-        next unless date_formatted.strftime(format_date) == input
+        dated_formatted = Date._strptime(input, format_date)
+        next unless dated_formatted && (dated_formatted[:leftover].blank? || dated_formatted[:leftover].empty?)
 
-        case format_date
-        when '%Y'
-          return { year: date_formatted.year }
-        when '%Y-%m', '%m-%Y'
-          return { year: date_formatted.year, month: date_formatted.month }
-        when '%Y-%m-%d', '%m-%d-%Y'
-          return { year: date_formatted.year, month: date_formatted.month, day: date_formatted.day }
-        else
-          next
+        year = dated_formatted[:year]
+        month = dated_formatted[:mon]
+        day = dated_formatted[:mday]
+
+        if day && month
+          begin
+            Date.new(year, month, day)
+          rescue ArgumentError
+            next
+          end
+          return { year:, month:, day: }
+        elsif month
+          begin
+            Date.new(year, month, 1)
+          rescue ArgumentError
+            next
+          end
+          return { year:, month: }
+        elsif year
+          return { year: }
         end
       end
+
       nil
     end
   end
