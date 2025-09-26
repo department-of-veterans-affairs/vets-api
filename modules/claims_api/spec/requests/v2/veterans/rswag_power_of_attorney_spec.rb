@@ -679,7 +679,6 @@ describe 'PowerOfAttorney',
             }
           end
 
-
           before do |example|
             create(:claims_api_power_of_attorney_request, id:,
                                                           proc_id: '3857362',
