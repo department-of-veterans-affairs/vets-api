@@ -30,9 +30,22 @@ module SimpleFormsApi
 
     private
 
+    def temp_path(filename)
+      if Rails.env.test? && defined?(PdfTestHelpers)
+        # Use process-specific temp directory in tests
+        test_env_number = ENV['TEST_ENV_NUMBER'] || Process.pid.to_s
+        temp_dir = Rails.root.join("tmp/test_pdfs/process_#{test_env_number}")
+        FileUtils.mkdir_p(temp_dir)
+        temp_dir.join(filename).to_s
+      else
+        # Use regular temp directory in production/development
+        Rails.root.join("tmp/#{filename}").to_s
+      end
+    end
+
     def prepare_to_generate_pdf
-      generated_form_path = Rails.root.join("tmp/#{name}-#{SecureRandom.hex}-tmp.pdf").to_s
-      stamped_template_path = Rails.root.join("tmp/#{name}-#{SecureRandom.hex}-stamped.pdf").to_s
+      generated_form_path = temp_path("#{name}-#{SecureRandom.hex}-tmp.pdf")
+      stamped_template_path = temp_path("#{name}-#{SecureRandom.hex}-stamped.pdf")
 
       copy_from_tempfile(stamped_template_path)
 
