@@ -451,7 +451,8 @@ describe SignIn::Logingov::Service do
         all_csp_emails: all_emails,
         multifactor:,
         authn_context:,
-        auto_uplevel:
+        auto_uplevel:,
+        digest:
       }
     end
     let(:credential_level) do
@@ -480,6 +481,14 @@ describe SignIn::Logingov::Service do
                                            first_name:,
                                            last_name:,
                                            address: expected_address })
+    end
+    let(:digest) { SecureRandom.hex }
+
+    let(:credential_digester) { instance_double(SignIn::CredentialAttributesDigester) }
+
+    before do
+      allow(SignIn::CredentialAttributesDigester).to receive(:new).and_return(credential_digester)
+      allow(credential_digester).to receive(:perform).and_return(digest)
     end
 
     it 'returns expected attributes' do
