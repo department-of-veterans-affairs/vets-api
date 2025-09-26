@@ -18,7 +18,7 @@ module Dependents
     PDF_SUBMISSION_STATS_KEY = 'worker.submit_dependents_pdf'
 
     # statsd key for sidekiq
-    SUBMISSION_STATS_KEY = 'worker.submit_686c_674_job'
+    SUBMISSION_STATS_KEY = 'worker.submit_686c_674_backup_submission'
 
     # statsd key for email notifications
     EMAIL_STATS_KEY = 'dependents.email_notification'
