@@ -141,7 +141,7 @@ module ClaimsApi
       end
 
       def change_of_address
-        change_data = @data[:veteran][:changeOfAddress]
+        change_data = @data.dig(:veteran, :changeOfAddress)
         return if change_data.blank?
 
         addr = build_change_of_address_base(change_data)
