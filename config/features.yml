@@ -1327,8 +1327,8 @@ features:
     enable_in_development: true
   mhv_secure_messaging_large_attachments:
     actor_type: user
-    description: Disables/Enables Secure Messaging Custom Folders Redesign
-    enable_in_development: true
+    description: Disables/Enables sending large attachments in Secure Messaging using AWS S3 upload method for all eligible messages to Vista or OH recipients
+    enable_in_development: false
   mhv_secure_messaging_curated_list_flow:
     actor_type: user
     description: Disables/Enables Secure Messaging Curated List Flow
