@@ -65,19 +65,11 @@ describe Eps::ProviderService do
 
     context 'when Eps::ServiceException is raised' do
       let(:eps_exception) do
-        # Create exception with properly formatted message that parse_eps_backend_fields can parse
-        exception = Eps::ServiceException.new(
-          'VAOS_401',
-          { code: 'VAOS_401', detail: 'Unauthorized' },
-          401,
-          '{"name": "Unauthorized"}'
+        create_eps_exception(
+          code: 'VAOS_401',
+          status: 401,
+          body: '{"name": "Unauthorized"}'
         )
-        # Mock the message to include the parseable format
-        allow(exception).to receive(:message).and_return(
-          'BackendServiceException: {:code=>"VAOS_401", ' \
-          ':source=>{:vamf_status=>401, :vamf_body=>"{\"name\": \"Unauthorized\"}"}}'
-        )
-        exception
       end
 
       before do
@@ -214,19 +206,11 @@ describe Eps::ProviderService do
 
     context 'when Eps::ServiceException is raised' do
       let(:eps_exception) do
-        # Create exception with properly formatted message that parse_eps_backend_fields can parse
-        exception = Eps::ServiceException.new(
-          'VAOS_500',
-          { code: 'VAOS_500', detail: 'Internal server error' },
-          500,
-          '{"error": "Internal Service Exception"}'
+        create_eps_exception(
+          code: 'VAOS_500',
+          status: 500,
+          body: '{"error": "Internal Service Exception"}'
         )
-        # Mock the message to include the parseable format
-        allow(exception).to receive(:message).and_return(
-          'BackendServiceException: {:code=>"VAOS_500", ' \
-          ':source=>{:vamf_status=>500, :vamf_body=>"{\"error\": \"Internal Service Exception\"}"}}'
-        )
-        exception
       end
 
       before do
@@ -308,19 +292,11 @@ describe Eps::ProviderService do
 
     context 'when Eps::ServiceException is raised' do
       let(:eps_exception) do
-        # Create exception with properly formatted message that parse_eps_backend_fields can parse
-        exception = Eps::ServiceException.new(
-          'VAOS_401',
-          { code: 'VAOS_401', detail: 'Unauthorized' },
-          401,
-          '{"name": "Unauthorized"}'
+        create_eps_exception(
+          code: 'VAOS_401',
+          status: 401,
+          body: '{"name": "Unauthorized"}'
         )
-        # Mock the message to include the parseable format
-        allow(exception).to receive(:message).and_return(
-          'BackendServiceException: {:code=>"VAOS_401", ' \
-          ':source=>{:vamf_status=>401, :vamf_body=>"{\"name\": \"Unauthorized\"}"}}'
-        )
-        exception
       end
 
       before do
@@ -462,23 +438,13 @@ describe Eps::ProviderService do
 
     context 'when Eps::ServiceException is raised' do
       let(:eps_exception) do
-        # Create exception with properly formatted message that parse_eps_backend_fields can parse
-        exception = Eps::ServiceException.new(
-          'VAOS_400',
-          { code: 'VAOS_400', detail: 'Invalid location data' },
-          400,
-          '{"name":"invalid_range","id":"aVFqt9NH",' \
-          '"message":"body.latitude must be lesser or equal than 90 but got value 91",' \
-          '"temporary":false,"timeout":false,"fault":false}'
+        create_eps_exception(
+          code: 'VAOS_400',
+          status: 400,
+          body: '{"name":"invalid_range","id":"aVFqt9NH",' \
+                '"message":"body.latitude must be lesser or equal than 90 but got value 91",' \
+                '"temporary":false,"timeout":false,"fault":false}'
         )
-        # Mock the message to include the parseable format
-        allow(exception).to receive(:message).and_return(
-          'BackendServiceException: {:code=>"VAOS_400", ' \
-          ':source=>{:vamf_status=>400, :vamf_body=>"{\"name\":\"invalid_range\",' \
-          '\"id\":\"aVFqt9NH\",\"message\":\"body.latitude must be lesser or equal than 90 but got value 91\",' \
-          '\"temporary\":false,\"timeout\":false,\"fault\":false}"}}'
-        )
-        exception
       end
 
       before do
@@ -1702,5 +1668,21 @@ describe Eps::ProviderService do
         end.to raise_error(ArgumentError, 'npi is required and cannot be blank')
       end
     end
+  end
+
+  # Helper method to create EPS exceptions with properly formatted messages
+  def create_eps_exception(code:, status:, body:)
+    exception = Eps::ServiceException.new(
+      code,
+      { code:, detail: 'Test error' },
+      status,
+      body
+    )
+    # Mock the message to include the parseable format for parse_eps_backend_fields
+    allow(exception).to receive(:message).and_return(
+      "BackendServiceException: {:code=>\"#{code}\", " \
+      ":source=>{:vamf_status=>#{status}, :vamf_body=>\"#{body.gsub('"', '\\"')}\"}}"
+    )
+    exception
   end
 end
