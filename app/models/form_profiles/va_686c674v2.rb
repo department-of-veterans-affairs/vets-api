@@ -133,18 +133,30 @@ class FormProfiles::VA686c674v2 < FormProfile
   # @param person [Hash] The dependent's information as a hash
   # @return [DependentInformation] The dependent's information mapped to the model
   def person_to_dependent_information(person)
-    parsed_date = parse_date_safely(person[:date_of_birth])
+    monitor.track_event('info', "Dependent data structure: #{person.class}")
+    return nil unless person.respond_to?(:[])
+
+    # Try both symbol and string keys
+    first_name = person[:first_name] || person['first_name']
+    last_name = person[:last_name] || person['last_name']
+    middle_name = person[:middle_name] || person['middle_name']
+    ssn = person[:ssn] || person['ssn']
+    date_of_birth = person[:date_of_birth] || person['date_of_birth']
+    relationship = person[:relationship] || person['relationship']
+    award_indicator = person[:award_indicator] || person['award_indicator']
+
+    parsed_date = parse_date_safely(date_of_birth)
 
     DependentInformation.new(
       full_name: FormFullName.new({
-                                    first: person[:first_name],
-                                    middle: person[:middle_name],
-                                    last: person[:last_name]
+                                    first: first_name,
+                                    middle: middle_name,
+                                    last: last_name
                                   }),
       date_of_birth: parsed_date,
-      ssn: person[:ssn],
-      relationship_to_veteran: person[:relationship],
-      award_indicator: person[:award_indicator]
+      ssn:,
+      relationship_to_veteran: relationship,
+      award_indicator:
     )
   end
 
