@@ -63,12 +63,13 @@ RSpec.describe IAMUserIdentity, type: :model do
       expect(id.iam_mhv_id).to eq('123456')
     end
 
-    it 'logs a warning to sentry' do
-      with_settings(Settings.sentry, dsn: 'asdf') do
-        attrs = mhv_attrs.merge(fediam_mhv_ien: '123456,7890123')
-        expect(Sentry).to receive(:capture_message)
-        described_class.build_from_iam_profile(attrs)
-      end
+    it 'logs a warning to Rails logger' do
+      attrs = mhv_attrs.merge(fediam_mhv_ien: '123456,7890123')
+      expect(Rails.logger).to receive(:warn).with(
+        '[IAMUserIdentity] OAuth: Multiple MHV IDs present',
+        mhv_ien: '123456,7890123'
+      )
+      described_class.build_from_iam_profile(attrs)
     end
 
     it 'ignores non-unique duplicates' do
