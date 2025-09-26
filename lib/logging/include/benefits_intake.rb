@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-require 'logging/controller/monitor'
-
 module Logging
-  module BenefitsIntake
+  module Include
     # Monitor class for tracking claim submission events
-    module Monitor
+    module BenefitsIntake
       # log Sidkiq job started
       #
       # @param claim [SavedClaim]

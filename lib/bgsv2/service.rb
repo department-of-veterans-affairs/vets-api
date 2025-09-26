@@ -2,6 +2,9 @@
 
 require_relative 'exceptions/bgs_errors'
 require 'common/client/concerns/monitoring'
+require 'logging/helpers/data_scrubber'
+require 'logging/helpers/parameter_filter'
+
 
 module BGSV2
   class Service
@@ -10,6 +13,8 @@ module BGSV2
     include BGSV2::Exceptions::BGSErrors
     include SentryLogging
     include Common::Client::Concerns::Monitoring
+    include Logging::Helpers::DataScrubber
+    include Logging::Helpers::ParameterFilter
 
     # Journal Status Type Code
     # The alphabetic character representing the last action taken on the record
@@ -232,7 +237,7 @@ module BGSV2
         # using Settings.vsp_environment to determine environment to filter in
         filtered_env = %w[test production].include?(Settings.vsp_environment)
         # Filter sensitive parameters in production or test environment
-        logged_params = filtered_env ? ParameterFilterHelper.filter_params(params) : params
+        logged_params = filtered_env ? scrub(filter_params(params)) : params
         Rails.logger.info('[BGSV2::Service] log_and_return called', { params: logged_params })
       end
       params

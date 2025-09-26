@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require 'logging/controller/monitor'
-require 'logging/benefits_intake/monitor'
-require 'logging/data_scrubber'
+require 'logging/include/controller'
+require 'logging/include/benefits_intake'
+require 'logging/include/zero_silent_failures'
 
 module Logging
-  class BaseMonitor < ::ZeroSilentFailures::Monitor
-    include Logging::Controller::Monitor
-    include Logging::BenefitsIntake::Monitor
-    include Logging::DataScrubber
+  class BaseMonitor < ::Logging::Monitor
+    include Logging::Include::Controller
+    include Logging::Include::BenefitsIntake
+    include Logging::Include::ZeroSilentFailures
 
     private
 
@@ -17,10 +17,6 @@ module Logging
     end
 
     # Abstract methods
-    def service_name
-      raise NotImplementedError, 'Subclasses must implement service_name'
-    end
-
     def claim_stats_key
       raise NotImplementedError, 'Subclasses must implement claim_stats_key'
     end
@@ -52,7 +48,7 @@ module Logging
       claim = options[:claim]
       user_account_uuid = options[:user_account_uuid]
       call_location = options[:call_location] || caller_locations.first
-      additional_context = Logging::DataScrubber.scrub(options.except(:claim, :user_account_uuid, :call_location))
+      context = options.except(:claim, :user_account_uuid, :call_location)
 
       claim_id = claim.respond_to?(:id) ? claim.id : claim
       confirmation_number = claim.respond_to?(:confirmation_number) ? claim.confirmation_number : nil
@@ -65,7 +61,7 @@ module Logging
         claim_id:,
         form_id:,
         tags:,
-        **additional_context
+        **context
       }
 
       track_request(level, message, stats_key, call_location:, **payload)
