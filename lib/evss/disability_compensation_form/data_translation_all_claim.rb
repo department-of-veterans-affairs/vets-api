@@ -543,6 +543,7 @@ module EVSS
       def approximate_date(date)
         return nil if date.blank?
 
+        date = date.to_s.strip
         year, month, day = date.split('-')
         return nil if year == 'XXXX'
 
@@ -560,6 +561,26 @@ module EVSS
       ###
       # Disabilities
       ###
+
+      def format_name_laterality(side)
+        return nil unless side.is_a?(String) && side.strip != ''
+
+        case side.strip.downcase
+        when 'left'      then 'Left'
+        when 'right'     then 'Right'
+        when 'bilateral' then 'Bilateral'
+        else
+          side.strip.capitalize
+        end
+      end
+
+      def update_name_laterality(input_disability)
+        base = input_disability['condition'].to_s.strip
+        return nil if base.empty?
+
+        side = format_name_laterality(input_disability['sideOfBody'])
+        side ? "#{base}, #{side}" : base
+      end
 
       def translate_disabilities
         rated_disabilities = input_form['ratedDisabilities'].deep_dup.presence || []
@@ -637,13 +658,15 @@ module EVSS
       #
       # @param input_disability [Hash] The newly submitted disability
       # @option input_disability [String] :condition The name of the disability
+      # @option input_disability [String] :conditionDate The date when the disability started
       # @option input_disability [String] :classificationCode Optional classification code
       # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
       # @option input_disability [String] :primaryDescription The disabilities description
       # @return [Hash] Transformed disability to match EVSS's validation
       def map_new(input_disability)
         {
-          'name' => input_disability['condition'],
+          'name' => update_name_laterality(input_disability),
+          'approximateDate' => approximate_date(input_disability['conditionDate']),
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssues' => input_disability['specialIssues'].presence,
@@ -656,6 +679,7 @@ module EVSS
       #
       # @param input_disability [Hash] The newly submitted disability
       # @option input_disability [String] :condition The name of the disability
+      # @option input_disability [String] :conditionDate The date when the condition worsened
       # @option input_disability [String] :classificationCode Optional classification code
       # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
       # @option input_disability [String] :worsenedDescription The disabilities description
@@ -663,7 +687,8 @@ module EVSS
       # @return [Hash] Transformed disability to match EVSS's validation
       def map_worsened(input_disability)
         {
-          'name' => input_disability['condition'],
+          'name' => update_name_laterality(input_disability),
+          'approximateDate' => approximate_date(input_disability['conditionDate']),
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssues' => input_disability['specialIssues'].presence,
@@ -676,6 +701,7 @@ module EVSS
       #
       # @param input_disability [Hash] The newly submitted disability
       # @option input_disability [String] :condition The name of the disability
+      # @option input_disability [String] :conditionDate The date when the condition occurred under VA care
       # @option input_disability [String] :classificationCode Optional classification code
       # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
       # @option input_disability [String] :vaMistreatmentDescription The disabilities description
@@ -684,7 +710,8 @@ module EVSS
       # @return [Hash] Transformed disability to match EVSS's validation
       def map_va(input_disability)
         {
-          'name' => input_disability['condition'],
+          'name' => update_name_laterality(input_disability),
+          'approximateDate' => approximate_date(input_disability['conditionDate']),
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssues' => input_disability['specialIssues'].presence,
@@ -700,13 +727,15 @@ module EVSS
       #
       # @param input_disability [Hash] The newly submitted disability
       # @option input_disability [String] :condition The name of the disability
+      # @option input_disability [String] :conditionDate The date when the secondary condition started
       # @option input_disability [String] :classificationCode Optional classification code
       # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
       # @option input_disability [String] :causedByDisabilityDescription The disabilities description
       # @return [Hash] Transformed disability to match EVSS's validation
       def map_secondary(input_disability, disabilities)
         disability = {
-          'name' => input_disability['condition'],
+          'name' => update_name_laterality(input_disability),
+          'approximateDate' => approximate_date(input_disability['conditionDate']),
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'SECONDARY',
           'specialIssues' => input_disability['specialIssues'].presence,

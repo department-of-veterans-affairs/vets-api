@@ -1899,6 +1899,201 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     end
   end
 
+  describe '#translate_new_disabilities (name/laterality)' do
+    context 'when sideOfBody is provided' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'newPrimaryDisabilities' => [
+              {
+                'cause' => 'NEW',
+                'condition' => 'Knee pain',
+                'sideOfBody' => 'left',
+                'primaryDescription' => 'desc'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'appends laterality to the name' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first['name']).to eq('Knee pain, Left')
+      end
+    end
+
+    context 'when sideOfBody is blank' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'newPrimaryDisabilities' => [
+              {
+                'cause' => 'NEW',
+                'condition' => 'Knee pain',
+                'sideOfBody' => '',
+                'primaryDescription' => 'desc'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'does not append laterality' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first['name']).to eq('Knee pain')
+      end
+    end
+  end
+
+  describe '#translate_new_disabilities (approximateDate for NEW)' do
+    let(:base_input) do
+      {
+        'form526' => {
+          'newPrimaryDisabilities' => [
+            {
+              'cause' => 'NEW',
+              'condition' => 'Tinnitus',
+              'primaryDescription' => 'desc'
+            }
+          ]
+        }
+      }
+    end
+
+    context 'with full date (YYYY-MM-DD)' do
+      let(:form_content) do
+        h = base_input.deep_dup
+        h['form526']['newPrimaryDisabilities'][0]['conditionDate'] = '2025-05-10'
+        h
+      end
+
+      it 'includes year, month, and day' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first['approximateDate']).to eq('year' => '2025', 'month' => '05', 'day' => '10')
+      end
+    end
+
+    context 'with year and month only (YYYY-MM-XX)' do
+      let(:form_content) do
+        h = base_input.deep_dup
+        h['form526']['newPrimaryDisabilities'][0]['conditionDate'] = '2025-05-XX'
+        h
+      end
+
+      it 'includes year and month only' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first['approximateDate']).to eq('year' => '2025', 'month' => '05')
+      end
+    end
+
+    context 'with year only (YYYY-XX-XX)' do
+      let(:form_content) do
+        h = base_input.deep_dup
+        h['form526']['newPrimaryDisabilities'][0]['conditionDate'] = '2025-XX-XX'
+        h
+      end
+
+      it 'includes year only' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first['approximateDate']).to eq('year' => '2025')
+      end
+    end
+
+    context 'with no date provided' do
+      let(:form_content) { base_input.deep_dup }
+
+      it 'omits approximateDate' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first).not_to have_key('approximateDate')
+      end
+    end
+  end
+
+  describe '#translate_new_disabilities (approximateDate for WORSENED)' do
+    context 'captures approximate date for worsened condition' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'newPrimaryDisabilities' => [
+              {
+                'cause' => 'WORSENED',
+                'condition' => 'Back',
+                'conditionDate' => '2020-XX-XX',
+                'worsenedDescription' => 'desc',
+                'worsenedEffects' => 'effects'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'adds approximateDate with year only' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first['approximateDate']).to eq('year' => '2020')
+      end
+    end
+  end
+
+  describe '#translate_new_disabilities (approximateDate for VA)' do
+    context 'captures approximate date for condition during VA care' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'newPrimaryDisabilities' => [
+              {
+                'cause' => 'VA',
+                'condition' => 'Shoulder',
+                'conditionDate' => '2019-03-XX',
+                'vaMistreatmentDescription' => 'event',
+                'vaMistreatmentLocation' => 'loc',
+                'vaMistreatmentDate' => 'when'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'adds approximateDate with year and month' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first['approximateDate']).to eq('year' => '2019', 'month' => '03')
+      end
+    end
+  end
+
+  describe '#translate_disabilities (approximateDate for SECONDARY)' do
+    context 'captures approximate date for secondary condition' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'ratedDisabilities' => [
+              {
+                'diagnosticCode' => 1234,
+                'disabilityActionType' => 'INCREASE',
+                'name' => 'Primary condition',
+                'ratedDisabilityId' => '1'
+              }
+            ],
+            'newSecondaryDisabilities' => [
+              {
+                'cause' => 'SECONDARY',
+                'condition' => 'Neuropathy',
+                'conditionDate' => '2022-07-15',
+                'causedByDisabilityDescription' => 'secondary desc',
+                'causedByDisability' => 'Primary condition'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'adds approximateDate to the secondary disability' do
+        result = subject.send(:translate_disabilities)
+        secondary = result['disabilities'].first['secondaryDisabilities'].first
+        expect(secondary['approximateDate']).to eq('year' => '2022', 'month' => '07', 'day' => '15')
+      end
+    end
+  end
+
   describe '#translateStartedFormVersion' do
     context 'no startedFormVersion on input form' do
       let(:form_content) do
