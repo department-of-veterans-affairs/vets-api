@@ -125,7 +125,7 @@ RSpec.describe VAOS::V2::ProvidersController, type: :request do
         sign_in_as(create(:user, :loa3))
       end
 
-      it 'returns 400 bad reques and logs the error' do
+      it 'returns 400 bad request and logs the error' do
         allow(Rails.logger).to receive(:error)
 
         expect(Rails.logger).to receive(:error).with(
