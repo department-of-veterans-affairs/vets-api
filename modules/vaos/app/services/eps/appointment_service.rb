@@ -118,6 +118,8 @@ module Eps
       return [] if appointments.nil?
 
       provider_ids = appointments.pluck(:provider_service_id).compact.uniq
+      return appointments if provider_ids.empty?
+
       providers = provider_services.get_provider_services_by_ids(provider_ids:)
 
       appointments.each do |appointment|
