@@ -164,14 +164,12 @@ class SavedClaim < ApplicationRecord
   end
 
   # retrieve claim groups _this_ claim is a parent of
-  def parent_of_groups
-    SavedClaimGroup.where(parent_claim_id: id)
-  end
+  has_many :parent_of_groups, class_name: 'SavedClaimGroup', foreign_key: 'parent_claim_id',
+                              dependent: :destroy, inverse_of: :parent
 
   # retrieve claim groups _this_ claim is a child of
-  def child_of_groups
-    SavedClaimGroup.where(saved_claim_id: id)
-  end
+  has_many :child_of_groups, class_name: 'SavedClaimGroup',
+                             dependent: :destroy, inverse_of: :child
 
   private
 

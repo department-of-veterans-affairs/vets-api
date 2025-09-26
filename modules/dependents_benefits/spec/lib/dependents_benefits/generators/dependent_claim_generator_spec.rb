@@ -68,7 +68,9 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
 
       before do
         allow(Rails.logger).to receive(:info)
-        allow(SavedClaimGroup).to receive(:find_by).and_return(mock_group)
+        scope_double = double('scope')
+        allow(scope_double).to receive(:first!).and_return(mock_group)
+        allow(SavedClaimGroup).to receive(:by_parent_claim).with(parent_id).and_return(scope_double)
       end
 
       it 'creates a claim group' do
