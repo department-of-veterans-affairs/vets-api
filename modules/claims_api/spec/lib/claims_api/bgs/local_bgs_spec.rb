@@ -74,7 +74,7 @@ describe ClaimsApi::LocalBGS do
 
     before do
       allow(subject).to receive(:log_duration).and_yield.and_return(connection, response, {})
-      allow(connection).to receive_messages(options: OpenStruct.new, post: response) # Add this line
+      allow(connection).to receive_messages(options: OpenStruct.new, post: response)
       allow(subject).to receive_messages(full_body: soap_body, namespace: 'namespace',
                                          soap_error_handler:)
       allow(soap_error_handler).to receive(:handle_errors).and_return({ error: 'Some error' })
