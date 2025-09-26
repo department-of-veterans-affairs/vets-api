@@ -1691,7 +1691,7 @@ describe Eps::ProviderService do
     # Mock the message to include the parseable format for parse_eps_backend_fields
     allow(exception).to receive(:message).and_return(
       "BackendServiceException: {:code=>\"#{code}\", " \
-      ":source=>{:vamf_status=>#{status}, :vamf_body=>\"#{body.gsub('"', '\\"')}\"}}"
+      ":source=>{:vamf_status=>#{status}, :vamf_body=>#{body.inspect}}}"
     )
     exception
   end
