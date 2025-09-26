@@ -339,13 +339,14 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
     #
-    def post_create_message(args = {}, poll_for_status: false)
+    def post_create_message(args = nil, poll_for_status: false, **kwargs)
+      args = (args || {}).merge(kwargs)
       validate_create_context(args)
-
       json = perform(:post, 'message', args.to_h, token_headers).body
       message = Message.new(json[:data].merge(json[:metadata]))
-      poll_status
-      message if poll_for_status
+      return poll_status(message) if poll_for_status && message.is_oh_message
+
+      message
     end
 
     ##
@@ -355,15 +356,16 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
     #
-    def post_create_message_with_attachment(args = {}, poll_for_status: false)
+    def post_create_message_with_attachment(args = nil, poll_for_status: false, **kwargs)
+      args = (args || {}).merge(kwargs)
       validate_create_context(args)
-
       Rails.logger.info('MESSAGING: post_create_message_with_attachments')
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, 'message/attach', args.to_h, custom_headers).body
       message = Message.new(json[:data].merge(json[:metadata]))
-      poll_status
-      message if poll_for_status
+      return poll_status(message) if poll_for_status && message.is_oh_message
+
+      message
     end
 
     ##
@@ -392,13 +394,14 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
     #
-    def post_create_message_with_lg_attachments(args = {}, poll_for_status: false)
+    def post_create_message_with_lg_attachments(args = nil, poll_for_status: false, **kwargs)
       args = (args || {}).merge(kwargs)
       validate_create_context(args)
       Rails.logger.info('MESSAGING: post_create_message_with_lg_attachments')
       message = create_message_with_lg_attachments_request('message/attach', args)
-      poll_status
-      message if poll_for_status
+      return poll_status(message) if poll_for_status && message.is_oh_message
+
+      message
     end
 
     ##
@@ -408,16 +411,16 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message reply context is invalid
     #
-    def post_create_message_reply_with_attachment(id, args = {}, poll_for_status: false)
+    def post_create_message_reply_with_attachment(id, args = nil, poll_for_status: false, **kwargs)
       args = (args || {}).merge(kwargs)
       validate_reply_context(args)
-
       Rails.logger.info('MESSAGING: post_create_message_reply_with_attachment')
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, "message/#{id}/reply/attach", args.to_h, custom_headers).body
       message = Message.new(json[:data].merge(json[:metadata]))
-      poll_status
-      message if poll_for_status
+      return poll_status(message) if poll_for_status && message.is_oh_message
+
+      message
     end
 
     ##
@@ -429,13 +432,14 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
     #
-    def post_create_message_reply_with_lg_attachment(id, args = {}, poll_for_status: false)
+    def post_create_message_reply_with_lg_attachment(id, args = nil, poll_for_status: false, **kwargs)
       args = (args || {}).merge(kwargs)
       validate_reply_context(args)
       Rails.logger.info('MESSAGING: post_create_message_reply_with_lg_attachment')
       message = create_message_with_lg_attachments_request("message/#{id}/reply/attach", args)
-      poll_status
-      message if poll_for_status
+      return poll_status(message) if poll_for_status && message.is_oh_message
+
+      message
     end
 
     ##
@@ -445,14 +449,14 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message reply context is invalid
     #
-    def post_create_message_reply(id, args = {}, poll_for_status: false)
+    def post_create_message_reply(id, args = nil, poll_for_status: false, **kwargs)
       args = (args || {}).merge(kwargs)
       validate_reply_context(args)
-
       json = perform(:post, "message/#{id}/reply", args.to_h, token_headers).body
       message = Message.new(json[:data].merge(json[:metadata]))
-      poll_status
-      message if poll_for_status
+      return poll_status(message) if poll_for_status && message.is_oh_message
+
+      message
     end
 
     ##
