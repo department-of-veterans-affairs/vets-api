@@ -769,11 +769,11 @@ module SM
 
     def poll_message_status(message_id, timeout_seconds: 60, interval_seconds: 1, max_errors: 2)
       terminal_statuses = %w[SENT FAILED INVALID UNKNOWN NOT_SUPPORTED]
-      deadline = Time.now + timeout_seconds
+      deadline = Time.zone.now + timeout_seconds
       consecutive_errors = 0
 
       loop do
-        raise Common::Exceptions::GatewayTimeout.new if Time.now >= deadline
+        raise Common::Exceptions::GatewayTimeout if Time.zone.now >= deadline
 
         begin
           result = get_message_status(message_id)
@@ -786,7 +786,7 @@ module SM
           raise
         rescue
           consecutive_errors += 1
-          raise Common::Exceptions::GatewayTimeout.new if consecutive_errors > max_errors
+          raise Common::Exceptions::GatewayTimeout if consecutive_errors > max_errors
         end
 
         sleep interval_seconds
