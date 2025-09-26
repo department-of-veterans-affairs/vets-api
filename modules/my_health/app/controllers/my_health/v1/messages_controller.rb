@@ -3,6 +3,8 @@
 module MyHealth
   module V1
     class MessagesController < SMController
+      MAX_STANDARD_FILES = 4
+
       def show
         message_id = params[:id].try(:to_i)
         response = client.get_message(message_id)
