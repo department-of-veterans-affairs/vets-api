@@ -233,7 +233,7 @@ jobs:
           TEST_ENV_NUMBER: ${{ matrix.test_group }}
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
-          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 12 --verbose --test-options='--format progress --format ParallelTests::RSpec::RuntimeLogger --out tmp/parallel_runtime_rspec.log'"
+          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by runtime --type rspec --only-group ${{ matrix.test_group }} -n 12 --verbose --test-options='--format progress --format ParallelTests::RSpec::RuntimeLogger --out tmp/parallel_runtime_rspec.log'"
 
       - name: Upload Coverage Report
         if: always()
