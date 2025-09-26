@@ -212,11 +212,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Ensure runtime log exists
-        run: |
-          mkdir -p tmp
-          touch tmp/parallel_runtime_rspec.log
-
       - name: Setup Database
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
@@ -275,6 +270,14 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Upload Runtime Data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Runtime Data Group ${{ matrix.test_group }}
+          path: tmp/parallel_runtime_rspec.log
+          if-no-files-found: ignore
+
 
   publish_results:
     name: Publish Test Results and Coverage
@@ -329,3 +332,44 @@ jobs:
         with:
           number: ${{ github.event.pull_request.number }}
           labels: test-failure
+
+  combine_runtime_data:
+    name: Combine Runtime Data
+    if: always()
+    needs: tests
+    runs-on: ubuntu-16-cores-latest
+    steps:
+      - name: Checkout PR
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/checkout@v5
+
+      - name: Checkout PR HEAD ref
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Cache parallel test runtime data
+        uses: actions/cache@v4
+        with:
+          path: tmp/parallel_runtime_rspec.log
+          key: parallel-runtime-${{ github.repository }}-${{ hashFiles('**/*.rb', 'Gemfile.lock') }}
+          restore-keys: |
+            parallel-runtime-${{ github.repository }}-
+
+      - name: Download all test artifacts
+        uses: actions/download-artifact@v5
+
+      - name: Combine runtime data from all test groups
+        run: |
+          mkdir -p tmp
+          # Find and combine any runtime logs from runtime data artifacts
+          find . -name "parallel_runtime_rspec.log" -path "*/Runtime Data Group*" -exec cat {} \; >> tmp/parallel_runtime_rspec.log || true
+          # Remove duplicates and sort
+          if [ -f tmp/parallel_runtime_rspec.log ]; then
+            sort -u tmp/parallel_runtime_rspec.log -o tmp/parallel_runtime_rspec.log
+            echo "Combined runtime data from $(wc -l < tmp/parallel_runtime_rspec.log) test entries"
+          fi
