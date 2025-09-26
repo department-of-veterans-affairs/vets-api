@@ -906,6 +906,7 @@ lib/lgy/tag_sentry.rb @department-of-veterans-affairs/benefits-non-disability @d
 lib/lighthouse/healthcare_cost_and_coverage/configuration.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/healthcare_cost_and_coverage/medication_dispense/service.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/healthcare_cost_and_coverage/invoice/service.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+lib/lighthouse/healthcare_cost_and_coverage/payment_reconciliation/service.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_claims @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_claims/monitor.rb @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_claims/utilities/helpers.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
@@ -1446,6 +1447,7 @@ spec/lib/lighthouse/benefits_documents @department-of-veterans-affairs/backend-r
 spec/lib/lighthouse/benefits_documents/service_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/benefits_documents/update_documents_status_service_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/healthcare_cost_and_coverage/invoice/service_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+spec/lib/lighthouse/healthcare_cost_and_coverage/payment_reconciliation/service_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/benefits_documents/upload_status_updater_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/benefits_education @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/benefits_intake @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
