@@ -24,7 +24,7 @@ class SavedClaimGroup < ApplicationRecord
   scope :by_claim_group_guid, ->(guid) { where(claim_group_guid: guid) }
   scope :by_parent_claim, ->(claim_id) { where(parent_claim_id: claim_id) }
   scope :by_child_claim, ->(claim_id) { where(saved_claim_id: claim_id) }
-  scope :by_status, ->(status) { where(status: status) }
+  scope :by_status, ->(status) { where(status:) }
   scope :pending, -> { by_status('pending') }
   scope :needs_kms_rotation, -> { where(needs_kms_rotation: true) }
 
@@ -36,15 +36,7 @@ class SavedClaimGroup < ApplicationRecord
 
   scope :child_claims_for, ->(parent_id) { where(parent_claim_id: parent_id).where.not(saved_claim_id: parent_id) }
 
-  def parent
-    @parent_claim ||= ::SavedClaim.find(parent_claim_id)
-  end
-
-  def child
-    @child_claim ||= ::SavedClaim.find(saved_claim_id)
-  end
-
-  # return all the
+  # return all the child claims associated with this group
   def children
     SavedClaim.joins(:child_of_groups)
               .merge(self.class.siblings_of(self))
@@ -52,7 +44,7 @@ class SavedClaimGroup < ApplicationRecord
 
   # Returns sibling groups (same parent and claim_group_guid)
   def siblings
-    self.class.siblings_of(self).where.not(id: id)
+    self.class.siblings_of(self).where.not(id:)
   end
 
   private
