@@ -113,7 +113,7 @@ module TravelPay
     end
 
     ##
-    # HTTP POST call to the BTSSS 'claims/:id/submit' endpoint
+    # HTTP PATCH call to the BTSSS 'claims/:id/submit' endpoint
     # API responds with confirmation of claim submission
     #
     # @params {
