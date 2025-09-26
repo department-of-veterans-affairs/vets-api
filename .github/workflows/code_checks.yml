@@ -88,6 +88,14 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
+      - name: Cache parallel test runtime data
+        uses: actions/cache@v4
+        with:
+          path: tmp/parallel_runtime_rspec.log
+          key: parallel-runtime-${{ github.repository }}-${{ hashFiles('**/*.rb', 'Gemfile.lock') }}
+          restore-keys: |
+            parallel-runtime-${{ github.repository }}-
+
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
@@ -157,6 +165,14 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
+      - name: Cache parallel test runtime data
+        uses: actions/cache@v4
+        with:
+          path: tmp/parallel_runtime_rspec.log
+          key: parallel-runtime-${{ github.repository }}-${{ hashFiles('**/*.rb', 'Gemfile.lock') }}
+          restore-keys: |
+            parallel-runtime-${{ github.repository }}-
+
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
@@ -195,6 +211,11 @@ jobs:
           tags: vets-api
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Ensure runtime log exists
+        run: |
+          mkdir -p tmp
+          touch tmp/parallel_runtime_rspec.log
 
       - name: Setup Database
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
