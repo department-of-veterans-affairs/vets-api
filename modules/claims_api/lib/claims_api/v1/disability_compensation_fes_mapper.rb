@@ -137,14 +137,14 @@ module ClaimsApi
       def map_title_10_activation(info)
         title_ten_info = info[:reservesNationalGuardService][:title10Activation]
 
-        title_ten = build_title_ten_activation(title_ten_info)
+        title_ten = build_title_10_activation(title_ten_info)
 
         @fes_claim[:serviceInformation][:reservesNationalGuardService].merge!({
           title10Activation: title_ten
         }.compact_blank)
       end
 
-      def build_title_ten_activation(title_ten_info)
+      def build_title_10_activation(title_ten_info)
         title_ten = {}
         if title_ten_info[:title10ActivationDate].present?
           title_ten[:title10ActivationDate] = title_ten_info[:title10ActivationDate]
