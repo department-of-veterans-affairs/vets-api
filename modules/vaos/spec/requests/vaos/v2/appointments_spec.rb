@@ -1599,6 +1599,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when patient id is invalid' do
         it 'handles invalid patientId response as 400' do
+          captured = []
+          allow(Rails.logger).to receive(:error) { |msg, ctx| captured << [msg, ctx] }
           VCR.use_cassette('vaos/ccra/post_get_referral_ref_123', match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
               VCR.use_cassette 'vaos/eps/get_provider_slots/200', match_requests_on: %i[method path] do
@@ -1623,6 +1625,19 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                       expect(error['detail']).to eq('Could not create appointment')
                       expect(error['meta']).to include(
                         'original_detail' => 'invalid patientId'
+                      )
+
+                      # Assert EXACTLY what our EPS logging emitted
+                      expect(Rails.logger).to have_received(:error).with(
+                        'Community Care Appointments: EPS service error',
+                        hash_including(
+                          service: 'EPS',
+                          method: 'create_draft_appointment',
+                          error_class: 'Eps::ServiceException',
+                          code: 'VAOS_400',
+                          upstream_status: 400,
+                          upstream_body: a_string_including('invalid patientId')
+                        )
                       )
                     end
                   end
