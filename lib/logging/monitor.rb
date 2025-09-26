@@ -6,8 +6,8 @@ require 'logging/helper/parameter_filter'
 module Logging
   # generic monitoring class
   class Monitor
-    include Logging::Helpers::DataScrubber
-    include Logging::Helpers::ParameterFilter
+    include Logging::Helper::DataScrubber
+    include Logging::Helper::ParameterFilter
 
     attr_reader :service
 
