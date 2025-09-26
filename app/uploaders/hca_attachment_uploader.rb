@@ -41,7 +41,7 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
   private
 
   def convert_to_jpg_if_png
-    self.class.process(convert: :jpg) if file && png?(file)
+    self.class.process(convert: 'jpg') if file && png?(file)
   end
 
   def png?(file)
