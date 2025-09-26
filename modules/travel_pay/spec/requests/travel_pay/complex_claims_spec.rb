@@ -24,9 +24,10 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
 
   # POST /travel_pay/v0/complex_claims/
   describe '#create' do
-    context 'when feature flag is enabled' do
+    context 'when travel_pay_enable_complex_claims feature flag is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, instance_of(User)).and_return(false)
       end
 
       context 'VCR-backed integration tests' do
@@ -173,6 +174,9 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
         post('/travel_pay/v0/complex_claims', params: {})
 
         expect(response).to have_http_status(:service_unavailable)
+        body = JSON.parse(response.body)
+        expect(body['errors'].first['detail'])
+          .to include('Travel Pay complex claim endpoint unavailable per feature toggle')
       end
     end
   end
@@ -346,6 +350,9 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
         patch("/travel_pay/v0/complex_claims/#{claim_id}/submit", params: {})
 
         expect(response).to have_http_status(:service_unavailable)
+        body = JSON.parse(response.body)
+        expect(body['errors'].first['detail'])
+          .to include('Travel Pay complex claim endpoint unavailable per feature toggle')
       end
     end
   end

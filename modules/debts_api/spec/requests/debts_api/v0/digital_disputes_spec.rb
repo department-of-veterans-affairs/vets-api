@@ -137,7 +137,6 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
 
         it 'tracks success metrics' do
           expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.initiated')
-          expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.success')
           expect(StatsD).to receive(:increment).with(
             'api.rack.request',
             {

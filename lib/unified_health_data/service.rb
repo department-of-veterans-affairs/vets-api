@@ -1,25 +1,24 @@
 # frozen_string_literal: true
 
+# FIXME: remove after re-factoring class
+
 require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
-require_relative 'models/lab_or_test'
-require_relative 'models/clinical_notes'
-require_relative 'models/condition'
-require_relative 'models/prescription_attributes'
 require_relative 'models/prescription'
+require_relative 'adapters/allergy_adapter'
 require_relative 'adapters/clinical_notes_adapter'
 require_relative 'adapters/prescriptions_adapter'
-require_relative 'reference_range_formatter'
 require_relative 'adapters/conditions_adapter'
+require_relative 'adapters/lab_or_test_adapter'
+require_relative 'reference_range_formatter'
 require_relative 'logging'
+require_relative 'client'
 
 module UnifiedHealthData
-  class Service < Common::Client::Base
+  class Service
     STATSD_KEY_PREFIX = 'api.uhd'
     include Common::Client::Concerns::Monitoring
-
-    configuration UnifiedHealthData::Configuration
 
     def initialize(user)
       super()
@@ -28,14 +27,11 @@ module UnifiedHealthData
 
     def get_labs(start_date:, end_date:)
       with_monitoring do
-        headers = request_headers
-        patient_id = @user.icn
-        path = "#{config.base_path}labs?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, headers)
+        response = uhd_client.get_labs_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)
-        parsed_records = parse_labs(combined_records)
+        parsed_records = lab_or_test_adapter.parse_labs(combined_records)
         filtered_records = filter_records(parsed_records)
 
         # Log test code distribution after filtering is applied
@@ -47,14 +43,10 @@ module UnifiedHealthData
 
     def get_conditions
       with_monitoring do
-        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
-        patient_id = @user.icn
+        start_date = default_start_date
+        end_date = default_end_date
 
-        start_date = '1900-01-01'
-        end_date = Time.zone.today.to_s
-
-        path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, headers)
+        response = uhd_client.get_conditions_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)
@@ -64,14 +56,10 @@ module UnifiedHealthData
 
     def get_single_condition(condition_id)
       with_monitoring do
-        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
-        patient_id = @user.icn
+        start_date = default_start_date
+        end_date = default_end_date
 
-        start_date = '1900-01-01'
-        end_date = Time.zone.today.to_s
-
-        path = "#{config.base_path}conditions?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, headers)
+        response = uhd_client.get_conditions_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)
@@ -82,42 +70,26 @@ module UnifiedHealthData
       end
     end
 
-    def get_care_summaries_and_notes
+    # Retrieves prescriptions for the current user from unified health data sources
+    #
+    # @param current_only [Boolean] When true, applies filtering logic to exclude:
+    #   - Discontinued/expired medications older than 180 days
+    #   Defaults to false to return all prescriptions without filtering
+    # @return [Array<UnifiedHealthData::Prescription>] Array of prescription objects
+    def get_prescriptions(current_only: false)
       with_monitoring do
-        patient_id = @user.icn
-
-        # NOTE: we must pass in a startDate and endDate to SCDF
-        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
-        start_date = '1900-01-01'
-        # End date defaults to today
-        end_date = Time.zone.today.to_s
-
-        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, request_headers)
+        start_date = default_start_date
+        end_date = default_end_date
+        response = uhd_client.get_prescriptions_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
-        combined_records = fetch_combined_records(body)
-
-        filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
-
-        parse_notes(filtered)
-      end
-    end
-
-    def get_prescriptions
-      with_monitoring do
-        patient_id = @user.icn
-        path = "#{config.base_path}medications?patientId=#{patient_id}"
-
-        response = perform(:get, path, nil, request_headers)
-        body = parse_response_body(response.body)
-
-        adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new
-        prescriptions = adapter.parse(body)
+        adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new(@user)
+        prescriptions = adapter.parse(body, current_only:)
 
         Rails.logger.info(
           message: 'UHD prescriptions retrieved',
           total_prescriptions: prescriptions.size,
+          current_filtering_applied: current_only,
           service: 'unified_health_data'
         )
 
@@ -127,66 +99,93 @@ module UnifiedHealthData
 
     def refill_prescription(orders)
       with_monitoring do
-        path = "#{config.base_path}medications/rx/refill"
-        request_body = build_refill_request_body(orders)
-        response = perform(:post, path, request_body.to_json, request_headers(include_content_type: true))
+        response = uhd_client.refill_prescription_orders(build_refill_request_body(orders))
         parse_refill_response(response)
       end
+    rescue Common::Exceptions::BackendServiceException => e
+      raise e if e.original_status && e.original_status >= 500
     rescue => e
       Rails.logger.error("Error submitting prescription refill: #{e.message}")
       build_error_response(orders)
     end
 
-    def get_single_summary_or_note(note_id)
-      # TODO: refactor out common bits into a client type method - most of this is repeated from above
+    def get_care_summaries_and_notes
       with_monitoring do
-        patient_id = @user.icn
-
         # NOTE: we must pass in a startDate and endDate to SCDF
-        # Start date defaults to 120 years? (TODO: what are the legal requirements for oldest records to display?)
-        start_date = '1900-01-01'
-        # End date defaults to today
-        end_date = Time.zone.today.to_s
+        start_date = default_start_date
+        end_date = default_end_date
 
-        path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, request_headers)
+        response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
+        remap_vista_uid(body)
+        combined_records = fetch_combined_records(body)
+        filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
+
+        parsed_notes = parse_notes(filtered)
+
+        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes)
+
+        parsed_notes
+      end
+    end
+
+    def get_single_summary_or_note(note_id)
+      with_monitoring do
+        # TODO: we will replace this with a direct call to the API once available
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = parse_response_body(response.body)
+
+        remap_vista_uid(body)
+        combined_records = fetch_combined_records(body)
+        filtered = combined_records.find { |record| record['resource']['id'] == note_id }
+        return nil unless filtered
+
+        parse_single_note(filtered)
+      end
+    end
+
+    def get_allergies
+      with_monitoring do
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = parse_response_body(response.body)
+
+        remap_vista_identifier(body)
         combined_records = fetch_combined_records(body)
 
-        filtered = combined_records.select { |record| record['resource']['id'] == note_id }
+        allergy_adapter.parse(combined_records)
+      end
+    end
 
-        parse_single_note(filtered[0])
+    def get_single_allergy(allergy_id)
+      with_monitoring do
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = parse_response_body(response.body)
+
+        remap_vista_identifier(body)
+        combined_records = fetch_combined_records(body)
+
+        filtered = combined_records.find { |record| record['resource']['id'] == allergy_id }
+        return nil unless filtered
+
+        allergy_adapter.parse_single_allergy(filtered)
       end
     end
 
     private
 
     # Shared
-    def fetch_access_token
-      with_monitoring do
-        response = connection.post(config.token_path) do |req|
-          req.headers['Content-Type'] = 'application/json'
-          req.body = {
-            appId: config.app_id,
-            appToken: config.app_token,
-            subject: config.subject,
-            userType: config.user_type
-          }.to_json
-        end
-        response.headers['authorization']
-      end
-    end
-
-    def request_headers(include_content_type: false)
-      headers = {
-        'Authorization' => fetch_access_token,
-        'x-api-key' => config.x_api_key
-      }
-      headers['Content-Type'] = 'application/json' if include_content_type
-      headers
-    end
-
     def parse_response_body(body)
       # FIXME: workaround for testing
       body.is_a?(String) ? JSON.parse(body) : body
@@ -221,7 +220,7 @@ module UnifiedHealthData
     end
 
     def apply_test_code_filtering(records)
-      filtered = records.select { |record| test_code_enabled?(record.attributes.test_code) }
+      filtered = records.select { |record| test_code_enabled?(record.test_code) }
 
       Rails.logger.info(
         message: 'UHD filtering enabled - applied test code filtering',
@@ -246,223 +245,14 @@ module UnifiedHealthData
       end
     end
 
-    def parse_labs(records)
-      return [] if records.blank?
-
-      filtered = records.select do |record|
-        record['resource'] && record['resource']['resourceType'] == 'DiagnosticReport'
-      end
-      parsed = filtered.map { |record| parse_single_record(record) }
-      parsed.compact
-    end
-
-    def parse_single_record(record)
-      return nil if record.nil? || record['resource'].nil?
-
-      code = fetch_code(record)
-      encoded_data = record['resource']['presentedForm'] ? record['resource']['presentedForm'].first['data'] : ''
-      observations = fetch_observations(record)
-      return nil unless code && (encoded_data || observations)
-
-      attributes = build_lab_or_test_attributes(record)
-
-      UnifiedHealthData::LabOrTest.new(
-        id: record['resource']['id'],
-        type: record['resource']['resourceType'],
-        attributes:
-      )
-    end
-
-    def build_lab_or_test_attributes(record)
-      location = fetch_location(record)
-      code = fetch_code(record)
-      encoded_data = record['resource']['presentedForm'] ? record['resource']['presentedForm'].first['data'] : ''
-      contained = record['resource']['contained']
-      sample_tested = fetch_sample_tested(record['resource'], contained)
-      body_site = fetch_body_site(record['resource'], contained)
-      observations = fetch_observations(record)
-      ordered_by = fetch_ordered_by(record)
-
-      UnifiedHealthData::Attributes.new(
-        display: fetch_display(record),
-        test_code: code,
-        date_completed: record['resource']['effectiveDateTime'],
-        sample_tested:,
-        encoded_data:,
-        location:,
-        ordered_by:,
-        observations:,
-        body_site:
-      )
-    end
-
-    def fetch_location(record)
-      if record['resource']['contained'].nil?
-        nil
-      else
-        location_object = record['resource']['contained'].find { |resource| resource['resourceType'] == 'Organization' }
-        location_object.nil? ? nil : location_object['name']
-      end
-    end
-
-    def fetch_code(record)
-      return nil if record['resource']['category'].blank?
-
-      coding = record['resource']['category'].find do |category|
-        category['coding'].present? && category['coding'][0]['code'] != 'LAB'
-      end
-      coding ? coding['coding'][0]['code'] : nil
-    end
-
-    def fetch_body_site(resource, contained)
-      body_sites = []
-
-      return '' unless resource['basedOn']
-      return '' if contained.nil?
-
-      service_request_references = resource['basedOn'].pluck('reference')
-      service_request_references.each do |reference|
-        service_request_object = contained.find do |contained_resource|
-          contained_resource['resourceType'] == 'ServiceRequest' &&
-            contained_resource['id'] == extract_reference_id(reference)
-        end
-
-        next unless service_request_object && service_request_object['bodySite']
-
-        service_request_object['bodySite'].each do |body_site|
-          next unless body_site['coding'].is_a?(Array)
-
-          body_site['coding'].each do |coding|
-            body_sites << coding['display'] if coding['display']
-          end
-        end
-      end
-
-      body_sites.join(', ').strip
-    end
-
-    def fetch_sample_tested(record, contained)
-      return '' unless record['specimen']
-      return '' if contained.nil?
-
-      specimen_references = if record['specimen'].is_a?(Hash)
-                              [extract_reference_id(record['specimen']['reference'])]
-                            elsif record['specimen'].is_a?(Array)
-                              record['specimen'].map { |specimen| extract_reference_id(specimen['reference']) }
-                            end
-
-      specimens =
-        specimen_references.map do |reference|
-          specimen_object = contained.find do |resource|
-            resource['resourceType'] == 'Specimen' && resource['id'] == reference
-          end
-          specimen_object['type']['text'] if specimen_object
-        end
-
-      specimens.compact.join(', ').strip
-    end
-
-    def fetch_observations(record)
-      return [] if record['resource']['contained'].nil?
-
-      record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
-        sample_tested = fetch_sample_tested(obs, record['resource']['contained'])
-        body_site = fetch_body_site(obs, record['resource']['contained'])
-        UnifiedHealthData::Observation.new(
-          test_code: obs['code']['text'],
-          value: fetch_observation_value(obs),
-          reference_range: UnifiedHealthData::ReferenceRangeFormatter.format(obs),
-          status: obs['status'],
-          comments: obs['note']&.map { |note| note['text'] }&.join(', ') || '',
-          sample_tested:,
-          body_site:
-        )
-      end
-    end
-
-    def fetch_observation_value(obs)
-      type, text = if obs['valueQuantity']
-                     ['quantity', format_quantity_value(obs['valueQuantity'])]
-                   elsif obs['valueCodeableConcept']
-                     ['codeable-concept', obs['valueCodeableConcept']['text']]
-                   elsif obs['valueString']
-                     ['string', obs['valueString']]
-                   elsif obs['valueDateTime']
-                     ['date-time', obs['valueDateTime']]
-                   elsif obs['valueAttachment']
-                     Rails.logger.error(
-                       message: "Observation with ID #{obs['id']} has unsupported value type: Attachment"
-                     )
-                     raise Common::Exceptions::NotImplemented
-                   else
-                     [nil, nil]
-                   end
-      { text:, type: }
-    end
-
-    def format_quantity_value(value_quantity)
-      value = value_quantity['value']
-      unit = value_quantity['unit']
-      comparator = value_quantity['comparator']
-
-      result_text = ''
-      result_text += comparator.to_s if comparator.present?
-      result_text += value.to_s
-      result_text += " #{unit}" if unit.present?
-
-      result_text
-    end
-
-    def fetch_ordered_by(record)
-      if record['resource']['contained']
-        practitioner_object = record['resource']['contained'].find do |resource|
-          resource['resourceType'] == 'Practitioner'
-        end
-        if practitioner_object
-          name = practitioner_object['name'].first
-          "#{name['given'].join(' ')} #{name['family']}"
-        end
-      end
-    end
-
-    def extract_reference_id(reference)
-      reference.split('/').last
-    end
-
-    def fetch_display(record)
-      contained = record['resource']['contained']
-      if contained&.any? { |r| r['resourceType'] == 'ServiceRequest' && r['code']&.dig('text').present? }
-        service_request = contained.find do |r|
-          r['resourceType'] == 'ServiceRequest' && r['code']&.dig('text').present?
-        end
-        service_request['code']['text']
-      else
-        record['resource']['code'] ? record['resource']['code']['text'] : ''
-      end
-    end
-
-    # Conditions methods
-    def conditions_adapter
-      @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
-    end
-
-    # Care Summaries and Notes methods
-    def parse_notes(records)
-      return [] if records.blank?
-
-      # Parse using the adapter
-      parsed = records.map { |record| clinical_notes_adapter.parse(record) }
-      parsed.compact
-    end
-
     # Prescription refill helper methods
     def build_refill_request_body(orders)
       {
         patientId: @user.icn,
         orders: orders.map do |order|
           {
-            orderId: order[:id].to_s,
-            stationNumber: order[:stationNumber].to_s
+            orderId: order['id'].to_s,
+            stationNumber: order['stationNumber'].to_s
           }
         end
       }
@@ -519,19 +309,78 @@ module UnifiedHealthData
       end
     end
 
+    # Allergies methods
+    def remap_vista_identifier(records)
+      # TODO: Placeholder; will transition to a vista_uid
+      records['vista']['entry']&.each do |allergy|
+        vista_identifier = allergy['resource']['identifier'].find { |id| id['system'].starts_with?('https://va.gov/systems/') }
+        next unless vista_identifier && vista_identifier['value']
+
+        allergy['resource']['id'] = vista_identifier['value']
+      end
+    end
+
+    # Care Summaries and Notes methods
+    def remap_vista_uid(records)
+      records['vista']['entry']&.each do |note|
+        vista_uid_identifier = note['resource']['identifier'].find { |id| id['system'] == 'vista-uid' }
+        next unless vista_uid_identifier && vista_uid_identifier['value']
+
+        new_id_array = vista_uid_identifier['value'].split(':')
+        note['resource']['id'] = new_id_array[-3..].join('-')
+      end
+    end
+
+    def parse_notes(records)
+      return [] if records.blank?
+
+      parsed = records.map { |record| parse_single_note(record) }
+      parsed.compact
+    end
+
     def parse_single_note(record)
       return nil if record.blank?
 
-      # Parse using the adapter
       clinical_notes_adapter.parse(record)
     end
 
+    def log_loinc_codes_enabled?
+      Flipper.enabled?(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, @user)
+    end
+
+    # Instantiate client, adapters, etc. once per service instance
+
+    def uhd_client
+      @uhd_client ||= UnifiedHealthData::Client.new
+    end
+
+    def allergy_adapter
+      @allergy_adapter ||= UnifiedHealthData::Adapters::AllergyAdapter.new
+    end
+
+    def lab_or_test_adapter
+      @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new
+    end
+
     def clinical_notes_adapter
-      @clinical_notes_adapter ||= UnifiedHealthData::V2::Adapters::ClinicalNotesAdapter.new
+      @clinical_notes_adapter ||= UnifiedHealthData::Adapters::ClinicalNotesAdapter.new
+    end
+
+    def conditions_adapter
+      @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
     end
 
     def logger
       @logger ||= UnifiedHealthData::Logging.new(@user)
+    end
+
+    # Date helpers (single source for default UHD date range)
+    def default_start_date
+      '1900-01-01'
+    end
+
+    def default_end_date
+      Time.zone.today.to_s
     end
   end
 end

@@ -87,5 +87,9 @@ module ClaimsApi
       { disability:, approximateDate: approximate_date, exposureOrEventOrInjury: exposure,
         serviceRelevance: service_relevance }.compact
     end
+
+    def handle_yes_no(pay)
+      pay ? 'YES' : 'NO'
+    end
   end
 end
