@@ -7,8 +7,8 @@ class LighthouseDocumentUploaderBase < CarrierWave::Uploader::Base
   include ConvertFileType
   include UploaderVirusScan
 
-  version :converted, if: :tiff_or_incorrect_extension? do
-    process(:convert_to_jpg_if_tiff)
+  version :converted, if: :convert_to_jpg_if_tiff? do
+    process(convert: :jpg)
 
     def full_filename(original_name_for_file)
       name = "converted_#{original_name_for_file}"
@@ -47,7 +47,7 @@ class LighthouseDocumentUploaderBase < CarrierWave::Uploader::Base
 
   private
 
-  def convert_to_jpg_if_tiff
-    self.class.process(convert: :jpg) if file && tiff?(file)
+  def convert_to_jpg_if_tiff?(file)
+    tiff_or_incorrect_extension?(file) && tiff?(file)
   end
 end
