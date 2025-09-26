@@ -68,15 +68,23 @@ jobs:
           number: ${{ github.event.pull_request.number }}
           labels: lint-failure
 
-  build:
-    name: Build Docker Image
+  tests:
+    name: Test (Group ${{ matrix.test_group }})
     runs-on: ubuntu-latest
+    permissions: write-all
+    strategy:
+      fail-fast: false
+      matrix:
+        test_group: [1, 2, 3, 4, 5, 6, 7, 8]
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       ECR_REGISTRY_WITH_SLASH: "${{ secrets.ECR_REGISTRY }}/"
+      CI: true
+      RAILS_ENV: test
+      TERM: xterm-256color
       DOCKER_BUILDKIT: 1
-    outputs:
-      image-digest: ${{ steps.build.outputs.digest }}
+      COMPOSE_DOCKER_CLI_BUILD: 1
+      COMPOSE_BASH_CMD: docker compose -f docker-compose.test.yml run web bash -c
     steps:
       - name: Checkout PR
         if: ${{ github.event_name != 'pull_request' }}
@@ -116,7 +124,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker Image
-        id: build
         uses: docker/build-push-action@v6
         env:
           DOCKER_BUILD_SUMMARY: false
@@ -125,63 +132,11 @@ jobs:
             BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
             USER_ID=${{ env.VETS_API_USER_ID }}
           context: .
+          push: false
           load: true
-          tags: vets-api:${{ github.sha }}
+          tags: vets-api
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Save Docker Image
-        run: |
-          docker save vets-api:${{ github.sha }} | gzip > vets-api-${{ github.sha }}.tar.gz
-
-      - name: Upload Docker Image Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: vets-api-image
-          path: vets-api-${{ github.sha }}.tar.gz
-          retention-days: 1
-
-  tests:
-    name: Test (Group ${{ matrix.test_group }})
-    runs-on: ubuntu-latest
-    permissions: write-all
-    needs: build
-    strategy:
-      fail-fast: false
-      matrix:
-        test_group: [1, 2, 3, 4, 5, 6, 7, 8]
-    env:
-      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-      ECR_REGISTRY_WITH_SLASH: "${{ secrets.ECR_REGISTRY }}/"
-      CI: true
-      RAILS_ENV: test
-      TERM: xterm-256color
-      DOCKER_BUILDKIT: 1
-      COMPOSE_DOCKER_CLI_BUILD: 1
-      COMPOSE_BASH_CMD: docker compose -f docker-compose.test.yml run web bash -c
-    steps:
-      - name: Checkout PR
-        if: ${{ github.event_name != 'pull_request' }}
-        uses: actions/checkout@v5
-
-      - name: Checkout PR HEAD ref
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - name: Download Docker Image Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: vets-api-image
-
-      - name: Load Docker Image
-        run: |
-          docker load < vets-api-${{ github.sha }}.tar.gz
-          docker tag vets-api:${{ github.sha }} vets-api
 
       - name: Setup Database
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
