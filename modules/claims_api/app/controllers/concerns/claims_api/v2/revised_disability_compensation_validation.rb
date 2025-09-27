@@ -2,12 +2,14 @@
 
 require 'claims_api/v2/disability_compensation_shared_service_module'
 require 'claims_api/v2/lighthouse_military_address_validator'
+require_relative 'brd_mock_data'
 
 module ClaimsApi
   module V2
     module RevisedDisabilityCompensationValidation # rubocop:disable Metrics/ModuleLength
       include DisabilityCompensationSharedServiceModule
       include LighthouseMilitaryAddressValidator
+      include BrdMockData
 
       DATE_FORMATS = {
         10 => 'yyyy-mm-dd',
@@ -24,6 +26,9 @@ module ClaimsApi
 
       def validate_form_526_fes_values(target_veteran)
         return if form_attributes.empty?
+
+        # validate claimDate if provided (Section 1.c from FES)
+        validate_form_526_claim_date
 
         validate_claim_process_type_bdd if bdd_claim?
         # ensure 'claimantCertification' is true
@@ -51,6 +56,20 @@ module ClaimsApi
       end
 
       private
+
+      def validate_form_526_claim_date
+        return if form_attributes['claimDate'].blank?
+
+        claim_date = DateTime.parse(form_attributes['claimDate'])
+        return if claim_date <= Time.zone.now
+
+        # Section 1.c - using actual FES service response format
+        collect_error_messages(
+          source: '/claimDate',
+          title: 'Unprocessable Entity',
+          detail: 'The request failed validation, because the claim date was in the future.'
+        )
+      end
 
       def validate_form_526_change_of_address
         return if form_attributes['changeOfAddress'].blank?
@@ -134,7 +153,7 @@ module ClaimsApi
 
       def validate_form_526_change_of_address_country
         country = form_attributes.dig('changeOfAddress', 'country')
-        return if country.nil? || valid_countries.include?(country)
+        return if country.nil? || fetch_countries_list.include?(country)
 
         collect_error_messages(
           source: '/changeOfAddress/country',
@@ -223,7 +242,7 @@ module ClaimsApi
 
       def validate_form_526_current_mailing_address_country
         mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
-        return if valid_countries.include?(mailing_address['country'])
+        return if fetch_countries_list.include?(mailing_address['country'])
 
         collect_error_messages(
           source: '/veteranIdentification/mailingAddress/country',
@@ -283,7 +302,7 @@ module ClaimsApi
         form_attributes['disabilities'].each_with_index do |disability, idx|
           next if disability['classificationCode'].blank?
 
-          if brd_classification_ids.include?(disability['classificationCode'].to_i)
+          if fetch_classification_ids.include?(disability['classificationCode'].to_i)
 
             validate_form_526_disability_code_enddate(disability['classificationCode'].to_i, idx)
           else
@@ -295,7 +314,7 @@ module ClaimsApi
       end
 
       def validate_form_526_disability_code_enddate(classification_code, idx, sd_idx = nil)
-        reference_disability = brd_disabilities.find { |x| x[:id] == classification_code }
+        reference_disability = fetch_disabilities_list.find { |x| x[:id] == classification_code }
         end_date_time = reference_disability[:endDateTime] if reference_disability
         return if end_date_time.nil?
 
@@ -322,7 +341,7 @@ module ClaimsApi
 
           next if date_is_valid_against_current_time_after_check_on_format?(approx_begin_date)
 
-          collect_error_messages(source: "disabilities/#{idx}/approximateDate",
+          collect_error_messages(source: "/disabilities/#{idx}/approximateDate",
                                  detail: "The approximateDate (#{idx}) is not valid.")
         end
       end
@@ -411,7 +430,7 @@ module ClaimsApi
       end
 
       def validate_form_526_disability_secondary_disability_classification_code(secondary_disability, dis_idx, sd_idx)
-        return if brd_classification_ids.include?(secondary_disability['classificationCode'].to_i)
+        return if fetch_classification_ids.include?(secondary_disability['classificationCode'].to_i)
 
         collect_error_messages(source: "disabilities/#{dis_idx}/secondaryDisabilities/#{sd_idx}/classificationCode",
                                detail: "classificationCode (#{dis_idx}) must match an active code " \
@@ -590,7 +609,7 @@ module ClaimsApi
         return if form_attributes.dig('servicePay', 'militaryRetiredPay').nil?
 
         branch = form_attributes.dig('servicePay', 'militaryRetiredPay', 'branchOfService')
-        return if branch.nil? || brd_service_branch_names.include?(branch)
+        return if branch.nil? || fetch_service_branches_list.include?(branch)
 
         collect_error_messages(source: '/servicePay/militaryRetiredPay/branchOfService',
                                detail: "'servicePay.militaryRetiredPay.branchOfService' must match a service branch " \
@@ -623,7 +642,7 @@ module ClaimsApi
 
       def validate_from_526_separation_severance_pay_branch
         branch = form_attributes.dig('servicePay', 'separationSeverancePay', 'branchOfService')
-        return if branch.nil? || brd_service_branch_names.include?(branch)
+        return if branch.nil? || fetch_service_branches_list.include?(branch)
 
         collect_error_messages(source: '/servicePay/separationSeverancePay/branchOfService',
                                detail: "'servicePay/separationSeverancePay/branchOfService' must match a service " \
@@ -923,7 +942,7 @@ module ClaimsApi
       end
 
       def validate_service_branch_names(service_information)
-        downcase_branches = brd_service_branch_names.map(&:downcase)
+        downcase_branches = fetch_service_branches_list.map(&:downcase)
         service_information['servicePeriods'].each_with_index do |sp, idx|
           unless downcase_branches.include?(sp['serviceBranch'].downcase)
             collect_error_messages(

@@ -590,5 +590,55 @@ RSpec.describe TestRevisedDisabilityCompensationValidationClass do
       end
       # rubocop:enable RSpec/NoExpectationExample
     end
+
+    describe '#validate_form_526_claim_date' do
+      let(:target_veteran) { OpenStruct.new(mpi: OpenStruct.new(icn: '12345'), first_name: 'John', last_name: 'Doe') }
+
+      context 'when claimDate is blank' do
+        it 'does not add any errors' do
+          allow(test_526_validation_instance).to receive(:form_attributes).and_return({ 'claimDate' => nil })
+          test_526_validation_instance.send(:validate_form_526_claim_date)
+          errors = test_526_validation_instance.send(:error_collection)
+          expect(errors).to be_empty
+        end
+      end
+
+      context 'when claimDate is in the past' do
+        it 'does not add any errors' do
+          past_date = (Time.zone.now - 1.day).iso8601
+          allow(test_526_validation_instance).to receive(:form_attributes).and_return({ 'claimDate' => past_date })
+          test_526_validation_instance.send(:validate_form_526_claim_date)
+          errors = test_526_validation_instance.send(:error_collection)
+          expect(errors).to be_empty
+        end
+      end
+
+      context 'when claimDate is today' do
+        it 'does not add any errors' do
+          today = Time.zone.now.iso8601
+          allow(test_526_validation_instance).to receive(:form_attributes).and_return({ 'claimDate' => today })
+          test_526_validation_instance.send(:validate_form_526_claim_date)
+          errors = test_526_validation_instance.send(:error_collection)
+          expect(errors).to be_empty
+        end
+      end
+
+      context 'when claimDate is in the future' do
+        it 'adds the correct error message' do
+          future_date = (Time.zone.now + 1.day).iso8601
+          allow(test_526_validation_instance).to receive(:form_attributes).and_return({ 'claimDate' => future_date })
+          test_526_validation_instance.send(:validate_form_526_claim_date)
+          errors = test_526_validation_instance.send(:error_collection)
+          expect(errors).to include(
+            {
+              source: '/claimDate',
+              title: 'Unprocessable Entity',
+              detail: 'The request failed validation, because the claim date was in the future.',
+              status: '422'
+            }
+          )
+        end
+      end
+    end
   end
 end
