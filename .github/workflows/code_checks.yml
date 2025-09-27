@@ -455,8 +455,10 @@ jobs:
 
       - name: Runtime cache combine chunks
         run: |
-          cat tmp/parallel_runtime_rspec/* > tmp/parallel_runtime_rspec.log || true
+          # Append new chunks to existing runtime data (don't overwrite)
+          cat tmp/parallel_runtime_rspec/* >> tmp/parallel_runtime_rspec.log 2>/dev/null || true
           if [ -f tmp/parallel_runtime_rspec.log ]; then
+            # Remove duplicates and sort
             sort -u tmp/parallel_runtime_rspec.log -o tmp/parallel_runtime_rspec.log
             echo "Combined runtime data from $(wc -l < tmp/parallel_runtime_rspec.log) test entries"
             head -10 tmp/parallel_runtime_rspec.log
