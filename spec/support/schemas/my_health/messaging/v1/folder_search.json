@@ -26,8 +26,7 @@
               "recipient_id",
               "recipient_name",
               "read_receipt",
-              "suggested_name_display",
-              "is_oh_message"
+              "suggested_name_display"
             ],
             "properties": {
               "message_id": { "type": "integer" },
@@ -43,8 +42,7 @@
               "read_receipt": { "type": ["null", "string"] },
               "triage_group_name": { "type": ["null", "string"] },
               "proxy_sender_name": { "type": ["null", "string"] },
-              "suggested_name_display": { "type": ["null", "string"] },
-              "is_oh_message": { "type": "boolean" }
+              "suggested_name_display": { "type": ["null", "string"] }
             }
           },
           "links": {

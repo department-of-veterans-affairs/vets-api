@@ -11,14 +11,14 @@ RSpec.describe Message do
 
     it 'populates attributes' do
       expect(described_class.attribute_set).to contain_exactly(:id, :category, :subject, :body,
-                                                               :attachment, :attachments, :sent_date,
-                                                               :sender_id, :sender_name, :recipient_id,
-                                                               :recipient_name, :read_receipt, :uploads,
-                                                               :suggested_name_display, :is_oh_message,
-                                                               :triage_group_name, :proxy_sender_name,
-                                                               :has_attachments, :attachment1_id,
-                                                               :attachment2_id, :attachment3_id,
-                                                               :attachment4_id, :metadata)
+                                                           :attachment, :attachments, :sent_date,
+                                                           :sender_id, :sender_name, :recipient_id,
+                                                           :recipient_name, :read_receipt, :uploads,
+                                                           :suggested_name_display,
+                                                           :triage_group_name, :proxy_sender_name,
+                                                           :has_attachments, :attachment1_id,
+                                                           :attachment2_id, :attachment3_id,
+                                                           :attachment4_id, :metadata)
       expect(subject.id).to eq(params[:id])
       expect(subject.category).to eq(params[:category])
       expect(subject.subject).to eq(params[:subject])
