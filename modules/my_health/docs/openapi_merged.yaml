@@ -549,7 +549,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  The returned object is a  <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-common-api/blob/development/src/main/java/gov/va/med/mhv/common/api/dto/PatientDTO.java'>PatientDTO object</a>.
+                  The returned object is a <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-common-api/blob/development/src/main/java/gov/va/med/mhv/common/api/dto/PatientDTO.java'>PatientDTO object</a>.
           description: OK
         '401':
           content:
@@ -575,7 +575,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  The returned object is a  <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-bluebutton-api/blob/development/mhv-bluebutton-portal-data-jpa/src/main/java/gov/va/med/mhv/bluebutton/model/phr/PhrDemographics.java'>PhrDemographics object</a>.
+                  The returned object is a <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-bluebutton-api/blob/development/mhv-bluebutton-portal-data-jpa/src/main/java/gov/va/med/mhv/bluebutton/model/phr/PhrDemographics.java'>PhrDemographics object</a>.
           description: OK
         '401':
           content:
@@ -1934,6 +1934,166 @@ paths:
                 $ref: '#/components/schemas/Errors'
           description: Not authorized for access to secure messages
       summary: /v1/prescriptions/list_refillable_prescriptions
+  /v1/tooltips:
+    get:
+      description: Retrieve tooltips settings for mhv-medications In-Product Education (IPE)
+      operationId: get_tooltips
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tooltip'
+          description: OK
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      description: Create tooltip setting for mhv-medications In-Product Education (IPE)
+      operationId: post_tooltip
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TooltipParams'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tooltip'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    summary: /v1/tooltips
+  /v1/tooltips/{id}:
+    patch:
+      description: Update tooltip setting for mhv-medications In-Product Education (IPE), typically used for setting 'hidden' attribute
+      operationId: patch_tooltip
+      parameters:
+        - description: The id of the tooltip
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: increment_counter
+          required: false
+          schema:
+            type: boolean
+          description: Value indicates if counter will be incremented
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TooltipParams'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tooltip'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    summary: /v1/tooltips/{id}
+  /v1/unique_user_metrics:
+    post:
+      description: |
+        Log unique user metrics events for analytics tracking. Processes multiple events in a single batch operation
+        and returns the status of each event. Events are logged only once per user - subsequent submissions of the
+        same event for the same user will return a status of 'exists' rather than creating duplicates.
+
+        This endpoint is used for tracking unique user interactions with MHV Portal features to provide
+        opt-out-free analytics that are more accurate than Google Analytics.
+      operationId: log_unique_user_metrics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UniqueUserMetricsRequest'
+        description: |
+          Array of event names to log for the authenticated user.
+
+          <strong>NOTES:</strong>
+          <ul>
+            <li>Each event will only be logged once per user</li>
+            <li>Event names should be descriptive and follow the pattern: feature_action_accessed (e.g., "mhv_landing_page_accessed")</li>
+            <li>Maximum 50 characters per event name</li>
+            <li>At least one event name must be provided</li>
+          </ul>
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UniqueUserMetricsResponse'
+              example:
+                results:
+                  - event_name: mhv_landing_page_accessed
+                    status: exists
+                    new_event: false
+                  - event_name: secure_messaging_accessed
+                    status: exists
+                    new_event: false
+                  - event_name: prescriptions_accessed
+                    status: exists
+                    new_event: false
+          description: OK - All events were duplicates (already existed for this user)
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UniqueUserMetricsResponse'
+              example:
+                results:
+                  - event_name: mhv_landing_page_accessed
+                    status: created
+                    new_event: true
+                  - event_name: secure_messaging_accessed
+                    status: exists
+                    new_event: false
+                  - event_name: prescriptions_accessed
+                    status: created
+                    new_event: true
+          description: Created - At least one new unique event was logged
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Bad Request - Invalid request parameters
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '501':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not Implemented - Unique user metrics logging is currently disabled
+      summary: /v1/unique_user_metrics
   /v2/labs_and_tests:
     get:
       description: |
@@ -1999,6 +2159,25 @@ components:
           - camel
           - snake
       description: Instructs the API to return camelCase keys rather than snake_case
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    UnprocessableEntity:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
   schemas:
     Error:
       type: object
@@ -3501,6 +3680,9 @@ components:
                   subGroupTypePatientDisplay:
                     type: string
                     example: Specialty Care
+                  ohTriageGroup:
+                    type: boolean
+                    example: false
         meta:
           type: object
           required:
@@ -3664,7 +3846,7 @@ components:
           type: string
           format: date-time
         quantity:
-          type: integer
+          type: string
         expirationDate:
           type: string
           format: date-time
@@ -3864,8 +4046,8 @@ components:
               format: datetime
               example: '2023-08-04T04:00:00.000Z'
             quantity:
-              type: integer
-              example: 30
+              type: string
+              example: '30'
             expirationDate:
               type: string
               format: datetime
@@ -4150,6 +4332,111 @@ components:
             failedStationList:
               type: string
               nullable: true
+    Tooltip:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_account_id:
+          type: string
+          format: uuid
+        tooltip_name:
+          type: string
+          description: Name of the tooltip in the UI
+          example: mhv_medications_tooltip_filter_accordion
+        last_signed_in:
+          type: string
+          format: date-time
+        counter:
+          type: integer
+        hidden:
+          type: boolean
+          description: Hide the tooltip with tooltip_name when true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    TooltipParams:
+      type: object
+      properties:
+        tooltip:
+          type: object
+          properties:
+            tooltip_name:
+              type: string
+              example: mhv_medications_tooltip_filter_accordion
+            hidden:
+              type: boolean
+            counter:
+              type: integer
+              example: 0
+    UniqueUserMetricsRequest:
+      type: object
+      required:
+        - event_names
+      properties:
+        event_names:
+          type: array
+          description: Array of event names to log for the authenticated user
+          items:
+            type: string
+            minLength: 1
+            maxLength: 50
+          minItems: 1
+          example:
+            - mhv_landing_page_accessed
+            - secure_messaging_accessed
+            - prescriptions_accessed
+    UniqueUserMetricsEventResult:
+      type: object
+      required:
+        - event_name
+        - status
+        - new_event
+      properties:
+        event_name:
+          type: string
+          description: The name of the event that was processed
+          example: mhv_landing_page_accessed
+        status:
+          type: string
+          description: The processing status of the event
+          enum:
+            - created
+            - exists
+            - error
+          example: created
+        new_event:
+          type: boolean
+          description: Whether this was a new unique event (true) or already existed (false)
+          example: true
+        error:
+          type: string
+          description: Error message if status is 'error' (only present when status is 'error')
+          example: Failed to process event
+    UniqueUserMetricsResponse:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          description: Array of processing results for each event name that was submitted
+          items:
+            $ref: '#/components/schemas/UniqueUserMetricsEventResult'
+          example:
+            - event_name: mhv_landing_page_accessed
+              status: created
+              new_event: true
+            - event_name: secure_messaging_accessed
+              status: exists
+              new_event: false
+            - event_name: prescriptions_accessed
+              status: created
+              new_event: true
     LabsAndTestsResponse:
       type: array
       items:

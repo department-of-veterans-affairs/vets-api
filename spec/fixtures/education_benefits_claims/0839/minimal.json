@@ -1,0 +1,19 @@
+{
+  "privacyAgreementAccepted": true,
+  "veteranFullName": {
+    "first": "Test",
+    "middle": "M",
+    "last": "Veteran"
+  },
+  "veteranSocialSecurityNumber": "123456789",
+  "veteranDateOfBirth": "1990-01-01",
+  "veteranAddress": {
+    "street": "123 Main St",
+    "city": "Anytown",
+    "state": "NY",
+    "postalCode": "12345"
+  },
+  "email": "test@example.com",
+  "phone": "5551234567",
+  "formType": "0839"
+}

@@ -9,14 +9,13 @@ module Crm
     crm_env = {
       'test' => 'iris-dev',
       'development' => 'iris-dev',
-      'staging' => 'ava-qa', # change requested as a part of PATSR separation QA testing
+      'staging' => 'ava-preprod',
       'production' => 'veft'
     }
 
     if Flipper.enabled?(:ask_va_api_patsr_separation)
       crm_env.merge!(
-        'staging' => 'ava-preprod',
-        'production' => 'ava-prod'
+        'production' => 'ava'
       )
     end
 

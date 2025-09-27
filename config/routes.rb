@@ -149,11 +149,14 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :dependents_benefits, only: %i[create index]
+
     resources :dependents_verifications, only: %i[create index]
 
     resources :benefits_claims, only: %i[index show] do
       post :submit5103, on: :member
       post 'benefits_documents', to: 'benefits_documents#create'
+      get :failed_upload_evidence_submissions, on: :collection
     end
 
     resources :evidence_submissions, only: %i[index]
@@ -390,10 +393,12 @@ Rails.application.routes.draw do
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
+  mount BPDS::Engine, at: '/bpds'
   mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
   mount ClaimsEvidenceApi::Engine, at: '/claims_evidence_api'
   mount DebtsApi::Engine, at: '/debts_api'
+  mount DependentsBenefits::Engine, at: '/dependents_benefits'
   mount DependentsVerification::Engine, at: '/dependents_verification'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'

@@ -6,7 +6,7 @@ module MebApi
   module DGI
     module SubmitEnrollment
       class Response < MebApi::DGI::Response
-        attribute :enrollment_certify_responses, Array
+        attribute :enrollment_certify_responses, Hash, array: true
 
         def initialize(response = nil)
           attributes = {

@@ -12,18 +12,9 @@ module ClaimsApi
 
       def get_poa_list
         proc_ids = poa_list.pluck('procID')
-
-        poa_requests = ClaimsApi::PowerOfAttorneyRequest.where(proc_id: proc_ids).select(:id, :proc_id)
-        poa_requests_by_proc_id = poa_requests.each_with_object({}) do |request, hash|
-          hash[request.proc_id] = request.id
-        end
-
-        poa_list.map do |poa_request|
-          proc_id = poa_request['procID']
-          poa_request['id'] = poa_requests_by_proc_id[proc_id]
-
-          poa_request
-        end
+        poa_requests = ClaimsApi::PowerOfAttorneyRequest.where(proc_id: proc_ids).select(:id, :proc_id, :claimant_icn)
+        poa_requests_by_proc_id = build_list_hash(poa_requests)
+        map_list_data(poa_requests_by_proc_id)
       end
 
       private
@@ -34,7 +25,6 @@ module ClaimsApi
                                                                      page_index: @page_index,
                                                                      filter: @filter,
                                                                      use_mocks: true)
-
         list = @poa_list['poaRequestRespondReturnVOList']
         list.is_a?(Array) ? list : [list].compact
       end
@@ -42,6 +32,23 @@ module ClaimsApi
       def manage_representative_service
         ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bgs.external_uid,
                                                    external_key: Settings.bgs.external_key)
+      end
+
+      # Returns a hash where proc_id is the key and the request record ID is the value
+      def build_list_hash(poa_requests)
+        poa_requests.each_with_object({}) do |request, hash|
+          hash[request.proc_id] = { id: request.id, claimant_icn: request.claimant_icn }
+        end
+      end
+
+      def map_list_data(poa_requests_by_proc_id)
+        poa_list.map do |poa_request|
+          proc_id = poa_request['procID']
+          poa_request['id'] = poa_requests_by_proc_id[proc_id]&.dig(:id)
+          poa_request['claimant_icn'] = poa_requests_by_proc_id[proc_id]&.dig(:claimant_icn)
+
+          poa_request
+        end
       end
     end
   end

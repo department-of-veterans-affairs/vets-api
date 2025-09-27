@@ -12,8 +12,6 @@ module DependentsVerification
     attribute :ssn, String
     attribute :age, Integer
     attribute :relationship_to_veteran, String
-    attribute :removal_date, Date
-    attribute :enrollment_type, String
   end
 
   # extends app/models/form_profile.rb, which handles form prefill
@@ -73,14 +71,15 @@ module DependentsVerification
     def initialize_dependents_information
       dependents = dependent_service.get_dependents
 
-      if dependents.nil? || dependents[:persons].blank?
-        monitor.track_missing_dependent_info
-        return []
-      end
+      persons = if dependents.nil? || dependents[:persons].blank?
+                  []
+                else
+                  dependents[:persons]
+                end
 
-      dependents[:persons].filter_map do |person|
+      persons.filter_map do |person|
         # Skip if the dependent is not active for benefits
-        return nil if person[:award_indicator] == 'N'
+        next if person[:award_indicator] == 'N'
 
         person_to_dependent_information(person)
       end
@@ -92,6 +91,8 @@ module DependentsVerification
     # @param person [Hash] The dependent's information as a hash
     # @return [DependentInformation] The dependent's information mapped to the model
     def person_to_dependent_information(person)
+      parsed_date = parse_date_safely(person[:date_of_birth])
+
       DependentInformation.new(
         full_name: FormFullName.new({
                                       first: person[:first_name],
@@ -99,12 +100,10 @@ module DependentsVerification
                                       last: person[:last_name],
                                       suffix: person[:suffix]
                                     }),
-        date_of_birth: person[:date_of_birth],
+        date_of_birth: parsed_date,
         ssn: person[:ssn],
-        age: dependent_age(person[:date_of_birth]),
-        relationship_to_veteran: person[:relationship],
-        removal_date: nil,
-        enrollment_type: nil
+        age: parsed_date ? dependent_age(person[:date_of_birth]) : nil,
+        relationship_to_veteran: person[:relationship]
       )
     end
 

@@ -7,12 +7,16 @@ require 'evss/error_middleware'
 require 'common/exceptions'
 require 'jsonapi/parser'
 require 'evss_service/base' # docker container
+require 'claims_api/v1/disability_compensation_pdf_generator'
 
 module ClaimsApi
   module V1
     module Forms
       class DisabilityCompensationController < ClaimsApi::V1::Forms::Base
-        include ClaimsApi::DisabilityCompensationValidations
+        # Commenting out the below validation inclusion so it is clearer that
+        # we expect validate_form_526_submission_values! to be dynamically
+        # included via the lighthouse_claims_api_v1_enable_FES FF check:
+        # include ClaimsApi::DisabilityCompensationValidations
         include ClaimsApi::PoaVerification
         include ClaimsApi::DocumentValidations
 
@@ -36,7 +40,19 @@ module ClaimsApi
           ClaimsApi::Logger.log('526', detail: '526 - Request Started')
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
-          validate_form_526_submission_values!
+          # Choose the appropriate validator module based on FF status - using self.extend
+          # so that if validator (instance) methods call other instance methods within the module
+          # they all have access to the the same instance
+          # rubocop:disable Style/IdenticalConditionalBranches
+          if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+            extend(ClaimsApi::RevisedDisabilityCompensationValidations)
+            validate_form_526_submission_values!
+          else
+            extend(ClaimsApi::DisabilityCompensationValidations)
+            validate_form_526_submission_values!
+          end
+          # rubocop:enable Style/IdenticalConditionalBranches
+
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526 - Controller Actions Completed')
@@ -78,7 +94,11 @@ module ClaimsApi
           end
 
           unless form_attributes['autoCestPDFGenerationDisabled'] == true
-            ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
+            if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+              ClaimsApi::V1::DisabilityCompensationPdfGenerator.perform_async(auto_claim.id, veteran_middle_initial)
+            else
+              ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
+            end
           end
 
           render json: ClaimsApi::AutoEstablishedClaimSerializer.new(auto_claim)
@@ -151,7 +171,17 @@ module ClaimsApi
           add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
-          validate_form_526_submission_values!
+
+          # rubocop:disable Style/IdenticalConditionalBranches
+          if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+            extend(ClaimsApi::RevisedDisabilityCompensationValidations)
+            validate_form_526_submission_values!
+          else
+            extend(ClaimsApi::DisabilityCompensationValidations)
+            validate_form_526_submission_values!
+          end
+          # rubocop:enable Style/IdenticalConditionalBranches
+
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526/validate - Controller Actions Completed')
@@ -257,6 +287,11 @@ module ClaimsApi
               }
             }
           }.to_json
+        end
+
+        # Only value required by background jobs that is missing in headers is middle name
+        def veteran_middle_initial
+          target_veteran.middle_name&.first&.upcase || ''
         end
 
         def format_526_errors(errors)

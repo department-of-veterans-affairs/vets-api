@@ -21,7 +21,7 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 200
+      code: 404
       message: ''
     headers:
       Date:
@@ -77,13 +77,7 @@ http_interactions:
       - no-cache, no-store
     body:
       encoding: ASCII-8BIT
-      string: '{"candidateAddresses":[{"addressLine1":"Sdfdsfsdf","cityName":"Sparks Glencoe","zipCode5":"21152",
-        "state":{"stateName":"Maryland","stateCode":"MD"},"country":{"countryName":"United States",
-        "countryCodeFips":"US","countryCodeIso2":"US","countryCodeIso3":"USA"},"geocode":{
-        "calcDate":"2024-10-22T19:26:20+00:00Z","latitude":39.5412,"longitude":-76.6676},"confidence":0.0,
-        "addressType":"Domestic","deliveryPointValidation":"MISSING_ZIP"}],"overrideValidationKey":1499210293,
-        "messages":[{"code":"ADDRVAL108","key":"CandidateAddressNotFound","severity":"WARN","text":"No Candidate Address Found",
-        "potentially_self_correcting_on_retry":true}]}'
+      string: '{"messages": [{"code": "ADDRVAL108","key": "CandidateAddressNotFound","severity": "WARN","text": "No Candidate Address Found","potentially_self_correcting_on_retry": true}]}'
     http_version:
   recorded_at: Tue, 22 Oct 2024 19:26:20 GMT
 recorded_with: VCR 6.3.1
