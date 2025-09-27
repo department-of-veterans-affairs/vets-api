@@ -237,9 +237,26 @@ module ClaimsApi
       def disabilities
         return if @data[:disabilities].blank?
 
-        @fes_claim[:disabilities] = @data[:disabilities].map do |disability|
-          transform_disability_values!(disability.deep_dup)
+        # Extract all primary disabilities and their secondaries
+        primary_disabilities = @data[:disabilities]
+        all_disabilities = []
+
+        primary_disabilities.each do |disability|
+          # Add transformed primary disability
+          primary = disability.deep_dup
+          secondary_disabilities = primary.delete(:secondaryDisabilities) || []
+          all_disabilities << transform_disability_values!(primary)
+
+          # Pull any nested secondary disabilities up into the main disabilities array
+          secondary_disabilities.each do |secondary|
+            transformed_secondary = transform_disability_values!(secondary.deep_dup)
+            # Override the action type so it's always 'NEW':
+            transformed_secondary.merge!(disabilityActionType: 'NEW')
+            all_disabilities << transformed_secondary
+          end
         end
+
+        @fes_claim[:disabilities] = all_disabilities
       end
 
       def transform_disability_values!(disability)
