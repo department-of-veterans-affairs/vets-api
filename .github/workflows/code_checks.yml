@@ -94,6 +94,7 @@ jobs:
           path: tmp/parallel_runtime_rspec.log
           key: runtime-cache-all
           restore-keys: |
+            runtime-cache-all-
             runtime-cache-
 
       - name: Runtime cache clear previous chunk cache
@@ -175,6 +176,7 @@ jobs:
           path: tmp/parallel_runtime_rspec.log
           key: runtime-cache-all
           restore-keys: |
+            runtime-cache-all-
             runtime-cache-
 
       - name: Runtime cache clear previous chunk cache
@@ -384,6 +386,7 @@ jobs:
           path: tmp/parallel_runtime_rspec.log
           key: runtime-cache-all
           restore-keys: |
+            runtime-cache-all-
             runtime-cache-
 
       - name: Runtime cache load chunk 1
@@ -472,7 +475,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh extension install actions/gh-actions-cache
-          gh actions-cache delete runtime-cache-all --confirm
+          gh actions-cache delete runtime-cache-all-${{ github.run_id }} --confirm
         continue-on-error: true
 
       - name: Runtime cache store
@@ -480,4 +483,4 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: tmp/parallel_runtime_rspec.log
-          key: runtime-cache-all
+          key: runtime-cache-all-${{ github.run_id }}
