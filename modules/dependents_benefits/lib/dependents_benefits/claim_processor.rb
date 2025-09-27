@@ -48,10 +48,9 @@ module DependentsBenefits
     private
 
     def collect_child_claims
-      # TODO: Implement logic to collect childs claim ids based on parent_claim_id
-      claim_ids = []
-      child_claims = SavedClaim.where(id: claim_ids)
-      # TODO: raise StandardError, "No child claims found for parent claim #{parent_claim_id}" if child_claims.empty?
+      claim_ids = SavedClaimGroup.child_claims_for(parent_claim_id).pluck(:saved_claim_id)
+      child_claims = ::SavedClaim.where(id: claim_ids)
+      raise StandardError, "No child claims found for parent claim #{parent_claim_id}" if child_claims.empty?
 
       monitor.track_processor_info('Collected child claims for processing', 'collect_children',
                                    { parent_claim_id:, child_claims_count: child_claims.count })
@@ -91,7 +90,8 @@ module DependentsBenefits
       monitor.track_processor_error('Failed to enqueue submission jobs', 'enqueue_failure',
                                     { parent_claim_id:, error: error.message })
 
-      # TODO: Update parent ClaimGroup status to FAILED
+      parent_claim_group = SavedClaimGroup.find_by!(parent_claim_id:, saved_claim_id: parent_claim_id)
+      parent_claim_group.update!(status: 'failure')
     rescue => e
       monitor.track_processor_error('Failed to update ClaimGroup status', 'status_update',
                                     { parent_claim_id:, error: e.message, original_error: error.message })

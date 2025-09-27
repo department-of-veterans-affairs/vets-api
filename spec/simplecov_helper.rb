@@ -93,6 +93,7 @@ class SimpleCovHelper
     add_group 'AppsApi', 'modules/apps_api'
     add_group 'AskVAApi', 'modules/ask_va_api/'
     add_group 'Avs', 'modules/avs/'
+    add_group 'BPDS', 'modules/bpds/'
     add_group 'Banners', 'modules/banners/'
     add_group 'Burials', 'modules/burials/'
     add_group 'CheckIn', 'modules/check_in/'

@@ -1,30 +1,34 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :saved_claim_group do
-    claim_group_guid { SecureRandom.uuid }
+  factory :saved_claim_group, class: 'SavedClaimGroup' do
     status { 'pending' }
     user_data { { user_uuid: SecureRandom.uuid } }
 
-    # Use the same SavedClaim for both parent and child
     transient do
-      claim { create(:dependents_claim) }
+      parent_claim { create(:dependents_claim) }
+      saved_claim { create(:add_remove_dependents_claim) }
     end
 
-    parent_claim_id { claim.id }
-    saved_claim_id { claim.id }
+    parent_claim_id { parent_claim.id }
 
-    trait :with_children do
-      after(:create) do |claim_group|
-        # Create two additional child claims with the same parent and claim_group_guid
-        2.times do
-          child_claim = create(:dependents_claim)
-          create(:saved_claim_group,
-                 claim_group_guid: claim_group.claim_group_guid,
-                 parent_claim_id: claim_group.parent_claim_id,
-                 saved_claim_id: child_claim.id)
-        end
-      end
+    saved_claim_id { saved_claim.id }
+
+    claim_group_guid { parent_claim.guid }
+  end
+
+  factory :parent_claim_group, class: 'SavedClaimGroup' do
+    status { 'pending' }
+    user_data { { user_uuid: SecureRandom.uuid } }
+
+    transient do
+      parent_claim { create(:dependents_claim) }
     end
+
+    parent_claim_id { parent_claim.id }
+
+    saved_claim_id { parent_claim_id }
+
+    claim_group_guid { parent_claim.guid }
   end
 end

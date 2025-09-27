@@ -14,7 +14,7 @@ module BPDS
       super('bpds-service')
     end
 
-    # track submission request started
+    # Track submission request started
     #
     # @param saved_claim_id [Integer] the SavedClaim id
     def track_submit_begun(saved_claim_id)
@@ -28,7 +28,7 @@ module BPDS
       )
     end
 
-    # track submission successful
+    # Track submission successful
     #
     # @param saved_claim_id [Integer] the SavedClaim id
     def track_submit_success(saved_claim_id)
@@ -42,7 +42,7 @@ module BPDS
       )
     end
 
-    # track submission request failure
+    # Track submission request failure
     #
     # @param saved_claim_id [Integer] the SavedClaim id
     # @param e [Error] the error which occurred
@@ -60,7 +60,7 @@ module BPDS
       )
     end
 
-    # track get_json started
+    # Track get_json started
     #
     # @param bpds_uuid [UUID] the uuid generated for a submission
     def track_get_json_begun(bpds_uuid)
@@ -74,7 +74,7 @@ module BPDS
       )
     end
 
-    # track get_json successful
+    # Track get_json successful
     #
     # @param bpds_uuid [UUID] the uuid generated for a submission
     def track_get_json_success(bpds_uuid)
@@ -88,7 +88,7 @@ module BPDS
       )
     end
 
-    # track get_json failure
+    # Track get_json failure
     #
     # @param bpds_uuid [UUID] the uuid generated for a submission
     def track_get_json_failure(bpds_uuid, e)
@@ -105,7 +105,7 @@ module BPDS
       )
     end
 
-    # track user type for user identifier lookup for BPDS
+    # Track user type for user identifier lookup for BPDS
     #
     # @param user_type [String] the user type of the user
     def track_get_user_identifier(user_type)
@@ -119,7 +119,7 @@ module BPDS
       )
     end
 
-    # track result of user identifier lookup for BPDS when checking for participant id
+    # Track result of user identifier lookup for BPDS when checking for participant id
     #
     # @param service_name [String] the service name
     # @param is_pid_present [Boolean] if the participant id is present in the response
@@ -134,7 +134,7 @@ module BPDS
       )
     end
 
-    # track result of user identifier lookup for BPDS when checking for file number
+    # Track result of user identifier lookup for BPDS when checking for file number
     #
     # @param is_file_number_present [Boolean] if the file number is present in the response
     def track_get_user_identifier_file_number_result(is_file_number_present)
@@ -148,6 +148,9 @@ module BPDS
       )
     end
 
+    # Tracks and logs the event when a BPDS job is skipped due to a missing user identifier.
+    #
+    # @param saved_claim_id [Integer, String] The ID of the saved claim for which the BPDS job was skipped.
     def track_skip_bpds_job(saved_claim_id)
       additional_context = { saved_claim_id: }
       track_request(

@@ -79,6 +79,21 @@ RSpec.describe BPDS::Sidekiq::SubmitToBPDSJob, type: :job do
       end
     end
 
+    context 'when the claim has already been submitted' do
+      before do
+        allow(bpds_submission).to receive(:latest_status).and_return('submitted')
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'logs that the claim has already been submitted' do
+        described_class.new.perform(claim.id, encrypted_payload)
+
+        expect(Rails.logger).to have_received(:info).with(
+          "Saved Claim #:#{claim.id} has already been submitted to BPDS"
+        )
+      end
+    end
+
     context 'when the submission fails' do
       let(:error) { StandardError.new('Submission failed') }
 

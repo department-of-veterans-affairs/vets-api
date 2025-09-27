@@ -12,6 +12,7 @@ path 'modules' do
   gem 'ask_va_api'
   gem 'avs'
   gem 'banners'
+  gem 'bpds'
   gem 'burials'
   gem 'check_in'
   gem 'claims_api'
