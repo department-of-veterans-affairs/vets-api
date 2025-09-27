@@ -1285,13 +1285,7 @@ module ClaimsApi
 
       def collect_error_messages(detail: 'Missing or invalid attribute', source: '/',
                                  title: 'Unprocessable Entity', status: '422')
-        # Convert source string to pointer object format to match schema validation format
-        source_value = if source.is_a?(String)
-                         { pointer: "data/attributes/#{source.gsub(%r{^/}, '').chomp('/')}" }
-                       else
-                         source
-                       end
-        errors_array.push({ detail:, source: source_value, title:, status: })
+        errors_array.push({ detail:, source:, title:, status: })
       end
 
       def error_collection

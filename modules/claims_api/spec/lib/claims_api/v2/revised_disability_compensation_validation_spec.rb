@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../../app/controllers/concerns/claims_api/v2/revised_disability_compensation_validation'
 require 'claims_api/v2/disability_compensation_shared_service_module'
 require 'claims_api/v2/lighthouse_military_address_validator'
 
