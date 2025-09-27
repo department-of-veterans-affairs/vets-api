@@ -88,13 +88,17 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
 
-      - name: Cache parallel test runtime data
-        uses: actions/cache@v4
+      - name: Runtime cache restore
+        uses: actions/cache/restore@v4
         with:
           path: tmp/parallel_runtime_rspec.log
-          key: parallel-runtime-${{ github.repository }}-${{ hashFiles('**/*.rb', 'Gemfile.lock') }}
+          key: runtime-cache-all
           restore-keys: |
-            parallel-runtime-${{ github.repository }}-
+            runtime-cache-
+
+      - name: Runtime cache clear previous chunk cache
+        run: |
+          rm -f tmp/parallel_runtime_rspec_chunk_${{ matrix.test_group }}.log
 
       - name: Login to DockerHub
         uses: docker/login-action@v3
@@ -165,13 +169,22 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
 
-      - name: Cache parallel test runtime data
-        uses: actions/cache@v4
+      - name: Runtime cache restore
+        uses: actions/cache/restore@v4
         with:
           path: tmp/parallel_runtime_rspec.log
-          key: parallel-runtime-${{ github.repository }}-${{ hashFiles('**/*.rb', 'Gemfile.lock') }}
+          key: runtime-cache-all
           restore-keys: |
-            parallel-runtime-${{ github.repository }}-
+            runtime-cache-
+
+      - name: Runtime cache clear previous chunk cache
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh extension install actions/gh-actions-cache
+          gh actions-cache delete runtime-cache-${{ matrix.test_group }} --confirm
+        continue-on-error: true
 
       - name: Login to DockerHub
         uses: docker/login-action@v3
@@ -233,7 +246,7 @@ jobs:
           TEST_ENV_NUMBER: ${{ matrix.test_group }}
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
-          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 12 --verbose --test-options='--format progress --format ParallelTests::RSpec::RuntimeLogger --out tmp/parallel_runtime_rspec.log'"
+          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 12 --verbose --test-options='--format progress --format ParallelTests::RSpec::RuntimeLogger --out tmp/parallel_runtime_rspec_chunk_${{ matrix.test_group }}.log'"
 
       - name: Upload Coverage Report
         if: always()
@@ -270,12 +283,25 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Runtime cache prepare chunk
+        shell: bash
+        run: |
+          mkdir -p tmp/parallel_runtime_rspec
+          mv tmp/parallel_runtime_rspec_chunk_${{ matrix.test_group }}.log tmp/parallel_runtime_rspec/${{ matrix.test_group }}.log
+
+      - name: Runtime cache store chunk
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: tmp/parallel_runtime_rspec
+          key: runtime-cache-${{ matrix.test_group }}
+
       - name: Upload Runtime Data
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Runtime Data Group ${{ matrix.test_group }}
-          path: tmp/parallel_runtime_rspec.log
+          path: tmp/parallel_runtime_rspec_chunk_${{ matrix.test_group }}.log
           if-no-files-found: ignore
 
 
@@ -352,24 +378,106 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
 
-      - name: Cache parallel test runtime data
-        uses: actions/cache@v4
+      - name: Runtime cache restore
+        uses: actions/cache/restore@v4
         with:
           path: tmp/parallel_runtime_rspec.log
-          key: parallel-runtime-${{ github.repository }}-${{ hashFiles('**/*.rb', 'Gemfile.lock') }}
+          key: runtime-cache-all
           restore-keys: |
-            parallel-runtime-${{ github.repository }}-
+            runtime-cache-
 
-      - name: Download all test artifacts
-        uses: actions/download-artifact@v5
+      - name: Runtime cache load chunk 1
+        uses: actions/cache/restore@v4
+        with:
+          key: runtime-cache-1
+          path: tmp/parallel_runtime_rspec
 
-      - name: Combine runtime data from all test groups
+      - name: Runtime cache load chunk 2
+        uses: actions/cache/restore@v4
+        with:
+          key: runtime-cache-2
+          path: tmp/parallel_runtime_rspec
+
+      - name: Runtime cache load chunk 3
+        uses: actions/cache/restore@v4
+        with:
+          key: runtime-cache-3
+          path: tmp/parallel_runtime_rspec
+
+      - name: Runtime cache load chunk 4
+        uses: actions/cache/restore@v4
+        with:
+          key: runtime-cache-4
+          path: tmp/parallel_runtime_rspec
+
+      - name: Runtime cache load chunk 5
+        uses: actions/cache/restore@v4
+        with:
+          key: runtime-cache-5
+          path: tmp/parallel_runtime_rspec
+
+      - name: Runtime cache load chunk 6
+        uses: actions/cache/restore@v4
+        with:
+          key: runtime-cache-6
+          path: tmp/parallel_runtime_rspec
+
+      - name: Runtime cache load chunk 7
+        uses: actions/cache/restore@v4
+        with:
+          key: runtime-cache-7
+          path: tmp/parallel_runtime_rspec
+
+      - name: Runtime cache load chunk 8
+        uses: actions/cache/restore@v4
+        with:
+          key: runtime-cache-8
+          path: tmp/parallel_runtime_rspec
+
+      - name: Runtime cache load chunk 9
+        uses: actions/cache/restore@v4
+        with:
+          key: runtime-cache-9
+          path: tmp/parallel_runtime_rspec
+
+      - name: Runtime cache load chunk 10
+        uses: actions/cache/restore@v4
+        with:
+          key: runtime-cache-10
+          path: tmp/parallel_runtime_rspec
+
+      - name: Runtime cache load chunk 11
+        uses: actions/cache/restore@v4
+        with:
+          key: runtime-cache-11
+          path: tmp/parallel_runtime_rspec
+
+      - name: Runtime cache load chunk 12
+        uses: actions/cache/restore@v4
+        with:
+          key: runtime-cache-12
+          path: tmp/parallel_runtime_rspec
+
+      - name: Runtime cache combine chunks
         run: |
-          mkdir -p tmp
-          # Find and combine any runtime logs from runtime data artifacts
-          find . -name "parallel_runtime_rspec.log" -path "*/Runtime Data Group*" -exec cat {} \; >> tmp/parallel_runtime_rspec.log || true
-          # Remove duplicates and sort
+          cat tmp/parallel_runtime_rspec/* > tmp/parallel_runtime_rspec.log || true
           if [ -f tmp/parallel_runtime_rspec.log ]; then
             sort -u tmp/parallel_runtime_rspec.log -o tmp/parallel_runtime_rspec.log
             echo "Combined runtime data from $(wc -l < tmp/parallel_runtime_rspec.log) test entries"
+            cat tmp/parallel_runtime_rspec.log | head -10
           fi
+
+      - name: Runtime cache clear
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh extension install actions/gh-actions-cache
+          gh actions-cache delete runtime-cache-all --confirm
+        continue-on-error: true
+
+      - name: Runtime cache store
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: tmp/parallel_runtime_rspec.log
+          key: runtime-cache-all
