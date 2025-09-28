@@ -32,7 +32,7 @@ module SimpleFormsApi
       pdf_file = File.open(pdf_path, 'rb')
       attachment.file = pdf_file
       attachment.save
-      
+
       attachment
     rescue => e
       Rails.logger.error("ScannedFormProcessor failed: #{e.message}")
