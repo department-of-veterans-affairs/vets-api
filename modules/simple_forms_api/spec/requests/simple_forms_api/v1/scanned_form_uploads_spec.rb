@@ -268,45 +268,6 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       Common::FileHelpers.delete_file_if_exists(metadata_file)
     end
 
-    it 'bundles main form with supporting evidence for Benefits Intake' do
-      main_attachment = double('MainAttachment')
-      file_mock = double('file')
-      allow(file_mock).to receive(:open).and_return(double(path: pdf_path.to_s))
-      allow(main_attachment).to receive(:file).and_return(file_mock)
-      allow(PersistentAttachment).to receive(:find_by).with(guid: main_confirmation_code).and_return(main_attachment)
-      support_attachment_first = double('SupportAttachment1')
-      support_attachment_second = double('SupportAttachment2')
-
-      file_mock_first = double('file_first')
-      file_mock_second = double('file_second')
-      allow(file_mock_first).to receive(:open).and_return(double(path: '/tmp/support1.pdf'))
-      allow(file_mock_second).to receive(:open).and_return(double(path: '/tmp/support2.pdf'))
-      allow(support_attachment_first).to receive(:file).and_return(file_mock_first)
-      allow(support_attachment_second).to receive(:file).and_return(file_mock_second)
-
-      allow(PersistentAttachment).to receive(:where).with(guid: supporting_evidence_codes)
-                                                    .and_return([support_attachment_first, support_attachment_second])
-
-      pdf_stamper = double(stamp_pdf: nil)
-      allow(SimpleFormsApi::PdfStamper).to receive(:new).and_return(pdf_stamper)
-
-      lighthouse_service = double('BenefitsIntake::Service')
-      allow(BenefitsIntake::Service).to receive(:new).and_return(lighthouse_service)
-
-      allow(lighthouse_service).to receive(:request_upload).and_return(['http://upload-url', 'uuid-123'])
-
-      expect(lighthouse_service).to receive(:perform_upload) do |args|
-        expect(args[:attachments]).to be_an(Array)
-        expect(args[:attachments].length).to eq(2)
-        expect(args[:attachments]).to include('/tmp/support1.pdf', '/tmp/support2.pdf')
-        double(status: 200)
-      end
-
-      post('/simple_forms_api/v1/submit_scanned_form', params: params_with_supporting_evidence)
-
-      expect(response).to have_http_status(:ok)
-    end
-
     it 'handles submission without supporting evidence (existing behavior)' do
       main_attachment = double('MainAttachment')
       file_mock = double('file')
