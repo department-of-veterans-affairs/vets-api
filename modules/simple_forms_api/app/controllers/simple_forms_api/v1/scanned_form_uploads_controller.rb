@@ -33,10 +33,9 @@ module SimpleFormsApi
         #   return
         # end
 
-        attachment = PersistentAttachments::VAForm.new
+        attachment = PersistentAttachments::MilitaryRecords.new
         attachment.form_id = params['form_id']
         attachment.file = params['file']
-        binding.pry
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
         processor = SimpleFormsApi::ScannedFormProcessor.new(attachment)
@@ -55,11 +54,11 @@ module SimpleFormsApi
       end
 
       def upload_response
-        # if Flipper.enabled?(:simple_forms_upload_supporting_documents, @current_user)
+        if Flipper.enabled?(:simple_forms_upload_supporting_documents, @current_user)
           upload_response_with_supporting_documents
-        # else
-        #   upload_response_legacy
-        # end
+        else
+          upload_response_legacy
+        end
       end
 
       def upload_response_legacy
@@ -161,6 +160,7 @@ module SimpleFormsApi
       end
 
       def create_form_submission
+        binding.pry
         FormSubmission.create(
           form_type: params[:form_number],
           form_data: params[:form_data].to_json,
