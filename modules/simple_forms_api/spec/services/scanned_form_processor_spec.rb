@@ -43,12 +43,12 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
       end
 
       it 'raises ConversionError when conversion fails' do
-      error = nil
-      expect { processor.process! }
-        .to raise_error(SimpleFormsApi::ScannedFormProcessor::ConversionError) { |e| error = e }
+        error = nil
+        expect { processor.process! }
+          .to raise_error(SimpleFormsApi::ScannedFormProcessor::ConversionError) { |e| error = e }
 
-      expect(error.message).to eq('File conversion failed')
-      expect(error.errors.first[:title]).to eq('File conversion error')
+        expect(error.message).to eq('File conversion failed')
+        expect(error.errors.first[:title]).to eq('File conversion error')
       end
     end
 
