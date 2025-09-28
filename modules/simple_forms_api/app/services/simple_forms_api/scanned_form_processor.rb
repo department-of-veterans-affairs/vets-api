@@ -3,7 +3,7 @@
 module SimpleFormsApi
   class ScannedFormProcessor
     PDF_VALIDATOR_OPTIONS = {
-      size_limit_in_bytes: 100.megabytes, # 100 MB
+      size_limit_in_bytes: 100.megabytes,
       check_page_dimensions: true,
       check_encryption: true,
       width_limit_in_inches: 78,
@@ -27,10 +27,13 @@ module SimpleFormsApi
     end
 
     def process!
-      convert_to_pdf
-      validate_pdf
-      @attachment.save
-      @attachment
+      pdf_path = convert_to_pdf
+      validate_pdf_at_path(pdf_path)
+      pdf_file = File.open(pdf_path, 'rb')
+      attachment.file = pdf_file
+      attachment.save
+      
+      attachment
     rescue => e
       Rails.logger.error("ScannedFormProcessor failed: #{e.message}")
       raise
@@ -43,11 +46,8 @@ module SimpleFormsApi
     def convert_to_pdf
       Rails.logger.info("Converting file to PDF for attachment #{attachment.guid}")
       pdf_path = Common::ConvertToPdf.new(attachment.file).run
-
-      pdf_file = File.open(pdf_path, 'rb')
-      attachment.file = pdf_file
-
       Rails.logger.info('Successfully converted file to PDF')
+      pdf_path
     rescue => e
       Rails.logger.error("PDF conversion failed: #{e.message}")
       raise ConversionError.new(
@@ -59,9 +59,8 @@ module SimpleFormsApi
       )
     end
 
-    def validate_pdf
+    def validate_pdf_at_path(file_path)
       Rails.logger.info("Validating PDF for attachment #{attachment.guid}")
-      file_path = attachment.file.open.path
       validator = PDFUtilities::PDFValidator::Validator.new(file_path, PDF_VALIDATOR_OPTIONS)
       validation_result = validator.validate
 

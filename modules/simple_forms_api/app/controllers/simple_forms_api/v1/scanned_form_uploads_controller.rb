@@ -28,15 +28,15 @@ module SimpleFormsApi
       end
 
       def upload_supporting_documents
-        unless Flipper.enabled?(:simple_forms_upload_supporting_documents, @current_user)
-          render json: { error: 'Feature not available' }, status: :not_found
-          return
-        end
+        # unless Flipper.enabled?(:simple_forms_upload_supporting_documents, @current_user)
+        #   render json: { error: 'Feature not available' }, status: :not_found
+        #   return
+        # end
 
         attachment = PersistentAttachments::VAForm.new
         attachment.form_id = params['form_id']
         attachment.file = params['file']
-
+        binding.pry
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
         processor = SimpleFormsApi::ScannedFormProcessor.new(attachment)
@@ -55,11 +55,11 @@ module SimpleFormsApi
       end
 
       def upload_response
-        if Flipper.enabled?(:simple_forms_upload_supporting_documents, @current_user)
+        # if Flipper.enabled?(:simple_forms_upload_supporting_documents, @current_user)
           upload_response_with_supporting_documents
-        else
-          upload_response_legacy
-        end
+        # else
+        #   upload_response_legacy
+        # end
       end
 
       def upload_response_legacy
@@ -80,7 +80,7 @@ module SimpleFormsApi
 
       def upload_response_with_supporting_documents
         main_attachment = PersistentAttachment.find_by(guid: params[:confirmation_code])
-        main_file_path = main_attachment.file.open.path
+        main_file_path = find_attachment_path(main_attachment.guid)
 
         supporting_attachments = []
         if params[:supporting_documents].present?
@@ -133,7 +133,7 @@ module SimpleFormsApi
         location, uuid = prepare_for_upload
         log_upload_details(location, uuid)
         attachments = supporting_attachments.map do |attachment|
-          attachment.file.open.path
+          find_attachment_path(attachment.guid)
         end
 
         response = lighthouse_service.perform_upload(
