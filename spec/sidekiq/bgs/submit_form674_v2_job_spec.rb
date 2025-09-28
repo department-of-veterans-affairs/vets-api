@@ -5,19 +5,7 @@ require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm674V2Job, type: :job do
   # Performance tweak
-  before do
-    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
-  end
-
-  # Performance tweak
-  # This can be removed. Benchmarked all tests to see which tests are slowest.
-  around do |example|
-    puts "\nStarting: #{example.full_description}"
-    start_time = Time.now
-    example.run
-    duration = Time.now - start_time
-    puts "Finished: #{example.full_description} (#{duration.round(2)}s)\n\n"
-  end
+  before { allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking) }
 
   let(:user) { create(:evss_user, :loa3, :with_terms_of_use_agreement) }
   let(:dependency_claim) { create(:dependency_claim) }
@@ -162,6 +150,85 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
       )
 
       subject.perform(user.uuid, dependency_claim_674_only.id, encrypted_vet_info, encrypted_user_struct)
+    end
+  end
+
+  context 'sidekiq_retries_exhausted' do
+    it 'tracks exhaustion event and sends backup submission' do
+      msg = {
+        'args' => [user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct],
+        'error_message' => 'Connection timeout'
+      }
+      error = StandardError.new('Job failed')
+
+      # Mock the monitor
+      monitor_double = instance_double(Dependents::Monitor)
+      expect(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
+
+      # Expect the monitor to track the exhaustion event
+      expect(monitor_double).to receive(:track_event).with(
+        'error',
+        'BGS::SubmitForm674Job failed, retries exhausted! Last error: Connection timeout',
+        'worker.submit_674_bgs.exhaustion'
+      )
+
+      # Expect the backup submission to be called
+      expect(BGS::SubmitForm674V2Job).to receive(:send_backup_submission).with(
+        encrypted_user_struct,
+        vet_info,
+        dependency_claim.id,
+        user.uuid
+      )
+
+      # Call the sidekiq_retries_exhausted callback
+      described_class.sidekiq_retries_exhausted_block.call(msg, error)
+    end
+  end
+
+  context 'send_backup_submission exception' do
+    let(:in_progress_form) do
+      InProgressForm.create!(
+        form_id: '686C-674-V2',
+        user_uuid: user.uuid,
+        user_account: user.user_account,
+        form_data: all_flows_payload
+      )
+    end
+
+    before do
+      allow(OpenStruct).to receive(:new).and_call_original
+      in_progress_form
+    end
+
+    it 'handles exceptions during backup submission' do
+      # Mock the monitor
+      monitor_double = instance_double(Dependents::Monitor)
+      expect(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
+
+      # Mock the backup submission to raise an error
+      expect(Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job).to receive(:perform_async)
+        .and_raise(StandardError.new('Backup submission failed'))
+
+      # Expect the monitor to track the error event
+      expect(monitor_double).to receive(:track_event).with(
+        'error',
+        'BGS::SubmitForm674Job backup submission failed...',
+        'worker.submit_674_bgs.backup_failure',
+        hash_including(error: 'Backup submission failed')
+      )
+
+      # Expect the in-progress form to be marked as submission pending
+      expect_any_instance_of(InProgressForm).to receive(:submission_pending!)
+
+      # Call the send_backup_submission method
+      expect do
+        described_class.send_backup_submission(
+          encrypted_user_struct,
+          vet_info,
+          dependency_claim.id,
+          user.uuid
+        )
+      end.not_to raise_error
     end
   end
 end
