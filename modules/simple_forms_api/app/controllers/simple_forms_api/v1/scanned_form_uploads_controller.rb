@@ -28,10 +28,10 @@ module SimpleFormsApi
       end
 
       def upload_supporting_documents
-        # unless Flipper.enabled?(:simple_forms_upload_supporting_documents, @current_user)
-        #   render json: { error: 'Feature not available' }, status: :not_found
-        #   return
-        # end
+        unless Flipper.enabled?(:simple_forms_upload_supporting_documents, @current_user)
+          render json: { error: 'Feature not available' }, status: :not_found
+          return
+        end
 
         attachment = PersistentAttachments::MilitaryRecords.new
         attachment.form_id = params['form_id']
