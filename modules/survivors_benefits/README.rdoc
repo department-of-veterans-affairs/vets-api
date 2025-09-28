@@ -1,0 +1,10 @@
+= MedicalExpenseReports
+TODO: Short description and motivation.
+
+== Installation
+Ensure the following line is in the root project's Gemfile:
+
+  gem 'survivors_benefits', path: 'modules/survivors_benefits'
+
+== License
+This module is open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

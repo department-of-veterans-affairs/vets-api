@@ -121,6 +121,7 @@ PATH
     pensions (0.1.0)
     representation_management (0.1.0)
     simple_forms_api (0.1.0)
+    survivors_benefits (0.1.0)
     test_user_dashboard (0.1.0)
       rails
     travel_pay (0.1.0)
@@ -1412,6 +1413,7 @@ DEPENDENCIES
   statsd-instrument
   strong_migrations
   super_diff
+  survivors_benefits!
   swagger-blocks
   test_user_dashboard!
   timecop

@@ -416,6 +416,7 @@ Rails.application.routes.draw do
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
   mount DecisionReviews::Engine, at: '/decision_reviews'
+  mount SurvivorsBenefits::Engine, at: '/survivors_benefits'
   # End Modules
 
   require 'sidekiq/web'
