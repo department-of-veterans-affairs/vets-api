@@ -16,22 +16,14 @@ class SavedClaimGroup < ApplicationRecord
   has_kms_key
   has_encrypted :user_data, key: :kms_key, **lockbox_options
 
-  # Associations
   belongs_to :parent, class_name: 'SavedClaim', foreign_key: 'parent_claim_id', inverse_of: :parent_of_groups
   belongs_to :child, class_name: 'SavedClaim', foreign_key: 'saved_claim_id', inverse_of: :child_of_groups
 
-  # Scopes
   scope :by_claim_group_guid, ->(guid) { where(claim_group_guid: guid) }
   scope :by_parent_claim, ->(claim_id) { where(parent_claim_id: claim_id) }
   scope :by_status, ->(status) { where(status:) }
   scope :pending, -> { by_status('pending') }
   scope :needs_kms_rotation, -> { where(needs_kms_rotation: true) }
-
-  # Scope for finding siblings (groups with same parent and claim_group_guid)
-  scope :siblings_of, lambda { |group|
-    where(claim_group_guid: group.claim_group_guid)
-      .where(parent_claim_id: group.parent_claim_id)
-  }
   scope :child_claims_for, ->(parent_id) { where(parent_claim_id: parent_id).where.not(saved_claim_id: parent_id) }
 
   after_create { track_event(:create) }
@@ -39,13 +31,8 @@ class SavedClaimGroup < ApplicationRecord
 
   # return all the child claims associated with this group
   def children
-    SavedClaim.joins(:child_of_groups)
-              .merge(self.class.siblings_of(self))
-  end
-
-  # Returns sibling groups (same parent and claim_group_guid)
-  def siblings
-    self.class.siblings_of(self).where.not(id:)
+    child_ids = SavedClaimGroup.where(claim_group_guid:, parent_claim_id:).map(&:saved_claim_id)
+    SavedClaim.where(id: child_ids)
   end
 
   private
