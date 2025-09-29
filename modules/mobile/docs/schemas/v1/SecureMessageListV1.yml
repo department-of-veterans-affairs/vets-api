@@ -44,6 +44,7 @@ properties:
             - folderId
             - draftDate
             - toDate
+            - isOhMessage
           properties:
             messageId:
               type: integer
@@ -110,6 +111,9 @@ properties:
             hasAttachment:
               type: boolean
               example: false
+            isOhMessage:
+              type: boolean
+              example: true
         links:
           type: object
           additionalProperties: false

@@ -67,7 +67,8 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'folderId' => -2,
                 'draftDate' => '2023-05-16T14:55:01+00:00',
                 'toDate' => nil,
-                'hasAttachments' => false
+                'hasAttachments' => false,
+                'isOhMessage' => false
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573059'
@@ -95,7 +96,8 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'folderId' => -2,
                 'draftDate' => '2023-05-16T14:55:01+00:00',
                 'toDate' => nil,
-                'hasAttachments' => false
+                'hasAttachments' => false,
+                'isOhMessage' => true
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573052'
@@ -123,7 +125,8 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'folderId' => -2,
                 'draftDate' => '2023-05-16T14:55:01+00:00',
                 'toDate' => nil,
-                'hasAttachments' => false
+                'hasAttachments' => false,
+                'isOhMessage' => false
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573041'

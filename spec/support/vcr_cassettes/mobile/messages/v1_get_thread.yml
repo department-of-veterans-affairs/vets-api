@@ -56,7 +56,8 @@ http_interactions:
                 "folder_id": -2,
                 "draft_date": "2023-05-16T14:55:01.000+00:00",
                 "to_date": null,
-                "has_attachments": false
+                "has_attachments": false,
+                "isOhMessage": false
               },
               {
                 "message_id": 573052,
@@ -78,7 +79,9 @@ http_interactions:
                 "folder_id": -2,
                 "draft_date": "2023-05-16T14:55:01.000+00:00",
                 "to_date": null,
-                "has_attachments": false
+                "has_attachments": false,
+                "isOhMessage": false,
+                "isOhMessage": true
               },
               {
                 "message_id": 573041,
