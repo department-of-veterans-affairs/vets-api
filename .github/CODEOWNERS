@@ -1152,6 +1152,7 @@ spec/controllers/v0/mdot @department-of-veterans-affairs/va-cto-health-products 
 spec/controllers/v0/mdot/supplies_controller_spec.rb @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/medical_copays_controller_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/mhv_opt_in_flags_controller_spec.rb @department-of-veterans-affairs/octo-identity
+spec/controllers/v0/my_va/submission_statuses_controller_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/onsite_notifications_controller_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/open_api_controller_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/preneeds @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
