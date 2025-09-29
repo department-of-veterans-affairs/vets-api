@@ -47,11 +47,12 @@ module V0
       def decision_reviews_forms_if_enabled
         return [] unless display_decision_reviews_forms?
 
+        # we use form0995_form4142 here to distinguish SC 4142s from standalone 4142s
         %w[
           20-0995
           20-0996
           10182
-          21-4142
+          form0995_form4142
         ]
       end
 
