@@ -317,9 +317,10 @@ describe 'sm client' do
     let(:file) { double('file', original_filename: 'test file.pdf', content_type: 'application/pdf', size: 123) }
 
     it 'decodes URL-encoded characters in lgAttachmentId' do
-      allow(client).to receive(:create_presigned_url_for_attachment).with(file).and_return({ data: 'https://example.com/uploads/test%20file.pdf' })
+      file_path = 'https://example.com/uploads/test%20file.pdf'
+      allow(client).to receive(:create_presigned_url_for_attachment).with(file).and_return({ data: file_path })
       allow(client).to receive(:upload_attachment_to_s3)
-      allow(client).to receive(:extract_uploaded_file_name).with('https://example.com/uploads/test%20file.pdf').and_return('test%20file.pdf')
+      allow(client).to receive(:extract_uploaded_file_name).with(file_path).and_return('test%20file.pdf')
 
       result = client.send(:build_lg_attachment, file)
 
