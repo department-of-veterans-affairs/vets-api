@@ -33,7 +33,6 @@ module V0
       end
 
       def poll_claims_from_lighthouse
-        raw_claim_list = lighthouse_service.get_claims['data']
         cxi_reporting_service = ::Chatbot::ReportToCxi.new
         conversation_id = params[:conversation_id]
         if conversation_id.blank?
@@ -44,15 +43,24 @@ module V0
           raise ActionController::ParameterMissing, 'conversation_id'
         end
 
+        claims = []
+
         begin
+          raw_claim_list = lighthouse_service.get_claims['data']
           claims = order_claims_lighthouse(raw_claim_list)
-          report_or_error(cxi_reporting_service, conversation_id)
-          claims
+        rescue Common::Exceptions::ResourceNotFound => e
+          Rails.logger.info(
+            "V0::Chatbot::ClaimStatusController#poll_claims_from_lighthouse no claims returned by Lighthouse: #{e.message}"
+          )
+          claims = []
         rescue Faraday::ClientError => e
-          report_or_error(cxi_reporting_service, conversation_id)
-          service_exception_handler(error)
+          service_exception_handler(e)
           raise BenefitsClaims::ServiceException.new(e.response), 'Could not retrieve claims'
+        ensure
+          report_or_error(cxi_reporting_service, conversation_id)
         end
+
+        claims
       end
 
       def get_claim_from_lighthouse(id)
@@ -98,7 +106,7 @@ module V0
       end
 
       def order_claims_lighthouse(claims)
-        claims
+        Array(claims)
           .sort_by do |claim|
           Date.strptime(claim['attributes']['claimPhaseDates']['phaseChangeDate'],
                         '%Y-%m-%d').to_time.to_i
