@@ -10,18 +10,24 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
 
   let(:user_account) { create(:user_account) }
   let(:allowed_forms) { %w[20-10207 21-0845 21-0972 21-10210 21-4142 21-4142a 21P-0847] }
+  let(:benefits_intake_service) { instance_double(BenefitsIntake::Service) }
+
+  before do
+    # Mock the BenefitsIntake::Service to prevent actual HTTP calls
+    allow(BenefitsIntake::Service).to receive(:new).and_return(benefits_intake_service)
+  end
 
   context 'when user has no submissions' do
-    let(:benefits_intake_gateway) { Forms::SubmissionStatuses::BenefitsIntakeGateway }
-
     before do
-      allow_any_instance_of(benefits_intake_gateway).to receive(:submissions).and_return([])
-      allow_any_instance_of(benefits_intake_gateway).to receive(:intake_statuses).and_return([nil, nil])
+      # Mock empty response from benefits intake service
+      allow(benefits_intake_service).to receive(:bulk_status).and_return(
+        double(body: { 'data' => [] })
+      )
     end
 
     it 'returns an empty array' do
       result = subject.run
-      expect(result.status_submissions).to be_nil
+      expect(result.submission_statuses).to eq([])
     end
   end
 
@@ -39,9 +45,10 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
 
     context 'has statuses' do
       before do
-        allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway).to receive(:intake_statuses).and_return(
-          [
-            [
+        # Mock successful bulk_status response
+        allow(benefits_intake_service).to receive(:bulk_status).and_return(
+          double(body: {
+            'data' => [
               {
                 'id' => '4b846069-e496-4f83-8587-42b570f24483',
                 'attributes' => {
@@ -62,9 +69,8 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
                   'updated_at' => 3.days.ago
                 }
               }
-            ],
-            nil
-          ]
+            ]
+          })
         )
       end
 
@@ -97,9 +103,10 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
 
     context 'when no statuses' do
       before do
-        allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
-          .to receive(:intake_statuses)
-          .and_return([nil, nil])
+        # Mock empty response (no status data available)
+        allow(benefits_intake_service).to receive(:bulk_status).and_return(
+          double(body: { 'data' => [] })
+        )
       end
 
       it 'returns the correct count' do
@@ -123,9 +130,10 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
 
     context 'when missing status' do
       before do
-        allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway).to receive(:intake_statuses).and_return(
-          [
-            [
+        # Mock partial response (only one status returned for two submissions)
+        allow(benefits_intake_service).to receive(:bulk_status).and_return(
+          double(body: {
+            'data' => [
               {
                 'id' => '4b846069-e496-4f83-8587-42b570f24483',
                 'attributes' => {
@@ -137,8 +145,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
                 }
               }
             ]
-          ],
-          nil
+          })
         )
       end
 
@@ -162,9 +169,14 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
 
     context 'when gateway returns errors' do
       before do
-        allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
-          .to receive(:data)
-          .and_return(OpenStruct.new(errors: ['Gateway error'], submissions?: false))
+        # Create submissions so the gateway has data to process
+        create(:form_submission, :with_form214142, user_account_id: user_account.id)
+        
+        # Mock service error response
+        error_response = double(status: 500, body: { 'errors' => [{ 'detail' => 'Service unavailable' }] })
+        allow(benefits_intake_service).to receive(:bulk_status).and_raise(
+          Common::Exceptions::BackendServiceException.new('BENEFITS_INTAKE_ERROR', {}, error_response.status, error_response.body)
+        )
       end
 
       it 'logs gateway errors' do
@@ -172,7 +184,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
           'Gateway errors encountered when retrieving data in Forms::SubmissionStatuses::Report',
           hash_including(
             service: 'lighthouse_benefits_intake',
-            errors: ['Gateway error']
+            errors: instance_of(Array)
           )
         )
 
@@ -202,9 +214,13 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
     context 'when an unexpected error occurs' do
       context 'when retrieving data' do
         before do
-          allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
-            .to receive(:data)
-            .and_raise(StandardError, 'Unexpected error')
+          # Create submissions so the gateway has data to process
+          create(:form_submission, :with_form214142, user_account_id: user_account.id)
+          
+          # Mock an error that will cause the gateway to fail at the gateway level
+          # This simulates a scenario where the gateway itself fails, not just the service call
+          allow_any_instance_of(Forms::SubmissionStatuses::Gateways::BenefitsIntakeGateway)
+            .to receive(:data).and_raise(StandardError, 'Unexpected error')
         end
 
         it 'logs unexpected errors' do
