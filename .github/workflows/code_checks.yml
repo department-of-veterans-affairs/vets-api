@@ -383,48 +383,11 @@ jobs:
           name: Coverage Report
           path: vets-api/coverage
 
-      - name: Publish Coverage Check
-        if: ${{ always() && steps.coverage.outputs.covered_percent != '' }}
-        uses: actions/github-script@v7
+      - name: Publish Coverage Report
+        if: always()
+        uses: devmasx/coverage-check-action@v1.2.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const percent = parseFloat('${{ steps.coverage.outputs.covered_percent }}');
-            const minimumRaw = '${{ steps.coverage.outputs.minimum_required }}';
-            const minimum = minimumRaw ? parseFloat(minimumRaw) : null;
-            if (Number.isNaN(percent)) {
-              core.warning('Coverage percent not available.');
-              return;
-            }
-            const headSha = context.payload.pull_request ? context.payload.pull_request.head.sha : context.sha;
-            const conclusion = minimum === null || percent >= minimum ? 'success' : 'failure';
-            const lines = [
-              '**Coverage**',
-              '',
-              '| Metric | Value |',
-              '| --- | --- |',
-              `| Covered | ${percent.toFixed(2)}% |`
-            ];
-            if (minimum !== null) {
-              lines.push(`| Minimum | ${minimum.toFixed(2)}% |`);
-            }
-            await github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: 'Coverage',
-              head_sha: headSha,
-              status: 'completed',
-              conclusion,
-              output: {
-                title: `Coverage ${percent.toFixed(2)}%`,
-                summary: lines.join('\n')
-              }
-            });
-
-      - name: Enforce coverage threshold
-        run: |
-          covered='${{ steps.coverage.outputs.covered_percent }}'
-          minimum='${{ steps.coverage.outputs.minimum_required }}'
-          minimum=${minimum:-0}
-          echo "Coverage ${covered}% (minimum ${minimum}%)"
-          ruby -e 'exit(ARGV[0].to_f >= ARGV[1].to_f ? 0 : 1)' "$covered" "$minimum"
+          type: simplecov
+          result_path: vets-api/coverage_summary.json
+          min_coverage: 90
+          token: ${{ secrets.GITHUB_TOKEN }}
