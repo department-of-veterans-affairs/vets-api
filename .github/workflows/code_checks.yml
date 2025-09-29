@@ -288,19 +288,9 @@ jobs:
 
       - name: Combine coverage reports
         run: |
-          # Install Ruby for SimpleCov merging
-          sudo apt-get update
-          sudo apt-get install -y ruby ruby-dev
-          sudo gem install simplecov
-
-          # Create Ruby script to merge coverage reports
+          # Create Ruby script to merge coverage reports manually
           cat > merge_coverage.rb << 'EOF'
           require 'json'
-          require 'simplecov'
-
-          SimpleCov.configure do
-            merge_timeout 3600
-          end
 
           # Find all .resultset.json files from coverage reports
           coverage_files = Dir.glob('Coverage Report Group*/.resultset.json')
@@ -310,30 +300,65 @@ jobs:
             exit 1
           end
 
-          puts "Found #{coverage_files.length} coverage files: #{coverage_files}"
+          puts "Found #{coverage_files.length} coverage files"
 
-          # Merge all coverage results
-          SimpleCov::ResultMerger.clear_resultset
+          # Manually merge coverage data
+          merged_coverage = {}
+          total_lines = 0
+          covered_lines = 0
 
           coverage_files.each do |file|
             puts "Processing #{file}"
             data = JSON.parse(File.read(file))
-            SimpleCov::ResultMerger.store_result(data)
+
+            # Extract coverage data from the first (and usually only) key
+            coverage_data = data.values.first
+            next unless coverage_data && coverage_data['coverage']
+
+            coverage_data['coverage'].each do |filename, line_coverage|
+              merged_coverage[filename] ||= []
+
+              line_coverage.each_with_index do |coverage, index|
+                # Extend array if needed
+                while merged_coverage[filename].length <= index
+                  merged_coverage[filename] << nil
+                end
+
+                # Merge coverage: if either file has coverage, count it
+                if coverage.nil?
+                  # Keep existing value or nil
+                elsif merged_coverage[filename][index].nil?
+                  merged_coverage[filename][index] = coverage
+                else
+                  # Sum coverage counts
+                  merged_coverage[filename][index] += coverage
+                end
+              end
+            end
           end
 
-          # Generate merged result
-          result = SimpleCov::ResultMerger.merged_result
+          # Calculate total coverage percentage
+          merged_coverage.each do |filename, line_coverage|
+            line_coverage.each do |coverage|
+              if coverage
+                total_lines += 1
+                covered_lines += 1 if coverage > 0
+              end
+            end
+          end
+
+          coverage_percent = total_lines > 0 ? (covered_lines.to_f / total_lines * 100).round(2) : 0
 
           # Create combined .last_run.json
           combined_data = {
             "result" => {
-              "line" => result.covered_percent.round(2)
+              "line" => coverage_percent
             },
             "timestamp" => Time.now.to_i
           }
 
           File.write('combined_coverage.json', JSON.pretty_generate(combined_data))
-          puts "Combined coverage: #{result.covered_percent.round(2)}%"
+          puts "Combined coverage: #{coverage_percent}% (#{covered_lines}/#{total_lines} lines)"
           EOF
 
           # Run the merge script
