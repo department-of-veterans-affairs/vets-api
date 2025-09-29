@@ -31,7 +31,7 @@ describe BBInternal::Client do
   before do
     VCR.use_cassette 'mr_client/bb_internal/session_auth' do
       @client ||= begin
-        client = BBInternal::Client.new(session: { user_id: '11375034' })
+        client = BBInternal::Client.new(session: { user_id: '11375034', icn: })
         client.authenticate
         client
       end
