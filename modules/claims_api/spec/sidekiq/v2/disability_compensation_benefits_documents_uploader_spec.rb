@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../rails_helper'
-require 'claims_api/disability_compensation_benefits_documents_uploader'
+require_relative '../../rails_helper'
+require 'claims_api/v2/disability_compensation_benefits_documents_uploader'
 
-RSpec.describe ClaimsApi::DisabilityCompensationBenefitsDocumentsUploader, type: :job do
+RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, type: :job do
   subject { described_class }
 
   before do
