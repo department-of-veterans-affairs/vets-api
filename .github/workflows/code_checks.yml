@@ -203,7 +203,7 @@ jobs:
           max_attempts: 3
           command: >
             ${{ env.COMPOSE_BASH_CMD }}
-            "bundle exec rake parallel:setup[12] && bundle exec rake db:test:prepare"
+            "bundle exec rails db:test:prepare"
 
       - name: Setup system tmp dir
         run: >
