@@ -38,6 +38,9 @@ class SavedClaim < ApplicationRecord
   after_create :after_create_metrics
   after_destroy :after_destroy_metrics
 
+  # TODO: remove this as soon as the db migration is done
+  self.ignored_columns += %w[user_account_id]
+
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
   after_initialize do

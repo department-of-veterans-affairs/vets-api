@@ -293,6 +293,238 @@ describe UnifiedHealthData::Service, type: :service do
     end
   end
 
+  # Allergies
+  describe '#get_allergies' do
+    let(:allergies_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'allergies_example.json'
+      ).read)
+    end
+
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: allergies_sample_response
+      )
+    end
+
+    context 'happy path' do
+      context 'when data exists for both VistA + OH' do
+        it 'returns all allergies' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_allergies_by_date)
+            .and_return(sample_client_response)
+
+          allergies = service.get_allergies
+          expect(allergies.size).to eq(13)
+          expect(allergies.map(&:categories)).to contain_exactly(
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['environment'],
+            ['food'],
+            [],
+            ['food'],
+            ['food']
+          )
+          expect(allergies[0]).to have_attributes(
+            {
+              'id' => '2678',
+              'name' => 'TRAZODONE',
+              'date' => nil,
+              'categories' => ['medication'],
+              'reactions' => [],
+              'location' => nil,
+              'observedHistoric' => 'h',
+              'notes' => [],
+              'provider' => nil
+            }
+          )
+          expect(allergies).to all(have_attributes(
+                                     {
+                                       'id' => be_a(String),
+                                       'name' => be_a(String),
+                                       'date' => be_a(String).or(be_nil),
+                                       'categories' => be_an(Array),
+                                       'reactions' => be_an(Array),
+                                       'location' => be_a(String).or(be_nil),
+                                       'observedHistoric' => be_a(String).or(be_nil),
+                                       'notes' => be_an(Array),
+                                       'provider' => be_a(String).or(be_nil)
+                                     }
+                                   ))
+        end
+      end
+
+      context 'when data exists for only VistA or OH' do
+        it 'returns allergies for VistA only' do
+          modified_response = allergies_sample_response.deep_dup
+          modified_response['oracle-health'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_allergies_by_date)
+            .and_return(Faraday::Response.new(
+                          body: modified_response
+                        ))
+          allergies = service.get_allergies
+          expect(allergies.size).to eq(5)
+          expect(allergies.map(&:categories)).to contain_exactly(
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['medication']
+          )
+          expect(allergies).to all(have_attributes(
+                                     {
+                                       'id' => be_a(String),
+                                       'name' => be_a(String),
+                                       'date' => be_a(String).or(be_nil),
+                                       'categories' => be_an(Array),
+                                       'reactions' => be_an(Array),
+                                       'location' => be_a(String).or(be_nil),
+                                       'observedHistoric' => be_a(String).or(be_nil),
+                                       'notes' => be_an(Array),
+                                       'provider' => be_a(String).or(be_nil)
+                                     }
+                                   ))
+        end
+
+        it 'returns allergies for OH only' do
+          modified_response = allergies_sample_response.deep_dup
+          modified_response['vista'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_allergies_by_date)
+            .and_return(Faraday::Response.new(
+                          body: modified_response
+                        ))
+          allergies = service.get_allergies
+          expect(allergies.size).to eq(8)
+          expect(allergies.map(&:categories)).to contain_exactly(
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['environment'],
+            ['food'],
+            [],
+            ['food'],
+            ['food']
+          )
+          expect(allergies).to all(have_attributes(
+                                     {
+                                       'id' => be_a(String),
+                                       'name' => be_a(String),
+                                       'date' => be_a(String).or(be_nil),
+                                       'categories' => be_an(Array),
+                                       'reactions' => be_an(Array),
+                                       'location' => be_a(String).or(be_nil),
+                                       'observedHistoric' => be_nil, # OH data doesn't include this field
+                                       'notes' => be_an(Array),
+                                       'provider' => be_a(String).or(be_nil)
+                                     }
+                                   ))
+        end
+      end
+
+      context 'when there are no records in VistA or OH' do
+        it 'returns empty array allergies' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_allergies_by_date)
+            .and_return(Faraday::Response.new(
+                          body: { 'vista' => {}, 'oracle-health' => {} }
+                        ))
+          allergies = service.get_allergies
+          expect(allergies.size).to eq(0)
+        end
+      end
+    end
+
+    context 'error handling' do
+      it 'handles unknown errors' do
+        uhd_service = double
+        allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
+        allow(uhd_service).to receive(:get_allergies).and_raise(StandardError.new('Unknown fetch error'))
+
+        expect do
+          uhd_service.get_allergies
+        end.to raise_error(StandardError, 'Unknown fetch error')
+      end
+    end
+  end
+
+  describe '#get_single_allergy' do
+    let(:allergies_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'allergies_example.json'
+      ).read)
+    end
+
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: allergies_sample_response
+      )
+    end
+
+    before do
+      allow_any_instance_of(UnifiedHealthData::Client)
+        .to receive(:get_allergies_by_date)
+        .and_return(sample_client_response)
+    end
+
+    context 'happy path' do
+      context 'when data exists for both VistA + OH' do
+        it 'returns a single VistA allergy' do
+          allergy = service.get_single_allergy('2679')
+          expect(allergy).to have_attributes(
+            {
+              'id' => '2679',
+              'name' => 'MAXZIDE',
+              'date' => nil,
+              'categories' => ['medication'],
+              'reactions' => [],
+              'location' => nil,
+              'observedHistoric' => 'h',
+              'notes' => [],
+              'provider' => nil
+            }
+          )
+        end
+
+        it 'returns a single OH allergy' do
+          allergy = service.get_single_allergy('132316417')
+          expect(allergy).to have_attributes(
+            {
+              'id' => '132316417',
+              'name' => 'Oxymorphone',
+              'date' => '2019',
+              'categories' => ['medication'],
+              'reactions' => ['Anaphylaxis'],
+              'location' => nil,
+              'observedHistoric' => nil,
+              'notes' => ['Testing Contraindication type reaction', 'Secondary comment for contraindication'],
+              'provider' => ' Victoria A Borland'
+            }
+          )
+        end
+      end
+    end
+
+    context 'error handling' do
+      it 'handles unknown errors' do
+        uhd_service = double
+        allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
+        allow(uhd_service).to receive(:get_single_allergy).and_raise(StandardError.new('Unknown fetch error'))
+
+        expect do
+          uhd_service.get_single_allergy('banana')
+        end.to raise_error(StandardError, 'Unknown fetch error')
+      end
+    end
+  end
+
   # Clinical Notes
   describe '#get_care_summaries_and_notes' do
     let(:notes_sample_response) do
@@ -624,7 +856,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription.prescription_number).to eq('15214174591')
           expect(oracle_prescription.prescription_name).to eq('albuterol (albuterol 90 mcg inhaler [8.5g])')
           expect(oracle_prescription.dispensed_date).to be_nil
-          expect(oracle_prescription.station_number).to eq('556-RX-MAIN-OP')
+          expect(oracle_prescription.station_number).to eq('556')
           expect(oracle_prescription.is_refillable).to be true
           expect(oracle_prescription.is_trackable).to be false
           expect(oracle_prescription.tracking_information).to eq({})
