@@ -302,6 +302,9 @@ jobs:
           echo "=== Looking for .resultset.json files ==="
           find coverage_parts -name ".resultset.json" -type f 2>/dev/null || echo "No .resultset.json files found"
 
+      - name: Checkout code for Ruby setup
+        uses: actions/checkout@v5
+
       - name: Setup Ruby and install dependencies
         uses: ruby/setup-ruby@v1
         with:
