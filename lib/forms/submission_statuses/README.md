@@ -17,6 +17,11 @@ The system now supports multiple Form APIs through a gateway and formatter patte
 - **Formatter**: `Formatters::BenefitsIntakeFormatter`
 - **Forms Supported**: See `restricted_list_of_forms` in controller
 
+### Decision Reviews API
+- **Gateway**: `Gateways::DecisionReviewsGateway`
+- **Formatter**: `Formatters::DecisionReviewsFormatter`
+- **Forms Supported**: 20-0995 (Supplemental Claims), 20-0996 (Higher Level Reviews), 10182 (Notice of Disagreements)
+
 ## Adding a New Form API
 
 ### Step 1: Create Your Gateway

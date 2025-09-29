@@ -10,9 +10,9 @@ module V0
       def show
         report = Forms::SubmissionStatuses::Report.new(
           user_account: @current_user.user_account,
-          allowed_forms: forms_based_on_feature_toggle
+          allowed_forms: forms_based_on_feature_toggle,
+          gateway_options: gateway_options_for_user
         )
-
         result = report.run
 
         render json: serializable_from(result).to_json, status: status_from(result)
@@ -21,6 +21,13 @@ module V0
       private
 
       def restricted_list_of_forms
+        forms = []
+        forms += benefits_intake_forms if display_benefits_intake_forms?
+        forms += decision_reviews_forms_if_enabled
+        forms
+      end
+
+      def benefits_intake_forms
         %w[
           20-10206
           20-10207
@@ -35,6 +42,17 @@ module V0
           21P-530EZ
           21P-0969
         ] + uploadable_forms
+      end
+
+      def decision_reviews_forms_if_enabled
+        return [] unless display_decision_reviews_forms?
+
+        %w[
+          20-0995
+          20-0996
+          10182
+          21-4142
+        ]
       end
 
       def uploadable_forms
@@ -57,9 +75,27 @@ module V0
         restricted_list_of_forms
       end
 
+      def gateway_options_for_user
+        {
+          benefits_intake_enabled: display_benefits_intake_forms?,
+          decision_reviews_enabled: display_decision_reviews_forms?
+        }
+      end
+
       def display_all_forms?
+        display_benefits_intake_forms? && display_decision_reviews_forms?
+      end
+
+      def display_benefits_intake_forms?
         Flipper.enabled?(
           :my_va_display_all_lighthouse_benefits_intake_forms,
+          @current_user
+        )
+      end
+
+      def display_decision_reviews_forms?
+        Flipper.enabled?(
+          :my_va_display_decision_reviews_forms,
           @current_user
         )
       end
