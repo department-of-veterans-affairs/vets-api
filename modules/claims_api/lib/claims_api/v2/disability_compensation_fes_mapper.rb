@@ -203,7 +203,7 @@ module ClaimsApi
                 format_address_line(change_data[:numberAndStreet], change_data[:apartmentOrUnitNumber])
 
         {
-          addressChangeType: change_data[:addressChangeType],
+          addressChangeType: change_data[:typeOfAddressChange],
           beginningDate: change_data[:beginningDate] || change_data.dig(:dates, :beginDate),
           endingDate: change_data[:endingDate] || change_data.dig(:dates, :endDate),
           addressLine1: line1,

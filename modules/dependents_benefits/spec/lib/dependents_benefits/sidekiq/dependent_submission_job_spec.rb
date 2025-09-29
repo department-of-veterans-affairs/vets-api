@@ -9,6 +9,10 @@ RSpec.describe DependentsBenefits::DependentSubmissionJob, type: :job do
   let(:saved_claim) { create(:dependents_claim) }
   let(:job) { described_class.new }
 
+  before do
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+  end
+
   describe '#perform' do
     context 'when claim group has already failed' do
       before do
