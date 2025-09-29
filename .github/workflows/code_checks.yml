@@ -288,18 +288,21 @@ jobs:
 
       - name: Fix up coverage report to work with coverage-check-action
         run: |
-          for coverage_dir in Coverage\ Report\ Group*; do
-            if [ -f "$coverage_dir/.last_run.json" ]; then
-              sed -i 's/"line"/"covered_percent"/g' "$coverage_dir/.last_run.json"
-              break
-            fi
-          done
+          # Find the first coverage report and use it
+          COVERAGE_FILE=$(find . -name ".last_run.json" -path "*/Coverage Report Group*/.last_run.json" | head -1)
+          if [ -n "$COVERAGE_FILE" ]; then
+            echo "Found coverage file: $COVERAGE_FILE"
+            sed -i 's/"line"/"covered_percent"/g' "$COVERAGE_FILE"
+            echo "COVERAGE_FILE_PATH=$COVERAGE_FILE" >> $GITHUB_ENV
+          else
+            echo "No coverage file found"
+          fi
 
       - name: Publish Coverage Report
-        if: always()
+        if: always() && env.COVERAGE_FILE_PATH
         uses: devmasx/coverage-check-action@v1.2.0
         with:
           type: simplecov
-          result_path: Coverage Report Group*/.last_run.json
+          result_path: ${{ env.COVERAGE_FILE_PATH }}
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
