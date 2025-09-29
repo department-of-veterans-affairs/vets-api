@@ -5,7 +5,7 @@ module Crm
     extend Forwardable
 
     attr_reader :icn, :logger, :settings, :token
-    
+
     def_delegators :settings,
                    :base_url,
                    :veis_api_path,
@@ -27,12 +27,12 @@ module Crm
 
       env
     end
-    
+
     def initialize(icn:, logger: LogService.new)
       @settings = Settings.ask_va_api.crm_api
       @icn = icn
       @token = CrmToken.new.call
-      @logger = logger    
+      @logger = logger
     end
 
     # Calls the CRM API with given method, endpoint, and optional payload

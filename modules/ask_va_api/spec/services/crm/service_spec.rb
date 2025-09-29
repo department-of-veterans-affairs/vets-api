@@ -74,7 +74,7 @@ RSpec.describe Crm::Service do
       # Capture the request
       @captured_request = nil
       allow_any_instance_of(Faraday::Connection).to receive(:get) do |_, url, params, _|
-        @captured_request = { url: url, params: params }
+        @captured_request = { url:, params: }
         response
       end
     end
@@ -82,7 +82,6 @@ RSpec.describe Crm::Service do
     context 'when the feature toggle is enabled' do
       it 'sends ICN header and returns parsed response with correct organizationName' do
         allow(Flipper).to receive(:enabled?).with(:ask_va_api_preprod_for_end_to_end_testing).and_return(true)
-        response = service.call(endpoint:)
 
         # Check captured request
         expect(@captured_request[:params]).to include({ organizationName: 'ava-preprod' })
