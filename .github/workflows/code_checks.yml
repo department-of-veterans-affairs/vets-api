@@ -310,6 +310,15 @@ jobs:
 
       - name: Checkout code for Docker setup
         uses: actions/checkout@v5
+        with:
+          path: vets-api
+
+      - name: Copy coverage artifacts to workspace
+        run: |
+          echo "=== Copying coverage artifacts into vets-api directory ==="
+          cp -r simplecov-resultset-* vets-api/ || echo "No coverage artifacts to copy"
+          echo "=== Verifying artifacts in vets-api directory ==="
+          ls -la vets-api/simplecov-resultset-* || echo "No simplecov-resultset-* directories in vets-api"
 
       - name: Login to DockerHub
         uses: docker/login-action@v3
@@ -340,7 +349,7 @@ jobs:
           build-args: |
             BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
             USER_ID=1001
-          context: .
+          context: vets-api
           push: false
           load: true
           tags: vets-api-coverage
@@ -349,7 +358,7 @@ jobs:
       - name: Collate coverage and generate report
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}:/workspace \
+            -v ${{ github.workspace }}/vets-api:/workspace \
             -w /workspace \
             vets-api-coverage \
             bundle exec rake coverage:report
@@ -357,14 +366,14 @@ jobs:
       - name: Debug final state
         run: |
           echo "=== Final file check ==="
-          ls -la combined_coverage.json || echo "No combined_coverage.json"
-          cat combined_coverage.json || echo "Cannot read combined_coverage.json"
+          ls -la vets-api/combined_coverage.json || echo "No combined_coverage.json"
+          cat vets-api/combined_coverage.json || echo "Cannot read combined_coverage.json"
 
       - name: Publish Coverage Report
         if: always()
         uses: devmasx/coverage-check-action@v1.2.0
         with:
           type: simplecov
-          result_path: combined_coverage.json
+          result_path: vets-api/combined_coverage.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
