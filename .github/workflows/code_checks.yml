@@ -309,21 +309,10 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Collate coverage with SimpleCov
+      - name: Collate coverage and generate report
         run: bundle exec rake coverage:report
         env:
           RUBYOPT: "-W0"
-
-      - name: Export covered_percent for coverage-check-action
-        run: |
-          if [ -f "coverage/.last_run.json" ]; then
-            bundle exec ruby -e 'require "json";
-              last = JSON.parse(File.read("coverage/.last_run.json")) rescue {};
-              pct = last.dig("result","line") || 0;
-              File.write("combined_coverage.json", JSON.pretty_generate({"covered_percent" => pct}))'
-          else
-            echo "No coverage/.last_run.json found"; exit 1
-          fi
 
       - name: Debug final state
         run: |
