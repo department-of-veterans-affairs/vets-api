@@ -108,9 +108,9 @@ module EVSS
 
         toxic_exposure = form526['toxicExposure']
         lh_request_body.toxic_exposure = transform_toxic_exposure(toxic_exposure) if toxic_exposure.present?
-
+        
         transform_claim_notes_and_date(form526, lh_request_body)
-
+        
         lh_request_body
       end
 
@@ -123,8 +123,10 @@ module EVSS
       def transform_claim_notes_and_date(form526, lh_request_body)
         lh_request_body.claim_notes = form526['overflowText']
 
-        claim_date = form526['claimDate']
-        lh_request_body.claim_date = claim_date if claim_date.present? && valid_date_for_lighthouse?(claim_date)
+        if Flipper.enabled?(:form526_add_claim_notes_and_date_to_lighthouse)
+          claim_date = form526['claimDate']
+          lh_request_body.claim_date = claim_date if claim_date.present? && valid_date_for_lighthouse?(claim_date)
+        end
       end
 
       # returns "STANDARD_CLAIM_PROCESS", "BDD_PROGRAM", or "FDC_PROGRAM"
