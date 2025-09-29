@@ -301,6 +301,13 @@ jobs:
           pattern: simplecov-resultset-*
           path: .
 
+      - name: Debug downloaded coverage artifacts
+        run: |
+          echo "=== Downloaded coverage artifacts ==="
+          ls -la simplecov-resultset-* || echo "No simplecov-resultset-* directories found"
+          echo "=== Looking for .resultset.json files ==="
+          find . -name ".resultset.json" -type f | head -20
+
       - name: Checkout code for Ruby setup
         uses: actions/checkout@v5
 
