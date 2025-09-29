@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'unified_health_data/models/prescription'
 require 'unified_health_data/adapters/oracle_health_prescription_adapter'
 require 'lighthouse/facilities/v1/client'
-require 'lighthouse/facilities/v1/client'
 
 RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
   subject(:adapter) { described_class.new }
@@ -31,7 +30,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     context 'with valid resource' do
       it 'returns a UnifiedHealthData::Prescription object' do
         result = adapter.parse(valid_resource)
-        
+
         expect(result).to be_a(UnifiedHealthData::Prescription)
         expect(result.id).to eq('test-prescription-123')
         expect(result.type).to eq('Prescription')
@@ -48,7 +47,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'returns nil' do
         invalid_resource = valid_resource.dup
         invalid_resource.delete('id')
-        
+
         expect(adapter.parse(invalid_resource)).to be_nil
       end
     end
@@ -61,7 +60,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'logs the error and returns nil' do
         result = adapter.parse(valid_resource)
-        
+
         expect(result).to be_nil
         expect(Rails.logger).to have_received(:error).with('Error parsing Oracle Health prescription: Test error')
       end
@@ -145,7 +144,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'returns the cached facility name' do
         result = adapter.send(:extract_facility_name, resource_with_dispense)
-        
+
         expect(result).to eq('Portland VA Medical Center')
         expect(Rails.cache).to have_received(:read).with('uhd:facility_names:648')
         expect(StatsD).to have_received(:increment).with('unified_health_data.facility_name_cache.hit')
@@ -167,7 +166,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'logs the error and falls back to API call' do
         result = adapter.send(:extract_facility_name, resource_with_dispense)
-        
+
         expect(result).to eq('Portland VA Medical Center')
         expect(Rails.logger).to have_received(:warn).with(/Rails cache lookup failed for facility 648/)
         expect(StatsD).to have_received(:increment).with('unified_health_data.facility_name_cache.error')
@@ -190,11 +189,12 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'returns the facility name from API and caches it' do
         result = adapter.send(:extract_facility_name, resource_with_dispense)
-        
+
         expect(result).to eq('Portland VA Medical Center')
         expect(Rails.cache).to have_received(:read).with('uhd:facility_names:648')
         expect(mock_lighthouse_client).to have_received(:get_facilities).with(facilityIds: 'vha_648')
-        expect(Rails.cache).to have_received(:write).with('uhd:facility_names:648', 'Portland VA Medical Center', expires_in: 4.hours)
+        expect(Rails.cache).to have_received(:write).with('uhd:facility_names:648', 'Portland VA Medical Center',
+                                                          expires_in: 4.hours)
         expect(StatsD).to have_received(:increment).with('unified_health_data.facility_name_cache.miss')
         expect(StatsD).to have_received(:increment).with('unified_health_data.facility_name_fallback.api_hit')
       end
@@ -212,7 +212,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'returns the station number as fallback' do
         result = adapter.send(:extract_facility_name, resource_with_dispense)
-        
+
         expect(result).to eq('648')
         expect(StatsD).to have_received(:increment).with('unified_health_data.facility_name_cache.miss')
         expect(StatsD).to have_received(:increment).with('unified_health_data.facility_name_fallback.api_miss')
@@ -232,7 +232,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'logs the error and returns station number' do
         result = adapter.send(:extract_facility_name, resource_with_dispense)
-        
+
         expect(result).to eq('648')
         expect(Rails.logger).to have_received(:warn).with(/Failed to fetch facility name from API for station 648/)
         expect(StatsD).to have_received(:increment).with('unified_health_data.facility_name_fallback.api_error')
@@ -247,7 +247,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'uses the most recent dispense' do
         result = adapter.send(:extract_facility_name, resource_with_multiple_dispenses)
-        
+
         expect(result).to eq('Portland VA Medical Center')
         expect(Rails.cache).to have_received(:read).with('uhd:facility_names:648')
       end
@@ -256,7 +256,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     context 'when no dispenses exist' do
       it 'returns nil' do
         result = adapter.send(:extract_facility_name, resource_without_dispense)
-        
+
         expect(result).to be_nil
       end
     end
@@ -264,7 +264,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     context 'when dispense has no location' do
       it 'returns nil' do
         result = adapter.send(:extract_facility_name, resource_without_location)
-        
+
         expect(result).to be_nil
       end
     end
@@ -272,7 +272,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     context 'when location display has invalid station number format' do
       it 'returns nil' do
         result = adapter.send(:extract_facility_name, resource_with_invalid_station)
-        
+
         expect(result).to be_nil
       end
     end
@@ -298,7 +298,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
     it 'returns the most recent MedicationDispense' do
       result = adapter.send(:find_most_recent_medication_dispense, dispenses)
-      
+
       expect(result['whenHandedOver']).to eq('2023-01-20T14:30:00Z')
     end
 
@@ -311,7 +311,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'returns nil' do
         result = adapter.send(:find_most_recent_medication_dispense, dispenses)
-        
+
         expect(result).to be_nil
       end
     end
@@ -319,7 +319,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     context 'with nil input' do
       it 'returns nil' do
         result = adapter.send(:find_most_recent_medication_dispense, nil)
-        
+
         expect(result).to be_nil
       end
     end
@@ -327,7 +327,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     context 'with empty array' do
       it 'returns nil' do
         result = adapter.send(:find_most_recent_medication_dispense, [])
-        
+
         expect(result).to be_nil
       end
     end
@@ -351,7 +351,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'returns the facility name' do
         result = adapter.send(:fetch_facility_name_from_api, '648')
-        
+
         expect(result).to eq('Portland VA Medical Center')
         expect(mock_lighthouse_client).to have_received(:get_facilities).with(facilityIds: 'vha_648')
       end
@@ -364,7 +364,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'returns nil and logs info' do
         result = adapter.send(:fetch_facility_name_from_api, '648')
-        
+
         expect(result).to be_nil
         expect(Rails.logger).to have_received(:info).with('No facility found for station number 648 in Lighthouse API')
       end
@@ -377,7 +377,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'returns nil and logs info' do
         result = adapter.send(:fetch_facility_name_from_api, '648')
-        
+
         expect(result).to be_nil
         expect(Rails.logger).to have_received(:info).with('No facility found for station number 648 in Lighthouse API')
       end
@@ -390,7 +390,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       it 'returns nil, logs error, and sends metric' do
         result = adapter.send(:fetch_facility_name_from_api, '648')
-        
+
         expect(result).to be_nil
         expect(Rails.logger).to have_received(:warn).with('Failed to fetch facility name from API for station 648: Network error')
         expect(StatsD).to have_received(:increment).with('unified_health_data.facility_name_fallback.api_error')

@@ -36,10 +36,10 @@ module UnifiedHealthData
 
     def perform
       Rails.logger.info('[UnifiedHealthData] - Starting facility name cache refresh')
-      
+
       facility_map = fetch_vha_facilities
       cache_facility_names(facility_map)
-      
+
       Rails.logger.info("[UnifiedHealthData] - Cached #{facility_map.size} VHA facility names")
       StatsD.increment('unified_health_data.facility_name_cache_job.complete')
       StatsD.gauge('unified_health_data.facility_name_cache_job.facilities_cached', facility_map.size)
@@ -62,15 +62,15 @@ module UnifiedHealthData
         facilities = facilities_client.get_paginated_facilities(
           type: 'health',
           per_page: BATCH_SIZE,
-          page: page
+          page:
         )
 
         # Filter to VHA facilities and extract station numbers
         vha_facilities = facilities.facilities.filter_map do |facility|
           next unless facility.id.start_with?('vha_')
-          
+
           station_number = facility.id.sub(/^vha_/, '')
-          { station_number: station_number, name: facility.name }
+          { station_number:, name: facility.name }
         end
 
         all_facilities.concat(vha_facilities)
@@ -86,7 +86,7 @@ module UnifiedHealthData
     def cache_facility_names(facility_map)
       return if facility_map.empty?
 
-      Rails.logger.info("[UnifiedHealthData] - Caching facility names for 4 hours")
+      Rails.logger.info('[UnifiedHealthData] - Caching facility names for 4 hours')
 
       # Cache current facility names using Rails cache
       facility_map.each do |station_number, facility_name|

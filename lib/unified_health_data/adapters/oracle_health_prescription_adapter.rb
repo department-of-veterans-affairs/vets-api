@@ -143,7 +143,7 @@ module UnifiedHealthData
         return nil unless match
 
         station_number = match[1]
-        
+
         # Check Rails cache first for VHA facility name
         cache_key = "uhd:facility_names:#{station_number}"
         begin
@@ -163,14 +163,14 @@ module UnifiedHealthData
         facility_name = fetch_facility_name_from_api(station_number)
         if facility_name
           StatsD.increment('unified_health_data.facility_name_fallback.api_hit')
-          
+
           # Cache the result for future use with same TTL as main cache
           begin
             Rails.cache.write(cache_key, facility_name, expires_in: 4.hours)
           rescue => e
             Rails.logger.warn("Failed to cache facility name for #{station_number}: #{e.message}")
           end
-          
+
           return facility_name
         else
           StatsD.increment('unified_health_data.facility_name_fallback.api_miss')
@@ -326,11 +326,11 @@ module UnifiedHealthData
 
       def fetch_facility_name_from_api(station_number)
         facility_id = "vha_#{station_number}"
-        
+
         begin
           facilities_client = Lighthouse::Facilities::V1::Client.new
           facilities = facilities_client.get_facilities(facilityIds: facility_id)
-          
+
           if facilities&.any?
             facilities.first.name
           else
