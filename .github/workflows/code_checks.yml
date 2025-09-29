@@ -358,8 +358,8 @@ jobs:
       - name: Collate coverage and generate report
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}/vets-api:/workspace \
-            -w /workspace \
+            -v ${{ github.workspace }}/vets-api:/app \
+            -w /app \
             vets-api-coverage \
             bundle exec rake coverage:report
 
