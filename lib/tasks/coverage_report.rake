@@ -9,9 +9,9 @@ namespace :coverage do
     # Debug: show what files we can find
     resultset_files = Dir['simplecov-resultset-*/.resultset.json']
     puts "Current directory: #{Dir.pwd}"
-    puts "Looking for pattern: simplecov-resultset-*/.resultset.json"
+    puts 'Looking for pattern: simplecov-resultset-*/.resultset.json'
     puts "Found #{resultset_files.length} files: #{resultset_files}"
-    puts "Directory listing:"
+    puts 'Directory listing:'
     puts `ls -la`
 
     SimpleCov.collate resultset_files, 'rails' do
