@@ -45,22 +45,26 @@ module Representatives
 
         if rep_data['address_changed']
           api_response = get_best_address_candidate(rep_data['address'])
-
-          # don't update the record if there is not a valid address with non-zero lat and long at this point
+          # If address validation fails, log and continue to update non-address fields (email/phone)
           if api_response.nil?
-            return
+            log_error("Address validation failed for Rep id: #{rep_data['id']}. Proceeding to update non-address fields.")
+            address_validation_api_response = nil
           else
             address_validation_api_response = api_response
           end
         end
 
-        update_rep_record(rep_data, address_validation_api_response)
+        updated_flags = update_rep_record(rep_data, address_validation_api_response)
       rescue => e
         log_error("Update failed for Rep id: #{rep_data}: #{e.message}")
         return
       end
 
-      update_flagged_records(rep_data)
+      # Update flagged records only for fields that were actually updated
+      if updated_flags.is_a?(Hash)
+        updated_flags['representative_id'] = rep_data['id']
+      end
+      update_flagged_records(updated_flags || {})
     end
 
     def record_can_be_updated?(rep_data)
@@ -73,16 +77,18 @@ module Representatives
     def build_validation_address(address)
       validation_model = VAProfile::Models::ValidationAddress
 
+      cleaned = Veteran::AddressPreprocessor.clean(address)
+
       validation_model.new(
-        address_pou: address['address_pou'],
-        address_line1: address['address_line1'],
-        address_line2: address['address_line2'],
-        address_line3: address['address_line3'],
-        city: address['city'],
-        state_code: address['state']['state_code'],
-        zip_code: address['zip_code5'],
-        zip_code_suffix: address['zip_code4'],
-        country_code_iso3: address['country_code_iso3']
+        address_pou: cleaned['address_pou'] || address['address_pou'],
+        address_line1: cleaned['address_line1'],
+        address_line2: cleaned['address_line2'],
+        address_line3: cleaned['address_line3'],
+        city: cleaned['city'] || address['city'],
+        state_code: cleaned.dig('state', 'state_code') || address.dig('state', 'state_code'),
+        zip_code: cleaned['zip_code5'] || address['zip_code5'],
+        zip_code_suffix: cleaned['zip_code4'] || address['zip_code4'],
+        country_code_iso3: cleaned['country_code_iso3'] || address['country_code_iso3']
       )
     end
 
@@ -98,6 +104,8 @@ module Representatives
     # @param response [Hash] The response from the address validation service.
     # @return [Boolean] True if the address is valid, false otherwise.
     def address_valid?(response)
+      return false if response.blank?
+
       response.key?('candidate_addresses') && !response['candidate_addresses'].empty?
     end
 
@@ -111,20 +119,50 @@ module Representatives
       if record.nil?
         raise StandardError, 'Representative not found.'
       else
-        address_attributes = rep_data['address_changed'] ? build_address_attributes(rep_data, api_response) : {}
-        email_attributes = rep_data['email_changed'] ? build_email_attributes(rep_data) : {}
-        phone_attributes = rep_data['phone_number_changed'] ? build_phone_attributes(rep_data) : {}
+        updated_flags = {}
+
+        # Only update address if validation succeeded (api_response present)
+        address_attributes = if rep_data['address_changed'] && api_response.present?
+                               updated_flags['address'] = true
+                               build_address_attributes(rep_data, api_response)
+                             else
+                               {}
+                             end
+
+        email_attributes = if rep_data['email_changed']
+                             updated_flags['email'] = true
+                             build_email_attributes(rep_data)
+                           else
+                             {}
+                           end
+
+        phone_attributes = if rep_data['phone_number_changed']
+                             updated_flags['phone_number'] = true
+                             build_phone_attributes(rep_data)
+                           else
+                             {}
+                           end
+
         record.update(merge_attributes(address_attributes, email_attributes, phone_attributes))
+        updated_flags
       end
     end
 
-    # Updates flags for the representative's records based on changes in address, email, or phone number.
-    # @param rep_data [Hash] The representative data including the id and flags for changes.
-    def update_flagged_records(rep_data)
-      representative_id = rep_data['id']
-      update_flags(representative_id, 'address') if rep_data['address_changed']
-      update_flags(representative_id, 'email') if rep_data['email_changed']
-      update_flags(representative_id, 'phone_number') if rep_data['phone_number_changed']
+    # Updates flags for the representative's records based on which fields were actually updated.
+    # @param updated_flags [Hash] Hash with keys 'address', 'email', 'phone_number' set to true when updated.
+    def update_flagged_records(updated_flags)
+      return unless updated_flags.is_a?(Hash)
+
+      representative_id = updated_flags['representative_id']
+      # In some callers we pass only the flags; allow representative_id to come from context
+      representative_id ||= nil
+
+      # If representative_id is missing, we can't update flags
+      return if representative_id.blank?
+
+      update_flags(representative_id, 'address') if updated_flags['address']
+      update_flags(representative_id, 'email') if updated_flags['email']
+      update_flags(representative_id, 'phone_number') if updated_flags['phone_number']
     end
 
     # Updates the flags for a representative's contact data indicating a change.
@@ -170,17 +208,17 @@ module Representatives
         address_line2: address['address_line2'],
         address_line3: address['address_line3'],
         city: address['city'],
-        province: address['state_province']['name'],
-        state_code: address['state_province']['code'],
+        province: address.dig('state_province', 'name'),
+        state_code: address.dig('state_province', 'code'),
         zip_code: address['zip_code5'],
         zip_suffix: address['zip_code4'],
-        country_code_iso3: address['country']['iso3_code'],
-        country_name: address['country']['name'],
+        country_code_iso3: address.dig('country', 'iso3_code'),
+        country_name: address.dig('country', 'name'),
         county_name: address.dig('county', 'name'),
         county_code: address.dig('county', 'county_fips_code'),
-        lat: geocode['latitude'],
-        long: geocode['longitude'],
-        location: "POINT(#{geocode['longitude']} #{geocode['latitude']})"
+        lat: geocode && geocode['latitude'],
+        long: geocode && geocode['longitude'],
+        location: (geocode && geocode['latitude'] && geocode['longitude']) ? "POINT(#{geocode['longitude']} #{geocode['latitude']})" : nil
       }
     end
 
@@ -191,17 +229,17 @@ module Representatives
         address_line2: address['address_line2'],
         address_line3: address['address_line3'],
         city: address['city_name'],
-        province: address['state']['state_name'],
-        state_code: address['state']['state_code'],
+        province: address.dig('state', 'state_name'),
+        state_code: address.dig('state', 'state_code'),
         zip_code: address['zip_code5'],
         zip_suffix: address['zip_code4'],
-        country_code_iso3: address['country']['iso3_code'],
-        country_name: address['country']['country_name'],
+        country_code_iso3: address.dig('country', 'iso3_code'),
+        country_name: address.dig('country', 'country_name'),
         county_name: address.dig('county', 'county_name'),
         county_code: address.dig('county', 'county_code'),
-        lat: address['geocode']['latitude'],
-        long: address['geocode']['longitude'],
-        location: "POINT(#{address['geocode']['longitude']} #{address['geocode']['latitude']})"
+        lat: address.dig('geocode', 'latitude'),
+        long: address.dig('geocode', 'longitude'),
+        location: (address.dig('geocode', 'latitude') && address.dig('geocode', 'longitude')) ? "POINT(#{address.dig('geocode', 'longitude')} #{address.dig('geocode', 'latitude')})" : nil
       }
     end
 
@@ -252,9 +290,7 @@ module Representatives
     # @param response [Hash, Nil] the response from the address validation service
     # @return [Boolean]
     def retriable?(response)
-      return true if response.blank?
-
-      !address_valid?(response) || lat_long_zero?(response)
+      response.blank? || !address_valid?(response) || lat_long_zero?(response)
     end
 
     # Retry address validation
@@ -297,21 +333,16 @@ module Representatives
         raise
       end
 
-      return nil unless address_valid?(original_response)
-
-      # retry validation if we get zero as the coordinates - this should indicate some warning with validation that
-      #   is typically seen with addresses that mix street addresses with P.O. Boxes
-      if lat_long_zero?(original_response)
+      # If the original response is blank, invalid, or has zero coords, attempt retry logic which will
+      # try modified address lines (including preprocessor-extracted PO Box) before giving up.
+      if retriable?(original_response)
         retry_response = retry_validation(rep_address)
 
-        if retriable?(retry_response)
-          nil
-        else
-          retry_response
-        end
-      else
-        original_response
+        return retriable?(retry_response) ? nil : retry_response
       end
+
+      # If we get here the original response was valid and not retriable (e.g. has non-zero coords)
+      original_response
     end
 
     # Determine if the backend exception represents a candidate address not found scenario
