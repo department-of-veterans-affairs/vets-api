@@ -8,6 +8,7 @@ UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 describe BBInternal::Client do
   let(:client) { @client }
+  let(:icn) { '1012740022V620959' }
 
   RSpec.shared_context 'redis setup' do
     let(:redis) { instance_double(Redis::Namespace) }
@@ -30,7 +31,7 @@ describe BBInternal::Client do
   before do
     VCR.use_cassette 'mr_client/bb_internal/session_auth' do
       @client ||= begin
-        client = BBInternal::Client.new(session: { user_id: '11375034', icn: '1012740022V620959' })
+        client = BBInternal::Client.new(session: { user_id: '11375034' })
         client.authenticate
         client
       end
@@ -39,7 +40,7 @@ describe BBInternal::Client do
 
   describe 'session' do
     it 'preserves ICN' do
-      expect(client.session.icn).to equal('1012740022V620959')
+      expect(client.session.icn).to equal(icn)
     end
   end
 
@@ -109,7 +110,7 @@ describe BBInternal::Client do
 
     it 'requests a study by study_id' do
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
-        result = client.request_study(uuid)
+        result = client.request_study(icn, uuid)
         expect(result).to be_a(Hash)
         expect(result).to have_key('status')
         expect(result).to have_key('studyIdUrn')
@@ -126,7 +127,7 @@ describe BBInternal::Client do
       allow(redis).to receive(:get).with(study_data_key).and_return({}.to_json)
 
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
-        expect { client.request_study(uuid) }.to raise_error(Common::Exceptions::RecordNotFound)
+        expect { client.request_study(icn, uuid) }.to raise_error(Common::Exceptions::RecordNotFound)
 
         expect(Rails.logger).to have_received(:info)
           .with(message: "[MHV-Images] Study UUID #{uuid} not cached")
@@ -175,7 +176,7 @@ describe BBInternal::Client do
   end
 
   describe '#get_generate_ccd' do
-    let(:icn) { '1000000000V000000' }
+    let(:icn) { '1012740022V620959' }
     let(:last_name_with_space) { 'DOE SMITH' }
     let(:expected_escaped_last_name) { 'DOE%20SMITH' }
 
@@ -503,16 +504,6 @@ describe BBInternal::Client do
     context 'when session is expired' do
       let(:session_expired) { true }
       let(:icn) { '1000000000V000000' }
-      let(:patient_id) { '12345' }
-
-      it 'returns true' do
-        expect(client.send(:invalid?, session_data)).to be true
-      end
-    end
-
-    context 'when session has no icn' do
-      let(:session_expired) { false }
-      let(:icn) { nil }
       let(:patient_id) { '12345' }
 
       it 'returns true' do
