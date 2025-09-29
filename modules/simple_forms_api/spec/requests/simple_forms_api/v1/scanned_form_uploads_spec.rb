@@ -26,10 +26,11 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     let(:random_string) { 'some-unique-simple-forms-file-seed' }
     let(:pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
     let(:pdf_stamper) { double(stamp_pdf: nil) }
-    let(:confirmation_code) { params['confirmation_code'] }
-    let(:main_attachment) { double('MainAttachment') }
+    let(:confirmation_code) { '123456' }
+    let(:attachment) { double }
 
     before do
+      Flipper.disable(:simple_forms_upload_supporting_documents)
       VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
       VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
       allow(Common::FileHelpers).to receive(:random_file_path).and_return(file_seed)
@@ -37,17 +38,10 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         original_method.call(args[0], random_string)
       end
 
-      allow(SimpleFormsApi::PdfStamper).to receive(:new).with(
-        stamped_template_path: pdf_path.to_s,
-        current_loa: 3,
-        timestamp: anything
-      ).and_return(pdf_stamper)
-
-      file_mock = double('file')
-      allow(file_mock).to receive(:open).and_return(double(path: pdf_path.to_s))
-      allow(main_attachment).to receive(:file).and_return(file_mock)
-      allow(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(main_attachment)
-      allow(PersistentAttachment).to receive(:where).with(guid: []).and_return([])
+      allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s, current_loa: 3,
+                                                              timestamp: anything).and_return(pdf_stamper)
+      allow(attachment).to receive(:to_pdf).and_return(pdf_path)
+      allow(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
     end
 
     after do
@@ -146,7 +140,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
       it 'processes files through ScannedFormProcessor and returns success' do
         expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new) do |attachment|
-          expect(attachment).to be_a(PersistentAttachments::VAForm)
+          expect(attachment).to be_a(PersistentAttachments::MilitaryRecords)
           expect(attachment.form_id).to eq(form_number)
           processor = double('ScannedFormProcessor')
           allow(processor).to receive(:process!) do
@@ -163,7 +157,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         end.to change(PersistentAttachment, :count).by(1)
 
         expect(response).to have_http_status(:ok)
-        expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAForm)
+        expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
       end
     end
 
@@ -218,7 +212,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
     context 'when basic attachment validation fails' do
       it 'returns validation errors without calling processor' do
-        allow_any_instance_of(PersistentAttachments::VAForm).to receive(:valid?) do |attachment|
+        allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:valid?) do |attachment|
           attachment.errors.add(:file, 'is invalid')
           false
         end
@@ -231,68 +225,6 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
         expect(response).to have_http_status(:unprocessable_entity)
       end
-    end
-  end
-
-  describe '#submit with supporting evidence' do
-    let(:fixture_path) do
-      Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', '21_0779_upload.json')
-    end
-    let(:base_params) { JSON.parse(fixture_path.read) }
-    let(:main_confirmation_code) { base_params['confirmation_code'] }
-    let(:supporting_evidence_codes) { %w[support-1 support-2] }
-    let(:params_with_supporting_evidence) do
-      base_params.merge(
-        'supporting_documents' => [
-          { 'confirmation_code' => 'support-1' },
-          { 'confirmation_code' => 'support-2' }
-        ]
-      )
-    end
-    let(:pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
-    let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
-    let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
-
-    before do
-      VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
-      VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
-      allow(Common::FileHelpers).to receive(:random_file_path).and_return(file_seed)
-      allow(Common::FileHelpers).to receive(:generate_clamav_temp_file).and_wrap_original do |original_method, *args|
-        original_method.call(args[0], file_seed)
-      end
-    end
-
-    after do
-      VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
-      VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
-      Common::FileHelpers.delete_file_if_exists(metadata_file)
-    end
-
-    it 'handles submission without supporting evidence (existing behavior)' do
-      main_attachment = double('MainAttachment')
-      file_mock = double('file')
-      allow(file_mock).to receive(:open).and_return(double(path: pdf_path.to_s))
-      allow(main_attachment).to receive(:file).and_return(file_mock)
-      allow(PersistentAttachment).to receive(:find_by).with(guid: main_confirmation_code).and_return(main_attachment)
-
-      allow(PersistentAttachment).to receive(:where).with(guid: []).and_return([])
-
-      pdf_stamper = double(stamp_pdf: nil)
-      allow(SimpleFormsApi::PdfStamper).to receive(:new).and_return(pdf_stamper)
-
-      lighthouse_service = double('BenefitsIntake::Service')
-      allow(BenefitsIntake::Service).to receive(:new).and_return(lighthouse_service)
-
-      allow(lighthouse_service).to receive(:request_upload).and_return(['http://upload-url', 'uuid-123'])
-
-      expect(lighthouse_service).to receive(:perform_upload) do |args|
-        expect(args[:attachments]).to eq([])
-        double(status: 200)
-      end
-
-      post('/simple_forms_api/v1/submit_scanned_form', params: base_params)
-
-      expect(response).to have_http_status(:ok)
     end
   end
 
