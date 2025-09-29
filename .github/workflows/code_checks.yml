@@ -293,6 +293,15 @@ jobs:
           path: coverage_parts
           merge-multiple: true
 
+      - name: Debug downloaded artifacts
+        run: |
+          echo "=== Current directory structure ==="
+          find . -name "*.json" -type f | head -20
+          echo "=== Coverage parts directory ==="
+          ls -la coverage_parts/ || echo "No coverage_parts directory"
+          echo "=== Looking for .resultset.json files ==="
+          find coverage_parts -name ".resultset.json" -type f 2>/dev/null || echo "No .resultset.json files found"
+
       - name: Setup Ruby and install dependencies
         uses: ruby/setup-ruby@v1
         with:
@@ -309,14 +318,36 @@ jobs:
         env:
           RUBYOPT: "-W0"
 
+      - name: Debug coverage output
+        run: |
+          echo "=== Coverage directory contents ==="
+          ls -la coverage/ || echo "No coverage directory"
+          echo "=== Looking for .last_run.json ==="
+          find . -name ".last_run.json" -type f || echo "No .last_run.json found"
+
       - name: Export covered_percent for coverage-check-action
         run: |
           bundle exec ruby -e 'require "json";
-                               last = JSON.parse(File.read("coverage/.last_run.json")) rescue {};
-                               pct = last.dig("result", "line") || 0
-                               File.write("combined_coverage.json", JSON.pretty_generate({"covered_percent" => pct}))'
+                               if File.exist?("coverage/.last_run.json")
+                                 puts "Found coverage/.last_run.json"
+                                 last = JSON.parse(File.read("coverage/.last_run.json"))
+                                 puts "Coverage data: #{last.inspect}"
+                                 pct = last.dig("result", "line") || 0
+                                 puts "Extracted percentage: #{pct}"
+                                 File.write("combined_coverage.json", JSON.pretty_generate({"covered_percent" => pct}))
+                                 puts "Created combined_coverage.json"
+                               else
+                                 puts "No coverage/.last_run.json found, creating default"
+                                 File.write("combined_coverage.json", JSON.pretty_generate({"covered_percent" => 0}))
+                               end'
         env:
           RUBYOPT: "-W0"
+
+      - name: Debug final state
+        run: |
+          echo "=== Final file check ==="
+          ls -la combined_coverage.json || echo "No combined_coverage.json"
+          cat combined_coverage.json || echo "Cannot read combined_coverage.json"
 
       - name: Publish Coverage Report
         if: always()
