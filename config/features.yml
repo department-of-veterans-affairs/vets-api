@@ -794,7 +794,7 @@ features:
   disability_526_track_saved_claim_error:
     actor_type: user
     description: enables improved logging of SavedClaim::DisabilityCompensation::Form526AllClaim save failures
-  disability_526_add_claim_date_to_lighthouse_call:
+  disability_526_add_claim_date_to_lighthouse:
     actor_type: user
     description: enables sending the claim date to Lighthouse when submitting a Form 526EZ when present
     enable_in_development: true
