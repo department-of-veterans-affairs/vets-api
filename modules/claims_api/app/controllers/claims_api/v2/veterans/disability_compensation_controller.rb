@@ -232,7 +232,7 @@ module ClaimsApi
         end
 
         def bd_service
-          ClaimsApi::DisabilityCompensationBenefitsDocumentsUploader
+          ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader
         end
 
         def sandbox_request(request)
