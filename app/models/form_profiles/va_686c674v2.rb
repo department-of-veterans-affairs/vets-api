@@ -113,6 +113,13 @@ class FormProfiles::VA686c674v2 < FormProfile
   # If no dependents are found or if they are not active for benefits, it returns an empty array.
   def prefill_dependents_information
     dependents = dependent_service.get_dependents
+    # Temporary tracking to understand data structure during failures
+    monitor.track_event(
+      'info',
+      "Get dependents data: #{dependents.class}",
+      'dependents.data.structure',
+      { dependents: }
+    )
     persons = if dependents.nil? || dependents[:persons].blank?
                 []
               else
@@ -133,7 +140,6 @@ class FormProfiles::VA686c674v2 < FormProfile
   # @param person [Hash] The dependent's information as a hash
   # @return [DependentInformation] The dependent's information mapped to the model
   def person_to_dependent_information(person)
-    monitor.track_event('info', "Dependent data structure: #{person.class}")
     return nil unless person.respond_to?(:[])
 
     # Try both symbol and string keys
