@@ -295,6 +295,10 @@ jobs:
 
       - name: Merge coverage with SimpleCov.collate
         run: |
+          # Install SimpleCov gem
+          gem install simplecov
+
+          # Merge coverage files
           ruby -e 'require "simplecov";
                    SimpleCov.collate Dir["coverage_parts/**/.resultset.json"] do
                      SimpleCov.coverage_dir "coverage"
