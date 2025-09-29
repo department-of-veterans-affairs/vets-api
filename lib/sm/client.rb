@@ -345,7 +345,7 @@ module SM
       validate_create_context(args)
       json = perform(:post, 'message', args.to_h, token_headers).body
       message = Message.new(json[:data].merge(json[:metadata]))
-      return poll_status(message) if poll_for_status && message.is_oh_message
+      return poll_status(message) if poll_for_status
 
       message
     end
@@ -364,7 +364,7 @@ module SM
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, 'message/attach', args.to_h, custom_headers).body
       message = Message.new(json[:data].merge(json[:metadata]))
-      return poll_status(message) if poll_for_status && message.is_oh_message
+      return poll_status(message) if poll_for_status
 
       message
     end
@@ -400,7 +400,7 @@ module SM
       validate_create_context(args)
       Rails.logger.info('MESSAGING: post_create_message_with_lg_attachments')
       message = create_message_with_lg_attachments_request('message/attach', args)
-      return poll_status(message) if poll_for_status && message.is_oh_message
+      return poll_status(message) if poll_for_status
 
       message
     end
@@ -419,7 +419,7 @@ module SM
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, "message/#{id}/reply/attach", args.to_h, custom_headers).body
       message = Message.new(json[:data].merge(json[:metadata]))
-      return poll_status(message) if poll_for_status && message.is_oh_message
+      return poll_status(message) if poll_for_status
 
       message
     end
@@ -438,7 +438,7 @@ module SM
       validate_reply_context(args)
       Rails.logger.info('MESSAGING: post_create_message_reply_with_lg_attachment')
       message = create_message_with_lg_attachments_request("message/#{id}/reply/attach", args)
-      return poll_status(message) if poll_for_status && message.is_oh_message
+      return poll_status(message) if poll_for_status
 
       message
     end
@@ -455,7 +455,7 @@ module SM
       validate_reply_context(args)
       json = perform(:post, "message/#{id}/reply", args.to_h, token_headers).body
       message = Message.new(json[:data].merge(json[:metadata]))
-      return poll_status(message) if poll_for_status && message.is_oh_message
+      return poll_status(message) if poll_for_status
 
       message
     end
