@@ -90,10 +90,9 @@ module EVSS
 
         transform_veteran_section(form526, lh_request_body)
 
-        service_information = form526['serviceInformation']
-        if service_information.present?
-          lh_request_body.service_information = transform_service_information(service_information)
-        end
+        service_info = form526['serviceInformation']
+
+        lh_request_body.service_information = transform_service_information(service_info) if service_info.present?
 
         transform_disabilities_section(form526, lh_request_body)
 
@@ -109,7 +108,9 @@ module EVSS
         toxic_exposure = form526['toxicExposure']
         lh_request_body.toxic_exposure = transform_toxic_exposure(toxic_exposure) if toxic_exposure.present?
 
-        transform_claim_notes_and_date(form526, lh_request_body)
+        lh_request_body.claim_notes = form526['overflowText']
+
+        transform_claim_date(form526, lh_request_body) if Flipper.enabled?(:disability_526_add_claim_date_to_lighthouse)
 
         lh_request_body
       end
@@ -120,13 +121,9 @@ module EVSS
         date_string =~ VALID_LH_DATE_REGEX
       end
 
-      def transform_claim_notes_and_date(form526, lh_request_body)
-        lh_request_body.claim_notes = form526['overflowText']
-
-        if Flipper.enabled?(:disability_526_add_claim_date_to_lighthouse)
-          claim_date = form526['claimDate']
-          lh_request_body.claim_date = claim_date if claim_date.present? && valid_date_for_lighthouse?(claim_date)
-        end
+      def transform_claim_date(form526, lh_request_body)
+        claim_date = form526['claimDate']
+        lh_request_body.claim_date = claim_date if claim_date.present? && valid_date_for_lighthouse?(claim_date)
       end
 
       # returns "STANDARD_CLAIM_PROCESS", "BDD_PROGRAM", or "FDC_PROGRAM"
