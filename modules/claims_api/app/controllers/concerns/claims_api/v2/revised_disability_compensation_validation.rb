@@ -22,7 +22,7 @@ module ClaimsApi
       YYYY_YYYYMM_REGEX = '^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$'.freeze
       YYYY_MM_DD_REGEX = '^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$'.freeze
 
-      def validate_form_526_fes_values(target_veteran)
+      def validate_form_526_submission_values(target_veteran)
         return if form_attributes.empty?
 
         validate_claim_process_type_bdd if bdd_claim?
