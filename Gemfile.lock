@@ -95,6 +95,7 @@ PATH
     ask_va_api (0.1.0)
     avs (0.1.0)
     banners (0.1.0)
+    bpds (0.1.0)
     burials (0.1.0)
     check_in (0.1.0)
     claims_api (0.0.1)
@@ -864,7 +865,7 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.17)
+    rack (2.2.18)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -1242,6 +1243,7 @@ DEPENDENCIES
   blind_index
   blueprinter
   bootsnap
+  bpds!
   brakeman
   breakers
   bundler-audit
@@ -1356,7 +1358,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 2.2.17)
+  rack (~> 2.2.18)
   rack-attack
   rack-cors
   rack-test (= 2.2.0)

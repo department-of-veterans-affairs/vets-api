@@ -657,6 +657,9 @@ features:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
     enable_in_development: true
+  dependency_verification_browser_monitoring_enabled:
+    actor_type: user
+    description: Enable Datadog RUM/LOG monitoring for the form 21-0538
   dependents_enable_form_viewer_mfe:
     actor_type: user
     description: enables display of form viewer microfrontend on 686 post-submission page
@@ -1503,6 +1506,10 @@ features:
   mhv_enable_aal_integration:
     actor_type: user
     description: Enables/disables integration with MHV's AAL-creation endpoint
+    enable_in_development: true
+  mhv_hash_id_for_mhv_session_locking:
+    actor_type: user
+    description: Hash the MHV Correlation ID when locking MHV sessions
     enable_in_development: true
   mhv_modern_cta_links:
     actor_type: user
