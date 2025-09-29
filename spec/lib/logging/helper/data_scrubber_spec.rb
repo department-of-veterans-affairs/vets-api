@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'logging/data_scrubber'
+require 'logging/helper/data_scrubber'
 
-RSpec.describe Logging::DataScrubber do
+RSpec.describe Logging::Helper::DataScrubber do
   let(:redaction) { '[REDACTED]' }
 
   describe '.scrub' do

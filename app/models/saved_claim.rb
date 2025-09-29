@@ -132,7 +132,7 @@ class SavedClaim < ApplicationRecord
   def document_type
     10 # Unknown
   end
-  alias_method :doctype, :document_type
+  alias doctype document_type
 
   def email
     nil

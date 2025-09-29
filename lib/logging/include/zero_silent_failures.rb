@@ -8,7 +8,7 @@ module Logging
       #
       # @param context [Hash] information to accompany the log to aid in debugging
       # @param user_account_uuid [UUID]
-      # @param call_location [Logging::CallLocation | Thread::Backtrace::Location] location to be logged as failure point
+      # @param call_location [Logging::CallLocation | Thread::Backtrace::Location] location to be logged
       def log_silent_failure(context, user_account_uuid = nil, call_location: nil)
         metric = 'silent_failure'
         message = 'Silent failure!'
@@ -21,7 +21,7 @@ module Logging
       #
       # @param context [Hash] information to accompany the log to aid in debugging
       # @param user_account_uuid [UUID]
-      # @param call_location [Logging::CallLocation | Thread::Backtrace::Location] location to be logged as failure point
+      # @param call_location [Logging::CallLocation | Thread::Backtrace::Location] location to be logged
       def log_silent_failure_avoided(context, user_account_uuid = nil, call_location: nil)
         metric = 'silent_failure_avoided'
         message = 'Silent failure avoided'
@@ -34,7 +34,7 @@ module Logging
       #
       # @param context [Hash] information to accompany the log to aid in debugging
       # @param user_account_uuid [UUID]
-      # @param call_location [Logging::CallLocation | Thread::Backtrace::Location] location to be logged as failure point
+      # @param call_location [Logging::CallLocation | Thread::Backtrace::Location] location to be logged
       def log_silent_failure_no_confirmation(context, user_account_uuid = nil, call_location: nil)
         metric = 'silent_failure_avoided_no_confirmation'
         message = 'Silent failure avoided (no confirmation)'

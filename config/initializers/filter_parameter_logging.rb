@@ -86,24 +86,19 @@ Rails.application.config.filter_parameters = [
         var_name = var.to_s.delete_prefix('@')
         v.instance_variable_set(var, '[FILTERED!]') unless ALLOWLIST.include?(var_name)
       end
-      v
     else # Base case for all other types (String, Integer, Symbol, Class, nil, etc.)
-      if k && ALLOWLIST.exclude?(k.to_s)
-        return '[FILTERED]'
-      end
+      return '[FILTERED]' if k && ALLOWLIST.exclude?(k.to_s)
 
       case v
       when Hash # Recursively iterate over each key value pair in hashes
         v.each do |nested_key, nested_value|
           v[nested_key] = Rails.application.config.filter_parameters.first&.call(nested_key, nested_value)
         end
-        v
       when Array # Recursively map all elements in arrays
         v.map! { |element| Rails.application.config.filter_parameters.first&.call(k, element) }
-        v
-      else
-        v
       end
     end
+
+    v
   end
 ]

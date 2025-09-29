@@ -13,6 +13,7 @@ module Logging
     attr_reader :tags
 
     def initialize
+      super()
       @tags = ["form_id:#{form_id}"]
     end
 
@@ -46,11 +47,12 @@ module Logging
     # @param message [String] The message describing the event
     # @param stats_key [String] The key used for stats tracking
     # @param **context [Hash] additional parameters to pass to log; if `tags` is provided it will be included in StatsD
-    def submit_event(level, message, stats_key, call_location: nil, claim: nil, **context)
-      call_location ||= caller_locations.first
+    def submit_event(level, message, stats_key, **context)
+      call_location = context[:call_location] || caller_locations.first
       context[:tags] = ((context[:tags] || []) + @tags).uniq
 
       # claim is not a required field and could be an Integer or SavedClaim
+      claim = context[:claim]
       form_id = claim.try(:form_id) || form_id
       claim_id = claim.try(:id) || claim
       confirmation_number = claim.try(:confirmation_number)
@@ -59,7 +61,7 @@ module Logging
         form_id:,
         claim_id:,
         confirmation_number:,
-        **context
+        **context.except(:call_location, :claim)
       }
 
       track_request(level, message, stats_key, call_location:, **payload)

@@ -51,7 +51,7 @@ class ClaimsEvidenceApi::Submission < Submission
   def document_type
     persistent_attachment&.document_type || saved_claim&.document_type
   end
-  alias_method :doctype, :document_type
+  alias doctype document_type
 
   # insert values into the reference data field
   # unnamed values will overwrite the reference_data['__'] array

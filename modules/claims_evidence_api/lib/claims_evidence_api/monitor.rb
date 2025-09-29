@@ -47,11 +47,11 @@ module ClaimsEvidenceApi
         call_location = caller_locations.first
         message = format_message("#{record.class} #{action}")
         tags = format_tags({
-          class: record.class.to_s.downcase.gsub(/:+/, '_'),
-          form_id: attributes[:form_id],
-          doctype: attributes[:doctype],
-          action:
-        })
+                             class: record.class.to_s.downcase.gsub(/:+/, '_'),
+                             form_id: attributes[:form_id],
+                             doctype: attributes[:doctype],
+                             action:
+                           })
 
         track_request(:info, message, METRIC, call_location:, tags:, **attributes)
       end

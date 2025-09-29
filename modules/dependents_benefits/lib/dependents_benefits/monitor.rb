@@ -35,12 +35,12 @@ module DependentsBenefits
     end
 
     def track_processor_error(message, action, **context)
-      context[:tags] = ((context[:tags] || []) + ["action:#{action}"] ).uniq
+      context[:tags] = ((context[:tags] || []) + ["action:#{action}"]).uniq
       track_error_event(message, PROCESSOR_STATS_KEY, **context)
     end
 
     def track_processor_info(message, action, **context)
-      context[:tags] = ((context[:tags] || []) + ["action:#{action}"] ).uniq
+      context[:tags] = ((context[:tags] || []) + ["action:#{action}"]).uniq
       track_info_event(message, PROCESSOR_STATS_KEY, **context)
     end
 

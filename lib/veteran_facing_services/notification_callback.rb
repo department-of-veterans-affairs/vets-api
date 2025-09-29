@@ -41,13 +41,13 @@ module VeteranFacingServices
           # delivery failed - log error
           callback.on_permanent_failure
           monitor.track_request(:error, "#{callback.klass}: Permanent Failure",
-                        "#{STATSD}.permanent_failure", call_location:, **context)
+                                "#{STATSD}.permanent_failure", call_location:, **context)
 
         when 'temporary-failure'
           # the api will continue attempting to deliver - success is still possible
           callback.on_temporary_failure
           monitor.track_request(:warn, "#{callback.klass}: Temporary Failure",
-                        "#{STATSD}.temporary_failure", call_location:, **context)
+                                "#{STATSD}.temporary_failure", call_location:, **context)
 
         else
           callback.on_other_status

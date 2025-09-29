@@ -5,7 +5,6 @@ require 'common/client/concerns/monitoring'
 require 'logging/helpers/data_scrubber'
 require 'logging/helpers/parameter_filter'
 
-
 module BGSV2
   class Service
     STATSD_KEY_PREFIX = 'api.bgs'
