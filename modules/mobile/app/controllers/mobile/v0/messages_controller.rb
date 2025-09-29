@@ -45,7 +45,8 @@ module Mobile
 
         client_response = if message.uploads.present?
                             begin
-                              client.post_create_message_with_attachment(create_message_params)
+                              client.post_create_message_with_attachment(create_message_params,
+                                                                         poll_for_status: oh_triage_group?)
                             rescue Common::Client::Errors::Serialization => e
                               Rails.logger.info('Mobile SM create with attachment error', status: e&.status,
                                                                                           error_body: e&.body,
@@ -84,7 +85,8 @@ module Mobile
         create_message_params = { message: message_params.to_h }.merge(upload_params)
 
         client_response = if message.uploads.present?
-                            client.post_create_message_reply_with_attachment(params[:id], create_message_params)
+                            client.post_create_message_reply_with_attachment(params[:id], create_message_params,
+                                                                             poll_for_status: oh_triage_group?)
                           else
                             client.post_create_message_reply(params[:id], message_params.to_h)
                           end
@@ -126,6 +128,10 @@ module Mobile
 
       def upload_params
         @upload_params ||= { uploads: params[:uploads] }
+      end
+
+      def oh_triage_group?
+        ActiveModel::Type::Boolean.new.cast(params[:is_oh_triage_group])
       end
 
       def message_counts(resource)
