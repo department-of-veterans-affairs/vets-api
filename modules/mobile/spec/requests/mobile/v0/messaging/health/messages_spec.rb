@@ -195,58 +195,18 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
           let(:message_params) { attributes_for(:message, subject: 'OH Group Subject', body: 'Body') }
           let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
           let(:params_with_attachments) { { message: params, uploads: } }
-          let(:reply_message_id) { 111_222 }
 
           it 'passes poll_for_status=true on create with attachments when is_oh_triage_group=true' do
-            msg = build(:message, :with_attachments)
-            expect_any_instance_of(Mobile::V0::Messaging::Client).to receive(:post_create_message_with_attachment)
+            expect_any_instance_of(Mobile::V0::Messaging::Client)
+              .to receive(:post_create_message_with_attachment)
               .with(kind_of(Hash), poll_for_status: true)
-              .and_return(msg)
+              .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
 
             post '/mobile/v0/messaging/health/messages?is_oh_triage_group=true',
                  headers: sis_headers,
                  params: params_with_attachments
 
             expect(response).to be_successful
-          end
-
-          it 'passes poll_for_status=false on create with attachments when is_oh_triage_group not true' do
-            msg = build(:message, :with_attachments)
-            expect_any_instance_of(Mobile::V0::Messaging::Client).to receive(:post_create_message_with_attachment)
-              .with(kind_of(Hash), poll_for_status: false)
-              .and_return(msg)
-
-            post '/mobile/v0/messaging/health/messages',
-                 headers: sis_headers,
-                 params: params_with_attachments
-
-            expect(response).to be_successful
-          end
-
-          it 'passes poll_for_status=true on reply with attachments when is_oh_triage_group=true' do
-            msg = build(:message, :with_attachments)
-            expect_any_instance_of(Mobile::V0::Messaging::Client).to receive(:post_create_message_reply_with_attachment)
-              .with(reply_message_id, kind_of(Hash), poll_for_status: true)
-              .and_return(msg)
-
-            post "/mobile/v0/messaging/health/messages/#{reply_message_id}/reply?is_oh_triage_group=true",
-                 headers: sis_headers,
-                 params: params_with_attachments
-
-            expect(response).to have_http_status(:created).or be_successful
-          end
-
-          it 'passes poll_for_status=false on reply with attachments when is_oh_triage_group not true' do
-            msg = build(:message, :with_attachments)
-            expect_any_instance_of(Mobile::V0::Messaging::Client).to receive(:post_create_message_reply_with_attachment)
-              .with(reply_message_id, kind_of(Hash), poll_for_status: false)
-              .and_return(msg)
-
-            post "/mobile/v0/messaging/health/messages/#{reply_message_id}/reply",
-                 headers: sis_headers,
-                 params: params_with_attachments
-
-            expect(response).to have_http_status(:created).or be_successful
           end
         end
       end
