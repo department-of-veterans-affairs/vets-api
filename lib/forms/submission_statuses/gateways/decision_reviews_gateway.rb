@@ -70,8 +70,8 @@ module Forms
               }
               statuses_data << status_record
 
-              # For SupplementalClaim, check for associated SecondaryAppealForms (21-4142)
-              if submission.is_a?(SavedClaim::SupplementalClaim) && should_include_form?('21-4142')
+              # For SupplementalClaim, check for associated SecondaryAppealForms (21-4142, keyed as form0995_form4142)
+              if submission.is_a?(SavedClaim::SupplementalClaim) && should_include_form?('form0995_form4142')
                 secondary_statuses = get_secondary_form_statuses(submission)
                 statuses_data.concat(secondary_statuses)
               end
@@ -123,7 +123,7 @@ module Forms
                 'message' => attributes['status'],
                 'created_at' => secondary_form.created_at,
                 'updated_at' => attributes['updated_at'],
-                'form_type' => secondary_form.form_id
+                'form_type' => 'form0995_form4142'
               }
             }
             secondary_statuses << status_record

@@ -102,7 +102,7 @@ describe Forms::SubmissionStatuses::Formatters::DecisionReviewsFormatter,
           'guid' => 'secondary-guid-123',
           'status' => 'vbms',
           'detail' => 'Secondary form processed',
-          'form_type' => '21-4142'
+          'form_type' => 'form0995_form4142'
         }
       }
     end
@@ -121,7 +121,7 @@ describe Forms::SubmissionStatuses::Formatters::DecisionReviewsFormatter,
 
       secondary_record = result.find { |r| r.id == 'secondary-guid-123' }
       expect(secondary_record).not_to be_nil
-      expect(secondary_record.form_type).to eq('21-4142')
+      expect(secondary_record.form_type).to eq('form0995_form4142')
       expect(secondary_record.status).to eq('vbms')
     end
   end
@@ -149,7 +149,7 @@ describe Forms::SubmissionStatuses::Formatters::DecisionReviewsFormatter,
       it 'maps SecondaryAppealForm to its form_id' do
         secondary_form = create(:secondary_appeal_form4142, form_id: '21-4142')
         form_type = subject.send(:determine_form_type, secondary_form)
-        expect(form_type).to eq('21-4142')
+        expect(form_type).to eq('form0995_form4142')
       end
 
       it 'returns unknown for unknown claim types' do

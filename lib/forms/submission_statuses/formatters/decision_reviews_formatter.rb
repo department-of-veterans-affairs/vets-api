@@ -72,7 +72,7 @@ module Forms
           when 'SavedClaim::NoticeOfDisagreement'
             '10182' # Notice of Disagreement form
           when 'SecondaryAppealForm'
-            submission.form_id # Should be '21-4142' for secondary forms
+            'form0995_form4142' # to support friendlier labeling in vets-website
           else
             'unknown'
           end

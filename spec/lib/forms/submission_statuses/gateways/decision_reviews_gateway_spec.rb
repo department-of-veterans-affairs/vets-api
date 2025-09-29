@@ -226,7 +226,7 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway, feature: :
       let(:appeal_submission) { create(:appeal_submission, user_account: user_account, submitted_appeal_uuid: sc_with_secondary.guid, type_of_appeal: 'SC') }
       let(:secondary_form) { create(:secondary_appeal_form4142, appeal_submission: appeal_submission) }
       let(:submissions) { [sc_with_secondary] }
-      let(:allowed_forms) { %w[20-0995 21-4142] } # Allow both primary and secondary forms
+      let(:allowed_forms) { %w[20-0995 form0995_form4142] }
 
       let(:dr_api_response) do
         {
@@ -283,7 +283,7 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway, feature: :
         # Check secondary form status
         secondary_status = statuses_data.find { |s| s['attributes']['guid'] == secondary_form.guid }
         expect(secondary_status['attributes']['status']).to eq('vbms')
-        expect(secondary_status['attributes']['form_type']).to eq('21-4142')
+        expect(secondary_status['attributes']['form_type']).to eq('form0995_form4142')
       end
     end
 
