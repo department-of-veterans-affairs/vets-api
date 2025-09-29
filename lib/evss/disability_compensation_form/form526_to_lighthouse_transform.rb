@@ -110,7 +110,7 @@ module EVSS
 
         lh_request_body.claim_notes = form526['overflowText']
 
-        transform_claim_date(form526, lh_request_body) if Flipper.enabled?(:disability_526_add_claim_date_to_lighthouse)
+        transform_claim_date(form526, lh_request_body) if Flipper.enabled?(:disability_526_add_claim_date_to_lighthouse_call)
 
         lh_request_body
       end
