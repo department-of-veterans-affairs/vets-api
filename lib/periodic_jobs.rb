@@ -286,4 +286,8 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Daily cron job to check for PDF Form version changes
   mgr.register('0 12 * * *', 'FormPdfChangeDetectionJob')
+
+  # Hourly job to cache facility names for UHD prescriptions
+  # Runs at 37 minutes past the hour to avoid resource contention
+  mgr.register('37 * * * *', 'UnifiedHealthData::FacilityNameCacheJob')
 }

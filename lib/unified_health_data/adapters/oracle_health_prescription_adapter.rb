@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lighthouse/facilities/v1/client'
+
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
@@ -128,20 +130,55 @@ module UnifiedHealthData
       end
 
       def extract_facility_name(resource)
-        # Primary: dispenseRequest.performer
-        performer_display = resource.dig('dispenseRequest', 'performer', 'display')
-        return performer_display if performer_display
+        # Get latest dispense using existing helper
+        latest_dispense = find_most_recent_medication_dispense(resource['contained'])
+        return nil unless latest_dispense
 
-        # Fallback: check contained Encounter for location
-        if resource['contained']
-          encounter = resource['contained'].find { |c| c['resourceType'] == 'Encounter' }
-          if encounter
-            location_display = encounter.dig('location', 0, 'location', 'display')
-            return location_display if location_display
+        # Get .location.display from latest dispense
+        location_display = latest_dispense.dig('location', 'display')
+        return nil unless location_display
+
+        # Get first 3 digits for station number lookup
+        match = location_display.match(/^(\d{3})/)
+        return nil unless match
+
+        station_number = match[1]
+        
+        # Check Rails cache first for VHA facility name
+        cache_key = "uhd:facility_names:#{station_number}"
+        begin
+          cached_name = Rails.cache.read(cache_key)
+          if cached_name
+            StatsD.increment('unified_health_data.facility_name_cache.hit')
+            return cached_name
+          else
+            StatsD.increment('unified_health_data.facility_name_cache.miss')
           end
+        rescue => e
+          Rails.logger.warn("Rails cache lookup failed for facility #{station_number}: #{e.message}")
+          StatsD.increment('unified_health_data.facility_name_cache.error')
         end
 
-        nil
+        # Fallback to direct API call to Lighthouse for this specific facility
+        facility_name = fetch_facility_name_from_api(station_number)
+        if facility_name
+          StatsD.increment('unified_health_data.facility_name_fallback.api_hit')
+          
+          # Cache the result for future use with same TTL as main cache
+          begin
+            Rails.cache.write(cache_key, facility_name, expires_in: 4.hours)
+          rescue => e
+            Rails.logger.warn("Failed to cache facility name for #{station_number}: #{e.message}")
+          end
+          
+          return facility_name
+        else
+          StatsD.increment('unified_health_data.facility_name_fallback.api_miss')
+        end
+
+        # Final fallback: return station number
+        StatsD.increment('unified_health_data.facility_name_fallback.station_number_only')
+        station_number
       end
 
       def extract_quantity(resource)
@@ -284,6 +321,26 @@ module UnifiedHealthData
         dispenses.max_by do |dispense|
           when_handed_over = dispense['whenHandedOver']
           when_handed_over ? Time.zone.parse(when_handed_over) : Time.zone.at(0)
+        end
+      end
+
+      def fetch_facility_name_from_api(station_number)
+        facility_id = "vha_#{station_number}"
+        
+        begin
+          facilities_client = Lighthouse::Facilities::V1::Client.new
+          facilities = facilities_client.get_facilities(facilityIds: facility_id)
+          
+          if facilities&.any?
+            facilities.first.name
+          else
+            Rails.logger.info("No facility found for station number #{station_number} in Lighthouse API")
+            nil
+          end
+        rescue => e
+          Rails.logger.warn("Failed to fetch facility name from API for station #{station_number}: #{e.message}")
+          StatsD.increment('unified_health_data.facility_name_fallback.api_error')
+          nil
         end
       end
     end
