@@ -1,15 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../../app/controllers/concerns/claims_api/v2/revised_disability_compensation_validation'
-require 'claims_api/v2/disability_compensation_shared_service_module'
-require 'claims_api/v2/lighthouse_military_address_validator'
+require 'claims_api/v2/revised_disability_compensation_validation'
 
 # Calling private methods so needed to wrap it in a class
 class TestRevisedDisabilityCompensationValidationClass
-  include ClaimsApi::V2::RevisedDisabilityCompensationValidation
-  include ClaimsApi::V2::DisabilityCompensationSharedServiceModule
-  include ClaimsApi::V2::LighthouseMilitaryAddressValidator
+  include ClaimsApi::V2::DisabilityCompensationValidation
 
   def form_attributes
     @form_attributes ||= JSON.parse(
@@ -27,26 +23,10 @@ class TestRevisedDisabilityCompensationValidationClass
   end
 end
 
-RSpec.describe TestRevisedDisabilityCompensationValidationClass do
+describe TestRevisedDisabilityCompensationValidationClass, vcr: 'brd/countries' do
   subject(:test_526_validation_instance) { described_class.new }
 
   let(:created_at) { Timecop.freeze(Time.zone.now) }
-
-  before(:all) do
-    WebMock.allow_net_connect!
-  end
-
-  after(:all) do
-    WebMock.disable_net_connect!(allow_localhost: true)
-  end
-
-  before do
-    # Stub BRD service calls
-    allow_any_instance_of(described_class).to receive(:valid_countries).and_return(%w[USA Afghanistan])
-    allow_any_instance_of(described_class).to receive(:brd_service_branch_names).and_return(
-      ['Air Force', 'Air Force Reserves', 'Public Health Service']
-    )
-  end
 
   def current_error_array
     test_526_validation_instance.instance_variable_get('@errors')
