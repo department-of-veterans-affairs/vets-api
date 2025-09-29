@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require 'dependents_benefits/claim_behavior'
+
 module DependentsBenefits
   # DependentsBenefit 21-674 Active::Record
   # @see app/model/saved_claim
-  class SchoolAttendanceApproval < DependentsBenefits::SavedClaim
+  class SchoolAttendanceApproval < ::SavedClaim
+    include DependentsBenefits::ClaimBehavior
+
     # DependentsBenefit Form ID
     FORM = DependentsBenefits::SCHOOL_ATTENDANCE_APPROVAL
 
