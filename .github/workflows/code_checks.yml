@@ -218,12 +218,12 @@ jobs:
           ${{ env.COMPOSE_BASH_CMD }}
           "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 12"
 
-      - name: Upload Coverage Report
+      - name: Upload SimpleCov raw result
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Coverage Report Group ${{ matrix.test_group }}
-          path: coverage
+          name: coverage-${{ matrix.test_group }}
+          path: coverage/.resultset.json
           include-hidden-files: true
 
       - name: Upload Test Results (JUnit XMLs)
@@ -286,106 +286,37 @@ jobs:
           files: Test Results Group*/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Combine coverage reports
+      - name: Download all coverage parts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-*
+          path: coverage_parts
+          merge-multiple: true
+
+      - name: Merge coverage with SimpleCov.collate
         run: |
-          # Create Ruby script to merge coverage reports manually
-          cat > merge_coverage.rb << 'EOF'
-          require 'json'
+          ruby -e 'require "simplecov";
+                   SimpleCov.collate Dir["coverage_parts/**/.resultset.json"] do
+                     SimpleCov.coverage_dir "coverage"
+                   end
+                   puts "Merged to #{File.expand_path("coverage")}"'
+        env:
+          RUBYOPT: "-W0"
 
-          # Find all .resultset.json files from coverage reports
-          coverage_files = Dir.glob('Coverage Report Group*/.resultset.json')
-
-          if coverage_files.empty?
-            puts "No coverage files found"
-            exit 1
-          end
-
-          puts "Found #{coverage_files.length} coverage files"
-
-          # Manually merge coverage data
-          merged_coverage = {}
-          total_lines = 0
-          covered_lines = 0
-
-          coverage_files.each do |file|
-            puts "Processing #{file}"
-            data = JSON.parse(File.read(file))
-
-            # Extract coverage data from the first (and usually only) key
-            coverage_data = data.values.first
-            next unless coverage_data && coverage_data['coverage']
-
-            coverage_data['coverage'].each do |filename, line_data|
-              merged_coverage[filename] ||= []
-
-              # Extract the actual line coverage array (skip "lines" metadata)
-              line_coverage = line_data.is_a?(Array) && line_data[0] == "lines" ? line_data[1] : line_data
-
-              next unless line_coverage.is_a?(Array)
-
-              line_coverage.each_with_index do |coverage, index|
-                # Extend array if needed
-                while merged_coverage[filename].length <= index
-                  merged_coverage[filename] << nil
-                end
-
-                # Merge coverage: if either file has coverage, count it
-                if coverage.nil?
-                  # Keep existing value or nil
-                elsif merged_coverage[filename][index].nil?
-                  merged_coverage[filename][index] = coverage
-                else
-                  # Sum coverage counts (ensure both are numeric)
-                  if coverage.is_a?(Numeric) && merged_coverage[filename][index].is_a?(Numeric)
-                    merged_coverage[filename][index] += coverage
-                  end
-                end
-              end
-            end
-          end
-
-          # Calculate total coverage percentage
-          merged_coverage.each do |filename, line_coverage|
-            line_coverage.each do |coverage|
-              if coverage
-                total_lines += 1
-                covered_lines += 1 if coverage > 0
-              end
-            end
-          end
-
-          coverage_percent = total_lines > 0 ? (covered_lines.to_f / total_lines * 100).round(2) : 0
-
-          # Create combined .last_run.json
-          combined_data = {
-            "result" => {
-              "line" => coverage_percent
-            },
-            "timestamp" => Time.now.to_i
-          }
-
-          File.write('combined_coverage.json', JSON.pretty_generate(combined_data))
-          puts "Combined coverage: #{coverage_percent}% (#{covered_lines}/#{total_lines} lines)"
-          EOF
-
-          # Run the merge script
-          ruby merge_coverage.rb
-          echo "COVERAGE_FILE_PATH=combined_coverage.json" >> $GITHUB_ENV
-
-      - name: Fix up coverage report to work with coverage-check-action
+      - name: Export covered_percent for coverage-check-action
         run: |
-          if [ -f "combined_coverage.json" ]; then
-            echo "Found combined coverage file"
-            sed -i 's/"line"/"covered_percent"/g' "combined_coverage.json"
-          else
-            echo "No combined coverage file found"
-          fi
+          ruby -e 'require "json";
+                   last = JSON.parse(File.read("coverage/.last_run.json")) rescue {};
+                   pct = last.dig("result", "line") || 0
+                   File.write("combined_coverage.json", JSON.pretty_generate({"covered_percent" => pct}))'
+        env:
+          RUBYOPT: "-W0"
 
       - name: Publish Coverage Report
-        if: always() && env.COVERAGE_FILE_PATH
+        if: always()
         uses: devmasx/coverage-check-action@v1.2.0
         with:
           type: simplecov
-          result_path: ${{ env.COVERAGE_FILE_PATH }}
+          result_path: combined_coverage.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
