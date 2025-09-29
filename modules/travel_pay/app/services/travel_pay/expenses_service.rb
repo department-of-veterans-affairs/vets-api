@@ -34,7 +34,7 @@ module TravelPay
       Rails.logger.info("Creating general expense of type: #{params['expense_type']}")
 
       # Build the request body for the API
-      request_body = build_expense_request_body(params, include_claim_id: true)
+      request_body = build_expense_request_body(params)
 
       response = client.add_expense(veis_token, btsss_token, params['expense_type'], request_body)
       response.body['data']
@@ -61,16 +61,16 @@ module TravelPay
     end
 
     # Method to handle expense update via the API
-    def update_expense(expense_id, expense_type, request_body = {})
+    def update_expense(expense_id, expense_type, params = {})
       raise ArgumentError, 'You must provide an expense ID to create an expense.' if expense_id.blank?
       raise ArgumentError, 'You must provide an expense type to create an expense.' if expense_type.blank?
-      raise ArgumentError, 'You must provide at least one field to update an expense.' if request_body.blank?
+      raise ArgumentError, 'You must provide at least one field to update an expense.' if params.blank?
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
       Rails.logger.info("Updating general expense of type: #{expense_type}")
 
       # Build the request body for the API
-      request_body = build_expense_request_body(request_body)
+      request_body = build_expense_request_body(params)
 
       response = client.update_expense(veis_token, btsss_token, expense_id, expense_type, request_body)
       response.body['data']
@@ -96,14 +96,16 @@ module TravelPay
     # @param params [Hash] The expense parameters
     # @return [Hash] The formatted request body
     #
-    def build_expense_request_body(params, include_claim_id: false)
+    def build_expense_request_body(params)
       request_body = {
         'dateIncurred' => params['purchase_date'],
         'description' => params['description'],
         'costRequested' => params['cost_requested'],
         'expenseType' => params['expense_type']
       }
-      request_body['claimId'] = params['claim_id'] if include_claim_id
+
+      # Only add claimId if it exists in params
+      request_body['claimId'] = params['claim_id'] if params['claim_id'].present?
 
       # Include placeholder receipt unless feature flag is enabled to exclude it
       unless Flipper.enabled?(:travel_pay_exclude_expense_placeholder_receipt)

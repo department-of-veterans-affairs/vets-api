@@ -37,7 +37,7 @@ module TravelPay
         Rails.logger.info(
           message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
         )
-        expense = create_and_validate_expense(include_claim_id: true)
+        expense = create_and_validate_expense
         created_expense = expense_service.create_expense(expense_params_for_service(expense, include_claim_id: true))
 
         Rails.logger.info(message: 'Travel Pay expense submission END')
@@ -105,8 +105,8 @@ module TravelPay
         )
       end
 
-      def create_and_validate_expense(include_claim_id: false)
-        expense = build_expense_from_params(include_claim_id:)
+      def create_and_validate_expense
+        expense = build_expense_from_params
 
         return expense if expense.valid?
 
@@ -147,10 +147,12 @@ module TravelPay
         TravelPay::Constants::BASE_EXPENSE_PATHS.keys.map(&:to_s)
       end
 
-      def build_expense_from_params(include_claim_id: false)
+      def build_expense_from_params
         expense_class = expense_class_for_type(params[:expense_type])
         expense_params = permitted_params.to_h
-        expense_params[:claim_id] = params[:claim_id] if include_claim_id
+
+        # Only add claim_id if it exists in params
+        expense_params[:claim_id] = params[:claim_id] if params[:claim_id].present?
 
         expense_class.new(expense_params)
       end
