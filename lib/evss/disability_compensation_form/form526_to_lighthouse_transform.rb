@@ -108,9 +108,9 @@ module EVSS
 
         toxic_exposure = form526['toxicExposure']
         lh_request_body.toxic_exposure = transform_toxic_exposure(toxic_exposure) if toxic_exposure.present?
-        
+
         transform_claim_notes_and_date(form526, lh_request_body)
-        
+
         lh_request_body
       end
 
