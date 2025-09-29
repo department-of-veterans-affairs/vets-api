@@ -58,10 +58,11 @@ module VANotify
     end
 
     def authenticate_signature
-      return unless Flipper.enabled?(:va_notify_request_level_callbacks)
       return false unless @notification
 
       signature_from_header = request.headers['x-enp-signature'].to_s.strip
+
+      return if signature_from_header.blank?
 
       api_key = get_api_key_value(@notification.service_api_key_path)
 

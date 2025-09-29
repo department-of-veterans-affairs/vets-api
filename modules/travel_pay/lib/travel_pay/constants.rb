@@ -8,7 +8,8 @@ module TravelPay
       meal: 'api/v1/expenses/meal',
       mileage: 'api/v2/expenses/mileage',
       parking: 'api/v1/expenses/parking',
-      other: 'api/v1/expenses/other'
+      other: 'api/v1/expenses/other',
+      toll: 'api/v1/expenses/toll'
     }.freeze
 
     # Usage:
@@ -17,7 +18,16 @@ module TravelPay
       meal: 'meal',
       mileage: 'mileage',
       parking: 'parking',
-      other: 'other'
+      other: 'other',
+      toll: 'toll'
+    }.freeze
+
+    # Usage:
+    # TravelPay::Constants::TRIP_TYPES[:one_way]
+    TRIP_TYPES = {
+      one_way: 'OneWay',
+      round_trip: 'RoundTrip',
+      unspecified: 'Unspecified'
     }.freeze
 
     # Usage:
