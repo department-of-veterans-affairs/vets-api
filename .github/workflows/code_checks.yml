@@ -296,7 +296,7 @@ jobs:
       - name: Merge coverage with SimpleCov.collate
         run: |
           # Install SimpleCov gem
-          gem install simplecov
+          sudo gem install simplecov
 
           # Merge coverage files
           ruby -e 'require "simplecov";
