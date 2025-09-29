@@ -797,6 +797,9 @@ features:
   disability_526_track_saved_claim_error:
     actor_type: user
     description: enables improved logging of SavedClaim::DisabilityCompensation::Form526AllClaim save failures
+  disability_526_block_banking_info_retrieval:
+    actor_type: user
+    description: disables call to Lighthouse Direct Deposit API to fill in banking information without Veteran consent
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
