@@ -456,6 +456,10 @@ features:
     actor_type: user
     description: Use hardcoded namespaces for WSDL calls to BGS
     enable_in_development: true
+  cst_use_claim_title_generator_web:
+    description: When enabled, use the title generator to insert claim titles into claim list responses.
+  cst_use_claim_title_generator_mobile:
+    description: When enabled, use the title generator to insert claim titles into mobile claim list responses.
   cst_show_document_upload_status:
     actor_type: user
     description: When enabled, claims status tool will display the upload status that comes from the evidence_submissions table.

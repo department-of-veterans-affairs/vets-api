@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'benefits_claims/title_generator'
 require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_claims/constants'
 require 'lighthouse/benefits_documents/constants'
@@ -19,6 +20,8 @@ module V0
       'dependency:lighthouse'
     ].freeze
 
+    FEATURE_USE_TITLE_GENERATOR_WEB = 'cst_use_claim_title_generator_web'
+
     def index
       claims = service.get_claims
 
@@ -31,6 +34,8 @@ module V0
         if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
           claim['attributes']['hasFailedUploads'] = add_has_failed_uploads(claim)
         end
+
+        BenefitsClaims::TitleGenerator.update_claim_title(claim) if Flipper.enabled?(FEATURE_USE_TITLE_GENERATOR_WEB)
       end
 
       tap_claims(claims['data'])
