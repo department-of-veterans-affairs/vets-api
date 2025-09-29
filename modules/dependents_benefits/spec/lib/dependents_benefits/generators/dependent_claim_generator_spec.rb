@@ -9,6 +9,8 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
   let(:generator) { described_class.new(form_data, parent_id) }
 
   before do
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+
     allow(generator).to receive(:claim_class).and_return(DependentsBenefits::SavedClaim)
   end
 
@@ -61,21 +63,27 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
     end
 
     describe '#create_claim_group_item' do
-      let(:mock_claim) { instance_double(DependentsBenefits::SavedClaim, id: 456) }
+      let!(:parent_claim) { create(:dependents_claim, id: parent_id) }
+      let(:mock_claim) { create(:dependents_claim) }
+      let(:claim_group_guid) { SecureRandom.uuid }
+      let(:mock_group) do
+        instance_double(SavedClaimGroup, parent_claim_id: parent_id, claim_group_guid:)
+      end
 
       before do
         allow(Rails.logger).to receive(:info)
+        allow(SavedClaimGroup).to receive(:find_by).and_return(mock_group)
       end
 
-      it 'logs a TODO message for claim linking' do
-        generator.send(:create_claim_group_item, mock_claim)
+      it 'creates a claim group' do
+        expect(SavedClaimGroup).to receive(:new).with(
+          claim_group_guid: mock_group.claim_group_guid,
+          parent_claim_id: parent_id,
+          saved_claim_id: mock_claim.id
+        ).and_call_original
 
-        expect(Rails.logger).to have_received(:info).with("TODO: Link claim 456 to parent #{parent_id}")
-      end
-
-      it 'returns nil (stubbed method)' do
         result = generator.send(:create_claim_group_item, mock_claim)
-        expect(result).to be_nil
+        expect(result).to be_a(SavedClaimGroup)
       end
     end
   end

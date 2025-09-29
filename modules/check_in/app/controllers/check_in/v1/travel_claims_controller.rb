@@ -18,10 +18,10 @@ module CheckIn
           return
         end
 
-        submit_travel_claim(check_in_session)
+        submit_travel_claim
       rescue ActionController::ParameterMissing => e
         handle_parameter_missing_error(e)
-      rescue TravelClaim::InvalidArgument => e
+      rescue TravelClaim::Errors::InvalidArgument => e
         handle_argument_error(e)
       rescue Common::Exceptions::BackendServiceException => e
         handle_backend_service_error(e)
@@ -37,12 +37,11 @@ module CheckIn
         routing_error unless Flipper.enabled?('check_in_experience_travel_reimbursement')
       end
 
-      def submit_travel_claim(check_in_session)
+      def submit_travel_claim
         result = TravelClaim::ClaimSubmissionService.new(
-          check_in: check_in_session,
           appointment_date: permitted_params[:appointment_date],
           facility_type: permitted_params[:facility_type],
-          uuid: permitted_params[:uuid]
+          check_in_uuid: permitted_params[:uuid]
         ).submit_claim
 
         render json: result, status: :ok
