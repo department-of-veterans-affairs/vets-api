@@ -315,8 +315,13 @@ jobs:
             coverage_data = data.values.first
             next unless coverage_data && coverage_data['coverage']
 
-            coverage_data['coverage'].each do |filename, line_coverage|
+            coverage_data['coverage'].each do |filename, line_data|
               merged_coverage[filename] ||= []
+
+              # Extract the actual line coverage array (skip "lines" metadata)
+              line_coverage = line_data.is_a?(Array) && line_data[0] == "lines" ? line_data[1] : line_data
+
+              next unless line_coverage.is_a?(Array)
 
               line_coverage.each_with_index do |coverage, index|
                 # Extend array if needed
@@ -330,8 +335,10 @@ jobs:
                 elsif merged_coverage[filename][index].nil?
                   merged_coverage[filename][index] = coverage
                 else
-                  # Sum coverage counts
-                  merged_coverage[filename][index] += coverage
+                  # Sum coverage counts (ensure both are numeric)
+                  if coverage.is_a?(Numeric) && merged_coverage[filename][index].is_a?(Numeric)
+                    merged_coverage[filename][index] += coverage
+                  end
                 end
               end
             end
