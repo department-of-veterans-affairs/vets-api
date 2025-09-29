@@ -8,6 +8,9 @@ RSpec.shared_examples 'callback_api_error_response' do
   let(:expected_error_message) do
     { errors: expected_error, client_id:, type:, acr: }
   end
+  let(:expected_statsd_tags) do
+    ["type:#{type || ''}", "client_id:#{client_id || ''}", "acr:#{acr || ''}"]
+  end
 
   it 'renders expected error' do
     expect(JSON.parse(subject.body)).to eq(expected_error_json)
@@ -23,6 +26,6 @@ RSpec.shared_examples 'callback_api_error_response' do
   end
 
   it 'updates StatsD with a callback request failure' do
-    expect { subject }.to trigger_statsd_increment(statsd_callback_failure)
+    expect { subject }.to trigger_statsd_increment(statsd_callback_failure, tags: expected_statsd_tags)
   end
 end
