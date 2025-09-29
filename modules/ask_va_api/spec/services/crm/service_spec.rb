@@ -83,6 +83,8 @@ RSpec.describe Crm::Service do
       it 'sends ICN header and returns parsed response with correct organizationName' do
         allow(Flipper).to receive(:enabled?).with(:ask_va_api_preprod_for_end_to_end_testing).and_return(true)
 
+        service.call(endpoint:)
+
         # Check captured request
         expect(@captured_request[:params]).to include({ organizationName: 'ava-preprod' })
       end
@@ -91,6 +93,8 @@ RSpec.describe Crm::Service do
     context 'when the feature toggle is disabled' do
       it 'sends ICN header and returns parsed response with correct organizationName' do
         allow(Flipper).to receive(:enabled?).with(:ask_va_api_preprod_for_end_to_end_testing).and_return(false)
+        service.call(endpoint:)
+
         service.call(endpoint:)
 
         # Check captured request
