@@ -68,9 +68,5 @@ module V0
         OliveBranch::Transformations.method(:camelize)
       )
     end
-
-    def itf_monitor
-      @itf_monitor ||= BenefitsClaims::IntentToFile::Monitor.new
-    end
   end
 end
