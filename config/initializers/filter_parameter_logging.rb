@@ -7,6 +7,7 @@
 ALLOWLIST = %w[
   action
   benefits_intake_uuid
+  bpds_uuid
   call_location
   category
   claim_id
@@ -15,12 +16,14 @@ ALLOWLIST = %w[
   confirmation_number
   consumer_name
   content_type
+  context
   controller
   cookie_id
   document_id
   doctype
   document_type
   endDate
+  endpoint
   endpoint_sid
   error
   errors
@@ -38,6 +41,7 @@ ALLOWLIST = %w[
   included
   kafka_payload
   line
+  lookup_service
   message_id
   method
   number
@@ -55,6 +59,7 @@ ALLOWLIST = %w[
   showCompleted
   size
   sort
+  stamp_set
   startDate
   startedFormVersion
   statsd
@@ -76,14 +81,6 @@ ALLOWLIST = %w[
 Rails.application.config.filter_parameters = [
   lambda do |k, v|
     case v
-    when Hash # Recursively iterate over each key value pair in hashes
-      v.each do |nested_key, nested_value|
-        v[nested_key] = Rails.application.config.filter_parameters.first&.call(nested_key, nested_value)
-      end
-      v
-    when Array # Recursively map all elements in arrays
-      v.map! { |element| Rails.application.config.filter_parameters.first&.call(k, element) }
-      v
     when ActionDispatch::Http::UploadedFile # Base case
       v.instance_variables.each do |var| # could put specific instance vars here, but made more generic
         var_name = var.to_s.delete_prefix('@')
@@ -91,13 +88,21 @@ Rails.application.config.filter_parameters = [
       end
       v
     else # Base case for all other types (String, Integer, Symbol, Class, nil, etc.)
-      # Apply filtering only if the key is NOT in the ALLOWLIST
-      if ALLOWLIST.include?(k.to_s)
+      if k && ALLOWLIST.exclude?(k.to_s)
+        return '[FILTERED]'
+      end
+
+      case v
+      when Hash # Recursively iterate over each key value pair in hashes
+        v.each do |nested_key, nested_value|
+          v[nested_key] = Rails.application.config.filter_parameters.first&.call(nested_key, nested_value)
+        end
         v
-      elsif v.respond_to?(:replace) && v.is_a?(String)
-        v.replace('[FILTERED]')
+      when Array # Recursively map all elements in arrays
+        v.map! { |element| Rails.application.config.filter_parameters.first&.call(k, element) }
+        v
       else
-        '[FILTERED]'
+        v
       end
     end
   end
