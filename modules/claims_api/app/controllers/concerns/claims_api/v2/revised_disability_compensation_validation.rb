@@ -1029,14 +1029,8 @@ module ClaimsApi
           collect_error_messages(detail: 'anticipatedSeparationDate is missing or blank',
                                  source: activation_form_obj_desc)
         end
-        if tos_start_date.blank?
-          collect_error_messages(detail: 'beginDate is missing or blank',
-                                 source: reserves_dates_form_obj_desc)
-        end
-        if tos_end_date.blank?
-          collect_error_messages(detail: 'endDate is missing or blank',
-                                 source: reserves_dates_form_obj_desc)
-        end
+        # Note: obligationTermsOfService.beginDate and endDate are validated by schema as required fields
+        # Removed duplicate validation to prevent duplicate errors with mixed source formats
         if unit_name.blank?
           collect_error_messages(detail: 'unitName is missing or blank',
                                  source: reserves_unit_form_obj_desc)

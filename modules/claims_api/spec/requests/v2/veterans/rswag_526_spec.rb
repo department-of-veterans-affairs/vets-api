@@ -558,6 +558,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           context 'when federalActivation is present but obligationTermsOfService is missing' do
             def make_request(example)
               allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return true
 
               with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
                 VCR.use_cassette('claims_api/disability_comp') do
