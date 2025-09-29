@@ -34,6 +34,8 @@ module Logging
           claim:,
           user_account_uuid:,
           benefits_intake_uuid: lighthouse_service&.uuid,
+          # the fields below will be stripped from the logs in production
+          # @see config/initializers/filter_parameter_logging.rb
           file: upload[:file],
           attachments: upload[:attachments]
         )

@@ -22,34 +22,26 @@ module DependentsBenefits
 
     PROCESSOR_STATS_KEY = 'api.dependents_benefits.claim_processor'
 
-    attr_reader :tags
-
     def initialize
       super('dependents-benefits-application')
-
-      @tags = ["form_id:#{form_id}"]
     end
 
-    def track_error_event(message, stats_key, options = {})
-      tags = options[:tags] ? options[:tags] + @tags : @tags
-      options = options.merge(tags:)
-      submit_event('error', message, stats_key, options)
+    def track_error_event(message, stats_key, **context)
+      submit_event(:error, message, stats_key, **context)
     end
 
-    def track_info_event(message, stats_key, options = {})
-      tags = options[:tags] ? options[:tags] + @tags : @tags
-      options = options.merge(tags:)
-      submit_event('info', message, stats_key, options)
+    def track_info_event(message, stats_key, **context)
+      submit_event(:info, message, stats_key, **context)
     end
 
-    def track_processor_error(message, action, options = {})
-      options[:tags] = ["action:#{action}"]
-      track_error_event(message, PROCESSOR_STATS_KEY, options)
+    def track_processor_error(message, action, **context)
+      context[:tags] = ((context[:tags] || []) + ["action:#{action}"] ).uniq
+      track_error_event(message, PROCESSOR_STATS_KEY, **context)
     end
 
-    def track_processor_info(message, action, options = {})
-      options[:tags] = ["action:#{action}"]
-      track_info_event(message, PROCESSOR_STATS_KEY, options)
+    def track_processor_info(message, action, **context)
+      context[:tags] = ((context[:tags] || []) + ["action:#{action}"] ).uniq
+      track_info_event(message, PROCESSOR_STATS_KEY, **context)
     end
 
     private

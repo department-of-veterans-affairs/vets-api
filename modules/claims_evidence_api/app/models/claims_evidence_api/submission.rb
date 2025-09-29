@@ -35,7 +35,6 @@ class ClaimsEvidenceApi::Submission < Submission
   before_validation { self.form_id ||= saved_claim&.form_id }
 
   after_create { monitor.track_event(:create, **tracking_attributes) }
-  after_update { monitor.track_event(:update, **tracking_attributes) }
   after_destroy { monitor.track_event(:destroy, **tracking_attributes) }
 
   # @see ClaimsEvidenceApi::Monitor::Record
@@ -45,13 +44,14 @@ class ClaimsEvidenceApi::Submission < Submission
 
   # utility function to acquire the tracking attributes for _this_ record
   def tracking_attributes
-    { id:, file_uuid:, form_id:, saved_claim_id:, persistent_attachment_id:, document_type: }
+    { id:, file_uuid:, form_id:, saved_claim_id:, persistent_attachment_id:, doctype: }
   end
 
   # retrieve the document_type of the associated evidence [PersistentAttachment|SavedClaim]
   def document_type
     persistent_attachment&.document_type || saved_claim&.document_type
   end
+  alias_method :doctype, :document_type
 
   # insert values into the reference data field
   # unnamed values will overwrite the reference_data['__'] array

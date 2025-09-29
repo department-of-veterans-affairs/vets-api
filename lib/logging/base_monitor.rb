@@ -10,6 +10,12 @@ module Logging
     include Logging::Include::BenefitsIntake
     include Logging::Include::ZeroSilentFailures
 
+    attr_reader :tags
+
+    def initialize
+      @tags = ["form_id:#{form_id}"]
+    end
+
     private
 
     def message_prefix
@@ -33,34 +39,26 @@ module Logging
       raise NotImplementedError, 'Subclasses must implement form_id'
     end
 
-    ##
     # Submits an event for tracking with standardized payload structure
+    # @see Logging::Monitor#track_request
     #
     # @param level [String] The severity level of the event (e.g., :error, :info, :warn)
     # @param message [String] The message describing the event
     # @param stats_key [String] The key used for stats tracking
-    # @param options [Hash] Additional options for the event
-    #   @option options [SavedClaim, Integer, nil] :claim The claim object or claim ID
-    #   @option options [String, nil] :user_account_uuid The UUID of the user account
-    #   @option options [Hash] :**additional_context Additional context for the event
-    #
-    def submit_event(level, message, stats_key, options = {})
-      claim = options[:claim]
-      user_account_uuid = options[:user_account_uuid]
-      call_location = options[:call_location] || caller_locations.first
-      context = options.except(:claim, :user_account_uuid, :call_location)
+    # @param **context [Hash] additional parameters to pass to log; if `tags` is provided it will be included in StatsD
+    def submit_event(level, message, stats_key, call_location: nil, claim: nil, **context)
+      call_location ||= caller_locations.first
+      context[:tags] = ((context[:tags] || []) + @tags).uniq
 
-      claim_id = claim.respond_to?(:id) ? claim.id : claim
-      confirmation_number = claim.respond_to?(:confirmation_number) ? claim.confirmation_number : nil
-      form_id = claim.respond_to?(:form_id) ? claim.form_id : nil
-      tags = @tags || options[:tags] || []
+      # claim is not a required field and could be an Integer or SavedClaim
+      form_id = claim.try(:form_id) || form_id
+      claim_id = claim.try(:id) || claim
+      confirmation_number = claim.try(:confirmation_number)
 
       payload = {
-        confirmation_number:,
-        user_account_uuid:,
-        claim_id:,
         form_id:,
-        tags:,
+        claim_id:,
+        confirmation_number:,
         **context
       }
 

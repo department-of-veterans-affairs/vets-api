@@ -36,7 +36,6 @@ module Logging
           :error,
           "#{message_prefix} fetching submission failed",
           claim_stats_key,
-          claim: nil,
           user_account_uuid: current_user&.user_account_uuid,
           confirmation_number:,
           error: e&.message
