@@ -25,7 +25,7 @@ module ClaimsApi
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
         mapped_claim = pdf_mapper_service(auto_claim.form_data, pdf_mapper_initial_object, auto_claim.auth_headers,
-                                          middle_initial).map_claim
+                                          middle_initial, auto_claim.created_at).map_claim
         pdf_string = generate_526_pdf(mapped_claim)
 
         if pdf_string.empty?
@@ -96,8 +96,10 @@ module ClaimsApi
         ClaimsApi::V1::Form526EstablishmentUpload
       end
 
-      def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial)
-        ClaimsApi::V1::DisabilityCompensationPdfMapper.new(form_data, pdf_data, auth_headers, middle_initial)
+      def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial, created_at)
+        ClaimsApi::V1::DisabilityCompensationPdfMapper.new(
+          form_data, pdf_data, auth_headers, middle_initial, created_at
+        )
       end
 
       # Docker container wants data: but not attributes:
