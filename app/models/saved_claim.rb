@@ -33,6 +33,12 @@ class SavedClaim < ApplicationRecord
   has_many :lighthouse_submissions, class_name: 'Lighthouse::Submission', dependent: :nullify
   has_many :claims_evidence_api_submissions, class_name: 'ClaimsEvidenceApi::Submission', dependent: :nullify
 
+  has_many :parent_of_groups, class_name: 'SavedClaimGroup', foreign_key: 'parent_claim_id',
+                              dependent: :destroy, inverse_of: :parent
+
+  has_many :child_of_groups, class_name: 'SavedClaimGroup',
+                             dependent: :destroy, inverse_of: :child
+
   belongs_to :user_account, optional: true
 
   after_create :after_create_metrics
@@ -162,14 +168,6 @@ class SavedClaim < ApplicationRecord
   def regional_office
     []
   end
-
-  # retrieve claim groups _this_ claim is a parent of
-  has_many :parent_of_groups, class_name: 'SavedClaimGroup', foreign_key: 'parent_claim_id',
-                              dependent: :destroy, inverse_of: :parent
-
-  # retrieve claim groups _this_ claim is a child of
-  has_many :child_of_groups, class_name: 'SavedClaimGroup',
-                             dependent: :destroy, inverse_of: :child
 
   private
 
