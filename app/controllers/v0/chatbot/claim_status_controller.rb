@@ -33,34 +33,31 @@ module V0
       end
 
       def poll_claims_from_lighthouse
+        conversation_id = nil
         cxi_reporting_service = ::Chatbot::ReportToCxi.new
+
+        conversation_id = require_conversation_id
+        raw_claim_list = lighthouse_service.get_claims['data']
+        order_claims_lighthouse(raw_claim_list)
+      rescue Common::Exceptions::ResourceNotFound => e
+        log_no_claims_found(e)
+        []
+      rescue Faraday::ClientError => e
+        service_exception_handler(e)
+        raise BenefitsClaims::ServiceException.new(e.response), 'Could not retrieve claims'
+      ensure
+        report_or_error(cxi_reporting_service, conversation_id) if conversation_id
+      end
+
+      def require_conversation_id
         conversation_id = params[:conversation_id]
-        if conversation_id.blank?
-          Rails.logger.error(
-            'V0::Chatbot::ClaimStatusController#poll_claims_from_lighthouse ' \
-            'conversation_id is missing in parameters'
-          )
-          raise ActionController::ParameterMissing, 'conversation_id'
-        end
+        return conversation_id if conversation_id.present?
 
-        claims = []
-
-        begin
-          raw_claim_list = lighthouse_service.get_claims['data']
-          claims = order_claims_lighthouse(raw_claim_list)
-        rescue Common::Exceptions::ResourceNotFound => e
-          Rails.logger.info(
-            "V0::Chatbot::ClaimStatusController#poll_claims_from_lighthouse no claims returned by Lighthouse: #{e.message}"
-          )
-          claims = []
-        rescue Faraday::ClientError => e
-          service_exception_handler(e)
-          raise BenefitsClaims::ServiceException.new(e.response), 'Could not retrieve claims'
-        ensure
-          report_or_error(cxi_reporting_service, conversation_id)
-        end
-
-        claims
+        Rails.logger.error(
+          'V0::Chatbot::ClaimStatusController#poll_claims_from_lighthouse ' /
+          'conversation_id is missing in parameters'
+        )
+        raise ActionController::ParameterMissing, 'conversation_id'
       end
 
       def get_claim_from_lighthouse(id)
@@ -123,6 +120,13 @@ module V0
       def report_exception_handler(exception)
         context = 'An error occurred while attempting to report the claim(s).'
         log_exception_to_sentry(exception, 'context' => context)
+      end
+
+      def log_no_claims_found(exception)
+        Rails.logger.info(
+          'V0::Chatbot::ClaimStatusController#poll_claims_from_lighthouse ' /
+          "no claims returned by Lighthouse: #{exception.message}"
+        )
       end
 
       class ServiceException < RuntimeError; end
