@@ -1531,7 +1531,6 @@ spec/lib/vre @department-of-veterans-affairs/benefits-non-disability @department
 spec/lib/vye @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/lib/webhooks/utilities_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/zero_silent_failures @department-of-veterans-affairs/backend-review-group
-spec/mailers/ch31_submissions_report_mailer_spec.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 spec/mailers/create_daily_spool_files_mailer_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/mailers/create_excel_files_mailer_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/mailers/create_staging_spool_files_mailer_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
