@@ -358,11 +358,15 @@ jobs:
           name: Coverage Report
           path: vets-api/coverage
 
+      - name: Fix up coverage report to work with coverage-check-action
+        if: needs.tests.result == 'success'
+        run: sed -i 's/"line"/"covered_percent"/g' 'vets-api/coverage/.last_run.json'
+
       - name: Publish Coverage Report
         if: needs.tests.result == 'success'
         uses: devmasx/coverage-check-action@v1.2.0
         with:
           type: simplecov
-          result_path: vets-api/coverage_summary.json
+          result_path: vets-api/coverage/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
