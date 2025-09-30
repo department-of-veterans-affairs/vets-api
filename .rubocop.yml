@@ -3,7 +3,7 @@ inherit_from:
   - .rubocop_todo.yml
 
 require:
-  - "./lib/rubocop/cops/ams_serializer.rb"
+  - './lib/rubocop/cops/ams_serializer.rb'
 
 plugins:
   - rubocop-rails
@@ -13,25 +13,26 @@ plugins:
   - rubocop-rspec_rails
   - rubocop-thread_safety
 
+
 AllCops:
   NewCops: disable
   TargetRailsVersion: 6.1
   Include:
-    - "**/Dangerfile"
-    - "**/Gemfile"
-    - "**/config.ru"
-    - "**/Rakefile"
-    - "**/*.rake"
-    - "**/*.rb"
+    - '**/Dangerfile'
+    - '**/Gemfile'
+    - '**/config.ru'
+    - '**/Rakefile'
+    - '**/*.rake'
+    - '**/*.rb'
   Exclude:
     - db/schema.rb
     - db/audit_schema.rb
     - db/seeds.rb
     - db/migrate/*.rb
     - db/audit_migrate/*.rb
-    - "vendor/**/*"
+    - 'vendor/**/*'
     - modules/**/db/migrate/*.rb
-    - "tmp/**/*"
+    - 'tmp/**/*'
 
 Style/Documentation:
   Enabled: false
@@ -83,52 +84,52 @@ Style/ZeroLengthPredicate:
 Layout/LineLength:
   Max: 120
   Exclude:
-    - "Gemfile"
-    - "Dangerfile"
+    - 'Gemfile'
+    - 'Dangerfile'
 
 Rails:
   Enabled: true
   Exclude:
-    - "Dangerfile"
+    - 'Dangerfile'
 
 Rails/Output:
   Exclude:
-    - "lib/tasks/**/*"
-    - "bin/lib/vets-api/**/*"
+    - 'lib/tasks/**/*'
+    - 'bin/lib/vets-api/**/*'
 
 Metrics/MethodLength:
   Max: 20
   Exclude:
-    - "spec/support/form1010cg_helpers/build_claim_data_for.rb"
-    - "spec/simplecov_helper.rb"
-    - "app/sidekiq/education_form/create_daily_spool_files.rb"
-    - "lib/map/security_token/service.rb"
-    - "Dangerfile"
+    - 'spec/support/form1010cg_helpers/build_claim_data_for.rb'
+    - 'spec/simplecov_helper.rb'
+    - 'app/sidekiq/education_form/create_daily_spool_files.rb'
+    - 'lib/map/security_token/service.rb'
+    - 'Dangerfile'
 
 Metrics/ClassLength:
   Max: 400
   Exclude:
-    - "lib/sm/client.rb"
+    - 'lib/sm/client.rb'
 
 Rails/LexicallyScopedActionFilter:
   Exclude:
     - "app/controllers/concerns/filterable.rb"
-    - "modules/mobile/app/controllers/mobile/application_controller.rb"
+    - 'modules/mobile/app/controllers/mobile/application_controller.rb'
 
 # Blocks are limited to 25 lines or less
 # removing block length rule for rspec DSL
 Metrics/BlockLength:
   Exclude:
-    - "spec/**/*.rb"
-    - "rakelib/**/*.rake"
-    - "lib/tasks/**/*.rake"
-    - "config/**/*.rb"
-    - "app/swagger/**/*.rb"
-    - "app/controllers/v0/apidocs_controller.rb"
-    - "app/controllers/v1/apidocs_controller.rb"
-    - "modules/*/spec/**/*.rb"
-    - "modules/*/app/swagger/**/*.rb"
-    - "modules/*/config/routes.rb"
+    - 'spec/**/*.rb'
+    - 'rakelib/**/*.rake'
+    - 'lib/tasks/**/*.rake'
+    - 'config/**/*.rb'
+    - 'app/swagger/**/*.rb'
+    - 'app/controllers/v0/apidocs_controller.rb'
+    - 'app/controllers/v1/apidocs_controller.rb'
+    - 'modules/*/spec/**/*.rb'
+    - 'modules/*/app/swagger/**/*.rb'
+    - 'modules/*/config/routes.rb'
 
 # Don't worry about ambiguous blocks in RSpec
 # Official recommendation from rubocop team is to disable this rule for specs.
@@ -140,10 +141,10 @@ Lint/AmbiguousBlockAssociation:
 # This file does not need to be snake case
 Naming/FileName:
   Exclude:
-    - "**/Gemfile"
-    - "**/Guardfile"
-    - "**/Rakefile"
-    - "config/initializers/rswag-ui.rb"
+    - '**/Gemfile'
+    - '**/Guardfile'
+    - '**/Rakefile'
+    - 'config/initializers/rswag-ui.rb'
 
 # TODO: REVIEW THESE AND MAKE CHANGES
 
@@ -161,6 +162,7 @@ Rails/HasManyOrHasOneDependent:
     - modules/accredited_representative_portal/app/models/accredited_representative_portal/power_of_attorney_request_resolution.rb
     - modules/accredited_representative_portal/app/models/accredited_representative_portal/saved_claim/benefits_intake.rb
     - modules/income_limits/app/models/std_state.rb
+
 
 # The suggestions here don't seem to make sense in most cases. Skip for now.
 Naming/MemoizedInstanceVariableName:
@@ -190,20 +192,20 @@ Style/BlockDelimiters:
 RSpec/SpecFilePathFormat:
   Enabled: true
   Exclude:
-    - "modules/**/*"
-    - "spec/lib/common/models/**/*"
-    - "spec/lib/saml/*_user_spec.rb"
-    - "spec/lib/ihub/appointments/service_spec.rb"
-    - "spec/requests/in_progress_forms_request_spec.rb"
-    - "spec/sidekiq/pagerduty/**/*"
-    - "spec/lib/pagerduty/**/*"
-    - "spec/lib/common/client/middleware/response/appeals_response_middleware_spec.rb"
-    - "spec/lib/common/client/middleware/response/gids_response_middleware_spec.rb"
-    - "spec/lib/common/client/middleware/response/response_middleware_spec.rb"
-    - "spec/lib/sm/client/message_drafts_spec.rb"
-    - "spec/lib/lighthouse/veterans_health/integration/client_spec.rb"
-    - "spec/lib/mail_automation/integration/client_spec.rb"
-    - "spec/rakelib/piilog_repl/piilog_helpers_spec.rb"
+    - 'modules/**/*'
+    - 'spec/lib/common/models/**/*'
+    - 'spec/lib/saml/*_user_spec.rb'
+    - 'spec/lib/ihub/appointments/service_spec.rb'
+    - 'spec/requests/in_progress_forms_request_spec.rb'
+    - 'spec/sidekiq/pagerduty/**/*'
+    - 'spec/lib/pagerduty/**/*'
+    - 'spec/lib/common/client/middleware/response/appeals_response_middleware_spec.rb'
+    - 'spec/lib/common/client/middleware/response/gids_response_middleware_spec.rb'
+    - 'spec/lib/common/client/middleware/response/response_middleware_spec.rb'
+    - 'spec/lib/sm/client/message_drafts_spec.rb'
+    - 'spec/lib/lighthouse/veterans_health/integration/client_spec.rb'
+    - 'spec/lib/mail_automation/integration/client_spec.rb'
+    - 'spec/rakelib/piilog_repl/piilog_helpers_spec.rb'
   CustomTransform:
     SSOeSettingsService: ssoe_settings_service
 
@@ -218,16 +220,16 @@ RSpec/DescribedClass:
 # Excluding these for now. May need to be revisited.
 RSpec/DescribeClass:
   Exclude:
-    - "spec/lib/mhv_ac/client_spec.rb"
-    - "spec/lib/mhv_logging/api/audits_spec.rb"
-    - "spec/rakelib/vet360_spec.rb"
-    - "spec/requests/**/*"
-    - "spec/lib/sm/client/preferences_spec.rb"
-    - "spec/lib/sm/client/triage_teams_spec.rb"
-    - "spec/lib/sm/client/messages_spec.rb"
-    - "spec/lib/bb/client_spec.rb"
-    - "spec/lib/gi/client_spec.rb"
-    - "spec/lib/sm/client/folders_spec.rb"
+    - 'spec/lib/mhv_ac/client_spec.rb'
+    - 'spec/lib/mhv_logging/api/audits_spec.rb'
+    - 'spec/rakelib/vet360_spec.rb'
+    - 'spec/requests/**/*'
+    - 'spec/lib/sm/client/preferences_spec.rb'
+    - 'spec/lib/sm/client/triage_teams_spec.rb'
+    - 'spec/lib/sm/client/messages_spec.rb'
+    - 'spec/lib/bb/client_spec.rb'
+    - 'spec/lib/gi/client_spec.rb'
+    - 'spec/lib/sm/client/folders_spec.rb'
 
 # Determined to be too benign and/or numerous to justify changing
 RSpec/AnyInstance:
@@ -246,9 +248,9 @@ RSpec/IndexedLet:
   Enabled: false
 
 RSpec/RemoveConst:
-  Exclude:
-    - "spec/sidekiq/kms_key_rotation/batch_initiator_job_spec.rb"
-    - "modules/vba_documents/spec/mailers/unsuccessful_report_mailer_spec.rb"
+    Exclude:
+      - 'spec/sidekiq/kms_key_rotation/batch_initiator_job_spec.rb'
+      - 'modules/vba_documents/spec/mailers/unsuccessful_report_mailer_spec.rb'
 
 # Determined to be too benign and/or numerous to justify changing
 RSpec/ContextWording:
@@ -309,65 +311,65 @@ RSpec/LetSetup:
 # Might be worth revisiting at some point
 RSpec/MessageChain:
   Exclude:
-    - "modules/veteran_verification/spec/requests/service_history_request_spec.rb"
-    - "modules/veteran_verification/spec/requests/veteran_status_request_spec.rb"
-    - "spec/lib/va_profile/service_spec.rb"
-    - "spec/requests/service_history_request_spec.rb"
-    - "spec/requests/swagger_spec.rb"
+    - 'modules/veteran_verification/spec/requests/service_history_request_spec.rb'
+    - 'modules/veteran_verification/spec/requests/veteran_status_request_spec.rb'
+    - 'spec/lib/va_profile/service_spec.rb'
+    - 'spec/requests/service_history_request_spec.rb'
+    - 'spec/requests/swagger_spec.rb'
 
 # These instances seem to be necessary
 RSpec/MultipleDescribes:
   Exclude:
-    - "spec/sidekiq/evss/document_upload_spec.rb"
-    - "spec/sidekiq/evss/request_decision_spec.rb"
-    - "spec/requests/swagger_spec.rb"
+    - 'spec/sidekiq/evss/document_upload_spec.rb'
+    - 'spec/sidekiq/evss/request_decision_spec.rb'
+    - 'spec/requests/swagger_spec.rb'
 
 # These instances seem to be false positives
 RSpec/RepeatedExample:
   Exclude:
-    - "modules/vba_documents/spec/sidekiq/upload_processor_spec.rb"
-    - "modules/vba_documents/spec/models/upload_submission_spec.rb"
-    - "modules/vba_documents/spec/request/v0/reports_request_spec.rb"
-    - "modules/vba_documents/spec/request/v1/reports_request_spec.rb"
+    - 'modules/vba_documents/spec/sidekiq/upload_processor_spec.rb'
+    - 'modules/vba_documents/spec/models/upload_submission_spec.rb'
+    - 'modules/vba_documents/spec/request/v0/reports_request_spec.rb'
+    - 'modules/vba_documents/spec/request/v1/reports_request_spec.rb'
 
 # Might be worth revisiting at some point
 RSpec/ScatteredLet:
   Exclude:
-    - "spec/controllers/openid_application_controller_spec.rb"
-    - "spec/controllers/v0/dependents_applications_controller_spec.rb"
-    - "spec/controllers/v0/post911_gi_bill_statuses_controller_spec.rb"
-    - "spec/lib/bb/client_spec.rb"
-    - "spec/lib/evss/auth_headers_spec.rb"
-    - "spec/lib/evss/gi_bill_status/service_spec.rb"
-    - "spec/lib/sentry/scrubbers/log_as_warning_spec.rb"
-    - "spec/mailers/spool_submissions_report_mailer_spec.rb"
-    - "spec/models/form_profile_spec.rb"
-    - "spec/models/va_profile_redis/v2/contact_information_spec.rb"
-    - "spec/requests/health_care_applications_request_spec.rb"
-    - "spec/requests/http_method_not_allowed_spec.rb"
-    - "spec/requests/swagger_spec.rb"
+    - 'spec/controllers/openid_application_controller_spec.rb'
+    - 'spec/controllers/v0/dependents_applications_controller_spec.rb'
+    - 'spec/controllers/v0/post911_gi_bill_statuses_controller_spec.rb'
+    - 'spec/lib/bb/client_spec.rb'
+    - 'spec/lib/evss/auth_headers_spec.rb'
+    - 'spec/lib/evss/gi_bill_status/service_spec.rb'
+    - 'spec/lib/sentry/scrubbers/log_as_warning_spec.rb'
+    - 'spec/mailers/spool_submissions_report_mailer_spec.rb'
+    - 'spec/models/form_profile_spec.rb'
+    - 'spec/models/va_profile_redis/v2/contact_information_spec.rb'
+    - 'spec/requests/health_care_applications_request_spec.rb'
+    - 'spec/requests/http_method_not_allowed_spec.rb'
+    - 'spec/requests/swagger_spec.rb'
 
 # Might be worth revisiting at some point
 RSpec/SubjectStub:
   Exclude:
-    - "modules/vaos/spec/services/user_service_spec.rb"
-    - "spec/sidekiq/education_form/create_daily_spool_files_spec.rb"
-    - "spec/sidekiq/education_form/process10203_submissions_spec.rb"
-    - "spec/sidekiq/education_form/create10203_applicant_decision_letters_spec.rb"
-    - "spec/sidekiq/education_form/forms/va1990_spec.rb"
-    - "spec/sidekiq/transactional_email_analytics_job_spec.rb"
-    - "spec/sidekiq/form526_confirmation_email_job_spec.rb"
-    - "spec/lib/bb/generate_report_request_form_spec.rb"
-    - "spec/lib/common/models/redis_store_spec.rb"
-    - "spec/lib/evss/disability_compensation_form/data_translation_all_claim_spec.rb"
-    - "spec/lib/evss/disability_compensation_form/data_translation_spec.rb"
-    - "spec/lib/mpi/service_spec.rb"
-    - "spec/lib/sm/client/folders_spec.rb"
-    - "spec/models/session_spec.rb"
-    - "spec/services/evss_claim_service_spec.rb"
-    - "spec/uploaders/evss_claim_document_uploader_spec.rb"
-    - "spec/services/form1010cg/service_spec.rb"
-    - "spec/services/form1010cg/auditor_spec.rb"
+    - 'modules/vaos/spec/services/user_service_spec.rb'
+    - 'spec/sidekiq/education_form/create_daily_spool_files_spec.rb'
+    - 'spec/sidekiq/education_form/process10203_submissions_spec.rb'
+    - 'spec/sidekiq/education_form/create10203_applicant_decision_letters_spec.rb'
+    - 'spec/sidekiq/education_form/forms/va1990_spec.rb'
+    - 'spec/sidekiq/transactional_email_analytics_job_spec.rb'
+    - 'spec/sidekiq/form526_confirmation_email_job_spec.rb'
+    - 'spec/lib/bb/generate_report_request_form_spec.rb'
+    - 'spec/lib/common/models/redis_store_spec.rb'
+    - 'spec/lib/evss/disability_compensation_form/data_translation_all_claim_spec.rb'
+    - 'spec/lib/evss/disability_compensation_form/data_translation_spec.rb'
+    - 'spec/lib/mpi/service_spec.rb'
+    - 'spec/lib/sm/client/folders_spec.rb'
+    - 'spec/models/session_spec.rb'
+    - 'spec/services/evss_claim_service_spec.rb'
+    - 'spec/uploaders/evss_claim_document_uploader_spec.rb'
+    - 'spec/services/form1010cg/service_spec.rb'
+    - 'spec/services/form1010cg/auditor_spec.rb'
 
 # the default style recently changed, but it's not worth changing
 Rails/FilePath:
@@ -416,8 +418,8 @@ Rails/UniqueValidationWithoutIndex:
 
 Lint/ShadowingOuterLocalVariable:
   Exclude:
-    - "rakelib/decision_review_repl.rb"
+    - 'rakelib/decision_review_repl.rb'
 
 Style/SafeNavigation:
   Exclude:
-    - "modules/mobile/app/models/mobile/v0/adapters/immunizations.rb"
+    - 'modules/mobile/app/models/mobile/v0/adapters/immunizations.rb'
