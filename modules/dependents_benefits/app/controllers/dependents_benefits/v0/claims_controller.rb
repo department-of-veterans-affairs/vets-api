@@ -24,8 +24,7 @@ module DependentsBenefits
         dependents[:diaries] = dependency_verification_service.read_diaries
         render json: DependentsSerializer.new(dependents)
       rescue => e
-        monitor.track_error_event('Failure fetching dependents data', "#{stats_key}.show_error",
-                                  { error: e.message })
+        monitor.track_error_event('Failure fetching dependents data', "#{stats_key}.show_error", error: e.message)
         raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
       end
 
@@ -55,7 +54,7 @@ module DependentsBenefits
         end
 
         monitor.track_info_event('Successfully created claim', "#{stats_key}.create_success",
-                                 { claim_id: claim.id, user_account_uuid: current_user&.user_account_uuid })
+                                 claim_id: claim.id, user_account_uuid: current_user&.user_account_uuid)
 
         proc_id = create_proc_id
         # Enqueue all submission jobs for the created claims

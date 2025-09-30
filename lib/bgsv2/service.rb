@@ -2,8 +2,8 @@
 
 require_relative 'exceptions/bgs_errors'
 require 'common/client/concerns/monitoring'
-require 'logging/helpers/data_scrubber'
-require 'logging/helpers/parameter_filter'
+require 'logging/helper/data_scrubber'
+require 'logging/helper/parameter_filter'
 
 module BGSV2
   class Service
@@ -12,8 +12,8 @@ module BGSV2
     include BGSV2::Exceptions::BGSErrors
     include SentryLogging
     include Common::Client::Concerns::Monitoring
-    include Logging::Helpers::DataScrubber
-    include Logging::Helpers::ParameterFilter
+    include Logging::Helper::DataScrubber
+    include Logging::Helper::ParameterFilter
 
     # Journal Status Type Code
     # The alphabetic character representing the last action taken on the record

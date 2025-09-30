@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'zero_silent_failures/monitor'
 require 'logging/base_monitor'
 
 module DependentsBenefits
