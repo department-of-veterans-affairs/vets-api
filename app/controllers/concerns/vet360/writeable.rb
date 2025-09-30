@@ -76,6 +76,7 @@ module Vet360
     end
 
     def write_valid_record!(http_verb, type, record)
+      Rails.logger.info("Contact Info", http_verb, type)
       # This will be removed after the upgrade. Permission was removed in the upgraded service.
       # Permissions are not used in ContactInformationV1 either.
       service.send("#{http_verb}_#{type.downcase}", record)
