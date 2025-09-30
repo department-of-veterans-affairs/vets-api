@@ -693,8 +693,7 @@ module SM
         'attachmentName' => file.original_filename,
         'mimeType' => file.content_type,
         'size' => file.size,
-        # decode any URL-encoded characters for API to locate filename in S3
-        'lgAttachmentId' => CGI.unescape(uploaded_file_name)
+        'lgAttachmentId' => uploaded_file_name
       }
     end
 
