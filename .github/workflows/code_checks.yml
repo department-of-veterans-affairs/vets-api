@@ -364,12 +364,12 @@ jobs:
             bundle exec rake coverage:report
 
       - name: Upload Combined Coverage HTML
-        if: ${{ needs.tests.result == 'success' && hashFiles('vets-api/coverage/index.html') != '' }}
+        if: needs.tests.result == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: Coverage Report
           path: vets-api/coverage
-
+          if-no-files-found: ignore
       - name: Fix up coverage report to work with coverage-check-action
         if: needs.tests.result == 'success'
         run: sed -i 's/"line"/"covered_percent"/g' 'vets-api/coverage/.last_run.json'
