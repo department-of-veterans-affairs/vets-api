@@ -262,8 +262,20 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Remove Test Failure label
+      - name: Check test-failure label
         if: ${{ success() && github.event_name == 'pull_request' }}
+        id: check-test-failure-label
+        run: |
+          if gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name' | grep -q "^test-failure$"; then
+            echo "has_label=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_label=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Remove Test Failure label
+        if: ${{ success() && github.event_name == 'pull_request' && steps.check-test-failure-label.outputs.has_label == 'true' }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
