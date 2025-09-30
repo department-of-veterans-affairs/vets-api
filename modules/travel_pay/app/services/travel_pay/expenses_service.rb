@@ -31,7 +31,7 @@ module TravelPay
       # Validate required params
       raise ArgumentError, 'You must provide a claim ID to create an expense.' unless params['claim_id']
 
-      Rails.logger.info("Creating general expense of type: #{params['expense_type']}")
+      Rails.logger.info("Creating expense of type: #{params['expense_type']}")
 
       # Build the request body for the API
       request_body = build_expense_request_body(params)
@@ -67,7 +67,7 @@ module TravelPay
       raise ArgumentError, 'You must provide at least one field to update an expense.' if params.blank?
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
-      Rails.logger.info("Updating general expense of type: #{expense_type}")
+      Rails.logger.info("Updating expense of type: #{expense_type}")
 
       # Build the request body for the API
       request_body = build_expense_request_body(params)
@@ -82,7 +82,7 @@ module TravelPay
       raise ArgumentError, 'You must provide an expense type to create an expense.' if expense_type.blank?
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
-      Rails.logger.info("Deleting general expense of type: #{expense_type}")
+      Rails.logger.info("Deleting expense of type: #{expense_type}")
 
       response = client.delete_expense(veis_token, btsss_token, expense_id, expense_type)
       response.body['data']
