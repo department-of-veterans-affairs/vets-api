@@ -4,22 +4,24 @@ require 'rails_helper'
 require 'forms/submission_statuses/dataset'
 require 'forms/submission_statuses/formatters/decision_reviews_formatter'
 
-describe Forms::SubmissionStatuses::Formatters::DecisionReviewsFormatter, 
+describe Forms::SubmissionStatuses::Formatters::DecisionReviewsFormatter,
          feature: :form_submission,
          team_owner: :vfs_authenticated_experience_backend do
   subject { described_class.new }
 
   describe '#format_data' do
     let(:user_account) { create(:user_account) }
-    let(:saved_claim) { create(:saved_claim_supplemental_claim, user_account: user_account) }
+    let(:saved_claim) { create(:saved_claim_supplemental_claim) }
     let(:dataset) { instance_double(Forms::SubmissionStatuses::Dataset) }
 
     context 'with submissions but no statuses' do
       before do
-        allow(dataset).to receive(:submissions?).and_return(true)
-        allow(dataset).to receive(:submissions).and_return([saved_claim])
-        allow(dataset).to receive(:intake_statuses?).and_return(false)
-        allow(dataset).to receive(:intake_statuses).and_return(nil)
+        allow(dataset).to receive_messages(
+          submissions?: true,
+          submissions: [saved_claim],
+          intake_statuses?: false,
+          intake_statuses: nil
+        )
       end
 
       it 'formats submissions with correct attributes' do
@@ -53,10 +55,12 @@ describe Forms::SubmissionStatuses::Formatters::DecisionReviewsFormatter,
     end
 
     before do
-      allow(dataset).to receive(:submissions?).and_return(true)
-      allow(dataset).to receive(:submissions).and_return([saved_claim])
-      allow(dataset).to receive(:intake_statuses?).and_return(true)
-      allow(dataset).to receive(:intake_statuses).and_return(statuses_data)
+      allow(dataset).to receive_messages(
+        submissions?: true,
+        submissions: [saved_claim],
+        intake_statuses?: true,
+        intake_statuses: statuses_data
+      )
     end
 
     it 'merges submissions with statuses correctly' do
@@ -108,10 +112,12 @@ describe Forms::SubmissionStatuses::Formatters::DecisionReviewsFormatter,
     end
 
     before do
-      allow(dataset).to receive(:submissions?).and_return(true)
-      allow(dataset).to receive(:submissions).and_return([saved_claim])
-      allow(dataset).to receive(:intake_statuses?).and_return(true)
-      allow(dataset).to receive(:intake_statuses).and_return([secondary_form_status])
+      allow(dataset).to receive_messages(
+        submissions?: true,
+        submissions: [saved_claim],
+        intake_statuses?: true,
+        intake_statuses: [secondary_form_status]
+      )
     end
 
     it 'creates entries for secondary forms' do
@@ -135,7 +141,7 @@ describe Forms::SubmissionStatuses::Formatters::DecisionReviewsFormatter,
       end
 
       it 'maps HigherLevelReview to 20-0996' do
-        saved_claim = create(:saved_claim_higher_level_review) 
+        saved_claim = create(:saved_claim_higher_level_review)
         form_type = subject.send(:determine_form_type, saved_claim)
         expect(form_type).to eq('20-0996')
       end
@@ -163,7 +169,7 @@ describe Forms::SubmissionStatuses::Formatters::DecisionReviewsFormatter,
       it 'parses valid ISO date string' do
         date_string = '2024-01-01T10:00:00.000Z'
         result = subject.send(:parse_date, date_string)
-        expect(result).to eq(Time.parse(date_string))
+        expect(result).to eq(Time.zone.parse(date_string))
       end
 
       it 'returns nil for invalid date' do

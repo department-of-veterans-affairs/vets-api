@@ -48,29 +48,29 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
         # Mock successful bulk_status response
         allow(benefits_intake_service).to receive(:bulk_status).and_return(
           double(body: {
-            'data' => [
-              {
-                'id' => '4b846069-e496-4f83-8587-42b570f24483',
-                'attributes' => {
-                  'detail' => 'detail',
-                  'guid' => '4b846069-e496-4f83-8587-42b570f24483',
-                  'message' => 'message',
-                  'status' => 'received',
-                  'updated_at' => 2.days.ago
-                }
-              },
-              {
-                'id' => 'd0c6cea6-9885-4e2f-8e0c-708d5933833a',
-                'attributes' => {
-                  'detail' => 'detail',
-                  'guid' => 'd0c6cea6-9885-4e2f-8e0c-708d5933833a',
-                  'message' => 'message',
-                  'status' => 'received',
-                  'updated_at' => 3.days.ago
-                }
-              }
-            ]
-          })
+                   'data' => [
+                     {
+                       'id' => '4b846069-e496-4f83-8587-42b570f24483',
+                       'attributes' => {
+                         'detail' => 'detail',
+                         'guid' => '4b846069-e496-4f83-8587-42b570f24483',
+                         'message' => 'message',
+                         'status' => 'received',
+                         'updated_at' => 2.days.ago
+                       }
+                     },
+                     {
+                       'id' => 'd0c6cea6-9885-4e2f-8e0c-708d5933833a',
+                       'attributes' => {
+                         'detail' => 'detail',
+                         'guid' => 'd0c6cea6-9885-4e2f-8e0c-708d5933833a',
+                         'message' => 'message',
+                         'status' => 'received',
+                         'updated_at' => 3.days.ago
+                       }
+                     }
+                   ]
+                 })
         )
       end
 
@@ -133,19 +133,19 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
         # Mock partial response (only one status returned for two submissions)
         allow(benefits_intake_service).to receive(:bulk_status).and_return(
           double(body: {
-            'data' => [
-              {
-                'id' => '4b846069-e496-4f83-8587-42b570f24483',
-                'attributes' => {
-                  'detail' => 'detail',
-                  'guid' => '4b846069-e496-4f83-8587-42b570f24483',
-                  'message' => 'message',
-                  'updated_at' => 2.days.ago,
-                  'status' => 'received'
-                }
-              }
-            ]
-          })
+                   'data' => [
+                     {
+                       'id' => '4b846069-e496-4f83-8587-42b570f24483',
+                       'attributes' => {
+                         'detail' => 'detail',
+                         'guid' => '4b846069-e496-4f83-8587-42b570f24483',
+                         'message' => 'message',
+                         'updated_at' => 2.days.ago,
+                         'status' => 'received'
+                       }
+                     }
+                   ]
+                 })
         )
       end
 
@@ -171,11 +171,13 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
       before do
         # Create submissions so the gateway has data to process
         create(:form_submission, :with_form214142, user_account_id: user_account.id)
-        
+
         # Mock service error response
         error_response = double(status: 500, body: { 'errors' => [{ 'detail' => 'Service unavailable' }] })
         allow(benefits_intake_service).to receive(:bulk_status).and_raise(
-          Common::Exceptions::BackendServiceException.new('BENEFITS_INTAKE_ERROR', {}, error_response.status, error_response.body)
+          Common::Exceptions::BackendServiceException.new('BENEFITS_INTAKE_ERROR', {},
+                                                          error_response.status,
+                                                          error_response.body)
         )
       end
 
@@ -216,7 +218,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
         before do
           # Create submissions so the gateway has data to process
           create(:form_submission, :with_form214142, user_account_id: user_account.id)
-          
+
           # Mock an error that will cause the gateway to fail at the gateway level
           # This simulates a scenario where the gateway itself fails, not just the service call
           allow_any_instance_of(Forms::SubmissionStatuses::Gateways::BenefitsIntakeGateway)
