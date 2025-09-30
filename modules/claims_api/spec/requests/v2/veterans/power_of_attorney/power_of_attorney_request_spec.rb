@@ -136,17 +136,115 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
             end
           end
 
-          context 'phone number must include countryCode or areaCode' do
-            let(:request_body) do
-              Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                              'power_of_attorney', 'request_representative', 'invalid_phone_missing_both.json').read
+          context 'phone number validation' do
+            let(:base_payload) do
+              {
+                data: {
+                  attributes: {
+                    veteran: {
+                      serviceNumber: '123678453',
+                      serviceBranch: 'ARMY',
+                      address: {
+                        addressLine1: '2719 Hyperion Ave',
+                        city: 'Los Angeles',
+                        countryCode: 'US',
+                        stateCode: 'CA',
+                        zipCode: '92264'
+                      },
+                      phone: {}
+                    },
+                    representative: { poaCode: '067' },
+                    recordConsent: true,
+                    consentAddressChange: true
+                  }
+                }
+              }
             end
 
-            it 'returns a meaningful 422 when neither countryCode nor areaCode provided' do
-              mock_ccg(scopes) do |auth_header|
-                post request_path, params: request_body, headers: auth_header
+            context 'when neither countryCode nor areaCode provided' do
+              it 'returns a 422 error' do
+                mock_ccg(scopes) do |auth_header|
+                  base_payload[:data][:attributes][:veteran][:phone] = { phoneNumber: '5551234' }
 
-                expect(response).to have_http_status(:unprocessable_entity)
+                  post request_path, params: base_payload.to_json, headers: auth_header
+
+                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(JSON.parse(response.body)['errors'][0]['detail']).to include('areaCode')
+                end
+              end
+            end
+
+            context 'when countryCode is 1 without areaCode' do
+              it 'returns a 422 error requiring areaCode' do
+                mock_ccg(scopes) do |auth_header|
+                  base_payload[:data][:attributes][:veteran][:phone] = {
+                    countryCode: '1',
+                    phoneNumber: '5551234'
+                  }
+
+                  post request_path, params: base_payload.to_json, headers: auth_header
+
+                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(JSON.parse(response.body)['errors'][0]['detail']).to include('areaCode')
+                end
+              end
+            end
+
+            context 'when countryCode is international (not 1)' do
+              it 'accepts phone without areaCode' do
+                mock_ccg(scopes) do |auth_header|
+                  base_payload[:data][:attributes][:veteran][:phone] = {
+                    countryCode: '44',
+                    phoneNumber: '2012345678'
+                  }
+
+                  post request_path, params: base_payload.to_json, headers: auth_header
+
+                  expect(response).to have_http_status(:created)
+                end
+              end
+            end
+
+            context 'when areaCode provided without countryCode' do
+              it 'accepts legacy US format' do
+                mock_ccg(scopes) do |auth_header|
+                  base_payload[:data][:attributes][:veteran][:phone] = {
+                    areaCode: '555',
+                    phoneNumber: '5551234'
+                  }
+
+                  post request_path, params: base_payload.to_json, headers: auth_header
+
+                  expect(response).to have_http_status(:created)
+                end
+              end
+            end
+
+            context 'when areaCode pattern validation' do
+              it 'rejects areaCode starting with 1' do
+                mock_ccg(scopes) do |auth_header|
+                  base_payload[:data][:attributes][:veteran][:phone] = {
+                    areaCode: '155',
+                    phoneNumber: '5551234'
+                  }
+
+                  post request_path, params: base_payload.to_json, headers: auth_header
+
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+
+              it 'accepts valid areaCode starting with 2-9' do
+                mock_ccg(scopes) do |auth_header|
+                  base_payload[:data][:attributes][:veteran][:phone] = {
+                    areaCode: '215',
+                    phoneNumber: '5551234'
+                  }
+
+                  post request_path, params: base_payload.to_json, headers: auth_header
+
+                  expect(response).to have_http_status(:created)
+                end
               end
             end
           end
