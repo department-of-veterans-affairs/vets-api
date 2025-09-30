@@ -36,5 +36,21 @@ RSpec.describe SavedClaimGroup, type: :model do
 
       expect(parent.parent_of_groups).to eq [group]
     end
+
+    it 'returns child claims excluding parent' do
+      # Parent record (where parent_claim_id == saved_claim_id)
+      create(:saved_claim_group,
+             parent_claim_id: parent.id,
+             saved_claim_id: parent.id)
+
+      # Child record
+      child_group = create(:saved_claim_group,
+                           parent_claim_id: parent.id,
+                           saved_claim_id: child.id)
+
+      results = described_class.child_claims_for(parent.id)
+
+      expect(results).to eq([child_group])
+    end
   end
 end
