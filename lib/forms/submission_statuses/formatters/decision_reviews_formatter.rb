@@ -83,7 +83,7 @@ module Forms
 
           begin
             # Decision Reviews API may return dates in different formats
-            Time.parse(date_string)
+            Time.zone.parse(date_string)
           rescue
             nil
           end

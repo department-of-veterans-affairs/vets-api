@@ -42,13 +42,13 @@ module Forms
         end
 
         def handle_intake_error(error)
-          if error.is_a?(Common::Exceptions::BackendServiceException)
-            # BackendServiceException uses original_status/original_body
-            errors = error_handler.handle_error(status: error.original_status, body: error.original_body)
-          else
-            # For other errors, create a generic error message
-            errors = ["Service error: #{error.message}"]
-          end
+          errors = if error.is_a?(Common::Exceptions::BackendServiceException)
+                     # BackendServiceException uses original_status/original_body
+                     error_handler.handle_error(status: error.original_status, body: error.original_body)
+                   else
+                     # For other errors, create a generic error message
+                     ["Service error: #{error.message}"]
+                   end
           [nil, errors]
         end
 

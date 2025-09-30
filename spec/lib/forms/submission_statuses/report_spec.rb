@@ -256,11 +256,13 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
       before do
         # Create submissions so the gateway has data to process
         create(:form_submission, :with_form214142, user_account_id: user_account.id)
-        
+
         # Mock service error response
         error_response = double(status: 500, body: { 'errors' => [{ 'detail' => 'Service unavailable' }] })
         allow(benefits_intake_service).to receive(:bulk_status).and_raise(
-          Common::Exceptions::BackendServiceException.new('BENEFITS_INTAKE_ERROR', {}, error_response.status, error_response.body)
+          Common::Exceptions::BackendServiceException.new('BENEFITS_INTAKE_ERROR', {},
+                                                          error_response.status,
+                                                          error_response.body)
         )
       end
 
@@ -301,7 +303,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
         before do
           # Create submissions so the gateway has data to process
           create(:form_submission, :with_form214142, user_account_id: user_account.id)
-          
+
           # Mock an error that will cause the gateway to fail at the gateway level
           # This simulates a scenario where the gateway itself fails, not just the service call
           allow_any_instance_of(Forms::SubmissionStatuses::Gateways::BenefitsIntakeGateway)

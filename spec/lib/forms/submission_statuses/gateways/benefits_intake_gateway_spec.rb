@@ -3,8 +3,9 @@
 require 'rails_helper'
 require 'forms/submission_statuses/gateways/benefits_intake_gateway'
 
-describe Forms::SubmissionStatuses::Gateways::BenefitsIntakeGateway, feature: :form_submission,
-                                                                     team_owner: :vfs_authenticated_experience_backend do
+describe Forms::SubmissionStatuses::Gateways::BenefitsIntakeGateway,
+         feature: :form_submission,
+         team_owner: :vfs_authenticated_experience_backend do
   subject { described_class.new(user_account:, allowed_forms:) }
 
   let(:user_account) { create(:user_account) }
@@ -12,7 +13,8 @@ describe Forms::SubmissionStatuses::Gateways::BenefitsIntakeGateway, feature: :f
 
   describe '#data' do
     it 'returns a dataset with submissions and intake statuses' do
-      allow(subject).to receive(:submissions).and_return([])
+      # Mock the submissions query to return empty array
+      allow(SecondaryAppealForm).to receive(:joins).and_return(double(where: double(where: [])))
 
       result = subject.data
 

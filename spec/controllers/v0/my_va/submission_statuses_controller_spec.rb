@@ -17,8 +17,10 @@ RSpec.describe V0::MyVA::SubmissionStatusesController, type: :controller do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:my_va_display_all_lighthouse_benefits_intake_forms, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:my_va_display_decision_reviews_forms, user).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+                      .with(:my_va_display_all_lighthouse_benefits_intake_forms, user).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+                      .with(:my_va_display_decision_reviews_forms, user).and_return(false)
         allow(Forms::SubmissionStatuses::Report).to receive(:new).and_return(empty_report)
         allow(empty_report).to receive(:run).and_return(empty_report)
       end
@@ -38,7 +40,8 @@ RSpec.describe V0::MyVA::SubmissionStatusesController, type: :controller do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:my_va_display_all_lighthouse_benefits_intake_forms, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:my_va_display_all_lighthouse_benefits_intake_forms,
+                                                  user).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:my_va_display_decision_reviews_forms, user).and_return(false)
       end
 
@@ -62,7 +65,8 @@ RSpec.describe V0::MyVA::SubmissionStatusesController, type: :controller do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:my_va_display_all_lighthouse_benefits_intake_forms, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:my_va_display_all_lighthouse_benefits_intake_forms,
+                                                  user).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:my_va_display_decision_reviews_forms, user).and_return(true)
       end
 
@@ -101,7 +105,8 @@ RSpec.describe V0::MyVA::SubmissionStatusesController, type: :controller do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:my_va_display_all_lighthouse_benefits_intake_forms, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:my_va_display_all_lighthouse_benefits_intake_forms,
+                                                  user).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:my_va_display_decision_reviews_forms, user).and_return(true)
       end
 
@@ -134,7 +139,8 @@ RSpec.describe V0::MyVA::SubmissionStatusesController, type: :controller do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:my_va_display_all_lighthouse_benefits_intake_forms, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:my_va_display_all_lighthouse_benefits_intake_forms,
+                                                  user).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:my_va_display_decision_reviews_forms, user).and_return(false)
         allow(Forms::SubmissionStatuses::Report).to receive(:new).and_return(failing_report)
         allow(failing_report).to receive(:run).and_raise(StandardError, 'Service unavailable')
@@ -172,7 +178,8 @@ RSpec.describe V0::MyVA::SubmissionStatusesController, type: :controller do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:my_va_display_all_lighthouse_benefits_intake_forms, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:my_va_display_all_lighthouse_benefits_intake_forms,
+                                                  user).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:my_va_display_decision_reviews_forms, user).and_return(false)
         allow(Forms::SubmissionStatuses::Report).to receive(:new).and_return(serialization_report)
         allow(serialization_report).to receive(:run).and_return(serialization_report)

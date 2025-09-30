@@ -3,8 +3,9 @@
 require 'rails_helper'
 require 'forms/submission_statuses/gateways/decision_reviews_gateway'
 
-describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway, feature: :form_submission,
-                                                                       team_owner: :vfs_authenticated_experience_backend do
+describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway,
+         feature: :form_submission,
+         team_owner: :vfs_authenticated_experience_backend do
   subject { described_class.new(user_account:, allowed_forms:) }
 
   let(:user_account) { create(:user_account) }
@@ -17,7 +18,16 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway, feature: :
 
   describe '#data' do
     it 'returns a dataset with submissions and intake statuses' do
-      allow(subject).to receive(:submissions).and_return([])
+      # Mock the submissions query to return empty array
+      appeal_query_mock = double
+      allow(appeal_query_mock).to receive(:where).with(type_of_appeal: %w[SC HLR NOD]).and_return(double(pluck: []))
+      allow(AppealSubmission).to receive(:where).with(user_account: user_account).and_return(appeal_query_mock)
+      
+      # Mock the SavedClaim query chain
+      saved_claim_query_mock = double
+      allow(saved_claim_query_mock).to receive(:where).and_return(saved_claim_query_mock)
+      allow(saved_claim_query_mock).to receive(:order).and_return([])
+      allow(SavedClaim).to receive(:where).and_return(saved_claim_query_mock)
 
       result = subject.data
 
@@ -36,9 +46,12 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway, feature: :
         nod_claim = create(:saved_claim_notice_of_disagreement)
 
         # Create AppealSubmissions linking user_account to SavedClaims
-        appeal_submission1 = create(:appeal_submission, user_account: user_account, submitted_appeal_uuid: sc_claim.guid, type_of_appeal: 'SC')
-        create(:appeal_submission, user_account: user_account, submitted_appeal_uuid: hlr_claim.guid, type_of_appeal: 'HLR')
-        create(:appeal_submission, user_account: user_account, submitted_appeal_uuid: nod_claim.guid, type_of_appeal: 'NOD')
+        appeal_submission1 = create(:appeal_submission, user_account:,
+                                                        submitted_appeal_uuid: sc_claim.guid, type_of_appeal: 'SC')
+        create(:appeal_submission, user_account:,
+                                   submitted_appeal_uuid: hlr_claim.guid, type_of_appeal: 'HLR')
+        create(:appeal_submission, user_account:,
+                                   submitted_appeal_uuid: nod_claim.guid, type_of_appeal: 'NOD')
 
         # Create SecondaryAppealForm (21-4142)
         create(:secondary_appeal_form4142, appeal_submission: appeal_submission1)
@@ -46,7 +59,8 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway, feature: :
         # Create submissions for other users that should be excluded
         other_user = create(:user_account)
         other_claim = create(:saved_claim_supplemental_claim)
-        create(:appeal_submission, user_account: other_user, submitted_appeal_uuid: other_claim.guid, type_of_appeal: 'SC')
+        create(:appeal_submission, user_account: other_user,
+                                   submitted_appeal_uuid: other_claim.guid, type_of_appeal: 'SC')
       end
 
       it 'returns only submissions for the current user' do
@@ -57,7 +71,7 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway, feature: :
         expect(submissions).to all(be_a(SavedClaim))
 
         # Verify the SavedClaim submissions are the right ones by checking their guids match appeal submissions
-        user_appeal_uuids = AppealSubmission.where(user_account: user_account).pluck(:submitted_appeal_uuid)
+        user_appeal_uuids = AppealSubmission.where(user_account:).pluck(:submitted_appeal_uuid)
         saved_claim_guids = submissions.map(&:guid)
         expect(saved_claim_guids).to match_array(user_appeal_uuids)
       end
@@ -73,7 +87,8 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway, feature: :
 
       it 'excludes records with delete_date' do
         deleted_claim = create(:saved_claim_supplemental_claim, delete_date: 1.day.ago)
-        create(:appeal_submission, user_account: user_account, submitted_appeal_uuid: deleted_claim.guid, type_of_appeal: 'SC')
+        create(:appeal_submission, user_account:,
+                                   submitted_appeal_uuid: deleted_claim.guid, type_of_appeal: 'SC')
 
         submissions = subject.submissions
         expect(submissions.map(&:id)).not_to include(deleted_claim.id)
@@ -89,8 +104,10 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway, feature: :
         hlr_claim = create(:saved_claim_higher_level_review)
 
         # Create AppealSubmissions linking user_account to SavedClaims
-        create(:appeal_submission, user_account: user_account, submitted_appeal_uuid: sc_claim.guid, type_of_appeal: 'SC')
-        create(:appeal_submission, user_account: user_account, submitted_appeal_uuid: hlr_claim.guid, type_of_appeal: 'HLR')
+        create(:appeal_submission, user_account:,
+                                   submitted_appeal_uuid: sc_claim.guid, type_of_appeal: 'SC')
+        create(:appeal_submission, user_account:,
+                                   submitted_appeal_uuid: hlr_claim.guid, type_of_appeal: 'HLR')
       end
 
       it 'returns only submissions for allowed forms' do
@@ -229,8 +246,11 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway, feature: :
 
     context 'with SupplementalClaim having Secondary Appeal Form (21-4142)' do
       let(:sc_with_secondary) { create(:saved_claim_supplemental_claim) }
-      let(:appeal_submission) { create(:appeal_submission, user_account: user_account, submitted_appeal_uuid: sc_with_secondary.guid, type_of_appeal: 'SC') }
-      let(:secondary_form) { create(:secondary_appeal_form4142, appeal_submission: appeal_submission) }
+      let(:appeal_submission) do
+        create(:appeal_submission, user_account:,
+                                   submitted_appeal_uuid: sc_with_secondary.guid, type_of_appeal: 'SC')
+      end
+      let(:secondary_form) { create(:secondary_appeal_form4142, appeal_submission:) }
       let(:submissions) { [sc_with_secondary] }
       let(:allowed_forms) { %w[20-0995 form0995_form4142] }
 
@@ -410,7 +430,7 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway, feature: :
         in_progress_statuses = %w[pending submitting processing submitted success]
 
         in_progress_statuses.each do |status|
-          api_response = build_api_response(status: status)
+          api_response = build_api_response(status:)
           allow(decision_review_service).to receive(:get_supplemental_claim)
             .with(sc_claim.guid).and_return(double(body: api_response))
 
@@ -424,7 +444,7 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway, feature: :
         error_statuses = %w[error failed rejected invalid]
 
         error_statuses.each do |status|
-          api_response = build_api_response(status: status)
+          api_response = build_api_response(status:)
           allow(decision_review_service).to receive(:get_supplemental_claim)
             .with(sc_claim.guid).and_return(double(body: api_response))
 
