@@ -10,6 +10,11 @@ module UnifiedHealthData
 
     configuration UnifiedHealthData::Configuration
 
+    def get_allergies_by_date(patient_id:, start_date:, end_date:)
+      path = "#{config.base_path}allergies?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+      perform(:get, path, nil, request_headers)
+    end
+
     def get_labs_by_date(patient_id:, start_date:, end_date:)
       path = "#{config.base_path}labs?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
       perform(:get, path, nil, request_headers)
@@ -25,8 +30,8 @@ module UnifiedHealthData
       perform(:get, path, nil, request_headers)
     end
 
-    def get_all_prescriptions(patient_id)
-      path = "#{config.base_path}medications?patientId=#{patient_id}"
+    def get_prescriptions_by_date(patient_id:, start_date:, end_date:)
+      path = "#{config.base_path}medications?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
       perform(:get, path, nil, request_headers)
     end
 

@@ -7,5 +7,6 @@
 --output-dir .yardoc/output
 --exclude /spec/
 --exclude /swagger/
+--exclude /db\/migrate/
 --readme README.md
 --files CONTRIBUTING.md,LICENSE.md,SECURITY.md

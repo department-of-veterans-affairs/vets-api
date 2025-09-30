@@ -21,6 +21,36 @@ module Mobile
       end
 
       # rubocop:disable Metrics/MethodLength
+      def show
+        claim = claims_service.get_claim_details(params[:id])
+
+        raise Common::Exceptions::ResourceNotFound, detail: "Claim not found. ID provided: #{params[:id]}" if claim.nil?
+
+        detailed_claim = Mobile::V0::TravelPayClaimDetails.new(
+          id: claim['claimId'] || claim['id'],
+          claimNumber: claim['claimNumber'],
+          claimName: claim['claimName'],
+          claimantFirstName: claim['claimantFirstName'],
+          claimantMiddleName: claim['claimantMiddleName'],
+          claimantLastName: claim['claimantLastName'],
+          claimStatus: claim['claimStatus'],
+          appointmentDate: claim['appointmentDate'] || claim['appointmentDateTime'],
+          facilityName: claim['facilityName'],
+          totalCostRequested: claim['totalCostRequested'],
+          reimbursementAmount: claim['reimbursementAmount'],
+          rejectionReason: claim['rejectionReason'],
+          appointment: claim['appointment'],
+          expenses: claim['expenses'],
+          documents: claim['documents'],
+          createdOn: claim['createdOn'],
+          modifiedOn: claim['modifiedOn']
+        )
+
+        render json: Mobile::V0::TravelPayClaimDetailsSerializer.new(detailed_claim), status: :ok
+      rescue ArgumentError => e
+        raise Common::Exceptions::BadRequest, detail: e.message
+      end
+
       def create
         appt_params = {
           'appointment_date_time' => validated_params[:appointment_date_time],
@@ -57,11 +87,11 @@ module Mobile
 
       def normalize_claim_summary(claim)
         Mobile::V0::TravelPayClaimSummary.new(
-          id: claim['id'],
+          id: claim['id'] || claim['claimId'],
           claimNumber: claim['claimNumber'],
           claimStatus: claim['claimStatus'],
-          appointmentDateTime: claim['appointmentDateTime'],
-          facilityId: claim['facilityId'],
+          appointmentDateTime: claim['appointmentDateTime'] || claim['appointmentDate'],
+          facilityId: claim['facilityId'] || claim.dig('appointment', 'facilityId'),
           facilityName: claim['facilityName'],
           totalCostRequested: claim['totalCostRequested'],
           reimbursementAmount: claim['reimbursementAmount'],

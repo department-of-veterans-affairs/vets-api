@@ -10,7 +10,8 @@ module ClaimsApi
       LOG_TAG = '526_v2_PDF_Generator_job'
       sidekiq_options expires_in: 48.hours, retry: true
 
-      def perform(claim_id, middle_initial) # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/MethodLength
+      def perform(claim_id, middle_initial)
         log_job_progress(claim_id,
                          "526EZ PDF generator started for claim #{claim_id}")
 
@@ -24,7 +25,7 @@ module ClaimsApi
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
         mapped_claim = pdf_mapper_service(auto_claim.form_data, pdf_mapper_initial_object, auto_claim.auth_headers,
-                                          middle_initial).map_claim
+                                          middle_initial, auto_claim.created_at).map_claim
         pdf_string = generate_526_pdf(mapped_claim)
 
         if pdf_string.empty?
@@ -83,18 +84,22 @@ module ClaimsApi
         raise e
       end
 
+      # rubocop:enable Metrics/MethodLength
+
       private
 
       def start_docker_container_job(auto_claim)
-        docker_container_service.perform_async(auto_claim)
+        form_526_establishment_upload_service.perform_async(auto_claim)
       end
 
-      def docker_container_service
-        ClaimsApi::V2::DisabilityCompensationDockerContainerUpload
+      def form_526_establishment_upload_service
+        ClaimsApi::V1::Form526EstablishmentUpload
       end
 
-      def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial)
-        ClaimsApi::V1::DisabilityCompensationPdfMapper.new(form_data, pdf_data, auth_headers, middle_initial)
+      def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial, created_at)
+        ClaimsApi::V1::DisabilityCompensationPdfMapper.new(
+          form_data, pdf_data, auth_headers, middle_initial, created_at
+        )
       end
 
       # Docker container wants data: but not attributes:

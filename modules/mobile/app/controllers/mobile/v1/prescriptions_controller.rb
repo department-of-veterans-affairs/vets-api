@@ -12,20 +12,13 @@ module Mobile
       before_action :validate_feature_flag
 
       def index
-        pagination_params
+        all_prescriptions = fetch_prescriptions
+        pruned = filtered_prescriptions(all_prescriptions)
+        paged, page_meta = paginate_prescriptions(pruned)
+        meta = build_meta(full_list: pruned, page_meta:, originals: all_prescriptions)
 
-        prescriptions = unified_health_service.get_prescriptions(current_only: true)
-        has_non_va_meds = non_va_meds? prescriptions
-        prescriptions = prescriptions.reject { |item| item.prescription_source == 'NV' }
-
-        meta = generate_mobile_metadata_with_pagination(
-          prescriptions:,
-          page: params[:page]&.to_i || 1,
-          per_page: params[:per_page]&.to_i || 20,
-          has_non_va_meds:
-        )
-        serialized_data = UnifiedHealthData::Serializers::PrescriptionSerializer.new(prescriptions).serializable_hash
-        render json: { **serialized_data, meta: }
+        serialized = UnifiedHealthData::Serializers::PrescriptionSerializer.new(paged).serializable_hash
+        render json: { **serialized, meta: }
       rescue Common::Exceptions::BackendServiceException
         raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
       end
@@ -47,6 +40,34 @@ module Mobile
         @unified_health_service ||= UnifiedHealthData::Service.new(@current_user)
       end
 
+      def fetch_prescriptions
+        unified_health_service.get_prescriptions(current_only: true)
+      end
+
+      def filtered_prescriptions(list)
+        list.reject { |item| item.prescription_source == 'NV' }
+      end
+
+      def pagination_contract
+        Mobile::V0::Contracts::Prescriptions.new.call(
+          page_number: params.dig(:page, :number),
+          page_size: params.dig(:page, :size),
+          filter: nil,
+          sort: params[:sort]
+        )
+      end
+
+      def paginate_prescriptions(list)
+        Mobile::PaginationHelper.paginate(list:, validated_params: pagination_contract)
+      end
+
+      def build_meta(full_list:, page_meta:, originals:)
+        meta = page_meta[:meta]
+        meta.merge!(status_meta(full_list))
+        meta.merge!(has_non_va_meds: non_va_meds?(originals))
+        meta
+      end
+
       def validate_feature_flag
         return if Flipper.enabled?(:mhv_medications_cerner_pilot, @current_user)
 
@@ -56,28 +77,6 @@ module Mobile
             message: 'This feature is not currently available'
           }
         }, status: :forbidden
-      end
-
-      def generate_mobile_metadata_with_pagination(prescriptions:, page:, per_page:, has_non_va_meds:)
-        total_entries = prescriptions.is_a?(Array) ? prescriptions.length : 0
-        total_pages = (total_entries.to_f / per_page).ceil
-
-        {
-          pagination: {
-            current_page: page,
-            per_page:,
-            total_pages:,
-            total_entries:
-          },
-          **status_meta(prescriptions),
-          has_non_va_meds:
-        }
-      end
-
-      def pagination_params
-        page = params[:page]&.to_i || 1
-        per_page = params[:per_page]&.to_i || 20
-        [page, per_page]
       end
 
       def status_meta(prescriptions)

@@ -44,7 +44,7 @@ module Dependents
     end
 
     def default_payload
-      { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: @claim&.user_account_id, tags: }
+      { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: nil, tags: }
     end
 
     def tags
