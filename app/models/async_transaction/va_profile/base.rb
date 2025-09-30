@@ -78,11 +78,11 @@ module AsyncTransaction
       def self.fetch_transaction(transaction_record, service)
         case transaction_record
         when AsyncTransaction::VAProfile::AddressTransaction
-          service.get_transaction_status("addresses", AddressTransactionResponse, transaction_record.transaction_id)
+          service.get_transaction_status('addresses', AddressTransactionResponse, transaction_record.transaction_id)
         when AsyncTransaction::VAProfile::EmailTransaction
-          service.get_transaction_status("emails", EmailTransactionResponse,transaction_record.transaction_id)
+          service.get_transaction_status('emails', EmailTransactionResponse, transaction_record.transaction_id)
         when AsyncTransaction::VAProfile::TelephoneTransaction
-          service.get_transaction_status("telephones", TelephoneTransactionResponse, transaction_record.transaction_id)
+          service.get_transaction_status('telephones', TelephoneTransactionResponse, transaction_record.transaction_id)
         when AsyncTransaction::VAProfile::InitializePersonTransaction
           service.get_person_transaction_status(transaction_record.transaction_id)
         else
