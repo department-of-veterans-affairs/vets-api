@@ -280,8 +280,8 @@ module UnifiedHealthData
       failures = extract_failed_refills(refill_items)
 
       {
-        success: successes,
-        failed: failures
+        success: successes || [],
+        failed: failures || []
       }
     end
 

@@ -25,7 +25,7 @@ module Mobile
 
       def refill
         result = unified_health_service.refill_prescription(orders)
-        render_batch_refill_result(result)
+        render json: UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
       rescue Common::Exceptions::BackendServiceException => e
         Rails.logger.error("Caught BackendServiceException: #{e.message}")
         raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
@@ -120,17 +120,6 @@ module Mobile
         parsed_orders
       rescue JSON::ParserError
         raise Common::Exceptions::InvalidFieldValue.new('orders', 'Invalid JSON format')
-      end
-
-      def render_batch_refill_result(result)
-        if result[:success].length.positive?
-          # Use the unified health data serializer to maintain consistent format
-          render json: UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
-        else
-          raise Common::Exceptions::UnprocessableEntity.new(
-            detail: result[:error] || 'Unable to process refill request'
-          )
-        end
       end
     end
   end
