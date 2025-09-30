@@ -25,7 +25,7 @@ RSpec.describe IvcChampva::TempfileHelper do
       tmpfile = described_class.tempfile_from_attachment(attachment, form_id)
 
       expect(tmpfile).to be_a(Tempfile)
-      expect(File.basename(tmpfile.path)).to match(/^vha_10_7959a_attachment_[\w\-]+\.gif$/)
+      expect(File.basename(tmpfile.path)).to match(/^vha_10_7959a_attachment_[\w-]+\.gif$/)
       tmpfile.rewind
       expect(tmpfile.read).to eq(file_content)
       tmpfile.close
@@ -52,7 +52,7 @@ RSpec.describe IvcChampva::TempfileHelper do
       tmpfile = described_class.tempfile_from_attachment(attachment, form_id)
 
       expect(tmpfile).to be_a(Tempfile)
-      expect(File.basename(tmpfile.path)).to match(/^vha_10_7959a_attachment_[\w\-]+\.png$/)
+      expect(File.basename(tmpfile.path)).to match(/^vha_10_7959a_attachment_[\w-]+\.png$/)
       tmpfile.rewind
       expect(tmpfile.read).to eq(file_content)
       tmpfile.close

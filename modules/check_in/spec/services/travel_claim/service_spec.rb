@@ -68,7 +68,7 @@ describe TravelClaim::Service do
       end
 
       it 'returns 401 error response' do
-        expect(subject.build.submit_claim).to eq(response)
+        expect(subject.build(check_in:).submit_claim).to eq(response)
       end
     end
 
@@ -120,7 +120,7 @@ describe TravelClaim::Service do
       end
 
       it 'returns 401 error response' do
-        expect(subject.build.submit_claim).to eq(response)
+        expect(subject.build(check_in:).submit_claim).to eq(response)
       end
     end
 

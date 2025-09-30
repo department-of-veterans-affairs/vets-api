@@ -62,7 +62,7 @@ RSpec.describe Crm::Service do
   include_examples 'crm request with header', 'development', true, 'iris-dev'
   include_examples 'crm request with header', 'test', true, 'iris-dev'
   include_examples 'crm request with header', 'staging', true, 'ava-preprod'
-  include_examples 'crm request with header', 'production', true, 'ava-prod'
+  include_examples 'crm request with header', 'production', true, 'ava'
 
   describe '#call' do
     context 'when the server returns an error' do

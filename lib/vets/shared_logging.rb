@@ -28,20 +28,58 @@ module Vets
     def log_message_to_rails(message, level, extra_context = {})
       # this can be a drop-in replacement for now, but maybe suggest teams
       # handle extra context on their own and move to a direct Rails.logger call?
-      formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
-      Rails.logger.send(level, formatted_message)
+      #
+      # Code was previously using Rails.logger.send(level, formatted_message) which could cause an exception
+      # of its own. Hacky, but safe. Rails.logger.info etc do the right thing.
+
+      # if level is passed as a symbol (e.g. :warn), handle it. convert to string
+
+      level = level.to_s.downcase
+      level = 'warn' if level == 'warning' # Rails doesn't support Sentries Warning level
+      message = '[No Message Provided]' if message.blank?
+
+      formatted_message = if extra_context.nil? || (extra_context.respond_to?(:empty?) && extra_context.empty?)
+                            message
+                          else
+                            "#{message} : #{extra_context}"
+                          end
+      case level
+      when 'debug'
+        Rails.logger.debug(formatted_message)
+      when 'info'
+        Rails.logger.info(formatted_message)
+      when 'warn'
+        Rails.logger.warn(formatted_message)
+      when 'fatal'
+        Rails.logger.fatal(formatted_message)
+      else # 'error' and unknown levels
+        Rails.logger.error(formatted_message)
+      end
     end
 
     def log_exception_to_rails(exception, level = 'error')
+      level = level.to_s.downcase
       level = normalize_shared_level(level, exception)
+      level = 'warn' if level == 'warning' # Rails doesn't support Sentries Warning level
+
+      # Handle nil exception gracefully - log a placeholder message instead of crashing
+      return log_message_to_rails('[No Exception Provided]', level) unless exception
+
       if exception.is_a? Common::Exceptions::BackendServiceException
-        error_details = exception.errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
+        error_details = (Array(exception.errors).first&.try(:attributes) || {}).compact.reject do |_k, v|
+          v.nil? || (v.respond_to?(:empty?) && v.empty?)
+        end
         log_message_to_rails(exception.message, level, error_details.merge(backtrace: exception.backtrace))
       else
-        log_message_to_rails("#{exception.message}.", level)
+        case level
+        when 'debug' then Rails.logger.debug(exception)
+        when 'info' then Rails.logger.info(exception)
+        when 'warn' then Rails.logger.warn(exception)
+        when 'fatal' then Rails.logger.fatal(exception)
+        else # 'error' and unknown levels
+          Rails.logger.error(exception)
+        end
       end
-
-      log_message_to_rails(exception.backtrace.join("\n"), level) unless exception.backtrace.nil?
     end
 
     def normalize_shared_level(level, exception)

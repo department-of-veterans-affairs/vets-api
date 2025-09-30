@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module Caseflow
   module Responses
@@ -16,13 +16,16 @@ module Caseflow
     # @!attribute status
     #   @return [Integer] The HTTP status code.
     #
-    class Caseflow < Common::Base
+    class Caseflow
+      include Vets::Model
+
       attribute :body, String
       attribute :status, Integer
 
       def initialize(body, status)
-        self.body = body if json_format_is_valid?(body)
-        self.status = status
+        @body = body if json_format_is_valid?(body)
+        @status = status
+        super()
       end
 
       private

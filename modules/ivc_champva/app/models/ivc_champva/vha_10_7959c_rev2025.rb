@@ -7,14 +7,17 @@
 #
 # This version of the form is used with the new 10-10d/10-7959c merged form
 # experience (e.g., "10-10D-EXTENDED").
+
+require 'vets/model'
+
 module IvcChampva
   class VHA107959cRev2025
     STATS_KEY = 'api.ivc_champva_form.10_7959c_rev2025'
 
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
     include Attachments
 
-    attribute :data
+    attribute :data, Hash
     attr_reader :form_id
 
     def initialize(data)

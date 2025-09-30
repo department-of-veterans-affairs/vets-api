@@ -38,7 +38,6 @@ module Form1010cg
 
     include Sidekiq::Job
     include Sidekiq::MonitoredWorker
-    include SentryLogging
 
     # retry for  2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
@@ -121,11 +120,7 @@ module Form1010cg
     private
 
     def log_error(exception, message, claim_id)
-      if Flipper.enabled?(:caregiver_use_rails_logging_over_sentry)
-        Rails.logger.error(message, { exception:, claim_id: })
-      else
-        log_exception_to_sentry(exception, { claim_id: })
-      end
+      Rails.logger.error(message, { exception:, claim_id: })
     end
   end
 end
