@@ -37,11 +37,11 @@ class SavedClaimGroup < ApplicationRecord
   end
 
   def parent_claim_group_for_child
-    find_by(saved_claim_id: parent.id, parent_claim_id: parent.id)
+    SavedClaimGroup.find_by(saved_claim_id: parent_claim_id, parent_claim_id:)
   end
 
   def children_of_group
-    where(parent_claim_id:).where.not(saved_claim_id: parent_claim_id)
+    SavedClaimGroup.where(parent_claim_id:).where.not(saved_claim_id: parent_claim_id)
   end
 
   private
