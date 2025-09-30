@@ -26,8 +26,6 @@ module ClaimsApi
         return if form_attributes.empty?
 
         validate_claim_process_type_bdd if bdd_claim?
-        # ensure 'claimantCertification' is true
-        validate_form_526_claimant_certification
         # ensure mailing address country is valid
         validate_form_526_identification
         # ensure disabilities are valid
@@ -176,15 +174,6 @@ module ClaimsApi
             detail: 'The internationalPostalCode should not be provided if the country is USA.'
           )
         end
-      end
-
-      def validate_form_526_claimant_certification
-        return unless form_attributes['claimantCertification'] == false
-
-        collect_error_messages(
-          source: '/claimantCertification',
-          detail: 'claimantCertification must not be false.'
-        )
       end
 
       def validate_form_526_identification
@@ -356,27 +345,20 @@ module ClaimsApi
             elsif disability_action_type == 'INCREASE'
               collect_error_messages(source: "disabilities/#{idx}/specialIssues",
                                      detail: "disabilityActionType (#{idx}) cannot be INCREASE if " \
-                                             'specialIssues includes POW for.')
+                                             'specialIssues includes POW.')
             end
           end
         end
       end
 
-      def validate_form_526_disability_secondary_disabilities # rubocop:disable Metrics/MethodLength
+      def validate_form_526_disability_secondary_disabilities
         form_attributes['disabilities'].each_with_index do |disability, dis_idx|
-          if disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].blank?
-            collect_error_messages(source: "disabilities/#{dis_idx}/",
-                                   detail: "If the `disabilityActionType` (#{dis_idx}) is set to `NONE` " \
-                                           'there must be a secondary disability present.')
-          end
           next if disability['secondaryDisabilities'].blank?
 
           validate_form_526_disability_secondary_disability_required_fields(disability, dis_idx)
 
           disability['secondaryDisabilities'].each_with_index do |secondary_disability, sd_idx|
             if secondary_disability['classificationCode'].present?
-              validate_form_526_disability_secondary_disability_classification_code(secondary_disability, dis_idx,
-                                                                                    sd_idx)
               validate_form_526_disability_code_enddate(secondary_disability['classificationCode'].to_i, dis_idx,
                                                         sd_idx)
             end
@@ -410,14 +392,6 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_secondary_disability_classification_code(secondary_disability, dis_idx, sd_idx)
-        return if brd_classification_ids.include?(secondary_disability['classificationCode'].to_i)
-
-        collect_error_messages(source: "disabilities/#{dis_idx}/secondaryDisabilities/#{sd_idx}/classificationCode",
-                               detail: "classificationCode (#{dis_idx}) must match an active code " \
-                                       'returned from the /disabilities endpoint of the Benefits Reference Data API.')
-      end
-
       def validate_form_526_disability_secondary_disability_approximate_begin_date(secondary_disability, dis_idx,
                                                                                    sd_idx)
         return unless date_is_valid?(secondary_disability['approximateDate'],
@@ -429,29 +403,10 @@ module ClaimsApi
                                detail: "approximateDate (#{dis_idx}) must be a date in the past.")
       end
 
-      def validate_form_526_veteran_homelessness # rubocop:disable Metrics/MethodLength
+      def validate_form_526_veteran_homelessness
         return if form_attributes&.dig('homeless').nil? # nullable on schema
 
         handle_empty_other_description
-
-        if too_many_homelessness_attributes_provided?
-          collect_error_messages(source: '/homeless/',
-                                 detail: "Must define only one of 'homeless/currentlyHomeless' or " \
-                                         "'homeless/riskOfBecomingHomeless'")
-        end
-
-        if unnecessary_homelessness_point_of_contact_provided?
-          collect_error_messages(source: '/homeless/',
-                                 detail: "If 'homeless/pointOfContact' is defined, then one of " \
-                                         "'homeless/currentlyHomeless' or 'homeless/riskOfBecomingHomeless'" \
-                                         ' is required')
-        end
-
-        if missing_point_of_contact?
-          collect_error_messages(source: '/homeless/',
-                                 detail: "If one of 'homeless/currentlyHomeless' or 'homeless/riskOfBecomingHomeless'" \
-                                         " is defined, then 'homeless/pointOfContact' is required")
-        end
 
         if international_phone_too_long?
           collect_error_messages(source: '/homeless/pointOfContactNumber/internationalTelephone',
@@ -482,28 +437,6 @@ module ClaimsApi
             form_attributes['homeless']['riskOfBecomingHomeless']['otherDescription'] = ' '
           end
         end
-      end
-
-      def too_many_homelessness_attributes_provided?
-        currently_homeless_attr, homelessness_risk_attr = get_homelessness_attributes
-        # EVSS does not allow both attributes to be provided at the same time
-        currently_homeless_attr.present? && homelessness_risk_attr.present?
-      end
-
-      def unnecessary_homelessness_point_of_contact_provided?
-        currently_homeless_attr, homelessness_risk_attr = get_homelessness_attributes
-        homelessness_poc_attr = form_attributes.dig('homeless', 'pointOfContact')
-
-        # EVSS does not allow passing a 'pointOfContact' if neither homelessness attribute is provided
-        currently_homeless_attr.blank? && homelessness_risk_attr.blank? && homelessness_poc_attr.present?
-      end
-
-      def missing_point_of_contact?
-        homelessness_poc_attr = form_attributes.dig('homeless', 'pointOfContact')
-        currently_homeless_attr, homelessness_risk_attr = get_homelessness_attributes
-
-        # 'pointOfContact' is required when either currentlyHomeless or homelessnessRisk is provided
-        homelessness_poc_attr.blank? && (currently_homeless_attr.present? || homelessness_risk_attr.present?)
       end
 
       def international_phone_too_long?
@@ -565,25 +498,9 @@ module ClaimsApi
       end
 
       def validate_form_526_service_pay
-        validate_form_526_military_retired_pay
-        validate_form_526_future_military_retired_pay
         validate_from_526_military_retired_pay_branch
         validate_form_526_separation_pay_received_date
         validate_from_526_separation_severance_pay_branch
-      end
-
-      def validate_form_526_military_retired_pay
-        receiving_attr = form_attributes.dig('servicePay', 'receivingMilitaryRetiredPay')
-        future_attr = form_attributes.dig('servicePay', 'futureMilitaryRetiredPay')
-
-        return if receiving_attr.nil?
-        return unless receiving_attr == future_attr
-
-        # EVSS does not allow both attributes to be the same value (unless that value is nil)
-        collect_error_messages(source: '/servicePay/',
-                               detail: "'servicePay/receivingMilitaryRetiredPay' and " \
-                                       "'servicePay/futureMilitaryRetiredPay " \
-                                       'should not be the same value')
       end
 
       def validate_from_526_military_retired_pay_branch
@@ -598,27 +515,10 @@ module ClaimsApi
                                        'Reference Data API.')
       end
 
-      def validate_form_526_future_military_retired_pay
-        future_attr = form_attributes.dig('servicePay', 'futureMilitaryRetiredPay')
-        future_explanation_attr = form_attributes.dig('servicePay', 'futureMilitaryRetiredPayExplanation')
-        return if future_attr.nil?
-
-        if future_attr == 'YES' && future_explanation_attr.blank?
-          collect_error_messages(source: '/servicePay/',
-                                 detail: "If 'servicePay/futureMilitaryRetiredPay' is true, then " \
-                                         "'servicePay/futureMilitaryRetiredPayExplanation' is required")
-        end
-      end
-
       def validate_form_526_separation_pay_received_date
         separation_pay_received_date = form_attributes.dig('servicePay', 'separationSeverancePay',
                                                            'datePaymentReceived')
-        return if separation_pay_received_date.blank?
-
-        return if date_is_valid_against_current_time_after_check_on_format?(separation_pay_received_date)
-
-        collect_error_messages(source: '/servicePay/separationSeverancePay/datePaymentReceived',
-                               detail: 'datePaymentReceived must be a date in the past.')
+        nil if separation_pay_received_date.blank?
       end
 
       def validate_from_526_separation_severance_pay_branch
@@ -638,36 +538,19 @@ module ClaimsApi
         validate_treatment_dates(treatments)
       end
 
-      def valid_treatment_date?(first_service_date, treatment_begin_date)
-        return true if first_service_date.blank? || treatment_begin_date.nil?
-
-        case type_of_date_format(treatment_begin_date)
-        when 'yyyy-mm'
-          first_service_date = Date.new(first_service_date.year, first_service_date.month, 1)
-          treatment_begin_date = Date.strptime(treatment_begin_date, '%Y-%m')
-        when 'yyyy'
-          first_service_date = Date.new(first_service_date.year, 1, 1)
-          treatment_begin_date = Date.strptime(treatment_begin_date, '%Y')
-        else
-          return false
-        end
-
-        first_service_date <= treatment_begin_date
-      end
-
-      def validate_treatment_dates(treatments) # rubocop:disable Metrics/MethodLength
+      def validate_treatment_dates(treatments)
         first_service_period = form_attributes['serviceInformation']['servicePeriods'].min_by do |per|
           per['activeDutyBeginDate']
         end
 
-        first_service_date = if first_service_period['activeDutyBeginDate'] &&
-                                date_is_valid?(
-                                  first_service_period['activeDutyBeginDate'],
-                                  'serviceInformation/servicePeriods/activeDutyBeginDate',
-                                  true
-                                )
-                               Date.strptime(first_service_period['activeDutyBeginDate'], '%Y-%m-%d')
-                             end
+        if first_service_period['activeDutyBeginDate'] &&
+           date_is_valid?(
+             first_service_period['activeDutyBeginDate'],
+             'serviceInformation/servicePeriods/activeDutyBeginDate',
+             true
+           )
+          Date.strptime(first_service_period['activeDutyBeginDate'], '%Y-%m-%d')
+        end
 
         treatments.each_with_index do |treatment, idx|
           treatment_begin_date = treatment['beginDate']
@@ -675,13 +558,6 @@ module ClaimsApi
           next if treatment_begin_date.nil?
 
           next unless date_is_valid?(treatment_begin_date, "/treatments/#{idx}/beginDate")
-
-          next if valid_treatment_date?(first_service_date, treatment_begin_date)
-
-          collect_error_messages(
-            source: "/treatments/#{idx}/beginDate",
-            detail: "Each treatment begin date (#{idx}) must be after the first activeDutyBeginDate"
-          )
         end
       end
 
@@ -694,7 +570,6 @@ module ClaimsApi
         validate_service_periods(service_information, target_veteran)
         validate_service_branch_names(service_information)
         validate_confinements(service_information)
-        validate_alternate_names(service_information)
         validate_reserves_required_values(service_information)
         validate_form_526_location_codes(service_information)
       end
@@ -724,14 +599,11 @@ module ClaimsApi
       end
 
       def validate_service_periods(service_information, target_veteran)
-        date_of_birth = Date.strptime(target_veteran.birth_date, '%Y%m%d')
-        age_thirteen = date_of_birth.next_year(13)
+        Date.strptime(target_veteran.birth_date, '%Y%m%d')
         service_information['servicePeriods'].each_with_index do |sp, idx|
           if sp['activeDutyBeginDate']
             next unless date_is_valid?(sp['activeDutyBeginDate'],
                                        'serviceInformation/servicePeriods/activeDutyBeginDate', true)
-
-            age_exception(idx) if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') <= age_thirteen
 
             if sp['activeDutyEndDate']
               next unless date_is_valid?(sp['activeDutyEndDate'],
@@ -747,13 +619,6 @@ module ClaimsApi
         end
       end
 
-      def age_exception(idx)
-        collect_error_messages(
-          source: "/serviceInformation/servicePeriods/#{idx}/activeDutyBeginDate",
-          detail: "Active Duty Begin Date (#{idx}) cannot be on or before Veteran's thirteenth birthday."
-        )
-      end
-
       def begin_date_exception(idx)
         collect_error_messages(
           source: "/serviceInformation/servicePeriods/#{idx}/activeDutyEndDate",
@@ -761,7 +626,7 @@ module ClaimsApi
         )
       end
 
-      def validate_form_526_location_codes(service_information) # rubocop:disable Metrics/MethodLength
+      def validate_form_526_location_codes(service_information)
         service_periods = service_information['servicePeriods']
         any_code_present = service_periods.any? do |service_period|
           service_period['separationLocationCode'].present?
@@ -773,9 +638,7 @@ module ClaimsApi
         separation_locations = retrieve_separation_locations
 
         if separation_locations.nil?
-          collect_error_messages(
-            detail: 'The Reference Data Service is unavailable to verify the separation location code for the claimant'
-          )
+          # Per FES relaxed validation, if we don't get the locations from BRD we don't produce an error.
           return
         end
 
@@ -820,81 +683,13 @@ module ClaimsApi
                                      "#{form_object_desc}/approximateBeginDate") &&
                       date_is_valid?(approximate_end_date, "#{form_object_desc}/approximateEndDate")
 
-          if begin_date_is_after_end_date?(approximate_begin_date, approximate_end_date)
-            collect_error_messages(
-              source: "/confinements/#{idx}/",
-              detail: "Confinement approximate end date (#{idx}) must be after approximate begin date."
-            )
-          end
-
           service_periods = service_information&.dig('servicePeriods')
           earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
 
           next if earliest_active_duty_begin_date['activeDutyBeginDate'].blank? # nothing to check against below
           next unless date_is_valid?(earliest_active_duty_begin_date['activeDutyBeginDate'],
                                      'serviceInformation/servicePeriods/activeDutyBeginDate', true)
-
-          # if confinementBeginDate is before earliest activeDutyBeginDate, raise error
-          if duty_begin_date_is_after_approximate_begin_date?(earliest_active_duty_begin_date['activeDutyBeginDate'],
-                                                              approximate_begin_date)
-            collect_error_messages(
-              source: "/confinements/#{idx}/approximateBeginDate",
-              detail: "Confinement approximate begin date (#{idx}) must be after earliest active duty begin date."
-            )
-          end
-
-          @ranges ||= []
-          @ranges << (date_regex_groups(approximate_begin_date)..date_regex_groups(approximate_end_date))
-          if overlapping_confinement_periods?(idx)
-            collect_error_messages(
-              source: "/confinements/#{idx}/approximateBeginDate",
-              detail: "Confinement periods (#{idx}) may not overlap each other."
-            )
-          end
-          unless confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date,
-                                                              service_periods)
-            collect_error_messages(
-              source: "/confinements/#{idx}",
-              detail: "Confinement dates (#{idx}) must be within one of the service period dates."
-            )
-          end
         end
-      end
-
-      def confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date, service_periods) # rubocop:disable Metrics/MethodLength
-        within_service_period = false
-        service_periods.each do |sp|
-          next unless date_is_valid?(sp['activeDutyBeginDate'],
-                                     'serviceInformation/servicePeriods/activeDutyBeginDate', true) &&
-                      date_is_valid?(sp['activeDutyEndDate'], 'serviceInformation/servicePeriods/activeDutyEndDate',
-                                     true)
-
-          active_duty_begin_date = Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') if sp['activeDutyBeginDate']
-          active_duty_end_date = Date.strptime(sp['activeDutyEndDate'], '%Y-%m-%d') if sp['activeDutyEndDate']
-
-          next if active_duty_begin_date.blank? || active_duty_end_date.blank? # nothing to compare against
-
-          begin_date_has_day = date_has_day?(approximate_begin_date)
-          end_date_has_day = date_has_day?(approximate_end_date)
-          begin_date = if begin_date_has_day
-                         Date.strptime(approximate_begin_date, '%Y-%m-%d')
-                       else
-                         # Note approximate date conversion sets begin date to first of month
-                         Date.strptime(approximate_begin_date, '%Y-%m')
-                       end
-
-          end_date = if end_date_has_day
-                       Date.strptime(approximate_end_date, '%Y-%m-%d')
-                     else
-                       # Set approximate end date to end of month
-                       Date.strptime(approximate_end_date, '%Y-%m').end_of_month
-                     end
-
-          if date_is_within_range?(begin_date, end_date, active_duty_begin_date, active_duty_end_date)
-            within_service_period = true
-          end
-        end
-        within_service_period
       end
 
       def date_is_within_range?(conf_begin, conf_end, service_begin, service_end)
@@ -902,24 +697,6 @@ module ClaimsApi
 
         conf_begin.between?(service_begin, service_end) &&
           conf_end.between?(service_begin, service_end)
-      end
-
-      def validate_alternate_names(service_information)
-        alternate_names = service_information&.dig('alternateNames')
-        return if alternate_names.blank?
-
-        # clean them up to compare
-        alternate_names = alternate_names.map(&:strip).map(&:downcase)
-
-        # returns nil unless there are duplicate names
-        duplicate_names_check = alternate_names.detect { |e| alternate_names.rindex(e) != alternate_names.index(e) }
-
-        unless duplicate_names_check.nil?
-          collect_error_messages(
-            source: '/serviceInformation/alternateNames',
-            detail: 'Names entered as an alternate name must be unique.'
-          )
-        end
       end
 
       def validate_service_branch_names(service_information)
@@ -1014,12 +791,10 @@ module ClaimsApi
       def validate_required_values_for_federal_activation(activation_date, separation_date)
         activation_form_obj_desc = 'serviceInformation/federalActivation/'
         reserves_dates_form_obj_desc = 'serviceInformation/reservesNationalGuardService/obligationTermsOfService/'
-        reserves_unit_form_obj_desc = 'serviceInformation/reservesNationalGuardService/'
 
         reserves = form_attributes.dig('serviceInformation', 'reservesNationalGuardService')
         tos_start_date = reserves&.dig('obligationTermsOfService', 'beginDate')
         tos_end_date = reserves&.dig('obligationTermsOfService', 'endDate')
-        unit_name = reserves&.dig('unitName')
 
         if activation_date.blank?
           collect_error_messages(detail: 'activationDate is missing or blank',
@@ -1036,10 +811,6 @@ module ClaimsApi
         if tos_end_date.blank?
           collect_error_messages(detail: 'endDate is missing or blank',
                                  source: reserves_dates_form_obj_desc)
-        end
-        if unit_name.blank?
-          collect_error_messages(detail: 'unitName is missing or blank',
-                                 source: reserves_unit_form_obj_desc)
         end
       end
       # rubocop:enable Metrics/MethodLength
@@ -1231,26 +1002,6 @@ module ClaimsApi
 
       def begin_date_is_after_end_date?(begin_date, end_date)
         date_regex_groups(begin_date) > date_regex_groups(end_date)
-      end
-
-      def duty_begin_date_is_after_approximate_begin_date?(begin_date, approximate_begin_date)
-        return unless date_is_valid?(begin_date, 'serviceInformation/servicePeriods/activeDutyEndDate', true)
-
-        date_regex_groups(begin_date) > date_regex_groups(approximate_begin_date)
-      end
-
-      def overlapping_confinement_periods?(idx)
-        return if @ranges&.size&.<= 1
-
-        range_one = @ranges[idx - 1]
-        range_two = @ranges[idx]
-        range_one.present? && range_two.present? ? date_range_overlap?(range_one, range_two) : return
-      end
-
-      def date_range_overlap?(range_one, range_two)
-        return if range_one.last.nil? || range_one.first.nil? || range_two.last.nil? || range_two.first.nil?
-
-        (range_one&.last&.> range_two&.first) || (range_two&.last&.< range_one&.first)
       end
 
       # Will check for a real date including leap year
