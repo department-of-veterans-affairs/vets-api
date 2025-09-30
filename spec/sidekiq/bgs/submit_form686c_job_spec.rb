@@ -192,8 +192,8 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
 
     it 'handles exceptions during backup submission' do
       # Mock the monitor
-      monitor_double = instance_double(::Dependents::Monitor)
-      expect(::Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
+      monitor_double = instance_double(Dependents::Monitor)
+      expect(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
 
       # Mock the backup submission to raise an error
       expect(Lighthouse::BenefitsIntake::SubmitCentralForm686cJob).to receive(:perform_async)
