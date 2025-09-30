@@ -38,12 +38,6 @@ describe BBInternal::Client do
     end
   end
 
-  describe 'session' do
-    it 'preserves ICN' do
-      expect(client.session.icn).to equal(icn)
-    end
-  end
-
   describe '#list_radiology' do
     it 'gets the radiology records' do
       VCR.use_cassette 'mr_client/bb_internal/get_radiology' do
@@ -181,7 +175,7 @@ describe BBInternal::Client do
 
     it 'requests a CCD be generated and returns the correct structure' do
       VCR.use_cassette 'mr_client/bb_internal/generate_ccd' do
-        ccd_list = client.get_generate_ccd(client.session.icn, 'DOE')
+        ccd_list = client.get_generate_ccd(icn, 'DOE')
 
         expect(ccd_list).to be_an(Array)
         expect(ccd_list).not_to be_empty
