@@ -9,8 +9,7 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
     (1.byte)...(10.megabytes)
   end
 
-  process(convert: 'jpg', if: :png?)
-  process(convert: 'jpg', if: :heic?)
+  process :convert_to_jpg, if: :should_convert_to_jpg?
 
   def initialize(guid)
     super
@@ -44,6 +43,25 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   private
+
+  def convert_to_jpg
+    file_type = file.content_type
+    Rails.logger.info("Attempting to convert #{file_type} file to JPG for GUID: #{@guid}")
+    begin
+      manipulate! do |img|
+        img.format 'jpg'
+        img
+      end
+    rescue MiniMagick::Invalid
+      Rails.logger.error("MiniMagick conversion failed for #{file_type} (GUID: #{@guid})")
+      raise CarrierWave::ProcessingError, 'Failed to convert file to JPG.'
+    end
+  end
+
+  # 2. Combined Conditional Method
+  def should_convert_to_jpg?(file)
+    png?(file) || heic?(file)
+  end
 
   def png?(file)
     file.content_type == 'image/png'

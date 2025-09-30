@@ -122,10 +122,21 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
 
   describe 'processing' do
     context 'when the file is a PNG' do
-      it 'converts the file to JPG' do
-        expect(uploader).to receive(:convert).with('jpg')
+      it 'converts the file to JPG using the custom handler' do
+        expect(uploader).to receive(:convert_to_jpg).and_call_original
 
+        allow(uploader).to receive(:manipulate!).and_return(nil)
         uploader.store!(file)
+      end
+
+      context 'and MiniMagick fails the conversion' do
+        it 'raises a CarrierWave::ProcessingError' do
+          allow(uploader).to receive(:manipulate!).and_raise(MiniMagick::Invalid)
+
+          expect { uploader.store!(file) }.to raise_error(CarrierWave::ProcessingError) do |error|
+            expect(error.message).to start_with('Failed to convert file to JPG.')
+          end
+        end
       end
     end
 
@@ -142,10 +153,19 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
           allow(Flipper).to receive(:enabled?).with(:hca_heif_attachments_enabled).and_return(true)
         end
 
-        it 'converts the file to jpg' do
-          expect(uploader).to receive(:convert).with('jpg')
+        it 'converts the file to jpg using the custom handler' do
+          expect(uploader).to receive(:convert_to_jpg).and_call_original
+          allow(uploader).to receive(:manipulate!).and_return(nil)
 
           uploader.store!(file)
+        end
+
+        context 'and MiniMagick fails the conversion' do
+          it 'raises a CarrierWave::ProcessingError' do
+            allow(uploader).to receive(:manipulate!).and_raise(MiniMagick::Invalid)
+
+            expect { uploader.store!(file) }.to raise_error(CarrierWave::ProcessingError)
+          end
         end
       end
 
@@ -178,10 +198,19 @@ RSpec.describe HCAAttachmentUploader, type: :uploader do
           allow(Flipper).to receive(:enabled?).with(:hca_heif_attachments_enabled).and_return(true)
         end
 
-        it 'converts the file to jpg' do
-          expect(uploader).to receive(:convert).with('jpg')
+        it 'converts the file to jpg using the custom handler' do
+          expect(uploader).to receive(:convert_to_jpg).and_call_original
+          allow(uploader).to receive(:manipulate!).and_return(nil)
 
           uploader.store!(file)
+        end
+
+        context 'and MiniMagick fails the conversion' do
+          it 'raises a CarrierWave::ProcessingError' do
+            allow(uploader).to receive(:manipulate!).and_raise(MiniMagick::Invalid)
+
+            expect { uploader.store!(file) }.to raise_error(CarrierWave::ProcessingError)
+          end
         end
       end
 
