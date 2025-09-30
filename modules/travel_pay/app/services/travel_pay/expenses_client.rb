@@ -51,7 +51,7 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
       endpoint_template = expense_endpoint_for_type(expense_type, :get)
-      endpoint = format(endpoint_template, expense_id: expense_id) # rubocop:disable Style/HashSyntax
+      endpoint = format(endpoint_template, expense_id:)
 
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       Rails.logger.info(message: "Getting #{expense_type} expense from endpoint: #{endpoint}")
@@ -122,7 +122,7 @@ module TravelPay
       endpoint_template = expense_endpoint_for_type(expense_type, :delete)
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      endpoint = format(endpoint_template, expense_id: expense_id) # rubocop:disable Style/HashSyntax
+      endpoint = format(endpoint_template, expense_id:)
 
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       Rails.logger.info(message: "Deleting #{expense_type} expense to endpoint: #{endpoint}")
@@ -154,7 +154,7 @@ module TravelPay
       endpoint_template = expense_endpoint_for_type(expense_type, :patch)
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      endpoint = format(endpoint_template, expense_id: expense_id) # rubocop:disable Style/HashSyntax
+      endpoint = format(endpoint_template, expense_id:)
 
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       Rails.logger.info(message: "Updating #{expense_type} expense to endpoint: #{endpoint}")

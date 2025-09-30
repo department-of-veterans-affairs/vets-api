@@ -38,7 +38,7 @@ module TravelPay
           message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
         )
         expense = create_and_validate_expense
-        created_expense = expense_service.create_expense(expense_params_for_service(expense, include_claim_id: true))
+        created_expense = expense_service.create_expense(expense_params_for_service(expense))
 
         Rails.logger.info(message: 'Travel Pay expense submission END')
 
@@ -172,14 +172,14 @@ module TravelPay
         )
       end
 
-      def expense_params_for_service(expense, include_claim_id: false)
+      def expense_params_for_service(expense)
         params = {
           'purchase_date' => format_purchase_date(expense.purchase_date),
           'description' => expense.description,
           'cost_requested' => expense.cost_requested,
           'expense_type' => expense.expense_type
         }
-        params['claim_id'] = expense.claim_id if include_claim_id
+        params['claim_id'] = expense.claim_id if expense.claim_id.present?
         params
       end
 
