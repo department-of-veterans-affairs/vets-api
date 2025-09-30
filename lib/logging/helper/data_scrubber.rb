@@ -25,6 +25,7 @@ module Logging
     #   # => { ssn: "123-45-6789" } (unchanged)
     #
     module DataScrubber
+      # uuid matcher
       UUID_REGEX = /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i
 
       # Regular expressions for detecting various types of PII and sensitive data
@@ -75,6 +76,7 @@ module Logging
       # The string used to replace detected PII
       REDACTION = '[REDACTED]'
 
+      # protected keys not to be scrubbed
       SAFE_KEYS = %w[confirmation_number user_account_uuid claim_id form_id tags id response_code
                      in_progress_form_id].freeze
 

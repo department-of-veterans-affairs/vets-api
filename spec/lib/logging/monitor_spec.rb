@@ -42,7 +42,7 @@ RSpec.describe Logging::Monitor do
         tags = ["service:#{service}", "function:#{call_location.base_label}", 'form_id:FORM_ID']
 
         expect(StatsD).to receive(:increment).with(metric, tags:)
-        expect(Rails.logger).to receive(:unknown).with("TEST", hash_including(service:))
+        expect(Rails.logger).to receive(:unknown).with('TEST', hash_including(service:))
 
         monitor.track_request('BAD_LOG_LEVEL', 'TEST', metric, call_location:, **additional_context)
       end
@@ -67,10 +67,11 @@ RSpec.describe Logging::Monitor do
           claim_id: 1,
           form_id: '12345',
           error: 'Error with SSN: 123-45-6789',
-          errors: ['Phone: 555-123-4567', 'Email: user@example.com', 'ICN: 1234567890V123456', 'Credit card: 4444-4444-4444-4444'],
+          errors: ['Phone: 555-123-4567', 'Email: user@example.com', 'ICN: 1234567890V123456',
+                   'Credit card: 4444-4444-4444-4444'],
           icn: '1234567890V123456',
           debug_info: 'Credit card: 4444-4444-4444-4444',
-          nested_info: [{id: 1, foo: :bar}],
+          nested_info: [{ id: 1, foo: :bar }],
           tags:
         }
 

@@ -5,6 +5,7 @@ require 'logging/include/benefits_intake'
 require 'logging/include/zero_silent_failures'
 
 module Logging
+  # general monitor class to inherit
   class BaseMonitor < ::Logging::Monitor
     include Logging::Include::Controller
     include Logging::Include::BenefitsIntake
@@ -19,6 +20,7 @@ module Logging
 
     private
 
+    # message prefix to prepend
     def message_prefix
       "#{name} #{form_id}"
     end
@@ -46,7 +48,7 @@ module Logging
     # @param level [String|Symbol] The severity level of the event (e.g., :error, :info, :warn)
     # @param message [String] The message describing the event
     # @param stats_key [String] The key used for stats tracking
-    # @param **context [Hash] additional parameters to pass to log; if `tags` is provided it will be included in StatsD
+    # @param context [Mixed] additional parameters to pass to log; if `tags` is provided it will be included in StatsD
     def submit_event(level, message, stats_key, **context)
       call_location = context[:call_location] || caller_locations.first
       context[:tags] = ((context[:tags] || []) + @tags).uniq

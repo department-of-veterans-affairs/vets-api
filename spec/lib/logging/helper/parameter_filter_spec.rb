@@ -154,7 +154,8 @@ RSpec.describe Logging::Helper::ParameterFilter do
         class: String,
         not_whitelisted: [{ id: 1 }],
         errors: [{ class: 'TEST', should_omit: 'FOOBAR', integer_omit: 12_345 }],
-        context: [:should_return, [:this_too, { id: 23, should_omit: 'foobar' }], { class: String, integer_omit: 12_345}]
+        context: [:should_return, [:this_too, { id: 23, should_omit: 'foobar' }],
+                  { class: String, integer_omit: 12_345 }]
       }
       filtered = described_class.filter_params(params)
 
@@ -174,7 +175,8 @@ RSpec.describe Logging::Helper::ParameterFilter do
 
       # complex structure
       expect(filtered[:context]).to be_an(Array)
-      expect(filtered[:context]).to eq([:should_return, [:this_too, { id: 23, should_omit: '[FILTERED]' }], { class: String, integer_omit: '[FILTERED]'}])
+      expect(filtered[:context]).to eq([:should_return, [:this_too, { id: 23, should_omit: '[FILTERED]' }],
+                                        { class: String, integer_omit: '[FILTERED]' }])
     end
   end
 end

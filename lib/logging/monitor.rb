@@ -3,7 +3,15 @@
 require 'logging/helper/data_scrubber'
 require 'logging/helper/parameter_filter'
 
+# Logging
 module Logging
+  # helper classes
+  module Helper; end
+  # additional logging functions for specific use cases
+  module Include; end
+  # extra logging functionality
+  module ThirdPartyTransaction; end
+
   # generic monitoring class
   class Monitor
     include Logging::Helper::DataScrubber
@@ -24,7 +32,7 @@ module Logging
     # @param message [String] the message to be logged
     # @param metric [String] the metric to be incremented
     # @param call_location [Logging::CallLocation | Thread::Backtrace::Location] location to be logged as failure point
-    # @param **context [Hash] additional parameters to pass to log; if `tags` is provided it will be included in StatsD
+    # @param context [Mixed] additional parameters to pass to log; if `tags` is provided it will be included in StatsD
     def track_request(level, message, metric, call_location: nil, **context)
       function, file, line = parse_caller(call_location)
 
