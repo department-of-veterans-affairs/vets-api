@@ -327,7 +327,7 @@ module Sidekiq
 
       def get_form526_pdf
         headers = submission.auth_headers
-        submission_create_date = submission.created_at.iso8601
+        submission_create_date = submission.created_at.strftime('%Y-%m-%d')
         form_json = submission.form[FORM_526]
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
