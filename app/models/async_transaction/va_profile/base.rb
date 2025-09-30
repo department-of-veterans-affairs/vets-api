@@ -28,8 +28,6 @@ module AsyncTransaction
           created_at: :desc
         ).limit(1)
 
-        return to_s.gsub('VAProfile', 'Vet360').constantize.last_requested.for_user(user) if transactions.blank?
-
         transactions
       end
 
