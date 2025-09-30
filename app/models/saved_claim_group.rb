@@ -19,8 +19,9 @@ class SavedClaimGroup < ApplicationRecord
   belongs_to :parent, class_name: 'SavedClaim', foreign_key: 'parent_claim_id', inverse_of: :parent_of_groups
   belongs_to :child, class_name: 'SavedClaim', foreign_key: 'saved_claim_id', inverse_of: :child_of_groups
 
-  scope :by_claim_group_guid, ->(guid) { where(claim_group_guid: guid) }
-  scope :by_saved_claim_id, ->(id) { find_by!(saved_claim_id: id) }
+  scope :by_claim_group_guid, ->(claim_group_guid) { where(claim_group_guid:) }
+  scope :by_saved_claim_id, ->(saved_claim_id) { find_by!(saved_claim_id:) }
+  scope :by_parent_id, ->(parent_claim_id) { where(parent_claim_id:) }
   scope :by_status, ->(status) { where(status:) }
   scope :pending, -> { by_status('pending') }
   scope :needs_kms_rotation, -> { where(needs_kms_rotation: true) }
@@ -30,13 +31,17 @@ class SavedClaimGroup < ApplicationRecord
   after_destroy { track_event(:destroy) }
 
   # return all the child claims associated with this group
-  def children
+  def saved_claim_children
     child_ids = SavedClaimGroup.where(claim_group_guid:, parent_claim_id:).map(&:saved_claim_id)
     SavedClaim.where(id: child_ids)
   end
 
   def parent_claim_group_for_child
     find_by(saved_claim_id: parent.id, parent_claim_id: parent.id)
+  end
+
+  def children_of_group
+    where(parent_claim_id:).where.not(saved_claim_id: parent_claim_id)
   end
 
   private

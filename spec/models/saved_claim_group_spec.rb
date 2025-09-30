@@ -27,7 +27,7 @@ RSpec.describe SavedClaimGroup, type: :model do
 
       expect(group.parent).to eq parent
       expect(group.child).to eq child
-      expect(group.children.first).to eq child
+      expect(group.saved_claim_children.first).to eq child
     end
 
     it 'can be found from the parent claim' do
