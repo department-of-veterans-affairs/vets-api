@@ -45,7 +45,6 @@ module Forms
 
         def api_statuses(submissions)
           # Fetch statuses from Decision Reviews V1 Service
-          # Similar to SavedClaimStatusUpdaterJob#get_status_and_attributes
           statuses_data = []
           errors = []
 
@@ -57,14 +56,15 @@ module Forms
 
               attributes = response.body.dig('data', 'attributes')
 
-              # Transform to match expected format
+              # Transform to match expected format with normalized status
+              normalized_status = normalize_status(attributes['status'])
               status_record = {
                 'id' => submission.guid,
                 'attributes' => {
                   'guid' => submission.guid,
-                  'status' => attributes['status'],
+                  'status' => normalized_status,
                   'detail' => attributes['detail'],
-                  'message' => attributes['status'], # Use status as message for consistency
+                  'message' => normalized_status, # Use normalized status as message
                   'updated_at' => attributes['updatedAt']
                 }
               }
@@ -75,17 +75,17 @@ module Forms
                 secondary_statuses = get_secondary_form_statuses(submission)
                 statuses_data.concat(secondary_statuses)
               end
-
             rescue DecisionReviews::V1::ServiceException => e
               if e.key == 'DR_404'
                 # Handle not found cases
+                # For 404 errors, use 'expired' status to indicate action needed
                 status_record = {
                   'id' => submission.guid,
                   'attributes' => {
                     'guid' => submission.guid,
-                    'status' => 'DR_404',
-                    'detail' => 'Not found',
-                    'message' => 'Not found',
+                    'status' => 'expired', # Normalized status for not found
+                    'detail' => 'Submission not found in Decision Reviews system',
+                    'message' => 'expired',
                     'updated_at' => nil
                   }
                 }
@@ -102,6 +102,20 @@ module Forms
         end
 
         private
+
+        # Normalize Decision Reviews API statuses to frontend-supported statuses
+        # Frontend supports: 'inProgress', 'received', 'expired'
+        def normalize_status(api_status)
+          case api_status&.downcase
+          when 'pending', 'submitting', 'processing', 'submitted', 'success'
+            'inProgress' # Submission in progress
+          when 'complete'
+            'received' # Successfully received and ready for processing
+          else
+            # # Action needed - error occurred, or any nil or unknown statuses, default to expired to indicate action needed
+            'expired'
+          end
+        end
 
         def get_secondary_form_statuses(submission)
           secondary_statuses = []

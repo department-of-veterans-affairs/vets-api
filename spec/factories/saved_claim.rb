@@ -54,18 +54,15 @@ FactoryBot.define do
   factory :saved_claim_supplemental_claim, class: 'SavedClaim::SupplementalClaim' do
     guid { SecureRandom.uuid }
     form { { veteranFullName: { first: 'John', last: 'Doe' } }.to_json }
-    user_account { association :user_account }
   end
 
   factory :saved_claim_higher_level_review, class: 'SavedClaim::HigherLevelReview' do
     guid { SecureRandom.uuid }
     form { { veteranFullName: { first: 'Jane', last: 'Smith' } }.to_json }
-    user_account { association :user_account }
   end
 
   factory :saved_claim_notice_of_disagreement, class: 'SavedClaim::NoticeOfDisagreement' do
     guid { SecureRandom.uuid }
     form { { veteranFullName: { first: 'Bob', last: 'Johnson' } }.to_json }
-    user_account { association :user_account }
   end
 end
