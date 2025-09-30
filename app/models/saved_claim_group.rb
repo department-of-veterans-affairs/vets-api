@@ -20,7 +20,7 @@ class SavedClaimGroup < ApplicationRecord
   belongs_to :child, class_name: 'SavedClaim', foreign_key: 'saved_claim_id', inverse_of: :child_of_groups
 
   scope :by_claim_group_guid, ->(claim_group_guid) { where(claim_group_guid:) }
-  scope :by_saved_claim_id, ->(saved_claim_id) { find_by!(saved_claim_id:) }
+  scope :by_saved_claim_id, ->(saved_claim_id) { where(saved_claim_id:) }
   scope :by_parent_id, ->(parent_claim_id) { where(parent_claim_id:) }
   scope :by_status, ->(status) { where(status:) }
   scope :pending, -> { by_status('pending') }
