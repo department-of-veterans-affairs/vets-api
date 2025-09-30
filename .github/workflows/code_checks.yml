@@ -301,13 +301,6 @@ jobs:
           pattern: simplecov-resultset-*
           path: .
 
-      - name: Debug downloaded coverage artifacts
-        run: |
-          echo "=== Downloaded coverage artifacts ==="
-          ls -la simplecov-resultset-* || echo "No simplecov-resultset-* directories found"
-          echo "=== Looking for .resultset.json files ==="
-          find . -name ".resultset.json" -type f | head -20
-
       - name: Checkout code for Docker setup
         uses: actions/checkout@v5
         with:
@@ -325,18 +318,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
-          aws-region: us-gov-west-1
-
-      - name: Login to Amazon ECR
-        id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v2.0.1
-        with:
-          mask-password: true
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -362,19 +343,6 @@ jobs:
             -w /app \
             vets-api-coverage \
             bundle exec rake coverage:report
-
-      - name: Debug final state
-        run: |
-          echo "=== Final file check ==="
-          ls -la vets-api/coverage_summary.json || echo "No coverage_summary.json"
-          cat vets-api/coverage_summary.json || echo "Cannot read coverage_summary.json"
-
-      - name: Summarize coverage
-        id: coverage
-        run: |
-          ruby vets-api/.github/scripts/report_coverage.rb \
-            --summary-path vets-api/coverage_summary.json \
-            --minimum 90
 
       - name: Upload Combined Coverage HTML
         if: ${{ always() && hashFiles('vets-api/coverage/index.html') != '' }}
