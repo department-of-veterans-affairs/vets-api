@@ -6,23 +6,21 @@ metadata:
     backstage.io/edit-url: https://github.com/department-of-veterans-affairs/platform-pst-console-ui-configuration/edit/main/backend-review-group/apis/my-health-api.yaml
     backstage.io/source-location: url:https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/my_health/
     backstage.io/view-url: https://github.com/department-of-veterans-affairs/platform-pst-console-ui-configuration/blob/main/backend-review-group/apis/my-health-api.yaml
-  description: APIs for My_Health
+  description: APIs for the MyHealth namespace within vets-api
   namespace: vagov-platform
   name: my-health-api
   tags:
-  - ruby
-  - rails
-  title: VA.gov My Health Api
+    - ruby
+    - rails
+  title: VA.gov MyHealth API
   links:
     - url: https://app.mural.co/t/departmentofveteransaffairs9999/m/departmentofveteransaffairs9999/1730488367312/7cbdf7fb9a9829b0371f684e887c0c4c4135bfa1
       title: Medications Data Flow Diagram
+    - url: https://backstage.io/docs/features/software-catalog/descriptor-format/#kind-api
+      title: Backstage API entity docs
 spec:
-  definition: |
-   $text: https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/my_health/docs/openapi_merged.yaml
-    info:
-      title: My Health Api
-      version: 1.0.0
-    swagger: "2.0"
+  definition:
+    $text: https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/my_health/docs/openapi_merged.yaml
   lifecycle: production
   owner: backend-review-group
   system: vets-api
