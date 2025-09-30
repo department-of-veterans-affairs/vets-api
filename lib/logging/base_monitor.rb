@@ -43,7 +43,7 @@ module Logging
     # Submits an event for tracking with standardized payload structure
     # @see Logging::Monitor#track_request
     #
-    # @param level [String] The severity level of the event (e.g., :error, :info, :warn)
+    # @param level [String|Symbol] The severity level of the event (e.g., :error, :info, :warn)
     # @param message [String] The message describing the event
     # @param stats_key [String] The key used for stats tracking
     # @param **context [Hash] additional parameters to pass to log; if `tags` is provided it will be included in StatsD

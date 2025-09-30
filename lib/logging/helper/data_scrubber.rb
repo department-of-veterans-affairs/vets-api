@@ -108,8 +108,6 @@ module Logging
         data # Return original data on failure to avoid blocking logging
       end
 
-      private
-
       # Internal recursive method that handles different data types.
       #
       # @param value [Object] The value to scrub

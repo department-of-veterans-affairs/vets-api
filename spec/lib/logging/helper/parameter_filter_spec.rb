@@ -20,17 +20,17 @@ RSpec.describe Logging::Helper::ParameterFilter do
     end
 
     it 'filters nested hashes' do
-      params = { user: { password: 'secret', email: 'foo@example.com' } }
+      params = { context: { password: 'secret', email: 'foo@example.com' } }
       filtered = described_class.filter_params(params)
-      expect(filtered[:user][:password]).to eq('[FILTERED]')
-      expect(filtered[:user][:email]).to eq('[FILTERED]')
+      expect(filtered[:context][:password]).to eq('[FILTERED]')
+      expect(filtered[:context][:email]).to eq('[FILTERED]')
     end
 
     it 'filters inside arrays' do
-      params = { users: [{ password: 'secret' }, { password: 'hunter2' }] }
+      params = { context: [{ password: 'secret' }, { password: 'hunter2' }] }
       filtered = described_class.filter_params(params)
-      expect(filtered[:users][0][:password]).to eq('[FILTERED]')
-      expect(filtered[:users][1][:password]).to eq('[FILTERED]')
+      expect(filtered[:context][0][:password]).to eq('[FILTERED]')
+      expect(filtered[:context][1][:password]).to eq('[FILTERED]')
     end
 
     it 'filters sensitive values from ActionDispatch::Http::UploadedFile in params' do
@@ -128,42 +128,7 @@ RSpec.describe Logging::Helper::ParameterFilter do
     end
 
     describe 'filtering of structures' do
-      it 'filters non-whitelisted arrays by recursing into them' do
-        params = {
-          not_whitelisted: [
-            { id: 1, sensitive: 'data' },
-            { id: 2, sensitive: 'more data' }
-          ]
-        }
-        filtered = described_class.filter_params(params)
-
-        # Arrays recurse - each element is filtered
-        expect(filtered[:not_whitelisted]).to be_an(Array)
-        expect(filtered[:not_whitelisted][0][:id]).to eq(1) # id is in allowlist
-        expect(filtered[:not_whitelisted][0][:sensitive]).to eq('[FILTERED]')
-        expect(filtered[:not_whitelisted][1][:id]).to eq(2)
-        expect(filtered[:not_whitelisted][1][:sensitive]).to eq('[FILTERED]')
-      end
-
-      it 'filters entire non-whitelisted hashes without recursion' do
-        # For backward compatibility, only specific keys in FILTER_ENTIRELY are filtered entirely
-        # Other non-whitelisted keys still recurse
-        params = {
-          sensitive_data: {
-            ssn: '123-45-6789',
-            password: 'secret',
-            nested: { more: 'data' }
-          }
-        }
-        filtered = described_class.filter_params(params)
-
-        # This still recurses for backward compatibility
-        expect(filtered[:sensitive_data]).to be_a(Hash)
-        expect(filtered[:sensitive_data][:ssn]).to eq('[FILTERED]')
-        expect(filtered[:sensitive_data][:password]).to eq('[FILTERED]')
-      end
-
-      it 'still recurses into whitelisted structures' do
+      it 'recurses into whitelisted structures' do
         params = {
           errors: [
             { class: 'RuntimeError', message: 'sensitive error' },
@@ -188,7 +153,8 @@ RSpec.describe Logging::Helper::ParameterFilter do
         ssn: '123456789',
         class: String,
         not_whitelisted: [{ id: 1 }],
-        errors: [{ class: 'TEST', should_omit: 'FOOBAR', integer_omit: 12_345 }]
+        errors: [{ class: 'TEST', should_omit: 'FOOBAR', integer_omit: 12_345 }],
+        context: [:should_return, [:this_too, { id: 23, should_omit: 'foobar' }], { class: String, integer_omit: 12_345}]
       }
       filtered = described_class.filter_params(params)
 
@@ -198,14 +164,17 @@ RSpec.describe Logging::Helper::ParameterFilter do
       expect(filtered[:class]).to eq(String)
 
       # not_whitelisted still recurses in this implementation
-      expect(filtered[:not_whitelisted]).to be_an(Array)
-      expect(filtered[:not_whitelisted][0][:id]).to eq(1)
+      expect(filtered[:not_whitelisted]).to eq('[FILTERED]')
 
       # errors is whitelisted, so it recurses
       expect(filtered[:errors]).to be_an(Array)
       expect(filtered[:errors][0][:class]).to eq('TEST')
       expect(filtered[:errors][0][:should_omit]).to eq('[FILTERED]')
       expect(filtered[:errors][0][:integer_omit]).to eq('[FILTERED]')
+
+      # complex structure
+      expect(filtered[:context]).to be_an(Array)
+      expect(filtered[:context]).to eq([:should_return, [:this_too, { id: 23, should_omit: '[FILTERED]' }], { class: String, integer_omit: '[FILTERED]'}])
     end
   end
 end

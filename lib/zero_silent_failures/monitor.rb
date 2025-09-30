@@ -10,7 +10,7 @@ module ZeroSilentFailures
   class Monitor < Logging::Monitor
     unless Rails.env.test?
       ActiveSupport::Deprecation
-        .new.warn('ZeroSilentFailures::Monitor is deprecated, use Logging::BaseMonitor or Logging::Include::ZeroSilentFailures.')
+        .new.warn('ZeroSilentFailures::Monitor is deprecated, use Logging::BaseMonitor or `include Logging::Include::ZeroSilentFailures`')
     end
     # record metrics and log for a silent failure
     #

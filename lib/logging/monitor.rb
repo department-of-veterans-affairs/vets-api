@@ -35,7 +35,7 @@ module Logging
 
       unless %w[debug info warn error fatal unknown].include?(level.to_s)
         Rails.logger.error("#{self.class} Invalid log level: #{level}", service:, function:, file:, line:)
-        level = :info
+        level = :unknown
       end
 
       payload = {

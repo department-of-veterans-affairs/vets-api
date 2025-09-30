@@ -6,6 +6,7 @@
 # Do NOT add keys that can contain PII/PHI/secrets.
 ALLOWLIST = %w[
   action
+  attachment
   benefits_intake_uuid
   bpds_uuid
   call_location
@@ -80,23 +81,21 @@ ALLOWLIST = %w[
 # Configure sensitive parameters which will be filtered from the log file.
 Rails.application.config.filter_parameters = [
   lambda do |k, v|
+    # Base case for all other types (String, Integer, Symbol, Class, nil, etc.)
+    return '[FILTERED]' if k && ALLOWLIST.exclude?(k.to_s)
+
     case v
     when ActionDispatch::Http::UploadedFile # Base case
       v.instance_variables.each do |var| # could put specific instance vars here, but made more generic
         var_name = var.to_s.delete_prefix('@')
         v.instance_variable_set(var, '[FILTERED!]') unless ALLOWLIST.include?(var_name)
       end
-    else # Base case for all other types (String, Integer, Symbol, Class, nil, etc.)
-      return '[FILTERED]' if k && ALLOWLIST.exclude?(k.to_s)
-
-      case v
-      when Hash # Recursively iterate over each key value pair in hashes
-        v.each do |nested_key, nested_value|
-          v[nested_key] = Rails.application.config.filter_parameters.first&.call(nested_key, nested_value)
-        end
-      when Array # Recursively map all elements in arrays
-        v.map! { |element| Rails.application.config.filter_parameters.first&.call(k, element) }
+    when Hash # Recursively iterate over each key value pair in hashes
+      v.each do |nested_key, nested_value|
+        v[nested_key] = Rails.application.config.filter_parameters.first&.call(nested_key, nested_value)
       end
+    when Array # Recursively map all elements in arrays
+      v.map! { |element| Rails.application.config.filter_parameters.first&.call(k, element) }
     end
 
     v
