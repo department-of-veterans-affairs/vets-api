@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :async_transaction, class: 'AsyncTransaction::Base' do
     sequence(:user_uuid, 100) { |n| "abcd789-6af0-45e1-a9e2-394347a#{n}" }
     sequence(:source_id, &:to_s)
-    source              { 'VAProfile' }
+    source              { 'vet360' }
     status              { AsyncTransaction::Base::REQUESTED }
     sequence(:transaction_id, 100) { |n| "r3fab2b5-6af0-45e1-a9e2-394347af9#{n}" }
     transaction_status { 'RECEIVED' }
@@ -23,7 +23,7 @@ FactoryBot.define do
     end
 
     factory :initialize_person_transaction, class: 'AsyncTransaction::VAProfile::InitializePersonTransaction' do
-      trait :init_VAProfile_id do
+      trait :init_vet360_id do
         source_id { nil }
       end
     end
@@ -42,7 +42,7 @@ FactoryBot.define do
 
     factory :va_profile_initialize_person_transaction,
             class: 'AsyncTransaction::VAProfile::InitializePersonTransaction' do
-      trait :init_VAProfile_id do
+      trait :init_vet360_id do
         source_id { nil }
       end
     end
