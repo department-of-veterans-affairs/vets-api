@@ -132,68 +132,22 @@ module UnifiedHealthData
       def extract_facility_name(resource)
         # Get latest dispense using existing helper
         latest_dispense = find_most_recent_medication_dispense(resource['contained'])
-        if latest_dispense
-          # Get .location.display from latest dispense
-          location_display = latest_dispense.dig('location', 'display')
-          if location_display
-            # Get first 3 digits for station number lookup
-            match = location_display.match(/^(\d{3})/)
-            if match
-              station_number = match[1]
+        return nil unless latest_dispense
 
-              # Check Rails cache first for VHA facility name
-              cache_key = "uhd:facility_names:#{station_number}"
-              begin
-                cached_name = Rails.cache.read(cache_key)
-                if cached_name
-                  StatsD.increment('unified_health_data.facility_name_cache.hit')
-                  return cached_name
-                else
-                  StatsD.increment('unified_health_data.facility_name_cache.miss')
-                end
-              rescue => e
-                Rails.logger.warn("Rails cache lookup failed for facility #{station_number}: #{e.message}")
-                StatsD.increment('unified_health_data.facility_name_cache.error')
-              end
+        # Get .location.display from latest dispense
+        location_display = latest_dispense.dig('location', 'display')
+        return nil unless location_display
 
-              # Fallback to direct API call to Lighthouse for this specific facility
-              facility_name = fetch_facility_name_from_api(station_number)
-              if facility_name
-                StatsD.increment('unified_health_data.facility_name_fallback.api_hit')
+        # Get first 3 digits for station number lookup
+        match = location_display.match(/^(\d{3})/)
+        return nil unless match
 
-                # Cache the result for future use with same TTL as main cache
-                begin
-                  Rails.cache.write(cache_key, facility_name, expires_in: 4.hours)
-                rescue => e
-                  Rails.logger.warn("Failed to cache facility name for #{station_number}: #{e.message}")
-                end
+        station_number = match[1]
 
-                return facility_name
-              else
-                StatsD.increment('unified_health_data.facility_name_fallback.api_miss')
-              end
-
-              # Final fallback: return station number
-              StatsD.increment('unified_health_data.facility_name_fallback.station_number_only')
-              return station_number
-            end
-          end
-        end
-
-        # Fallback: check contained Encounter for location (backward compatibility)
-        if resource['contained']
-          encounter = resource['contained'].find { |c| c['resourceType'] == 'Encounter' }
-          if encounter
-            location_display = encounter.dig('location', 0, 'location', 'display')
-            return location_display if location_display
-          end
-        end
-
-        # Legacy fallback: dispenseRequest.performer
-        performer_display = resource.dig('dispenseRequest', 'performer', 'display')
-        return performer_display if performer_display
-
-        nil
+        # Check Rails cache first for VHA facility name
+        cache_key = "uhd:facility_names:#{station_number}"
+        cached_name = Rails.cache.read(cache_key)
+        cached_name if cached_name
       end
 
       def extract_quantity(resource)
