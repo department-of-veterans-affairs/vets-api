@@ -127,7 +127,7 @@ module ClaimsEvidenceApi
         msg = "upload #{stage}"
         msg += " - #{error}" if error
 
-        tags = { action: stage.to_s, doctype: context[:doctype] }
+        tags = { action: stage.to_s, form_id: context[:form_id], doctype: context[:doctype] }
 
         call_location = caller_locations.second
         level = stage == :failure ? :error : :info
