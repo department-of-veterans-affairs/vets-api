@@ -288,6 +288,10 @@ jobs:
           number: ${{ github.event.pull_request.number }}
           labels: test-failure
 
+      - name: Fail job if tests failed
+        if: ${{ needs.tests.result == 'failure' }}
+        run: exit 1
+
       - name: Remove Test Failure label
         if: ${{ needs.tests.result == 'success' && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-remove-labels@v1
