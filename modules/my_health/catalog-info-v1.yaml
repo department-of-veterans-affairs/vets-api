@@ -3,9 +3,6 @@ kind: API
 metadata:
   annotations:
     github.com/project-slug: department-of-veterans-affairs/vets-api
-    backstage.io/edit-url: https://github.com/department-of-veterans-affairs/platform-pst-console-ui-configuration/edit/main/backend-review-group/apis/my-health-api.yaml
-    backstage.io/source-location: url:https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/my_health/
-    backstage.io/view-url: https://github.com/department-of-veterans-affairs/platform-pst-console-ui-configuration/blob/main/backend-review-group/apis/my-health-api.yaml
   description: APIs for the MyHealth namespace within vets-api
   namespace: vagov-platform
   name: my-health-api
