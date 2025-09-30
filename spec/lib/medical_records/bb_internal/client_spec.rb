@@ -176,7 +176,6 @@ describe BBInternal::Client do
   end
 
   describe '#get_generate_ccd' do
-    let(:icn) { '1012740022V620959' }
     let(:last_name_with_space) { 'DOE SMITH' }
     let(:expected_escaped_last_name) { 'DOE%20SMITH' }
 
