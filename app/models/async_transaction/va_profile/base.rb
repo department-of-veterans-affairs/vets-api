@@ -21,14 +21,12 @@ module AsyncTransaction
       #   be it Email, Address, etc.
       #
       def self.last_requested_for_user(user)
-        transactions = where(
+        where(
           status: Base::REQUESTED,
           user_uuid: user.uuid
         ).order(
           created_at: :desc
         ).limit(1)
-
-        transactions
       end
 
       # Creates an initial AsyncTransaction record for ongoing tracking
@@ -88,7 +86,6 @@ module AsyncTransaction
           raise
         end
       end
-
 
       # Finds a transaction by transaction_id for a user
       # @param user_uuid [String] the user's UUID
