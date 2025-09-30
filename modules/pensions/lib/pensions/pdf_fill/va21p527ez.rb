@@ -198,6 +198,7 @@ module Pensions
         },
         # 3a
         'previousNames' => {
+          item_label: 'Other service name',
           limit: 1,
           first_key: 'first',
           'first' => {
@@ -334,6 +335,7 @@ module Pensions
           key: 'form1[0].#subform[49].RadioButtonList[7]'
         },
         'vaMedicalCenters' => {
+          item_label: 'VA medical center',
           limit: 1,
           first_key: 'medicalCenter',
           'medicalCenter' => {
@@ -350,6 +352,7 @@ module Pensions
           key: 'form1[0].#subform[49].RadioButtonList[8]'
         },
         'federalMedicalCenters' => {
+          item_label: 'Federal medical facility',
           limit: 1,
           first_key: 'medicalCenter',
           'medicalCenter' => {
@@ -366,6 +369,7 @@ module Pensions
           key: 'form1[0].#subform[49].RadioButtonList[9]'
         },
         'currentEmployers' => {
+          item_label: "Current job",
           limit: 1,
           first_key: 'jobType',
           # 5b
@@ -1050,6 +1054,7 @@ module Pensions
         },
         # 9h-k Income Sources
         'incomeSources' => {
+          item_label: "Income source",
           limit: 4,
           first_key: 'dependentName',
           # (1) Recipient
