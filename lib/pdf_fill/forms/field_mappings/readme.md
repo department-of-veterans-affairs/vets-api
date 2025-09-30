@@ -65,10 +65,10 @@ The rake task generates a JSON file with basic field information. You'll need to
 
 Each field mapping contains:
 
-- **`key`**: PDF field coordinate for a field. This key is the only piece required, but without the other keys the overflow page may not work as desired. (required)
+- **`key`**: PDF field coordinate for a field. This is the only required key, but without the other keys the overflow page may not work as desired. (required)
 - **`limit`**: Character limit for the field. This key is used to determine at what point a value for a field should go to the overflow page (optional)
-- **`question_num`**: Form question number for reference. This key is used by the overflow page to determine question/answer order and is displayed with the `question_text`(optional)
-- **`question_text`**: Human-readable field description used in the overflow page as the title(optional)
+- **`question_num`**: Form question number for reference. This key is used by the overflow page to determine question/answer order and is displayed with the `question_text` (optional)
+- **`question_text`**: Human-readable field description used in the overflow page as the title (optional)
 - **`question_suffix`**: Sub-question identifier like 'A', 'B' used in the overflow page title (optional)
 
 ## Prerequisites
