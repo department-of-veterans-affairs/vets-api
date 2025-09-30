@@ -12,8 +12,8 @@ module Logging
 
     attr_reader :tags
 
-    def initialize
-      super()
+    def initialize(service)
+      super(service)
       @tags = ["form_id:#{form_id}"]
     end
 

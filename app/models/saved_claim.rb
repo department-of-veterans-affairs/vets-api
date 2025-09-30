@@ -132,7 +132,12 @@ class SavedClaim < ApplicationRecord
   def document_type
     10 # Unknown
   end
-  alias doctype document_type
+
+  # alias for document_type
+  # using `alias_method` causes 'doctype' to always return 10
+  def doctype
+    document_type
+  end
 
   def email
     nil
