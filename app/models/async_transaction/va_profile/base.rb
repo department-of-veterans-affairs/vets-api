@@ -77,16 +77,13 @@ module AsyncTransaction
       # @return [VAProfile::Models::Transaction]
       def self.fetch_transaction(transaction_record, service)
         case transaction_record
-        when AsyncTransaction::Vet360::AddressTransaction, AsyncTransaction::VAProfile::AddressTransaction
-          service.get_address_transaction_status(transaction_record.transaction_id)
-        when AsyncTransaction::Vet360::EmailTransaction, AsyncTransaction::VAProfile::EmailTransaction
-          service.get_email_transaction_status(transaction_record.transaction_id)
-        when AsyncTransaction::Vet360::TelephoneTransaction, AsyncTransaction::VAProfile::TelephoneTransaction
-          service.get_telephone_transaction_status(transaction_record.transaction_id)
-        when AsyncTransaction::Vet360::PermissionTransaction, AsyncTransaction::VAProfile::PermissionTransaction
-          service.get_permission_transaction_status(transaction_record.transaction_id)
-        when AsyncTransaction::Vet360::InitializePersonTransaction,
-             AsyncTransaction::VAProfile::InitializePersonTransaction
+        when AsyncTransaction::VAProfile::AddressTransaction
+          service.get_transaction_status("addresses", AddressTransactionResponse, transaction_record.transaction_id)
+        when AsyncTransaction::VAProfile::EmailTransaction
+          service.get_transaction_status("emails", EmailTransactionResponse,transaction_record.transaction_id)
+        when AsyncTransaction::VAProfile::TelephoneTransaction
+          service.get_transaction_status("telephones", TelephoneTransactionResponse, transaction_record.transaction_id)
+        when AsyncTransaction::VAProfile::InitializePersonTransaction
           service.get_person_transaction_status(transaction_record.transaction_id)
         else
           # Unexpected transaction type means something went sideways
@@ -100,7 +97,7 @@ module AsyncTransaction
       # @return [AddressTransaction, EmailTransaction, TelephoneTransaction]
       def self.find_transaction!(user_uuid, transaction_id)
         Base.find_by(user_uuid:, transaction_id:) ||
-          AsyncTransaction::Vet360::Base.find_by!(user_uuid:, transaction_id:)
+          AsyncTransaction::VAProfile::Base.find_by!(user_uuid:, transaction_id:)
       end
 
       def self.update_transaction_from_api(transaction_record, api_response)

@@ -4,26 +4,26 @@ FactoryBot.define do
   factory :async_transaction, class: 'AsyncTransaction::Base' do
     sequence(:user_uuid, 100) { |n| "abcd789-6af0-45e1-a9e2-394347a#{n}" }
     sequence(:source_id, &:to_s)
-    source              { 'vet360' }
+    source              { 'VAProfile' }
     status              { AsyncTransaction::Base::REQUESTED }
     sequence(:transaction_id, 100) { |n| "r3fab2b5-6af0-45e1-a9e2-394347af9#{n}" }
     transaction_status { 'RECEIVED' }
     metadata { '{ "key1": "value1", "key2": "value2" }' }
 
-    factory :address_transaction, class: 'AsyncTransaction::Vet360::AddressTransaction' do
+    factory :address_transaction, class: 'AsyncTransaction::VAProfile::AddressTransaction' do
     end
 
-    factory :email_transaction, class: 'AsyncTransaction::Vet360::EmailTransaction' do
+    factory :email_transaction, class: 'AsyncTransaction::VAProfile::EmailTransaction' do
     end
 
-    factory :telephone_transaction, class: 'AsyncTransaction::Vet360::TelephoneTransaction' do
+    factory :telephone_transaction, class: 'AsyncTransaction::VAProfile::TelephoneTransaction' do
     end
 
-    factory :permission_transaction, class: 'AsyncTransaction::Vet360::PermissionTransaction' do
+    factory :permission_transaction, class: 'AsyncTransaction::VAProfile::PermissionTransaction' do
     end
 
-    factory :initialize_person_transaction, class: 'AsyncTransaction::Vet360::InitializePersonTransaction' do
-      trait :init_vet360_id do
+    factory :initialize_person_transaction, class: 'AsyncTransaction::VAProfile::InitializePersonTransaction' do
+      trait :init_VAProfile_id do
         source_id { nil }
       end
     end
@@ -42,7 +42,7 @@ FactoryBot.define do
 
     factory :va_profile_initialize_person_transaction,
             class: 'AsyncTransaction::VAProfile::InitializePersonTransaction' do
-      trait :init_vet360_id do
+      trait :init_VAProfile_id do
         source_id { nil }
       end
     end

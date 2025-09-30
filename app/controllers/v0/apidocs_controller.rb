@@ -189,7 +189,7 @@ module V0
       Swagger::Schemas::Appeals::NoticeOfDisagreement,
       Swagger::Schemas::ContactUs::SuccessfulInquiryCreation,
       Swagger::Schemas::ContactUs::InquiriesList,
-      Swagger::Schemas::AsyncTransaction::Vet360,
+      Swagger::Schemas::AsyncTransaction::VAProfile,
       Swagger::Schemas::BenefitsClaims,
       Swagger::Schemas::Countries,
       Swagger::Schemas::ConnectedApplications,
