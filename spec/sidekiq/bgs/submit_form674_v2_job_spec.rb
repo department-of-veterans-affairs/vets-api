@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'sidekiq/job_retry'
+require 'dependents/monitor'
 
 RSpec.describe BGS::SubmitForm674V2Job, type: :job do
   # Performance tweak
