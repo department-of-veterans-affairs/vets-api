@@ -34,7 +34,15 @@
           "type": "integer"
         },
         "care_systems":{
-          "type":"array"
+          "type":"array",
+          "items": {
+            "type": "object",
+            "required": ["station_number", "health_care_system_name"],
+            "properties": {
+              "station_number": { "type": "string" },
+              "health_care_system_name": { "type": "string" }
+            }
+          }
         },
         "sort": {
           "type": "object"
