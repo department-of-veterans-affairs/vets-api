@@ -1,0 +1,25 @@
+{
+  "data": {
+    "attributes": {
+      "veteran": {
+        "serviceNumber": "123678453",
+        "serviceBranch": "ARMY",
+        "address": {
+          "addressLine1": "2719 Hyperion Ave",
+          "city": "Los Angeles",
+          "countryCode": "US",
+          "stateCode": "CA",
+          "zipCode": "92264"
+        },
+        "phone": {
+          "phoneNumber": "5551234"
+        }
+      },
+      "representative": {
+        "poaCode": "067"
+      },
+      "recordConsent": true,
+      "consentAddressChange": true
+    }
+  }
+}

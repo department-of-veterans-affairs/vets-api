@@ -135,6 +135,21 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               end
             end
           end
+
+          context 'phone number must include countryCode or areaCode' do
+            let(:request_body) do
+              Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                              'power_of_attorney', 'request_representative', 'invalid_phone_missing_both.json').read
+            end
+
+            it 'returns a meaningful 422 when neither countryCode nor areaCode provided' do
+              mock_ccg(scopes) do |auth_header|
+                post request_path, params: request_body, headers: auth_header
+
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
         end
       end
 
