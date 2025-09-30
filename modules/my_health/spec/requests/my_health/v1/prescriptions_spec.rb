@@ -58,8 +58,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       end
 
       it 'responds to GET #show' do
-        VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription_v1') do
-          get '/my_health/v1/prescriptions/12284508'
+        VCR.use_cassette('rx_client/prescriptions/gets_a_single_grouped_prescription') do
+          get '/my_health/v1/prescriptions/24891624'
         end
 
         expect(response).to be_successful
@@ -68,8 +68,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       end
 
       it 'responds to GET #show with camel-inlfection' do
-        VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription_v1') do
-          get '/my_health/v1/prescriptions/12284508', headers: inflection_header
+        VCR.use_cassette('rx_client/prescriptions/gets_a_single_grouped_prescription') do
+          get '/my_health/v1/prescriptions/24891624', headers: inflection_header
         end
 
         expect(response).to be_successful
@@ -606,8 +606,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         end
 
         it 'includes prescription description fields' do
-          VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription_v1') do
-            get '/my_health/v1/prescriptions/12284508'
+          VCR.use_cassette('rx_client/prescriptions/gets_a_single_grouped_prescription') do
+            get '/my_health/v1/prescriptions/24891624'
           end
 
           expect(response).to be_successful
