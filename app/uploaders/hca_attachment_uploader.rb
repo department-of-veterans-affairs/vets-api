@@ -58,7 +58,6 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
     end
   end
 
-  # 2. Combined Conditional Method
   def should_convert_to_jpg?(file)
     png?(file) || heic?(file)
   end
