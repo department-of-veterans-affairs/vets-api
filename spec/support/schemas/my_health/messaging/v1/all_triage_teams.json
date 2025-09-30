@@ -33,6 +33,9 @@
         "associated_blocked_triage_groups": {
           "type": "integer"
         },
+        "care_systems":{
+          "type":"array"
+        },
         "sort": {
           "type": "object"
         }

@@ -43,7 +43,9 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
 
     it 'responds to GET #index' do
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
-        get '/my_health/v1/messaging/allrecipients'
+        VCR.use_cassette('sm_client/get_unique_care_systems') do
+          get '/my_health/v1/messaging/allrecipients'
+        end
       end
 
       expect(response).to be_successful
@@ -53,7 +55,9 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
 
     it 'responds to GET #index when camel-inflected' do
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
-        get '/my_health/v1/messaging/allrecipients', headers: { 'X-Key-Inflection' => 'camel' }
+        VCR.use_cassette('sm_client/get_unique_care_systems') do
+          get '/my_health/v1/messaging/allrecipients', headers: { 'X-Key-Inflection' => 'camel' }
+        end
       end
 
       expect(response).to be_successful
@@ -79,7 +83,9 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
 
       VCR.use_cassette('sm_client/session_require_oh') do
         VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_require_oh') do
-          get '/my_health/v1/messaging/allrecipients'
+          VCR.use_cassette('sm_client/get_unique_care_systems') do
+            get '/my_health/v1/messaging/allrecipients'
+          end
         end
       end
 
