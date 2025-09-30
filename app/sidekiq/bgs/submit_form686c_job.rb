@@ -101,7 +101,7 @@ module BGS
       )
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
-      monitor = Dependents::Monitor.new(saved_claim_id)
+      monitor = ::Dependents::Monitor.new(saved_claim_id)
       monitor.track_event('error', 'BGS::SubmitForm686cJob backup submission failed...',
                           "#{STATS_KEY}.backup_failure", { error: e.message, nested_error: e.cause&.message })
       InProgressForm.find_by(form_id: FORM_ID, user_uuid:)&.submission_pending!
