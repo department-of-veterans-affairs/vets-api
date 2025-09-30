@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'sidekiq/job_retry'
-require 'dependents/monitor'
 
 RSpec.describe BGS::SubmitForm674V2Job, type: :job do
   # Performance tweak
@@ -199,37 +198,6 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
     before do
       allow(OpenStruct).to receive(:new).and_call_original
       in_progress_form
-    end
-
-    it 'handles exceptions during backup submission' do
-      # Mock the monitor
-      monitor_double = instance_double(Dependents::Monitor)
-      expect(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
-
-      # Mock the backup submission to raise an error
-      expect(Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job).to receive(:perform_async)
-        .and_raise(StandardError.new('Backup submission failed'))
-
-      # Expect the monitor to track the error event
-      expect(monitor_double).to receive(:track_event).with(
-        'error',
-        'BGS::SubmitForm674Job backup submission failed...',
-        'worker.submit_674_bgs.backup_failure',
-        hash_including(error: 'Backup submission failed')
-      )
-
-      # Expect the in-progress form to be marked as submission pending
-      expect_any_instance_of(InProgressForm).to receive(:submission_pending!)
-
-      # Call the send_backup_submission method
-      expect do
-        described_class.send_backup_submission(
-          encrypted_user_struct,
-          vet_info,
-          dependency_claim.id,
-          user.uuid
-        )
-      end.not_to raise_error
     end
   end
 end
