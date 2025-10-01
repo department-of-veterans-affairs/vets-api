@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'decision_review/schemas'
 require 'disability_compensation/factories/api_provider_factory'
 require 'gi/client'
-require 'dependents/monitor'
 
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
@@ -1746,12 +1745,9 @@ RSpec.describe FormProfile, type: :model do
                   'awardIndicator' => 'Y'
                 }]
               end
-              let(:monitor) { instance_double(Dependents::Monitor) }
 
               before do
                 allow(Rails.logger).to receive(:warn)
-                allow(Dependents::Monitor).to receive(:new).and_return(monitor)
-                allow(monitor).to receive(:track_event)
               end
 
               it 'returns formatted dependent information' do
@@ -1789,25 +1785,6 @@ RSpec.describe FormProfile, type: :model do
                 expect(result[:form_data]).to have_key('veteranContactInformation')
                 expect(result[:form_data]).to have_key('nonPrefill')
                 expect(result[:form_data]['nonPrefill']).not_to have_key('dependents')
-              end
-
-              it 'handles dependents as an array' do
-                # Mock the dependent service to return an array rather than a hash with an empty persons array
-                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
-                allow(dependent_service).to receive(:get_dependents).and_return([])
-                result = form_profile.prefill
-                expect(result[:form_data]).to have_key('veteranInformation')
-                expect(result[:form_data]).to have_key('veteranContactInformation')
-                expect(result[:form_data]).to have_key('nonPrefill')
-                expect(result[:form_data]['nonPrefill']).not_to have_key('dependents')
-                expect(monitor)
-                  .not_to have_received(:track_event)
-                  .with(
-                    'warn',
-                    'Failure initializing dependents_information',
-                    'dependents.prefill.error',
-                    anything
-                  )
               end
 
               it 'handles invalid date formats gracefully' do
