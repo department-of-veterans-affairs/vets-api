@@ -112,9 +112,7 @@ module DependentsBenefits
     end
 
     def all_child_groups_succeeded?
-      SavedClaimGroup.where(parent_claim_id: parent_group.parent_claim_id)
-                     .where.not(saved_claim_id: parent_group.parent_claim_id)
-                     .all?(&:succeeded?)
+      SavedClaimGroup.child_claims_for(parent_claim_id).all?(&:succeeded?)
     end
 
     # Distinguishes permanent vs transient failures for retry logic
@@ -218,11 +216,11 @@ module DependentsBenefits
     end
 
     def current_group
-      SavedClaimGroup.find_by!(saved_claim_id: claim_id)
+      SavedClaimGroup.by_saved_claim_id(claim_id)&.first
     end
 
     def parent_group
-      SavedClaimGroup.find_by!(saved_claim_id: current_group&.parent_claim_id)
+      SavedClaimGroup.by_saved_claim_id(parent_claim_id)&.first
     end
 
     def saved_claim
@@ -231,6 +229,10 @@ module DependentsBenefits
 
     def monitor
       @monitor ||= DependentsBenefits::Monitor.new
+    end
+
+    def parent_claim_id
+      @parent_claim_id ||= current_group&.parent_claim_id
     end
   end
 end
