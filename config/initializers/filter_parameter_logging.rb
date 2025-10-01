@@ -82,7 +82,10 @@ ALLOWLIST = %w[
 Rails.application.config.filter_parameters = [
   lambda do |k, v|
     # Base case for all other types (String, Integer, Symbol, Class, nil, etc.)
-    return '[FILTERED]' if k && ALLOWLIST.exclude?(k.to_s)
+    if k && ALLOWLIST.exclude?(k.to_s)
+      can_replace = v.respond_to?(:replace) && v.is_a?(String)
+      return (can_replace) ? v.replace('[FILTERED]') : '[FILTERED]'
+    end
 
     case v
     when ActionDispatch::Http::UploadedFile # Base case
