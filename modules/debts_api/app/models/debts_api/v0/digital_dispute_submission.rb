@@ -4,6 +4,9 @@ module DebtsApi
   module V0
     class DigitalDisputeSubmission < ApplicationRecord
       STATS_KEY = 'api.digital_dispute_submission'
+      SUBMISSION_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_submission_email
+      CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_confirmation_email
+      FAILURE_TEMPLATE = Settings.vanotify.services.dmc.template_id.digital_dispute_failure_email
       self.table_name = 'digital_dispute_submissions'
       belongs_to :user_account, dependent: nil, optional: false
       has_many_attached :files
@@ -52,11 +55,28 @@ module DebtsApi
 
       def register_failure(message)
         failed!
-        update(error_message: message)
+        update(
+          error_message: message.presence ||
+            "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
+        )
+        begin
+          send_failure_email if Settings.vsp_environment == 'production' &&
+                                Flipper.enabled?(:digital_dispute_email_notifications)
+        rescue
+          StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue.failure")
+        end
       end
 
       def register_success
         submitted!
+        StatsD.increment("#{STATS_KEY}.success")
+        send_success_email if Settings.vsp_environment == 'production' &&
+                              Flipper.enabled?(:digital_dispute_email_notifications)
+      end
+
+      def clean_up_failure
+        files.each(&:purge)
+        destroy
       end
 
       private
@@ -87,6 +107,54 @@ module DebtsApi
 
       def extract_dispute_reasons(disputes)
         disputes.map { |d| d[:dispute_reason] }.compact.uniq
+      end
+
+      def send_success_email
+        StatsD.increment("#{STATS_KEY}.send_success_email.enqueue")
+        user = User.find(user_uuid)
+        return if user&.email.blank?
+
+        DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_async(
+          {
+            'submission_type' => 'digital_dispute',
+            'email' => user.email,
+            'first_name' => user.first_name,
+            'user_uuid' => user.uuid,
+            'template_id' => CONFIRMATION_TEMPLATE
+          }
+        )
+      rescue => e
+        StatsD.increment("#{STATS_KEY}.send_success_email.failure")
+        Rails.logger.error("Failed to send digital dispute success email: #{e.message}")
+        nil
+      end
+
+      def send_failure_email
+        StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
+        user = User.find(user_uuid)
+        return if user&.email.blank?
+
+        submission_email = user.email.downcase
+        DebtManagementCenter::VANotifyEmailJob.perform_in(
+          24.hours,
+          submission_email,
+          FAILURE_TEMPLATE,
+          failure_email_personalization_info(user),
+          { id_type: 'email', failure_mailer: true }
+        )
+      rescue => e
+        StatsD.increment("#{STATS_KEY}.send_failed_form_email.failure")
+        Rails.logger.error("Failed to send digital dispute failure email: #{e.message}")
+        nil
+      end
+
+      def failure_email_personalization_info(user)
+        {
+          'first_name' => user.first_name,
+          'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
+          'updated_at' => updated_at,
+          'confirmation_number' => id
+        }
       end
     end
   end

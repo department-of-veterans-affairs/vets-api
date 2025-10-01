@@ -31,11 +31,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
   end
   let(:form4142) { JSON.parse(form_json)['form4142'].merge({ 'signatureDate' => received_date }) }
 
-  before do
-    # By default, this flag is enabled in test environments, turning this off so we are using 2018 form
-    allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
-  end
-
   describe '#initialize' do
     context 'when schema validation is not enabled' do
       before do
@@ -57,7 +52,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
     context 'when schema validation flag is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
       end
 
       context 'with valid form data' do
@@ -65,7 +59,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
           expect(PdfFill::Filler).to receive(:fill_ancillary_form)
             .and_call_original
             .once
-            .with(form4142, anything, described_class::FORM_SCHEMA_ID)
+            .with(form4142, anything, described_class::FORM_CLASS_ID_2024)
           # Note on the expectation: #anything is a special keyword that matches any argument.
           # We used it here since the uuid is created at runtime.
 
@@ -196,7 +190,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
   end
 
   describe 'PDF version selection via feature flag' do
-    let(:template_flag) { :decision_review_form4142_use_2024_template }
     let(:validation_flag) { :decision_review_form4142_validate_schema }
 
     before do
@@ -206,29 +199,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
     end
 
     describe 'template selection logic' do
-      context 'with legacy template (flag disabled)' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(template_flag).and_return(false)
-        end
-
-        it 'selects 2018 legacy form class ID' do
-          expect(processor.send(:generate_2024_version?)).to be false
-          expect(processor.send(:selected_form_class_id)).to eq('21-4142')
-        end
-
-        it 'calls PDF filler with 2018 legacy form ID' do
-          expect(PdfFill::Filler).to receive(:fill_ancillary_form)
-            .with(hash_including('veteranFullName' => anything), anything, '21-4142')
-
-          processor
-        end
-      end
-
       context 'with 2024 template (flag enabled)' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(template_flag).and_return(true)
-        end
-
         it 'selects 2024 form class ID' do
           expect(processor.send(:generate_2024_version?)).to be true
           expect(processor.send(:selected_form_class_id)).to eq('21-4142-2024')
@@ -245,19 +216,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
           # Assuming the test data includes signature information
           expect(processor.send(:needs_signature_stamp?)).to be true
         end
-      end
-    end
-
-    describe 'feature flag integration' do
-      it 'correctly reads the team-specific template flag' do
-        expect(Flipper).to receive(:enabled?).with(template_flag).and_return(true)
-        processor.send(:generate_2024_version?)
-      end
-
-      it 'defaults to legacy when flag is not set' do
-        allow(Flipper).to receive(:enabled?).with(template_flag).and_return(false)
-
-        expect(processor.send(:generate_2024_version?)).to be false
       end
     end
   end

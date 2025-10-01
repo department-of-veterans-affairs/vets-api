@@ -1,0 +1,114 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <CLAIMS_API_BD_URL>/oauth2/benefits-documents/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=< valid data >
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 19 Aug 2025 18:01:26 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '240'
+      Ratelimit-Reset:
+      - '35'
+      X-Ratelimit-Remaining-Minute:
+      - '239'
+      Ratelimit-Limit:
+      - '240'
+      Ratelimit-Remaining:
+      - '239'
+      Vary:
+      - Origin
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Etag:
+      - W/"408-N4OKDs3eqE7VqLW1ousBfq2642U:dtagent10317250630095842XDWE"
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="-1714452287"
+      X-Envoy-Upstream-Service-Time:
+      - '380'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - 0625aa56-2142-4d4b-864b-17c3ebdbd255#446373
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"token","token_type":"Bearer","scope":"documents.write
+        documents.read","expires_in":600,"state":null}'
+  recorded_at: Tue, 19 Aug 2025 18:01:26 GMT
+- request:
+    method: post
+    uri: "<FES_BASE_URL>/form526-establishment-service/v1/submit"
+    body:
+      encoding: UTF-8
+      string: '{"data":{"serviceTransactionId":"claims-api-6913cb91-f077-4368-baf3-1bb642ffc0dd-1755612075","claimantParticipantId":"600049703","veteranParticipantId":"600049703","form526":{"serviceInformation":{"servicePeriods":[{"serviceBranch":"AIR\\n
+        Force","activeDutyBeginDate":"2015-11-14","activeDutyEndDate":"2018-11-30"}]},"veteran":{"currentMailingAddress":{"addressLine1":"1234
+        Couch Street","country":"USA","zipFirstFive":"12345","addressType":"DOMESTIC","city":"Portland","state":"OR"}},"disabilities":[{"name":"hearing
+        loss","disabilityActionType":"NEW","approximateBeginDate":{"year":2017,"month":7}}],"claimDate":"2025-08-19"}}}'
+    headers:
+      Va-Eauth-Pid:
+      - '600043201'
+      Authorization: Bearer <TOKEN>
+      Content-Type:
+      - application/json; charset=UTF-8
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Tue, 19 Aug 2025 18:01:26 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="674407375", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      Cache-Control:
+      - no-cache, no-store
+      X-Envoy-Upstream-Service-Time:
+      - '177'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"data":{"valid":false,"errors":[{"status":"400","title":"Invalid service
+        period branch name","detail":"Provided service period branch name is not valid:
+        AIR\\n Force","source":{"pointer":"/data/form526/serviceInformation/servicePeriods/0/serviceBranch"}}]}}'
+  recorded_at: Tue, 19 Aug 2025 18:01:26 GMT
+recorded_with: VCR 6.3.1

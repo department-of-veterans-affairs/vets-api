@@ -14,8 +14,6 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
 
     before do
       sign_in(user)
-      Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-      Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
     end
 
     # The following provides a description of the different termination reason codes:
@@ -147,7 +145,6 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
         it 'returns 400 with nil service history' do
           VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500') do
             get '/v0/profile/service_history'
-
             expect(response).to have_http_status(:bad_request)
           end
         end

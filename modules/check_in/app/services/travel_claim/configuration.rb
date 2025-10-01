@@ -12,6 +12,10 @@ module TravelClaim
   class Configuration < Common::Client::Configuration::REST
     include Singleton
 
+    # Override default timeouts to handle multiple external API calls in travel claims submission
+    self.open_timeout = 30  # Connection establishment timeout
+    self.read_timeout = 30  # Response timeout for external API calls
+
     ##
     # @!attribute [w] server_url
     #   @return [String, nil] Custom server URL that overrides the default base_path
@@ -33,27 +37,30 @@ module TravelClaim
     # @return [String] The service name identifier
     #
     def service_name
-      'TravelClaim'
+      Settings.check_in.travel_reimbursement_api_v2.service_name
     end
 
     ##
     # Creates and configures a Faraday connection with the complete middleware stack.
-    # The connection includes:
+    # The connection is memoized per server_url to avoid recreating connections
+    # for the same endpoint. The connection includes:
     # - Circuit breaker middleware for fault tolerance
     # - JSON request/response processing
     # - Custom error handling with service-specific prefixes
     # - Mock response support for testing environments
     #
-    # @return [Faraday::Connection] Configured HTTP connection
+    # @param server_url [String] The base URL for the connection (defaults to base_path)
+    # @return [Faraday::Connection] Configured HTTP connection (memoized per server_url)
     #
-    def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+    def connection(server_url: base_path)
+      @__conn_pool__ ||= {}
+      @__conn_pool__[server_url] ||= Faraday.new(url: server_url, headers: base_request_headers,
+                                                 request: request_options) do |conn|
         conn.use(:breakers, service_name:)
         conn.request :json
         conn.response :json
         conn.response :raise_custom_error, error_prefix: service_name, include_request: true
         conn.response :betamocks if mock_enabled?
-
         conn.adapter Faraday.default_adapter
       end
     end

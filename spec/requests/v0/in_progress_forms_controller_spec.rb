@@ -14,7 +14,6 @@ RSpec.describe V0::InProgressFormsController do
     before do
       sign_in_as(user)
       allow(Flipper).to receive(:enabled?).with(:in_progress_form_custom_expiration).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       enabled_forms = FormProfile.prefill_enabled_forms << 'FAKEFORM'
       allow(FormProfile).to receive(:prefill_enabled_forms).and_return(enabled_forms)
       allow(FormProfile).to receive(:load_form_mapping).and_call_original
@@ -196,10 +195,6 @@ RSpec.describe V0::InProgressFormsController do
       end
 
       context 'for an MDOT form sans addresses' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-        end
-
         let(:user_details) do
           {
             first_name: 'Greg',
@@ -236,17 +231,15 @@ RSpec.describe V0::InProgressFormsController do
             'veteranDateOfBirth' => user.birth_date,
             'veteranSocialSecurityNumber' => user.ssn.to_s,
             'veteranAddress' => {
-              'street' => street_check[:street],
-              'street2' => street_check[:street2],
-              'city' => user.address[:city],
-              'state' => user.address[:state],
-              'country' => user.address[:country],
-              'postalCode' => user.address[:postal_code].slice(0, 5)
+              'street' => '140 Rock Creek Rd',
+              'city' => 'Washington',
+              'state' => 'DC',
+              'country' => 'USA',
+              'postalCode' => '20011'
             },
-            'homePhone' => "#{phone_response.country_code}#{phone_response.number}#{phone_response.extension}"
+            'homePhone' => '3035551234'
           }
         end
-        let(:phone_response) { stub_evss_pciu(user).second }
 
         it 'returns pre-fill data' do
           expected_data
@@ -298,7 +291,6 @@ RSpec.describe V0::InProgressFormsController do
       let(:user) { loa3_user }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:intent_to_file_lighthouse_enabled,
                                                   instance_of(User)).and_return(true)
       end
@@ -391,18 +383,7 @@ RSpec.describe V0::InProgressFormsController do
         end
 
         context 'when form type is pension' do
-          let(:itf_job) { Lighthouse::CreateIntentToFileJob.new }
-
-          before do
-            allow(Lighthouse::CreateIntentToFileJob).to receive(:perform_async)
-            allow(Lighthouse::CreateIntentToFileJob).to receive(:new).and_return(itf_job)
-            allow(itf_job).to receive(:perform)
-          end
-
-          it 'calls synchronous CreateIntentToFileJob for newly created forms' do
-            expect(Flipper).to receive(:enabled?).with(:intent_to_file_synchronous_enabled,
-                                                       instance_of(User)).and_return(true)
-
+          it 'creates pension form successfully' do
             put v0_in_progress_form_url('21P-527EZ'),
                 params: {
                   formData: new_form.form_data,
@@ -410,9 +391,9 @@ RSpec.describe V0::InProgressFormsController do
                 }.to_json,
                 headers: { 'CONTENT_TYPE' => 'application/json' }
 
+            expect(response).to have_http_status(:ok)
             latest_form = InProgressForm.last
-            expect(itf_job).to have_received(:perform).with(latest_form.id, user.icn, user.participant_id)
-            expect(Lighthouse::CreateIntentToFileJob).not_to have_received(:perform_async)
+            expect(latest_form.form_id).to eq('21P-527EZ')
           end
         end
       end

@@ -14,10 +14,10 @@ module PdfFill
       KEY = PdfFill::Forms::FieldMappings::Va1010ezr::KEY
 
       DEPENDENT_RELATIONSHIP = {
+        'Son' => 3,
         'Daughter' => 2,
-        'Son' => 1,
-        'Stepdaughter' => 4,
-        'Stepson' => 3
+        'Stepson' => 1,
+        'Stepdaughter' => 0
       }.freeze
 
       ETHNICITY_MAP = {
@@ -44,11 +44,11 @@ module PdfFill
       }.freeze
 
       MARITAL_STATUS = {
-        'Divorced' => 5,
-        'Married' => 1,
-        'Never Married' => 2,
-        'Separated' => 3,
-        'Widowed' => 4
+        'Married' => 0,
+        'Never Married' => 1,
+        'Separated' => 2,
+        'Widowed' => 3,
+        'Divorced' => 4
       }.freeze
 
       SEX = {
@@ -185,33 +185,44 @@ module PdfFill
       end
 
       def merge_single_dependent
-        dependent = @form_data['dependents'].first
+        dependent_copy = @form_data['dependents'][0].deep_dup
 
-        dependent['fullName'] = FORMATTER.format_full_name(dependent['fullName'])
-        dependent['dateOfBirth'] = FORMATTER.format_date(dependent['dateOfBirth'])
-        dependent['becameDependent'] = FORMATTER.format_date(dependent['becameDependent'])
+        dependent_copy['fullName'] = FORMATTER.format_full_name(dependent_copy['fullName'])
+        dependent_copy['dateOfBirth'] = FORMATTER.format_date(dependent_copy['dateOfBirth'])
+        dependent_copy['becameDependent'] = FORMATTER.format_date(dependent_copy['becameDependent'])
 
-        dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[dependent['dependentRelation']] || OFF
-        dependent['attendedSchoolLastYear'] = map_select_value(dependent['attendedSchoolLastYear'])
-        dependent['disabledBefore18'] = map_select_value(dependent['disabledBefore18'])
-        dependent['cohabitedLastYear'] = map_select_value(dependent['cohabitedLastYear'])
+        dependent_copy['receivedSupportLastYear'] =
+          map_select_value(dependent_copy['receivedSupportLastYear'])
+        dependent_copy['dependentRelation'] = DEPENDENT_RELATIONSHIP[dependent_copy['dependentRelation']] || OFF
+        dependent_copy['attendedSchoolLastYear'] = map_select_value(dependent_copy['attendedSchoolLastYear'])
+        dependent_copy['disabledBefore18'] = map_select_value(dependent_copy['disabledBefore18'])
+        dependent_copy['cohabitedLastYear'] = map_select_value(dependent_copy['cohabitedLastYear'])
+
+        @form_data['dependents'][0] = dependent_copy
       end
 
       def merge_multiple_dependents
-        @form_data['dependents'].each do |dependent|
-          dependent['fullName'] = FORMATTER.format_full_name(dependent['fullName'])
-          dependent['dateOfBirth'] = FORMATTER.format_date(dependent['dateOfBirth'])
-          dependent['becameDependent'] = FORMATTER.format_date(dependent['becameDependent'])
+        @form_data['dependents'] = @form_data['dependents'].map do |dependent|
+          dependent_copy = dependent.deep_dup
 
-          dependent['dependentEducationExpenses'] = FORMATTER.format_currency(dependent['dependentEducationExpenses'])
-          dependent['grossIncome'] = FORMATTER.format_currency(dependent['grossIncome'])
-          dependent['netIncome'] = FORMATTER.format_currency(dependent['netIncome'])
-          dependent['otherIncome'] = FORMATTER.format_currency(dependent['otherIncome'])
+          dependent_copy['fullName'] = FORMATTER.format_full_name(dependent_copy['fullName'])
+          dependent_copy['dateOfBirth'] = FORMATTER.format_date(dependent_copy['dateOfBirth'])
+          dependent_copy['becameDependent'] = FORMATTER.format_date(dependent_copy['becameDependent'])
+
+          dependent_copy['dependentEducationExpenses'] = FORMATTER.format_currency(
+            dependent_copy['dependentEducationExpenses']
+          )
+          dependent_copy['receivedSupportLastYear'] = map_select_value(dependent_copy['receivedSupportLastYear'])
+          dependent_copy['grossIncome'] = FORMATTER.format_currency(dependent_copy['grossIncome'])
+          dependent_copy['netIncome'] = FORMATTER.format_currency(dependent_copy['netIncome'])
+          dependent_copy['otherIncome'] = FORMATTER.format_currency(dependent_copy['otherIncome'])
+
+          dependent_copy
         end
       end
 
       def merge_dependents
-        merge_value('provideSupportLastYear', :map_select_value)
+        merge_provide_support_last_year
 
         return if @form_data['dependents'].blank?
 
@@ -225,18 +236,32 @@ module PdfFill
         end
       end
 
-      def merge_single_association(type)
-        association = @form_data[type].first
+      # True if either `provideSupportLastYear` (spouse) or any of dependents `receivedSupportLastYear` is true
+      def merge_provide_support_last_year
+        if @form_data['dependents'].blank?
+          merge_value('provideSupportLastYear', :map_select_value)
+          return
+        end
 
-        association['fullName'] = FORMATTER.format_full_name(association['fullName'])
-        association['address'] = combine_full_address(association['address'])
-        association['primaryPhone'] = format_phone_number(association['primaryPhone'])
+        dependent_received_support = @form_data['dependents'].any? do |dependent|
+          dependent['receivedSupportLastYear']
+        end
+
+        @form_data['provideSupportLastYear'] =
+          map_select_value(@form_data['provideSupportLastYear'] || dependent_received_support)
       end
 
       def merge_associations(type)
         return if @form_data[type].blank?
 
-        merge_single_association(type)
+        @form_data[type] = @form_data[type].map do |association|
+          association_copy = association.deep_dup
+          association_copy['fullName'] = FORMATTER.format_full_name(association_copy['fullName'])
+          association_copy['address'] = combine_full_address(association_copy['address'])
+          association_copy['primaryPhone'] = format_phone_number(association_copy['primaryPhone'])
+
+          association_copy
+        end
       end
 
       def merge_value(type, method_name)

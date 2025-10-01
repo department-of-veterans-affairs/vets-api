@@ -107,7 +107,7 @@ module ClaimsEvidenceApi
     # create/retrieve the submission record for the claim and attachment
     # and create a new submission_attempt
     #
-    # @param saved_claim [SavedClaim] the claim to be submitted
+    # @param saved_claim_id [Integer] the db id for the claim to be submitted
     # @param persistent_attachment_id [Integer] the db id for the attachment
     #
     # @return [ClaimsEvidenceApi::SubmissionAttempt]
@@ -130,13 +130,20 @@ module ClaimsEvidenceApi
     # @param doctype [Integer|String] document type of the file
     def perform_upload(file_path, va_received_at = Time.zone.now, doctype = 10)
       attempt.metadata = provider_data = {
-        contentSource: 'VA.gov', # schema/properties/contentSource
-        dateVaReceivedDocument: DateTime.parse(va_received_at.to_s).strftime('%Y-%m-%d'),
+        contentSource: ClaimsEvidenceApi::CONTENT_SOURCE,
+        dateVaReceivedDocument: format_datetime(va_received_at),
         documentTypeId: doctype
       }
       attempt.save
 
       @response = @service.upload(file_path, provider_data:)
+    end
+
+    # modify the file upload date to be in the expected zone and format
+    #
+    # @param datetime [DateTime] datetime of when the va received the file
+    def format_datetime(datetime)
+      DateTime.parse(datetime.to_s).in_time_zone(ClaimsEvidenceApi::TIMEZONE).strftime('%Y-%m-%d')
     end
 
     # update the tracking records with the result of the attempt
@@ -156,8 +163,7 @@ module ClaimsEvidenceApi
     def attempt_failed(error)
       return unless attempt
 
-      error_message = error.body if error.respond_to?('body')
-      error_message ||= error.message
+      error_message = error.respond_to?('body') ? error.body : error.message
 
       attempt.status = 'failed'
       attempt.error_message = error_message

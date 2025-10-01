@@ -23,10 +23,14 @@ module DebtsApi
 
       def call
         submission = create_submission_record
+        transaction_log = DebtTransactionLog.track_dispute(submission, @user)
         return duplicate_submission_result(submission) if check_duplicate?(submission)
 
         send_to_dmc
+        transaction_log&.mark_submitted
+        send_submission_email if email_notifications_enabled?
         submission.register_success
+        transaction_log&.mark_completed
         in_progress_form&.destroy
 
         success_result(submission)
@@ -34,6 +38,7 @@ module DebtsApi
         failure_result(e)
       rescue => e
         submission&.register_failure(e.message)
+        transaction_log&.mark_failed
         failure_result(e)
       end
 
@@ -150,6 +155,23 @@ module DebtsApi
                   end
 
         base_hash.merge!(details)
+      end
+
+      def email_notifications_enabled?
+        Flipper.enabled?(:digital_dispute_email_notifications) && @user.email.present?
+      end
+
+      def send_submission_email
+        DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_in(
+          5.minutes,
+          {
+            'submission_type' => 'digital_dispute',
+            'email' => @user.email,
+            'first_name' => @user.first_name,
+            'user_uuid' => @user.uuid,
+            'template_id' => DigitalDisputeSubmission::SUBMISSION_TEMPLATE
+          }
+        )
       end
     end
   end
