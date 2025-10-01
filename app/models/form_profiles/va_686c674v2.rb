@@ -113,13 +113,6 @@ class FormProfiles::VA686c674v2 < FormProfile
   # If no dependents are found or if they are not active for benefits, it returns an empty array.
   def prefill_dependents_information
     dependents = dependent_service.get_dependents
-    # Temporary tracking to understand data structure during failures
-    monitor.track_event(
-      'info',
-      "Get dependents data: #{dependents.class}",
-      'dependents.data.structure',
-      { dependents: }
-    )
     persons = if dependents.blank? || dependents[:persons].blank?
                 []
               else
