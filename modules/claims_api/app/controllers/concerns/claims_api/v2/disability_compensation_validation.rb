@@ -15,7 +15,6 @@ module ClaimsApi
         4 => 'yyyy'
       }.freeze
 
-      BDD_LOWER_LIMIT = 90
       BDD_UPPER_LIMIT = 180
 
       CLAIM_DATE = Time.find_zone!('Central Time (US & Canada)').today.freeze
@@ -924,13 +923,11 @@ module ClaimsApi
         unless active_dates.compact.any? do |a|
           next unless date_is_valid?(a, 'serviceInformation/servicePeriods/activeDutyEndDate', true)
 
-          Date.strptime(a, '%Y-%m-%d').between?(claim_date.next_day(BDD_LOWER_LIMIT),
-                                                claim_date.next_day(BDD_UPPER_LIMIT))
+          Date.strptime(a, '%Y-%m-%d') < claim_date.next_day(BDD_UPPER_LIMIT)
         end
           collect_error_messages(
             source: '/serviceInformation/servicePeriods/',
-            detail: "Must have an activeDutyEndDate or anticipatedSeparationDate between #{BDD_LOWER_LIMIT}" \
-                    " & #{BDD_UPPER_LIMIT} days from claim date."
+            detail: 'Must have an activeDutyEndDate or anticipatedSeparationDate within 180 days from claim date.'
           )
         end
       end
