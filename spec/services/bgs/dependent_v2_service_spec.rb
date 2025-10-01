@@ -29,7 +29,7 @@ RSpec.describe BGS::DependentV2Service do
 
   before do
     # TODO: add user_account_id back once the DB migration is done
-    allow(claim).to receive_messages(id: '1234', use_v2: true,
+    allow(claim).to receive_messages(id: '1234', use_v2: true, form_id: '686C-674-V2',
                                      submittable_686?: false, submittable_674?: true, add_veteran_info: true,
                                      valid?: true, persistent_attachments: [], upload_pdf: true)
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
@@ -491,8 +491,7 @@ RSpec.describe BGS::DependentV2Service do
       allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).and_raise(StandardError)
       expect(Rails.logger).to receive(:warn)
       expect do
-        service.send(:submit_pdf_job, claim:,
-                                      encrypted_vet_info:)
+        service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
       end.to raise_error(BGS::DependentV2Service::PDFSubmissionError)
     end
   end

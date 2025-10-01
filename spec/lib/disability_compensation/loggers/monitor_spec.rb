@@ -14,7 +14,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         user_account_uuid: '1234',
         claim_id: '1234',
         form_id: described_class::FORM_ID,
-        tags: [],
+        tags: ["form_id:21-526EZ-ALLCLAIMS"],
         additional_context_key: 'value'
       }
 
@@ -31,7 +31,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         :error,
         'Example message',
         described_class::CLAIM_STATS_KEY,
-        payload
+        **payload
       )
     end
   end

@@ -436,8 +436,7 @@ RSpec.describe BGS::DependentService do
       allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).and_raise(StandardError)
       expect(Rails.logger).to receive(:warn)
       expect do
-        service.send(:submit_pdf_job, claim:,
-                                      encrypted_vet_info:)
+        service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
       end.to raise_error(BGS::DependentService::PDFSubmissionError)
     end
   end

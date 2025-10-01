@@ -148,10 +148,11 @@ module Dependents
     end
 
     def track_event(level, message, stats_key, payload = {})
-      submit_event(level, message, stats_key, default_payload.merge(payload))
+      payload = default_payload.merge(payload)
+      submit_event(level, message, stats_key, **payload)
     rescue => e
       Rails.logger.error('Dependents::Monitor#track_event error',
-                         { level:, message:, stats_key:, payload:, error: e.message })
+                         level:, message:, stats_key:, payload:, error: e.message)
     end
   end
 end
