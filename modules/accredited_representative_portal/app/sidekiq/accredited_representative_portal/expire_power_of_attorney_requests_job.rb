@@ -51,6 +51,7 @@ module AccreditedRepresentativePortal
     # Returns true on success, false on failure
     def attempt_expiration(request)
       expire_request(request)
+      Monitoring.new.track_count('ar.poa.request.expired.count')
       true
     rescue => e
       log_expiration_error(request, e)

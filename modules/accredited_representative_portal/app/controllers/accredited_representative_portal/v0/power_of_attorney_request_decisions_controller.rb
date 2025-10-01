@@ -57,6 +57,7 @@ module AccreditedRepresentativePortal
           current_user.power_of_attorney_holder_memberships
         ).call
 
+        track_accepted_metrics
         render json: {}, status: :ok
       end
 
@@ -83,6 +84,11 @@ module AccreditedRepresentativePortal
       def track_declination_metrics
         Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
         Monitoring.new.track_duration('ar.poa.request.declined.duration', from: @poa_request.created_at)
+      end
+
+      def track_accepted_metrics
+        Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
+        Monitoring.new.track_duration('ar.poa.request.accepted.duration', from: @poa_request.created_at)
       end
 
       def render_invalid_type_error
