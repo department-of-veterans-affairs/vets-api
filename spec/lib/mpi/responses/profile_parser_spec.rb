@@ -463,15 +463,16 @@ describe MPI::Responses::ProfileParser do
 
   context 'with inactive MHV ID edge cases' do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_inactive_mhv_ids.xml')) }
+    let(:expected_mhv_ids) { %w[12345678901 12345678902] }
 
     it 'logs warning about inactive IDs to Rails logger' do
       expect(Rails.logger).to receive(:info).with(
         '[MPI][Responses][ProfileParser] Inactive MHV correlation IDs present',
-        ids: %w[12345678901 12345678902]
+        ids: expected_mhv_ids
       )
       expect(Rails.logger).to receive(:warn).with(
         '[MPI][Responses][ProfileParser] Returning inactive MHV correlation ID as first identifier',
-        ids: %w[12345678901 12345678902]
+        ids: expected_mhv_ids
       )
 
       parser.parse
