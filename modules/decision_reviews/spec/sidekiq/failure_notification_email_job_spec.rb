@@ -98,7 +98,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
       callback_klass, function, template_id = job.send(:get_callback_config, :evidence, 'NOD')
 
       expect(callback_klass).to eq(DecisionReviews::EvidenceNotificationCallback)
-      expect(function).to eq('evidence submission to Lighthouse')
+      expect(function).to eq('evidence submission to lighthouse')
       expect(template_id).to eq('fake_nod_evidence_template_id')
     end
 
@@ -106,7 +106,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
       callback_klass, function, template_id = job.send(:get_callback_config, :secondary_form, 'HLR')
 
       expect(callback_klass).to eq(DecisionReviews::EvidenceNotificationCallback)
-      expect(function).to eq('secondary form submission to Lighthouse')
+      expect(function).to eq('secondary form submission to lighthouse')
       expect(template_id).to eq('fake_sc_secondary_form_template_id')
     end
   end
@@ -144,11 +144,11 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           callback_metadata: {
             email_type: :error,
             service_name: 'supplemental-claims',
-            function: 'evidence submission to Lighthouse',
+            function: 'evidence submission to lighthouse',
             submitted_appeal_uuid: guid1,
             email_template_id: 'fake_sc_evidence_template_id',
             reference:,
-            statsd_tags: ['service:supplemental-claims', 'function:evidence submission to Lighthouse']
+            statsd_tags: ['service:supplemental-claims', 'function:evidence submission to lighthouse']
           }
         }
       ).and_return(vanotify_service)
@@ -414,10 +414,10 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
               email_template_id: 'fake_nod_evidence_template_id',
               email_type: :error,
               service_name: 'board-appeal',
-              function: 'evidence submission to Lighthouse',
+              function: 'evidence submission to lighthouse',
               submitted_appeal_uuid: guid1,
               reference:,
-              statsd_tags: ['service:board-appeal', 'function:evidence submission to Lighthouse']
+              statsd_tags: ['service:board-appeal', 'function:evidence submission to lighthouse']
             }
           }
 
@@ -514,10 +514,10 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
                 email_template_id: 'fake_sc_secondary_form_template_id',
                 email_type: :error,
                 service_name: 'supplemental-claims',
-                function: 'secondary form submission to Lighthouse',
+                function: 'secondary form submission to lighthouse',
                 submitted_appeal_uuid: guid1,
                 reference:,
-                statsd_tags: ['service:supplemental-claims', 'function:secondary form submission to Lighthouse']
+                statsd_tags: ['service:supplemental-claims', 'function:secondary form submission to lighthouse']
               }
             }
 
