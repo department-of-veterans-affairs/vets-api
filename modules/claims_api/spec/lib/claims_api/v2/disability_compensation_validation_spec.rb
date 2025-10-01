@@ -5,7 +5,7 @@ require 'claims_api/v2/disability_compensation_validation'
 
 # Calling private methods so needed to wrap it in a class
 class TestDisabilityCompensationValidationClass
-  include ClaimsApi::V2::AltRevisedDisabilityCompensationValidation
+  include ClaimsApi::V2::DisabilityCompensationValidation
 
   attr_accessor :request, :params
 
