@@ -15,7 +15,6 @@ module ClaimsApi
         4 => 'yyyy'
       }.freeze
 
-      BDD_LOWER_LIMIT = 90
       BDD_UPPER_LIMIT = 180
 
       CLAIM_DATE = Time.find_zone!('Central Time (US & Canada)').today.freeze
