@@ -79,12 +79,16 @@ module EVSS
         hazard: 'hazard'
       }.freeze
 
+      def initialize(pdf_request: false)
+        @pdf_request = pdf_request
+      end
+
       # takes known EVSS Form526Submission format and converts it to a Lighthouse request body
       # @param evss_data will look like JSON.parse(form526_submission.form_data)
       # @return Requests::Form526
       def transform(evss_data)
         form526 = evss_data['form526']
-        lh_request_body = Requests::Form526.new
+        lh_request_body = choose_request_body(form526)
         lh_request_body.claimant_certification = true
         lh_request_body.claim_process_type = evss_claims_process_type(form526) # basic_info[:claim_process_type]
 
@@ -110,20 +114,31 @@ module EVSS
 
         lh_request_body.claim_notes = form526['overflowText']
 
-        transform_claim_date(form526, lh_request_body) if Flipper.enabled?(:disability_526_add_claim_date_to_lighthouse)
-
         lh_request_body
       end
 
       private
 
-      def valid_date_for_lighthouse?(date_string)
-        date_string =~ VALID_LH_DATE_REGEX
+      def choose_request_body(form526)
+        claim_date = form526.dig('claimDate')
+        # if the request is for a PDF, and the claim date is present and valid, use the PDF request body
+        if Flipper.enabled?(:disability_526_add_claim_date_to_lighthouse) && @pdf_request && claim_date_valid?(claim_date)
+          lh_request_body = Requests::Form526Pdf.new
+          lh_request_body.claim_date = form526['claimDate']
+          lh_request_body
+        else
+          # if the request is not for a PDF, or the claim date is not present or invalid, use the standard request body
+          # that does not include claim_date, otherwise, it will error Lighthouse's validation
+          Requests::Form526.new
+        end
       end
 
-      def transform_claim_date(form526, lh_request_body)
-        claim_date = form526['claimDate']
-        lh_request_body.claim_date = claim_date if claim_date.present? && valid_date_for_lighthouse?(claim_date)
+      def claim_date_valid?(claim_date)
+        claim_date.present? && valid_date_for_lighthouse?(claim_date)
+      end
+
+      def valid_date_for_lighthouse?(date_string)
+        date_string =~ VALID_LH_DATE_REGEX
       end
 
       # returns "STANDARD_CLAIM_PROCESS", "BDD_PROGRAM", or "FDC_PROGRAM"

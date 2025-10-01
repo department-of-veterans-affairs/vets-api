@@ -5,6 +5,8 @@ require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
 
 RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
   let(:transformer) { subject }
+  let(:pdf_enabled_transformer) { EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new(pdf_request: true) }
+  let(:pdf_disabled_transformer) { EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new(pdf_request: false) }
 
   describe '#transform' do
     let(:submission) { create(:form526_submission, :with_everything_toxic_exposure) }
@@ -15,28 +17,49 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(lh_request_body.claimant_certification).to be(true)
     end
 
-    it 'adds claim_date to the Lighthouse request body' do
+    it 'adds claim_date to the Lighthouse request body if called as a pdf request' do
       data['form526']['claimDate'] = '2023-07-19' # arbitrary date
-      lh_request_body = transformer.transform(data)
+      lh_request_body = pdf_enabled_transformer.transform(data)
+      expect(lh_request_body.class).to eq(Requests::Form526Pdf)
       expect(lh_request_body.claim_date).to eq('2023-07-19')
     end
 
-    it 'does not add claim_date to the Lighthouse request body if not provided' do
+    it 'does not add claim_date to the Lighthouse request body if called as a non-pdf request' do
+      data['form526']['claimDate'] = '2023-07-19' # arbitrary date
+      lh_request_body = pdf_disabled_transformer.transform(data)
+      expect(lh_request_body.class).to eq(Requests::Form526)
+      expect { lh_request_body.claim_date }.to raise_error(NoMethodError)
+    end
+
+    it 'does not add claim_date to the Lighthouse request body if called without a pdf flag' do
+      data['form526']['claimDate'] = '2023-07-19' # arbitrary date
+      lh_request_body = transformer.transform(data)
+      expect(lh_request_body.class).to eq(Requests::Form526)
+      expect { lh_request_body.claim_date }.to raise_error(NoMethodError)
+    end
+
+    it 'does not add claim_date attribute to the Lighthouse request body key if nil' do
       data['form526']['claimDate'] = nil
       lh_request_body = transformer.transform(data)
-      expect(lh_request_body.claim_date).to be_nil
+      expect { lh_request_body.claim_date }.to raise_error(NoMethodError)
+    end
+
+    it 'does not add claim_date attribute to the Lighthouse request body if not provided at all' do
+      data['form526'].delete('claimDate')
+      lh_request_body = transformer.transform(data)
+      expect { lh_request_body.claim_date }.to raise_error(NoMethodError)
     end
 
     it 'does not add claim_date to the Lighthouse request body if blank' do
       data['form526']['claimDate'] = ''
       lh_request_body = transformer.transform(data)
-      expect(lh_request_body.claim_date).to be_nil
+      expect { lh_request_body.claim_date }.to raise_error(NoMethodError)
     end
 
-    it 'does not add claim_date to the Lighthouse request body if malformed date' do
+    it 'does not add claim_date attribute to the Lighthouse request body if malformed date' do
       data['form526']['claimDate'] = 'invalid-date'
       lh_request_body = transformer.transform(data)
-      expect(lh_request_body.claim_date).to be_nil
+      expect { lh_request_body.claim_date }.to raise_error(NoMethodError)
     end
 
     # TODO: re-visit once we get clarification on whether claimDate needs to be restored to LH request
