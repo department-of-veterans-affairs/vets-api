@@ -21,11 +21,10 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway,
       # Mock the submissions query to return empty array
       appeal_query_mock = double
       allow(appeal_query_mock).to receive(:where).with(type_of_appeal: %w[SC HLR NOD]).and_return(double(pluck: []))
-      allow(AppealSubmission).to receive(:where).with(user_account: user_account).and_return(appeal_query_mock)
-      
+      allow(AppealSubmission).to receive(:where).with(user_account:).and_return(appeal_query_mock)
+
       # Mock the SavedClaim query chain
       saved_claim_query_mock = double
-      allow(saved_claim_query_mock).to receive(:where).and_return(saved_claim_query_mock)
       allow(saved_claim_query_mock).to receive(:order).and_return([])
       allow(SavedClaim).to receive(:where).and_return(saved_claim_query_mock)
 
