@@ -165,7 +165,8 @@ RSpec.describe Logging::Helper::ParameterFilter do
       expect(filtered[:class]).to eq(String)
 
       # not_whitelisted still recurses in this implementation
-      expect(filtered[:not_whitelisted]).to eq('[FILTERED]')
+      expect(filtered[:not_whitelisted]).to be_an(Array)
+      expect(filtered[:not_whitelisted][0][:id]).to eq(1)
 
       # errors is whitelisted, so it recurses
       expect(filtered[:errors]).to be_an(Array)

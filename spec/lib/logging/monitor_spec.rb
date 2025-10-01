@@ -84,7 +84,7 @@ RSpec.describe Logging::Monitor do
           errors: ['Phone: [REDACTED]', 'Email: [REDACTED]', 'ICN: [REDACTED]', 'Credit card: [REDACTED]'],
           icn: '[FILTERED]',
           debug_info: '[FILTERED]',
-          nested_info: '[FILTERED]',
+          nested_info: [{ id: 1, foo: '[FILTERED]' }],
           tags:
         }
 

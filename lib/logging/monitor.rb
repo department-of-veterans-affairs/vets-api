@@ -54,7 +54,7 @@ module Logging
         line:,
         context: filtered_context
       }
-      Rails.logger.public_send(level, message.to_s, payload)
+      Rails.logger.public_send(level, message.to_s, **payload)
     end
 
     private
