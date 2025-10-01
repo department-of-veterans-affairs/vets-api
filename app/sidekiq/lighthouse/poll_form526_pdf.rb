@@ -106,7 +106,7 @@ module Lighthouse
           # update the job status to pdf_not_found immediately and exit the job
           unless submission.created_at.between?(DateTime.now - 4.days, DateTime.now)
             form_job_status = submission.form526_job_statuses.find_by(job_class: 'PollForm526Pdf')
-            message = 'Poll for form 526 PDF: Submission creation date is over 2 days old. Exiting...'
+            message = 'Poll for form 526 PDF: Submission creation date is over 4 days old. Exiting...'
             PollForm526PdfStatus.update_job_status(
               form_job_status:,
               message:,
