@@ -104,7 +104,7 @@ jobs:
           fetch-depth: 0
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: "us-gov-west-1"
@@ -132,8 +132,7 @@ jobs:
             lighthouse-pivot
             lighthouse-banana-peels
             mobile-api-team
-            accredited-representatives-admin
-            benefits-admin
+            fed-eng-admin
           )
 
           BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')

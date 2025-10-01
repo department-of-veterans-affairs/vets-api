@@ -61,12 +61,14 @@ describe ClaimsApi::FesService::Base do
     claim.save
     claim
   end
+  let(:async) { true }
+  let(:not_async) { false }
 
   describe '#validate' do
     context 'successful validation' do
       it 'returns validation success' do
         VCR.use_cassette('/claims_api/fes/validate/success') do
-          response = service.validate(fes_claim, min_fes_mapped_data)
+          response = service.validate(fes_claim, min_fes_mapped_data, not_async)
 
           expect(response[:valid]).to be(true)
           expect(response).to have_key(:success)
@@ -78,7 +80,7 @@ describe ClaimsApi::FesService::Base do
       it 'returns a 400' do
         VCR.use_cassette('/claims_api/fes/validate/bad_request') do
           expect do
-            service.validate(claim, invalid_form_data)
+            service.validate(claim, invalid_form_data, not_async)
           end.to raise_error(
             ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException
           )
@@ -90,7 +92,7 @@ describe ClaimsApi::FesService::Base do
       it 'raises backend service exception' do
         VCR.use_cassette('/claims_api/fes/validate/bad_request') do
           expect do
-            service.validate(claim, invalid_form_data)
+            service.validate(claim, invalid_form_data, not_async)
           end.to raise_error(
             ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException
           )
@@ -103,7 +105,7 @@ describe ClaimsApi::FesService::Base do
     context 'successful submission' do
       it 'returns submission success' do
         VCR.use_cassette('/claims_api/fes/submit/success') do
-          response = service.submit(fes_claim, min_fes_mapped_data)
+          response = service.submit(fes_claim, min_fes_mapped_data, not_async)
 
           expect(response[:claimId]).to eq(600781884) # rubocop:disable Style/NumericLiterals
           expect(response[:requestId]).not_to be_nil
@@ -117,7 +119,7 @@ describe ClaimsApi::FesService::Base do
         invalid_data[:data][:form526][:serviceInformation][:servicePeriods][0][:serviceBranch] = 'AIR\n Force'
 
         VCR.use_cassette('/claims_api/fes/submit/invalid_request') do
-          expect { service.submit(claim, invalid_form_data) }
+          expect { service.submit(claim, invalid_form_data, not_async) }
             .to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException)
         end
       end
@@ -126,7 +128,7 @@ describe ClaimsApi::FesService::Base do
     context 'invalid data format' do
       it 'returns a 400' do
         VCR.use_cassette('/claims_api/fes/submit/bad_request') do
-          expect { service.submit(claim, invalid_form_data) }
+          expect { service.submit(claim, invalid_form_data, not_async) }
             .to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException)
         end
       end

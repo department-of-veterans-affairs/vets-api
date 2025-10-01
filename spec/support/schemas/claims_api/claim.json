@@ -1,12 +1,18 @@
 {
-  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": ["data"],
+  "required": [
+    "data"
+  ],
   "properties": {
     "data": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "type", "attributes"],
+      "required": [
+        "id",
+        "type",
+        "attributes"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -18,7 +24,21 @@
         "attributes": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["date_filed", "max_est_date", "open", "waiver_submitted", "documents_needed", "development_letter_sent", "status", "requested_decision", "claim_type", "contention_list", "va_representative", "events_timeline", "supporting_documents"],
+          "required": [
+            "date_filed",
+            "max_est_date",
+            "open",
+            "waiver_submitted",
+            "documents_needed",
+            "development_letter_sent",
+            "status",
+            "requested_decision",
+            "claim_type",
+            "contention_list",
+            "va_representative",
+            "events_timeline",
+            "supporting_documents"
+          ],
           "properties": {
             "evss_id": {
               "type": "integer",
@@ -32,13 +52,19 @@
               "example": "2018-06-04"
             },
             "min_est_date": {
-              "type": ["string", "null"],
+              "type": [
+                "string",
+                "null"
+              ],
               "format": "date",
               "description": "Minimum Estimated Claim Completion Date",
               "example": "2019-06-04"
             },
             "max_est_date": {
-              "type": ["string", "null"],
+              "type": [
+                "string",
+                "null"
+              ],
               "format": "date",
               "description": "Maximum Estimated Claim Completion Date",
               "example": "2019-09-04"
@@ -81,12 +107,7 @@
             },
             "claim_type": {
               "type": "string",
-              "description": "The type of claim originally submitted",
-              "enum": [
-                "Compensation",
-                "Compensation and Pension",
-                "Dependency"
-              ]
+              "description": "The type of claim originally submitted"
             },
             "contention_list": {
               "type": "array",
@@ -105,7 +126,10 @@
                   {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["type", "date"],
+                    "required": [
+                      "type",
+                      "date"
+                    ],
                     "properties": {
                       "type": {
                         "type": "string",
@@ -121,10 +145,21 @@
                   {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["tracked_item_id", "file_type", "document_type", "filename", "upload_date", "type", "date"],
+                    "required": [
+                      "tracked_item_id",
+                      "file_type",
+                      "document_type",
+                      "filename",
+                      "upload_date",
+                      "type",
+                      "date"
+                    ],
                     "properties": {
                       "tracked_item_id": {
-                        "type": ["string", "null"],
+                        "type": [
+                          "string",
+                          "null"
+                        ],
                         "description": "Tracked Item ID given by VBMS"
                       },
                       "file_type": {

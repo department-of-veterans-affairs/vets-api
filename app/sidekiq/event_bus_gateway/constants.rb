@@ -20,5 +20,13 @@ module EventBusGateway
       'itportfolio:benefits-delivery',
       'dependency:va-notify'
     ].freeze
+
+    # Retry for 2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    SIDEKIQ_RETRY_OPTIONS = {
+      retry: 16
+    }.freeze
+
+    MAX_EMAIL_ATTEMPTS = 16
   end
 end

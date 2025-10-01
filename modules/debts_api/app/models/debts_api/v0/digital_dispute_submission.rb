@@ -69,8 +69,14 @@ module DebtsApi
 
       def register_success
         submitted!
+        StatsD.increment("#{STATS_KEY}.success")
         send_success_email if Settings.vsp_environment == 'production' &&
                               Flipper.enabled?(:digital_dispute_email_notifications)
+      end
+
+      def clean_up_failure
+        files.each(&:purge)
+        destroy
       end
 
       private

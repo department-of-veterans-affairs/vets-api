@@ -21,13 +21,15 @@ module AccreditedRepresentativePortal
           [400, 401, 403, 404, 413, 422].include? key
         end.values.freeze
 
-      attr_reader :poa_request, :creator, :resolution, :form_data
+      attr_reader :poa_request, :creator_id, :resolution, :form_data
 
-      def initialize(poa_request, creator)
+      def initialize(poa_request, creator_id, power_of_attorney_holder_memberships)
         @poa_request = poa_request
         @form_data = poa_request.power_of_attorney_form.parsed_data
-        @creator = creator
+        @creator_id = creator_id
         @resolution = nil
+        @power_of_attorney_holder_memberships =
+          power_of_attorney_holder_memberships
       end
 
       def call
@@ -59,7 +61,9 @@ module AccreditedRepresentativePortal
 
       def create_acceptance
         PowerOfAttorneyRequestDecision.create_acceptance!(
-          creator:,
+          creator_id:,
+          power_of_attorney_holder_memberships:
+            @power_of_attorney_holder_memberships,
           power_of_attorney_request: poa_request
         )
       end
@@ -140,14 +144,14 @@ module AccreditedRepresentativePortal
       end
 
       def organization_data
-        registration_number =
-          creator.get_registration_number(
-            poa_request.power_of_attorney_holder_type
+        membership =
+          @power_of_attorney_holder_memberships.find(
+            poa_request.power_of_attorney_holder_poa_code
           )
 
         {
-          poaCode: poa_request.power_of_attorney_holder_poa_code,
-          registrationNumber: registration_number
+          poaCode: membership.power_of_attorney_holder.poa_code,
+          registrationNumber: membership.registration_number
         }
       end
 

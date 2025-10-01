@@ -90,7 +90,7 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
           let(:mpi_profile_response) { create(:find_profile_response, profile: mpi_profile) }
           let(:user_account) { create(:user_account, icn: mpi_profile_response.profile.icn) }
           let(:ebg_noti) do
-            create(:event_bus_gateway_notification, user_account:, va_notify_id: notification_record.id)
+            create(:event_bus_gateway_notification, user_account:, va_notify_id: notification_record.notification_id)
           end
 
           before do
@@ -145,7 +145,7 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
 
           context 'when max attempts exceeded' do
             before do
-              ebg_noti.update!(attempts: described_class::MAX_ATTEMPTS + 1)
+              ebg_noti.update!(attempts: EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS + 1)
             end
 
             it 'does not queue retry job and logs exhausted retries' do
@@ -168,7 +168,7 @@ describe EventBusGateway::VANotifyEmailStatusCallback do
               expect(Rails.logger).to receive(:error).with(
                 'EventBusGateway email retries exhausted',
                 { ebg_notification_id: ebg_noti.id,
-                  max_attempts: described_class::MAX_ATTEMPTS }
+                  max_attempts: EventBusGateway::Constants::MAX_EMAIL_ATTEMPTS }
               )
 
               expect(StatsD).to receive(:increment)

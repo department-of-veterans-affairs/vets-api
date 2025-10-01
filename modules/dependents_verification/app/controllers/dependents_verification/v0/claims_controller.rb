@@ -10,7 +10,7 @@ module DependentsVerification
     #
     class ClaimsController < ClaimsBaseController
       before_action :check_flipper_flag
-      service_tag 'dependnets-verification-application'
+      service_tag 'dependents-verification-application'
 
       # an identifier that matches the parameter that the form will be set as in the JSON submission.
       def short_name

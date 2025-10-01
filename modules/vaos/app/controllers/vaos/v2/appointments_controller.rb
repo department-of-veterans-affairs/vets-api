@@ -196,26 +196,6 @@ module VAOS
         appointments_service.post_appointment(create_params)
       end
 
-      # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system
-      # contains cerner. If it does, it returns true. Otherwise, it returns false.
-      #
-      # @param appt [Hash] the appointment to check
-      # @return [Boolean] true if the appointment is associated with cerner, false otherwise
-      def cerner?(appt)
-        return false if appt.nil?
-
-        identifiers = appt[:identifier]
-
-        return false if identifiers.nil?
-
-        identifiers.each do |identifier|
-          system = identifier[:system]
-          return true if system.include?('cerner')
-        end
-
-        false
-      end
-
       def scrape_appt_comments_and_log_details(appt, appt_method, comment_key)
         if appt&.[](:reason)&.include? comment_key
           log_appt_comment_data(appt, appt_method, appt&.[](:reason), comment_key, REASON)
