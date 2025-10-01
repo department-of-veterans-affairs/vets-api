@@ -49,13 +49,7 @@ module V0
         raise Common::Exceptions::BackendServiceException.new('HCA422', status: 422)
       end
 
-      if current_user
-        if Flipper.enabled?(:hca_in_progress_form_delete_async)
-          DeleteInProgressFormJob.perform_in(5.minutes, FORM_ID, current_user.uuid)
-        else
-          clear_saved_form(FORM_ID)
-        end
-      end
+      DeleteInProgressFormJob.perform_in(5.minutes, FORM_ID, current_user.uuid) if current_user
 
       if result[:id]
         render json: HealthCareApplicationSerializer.new(result)

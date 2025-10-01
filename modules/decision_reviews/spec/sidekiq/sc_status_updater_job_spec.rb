@@ -844,8 +844,17 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
             # Reload to ensure we have the actual database value
             secondary_form.reload
 
+            # Create response that keeps the form in error state with final_status: false
+            response_error_non_final = JSON.parse(
+              File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json')
+            )
+            response_error_non_final['data']['attributes']['status'] = 'error'
+            response_error_non_final['data']['attributes']['final_status'] = false
+            response_error_non_final['data']['attributes']['detail'] = 'Temporary processing error'
+            error_non_final_response = instance_double(Faraday::Response, body: response_error_non_final)
+
             allow(benefits_intake_service).to receive(:get_status)
-              .with(uuid: secondary_form.guid).and_return(response_processing)
+              .with(uuid: secondary_form.guid).and_return(error_non_final_response)
 
             allow(Rails.logger).to receive(:info).and_call_original
           end
@@ -937,6 +946,69 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           end
         end
 
+        context 'when form transitions from temporary to permanent error (final_status: false -> true)' do
+          let(:twenty_days_ago) { frozen_time - 20.days }
+          let(:response_error_final) do
+            response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json'))
+            response['data']['attributes']['status'] = 'error'
+            response['data']['attributes']['final_status'] = true
+            response['data']['attributes']['detail'] = 'Document processing failed'
+            instance_double(Faraday::Response, body: response)
+          end
+
+          before do
+            secondary_form.update!(
+              created_at: twenty_days_ago,
+              status: { status: 'error', final_status: false }.to_json,
+              status_updated_at: twenty_days_ago
+            )
+          end
+
+          it 'does NOT log warning when form transitions to final_status: true' do
+            allow(benefits_intake_service).to receive(:get_status)
+              .with(uuid: secondary_form.guid).and_return(response_error_final)
+
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
+
+            expect(Rails.logger).not_to have_received(:info).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in non-final error state',
+              anything
+            )
+          end
+
+          it 'updates the form with final_status: true' do
+            allow(benefits_intake_service).to receive(:get_status)
+              .with(uuid: secondary_form.guid).and_return(response_error_final)
+
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
+
+            secondary_form.reload
+            parsed_status = JSON.parse(secondary_form.status)
+            expect(parsed_status['status']).to eq('error')
+            expect(parsed_status['final_status']).to be(true)
+            expect(parsed_status['detail']).to eq('Document processing failed')
+          end
+
+          it 'does not continue polling after transition to final status' do
+            allow(benefits_intake_service).to receive(:get_status)
+              .with(uuid: secondary_form.guid).and_return(response_error_final)
+
+            # Run the job twice to ensure polling stops
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+              subject.new.perform
+            end
+
+            # Should only call API once since final_status becomes true
+            expect(benefits_intake_service).to have_received(:get_status)
+              .with(uuid: secondary_form.guid).once
+          end
+        end
+
         context 'multiple forms with mixed statuses' do
           let!(:form_temp_error_old) do
             create(:secondary_appeal_form4142_module,
@@ -965,6 +1037,15 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
                    created_at: frozen_time - 25.days)
           end
 
+          let!(:form_transitioning_to_final) do
+            create(:secondary_appeal_form4142_module,
+                   guid: SecureRandom.uuid,
+                   appeal_submission: secondary_form.appeal_submission,
+                   status: { 'status' => 'error', 'final_status' => false }.to_json,
+                   status_updated_at: frozen_time - 18.days,
+                   created_at: frozen_time - 18.days)
+          end
+
           before do
             response_processing = JSON.parse(
               File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json')
@@ -973,10 +1054,57 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
             response_processing['data']['attributes']['final_status'] = false
             processing_response = instance_double(Faraday::Response, body: response_processing)
 
+            response_error_non_final = JSON.parse(
+              File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json')
+            )
+            response_error_non_final['data']['attributes']['status'] = 'error'
+            response_error_non_final['data']['attributes']['final_status'] = false
+            response_error_non_final['data']['attributes']['detail'] = 'Still in error state'
+            error_non_final_response = instance_double(Faraday::Response, body: response_error_non_final)
+
+            response_error_final = JSON.parse(
+              File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json')
+            )
+            response_error_final['data']['attributes']['status'] = 'error'
+            response_error_final['data']['attributes']['final_status'] = true
+            error_final_response = instance_double(Faraday::Response, body: response_error_final)
+
+            # Default response for most forms
             allow(benefits_intake_service).to receive(:get_status).and_return(processing_response)
+
+            # Specific response for the old temp error form (should trigger warning)
+            allow(benefits_intake_service).to receive(:get_status)
+              .with(uuid: form_temp_error_old.guid).and_return(error_non_final_response)
+
+            # Specific response for the transitioning form
+            allow(benefits_intake_service).to receive(:get_status)
+              .with(uuid: form_transitioning_to_final.guid).and_return(error_final_response)
           end
 
           it 'only logs warnings for temporary errors exceeding threshold' do
+            expect(Rails.logger).to receive(:info).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in non-final error state',
+              hash_including(secondary_form_uuid: form_temp_error_old.guid)
+            ).once
+
+            allow(Rails.logger).to receive(:info).with(
+              'SavedClaim::SupplementalClaim Skipping tracking PDF overflow',
+              anything
+            ).and_call_original
+
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
+          end
+
+          it 'does not log warnings for forms transitioning to final status during same run' do
+            # Should NOT log for the transitioning form even though it's > 15 days old
+            expect(Rails.logger).not_to receive(:info).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in non-final error state',
+              hash_including(secondary_form_uuid: form_transitioning_to_final.guid)
+            )
+
+            # Should still log for the form that remains in non-final error state
             expect(Rails.logger).to receive(:info).with(
               'DecisionReviews::SavedClaimScStatusUpdaterJob secondary form stuck in non-final error state',
               hash_including(secondary_form_uuid: form_temp_error_old.guid)
