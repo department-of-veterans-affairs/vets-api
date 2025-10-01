@@ -119,10 +119,20 @@ module EVSS
 
       private
 
+      def valid_date_for_lighthouse?(date_string)
+        date_string =~ VALID_LH_DATE_REGEX
+      end
+
+      def claim_date_valid?(claim_date)
+        claim_date.present? && valid_date_for_lighthouse?(claim_date)
+      end
+
       def choose_request_body(form526)
-        claim_date = form526.dig('claimDate')
+        claim_date = form526['claimDate']
         # if the request is for a PDF, and the claim date is present and valid, use the PDF request body
-        if Flipper.enabled?(:disability_526_add_claim_date_to_lighthouse) && @pdf_request && claim_date_valid?(claim_date)
+        if Flipper.enabled?(:disability_526_add_claim_date_to_lighthouse) &&
+           @pdf_request &&
+           claim_date_valid?(claim_date)
           lh_request_body = Requests::Form526Pdf.new
           lh_request_body.claim_date = form526['claimDate']
           lh_request_body
@@ -131,14 +141,6 @@ module EVSS
           # that does not include claim_date, otherwise, it will error Lighthouse's validation
           Requests::Form526.new
         end
-      end
-
-      def claim_date_valid?(claim_date)
-        claim_date.present? && valid_date_for_lighthouse?(claim_date)
-      end
-
-      def valid_date_for_lighthouse?(date_string)
-        date_string =~ VALID_LH_DATE_REGEX
       end
 
       # returns "STANDARD_CLAIM_PROCESS", "BDD_PROGRAM", or "FDC_PROGRAM"
