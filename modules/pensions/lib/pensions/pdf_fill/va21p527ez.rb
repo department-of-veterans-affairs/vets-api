@@ -369,7 +369,7 @@ module Pensions
           key: 'form1[0].#subform[49].RadioButtonList[9]'
         },
         'currentEmployers' => {
-          item_label: "Current job",
+          item_label: 'Current job',
           limit: 1,
           first_key: 'jobType',
           # 5b
@@ -1054,7 +1054,7 @@ module Pensions
         },
         # 9h-k Income Sources
         'incomeSources' => {
-          item_label: "Income source",
+          item_label: 'Income source',
           limit: 4,
           first_key: 'dependentName',
           # (1) Recipient
