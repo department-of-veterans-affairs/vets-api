@@ -3,7 +3,7 @@
 require 'logging/monitor'
 
 module ClaimsEvidenceApi
-  # @see Logging::BaseMonitor
+  # @see Logging::Monitor
   class Monitor < ::Logging::Monitor
     def initialize
       super('claims-evidence-api')
