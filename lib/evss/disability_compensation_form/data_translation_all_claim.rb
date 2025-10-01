@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'disability_compensation/loggers/monitor'
 
 module EVSS
   module DisabilityCompensationForm
@@ -170,15 +171,21 @@ module EVSS
       ###
 
       def translate_banking_info
+        monitor = DisabilityCompensation::Loggers::Monitor.new
+
         populated = input_form['bankName'].present? && input_form['bankAccountType'].present? &&
                     input_form['bankAccountNumber'].present? && input_form['bankRoutingNumber'].present?
         # If banking data is not included, then it has not changed and will be retrieved from Lighthouse
         if !populated || redacted(input_form['bankAccountNumber'], input_form['bankRoutingNumber'])
+          monitor.track_526_submission_without_banking_info(@user.uuid)
+
           # NOTE: we are removing this call to Lighthouse entirely if the user did not supply banking information
           # to respect they left it blank intentionally.
           # This code will get removed when the Flipper is removed following a successful release
           Flipper.enabled?(:disability_526_block_banking_info_retrieval) ? {} : get_banking_info
         else
+          monitor.track_526_submission_with_banking_info(@user.uuid)
+
           direct_deposit(
             input_form['bankAccountType'], input_form['bankAccountNumber'],
             input_form['bankRoutingNumber'], input_form['bankName']

@@ -4,6 +4,7 @@ require 'rails_helper'
 require 'evss/disability_compensation_form/data_translation_all_claim'
 require 'disability_compensation/factories/api_provider_factory'
 require 'lighthouse/direct_deposit/response'
+require 'disability_compensation/loggers/monitor'
 
 describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   subject { described_class.new(user, form_content, false) }
@@ -585,6 +586,14 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           'bankName' => 'test'
         }
       end
+
+      it 'logs the submission was made with banking info' do
+        expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+          .to receive(:track_526_submission_with_banking_info)
+          .with(user.uuid)
+
+        subject.send(:translate_banking_info)
+      end
     end
 
     context 'when the banking info is redacted' do
@@ -598,6 +607,16 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'routingNumber' => '031000503',
             'bankName' => 'WELLS FARGO BANK'
           }
+        end
+      end
+
+      it 'logs the submission was made without banking info' do
+        expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+          .to receive(:track_526_submission_without_banking_info)
+          .with(user.uuid)
+
+        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+          subject.send(:translate_banking_info)
         end
       end
     end
@@ -621,6 +640,14 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
         it 'does not set payment information' do
           expect(subject.send(:translate_banking_info)).to eq({})
+        end
+
+        it 'logs the submission was made without banking info' do
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .to receive(:track_526_submission_without_banking_info)
+            .with(user.uuid)
+
+          subject.send(:translate_banking_info)
         end
       end
 
