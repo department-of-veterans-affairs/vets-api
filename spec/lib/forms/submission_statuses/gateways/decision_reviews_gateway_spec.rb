@@ -18,15 +18,37 @@ describe Forms::SubmissionStatuses::Gateways::DecisionReviewsGateway,
 
   describe '#data' do
     it 'returns a dataset with submissions and intake statuses' do
-      # Mock the submissions query to return empty array
+      # Mock the AppealSubmission query chain
       appeal_query_mock = double
       allow(appeal_query_mock).to receive(:where).with(type_of_appeal: %w[SC HLR NOD]).and_return(double(pluck: []))
       allow(AppealSubmission).to receive(:where).with(user_account:).and_return(appeal_query_mock)
 
       # Mock the SavedClaim query chain
-      saved_claim_query_mock = double
-      allow(saved_claim_query_mock).to receive(:order).and_return([])
-      allow(SavedClaim).to receive(:where).and_return(saved_claim_query_mock)
+      final_mock = double
+      allow(final_mock).to receive(:to_a).and_return([])
+
+      order_mock = double
+      allow(order_mock).to receive(:order).with(created_at: :asc).and_return(final_mock)
+
+      # Handle the filter_by_allowed_forms call
+      filter_mock = double
+      allow(filter_mock).to receive(:where).with(
+        type: ['SavedClaim::SupplementalClaim', 'SavedClaim::HigherLevelReview']
+      ).and_return(order_mock)
+
+      delete_date_mock = double
+      allow(delete_date_mock).to receive(:where).with(delete_date: nil).and_return(filter_mock)
+
+      guid_mock = double
+      allow(guid_mock).to receive(:where).with(guid: []).and_return(delete_date_mock)
+
+      allow(SavedClaim).to receive(:where).with(
+        type: [
+          'SavedClaim::SupplementalClaim',
+          'SavedClaim::HigherLevelReview',
+          'SavedClaim::NoticeOfDisagreement'
+        ]
+      ).and_return(guid_mock)
 
       result = subject.data
 
