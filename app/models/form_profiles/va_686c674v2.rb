@@ -120,7 +120,7 @@ class FormProfiles::VA686c674v2 < FormProfile
       'dependents.data.structure',
       { dependents: }
     )
-    persons = if dependents.nil? || dependents[:persons].blank?
+    persons = if dependents.blank? || dependents[:persons].blank?
                 []
               else
                 dependents[:persons]
@@ -140,16 +140,13 @@ class FormProfiles::VA686c674v2 < FormProfile
   # @param person [Hash] The dependent's information as a hash
   # @return [DependentInformation] The dependent's information mapped to the model
   def person_to_dependent_information(person)
-    return nil unless person.respond_to?(:[])
-
-    # Try both symbol and string keys
-    first_name = person[:first_name] || person['first_name']
-    last_name = person[:last_name] || person['last_name']
-    middle_name = person[:middle_name] || person['middle_name']
-    ssn = person[:ssn] || person['ssn']
-    date_of_birth = person[:date_of_birth] || person['date_of_birth']
-    relationship = person[:relationship] || person['relationship']
-    award_indicator = person[:award_indicator] || person['award_indicator']
+    first_name = person[:first_name]
+    last_name = person[:last_name]
+    middle_name = person[:middle_name]
+    ssn = person[:ssn]
+    date_of_birth = person[:date_of_birth]
+    relationship = person[:relationship]
+    award_indicator = person[:award_indicator]
 
     parsed_date = parse_date_safely(date_of_birth)
 
