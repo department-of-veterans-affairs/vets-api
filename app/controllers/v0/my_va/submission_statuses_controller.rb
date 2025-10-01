@@ -22,7 +22,8 @@ module V0
 
       def restricted_list_of_forms
         forms = []
-        forms += benefits_intake_forms if display_benefits_intake_forms?
+        # Always include benefits intake forms for backward compatibility
+        forms += benefits_intake_forms
         forms += decision_reviews_forms_if_enabled
         forms
       end
@@ -78,16 +79,16 @@ module V0
 
       def gateway_options_for_user
         {
-          benefits_intake_enabled: display_benefits_intake_forms?,
+          # ALWAYS enable benefits intake for backward compatibility
+          # The feature flag only controls whether to show ALL forms vs restricted list
+          benefits_intake_enabled: true,
           decision_reviews_enabled: display_decision_reviews_forms?
         }
       end
 
       def display_all_forms?
-        display_benefits_intake_forms? && display_decision_reviews_forms?
-      end
-
-      def display_benefits_intake_forms?
+        # When this flag is true, show ALL forms without restriction (pass nil for allowed_forms)
+        # When false, show the restricted list of forms
         Flipper.enabled?(
           :my_va_display_all_lighthouse_benefits_intake_forms,
           @current_user

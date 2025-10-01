@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'forms/submission_statuses/benefits_intake_gateway'
+require 'forms/submission_statuses/gateways/benefits_intake_gateway'
 require 'forms/submission_statuses/report'
 
 describe Forms::SubmissionStatuses::Report, feature: :form_submission,
@@ -328,7 +328,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
         let(:formatter) { instance_double(Forms::SubmissionStatuses::Formatters::BenefitsIntakeFormatter) }
 
         before do
-          allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
+          allow_any_instance_of(Forms::SubmissionStatuses::Gateways::BenefitsIntakeGateway)
             .to receive(:data)
             .and_return(OpenStruct.new(submissions?: true, errors: []))
 

@@ -46,10 +46,25 @@ module Forms
                      # BackendServiceException uses original_status/original_body
                      error_handler.handle_error(status: error.original_status, body: error.original_body)
                    else
-                     # For other errors, create a generic error message
-                     ["Service error: #{error.message}"]
+                     # For other errors, extract the status if possible and use error_handler
+                     status = extract_status_from_error(error)
+                     body = { message: error.message || error.to_s }
+                     error_handler.handle_error(status:, body:)
                    end
           [nil, errors]
+        end
+
+        def extract_status_from_error(error)
+          # Check if error has a status method (like Faraday errors)
+          return error.status if error.respond_to?(:status)
+
+          # Try to extract status from error message
+          # e.g., "the server responded with status 401"
+          if error.message =~ /status (\d{3})/
+            ::Regexp.last_match(1).to_i
+          else
+            500 # Default to 500 if we can't determine the status
+          end
         end
 
         def intake_service

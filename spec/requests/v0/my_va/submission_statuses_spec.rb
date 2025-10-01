@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'forms/submission_statuses/benefits_intake_gateway'
+require 'forms/submission_statuses/gateways/benefits_intake_gateway'
 
 RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
                                                team_owner: :vfs_authenticated_experience_backend, type: :request do
