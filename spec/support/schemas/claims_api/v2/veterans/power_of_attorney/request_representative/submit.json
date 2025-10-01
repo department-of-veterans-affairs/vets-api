@@ -110,19 +110,24 @@
                   "$comment": "the phone fields must not exceed 20 chars, when concatenated",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": [
-                    "areaCode",
-                    "phoneNumber"
-                  ],
                   "properties": {
+                    "countryCode": {
+                      "description": "Country code for the phone number.",
+                      "type": ["string", "null"],
+                      "pattern": "^[0-9]+$"
+                    },
                     "areaCode": {
                       "description": "Area code of the phone number.",
-                      "type": "string", "pattern": "^[2-9][0-9]{2}$",
+                      "type": ["string", "null"],
+                      "pattern": "^[2-9][0-9]{2}$",
                       "example": "555"
                     },
                     "phoneNumber": {
                       "description": "Phone number.",
-                      "type": "string", "pattern": "^[0-9]{1,14}$",
+                      "type": "string",
+                      "pattern": "^\\d(?:[- ]?\\d){0,22}$",
+                      "minLength": 1,
+                      "maxLength": 23,
                       "example": "555-5555"
                     }
                   }
@@ -200,11 +205,12 @@
                   "$comment": "the phone fields must not exceed 20 chars, when concatenated",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": [
-                    "areaCode",
-                    "phoneNumber"
-                  ],
                   "properties": {
+                    "countryCode": {
+                      "description": "Country code for the phone number.",
+                      "type": ["string", "null"],
+                      "pattern": "^[0-9]+$"
+                    },
                     "areaCode": {
                       "description": "Area code of the phone number.",
                       "type": ["string", "null"],
@@ -214,7 +220,9 @@
                     "phoneNumber": {
                       "description": "Phone number.",
                       "type": ["string", "null"],
-                      "pattern": "^[0-9]{1,14}$",
+                      "pattern": "^\\d(?:[- ]?\\d){0,22}$",
+                      "minLength": 1,
+                      "maxLength": 23,
                       "example": "555-5555"
                     }
                   }

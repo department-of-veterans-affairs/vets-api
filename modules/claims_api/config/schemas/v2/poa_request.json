@@ -112,7 +112,7 @@
             "phoneNumber": {
               "description": "Phone number for the veteran.",
               "type": "string",
-              "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+              "pattern": "^\\d(?:[- ]?\\d){0,22}$",
               "example": "555-5555",
               "minLength": 1,
               "maxLength": 23
@@ -230,7 +230,7 @@
             "phoneNumber": {
               "description": "Phone number for the dependent claimant.",
               "type": "string",
-              "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+              "pattern": "^\\d(?:[- ]?\\d){0,22}$",
               "example": "555-5555",
               "minLength": 1,
               "maxLength": 23
