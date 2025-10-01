@@ -119,13 +119,12 @@ module IvcChampva
       # insert the combined PDF
       insert_form(file_name, response_status.to_s)
 
-      # insert attachments
-      @metadata['attachment_ids'].zip(@file_paths).map do |_attachment_id, file_path|
+      # insert individual records for all original files
+      @file_paths.each do |file_path|
         next if file_path.blank?
-        next unless file_path.include?('supporting_doc')
 
-        file_name = File.basename(file_path).gsub('-tmp', '')
-        insert_form(file_name, response_status.to_s)
+        original_file_name = File.basename(file_path).gsub('-tmp', '')
+        insert_form(original_file_name, response_status.to_s)
       end
     end
 
