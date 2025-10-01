@@ -11,6 +11,14 @@ module BenefitsClaims
       claim_type_base: 'request to add or remove a dependent'
     ).freeze
 
+    # Special case transformations
+    CLAIM_TYPE_SPECIAL_CASES = {
+      'Death' => Title.new(
+        display_title: 'Claim for expenses related to death or burial',
+        claim_type_base: 'expenses related to death or burial claim'
+      )
+    }.freeze
+
     DEPENDENCY_CODES = %w[
       130DPNDCYAUT 130DPNAUTREJ 130SCHATTAUT 130SCHAUTREJ 130ADOD2D
       130ADSD2D 130DAD2D 130DARD2D 130PDARD2D 130PSARD2D 130SAD2D
@@ -87,15 +95,6 @@ module BenefitsClaims
         claim_type_base: 'dependency verification'
       )
     end.freeze
-
-    # Special case transformations
-    CLAIM_TYPE_SPECIAL_CASES = {
-      'Death' => Title.new(
-        display_title: 'Claim for expenses related to death or burial',
-        claim_type_base: 'expenses related to death or burial claim'
-      )
-    }.freeze
-
     class << self
       def generate_titles(claim_type, claim_type_code)
         # Priority 1: Check for specific claim type code override
