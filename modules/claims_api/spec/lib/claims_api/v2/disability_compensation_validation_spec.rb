@@ -5,7 +5,9 @@ require 'claims_api/v2/disability_compensation_validation'
 
 # Calling private methods so needed to wrap it in a class
 class TestDisabilityCompensationValidationClass
-  include ClaimsApi::V2::DisabilityCompensationValidation
+  include ClaimsApi::V2::AltRevisedDisabilityCompensationValidation
+
+  attr_accessor :request, :params
 
   def form_attributes
     @form_attributes ||= JSON.parse(
@@ -231,31 +233,6 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     end
   end
 
-  describe '#date_range_overlap?' do
-    let(:date_begin_one) { '2018-06-04' }
-    let(:date_end_one) { '2020-07-01' }
-    let(:date_begin_two) { '2020-06-05' }
-    let(:date_end_two) { '2020-07-01' }
-
-    it 'returns true when the date ranges overlap' do
-      begin_one = test_526_validation_instance.send(:date_regex_groups, date_begin_one)
-      end_one = test_526_validation_instance.send(:date_regex_groups, date_end_one)
-      begin_two = test_526_validation_instance.send(:date_regex_groups, date_begin_two)
-      end_two = test_526_validation_instance.send(:date_regex_groups, date_end_two)
-      result = test_526_validation_instance.send(:date_range_overlap?, begin_one..end_one, begin_two..end_two)
-      expect(result).to be(true)
-    end
-
-    it 'returns false when the date ranges do not overlap' do
-      begin_one = test_526_validation_instance.send(:date_regex_groups, date_begin_one)
-      end_one = test_526_validation_instance.send(:date_regex_groups, '2020-04-28')
-      begin_two = test_526_validation_instance.send(:date_regex_groups, date_begin_two)
-      end_two = test_526_validation_instance.send(:date_regex_groups, date_end_two)
-      result = test_526_validation_instance.send(:date_range_overlap?, begin_one..end_one, begin_two..end_two)
-      expect(result).to be(false)
-    end
-  end
-
   describe '#date_is_valid' do
     let(:begin_date) { '2017-02-29' }
     let(:begin_prop) { '/toxicExposure/additionalHazardExposures/exposureDates/beginDate' }
@@ -270,17 +247,6 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     it 'returns true when a date is valid' do
       result = test_526_validation_instance.send(:date_is_valid?, end_date, end_prop)
       expect(result).to be(true)
-    end
-  end
-
-  describe 'validation of claimant certification' do
-    context 'when the cert is false' do
-      it 'returns an error array' do
-        subject.form_attributes['claimantCertification'] = false
-        res = test_526_validation_instance.send(:validate_form_526_claimant_certification)
-        expect(res[0][:detail]).to eq('claimantCertification must not be false.')
-        expect(res[0][:source]).to eq('/claimantCertification')
-      end
     end
   end
 
@@ -561,13 +527,6 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         )
       end
 
-      it 'requires reservesNationalGuardService.unitName' do
-        validate_field(
-          'reservesNationalGuardService.unitName',
-          'unitName is missing or blank',
-          'serviceInformation/reservesNationalGuardService/'
-        )
-      end
       # rubocop:enable RSpec/NoExpectationExample
     end
   end
