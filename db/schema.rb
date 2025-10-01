@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_19_164027) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_23_015956) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1477,7 +1477,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_164027) do
     t.datetime "delete_date"
     t.text "metadata"
     t.datetime "metadata_updated_at"
-    t.bigint "user_account_id"
+    t.uuid "user_account_id"
     t.uuid "bpd_uuid"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
