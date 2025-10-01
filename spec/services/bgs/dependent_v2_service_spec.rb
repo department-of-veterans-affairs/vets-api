@@ -272,7 +272,7 @@ RSpec.describe BGS::DependentV2Service do
       VCR.use_cassette('bgs/dependent_service/get_dependents') do
         response = BGS::DependentV2Service.new(user).get_dependents
 
-        expect(response).to include(number_of_records: '6')
+        expect(response).to include(number_of_records: '6', persons: Array)
       end
     end
 
@@ -282,6 +282,17 @@ RSpec.describe BGS::DependentV2Service do
           .with(user.participant_id, user.ssn)
 
         BGS::DependentV2Service.new(user).get_dependents
+      end
+    end
+
+    it 'returns a valid response when empty array' do
+      VCR.use_cassette('bgs/dependent_service/get_dependents') do
+        allow_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
+          .with(user.participant_id, user.ssn).and_return([])
+
+        response = BGS::DependentV2Service.new(user).get_dependents
+
+        expect(response).to have_key(:persons)
       end
     end
   end
