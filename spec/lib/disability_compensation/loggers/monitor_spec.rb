@@ -105,4 +105,36 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
       )
     end
   end
+
+  describe('#track_526_submission_with_banking_info') do
+    let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
+
+    it 'logs the submission' do
+      expect(monitor).to receive(:submit_event).with(
+        :info,
+        'Form 526 submitted with Veteran-supplied banking info',
+        "#{described_class::SUBMISSION_STATS_KEY}.with_banking_info",
+        user_account_uuid: user.uuid,
+        form_id: described_class::FORM_ID
+      )
+
+      monitor.track_526_submission_with_banking_info(user.uuid)
+    end
+  end
+
+  describe('#track_526_submission_without_banking_info') do
+    let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
+
+    it 'logs the submission' do
+      expect(monitor).to receive(:submit_event).with(
+        :info,
+        'Form 526 submitted without Veteran-supplied banking info',
+        "#{described_class::SUBMISSION_STATS_KEY}.without_banking_info",
+        user_account_uuid: user.uuid,
+        form_id: described_class::FORM_ID
+      )
+
+      monitor.track_526_submission_without_banking_info(user.uuid)
+    end
+  end
 end
