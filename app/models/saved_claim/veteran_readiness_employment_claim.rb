@@ -178,7 +178,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       end
     end
 
-    send_vbms_lighthouse_confirmation_email(user, 'VBMS', :confirmation_vbms, CONFIRMATION_EMAIL_TEMPLATE_VBMS)
+    send_vbms_lighthouse_confirmation_email('VBMS', :confirmation_vbms, CONFIRMATION_EMAIL_TEMPLATE_VBMS)
   rescue => e
     Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, messsage: e.message })
     send_to_lighthouse!(user)
@@ -212,7 +212,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     process_attachments!
     @sent_to_lighthouse = true
 
-    send_vbms_lighthouse_confirmation_email(user, 'Lighthouse', :confirmation_lighthouse,
+    send_vbms_lighthouse_confirmation_email('Lighthouse', :confirmation_lighthouse,
                                             CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE)
   rescue => e
     Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
@@ -297,19 +297,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   # Lighthouse::SubmitBenefitsIntakeClaim will call the function `send_confirmation_email` (if it exists).
   # Do not name a function `send_confirmation_email`, unless it accepts 0 arguments.
-  def send_vbms_lighthouse_confirmation_email(user, service, _email_type, email_template)
-    if user.va_profile_email.blank?
-      Rails.logger.warn("#{service} confirmation email was not sent: user missing profile email.",
-                        { user_uuid: user&.uuid })
-      return
-    end
-
+  def send_vbms_lighthouse_confirmation_email(service, _email_type, email_template)
     unless Flipper.enabled?(:vre_use_new_vfs_notification_library)
       VANotify::EmailJob.perform_async(
-        user.va_profile_email,
+        email,
         email_template,
         {
-          'first_name' => user&.first_name&.upcase.presence,
+          'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
           'date' => Time.zone.today.strftime('%B %d, %Y')
         }
       )
@@ -333,14 +327,19 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     'VRE'
   end
 
+  def email
+    @email ||= parsed_form['email']
+  end
+
   # this failure email is not the ideal way to handle the Notification Emails as
   # part of the ZSF work, but with the initial timeline it handles the email as intended.
   # Future work will be integrating into the Va Notify common lib:
   # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
-  def send_failure_email(email)
-    if email.present?
+  def send_failure_email(email_override = nil)
+    recipient_email = email_override || email
+    if recipient_email.present?
       VANotify::EmailJob.perform_async(
-        email,
+        recipient_email,
         Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
         {
           'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
@@ -377,13 +376,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def bgs_client
     @service ||= BGS::Services.new(
-      external_uid: parsed_form['email'],
+      external_uid: email,
       external_key:
     )
   end
 
   def external_key
-    parsed_form.dig('veteranInformation', 'fullName', 'first') || parsed_form['email']
+    parsed_form.dig('veteranInformation', 'fullName', 'first') || email
   end
 
   def veteran_information
@@ -443,7 +442,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def validate_email
-    value = parsed_form['email']
+    value = email
     if value.present? && value.is_a?(String) && value.length > 256
       errors.add('/email', 'must be 256 characters or less')
     end

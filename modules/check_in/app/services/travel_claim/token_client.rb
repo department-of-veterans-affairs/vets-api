@@ -68,7 +68,7 @@ module TravelClaim
         'Authorization' => "Bearer #{veis_access_token}"
       }.merge(claim_headers)
 
-      perform(:post, '/api/v4/auth/system-access-token', body, headers)
+      perform(:post, "#{settings.claims_base_path}/api/v4/auth/system-access-token", body, headers)
     end
   end
 end

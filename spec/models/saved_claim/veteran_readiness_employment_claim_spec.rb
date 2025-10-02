@@ -139,7 +139,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
             it 'sends confirmation email' do
               expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
-                .with(user_object, 'VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
+                .with('VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
 
               claim.send_to_vre(user_object)
             end
@@ -206,15 +206,15 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
         it 'calls the VA notify email job' do
           expect(VANotify::EmailJob).to receive(:perform_async).with(
-            user.va_profile_email,
+            claim.email,
             'ch31_vbms_fake_template_id',
             {
               'date' => Time.zone.today.strftime('%B %d, %Y'),
-              'first_name' => user.first_name.upcase.presence
+              'first_name' => claim.parsed_form['veteranInformation']['fullName']['first']
             }
           )
 
-          claim.send_vbms_lighthouse_confirmation_email(user, 'VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
+          claim.send_vbms_lighthouse_confirmation_email('VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
         end
       end
     end

@@ -18,7 +18,8 @@ describe MedicalRecords::Client do
         VCR.use_cassette 'mr_client/session' do
           VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
             @client ||= begin
-              client = MedicalRecords::Client.new(session: { user_id: '22406991', icn: '1013868614V792025' })
+              client = MedicalRecords::Client.new(session: { user_uuid: '12345', user_id: '22406991',
+                                                             icn: '1013868614V792025' })
               client.authenticate
               client
             end
@@ -642,10 +643,9 @@ describe MedicalRecords::Client do
                        match_requests_on: %i[method sm_user_ignoring_path_param]) do
         VCR.use_cassette 'mr_client/session' do
           VCR.use_cassette 'mr_client/get_a_patient_by_identifier_not_found' do
-            partial_client = MedicalRecords::Client.new(session: {
-                                                          user_id: '22406991',
-                                                          icn: '1013868614V792025'
-                                                        })
+            partial_client = MedicalRecords::Client.new(session: { user_uuid: '12345',
+                                                                   user_id: '22406991',
+                                                                   icn: '1013868614V792025' })
             partial_client.authenticate
 
             VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
@@ -654,6 +654,195 @@ describe MedicalRecords::Client do
             end
           end
         end
+      end
+    end
+  end
+
+  describe '#fhir_search' do
+    let(:client) { MedicalRecords::Client.new(session: { user_id: 'test', icn: 'test' }) }
+    let(:fhir_model) { FHIR::AllergyIntolerance }
+    let(:search_params) do
+      {
+        search: {
+          parameters: {
+            patient: 'patient-123',
+            'clinical-status': 'active'
+          }
+        }
+      }
+    end
+    let(:mock_fhir_client) { double('FHIR::Client') }
+    let(:first_bundle) { FHIR::Bundle.new(entry: [entry1, entry2], next_link: 'https://example.com/fhir?_getpages=abc&_getpagesoffset=1') }
+    let(:second_bundle) { FHIR::Bundle.new(entry: [entry3]) }
+    let(:entry1) { FHIR::Bundle::Entry.new(resource: FHIR::AllergyIntolerance.new(id: '1')) }
+    let(:entry2) { FHIR::Bundle::Entry.new(resource: FHIR::AllergyIntolerance.new(id: '2')) }
+    let(:entry3) { FHIR::Bundle::Entry.new(resource: FHIR::AllergyIntolerance.new(id: '3')) }
+
+    before do
+      allow(client).to receive_messages(
+        fhir_client: mock_fhir_client,
+        default_headers: { 'Cache-Control' => 'no-cache' },
+        rewrite_next_link: nil
+      )
+      allow(client).to receive(:handle_api_errors).and_raise(Common::Exceptions::BackendServiceException.new(400,
+                                                                                                             'Error'))
+      MedicalRecords::Client.send(:public, *MedicalRecords::Client.protected_instance_methods)
+    end
+
+    after do
+      MedicalRecords::Client.send(:protected, *MedicalRecords::Client.protected_instance_methods)
+    end
+
+    context 'when there is only one page of results' do
+      let(:first_reply) { double('FHIR::ClientReply', resource: first_bundle) }
+
+      before do
+        allow(client).to receive(:fhir_search_query).and_return(first_reply)
+        allow(first_bundle).to receive(:next_link).and_return(nil)
+      end
+
+      it 'returns the single bundle without pagination' do
+        result = client.fhir_search(fhir_model, search_params)
+
+        expect(client).to have_received(:fhir_search_query).with(fhir_model, search_params)
+        expect(client).to have_received(:rewrite_next_link).with(first_bundle)
+        expect(result).to eq(first_bundle)
+        expect(result.entry.length).to eq(2)
+      end
+    end
+
+    context 'when there are multiple pages of results' do
+      let(:first_reply) { double('FHIR::ClientReply', resource: first_bundle) }
+      let(:second_reply) { double('FHIR::ClientReply', resource: second_bundle) }
+      let(:next_link) { 'https://example.com/fhir?_getpages=abc&_getpagesoffset=1' }
+
+      before do
+        allow(client).to receive(:fhir_search_query).and_return(first_reply)
+
+        # First call to next_link returns the link, second call returns nil
+        allow(first_bundle).to receive(:next_link).and_return(next_link)
+        allow(second_bundle).to receive(:next_link).and_return(nil)
+
+        allow(mock_fhir_client).to receive(:next_page)
+          .with(first_reply, headers: { 'Cache-Control' => 'no-cache' })
+          .and_return(second_reply)
+
+        allow(client).to receive(:merge_bundles)
+          .with(first_bundle, second_bundle)
+          .and_return(FHIR::Bundle.new(entry: [entry1, entry2, entry3]))
+      end
+
+      context 'when retry feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_retry_next_page).and_return(false)
+        end
+
+        it 'fetches all pages and merges them into a single bundle' do
+          result = client.fhir_search(fhir_model, search_params)
+
+          expect(client).to have_received(:fhir_search_query).with(fhir_model, search_params)
+          expect(client).to have_received(:rewrite_next_link).with(first_bundle)
+          expect(client).to have_received(:rewrite_next_link).with(second_bundle)
+          expect(mock_fhir_client).to have_received(:next_page)
+            .with(first_reply, headers: { 'Cache-Control' => 'no-cache' })
+          expect(client).to have_received(:merge_bundles).with(first_bundle, second_bundle)
+          expect(result.entry.length).to eq(3)
+        end
+
+        it 'handles API errors on next page requests' do
+          error_reply = double('FHIR::ClientReply', resource: nil)
+          allow(mock_fhir_client).to receive(:next_page).and_return(error_reply)
+
+          expect { client.fhir_search(fhir_model, search_params) }.to raise_error(Common::Exceptions::BackendServiceException)
+          expect(client).to have_received(:handle_api_errors).with(error_reply)
+        end
+      end
+
+      context 'when retry feature flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_retry_next_page).and_return(true)
+          allow(client).to receive(:with_retries).and_yield.and_return(second_reply)
+        end
+
+        it 'uses retries when fetching next pages' do
+          result = client.fhir_search(fhir_model, search_params)
+
+          expect(client).to have_received(:with_retries).with(fhir_model)
+          expect(mock_fhir_client).to have_received(:next_page)
+            .with(first_reply, headers: { 'Cache-Control' => 'no-cache' })
+          expect(result.entry.length).to eq(3)
+        end
+
+        it 'handles API errors with retries on next page requests' do
+          error_reply = double('FHIR::ClientReply', resource: nil)
+          # Override the parent context setup for this specific test
+          allow(mock_fhir_client).to receive(:next_page).and_return(error_reply)
+          allow(client).to receive(:merge_bundles)
+          allow(client).to receive(:with_retries).and_yield.and_return(error_reply)
+
+          expect { client.fhir_search(fhir_model, search_params) }.to raise_error(Common::Exceptions::BackendServiceException)
+          expect(client).to have_received(:handle_api_errors).with(error_reply)
+        end
+      end
+    end
+
+    context 'when there are three pages of results' do
+      let(:first_reply) { double('FHIR::ClientReply', resource: first_bundle) }
+      let(:second_reply) { double('FHIR::ClientReply', resource: second_bundle) }
+      let(:third_bundle) { FHIR::Bundle.new(entry: [FHIR::Bundle::Entry.new(resource: FHIR::AllergyIntolerance.new(id: '4'))]) }
+      let(:third_reply) { double('FHIR::ClientReply', resource: third_bundle) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_retry_next_page).and_return(false)
+        allow(client).to receive(:fhir_search_query).and_return(first_reply)
+
+        # Configure next_link behavior for pagination
+        allow(first_bundle).to receive(:next_link).and_return('page2_link')
+        allow(second_bundle).to receive(:next_link).and_return('page3_link')
+        allow(third_bundle).to receive(:next_link).and_return(nil)
+
+        allow(mock_fhir_client).to receive(:next_page)
+          .with(first_reply, headers: { 'Cache-Control' => 'no-cache' })
+          .and_return(second_reply)
+        allow(mock_fhir_client).to receive(:next_page)
+          .with(second_reply, headers: { 'Cache-Control' => 'no-cache' })
+          .and_return(third_reply)
+
+        # Mock merge_bundles to return progressively larger bundles
+        intermediate_bundle = FHIR::Bundle.new(entry: [entry1, entry2, entry3])
+        end_bundle = FHIR::Bundle.new(entry: [entry1, entry2, entry3,
+                                              FHIR::Bundle::Entry.new(resource: FHIR::AllergyIntolerance.new(id: '4'))])
+
+        allow(client).to receive(:merge_bundles)
+          .with(first_bundle, second_bundle)
+          .and_return(intermediate_bundle)
+        allow(client).to receive(:merge_bundles)
+          .with(intermediate_bundle, third_bundle)
+          .and_return(end_bundle)
+      end
+
+      it 'fetches all three pages and merges them sequentially' do
+        result = client.fhir_search(fhir_model, search_params)
+
+        expect(mock_fhir_client).to have_received(:next_page).twice
+        expect(client).to have_received(:merge_bundles).twice
+        expect(client).to have_received(:rewrite_next_link).exactly(3).times
+        expect(result.entry.length).to eq(4)
+      end
+    end
+
+    context 'when the initial search query fails' do
+      before do
+        # Override the parent context setup and make fhir_search_query raise an exception directly
+        allow(client).to receive(:handle_api_errors).and_call_original
+        allow(client).to receive(:fhir_search_query).and_raise(Common::Exceptions::BackendServiceException.new(400,
+                                                                                                               'Error'))
+      end
+
+      it 'handles API errors from the initial query' do
+        expect { client.fhir_search(fhir_model, search_params) }.to raise_error(Common::Exceptions::BackendServiceException)
+
+        expect(client).to have_received(:fhir_search_query).with(fhir_model, search_params)
       end
     end
   end

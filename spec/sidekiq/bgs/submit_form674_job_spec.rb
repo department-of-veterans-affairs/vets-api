@@ -4,6 +4,11 @@ require 'rails_helper'
 require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm674Job, type: :job do
+  # performance tweak
+  before do
+    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
+  end
+
   let(:user) { create(:evss_user, :loa3, :with_terms_of_use_agreement) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:dependency_claim_674_only) { create(:dependency_claim_674_only) }
@@ -56,7 +61,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         .with(hash_including(user_struct.to_h.stringify_keys))
         .and_return(user_struct)
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+        subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
       end.not_to raise_error
     end
 
@@ -65,7 +70,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         .with(hash_including(icn: vet_info['veteran_information']['icn']))
         .and_return(user_struct)
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info)
+        subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info)
       end.not_to raise_error
     end
 
@@ -88,7 +93,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
                                service_name: 'dependents' } }
       )
 
-      subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+      subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
     end
   end
 
@@ -107,7 +112,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm674Job::Invalid674Claim)
 
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+        subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
       end.to raise_error(BGS::SubmitForm674Job::Invalid674Claim)
     end
 
@@ -119,7 +124,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       expect(client_stub).to receive(:submit) { raise_nested_err }
 
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+        subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
       end.to raise_error(Sidekiq::JobRetry::Skip)
     end
   end
@@ -146,7 +151,39 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
                                service_name: 'dependents' } }
       )
 
-      subject.perform(user.uuid, user.icn, dependency_claim_674_only.id, encrypted_vet_info, encrypted_user_struct)
+      subject.perform(user.uuid, dependency_claim_674_only.id, encrypted_vet_info, encrypted_user_struct)
+    end
+  end
+
+  context 'sidekiq_retries_exhausted' do
+    it 'tracks exhaustion event and sends backup submission' do
+      msg = {
+        'args' => [user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct],
+        'error_message' => 'Connection timeout'
+      }
+      error = StandardError.new('Job failed')
+
+      # Mock the monitor
+      monitor_double = instance_double(Dependents::Monitor)
+      expect(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
+
+      # Expect the monitor to track the exhaustion event
+      expect(monitor_double).to receive(:track_event).with(
+        'error',
+        'BGS::SubmitForm674Job failed, retries exhausted! Last error: Connection timeout',
+        'worker.submit_674_bgs.exhaustion'
+      )
+
+      # Expect the backup submission to be called
+      expect(BGS::SubmitForm674Job).to receive(:send_backup_submission).with(
+        encrypted_user_struct,
+        vet_info,
+        dependency_claim.id,
+        user.uuid
+      )
+
+      # Call the sidekiq_retries_exhausted callback
+      described_class.sidekiq_retries_exhausted_block.call(msg, error)
     end
   end
 end

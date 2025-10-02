@@ -13,13 +13,11 @@
     <p>
       <b>Rogers STEM Scholarship Applicant</b>
       <br>
-      Student's name: <%= stub_name(@applicant.veteranFullName) %>
+      Student's name: <%= first_initial_last_name(@applicant.veteranFullName) %>
       <br>
       Student's school email address: <%= @applicant.schoolEmailAddress %>
       <br>
       Student's school ID number: <%= @applicant.schoolStudentId %>
-      <br>
-      Student's VA student identifier number: 00<%= @applicant.veteranSocialSecurityNumber[-4..-1] %>
     </p>
 
     <p>

@@ -7153,6 +7153,104 @@
       }
     },
     "/v0/travel-pay/claims": {
+      "get": {
+        "description": "Retrieve travel pay claims for a user within a specified date range.",
+        "parameters": [
+          {
+            "description": "The start date for the range of claims in ISO 8601 date-time format (YYYY-MM-DDTHH:MM:SS)",
+            "example": "2024-01-01T00:00:00",
+            "in": "query",
+            "name": "start_date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "description": "The end date for the range of claims in ISO 8601 date-time format (YYYY-MM-DDTHH:MM:SS)",
+            "example": "2024-03-31T23:59:59",
+            "in": "query",
+            "name": "end_date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "description": "The page number requested. Defaults to 1.",
+            "example": 1,
+            "in": "query",
+            "name": "page_number",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPayClaims"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "206": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPayClaims"
+                }
+              }
+            },
+            "description": "Partial Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/travel-pay/claims"
+      },
       "post": {
         "description": "Submit a mileage-only travel claim.",
         "parameters": [
@@ -7216,6 +7314,69 @@
           }
         ],
         "summary": "/v0/travel-pay/claims"
+      }
+    },
+    "/v0/travel-pay/claims/{id}": {
+      "get": {
+        "description": "Retrieve details for a specific travel pay claim by ID.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          },
+          {
+            "description": "The unique identifier for the travel pay claim",
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPayClaimDetails"
+                }
+              }
+            },
+            "description": "Travel pay claim details retrieved successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/travel-pay/claims/{id}"
       }
     },
     "/v0/user": {
@@ -10006,6 +10167,11 @@
                 }
               },
               "showScheduleLink": {
+                "type": "boolean",
+                "nullable": true,
+                "example": true
+              },
+              "isCerner": {
                 "type": "boolean",
                 "nullable": true,
                 "example": true
@@ -20223,9 +20389,9 @@
                 "example": "2022-10-28T04:00:00.000Z"
               },
               "quantity": {
-                "type": "integer",
+                "type": "string",
                 "nullable": true,
-                "example": 10
+                "example": "10"
               },
               "expirationDate": {
                 "type": "string",
@@ -20543,7 +20709,8 @@
               "Civil Service Preference Letter",
               "Benefit Summary Letter",
               "Dependent Benefit Summary Letter",
-              "Benefit Verification Letter"
+              "Benefit Verification Letter",
+              "Certificate of Eligibility for Home Loan Letter"
             ]
           },
           "letterType": {
@@ -20558,7 +20725,8 @@
               "benefit_summary",
               "benefit_summary_dependent",
               "benefit_verification",
-              "certificate_of_eligibility"
+              "certificate_of_eligibility",
+              "certificate_of_eligibility_home_loan"
             ]
           }
         }
@@ -23052,7 +23220,8 @@
                     "relationType",
                     "locationName",
                     "suggestedNameDisplay",
-                    "healthCareSystemName"
+                    "healthCareSystemName",
+                    "ohTriageGroup"
                   ],
                   "properties": {
                     "triageTeamId": {
@@ -23085,6 +23254,10 @@
                     "healthCareSystemName": {
                       "type": "string",
                       "example": "VA Health Care System"
+                    },
+                    "ohTriageGroup": {
+                      "type": "boolean",
+                      "example": true
                     }
                   }
                 }
@@ -23094,7 +23267,8 @@
           "meta": {
             "type": "object",
             "required": [
-              "sort"
+              "sort",
+              "careSystems"
             ],
             "properties": {
               "sort": {
@@ -23124,6 +23298,26 @@
               "friendlyTriageTeamPilotFacilities": {
                 "type": "string",
                 "example": "979,989"
+              },
+              "careSystems": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "stationNumber",
+                    "healthCareSystemName"
+                  ],
+                  "properties": {
+                    "stationNumber": {
+                      "type": "string",
+                      "example": "979"
+                    },
+                    "healthCareSystemName": {
+                      "type": "string",
+                      "example": "VAMC Columbus"
+                    }
+                  }
+                }
               }
             }
           }
@@ -23798,54 +23992,6 @@
           }
         }
       },
-      "TravelPaySubmitMileageOnlyClaim": {
-        "description": "Submit a mileage only claim for travel pay reimbursement.",
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "appointmentDateTime",
-          "facilityStationNumber",
-          "facilityName",
-          "appointmentType",
-          "isComplete"
-        ],
-        "properties": {
-          "appointmentDateTime": {
-            "type": "string",
-            "description": "The date and time of the appointment in ISO 8601 format.",
-            "example": "2023-02-23T22:22:52.549Z"
-          },
-          "facilityStationNumber": {
-            "type": "string",
-            "description": "The station number of the VA facility where the appointment is registered.",
-            "example": "983GC"
-          },
-          "facilityName": {
-            "type": "string",
-            "description": "The name of the VA facility where the appointment is registered.",
-            "example": "Cheyenne VA Medical Center"
-          },
-          "appointmentType": {
-            "type": "string",
-            "description": "The type of appointment.",
-            "enum": [
-              "CompensationAndPension",
-              "Other"
-            ],
-            "example": "CompensationAndPension"
-          },
-          "isComplete": {
-            "type": "boolean",
-            "description": "Indicates whether the appointment is complete.",
-            "example": true
-          },
-          "appointmentName": {
-            "type": "string",
-            "description": "The name of the appointment. Optional, but if provided cannot be an empty string.",
-            "example": "Primary care appointment with Dr. Smith"
-          }
-        }
-      },
       "TravelPayClaimSummary": {
         "type": "object",
         "additionalProperties": false,
@@ -23907,6 +24053,324 @@
             "type": "string",
             "nullable": false,
             "example": "2023-02-26T22:22:52.549Z"
+          }
+        }
+      },
+      "TravelPayClaims": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "meta",
+          "data"
+        ],
+        "properties": {
+          "meta": {
+            "type": "object",
+            "required": [
+              "totalRecordCount",
+              "pageNumber",
+              "status"
+            ],
+            "properties": {
+              "totalRecordCount": {
+                "type": "integer",
+                "description": "Total number of claims found. Will be 0 if no claims exist within the specified date range.",
+                "minimum": 0,
+                "example": 25
+              },
+              "pageNumber": {
+                "type": "integer",
+                "example": 1
+              },
+              "status": {
+                "type": "integer",
+                "enum": [
+                  200,
+                  206
+                ],
+                "example": 200
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "description": "Array of travel pay claims. Will be empty if no claims are found within the specified date range.",
+            "minItems": 0,
+            "items": {
+              "$ref": "#/components/schemas/TravelPayClaimSummary"
+            }
+          }
+        }
+      },
+      "TravelPaySubmitMileageOnlyClaim": {
+        "description": "Submit a mileage only claim for travel pay reimbursement.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "appointmentDateTime",
+          "facilityStationNumber",
+          "facilityName",
+          "appointmentType",
+          "isComplete"
+        ],
+        "properties": {
+          "appointmentDateTime": {
+            "type": "string",
+            "description": "The date and time of the appointment in ISO 8601 format.",
+            "example": "2023-02-23T22:22:52.549Z"
+          },
+          "facilityStationNumber": {
+            "type": "string",
+            "description": "The station number of the VA facility where the appointment is registered.",
+            "example": "983GC"
+          },
+          "facilityName": {
+            "type": "string",
+            "description": "The name of the VA facility where the appointment is registered.",
+            "example": "Cheyenne VA Medical Center"
+          },
+          "appointmentType": {
+            "type": "string",
+            "description": "The type of appointment.",
+            "enum": [
+              "CompensationAndPension",
+              "Other"
+            ],
+            "example": "CompensationAndPension"
+          },
+          "isComplete": {
+            "type": "boolean",
+            "description": "Indicates whether the appointment is complete.",
+            "example": true
+          },
+          "appointmentName": {
+            "type": "string",
+            "description": "The name of the appointment. Optional, but if provided cannot be an empty string.",
+            "example": "Primary care appointment with Dr. Smith"
+          }
+        }
+      },
+      "TravelPayClaimDetails": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "claimStatus",
+          "appointmentDate",
+          "createdOn",
+          "modifiedOn"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": false,
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          },
+          "claimNumber": {
+            "type": "string",
+            "nullable": true,
+            "example": "TC0000000000001"
+          },
+          "claimName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Claim created for NOLLE BARAKAT"
+          },
+          "claimantFirstName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Nolle"
+          },
+          "claimantMiddleName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Polite"
+          },
+          "claimantLastName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Barakat"
+          },
+          "claimStatus": {
+            "type": "string",
+            "nullable": false,
+            "example": "Pre approved for payment"
+          },
+          "appointmentDate": {
+            "type": "string",
+            "nullable": false,
+            "example": "2024-01-01T16:45:34.465Z"
+          },
+          "facilityName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Cheyenne VA Medical Center"
+          },
+          "totalCostRequested": {
+            "type": "number",
+            "nullable": true,
+            "example": 20
+          },
+          "reimbursementAmount": {
+            "type": "number",
+            "nullable": true,
+            "example": 14.52
+          },
+          "rejectionReason": {
+            "type": "object",
+            "nullable": true,
+            "description": "Rejection reason description",
+            "additionalProperties": false,
+            "properties": {
+              "rejectionReasonId": {
+                "type": "string",
+                "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              },
+              "rejectionReasonName": {
+                "type": "string",
+                "example": "INCOMPLETE_DOCUMENTATION"
+              },
+              "rejectionReasonTitle": {
+                "type": "string",
+                "example": "Incomplete Documentation"
+              },
+              "rejectionReasonDescription": {
+                "type": "string",
+                "example": "The claim was rejected due to missing required documentation"
+              }
+            }
+          },
+          "appointment": {
+            "type": "object",
+            "nullable": false,
+            "description": "Appointment details associated with the claim",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              },
+              "appointmentSource": {
+                "type": "string",
+                "example": "API"
+              },
+              "appointmentDateTime": {
+                "type": "string",
+                "example": "2024-01-01T16:45:34.465Z"
+              },
+              "appointmentType": {
+                "type": "string",
+                "example": "EnvironmentalHealth"
+              },
+              "facilityId": {
+                "type": "string",
+                "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              },
+              "facilityName": {
+                "type": "string",
+                "example": "Cheyenne VA Medical Center"
+              },
+              "serviceConnectedDisability": {
+                "type": "integer",
+                "example": 30
+              },
+              "appointmentStatus": {
+                "type": "string",
+                "example": "Complete"
+              },
+              "externalAppointmentId": {
+                "type": "string",
+                "example": "12345"
+              },
+              "associatedClaimId": {
+                "type": "string",
+                "example": "uuid1"
+              },
+              "associatedClaimNumber": {
+                "type": "string",
+                "example": "TC0000000000001"
+              },
+              "isCompleted": {
+                "type": "boolean",
+                "example": true
+              }
+            }
+          },
+          "expenses": {
+            "type": "array",
+            "nullable": true,
+            "description": "List of expenses associated with the claim",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                },
+                "expenseType": {
+                  "type": "string",
+                  "example": "Mileage"
+                },
+                "name": {
+                  "type": "string",
+                  "example": ""
+                },
+                "dateIncurred": {
+                  "type": "string",
+                  "example": "2024-01-01T16:45:34.465Z"
+                },
+                "description": {
+                  "type": "string",
+                  "example": "mileage-expense"
+                },
+                "costRequested": {
+                  "type": "number",
+                  "example": 20
+                },
+                "costSubmitted": {
+                  "type": "number",
+                  "example": 20
+                }
+              }
+            }
+          },
+          "documents": {
+            "type": "array",
+            "nullable": true,
+            "description": "List of documents associated with the claim",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "documentId": {
+                  "type": "string",
+                  "example": "uuid1"
+                },
+                "filename": {
+                  "type": "string",
+                  "example": "DecisionLetter.pdf"
+                },
+                "mimetype": {
+                  "type": "string",
+                  "example": "application/pdf"
+                },
+                "createdon": {
+                  "type": "string",
+                  "example": "2025-03-24T14:00:52.893Z"
+                }
+              }
+            }
+          },
+          "createdOn": {
+            "type": "string",
+            "nullable": false,
+            "example": "2025-03-12T20:27:14.088Z"
+          },
+          "modifiedOn": {
+            "type": "string",
+            "nullable": false,
+            "example": "2025-03-12T20:27:14.088Z"
           }
         }
       },
@@ -24243,7 +24707,9 @@
                   "prescriptions": false,
                   "scheduleAppointments": true,
                   "secureMessaging": false,
-                  "userProfileUpdate": true
+                  "userProfileUpdate": true,
+                  "secureMessagingOracleHealthEnabled": false,
+                  "medicationsOracleHealthEnabled": false
                 }
               }
             }
@@ -24436,16 +24902,27 @@
                 "nullable": true,
                 "required": [
                   "id",
-                  "emailAddress"
+                  "emailAddress",
+                  "confirmationDate",
+                  "updatedAt"
                 ],
                 "properties": {
                   "id": {
                     "type": "integer",
                     "example": 157032
                   },
-                  "contactEmail": {
+                  "emailAddress": {
                     "type": "string",
                     "example": "person@example.com"
+                  },
+                  "confirmationDate": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "2018-04-21T20:09:50Z"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "example": "2018-04-21T20:09:50Z"
                   }
                 }
               }

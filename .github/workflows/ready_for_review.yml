@@ -148,8 +148,9 @@ jobs:
 
           for WORKFLOW in "${WORKFLOWS[@]}"; do
             # Check if there's any in-progress run for this workflow
+
             IN_PROGRESS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=in_progress --json headBranch,event,headSha -q \
-              ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | .headSha" | head -n 1)
+              ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | .headSha" | head -n 1 || true)
 
             if [ -n "$IN_PROGRESS" ]; then
               echo "$WORKFLOW is still in progress."
@@ -157,7 +158,8 @@ jobs:
             else
               # Check if the latest completed run was successful
               SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion,headSha -q \
-                ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | select(.conclusion == \"success\") | .headSha" | head -n 1)
+                ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | select(.conclusion == \"success\") | .headSha" | head -n 1 || true)
+
               if [ -z "$SUCCESSFUL" ]; then
                 echo "$WORKFLOW did not complete successfully."
                 ((unsuccessful_count++))
@@ -208,7 +210,7 @@ jobs:
           fetch-depth: 0
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: "us-gov-west-1"
@@ -228,6 +230,7 @@ jobs:
           backend_approval_required=true
           exempt_team=false
           exempt_author=false
+          review_complete=false
           PR_REQUESTED_TEAMS="${{ env.pr_requested_teams }}"
           PR_AUTHOR=${{ env.pr_author }}
           PR_REQUESTED_TEAMS_JSON=$(echo "$PR_REQUESTED_TEAMS" | sed 's/\[/["/' | sed 's/\]/"]/' | sed 's/,/","/g')
@@ -239,8 +242,7 @@ jobs:
             lighthouse-pivot
             lighthouse-banana-peels
             mobile-api-team
-            accredited-representatives-admin
-            benefits-admin
+            fed-eng-admin
           )
 
           BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
@@ -256,82 +258,111 @@ jobs:
             echo "PR author '$PR_AUTHOR' is NOT a backend-review-group member."
           fi
 
-          APPROVED=$(gh api /repos/${{ github.repository }}/pulls/${pr_number}/reviews --jq '
-            [ .[]
-            | select(.state == "APPROVED")
-            ]
-            | sort_by(.submitted_at)
-            | reverse
-            | unique_by(.user.login)
-            | .[].user.login
-          ' || true)
+          readarray -t APPROVED < <(
+            gh api /repos/${{ github.repository }}/pulls/${pr_number}/reviews --jq '
+              [ .[]
+              | select(.state == "APPROVED")
+              ]
+              | sort_by(.submitted_at)
+              | reverse
+              | unique_by(.user.login)
+              | .[].user.login
+            ' || true
+          )
 
-          for TEAM in "${EXEMPT_TEAMS[@]}"; do
-            echo "Non BE Requested Team: $TEAM"
-            if [[ "$author_is_backend" == "false" ]]; then
-              membership_state=$(gh api -X GET \
-                "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
-                --jq '.state' 2>/dev/null || echo "")
-              if [[ "$membership_state" == "active" ]]; then
-                echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
-                exempt_team=true
-                backend_approval_required=false
-                break
+          readarray -t DISMISSED < <(
+            gh api /repos/department-of-veterans-affairs/vets-api/pulls/23698/reviews --jq '
+              [ .[]
+              | select(.state == "DISMISSED")
+              ]
+              | sort_by(.submitted_at)
+              | reverse
+              | unique_by(.user.login)
+              | .[].user.login
+            ' || true
+          )
+
+          if [ "${#APPROVED[@]}" -gt 0 ]; then
+            echo "Approvers: ${APPROVED[@]}"
+            for approve in "${APPROVED[@]}"; do
+              echo "Checking approver: $approve"
+              TEAM_APPROVALS=$(echo "$approve" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
+              BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
+              if [[ -n "$TEAM_APPROVALS" ]]; then
+                echo "PR Reviewer '$approve' is NOT a backend-review-group member."
+                team_approval_status=confirmed
+                 echo "TEAM APPROVAL CONFIRMED"
+
+                for TEAM in "${EXEMPT_TEAMS[@]}"; do
+                  membership_state=$(gh api -X GET \
+                    "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$approve" \
+                    --jq '.state' 2>/dev/null || echo "")
+                  if [[ "$membership_state" == "active" ]]; then
+                    echo "$approve is an active member of $TEAM"
+                    review_complete=true
+                    exempt_team=true
+                    backend_approval_required=false
+                    approval_status=confirmed
+                    break
+                  fi
+                done
+              elif [[ -n "$BE_APPROVALS" ]]; then
+                echo "BE APPROVAL CONFIRMED"
+                approval_status=confirmed
               fi
+            done
+          else
+            if [ "${#DISMISSED[@]}" -gt 0 ]; then
+              for dismiss in "${DISMISSED[@]}"; do
+                echo "Checking dismissed review: $dismiss"
+                if ! echo "$dismiss" | grep -iqE "^($BACKEND_REVIEWERS)$"; then
+                  membership_state=$(gh api -X GET \
+                    "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$dismiss" \
+                    --jq '.state' 2>/dev/null || echo "")
+                  if [[ "$membership_state" == "active" ]]; then
+                    echo "$dismiss is an active member of $TEAM"
+                    exempt_team=true
+                    backend_approval_required=false
+                  fi
+                fi
+              done
             fi
-            if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e ". | index(\"$TEAM\")" > /dev/null; then
-              echo "Excemption Teams were found: $TEAM"
-              exempt_team=true
-              backend_approval_required=false
-              break
-            fi
-          done
+          fi
 
-          if [[ -n "$APPROVED" ]]; then
-            echo "Approved by: $APPROVED"
-            TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
-            BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
-
-            echo "Team Approvals: $TEAM_APPROVALS"
-
-            if [ -z "$TEAM_APPROVALS" ]; then
-              echo "TEAM APPROVAL REQUIRED"
-            else
-              echo "TEAM APPROVAL CONFIRMED"
-              team_approval_status=confirmed
-            fi
-
-            if [ -z "$BE_APPROVALS" ]; then
-              echo "PR Reviewer '$APPROVED' is NOT a backend-review-group member."
-              for TEAM in "${EXEMPT_TEAMS[@]}"; do
-                echo "Fetching members of team: $TEAM"
-                membership_state=$(gh api -X GET \
-                  "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$APPROVED" \
-                  --jq '.state' 2>/dev/null || echo "")
-
-                if [[ "$membership_state" == "active" ]]; then
-                  echo "Reviewer is a member of an exempt team"
-                  exempt_team=true
-                  backend_approval_required=false
-                  approval_status=confirmed
-                  team_approval_status=confirmed
-                  break
+          if [[ "${review_complete}" == "false" ]]; then
+            if [ -z "$PR_REQUESTED_TEAMS_JSON" ] || [ "$PR_REQUESTED_TEAMS_JSON" = "[]" ]; then
+              # Check PR Labels
+              PR_LABELS="${pr_labels}"
+              echo "$PR_LABELS" | jq -r '.[]' | while read -r LABEL; do
+                echo "Fetching label: $LABEL"
+                if [[ "$LABEL" == "require-backend-approval" ]]; then
+                  echo "$LABEL exists"
+                  exempt_team=false
+                  backend_approval_required=true
                 fi
               done
             fi
 
-            if [[ "${exempt_team}" == "false" ]]; then
-              echo "Backend Approvals: $BE_APPROVALS"
-              if [ -z "$BE_APPROVALS" ]; then
-                echo "BE APPROVAL REQUIRED"
-              else
-                echo "BE APPROVAL CONFIRMED"
-                approval_status=confirmed
-                backend_approval_required=false
+            for TEAM in "${EXEMPT_TEAMS[@]}"; do
+              echo "Non BE Requested Team: $TEAM"
+              if [[ "$author_is_backend" == "false" ]]; then
+                membership_state=$(gh api -X GET \
+                  "orgs/department-of-veterans-affairs/teams/${TEAM}/memberships/$PR_AUTHOR" \
+                  --jq '.state' 2>/dev/null || echo "")
+                if [[ "$membership_state" == "active" ]]; then
+                  echo "PR author '$PR_AUTHOR' is a member of exempt team '$TEAM'."
+                  exempt_team=true
+                  backend_approval_required=false
+                  break
+                fi
               fi
-            fi
-          else
-            echo "No approvals found"
+              if echo "$PR_REQUESTED_TEAMS_JSON" | jq -e ". | index(\"$TEAM\")" > /dev/null; then
+                echo "Excemption Teams were found: $TEAM"
+                exempt_team=true
+                backend_approval_required=false
+                break
+              fi
+            done
           fi
 
           echo "exempt_team=${exempt_team}" >> $GITHUB_OUTPUT

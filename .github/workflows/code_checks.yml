@@ -38,7 +38,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
+          fetch-depth: 1
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -68,10 +68,72 @@ jobs:
           number: ${{ github.event.pull_request.number }}
           labels: lint-failure
 
+  build:
+    name: Build and Cache Docker Image
+    runs-on: ubuntu-16-cores-latest
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      DOCKER_BUILDKIT: 1
+    steps:
+      - name: Checkout PR
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/checkout@v5
+
+      - name: Checkout PR HEAD ref
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
+          aws-region: us-gov-west-1
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2.0.1
+        with:
+          mask-password: true
+
+      - name: Set Environment Variable
+        run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Cache Docker Image
+        uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_SUMMARY: false
+        with:
+          build-args: |
+            BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+            USER_ID=${{ env.VETS_API_USER_ID }}
+          context: .
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   tests:
-    name: Test
-    runs-on: ubuntu-32-cores-latest
+    name: Test (Group ${{ matrix.test_group }})
+    runs-on: ubuntu-16-cores-latest
     permissions: write-all
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        test_group: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       ECR_REGISTRY_WITH_SLASH: "${{ secrets.ECR_REGISTRY }}/"
@@ -102,7 +164,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: us-gov-west-1
@@ -132,7 +194,6 @@ jobs:
           load: true
           tags: vets-api
           cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Setup Database
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
@@ -142,7 +203,7 @@ jobs:
           max_attempts: 3
           command: >
             ${{ env.COMPOSE_BASH_CMD }}
-            "bundle exec rake parallel:setup[24]"
+            "bundle exec rails db:test:prepare"
 
       - name: Setup system tmp dir
         run: >
@@ -151,23 +212,34 @@ jobs:
 
       - name: Run Specs
         timeout-minutes: 15
+        env:
+          TEST_ENV_NUMBER: ${{ matrix.test_group }}
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
-          "TMPDIR=tmp/systmp bundle exec rake 'parallel:spec[24, , , modules\/]'"
+          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 24 -o '--format documentation'"
 
-      - name: Upload Coverage Report
+      - name: Prepare SimpleCov shard payload
+        if: always()
+        run: |
+          mkdir -p simplecov-resultset-${{ matrix.test_group }}
+          if [ -f coverage/.resultset.json ]; then
+            mv coverage/.resultset.json simplecov-resultset-${{ matrix.test_group }}/.resultset.json
+          fi
+
+      - name: Upload SimpleCov raw resultset
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Coverage Report
-          path: coverage
+          name: simplecov-resultset-${{ matrix.test_group }}
+          path: simplecov-resultset-${{ matrix.test_group }}/.resultset.json
           include-hidden-files: true
+          if-no-files-found: warn
 
       - name: Upload Test Results (JUnit XMLs)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Test Results
+          name: Test Results Group ${{ matrix.test_group }}
           path: log/*.xml
           if-no-files-found: ignore
 
@@ -175,7 +247,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Test Artifacts (log directory)
+          name: Test Artifacts (log directory) Group ${{ matrix.test_group }}
           path: |
             log
             !log/*.xml
@@ -185,24 +257,10 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: Test Artifacts (rails tmp directory)
+          name: Test Artifacts (rails tmp directory) Group ${{ matrix.test_group }}
           path: tmp
           if-no-files-found: ignore
           retention-days: 14
-
-      - name: Remove Test Failure label
-        if: ${{ success() && github.event_name == 'pull_request' }}
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-failure
-
-      - name: Add Test Failure label
-        if: ${{ failure() && github.event_name == 'pull_request' }}
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-failure
 
   publish_results:
     name: Publish Test Results and Coverage
@@ -220,17 +278,99 @@ jobs:
         with:
           check_name: Test Results
           comment_mode: off
-          files: Test Results/*.xml
+          files: Test Results Group*/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Add Test Failure label
+        if: ${{ needs.tests.result == 'failure' && github.event_name == 'pull_request' }}
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: test-failure
+
+      - name: Fail job if tests failed
+        if: ${{ needs.tests.result == 'failure' }}
+        run: exit 1
+
+      - name: Remove Test Failure label
+        if: ${{ needs.tests.result == 'success' && github.event_name == 'pull_request' }}
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: test-failure
+
+      - name: Download coverage artifacts
+        if: needs.tests.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: simplecov-resultset-*
+          path: .
+
+      - name: Checkout code for Docker setup
+        if: needs.tests.result == 'success'
+        uses: actions/checkout@v5
+        with:
+          path: vets-api
+
+      - name: Copy coverage artifacts to workspace
+        if: needs.tests.result == 'success'
+        run: |
+          echo "=== Copying coverage artifacts into vets-api directory ==="
+          cp -r simplecov-resultset-* vets-api/ || echo "No coverage artifacts to copy"
+          echo "=== Verifying artifacts in vets-api directory ==="
+          ls -la vets-api/simplecov-resultset-* || echo "No simplecov-resultset-* directories in vets-api"
+
+      - name: Login to DockerHub
+        if: needs.tests.result == 'success'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        if: needs.tests.result == 'success'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image for Coverage
+        if: needs.tests.result == 'success'
+        uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_SUMMARY: false
+        with:
+          build-args: |
+            BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+            USER_ID=1001
+          context: vets-api
+          push: false
+          load: true
+          tags: vets-api-coverage
+          cache-from: type=gha
+
+      - name: Collate coverage and generate report
+        if: needs.tests.result == 'success'
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/vets-api:/app \
+            -w /app \
+            vets-api-coverage \
+            bundle exec rake coverage:report
+
+      - name: Upload Combined Coverage HTML
+        if: needs.tests.result == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Coverage Report
+          path: vets-api/coverage
+          if-no-files-found: ignore
       - name: Fix up coverage report to work with coverage-check-action
-        run: sed -i 's/"line"/"covered_percent"/g' 'Coverage Report/.last_run.json'
+        if: needs.tests.result == 'success'
+        run: sed -i 's/"line"/"covered_percent"/g' 'vets-api/coverage/.last_run.json'
 
       - name: Publish Coverage Report
-        if: ${{ hashFiles('Coverage Report/.last_run.json') != '' }}
+        if: needs.tests.result == 'success'
         uses: devmasx/coverage-check-action@v1.2.0
         with:
           type: simplecov
-          result_path: Coverage Report/.last_run.json
+          result_path: vets-api/coverage/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}

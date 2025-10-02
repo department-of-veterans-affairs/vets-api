@@ -44,7 +44,7 @@ module Dependents
     end
 
     def default_payload
-      { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: @claim&.user_account_id, tags: }
+      { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: nil, tags: }
     end
 
     def tags
@@ -52,7 +52,7 @@ module Dependents
     end
 
     def track_submission_exhaustion(msg, email = nil)
-      additional_context = default_payload.merge({ message: msg })
+      additional_context = default_payload.merge({ error: msg })
       if email
         # if an email address is present it means an email has been sent by vanotify
         # this means the silent failure is avoided.
@@ -113,6 +113,14 @@ module Dependents
                                e, user_account_uuid)
     end
 
+    def track_pdf_upload_error
+      metric = "#{CLAIM_STATS_KEY}.upload_pdf.failure"
+      metric = "#{metric}.v2" if @use_v2
+      payload = default_payload.merge({ statsd: metric })
+
+      track_event('error', 'DependencyClaim error in upload_to_vbms method', metric, payload)
+    end
+
     def track_to_pdf_failure(e, form_id)
       metric = "#{CLAIM_STATS_KEY}.to_pdf.failure"
       metric = "#{metric}.v2" if @use_v2
@@ -139,6 +147,9 @@ module Dependents
 
     def track_event(level, message, stats_key, payload = {})
       submit_event(level, message, stats_key, default_payload.merge(payload))
+    rescue => e
+      Rails.logger.error('Dependents::Monitor#track_event error',
+                         { level:, message:, stats_key:, payload:, error: e.message })
     end
   end
 end

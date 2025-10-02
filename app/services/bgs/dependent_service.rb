@@ -87,30 +87,31 @@ module BGS
     end
 
     def claims_evidence_uploader
-      @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier, content_source: self.class.to_s)
+      @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(folder_identifier)
     end
 
     def submit_pdf_job(claim:, encrypted_vet_info:)
       @monitor = init_monitor(claim&.id)
       if Flipper.enabled?(:dependents_claims_evidence_api_upload)
-        @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+        @monitor.track_event('info', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
                              "#{STATS_KEY}.submit_pdf.begin")
         form_id = submit_claim_via_claims_evidence(claim)
         submit_attachments_via_claims_evidence(form_id, claim)
       else
-        @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
+        @monitor.track_event('info', 'BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
                              "#{STATS_KEY}.submit_pdf.begin")
         # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
         VBMS::SubmitDependentsPdfJob.perform_sync(claim.id, encrypted_vet_info, claim.submittable_686?,
                                                   claim.submittable_674?)
       end
 
-      @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job completed',
+      @monitor.track_event('info', 'BGS::DependentService#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
-    rescue
+    rescue => e
+      error = Flipper.enabled?(:dependents_log_vbms_errors) ? e.message : '[REDACTED]'
       @monitor.track_event('warn',
                            'BGS::DependentService#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
-                           "#{STATS_KEY}.submit_pdf.failure")
+                           "#{STATS_KEY}.submit_pdf.failure", { error: })
       raise PDFSubmissionError
     end
 
@@ -120,12 +121,17 @@ module BGS
       if claim.submittable_686?
         form_id = '686C-674'
         file_path = claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
+        @monitor.track_event('info', "#{self.class} claims evidence upload of #{form_id} claim_id #{claim.id}",
+                             "#{STATS_KEY}.claims_evidence.upload", tags: ["form_id:#{form_id}"])
         claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)
       end
+
       if claim.submittable_674?
         form_id = '21-674'
-        doctype = '142'
+        doctype = 142
         claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
+        @monitor.track_event('info', "#{self.class} claims evidence upload of #{form_id} claim_id #{claim.id}",
+                             "#{STATS_KEY}.claims_evidence.upload", tags: ["form_id:#{form_id}"])
         claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)
       end
 
@@ -133,6 +139,7 @@ module BGS
     end
 
     def submit_attachments_via_claims_evidence(form_id, claim)
+      Rails.logger.info("BGS::DependentService claims evidence upload of #{form_id} claim_id #{claim.id} attachments")
       stamp_set = [{ text: 'VA.GOV', x: 5, y: 5 }]
       claim.persistent_attachments.each do |pa|
         doctype = pa.document_type
@@ -144,11 +151,11 @@ module BGS
     def submit_to_standard_service(claim:, encrypted_vet_info:)
       if claim.submittable_686?
         BGS::SubmitForm686cJob.perform_async(
-          uuid, icn, claim.id, encrypted_vet_info
+          uuid, claim.id, encrypted_vet_info
         )
       else
         BGS::SubmitForm674Job.perform_async(
-          uuid, icn, claim.id, encrypted_vet_info
+          uuid, claim.id, encrypted_vet_info
         )
       end
     end

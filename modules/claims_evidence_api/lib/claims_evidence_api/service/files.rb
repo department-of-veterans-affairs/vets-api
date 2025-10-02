@@ -6,10 +6,10 @@ require 'common/virus_scan'
 module ClaimsEvidenceApi
   module Service
     # Files API
-    # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#/File
+    # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/File
     class Files < Base
       # POST upload/create a file to a vbms folder
-      # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#/File/upload
+      # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/File/upload
       #
       # @param file_path [String] the path to the file to upload
       # @param provider_data [Hash] metadata to be associated with the file
@@ -18,7 +18,7 @@ module ClaimsEvidenceApi
 
         validate_folder_identifier(folder_identifier)
 
-        headers = { 'X-Folder-URI' => folder_identifier }
+        headers = { 'X-Folder-URI' => folder_identifier, 'Content-Type' => 'multipart/form-data' }
         params = post_params(file_path, provider_data)
 
         perform :post, 'files', params, headers
@@ -26,7 +26,7 @@ module ClaimsEvidenceApi
       alias create upload
 
       # GET retrieve file data
-      # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#/File/getData
+      # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/File/getData
       #
       # @param uuid [String] The UUID of the file data
       # @param include_raw_text [Boolean] optional param to include raw text data of the document; default: false
@@ -39,7 +39,7 @@ module ClaimsEvidenceApi
       alias read retrieve
 
       # PUT update file data for a specific UUID
-      # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#/File/updateData
+      # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/File/updateData
       #
       # @param uuid [String] The UUID of the file data
       # @param provider_data [Hash] metadata to be associated with the file
@@ -49,7 +49,7 @@ module ClaimsEvidenceApi
       end
 
       # POST overwrite a file in a vbms folder, but retain the uuid
-      # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/swagger-ui.html#/File/update
+      # @see https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/File/update
       #
       # @param file_path [String] the path to the file to upload
       # @param provider_data [Hash] metadata to be associated with the file
@@ -76,9 +76,10 @@ module ClaimsEvidenceApi
 
         file_name = File.basename(file_path)
         mime_type = Marcel::MimeType.for(file_path)
+        payload = validate_upload_payload(file_name, provider_data)
 
         {
-          payload: validate_upload_payload(file_name, provider_data),
+          payload: payload&.to_json,
           file: Faraday::UploadIO.new(file_path, mime_type, file_name)
         }
       end

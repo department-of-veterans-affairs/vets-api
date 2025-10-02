@@ -3,18 +3,16 @@
 require 'claims_evidence_api/exceptions'
 require 'claims_evidence_api/monitor'
 require 'claims_evidence_api/service/files'
+require 'claims_evidence_api/validation'
 require 'pdf_utilities/pdf_stamper'
 
 module ClaimsEvidenceApi
   # Utility class for uploading claim evidence
   class Uploader
-    attr_accessor :content_source
     attr_reader :attempt, :folder_identifier, :response, :submission
 
     # @param folder_identifier [String] the upload location; @see ClaimsEvidenceApi::FolderIdentifier
-    # @param content_source [String] the metadata source value for the upload
-    def initialize(folder_identifier, content_source: 'va.gov')
-      @content_source = content_source
+    def initialize(folder_identifier)
       @service = ClaimsEvidenceApi::Service::Files.new
       self.folder_identifier = folder_identifier
     end
@@ -63,12 +61,11 @@ module ClaimsEvidenceApi
     # @param doctype [Integer] the document type for the file; default to `document_type` of evidence
     #
     # @return [String] the file_uuid
-    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
+    # rubocop:disable Metrics/ParameterLists
     def upload_evidence(saved_claim_id, persistent_attachment_id = nil, file_path: nil, stamp_set: nil, form_id: nil,
                         doctype: nil)
       # track the initial values provided for this upload
-      context = { saved_claim_id:, persistent_attachment_id:, file_path:, stamp_set:, form_id:, doctype:,
-                  content_source: }
+      context = { saved_claim_id:, persistent_attachment_id:, stamp_set:, form_id:, doctype: }
       monitor.track_upload_begun(**context)
 
       evidence = claim = SavedClaim.find(saved_claim_id)
@@ -84,8 +81,7 @@ module ClaimsEvidenceApi
       submission.saved_claim = claim
 
       # several values may have been updated, so reassign the tracking context
-      context = { saved_claim_id:, persistent_attachment_id:, file_path:, stamp_set:, form_id:, doctype:,
-                  content_source: }
+      context = { saved_claim_id:, persistent_attachment_id:, stamp_set:, form_id:, doctype: }
       monitor.track_upload_attempt(**context)
       perform_upload(file_path, evidence.created_at, doctype)
 
@@ -98,7 +94,7 @@ module ClaimsEvidenceApi
       attempt_failed(e)
       raise e
     end
-    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
+    # rubocop:enable Metrics/ParameterLists
 
     private
 
@@ -111,7 +107,7 @@ module ClaimsEvidenceApi
     # create/retrieve the submission record for the claim and attachment
     # and create a new submission_attempt
     #
-    # @param saved_claim [SavedClaim] the claim to be submitted
+    # @param saved_claim_id [Integer] the db id for the claim to be submitted
     # @param persistent_attachment_id [Integer] the db id for the attachment
     #
     # @return [ClaimsEvidenceApi::SubmissionAttempt]
@@ -134,13 +130,20 @@ module ClaimsEvidenceApi
     # @param doctype [Integer|String] document type of the file
     def perform_upload(file_path, va_received_at = Time.zone.now, doctype = 10)
       attempt.metadata = provider_data = {
-        contentSource: content_source,
-        dateVaReceivedDocument: va_received_at,
+        contentSource: ClaimsEvidenceApi::CONTENT_SOURCE,
+        dateVaReceivedDocument: format_datetime(va_received_at),
         documentTypeId: doctype
       }
       attempt.save
 
       @response = @service.upload(file_path, provider_data:)
+    end
+
+    # modify the file upload date to be in the expected zone and format
+    #
+    # @param datetime [DateTime] datetime of when the va received the file
+    def format_datetime(datetime)
+      DateTime.parse(datetime.to_s).in_time_zone(ClaimsEvidenceApi::TIMEZONE).strftime('%Y-%m-%d')
     end
 
     # update the tracking records with the result of the attempt
@@ -160,8 +163,10 @@ module ClaimsEvidenceApi
     def attempt_failed(error)
       return unless attempt
 
-      attempt.status = 'failure'
-      attempt.error_message = error.body || error.message
+      error_message = error.respond_to?('body') ? error.body : error.message
+
+      attempt.status = 'failed'
+      attempt.error_message = error_message
       attempt.save
     end
   end

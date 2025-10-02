@@ -85,7 +85,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         it 'corrects for invalid characters in generated metadata' do
           veteran_first_name = metadata_hash['veteranFirstName']
           veteran_last_name = metadata_hash['veteranLastName']
-          allowed_chars_regex = %r{^[a-zA-Z\/\-\s]}
+          allowed_chars_regex = %r{^[a-zA-Z/\-\s]}
           expect(veteran_first_name).to match(allowed_chars_regex)
           expect(veteran_last_name).to match(allowed_chars_regex)
         end
@@ -317,7 +317,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         it 'corrects for invalid characters in generated metadata' do
           veteran_first_name = metadata_hash['veteranFirstName']
           veteran_last_name = metadata_hash['veteranLastName']
-          allowed_chars_regex = %r{^[a-zA-Z\/\-\s]}
+          allowed_chars_regex = %r{^[a-zA-Z/\-\s]}
           expect(veteran_first_name).to match(allowed_chars_regex)
           expect(veteran_last_name).to match(allowed_chars_regex)
         end

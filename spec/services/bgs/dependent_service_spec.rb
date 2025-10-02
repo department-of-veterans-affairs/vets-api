@@ -29,13 +29,13 @@ RSpec.describe BGS::DependentService do
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
 
   before do
-    allow(claim).to receive_messages(id: '1234', use_v2: false, user_account_id: user.user_account_uuid,
+    # TODO: Add back user_account_id once the DB migration is done
+    allow(claim).to receive_messages(id: '1234', use_v2: false,
                                      submittable_686?: false, submittable_674?: true, add_veteran_info: true,
                                      valid?: true, persistent_attachments: [], upload_pdf: true, form_id: '686C-674')
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:dependents_claims_evidence_api_upload).and_return(false)
   end
 
@@ -61,7 +61,7 @@ RSpec.describe BGS::DependentService do
           service = BGS::DependentService.new(user)
           expect(service).not_to receive(:log_exception_to_sentry)
           expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -81,7 +81,7 @@ RSpec.describe BGS::DependentService do
           service = BGS::DependentService.new(user)
           expect(service).not_to receive(:log_exception_to_sentry)
           expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -99,7 +99,7 @@ RSpec.describe BGS::DependentService do
         service = BGS::DependentService.new(user)
         expect(service).not_to receive(:log_exception_to_sentry)
         expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           encrypted_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -119,7 +119,7 @@ RSpec.describe BGS::DependentService do
         expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -139,7 +139,7 @@ RSpec.describe BGS::DependentService do
         expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -159,7 +159,7 @@ RSpec.describe BGS::DependentService do
         expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -249,7 +249,7 @@ RSpec.describe BGS::DependentService do
           service = BGS::DependentService.new(user)
           expect(service).not_to receive(:log_exception_to_sentry)
           expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -269,7 +269,7 @@ RSpec.describe BGS::DependentService do
           service = BGS::DependentService.new(user)
           expect(service).not_to receive(:log_exception_to_sentry)
           expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
-            user.uuid, user.icn, claim.id,
+            user.uuid, claim.id,
             encrypted_vet_info
           )
           expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -287,7 +287,7 @@ RSpec.describe BGS::DependentService do
         service = BGS::DependentService.new(user)
         expect(service).not_to receive(:log_exception_to_sentry)
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           encrypted_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -307,7 +307,7 @@ RSpec.describe BGS::DependentService do
         expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -327,7 +327,7 @@ RSpec.describe BGS::DependentService do
         expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -347,7 +347,7 @@ RSpec.describe BGS::DependentService do
         expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
-          user.uuid, user.icn, claim.id,
+          user.uuid, claim.id,
           enc_vet_info
         )
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
@@ -385,22 +385,31 @@ RSpec.describe BGS::DependentService do
 
     it 'submits evidence pdf via claims evidence uploader' do
       expect(Dependents::Monitor).to receive(:new).with(claim.id).and_return(monitor)
-      expect(monitor).to receive(:track_event).with('debug', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
-                                                    "#{stats_key}.submit_pdf.begin")
-      expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier, content_source: 'BGS::DependentService')
-                                                          .and_return(uploader)
+      expect(monitor).to receive(:track_event).with(
+        'info', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+        "#{stats_key}.submit_pdf.begin"
+      )
+      expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return(uploader)
 
       expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '686C-674',
                                                                    doctype: claim.document_type)
       expect(uploader).to receive(:upload_evidence).with(claim.id, file_path: pdf_path, form_id: '21-674',
-                                                                   doctype: '142')
+                                                                   doctype: 142)
 
       expect(claim).to receive(:persistent_attachments).and_return([pa])
       expect(stamper).to receive(:run).and_return(pdf_path)
       expect(uploader).to receive(:upload_evidence).with(claim.id, pa.id, file_path: pdf_path, form_id: '21-674',
                                                                           doctype: pa.document_type)
 
-      expect(monitor).to receive(:track_event).with('debug', 'BGS::DependentService#submit_pdf_job completed',
+      expect(monitor).to receive(:track_event).with(
+        'info', "BGS::DependentService claims evidence upload of 686C-674 claim_id #{claim.id}",
+        "#{stats_key}.claims_evidence.upload", tags: ['form_id:686C-674']
+      )
+      expect(monitor).to receive(:track_event).with(
+        'info', "BGS::DependentService claims evidence upload of 21-674 claim_id #{claim.id}",
+        "#{stats_key}.claims_evidence.upload", tags: ['form_id:21-674']
+      )
+      expect(monitor).to receive(:track_event).with('info', 'BGS::DependentService#submit_pdf_job completed',
                                                     "#{stats_key}.submit_pdf.completed")
 
       service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
