@@ -87,13 +87,13 @@ module AccreditedRepresentativePortal
         ar_monitoring.track_duration(
           'ar.poa.request.duration',
           from: @poa_request.created_at,
-          tags: tags
+          tags:
         )
 
         ar_monitoring.track_duration(
           "ar.poa.request.#{decision}.duration",
           from: @poa_request.created_at,
-          tags: tags
+          tags:
         )
       end
 
