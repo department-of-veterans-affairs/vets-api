@@ -52,38 +52,32 @@ module PdfFill
 
       def generate_extended_form(merged_form_data, hash_converter)
         extra_us_schools = extract_extra_from_array(merged_form_data['usSchools'],
-                                                              DEFAULT_US_SCHOOLS_LIMIT)
+                                                    DEFAULT_US_SCHOOLS_LIMIT)
         extra_foreign_schools = extract_extra_from_array(merged_form_data['foreignSchools'],
-                                                              DEFAULT_FOREIGN_SCHOOLS_LIMIT)
+                                                         DEFAULT_FOREIGN_SCHOOLS_LIMIT)
         extra_branch_locations = extract_extra_from_array(merged_form_data['branchCampuses'],
-                                                              DEFAULT_BRANCH_LOCATION_LIMIT)
+                                                          DEFAULT_BRANCH_LOCATION_LIMIT)
 
         pdf_data_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: FORM_CLASS::KEY)
 
-        extra_us_schools.each_with_index do |school_data, i|
-          hash_converter.extras_generator.add_text(us_school_to_text(school_data), {
-                                                     question_num: i + 1,
-                                                     question_text: 'Additional US School'
-                                                   })
-        end
-
-        extra_foreign_schools.each_with_index do |school_data, i|
-          hash_converter.extras_generator.add_text(foreign_school_to_text(school_data), {
-                                                     question_num: extra_us_schools.size + i + 1,
-                                                     question_text: 'Additional Foreign School'
-                                                   })
-        end
-        
-        extra_branch_locations.each_with_index do |branch_data, i|
-          hash_converter.extras_generator.add_text(branch_location_to_text(branch_data), {
-                                                     question_num: extra_us_schools.size + extra_foreign_schools.size + i + 1,
-                                                     question_text: 'Additional Branch Campus'
-                                                   })
-        end
+        add_extras(hash_converter, extra_us_schools, :us_school_to_text, 0, 'Additional US School')
+        add_extras(hash_converter, extra_foreign_schools, :foreign_school_to_text, extra_us_schools.size,
+                   'Additional Foreign School')
+        add_extras(hash_converter, extra_branch_locations, :branch_location_to_text,
+                   extra_us_schools.size + extra_foreign_schools.size, 'Additional Branch Campus')
 
         file_path = File.join(TMP_DIR, '22-0839.pdf')
         PDF_FORMS.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
         combine_extras(file_path, hash_converter.extras_generator, FORM_CLASS)
+      end
+
+      def add_extras(converter, arr, to_text_method, start_i, label)
+        arr.each_with_index do |data, i|
+          converter.extras_generator.add_text(send(to_text_method, data), {
+                                                question_num: start_i + i + 1,
+                                                question_text: label
+                                              })
+        end
       end
 
       def extract_extra_from_array(arr, count)

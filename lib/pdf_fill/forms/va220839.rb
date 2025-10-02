@@ -138,9 +138,9 @@ module PdfFill
         convert_full_name(form_data, %w[pointOfContactTwo fullName])
         convert_full_name(form_data, %w[authorizedOfficial fullName])
 
-        format_agreement_type(form_data)
         format_institutions(form_data)
         format_schools(form_data)
+        format_agreement_type(form_data)
 
         form_data['authenticatedUser'] =
           form_data['isAuthenticated'] ? 'Filled out by authenticated user' : 'Filled out by unauthenticated user'
@@ -167,12 +167,14 @@ module PdfFill
       end
 
       def format_institutions(form_data)
-        if form_data['institutionDetails'].present?
-          form_data['primaryInstitution'] = form_data['institutionDetails'].first
+        institution_arr = form_data['agreementType'] == 'withdrawFromYellowRibbonProgram' ? form_data['withdrawFromYellowRibbonProgram'] : form_data['institutionDetails']
+
+        if institution_arr.present?
+          form_data['primaryInstitution'] = institution_arr.first
           form_data['primaryInstitution']['institutionAddress'] =
             combine_full_address(form_data['primaryInstitution']['institutionAddress'])
 
-          form_data['branchCampuses'] = form_data['institutionDetails'][1..].map do |d|
+          form_data['branchCampuses'] = institution_arr[1..].map do |d|
             d.merge({
                       'nameAndAddress' => "#{d['institutionName']}\n#{combine_full_address(d['institutionAddress'])}"
                     })

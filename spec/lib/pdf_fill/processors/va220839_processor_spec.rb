@@ -54,5 +54,22 @@ describe PdfFill::Processors::VA220839Processor do
         expect(get_field_value(fields, 'num_eligible_students')).to eq '476'
       end
     end
+
+    context 'with a withdrawl submission' do
+      let(:saved_claim) { create(:va0839_withdrawl) }
+
+      it 'creates the pdf correctly' do
+        described_class.new(form_data, filler).process
+        expect(File.exist?('tmp/pdfs/22-0839.pdf')).to be(true)
+      end
+
+      it 'fills in the form fields' do
+        described_class.new(form_data, filler).process
+        fields = PdfForms.new(Settings.binaries.pdftk).get_fields('tmp/pdfs/22-0839.pdf')
+        expect(get_field_value(fields, 'institution_name')).to eq 'Test University'
+        expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
+        expect(get_field_value(fields, 'branch_campus_0_facility_code')).to eq '87654321'
+      end
+    end
   end
 end
