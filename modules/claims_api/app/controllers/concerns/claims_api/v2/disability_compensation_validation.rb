@@ -41,8 +41,6 @@ module ClaimsApi
         validate_form_526_treatments
         # ensure service information is valid
         validate_form_526_service_information(target_veteran)
-        # ensure direct deposit information is valid
-        validate_form_526_direct_deposit
         # collect errors and pass back to the controller
         error_collection if @errors
       end
@@ -854,56 +852,6 @@ module ClaimsApi
             source: '/serviceInformation/federalActivation/',
             detail: 'The anticipated separation date must be a date in the future.'
           )
-        end
-      end
-
-      def validate_form_526_direct_deposit
-        direct_deposit = form_attributes['directDeposit']
-        return if direct_deposit.blank?
-
-        account_check = direct_deposit&.dig('noAccount')
-
-        account_check.present? && account_check == true ? validate_no_account : validate_account_values
-      end
-
-      def validate_no_account
-        acc_vals = form_attributes['directDeposit']
-
-        collect_error_on_invalid_account_values('accountType') if acc_vals['accountType'].present?
-        collect_error_on_invalid_account_values('accountNumber') if acc_vals['accountNumber'].present?
-        collect_error_on_invalid_account_values('routingNumber') if acc_vals['routingNumber'].present?
-        if acc_vals['financialInstitutionName'].present?
-          collect_error_on_invalid_account_values('financialInstitutionName')
-        end
-      end
-
-      def collect_error_on_invalid_account_values(account_detail)
-        collect_error_messages(
-          source: "/directDeposit/#{account_detail}",
-          detail: "If the claimant has no account the #{account_detail} field must be left empty."
-        )
-      end
-
-      def validate_account_values
-        direct_deposit_account_vals = form_attributes['directDeposit']
-        return if direct_deposit_account_vals['noAccount']
-
-        valid_account_types = %w[CHECKING SAVINGS]
-        account_type = direct_deposit_account_vals&.dig('accountType')
-        account_number = direct_deposit_account_vals&.dig('accountNumber')
-        routing_number = direct_deposit_account_vals&.dig('routingNumber')
-
-        if account_type.blank? || valid_account_types.exclude?(account_type)
-          collect_error_messages(detail: 'accountType is missing or blank',
-                                 source: '/directDeposit/accountType')
-        end
-        if account_number.blank?
-          collect_error_messages(detail: 'accountNumber is missing or blank',
-                                 source: '/directDeposit/accountNumber')
-        end
-        if routing_number.blank?
-          collect_error_messages(detail: 'routingNumber is missing or blank',
-                                 source: '/directDeposit/routingNumber')
         end
       end
 
