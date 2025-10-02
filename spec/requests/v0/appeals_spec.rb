@@ -45,14 +45,9 @@ RSpec.describe 'V0::Appeals', type: :request do
           get appeals_endpoint
           expect(response).to have_http_status(:ok)
 
-          # Parse the response and modify it to include null descriptions
           response_data = JSON.parse(response.body)
-
           # Add a null description to the first issue of the first appeal
-          if response_data['data']&.first&.dig('attributes', 'issues')&.any?
-            response_data['data'].first['attributes']['issues'].first['description'] = nil
-          end
-
+          response_data['data'].first['attributes']['issues'].first['description'] = nil
           # Validate that the modified response still matches the schema
           expect(response_data).to match_schema('appeals')
         end
