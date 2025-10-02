@@ -24,13 +24,13 @@ describe 'sm client' do
     end
 
     it 'populates health care system names' do
-        VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
-          VCR.use_cassette('sm_client/get_unique_care_systems') do
-            all_triage_teams = client.get_all_triage_teams('1234', false)
-            all_triage_teams.records.each{|record| expect(record.health_care_system_name).not_to be_nil}
-          end
+      VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
+        VCR.use_cassette('sm_client/get_unique_care_systems') do
+          all_triage_teams = client.get_all_triage_teams('1234', false)
+          all_triage_teams.records.each { |record| expect(record.health_care_system_name).not_to be_nil }
         end
       end
+    end
 
     context 'when not caching' do
       it 'does not cache triage teams' do
