@@ -1,6 +1,0 @@
-vye:
-  # NOTE: This is a fake key for development purposes only.
-  ivr_key: 'development-vye-ivr-key'
-  scrypt:
-    # NOTE: This is a random salt for development purposes only.
-    salt: 'development-vye-scrypt-salt'
