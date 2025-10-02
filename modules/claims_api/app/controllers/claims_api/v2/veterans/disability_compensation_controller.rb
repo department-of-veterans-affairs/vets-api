@@ -18,7 +18,7 @@ module ClaimsApi
       class DisabilityCompensationController < ClaimsApi::V2::Veterans::Base
         # Commenting out the below validation inclusion so it is clearer that
         # we expect validate_form_526_submission_values! to be dynamically
-        # included via the lighthouse_claims_api_v1_enable_FES FF check:
+        # included via the lighthouse_claims_api_v2_enable_FES FF check:
         # include ClaimsApi::V2::DisabilityCompensationValidation
         include ClaimsApi::V2::Error::LighthouseErrorHandler
         include ClaimsApi::V2::JsonFormatValidation
