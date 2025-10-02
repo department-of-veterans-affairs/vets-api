@@ -14867,7 +14867,7 @@
                           "debtId": {
                             "type": "integer"
                           },
-                          "debtIncreaseAmount\"": {
+                          "debtIncreaseAmount": {
                             "type": "float"
                           },
                           "hinesCode": {
@@ -14982,7 +14982,8 @@
                   "amountWithheld",
                   "originalAr",
                   "currentAr",
-                  "debtHistory"
+                  "debtHistory",
+                  "fiscalTransactionData"
                 ],
                 "properties": {
                   "fileNumber": {
@@ -15047,6 +15048,69 @@
                         "description": {
                           "type": "string",
                           "example": "Third Demand Letter - Potential Treasury Referral"
+                        }
+                      }
+                    }
+                  },
+                  "fiscalTransactionData": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "debtId": {
+                          "type": "integer"
+                        },
+                        "debtIncreaseAmount": {
+                          "type": "float"
+                        },
+                        "hinesCode": {
+                          "type": "string"
+                        },
+                        "offsetAmount": {
+                          "type": "float"
+                        },
+                        "offsetType": {
+                          "type": "string"
+                        },
+                        "paymentType": {
+                          "type": "string"
+                        },
+                        "transactionAdminAmount": {
+                          "type": "float"
+                        },
+                        "transactionCourtAmount": {
+                          "type": "float"
+                        },
+                        "transactionDate": {
+                          "type": "string"
+                        },
+                        "transactionDescription": {
+                          "type": "string"
+                        },
+                        "transactionExplanation": {
+                          "type": "string"
+                        },
+                        "transactionFiscalCode": {
+                          "type": "string"
+                        },
+                        "transactionFiscalSource": {
+                          "type": "string"
+                        },
+                        "transactionFiscalYear": {
+                          "type": "string"
+                        },
+                        "transactionInterestAmount": {
+                          "type": "float"
+                        },
+                        "transactionMarshallAmount": {
+                          "type": "float"
+                        },
+                        "transactionPrincipalAmount": {
+                          "type": "float"
+                        },
+                        "transactionTotalAmount": {
+                          "type": "float"
                         }
                       }
                     }

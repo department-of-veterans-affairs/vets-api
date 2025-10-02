@@ -93,7 +93,7 @@ properties:
                 properties:
                   debtId:
                     type: integer
-                  debtIncreaseAmount":
+                  debtIncreaseAmount:
                     type: float
                   hinesCode:
                     type: string
