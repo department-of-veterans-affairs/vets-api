@@ -8,7 +8,7 @@ RSpec.describe TravelPay::CommonCarrierExpense, type: :model do
       description: 'Taxi to medical appointment',
       cost_requested: 25.00,
       purchase_date: Time.current,
-      reason_not_using_pov: 'MedicallyIndicated',
+      reason_not_using_pov: 'Medically Indicated',
       carrier_type: 'Taxi'
     }
   end
@@ -21,8 +21,9 @@ RSpec.describe TravelPay::CommonCarrierExpense, type: :model do
 
   describe 'constants' do
     it 'uses COMMON_CARRIER_EXPLANATIONS from Constants module' do
-      expect(TravelPay::Constants::COMMON_CARRIER_EXPLANATIONS.values).to eq(%w[PrivatelyOwnedVehicaleNotAvailable
-                                                                                MedicallyIndicated Other])
+      expect(TravelPay::Constants::COMMON_CARRIER_EXPLANATIONS.values).to eq(['Privately Owned Vehicle Not Available',
+                                                                              'Medically Indicated', 'Other',
+                                                                              'Unspecified'])
     end
 
     it 'uses COMMON_CARRIER_TYPES from Constants module' do
@@ -47,13 +48,16 @@ RSpec.describe TravelPay::CommonCarrierExpense, type: :model do
       end
 
       it 'accepts valid reason_not_using_pov values' do
-        subject.reason_not_using_pov = 'PrivatelyOwnedVehicaleNotAvailable'
+        subject.reason_not_using_pov = 'Privately Owned Vehicle Not Available'
         expect(subject).to be_valid
 
-        subject.reason_not_using_pov = 'MedicallyIndicated'
+        subject.reason_not_using_pov = 'Medically Indicated'
         expect(subject).to be_valid
 
         subject.reason_not_using_pov = 'Other'
+        expect(subject).to be_valid
+
+        subject.reason_not_using_pov = 'Unspecified'
         expect(subject).to be_valid
       end
 
@@ -123,7 +127,7 @@ RSpec.describe TravelPay::CommonCarrierExpense, type: :model do
 
     it 'returns a hash representation including common carrier-specific attributes' do
       json = subject.to_h
-      expect(json['reason_not_using_pov']).to eq('MedicallyIndicated')
+      expect(json['reason_not_using_pov']).to eq('Medically Indicated')
       expect(json['carrier_type']).to eq('Taxi')
       expect(json['expense_type']).to eq('commoncarrier')
     end
@@ -136,7 +140,7 @@ RSpec.describe TravelPay::CommonCarrierExpense, type: :model do
           description: 'Bus fare to VA medical center',
           cost_requested: 15.50,
           purchase_date: Date.current,
-          reason_not_using_pov: 'PrivatelyOwnedVehicaleNotAvailable',
+          reason_not_using_pov: 'Privately Owned Vehicle Not Available',
           carrier_type: 'Bus',
           claim_id: 'uuid-456'
         )
@@ -144,7 +148,7 @@ RSpec.describe TravelPay::CommonCarrierExpense, type: :model do
 
       it 'creates a valid common carrier expense' do
         expect(expense).to be_valid
-        expect(expense.reason_not_using_pov).to eq('PrivatelyOwnedVehicaleNotAvailable')
+        expect(expense.reason_not_using_pov).to eq('Privately Owned Vehicle Not Available')
         expect(expense.carrier_type).to eq('Bus')
         expect(expense.claim_id).to eq('uuid-456')
         expect(expense.expense_type).to eq('commoncarrier')
@@ -157,7 +161,7 @@ RSpec.describe TravelPay::CommonCarrierExpense, type: :model do
           description: 'Subway to appointment',
           cost_requested: 8.75,
           purchase_date: 2.days.ago,
-          reason_not_using_pov: 'MedicallyIndicated',
+          reason_not_using_pov: 'Medically Indicated',
           carrier_type: 'Subway'
         )
       end
@@ -165,7 +169,7 @@ RSpec.describe TravelPay::CommonCarrierExpense, type: :model do
       it 'creates a valid subway expense' do
         expect(expense).to be_valid
         expect(expense.carrier_type).to eq('Subway')
-        expect(expense.reason_not_using_pov).to eq('MedicallyIndicated')
+        expect(expense.reason_not_using_pov).to eq('Medically Indicated')
       end
     end
 
