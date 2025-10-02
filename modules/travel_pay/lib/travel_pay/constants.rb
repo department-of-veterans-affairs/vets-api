@@ -35,9 +35,10 @@ module TravelPay
     # Usage:
     # TravelPay::Constants::COMMON_CARRIER_EXPLANATIONS[:privately_owned_vehicle_not_available]
     COMMON_CARRIER_EXPLANATIONS = {
-      privately_owned_vehicle_not_available: 'PrivatelyOwnedVehicaleNotAvailable',
-      medically_indicated: 'MedicallyIndicated',
-      other: 'Other'
+      privately_owned_vehicle_not_available: 'Privately Owned Vehicle Not Available',
+      medically_indicated: 'Medically Indicated',
+      other: 'Other',
+      unspecified: 'Unspecified'
     }.freeze
 
     # Usage:
