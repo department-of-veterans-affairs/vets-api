@@ -31,8 +31,12 @@ FactoryBot.define do
       description { 'A' * 200 }
     end
 
-    trait :invalid_vendor do
-      vendor { ' ' } # whitespace only, should fail validation
+    trait :with_blank_vendor do
+      vendor { '' } # whitespace only, should fail validation
+    end
+
+    trait :with_whitespace_vendor do
+      vendor { '   ' } # whitespace only, should fail validation
     end
 
     initialize_with { TravelPay::LodgingExpense.new(attributes) }
