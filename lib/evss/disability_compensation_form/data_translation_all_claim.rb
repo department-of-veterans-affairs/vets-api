@@ -179,9 +179,12 @@ module EVSS
         if !populated || redacted(input_form['bankAccountNumber'], input_form['bankRoutingNumber'])
           monitor.track_526_submission_without_banking_info(@user.uuid)
 
-          # NOTE: we are removing this call to Lighthouse entirely if the user did not supply banking information
-          # to respect they left it blank intentionally.
-          # This code will get removed when the Flipper is removed following a successful release
+          # NOTE: if the Veteran supplied empty or redacted banking information, we are removing a call to Lighthouse
+          # to retrieve banking info the Veteran has on file with Lighthouse, to respect the fact the Veteran left
+          # this blank on purpose.
+          #
+          # This change will launch behind a Flipper but the Flipper will eventually be removed and we will return an
+          # empty hash here
           Flipper.enabled?(:disability_526_block_banking_info_retrieval) ? {} : get_banking_info
         else
           monitor.track_526_submission_with_banking_info(@user.uuid)

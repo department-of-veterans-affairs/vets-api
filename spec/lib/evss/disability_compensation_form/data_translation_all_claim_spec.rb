@@ -651,7 +651,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
       end
 
-      # Temporary: we are removing this Flipper and banking info retrieval entirely after a successful release
       context 'when the disability_526_block_banking_info_retrieval Flipper is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(false)
@@ -662,7 +661,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
 
         context 'and the Lighthouse DirectDeposit service has the account info' do
-          it 'gathers the banking info from the LH DirectDeposit' do
+          it 'gathers the banking info from the LH DirectDeposit endpoint' do
             VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
               expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
                 'accountType' => 'CHECKING',
