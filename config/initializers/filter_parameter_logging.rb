@@ -114,9 +114,7 @@ module AllowlistLogFiltering
         message = nil
       end
 
-      if params.is_a?(Hash)
-        params = filter_hash(params, log_allowlist)
-      end
+      params = filter_hash(params, log_allowlist) if params.is_a?(Hash)
 
       if params
         super(message ? "#{message} #{params.inspect}" : params.inspect)
@@ -130,17 +128,16 @@ module AllowlistLogFiltering
 
   def filter_hash(hash, log_allowlist = [])
     hash.deep_dup.each do |k, v|
-      if ALLOWLIST.include?(k.to_s) || log_allowlist.map(&:to_s).include?(k.to_s)
-        next
-      end
-      case v
-      when Hash
-        hash[k] = filter_hash(v, log_allowlist)
-      when Array
-        hash[k] = v.map { |el| el.is_a?(Hash) ? filter_hash(el, log_allowlist) : '[FILTERED]' }
-      else
-        hash[k] = '[FILTERED]'
-      end
+      next if ALLOWLIST.include?(k.to_s) || log_allowlist.map(&:to_s).include?(k.to_s)
+
+      hash[k] = case v
+                when Hash
+                  filter_hash(v, log_allowlist)
+                when Array
+                  v.map { |el| el.is_a?(Hash) ? filter_hash(el, log_allowlist) : '[FILTERED]' }
+                else
+                  '[FILTERED]'
+                end
     end
     hash
   end
