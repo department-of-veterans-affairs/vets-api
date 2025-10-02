@@ -5,6 +5,7 @@ module TravelPay
     # Usage:
     # TravelPay::Constants::BASE_EXPENSE_PATHS[:meal]
     BASE_EXPENSE_PATHS = {
+      common_carrier: 'api/v1/expenses/commoncarrier',
       meal: 'api/v1/expenses/meal',
       mileage: 'api/v2/expenses/mileage',
       parking: 'api/v1/expenses/parking',
@@ -15,6 +16,7 @@ module TravelPay
     # Usage:
     # TravelPay::Constants::EXPENSE_TYPES[:parking]
     EXPENSE_TYPES = {
+      common_carrier: 'commoncarrier',
       meal: 'meal',
       mileage: 'mileage',
       parking: 'parking',
@@ -28,6 +30,25 @@ module TravelPay
       one_way: 'OneWay',
       round_trip: 'RoundTrip',
       unspecified: 'Unspecified'
+    }.freeze
+
+    # Usage:
+    # TravelPay::Constants::COMMON_CARRIER_EXPLANATIONS[:privately_owned_vehicle_not_available]
+    COMMON_CARRIER_EXPLANATIONS = {
+      privately_owned_vehicle_not_available: 'Privately Owned Vehicle Not Available',
+      medically_indicated: 'Medically Indicated',
+      other: 'Other',
+      unspecified: 'Unspecified'
+    }.freeze
+
+    # Usage:
+    # TravelPay::Constants::COMMON_CARRIER_TYPES[:bus]
+    COMMON_CARRIER_TYPES = {
+      bus: 'Bus',
+      subway: 'Subway',
+      taxi: 'Taxi',
+      train: 'Train',
+      other: 'Other'
     }.freeze
 
     # Usage:
