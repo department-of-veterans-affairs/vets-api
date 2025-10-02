@@ -5,6 +5,7 @@ module TravelPay
     # Usage:
     # TravelPay::Constants::BASE_EXPENSE_PATHS[:meal]
     BASE_EXPENSE_PATHS = {
+      airtravel: 'api/v1/expenses/airtravel',
       meal: 'api/v1/expenses/meal',
       mileage: 'api/v2/expenses/mileage',
       parking: 'api/v1/expenses/parking',
@@ -15,6 +16,7 @@ module TravelPay
     # Usage:
     # TravelPay::Constants::EXPENSE_TYPES[:parking]
     EXPENSE_TYPES = {
+      airtravel: 'airtravel',
       meal: 'meal',
       mileage: 'mileage',
       parking: 'parking',
