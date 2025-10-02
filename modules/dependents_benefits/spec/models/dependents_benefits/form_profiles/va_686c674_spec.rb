@@ -251,9 +251,9 @@ RSpec.describe FormProfile, type: :model do
                                allow_playback_repeats: true) do
                 allow_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_raise(error)
 
-                prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+                expect(Rails.logger).to receive(:warn).with('Failed to retrieve awards pension data', anything)
 
-                expect(Rails.logger).to have_received(:warn).with('Failed to retrieve awards pension data', anything)
+                prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
 
                 expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
                 expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(159240) # rubocop:disable Style/NumericLiterals
