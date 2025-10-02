@@ -3,11 +3,13 @@
 require_relative '../../../lib/travel_pay/constants'
 
 module TravelPay
-  class TollExpense < BaseExpense
+  class MealExpense < BaseExpense
     attribute :vendor_name, :string
 
-    # Strip whitespace before validation
-    before_validation :strip_vendor_name
+    # Strip whitespace on assignment to ensure validations catch empty/whitespace values
+    def vendor_name=(value)
+      super(value&.strip)
+    end
 
     validates :vendor_name, presence: true, length: { minimum: 1 }
 
@@ -16,12 +18,6 @@ module TravelPay
     # @return [String] the expense type
     def expense_type
       TravelPay::Constants::EXPENSE_TYPES[:meal]
-    end
-
-    private
-
-    def strip_vendor_name
-      self.vendor_name = vendor_name&.strip
     end
   end
 end
