@@ -3,6 +3,11 @@
 module VAOS
   module V2
     class EpsAppointment
+      COMMUNITY_CARE_APPOINTMENT = 'COMMUNITY_CARE_APPOINTMENT'
+      COMMUNITY_CARE_REQUEST = 'COMMUNITY_CARE_REQUEST'
+      KIND = 'cc'
+      MODALITY = 'communityCareEps'
+
       attr_reader :id, :status, :patient_icn, :created, :location_id, :clinic,
                   :start, :is_latest, :last_retrieved, :contact, :referral_id,
                   :referral, :provider_service_id, :provider_name,
@@ -44,7 +49,8 @@ module VAOS
           provider_service_id: @provider_service_id,
           provider_name: @provider_name,
           # EPS appointments are community care by definition
-          kind: 'cc',
+          kind: KIND,
+          modality: MODALITY,
           type: eps_type,
           pending: request_type?,
           past: past_appointment?,
@@ -83,7 +89,7 @@ module VAOS
       end
 
       def eps_type
-        @start.present? ? 'COMMUNITY_CARE_APPOINTMENT' : 'COMMUNITY_CARE_REQUEST'
+        @start.present? ? COMMUNITY_CARE_APPOINTMENT : COMMUNITY_CARE_REQUEST
       end
 
       def request_type?

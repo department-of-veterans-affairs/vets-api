@@ -50,6 +50,7 @@ describe VAOS::V2::EpsAppointment do
           provider_service_id: 'clinic_1',
           provider_name: 'unknown',
           kind: 'cc',
+          modality: 'communityCareEps',
           type: 'COMMUNITY_CARE_APPOINTMENT',
           pending: false,
           past: true,
