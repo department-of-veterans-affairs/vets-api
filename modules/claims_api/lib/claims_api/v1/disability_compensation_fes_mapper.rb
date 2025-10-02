@@ -32,53 +32,11 @@ module ClaimsApi
         service_information
       end
 
+      # =============================================================================
+      # GENERAL / HEADERS
+      # =============================================================================
       def claim_meta
         @fes_claim[:claimDate] = @data[:claimDate] if @data[:claimDate].present?
-      end
-
-      # a 'disability' is required via the schema
-      # 'disabilityActionType' & 'name' are required via the schema
-      def disabilities
-        disabilities_data = flatten_disabilities(@data[:disabilities])
-        @fes_claim[:disabilities] = disabilities_data.map do |disability|
-          transform_disability_values!(disability.deep_dup)
-        end
-      end
-
-      def transform_disability_values!(disability)
-        # Remove nil values for the optional fields
-        %i[diagnosticCode classificationCode ratedDisabilityId specialIssues].each do |field|
-          disability.delete(field) if disability[field].blank?
-        end
-
-        # Transform approximate date to FES format
-        begin_date = disability[:approximateBeginDate]
-        disability[:approximateBeginDate] = ClaimsApi::PartialDateParser.to_fes(begin_date) if begin_date.present?
-
-        # Remove fields not needed for FES
-        disability.except(*IGNORED_DISABILITY_FIELDS)
-      end
-
-      def flatten_disabilities(disabilities_array)
-        disabilities_array.flat_map do |disability|
-          primary_disability = disability.dup
-          # Remove secondaryDisabilities from primary_disablity before adding to list
-          secondary_disability_data = primary_disability.delete(:secondaryDisabilities)
-
-          list = [primary_disability]
-
-          if secondary_disability_data.present?
-            secondaries = secondary_disability_data.map do |secondary|
-              secondary_copy = secondary.dup
-              secondary_copy[:name] = secondary[:name]
-              secondary_copy[:disabilityActionType] = 'NEW'
-              secondary_copy
-            end
-            list.concat(secondaries)
-          end
-
-          list
-        end
       end
 
       def wrap_in_request_structure
@@ -92,12 +50,36 @@ module ClaimsApi
         }
       end
 
+      def extract_veteran_participant_id
+        # Try auth_headers first, then fall back to other sources
+        @auto_claim.auth_headers&.dig('va_eauth_pid') ||
+          @auto_claim.auth_headers&.dig('participant_id')
+      end
+
+      def extract_claimant_participant_id
+        # For dependent claims, use dependent participant ID
+        if @auto_claim.auth_headers&.dig('dependent', 'participant_id').present?
+          @auto_claim.auth_headers.dig('dependent', 'participant_id')
+        else
+          # Otherwise, claimant is the veteran
+          extract_veteran_participant_id
+        end
+      end
+
+      # =============================================================================
+      # SECTION 1 - VETERAN'S IDENTIFICATION INFORMATION
+      # =============================================================================
       def veteran_identification_info
         if address_is_military?(veteran_mailing_address)
           handle_military_address
         else
           handle_domestic_or_international_address
         end
+      end
+
+      def veteran_mailing_address
+        @data.dig(:veteranIdentification, :mailingAddress) ||
+          @data.dig(:veteran, :currentMailingAddress)
       end
 
       def handle_military_address
@@ -141,6 +123,16 @@ module ClaimsApi
         @fes_claim[:veteran][:currentMailingAddress] = formatted.compact_blank
       end
 
+      def format_address_line(street, unit)
+        return street if street.present? && unit.nil?
+        return nil if street.blank?
+
+        [street, unit].compact.join(' ')
+      end
+
+      # =============================================================================
+      # SECTION 2 - CHANGE OF ADDRESS
+      # =============================================================================
       def change_of_address
         change_data = @data.dig(:veteran, :changeOfAddress)
         return if change_data.blank?
@@ -151,18 +143,6 @@ module ClaimsApi
         addr[:zipLastFour] = change_data[:zipLastFour] if change_data[:zipLastFour].present?
         @fes_claim[:veteran] ||= {}
         @fes_claim[:veteran][:changeOfAddress] = addr.compact_blank
-      end
-
-      def veteran_mailing_address
-        @data.dig(:veteranIdentification, :mailingAddress) ||
-          @data.dig(:veteran, :currentMailingAddress)
-      end
-
-      def format_address_line(street, unit)
-        return street if street.present? && unit.nil?
-        return nil if street.blank?
-
-        [street, unit].compact.join(' ')
       end
 
       def build_change_of_address_base(change_data)
@@ -200,7 +180,70 @@ module ClaimsApi
         end
       end
 
-      # 'servicePeriods' are required via the schema
+      # =============================================================================
+      # SECTION 3 - HOMELESS INFORMATION
+      # =============================================================================
+
+      # =============================================================================
+      # SECTION 4 - EXPOSURE INFORMATION
+      # =============================================================================
+
+      # =============================================================================
+      # SECTION 5 - CLAIM INFORMATION, Disabilities
+      # =============================================================================
+      # Note: a 'disability' is required via the schema
+      # 'disabilityActionType' & 'name' are required via the schema
+      def disabilities
+        disabilities_data = flatten_disabilities(@data[:disabilities])
+        @fes_claim[:disabilities] = disabilities_data.map do |disability|
+          transform_disability_values!(disability.deep_dup)
+        end
+      end
+
+      def flatten_disabilities(disabilities_array)
+        disabilities_array.flat_map do |disability|
+          primary_disability = disability.dup
+          # Remove secondaryDisabilities from primary_disablity before adding to list
+          secondary_disability_data = primary_disability.delete(:secondaryDisabilities)
+
+          list = [primary_disability]
+
+          if secondary_disability_data.present?
+            secondaries = secondary_disability_data.map do |secondary|
+              secondary_copy = secondary.dup
+              secondary_copy[:name] = secondary[:name]
+              secondary_copy[:disabilityActionType] = 'NEW'
+              secondary_copy
+            end
+            list.concat(secondaries)
+          end
+
+          list
+        end
+      end
+
+      def transform_disability_values!(disability)
+        # Remove nil values for the optional fields
+        %i[diagnosticCode classificationCode ratedDisabilityId specialIssues].each do |field|
+          disability.delete(field) if disability[field].blank?
+        end
+
+        # Transform approximate date to FES format
+        begin_date = disability[:approximateBeginDate]
+        disability[:approximateBeginDate] = ClaimsApi::PartialDateParser.to_fes(begin_date) if begin_date.present?
+
+        # Remove fields not needed for FES
+        disability.except(*IGNORED_DISABILITY_FIELDS)
+      end
+
+      # =============================================================================
+      # SECTION 5 - CLAIM INFORMATION, Treatment Centers
+      # =============================================================================
+
+      # =============================================================================
+      # SECTION 6 - SERVICE INFORMATION
+      # =============================================================================
+      # Note: 'servicePeriods' are required via the schema
       def service_information
         info = @data[:serviceInformation]
 
@@ -210,14 +253,12 @@ module ClaimsApi
         map_title_10_activation(info) if info&.dig(:reservesNationalGuardService, :title10Activation).present?
       end
 
-      # 'serviceBranch', 'activeDutyBeginDate' & 'activeDutyEndDate' are required via the schema
       def map_service_periods(info)
         @fes_claim[:serviceInformation] = {
           servicePeriods: info[:servicePeriods].map(&:compact)
         }
       end
 
-      # 'confinementBeginDate' & 'confinementEndDate' are required via the schema
       def map_confinements(info)
         @fes_claim[:serviceInformation].merge!(
           { confinements: info[:confinements] }
@@ -253,22 +294,6 @@ module ClaimsApi
           title_ten[:anticipatedSeparationDate] = title_ten_info[:anticipatedSeparationDate]
         end
         title_ten
-      end
-
-      def extract_veteran_participant_id
-        # Try auth_headers first, then fall back to other sources
-        @auto_claim.auth_headers&.dig('va_eauth_pid') ||
-          @auto_claim.auth_headers&.dig('participant_id')
-      end
-
-      def extract_claimant_participant_id
-        # For dependent claims, use dependent participant ID
-        if @auto_claim.auth_headers&.dig('dependent', 'participant_id').present?
-          @auto_claim.auth_headers.dig('dependent', 'participant_id')
-        else
-          # Otherwise, claimant is the veteran
-          extract_veteran_participant_id
-        end
       end
     end
   end
