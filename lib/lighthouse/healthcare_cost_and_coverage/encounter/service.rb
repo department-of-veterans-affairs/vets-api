@@ -14,6 +14,7 @@ module Lighthouse
         def initialize(icn)
           @icn = icn
           raise ArgumentError, 'no ICN passed in for HCCC request' if icn.blank?
+
           super()
         end
 
@@ -22,7 +23,7 @@ module Lighthouse
           params = { patient: @icn, _count: count }.merge(extra || {})
           params[:_id] = id if id
 
-          config.get(endpoint, params: params, icn: @icn).body
+          config.get(endpoint, params:, icn: @icn).body
         rescue Faraday::TimeoutError, Faraday::ClientError, Faraday::ServerError => e
           handle_error(e, endpoint)
         end
