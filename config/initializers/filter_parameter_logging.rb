@@ -102,3 +102,48 @@ Rails.application.config.filter_parameters = [
     end
   end
 ]
+
+# This adds log_allowlist: on each call to Rail.logger
+# NOTE: this doesn't work with ActionDispatch::Http::UploadedFile
+module AllowlistLogFiltering
+  %i[debug info warn error fatal unknown].each do |level|
+    define_method(level) do |message = nil, params = nil, log_allowlist: []|
+      # If only a hash was passed, treat it as params
+      if message.is_a?(Hash) && params.nil?
+        params = message
+        message = nil
+      end
+
+      if params.is_a?(Hash)
+        params = filter_hash(params, log_allowlist)
+      end
+
+      if params
+        super(message ? "#{message} #{params.inspect}" : params.inspect)
+      else
+        super(message)
+      end
+    end
+  end
+
+  private
+
+  def filter_hash(hash, log_allowlist = [])
+    hash.deep_dup.each do |k, v|
+      if ALLOWLIST.include?(k.to_s) || log_allowlist.map(&:to_s).include?(k.to_s)
+        next
+      end
+      case v
+      when Hash
+        hash[k] = filter_hash(v, log_allowlist)
+      when Array
+        hash[k] = v.map { |el| el.is_a?(Hash) ? filter_hash(el, log_allowlist) : '[FILTERED]' }
+      else
+        hash[k] = '[FILTERED]'
+      end
+    end
+    hash
+  end
+end
+
+Rails.logger.extend(AllowlistLogFiltering)
