@@ -855,13 +855,6 @@ module ClaimsApi
         end
       end
 
-      def collect_error_on_invalid_account_values(account_detail)
-        collect_error_messages(
-          source: "/directDeposit/#{account_detail}",
-          detail: "If the claimant has no account the #{account_detail} field must be left empty."
-        )
-      end
-
       def collect_error_if_value_not_present(val, form_obj_description)
         collect_error_messages(
           detail: "The #{val} is required for #{form_obj_description}.",
