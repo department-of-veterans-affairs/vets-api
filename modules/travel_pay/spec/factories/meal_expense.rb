@@ -30,11 +30,11 @@ FactoryBot.define do
     end
 
     trait :with_blank_vendor_name do
-      vendor_name { '' }
+      vendor_name { '' } # whitespace only, should fail validation
     end
 
     trait :with_whitespace_vendor_name do
-      vendor_name { '   ' }
+      vendor_name { '   ' } # whitespace only, should fail validation
     end
 
     initialize_with { TravelPay::MealExpense.new(attributes) }
