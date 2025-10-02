@@ -5,7 +5,7 @@
       "type": "boolean"
     },
     "description": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "diagnosticCode": {
       "type": ["string", "null"]
