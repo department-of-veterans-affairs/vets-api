@@ -175,9 +175,10 @@ class FormProfiles::VA686c674v2 < FormProfile
   # @return [Date, nil] The parsed date or nil if parsing fails
   def parse_date_safely(date_string)
     return nil if date_string.blank?
+
     return date_string if date_string.is_a?(Date)
 
-    Date.parse(date_string.to_s)
+    Date.strptime(date_string.to_s, '%m/%d/%Y')
   rescue ArgumentError, TypeError
     nil
   end
