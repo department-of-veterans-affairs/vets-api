@@ -34,6 +34,10 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
         ClaimsApi::V1::DisabilityCompensationFesMapper.new(auto_claim).map_claim
       end
 
+      # ===========================================================================
+      # GENERAL / HEADERS
+      # Request structure, participant IDs, and service transaction ID
+      # ===========================================================================
       context 'request structure' do
         it 'wraps data in proper FES request structure' do
           expect(fes_data).to have_key(:data)
@@ -51,7 +55,10 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
         end
       end
 
-      describe 'veteran information' do
+      # ===========================================================================
+      # SECTION 1 - VETERAN'S IDENTIFICATION INFORMATION
+      # ===========================================================================
+      describe 'section 1 veteran identification information' do
         let(:veteran) { fes_data[:data][:form526][:veteran] }
 
         describe 'current mailing address' do
@@ -121,37 +128,53 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
             end
           end
         end
+      end
 
-        describe 'change of address' do
-          context 'when present' do
-            let(:auto_claim) do
-              attrs = form_data['data']['attributes'].deep_dup
-              attrs['veteran']['changeOfAddress'] = {
-                'typeOfAddressChange' => 'TEMPORARY',
-                'numberAndStreet' => '10 Peach St',
-                'apartmentOrUnitNumber' => 'Unit 4',
-                'city' => 'Schenectady',
-                'state' => 'NY',
-                'country' => 'USA',
-                'zipFirstFive' => '12345',
-                'beginningDate' => '2023-06-04',
-                'endingDate' => '2023-12-04'
-              }
-              create(:auto_established_claim, form_data: attrs, auth_headers:)
-            end
+      # ===========================================================================
+      # SECTION 2 - CHANGE OF ADDRESS
+      # ===========================================================================
+      describe 'section 2 change of address' do
+        let(:veteran) { fes_data[:data][:form526][:veteran] }
 
-            it 'maps fields and dates correctly' do
-              change = veteran[:changeOfAddress]
-              expect(change[:addressChangeType]).to eq('TEMPORARY')
-              expect(change[:addressLine1]).to eq('10 Peach St Unit 4')
-              expect(change[:beginningDate]).to eq('2023-06-04')
-              expect(change[:endingDate]).to eq('2023-12-04')
-              expect(change[:addressType]).to eq('DOMESTIC')
-            end
+        context 'when present' do
+          let(:auto_claim) do
+            attrs = form_data['data']['attributes'].deep_dup
+            attrs['veteran']['changeOfAddress'] = {
+              'typeOfAddressChange' => 'TEMPORARY',
+              'numberAndStreet' => '10 Peach St',
+              'apartmentOrUnitNumber' => 'Unit 4',
+              'city' => 'Schenectady',
+              'state' => 'NY',
+              'country' => 'USA',
+              'zipFirstFive' => '12345',
+              'beginningDate' => '2023-06-04',
+              'endingDate' => '2023-12-04'
+            }
+            create(:auto_established_claim, form_data: attrs, auth_headers:)
+          end
+
+          it 'maps fields and dates correctly' do
+            change = veteran[:changeOfAddress]
+            expect(change[:addressChangeType]).to eq('TEMPORARY')
+            expect(change[:addressLine1]).to eq('10 Peach St Unit 4')
+            expect(change[:beginningDate]).to eq('2023-06-04')
+            expect(change[:endingDate]).to eq('2023-12-04')
+            expect(change[:addressType]).to eq('DOMESTIC')
           end
         end
       end
 
+      # ===========================================================================
+      # SECTION 3 - HOMELESS INFORMATION
+      # ===========================================================================
+
+      # ===========================================================================
+      # SECTION 4 - EXPOSURE INFORMATION
+      # ===========================================================================
+
+      # ===========================================================================
+      # SECTION 5 - CLAIM INFORMATION, Disabilities
+      # ===========================================================================
       context 'section 5 disabilities' do
         let(:fes_data) { described_class.new(auto_claim).map_claim }
         let(:disability_object) { fes_data[:data][:form526][:disabilities] }
@@ -226,6 +249,13 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
         end
       end
 
+      # ===========================================================================
+      # SECTION 5 - CLAIM INFORMATION, Treatment Centers
+      # ===========================================================================
+
+      # ===========================================================================
+      # SECTION 6 - SERVICE INFORMATION
+      # ===========================================================================
       context 'section 6 service information' do
         let(:confinements_data) do
           [
