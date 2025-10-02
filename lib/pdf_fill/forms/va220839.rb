@@ -27,10 +27,10 @@ module PdfFill
         'branchCampuses' => {
           limit: 4,
           'nameAndAddress' => {
-            key: "branch_campus[#{ITERATOR}][name]"
+            key: "branch_campus_#{ITERATOR}_name"
           },
           'facilityCode' => {
-            key: "branch_campus[#{ITERATOR}][facility_code]"
+            key: "branch_campus_#{ITERATOR}_facility_code"
           }
         },
         'agreementType' => {
@@ -102,31 +102,31 @@ module PdfFill
           limit: 11,
           label_all: true,
           'maximumNumberofStudents' => {
-            key: "us_school[#{ITERATOR}][max_students]"
+            key: "us_school_#{ITERATOR}_max_students"
           },
           'degreeLevel' => {
-            key: "us_school[#{ITERATOR}][degree_level]"
+            key: "us_school_#{ITERATOR}_degree_level"
           },
           'degreeProgram' => {
-            key: "us_school[#{ITERATOR}][college]"
+            key: "us_school_#{ITERATOR}_college"
           },
           'maximumContributionAmount' => {
-            key: "us_school[#{ITERATOR}][maximum_contribution]"
+            key: "us_school_#{ITERATOR}_maximum_contribution"
           }
         },
         'foreignSchools' => {
           limit: 4,
           'maximumNumberofStudents' => {
-            key: "foreign_school[#{ITERATOR}][max_students]"
+            key: "foreign_school_#{ITERATOR}_max_students"
           },
           'degreeLevel' => {
-            key: "foreign_school[#{ITERATOR}][degree_level]"
+            key: "foreign_school_#{ITERATOR}_degree_level"
           },
           'currencyType' => {
-            key: "foreign_school[#{ITERATOR}][currency_type]"
+            key: "foreign_school_#{ITERATOR}_currency_type"
           },
           'maximumContributionAmount' => {
-            key: "foreign_school[#{ITERATOR}][maximum_contribution]"
+            key: "foreign_school_#{ITERATOR}_maximum_contribution"
           }
         }
       }.freeze
