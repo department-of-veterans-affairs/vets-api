@@ -4,6 +4,7 @@ require_relative '../../../lib/travel_pay/constants'
 
 module TravelPay
   class CommonCarrierExpense < BaseExpense
+    # POV = Privately Owned Vehicle
     attribute :reason_not_using_pov, :string
     attribute :carrier_type, :string
 
