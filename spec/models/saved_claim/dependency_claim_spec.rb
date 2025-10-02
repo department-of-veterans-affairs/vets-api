@@ -49,7 +49,6 @@ RSpec.describe SavedClaim::DependencyClaim do
     allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow(File).to receive(:rename)
     allow(Common::FileHelpers).to receive(:delete_file_if_exists)
-    
     datestamp_instance = instance_double(PDFUtilities::DatestampPdf, run: 'tmp/pdfs/mock_processed.pdf')
     allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_instance)
   end
