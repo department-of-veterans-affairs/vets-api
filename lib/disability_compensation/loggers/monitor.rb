@@ -64,7 +64,7 @@ module DisabilityCompensation
 
       # Logs Form526 submission with provided direct deposit banking info
       #
-      # Veterans have the option to provide banking account info for direct depost of their benefits,
+      # Veterans have the option to provide banking account info for direct deposit of their benefits,
       # which we prefill via the Lighthouse Direct Deposit API https://dev-developer.va.gov/explore/api/direct-deposit-management
       # if Lighthouse has it on file; if not they may enter it themselves.
       # We track this to monitor how frequently submissions are coming through with or without this info, in case there
