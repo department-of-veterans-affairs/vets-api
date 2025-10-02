@@ -20,6 +20,13 @@ module DependentsBenefits
       add_disabled_child
     ].freeze
 
+    # Checks if the claim was successfully submitted by checking the status of submission attempts
+    # @return [Boolean] true if all submission attempts succeeded, false otherwise
+    def submissions_succeeded?
+      # TODO: Add checks for each submission type for claim
+      false
+    end
+
     ##
     # Validates whether the form matches the expected VetsJsonSchema::JSON schema
     #

@@ -91,10 +91,15 @@ module DependentsBenefits
                                     parent_claim_id:, error: error.message)
 
       parent_claim_group = SavedClaimGroup.find_by!(parent_claim_id:, saved_claim_id: parent_claim_id)
-      parent_claim_group.update!(status: 'failure')
+      parent_claim_group.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
     rescue => e
       monitor.track_processor_error('Failed to update ClaimGroup status', 'status_update',
                                     parent_claim_id:, error: e.message, original_error: error.message)
+    end
+
+    def record_enqueue_completion(claim_id)
+      claim_group = SavedClaimGroup.find_by(parent_claim_id:, saved_claim_id: claim_id)
+      claim_group&.update!(status: SavedClaimGroup::STATUSES[:ACCEPTED])
     end
 
     def monitor

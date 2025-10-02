@@ -38,9 +38,15 @@ module BGS
     end
 
     def get_dependents
-      return { persons: [] } if participant_id.blank?
+      backup_response = { persons: [] }
+      return backup_response if participant_id.blank?
 
-      service.claimant.find_dependents_by_participant_id(participant_id, ssn) || { persons: [] }
+      response = service.claimant.find_dependents_by_participant_id(participant_id, ssn)
+      if response.presence && response[:persons]
+        response
+      else
+        backup_response
+      end
     end
 
     def submit_686c_form(claim)
