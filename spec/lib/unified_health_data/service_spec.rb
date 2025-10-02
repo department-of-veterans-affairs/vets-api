@@ -1049,6 +1049,144 @@ describe UnifiedHealthData::Service, type: :service do
         end
       end
     end
+
+    context 'parse_refill_response edge cases' do
+      it 'always returns arrays for success and failed keys with nil response body' do
+        response = double(body: nil)
+        allow(service).to receive(:parse_response_body).with(nil).and_return(nil)
+
+        result = service.send(:parse_refill_response, response)
+
+        expect(result).to have_key(:success)
+        expect(result).to have_key(:failed)
+        expect(result[:success]).to eq([])
+        expect(result[:failed]).to eq([])
+      end
+
+      it 'always returns arrays for success and failed keys with non-array response body' do
+        response = double(body: { error: 'Invalid format' })
+        allow(service).to receive(:parse_response_body).and_return({ error: 'Invalid format' })
+
+        result = service.send(:parse_refill_response, response)
+
+        expect(result).to have_key(:success)
+        expect(result).to have_key(:failed)
+        expect(result[:success]).to eq([])
+        expect(result[:failed]).to eq([])
+      end
+
+      it 'always returns arrays for success and failed keys with empty array response' do
+        response = double(body: [])
+        allow(service).to receive(:parse_response_body).and_return([])
+
+        result = service.send(:parse_refill_response, response)
+
+        expect(result).to have_key(:success)
+        expect(result).to have_key(:failed)
+        expect(result[:success]).to eq([])
+        expect(result[:failed]).to eq([])
+      end
+
+      it 'returns empty failed array when only successes exist' do
+        response = double(body: [
+                            { 'success' => true, 'orderId' => '123', 'message' => 'Success', 'stationNumber' => '570' }
+                          ])
+        allow(service).to receive(:parse_response_body).and_return([
+                                                                     { 'success' => true,
+                                                                       'orderId' => '123',
+                                                                       'message' => 'Success',
+                                                                       'stationNumber' => '570' }
+                                                                   ])
+
+        result = service.send(:parse_refill_response, response)
+
+        expect(result[:success]).to eq([
+                                         { id: '123', status: 'Success', station_number: '570' }
+                                       ])
+        expect(result[:failed]).to eq([])
+        expect(result[:failed]).to be_an(Array)
+      end
+
+      it 'returns empty success array when only failures exist' do
+        response = double(body: [
+                            { 'success' => false, 'orderId' => '456', 'message' => 'Failed', 'stationNumber' => '571' }
+                          ])
+        allow(service).to receive(:parse_response_body).and_return([
+                                                                     { 'success' => false, 'orderId' => '456',
+                                                                       'message' => 'Failed', 'stationNumber' => '571' }
+                                                                   ])
+
+        result = service.send(:parse_refill_response, response)
+
+        expect(result[:success]).to eq([])
+        expect(result[:success]).to be_an(Array)
+        expect(result[:failed]).to eq([
+                                        { id: '456', error: 'Failed', station_number: '571' }
+                                      ])
+      end
+    end
+
+    context 'extract_successful_refills' do
+      it 'returns empty array when no successful refills exist' do
+        refill_items = [
+          { 'success' => false, 'orderId' => '123', 'message' => 'Failed', 'stationNumber' => '570' }
+        ]
+
+        result = service.send(:extract_successful_refills, refill_items)
+
+        expect(result).to eq([])
+      end
+
+      it 'returns empty array when refill_items is empty' do
+        result = service.send(:extract_successful_refills, [])
+
+        expect(result).to eq([])
+      end
+
+      it 'extracts successful refills correctly' do
+        refill_items = [
+          { 'success' => true, 'orderId' => '123', 'message' => 'Success', 'stationNumber' => '570' },
+          { 'success' => false, 'orderId' => '456', 'message' => 'Failed', 'stationNumber' => '571' }
+        ]
+
+        result = service.send(:extract_successful_refills, refill_items)
+
+        expect(result).to eq([
+                               { id: '123', status: 'Success', station_number: '570' }
+                             ])
+      end
+    end
+
+    context 'extract_failed_refills' do
+      it 'returns empty array when no failed refills exist' do
+        refill_items = [
+          { 'success' => true, 'orderId' => '123', 'message' => 'Success', 'stationNumber' => '570' }
+        ]
+
+        result = service.send(:extract_failed_refills, refill_items)
+
+        expect(result).to eq([])
+      end
+
+      it 'returns empty array when refill_items is empty' do
+        result = service.send(:extract_failed_refills, [])
+
+        expect(result).to eq([])
+      end
+
+      it 'extracts failed refills correctly' do
+        refill_items = [
+          { 'success' => true, 'orderId' => '123', 'message' => 'Success', 'stationNumber' => '570' },
+          { 'success' => false, 'orderId' => '456', 'message' => 'Failed', 'stationNumber' => '571' }
+        ]
+
+        result = service.send(:extract_failed_refills, refill_items)
+
+        expect(result).to eq([
+                               { id: '456', error: 'Failed', station_number: '571' }
+                             ])
+      end
+    end
   end
 
   # Conditions

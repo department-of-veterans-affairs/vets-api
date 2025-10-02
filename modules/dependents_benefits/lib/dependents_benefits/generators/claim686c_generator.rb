@@ -32,6 +32,8 @@ module DependentsBenefits
         deaths
         child_marriage
         child_stopped_attending_school
+        spouse_supporting_documents
+        child_supporting_documents
       ].freeze
 
       ##

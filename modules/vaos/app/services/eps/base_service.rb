@@ -57,7 +57,44 @@ module Eps
       raise_eps_error(error_value, response)
     end
 
+    def handle_eps_error!(e, method_name)
+      error_context = {
+        service: 'EPS',
+        method: method_name,
+        error_class: e.class.name,
+        timestamp: Time.current.iso8601
+      }.merge(parse_eps_backend_fields(e.message.to_s)).compact
+
+      Rails.logger.error("#{CC_APPOINTMENTS}: EPS service error", error_context)
+    end
+
     private
+
+    def parse_eps_backend_fields(raw_message)
+      # Extract code from the top level
+      code = raw_message[/:code=>"([^"]+)"/, 1]
+
+      # Extract status from the source hash
+      status = raw_message[/:vamf_status=>(\d+)/, 1]&.to_i
+
+      # Extract body from the source hash - need to handle escaped quotes
+      body = raw_message[/:vamf_body=>"((?:\\.|[^"\\])*)"/, 1]
+
+      # Only return the fields we actually want to log
+      result = {}
+      result[:code] = code if code
+      result[:upstream_status] = status if status
+      result[:upstream_body] = sanitize_response_body(body) if body
+
+      result
+    end
+
+    def sanitize_response_body(body)
+      return nil if body.nil?
+
+      # Use VAOS anonymization pattern for consistency with other VAOS services
+      VAOS::Anonymizers.anonymize_icns(body.to_s)
+    end
 
     ##
     # Get appropriate headers with correlation ID based on whether mocks are enabled.
