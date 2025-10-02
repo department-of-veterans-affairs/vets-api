@@ -156,8 +156,78 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
       end
 
       it 'accepts valid arrival_date' do
-        subject.arrival_date = Time.current
+        subject.arrival_date = 5.days.from_now
         expect(subject).to be_valid
+      end
+    end
+
+    context 'custom validations' do
+      describe 'departure and arrival locations must be different' do
+        it 'is invalid when departure and arrival locations are identical' do
+          subject.departure_location = 'Denver, CO'
+          subject.arrival_location = 'Denver, CO'
+          expect(subject).not_to be_valid
+          expect(subject.errors[:arrival_location]).to include('must be different from departure location')
+        end
+
+        it 'is invalid when departure and arrival locations are identical (case insensitive)' do
+          subject.departure_location = 'Denver, CO'
+          subject.arrival_location = 'DENVER, CO'
+          expect(subject).not_to be_valid
+          expect(subject.errors[:arrival_location]).to include('must be different from departure location')
+        end
+
+        it 'is invalid when departure and arrival locations are identical (with extra whitespace)' do
+          subject.departure_location = ' Denver, CO '
+          subject.arrival_location = 'Denver, CO'
+          expect(subject).not_to be_valid
+          expect(subject.errors[:arrival_location]).to include('must be different from departure location')
+        end
+
+        it 'is valid when departure and arrival locations are different' do
+          subject.departure_location = 'San Francisco, CA'
+          subject.arrival_location = 'Denver, CO'
+          expect(subject).to be_valid
+        end
+
+        it 'skips validation when either location is missing' do
+          subject.departure_location = nil
+          subject.arrival_location = 'Denver, CO'
+          # Should not add location difference error (presence validation will catch the nil)
+          subject.valid?
+          expect(subject.errors[:arrival_location]).not_to include('must be different from departure location')
+        end
+      end
+
+      describe 'departure date must be before arrival date' do
+        it 'is invalid when departure date is after arrival date' do
+          subject.departure_date = 3.days.from_now
+          subject.arrival_date = 1.day.from_now
+          expect(subject).not_to be_valid
+          expect(subject.errors[:arrival_date]).to include('must be after departure date')
+        end
+
+        it 'is invalid when departure date equals arrival date' do
+          same_time = 2.days.from_now
+          subject.departure_date = same_time
+          subject.arrival_date = same_time
+          expect(subject).not_to be_valid
+          expect(subject.errors[:arrival_date]).to include('must be after departure date')
+        end
+
+        it 'is valid when departure date is before arrival date' do
+          subject.departure_date = 1.day.from_now
+          subject.arrival_date = 3.days.from_now
+          expect(subject).to be_valid
+        end
+
+        it 'skips validation when either date is missing' do
+          subject.departure_date = nil
+          subject.arrival_date = 3.days.from_now
+          # Should not add date comparison error (presence validation will catch the nil)
+          subject.valid?
+          expect(subject.errors[:arrival_date]).not_to include('must be after departure date')
+        end
       end
     end
   end
@@ -283,6 +353,30 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
       expect(subject.errors[:vendor]).to include("can't be blank")
       expect(subject.errors[:departure_location]).to include("can't be blank")
       expect(subject.errors[:arrival_location]).to include("can't be blank")
+    end
+
+    it 'handles multiple custom validation errors' do
+      subject.departure_location = 'Same City'
+      subject.arrival_location = 'Same City'
+      subject.departure_date = 3.days.from_now
+      subject.arrival_date = 1.day.from_now
+
+      expect(subject).not_to be_valid
+      expect(subject.errors[:arrival_location]).to include('must be different from departure location')
+      expect(subject.errors[:arrival_date]).to include('must be after departure date')
+    end
+
+    it 'combines built-in and custom validation errors' do
+      subject.vendor = ''
+      subject.departure_location = 'Same Location'
+      subject.arrival_location = 'Same Location'
+      subject.departure_date = 2.days.from_now
+      subject.arrival_date = 1.day.from_now
+
+      expect(subject).not_to be_valid
+      expect(subject.errors[:vendor]).to include("can't be blank")
+      expect(subject.errors[:arrival_location]).to include('must be different from departure location')
+      expect(subject.errors[:arrival_date]).to include('must be after departure date')
     end
   end
 end
