@@ -11,7 +11,6 @@ module MyHealth
         end
 
         resource = resource.sort(params.permit(:sort)[:sort])
-        resource.metadata[:care_systems] = client.get_unique_care_systems(resource.records)
 
         # Even though this is a collection action we are not going to paginate
         render json: AllTriageTeamsSerializer.new(resource.data, { meta: resource.metadata })
