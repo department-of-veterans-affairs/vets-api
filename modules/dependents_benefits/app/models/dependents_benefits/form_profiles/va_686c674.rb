@@ -2,9 +2,17 @@
 
 require 'vets/model'
 require 'bid/awards/service'
+require 'dependents_benefits/monitor'
+
 module DependentsBenefits
+  ##
+  # Form profile for VA Form 686c-674 (Application Request to Add and/or Remove Dependents)
+  # Handles prefilling veteran's address and dependent information from BGS and VA Profile services
   # extends app/models/form_profile.rb, which handles form prefill
   class FormProfiles::VA686c674 < FormProfile
+    ##
+    # Model representing dependent information for the 686c-674 form
+    # Contains personal details and relationship data for each dependent
     class DependentInformation
       include Vets::Model
 
@@ -15,6 +23,9 @@ module DependentsBenefits
       attribute :award_indicator, String
     end
 
+    ##
+    # Model representing address information for the 686c-674 form
+    # Supports both domestic and international addresses
     class FormAddress
       include Vets::Model
 
@@ -32,6 +43,11 @@ module DependentsBenefits
     attribute :form_address, FormAddress
     attribute :dependents_information, DependentInformation, array: true
 
+    ##
+    # Prefills the form with veteran's address and dependent information
+    # Calls individual prefill methods for address and dependents data
+    #
+    # @return [void]
     def prefill
       prefill_form_address
       prefill_dependents_information
@@ -39,6 +55,10 @@ module DependentsBenefits
       super
     end
 
+    ##
+    # Returns metadata configuration for the form
+    #
+    # @return [Hash] Form metadata including version, prefill status, and return URL
     def metadata
       {
         version: 0,
@@ -49,6 +69,11 @@ module DependentsBenefits
 
     private
 
+    ##
+    # Prefills the veteran's mailing address from VA Profile service
+    # Safely handles service failures by rescuing exceptions
+    #
+    # @return [void]
     def prefill_form_address
       begin
         mailing_address = VAProfileRedis::V2::ContactInformation.for_user(user).mailing_address
@@ -67,11 +92,30 @@ module DependentsBenefits
       )
     end
 
+    ##
+    # Retrieves the last four digits of the veteran's file number or SSN
+    # Uses BGS service to find person by participant ID
+    #
+    # @return [String, nil] Last four digits of file number or SSN
     def va_file_number_last_four
-      response = BGS::People::Request.new.find_person_by_participant_id(user:)
-      (
-        response.file_number.presence || user.ssn.presence
-      )&.last(4)
+      va_file_number&.last(4)
+    end
+
+    ##
+    # Retrieves and memoizes the veteran's file number from BGS or falls back to SSN
+    # Makes BGS API call only once and caches the result for subsequent calls
+    #
+    # @return [String, nil] The veteran's file number or SSN if file number unavailable
+    def va_file_number
+      if @va_file_number.nil?
+        response = BGS::People::Request.new.find_person_by_participant_id(user:)
+        @va_file_number = response&.file_number.presence || user.ssn.presence
+      end
+      @va_file_number
+    rescue => e
+      monitor.track_prefill_warning('Failed to retrieve VA file number', 'file_number_error',
+                                    { error: e&.message })
+      user.ssn.presence
     end
 
     # @return [Integer] 1 if user is in receipt of pension, 0 if not, -1 if request fails
@@ -90,7 +134,7 @@ module DependentsBenefits
     # @return [Integer] the net worth limit for pension, default is 159240 as of 2025
     # Default will be cached in future enhancement
     def net_worth_limit
-      awards_pension[:net_worth_limit] || 159240 # rubocop:disable Style/NumericLiterals
+      awards_pension[:net_worth_limit] || 159_240
     end
 
     # @return [Hash] the awards pension data from BID service or an empty hash if the request fails
@@ -104,7 +148,8 @@ module DependentsBenefits
           error: e.message,
           form_id:
         }
-        Rails.logger.warn('Failed to retrieve awards pension data', payload)
+        monitor.track_prefill_warning('Failed to retrieve awards pension data', 'awards_pension_error',
+                                      payload)
         {}
       end
     end
@@ -114,7 +159,7 @@ module DependentsBenefits
     # If no dependents are found or if they are not active for benefits, it returns an empty array.
     def prefill_dependents_information
       dependents = dependent_service.get_dependents
-      persons = if dependents.nil? || dependents[:persons].blank?
+      persons = if dependents.blank? || dependents[:persons].blank?
                   []
                 else
                   dependents[:persons]
@@ -123,8 +168,8 @@ module DependentsBenefits
         person_to_dependent_information(person)
       end
     rescue => e
-      monitor.track_event('warn', 'Failure initializing dependents_information', 'dependents.prefill.error',
-                          { error: e&.message })
+      monitor.track_prefill_warning('Failed to retrieve dependents information', 'dependents_error',
+                                    { error: e&.message })
       @dependents_information = []
     end
 
@@ -134,31 +179,54 @@ module DependentsBenefits
     # @param person [Hash] The dependent's information as a hash
     # @return [DependentInformation] The dependent's information mapped to the model
     def person_to_dependent_information(person)
-      parsed_date = parse_date_safely(person[:date_of_birth])
+      first_name = person[:first_name]
+      last_name = person[:last_name]
+      middle_name = person[:middle_name]
+      ssn = person[:ssn]
+      date_of_birth = person[:date_of_birth]
+      relationship_to_veteran = person[:relationship]
+      award_indicator = person[:award_indicator]
+
+      parsed_date = parse_date_safely(date_of_birth)
 
       DependentInformation.new(
         full_name: FormFullName.new({
-                                      first: person[:first_name],
-                                      middle: person[:middle_name],
-                                      last: person[:last_name]
+                                      first: first_name,
+                                      middle: middle_name,
+                                      last: last_name
                                     }),
         date_of_birth: parsed_date,
-        ssn: person[:ssn],
-        relationship_to_veteran: person[:relationship],
-        award_indicator: person[:award_indicator]
+        ssn:,
+        relationship_to_veteran:,
+        award_indicator:
       )
     end
 
+    ##
+    # Returns a BGS dependent service instance for the current user
+    # Memoized to avoid creating multiple instances
+    #
+    # @return [BGS::DependentService] Service for retrieving dependent information
     def dependent_service
       @dependent_service ||= BGS::DependentService.new(user)
     end
 
+    ##
+    # Returns a BID awards service instance for the current user
+    # Used to retrieve pension award information
+    #
+    # @return [BID::Awards::Service] Service for retrieving pension award data
     def pension_award_service
       @pension_award_service ||= BID::Awards::Service.new(user)
     end
 
+    ##
+    # Returns a monitoring service instance for tracking events
+    # Used for logging errors and tracking form prefill events
+    #
+    # @return [DependentsBenefits::Monitor] Monitoring service for dependents module
     def monitor
-      @monitor ||= Dependents::Monitor.new(nil)
+      @monitor ||= DependentsBenefits::Monitor.new
     end
 
     ##

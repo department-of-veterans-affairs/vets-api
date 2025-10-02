@@ -22,6 +22,8 @@ module DependentsBenefits
 
     PROCESSOR_STATS_KEY = 'api.dependents_benefits.claim_processor'
 
+    PREFILL_STATS_KEY = 'api.dependents_benefits.prefill'
+
     attr_reader :tags
 
     def initialize
@@ -42,6 +44,12 @@ module DependentsBenefits
       submit_event('info', message, stats_key, options)
     end
 
+    def track_warning_event(message, stats_key, options = {})
+      tags = options[:tags] ? options[:tags] + @tags : @tags
+      options = options.merge(tags:)
+      submit_event('warn', message, stats_key, options)
+    end
+
     def track_processor_error(message, action, options = {})
       options[:tags] = ["action:#{action}"]
       track_error_event(message, PROCESSOR_STATS_KEY, options)
@@ -60,6 +68,11 @@ module DependentsBenefits
     def track_submission_error(message, action, options = {})
       options[:tags] = ["action:#{action}"]
       track_error_event(message, SUBMISSION_STATS_KEY, options)
+    end
+
+    def track_prefill_warning(message, action, options = {})
+      options[:tags] = ["action:#{action}"]
+      track_warning_event(message, PREFILL_STATS_KEY, options)
     end
 
     private

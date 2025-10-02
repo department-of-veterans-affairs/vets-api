@@ -31,7 +31,7 @@ module FormProfileSpecData
   def self.dependents_information
     [{
       'fullName' => { 'first' => 'JANE', 'middle' => 'M', 'last' => 'WEBB' },
-      'dateOfBirth' => '1960-02-01',
+      'dateOfBirth' => '1960-01-02',
       'ssn' => '222883214',
       'relationshipToVeteran' => 'Spouse',
       'awardIndicator' => 'Y'

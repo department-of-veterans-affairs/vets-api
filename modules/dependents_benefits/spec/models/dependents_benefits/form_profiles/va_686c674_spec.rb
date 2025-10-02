@@ -247,15 +247,8 @@ RSpec.describe FormProfile, type: :model do
 
                 prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
 
-                expect(Rails.logger)
-                  .to have_received(:warn)
-                  .with(
-                    'Failed to retrieve awards pension data', {
-                      user_account_uuid: user&.user_account_uuid,
-                      error: error.message,
-                      form_id: '686C-674-V2'
-                    }
-                  )
+                expect(Rails.logger).to have_received(:warn).with('Failed to retrieve dependents information', anything)
+                expect(Rails.logger).to have_received(:warn).with('Failed to retrieve awards pension data', anything)
 
                 expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
                 expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(159240) # rubocop:disable Style/NumericLiterals
@@ -342,7 +335,6 @@ RSpec.describe FormProfile, type: :model do
         end
 
         it 'returns prefilled 686C-674-V2' do
-          allow(Flipper).to receive(:enabled?).with(:pension_military_prefill, anything).and_return(false)
           VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                            allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
             expect_prefilled('686C-674-V2')
