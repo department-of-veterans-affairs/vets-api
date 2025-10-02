@@ -43,6 +43,9 @@ RSpec.describe FormProfile, type: :model do
   let(:initialize_va_profile_prefill_military_information_expected) do
     FormProfileSpecData.initialize_va_profile_prefill_military_information_expected
   end
+  let(:dependent_service) { instance_double(BGS::DependentService) }
+  let(:dependents_data) { FormProfileSpecData.dependents_data }
+  let(:dependents_information) { FormProfileSpecData.dependents_information }
 
   describe '#initialize_military_information', :skip_va_profile do
     context 'with military_information vaprofile' do
@@ -240,6 +243,9 @@ RSpec.describe FormProfile, type: :model do
             end
 
             it 'prefills -1 and default net worth limit when bid awards service returns an error' do
+              allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+              allow(dependent_service).to receive(:get_dependents).and_return(dependents_data)
+
               error = StandardError.new('awards pension error')
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                allow_playback_repeats: true) do
@@ -247,7 +253,6 @@ RSpec.describe FormProfile, type: :model do
 
                 prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
 
-                expect(Rails.logger).to have_received(:warn).with('Failed to retrieve dependents information', anything)
                 expect(Rails.logger).to have_received(:warn).with('Failed to retrieve awards pension data', anything)
 
                 expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
@@ -259,9 +264,6 @@ RSpec.describe FormProfile, type: :model do
           context 'with dependents prefill' do
             let(:user) { create(:evss_user, :loa3) }
             let(:form_profile) { FormProfiles::VA686c674v2.new(user:, form_id: '686C-674-V2') }
-            let(:dependent_service) { instance_double(BGS::DependentService) }
-            let(:dependents_data) { FormProfileSpecData.dependents_data }
-            let(:dependents_information) { FormProfileSpecData.dependents_information }
 
             before { allow(Rails.logger).to receive(:warn) }
 
