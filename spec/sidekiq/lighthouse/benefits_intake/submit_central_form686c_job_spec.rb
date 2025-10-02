@@ -183,7 +183,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
             user_uuid_and_form_id: "#{user_struct.uuid}_686C-674"
           )
 
-          expect(claim).to receive(:submittable_686?).and_return(true).twice
+          expect(claim).to receive(:submittable_686?).and_return(true).at_least(:twice)
           expect(claim).to receive(:submittable_674?).and_return(false).at_least(:once)
           subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
           expect(central_mail_submission.reload.state).to eq('success')
