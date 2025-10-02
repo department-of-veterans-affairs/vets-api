@@ -129,6 +129,20 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     expect(subject.jobs).to eq([])
   end
 
+  it 'calls slack_alert_on_failure with appropriate message if claim of type "claim" is errored' do
+    msg = 'Claim Uploader job failed to upload 526EZ PDF to Benefits Documents ' \
+          "API due to claim submission error for claim #{errored_auto_claim.id}"
+    expect_any_instance_of(subject).to receive(:slack_alert_on_failure).with('ClaimsApi::ClaimUploader', msg)
+    subject.new.perform(errored_auto_claim.id, 'claim')
+  end
+
+  it 'calls slack_alert_on_failure with appropriate message if claim of type "document" is errored' do
+    msg = "Claim Uploader job failed to upload attachment #{errored_auto_claim.id} " \
+          "to Benefits Documents API due to claim submission error for claim #{errored_auto_claim.id}"
+    expect_any_instance_of(subject).to receive(:slack_alert_on_failure).with('ClaimsApi::ClaimUploader', msg)
+    subject.new.perform(errored_auto_claim.id, 'document')
+  end
+
   it 'transforms a claim document to the right properties for EVSS' do
     evss_service_stub = instance_double(EVSS::DocumentsService)
     allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }

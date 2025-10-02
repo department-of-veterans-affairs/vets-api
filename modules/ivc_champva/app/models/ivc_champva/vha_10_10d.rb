@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module IvcChampva
   class VHA1010d
     ADDITIONAL_PDF_KEY = 'applicants'
     ADDITIONAL_PDF_COUNT = 3
     STATS_KEY = 'api.ivc_champva_form.10_10d'
 
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
     include Attachments
 
-    attribute :data
+    attribute :data, Hash
     attr_reader :form_id
 
     def initialize(data)

@@ -16,11 +16,16 @@ module Lighthouse
         raise Common::Exceptions::RecordNotFound, "User with UUID #{user_uuid} not found" if user.nil?
 
         prepared_params = ::BenefitsDiscovery::Params.new(user).build_from_service_history(service_history)
-        eligible_benefits = ::BenefitsDiscovery::Service.new.get_eligible_benefits(prepared_params)
+        service = ::BenefitsDiscovery::Service.new(
+          api_key: Settings.lighthouse.benefits_discovery.x_api_key,
+          app_id: Settings.lighthouse.benefits_discovery.x_app_id
+        )
+        eligible_benefits = service.get_eligible_benefits(prepared_params)
         execution_time = Time.current - start_time
         StatsD.measure(self.class.name, execution_time)
         sorted_benefits = sort_benefits(eligible_benefits)
-        StatsD.increment("Benefits Discovery Service results: #{sorted_benefits}")
+        formatted_benefits = format_benefits(sorted_benefits)
+        StatsD.increment('benefits_discovery_logging', tags: ["eligible_benefits:#{formatted_benefits}"])
       rescue => e
         Rails.logger.error("Failed to process eligible benefits for user: #{user_uuid}, error: #{e.message}")
         raise e
@@ -32,6 +37,12 @@ module Lighthouse
         benefit_recommendations.transform_values do |benefits|
           benefits.map { |benefit| benefit['benefit_name'] }.sort
         end.sort
+      end
+
+      # datadog converts most non-alphanumeric characters into underscores
+      # this series of substitutions is being done to make the tag more readable
+      def format_benefits(sorted)
+        sorted.to_h.to_s.tr('\/"{}=>', '').tr('[', '/').gsub('], ', '/').gsub(', ', ':').tr(']', '/')
       end
     end
   end

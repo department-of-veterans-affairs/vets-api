@@ -1,0 +1,1097 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+require 'unified_health_data/models/prescription'
+require 'unified_health_data/adapters/prescriptions_adapter'
+require 'unified_health_data/adapters/oracle_health_prescription_adapter'
+
+describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
+  subject { described_class.new(user) }
+
+  let(:user) { build(:user, :loa3, icn: '1000123456V123456') }
+  let(:vista_medication_data) do
+    {
+      'prescriptionId' => '28148665',
+      'refillStatus' => 'active',
+      'refillSubmitDate' => nil,
+      'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+      'refillRemaining' => 11,
+      'facilityName' => 'SLC4',
+      'isRefillable' => true,
+      'isTrackable' => false,
+      'sig' => 'APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY',
+      'orderedDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+      'quantity' => 1,
+      'expirationDate' => 'Wed, 15 Jul 2026 00:00:00 EDT',
+      'prescriptionNumber' => '3636485',
+      'prescriptionName' => 'COAL TAR 2.5% TOP SOLN',
+      'dispensedDate' => nil,
+      'stationNumber' => '991',
+      'cmopDivisionPhone' => '555-1234',
+      'dataSourceSystem' => 'VISTA'
+    }
+  end
+  let(:oracle_health_medication_data) do
+    {
+      'resourceType' => 'MedicationRequest',
+      'id' => '15208365735',
+      'status' => 'active',
+      'authoredOn' => '2025-01-29T19:41:43Z',
+      'medicationCodeableConcept' => {
+        'text' => 'amLODIPine (amLODIPine 5 mg tablet)'
+      },
+      'dosageInstruction' => [
+        {
+          'text' => 'See Instructions, daily, 1 EA, 0 Refill(s)'
+        }
+      ],
+      'dispenseRequest' => {
+        'numberOfRepeatsAllowed' => 0,
+        'quantity' => {
+          'value' => 1,
+          'unit' => 'EA'
+        }
+      },
+      'contained' => [
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-1',
+          'whenHandedOver' => '2025-01-15T10:00:00Z',
+          'quantity' => { 'value' => 30 },
+          'location' => { 'display' => 'Main Pharmacy' }
+        },
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-2',
+          'whenHandedOver' => '2025-01-29T14:30:00Z',
+          'quantity' => { 'value' => 30 },
+          'location' => { 'display' => 'Main Pharmacy' }
+        },
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-3',
+          'whenHandedOver' => '2025-01-22T09:15:00Z',
+          'quantity' => { 'value' => 30 },
+          'location' => { 'display' => 'Main Pharmacy' }
+        }
+      ]
+    }
+  end
+  let(:unified_response) do
+    {
+      'vista' => {
+        'medicationList' => {
+          'medication' => [vista_medication_data]
+        }
+      },
+      'oracle-health' => {
+        'entry' => [
+          {
+            'resource' => oracle_health_medication_data
+          }
+        ]
+      }
+    }
+  end
+
+  describe '#parse' do
+    context 'with unified response data' do
+      before do
+        # Ensure business rules filtering doesn't interfere with basic parsing tests
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, user).and_return(false)
+      end
+
+      it 'returns prescriptions from both VistA and Oracle Health' do
+        prescriptions = subject.parse(unified_response)
+
+        expect(prescriptions.size).to eq(2)
+        expect(prescriptions).to all(be_a(UnifiedHealthData::Prescription))
+
+        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
+        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
+
+        expect(vista_prescription).to be_present
+        expect(oracle_prescription).to be_present
+      end
+
+      context 'business rules filtering (applied regardless of current_only)' do
+        context 'when display_pending_meds flipper is enabled' do
+          let(:vista_medication_pf) do
+            vista_medication_data.merge('prescriptionSource' => 'PF')
+          end
+
+          let(:vista_medication_pd) do
+            vista_medication_data.merge('prescriptionSource' => 'PD')
+          end
+
+          let(:response_with_pf) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [vista_medication_pf] } },
+              'oracle-health' => { 'entry' => [] }
+            }
+          end
+
+          let(:response_with_pd) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [vista_medication_pd] } },
+              'oracle-health' => { 'entry' => [] }
+            }
+          end
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, user).and_return(true)
+          end
+
+          it 'excludes PF (Partial Fill) prescriptions only' do
+            prescriptions = subject.parse(response_with_pf)
+            expect(prescriptions).to be_empty
+          end
+
+          it 'includes PD (Pending) prescriptions when flag is enabled' do
+            prescriptions = subject.parse(response_with_pd)
+            expect(prescriptions.size).to eq(1)
+            expect(prescriptions.first.prescription_source).to eq('PD')
+          end
+        end
+
+        context 'when display_pending_meds flipper is disabled' do
+          let(:vista_medication_pf) do
+            vista_medication_data.merge('prescriptionSource' => 'PF')
+          end
+
+          let(:vista_medication_pd) do
+            vista_medication_data.merge('prescriptionSource' => 'PD')
+          end
+
+          let(:response_with_pf_and_pd) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [vista_medication_pf, vista_medication_pd] } },
+              'oracle-health' => { 'entry' => [] }
+            }
+          end
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, user).and_return(false)
+          end
+
+          it 'excludes both PF and PD prescriptions' do
+            prescriptions = subject.parse(response_with_pf_and_pd)
+            expect(prescriptions).to be_empty
+          end
+        end
+      end
+
+      context 'with current_only: false (default)' do
+        it 'returns all prescriptions without filtering' do
+          prescriptions = subject.parse(unified_response, current_only: false)
+
+          expect(prescriptions.size).to eq(2)
+          expect(prescriptions).to all(be_a(UnifiedHealthData::Prescription))
+        end
+      end
+
+      context 'with current_only: true' do
+        let(:vista_medication_expired_old) do
+          vista_medication_data.merge(
+            'refillStatus' => 'expired',
+            'expirationDate' => 200.days.ago.strftime('%a, %d %b %Y %H:%M:%S %Z')
+          )
+        end
+
+        context 'filters out old discontinued/expired prescriptions' do
+          let(:response_with_old_expired) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [vista_medication_expired_old] } },
+              'oracle-health' => { 'entry' => [] }
+            }
+          end
+
+          it 'excludes expired prescriptions older than 180 days' do
+            allow(Rails.logger).to receive(:info)
+
+            prescriptions = subject.parse(response_with_old_expired, current_only: true)
+
+            expect(prescriptions).to be_empty
+            expect(Rails.logger).to have_received(:info).with(
+              hash_including(
+                message: 'Applied current filtering to prescriptions',
+                excluded_count: 1
+              )
+            )
+          end
+        end
+
+        context 'handles invalid expiration dates gracefully' do
+          let(:vista_medication_invalid_date) do
+            vista_medication_data.merge(
+              'refillStatus' => 'expired',
+              'expirationDate' => 'invalid-date'
+            )
+          end
+
+          let(:response_with_invalid_date) do
+            {
+              'vista' => { 'medicationList' => { 'medication' => [vista_medication_invalid_date] } },
+              'oracle-health' => { 'entry' => [] }
+            }
+          end
+
+          it 'logs warning and does not exclude based on date' do
+            allow(Rails.logger).to receive(:warn)
+            allow(Rails.logger).to receive(:info)
+
+            prescriptions = subject.parse(response_with_invalid_date, current_only: true)
+
+            expect(prescriptions.size).to eq(1)
+            expect(Rails.logger).to have_received(:warn).with(
+              /Invalid expiration date for rx ending in \d{4}: invalid-date/
+            )
+          end
+        end
+
+        context 'does not filter active or recent prescriptions' do
+          it 'includes active prescriptions regardless of expiration date' do
+            allow(Rails.logger).to receive(:info)
+
+            prescriptions = subject.parse(unified_response, current_only: true)
+
+            expect(prescriptions.size).to eq(2)
+            expect(Rails.logger).to have_received(:info).with(
+              hash_including(
+                message: 'Applied current filtering to prescriptions',
+                original_count: 2,
+                filtered_count: 2,
+                excluded_count: 0
+              )
+            )
+          end
+        end
+      end
+    end
+
+    context 'with VistA-only data' do
+      let(:vista_only_response) do
+        {
+          'vista' => unified_response['vista'],
+          'oracle-health' => nil
+        }
+      end
+
+      it 'returns only VistA prescriptions' do
+        prescriptions = subject.parse(vista_only_response)
+
+        expect(prescriptions.size).to eq(1)
+        expect(prescriptions.first.prescription_id).to eq('28148665')
+        expect(prescriptions.first.prescription_name).to eq('COAL TAR 2.5% TOP SOLN')
+      end
+
+      it 'falls back to orderableItem when prescriptionName is missing' do
+        vista_data_without_name = vista_medication_data.merge(
+          'prescriptionName' => nil,
+          'orderableItem' => 'METFORMIN 500MG TABLET'
+        )
+        response = {
+          'vista' => { 'medicationList' => { 'medication' => [vista_data_without_name] } },
+          'oracle-health' => nil
+        }
+
+        prescriptions = subject.parse(response)
+
+        expect(prescriptions.size).to eq(1)
+        expect(prescriptions.first.prescription_name).to eq('METFORMIN 500MG TABLET')
+      end
+    end
+
+    context 'with Oracle Health-only data' do
+      let(:oracle_only_response) do
+        {
+          'vista' => nil,
+          'oracle-health' => unified_response['oracle-health']
+        }
+      end
+
+      it 'returns only Oracle Health prescriptions' do
+        prescriptions = subject.parse(oracle_only_response)
+
+        expect(prescriptions.size).to eq(1)
+        expect(prescriptions.first.prescription_id).to eq('15208365735')
+        expect(prescriptions.first.prescription_name).to eq('amLODIPine (amLODIPine 5 mg tablet)')
+      end
+    end
+
+    context 'with nil input' do
+      it 'returns empty array' do
+        expect(subject.parse(nil)).to eq([])
+      end
+    end
+
+    context 'with empty data' do
+      let(:empty_response) do
+        {
+          'vista' => { 'medicationList' => { 'medication' => [] } },
+          'oracle-health' => { 'entry' => [] }
+        }
+      end
+
+      it 'returns empty array' do
+        expect(subject.parse(empty_response)).to eq([])
+      end
+    end
+
+    context 'with Oracle Health data containing multiple MedicationDispense resources' do
+      it 'uses the most recent dispensed date based on whenHandedOver' do
+        prescriptions = subject.parse(unified_response)
+        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
+
+        # Should use the most recent whenHandedOver date: '2025-01-29T14:30:00Z'
+        expect(oracle_prescription.refill_date).to eq('2025-01-29T14:30:00Z')
+      end
+    end
+
+    context 'with Oracle Health data containing encounter location' do
+      let(:oracle_medication_with_encounter) do
+        {
+          'resourceType' => 'MedicationRequest',
+          'id' => '15208365735',
+          'status' => 'active',
+          'authoredOn' => '2025-01-29T19:41:43Z',
+          'medicationCodeableConcept' => {
+            'text' => 'amLODIPine (amLODIPine 5 mg tablet)'
+          },
+          'contained' => [
+            {
+              'resourceType' => 'Encounter',
+              'id' => 'encounter-1',
+              'location' => [
+                {
+                  'location' => {
+                    'display' => 'VA Medical Center - Cardiology'
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      end
+
+      let(:response_with_encounter) do
+        {
+          'vista' => nil,
+          'oracle-health' => {
+            'entry' => [
+              {
+                'resource' => oracle_medication_with_encounter
+              }
+            ]
+          }
+        }
+      end
+
+      it 'extracts facility name from encounter location' do
+        prescriptions = subject.parse(response_with_encounter)
+        oracle_prescription = prescriptions.first
+
+        expect(oracle_prescription.facility_name).to eq('VA Medical Center - Cardiology')
+      end
+    end
+  end
+
+  describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
+    subject { described_class.new }
+
+    let(:base_resource) do
+      {
+        'resourceType' => 'MedicationRequest',
+        'id' => '12345',
+        'status' => 'active',
+        'authoredOn' => '2025-01-29T19:41:43Z',
+        'medicationCodeableConcept' => {
+          'text' => 'Test Medication'
+        },
+        'dosageInstruction' => [
+          {
+            'text' => 'Take as directed'
+          }
+        ]
+      }
+    end
+
+    describe '#parse' do
+      context 'with valid resource' do
+        it 'returns a UnifiedHealthData::Prescription object' do
+          result = subject.parse(base_resource)
+
+          expect(result).to be_a(UnifiedHealthData::Prescription)
+          expect(result.id).to eq('12345')
+        end
+      end
+
+      context 'with reportedBoolean true' do
+        let(:reported_resource) { base_resource.merge('reportedBoolean' => true) }
+
+        it 'returns prescription source NV' do
+          result = subject.parse(reported_resource)
+          expect(result.prescription_source).to eq('NV') # Should be marked as NV for filtering
+        end
+      end
+
+      context 'with reportedBoolean false' do
+        let(:not_reported_resource) { base_resource.merge('reportedBoolean' => false) }
+
+        it 'returns prescription object for non-reported medications' do
+          result = subject.parse(not_reported_resource)
+          expect(result.prescription_source).to eq('')
+        end
+      end
+
+      context 'with nil resource' do
+        it 'returns nil' do
+          expect(subject.parse(nil)).to be_nil
+        end
+      end
+
+      context 'with resource missing id' do
+        let(:resource_without_id) { base_resource.except('id') }
+
+        it 'returns nil' do
+          expect(subject.parse(resource_without_id)).to be_nil
+        end
+      end
+
+      context 'when parsing raises an error' do
+        let(:adapter_with_error) do
+          adapter = described_class.new
+          allow(adapter).to receive(:extract_refill_date).and_raise(StandardError, 'Test error')
+          adapter
+        end
+
+        before do
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'logs the error and returns nil' do
+          result = adapter_with_error.parse(base_resource)
+
+          expect(result).to be_nil
+          expect(Rails.logger).to have_received(:error).with('Error parsing Oracle Health prescription: Test error')
+        end
+      end
+    end
+
+    describe '#extract_prescription_source' do
+      context 'with reportedBoolean nil' do
+        it 'returns empty string for default VA medications' do
+          result = subject.send(:extract_prescription_source, base_resource)
+          expect(result).to eq('')
+        end
+      end
+    end
+
+    describe '#extract_facility_name' do
+      context 'with dispenseRequest performer' do
+        let(:resource_with_performer) do
+          base_resource.merge(
+            'dispenseRequest' => {
+              'performer' => {
+                'display' => 'Main Pharmacy'
+              }
+            }
+          )
+        end
+
+        it 'returns the performer display name' do
+          result = subject.send(:extract_facility_name, resource_with_performer)
+          expect(result).to eq('Main Pharmacy')
+        end
+      end
+
+      context 'with encounter location in contained resources' do
+        let(:resource_with_encounter) do
+          base_resource.merge(
+            'contained' => [
+              {
+                'resourceType' => 'Encounter',
+                'id' => 'encounter-1',
+                'location' => [
+                  {
+                    'location' => {
+                      'display' => 'VA Medical Center - Emergency'
+                    }
+                  }
+                ]
+              }
+            ]
+          )
+        end
+
+        it 'returns the encounter location display name' do
+          result = subject.send(:extract_facility_name, resource_with_encounter)
+          expect(result).to eq('VA Medical Center - Emergency')
+        end
+      end
+
+      context 'with multiple contained resources including encounter' do
+        let(:resource_with_multiple_contained) do
+          base_resource.merge(
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1'
+              },
+              {
+                'resourceType' => 'Encounter',
+                'id' => 'encounter-1',
+                'location' => [
+                  {
+                    'location' => {
+                      'display' => 'Outpatient Clinic'
+                    }
+                  }
+                ]
+              },
+              {
+                'resourceType' => 'Organization',
+                'id' => 'org-1'
+              }
+            ]
+          )
+        end
+
+        it 'finds and returns the encounter location display name' do
+          result = subject.send(:extract_facility_name, resource_with_multiple_contained)
+          expect(result).to eq('Outpatient Clinic')
+        end
+      end
+
+      context 'with encounter but no location' do
+        let(:resource_with_encounter_no_location) do
+          base_resource.merge(
+            'contained' => [
+              {
+                'resourceType' => 'Encounter',
+                'id' => 'encounter-1'
+              }
+            ],
+            'requester' => {
+              'display' => 'Fallback Provider'
+            }
+          )
+        end
+      end
+
+      context 'with no performer, encounter, or requester' do
+        it 'returns nil' do
+          result = subject.send(:extract_facility_name, base_resource)
+          expect(result).to be_nil
+        end
+      end
+    end
+
+    describe '#extract_is_refillable' do
+      let(:base_refillable_resource) do
+        {
+          'status' => 'active',
+          'reportedBoolean' => false,
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 5,
+            'validityPeriod' => {
+              'end' => 1.minute.from_now.in_time_zone('Pacific/Honolulu').iso8601
+            }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-15T10:00:00Z'
+            }
+          ]
+        }
+      end
+
+      context 'with all conditions met for refillable prescription' do
+        it 'returns true' do
+          expect(subject.send(:extract_is_refillable, base_refillable_resource)).to be true
+        end
+      end
+
+      context 'with non-VA medication (reportedBoolean true)' do
+        let(:non_va_resource) do
+          base_refillable_resource.merge('reportedBoolean' => true)
+        end
+
+        it 'returns false for non-VA medications' do
+          expect(subject.send(:extract_is_refillable, non_va_resource)).to be false
+        end
+      end
+
+      context 'with inactive status' do
+        let(:inactive_resource) do
+          base_refillable_resource.merge('status' => 'completed')
+        end
+
+        it 'returns false when status is not active' do
+          expect(subject.send(:extract_is_refillable, inactive_resource)).to be false
+        end
+      end
+
+      context 'with null status' do
+        let(:null_status_resource) do
+          base_refillable_resource.merge('status' => nil)
+        end
+
+        it 'returns false when status is null' do
+          expect(subject.send(:extract_is_refillable, null_status_resource)).to be false
+        end
+      end
+
+      context 'with expired prescription' do
+        let(:expired_resource) do
+          expired_date = 1.minute.ago.in_time_zone('America/Los_Angeles').iso8601
+          base_refillable_resource.deep_merge(
+            'dispenseRequest' => {
+              'validityPeriod' => {
+                'end' => expired_date
+              }
+            }
+          )
+        end
+
+        it 'returns false when prescription is expired' do
+          expect(subject.send(:extract_is_refillable, expired_resource)).to be false
+        end
+      end
+
+      context 'with no expiration date' do
+        let(:no_expiration_resource) do
+          resource = base_refillable_resource.dup
+          resource['dispenseRequest'].delete('validityPeriod')
+          resource
+        end
+
+        it 'returns false when no expiration date (safety default)' do
+          expect(subject.send(:extract_is_refillable, no_expiration_resource)).to be false
+        end
+      end
+
+      context 'with invalid expiration date' do
+        let(:invalid_expiration_resource) do
+          base_refillable_resource.deep_merge(
+            'dispenseRequest' => {
+              'validityPeriod' => {
+                'end' => 'invalid-date'
+              }
+            }
+          )
+        end
+
+        before do
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'returns false and logs warning for invalid dates' do
+          expect(subject.send(:extract_is_refillable, invalid_expiration_resource)).to be false
+          expect(Rails.logger).to have_received(:warn).with(
+            /Invalid expiration date for prescription.*: invalid-date/
+          )
+        end
+      end
+
+      context 'with no refills remaining' do
+        let(:no_refills_resource) do
+          base_refillable_resource.merge(
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 0,
+              'validityPeriod' => {
+                'end' => 1.year.from_now.iso8601
+              }
+            }
+          )
+        end
+
+        it 'returns false when no refills remaining' do
+          expect(subject.send(:extract_is_refillable, no_refills_resource)).to be false
+        end
+      end
+
+      context 'with multiple failing conditions' do
+        let(:multiple_fail_resource) do
+          {
+            'status' => 'completed',
+            'reportedBoolean' => true,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 0,
+              'validityPeriod' => {
+                'end' => 1.day.ago.iso8601
+              }
+            }
+          }
+        end
+
+        it 'returns false when multiple conditions fail' do
+          expect(subject.send(:extract_is_refillable, multiple_fail_resource)).to be false
+        end
+      end
+
+      context 'with exactly one refill remaining' do
+        let(:one_refill_resource) do
+          base_refillable_resource.merge(
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 2,
+              'validityPeriod' => {
+                'end' => 1.year.from_now.iso8601
+              }
+            },
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-2',
+                'status' => 'completed'
+              }
+            ]
+          )
+        end
+
+        it 'returns true when exactly one refill remains' do
+          expect(subject.send(:extract_is_refillable, one_refill_resource)).to be true
+        end
+      end
+    end
+
+    describe '#extract_station_number' do
+      let(:resource_with_station_number) do
+        {
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'location' => { 'display' => '556-RX-MAIN-OP' }
+            }
+          ]
+        }
+      end
+
+      context 'with valid 3-digit station number format' do
+        it 'extracts the first 3 digits' do
+          result = subject.send(:extract_station_number, resource_with_station_number)
+          expect(result).to eq('556')
+        end
+      end
+
+      context 'with format that has less than 3 leading digits' do
+        let(:resource_with_short_digits) do
+          {
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'location' => { 'display' => '12-PHARMACY' }
+              }
+            ]
+          }
+        end
+
+        before do
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'falls back to original value and logs warning' do
+          result = subject.send(:extract_station_number, resource_with_short_digits)
+          expect(result).to eq('12-PHARMACY')
+          expect(Rails.logger).to have_received(:warn).with(
+            'Unable to extract 3-digit station number from: 12-PHARMACY'
+          )
+        end
+      end
+
+      context 'with no MedicationDispense in contained resources' do
+        let(:resource_without_dispense) do
+          {
+            'contained' => [
+              {
+                'resourceType' => 'Encounter',
+                'id' => 'encounter-1'
+              }
+            ]
+          }
+        end
+
+        it 'returns nil' do
+          result = subject.send(:extract_station_number, resource_without_dispense)
+          expect(result).to be_nil
+        end
+      end
+    end
+
+    describe '#extract_refill_remaining' do
+      context 'with non-VA medication' do
+        let(:non_va_resource) do
+          {
+            'reportedBoolean' => true,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 5
+            }
+          }
+        end
+
+        it 'returns 0 for non-VA medications' do
+          result = subject.send(:extract_refill_remaining, non_va_resource)
+          expect(result).to eq(0)
+        end
+      end
+
+      context 'with VA medication and no completed dispenses' do
+        let(:resource_no_dispenses) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 5
+            }
+          }
+        end
+
+        it 'returns the full number of repeats allowed' do
+          result = subject.send(:extract_refill_remaining, resource_no_dispenses)
+          expect(result).to eq(5)
+        end
+      end
+
+      context 'with VA medication and one completed dispense (initial fill)' do
+        let(:resource_one_dispense) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 5
+            },
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'status' => 'completed'
+              }
+            ]
+          }
+        end
+
+        it 'returns the full number of repeats (initial fill does not count against refills)' do
+          result = subject.send(:extract_refill_remaining, resource_one_dispense)
+          expect(result).to eq(5)
+        end
+      end
+
+      context 'with VA medication and multiple completed dispenses' do
+        let(:resource_multiple_dispenses) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 5
+            },
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-2',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-3',
+                'status' => 'completed'
+              }
+            ]
+          }
+        end
+
+        it 'subtracts refills used (excluding initial fill)' do
+          # 3 completed dispenses = 1 initial + 2 refills used
+          # 5 allowed - 2 used = 3 remaining
+          result = subject.send(:extract_refill_remaining, resource_multiple_dispenses)
+          expect(result).to eq(3)
+        end
+      end
+
+      context 'with VA medication and all refills used' do
+        let(:resource_all_refills_used) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 2
+            },
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-2',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-3',
+                'status' => 'completed'
+              }
+            ]
+          }
+        end
+
+        it 'returns 0 when all refills are used' do
+          # 3 completed dispenses = 1 initial + 2 refills used
+          # 2 allowed - 2 used = 0 remaining
+          result = subject.send(:extract_refill_remaining, resource_all_refills_used)
+          expect(result).to eq(0)
+        end
+      end
+
+      context 'with VA medication and over-dispensed (more dispenses than allowed)' do
+        let(:resource_over_dispensed) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 1
+            },
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-2',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-3',
+                'status' => 'completed'
+              }
+            ]
+          }
+        end
+
+        it 'returns 0 when more dispenses than allowed' do
+          # 3 completed dispenses = 1 initial + 2 refills used
+          # 1 allowed - 2 used = -1, but should return 0
+          result = subject.send(:extract_refill_remaining, resource_over_dispensed)
+          expect(result).to eq(0)
+        end
+      end
+
+      context 'with mixed dispense statuses' do
+        let(:resource_mixed_statuses) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 5
+            },
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-1',
+                'status' => 'completed'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-2',
+                'status' => 'in-progress'
+              },
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-3',
+                'status' => 'completed'
+              }
+            ]
+          }
+        end
+
+        it 'only counts completed dispenses' do
+          # 2 completed dispenses = 1 initial + 1 refill used
+          # 5 allowed - 1 used = 4 remaining
+          result = subject.send(:extract_refill_remaining, resource_mixed_statuses)
+          expect(result).to eq(4)
+        end
+      end
+
+      context 'with no numberOfRepeatsAllowed specified' do
+        let(:resource_no_repeats) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {}
+          }
+        end
+
+        it 'defaults to 0 repeats allowed' do
+          result = subject.send(:extract_refill_remaining, resource_no_repeats)
+          expect(result).to eq(0)
+        end
+      end
+
+      context 'with no dispenseRequest' do
+        let(:resource_no_dispense_request) do
+          {
+            'reportedBoolean' => false
+          }
+        end
+
+        it 'defaults to 0 repeats allowed' do
+          result = subject.send(:extract_refill_remaining, resource_no_dispense_request)
+          expect(result).to eq(0)
+        end
+      end
+
+      context 'with no contained resources' do
+        let(:resource_no_contained) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 3
+            }
+          }
+        end
+
+        it 'returns the full number of repeats allowed' do
+          result = subject.send(:extract_refill_remaining, resource_no_contained)
+          expect(result).to eq(3)
+        end
+      end
+
+      context 'with non-MedicationDispense resources in contained' do
+        let(:resource_no_med_dispenses) do
+          {
+            'reportedBoolean' => false,
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 4
+            },
+            'contained' => [
+              {
+                'resourceType' => 'Encounter',
+                'id' => 'encounter-1'
+              },
+              {
+                'resourceType' => 'Organization',
+                'id' => 'org-1'
+              }
+            ]
+          }
+        end
+
+        it 'returns the full number of repeats allowed when no MedicationDispense resources' do
+          result = subject.send(:extract_refill_remaining, resource_no_med_dispenses)
+          expect(result).to eq(4)
+        end
+      end
+    end
+  end
+end

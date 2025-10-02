@@ -44,6 +44,7 @@ module SignIn
         validate_existing_mpi_attributes
       elsif mpi_record_exists?
         validate_existing_mpi_attributes
+        validate_sec_id
         update_mpi_correlation_record
       else
         add_mpi_user
@@ -62,6 +63,12 @@ module SignIn
       check_id_mismatch(mpi_response_profile.participant_ids, 'CORP_ID', Constants::ErrorCode::MULTIPLE_CORP_ID)
       check_id_mismatch(mpi_response_profile.mhv_iens, 'MHV_ID', Constants::ErrorCode::MULTIPLE_MHV_IEN,
                         raise_error: false)
+    end
+
+    def validate_sec_id
+      return if sec_id.present?
+
+      sign_in_logger.info('mpi record missing sec_id', icn: verified_icn, pce_status: sec_id_pce_status)
     end
 
     def add_mpi_user
@@ -189,6 +196,14 @@ module SignIn
 
     def verified_icn
       @verified_icn ||= mpi_response_profile.icn
+    end
+
+    def sec_id
+      @sec_id ||= mpi_response_profile.sec_id
+    end
+
+    def sec_id_pce_status
+      @sec_id_pce_status ||= mpi_response_profile.full_mvi_ids.any? { |id| id.include? '200PROV^USDVA^PCE' }
     end
 
     def credential_uuid

@@ -10,7 +10,7 @@ module DependentsVerification
     #
     class ClaimsController < ClaimsBaseController
       before_action :check_flipper_flag
-      service_tag 'dependnets-verification-application'
+      service_tag 'dependents-verification-application'
 
       # an identifier that matches the parameter that the form will be set as in the JSON submission.
       def short_name
@@ -64,7 +64,7 @@ module DependentsVerification
       # @return [Hash] the form data with SSN and veteran file number
       def form_data_with_ssn_filenumber
         form_data_as_sym = JSON.parse(filtered_params[:form]).deep_symbolize_keys
-        form_data_as_sym[:veteranInformation].merge!(ssn: current_user.ssn, veteranFileNumber: veteran_file_number)
+        form_data_as_sym[:veteranInformation].merge!(ssn: current_user.ssn, vaFileNumber: veteran_file_number)
         form_data_as_sym
       end
 

@@ -6,6 +6,7 @@ module BenefitsClaims
   module IntentToFile
     class Monitor < ::ZeroSilentFailures::Monitor
       STATSD_KEY_PREFIX = 'worker.lighthouse.create_itf_async'
+      STATSD_V1_KEY_PREFIX = 'worker.lighthouse.create_itf.v1'
 
       def initialize
         super('pension-itf')
@@ -13,7 +14,8 @@ module BenefitsClaims
 
       # This metric does not include retries from failed attempts
       def track_create_itf_initiated(itf_type, form_start_date, user_account_uuid, form_id)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.initiated")
+        tags = ["itf_type:#{itf_type}", 'version:v0']
+        StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.initiated", tags:)
         context = {
           itf_type:,
           form_start_date:,
@@ -24,7 +26,8 @@ module BenefitsClaims
       end
 
       def track_create_itf_active_found(itf_type, form_start_date, user_account_uuid, itf_found)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.active_found")
+        tags = ["itf_type:#{itf_type}", 'version:v0']
+        StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.active_found", tags:)
         context = {
           itf_type:,
           itf_created: itf_found&.dig('data', 'attributes', 'creationDate'),
@@ -37,7 +40,8 @@ module BenefitsClaims
 
       # This metric includes retries from failed attempts
       def track_create_itf_begun(itf_type, form_start_date, user_account_uuid)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.begun")
+        tags = ["itf_type:#{itf_type}", 'version:v0']
+        StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.begun", tags:)
         context = {
           itf_type:,
           form_start_date:,
@@ -47,7 +51,8 @@ module BenefitsClaims
       end
 
       def track_create_itf_success(itf_type, form_start_date, user_account_uuid)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.success")
+        tags = ["itf_type:#{itf_type}", 'version:v0']
+        StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.success", tags:)
         context = {
           itf_type:,
           form_start_date:,
@@ -57,7 +62,8 @@ module BenefitsClaims
       end
 
       def track_create_itf_failure(itf_type, form_start_date, user_account_uuid, e)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.failure")
+        tags = ["itf_type:#{itf_type}", 'version:v0']
+        StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.failure", tags:)
         context = {
           itf_type:,
           form_start_date:,
@@ -68,6 +74,7 @@ module BenefitsClaims
       end
 
       def track_create_itf_exhaustion(itf_type, form, error)
+        tags = ["form_id:#{form&.form_id}", "itf_type:#{itf_type}", 'version:v0']
         context = {
           error:,
           itf_type:,
@@ -76,12 +83,13 @@ module BenefitsClaims
         }
         log_silent_failure(context, form&.user_account_id, call_location: caller_locations.first)
 
-        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted", tags:)
         Rails.logger.error("Lighthouse::CreateIntentToFileJob create #{itf_type} ITF exhausted", context)
       end
 
       def track_missing_user_icn(form, error)
-        StatsD.increment('user.icn.blank')
+        tags = ["form_id:#{form&.form_id}", 'version:v0']
+        StatsD.increment('user.icn.blank', tags:)
         context = {
           error: error.message,
           in_progress_form_id: form&.id,
@@ -91,7 +99,8 @@ module BenefitsClaims
       end
 
       def track_missing_user_pid(form, error)
-        StatsD.increment('user.participant_id.blank')
+        tags = ["form_id:#{form&.form_id}", 'version:v0']
+        StatsD.increment('user.participant_id.blank', tags:)
         context = {
           error: error.message,
           in_progress_form_id: form&.id,
@@ -101,7 +110,8 @@ module BenefitsClaims
       end
 
       def track_missing_form(form, error)
-        StatsD.increment('form.missing')
+        tags = ["form_id:#{form&.form_id}", 'version:v0']
+        StatsD.increment('form.missing', tags:)
         context = {
           error: error.message,
           in_progress_form_id: form&.id,
@@ -111,7 +121,8 @@ module BenefitsClaims
       end
 
       def track_invalid_itf_type(form, error)
-        StatsD.increment('itf.type.invalid')
+        tags = ["form_id:#{form&.form_id}", 'version:v0']
+        StatsD.increment('itf.type.invalid', tags:)
         context = {
           error: error.message,
           in_progress_form_id: form&.id,
@@ -123,38 +134,45 @@ module BenefitsClaims
       # ITF controller metrics and logging
 
       def track_show_itf(form_id, itf_type, user_uuid)
-        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}"]
-        StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.show", tags:)
+        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", 'version:v1']
+        StatsD.increment("#{STATSD_V1_KEY_PREFIX}.#{itf_type}.show", tags:)
         context = { itf_type:, form_id:, user_uuid: }
-        Rails.logger.info('V0 IntentToFilesController ITF show', context)
+        Rails.logger.info('IntentToFilesController ITF show', context)
       end
 
       def track_submit_itf(form_id, itf_type, user_uuid)
-        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}"]
-        StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.submit", tags:)
+        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", 'version:v1']
+        StatsD.increment("#{STATSD_V1_KEY_PREFIX}.#{itf_type}.submit", tags:)
         context = { itf_type:, form_id:, user_uuid: }
-        Rails.logger.info('V0 IntentToFilesController ITF submit', context)
+        Rails.logger.info('IntentToFilesController ITF submit', context)
+      end
+
+      def track_itf_controller_error(method, form_id, itf_type, error)
+        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}", 'version:v1']
+        StatsD.increment('v1.itf.error', tags:)
+        context = { error:, method:, form_id:, itf_type: }
+        Rails.logger.error("IntentToFilesController #{itf_type} ITF controller error", context)
       end
 
       def track_missing_user_icn_itf_controller(method, form_id, itf_type, user_uuid, error)
-        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}"]
-        StatsD.increment('user.icn.blank', tags:)
+        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}", 'version:v1']
+        StatsD.increment('v1.user.icn.blank', tags:)
         context = { error:, method:, form_id:, itf_type:, user_uuid: }
-        Rails.logger.info('V0 IntentToFilesController ITF user.icn is blank', context)
+        Rails.logger.info('IntentToFilesController ITF user.icn is blank', context)
       end
 
       def track_missing_user_pid_itf_controller(method, form_id, itf_type, user_uuid, error)
-        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}"]
-        StatsD.increment('user.participant_id.blank', tags:)
+        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}", 'version:v1']
+        StatsD.increment('v1.user.participant_id.blank', tags:)
         context = { error:, method:, form_id:, itf_type:, user_uuid: }
-        Rails.logger.info('V0 IntentToFilesController ITF user.participant_id is blank', context)
+        Rails.logger.info('IntentToFilesController ITF user.participant_id is blank', context)
       end
 
       def track_invalid_itf_type_itf_controller(method, form_id, itf_type, user_uuid, error)
-        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}"]
-        StatsD.increment('itf.type.invalid', tags:)
+        tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}", 'version:v1']
+        StatsD.increment('v1.itf.type.invalid', tags:)
         context = { error:, method:, form_id:, itf_type:, user_uuid: }
-        Rails.logger.info('V0 IntentToFilesController ITF invalid ITF type', context)
+        Rails.logger.info('IntentToFilesController ITF invalid ITF type', context)
       end
     end
   end

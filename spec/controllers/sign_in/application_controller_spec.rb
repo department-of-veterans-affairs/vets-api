@@ -5,7 +5,8 @@ require 'rx/client'
 
 RSpec.describe SignIn::ApplicationController, type: :controller do
   controller do
-    skip_before_action :authenticate, only: %w[index_optional_auth access_token_auth access_token_optional_auth]
+    skip_before_action :authenticate,
+                       only: %w[index_optional_auth access_token_auth access_token_optional_auth test_logging]
     before_action :load_user, only: %(index_optional_auth)
     before_action lambda {
                     access_token_authenticate(skip_render_error: params[:skip_render_error] == 'true')
@@ -42,6 +43,11 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     def service_account_auth
       head :ok
     end
+
+    def test_logging
+      Rails.logger.info('Test log message')
+      head :ok
+    end
   end
 
   before do
@@ -50,6 +56,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       get 'index' => 'sign_in/application#index'
       get 'index_optional_auth' => 'sign_in/application#index_optional_auth'
       get 'access_token_auth' => 'sign_in/application#access_token_auth'
+      get 'test_logging' => 'sign_in/application#test_logging'
     end
   end
 
@@ -711,6 +718,30 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     it 'renders service unavailable error' do
       subject
       expect(JSON.parse(response.body)['errors'].first['title']).to eq(expected_error)
+    end
+  end
+
+  describe 'controller name logging' do
+    let(:expected_result) { 'Test log message' }
+
+    context 'when controller has a name' do
+      it 'adds controller name to logs within around_action' do
+        expect(SemanticLogger).to receive(:named_tagged).with(controller_name: 'application').and_call_original
+        expect(Rails.logger).to receive(:info).with(expected_result)
+        get :test_logging
+        expect(response).to have_http_status :ok
+      end
+    end
+
+    context 'when controller has no name' do
+      before { allow(controller).to receive(:controller_name).and_return('') }
+
+      it 'does not call SemanticLogger.named_tagged' do
+        expect(SemanticLogger).not_to receive(:named_tagged)
+        expect(Rails.logger).to receive(:info).with(expected_result)
+        get :test_logging
+        expect(response).to have_http_status :ok
+      end
     end
   end
 end

@@ -11,46 +11,53 @@ module SignIn
     has_many :service_account_configs, through: :config_certificates, source: :config,
                                        source_type: 'ServiceAccountConfig'
 
-    delegate :not_before, :not_after, :subject, :issuer, :serial, to: :certificate
+    delegate :not_before, :not_after, :subject, :issuer, :serial, to: :x509
 
     scope :active,   -> { select(&:active?) }
     scope :expired,  -> { select(&:expired?) }
-    scope :expiring, -> { select(&:expiring?) }
+    scope :expiring_soon, -> { select(&:expiring_soon?) }
+    scope :expiring_later, -> { select(&:expiring_later?) }
+
+    normalizes :pem, with: ->(value) { value.present? ? "#{value.chomp}\n" : value }
 
     validates :pem, presence: true
-    validate :validate_certificate!
+    validate :validate_x509
 
-    def certificate
-      @certificate ||= OpenSSL::X509::Certificate.new(pem.to_s)
+    def x509
+      @x509 ||= OpenSSL::X509::Certificate.new(pem.to_s)
     rescue OpenSSL::X509::CertificateError
       nil
     end
 
-    def certificate?
-      certificate.present?
+    def x509?
+      x509.present?
     end
 
     def public_key
-      certificate&.public_key
+      x509&.public_key
     end
 
     def expired?
-      certificate? && not_after < Time.current
+      x509? && not_after < Time.current
     end
 
-    def expiring?
-      certificate? && !expired? && not_after < EXPIRING_WINDOW.from_now
+    def expiring_soon?
+      x509? && !expired? && not_after <= EXPIRING_WINDOW.from_now
+    end
+
+    def expiring_later?
+      x509? && not_after > EXPIRING_WINDOW.from_now
     end
 
     def active?
-      certificate? && not_after >= EXPIRING_WINDOW.from_now
+      x509? && not_after > Time.current
     end
 
     def status
       if expired?
         'expired'
-      elsif expiring?
-        'expiring'
+      elsif expiring_soon?
+        'expiring_soon'
       elsif active?
         'active'
       end
@@ -58,15 +65,15 @@ module SignIn
 
     private
 
-    def validate_certificate!
-      unless certificate
+    def validate_x509
+      unless x509
         errors.add(:pem, 'not a valid X.509 certificate')
         return
       end
 
-      errors.add(:pem, 'certificate is expired') if expired?
-      errors.add(:pem, 'certificate is not yet valid') if not_before > Time.current
-      errors.add(:pem, 'certificate is self-signed') if issuer == subject
+      errors.add(:pem, 'X.509 certificate is expired') if expired?
+      errors.add(:pem, 'X.509 certificate is not yet valid') if not_before > Time.current
+      errors.add(:pem, 'X.509 certificate is self-signed') if issuer == subject
     end
   end
 end

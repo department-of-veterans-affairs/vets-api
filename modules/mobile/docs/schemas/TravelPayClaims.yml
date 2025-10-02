@@ -1,0 +1,33 @@
+type: object
+additionalProperties: false
+required:
+- meta
+- data
+properties:
+  meta:
+    type: object
+    required:
+    - totalRecordCount
+    - pageNumber
+    - status
+    properties:
+      totalRecordCount:
+        type: integer
+        description: Total number of claims found. Will be 0 if no claims exist within the specified date range.
+        minimum: 0
+        example: 25
+      pageNumber:
+        type: integer
+        example: 1
+      status:
+        type: integer
+        enum:
+        - 200
+        - 206
+        example: 200
+  data:
+    type: array
+    description: Array of travel pay claims. Will be empty if no claims are found within the specified date range.
+    minItems: 0
+    items:
+      $ref: './TravelPayClaimSummary.yml'

@@ -35,9 +35,7 @@ module Lighthouse
       sidekiq_options retry: RETRY
 
       sidekiq_retries_exhausted do |msg, _ex|
-        if Flipper.enabled?(:dependents_trigger_action_needed_email)
-          Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.trigger_failure_events(msg)
-        end
+        Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.trigger_failure_events(msg)
       end
 
       def perform(saved_claim_id, encrypted_vet_info, encrypted_user_struct)
@@ -242,17 +240,7 @@ module Lighthouse
       end
 
       def send_confirmation_email(user)
-        return claim.send_received_email(user) if Flipper.enabled?(:dependents_separate_confirmation_email)
-
-        return if user.va_profile_email.blank?
-
-        form_id = FORM_ID
-        VANotify::ConfirmationEmail.send(
-          email_address: user.va_profile_email,
-          template_id: Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
-          first_name: user&.first_name&.upcase,
-          user_uuid_and_form_id: "#{user.uuid}_#{form_id}"
-        )
+        claim.send_received_email(user)
       end
 
       def self.trigger_failure_events(msg)

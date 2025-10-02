@@ -3,7 +3,7 @@
 module VANotify
   class EmailJob
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
     sidekiq_options retry: 14
 
     sidekiq_retries_exhausted do |msg, _ex|
@@ -31,18 +31,12 @@ module VANotify
       StatsD.increment('api.vanotify.email_job.success')
       response
     rescue VANotify::Error => e
-      handle_backend_exception(e, template_id, personalisation)
+      handle_backend_exception(e)
     end
 
-    def handle_backend_exception(e, template_id, personalisation)
+    def handle_backend_exception(e)
       if e.status_code == 400
-        log_exception_to_sentry(
-          e,
-          {
-            args: { template_id:, personalisation: }
-          },
-          { error: :va_notify_email_job }
-        )
+        log_exception_to_rails(e)
       else
         raise e
       end

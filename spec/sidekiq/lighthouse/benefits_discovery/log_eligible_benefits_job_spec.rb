@@ -27,7 +27,10 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
 
   describe '#perform' do
     before do
-      allow(BenefitsDiscovery::Service).to receive(:new).and_return(service_instance)
+      allow(BenefitsDiscovery::Service).to receive(:new).with(
+        api_key: Settings.lighthouse.benefits_discovery.x_api_key,
+        app_id: Settings.lighthouse.benefits_discovery.x_app_id
+      ).and_return(service_instance)
       allow(BenefitsDiscovery::Params).to receive(:new).and_return(params_instance)
       allow(params_instance).to \
         receive(:build_from_service_history).with(prepared_service_history).and_return(prepared_params)
@@ -40,10 +43,8 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
 
       it 'processes benefits discovery successfully' do
         expect(StatsD).to receive(:measure).with(described_class.name, be_a(Float))
-        expect(StatsD).to receive(:increment).with(
-          'Benefits Discovery Service results: [["not_recommended", []], ' \
-          '["recommended", ["Health", "Life Insurance (VALife)"]], ["undetermined", []]]'
-        )
+        expected_tags = 'eligible_benefits:not_recommended//recommended/Health:Life Insurance (VALife)/undetermined//'
+        expect(StatsD).to receive(:increment).with('benefits_discovery_logging', { tags: [expected_tags] })
         described_class.new.perform(user.uuid, prepared_service_history)
       end
 
@@ -112,15 +113,14 @@ RSpec.describe Lighthouse::BenefitsDiscovery::LogEligibleBenefitsJob, type: :job
             }
           ]
         }
-        expected_logged_error = 'Benefits Discovery Service results: [["not_recommended", ' \
-                                '["Health", "Life Insurance (VALife)"]], ["recommended", ' \
-                                '["Childcare", "Education"]], ["undetermined", ["Job Assistance", "Wealth"]]]'
+        expected_tags = 'eligible_benefits:not_recommended/Health:Life Insurance (VALife)' \
+                        '/recommended/Childcare:Education/undetermined/Job Assistance:Wealth/'
         allow(service_instance).to receive(:get_eligible_benefits).and_return(benefits)
-        expect(StatsD).to receive(:increment).with(expected_logged_error)
+        expect(StatsD).to receive(:increment).with('benefits_discovery_logging', { tags: [expected_tags] })
         described_class.new.perform(user.uuid, prepared_service_history)
 
         allow(service_instance).to receive(:get_eligible_benefits).and_return(reordered_benefits)
-        expect(StatsD).to receive(:increment).with(expected_logged_error)
+        expect(StatsD).to receive(:increment).with('benefits_discovery_logging', { tags: [expected_tags] })
         described_class.new.perform(user.uuid, prepared_service_history)
       end
     end

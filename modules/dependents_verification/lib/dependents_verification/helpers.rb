@@ -23,5 +23,19 @@ module DependentsVerification
       after_birthday = now.month > dob.month || (now.month == dob.month && now.day >= dob.day)
       now.year - dob.year - (after_birthday ? 0 : 1)
     end
+
+    ##
+    # Safely parses a date string, handling various formats
+    #
+    # @param date_string [String, Date, nil] The date to parse
+    # @return [Date, nil] The parsed date or nil if parsing fails
+    def parse_date_safely(date_string)
+      return nil if date_string.blank?
+      return date_string if date_string.is_a?(Date)
+
+      Date.parse(date_string.to_s)
+    rescue ArgumentError, TypeError
+      nil
+    end
   end
 end

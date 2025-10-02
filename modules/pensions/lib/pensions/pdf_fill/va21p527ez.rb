@@ -27,6 +27,44 @@ module Pensions
       # The Index Iterator Key
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
+      # Starting page number for overflow pages
+      START_PAGE = 16
+
+      # Default label column width (points) for redesigned extras in this form
+      DEFAULT_LABEL_WIDTH = 130
+
+      # Map question numbers to descriptive titles for overflow attachments
+      QUESTION_KEY = [
+        { question_number: '1', question_text: "Veteran's Identification Information" },
+        { question_number: '2', question_text: "Veteran's Contact Information" },
+        { question_number: '3', question_text: "Veteran's Service Information" },
+        { question_number: '4', question_text: 'Pension Information' },
+        { question_number: '5', question_text: 'Employment History' },
+        { question_number: '6', question_text: 'Marital Status' },
+        { question_number: '7', question_text: 'Prior Marital History' },
+        { question_number: '8', question_text: 'Dependent Children' },
+        { question_number: '9', question_text: 'Income and Assets' },
+        { question_number: '10', question_text: 'Care/Medical Expenses' },
+        { question_number: '11', question_text: 'Direct Deposit Information' },
+        { question_number: '12', question_text: 'Claim Certification and Signature' }
+      ].freeze
+
+      # V2-style sections grouping question numbers for overflow pages
+      SECTIONS = [
+        { label: 'Section I: Veteran\'s Identification Information', question_nums: ['1'] },
+        { label: 'Section II: Veteran\'s Contact Information', question_nums: ['2'] },
+        { label: 'Section III: Veteran\'s Service Information', question_nums: ['3'] },
+        { label: 'Section IV: Pension Information', question_nums: ['4'] },
+        { label: 'Section V: Employment History', question_nums: ['5'] },
+        { label: 'Section VI: Marital Status', question_nums: ['6'] },
+        { label: 'Section VII: Prior Marital History', question_nums: ['7'] },
+        { label: 'Section VIII: Dependent Children', question_nums: ['8'] },
+        { label: 'Section IX: Income and Assets', question_nums: ['9'] },
+        { label: 'Section X: Care/Medical Expenses', question_nums: ['10'] },
+        { label: 'Section XI: Direct Deposit Information', question_nums: ['11'] },
+        { label: 'Section XII: Claim Certification and Signature', question_nums: ['12'] }
+      ].freeze
+
       # The PDF Keys
       KEY = {
         # 1a
@@ -35,6 +73,7 @@ module Pensions
             limit: 12,
             question_num: 1,
             question_suffix: 'A',
+            question_label: "Veteran's First Name",
             question_text: 'VETERAN\'S FIRST NAME',
             key: 'form1[0].#subform[48].VeteransFirstName[0]'
           },
@@ -45,6 +84,7 @@ module Pensions
             limit: 18,
             question_num: 1,
             question_suffix: 'A',
+            question_label: "Veteran's Last Name",
             question_text: 'VETERAN\'S LAST NAME',
             key: 'form1[0].#subform[48].VeteransLastName[0]'
           }
@@ -87,6 +127,7 @@ module Pensions
             limit: 30,
             question_num: 2,
             question_suffix: 'A',
+            question_label: 'Mailing Address Number And Street',
             question_text: 'MAILING ADDRESS NUMBER AND STREET',
             key: 'form1[0].#subform[48].NumberStreet[0]'
           },
@@ -94,6 +135,7 @@ module Pensions
             limit: 5,
             question_num: 2,
             question_suffix: 'A',
+            question_label: 'Mailing Address Apt/Unit',
             question_text: 'MAILING ADDRESS APT/UNIT',
             key: 'form1[0].#subform[48].Apt_Or_Unit_Number[0]'
           },
@@ -101,6 +143,7 @@ module Pensions
             limit: 18,
             question_num: 2,
             question_suffix: 'A',
+            question_label: 'Mailing Address City',
             question_text: 'MAILING ADDRESS CITY',
             key: 'form1[0].#subform[48].City[0]'
           },
@@ -118,6 +161,7 @@ module Pensions
               limit: 4,
               question_num: 2,
               question_suffix: 'A',
+              question_label: 'Postal Code - Last Four',
               question_text: 'POSTAL CODE - LAST FOUR',
               key: 'form1[0].#subform[48].Zip_Postal_Code[1]'
             }
@@ -139,6 +183,7 @@ module Pensions
           limit: 30,
           question_num: 2,
           question_suffix: 'C',
+          question_label: 'International Phone Number',
           question_text: 'International Phone Number',
           key: 'form1[0].#subform[48].International_Phone_Number[0]'
         },
@@ -147,6 +192,7 @@ module Pensions
           limit: 32,
           question_num: 2,
           question_suffix: 'C',
+          question_label: "Veteran's E-Mail Address",
           question_text: 'VETERAN\'S E-MAIL ADDRESS',
           key: 'form1[0].#subform[48].Veterans_Email_Address_Optional[0]'
         },
@@ -158,15 +204,17 @@ module Pensions
             limit: 12,
             question_num: 3,
             question_suffix: 'A',
+            question_label: 'Other First Name',
             question_text: 'OTHER FIRST NAME',
-            key: 'form1[0].#subform[48].Other_Name_You_Served_Under_First_Name[0]'
+            key: "form1[0].#subform[48].Other_Name_You_Served_Under_First_Name[#{ITERATOR}]"
           },
           'last' => {
             limit: 18,
             question_num: 3,
             question_suffix: 'A',
+            question_label: 'Other Last Name',
             question_text: 'OTHER LAST NAME',
-            key: 'form1[0].#subform[48].Other_Name_You_Served_Under_Last_Name[0]'
+            key: "form1[0].#subform[48].Other_Name_You_Served_Under_Last_Name[#{ITERATOR}]"
           }
         },
         # 3b
@@ -223,18 +271,10 @@ module Pensions
         },
         # 3d
         'serviceNumber' => {
-          limit: 12,
-          question_num: 3,
-          question_suffix: 'D',
-          question_text: 'YOUR SERVICE NUMBER',
           key: 'form1[0].#subform[48].Your_Service_Number[0]'
         },
         # 3f
         'placeOfSeparationLineOne' => {
-          limit: 18,
-          question_num: 3,
-          question_suffix: 'F',
-          question_text: 'PLACE OF YOUR LAST SEPARATION.',
           key: 'form1[0].#subform[48].Place_Of_Your_Last_Separation[1]'
         },
         'placeOfSeparationLineTwo' => {
@@ -300,6 +340,7 @@ module Pensions
             limit: 33,
             question_num: 4,
             question_suffix: 'F',
+            question_label: 'Specify VA Facility',
             question_text: 'Specify VA Facility',
             key: 'form1[0].#subform[49].Facility[0]'
           }
@@ -315,6 +356,7 @@ module Pensions
             limit: 44,
             question_num: 4,
             question_suffix: 'G',
+            question_label: 'Specify Federal Facility',
             question_text: 'Specify Federal Facility',
             key: 'form1[0].#subform[49].Facility[1]'
           }
@@ -331,6 +373,7 @@ module Pensions
             limit: 35,
             question_num: 5,
             question_suffix: 'B',
+            question_label: 'What Kind Of Work Are You Currently Doing',
             question_text: 'WHAT KIND OF WORK ARE YOU CURRENTLY DOING',
             key: 'form1[0].#subform[49].What_Kind_Of_Work_Are_You_Currently_Doing[0]'
           },
@@ -339,6 +382,7 @@ module Pensions
             limit: 3,
             question_num: 5,
             question_suffix: 'B',
+            question_label: 'How Many Hours Per Week Do You Average',
             question_text: 'HOW MANY HOURS PER WEEK DO YOU AVERAGE',
             key: 'form1[0].#subform[49].How_Many_Hours_Per_Week_Do_You_Average[0]'
           }
@@ -361,6 +405,7 @@ module Pensions
           'jobDateOverflow' => {
             question_num: 5,
             question_suffix: 'D',
+            question_label: 'When Did You Last Work',
             question_text: 'WHEN DID YOU LAST WORK'
           },
           # 5e
@@ -368,6 +413,7 @@ module Pensions
             limit: 3,
             question_num: 5,
             question_suffix: 'E',
+            question_label: 'How Many Hours Per Week Did You Average',
             question_text: 'HOW MANY HOURS PER WEEK DID YOU AVERAGE',
             key: 'form1[0].#subform[49].How_Many_Hours_Per_Week_Did_You_Average[0]'
           },
@@ -376,6 +422,7 @@ module Pensions
             limit: 30,
             question_num: 5,
             question_suffix: 'F',
+            question_label: 'What Was Your Job Title',
             question_text: 'WHAT WAS YOUR JOB TITLE',
             key: 'form1[0].#subform[49].What_Was_Your_Job_Title[0]'
           },
@@ -384,6 +431,7 @@ module Pensions
             limit: 27,
             question_num: 5,
             question_suffix: 'G',
+            question_label: 'What Kind Of Work Did You Do',
             question_text: 'WHAT KIND OF WORK DID YOU DO',
             key: 'form1[0].#subform[49].What_Kind_Of_Work_Did_You_Do[0]'
           }
@@ -399,6 +447,7 @@ module Pensions
               limit: 12,
               question_num: 6,
               question_suffix: 'B',
+              question_label: "Spouse's Current First Name",
               question_text: 'SPOUSE\'S CURRENT FIRST NAME',
               key: 'form1[0].#subform[49].Spouses_Current_Legal_Name_First_Name[0]'
             },
@@ -409,6 +458,7 @@ module Pensions
               limit: 18,
               question_num: 6,
               question_suffix: 'B',
+              question_label: "Spouse's Current Last Name",
               question_text: 'SPOUSE\'S CURRENT LAST NAME',
               key: 'form1[0].#subform[49].Spouses_Last_Name[0]'
             }
@@ -429,6 +479,7 @@ module Pensions
             limit: 22,
             question_num: 6,
             question_suffix: 'E',
+            question_label: 'Place Of Marriage City And State Or Country',
             question_text: 'PLACE OF MARRIAGE CITY AND STATE OR COUNTRY',
             key: 'form1[0].#subform[49].Place_Of_Marriage_City_And_State_Or_Country[0]'
           },
@@ -440,6 +491,7 @@ module Pensions
             limit: 22,
             question_num: 6,
             question_suffix: 'F',
+            question_label: 'Specify Type Of Marriage',
             question_text: 'SPECIFY TYPE OF MARRIAGE',
             key: 'form1[0].#subform[49].Other_Specify[0]'
           }
@@ -493,6 +545,7 @@ module Pensions
             limit: 30,
             question_num: 6,
             question_suffix: 'J',
+            question_label: 'Spouse Mailing Address Street',
             question_text: 'SPOUSE MAILING ADDRESS STREET',
             key: 'form1[0].#subform[49].Number_And_Street[0]'
           },
@@ -500,6 +553,7 @@ module Pensions
             limit: 5,
             question_num: 6,
             question_suffix: 'J',
+            question_label: 'Spouse Mailing Address Apt Number',
             question_text: 'SPOUSE MAILING ADDRESS APT NUMBER',
             key: 'form1[0].#subform[49].Apt_Or_Unit_Number[1]'
           },
@@ -507,6 +561,7 @@ module Pensions
             limit: 18,
             question_num: 6,
             question_suffix: 'J',
+            question_label: 'Spouse Mailing Address City',
             question_text: 'SPOUSE MAILING ADDRESS CITY',
             key: 'form1[0].#subform[49].City[1]'
           },
@@ -547,12 +602,14 @@ module Pensions
               limit: 12,
               question_num: 7.1,
               question_suffix: '[Veteran]',
+              question_label: 'Who Were You Married To? (First Name)',
               question_text: 'WHO WERE YOU MARRIED TO? (FIRST NAME)',
               key: "Marriages.Veterans_Prior_Spouse_FirstName[#{ITERATOR}]"
             },
             'middle' => {
               question_num: 7.1,
               question_suffix: '[Veteran]',
+              question_label: 'Who Were You Married To? (Middle Name)',
               question_text: 'WHO WERE YOU MARRIED TO? (MIDDLE NAME)',
               key: "Marriages.Veterans_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
             },
@@ -560,6 +617,7 @@ module Pensions
               limit: 18,
               question_num: 7.1,
               question_suffix: '[Veteran]',
+              question_label: 'Who Were You Married To? (Last Name)',
               question_text: 'WHO WERE YOU MARRIED TO? (LAST NAME)',
               key: "Marriages.Veterans_Prior_Spouse_LastName[#{ITERATOR}]"
             }
@@ -567,6 +625,7 @@ module Pensions
           'spouseFullNameOverflow' => {
             question_num: 7.1,
             question_suffix: '[Veteran]',
+            question_label: '(1) Who Were You Married To?',
             question_text: '(1) WHO WERE YOU MARRIED TO?'
           },
           'reasonForSeparation' => {
@@ -575,12 +634,14 @@ module Pensions
           'reasonForSeparationOverflow' => {
             question_num: 7.1,
             question_suffix: '[Veteran]',
+            question_label: '(2) How Did Your Previous Marriage End?',
             question_text: '(2) HOW DID YOUR PREVIOUS MARRIAGE END?'
           },
           'otherExplanation' => {
             limit: 43,
             question_num: 7.1,
             question_suffix: '[Veteran]',
+            question_label: '(2) How Did Your Previous Marriage End (Other Reason)?',
             question_text: '(2) HOW DID YOUR PREVIOUS MARRIAGE END (OTHER REASON)?',
             key: "Marriages.Other_Specify[#{ITERATOR}]"
           },
@@ -609,12 +670,14 @@ module Pensions
           'dateRangeOfMarriageOverflow' => {
             question_num: 7.1,
             question_suffix: '[Veteran]',
+            question_label: '(3) What Are The Dates Of The Previous Marriage?',
             question_text: '(3) WHAT ARE THE DATES OF THE PREVIOUS MARRIAGE?'
           },
           'locationOfMarriage' => {
             limit: 63,
             question_num: 7.1,
             question_suffix: '[Veteran]',
+            question_label: '(4) Place Of Marriage',
             question_text: '(4) PLACE OF MARRIAGE',
             key: "Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
@@ -622,6 +685,7 @@ module Pensions
             limit: 54,
             question_num: 7.1,
             question_suffix: '[Veteran]',
+            question_label: '(5) Place Of Marriage Termination',
             question_text: '(5) PLACE OF MARRIAGE TERMINATION',
             key: "Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
@@ -635,12 +699,14 @@ module Pensions
               limit: 12,
               question_num: 7.2,
               question_suffix: '[Spouse]',
+              question_label: 'Who Was Your Spouse Married To? (First Name)',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (FIRST NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_FirstName[#{ITERATOR}]"
             },
             'middle' => {
               question_num: 7.2,
               question_suffix: '[Spouse]',
+              question_label: 'Who Was Your Spouse Married To? (Middle Name)',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (MIDDLE NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
             },
@@ -648,6 +714,7 @@ module Pensions
               limit: 18,
               question_num: 7.2,
               question_suffix: '[Spouse]',
+              question_label: 'Who Was Your Spouse Married To? (Last Name)',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (LAST NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_LastName[#{ITERATOR}]"
             }
@@ -655,6 +722,7 @@ module Pensions
           'spouseFullNameOverflow' => {
             question_num: 7.2,
             question_suffix: '[Spouse]',
+            question_label: '(1) Who Was Your Spouse You Married To?',
             question_text: '(1) WHO WAS YOUR SPOUSE YOU MARRIED TO?'
           },
           'reasonForSeparation' => {
@@ -663,12 +731,14 @@ module Pensions
           'reasonForSeparationOverflow' => {
             question_num: 7.2,
             question_suffix: '[Spouse]',
+            question_label: '(2) How Did The Previous Marriage End?',
             question_text: '(2) HOW DID THE PREVIOUS MARRIAGE END?'
           },
           'otherExplanation' => {
             limit: 43,
             question_num: 7.2,
             question_suffix: '[Spouse]',
+            question_label: '(2) How Did The Previous Marriage End (Other Reason)?',
             question_text: '(2) HOW DID THE PREVIOUS MARRIAGE END (OTHER REASON)?',
             key: "Spouse_Marriages.Other_Specify[#{ITERATOR}]"
           },
@@ -697,12 +767,14 @@ module Pensions
           'dateRangeOfMarriageOverflow' => {
             question_num: 7.2,
             question_suffix: '[Spouse]',
+            question_label: '(3) What Are The Dates Of The Previous Marriage?',
             question_text: '(3) WHAT ARE THE DATES OF THE PREVIOUS MARRIAGE?'
           },
           'locationOfMarriage' => {
             limit: 63,
             question_num: 7.2,
             question_suffix: '[Spouse]',
+            question_label: '(4) Place Of Marriage',
             question_text: '(4) PLACE OF MARRIAGE',
             key: "Spouse_Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
@@ -710,6 +782,7 @@ module Pensions
             limit: 54,
             question_num: 7.2,
             question_suffix: '[Spouse]',
+            question_label: '(5) Place Of Marriage Termination',
             question_text: '(5) PLACE OF MARRIAGE TERMINATION',
             key: "Spouse_Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
@@ -728,6 +801,7 @@ module Pensions
           limit: 2,
           question_num: 8,
           question_suffix: 'A',
+          question_label: 'Number of Dependent Children Who Live With You',
           question_text: 'Number of Dependent Children Who Live With You'
         },
         # 8b-p Dependent Children
@@ -738,17 +812,20 @@ module Pensions
             'first' => {
               limit: 12,
               question_num: 8.1,
+              question_label: "Child's First Name",
               question_text: 'CHILD\'S FIRST NAME',
               key: "Dependent_Children.Childs_FirstName[#{ITERATOR}]"
             },
             'middle' => {
               question_num: 8.1,
+              question_label: "Child's Middle Name",
               question_text: 'CHILD\'S MIDDLE NAME',
               key: "Dependent_Children.Childs_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
               limit: 18,
               question_num: 8.1,
+              question_label: "Child's Last Name",
               question_text: 'CHILD\'S LAST NAME',
               key: "Dependent_Children.Childs_LastName[#{ITERATOR}]"
             }
@@ -770,6 +847,7 @@ module Pensions
           },
           'childDateOfBirthOverflow' => {
             question_num: 8.1,
+            question_label: "(2) Child's Date Of Birth",
             question_text: '(2) CHILD\'S DATE OF BIRTH'
           },
           'childSocialSecurityNumber' => {
@@ -785,11 +863,13 @@ module Pensions
           },
           'childSocialSecurityNumberOverflow' => {
             question_num: 8.1,
+            question_label: "(4) Child's Social Security Number",
             question_text: '(4) CHILD\'S SOCIAL SECURITY NUMBER'
           },
           'childPlaceOfBirth' => {
             limit: 60,
             question_num: 8.1,
+            question_label: "(3) Child's Place Of Birth",
             question_text: '(3) CHILD\'S PLACE OF BIRTH',
             key: "Dependent_Children.Place_Of_Birth_City_And_State_Or_Country[#{ITERATOR}]"
           },
@@ -818,6 +898,7 @@ module Pensions
           },
           'childStatusOverflow' => {
             question_num: 8.1,
+            question_label: "(5) Child's Status",
             question_text: '(5) CHILD\'S STATUS'
           },
           'monthlyPayment' => {
@@ -833,6 +914,7 @@ module Pensions
           },
           'monthlyPaymentOverflow' => {
             question_num: 8.1,
+            question_label: '(6) Amount Of Contribution For Child',
             question_text: '(6) Amount of Contribution For Child'
           }
         },
@@ -848,6 +930,7 @@ module Pensions
             limit: 12,
             question_num: 8.2,
             question_suffix: 'R',
+            question_label: "Custodian's First Name",
             question_text: 'CUSTODIAN\'S FIRST NAME',
             key: 'form1[0].#subform[51].Custodians_FirstName[0]'
           },
@@ -858,6 +941,7 @@ module Pensions
             limit: 18,
             question_num: 8.2,
             question_suffix: 'R',
+            question_label: "Custodian's Last Name",
             question_text: 'CUSTODIAN\'S LAST NAME',
             key: 'form1[0].#subform[51].Custodians_LastName[0]'
           },
@@ -866,6 +950,7 @@ module Pensions
               limit: 30,
               question_num: 8.2,
               question_suffix: 'R',
+              question_label: "Custodian's Address Number and Street",
               question_text: 'CUSTODIAN\'S ADDRESS NUMBER AND STREET',
               key: 'form1[0].#subform[51].NumberStreet[3]'
             },
@@ -873,6 +958,7 @@ module Pensions
               limit: 5,
               question_num: 8.2,
               question_suffix: 'R',
+              question_label: "Custodian's Address Apt/Unit",
               question_text: 'CUSTODIAN\'S ADDRESS APT/UNIT',
               key: 'form1[0].#subform[51].Apt_Or_Unit_Number[2]'
             },
@@ -880,6 +966,7 @@ module Pensions
               limit: 18,
               question_num: 8.2,
               question_suffix: 'R',
+              question_label: "Custodian's Address City",
               question_text: 'CUSTODIAN\'S ADDRESS CITY',
               key: 'form1[0].#subform[51].City[2]'
             },
@@ -907,11 +994,13 @@ module Pensions
           'custodianAddressOverflow' => {
             question_num: 8.2,
             question_suffix: 'R',
+            question_label: "Custodian's Address",
             question_text: 'CUSTODIAN\'S ADDRESS'
           },
           'dependentsWithCustodianOverflow' => {
             question_num: 8.2,
             question_suffix: 'R',
+            question_label: 'Dependents Living With This Custodian',
             question_text: 'DEPENDENTS LIVING WITH THIS CUSTODIAN'
           }
         },
@@ -970,6 +1059,7 @@ module Pensions
           'receiverOverflow' => {
             question_num: 9,
             question_suffix: '(1)',
+            question_label: 'Payment Recipient',
             question_text: 'PAYMENT RECIPIENT'
           },
           'dependentName' => {
@@ -977,6 +1067,7 @@ module Pensions
             limit: 29,
             question_num: 9,
             question_suffix: '(1)',
+            question_label: "Child's Name",
             question_text: 'CHILD NAME'
           },
           # (2) Income Type
@@ -986,6 +1077,7 @@ module Pensions
           'typeOfIncomeOverflow' => {
             question_num: 9,
             question_suffix: '(2)',
+            question_label: 'Income Type',
             question_text: 'INCOME TYPE'
           },
           'otherTypeExplanation' => {
@@ -993,6 +1085,7 @@ module Pensions
             limit: 31,
             question_num: 9,
             question_suffix: '(2)',
+            question_label: 'Other Income Type Explanation',
             question_text: 'OTHER INCOME TYPE EXPLANATION'
           },
           # (3) Income Payer
@@ -1001,6 +1094,7 @@ module Pensions
             limit: 25,
             question_num: 9,
             question_suffix: '(3)',
+            question_label: 'Payer Name',
             question_text: 'PAYER NAME'
           },
           # (4) Gross Monthly Income
@@ -1018,6 +1112,7 @@ module Pensions
           'amountOverflow' => {
             question_num: 9,
             question_suffix: '(4)',
+            question_label: 'Current Gross Monthly Income',
             question_text: 'CURRENT GROSS MONTHLY INCOME'
           }
         },
@@ -1036,6 +1131,7 @@ module Pensions
           'recipientsOverflow' => {
             question_num: 10.1,
             question_suffix: '[Care](1)',
+            question_label: 'Care Expense Recipient',
             question_text: 'CARE EXPENSE RECIPIENT'
           },
           'childName' => {
@@ -1043,6 +1139,7 @@ module Pensions
             limit: 45,
             question_num: 10.1,
             question_suffix: '[Care](1)',
+            question_label: 'Care Expense Child Name',
             question_text: 'CARE EXPENSE CHILD NAME'
           },
           # (2) Provider
@@ -1051,6 +1148,7 @@ module Pensions
             limit: 70,
             question_num: 10.1,
             question_suffix: '[Care](2)',
+            question_label: 'Care Expense Provider Name',
             question_text: 'CARE EXPENSE PROVIDER NAME'
           },
           'careType' => {
@@ -1059,6 +1157,7 @@ module Pensions
           'careTypeOverflow' => {
             question_num: 10.1,
             question_suffix: '[Care](2)',
+            question_label: 'Care Type',
             question_text: 'CARE TYPE'
           },
           # (3) Rate Per Hour
@@ -1073,12 +1172,14 @@ module Pensions
           'ratePerHourOverflow' => {
             question_num: 10.1,
             question_suffix: '[Care](3)',
+            question_label: 'Care Expense Rate Per Hour',
             question_text: 'CARE EXPENSE RATE PER HOUR'
           },
           'hoursPerWeek' => {
             limit: 3,
             question_num: 10.1,
             question_suffix: '[Care](3)',
+            question_label: 'Hours Per Week Care Received',
             question_text: 'HOURS PER WEEK CARE RECEIVED',
             key: "Care_Expenses.Hours_Worked_Per_Week[#{ITERATOR}]"
           },
@@ -1110,6 +1211,7 @@ module Pensions
           'careDateRangeOverflow' => {
             question_num: 10.1,
             question_suffix: '[Care](4)',
+            question_label: 'Date Range Care Received',
             question_text: 'DATE RANGE CARE RECEIVED'
           },
           'noCareEndDate' => {
@@ -1122,6 +1224,7 @@ module Pensions
           'paymentFrequencyOverflow' => {
             question_num: 10.1,
             question_suffix: '[Care](5)',
+            question_label: 'Care Expense Payment Frequency',
             question_text: 'CARE EXPENSE PAYMENT FREQUENCY'
           },
           # (6) Rate Per Frequency
@@ -1139,6 +1242,7 @@ module Pensions
           'paymentAmountOverflow' => {
             question_num: 10.1,
             question_suffix: '[Care](6)',
+            question_label: 'Care Expense Payment Amount',
             question_text: 'CARE EXPENSE PAYMENT AMOUNT'
           }
         },
@@ -1153,6 +1257,7 @@ module Pensions
           'recipientsOverflow' => {
             question_num: 10.2,
             question_suffix: '[Medical](1)',
+            question_label: 'Medical Expense Recipient',
             question_text: 'MEDICAL EXPENSE RECIPIENT'
           },
           'childName' => {
@@ -1160,6 +1265,7 @@ module Pensions
             limit: 45,
             question_num: 10.2,
             question_suffix: '[Medical](1)',
+            question_label: 'Medical Expense Child Name',
             question_text: 'MEDICAL EXPENSE CHILD NAME'
           },
           # (2) Provider
@@ -1168,6 +1274,7 @@ module Pensions
             limit: 108,
             question_num: 10.2,
             question_suffix: '[Medical](2)',
+            question_label: 'Medical Expense Provider Name',
             question_text: 'MEDICAL EXPENSE PROVIDER NAME'
           },
           # (3) Purpose
@@ -1176,6 +1283,7 @@ module Pensions
             limit: 108,
             question_num: 10.2,
             question_suffix: '[Medical](3)',
+            question_label: 'Medical Expense Purpose',
             question_text: 'MEDICAL EXPENSE PURPOSE'
           },
           # (4) Payment Date
@@ -1193,6 +1301,7 @@ module Pensions
           'paymentDateOverflow' => {
             question_num: 10.2,
             question_suffix: '[Medical](4)',
+            question_label: 'Medical Expense Payment Date',
             question_text: 'MEDICAL EXPENSE PAYMENT DATE'
           },
           # (5) Payment Frequency
@@ -1202,6 +1311,7 @@ module Pensions
           'paymentFrequencyOverflow' => {
             question_num: 10.2,
             question_suffix: '[Medical](5)',
+            question_label: 'Medical Expense Payment Frequency',
             question_text: 'MEDICAL EXPENSE PAYMENT FREQUENCY'
           },
           # (6) Rate Per Frequency
@@ -1220,6 +1330,7 @@ module Pensions
           'paymentAmountOverflow' => {
             question_num: 10.2,
             question_suffix: '[Medical](6)',
+            question_label: 'Medical Expense Payment Amount',
             question_text: 'MEDICAL EXPENSE PAYMENT AMOUNT'
           }
         },
@@ -1229,6 +1340,7 @@ module Pensions
             limit: 30,
             question_num: 11,
             question_suffix: 'A',
+            question_label: 'Name of Financial Institution',
             question_text: 'NAME OF FINANCIAL INSTITUTION',
             key: 'form1[0].#subform[54].Name_Of_Financial_Institution[0]'
           },
@@ -1241,6 +1353,7 @@ module Pensions
             limit: 9,
             question_num: 11,
             question_suffix: 'C',
+            question_label: 'Routing Number',
             question_text: 'ROUTING NUMBER',
             key: 'form1[0].#subform[54].Routing_Number[0]'
           },
@@ -1249,6 +1362,7 @@ module Pensions
             limit: 15,
             question_num: 11,
             question_suffix: 'D',
+            question_label: 'Account Number',
             question_text: 'ACCOUNT NUMBER',
             key: 'form1[0].#subform[54].Account_Number[0]'
           }
