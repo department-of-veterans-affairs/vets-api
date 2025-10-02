@@ -167,7 +167,11 @@ module PdfFill
       end
 
       def format_institutions(form_data)
-        institution_arr = form_data['agreementType'] == 'withdrawFromYellowRibbonProgram' ? form_data['withdrawFromYellowRibbonProgram'] : form_data['institutionDetails']
+        institution_arr = if form_data['agreementType'] == 'withdrawFromYellowRibbonProgram'
+                            form_data['withdrawFromYellowRibbonProgram']
+                          else
+                            form_data['institutionDetails']
+                          end
 
         if institution_arr.present?
           form_data['primaryInstitution'] = institution_arr.first
