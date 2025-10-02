@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://localhost:2006/services/va_facilities/v1/facilities?facilityIds=vha_552
+    uri: https://sandbox-api.va.gov/services/va_facilities/v1/facilities?facilityIds=vha_552
     body:
       encoding: US-ASCII
       string: ''
