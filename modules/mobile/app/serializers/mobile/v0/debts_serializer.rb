@@ -18,7 +18,8 @@ module Mobile
                  :amount_withheld,
                  :original_ar,
                  :current_ar,
-                 :debt_history
+                 :debt_history,
+                 :fiscal_transaction_data
 
       def initialize(debts, id = nil)
         resource = if debts.is_a? Array
