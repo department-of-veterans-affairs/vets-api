@@ -371,7 +371,7 @@ module V1
     end
 
     # rubocop:disable Metrics/ParameterLists
-    def handle_callback_error(exc, status, response, level = :error, context = {},
+    def handle_callback_error(exc, status, response, _level = :error, context = {},
                               code = SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE, tag = nil)
       # replaces bundled Sentry error message with specific XML messages
       message = if response.normalized_errors.count > 1 && response.status_detail
@@ -379,7 +379,8 @@ module V1
                 else
                   exc.message
                 end
-      conditional_log_message_to_sentry(message, level, context)
+
+      Rails.logger.error("SessionsController version:v1 context:#{context} message:#{message}")
       Rails.logger.info("SessionsController version:v1 saml_callback failure, user_uuid=#{@current_user&.uuid}")
 
       unless performed?
@@ -397,17 +398,6 @@ module V1
       )
     end
     # rubocop:enable Metrics/ParameterLists
-
-    def conditional_log_message_to_sentry(message, level, context)
-      # If the user has an invalid message timestamp
-      # error, this means they have waited too long in the log in page to progress, so it's not really an
-      # appropriate Sentry error
-      if invalid_message_timestamp_error?(message)
-        Rails.logger.warn("SessionsController version:v1 context:#{context} message:#{message}")
-      else
-        log_message_to_sentry(message, level, extra_context: context)
-      end
-    end
 
     def invalid_message_timestamp_error?(message)
       message.match(FIM_INVALID_MESSAGE_TIMESTAMP)
