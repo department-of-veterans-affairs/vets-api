@@ -40,7 +40,7 @@ RSpec.describe VeteranFacingServices::NotificationCallback::Default do
 
         expect(callback).to receive(:on_delivered)
         expect(monitor).to receive(:track_request).with(:info, "#{callback.klass}: Delivered", "#{metric}.delivered",
-                                                context)
+                                                        context)
 
         klass.call(notification)
       end
@@ -51,7 +51,7 @@ RSpec.describe VeteranFacingServices::NotificationCallback::Default do
 
         expect(callback).to receive(:on_permanent_failure)
         expect(monitor).to receive(:track_request).with(:error, "#{callback.klass}: Permanent Failure",
-                                                "#{metric}.permanent_failure", context)
+                                                        "#{metric}.permanent_failure", context)
 
         klass.call(notification)
       end
@@ -62,7 +62,7 @@ RSpec.describe VeteranFacingServices::NotificationCallback::Default do
 
         expect(callback).to receive(:on_temporary_failure)
         expect(monitor).to receive(:track_request).with(:warn, "#{callback.klass}: Temporary Failure",
-                                                "#{metric}.temporary_failure", context)
+                                                        "#{metric}.temporary_failure", context)
 
         klass.call(notification)
       end
