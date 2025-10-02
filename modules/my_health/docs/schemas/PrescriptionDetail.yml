@@ -200,6 +200,13 @@ properties:
         type: string
         nullable: true
         example: "1,1"
+      grouped_medications:
+        type: array
+        nullable: true
+        items:
+          $ref: "./PrescriptionDetail.yml"
+        example: []
+        description: "Array of related prescription objects that are grouped with this prescription"
   links:
     type: object
     required:
