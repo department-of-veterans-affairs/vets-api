@@ -44,6 +44,16 @@ RSpec.describe SavedClaim::DependencyClaim do
   let(:file_path) { "tmp/pdfs/686C-674_#{subject.id}_final.pdf" }
   let(:file_path_v2) { "tmp/pdfs/686C-674-V2_#{subject_v2.id}_final.pdf" }
 
+  before do
+    # Mock expensive PDF operations to avoid file I/O
+    allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow(File).to receive(:rename)
+    allow(Common::FileHelpers).to receive(:delete_file_if_exists)
+    
+    datestamp_instance = instance_double(PDFUtilities::DatestampPdf, run: 'tmp/pdfs/mock_processed.pdf')
+    allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_instance)
+  end
+
   describe '#upload_pdf' do
     context 'when :va_dependents_v2 is disabled' do
       before do
@@ -260,6 +270,12 @@ RSpec.describe SavedClaim::DependencyClaim do
         expect(StatsD).to have_received(:increment).with('saved_claim.pdf.overflow', { tags: })
         expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: })
       end
+
+      it 'calls PdfFill::Filler.fill_form during PDF overflow tracking' do
+        allow(StatsD).to receive(:increment)
+        expect(PdfFill::Filler).to receive(:fill_form).at_least(:once)
+        subject.save!
+      end
     end
 
     context 'with bad schema data' do
@@ -297,6 +313,12 @@ RSpec.describe SavedClaim::DependencyClaim do
         tags = ['form_id:686C-674-V2']
         expect(StatsD).to have_received(:increment).with('saved_claim.pdf.overflow', { tags: })
         expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: })
+      end
+
+      it 'ensures PDF tracking works with schema validation disabled' do
+        allow(StatsD).to receive(:increment)
+        expect(PdfFill::Filler).to receive(:fill_form).at_least(:once)
+        subject.save!
       end
     end
 
