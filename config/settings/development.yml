@@ -718,6 +718,7 @@ lighthouse:
       - system/Invoice.read
       - system/PaymentReconciliation.read
       - system/MedicationDispense.read
+      - system/Encounter.read
       - launch
     timeout: 30
     use_mocks: false
