@@ -40,7 +40,9 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         care_systems_stub
       )
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
-        get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
+        VCR.use_cassette('sm_client/get_unique_care_systems') do
+          get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
+        end
       end
       expect(response).to be_successful
       expect(response.body).to be_a(String)
@@ -52,7 +54,9 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         care_systems_stub
       )
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_include_blocked') do
-        get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
+        VCR.use_cassette('sm_client/get_unique_care_systems') do
+          get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
+        end
       end
       expect(response).to be_successful
       expect(response.parsed_body['data'].count).to eq(1)
