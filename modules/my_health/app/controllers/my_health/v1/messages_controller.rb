@@ -101,10 +101,10 @@ module MyHealth
 
         if use_large_attachment_upload
           Rails.logger.info('MHV SM: Using large attachments endpoint')
-          client.post_create_message_with_lg_attachments(create_message_params)
+          client.post_create_message_with_lg_attachments(create_message_params, poll_for_status: oh_triage_group?)
         else
           Rails.logger.info('MHV SM: Using standard attachments endpoint')
-          client.post_create_message_with_attachment(create_message_params)
+          client.post_create_message_with_attachment(create_message_params, poll_for_status: oh_triage_group?)
         end
       end
 
@@ -113,10 +113,12 @@ module MyHealth
 
         if use_large_attachment_upload
           Rails.logger.info('MHV SM: Using large attachments endpoint - reply')
-          client.post_create_message_reply_with_lg_attachment(params[:id], create_message_params)
+          client.post_create_message_reply_with_lg_attachment(params[:id], create_message_params,
+                                                              poll_for_status: oh_triage_group?)
         else
           Rails.logger.info('MHV SM: Using standard attachments endpoint - reply')
-          client.post_create_message_reply_with_attachment(params[:id], create_message_params)
+          client.post_create_message_reply_with_attachment(params[:id], create_message_params,
+                                                           poll_for_status: oh_triage_group?)
         end
       end
 
