@@ -61,5 +61,32 @@ module ExternalServicesRedis
         PagerDuty::ExternalServices::Service.new.get_services
       end
     end
+
+    def response_from_redis_or_service
+      do_cached_with(key: KEY) do
+        response = PagerDuty::ExternalServices::Service.new.get_services
+
+        if valid_response?(response)
+          response
+        else
+          StatsD.increment('pagerduty.external_services.service_ids')
+          Rails.logger.warn(
+            event: 'pagerduty_service_ids_payload',
+            job: 'status_poll',
+            key: KEY,
+            message: 'Skipping cache write due to empty or invalid PagerDuty response'
+          )
+
+          # return nil so do_cached_with will fall back to existing Redis value
+          nil
+        end
+      end
+    end
+
+    def valid_response?(response)
+      response.present? &&
+        response.respond_to?(:statuses) &&
+        response.statuses.any?
+    end
   end
 end

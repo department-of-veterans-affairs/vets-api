@@ -27,11 +27,11 @@ module PagerDuty
     end
 
     def self.service_map
-      Settings.maintenance.services&.to_hash&.invert || {}
+      Settings.maintenance.services&.to_hash&.compact&.invert || {}
     end
 
     def self.service_ids
-      Settings.maintenance.services&.to_hash&.values || []
+      Settings.maintenance.services&.to_hash&.values&.compact || []
     end
   end
 end
