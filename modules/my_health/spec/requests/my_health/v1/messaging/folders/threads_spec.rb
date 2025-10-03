@@ -110,7 +110,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders::Threads', type: :request do
         VCR.use_cassette('sm_client/threads/moves_a_thread_with_invalid_folder_id') do
           patch '/my_health/v1/messaging/threads/3470562/move?folder_id=123'
         end
-        puts "response #{response.inspect}"
+
         json_response = JSON.parse(response.body)['errors'].first
         expect(json_response['detail']).to eq("Folder Doesn't exists")
       end
