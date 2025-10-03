@@ -35,7 +35,8 @@ module V0
           claim['attributes']['hasFailedUploads'] = add_has_failed_uploads(claim)
         end
 
-        BenefitsClaims::TitleGenerator.update_claim_title(claim) if Flipper.enabled?(FEATURE_USE_TITLE_GENERATOR_WEB)
+        # Adds displayTitle and claimTypeBase to the claim response object
+        BenefitsClaims::TitleGenerator.update_claim_title(claim)
       end
 
       tap_claims(claims['data'])

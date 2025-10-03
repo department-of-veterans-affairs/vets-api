@@ -67,6 +67,110 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           .select { |claim| claim['attributes']['claimType'] == 'Death' }.count).to eq 0
       end
 
+      it 'adds correct displayTitle and claimTypeBase attributes to all claims' do
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+        parsed_body = JSON.parse(response.body)
+        claims = parsed_body['data']
+
+        # All claims should have displayTitle and claimTypeBase attributes
+        claims.each do |claim|
+          expect(claim['attributes']).to have_key('displayTitle')
+          expect(claim['attributes']).to have_key('claimTypeBase')
+        end
+      end
+
+      it 'sets correct titles for Compensation claims' do
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+        parsed_body = JSON.parse(response.body)
+        compensation_claims = parsed_body['data'].select { |claim| claim['attributes']['claimType'] == 'Compensation' }
+
+        compensation_claims.each do |claim|
+          expect(claim['attributes']['displayTitle']).to eq('Claim for compensation')
+          expect(claim['attributes']['claimTypeBase']).to eq('compensation claim')
+        end
+
+        expect(compensation_claims.count).to be > 0
+      end
+
+      it 'sets correct titles for Death claims using special case transformation' do
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+        parsed_body = JSON.parse(response.body)
+        death_claims = parsed_body['data'].select { |claim| claim['attributes']['claimType'] == 'expenses related to death or burial' }
+
+        expect(death_claims.count).to eq(1)
+        death_claim = death_claims.first
+
+        expect(death_claim['attributes']['displayTitle']).to eq('Claim for expenses related to death or burial')
+        expect(death_claim['attributes']['claimTypeBase']).to eq('expenses related to death or burial claim')
+      end
+
+      it 'sets correct titles for claims with claimTypeCode but null claimType' do
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+        parsed_body = JSON.parse(response.body)
+        code_only_claims = parsed_body['data'].select { |claim| claim['attributes']['claimType'].nil? && !claim['attributes']['claimTypeCode'].nil? }
+
+        expect(code_only_claims.count).to eq(2)
+
+        # Check that both claims with claimTypeCode get default titles (since these codes aren't in our mapping)
+        code_only_claims.each do |claim|
+          expect(claim['attributes']['displayTitle']).to be_nil
+          expect(claim['attributes']['claimTypeBase']).to be_nil
+        end
+      end
+
+      it 'handles claims with specific pension and dependency codes correctly' do
+        # Create a mock claim with dependency code to verify the TitleGenerator mapping
+        allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claims).and_return(
+          {
+            'data' => [
+              {
+                'id' => '123456',
+                'type' => 'claim',
+                'attributes' => {
+                  'claimDate' => '2024-01-01',
+                  'claimType' => nil,
+                  'claimTypeCode' => '130DPNDCY', # This is a dependency code
+                  'status' => 'CLAIM_RECEIVED'
+                }
+              },
+              {
+                'id' => '123457',
+                'type' => 'claim',
+                'attributes' => {
+                  'claimDate' => '2024-01-01',
+                  'claimType' => nil,
+                  'claimTypeCode' => '180AILP', # This is a veterans pension code
+                  'status' => 'CLAIM_RECEIVED'
+                }
+              }
+            ]
+          }
+        )
+
+        get(:index)
+        parsed_body = JSON.parse(response.body)
+        claims = parsed_body['data']
+
+        dependency_claim = claims.find { |claim| claim['attributes']['claimTypeCode'] == '130DPNDCY' }
+        pension_claim = claims.find { |claim| claim['attributes']['claimTypeCode'] == '180AILP' }
+
+        # Dependency claim should get dependency title
+        expect(dependency_claim['attributes']['displayTitle']).to eq('Request to add or remove a dependent')
+        expect(dependency_claim['attributes']['claimTypeBase']).to eq('request to add or remove a dependent')
+
+        # Veterans pension claim should get veterans pension title
+        expect(pension_claim['attributes']['displayTitle']).to eq('Claim for Veterans Pension')
+        expect(pension_claim['attributes']['claimTypeBase']).to eq('veterans pension claim')
+      end
+
       context 'when :cst_show_document_upload_status is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
