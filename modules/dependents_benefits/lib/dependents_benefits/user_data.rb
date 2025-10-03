@@ -33,7 +33,7 @@ module DependentsBenefits
       @va_file_number = get_file_number || ssn
     rescue => e
       monitor.track_user_data_error('DependentsBenefits::UserData#initialize error',
-                                    'user_hash.failure', { error: e })
+                                    'user_hash.failure', error: e)
       raise Common::Exceptions::UnprocessableEntity.new(detail: 'Could not initialize user data')
     end
 
@@ -56,7 +56,7 @@ module DependentsBenefits
       { 'veteran_information' => veteran_information }.to_json
     rescue => e
       monitor.track_user_data_error('DependentsBenefits::UserData#get_user_hash error',
-                                    'user_hash.failure', { error: e })
+                                    'user_hash.failure', error: e)
       raise Common::Exceptions::UnprocessableEntity.new(detail: 'Could not generate user hash')
     end
 
@@ -77,7 +77,7 @@ module DependentsBenefits
     rescue
       monitor.track_user_data_warning('DependentsBenefits::UserData#get_file_number error',
                                       'file_number_lookup.failure',
-                                      { error: 'Could not retrieve file number from BGS' })
+                                      error: 'Could not retrieve file number from BGS')
       nil
     end
 
