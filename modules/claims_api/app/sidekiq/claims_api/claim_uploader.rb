@@ -27,7 +27,6 @@ module ClaimsApi
           self.class.perform_in(30.minutes, uuid, record_type)
         end
       else
-        auth_headers = auto_claim.auth_headers
         uploader = claim_object.uploader
         original_filename = claim_object.file_data['filename']
         uploader.retrieve_from_store!(original_filename)
