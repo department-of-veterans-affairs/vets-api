@@ -12,7 +12,7 @@ module MyHealth
       begin
         facility_map = get_facility_map(facility_ids)
         triage_teams.each do |team|
-            team.health_care_system_name = facility_map[team.station_number] if team.health_care_system_name.blank?
+          team.health_care_system_name = facility_map[team.station_number] if team.health_care_system_name.blank?
         end
       rescue Lighthouse::Facilities::ServiceException => e
         all_triage_teams_collection.metadata[:facility_error] = e.message
