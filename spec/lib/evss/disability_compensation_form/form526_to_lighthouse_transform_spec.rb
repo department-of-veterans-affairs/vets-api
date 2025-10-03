@@ -1,12 +1,49 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'claims_api/form_schemas'
+require 'json_schema/json_api_missing_attribute'
 require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
 
 RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
   let(:transformer) { subject }
   let(:pdf_enabled_transformer) { EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new(pdf_request: true) }
   let(:pdf_disabled_transformer) { EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new(pdf_request: false) }
+
+  def validate_lighthouse_schema(lh_request_body)
+    # This validation method mimics the same validation logic used in the actual controller
+    # https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/app/controllers/claims_api/v2/veterans/base.rb#L18
+    validator = ClaimsApi::FormSchemas.new(schema_version: 'v2')
+
+    # Convert the Vets::Model object to a hash and transform keys using the exact same
+    # transformation as the actual controller pipeline (OliveBranch with VA key patch)
+    request_body_hash = lh_request_body.as_json
+    camelized_request_body = transform_with_olivebranch(request_body_hash)
+
+    validator.validate!('GENERATE_PDF_526', camelized_request_body)
+  end
+
+  private
+
+  # Use the exact same transformation as the controller pipeline:
+  # OliveBranch transformation with VA key patch applied using the actual middleware
+  def transform_with_olivebranch(data)
+    # Transform using OliveBranch (same as the actual controller)
+    camelized = OliveBranch::Transformations.transform(
+      data,
+      OliveBranch::Transformations.method(:camelize)
+    )
+
+    # Apply the VA key patch using the actual patched middleware method
+    json_string = camelized.to_json
+    OliveBranch::Middleware.send(:un_camel_va_keys!, json_string)
+
+    JSON.parse(json_string)
+  end
+
+  def expect_no_lighthouse_errors(lh_request_body)
+    expect { validate_lighthouse_schema(lh_request_body) }.not_to raise_error
+  end
 
   describe '#transform' do
     let(:submission) { create(:form526_submission, :with_everything_toxic_exposure) }
@@ -15,6 +52,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     it 'sets claimant_certification to true in the Lighthouse request body' do
       lh_request_body = transformer.transform(data)
       expect(lh_request_body.claimant_certification).to be(true)
+      expect_no_lighthouse_errors(lh_request_body)
     end
 
     it 'adds claim_date to the Lighthouse request body if called as a pdf request' do
@@ -22,6 +60,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       lh_request_body = pdf_enabled_transformer.transform(data)
       expect(lh_request_body.class).to eq(Requests::Form526Pdf)
       expect(lh_request_body.claim_date).to eq('2023-07-19')
+      expect_no_lighthouse_errors(lh_request_body)
     end
 
     it 'does not add claim_date to the Lighthouse request body if called as a non-pdf request' do
@@ -29,6 +68,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       lh_request_body = pdf_disabled_transformer.transform(data)
       expect(lh_request_body.class).to eq(Requests::Form526)
       expect { lh_request_body.claim_date }.to raise_error(NoMethodError)
+      expect_no_lighthouse_errors(lh_request_body)
     end
 
     it 'does not add claim_date to the Lighthouse request body if called without a pdf flag' do
@@ -36,30 +76,35 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       lh_request_body = transformer.transform(data)
       expect(lh_request_body.class).to eq(Requests::Form526)
       expect { lh_request_body.claim_date }.to raise_error(NoMethodError)
+      expect_no_lighthouse_errors(lh_request_body)
     end
 
     it 'does not add claim_date attribute to the Lighthouse request body key if nil' do
       data['form526']['claimDate'] = nil
       lh_request_body = transformer.transform(data)
       expect { lh_request_body.claim_date }.to raise_error(NoMethodError)
+      expect_no_lighthouse_errors(lh_request_body)
     end
 
     it 'does not add claim_date attribute to the Lighthouse request body if not provided at all' do
       data['form526'].delete('claimDate')
       lh_request_body = transformer.transform(data)
       expect { lh_request_body.claim_date }.to raise_error(NoMethodError)
+      expect_no_lighthouse_errors(lh_request_body)
     end
 
     it 'does not add claim_date to the Lighthouse request body if blank' do
       data['form526']['claimDate'] = ''
       lh_request_body = transformer.transform(data)
       expect { lh_request_body.claim_date }.to raise_error(NoMethodError)
+      expect_no_lighthouse_errors(lh_request_body)
     end
 
     it 'does not add claim_date attribute to the Lighthouse request body if malformed date' do
       data['form526']['claimDate'] = 'invalid-date'
       lh_request_body = transformer.transform(data)
       expect { lh_request_body.claim_date }.to raise_error(NoMethodError)
+      expect_no_lighthouse_errors(lh_request_body)
     end
 
     # TODO: re-visit once we get clarification on whether claimDate needs to be restored to LH request
@@ -99,6 +144,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.toxic_exposure.additional_hazard_exposures.class).to eq(Requests::AdditionalHazardExposures)
       expect(result.toxic_exposure.multiple_exposures.class).to eq(Array)
       expect(result.claim_notes).to eq('some overflow text')
+      expect_no_lighthouse_errors(result)
     end
 
     it 'sends uniq values in multiple exposures array' do
@@ -126,6 +172,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.transform(data)
       # since this is now a uniq list, it is now 12 items instead of 13
       expect(result.toxic_exposure.multiple_exposures.count).to eq(12)
+      expect_no_lighthouse_errors(result)
     end
   end
 
@@ -140,6 +187,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.direct_deposit).to be_nil
       expect(result.treatments).to eq([])
       expect(result.service_pay).to be_nil
+      expect_no_lighthouse_errors(result)
     end
   end
 
@@ -175,6 +223,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
         expect(result.toxic_exposure.multiple_exposures.first.hazard_exposed_to).to be_nil
         expect(result.toxic_exposure.multiple_exposures.last.exposure_location).to be_nil
         expect(result.toxic_exposure.multiple_exposures.last.hazard_exposed_to).to eq('specifyOtherExposures')
+        expect_no_lighthouse_errors(result)
       end
 
       it 'is not processed if missing descriptions' do
@@ -200,6 +249,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
         # nothing should have been processed for MultipleExposures because
         # all of the details are missing and the descriptions are missing in the "other" objects
         expect(result.toxic_exposure.multiple_exposures).to eq([])
+        expect_no_lighthouse_errors(result)
       end
     end
   end
