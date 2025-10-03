@@ -72,6 +72,7 @@ module DisabilityCompensation
       # @param submitted_claim [SavedClaim::DisabilityCompensation::Form526AllClaim] The submitted claim
       # @param submission [Form526Submission] The submission record
       # @param user_uuid [String] User's UUID
+      # @return [void]
       def track_toxic_exposure_purge(in_progress_form:, submitted_claim:, submission:, user_uuid:)
         sip_data = parse_form_data(in_progress_form.form_data)
         submitted_data = parse_form_data(submitted_claim.form)
@@ -96,6 +97,12 @@ module DisabilityCompensation
       private
 
       # Parse form data from JSON string or Hash
+      #
+      # Handles both Hash and JSON string formats for form data
+      # and returns nil for invalid JSON or unsupported types.
+      #
+      # @param data [Hash, String] Form data to parse
+      # @return [Hash, nil] Parsed form data hash or nil if parsing fails
       def parse_form_data(data)
         return data if data.is_a?(Hash)
         return JSON.parse(data) if data.is_a?(String)
@@ -111,6 +118,13 @@ module DisabilityCompensation
       end
 
       # Calculate which keys have been modified (present in both but with different values)
+      #
+      # Compares toxic exposure keys between SIP and submitted data to identify
+      # keys that exist in both but have different values.
+      #
+      # @param sip_toxic_exposure [Hash] Toxic exposure data from InProgressForm
+      # @param submitted_toxic_exposure [Hash, nil] Toxic exposure data from submitted claim
+      # @return [Array<String>] Array of key names that were modified
       def calculate_modified_keys(sip_toxic_exposure, submitted_toxic_exposure)
         return [] if submitted_toxic_exposure.nil?
         return [] if sip_toxic_exposure.nil?
@@ -121,6 +135,16 @@ module DisabilityCompensation
       end
 
       # Log the toxic exposure changes with metadata
+      #
+      # Submits a logging event to DataDog with detailed metadata about
+      # which toxic exposure keys were removed or modified during submission.
+      #
+      # @param in_progress_form [InProgressForm] User's saved form data
+      # @param submitted_claim [SavedClaim::DisabilityCompensation::Form526AllClaim] The submitted claim
+      # @param submission [Form526Submission] The submission record
+      # @param user_uuid [String] User's UUID
+      # @param change_metadata [Hash] Hash containing removed_keys, modified_keys, and removal flags
+      # @return [void]
       def log_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:,
                                      user_uuid:, change_metadata:)
         log_data = {
@@ -145,6 +169,13 @@ module DisabilityCompensation
       end
 
       # Calculate removed and modified keys from toxic exposure changes
+      #
+      # Analyzes differences between SIP and submitted toxic exposure data
+      # to build metadata about what changed during submission.
+      #
+      # @param sip_toxic_exposure [Hash] Toxic exposure data from InProgressForm
+      # @param submitted_toxic_exposure [Hash, nil] Toxic exposure data from submitted claim
+      # @return [Hash] Metadata with has_toxic_exposure_in_submission, completely_removed, removed_keys, modified_keys
       def calculate_toxic_exposure_changes(sip_toxic_exposure, submitted_toxic_exposure)
         removed_keys = sip_toxic_exposure.keys - (submitted_toxic_exposure&.keys || [])
         modified_keys = calculate_modified_keys(sip_toxic_exposure, submitted_toxic_exposure)

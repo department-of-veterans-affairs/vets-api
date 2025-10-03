@@ -77,6 +77,7 @@ module V0
       end
 
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
+      # if jid = 0 then the submission was prevented from going any further in the process
       submission = create_submission(saved_claim).tap { |sub| log_toxic_exposure_purge(saved_claim, sub) }
       jid = 0
       # Feature flag to stop submission from being submitted to third-party service
@@ -273,6 +274,15 @@ module V0
       @monitor ||= DisabilityCompensation::Loggers::Monitor.new
     end
 
+    # Logs toxic exposure data purge events during Form 526 submission
+    #
+    # Compares the user's InProgressForm with the submitted claim to detect
+    # when toxic exposure data has been purged by the frontend. This is wrapped
+    # in error handling to ensure logging failures do not impact veteran submissions.
+    #
+    # @param saved_claim [SavedClaim::DisabilityCompensation::Form526AllClaim] The submitted claim
+    # @param submission [Form526Submission] The submission record
+    # @return [void]
     def log_toxic_exposure_purge(saved_claim, submission)
       return unless Flipper.enabled?(:disability_526_log_toxic_exposure_purge, @current_user)
 
