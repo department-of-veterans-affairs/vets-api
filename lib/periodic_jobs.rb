@@ -183,6 +183,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Request updated statuses for benefits intake submissions
   mgr.register('45 * * * *', 'VBADocuments::UploadStatusBatch')
 
+  # Request updated statuses for benefits intake submissions with upstream processing errors
+  mgr.register('13 */6 * * *', 'VBADocuments::UploadStatusErrorBatch')
+
   # Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status
   mgr.register('5 */2 * * *', 'VBADocuments::RunUnsuccessfulSubmissions')
 
@@ -232,6 +235,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 
+  # Every day job at 1:30am that sends IVC CHAMPVA form insights data to DataDog
+  mgr.register('30 1 * * *', 'IvcChampva::InsightsDatadogJob')
+
   # Every hour job that retries failed VES submissions
   mgr.register('0 * * * *', 'IvcChampva::VesRetryFailuresJob')
 
@@ -240,6 +246,12 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Every 15min job that syncs ARP's allowlist
   mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')
+
+  # Expire stale POA request records every night at 12:30 AM
+  mgr.register('30 0 * * *', 'AccreditedRepresentativePortal::ExpirePowerOfAttorneyRequestsJob')
+
+  # Redact expired POA request records every night at 1 AM (staggered to avoid resource contention)
+  mgr.register('0 1 * * *', 'AccreditedRepresentativePortal::RedactPowerOfAttorneyRequestsJob')
 
   # Engine version: Sync non-final DR SavedClaims to LH status
   mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')
@@ -271,4 +283,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Daily cron job to send Failure Notification Emails to Veterans for their failed evidence submissions.
   mgr.register('5 0 * * *', 'Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob')
+
+  # Daily cron job to check for PDF Form version changes
+  mgr.register('0 12 * * *', 'FormPdfChangeDetectionJob')
 }

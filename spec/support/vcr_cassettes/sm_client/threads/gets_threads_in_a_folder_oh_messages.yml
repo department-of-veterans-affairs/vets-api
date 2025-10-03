@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/threadlistview/0?pageNumber=1&pageSize=5&requiresOHMessages=1&sortField=SENDER_NAME&sortOrder=ASC"
+      uri: "<MHV_SM_HOST>/v1/sm/patient/folder/threadlistview/0?pageNumber=1&pageSize=5&requiresOHMessages=1&sortField=SENDER_NAME&sortOrder=ASC"
       body:
         encoding: US-ASCII
         string: ""

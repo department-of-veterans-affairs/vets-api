@@ -3,6 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
+  include ActiveSupport::Testing::TimeHelpers
   subject { described_class.new(current_user, referral_id, referral_consult_id) }
 
   let(:current_user) { build(:user, :vaos) }
@@ -70,6 +71,51 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
   end
 
   describe '#initialize' do
+    context 'parameter validation' do
+      context 'when current_user is nil' do
+        let(:current_user) { nil }
+
+        include_examples 'returns error response', 'User authentication required', :unauthorized
+      end
+
+      context 'when referral_id is blank' do
+        let(:referral_id) { '' }
+
+        include_examples 'returns error response', /Missing required parameters: referral_id/, :bad_request
+      end
+
+      context 'when referral_consult_id is nil' do
+        let(:referral_consult_id) { nil }
+
+        include_examples 'returns error response', /Missing required parameters: referral_consult_id/, :bad_request
+      end
+
+      context 'when current_user.icn is blank' do
+        before do
+          allow(current_user).to receive(:icn).and_return('')
+        end
+
+        include_examples 'returns error response', /Missing required parameters: user ICN/, :bad_request
+      end
+
+      context 'when multiple parameters are missing' do
+        let(:referral_id) { '' }
+        let(:referral_consult_id) { nil }
+
+        before do
+          allow(current_user).to receive(:icn).and_return('')
+        end
+
+        it 'reports all missing parameters' do
+          expect(subject.error).to be_present
+          expect(subject.error[:message]).to eq(
+            'Missing required parameters: referral_id, referral_consult_id, user ICN'
+          )
+          expect(subject.error[:status]).to eq(:bad_request)
+        end
+      end
+    end
+
     context 'when all services return successfully' do
       it 'returns a successful response with all data' do
         expect(subject.error).to be_nil
@@ -131,6 +177,26 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
         end
 
         include_examples 'returns error response', /all required attributes/, :unprocessable_entity
+      end
+
+      context 'when referral date format is invalid' do
+        before do
+          invalid_date_referral = referral_data.dup
+          invalid_date_referral.referral_date = 'invalid-date-format'
+          allow(ccra_referral_service).to receive(:get_referral).and_return(invalid_date_referral)
+        end
+
+        include_examples 'returns error response', /invalid date format/, :unprocessable_entity
+      end
+
+      context 'when expiration date format is invalid' do
+        before do
+          invalid_date_referral = referral_data.dup
+          invalid_date_referral.expiration_date = 'another-invalid-date'
+          allow(ccra_referral_service).to receive(:get_referral).and_return(invalid_date_referral)
+        end
+
+        include_examples 'returns error response', /invalid date format/, :unprocessable_entity
       end
 
       context 'when Redis connection fails' do
@@ -232,9 +298,27 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
           allow(eps_provider_service).to receive(:search_provider_services).and_return(provider_without_types)
         end
 
-        it 'returns successful response with nil slots' do
-          expect(subject.error).to be_nil
-          expect(subject.slots).to be_nil
+        it 'raises BackendServiceException' do
+          expect { subject }.to raise_error(Common::Exceptions::BackendServiceException) do |error|
+            expect(error.key).to eq('PROVIDER_APPOINTMENT_TYPES_MISSING')
+            expect(error.original_status).to eq(502)
+            expect(error.original_body).to include('Provider appointment types data is not available')
+          end
+        end
+      end
+
+      context 'when provider has nil appointment types' do
+        before do
+          provider_with_nil_types = OpenStruct.new(id: 'provider-123', appointment_types: nil)
+          allow(eps_provider_service).to receive(:search_provider_services).and_return(provider_with_nil_types)
+        end
+
+        it 'raises BackendServiceException' do
+          expect { subject }.to raise_error(Common::Exceptions::BackendServiceException) do |error|
+            expect(error.key).to eq('PROVIDER_APPOINTMENT_TYPES_MISSING')
+            expect(error.original_status).to eq(502)
+            expect(error.original_body).to include('Provider appointment types data is not available')
+          end
         end
       end
 
@@ -242,15 +326,66 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
         before do
           provider_without_self_schedulable = OpenStruct.new(
             id: 'provider-123',
-            appointment_types: [{ id: 'type-1', is_self_schedulable: false }]
+            appointment_types: [{ id: '1', is_self_schedulable: false }, { id: '2' }]
           )
           allow(eps_provider_service).to receive(:search_provider_services)
             .and_return(provider_without_self_schedulable)
         end
 
-        it 'returns successful response with nil slots' do
-          expect(subject.error).to be_nil
-          expect(subject.slots).to be_nil
+        it 'raises BackendServiceException' do
+          expect { subject }.to raise_error(Common::Exceptions::BackendServiceException) do |error|
+            expect(error.key).to eq('PROVIDER_SELF_SCHEDULABLE_TYPES_MISSING')
+            expect(error.original_status).to eq(502)
+            expect(error.original_body).to include('No self-schedulable appointment types available')
+          end
+        end
+      end
+
+      context 'when provider has self-schedulable appointment types' do
+        before do
+          provider_with_self_schedulable = OpenStruct.new(
+            id: 'provider-123',
+            appointment_types: [
+              { id: '1', is_self_schedulable: false },
+              { id: '2', is_self_schedulable: true },
+              { id: '3', is_self_schedulable: true }
+            ]
+          )
+          allow(eps_provider_service).to receive(:search_provider_services)
+            .and_return(provider_with_self_schedulable)
+        end
+
+        it 'uses the first self-schedulable appointment type for slot fetching' do
+          expect(eps_provider_service).to receive(:get_provider_slots).with(
+            'provider-123',
+            hash_including(appointmentTypeId: '2')
+          )
+          expect(subject.id).to eq('draft-123')
+        end
+      end
+
+      context 'when provider has mixed appointment types with different is_self_schedulable values' do
+        before do
+          provider_with_mixed_types = OpenStruct.new(
+            id: 'provider-123',
+            appointment_types: [
+              { id: '1' }, # missing property
+              { id: '2', is_self_schedulable: nil },
+              { id: '3', is_self_schedulable: false },
+              { id: '4', is_self_schedulable: true },
+              { id: '5', is_self_schedulable: true }
+            ]
+          )
+          allow(eps_provider_service).to receive(:search_provider_services)
+            .and_return(provider_with_mixed_types)
+        end
+
+        it 'uses the first appointment type where is_self_schedulable is explicitly true' do
+          expect(eps_provider_service).to receive(:get_provider_slots).with(
+            'provider-123',
+            hash_including(appointmentTypeId: '4')
+          )
+          expect(subject.id).to eq('draft-123')
         end
       end
     end
@@ -280,15 +415,51 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       it 'logs provider not found error when provider is nil' do
         allow(eps_provider_service).to receive(:search_provider_services).and_return(nil)
         expect(Rails.logger).to receive(:error).with(
-          'Community Care Appointments: Provider not found while creating draft appointment.',
+          'Community Care Appointments: Provider not found while creating draft appointment',
           hash_including(
+            error_message: 'Provider not found while creating draft appointment',
             provider_npi: '1234567890',
             provider_specialty: 'Cardiology',
-            tag: 'Community Care Appointments'
+            user_uuid: current_user.uuid
           )
         )
         expect(subject.error).to be_present
         expect(subject.error[:message]).to eq('Provider not found')
+      end
+
+      it 'logs provider slots information when slots are retrieved' do
+        expect(Rails.logger).to receive(:info).with(
+          'Community Care Appointments: Provider slots retrieved',
+          {
+            slots_count: 1,
+            slots_available: true
+          }
+        )
+        subject
+      end
+
+      it 'logs provider slots information when no slots are available' do
+        allow(eps_provider_service).to receive(:get_provider_slots).and_return([])
+        expect(Rails.logger).to receive(:info).with(
+          'Community Care Appointments: Provider slots retrieved',
+          {
+            slots_count: 0,
+            slots_available: false
+          }
+        )
+        subject
+      end
+
+      it 'logs provider slots information when slots are nil' do
+        allow(eps_provider_service).to receive(:get_provider_slots).and_return(nil)
+        expect(Rails.logger).to receive(:info).with(
+          'Community Care Appointments: Provider slots retrieved',
+          {
+            slots_count: 0,
+            slots_available: false
+          }
+        )
+        subject
       end
     end
 
@@ -306,6 +477,65 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
             hash_including(startOnOrAfter: Date.current.to_time(:utc).iso8601)
           )
           expect(subject.id).to eq('draft-123')
+        end
+      end
+
+      context 'when referral date is in the future' do
+        before do
+          # Freeze time to ensure consistent behavior
+          travel_to Time.parse('2024-12-01T00:00:00Z')
+          future_date_referral = referral_data.dup
+          future_date_referral.referral_date = '2025-01-15'
+          allow(ccra_referral_service).to receive(:get_referral).and_return(future_date_referral)
+        end
+
+        after do
+          travel_back
+        end
+
+        it 'uses future referral date as start date for slots' do
+          expect(eps_provider_service).to receive(:get_provider_slots).with(
+            'provider-123',
+            hash_including(startOnOrAfter: '2025-01-15T00:00:00Z')
+          )
+          expect(subject.id).to eq('draft-123')
+        end
+      end
+
+      context 'when slot fetching includes all required parameters' do
+        it 'passes correct parameters to get_provider_slots' do
+          expect(eps_provider_service).to receive(:get_provider_slots).with(
+            'provider-123',
+            hash_including(
+              appointmentTypeId: 'type-1',
+              startOnOrAfter: kind_of(String),
+              startBefore: '2024-04-15T00:00:00Z',
+              appointmentId: 'draft-123'
+            )
+          )
+          expect(subject.id).to eq('draft-123')
+        end
+      end
+
+      context 'when date parsing raises ArgumentError' do
+        before do
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'logs error and returns nil for slots' do
+          invalid_date_referral = referral_data.dup
+          invalid_date_referral.referral_date = 'invalid-date'
+
+          expect(Rails.logger).to receive(:error).with(
+            'Community Care Appointments: Error fetching provider slots',
+            hash_including(
+              error_class: 'Date::Error',
+              error_message: 'invalid date',
+              user_uuid: current_user.uuid
+            )
+          )
+          result = subject.send(:fetch_provider_slots, invalid_date_referral, provider_data, 'draft-123')
+          expect(result).to be_nil
         end
       end
     end
@@ -326,6 +556,54 @@ RSpec.describe VAOS::V2::EpsDraftAppointment, type: :service do
       it 'returns no_value for empty string' do
         result = subject.send(:sanitize_log_value, '')
         expect(result).to eq('no_value')
+      end
+    end
+
+    describe '#log_provider_slots_info' do
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'logs correct information for slots with data' do
+        slots = [{ start: '2024-01-20T10:00:00Z' }, { start: '2024-01-21T10:00:00Z' }]
+
+        expect(Rails.logger).to receive(:info).with(
+          'Community Care Appointments: Provider slots retrieved',
+          {
+            slots_count: 2,
+            slots_available: true
+          }
+        )
+
+        subject.send(:log_provider_slots_info, slots)
+      end
+
+      it 'logs correct information for empty slots array' do
+        slots = []
+
+        expect(Rails.logger).to receive(:info).with(
+          'Community Care Appointments: Provider slots retrieved',
+          {
+            slots_count: 0,
+            slots_available: false
+          }
+        )
+
+        subject.send(:log_provider_slots_info, slots)
+      end
+
+      it 'logs correct information for nil slots' do
+        slots = nil
+
+        expect(Rails.logger).to receive(:info).with(
+          'Community Care Appointments: Provider slots retrieved',
+          {
+            slots_count: 0,
+            slots_available: false
+          }
+        )
+
+        subject.send(:log_provider_slots_info, slots)
       end
     end
   end

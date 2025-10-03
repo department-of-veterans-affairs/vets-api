@@ -81,23 +81,27 @@ module ClaimsApi
           rep.id
         end
 
-        def attributes
+        def attributes(token = nil)
           base = form_attributes.key?('serviceOrganization') ? 'serviceOrganization' : 'representative'
           new_poa_code = form_attributes.dig(base, 'poaCode')
+
+          # Attempt to grab OKTA Client Id if we have a token
+          cid = token&.payload&.[]('cid') || nil
 
           {
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers: set_auth_headers,
             form_data: form_attributes,
             current_poa: new_poa_code,
-            header_hash:
+            header_hash:,
+            cid:
           }
         end
 
         def submit_power_of_attorney(poa_code, form_number)
-          attributes.merge!({ source_data: }) unless token.client_credentials_token?
+          attributes(token).merge!({ source_data: }) unless token.client_credentials_token?
 
-          power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
+          power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes(token))
 
           unless disable_jobs?
             ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number,

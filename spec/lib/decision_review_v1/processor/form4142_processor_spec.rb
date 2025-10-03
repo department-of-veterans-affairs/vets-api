@@ -11,7 +11,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
   let(:form_json) do
     # This file is used to test the form4142 processor with the 2018 template
     # File.read('spec/support/disability_compensation_form/submissions/with_4142.json')
-    File.read('spec/support/disability_compensation_form/submissions/with_4142_2024.json')
+    File.read('spec/support/decision_reviews/with_4142_2024.json')
   end
 
   let(:saved_claim) { create(:va526ez) }
@@ -32,11 +32,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
     submission.created_at.in_time_zone(described_class::TIMEZONE).strftime(described_class::SIGNATURE_TIMESTAMP_FORMAT)
   end
   let(:form4142) { JSON.parse(form_json)['form4142'].merge({ 'signatureDate' => received_date }) }
-
-  before do
-    # By default, this flag is enabled in test environments, turning this off so we are using 2018 form
-    allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
-  end
 
   describe '#initialize' do
     context 'when schema validation is not enabled' do
@@ -219,7 +214,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
   end
 
   describe 'PDF version selection via feature flag' do
-    let(:template_flag) { :decision_review_form4142_use_2024_template }
     let(:validation_flag) { :decision_review_form4142_validate_schema }
 
     # Use existing fixture simple.pdf as test input
@@ -274,10 +268,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
       end
 
       context 'with 2024 template (flag enabled)' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(template_flag).and_return(true)
-        end
-
         it 'selects 2024 form class ID' do
           allow_any_instance_of(described_class).to receive(:generate_stamp_pdf)
             .and_return(Rails.root.join('tmp', 'test_output.pdf').to_s)

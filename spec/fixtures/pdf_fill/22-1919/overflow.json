@@ -1,0 +1,67 @@
+{
+    "institutionDetails": {
+      "institutionName": "Tech Institute of Learning and Advancement For Overflow Testing",
+      "facilityCode": "Z9Y8X7W6",
+      "institutionAddress": {
+        "street": "456 Innovation Way",
+        "street2": "Suite 900",
+        "city": "Arlington",
+        "state": "VA",
+        "postalCode": "22203"
+      }
+    },
+    "proprietaryProfitConflicts": [
+      {
+        "affiliatedIndividuals": {
+          "first": "Diana",
+          "last": "Dawson",
+          "title": "Dean of Students",
+          "individualAssociationType": "saa"
+        }
+      },
+      {
+        "affiliatedIndividuals": {
+          "first": "Ethan",
+          "last": "Edwards",
+          "title": "Assistant Registrar",
+          "individualAssociationType": "va"
+        }
+      }
+    ],
+    "allProprietaryProfitConflicts": [
+      {
+        "certifyingOfficial": {
+          "first": "Fiona",
+          "last": "Fletcher",
+          "title": "President"
+        },
+        "fileNumber": "987654321",
+        "enrollmentPeriod": {
+          "from": "2024-06-15",
+          "to": "2024-12-15"
+        }
+      },
+      {
+        "certifyingOfficial": {
+          "first": "George",
+          "last": "Garrison",
+          "title": "Chief Administrator"
+        },
+        "fileNumber": "246813579",
+        "enrollmentPeriod": {
+          "from": "2024-01-10",
+          "to": "2024-05-30"
+        }
+      }
+    ],
+    "certifyingOfficial": {
+      "first": "Hannah",
+      "last": "Hart",
+      "role": {
+        "level": "other",
+        "other": "Compliance Officer"
+      }
+    },
+    "statementOfTruthSignature": "Hannah Hart",
+    "dateSigned": "2024-07-04"
+  }

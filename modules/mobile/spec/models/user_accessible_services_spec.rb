@@ -4,7 +4,6 @@ require 'rails_helper'
 
 describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model do
   let(:user) { build(:user, :loa3, vha_facility_ids: [402, 555]) }
-  let(:non_evss_user) { build(:user, :loa3, edipi: nil, ssn: nil, participant_id: nil) }
   let(:non_lighthouse_user) { build(:user, :loa3, icn: nil, participant_id: nil) }
   let(:user_services) { Mobile::V0::UserAccessibleServices.new(user) }
 
@@ -269,7 +268,7 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
 
     describe 'userProfileUpdate' do
       context 'when user does not have vet360 access' do
-        let(:user) { build(:user, :loa3, vet360_id: nil) }
+        let(:user) { build(:user, :loa3, vet360_id: nil, icn: nil) }
 
         it 'is false' do
           expect(user_services.service_auth_map[:userProfileUpdate]).to be(false)

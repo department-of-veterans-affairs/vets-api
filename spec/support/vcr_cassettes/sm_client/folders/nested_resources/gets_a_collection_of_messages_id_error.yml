@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/1000/message/page/1/pageSize/250"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/folder/1000/message/page/1/pageSize/250"
     body:
       encoding: US-ASCII
       string: ''

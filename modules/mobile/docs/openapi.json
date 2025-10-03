@@ -4907,6 +4907,145 @@
         "summary": "/v0/maintenance_windows"
       }
     },
+    "/v0/medical_copays": {
+      "get": {
+        "description": "Returns a list of medical copay balances for the current user",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedicalCopays"
+                }
+              }
+            },
+            "description": "ok"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/medical_copays"
+      }
+    },
+    "/v0/medical_copays/{id}": {
+      "get": {
+        "description": "Returns medical copay information for a specified copay ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedicalCopay"
+                }
+              }
+            },
+            "description": "ok"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/medical_copays/{id}"
+      }
+    },
+    "/v0/medical_copays/download/{id}": {
+      "get": {
+        "description": "Retrieves the statement PDF for the given ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "ok"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/medical_copays/download/{id}"
+      }
+    },
     "/v0/messaging/health/folders": {
       "get": {
         "description": "List available secure messaging folders",
@@ -7014,6 +7153,104 @@
       }
     },
     "/v0/travel-pay/claims": {
+      "get": {
+        "description": "Retrieve travel pay claims for a user within a specified date range.",
+        "parameters": [
+          {
+            "description": "The start date for the range of claims in ISO 8601 date-time format (YYYY-MM-DDTHH:MM:SS)",
+            "example": "2024-01-01T00:00:00",
+            "in": "query",
+            "name": "start_date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "description": "The end date for the range of claims in ISO 8601 date-time format (YYYY-MM-DDTHH:MM:SS)",
+            "example": "2024-03-31T23:59:59",
+            "in": "query",
+            "name": "end_date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "description": "The page number requested. Defaults to 1.",
+            "example": 1,
+            "in": "query",
+            "name": "page_number",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPayClaims"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "206": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPayClaims"
+                }
+              }
+            },
+            "description": "Partial Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/travel-pay/claims"
+      },
       "post": {
         "description": "Submit a mileage-only travel claim.",
         "parameters": [
@@ -9867,6 +10104,11 @@
                 }
               },
               "showScheduleLink": {
+                "type": "boolean",
+                "nullable": true,
+                "example": true
+              },
+              "isCerner": {
                 "type": "boolean",
                 "nullable": true,
                 "example": true
@@ -20020,9 +20262,9 @@
                 "example": "2022-10-28T04:00:00.000Z"
               },
               "quantity": {
-                "type": "integer",
+                "type": "string",
                 "nullable": true,
-                "example": 10
+                "example": "10"
               },
               "expirationDate": {
                 "type": "string",
@@ -20340,7 +20582,8 @@
               "Civil Service Preference Letter",
               "Benefit Summary Letter",
               "Dependent Benefit Summary Letter",
-              "Benefit Verification Letter"
+              "Benefit Verification Letter",
+              "Certificate of Eligibility for Home Loan Letter"
             ]
           },
           "letterType": {
@@ -20355,7 +20598,8 @@
               "benefit_summary",
               "benefit_summary_dependent",
               "benefit_verification",
-              "certificate_of_eligibility"
+              "certificate_of_eligibility",
+              "certificate_of_eligibility_home_loan"
             ]
           }
         }
@@ -20424,7 +20668,7 @@
             "properties": {
               "type": {
                 "type": "string",
-                "example": "evssLettersBeneficiaryResponses"
+                "example": "LettersBeneficiaryResponses"
               },
               "id": {
                 "type": "string",
@@ -20707,7 +20951,6 @@
                     "service": {
                       "type": "string",
                       "enum": [
-                        "evss",
                         "caseflow",
                         "payment_history",
                         "facility_locator",
@@ -20737,6 +20980,589 @@
                     "end_time": {
                       "type": "datetime",
                       "example": "2019-04-20T18:15:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "MedicalCopays": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 200
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                },
+                "pSSeqNum": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pSTotSeqNum": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pSFacilityNum": {
+                  "type": "string"
+                },
+                "pSFacPhoneNum": {
+                  "type": "string"
+                },
+                "pSTotStatement": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pSStatementVal": {
+                  "type": "string"
+                },
+                "pSStatementDate": {
+                  "type": "string"
+                },
+                "pSStatementDateOutput": {
+                  "type": "string"
+                },
+                "pSProcessDate": {
+                  "type": "string"
+                },
+                "pSProcessDateOutput": {
+                  "type": "string"
+                },
+                "pHPatientLstNme": {
+                  "type": "string"
+                },
+                "pHPatientFstNme": {
+                  "type": "string"
+                },
+                "pHPatientMidNme": {
+                  "type": "string"
+                },
+                "pHAddress1": {
+                  "type": "string"
+                },
+                "pHAddress2": {
+                  "type": "string"
+                },
+                "pHAddress3": {
+                  "type": "string"
+                },
+                "pHCity": {
+                  "type": "string"
+                },
+                "pHState": {
+                  "type": "string"
+                },
+                "pHZipCde": {
+                  "type": "string"
+                },
+                "pHZipCdeOutput": {
+                  "type": "string"
+                },
+                "pHCtryNme": {
+                  "type": "string"
+                },
+                "pHAmtDue": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHAmtDueOutput": {
+                  "type": "string"
+                },
+                "pHPrevBal": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHPrevBalOutput": {
+                  "type": "string"
+                },
+                "pHTotCharges": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHTotChargesOutput": {
+                  "type": "string"
+                },
+                "pHTotCredits": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHTotCreditsOutput": {
+                  "type": "string"
+                },
+                "pHNewBalance": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHNewBalanceOutput": {
+                  "type": "string"
+                },
+                "pHSpecialNotes": {
+                  "type": "string"
+                },
+                "pHROParaCdes": {
+                  "type": "string"
+                },
+                "pHNumOfLines": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHDfnNumber": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHCernerStatementNumber": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHCernerPatientId": {
+                  "type": "string"
+                },
+                "pHCernerAccountNumber": {
+                  "type": "string"
+                },
+                "pHIcnNumber": {
+                  "type": "string"
+                },
+                "pHAccountNumber": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHLargeFontIndcator": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "station": {
+                  "type": "object",
+                  "description": "Facility information",
+                  "properties": {
+                    "facilitYNum": {
+                      "type": "string"
+                    },
+                    "visNNum": {
+                      "type": "string"
+                    },
+                    "facilitYDesc": {
+                      "type": "string"
+                    },
+                    "cyclENum": {
+                      "type": "string"
+                    },
+                    "remiTToFlag": {
+                      "type": "string"
+                    },
+                    "maiLInsertFlag": {
+                      "type": "string"
+                    },
+                    "staTAddress1": {
+                      "type": "string"
+                    },
+                    "staTAddress2": {
+                      "type": "string"
+                    },
+                    "staTAddress3": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    },
+                    "ziPCde": {
+                      "type": "string"
+                    },
+                    "ziPCdeOutput": {
+                      "type": "string"
+                    },
+                    "baRCde": {
+                      "type": "string"
+                    },
+                    "teLNumFlag": {
+                      "type": "string"
+                    },
+                    "teLNum": {
+                      "type": "string"
+                    },
+                    "teLNum2": {
+                      "type": "string"
+                    },
+                    "contacTInfo": {
+                      "type": "string"
+                    },
+                    "dM2TelNum": {
+                      "type": "string"
+                    },
+                    "contacTInfo2": {
+                      "type": "string"
+                    },
+                    "toPTelNum": {
+                      "type": "string"
+                    },
+                    "lbXFedexAddress1": {
+                      "type": "string"
+                    },
+                    "lbXFedexAddress2": {
+                      "type": "string"
+                    },
+                    "lbXFedexAddress3": {
+                      "type": "string"
+                    },
+                    "lbXFedexCity": {
+                      "type": "string"
+                    },
+                    "lbXFedexState": {
+                      "type": "string"
+                    },
+                    "lbXFedexZipCde": {
+                      "type": "string"
+                    },
+                    "lbXFedexBarCde": {
+                      "type": "string"
+                    },
+                    "lbXFedexContact": {
+                      "type": "string"
+                    },
+                    "lbXFedexContactTelNum": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "details": {
+                  "type": "array",
+                  "description": "A collection of transactions for a specific medical copay balance",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "pDDatePosted": {
+                        "type": "string"
+                      },
+                      "pDDatePostedOutput": {
+                        "type": "string"
+                      },
+                      "pDTransDesc": {
+                        "type": "string"
+                      },
+                      "pDTransDescOutput": {
+                        "type": "string"
+                      },
+                      "pDTransAmt": {
+                        "type": "integer",
+                        "example": 0
+                      },
+                      "pDTransAmtOutput": {
+                        "type": "string"
+                      },
+                      "pDRefNo": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "MedicalCopay": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 200
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "id",
+              "station",
+              "details"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              },
+              "pSSeqNum": {
+                "type": "integer",
+                "example": 0
+              },
+              "pSTotSeqNum": {
+                "type": "integer",
+                "example": 0
+              },
+              "pSFacilityNum": {
+                "type": "string"
+              },
+              "pSFacPhoneNum": {
+                "type": "string"
+              },
+              "pSTotStatement": {
+                "type": "integer",
+                "example": 0
+              },
+              "pSStatementVal": {
+                "type": "string"
+              },
+              "pSStatementDate": {
+                "type": "string"
+              },
+              "pSStatementDateOutput": {
+                "type": "string"
+              },
+              "pSProcessDate": {
+                "type": "string"
+              },
+              "pSProcessDateOutput": {
+                "type": "string"
+              },
+              "pHPatientLstNme": {
+                "type": "string"
+              },
+              "pHPatientFstNme": {
+                "type": "string"
+              },
+              "pHPatientMidNme": {
+                "type": "string"
+              },
+              "pHAddress1": {
+                "type": "string"
+              },
+              "pHAddress2": {
+                "type": "string"
+              },
+              "pHAddress3": {
+                "type": "string"
+              },
+              "pHCity": {
+                "type": "string"
+              },
+              "pHState": {
+                "type": "string"
+              },
+              "pHZipCde": {
+                "type": "string"
+              },
+              "pHZipCdeOutput": {
+                "type": "string"
+              },
+              "pHCtryNme": {
+                "type": "string"
+              },
+              "pHAmtDue": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHAmtDueOutput": {
+                "type": "string"
+              },
+              "pHPrevBal": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHPrevBalOutput": {
+                "type": "string"
+              },
+              "pHTotCharges": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHTotChargesOutput": {
+                "type": "string"
+              },
+              "pHTotCredits": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHTotCreditsOutput": {
+                "type": "string"
+              },
+              "pHNewBalance": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHNewBalanceOutput": {
+                "type": "string"
+              },
+              "pHSpecialNotes": {
+                "type": "string"
+              },
+              "pHROParaCdes": {
+                "type": "string"
+              },
+              "pHNumOfLines": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHDfnNumber": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHCernerStatementNumber": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHCernerPatientId": {
+                "type": "string"
+              },
+              "pHCernerAccountNumber": {
+                "type": "string"
+              },
+              "pHIcnNumber": {
+                "type": "string"
+              },
+              "pHAccountNumber": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHLargeFontIndcator": {
+                "type": "integer",
+                "example": 0
+              },
+              "station": {
+                "type": "object",
+                "description": "Facility information",
+                "properties": {
+                  "facilitYNum": {
+                    "type": "string"
+                  },
+                  "visNNum": {
+                    "type": "string"
+                  },
+                  "facilitYDesc": {
+                    "type": "string"
+                  },
+                  "cyclENum": {
+                    "type": "string"
+                  },
+                  "remiTToFlag": {
+                    "type": "string"
+                  },
+                  "maiLInsertFlag": {
+                    "type": "string"
+                  },
+                  "staTAddress1": {
+                    "type": "string"
+                  },
+                  "staTAddress2": {
+                    "type": "string"
+                  },
+                  "staTAddress3": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "ziPCde": {
+                    "type": "string"
+                  },
+                  "ziPCdeOutput": {
+                    "type": "string"
+                  },
+                  "baRCde": {
+                    "type": "string"
+                  },
+                  "teLNumFlag": {
+                    "type": "string"
+                  },
+                  "teLNum": {
+                    "type": "string"
+                  },
+                  "teLNum2": {
+                    "type": "string"
+                  },
+                  "contacTInfo": {
+                    "type": "string"
+                  },
+                  "dM2TelNum": {
+                    "type": "string"
+                  },
+                  "contacTInfo2": {
+                    "type": "string"
+                  },
+                  "toPTelNum": {
+                    "type": "string"
+                  },
+                  "lbXFedexAddress1": {
+                    "type": "string"
+                  },
+                  "lbXFedexAddress2": {
+                    "type": "string"
+                  },
+                  "lbXFedexAddress3": {
+                    "type": "string"
+                  },
+                  "lbXFedexCity": {
+                    "type": "string"
+                  },
+                  "lbXFedexState": {
+                    "type": "string"
+                  },
+                  "lbXFedexZipCde": {
+                    "type": "string"
+                  },
+                  "lbXFedexBarCde": {
+                    "type": "string"
+                  },
+                  "lbXFedexContact": {
+                    "type": "string"
+                  },
+                  "lbXFedexContactTelNum": {
+                    "type": "string"
+                  }
+                }
+              },
+              "details": {
+                "type": "array",
+                "description": "A collection of transactions for a specific medical copay balance",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "pDDatePosted": {
+                      "type": "string"
+                    },
+                    "pDDatePostedOutput": {
+                      "type": "string"
+                    },
+                    "pDTransDesc": {
+                      "type": "string"
+                    },
+                    "pDTransDescOutput": {
+                      "type": "string"
+                    },
+                    "pDTransAmt": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "pDTransAmtOutput": {
+                      "type": "string"
+                    },
+                    "pDRefNo": {
+                      "type": "string"
                     }
                   }
                 }
@@ -22309,7 +23135,8 @@
           "meta": {
             "type": "object",
             "required": [
-              "sort"
+              "sort",
+              "careSystems"
             ],
             "properties": {
               "sort": {
@@ -22339,6 +23166,16 @@
               "friendlyTriageTeamPilotFacilities": {
                 "type": "string",
                 "example": "979,989"
+              },
+              "careSystems": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "stationNumber",
+                    "healthCareSystemName"
+                  ]
+                }
               }
             }
           }
@@ -23013,54 +23850,6 @@
           }
         }
       },
-      "TravelPaySubmitMileageOnlyClaim": {
-        "description": "Submit a mileage only claim for travel pay reimbursement.",
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "appointmentDateTime",
-          "facilityStationNumber",
-          "facilityName",
-          "appointmentType",
-          "isComplete"
-        ],
-        "properties": {
-          "appointmentDateTime": {
-            "type": "string",
-            "description": "The date and time of the appointment in ISO 8601 format.",
-            "example": "2023-02-23T22:22:52.549Z"
-          },
-          "facilityStationNumber": {
-            "type": "string",
-            "description": "The station number of the VA facility where the appointment is registered.",
-            "example": "983GC"
-          },
-          "facilityName": {
-            "type": "string",
-            "description": "The name of the VA facility where the appointment is registered.",
-            "example": "Cheyenne VA Medical Center"
-          },
-          "appointmentType": {
-            "type": "string",
-            "description": "The type of appointment.",
-            "enum": [
-              "CompensationAndPension",
-              "Other"
-            ],
-            "example": "CompensationAndPension"
-          },
-          "isComplete": {
-            "type": "boolean",
-            "description": "Indicates whether the appointment is complete.",
-            "example": true
-          },
-          "appointmentName": {
-            "type": "string",
-            "description": "The name of the appointment. Optional, but if provided cannot be an empty string.",
-            "example": "Primary care appointment with Dr. Smith"
-          }
-        }
-      },
       "TravelPayClaimSummary": {
         "type": "object",
         "additionalProperties": false,
@@ -23122,6 +23911,100 @@
             "type": "string",
             "nullable": false,
             "example": "2023-02-26T22:22:52.549Z"
+          }
+        }
+      },
+      "TravelPayClaims": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "meta",
+          "data"
+        ],
+        "properties": {
+          "meta": {
+            "type": "object",
+            "required": [
+              "totalRecordCount",
+              "pageNumber",
+              "status"
+            ],
+            "properties": {
+              "totalRecordCount": {
+                "type": "integer",
+                "description": "Total number of claims found. Will be 0 if no claims exist within the specified date range.",
+                "minimum": 0,
+                "example": 25
+              },
+              "pageNumber": {
+                "type": "integer",
+                "example": 1
+              },
+              "status": {
+                "type": "integer",
+                "enum": [
+                  200,
+                  206
+                ],
+                "example": 200
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "description": "Array of travel pay claims. Will be empty if no claims are found within the specified date range.",
+            "minItems": 0,
+            "items": {
+              "$ref": "#/components/schemas/TravelPayClaimSummary"
+            }
+          }
+        }
+      },
+      "TravelPaySubmitMileageOnlyClaim": {
+        "description": "Submit a mileage only claim for travel pay reimbursement.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "appointmentDateTime",
+          "facilityStationNumber",
+          "facilityName",
+          "appointmentType",
+          "isComplete"
+        ],
+        "properties": {
+          "appointmentDateTime": {
+            "type": "string",
+            "description": "The date and time of the appointment in ISO 8601 format.",
+            "example": "2023-02-23T22:22:52.549Z"
+          },
+          "facilityStationNumber": {
+            "type": "string",
+            "description": "The station number of the VA facility where the appointment is registered.",
+            "example": "983GC"
+          },
+          "facilityName": {
+            "type": "string",
+            "description": "The name of the VA facility where the appointment is registered.",
+            "example": "Cheyenne VA Medical Center"
+          },
+          "appointmentType": {
+            "type": "string",
+            "description": "The type of appointment.",
+            "enum": [
+              "CompensationAndPension",
+              "Other"
+            ],
+            "example": "CompensationAndPension"
+          },
+          "isComplete": {
+            "type": "boolean",
+            "description": "Indicates whether the appointment is complete.",
+            "example": true
+          },
+          "appointmentName": {
+            "type": "string",
+            "description": "The name of the appointment. Optional, but if provided cannot be an empty string.",
+            "example": "Primary care appointment with Dr. Smith"
           }
         }
       },
@@ -23458,7 +24341,9 @@
                   "prescriptions": false,
                   "scheduleAppointments": true,
                   "secureMessaging": false,
-                  "userProfileUpdate": true
+                  "userProfileUpdate": true,
+                  "secureMessagingOracleHealthEnabled": false,
+                  "medicationsOracleHealthEnabled": false
                 }
               }
             }
@@ -23651,16 +24536,27 @@
                 "nullable": true,
                 "required": [
                   "id",
-                  "emailAddress"
+                  "emailAddress",
+                  "confirmationDate",
+                  "updatedAt"
                 ],
                 "properties": {
                   "id": {
                     "type": "integer",
                     "example": 157032
                   },
-                  "contactEmail": {
+                  "emailAddress": {
                     "type": "string",
                     "example": "person@example.com"
+                  },
+                  "confirmationDate": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "2018-04-21T20:09:50Z"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "example": "2018-04-21T20:09:50Z"
                   }
                 }
               }

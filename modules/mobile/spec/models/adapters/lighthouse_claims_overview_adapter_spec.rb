@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Mobile::V0::Adapters::LighthouseClaimsOverview, :aggregate_failures do
+describe Mobile::V0::Adapters::ClaimsOverview, :aggregate_failures do
   context 'when evidenceWaiverSubmitted5103 is true' do
     let(:waiver_true_claim) do
       [{ 'id' => '600383363',
@@ -24,7 +24,7 @@ describe Mobile::V0::Adapters::LighthouseClaimsOverview, :aggregate_failures do
     end
 
     it 'documentsNeeded is false' do
-      output = Mobile::V0::Adapters::LighthouseClaimsOverview.new.parse(waiver_true_claim)
+      output = Mobile::V0::Adapters::ClaimsOverview.new.parse(waiver_true_claim)
 
       expect(output.first.documents_needed).to be(false)
     end
@@ -51,7 +51,7 @@ describe Mobile::V0::Adapters::LighthouseClaimsOverview, :aggregate_failures do
     end
 
     it 'documentsNeeded is derived from documentsNeeded field' do
-      output = Mobile::V0::Adapters::LighthouseClaimsOverview.new.parse(waiver_false_claim)
+      output = Mobile::V0::Adapters::ClaimsOverview.new.parse(waiver_false_claim)
 
       expect(output.first.documents_needed).to be(true)
     end

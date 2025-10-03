@@ -34,7 +34,6 @@ class SupportingEvidenceAttachmentUploader < EVSSClaimDocumentUploaderBase
     log = {
       process_id: Process.pid,
       filesize: uploaded_file.try(:size),
-      file_headers: uploaded_file.try(:headers),
       upload_start: Time.current
     }
 
@@ -45,7 +44,6 @@ class SupportingEvidenceAttachmentUploader < EVSSClaimDocumentUploaderBase
     log = {
       process_id: Process.pid,
       filesize: uploaded_file.try(:size),
-      file_headers: uploaded_file.try(:headers),
       upload_complete: Time.current
     }
 

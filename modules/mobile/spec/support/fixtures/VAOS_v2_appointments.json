@@ -1151,5 +1151,66 @@
     "telehealth": {
       "url": "http://www.meeting.com"
     }
+  },
+  {
+    "id": "CERN129377263",
+    "identifier": [
+        {
+            "system": "urn:va.gov:cfa:cerner:appointment",
+            "value": "Appointment/129377263"
+        }
+    ],
+    "kind": "clinic",
+    "type": "VA",
+    "status": "cancelled",
+    "service_type": "foodAndNutrition",
+    "reason_for_appointment": "Routine Follow-up",
+    "reason_code": {
+      "coding": [
+        {
+          "code": "Routine Follow-up"
+        }
+      ]
+    },
+    "patient_icn": "1012845331V153043",
+    "location_id": "442",
+    "location": {
+      "id": "442",
+      "name": "Cheyenne VA Medical Center",
+      "time_zone": {
+        "time_zone_id": "America/Denver"
+      },
+      "physical_address": {
+        "type": "physical",
+        "line": [
+          "2360 East Pershing Boulevard"
+        ],
+        "city": "Cheyenne",
+        "state": "WY",
+        "postal_code": "82001-5356"
+      },
+      "lat": 41.148026,
+      "long": -104.786255,
+      "phone": {
+        "main": "307-778-7550"
+      },
+      "url": null,
+      "code": null
+    },
+    "requested_periods": [
+        {
+            "start": "2025-09-30T20:00:00Z",
+            "end": "2025-09-30T20:30:00Z"
+        }
+    ],
+    "start": "2025-09-30T20:00:00Z",
+    "end": "2025-09-30T20:30:00Z",
+    "cancellable": false,
+    "modality": "vaInPerson",
+    "pending": false,
+    "past": true,
+    "future": false,
+    "show_schedule_link": false,
+    "is_cerner": true
   }
 ]
