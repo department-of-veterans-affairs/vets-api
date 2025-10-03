@@ -36,6 +36,12 @@ module BenefitsClaims
     SURVIVORS_PENSION_CODES = %w[190ORGDPN 190ORGDPNPMC 190AID 140ISD 687NRPMC].freeze
     DIC_CODES = %w[290DICEDPMC 020SMDICPMC 020IRDICPMC].freeze
 
+    GENERIC_PENSION_CODES = %w[
+      150ELECPMC 150INCNWPMC 150INCPMC 120INCPMC 150NWTHPMC
+      120SUPHCDPMC 120ILCP7PMC 120SMPPMC 150MERPMC 120ASMP
+      120ARP 150AIA 600APCDP 600PCDPPM 696MROCPMC
+    ].freeze
+
     # Build comprehensive code mapping
     CLAIM_TYPE_CODE_MAPPING = {}.tap do |mapping|
       # Add dependency codes
@@ -66,11 +72,7 @@ module BenefitsClaims
       end
 
       # Add generic pension codes (remaining from pensionClaimTypeCodes)
-      %w[
-        150ELECPMC 150INCNWPMC 150INCPMC 120INCPMC 150NWTHPMC
-        120SUPHCDPMC 120ILCP7PMC 120SMPPMC 150MERPMC 120ASMP
-        120ARP 150AIA 600APCDP 600PCDPPM 696MROCPMC
-      ].each do |code|
+      GENERIC_PENSION_CODES.each do |code|
         mapping[code] = Title.new(
           display_title: 'Claim for pension',
           claim_type_base: 'pension claim'
@@ -95,8 +97,13 @@ module BenefitsClaims
         claim_type_base: 'dependency verification'
       )
     end.freeze
+
     class << self
       def generate_titles(claim_type, claim_type_code)
+        # trim whitespace on both sides
+        claim_type = claim_type&.strip
+        claim_type_code = claim_type_code&.strip
+
         # Priority 1: Check for specific claim type code override
         if claim_type_code && (title = CLAIM_TYPE_CODE_MAPPING[claim_type_code])
           return title.to_h
@@ -121,6 +128,8 @@ module BenefitsClaims
       end
 
       def update_claim_title(claim)
+        return claim if claim.blank?
+
         claim_type = claim.dig('attributes', 'claimType')
         claim_type_code = claim.dig('attributes', 'claimTypeCode')
 
@@ -128,6 +137,12 @@ module BenefitsClaims
 
         claim['attributes']['displayTitle'] = titles[:display_title]
         claim['attributes']['claimTypeBase'] = titles[:claim_type_base]
+      rescue => e
+        Rails::Logger.error(e.message, {
+                              error_class: self.class.to_s,
+                              backtrace: e.backtrace&.first(3)
+                            })
+        claim
       end
     end
   end
