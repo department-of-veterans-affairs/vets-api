@@ -58,6 +58,33 @@ RSpec.describe TravelPay::LodgingExpense, type: :model do
   end
 
   describe 'date validations' do
+    it 'skips validation if check_in_date is blank' do
+      lodging_expense.check_in_date = nil
+      lodging_expense.check_out_date = Time.zone.today + 1.day
+
+      expect(lodging_expense).to be_invalid
+      expect(lodging_expense.errors[:check_out_date]).not_to include('must be after check-in date')
+      expect(lodging_expense.errors[:check_in_date]).to include("can't be blank")
+    end
+
+    it 'skips validation if check_out_date is blank' do
+      lodging_expense.check_in_date = Time.zone.today
+      lodging_expense.check_out_date = nil
+
+      expect(lodging_expense).to be_invalid
+      expect(lodging_expense.errors[:check_in_date]).not_to include('must be before check-out date')
+      expect(lodging_expense.errors[:check_out_date]).to include("can't be blank")
+    end
+
+    it 'skips validation if both dates are blank' do
+      lodging_expense.check_in_date = nil
+      lodging_expense.check_out_date = nil
+
+      expect(lodging_expense).to be_invalid
+      expect(lodging_expense.errors[:check_in_date]).to include("can't be blank")
+      expect(lodging_expense.errors[:check_out_date]).to include("can't be blank")
+    end
+
     it 'is valid when check_out_date is after check_in_date' do
       lodging_expense.check_in_date = Time.zone.today
       lodging_expense.check_out_date = Time.zone.today + 1.day

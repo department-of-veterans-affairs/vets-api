@@ -29,7 +29,7 @@ module TravelPay
 
     # This validation ensures check_out_date is after check_in_date
     def check_out_after_check_in
-      return if check_in_date.blank? || check_out_date.blank?
+      return unless check_in_date.present? && check_out_date.present?
 
       if check_out_date <= check_in_date
         errors.add(:check_out_date, 'must be after check-in date')
