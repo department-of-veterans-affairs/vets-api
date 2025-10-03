@@ -19,7 +19,7 @@ describe SurvivorsBenefits::PdfFill::Va21p534ez, skip: 'TODO after schema built'
   include SchemaMatchers
 
   let(:form_data) do
-    VetsJsonSchema::EXAMPLES.fetch('21P-8416-KITCHEN_SINK')
+    VetsJsonSchema::EXAMPLES.fetch('21P-534EZ')
   end
 
   context "with #{test_data_types.join(', ')}" do
@@ -38,7 +38,7 @@ describe SurvivorsBenefits::PdfFill::Va21p534ez, skip: 'TODO after schema built'
     it 'merges the right fields' do
       Timecop.freeze(Time.zone.parse('2016-12-31 00:00:00 EDT')) do
         expected = get_fixture_absolute(
-          'modules/survivors_benefits/spec/fixtures/pdf_fill/21P-8416/merge_fields'
+          'modules/survivors_benefits/spec/fixtures/pdf_fill/21P-534EZ/merge_fields'
         )
 
         expected = JSON.parse(File.read(expected)) unless expected.is_a?(Hash)

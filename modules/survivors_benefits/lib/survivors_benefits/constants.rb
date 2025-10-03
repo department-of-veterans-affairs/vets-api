@@ -13,5 +13,12 @@ module SurvivorsBenefits
       'PARENT' => 3,
       'CUSTODIAN' => 4
     }.freeze
+
+    # The reason for marital separation
+      REASONS_FOR_SEPARATION = {
+        'DEATH' => 1,
+        'DIVORCE' => 2,
+        'OTHER' => 4
+      }.freeze
   end
 end

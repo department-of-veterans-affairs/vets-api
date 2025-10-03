@@ -18,9 +18,9 @@ RSpec.describe SurvivorsBenefits::V0::ClaimsController, type: :request do
   end
 
   describe '#create' do
-    let(:claim) { build(:survivors_benefits_reports_claim) }
-    let(:param_name) { :survivors_benefits_reports_claim }
-    let(:form_id) { '21P-8416' }
+    let(:claim) { build(:survivors_benefits_claim) }
+    let(:param_name) { :survivors_benefits_claim }
+    let(:form_id) { '21P-534EZ' }
 
     it 'logs validation errors' do
       allow(SurvivorsBenefits::SavedClaim).to receive(:new).and_return(claim)
@@ -32,7 +32,7 @@ RSpec.describe SurvivorsBenefits::V0::ClaimsController, type: :request do
       expect(claim).not_to receive(:process_attachments!)
       expect(SurvivorsBenefits::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
 
-      post '/survivors_benefits_reports/v0/claims', params: { param_name => { form: claim.form } }
+      post '/survivors_benefits/v0/form534ez', params: { param_name => { form: claim.form } }
 
       expect(response).to have_http_status(:internal_server_error)
     end
@@ -45,7 +45,7 @@ RSpec.describe SurvivorsBenefits::V0::ClaimsController, type: :request do
       expect(claim).to receive(:process_attachments!).once
       expect(SurvivorsBenefits::BenefitsIntake::SubmitClaimJob).to receive(:perform_async)
 
-      post '/survivors_benefits/v0/claims', params: { param_name => { form: claim.form } }
+      post '/survivors_benefits/v0/form534ez', params: { param_name => { form: claim.form } }
 
       expect(response).to have_http_status(:success)
     end
@@ -55,7 +55,7 @@ RSpec.describe SurvivorsBenefits::V0::ClaimsController, type: :request do
     it 'logs an error if no claim found' do
       expect(monitor).to receive(:track_show404).once
 
-      get '/survivors_benefits/v0/claims/:id', params: { id: 'non-existant-saved-claim' }
+      get '/survivors_benefits/v0/form534ez/:id', params: { id: 'non-existant-saved-claim' }
 
       expect(response).to have_http_status(:not_found)
     end
@@ -66,16 +66,16 @@ RSpec.describe SurvivorsBenefits::V0::ClaimsController, type: :request do
 
       expect(monitor).to receive(:track_show_error).once
 
-      get '/survivors_benefits/v0/claims/:id', params: { id: 'non-existant-saved-claim' }
+      get '/survivors_benefits/v0/form534ez/:id', params: { id: 'non-existant-saved-claim' }
 
       expect(response).to have_http_status(:internal_server_error)
     end
 
     it 'returns a serialized claim' do
-      claim = build(:survivors_benefits_reports_claim)
+      claim = build(:survivors_benefits_claim)
       allow(SurvivorsBenefits::SavedClaim).to receive(:find_by!).and_return(claim)
 
-      get '/survivors_benefits/v0/claims/:id', params: { id: 'survivors_benefits_reports_claim' }
+      get '/survivors_benefits/v0/form534ez/:id', params: { id: 'survivors_benefits_claim' }
 
       expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq(claim.guid)
       expect(response).to have_http_status(:ok)
@@ -83,7 +83,7 @@ RSpec.describe SurvivorsBenefits::V0::ClaimsController, type: :request do
   end
 
   describe '#process_attachments' do
-    let(:claim) { create(:survivors_benefits_reports_claim) }
+    let(:claim) { create(:survivors_benefits_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
     let(:bad_attachment) { PersistentAttachment.create!(saved_claim_id: claim.id) }
     let(:error) { StandardError.new('Something went wrong') }
@@ -103,7 +103,7 @@ RSpec.describe SurvivorsBenefits::V0::ClaimsController, type: :request do
   end
 
   describe '#log_validation_error_to_metadata' do
-    let(:claim) { build(:survivors_benefits_reports_claim) }
+    let(:claim) { build(:survivors_benefits_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
 
     it 'returns if a `blank` in_progress_form' do

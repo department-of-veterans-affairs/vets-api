@@ -37,7 +37,7 @@ module SurvivorsBenefits
           }
         },
         # 1b
-        'veteranSocialSecurityNumber' => {
+        'section1VeteranSocialSecurityNumber' => {
           'first' => {
             key: 'form1[0].#subform[207].VeteransSocialSecurityNumber_FirstThreeNumbers[0]'
           },
@@ -93,7 +93,7 @@ module SurvivorsBenefits
         form_data['veteranFullName']['first'] = form_data.dig('veteranFullName', 'first')&.titleize
         form_data['veteranFullName']['middle'] = form_data.dig('veteranFullName', 'middle')&.first.titleize
         form_data['veteranFullName']['last'] = form_data.dig('veteranFullName', 'last')&.titleize
-        form_data['veteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
+        form_data['section1VeteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
         form_data['veteranDateOfBirth'] = split_date(form_data['veteranDateOfBirth'])
         form_data['vaClaimsHistory'] = to_radio_yes_no(form_data['vaClaimsHistory'])
         form_data['diedOnDuty'] = to_radio_yes_no(form_data['diedOnDuty'])

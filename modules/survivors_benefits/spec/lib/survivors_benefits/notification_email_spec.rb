@@ -13,9 +13,9 @@ RSpec.describe SurvivorsBenefits::NotificationEmail, skip: 'TODO after schema bu
 
       args = [
         saved_claim.email,
-        Settings.vanotify.services['21p_8416'].email.submitted.template_id,
+        Settings.vanotify.services['21p_534ez'].email.submitted.template_id,
         anything,
-        Settings.vanotify.services['21p_8416'].api_key,
+        Settings.vanotify.services['21p_534ez'].api_key,
         { callback_klass: SurvivorsBenefits::NotificationCallback.to_s,
           callback_metadata: anything }
       ]

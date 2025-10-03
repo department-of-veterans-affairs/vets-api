@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :survivors_benefits_claim, class: 'SurvivorsBenefits::SavedClaim' do
-    form_id { '21P-8416' }
+    form_id { '21P-534EZ' }
     form do
       {
         veteranFullName: {

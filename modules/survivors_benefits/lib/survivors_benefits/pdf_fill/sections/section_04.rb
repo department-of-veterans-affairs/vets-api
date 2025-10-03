@@ -6,9 +6,6 @@ module SurvivorsBenefits
   module PdfFill
     # Section 4: Marital Information
     class Section4 < Section
-      include ::PdfFill::Forms::FormHelper
-      include ::PdfFill::Forms::FormHelper::PhoneNumberFormatting
-      include Helpers
 
       KEY = {
         'validMarriage' => {
@@ -122,7 +119,7 @@ module SurvivorsBenefits
         'remarriageEndCauseExplanation' => {
           key: 'form1[0].#subform[208].Explain[0]'
         },
-        'additionalMarriages' => {
+        'claimantHasAdditionalMarriages' => {
           key: 'form1[0].#subform[208].RadioButtonList[14]'
         }
       }
@@ -155,7 +152,7 @@ module SurvivorsBenefits
         form_data['remarriageEndCauseDidNotEnd'] = boolean_or_off(form_data['remarriageEndCause'] == 'didNotEnd')
         form_data['remarriageEndCauseOther'] = boolean_or_off(form_data['remarriageEndCause'] == 'other')
 
-        form_data['additionalMarriages'] = to_radio_yes_no(form_data['additionalMarriages'])
+        form_data['claimantHasAdditionalMarriages'] = to_radio_yes_no(form_data['claimantHasAdditionalMarriages'])
       end
 
       def boolean_or_off(bool)

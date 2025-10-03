@@ -26,7 +26,7 @@ module SurvivorsBenefits
 
       # Section configuration hash
       KEY = {
-        'veteranSocialSecurityNumber' => {
+        'p11HeaderVeteranSocialSecurityNumber' => {
           'first' => {
             key: 'form1[0].#subform[208].VeteransSocialSecurityNumber_FirstThreeNumbers[1]'
           },
@@ -155,6 +155,7 @@ module SurvivorsBenefits
       }.freeze
 
       def expand(form_data = {})
+        form_data['p11HeaderVeteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
         form_data['veteranPreviousNames'] ||= []
         form_data['veteranHasPreviousNames'] = to_radio_yes_no(form_data['veteranPreviousNames'].length > 0)
         form_data['activeServiceDateRange'] = {
