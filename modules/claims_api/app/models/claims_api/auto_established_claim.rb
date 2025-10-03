@@ -126,7 +126,7 @@ module ClaimsApi
                                     'va_eauth_service_transaction_id',
                                     'va_eauth_issueinstant',
                                     'Authorization')
-      self.header_hash = Digest::SHA256.hexdigest form_data.merge(headers).to_json
+      self.header_hash = Digest::SHA256.hexdigest (form_data || {}).merge(headers).to_json
     end
 
     def status_from_phase(*)

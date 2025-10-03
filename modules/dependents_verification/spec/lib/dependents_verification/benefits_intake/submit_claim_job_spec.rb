@@ -70,7 +70,7 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
         ActiveRecord::RecordNotFound,
-        "Couldn't find UserAccount with 'id'=user_account_uuid"
+        /Couldn't find UserAccount/
       )
     end
 

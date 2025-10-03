@@ -832,7 +832,8 @@ RSpec.describe V1::SessionsController, type: :controller do
         let(:cerner_id) { 'some-cerner-id' }
         let(:cerner_eligible_cookie) { 'CERNER_ELIGIBLE' }
         let(:expected_log_message) { '[SessionsController] Cerner Eligibility' }
-        let(:expected_log_payload) { { eligible:, cookie_action: :set, icn: user.icn } }
+        let(:previous_value) { nil }
+        let(:expected_log_payload) { { eligible:, previous_value:, cookie_action: :set, icn: user.icn } }
 
         before do
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'some-applicaton' })
@@ -870,14 +871,17 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         context 'when the cerner eligible cookie is present' do
+          let(:eligible) { true }
+          let(:previous_value) { true }
+
           before do
-            cookies.signed[cerner_eligible_cookie] = 'true'
+            cookies.signed[cerner_eligible_cookie] = true
           end
 
-          it 'does not log a message' do
+          it 'logs the cerner eligibility with the previous value' do
             call_endpoint
 
-            expect(Rails.logger).not_to have_received(:info).with(expected_log_message, anything)
+            expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
           end
         end
       end
