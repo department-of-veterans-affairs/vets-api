@@ -8,9 +8,9 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job, :uploader
 
   before do
     allow(PdfFill::Filler)
-        .to receive(:fill_form) { |saved_claim, *_|
-          "tmp/pdfs/686C-674_#{saved_claim.id || 'stub'}_final.pdf"
-        }
+      .to receive(:fill_form) { |saved_claim, *_|
+        "tmp/pdfs/686C-674_#{saved_claim.id || 'stub'}_final.pdf"
+      }
   end
 
   let(:user) { create(:evss_user, :loa3) }
