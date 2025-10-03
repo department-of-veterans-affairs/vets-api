@@ -63,40 +63,16 @@ module V0
     end
 
     def submit_all_claim
-      temp_separation_location_fix if Flipper.enabled?(:disability_compensation_temp_separation_location_code_string,
-                                                       @current_user)
-
-      temp_toxic_exposure_optional_dates_fix if Flipper.enabled?(
-        :disability_compensation_temp_toxic_exposure_optional_dates_fix,
-        @current_user
-      )
-
-      saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
-      if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) && form_content['form526'].present?
-        saved_claim.metadata = add_0781_metadata(form_content['form526'])
-      end
-
+      apply_temporary_fixes
+      saved_claim = build_saved_claim
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
-      submission = create_submission(saved_claim)
 
-      # Log toxic exposure purge after submission is created
+      submission = create_submission(saved_claim)
       log_toxic_exposure_purge(saved_claim, submission) if Flipper.enabled?(:disability_526_log_toxic_exposure_purge,
                                                                             @current_user)
-      # if jid = 0 then the submission was prevented from going any further in the process
-      jid = 0
 
-      # Feature flag to stop submission from being submitted to third-party service
-      # With this on, the submission will NOT be processed by EVSS or Lighthouse,
-      # nor will it go to VBMS,
-      # but the line of code before this one creates the submission in the vets-api database
-      if Flipper.enabled?(:disability_compensation_prevent_submission_job, @current_user)
-        Rails.logger.info("Submission ID: #{submission.id} prevented from sending to third party service.")
-      else
-        jid = submission.start
-      end
-
-      render json: { data: { attributes: { job_id: jid } } },
-             status: :ok
+      jid = start_submission_job(submission)
+      render json: { data: { attributes: { job_id: jid } } }, status: :ok
     end
 
     def submission_status
@@ -274,6 +250,30 @@ module V0
       )
     end
     # END TEMPORARY
+
+    def apply_temporary_fixes
+      temp_separation_location_fix if Flipper.enabled?(:disability_compensation_temp_separation_location_code_string,
+                                                       @current_user)
+      temp_toxic_exposure_optional_dates_fix if Flipper.enabled?(
+        :disability_compensation_temp_toxic_exposure_optional_dates_fix,
+        @current_user
+      )
+    end
+
+    def build_saved_claim
+      saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
+      if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) && form_content['form526'].present?
+        saved_claim.metadata = add_0781_metadata(form_content['form526'])
+      end
+      saved_claim
+    end
+
+    def start_submission_job(submission)
+      # Feature flag to stop submission from being submitted to third-party service
+      return 0 if Flipper.enabled?(:disability_compensation_prevent_submission_job, @current_user)
+
+      submission.start
+    end
 
     def monitor
       @monitor ||= DisabilityCompensation::Loggers::Monitor.new
