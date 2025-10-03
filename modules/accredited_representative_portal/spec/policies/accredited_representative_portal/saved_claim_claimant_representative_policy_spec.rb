@@ -19,6 +19,10 @@ module AccreditedRepresentativePortal
           empty?: power_of_attorney_holders.empty?
         )
       )
+
+      # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+      # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+      allow(FastImage).to receive(:size).and_return(nil)
     end
 
     describe '#index?' do

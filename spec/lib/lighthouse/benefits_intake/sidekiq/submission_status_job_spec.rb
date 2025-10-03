@@ -179,6 +179,13 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
       end
 
       describe 'when submission_attempt is FormSubmission' do
+
+        # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+        # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+        before do
+          allow(FastImage).to receive(:size).and_return(nil)
+        end
+
         let(:saved_claim) { create(:saved_claim_benefits_intake) }
         let(:form_submission) { create(:form_submission, saved_claim:, form_type: 'Form23-42Fake') }
         let(:attempt) { create(:form_submission_attempt, form_submission:, benefits_intake_uuid: 'uuid-1') }

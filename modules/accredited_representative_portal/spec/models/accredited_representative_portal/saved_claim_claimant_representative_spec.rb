@@ -26,6 +26,12 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimClaimantRepresentative,
     described_class::ClaimantTypes
   end
 
+  # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+  # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+  before do
+    allow(FastImage).to receive(:size).and_return(nil)
+  end
+
   describe 'associations' do
     it 'belongs to saved_claim (::SavedClaim)' do
       expect(described_class.reflect_on_association(:saved_claim).klass).to eq(SavedClaim)

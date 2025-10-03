@@ -7,6 +7,12 @@ RSpec.describe AccreditedRepresentativePortal::Monitor do
   let(:claim) { create(:saved_claim_benefits_intake) }
   let(:monitor) { described_class.new(claim:) }
 
+  # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+  # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+  before do
+    allow(FastImage).to receive(:size).and_return(nil)
+  end
+
   describe '#service_name' do
     it 'returns the expected name' do
       expect(monitor.send(:service_name)).to eq('accredited-representative-portal')

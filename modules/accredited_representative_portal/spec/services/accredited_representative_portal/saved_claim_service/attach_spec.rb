@@ -10,6 +10,12 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
   let(:attachment_klass) { PersistentAttachments::VAFormDocumentation }
   let(:form_id) { AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim::FORM_ID }
 
+  # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+  # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+  before do
+    allow(FastImage).to receive(:size).and_return(nil)
+  end
+
   context 'when record invalid' do
     let(:file) do
       filepath = 'accredited_representative_portal/invalid.pdf'
