@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# rubocop:disable all
 
 # ============================================================================
 # BGS FRGN_PHONE_RFRNC_TXT Field Size Test
@@ -114,17 +115,8 @@ test_lengths.each do |length|
         puts "   Attempted: #{actual} characters"
 
         puts "\n" + '=' * 80
-        puts 'RESULT: FRGN_PHONE_RFRNC_TXT field limit = ' \
-             "#{maximum} characters"
+        puts "🎯 RESULT: FRGN_PHONE_RFRNC_TXT max = #{maximum} characters"
         puts '=' * 80
-
-        if maximum >= 23
-          puts '✅ Field CAN store our max international numbers (23 chars)'
-          puts '   → Can use this field for international phone storage'
-        else
-          puts '❌ Field is TOO SMALL for our max international numbers (need 23 chars)'
-          puts '   → Cannot use this field alone for international phone storage'
-        end
 
         break # Exit loop - we found the limit
       else
@@ -158,36 +150,6 @@ puts '=' * 80
 
 if max_successful_length.positive?
   puts "\n✅ Maximum successful storage: #{max_successful_length} characters"
-  puts ''
-  puts 'CONCLUSION:'
-  puts "  - BGS FRGN_PHONE_RFRNC_TXT field supports up to #{max_successful_length} characters"
-  puts '  - Our schema allows international numbers up to 23 characters'
-
-  if max_successful_length >= 23
-    puts '  - ✅ This field CAN be used for international phone number storage'
-    puts ''
-    puts 'IMPLEMENTATION RECOMMENDATION:'
-    puts '  1. Use frgnPhoneRfrncTxt for international numbers (≤30 chars)'
-    puts '  2. Add validation to reject/handle numbers >30 chars'
-    puts '  3. Store country_code in cntryNbr, area_code in areaNbr'
-    puts '  4. Keep phone_nbr for domestic US numbers or as fallback'
-  else
-    puts '  - ❌ This field CANNOT be used for all international numbers'
-    puts '  - Alternative solution needed for numbers >#{max_successful_length} chars'
-  end
 else
-  puts "\n⚠️  Test did not complete successfully"
-  puts 'Please check the error messages above and:'
-  puts '  1. Verify BGS IDs are valid'
-  puts '  2. Ensure BGS service is accessible'
-  puts '  3. Check Rails logs for detailed error information'
+  puts "\n⚠️  Test did not complete successfully - check error messages above"
 end
-
-puts "\n" + '=' * 80
-puts 'RELATED FILES:'
-puts '=' * 80
-puts '  - Service: modules/claims_api/lib/bgs_service/vnp_ptcpnt_phone_service.rb'
-puts '  - BGS Catalog: bgs-catalog/VnpPtcpntPhoneWebServiceBean/.../request.xml'
-puts '  - Database: VNP_PTCPNT_PHONE table, FRGN_PHONE_RFRNC_TXT column'
-puts '  - Ticket: API-48712 (International phone number support)'
-puts '=' * 80
