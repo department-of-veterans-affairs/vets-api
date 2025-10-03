@@ -234,6 +234,9 @@ claims_evidence_api:
   jwt_secret: fake-secret
   mock: false
   ssl: false
+  timeout:
+    open: 30
+    read: 30
 clamav:
   host: 0.0.0.0
   mock: true
