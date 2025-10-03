@@ -15,7 +15,7 @@ module MyHealth
           team.station_number = convert_non_prod_id(team.station_number)
           team.health_care_system_name = facility_map[team.station_number] if team.health_care_system_name.blank?
         end
-      rescue Lighthouse::Facilities::ServiceException => e
+      rescue => e
         all_triage_teams_collection.metadata[:facility_error] = e.message
       end
       all_triage_teams_collection
