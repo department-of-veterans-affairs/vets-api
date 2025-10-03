@@ -32,6 +32,26 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
     include_examples 'for user account level', message: 'You do not have access to messaging'
   end
 
+  context 'when facilities api call fails' do
+    before do
+      VCR.insert_cassette('sm_client/session')
+    end
+
+    after do
+      VCR.eject_cassette
+    end
+
+    it 'handles facilities api errors gracefully' do
+      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+        VCR.use_cassette('sm_client/get_facilities_fails') do
+          get '/my_health/v1/messaging/allrecipients'
+          expect(response).to be_successful
+          expect(response.body).to include('facility_error')
+        end
+      end
+    end
+  end
+
   context 'when authorized' do
     before do
       VCR.insert_cassette('sm_client/session')

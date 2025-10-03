@@ -6,14 +6,18 @@ module MyHealth
   module FacilitiesHelper
     module_function
 
-    def set_health_care_system_names(triage_teams)
+    def set_health_care_system_names(all_triage_teams_collection)
+      triage_teams = all_triage_teams_collection.records
       facility_ids = triage_teams.map(&:station_number).uniq
-      facility_map = get_facility_map(facility_ids)
-
-      triage_teams.each do |team|
-        team.health_care_system_name = facility_map[team.station_number] if team.health_care_system_name.blank?
+      begin
+        facility_map = get_facility_map(facility_ids)
+        triage_teams.each do |team|
+            team.health_care_system_name = facility_map[team.station_number] if team.health_care_system_name.blank?
+        end
+      rescue Lighthouse::Facilities::ServiceException => e
+        all_triage_teams_collection.metadata[:facility_error] = e.message
       end
-      triage_teams
+      all_triage_teams_collection
     end
 
     def get_facility_map(facility_ids)
