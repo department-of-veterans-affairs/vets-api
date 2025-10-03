@@ -92,34 +92,11 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
   end
 
   it 'submits successfully with BD' do
-    allow(Flipper).to receive(:enabled?).with(:claims_claim_uploader_use_bd).and_return true
     expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return true
 
     subject.new.perform(supporting_document.id, 'document')
     supporting_document.reload
     expect(auto_claim.uploader.blank?).to be(false)
-  end
-
-  # relates to API-14302 and API-14303
-  # do not remove uploads from S3 until we feel that uploads to EVSS are stable
-  it 'on successful call it does not delete the file from S3' do
-    evss_service_stub = instance_double(EVSS::DocumentsService)
-    allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
-    allow(evss_service_stub).to receive(:upload) { OpenStruct.new(response: 200) }
-
-    subject.new.perform(supporting_document.id, 'document')
-    supporting_document.reload
-    expect(supporting_document.uploader.blank?).to be(false)
-  end
-
-  it 'if an evss_id is nil, and claim is not errored, it reschedules the sidekiq job to the future' do
-    evss_service_stub = instance_double(EVSS::DocumentsService)
-    allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
-    allow(evss_service_stub).to receive(:upload) { OpenStruct.new(response: 200) }
-
-    subject.new.perform(pending_auto_claim.id, 'claim')
-    pending_auto_claim.reload
-    expect(pending_auto_claim.uploader.blank?).to be(false)
   end
 
   it 'if an evss_id is nil, and claim is errored, it does not reschedule the sidekiq job to the future' do
@@ -141,41 +118,6 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
           "to Benefits Documents API due to claim submission error for claim #{errored_auto_claim.id}"
     expect_any_instance_of(subject).to receive(:slack_alert_on_failure).with('ClaimsApi::ClaimUploader', msg)
     subject.new.perform(errored_auto_claim.id, 'document')
-  end
-
-  it 'transforms a claim document to the right properties for EVSS' do
-    evss_service_stub = instance_double(EVSS::DocumentsService)
-    allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
-    expect(evss_service_stub).to receive(:upload).with(any_args, OpenStruct.new(
-                                                                   file_name: supporting_document.file_name,
-                                                                   document_type: supporting_document.document_type,
-                                                                   description: supporting_document.description,
-                                                                   evss_claim_id: supporting_document.evss_claim_id,
-                                                                   tracked_item_id: supporting_document.tracked_item_id
-                                                                 ))
-
-    subject.new.perform(supporting_document.id, 'document')
-
-    supporting_document.reload
-    expect(supporting_document.uploader.blank?).to be(false)
-  end
-
-  it 'transforms a 526 claim form to the right properties for EVSS' do
-    evss_service_stub = instance_double(EVSS::DocumentsService)
-    allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
-
-    expect(evss_service_stub).to receive(:upload).with(any_args, OpenStruct.new(
-                                                                   file_name: auto_claim.file_name,
-                                                                   document_type: auto_claim.document_type,
-                                                                   description: auto_claim.description,
-                                                                   evss_claim_id: auto_claim.evss_id,
-                                                                   tracked_item_id: auto_claim.id
-                                                                 ))
-
-    subject.new.perform(auto_claim.id, 'claim')
-
-    auto_claim.reload
-    expect(auto_claim.uploader.blank?).to be(false)
   end
 
   describe 'BD document type' do
