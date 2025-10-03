@@ -26,7 +26,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
   private
 
   # Use the exact same transformation as the controller pipeline:
-  # OliveBranch transformation with VA key patch applied using the actual middleware
+  # OliveBranch transformation with VA key patch applied using the actual middleware logic
   def transform_with_olivebranch(data)
     # Transform using OliveBranch (same as the actual controller)
     camelized = OliveBranch::Transformations.transform(
@@ -34,9 +34,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       OliveBranch::Transformations.method(:camelize)
     )
 
-    # Apply the VA key patch using the actual patched middleware method
+    # Apply the VA key patch using the same regex and logic as the middleware
     json_string = camelized.to_json
-    OliveBranch::Middleware.send(:un_camel_va_keys!, json_string)
+    # Use the same VA_KEY_REGEX pattern and gsub logic as the middleware extension
+    json_string.gsub!(/("[^"]+VA[^"]*"):/) do
+      key = Regexp.last_match(1)
+      "#{key.gsub('VA', 'Va')}:"
+    end
 
     JSON.parse(json_string)
   end
