@@ -5,6 +5,7 @@ require 'dependents_benefits/claim_processor'
 require 'dependents_benefits/generators/claim674_generator'
 require 'dependents_benefits/generators/claim686c_generator'
 require 'dependents_benefits/monitor'
+require 'dependents_benefits/user_data'
 
 module DependentsBenefits
   module V0
@@ -37,8 +38,11 @@ module DependentsBenefits
 
         raise Common::Exceptions::ValidationErrors, claim unless claim.save
 
+        user_data = DependentsBenefits::UserData.new(current_user, claim.parsed_form)
+
         # Matching parent_claim_id and saved_claim_id indicates this is a parent claim
-        SavedClaimGroup.new(claim_group_guid: claim.guid, parent_claim_id: claim.id, saved_claim_id: claim.id).save!
+        SavedClaimGroup.new(claim_group_guid: claim.guid, parent_claim_id: claim.id, saved_claim_id: claim.id,
+                            user_data: user_data.get_user_json).save!
         form_data = claim.parsed_form
 
         raise Common::Exceptions::ValidationErrors if !claim.submittable_686? && !claim.submittable_674?

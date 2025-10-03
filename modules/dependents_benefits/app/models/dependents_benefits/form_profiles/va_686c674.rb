@@ -114,7 +114,7 @@ module DependentsBenefits
       @va_file_number
     rescue => e
       monitor.track_prefill_warning('Failed to retrieve VA file number', 'file_number_error',
-                                    { error: e&.message })
+                                    error: e&.message)
       user.ssn.presence
     end
 
@@ -143,13 +143,10 @@ module DependentsBenefits
         response = pension_award_service.get_awards_pension
         response.try(:body)&.dig('awards_pension')&.transform_keys(&:to_sym)
       rescue => e
-        payload = {
-          user_account_uuid: user&.user_account_uuid,
-          error: e.message,
-          form_id:
-        }
         monitor.track_prefill_warning('Failed to retrieve awards pension data', 'awards_pension_error',
-                                      payload)
+                                      user_account_uuid: user&.user_account_uuid,
+                                      error: e.message,
+                                      form_id:)
         {}
       end
     end
@@ -169,7 +166,7 @@ module DependentsBenefits
       end
     rescue => e
       monitor.track_prefill_warning('Failed to retrieve dependents information', 'dependents_error',
-                                    { error: e&.message })
+                                    error: e&.message)
       @dependents_information = []
     end
 
