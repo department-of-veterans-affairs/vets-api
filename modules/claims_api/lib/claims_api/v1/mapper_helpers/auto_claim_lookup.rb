@@ -26,6 +26,7 @@ module ClaimsApi
         reserves_obligation_to: %w[serviceInformation reservesNationalGuardService obligationTermOfServiceToDate],
         reserves_title_10_activation: %w[serviceInformation reservesNationalGuardService title10Activation],
         reserves_alternate_names: %w[serviceInformation alternateNames],
+        service_confinements: %w[serviceInformation confinements],
         # SECTION 7: Service Pay
         service_pay: %w[servicePay],
         service_pay_military_retired_pay: %w[servicePay militaryRetiredPay],
