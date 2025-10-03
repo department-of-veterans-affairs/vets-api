@@ -495,8 +495,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_06_192747) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["bgs_submission_id"], name: "index_bgs_submission_attempts_on_bgs_submission_id"
-    t.index ["needs_kms_rotation"], name: "index_bgs_submission_attempts_on_needs_kms_rotation"
-    t.index ["status"], name: "index_bgs_submission_attempts_on_status"
   end
 
   create_table "bgs_submissions", force: :cascade do |t|
@@ -509,9 +507,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_06_192747) do
     t.boolean "needs_kms_rotation", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["form_id"], name: "index_bgs_submissions_on_form_id"
-    t.index ["latest_status"], name: "index_bgs_submissions_on_latest_status"
-    t.index ["needs_kms_rotation"], name: "index_bgs_submissions_on_needs_kms_rotation"
     t.index ["saved_claim_id"], name: "index_bgs_submissions_on_saved_claim_id"
   end
 
