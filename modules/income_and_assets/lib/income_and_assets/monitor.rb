@@ -20,12 +20,8 @@ module IncomeAndAssets
     # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'worker.lighthouse.income_and_assets_intake_job'
 
-    attr_reader :tags
-
     def initialize
       super('income-and-assets')
-
-      @tags = ["form_id:#{form_id}"]
     end
 
     private

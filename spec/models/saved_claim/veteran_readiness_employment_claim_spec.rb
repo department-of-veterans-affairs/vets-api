@@ -47,7 +47,8 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         claim.save!
 
         tags = form_type == 'v1' ? ['form_id:28-1900'] : ['form_id:28-1900-V2']
-        expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: })
+        tags += ["doctype:#{claim.doctype}"]
+        expect(StatsD).to have_received(:increment).with('saved_claim.create', tags:)
       end
     end
 

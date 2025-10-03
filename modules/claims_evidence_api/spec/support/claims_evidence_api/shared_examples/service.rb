@@ -11,6 +11,7 @@ shared_examples_for 'a ClaimsEvidenceApi::Service class' do
 
   describe '#perform' do
     let(:service) { subject.class.new } # instance of the invoking class
+    let(:endpoint) { service.send(:endpoint) || 'test' }
 
     it 'tracks the request' do
       # 'Authorization' is added to each request
@@ -19,7 +20,7 @@ shared_examples_for 'a ClaimsEvidenceApi::Service class' do
 
       # 'request' is a method within the `super` chain
       expect(service).to receive(:request).with(*args).and_return response
-      expect(monitor).to receive(:track_api_request).with(:get, 'test/path', 200, 'OK', call_location: anything)
+      expect(monitor).to receive(:track_api_request).with(:get, endpoint, 200, 'OK', call_location: anything)
 
       service.perform(*args)
     end

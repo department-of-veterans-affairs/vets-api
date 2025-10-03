@@ -25,7 +25,7 @@ shared_examples_for 'a SavedClaim Notification Callback' do |callback_klass, cal
     allow(db_record).to receive(:update)
 
     allow(monitor_klass).to receive(:new).and_return monitor
-    allow(monitor).to receive(:track) # intercept default tracking
+    allow(monitor).to receive(:track_request) # intercept default tracking
   end
 
   def notification_context

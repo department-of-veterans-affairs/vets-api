@@ -234,6 +234,9 @@ claims_evidence_api:
   jwt_secret: <%= ENV['claims_evidence_api__jwt_secret'] %>
   mock: false
   ssl: true
+  timeout:
+    open: 30
+    read: 30
 clamav:
   host: clamav
   mock: <%= ENV['clamav__mock'] %>
