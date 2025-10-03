@@ -59,7 +59,7 @@ describe Vye::SundownSweep, type: :worker do
       expect(logger).to receive(:error).with(/AccessDenied/)
       expect do
         Vye::SundownSweep::DeleteProcessedS3Files.new.perform
-      end.not_to raise_error(Aws::S3::Errors::AccessDenied)
+      end.not_to raise_error
     end
 
     it 'throws an exception there is an error with the service' do
