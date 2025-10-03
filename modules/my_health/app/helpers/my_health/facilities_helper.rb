@@ -44,24 +44,12 @@ module MyHealth
 
     def convert_non_prod_id(id)
       return id if Settings.hostname == 'api.va.gov'
+
       case id
       when '979'
         '552'
       when '989'
         '442'
-      else
-        id
-      end
-    end
-
-    def deconvert_non_prod_id(id)
-      return id if Settings.hostname == 'api.va.gov'
-
-      case id
-      when '552'
-        '979'
-      when '442'
-        '989'
       else
         id
       end
