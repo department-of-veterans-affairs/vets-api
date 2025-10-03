@@ -28,9 +28,10 @@ module Lighthouse
 
       class BenefitsIntakeResponseError < StandardError; end
 
-      def extract_uuid_from_central_mail_message(data)
-        data.body[/(?<=\[).*?(?=\])/].split(': ').last if data.body.present?
-      end
+      # This appears to be dead code
+      #def extract_uuid_from_central_mail_message(data)
+      #  data.body[/(?<=\[).*?(?=\])/].split(': ').last if data.body.present?
+      #end
 
       sidekiq_options retry: RETRY
 
@@ -132,6 +133,8 @@ module Lighthouse
         end
       end
 
+      # This appears to be dead code
+=begin
       def create_request_body
         body = {
           'metadata' => generate_metadata.to_json
@@ -146,18 +149,20 @@ module Lighthouse
 
         body
       end
-
+=end
       def update_submission(state)
         claim.central_mail_submission.update!(state:) if claim.respond_to?(:central_mail_submission)
       end
 
+      # This appears to be dead code
+=begin
       def to_faraday_upload(file_path)
         Faraday::UploadIO.new(
           file_path,
           Mime[:pdf].to_s
         )
       end
-
+=end
       def process_pdf(pdf_path, timestamp = nil, form_id = nil)
         stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
         stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
@@ -249,13 +254,13 @@ module Lighthouse
         claim = SavedClaim::DependencyClaim.find(saved_claim_id)
         email = claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address') ||
                 user_struct.try(:va_profile_email)
-        Dependents::Monitor.new(claim.id).track_submission_exhaustion(msg, email)
+        ::Dependents::Monitor.new(claim.id).track_submission_exhaustion(msg, email)
         claim.send_failure_email(email)
       rescue => e
         # If we fail in the above failure events, this is a critical error and silent failure.
         v2 = false
         Rails.logger.error('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob silent failure!', { e:, msg:, v2: })
-        StatsD.increment("#{Lighthouse::BenefitsIntake::SubmitCentralForm686cJob::STATSD_KEY_PREFIX}}.silent_failure")
+        StatsD.increment("#{Lighthouse::BenefitsIntake::SubmitCentralForm686cJob::STATSD_KEY_PREFIX}.silent_failure")
       end
 
       private
@@ -277,6 +282,7 @@ module Lighthouse
         log_message_to_sentry("vre-central-mail-response: #{response}", :info, {}, { team: 'vfs-ebenefits' })
       end
 
+=begin
       def valid_claim_data(saved_claim_id, vet_info)
         claim = SavedClaim::DependencyClaim.find(saved_claim_id)
 
@@ -286,7 +292,7 @@ module Lighthouse
 
         claim.formatted_686_data(vet_info)
       end
-
+=end
       def split_file_and_path(path)
         { file: path, file_name: path.split('/').last }
       end
