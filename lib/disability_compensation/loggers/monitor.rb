@@ -62,7 +62,58 @@ module DisabilityCompensation
         )
       end
 
+      # Logs toxic exposure data purge events during Form 526 submission
+      #
+      # Compares InProgressForm toxic exposure data with submitted claim data
+      # to detect when toxic exposure data has been purged by the frontend.
+      #
+      # @param in_progress_form [InProgressForm] User's saved form data
+      # @param submitted_claim [SavedClaim::DisabilityCompensation::Form526AllClaim] The submitted claim
+      # @param submission [Form526Submission] The submission record
+      # @param user_uuid [String] User's UUID
+      def track_toxic_exposure_purge(in_progress_form:, submitted_claim:, submission:, user_uuid:)
+        sip_data = parse_form_data(in_progress_form.form_data)
+        submitted_data = parse_form_data(submitted_claim.form)
+
+        return unless sip_data && submitted_data
+
+        sip_toxic_exposure = sip_data.dig('form526', 'toxicExposure')
+        submitted_toxic_exposure = submitted_data.dig('form526', 'toxicExposure')
+
+        # Only log if toxic exposure existed in SIP but changed or was removed
+        return if sip_toxic_exposure.nil?
+        return if sip_toxic_exposure == submitted_toxic_exposure
+
+        log_data = {
+          user_uuid:,
+          in_progress_form_id: in_progress_form.id,
+          saved_claim_id: submitted_claim.id,
+          form526_submission_id: submission.id,
+          confirmation_number: submitted_claim.confirmation_number,
+          had_toxic_exposure_in_sip: true,
+          has_toxic_exposure_in_submission: !submitted_toxic_exposure.nil?,
+          completely_removed: submitted_toxic_exposure.nil?
+        }
+
+        submit_event(
+          :info,
+          "Form526Submission=#{submission.id} ToxicExposurePurge=detected",
+          "#{self.class::CLAIM_STATS_KEY}.toxic_exposure_purge",
+          log_data
+        )
+      end
+
       private
+
+      # Parse form data from JSON string or Hash
+      def parse_form_data(data)
+        return data if data.is_a?(Hash)
+        return JSON.parse(data) if data.is_a?(String)
+
+        nil
+      rescue JSON::ParserError
+        nil
+      end
 
       # Loops through array of ActiveModel::Error instances and formats a readable log
       def format_active_model_errors(errors)

@@ -799,6 +799,13 @@ features:
     actor_type: user
     description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
     enable_in_development: true
+  disability_526_toxic_exposure_opt_out_data_purge_by_user:
+    actor_type: user
+    description: enables function that removes toxic exposure data if user has opted out from toxic exposure condition on Form 526 submission
+    enable_in_development: true
+  disability_526_log_toxic_exposure_purge:
+    actor_type: user
+    description: enables logging of toxic exposure data purging during Form 526 submission to track when toxic exposure data changes between save-in-progress and submission
   disability_526_track_saved_claim_error:
     actor_type: user
     description: enables improved logging of SavedClaim::DisabilityCompensation::Form526AllClaim save failures

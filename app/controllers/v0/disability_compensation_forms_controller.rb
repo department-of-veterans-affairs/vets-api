@@ -78,6 +78,10 @@ module V0
 
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
+
+      # Log toxic exposure purge after submission is created
+      log_toxic_exposure_purge(saved_claim, submission) if Flipper.enabled?(:disability_526_log_toxic_exposure_purge,
+                                                                            @current_user)
       # if jid = 0 then the submission was prevented from going any further in the process
       jid = 0
 
@@ -273,6 +277,27 @@ module V0
 
     def monitor
       @monitor ||= DisabilityCompensation::Loggers::Monitor.new
+    end
+
+    def log_toxic_exposure_purge(saved_claim, submission)
+      in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user)
+      return unless in_progress_form
+
+      monitor.track_toxic_exposure_purge(
+        in_progress_form:,
+        submitted_claim: saved_claim,
+        submission:,
+        user_uuid: @current_user.uuid
+      )
+    rescue => e
+      # Don't fail submission if logging fails
+      Rails.logger.error(
+        'Error logging toxic exposure purge',
+        user_uuid: @current_user&.uuid,
+        saved_claim_id: saved_claim&.id,
+        submission_id: submission&.id,
+        error: e.message
+      )
     end
   end
 end
