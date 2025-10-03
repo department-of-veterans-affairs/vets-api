@@ -12,7 +12,7 @@ module VAOS
       extend Memoist
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
-      AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
+      AVS_ERROR_MESSAGE = 'Error retrieving AVS info'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
 
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
@@ -537,6 +537,10 @@ module VAOS
         @reason_code_service ||= VAOS::V2::AppointmentsReasonCodeService.new
       end
 
+      def unified_health_data_service
+        @unified_health_data_service ||= UnifiedHealthData::Service.new(user)
+      end
+
       def log_cnp_appt_count(cnp_count)
         Rails.logger.info('Compensation and Pension count on an appointment list retrieval',
                           { CompPenCount: cnp_count }.to_json)
@@ -613,6 +617,23 @@ module VAOS
         avs_path(data[:sid])
       end
 
+      def get_avs_pdf(appt)
+        return nil if appt[:station].nil? || appt[:ien].nil?
+
+        # TODO: check if needs to be get single
+        avs_resp = unified_health_data_service.get_care_summaries_and_notes
+
+        return nil if avs_resp.body.empty? # TODO: other conditions?
+
+        data = avs_resp.body.first.with_indifferent_access # TODO how to access, check response structure
+
+        # TODO: is this check relevant? what is the response data structure? awaiting swagger...
+        if data[:icn].nil? || !icns_match?(data[:icn], user[:icn])
+          Rails.logger.warn('VAOS: AVS response ICN does not match user ICN')
+          return nil
+        end
+      end
+
       # Fetches the After Visit Summary (AVS) link for an appointment and updates the `:avs_path` of the `appt`..
       #
       # In case of an error the method logs the error details and sets the `:avs_path` attribute of `appt` to `nil`.
@@ -623,6 +644,9 @@ module VAOS
       def fetch_avs_and_update_appt_body(appt)
         if appt[:id].nil?
           appt[:avs_path] = nil
+        elsif VAOS::AppointmentsHelper.cerner?(appt)
+          avs_pdf = get_avs_pdf(appt)
+          appt[:avs_pdf] = avs_pdf
         else
           avs_link = get_avs_link(appt)
           appt[:avs_path] = avs_link
@@ -630,7 +654,7 @@ module VAOS
       rescue => e
         err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
         Rails.logger.error("VAOS: Error retrieving AVS link: #{e.class}, #{e.message} \n   #{err_stack}")
-        appt[:avs_path] = AVS_ERROR_MESSAGE
+        appt[:avs_error] = AVS_ERROR_MESSAGE
       end
 
       # Determines if the appointment cannot be cancelled.
