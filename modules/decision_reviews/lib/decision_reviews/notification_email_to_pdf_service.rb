@@ -3,74 +3,29 @@
 require 'prawn/table'
 
 module DecisionReviews
-  # Service to convert notification email content to PDF format
-  # Handles all 6 template types: HLR/NOD/SC form errors, NOD/SC evidence errors, and SC secondary form errors
   class NotificationEmailToPdfService
-    # Template type constants matching the email job patterns
-    TEMPLATE_TYPES = {
-      form: {
-        'HLR' => 'higher_level_review_form_error',
-        'NOD' => 'notice_of_disagreement_form_error',
-        'SC' => 'supplemental_claim_form_error'
-      },
-      evidence: {
-        'NOD' => 'notice_of_disagreement_evidence_error',
-        'SC' => 'supplemental_claim_evidence_error'
-      },
-      secondary_form: {
-        'SC' => 'supplemental_claim_secondary_form_error'
-      }
-    }.freeze
-
-    def initialize(email_content:, email_subject:, email_address:, sent_date:, submission_date:, template_type:, appeal_type: nil)
+    def initialize(email_content:, email_subject:, email_address:, sent_date:, submission_date:, first_name:, evidence_filename: nil)
       @email_content = email_content
       @email_subject = email_subject
       @email_address = email_address
       @sent_date = sent_date
       @submission_date = submission_date
-      @template_type = template_type.to_sym
-      @appeal_type = appeal_type
-
-      validate_template_type!
+      @first_name = first_name
+      @evidence_filename = evidence_filename
     end
 
-    # Generate PDF from email content and save to temporary file
-    # Returns the file path to the generated PDF
     def generate_pdf
       pdf_content = build_pdf_content
       generate_pdf_file(pdf_content)
     end
 
-    # Get the full template identifier for this email
-    def template_identifier
-      case @template_type
-      when :form, :evidence
-        TEMPLATE_TYPES[@template_type][@appeal_type]
-      when :secondary_form
-        TEMPLATE_TYPES[@template_type]['SC']
-      end
-    end
-
     private
 
-    def validate_template_type!
-      unless TEMPLATE_TYPES.key?(@template_type)
-        raise ArgumentError, "Invalid template_type: #{@template_type}. Must be one of: #{TEMPLATE_TYPES.keys.join(', ')}"
-      end
-
-      case @template_type
-      when :form, :evidence
-        unless @appeal_type && TEMPLATE_TYPES[@template_type].key?(@appeal_type)
-          valid_types = TEMPLATE_TYPES[@template_type].keys.join(', ')
-          raise ArgumentError, "Invalid appeal_type for #{@template_type}: #{@appeal_type}. Must be one of: #{valid_types}"
-        end
-      when :secondary_form
-        # Secondary form is only for SC type, no additional validation needed
-      end
-    end
-
     def build_pdf_content
-      <<~CONTENT
+      # Replace redacted fields in email content with personalization data
+      personalized_content = replace_redacted_fields(@email_content)
+
+      content = <<~CONTENT
         Decision Reviews Notification Email
         ==================================
 
@@ -78,17 +33,43 @@ module DecisionReviews
         ---------------
         To: #{@email_address}
         Subject: #{@email_subject}
-        Template Type: #{template_identifier}
-        Sent Date: #{@sent_date.strftime('%B %d, %Y at %I:%M %p %Z')}
+        Email Sent Date: #{@sent_date.strftime('%B %d, %Y at %I:%M %p %Z')}
         Original Submission Date: #{@submission_date.strftime('%B %d, %Y at %I:%M %p %Z')}
+      CONTENT
+
+      if @evidence_filename
+        content += "Evidence Filename: #{@evidence_filename}\n"
+      end
+
+      content += <<~CONTENT
 
         Email Content:
         --------------
-        #{@email_content}
+        #{personalized_content}
 
         ---
         This PDF was generated from a VA notification email sent via VA Notify service.
       CONTENT
+
+      content
+    end
+
+    # Replace <redacted> placeholders with actual personalization values
+    def replace_redacted_fields(content)
+      # 1. Replace the first <redacted> after "Dear" with first name
+      content = content.sub(/Dear\s+<redacted>/i, "Dear #{@first_name}")
+
+      # 2. If evidence filename exists, replace <redacted> after "Here's the file name of the document we need"
+      if @evidence_filename
+        content = content.gsub(/Here's the file name of the document we need[:\s]*<redacted>/i,
+                              "Here's the file name of the document we need: #{@evidence_filename}")
+      end
+
+      # 3. Replace any remaining <redacted> fields with formatted submission date
+      formatted_submission_date = @submission_date.strftime('%B %d, %Y')
+      content = content.gsub('<redacted>', formatted_submission_date)
+
+      content
     end
 
     def generate_pdf_file(content)
@@ -153,7 +134,7 @@ module DecisionReviews
           pdf.font 'Helvetica-Bold', size: 14
           pdf.text line
           pdf.move_down 8
-        when /^(To|Subject|Template Type|Sent Date|Original Submission Date):/
+        when /^(To|Subject|Email Sent Date|Original Submission Date|Evidence Filename):/
           # Format metadata as key-value pairs
           key, value = line.split(':', 2)
           pdf.font 'Helvetica-Bold', size: 11
@@ -189,7 +170,6 @@ module DecisionReviews
     end
 
     def generate_document_id
-      # Generate a unique document ID for tracking
       "DR-EMAIL-#{Time.current.strftime('%Y%m%d')}-#{SecureRandom.hex(4).upcase}"
     end
   end
