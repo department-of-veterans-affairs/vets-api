@@ -4,3 +4,5 @@ vye:
   scrypt:
     # NOTE: This is a random salt for testing purposes only.
     salt: 'testing-vye-scrypt-salt'
+  s3:
+    bucket: 'test-bucket'
