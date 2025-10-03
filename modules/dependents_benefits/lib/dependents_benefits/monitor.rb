@@ -64,6 +64,16 @@ module DependentsBenefits
       track_warning_event(message, PREFILL_STATS_KEY, **context)
     end
 
+    def track_user_data_error(message, action, options = {})
+      options[:tags] = ["action:user_data.#{action}"]
+      track_error_event(message, CLAIM_STATS_KEY, options)
+    end
+
+    def track_user_data_warning(message, action, options = {})
+      options[:tags] = ["action:user_data.#{action}"]
+      track_warning_event(message, CLAIM_STATS_KEY, options)
+    end
+
     private
 
     # append tags to the context being logged
