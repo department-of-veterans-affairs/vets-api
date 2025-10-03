@@ -108,154 +108,57 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
 
   describe('#track_toxic_exposure_purge') do
     let(:user_uuid) { '123e4567-e89b-12d3-a456-426614174000' }
-    let(:in_progress_form) do
-      create(:in_progress_form, form_id: '21-526EZ', form_data: {
-               'form526' => {
-                 'toxicExposure' => {
-                   'conditions' => { 'asthma' => true },
-                   'gulfWar1990' => { 'iraq' => true }
-                 }
-               }
-             })
+    let(:sip_data) do
+      { 'form526' => { 'toxicExposure' => { 'conditions' => { 'asthma' => true },
+                                            'gulfWar1990' => { 'iraq' => true } } } }
     end
+    let(:in_progress_form) { create(:in_progress_form, form_id: '21-526EZ', form_data: sip_data) }
     let(:saved_claim) { build(:fake_saved_claim, form_id: described_class::FORM_ID, guid: '1234') }
     let(:submission) { instance_double(Form526Submission, id: 67_890) }
 
-    context 'when toxic exposure key is removed' do
-      before do
-        allow(saved_claim).to receive(:form).and_return({
-          'form526' => {
-            'toxicExposure' => {
-              'conditions' => { 'asthma' => true }
-            }
-          }
-        }.to_json)
-      end
-
-      it 'logs toxic exposure purge detection with removed keys' do
+    shared_examples 'logs purge event' do |removed:, modified:, completely_removed:|
+      it 'logs with correct keys' do
         expect(monitor).to receive(:submit_event).with(
           :info,
           "Form526Submission=#{submission.id} ToxicExposurePurge=detected",
           "#{described_class::CLAIM_STATS_KEY}.toxic_exposure_purge",
-          hash_including(
-            user_uuid:,
-            in_progress_form_id: in_progress_form.id,
-            saved_claim_id: saved_claim.id,
-            form526_submission_id: submission.id,
-            confirmation_number: saved_claim.confirmation_number,
-            had_toxic_exposure_in_sip: true,
-            has_toxic_exposure_in_submission: true,
-            completely_removed: false,
-            removed_keys: ['gulfWar1990'],
-            modified_keys: []
-          )
+          hash_including(removed_keys: removed, modified_keys: modified, completely_removed:)
         )
-
-        monitor.track_toxic_exposure_purge(
-          in_progress_form:,
-          submitted_claim: saved_claim,
-          submission:,
-          user_uuid:
-        )
+        monitor.track_toxic_exposure_purge(in_progress_form:, submitted_claim: saved_claim, submission:, user_uuid:)
       end
     end
 
-    context 'when toxic exposure key is modified' do
+    context 'when key removed' do
       before do
-        allow(saved_claim).to receive(:form).and_return({
-          'form526' => {
-            'toxicExposure' => {
-              'conditions' => { 'asthma' => true },
-              'gulfWar1990' => { 'kuwait' => true }
-            }
-          }
-        }.to_json)
+        form_data = { 'form526' => { 'toxicExposure' => { 'conditions' => { 'asthma' => true } } } }
+        allow(saved_claim).to receive(:form).and_return(form_data.to_json)
       end
 
-      it 'logs toxic exposure purge detection with modified keys' do
-        expect(monitor).to receive(:submit_event).with(
-          :info,
-          "Form526Submission=#{submission.id} ToxicExposurePurge=detected",
-          "#{described_class::CLAIM_STATS_KEY}.toxic_exposure_purge",
-          hash_including(
-            user_uuid:,
-            in_progress_form_id: in_progress_form.id,
-            saved_claim_id: saved_claim.id,
-            form526_submission_id: submission.id,
-            confirmation_number: saved_claim.confirmation_number,
-            had_toxic_exposure_in_sip: true,
-            has_toxic_exposure_in_submission: true,
-            completely_removed: false,
-            removed_keys: [],
-            modified_keys: ['gulfWar1990']
-          )
-        )
-
-        monitor.track_toxic_exposure_purge(
-          in_progress_form:,
-          submitted_claim: saved_claim,
-          submission:,
-          user_uuid:
-        )
-      end
+      include_examples 'logs purge event', removed: ['gulfWar1990'], modified: [], completely_removed: false
     end
 
-    context 'when entire toxic exposure section is removed' do
+    context 'when key modified' do
       before do
-        allow(saved_claim).to receive(:form).and_return({
-          'form526' => {}
-        }.to_json)
+        allow(saved_claim).to receive(:form).and_return({ 'form526' => { 'toxicExposure' => {
+          'conditions' => { 'asthma' => true }, 'gulfWar1990' => { 'kuwait' => true }
+        } } }.to_json)
       end
 
-      it 'logs complete removal with all keys removed' do
-        expect(monitor).to receive(:submit_event).with(
-          :info,
-          "Form526Submission=#{submission.id} ToxicExposurePurge=detected",
-          "#{described_class::CLAIM_STATS_KEY}.toxic_exposure_purge",
-          hash_including(
-            user_uuid:,
-            in_progress_form_id: in_progress_form.id,
-            saved_claim_id: saved_claim.id,
-            form526_submission_id: submission.id,
-            confirmation_number: saved_claim.confirmation_number,
-            had_toxic_exposure_in_sip: true,
-            has_toxic_exposure_in_submission: false,
-            completely_removed: true,
-            removed_keys: %w[conditions gulfWar1990],
-            modified_keys: []
-          )
-        )
-
-        monitor.track_toxic_exposure_purge(
-          in_progress_form:,
-          submitted_claim: saved_claim,
-          submission:,
-          user_uuid:
-        )
-      end
+      include_examples 'logs purge event', removed: [], modified: ['gulfWar1990'], completely_removed: false
     end
 
-    context 'when toxic exposure data unchanged' do
-      before do
-        allow(saved_claim).to receive(:form).and_return({
-          'form526' => {
-            'toxicExposure' => {
-              'conditions' => { 'asthma' => true },
-              'gulfWar1990' => { 'iraq' => true }
-            }
-          }
-        }.to_json)
-      end
+    context 'when completely removed' do
+      before { allow(saved_claim).to receive(:form).and_return({ 'form526' => {} }.to_json) }
+
+      include_examples 'logs purge event', removed: %w[conditions gulfWar1990], modified: [], completely_removed: true
+    end
+
+    context 'when unchanged' do
+      before { allow(saved_claim).to receive(:form).and_return(sip_data.to_json) }
 
       it 'does not log' do
         expect(monitor).not_to receive(:submit_event)
-
-        monitor.track_toxic_exposure_purge(
-          in_progress_form:,
-          submitted_claim: saved_claim,
-          submission:,
-          user_uuid:
-        )
+        monitor.track_toxic_exposure_purge(in_progress_form:, submitted_claim: saved_claim, submission:, user_uuid:)
       end
     end
   end
