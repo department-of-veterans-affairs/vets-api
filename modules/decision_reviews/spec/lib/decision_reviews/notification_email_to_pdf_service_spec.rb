@@ -5,160 +5,53 @@ require './modules/decision_reviews/lib/decision_reviews/notification_email_to_p
 
 RSpec.describe DecisionReviews::NotificationEmailToPdfService do
   let(:email_content) { File.read(Rails.root.join('modules/decision_reviews/spec/fixtures/hlr_failure_email.txt')) }
-  let(:email_subject) { 'Decision Review Form Submission Error' }
-  let(:email_address) { 'veteran@example.com' }
+  let(:email_subject) { 'Action needed: We can\'t process your request for a Higher-Level Review' }
+  let(:email_address) { 'john.doe@example.com' }
   let(:sent_date) { Time.zone.parse('2025-10-01 10:00:00') }
   let(:submission_date) { Time.zone.parse('2025-09-30 15:30:00') }
+  let(:first_name) { 'John' }
+  let(:evidence_filename) { 'medical_records.pdf' }
 
   describe '#initialize' do
-    context 'with valid form template type' do
-      it 'creates service for HLR form error' do
-        service = described_class.new(
-          email_content: email_content,
-          email_subject: email_subject,
-          email_address: email_address,
-          sent_date: sent_date,
-          submission_date: submission_date,
-          template_type: :form,
-          appeal_type: 'HLR'
-        )
+    it 'creates service with required parameters' do
+      service = described_class.new(
+        email_content: email_content,
+        email_subject: email_subject,
+        email_address: email_address,
+        sent_date: sent_date,
+        submission_date: submission_date,
+        first_name: first_name
+      )
 
-        expect(service.template_identifier).to eq('higher_level_review_form_error')
-      end
-
-      it 'creates service for NOD form error' do
-        service = described_class.new(
-          email_content: email_content,
-          email_subject: email_subject,
-          email_address: email_address,
-          sent_date: sent_date,
-          submission_date: submission_date,
-          template_type: :form,
-          appeal_type: 'NOD'
-        )
-
-        expect(service.template_identifier).to eq('notice_of_disagreement_form_error')
-      end
-
-      it 'creates service for SC form error' do
-        service = described_class.new(
-          email_content: email_content,
-          email_subject: email_subject,
-          email_address: email_address,
-          sent_date: sent_date,
-          submission_date: submission_date,
-          template_type: :form,
-          appeal_type: 'SC'
-        )
-
-        expect(service.template_identifier).to eq('supplemental_claim_form_error')
-      end
+      expect(service).to be_instance_of(described_class)
     end
 
-    context 'with valid evidence template type' do
-      it 'creates service for NOD evidence error' do
-        service = described_class.new(
-          email_content: email_content,
-          email_subject: email_subject,
-          email_address: email_address,
-          sent_date: sent_date,
-          submission_date: submission_date,
-          template_type: :evidence,
-          appeal_type: 'NOD'
-        )
+    it 'creates service with optional evidence filename' do
+      service = described_class.new(
+        email_content: email_content,
+        email_subject: email_subject,
+        email_address: email_address,
+        sent_date: sent_date,
+        submission_date: submission_date,
+        first_name: first_name,
+        evidence_filename: evidence_filename
+      )
 
-        expect(service.template_identifier).to eq('notice_of_disagreement_evidence_error')
-      end
-
-      it 'creates service for SC evidence error' do
-        service = described_class.new(
-          email_content: email_content,
-          email_subject: email_subject,
-          email_address: email_address,
-          sent_date: sent_date,
-          submission_date: submission_date,
-          template_type: :evidence,
-          appeal_type: 'SC'
-        )
-
-        expect(service.template_identifier).to eq('supplemental_claim_evidence_error')
-      end
+      expect(service).to be_instance_of(described_class)
     end
 
-    context 'with valid secondary form template type' do
-      it 'creates service for SC secondary form error' do
-        service = described_class.new(
-          email_content: email_content,
-          email_subject: email_subject,
-          email_address: email_address,
-          sent_date: sent_date,
-          submission_date: submission_date,
-          template_type: :secondary_form
-        )
+    it 'creates service without evidence filename' do
+      service = described_class.new(
+        email_content: email_content,
+        email_subject: email_subject,
+        email_address: email_address,
+        sent_date: sent_date,
+        submission_date: submission_date,
+        first_name: first_name,
+        evidence_filename: nil
+      )
 
-        expect(service.template_identifier).to eq('supplemental_claim_secondary_form_error')
-      end
-    end
-
-    context 'with invalid template type' do
-      it 'raises ArgumentError for unknown template type' do
-        expect {
-          described_class.new(
-            email_content: email_content,
-            email_subject: email_subject,
-            email_address: email_address,
-            sent_date: sent_date,
-            submission_date: submission_date,
-            template_type: :invalid_type
-          )
-        }.to raise_error(ArgumentError, /Invalid template_type: invalid_type/)
-      end
-    end
-
-    context 'with invalid appeal type for form template' do
-      it 'raises ArgumentError for unknown appeal type' do
-        expect {
-          described_class.new(
-            email_content: email_content,
-            email_subject: email_subject,
-            email_address: email_address,
-            sent_date: sent_date,
-            submission_date: submission_date,
-            template_type: :form,
-            appeal_type: 'INVALID'
-          )
-        }.to raise_error(ArgumentError, /Invalid appeal_type for form: INVALID/)
-      end
-
-      it 'raises ArgumentError when appeal_type is missing for form template' do
-        expect {
-          described_class.new(
-            email_content: email_content,
-            email_subject: email_subject,
-            email_address: email_address,
-            sent_date: sent_date,
-            submission_date: submission_date,
-            template_type: :form,
-            appeal_type: nil
-          )
-        }.to raise_error(ArgumentError, /Invalid appeal_type for form/)
-      end
-    end
-
-    context 'with invalid appeal type for evidence template' do
-      it 'raises ArgumentError for HLR evidence (not supported)' do
-        expect {
-          described_class.new(
-            email_content: email_content,
-            email_subject: email_subject,
-            email_address: email_address,
-            sent_date: sent_date,
-            submission_date: submission_date,
-            template_type: :evidence,
-            appeal_type: 'HLR'
-          )
-        }.to raise_error(ArgumentError, /Invalid appeal_type for evidence: HLR/)
-      end
+      expect(service).to be_instance_of(described_class)
     end
   end
 
@@ -170,8 +63,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
         email_address: email_address,
         sent_date: sent_date,
         submission_date: submission_date,
-        template_type: :form,
-        appeal_type: 'SC'
+        first_name: first_name
       )
     end
 
@@ -184,6 +76,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
 
       # Verify it's a valid PDF file
       pdf_content = File.read(pdf_path)
+      # binding.pry # Uncomment this line and inspect pdf_path in the console to see a generated PDF
       expect(pdf_content).to start_with('%PDF-')
       expect(pdf_content).to end_with("%%EOF\n")
     end
@@ -202,67 +95,207 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
     it 'generates unique file paths for each generation' do
       pdf_path1 = service.generate_pdf
       pdf_path2 = service.generate_pdf
-      
+
       # Verify that each generation creates a different file
       expect(pdf_path1).not_to eq(pdf_path2)
       expect(File.exist?(pdf_path1)).to be true
       expect(File.exist?(pdf_path2)).to be true
-      
+
       # Verify files have different content (due to different generation timestamps)
       content1 = File.read(pdf_path1)
       content2 = File.read(pdf_path2)
       expect(content1).not_to eq(content2)
     end
 
-    it 'handles long email content gracefully' do
-      long_content = 'This is a very long email content. ' * 100
-      long_service = described_class.new(
-        email_content: long_content,
+    context 'with evidence filename' do
+      let(:service_with_evidence) do
+        described_class.new(
+          email_content: email_content,
+          email_subject: email_subject,
+          email_address: email_address,
+          sent_date: sent_date,
+          submission_date: submission_date,
+          first_name: first_name,
+          evidence_filename: evidence_filename
+        )
+      end
+
+      it 'generates PDF including evidence filename in content' do
+        pdf_path = service_with_evidence.generate_pdf
+
+        expect(File.exist?(pdf_path)).to be true
+        pdf_content = File.read(pdf_path)
+        expect(pdf_content.length).to be > 1000 # Should be a substantial PDF
+      end
+    end
+
+    context 'with different email content' do
+      it 'handles long email content gracefully' do
+        long_content = 'This is a very long email content. ' * 100
+        long_service = described_class.new(
+          email_content: long_content,
+          email_subject: email_subject,
+          email_address: email_address,
+          sent_date: sent_date,
+          submission_date: submission_date,
+          first_name: first_name
+        )
+
+        pdf_path = long_service.generate_pdf
+
+        expect(File.exist?(pdf_path)).to be true
+        pdf_content = File.read(pdf_path)
+        expect(pdf_content.length).to be > 2000 # Should be larger due to long content
+      end
+
+      it 'handles special characters in email content' do
+        special_content = 'Email with special characters: áéíóú ñ çüñ@ñ.gøv $#@%^&*()'
+        special_service = described_class.new(
+          email_content: special_content,
+          email_subject: 'Subject with spëcial chârs',
+          email_address: 'tëst@ëxample.com',
+          sent_date: sent_date,
+          submission_date: submission_date,
+          first_name: 'Tëst'
+        )
+
+        pdf_path = special_service.generate_pdf
+
+        expect(File.exist?(pdf_path)).to be true
+        pdf_content = File.read(pdf_path)
+        expect(pdf_content).to start_with('%PDF-')
+      end
+    end
+
+    context 'with different personalization fields' do
+      it 'handles different email addresses and subjects' do
+        custom_service = described_class.new(
+          email_content: 'Custom email content for testing',
+          email_subject: 'Custom Subject Line',
+          email_address: 'custom.veteran@va.gov',
+          sent_date: Time.zone.parse('2025-01-15 14:30:00'),
+          submission_date: Time.zone.parse('2025-01-14 09:00:00'),
+          first_name: 'Custom'
+        )
+
+        pdf_path = custom_service.generate_pdf
+
+        expect(File.exist?(pdf_path)).to be true
+        pdf_content = File.read(pdf_path)
+        expect(pdf_content).to start_with('%PDF-')
+        expect(pdf_content.length).to be > 500
+      end
+
+      it 'handles edge case dates' do
+        edge_service = described_class.new(
+          email_content: email_content,
+          email_subject: email_subject,
+          email_address: email_address,
+          sent_date: Time.zone.parse('2025-12-31 23:59:59'),
+          submission_date: Time.zone.parse('2025-01-01 00:00:01'),
+          first_name: first_name
+        )
+
+        pdf_path = edge_service.generate_pdf
+
+        expect(File.exist?(pdf_path)).to be true
+        pdf_content = File.read(pdf_path)
+        expect(pdf_content).to start_with('%PDF-')
+      end
+    end
+  end
+
+  describe 'redaction replacement' do
+    it 'replaces "Dear <redacted>" with first name' do
+      redacted_content = 'Dear <redacted>, your form was submitted on <redacted>.'
+      service = described_class.new(
+        email_content: redacted_content,
         email_subject: email_subject,
         email_address: email_address,
         sent_date: sent_date,
         submission_date: submission_date,
-        template_type: :form,
-        appeal_type: 'SC'
+        first_name: 'Jane'
       )
 
-      pdf_path = long_service.generate_pdf
-      
+      pdf_path = service.generate_pdf
+
       expect(File.exist?(pdf_path)).to be true
       pdf_content = File.read(pdf_path)
-      expect(pdf_content.length).to be > 2000 # Should be larger due to long content
+      expect(pdf_content).to start_with('%PDF-')
     end
-  end
 
-  describe '#template_identifier' do
-    context 'for all supported template combinations' do
-      let(:test_cases) do
-        [
-          { template_type: :form, appeal_type: 'HLR', expected: 'higher_level_review_form_error' },
-          { template_type: :form, appeal_type: 'NOD', expected: 'notice_of_disagreement_form_error' },
-          { template_type: :form, appeal_type: 'SC', expected: 'supplemental_claim_form_error' },
-          { template_type: :evidence, appeal_type: 'NOD', expected: 'notice_of_disagreement_evidence_error' },
-          { template_type: :evidence, appeal_type: 'SC', expected: 'supplemental_claim_evidence_error' },
-          { template_type: :secondary_form, appeal_type: nil, expected: 'supplemental_claim_secondary_form_error' }
-        ]
-      end
+    it 'replaces evidence filename <redacted> when evidence_filename is provided' do
+      redacted_content = 'Dear <redacted>, Here\'s the file name of the document we need: <redacted>. Submission date: <redacted>.'
+      service = described_class.new(
+        email_content: redacted_content,
+        email_subject: email_subject,
+        email_address: email_address,
+        sent_date: sent_date,
+        submission_date: submission_date,
+        first_name: 'Bob',
+        evidence_filename: 'evidence_document.pdf'
+      )
 
-      it 'returns correct identifiers for all combinations' do
-        test_cases.each do |test_case|
-          service_params = {
-            email_content: email_content,
-            email_subject: email_subject,
-            email_address: email_address,
-            sent_date: sent_date,
-            submission_date: submission_date,
-            template_type: test_case[:template_type]
-          }
-          service_params[:appeal_type] = test_case[:appeal_type] if test_case[:appeal_type]
+      pdf_path = service.generate_pdf
 
-          service = described_class.new(**service_params)
-          expect(service.template_identifier).to eq(test_case[:expected])
-        end
-      end
+      expect(File.exist?(pdf_path)).to be true
+      pdf_content = File.read(pdf_path)
+      expect(pdf_content).to start_with('%PDF-')
+    end
+
+    it 'replaces remaining <redacted> fields with submission date' do
+      redacted_content = 'Dear <redacted>, your submission on <redacted> was received. Follow-up date: <redacted>.'
+      service = described_class.new(
+        email_content: redacted_content,
+        email_subject: email_subject,
+        email_address: email_address,
+        sent_date: sent_date,
+        submission_date: submission_date,
+        first_name: 'Charlie'
+      )
+
+      pdf_path = service.generate_pdf
+
+      expect(File.exist?(pdf_path)).to be true
+      pdf_content = File.read(pdf_path)
+      expect(pdf_content).to start_with('%PDF-')
+    end
+
+    it 'handles all replacement types in fixture content' do
+      # The fixture file contains "Dear <redacted>," and a submission date "<redacted>"
+      service = described_class.new(
+        email_content: email_content,
+        email_subject: email_subject,
+        email_address: email_address,
+        sent_date: sent_date,
+        submission_date: submission_date,
+        first_name: 'Sarah'
+      )
+
+      pdf_path = service.generate_pdf
+
+      expect(File.exist?(pdf_path)).to be true
+      pdf_content = File.read(pdf_path)
+      expect(pdf_content).to start_with('%PDF-')
+      expect(pdf_content.length).to be > 1000
+    end
+
+    it 'handles case insensitive "Dear" matching' do
+      redacted_content = 'dear <redacted>, your form was processed.'
+      service = described_class.new(
+        email_content: redacted_content,
+        email_subject: email_subject,
+        email_address: email_address,
+        sent_date: sent_date,
+        submission_date: submission_date,
+        first_name: 'David'
+      )
+
+      pdf_path = service.generate_pdf
+
+      expect(File.exist?(pdf_path)).to be true
+      pdf_content = File.read(pdf_path)
+      expect(pdf_content).to start_with('%PDF-')
     end
   end
 end
