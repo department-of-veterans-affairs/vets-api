@@ -48,11 +48,11 @@ describe AppealsApi::PdfConstruction::Generator do
         let(:generated_pdf) { described_class.new(nod, pdf_version:).generate }
         let(:expected_pdf) { fixture_filepath("decision_reviews/v2/pdfs/#{pdf_version}/#{fixture_name}") }
 
-        #after { FileUtils.rm_f(generated_pdf) }
+        after { FileUtils.rm_f(generated_pdf) }
 
         context 'with required content' do
           let(:fixture_name) { 'expected_10182.pdf' }
-          let(:nod) { create(:notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }          
+          let(:nod) { create(:notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }
 
           it 'generates the expected pdf' do
             expect(generated_pdf).to match_pdf expected_pdf
@@ -259,4 +259,3 @@ describe AppealsApi::PdfConstruction::Generator do
     end
   end
 end
-

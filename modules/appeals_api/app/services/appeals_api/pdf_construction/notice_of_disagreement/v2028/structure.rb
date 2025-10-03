@@ -8,9 +8,9 @@ module AppealsApi
     module NoticeOfDisagreement::V2028
       class Structure
         MAX_ISSUES_ON_MAIN_FORM = 5
-        
-        # Limit the combined Name fields(1. Veterans Name, 2. Appellant Name, 12. Signature) 
-        # length so that if it does get truncated it's consistent across all 3 fields 
+
+        # Limit the combined Name fields(1. Veterans Name, 2. Appellant Name, 12. Signature)
+        # length so that if it does get truncated it's consistent across all 3 fields
         MAX_COMBINED_NAME_FIELD_LENGTH = 164
 
         # Max number of charaters that fits on 1 line in the Specific Issues Column
@@ -51,7 +51,6 @@ module AppealsApi
             }
             pdf.font 'Courier'
 
-            # whiteout(pdf, at: [1, 662], width: 265, height: 24)
             pdf.text_box(
               form_data.veteran_full_name,
               text_opts.merge(
@@ -61,7 +60,6 @@ module AppealsApi
               )
             )
 
-            # whiteout(pdf, at: [1, 626], width: 390, height: 24)
             pdf.text_box(
               form_data.claimant_full_name,
               text_opts.merge(
@@ -71,12 +69,11 @@ module AppealsApi
               )
             )
 
-            # whiteout(pdf, at: [1, 590], width: 370, height: 42)
             pdf.text_box(
               form_data.mailing_address,
               text_opts.merge(
                 at: [1, 590],
-                width: 370, 
+                width: 370,
                 height: 42
               )
             )
@@ -89,8 +86,7 @@ module AppealsApi
                 height: 24
               )
             )
-            
-            #whiteout(pdf, at: [1, 526], width: 183, height: 14)
+
             pdf.text_box(
               form_data.preferred_phone,
               text_opts.merge(
@@ -100,7 +96,6 @@ module AppealsApi
               )
             )
 
-            #whiteout(pdf, at: [368, 537], width: 176, height: 24)
             pdf.text_box(
               form_data.rep_name,
               text_opts.merge(
@@ -112,8 +107,6 @@ module AppealsApi
 
             insert_issues_into_text_boxes(pdf, text_opts)
 
-            
-            #whiteout(pdf, at: [-4,33], width: 398, height: 24)
             pdf.text_box(
               form_data.signature,
               text_opts.merge(
@@ -166,6 +159,18 @@ module AppealsApi
           [1, '4-end', '2-3']
         end
 
+        def self.issue_text_exceeds_column_width?(issue)
+          # Issue Text wont fit in table column on single line
+          return true if issue.text.strip.length > MAX_ISSUE_TABLE_COLUMN_LINE_LENGTH
+
+          disagreement_area = "\nDisagreement: #{issue['attributes']['disagreementArea'].to_s.strip}"
+
+          # Disagreement text wont fit in table column on single line
+          return true if disagreement_area.to_s.length > MAX_ISSUE_TABLE_COLUMN_LINE_LENGTH
+
+          false
+        end
+
         private
 
         attr_accessor :notice_of_disagreement
@@ -184,10 +189,10 @@ module AppealsApi
           # to handle the contestableIssue content, so we fill the date, and do
           # the content afterwards.
           row_index = 0
-          form_data.contestable_issues.take(MAX_ISSUES_ON_MAIN_FORM).each_with_index do |issue, index|
+          form_data.contestable_issues.take(MAX_ISSUES_ON_MAIN_FORM).each do |issue|
             # skip date on form if text won't fit, this issue will show on overflow page
             next if self.class.issue_text_exceeds_column_width?(issue)
-            
+
             options[form_fields.issue_table_decision_date(row_index)] = issue['attributes']['decisionDate']
             row_index += 1
           end
@@ -196,7 +201,6 @@ module AppealsApi
         end
 
         def additional_pages?
-
           return true if overflow_issues?
 
           form_data.long_preferred_email? ||
@@ -205,7 +209,6 @@ module AppealsApi
         end
 
         def overflow_issues?
-
           return true if form_data.contestable_issues.length > MAX_ISSUES_ON_MAIN_FORM
 
           form_data.contestable_issues.take(MAX_ISSUES_ON_MAIN_FORM).each do |issue|
@@ -215,53 +218,26 @@ module AppealsApi
           false
         end
 
-
-        def self.issue_text_exceeds_column_width?(issue)
-
-          # Issue Text wont fit in table column on single line, 
-          return true if issue.text.strip.length > MAX_ISSUE_TABLE_COLUMN_LINE_LENGTH
-
-          disagreement_area = "\nDisagreement: #{issue['attributes']['disagreementArea'].to_s.strip}"
-
-          # Disagreement text wont fit in table column on single line, 
-          return true if disagreement_area.to_s.length > MAX_ISSUE_TABLE_COLUMN_LINE_LENGTH
-
-          false
-        end
-
-
         def insert_issues_into_text_boxes(pdf, text_opts)
           row_index = 0
           form_data.contestable_issues.take(MAX_ISSUES_ON_MAIN_FORM).each do |issue|
-            if issue.text_exists?
-              
-              # text won't fit, leave to overflow page
-              next if self.class.issue_text_exceeds_column_width?(issue)
-
+            if issue.text_exists? && !self.class.issue_text_exceeds_column_width?(issue)
               full_text = issue.text.strip
-
               if (disagreement_area = issue['attributes']['disagreementArea'])
                 full_text += "\nDisagreement: #{disagreement_area.strip}"
               end
-
-              y_pos = 221 - (24 * row_index)
-              #whiteout(pdf, at: [-4,y_pos], width: 465, height: 22)
               pdf.text_box(
                 full_text,
-                text_opts.merge({ at: [-4, y_pos], width: 465, height: 22, valign: :center })
+                text_opts.merge({ at: [-4, 221 - (24 * row_index)], width: 465, height: 22, valign: :center })
               )
               row_index += 1
             end
           end
-          
+
           # display attached page notification only if all issues overflow(issues table is empty)
-          if (row_index == 0) && form_data.contestable_issues.length > 0
-            y_pos = 221 - (24 * row_index)
-              #whiteout(pdf, at: [-4,y_pos], width: 465, height: 22)
-              pdf.text_box(
-                'See attached page for additional issues',
-                text_opts.merge({ at: [-4, y_pos], width: 465, height: 22, valign: :center })
-              )
+          if row_index.zero? && form_data.contestable_issues.length.positive?
+            pdf.text_box('See attached page for additional issues',
+                         text_opts.merge({ at: [-4, 221 - (24 * row_index)], width: 465, height: 22, valign: :center }))
           end
         end
       end

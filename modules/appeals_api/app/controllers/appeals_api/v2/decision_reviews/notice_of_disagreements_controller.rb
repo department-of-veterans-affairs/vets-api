@@ -42,13 +42,9 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
     @notice_of_disagreement.save
 
     # Fill in the VA Nod pdf form and Submit to Central Mail for intake
-    if Flipper.enabled?(:decision_review_nod_v2028_pdf_enabled)
-      pdf_version = 'v2028'
-    else
-      pdf_version = 'v3'
-    end
-    AppealsApi::PdfSubmitJob.perform_async( @notice_of_disagreement.id, 'AppealsApi::NoticeOfDisagreement', pdf_version)
-    
+    pdf_version = Flipper.enabled?(:decision_review_nod_v2028_pdf_enabled) ? 'v2028' : 'v3'
+    AppealsApi::PdfSubmitJob.perform_async(@notice_of_disagreement.id, 'AppealsApi::NoticeOfDisagreement', pdf_version)
+
     render_notice_of_disagreement
   end
 

@@ -5,7 +5,7 @@ module AppealsApi
     module NoticeOfDisagreement::V2028
       module Pages
         class LongDataAndExtraIssues
-          MAX_ISSUES_ON_FIRST_PAGE = 5
+          MAX_ISSUES_ON_FIRST_PAGE = NoticeOfDisagreement::V2028::Structure::MAX_ISSUES_ON_MAIN_FORM
 
           def initialize(pdf, form_data)
             @pdf = pdf # Prawn::Document
@@ -38,13 +38,13 @@ module AppealsApi
           end
 
           def extra_issues?
-            return true if form_data.contestable_issues.count > NoticeOfDisagreement::V2028::Structure::MAX_ISSUES_ON_MAIN_FORM
+            return true if form_data.contestable_issues.count > MAX_ISSUES_ON_FIRST_PAGE
 
             # Look for issues skipped because their text is too long to fit in form issues table
-            form_data.contestable_issues.take(NoticeOfDisagreement::V2028::Structure::MAX_ISSUES_ON_MAIN_FORM).each do |issue|
+            form_data.contestable_issues.take(MAX_ISSUES_ON_FIRST_PAGE).each do |issue|
               return true if NoticeOfDisagreement::V2028::Structure.issue_text_exceeds_column_width?(issue)
             end
-      
+
             false
           end
 
@@ -60,12 +60,11 @@ module AppealsApi
 
             form_data.contestable_issues.take(MAX_ISSUES_ON_FIRST_PAGE).each do |issue|
               if issue.text_exists?
-                
                 # text fit on issues form table, so skip it here in overflow
-                next if !NoticeOfDisagreement::V2028::Structure.issue_text_exceeds_column_width?(issue)
+                next unless NoticeOfDisagreement::V2028::Structure.issue_text_exceeds_column_width?(issue)
 
                 data << [issue['attributes']['issue'], issue['attributes']['disagreementArea'],
-                issue['attributes']['decisionDate']]
+                         issue['attributes']['decisionDate']]
               end
             end
 

@@ -4,7 +4,6 @@ module AppealsApi
   module PdfConstruction
     module NoticeOfDisagreement::V2028
       class FormFields
-        
         def veteran_file_number
           'form1[0].#subform[0].VETERANSFILENUMBER[0]'
         end
@@ -40,7 +39,6 @@ module AppealsApi
         def board_review_option_hearing_type
           'form1[0].#subform[0].RadioButtonList[1]'
         end
-
 
         def direct_review
           'form1[0].#subform[0].RadioButtonList[0]'
@@ -82,4 +80,3 @@ module AppealsApi
     end
   end
 end
-
