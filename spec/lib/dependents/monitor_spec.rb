@@ -51,6 +51,8 @@ RSpec.describe Dependents::Monitor do
 
   context 'v1' do
     describe '#track_submission_exhaustion' do
+      let(:tags) { ['form_id:686C-674', 'service:dependents-application', 'v2:false'] }
+
       it 'logs sidekiq job exhaustion' do
         msg = { 'args' => [claim.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
 
@@ -60,14 +62,13 @@ RSpec.describe Dependents::Monitor do
           claim:,
           error: msg,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:false'],
+          tags:,
           use_v2: false,
           user_account_uuid: nil
         }
-        tags = { tags: ['service:dependents-application', 'v2:false'] }
 
         expect(monitor_v1).to receive(:log_silent_failure).with(payload, anything)
-        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted", tags)
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted", tags:)
         expect(Rails.logger).to receive(:error).with(log)
 
         monitor_v1.track_submission_exhaustion(msg)
@@ -82,14 +83,13 @@ RSpec.describe Dependents::Monitor do
           claim:,
           error: msg,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:false'],
+          tags:,
           use_v2: false,
           user_account_uuid: nil
         }
-        tags = { tags: ['service:dependents-application', 'v2:false'] }
 
         expect(monitor_v1).to receive(:log_silent_failure_avoided).with(payload, anything)
-        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted", tags)
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted", tags:)
         expect(Rails.logger).to receive(:error).with(log)
 
         monitor_v1.track_submission_exhaustion(msg, user_struct.va_profile_email)
@@ -97,12 +97,12 @@ RSpec.describe Dependents::Monitor do
     end
 
     describe '#track_event' do
-      let(:tags) { { tags: ['service:dependents-application', 'function:track_event', 'v2:false'] } }
+      let(:tags) { ['service:dependents-application', 'function:track_event', 'form_id:686C-674', 'v2:false'] }
 
       it 'handles an error' do
-        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
-        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
-        expect(StatsD).to receive(:increment).with('test.monitor.exhaustion', tags)
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).once
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).twice
+        expect(StatsD).to receive(:increment).with('test.monitor.exhaustion', tags:)
         expect(Rails.logger).to receive(:error).with('Error!', {
                                                        context: {
                                                          claim_id: claim.id,
@@ -110,7 +110,8 @@ RSpec.describe Dependents::Monitor do
                                                          error: 'test',
                                                          form_id: '686C-674',
                                                          service: 'dependents-application',
-                                                         tags: ['service:dependents-application', 'v2:false'],
+                                                         tags: ['form_id:686C-674', 'service:dependents-application',
+                                                                'v2:false'],
                                                          use_v2: false,
                                                          user_account_uuid: nil
                                                        },
@@ -121,13 +122,13 @@ RSpec.describe Dependents::Monitor do
                                                        statsd: 'test.monitor.exhaustion'
                                                      })
 
-        monitor_v1.track_event('error', 'Error!', 'test.monitor.exhaustion', { error: 'test' })
+        monitor_v1.track_event('error', 'Error!', 'test.monitor.exhaustion', error: 'test')
       end
 
       it 'handles an info log' do
-        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
-        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
-        expect(StatsD).to receive(:increment).with('test.monitor.success', tags)
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).once
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).twice
+        expect(StatsD).to receive(:increment).with('test.monitor.success', tags:)
         expect(Rails.logger).to receive(:info).with('Success!', {
                                                       context: {
                                                         claim_id: claim.id,
@@ -135,7 +136,8 @@ RSpec.describe Dependents::Monitor do
                                                         error: 'test',
                                                         form_id: '686C-674',
                                                         service: 'dependents-application',
-                                                        tags: ['service:dependents-application', 'v2:false'],
+                                                        tags: ['form_id:686C-674', 'service:dependents-application',
+                                                               'v2:false'],
                                                         use_v2: false,
                                                         user_account_uuid: nil
                                                       },
@@ -146,13 +148,13 @@ RSpec.describe Dependents::Monitor do
                                                       statsd: 'test.monitor.success'
                                                     })
 
-        monitor_v1.track_event('info', 'Success!', 'test.monitor.success', { error: 'test' })
+        monitor_v1.track_event('info', 'Success!', 'test.monitor.success', error: 'test')
       end
 
       it 'handles a warning' do
-        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
-        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
-        expect(StatsD).to receive(:increment).with('test.monitor.failure', tags)
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).once
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).twice
+        expect(StatsD).to receive(:increment).with('test.monitor.failure', tags:)
         expect(Rails.logger).to receive(:warn).with('Oops!', {
                                                       context: {
                                                         claim_id: claim.id,
@@ -160,7 +162,8 @@ RSpec.describe Dependents::Monitor do
                                                         error: 'test',
                                                         form_id: '686C-674',
                                                         service: 'dependents-application',
-                                                        tags: ['service:dependents-application', 'v2:false'],
+                                                        tags: ['form_id:686C-674', 'service:dependents-application',
+                                                               'v2:false'],
                                                         use_v2: false,
                                                         user_account_uuid: nil
                                                       },
@@ -171,13 +174,15 @@ RSpec.describe Dependents::Monitor do
                                                       statsd: 'test.monitor.failure'
                                                     })
 
-        monitor_v1.track_event('warn', 'Oops!', 'test.monitor.failure', { error: 'test' })
+        monitor_v1.track_event('warn', 'Oops!', 'test.monitor.failure', error: 'test')
       end
     end
   end
 
   context 'v2' do
     describe '#track_submission_exhaustion' do
+      let(:tags) { ['form_id:686C-674-V2', 'service:dependents-application', 'v2:true'] }
+
       it 'logs sidekiq job exhaustion' do
         msg = { 'args' => [claim_v2.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
 
@@ -187,14 +192,13 @@ RSpec.describe Dependents::Monitor do
           claim: claim_v2,
           error: msg,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:true'],
+          tags:,
           use_v2: true,
           user_account_uuid: nil
         }
 
         expect(monitor_v2).to receive(:log_silent_failure).with(payload, anything)
-        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted",
-                                                   { tags: ['service:dependents-application', 'v2:true'] })
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted", tags:)
         expect(Rails.logger).to receive(:error).with(log)
 
         monitor_v2.track_submission_exhaustion(msg)
@@ -209,14 +213,13 @@ RSpec.describe Dependents::Monitor do
           claim: claim_v2,
           error: msg,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:true'],
+          tags: ['form_id:686C-674-V2', 'service:dependents-application', 'v2:true'],
           use_v2: true,
           user_account_uuid: nil
         }
 
         expect(monitor_v2).to receive(:log_silent_failure_avoided).with(payload, anything)
-        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted",
-                                                   { tags: ['service:dependents-application', 'v2:true'] })
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted", tags:)
         expect(Rails.logger).to receive(:error).with(log)
 
         monitor_v2.track_submission_exhaustion(msg, user_struct.va_profile_email)
@@ -224,12 +227,12 @@ RSpec.describe Dependents::Monitor do
     end
 
     describe '#track_event' do
-      let(:tags) { { tags: ['service:dependents-application', 'function:track_event', 'v2:true'] } }
+      let(:tags) { ['service:dependents-application', 'function:track_event', 'form_id:686C-674-V2', 'v2:true'] }
 
       it 'handles an error' do
-        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
-        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
-        expect(StatsD).to receive(:increment).with('test.monitor.exhaustion', tags)
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).once
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).once
+        expect(StatsD).to receive(:increment).with('test.monitor.exhaustion', tags:)
         expect(Rails.logger).to receive(:error).with('Error!', {
                                                        context: {
                                                          claim_id: claim_v2.id,
@@ -237,7 +240,8 @@ RSpec.describe Dependents::Monitor do
                                                          error: 'test',
                                                          form_id: '686C-674-V2',
                                                          service: 'dependents-application',
-                                                         tags: ['service:dependents-application', 'v2:true'],
+                                                         tags: ['form_id:686C-674-V2',
+                                                                'service:dependents-application', 'v2:true'],
                                                          use_v2: true,
                                                          user_account_uuid: nil
                                                        },
@@ -248,13 +252,13 @@ RSpec.describe Dependents::Monitor do
                                                        statsd: 'test.monitor.exhaustion'
                                                      })
 
-        monitor_v2.track_event('error', 'Error!', 'test.monitor.exhaustion', { error: 'test' })
+        monitor_v2.track_event('error', 'Error!', 'test.monitor.exhaustion', error: 'test')
       end
 
       it 'handles an info log' do
-        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
-        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
-        expect(StatsD).to receive(:increment).with('test.monitor.success', tags)
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).once
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).once
+        expect(StatsD).to receive(:increment).with('test.monitor.success', tags:)
         expect(Rails.logger).to receive(:info).with('Success!', {
                                                       context: {
                                                         claim_id: claim_v2.id,
@@ -262,7 +266,8 @@ RSpec.describe Dependents::Monitor do
                                                         error: 'test',
                                                         form_id: '686C-674-V2',
                                                         service: 'dependents-application',
-                                                        tags: ['service:dependents-application', 'v2:true'],
+                                                        tags: ['form_id:686C-674-V2', 'service:dependents-application',
+                                                               'v2:true'],
                                                         use_v2: true,
                                                         user_account_uuid: nil
                                                       },
@@ -273,13 +278,13 @@ RSpec.describe Dependents::Monitor do
                                                       statsd: 'test.monitor.success'
                                                     })
 
-        monitor_v2.track_event('info', 'Success!', 'test.monitor.success', { error: 'test' })
+        monitor_v2.track_event('info', 'Success!', 'test.monitor.success', error: 'test')
       end
 
       it 'handles a warning' do
-        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
-        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
-        expect(StatsD).to receive(:increment).with('test.monitor.failure', tags)
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).once
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).once
+        expect(StatsD).to receive(:increment).with('test.monitor.failure', tags:)
         expect(Rails.logger).to receive(:warn).with('Oops!', {
                                                       context: {
                                                         claim_id: claim_v2.id,
@@ -287,7 +292,8 @@ RSpec.describe Dependents::Monitor do
                                                         error: 'test',
                                                         form_id: '686C-674-V2',
                                                         service: 'dependents-application',
-                                                        tags: ['service:dependents-application', 'v2:true'],
+                                                        tags: ['form_id:686C-674-V2', 'service:dependents-application',
+                                                               'v2:true'],
                                                         use_v2: true,
                                                         user_account_uuid: nil
                                                       },
@@ -298,7 +304,7 @@ RSpec.describe Dependents::Monitor do
                                                       statsd: 'test.monitor.failure'
                                                     })
 
-        monitor_v2.track_event('warn', 'Oops!', 'test.monitor.failure', { error: 'test' })
+        monitor_v2.track_event('warn', 'Oops!', 'test.monitor.failure', error: 'test')
       end
     end
   end

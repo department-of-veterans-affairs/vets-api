@@ -266,8 +266,8 @@ RSpec.describe SavedClaim::DependencyClaim do
         subject.save!
 
         tags = ['form_id:686C-674-V2']
-        expect(StatsD).to have_received(:increment).with('saved_claim.pdf.overflow', { tags: })
-        expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: })
+        expect(StatsD).to have_received(:increment).with('saved_claim.pdf.overflow', tags:)
+        expect(StatsD).to have_received(:increment).with('saved_claim.create', tags: tags + ['doctype:148'])
       end
 
       it 'calls PdfFill::Filler.fill_form during PDF overflow tracking' do
@@ -310,8 +310,8 @@ RSpec.describe SavedClaim::DependencyClaim do
         subject.save!
 
         tags = ['form_id:686C-674-V2']
-        expect(StatsD).to have_received(:increment).with('saved_claim.pdf.overflow', { tags: })
-        expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: })
+        expect(StatsD).to have_received(:increment).with('saved_claim.pdf.overflow', tags:)
+        expect(StatsD).to have_received(:increment).with('saved_claim.create', tags: tags + ['doctype:148'])
       end
 
       it 'ensures PDF tracking works with schema validation disabled' do

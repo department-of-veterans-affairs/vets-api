@@ -139,6 +139,12 @@ class SavedClaim < ApplicationRecord
     10 # Unknown
   end
 
+  # alias for document_type
+  # using `alias_method` causes 'doctype' to always return 10
+  def doctype
+    document_type
+  end
+
   def email
     nil
   end
@@ -210,7 +216,7 @@ class SavedClaim < ApplicationRecord
   end
 
   def after_create_metrics
-    tags = ["form_id:#{form_id}"]
+    tags = ["form_id:#{form_id}", "doctype:#{document_type}"]
     StatsD.increment('saved_claim.create', tags:)
     if form_start_date
       claim_duration = created_at - form_start_date
@@ -221,11 +227,12 @@ class SavedClaim < ApplicationRecord
   end
 
   def after_destroy_metrics
-    StatsD.increment('saved_claim.destroy', tags: ["form_id:#{form_id}"])
+    tags = ["form_id:#{form_id}", "doctype:#{document_type}"]
+    StatsD.increment('saved_claim.destroy', tags:)
   end
 
   def pdf_overflow_tracking
-    tags = ["form_id:#{form_id}"]
+    tags = ["form_id:#{form_id}", "doctype:#{document_type}"]
 
     form_class = PdfFill::Filler::FORM_CLASSES[form_id]
     unless form_class
