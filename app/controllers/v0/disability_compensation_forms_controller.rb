@@ -77,11 +77,8 @@ module V0
       end
 
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
-      submission = create_submission(saved_claim)
-      log_toxic_exposure_purge(saved_claim, submission)
-      # if jid = 0 then the submission was prevented from going any further in the process
+      submission = create_submission(saved_claim).tap { |sub| log_toxic_exposure_purge(saved_claim, sub) }
       jid = 0
-
       # Feature flag to stop submission from being submitted to third-party service
       # With this on, the submission will NOT be processed by EVSS or Lighthouse,
       # nor will it go to VBMS,
