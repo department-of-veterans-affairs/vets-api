@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_23_015956) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_03_184957) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1725,6 +1725,25 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_015956) do
     t.index ["user_account_id"], name: "index_tooltips_on_user_account_id"
   end
 
+  create_table "travel_pay_complex_claims_form_choices", force: :cascade do |t|
+    t.bigint "travel_pay_complex_claims_form_session_id", null: false
+    t.string "expense_type", null: false
+    t.jsonb "form_progress", default: []
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["travel_pay_complex_claims_form_session_id", "expense_type"], name: "idx_complex_claims_choices_session_expense", unique: true
+    t.index ["travel_pay_complex_claims_form_session_id"], name: "idx_on_travel_pay_complex_claims_form_session_id_1d885fac8e"
+  end
+
+  create_table "travel_pay_complex_claims_form_sessions", force: :cascade do |t|
+    t.string "user_icn", null: false
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_travel_pay_complex_claims_form_sessions_on_created_at"
+    t.index ["user_icn"], name: "index_travel_pay_complex_claims_form_sessions_on_user_icn"
+  end
+
   create_table "user_acceptable_verified_credentials", force: :cascade do |t|
     t.datetime "acceptable_verified_credential_at"
     t.datetime "idme_verified_credential_at"
@@ -2197,6 +2216,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_015956) do
   add_foreign_key "test_user_dashboard_tud_account_availability_logs", "user_accounts"
   add_foreign_key "test_user_dashboard_tud_accounts", "user_accounts"
   add_foreign_key "tooltips", "user_accounts"
+  add_foreign_key "travel_pay_complex_claims_form_choices", "travel_pay_complex_claims_form_sessions"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
   add_foreign_key "user_actions", "user_action_events"
   add_foreign_key "user_actions", "user_verifications", column: "acting_user_verification_id"
