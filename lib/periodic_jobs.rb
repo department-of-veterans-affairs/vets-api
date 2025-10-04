@@ -164,15 +164,15 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 16 * * *', 'VANotify::InProgressForms')
   mgr.register('0 1 * * *', 'VANotify::ClearStaleInProgressRemindersSent')
   mgr.register('0 * * * *', 'VANotify::InProgress1880Form')
-  mgr.register('0 * * * *', 'PagerDuty::CacheGlobalDowntime')
-  mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')
+  # mgr.register('0 * * * *', 'PagerDuty::CacheGlobalDowntime')
+  # mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')
   mgr.register('0 2 * * *', 'InProgressFormCleaner')
   # mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
   mgr.register('0 3 * * *', 'Form1095::New1095BsJob')
   mgr.register('0 4 * * *', 'Form1095::DeleteOld1095BsJob')
   mgr.register('0 2 * * *', 'Veteran::VSOReloader')
   mgr.register('15 2 * * *', 'Preneeds::DeleteOldUploads')
-  mgr.register('* * * * *', 'ExternalServicesStatusJob')
+  # mgr.register('* * * * *', 'ExternalServicesStatusJob')
   mgr.register('* * * * *', 'ExportBreakerStatus')
   mgr.register('0 0 * * *', 'Form1010cg::DeleteOldUploadsJob')
   mgr.register('0 1 * * *', 'TransactionalEmailAnalyticsJob')
@@ -245,7 +245,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 3 * * *', 'IvcChampva::OldRecordsCleanupJob')
 
   # Every 15min job that syncs ARP's allowlist
-  mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')
+  # mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')
 
   # Expire stale POA request records every night at 12:30 AM
   mgr.register('30 0 * * *', 'AccreditedRepresentativePortal::ExpirePowerOfAttorneyRequestsJob')
@@ -263,14 +263,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Engine version: Send Decision Review emails to Veteran for failed form/evidence submissions
   mgr.register('5 0 * * *', 'DecisionReviews::FailureNotificationEmailJob')
-
-  # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
-  mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
-  mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
-  # Daily 0600 hrs job for Vye: activates ingressed state, and egresses the changes for the day.
-  mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
-  # Daily 1900 job for Vye: clears deactivated BDNs every evening.
-  mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
 
   # Daily cleanup of > 12 month old UserAction records
   mgr.register('45 3 * * *', 'UserActionsCleanupJob')
