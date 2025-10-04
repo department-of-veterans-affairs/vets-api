@@ -120,6 +120,108 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
     end
   end
 
+  describe '#show' do
+    context 'happy path' do
+      it 'returns claim details for a valid claim ID' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+        VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[method path]) do
+          claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+
+          get("/mobile/v0/travel-pay/claims/#{claim_id}", headers: sis_headers)
+
+          expect(response).to have_http_status(:ok)
+
+          json = response.parsed_body
+          claim_data = json['data']['attributes']
+
+          expect(json['data']['type']).to eq('travelPayClaimDetails')
+          expect(json['data']['id']).to eq(claim_id)
+
+          expect(claim_data['id']).to eq(claim_id)
+          expect(claim_data['claimNumber']).to be_present
+          expect(claim_data['claimStatus']).to be_present
+          expect(claim_data['appointmentDate']).to be_present
+          expect(claim_data['facilityName']).to be_present
+          expect(claim_data['claimName']).to be_present
+          expect(claim_data['claimantFirstName']).to be_present
+          expect(claim_data['claimantLastName']).to be_present
+          expect(claim_data['totalCostRequested']).to be_present
+          expect(claim_data['reimbursementAmount']).to be_present
+          expect(claim_data['createdOn']).to be_present
+          expect(claim_data['modifiedOn']).to be_present
+
+          expect(claim_data['appointment']).to be_present
+          expect(claim_data['appointment']).to be_a(Hash)
+          expect(claim_data['appointment']['id']).to be_present
+          expect(claim_data['appointment']['facilityId']).to be_present
+
+          expect(claim_data['expenses']).to be_present
+          expect(claim_data['expenses']).to be_an(Array)
+          if claim_data['expenses'].any?
+            expense = claim_data['expenses'].first
+            expect(expense['id']).to be_present
+            expect(expense['expenseType']).to be_present
+          end
+
+          expect(claim_data).to have_key('documents')
+          expect(claim_data['documents']).to be_an(Array)
+        end
+      end
+    end
+
+    context 'failure paths' do
+      it 'returns not found when claim does not exist' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+        allow_any_instance_of(TravelPay::ClaimsService).to receive(:get_claim_details)
+          .and_return(nil)
+
+        non_existent_claim_id = 'aa0f63e0-5fa7-4d74-a17a'
+
+        get("/mobile/v0/travel-pay/claims/#{non_existent_claim_id}", headers: sis_headers)
+
+        expect(response).to have_http_status(:not_found)
+        json = response.parsed_body
+        expect(json['errors'].first['title']).to eq('Resource not found')
+        expect(json['errors'].first['detail']).to include("Claim not found. ID provided: #{non_existent_claim_id}")
+        expect(json['errors'].first['status']).to eq('404')
+      end
+
+      it 'returns bad request for invalid claim ID format' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+        allow_any_instance_of(TravelPay::ClaimsService).to receive(:get_claim_details)
+          .and_raise(ArgumentError.new('Expected claim id to be a valid UUID, got invalid-id.'))
+
+        invalid_claim_id = '123abc'
+
+        get("/mobile/v0/travel-pay/claims/#{invalid_claim_id}", headers: sis_headers)
+
+        expect(response).to have_http_status(:bad_request)
+        json = response.parsed_body
+        expect(json['errors'].first['title']).to eq('Bad request')
+        expect(json['errors'].first['detail']).to include('Expected claim id to be a valid UUID')
+      end
+
+      it 'returns internal server error when Travel Pay API fails while fetching claim details' do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+        allow_any_instance_of(TravelPay::ClaimsService).to receive(:get_claim_details)
+          .and_raise(Common::Exceptions::ExternalServerInternalServerError.new(
+                       errors: [{ title: 'Something went wrong.', status: 500 }]
+                     ))
+
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+
+        get("/mobile/v0/travel-pay/claims/#{claim_id}", headers: sis_headers)
+
+        expect(response).to have_http_status(:internal_server_error)
+      end
+    end
+  end
+
   describe '#create' do
     before do
       allow(Flipper).to receive(:enabled?).with(:travel_pay_submit_mileage_expense, instance_of(User)).and_return(true)
