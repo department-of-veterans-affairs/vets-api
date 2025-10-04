@@ -57,7 +57,11 @@ describe PdfFill::Filler, type: :model do
       allow_any_instance_of(PdfForms::PdftkWrapper)
         .to receive(:fill_form) do |_instance, _template, output, _hash, **_opts|
           FileUtils.mkdir_p(File.dirname(output))
-          File.write(output, "%PDF-1.4\n% Fake PDF\n") # minimal valid PDF header
+
+          # Copy a fixture file. It doesn't matter which one except kitchen sink runs faster than simple
+          FileUtils
+            .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), output)
+
           output
         end
 
@@ -68,7 +72,11 @@ describe PdfFill::Filler, type: :model do
 
       allow(PdfFill::Filler).to receive(:stamp_form) do |file_path, _submit_date|
         stamped = file_path.sub('.pdf', '_stamped.pdf')
-        File.write(stamped, "%PDF-1.4\n% Fake Stamped PDF\n")
+
+        # Copy a fixture file. It doesn't matter which one except kitchen sink runs faster than simple
+        FileUtils
+          .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), stamped)
+
         stamped
       end
 
@@ -76,14 +84,8 @@ describe PdfFill::Filler, type: :model do
     end
 
     [
-      {
-        form_id: '686C-674',
-        factory: :dependency_claim
-      },
-      {
-        form_id: '686C-674-V2',
-        factory: :dependency_claim_v2
-      }
+      { form_id: '686C-674', factory: :dependency_claim },
+      { form_id: '686C-674-V2', factory: :dependency_claim_v2 }
     ].each do |options|
       it_behaves_like 'a form filler', options
     end
@@ -104,16 +106,21 @@ describe PdfFill::Filler, type: :model do
       # Stub Pdftk fill_form to avoid real PDF generation
       allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:fill_form) do |_, template, output, *_args|
         FileUtils.mkdir_p(File.dirname(output))
-        File.write(output, "%PDF-1.4\n% Fake filled PDF for #{File.basename(template)}\n%%EOF")
+        # Copy a fixture file. It doesn't matter which one except kitchen sink runs faster than simple
+        FileUtils
+          .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), output)
+
         output
       end
 
       # Make stamp_form fast by stubbing out PDFUtilities::DatestampPdf
-      allow_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run) do |instance, *args|
+      allow_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run) do |_instance, *_args|
         # Return a unique tmp file each time to mimic real stamping
         stamped_path = "tmp/pdfs/fake_stamped_#{SecureRandom.uuid}.pdf"
         FileUtils.mkdir_p(File.dirname(stamped_path))
-        File.write(stamped_path, "%PDF-1.4\n% Fake stamped PDF\n%%EOF")
+        FileUtils
+          .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), stamped_path)
+
         stamped_path
       end
 
