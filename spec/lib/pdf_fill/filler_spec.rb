@@ -104,7 +104,7 @@ describe PdfFill::Filler, type: :model do
       )
 
       # Stub Pdftk fill_form to avoid real PDF generation
-      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:fill_form) do |_, template, output, *_args|
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:fill_form) do |_, _template, output, *_args|
         FileUtils.mkdir_p(File.dirname(output))
         # Copy a fixture file. It doesn't matter which one except kitchen sink runs faster than simple
         FileUtils
