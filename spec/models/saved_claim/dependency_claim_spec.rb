@@ -13,16 +13,6 @@ RSpec.describe SavedClaim::DependencyClaim do
       }
   end
 
-  # Performance tweak
-  # This can be removed. Benchmarked all tests to see which tests are slowest.
-  around do |example|
-    puts "\nStarting: #{example.full_description}"
-    start_time = Time.now
-    example.run
-    duration = Time.now - start_time
-    puts "Finished: #{example.full_description} (#{duration.round(2)}s)\n\n"
-  end
-
   let(:subject_v2) { create(:dependency_claim_v2) }
 
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
@@ -66,7 +56,14 @@ RSpec.describe SavedClaim::DependencyClaim do
     context 'when :va_dependents_v2 is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-        allow(subject).to receive(:process_pdf).and_return(file_path)
+
+        datestamp_pdf_double = instance_double(PDFUtilities::DatestampPdf)
+        allow(PDFUtilities::DatestampPdf).to receive(:new)
+          .with(file_path)
+          .and_return(datestamp_pdf_double)
+
+        allow(datestamp_pdf_double).to receive(:run).and_return(datestamp_pdf_double)
+        allow(File).to receive(:rename).and_return(file_path)
       end
 
       it 'uploads to vbms' do

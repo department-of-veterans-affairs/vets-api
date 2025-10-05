@@ -61,27 +61,20 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   end
 
   def track_each_pdf_overflow(subform_id)
-    puts "#{Time.now}: top of track_each_pdf_overflow"
     filenames = []
     if subform_id == '21-674-V2'
-      puts "#{Time.now}: subform is 21-674-V2"
       parsed_form['dependents_application']['student_information']&.each do |student|
         filenames << to_pdf(form_id: subform_id, student:)
-        puts "#{Time.now}: completed to_pdf"
       end
     else
-      puts "#{Time.now}: subform is not 21-674-V2"
       filenames << to_pdf(form_id: subform_id)
-      puts "#{Time.now}: completed to_pdf"
     end
     filenames.each do |filename|
       monitor.track_pdf_overflow(subform_id) if filename.end_with?('_final.pdf')
-      puts "#{Time.now}: completed monitor.track_pdf_overflow" if filename.end_with?('_final.pdf')
     end
   ensure
     filenames.each do |filename|
       Common::FileHelpers.delete_file_if_exists(filename)
-      puts "#{Time.now}: completed Common::FileHelpers.delete_file_if_exists"
     end
   end
 
@@ -102,10 +95,6 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       uploaded_forms << form_id
       save
     end
-  rescue => e
-    Rails.logger.debug('DependencyClaim: Issue Uploading to VBMS in upload_pdf method',
-                       { saved_claim_id: id, form_id:, error: e })
-    raise e
   end
 
   def process_pdf(pdf_path, timestamp = nil, form_id = nil, iterator = nil)
@@ -191,24 +180,42 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     )
 
     uploader.upload! unless Rails.env.development?
+  rescue
+    # Do not directly expose the error message in case it contains PII (despite PII scrubbing efforts).
+    monitor.track_pdf_upload_error
+    raise StandardError, 'VBMS Upload Error'
   end
 
-  # temporarily commented out before v2 rolls out. will be updated before v2's release.
-  # def form_matches_schema
-  #   return unless form_is_string
-  #
-  #   JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[form_id], parsed_form).each do |v|
-  #     errors.add(:form, v.to_s)
-  #   end
-  # end
+  def form_matches_schema
+    return if Flipper.enabled?(:dependents_bypass_schema_validation)
+
+    return unless form_is_string
+
+    schema = VetsJsonSchema::SCHEMAS[form_id]
+
+    schema_errors = validate_schema(schema)
+    unless schema_errors.empty?
+      Rails.logger.error('SavedClaim schema failed validation.',
+                         { form_id:, errors: schema_errors })
+    end
+
+    validation_errors = validate_form(schema)
+    validation_errors.each do |e|
+      errors.add(e[:fragment], e[:message])
+      e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
+    end
+
+    unless validation_errors.empty?
+      Rails.logger.error('SavedClaim form did not pass validation', { form_id:, guid:, errors: validation_errors })
+    end
+
+    schema_errors.empty? && validation_errors.empty?
+  end
 
   def to_pdf(form_id: FORM, student: nil)
-    puts "#{Time.now}: REAL to_pdf called from #{caller_locations(1,1)[0]}"
-
     original_form_id = self.form_id
     self.form_id = form_id
     PdfFill::Filler.fill_form(self, nil, { created_at:, student: })
-    puts "#{Time.now}: completed PdfFill::Filler.fill_form"
   rescue => e
     monitor.track_to_pdf_failure(e, form_id)
     raise e
@@ -216,11 +223,12 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     self.form_id = original_form_id
   end
 
-  def send_failure_email(email) # rubocop:disable Metrics/MethodLength
+  def send_failure_email(email)
     # if the claim is both a 686c and a 674, send a combination email.
     # otherwise, check to see which individual type it is and send the corresponding email.
+    first_name = parsed_form.dig('dependents_application', 'veteran_information', 'full_name', 'first')&.upcase.presence
     personalisation = {
-      'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+      'first_name' => first_name,
       'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
       'confirmation_number' => confirmation_number
     }
@@ -235,15 +243,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
                     nil
                   end
     if email.present? && template_id.present?
-      if Flipper.enabled?(:dependents_failure_callback_email)
-        Dependents::Form686c674FailureEmailJob.perform_async(id, email, template_id, personalisation)
-      else
-        VANotify::EmailJob.perform_async(
-          email,
-          template_id,
-          personalisation
-        )
-      end
+      Dependents::Form686c674FailureEmailJob.perform_async(id, email, template_id, personalisation)
     end
   end
 
@@ -310,5 +310,26 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     college_student_data = { 'dependents_application' => student_data.merge!(veteran_data) }
 
     { college_student_data:, dependent_data: }
+  end
+
+  def validate_form(schema)
+    camelized_data = deep_camelize_keys(parsed_form)
+
+    errors = JSONSchemer.schema(schema).validate(camelized_data).to_a
+    return [] if errors.empty?
+
+    reformatted_schemer_errors(errors)
+  end
+
+  def deep_camelize_keys(data)
+    case data
+    when Hash
+      data.transform_keys { |key| key.to_s.camelize(:lower) }
+          .transform_values { |value| deep_camelize_keys(value) }
+    when Array
+      data.map { |item| deep_camelize_keys(item) }
+    else
+      data
+    end
   end
 end
