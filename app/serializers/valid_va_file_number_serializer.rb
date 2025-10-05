@@ -7,6 +7,7 @@ class ValidVAFileNumberSerializer
   set_type :valid_va_file_number
 
   attribute :valid_va_file_number do |object|
-    object[:file_nbr]
+    # Settings default is false, override in local to a 'true' value to bypass
+    object[:file_nbr] || Settings.valid_va_file_number
   end
 end

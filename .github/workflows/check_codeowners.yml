@@ -18,12 +18,12 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 2
 
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4.0.2
+      uses: aws-actions/configure-aws-credentials@v5
       with:
         role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
         aws-region: "us-gov-west-1"
@@ -69,12 +69,12 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 2
 
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4.0.2
+      uses: aws-actions/configure-aws-credentials@v5
       with:
         role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
         aws-region: "us-gov-west-1"

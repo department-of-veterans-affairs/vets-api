@@ -125,7 +125,6 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
           VCR.use_cassette('dgi/forms/submit_toe_claim') do
             response = service.submit_claim(ActionController::Parameters.new(claimant_params),
                                             ActionController::Parameters.new(dd_params_lighthouse))
-
             expect(response.status).to eq(200)
           end
         end

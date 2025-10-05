@@ -41,7 +41,8 @@ RSpec.describe BenefitsDocuments::Service do
           file: upload_file,
           trackedItemIds: ['1'], # Lighthouse expects an array for tracked items
           documentType: 'L023',
-          password: nil
+          password: 'password',
+          qqfilename: 'test.txt'
         }
       end
 
@@ -50,103 +51,106 @@ RSpec.describe BenefitsDocuments::Service do
         BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
       end
 
-      [true, false].each do |filter_duplicates|
-        context "when benefits_documents_filter_duplicates is #{filter_duplicates}" do
+      before do
+        allow_any_instance_of(BenefitsDocuments::Service).to receive(:validate_claimant_can_upload)
+          .and_return(true)
+      end
+
+      context 'when the document being uploaded is not a duplicate' do
+        context 'when cst_synchronous_evidence_uploads is false and cst_send_evidence_submission_failure_emails is true' do # rubocop:disable Layout/LineLength
           before do
-            allow(Flipper).to receive(:enabled?).with(:benefits_documents_filter_duplicates)
-                                                .and_return(filter_duplicates)
+            allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails)
+                                                .and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
+                                                      instance_of(User)).and_return(false)
+            allow_any_instance_of(BenefitsDocuments::Service).to receive(:presumed_duplicate?)
+              .and_return(false)
+            allow(StatsD).to receive(:increment)
+            allow(Rails.logger).to receive(:info)
           end
 
-          [true, false].each do |validate_claimant|
-            context "when benefits_documents_validate_claimant is #{validate_claimant}" do
-              before do
-                allow(Flipper).to receive(:enabled?).with(:benefits_documents_validate_claimant)
-                                                    .and_return(validate_claimant)
-                allow_any_instance_of(BenefitsDocuments::Service).to receive(:validate_claimant_can_upload)
-                  .and_return(true)
-              end
+          it 'enqueues a job' do
+            expect do
+              service.queue_document_upload(params)
+            end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
+          end
 
-              context 'when the document being uploaded is not a duplicate' do
-                context 'when cst_synchronous_evidence_uploads is false and cst_send_evidence_submission_failure_emails is true' do # rubocop:disable Layout/LineLength
-                  before do
-                    allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails)
-                                                        .and_return(true)
-                    allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
-                                                              instance_of(User)).and_return(false)
-                    allow_any_instance_of(BenefitsDocuments::Service).to receive(:presumed_duplicate?)
-                      .and_return(false)
-                    allow(StatsD).to receive(:increment)
-                    allow(Rails.logger).to receive(:info)
-                  end
+          it 'records evidence submission with CREATED status' do
+            subject.queue_document_upload(params)
+            expect(EvidenceSubmission.count).to eq(1)
+            evidence_submission = EvidenceSubmission.first
+            current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
+            expect(evidence_submission.upload_status)
+              .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED])
+            expect(current_personalisation['date_submitted']).to eql(submitted_date)
+            expect(evidence_submission.tracked_item_id).to be(1)
+            expect(evidence_submission.file_size).to eq(File.size(params[:file]))
+            expect(StatsD)
+              .to have_received(:increment)
+              .with('cst.lighthouse.document_uploads.evidence_submission_record_created')
+            expect(Rails.logger)
+              .to have_received(:info)
+              .with('LH - Created Evidence Submission Record', any_args)
+            # ensure the logger is filtering out sensitive data
+            expect(Rails.logger).to have_received(:info).with(
+              a_string_starting_with('Parameters for document upload'),
+              hash_including(
+                file: have_attributes(
+                  content_type: 'image/jpeg',
+                  headers: '[FILTERED!]',
+                  original_filename: '[FILTERED!]'
+                ),
+                file_number: 'xyz',
+                claimId: '1',
+                trackedItemIds: ['1'],
+                documentType: 'L023'
+              )
+            )
+            expect(Rails.logger).not_to have_received(:info).with(
+              a_string_starting_with('Parameters for document upload'),
+              hash_including(
+                password: 'password',
+                qqfilename: 'test.txt'
+              )
+            )
+          end
+        end
 
-                  it 'enqueues a job' do
-                    expect do
-                      service.queue_document_upload(params)
-                    end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
-                  end
+        context 'when cst_synchronous_evidence_uploads and cst_send_evidence_submission_failure_emails is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails)
+                                                .and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
+                                                      instance_of(User)).and_return(false)
+          end
 
-                  it 'records evidence submission with CREATED status' do
-                    subject.queue_document_upload(params)
-                    expect(EvidenceSubmission.count).to eq(1)
-                    evidence_submission = EvidenceSubmission.first
-                    current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
-                    expect(evidence_submission.upload_status)
-                      .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED])
-                    expect(current_personalisation['date_submitted']).to eql(submitted_date)
-                    expect(evidence_submission.tracked_item_id).to be(1)
-                    expect(evidence_submission.file_size).to eq(File.size(params[:file]))
-                    expect(StatsD)
-                      .to have_received(:increment)
-                      .with('cst.lighthouse.document_uploads.evidence_submission_record_created')
-                    expect(Rails.logger)
-                      .to have_received(:info)
-                      .with('LH - Created Evidence Submission Record', any_args)
-                  end
-                end
+          it 'does not record an evidence submission' do
+            expect do
+              service.queue_document_upload(params)
+            end.not_to change(EvidenceSubmission, :count)
+          end
+        end
 
-                context 'when cst_synchronous_evidence_uploads and cst_send_evidence_submission_failure_emails is disabled' do # rubocop:disable Layout/LineLength
-                  before do
-                    allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails)
-                                                        .and_return(false)
-                    allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
-                                                              instance_of(User)).and_return(false)
-                  end
+        context 'when cst_synchronous_evidence_uploads is true and cst_send_evidence_submission_failure_emails is false' do # rubocop:disable Layout/LineLength
+          before do
+            allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails)
+                                                .and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
+                                                      instance_of(User)).and_return(true)
+          end
 
-                  it 'does not record an evidence submission' do
-                    expect do
-                      service.queue_document_upload(params)
-                    end.not_to change(EvidenceSubmission, :count)
-                  end
-                end
-
-                context 'when cst_synchronous_evidence_uploads is true and cst_send_evidence_submission_failure_emails is false' do # rubocop:disable Layout/LineLength
-                  before do
-                    allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails)
-                                                        .and_return(false)
-                    allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
-                                                              instance_of(User)).and_return(true)
-                  end
-
-                  it 'does not enqueue a job' do
-                    VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_document_upload_200_pdf') do
-                      expect do
-                        service.queue_document_upload(params)
-                      end.not_to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size)
-                      expect(EvidenceSubmission.count).to eq(0)
-                    end
-                  end
-                end
-              end
+          it 'does not enqueue a job' do
+            VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_document_upload_200_pdf') do
+              expect do
+                service.queue_document_upload(params)
+              end.not_to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size)
+              expect(EvidenceSubmission.count).to eq(0)
             end
           end
         end
       end
 
       context 'when the document being uploaded is a duplicate' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:benefits_documents_filter_duplicates).and_return(true)
-        end
-
         let(:evidence_submission) do
           create(:bd_evidence_submission_pending, claim_id:, user_account:)
         end
@@ -173,7 +177,6 @@ RSpec.describe BenefitsDocuments::Service do
 
       context 'when the claimant is not allowed to upload documents to the claim' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:benefits_documents_validate_claimant).and_return(true)
           allow_any_instance_of(BenefitsDocuments::Service).to receive(:validate_claimant_can_upload).and_return(false)
         end
 
