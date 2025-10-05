@@ -28,6 +28,14 @@ RSpec.describe BGS::DependentService do
   end
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
 
+  around do |example|
+    puts "\n#{Time.now.strftime('%H:%M:%S:%L')}: Starting #{example.description}"
+    start_time = Time.now
+    example.run
+    duration = Time.now - start_time
+    puts "#{Time.now.strftime('%H:%M:%S:%L')}: Finished #{example.description} (#{duration.round(2)}s)\n\n"
+  end
+
   before do
     # TODO: Add back user_account_id once the DB migration is done
     allow(claim).to receive_messages(id: '1234', use_v2: false,
@@ -379,6 +387,7 @@ RSpec.describe BGS::DependentService do
 
       allow(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return(uploader)
       allow(PDFUtilities::PDFStamper).to receive(:new).and_return(stamper)
+      allow(PdfFill::Filler).to receive(:fill_form).and_return(claim.form_id)
 
       service.instance_variable_set(:@ssn, ssn)
     end
