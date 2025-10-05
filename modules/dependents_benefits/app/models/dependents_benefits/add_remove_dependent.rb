@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require 'dependents_benefits/claim_behavior'
+
 module DependentsBenefits
   # DependentsBenefit 21-686c Active::Record
   # @see app/model/saved_claim
-  class AddRemoveDependent < DependentsBenefits::SavedClaim
+  class AddRemoveDependent < ::SavedClaim
+    include DependentsBenefits::ClaimBehavior
+
     # DependentsBenefit Form ID
     FORM = DependentsBenefits::ADD_REMOVE_DEPENDENT
 
