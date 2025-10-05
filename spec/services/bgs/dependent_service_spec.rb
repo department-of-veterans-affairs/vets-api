@@ -28,14 +28,6 @@ RSpec.describe BGS::DependentService do
   end
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
 
-  around do |example|
-    puts "\n#{Time.now.strftime('%H:%M:%S:%L')}: Starting #{example.description}"
-    start_time = Time.now
-    example.run
-    duration = Time.now - start_time
-    puts "#{Time.now.strftime('%H:%M:%S:%L')}: Finished #{example.description} (#{duration.round(2)}s)\n\n"
-  end
-
   before do
     # TODO: Add back user_account_id once the DB migration is done
     allow(claim).to receive_messages(id: '1234', use_v2: false,
