@@ -3,7 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe SavedClaim::DependencyClaim do
-  subject { create(:dependency_claim) }
+  subject(:saved_claim) { create(:dependency_claim) }
+
+  # Performance tweak
+  before do
+    allow(PdfFill::Filler)
+      .to receive(:fill_form) { |saved_claim, *_|
+        "tmp/pdfs/686C-674_#{saved_claim.id || 'stub'}_final.pdf"
+      }
+  end
 
   let(:subject_v2) { create(:dependency_claim_v2) }
 
@@ -48,6 +56,14 @@ RSpec.describe SavedClaim::DependencyClaim do
     context 'when :va_dependents_v2 is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+
+        datestamp_pdf_double = instance_double(PDFUtilities::DatestampPdf)
+        allow(PDFUtilities::DatestampPdf).to receive(:new)
+          .with(file_path)
+          .and_return(datestamp_pdf_double)
+
+        allow(datestamp_pdf_double).to receive(:run).and_return(datestamp_pdf_double)
+        allow(File).to receive(:rename).and_return(file_path)
       end
 
       it 'uploads to vbms' do
@@ -65,6 +81,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     context 'uploader v2' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+        allow(subject_v2).to receive(:process_pdf).and_return(file_path_v2)
       end
 
       it 'when :va_dependents_v2 is enabled' do
@@ -82,7 +99,7 @@ RSpec.describe SavedClaim::DependencyClaim do
       it 'when :va_dependents_v2 is enabled upload 674' do
         uploader = double(ClaimsApi::VBMSUploader)
         expect(ClaimsApi::VBMSUploader).to receive(:new).with(
-          filepath: "tmp/pdfs/21-674-V2_#{subject_v2.id}_0_final.pdf",
+          filepath: file_path_v2,
           file_number: va_file_number_v2,
           doc_type:
         ).and_return(uploader)
