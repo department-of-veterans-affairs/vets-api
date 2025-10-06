@@ -107,22 +107,30 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
   end
 
   describe('#track_toxic_exposure_purge') do
-    let(:user_uuid) { '123e4567-e89b-12d3-a456-426614174000' }
+    let(:user_uuid) { SecureRandom.uuid }
     let(:sip_data) do
-      { 'form526' => { 'toxicExposure' => { 'conditions' => { 'asthma' => true },
-                                            'gulfWar1990' => { 'iraq' => true } } } }
+      {
+        'toxicExposure' => {
+          'conditions' => { 'asthma' => true },
+          'gulfWar1990' => { 'iraq' => true }
+        }
+      }
     end
-    let(:in_progress_form) { create(:in_progress_form, form_id: '21-526EZ', form_data: sip_data) }
+    let(:in_progress_form) { create(:in_progress_form, form_id: '21-526EZ', form_data: sip_data.to_json) }
     let(:saved_claim) { build(:fake_saved_claim, form_id: described_class::FORM_ID, guid: '1234') }
     let(:submission) { instance_double(Form526Submission, id: 67_890) }
 
-    shared_examples 'logs purge event' do |removed:, modified:, completely_removed:|
+    shared_examples 'logs changes event' do |removed_keys:, completely_removed:|
       it 'logs with correct keys' do
         expect(monitor).to receive(:submit_event).with(
           :info,
-          "Form526Submission=#{submission.id} ToxicExposurePurge=detected",
-          "#{described_class::CLAIM_STATS_KEY}.toxic_exposure_purge",
-          hash_including(removed_keys: removed, modified_keys: modified, completely_removed:)
+          "Form526Submission=#{submission.id} ToxicExposureChanges=detected",
+          "#{described_class::CLAIM_STATS_KEY}.toxic_exposure_changes",
+          hash_including(
+            submission_id: submission.id,
+            removed_keys:,
+            completely_removed:
+          )
         )
         monitor.track_toxic_exposure_purge(in_progress_form:, submitted_claim: saved_claim, submission:, user_uuid:)
       end
@@ -130,27 +138,51 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
 
     context 'when key removed' do
       before do
-        form_data = { 'form526' => { 'toxicExposure' => { 'conditions' => { 'asthma' => true } } } }
+        form_data = {
+          'toxicExposure' => {
+            'conditions' => { 'asthma' => true }
+          }
+        }
         allow(saved_claim).to receive(:form).and_return(form_data.to_json)
       end
 
-      include_examples 'logs purge event', removed: ['gulfWar1990'], modified: [], completely_removed: false
-    end
-
-    context 'when key modified' do
-      before do
-        allow(saved_claim).to receive(:form).and_return({ 'form526' => { 'toxicExposure' => {
-          'conditions' => { 'asthma' => true }, 'gulfWar1990' => { 'kuwait' => true }
-        } } }.to_json)
-      end
-
-      include_examples 'logs purge event', removed: [], modified: ['gulfWar1990'], completely_removed: false
+      include_examples 'logs changes event', removed_keys: ['gulfWar1990'], completely_removed: false
     end
 
     context 'when completely removed' do
-      before { allow(saved_claim).to receive(:form).and_return({ 'form526' => {} }.to_json) }
+      before { allow(saved_claim).to receive(:form).and_return({}.to_json) }
 
-      include_examples 'logs purge event', removed: %w[conditions gulfWar1990], modified: [], completely_removed: true
+      include_examples 'logs changes event', removed_keys: %w[conditions gulfWar1990], completely_removed: true
+    end
+
+    context 'when view: fields removed (no logging - expected behavior)' do
+      let(:sip_with_view_fields) do
+        {
+          'toxicExposure' => {
+            'view:hasConditions' => true,
+            'conditions' => { 'asthma' => true },
+            'gulfWar1990' => { 'iraq' => true }
+          }
+        }
+      end
+      let(:in_progress_form_with_view) do
+        create(:in_progress_form, form_id: '21-526EZ', form_data: sip_with_view_fields.to_json)
+      end
+
+      before do
+        # Submitted data has view: fields stripped (expected)
+        allow(saved_claim).to receive(:form).and_return(sip_data.to_json)
+      end
+
+      it 'does not log when only view: fields removed' do
+        expect(monitor).not_to receive(:submit_event)
+        monitor.track_toxic_exposure_purge(
+          in_progress_form: in_progress_form_with_view,
+          submitted_claim: saved_claim,
+          submission:,
+          user_uuid:
+        )
+      end
     end
 
     context 'when unchanged' do
