@@ -45,52 +45,6 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
   end
 end
 
-RSpec.describe 'Representatives::Update partial update on address validation failure' do
-  it 'updates only email and phone when address validation fails' do
-    service = Representatives::Update.new
-
-    rep_double = instance_double(Veteran::Service::Representative)
-    allow(Veteran::Service::Representative).to receive(:find_by).and_return(rep_double)
-
-    # Make the validation service return nil (address validation failed)
-    validation_stub = instance_double(VAProfile::AddressValidation::V3::Service, candidate: nil)
-    allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
-
-    expect(rep_double).to receive(:update) do |attrs|
-      # only email and phone_number should be present
-      expect(attrs.keys.sort).to eq([:email, :phone_number])
-      expect(attrs[:email]).to eq('new@example.com')
-      expect(attrs[:phone_number]).to eq('555-555-5555')
-      true
-    end
-
-    json = [
-      {
-        id: 'rep-1',
-        address: {
-          address_pou: 'RESIDENCE/CHOICE',
-          address_line1: 'Unmatched Place',
-          address_line2: nil,
-          address_line3: nil,
-          city: 'Some City',
-          state: { state_code: 'ZZ' },
-          zip_code5: '99999',
-          zip_code4: nil,
-          country_code_iso3: 'US'
-        },
-        email: 'new@example.com',
-        phone_number: '555-555-5555',
-        address_exists: true,
-        address_changed: true,
-        email_changed: true,
-        phone_number_changed: true
-      }
-    ].to_json
-
-    service.perform(json)
-  end
-end
-
 RSpec.describe Representatives::Update do
   # rubocop:disable Metrics/MethodLength
   def create_representative
@@ -623,6 +577,52 @@ RSpec.describe Representatives::Update do
           expect(representative.address_line1).to eq('37N 1st St')
           expect(representative.lat).to eq(40.717029)
           expect(representative.long).to eq(-73.964956)
+        end
+      end
+
+      context 'when all retries have failed' do
+        it 'updates only email and phone' do
+          service = Representatives::Update.new
+
+          rep_double = instance_double(Veteran::Service::Representative)
+          allow(Veteran::Service::Representative).to receive(:find_by).and_return(rep_double)
+
+          # Make the validation service return nil (address validation failed)
+          validation_stub = instance_double(VAProfile::AddressValidation::V3::Service, candidate: nil)
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
+
+          expect(rep_double).to receive(:update) do |attrs|
+            # only email and phone_number should be present
+            expect(attrs.keys.sort).to eq(%i[email phone_number])
+            expect(attrs[:email]).to eq('new@example.com')
+            expect(attrs[:phone_number]).to eq('555-555-5555')
+            true
+          end
+
+          json = [
+            {
+              id: 'rep-1',
+              address: {
+                address_pou: 'RESIDENCE/CHOICE',
+                address_line1: 'Unmatched Place',
+                address_line2: nil,
+                address_line3: nil,
+                city: 'Some City',
+                state: { state_code: 'ZZ' },
+                zip_code5: '99999',
+                zip_code4: nil,
+                country_code_iso3: 'US'
+              },
+              email: 'new@example.com',
+              phone_number: '555-555-5555',
+              address_exists: true,
+              address_changed: true,
+              email_changed: true,
+              phone_number_changed: true
+            }
+          ].to_json
+
+          service.perform(json)
         end
       end
     end

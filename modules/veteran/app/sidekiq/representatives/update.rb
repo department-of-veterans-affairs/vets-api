@@ -47,8 +47,7 @@ module Representatives
           api_response = get_best_address_candidate(rep_data['address'])
           # If address validation fails, log and continue to update non-address fields (email/phone)
           if api_response.nil?
-            log_error("Address validation failed for Rep id: #{rep_data['id']}. Proceeding to update non-address fields.")
-            address_validation_api_response = nil
+            log_error("Address validation failed for Rep: #{rep_data['id']}. Proceeding to update non-address fields.")
           else
             address_validation_api_response = api_response
           end
@@ -61,9 +60,7 @@ module Representatives
       end
 
       # Update flagged records only for fields that were actually updated
-      if updated_flags.is_a?(Hash)
-        updated_flags['representative_id'] = rep_data['id']
-      end
+      updated_flags['representative_id'] = rep_data['id'] if updated_flags.is_a?(Hash)
       update_flagged_records(updated_flags || {})
     end
 
@@ -114,38 +111,41 @@ module Representatives
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
     def update_rep_record(rep_data, api_response)
-      record =
-        Veteran::Service::Representative.find_by(representative_id: rep_data['id'])
-      if record.nil?
-        raise StandardError, 'Representative not found.'
-      else
-        updated_flags = {}
+      record = Veteran::Service::Representative.find_by(representative_id: rep_data['id'])
+      raise StandardError, 'Representative not found.' if record.nil?
 
-        # Only update address if validation succeeded (api_response present)
-        address_attributes = if rep_data['address_changed'] && api_response.present?
-                               updated_flags['address'] = true
-                               build_address_attributes(rep_data, api_response)
-                             else
-                               {}
-                             end
+      attributes, flags = build_rep_update_payload(rep_data, api_response)
+      record.update(attributes)
+      flags
+    end
 
-        email_attributes = if rep_data['email_changed']
-                             updated_flags['email'] = true
-                             build_email_attributes(rep_data)
-                           else
-                             {}
-                           end
+    # Build attributes hash and flags indicating which fields changed
+    # @return [Array<Hash, Hash>] first element is attributes, second is flags
+    def build_rep_update_payload(rep_data, api_response)
+      flags = {}
 
-        phone_attributes = if rep_data['phone_number_changed']
-                             updated_flags['phone_number'] = true
-                             build_phone_attributes(rep_data)
-                           else
-                             {}
-                           end
+      address_attrs = if rep_data['address_changed'] && api_response.present?
+                        flags['address'] = true
+                        build_address_attributes(rep_data, api_response)
+                      else
+                        {}
+                      end
 
-        record.update(merge_attributes(address_attributes, email_attributes, phone_attributes))
-        updated_flags
-      end
+      email_attrs = if rep_data['email_changed']
+                      flags['email'] = true
+                      build_email_attributes(rep_data)
+                    else
+                      {}
+                    end
+
+      phone_attrs = if rep_data['phone_number_changed']
+                      flags['phone_number'] = true
+                      build_phone_attributes(rep_data)
+                    else
+                      {}
+                    end
+
+      [merge_attributes(address_attrs, email_attrs, phone_attrs), flags]
     end
 
     # Updates flags for the representative's records based on which fields were actually updated.
@@ -218,7 +218,7 @@ module Representatives
         county_code: address.dig('county', 'county_fips_code'),
         lat: geocode && geocode['latitude'],
         long: geocode && geocode['longitude'],
-        location: (geocode && geocode['latitude'] && geocode['longitude']) ? "POINT(#{geocode['longitude']} #{geocode['latitude']})" : nil
+        location: build_point(geocode&.dig('longitude'), geocode&.dig('latitude'))
       }
     end
 
@@ -239,8 +239,15 @@ module Representatives
         county_code: address.dig('county', 'county_code'),
         lat: address.dig('geocode', 'latitude'),
         long: address.dig('geocode', 'longitude'),
-        location: (address.dig('geocode', 'latitude') && address.dig('geocode', 'longitude')) ? "POINT(#{address.dig('geocode', 'longitude')} #{address.dig('geocode', 'latitude')})" : nil
+        location: build_point(address.dig('geocode', 'longitude'), address.dig('geocode', 'latitude'))
       }
+    end
+
+    # Build a WKT point string if both coordinates are present
+    def build_point(longitude, latitude)
+      return nil if longitude.blank? || latitude.blank?
+
+      "POINT(#{longitude} #{latitude})"
     end
 
     # Logs an error to Datadog and adds an error to the array that will be logged to slack.

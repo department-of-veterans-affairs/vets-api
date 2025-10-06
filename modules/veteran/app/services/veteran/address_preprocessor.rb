@@ -2,8 +2,8 @@
 
 module Veteran
   module AddressPreprocessor
-    PO_BOX_REGEX = /P\.?O\.?\s*BOX\s*\d+/i.freeze
-    ROOM_SUITE_REGEX = /,?\s*(Room|Rm|Suite|Ste?)\.?\s*\d+/i.freeze
+    PO_BOX_REGEX = /P\.?O\.?\s*BOX\s*\d+/i
+    ROOM_SUITE_REGEX = /,?\s*(Room|Rm|Suite|Ste?)\.?\s*\d+/i
 
     module_function
 
@@ -26,7 +26,7 @@ module Veteran
         po = m.to_s.strip
         prefix = line1.sub(PO_BOX_REGEX, '').strip
         cleaned['address_line1'] = po
-        cleaned['address_line2'] = cleaned['address_line2'].presence || (prefix.presence)
+        cleaned['address_line2'] = cleaned['address_line2'].presence || prefix.presence
       end
 
       cleaned
