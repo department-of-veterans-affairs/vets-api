@@ -1294,7 +1294,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   .to receive(:get_by_id_and_icn).and_return(nil)
 
                 get claim_by_id_path, headers: auth_header
-                
+
                 json_response = JSON.parse(response.body)
                 first_doc = json_response['data']['attributes'].dig('supportingDocuments', 0)
                 expect(first_doc['uploadDateTime']).to eq('2023-04-14T13:55:00Z')
