@@ -31,7 +31,7 @@ module Dependents
     end
 
     # lib/logging/base_monitor (on or about line 33) requires a `name` method
-    delegate :name, to: :self.class
+    delegate :name, to: :class
 
     # lib/logging/base_monitor (on or about line 37) requires a `form_id` method
     def form_id
