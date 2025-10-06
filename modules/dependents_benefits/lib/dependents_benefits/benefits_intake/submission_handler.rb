@@ -13,7 +13,7 @@ module DependentsBenefits
       # @return [ActiveRecord::Relation] a relation containing pending submission attempts for form '686C-674-V2'
       def self.pending_attempts
         Lighthouse::SubmissionAttempt.joins(:submission).where(status: 'pending',
-                                                               'lighthouse_submissions.form_id' => "#{DependentsBenefits::FORM_ID}-V2")
+                                                               'lighthouse_submissions.form_id' => DependentsBenefits::FORM_ID_V2)
       end
 
       private

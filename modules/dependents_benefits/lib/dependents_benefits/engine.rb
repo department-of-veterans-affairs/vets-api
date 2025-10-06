@@ -26,7 +26,7 @@ module DependentsBenefits
         require 'dependents_benefits/benefits_intake/submission_handler'
 
         # Register our Pension Benefits Intake Submission Handler
-        ::BenefitsIntake::SubmissionStatusJob.register_handler("#{DependentsBenefits::FORM_ID}-V2",
+        ::BenefitsIntake::SubmissionStatusJob.register_handler(DependentsBenefits::FORM_ID_V2,
                                                                DependentsBenefits::BenefitsIntake::SubmissionHandler)
       end
     end
