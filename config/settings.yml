@@ -719,12 +719,14 @@ lighthouse:
       rsa_key: /srv/vets-api/secret/lighthouse-hccc.key
     host: <%= ENV['lighthouse__healthcare_cost_and_coverage__host'] %>
     scopes:
+      - system/Account.read
       - system/ChargeItem.read
       - system/Invoice.read
-      - system/PaymentReconciliation.read
+      - system/Medication.read
       - system/MedicationDispense.read
       - system/Encounter.read
       - system/Account.read
+      - system/PaymentReconciliation.read
       - launch
     timeout: 30
     use_mocks: false

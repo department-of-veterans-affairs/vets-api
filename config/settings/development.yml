@@ -718,12 +718,14 @@ lighthouse:
       rsa_key: path/to/fake/pem
     host: https://test-api.va.gov
     scopes:
+      - system/Account.read
       - system/ChargeItem.read
       - system/Invoice.read
-      - system/PaymentReconciliation.read
+      - system/Medication.read
       - system/MedicationDispense.read
       - system/Encounter.read
       - system/Account.read
+      - system/PaymentReconciliation.read
       - launch
     timeout: 30
     use_mocks: false
