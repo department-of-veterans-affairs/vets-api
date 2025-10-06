@@ -2560,6 +2560,9 @@ features:
   accredited_representative_portal_full_poa_redaction:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
+  vre_eligibility_status_updates:
+    actor_type: user
+    description: If enabled, show VRE eligibility content and status updates
   gi_feedback_tool_vet_tec_education_benefit:
     actor_type: user
     description: Includes the (VET TEC 2.0) option for selection under the Education Benefits question in the GI Bill® School Feedback Tool
