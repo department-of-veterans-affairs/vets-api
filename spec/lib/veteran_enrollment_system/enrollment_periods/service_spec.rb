@@ -1,18 +1,17 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'veteran_enrollment_system/form1095_b/service'
+require 'veteran_enrollment_system/enrollment_periods/service'
 
-RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
-  let(:tax_year) { 2024 }
+RSpec.describe VeteranEnrollmentSystem::EnrollmentPeriods::Service do
   let(:icn) { '1012667145V762142' }
 
-  describe '#get_form_by_icn' do
+  describe '#get_enrollment_periods' do
     context 'when the request is successful' do
       it 'returns the form data from the enrollment system' do
-        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
+        VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_form_success',
                          { match_requests_on: %i[method uri] }) do
-          response = subject.get_form_by_icn(icn:, tax_year:)
+          response = subject.get_enrollment_periods(icn:)
 
           expect(response).to eq(
             {
@@ -59,9 +58,9 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
 
     context 'when an error status is received' do
       it 'raises an error' do
-        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found',
+        VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_form_not_found',
                          { match_requests_on: %i[method uri] }) do
-          expect { subject.get_form_by_icn(icn:, tax_year:) }.to raise_error(Common::Client::Errors::ClientError)
+          expect { subject.get_enrollment_periods(icn:) }.to raise_error(Common::Client::Errors::ClientError)
         end
       end
     end
