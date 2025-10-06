@@ -433,5 +433,24 @@ RSpec.describe SavedClaim::DependencyClaim do
         subject.send_failure_email('')
       end
     end
+
+    context 'when overflow tracking fails' do
+      let(:standard_error) { StandardError.new('test error') }
+      let(:claim_data) { build(:dependency_claim).attributes } # or however you create test data
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:saved_claim_pdf_overflow_tracking).and_return(true)
+
+        allow(PdfFill::Filler).to receive(:fill_form).and_return('fake_path.pdf')
+        allow(Common::FileHelpers).to receive(:delete_file_if_exists).and_raise(standard_error)
+      end
+
+      it 'has the monitor track the failure' do
+        claim = SavedClaim::DependencyClaim.new(claim_data)
+        expect(claim.monitor).to receive(:track_pdf_overflow_tracking_failure).with(standard_error)
+        claim.save!
+      end
+    end
   end
 end
