@@ -1,0 +1,10 @@
+= IncreaseCompensation
+TODO: Short description and motivation.
+
+== Installation
+Ensure the following line is in the root project's Gemfile:
+
+  gem 'increase_compensation', path: 'modules/increase_compensation'
+
+== License
+This module is open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
