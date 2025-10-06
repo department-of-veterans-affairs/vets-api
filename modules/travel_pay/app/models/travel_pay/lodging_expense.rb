@@ -18,7 +18,7 @@ module TravelPay
     validates :check_out_date, presence: true
     validate :check_out_after_check_in
 
-    # Override expense_type for MealExpense
+    # Override expense_type for LodgingExpense
     #
     # @return [String] the expense type
     def expense_type
