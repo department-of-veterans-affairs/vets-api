@@ -6,6 +6,8 @@ module V0
   class SignInController < SignIn::ApplicationController
     include SignIn::SSOAuthorizable
 
+    CERNER_ELIGIBLE_COOKIE_NAME = 'CERNER_ELIGIBLE'
+
     skip_before_action :authenticate,
                        only: %i[authorize callback token refresh revoke revoke_all_sessions logout
                                 logingov_logout_proxy]
@@ -23,6 +25,7 @@ module V0
 
       validate_authorize_params(type, client_id, acr, operation)
 
+      check_cerner_eligibility
       delete_cookies if token_cookies
 
       acr_for_type = SignIn::AcrTranslator.new(acr:, type:).perform
@@ -338,6 +341,14 @@ module V0
 
     def token_cookies
       @token_cookies ||= defined?(cookies) ? cookies : nil
+    end
+
+    def check_cerner_eligibility
+      value = ActiveModel::Type::Boolean.new.cast(cookies.signed[CERNER_ELIGIBLE_COOKIE_NAME])
+
+      sign_in_logger.info('check_cerner_eligibility',
+                          eligible: value.nil? ? :unknown : value,
+                          cookie_action: value.nil? ? :not_found : :found)
     end
 
     def delete_cookies
