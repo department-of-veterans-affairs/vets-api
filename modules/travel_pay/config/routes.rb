@@ -21,4 +21,12 @@ TravelPay::Engine.routes.draw do
       end
     end
   end
+
+  namespace :v1 do
+    resource :complex_claims_form_progress, only: %i[show update] do
+      collection do
+        patch :bulk_update
+      end
+    end
+  end
 end
