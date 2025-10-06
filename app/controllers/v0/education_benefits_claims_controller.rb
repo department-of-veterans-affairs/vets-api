@@ -12,12 +12,12 @@ module V0
       unless claim.save
         StatsD.increment("#{stats_key('create')}.failure")
         StatsD.increment("#{stats_key("create.22#{form_type}")}.failure")
-        Rails.logger.error "EBCC::create Failed to create claim #{form_type}, #{claim.errors.full_messages.join(',')}"
+        Rails.logger.error "EBCC::create Failed to create claim 22#{form_type}, #{claim.errors.full_messages.join(',')}"
         raise Common::Exceptions::ValidationErrors, claim
       end
 
       StatsD.increment("#{stats_key('create')}.success")
-      StatsD.increment("#{stats_key("create.#{form_type}")}.success")
+      StatsD.increment("#{stats_key("create.22#{form_type}")}.success")
       Rails.logger.info "ClaimID=#{claim.id} RPO=#{claim.education_benefits_claim.region} Form=#{form_type}"
 
       claim.after_submit(@current_user)
