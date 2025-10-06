@@ -9,45 +9,20 @@ RSpec.describe VeteranEnrollmentSystem::EnrollmentPeriods::Service do
   describe '#get_enrollment_periods' do
     context 'when the request is successful' do
       it 'returns the form data from the enrollment system' do
-        VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_form_success',
+        VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success',
                          { match_requests_on: %i[method uri] }) do
           response = subject.get_enrollment_periods(icn:)
 
           expect(response).to eq(
             {
               'data' => {
-                'issuer' => {
-                  'issuerName' => 'US Department of Veterans Affairs',
-                  'ein' => '54-2002017',
-                  'contactPhoneNumber' => '877-222-8387',
-                  'address' => {
-                    'street1' => 'PO Box 149975',
-                    'city' => 'Austin',
-                    'stateOrProvince' => 'TX',
-                    'zipOrPostalCode' => '78714-8975',
-                    'country' => 'USA'
+                'icn' => '1012667122V019349',
+                'mecPeriods' => [
+                  {
+                    'startDate' => '2024-03-05',
+                    'endDate' => '2024-03-05'
                   }
-                },
-                'responsibleIndividual' => {
-                  'name' => { 'firstName' => 'HECTOR', 'lastName' => 'ALLEN' },
-                  'address' => {
-                    'street1' => 'PO BOX 494',
-                    'city' => 'MOCA',
-                    'stateOrProvince' => 'PR',
-                    'zipOrPostalCode' => '00676-0494',
-                    'country' => 'USA'
-                  },
-                  'ssn' => '796126859',
-                  'dateOfBirth' => '19320205'
-                },
-                'coveredIndividual' => {
-                  'name' => { 'firstName' => 'HECTOR', 'lastName' => 'ALLEN' },
-                  'ssn' => '796126859',
-                  'dateOfBirth' => '19320205',
-                  'coveredAll12Months' => false,
-                  'monthsCovered' => ['MARCH']
-                },
-                'taxYear' => '2024'
+                ]
               },
               'messages' => []
             }
