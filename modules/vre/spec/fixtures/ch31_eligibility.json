@@ -19,9 +19,9 @@
   },
   "disabilityRating": {
     "combinedScd": 0,
-    "SCDDetails": []
+    "scdDetails": []
   },
-  "IRNDDate": "2025-08-04Z",
+  "irndDate": "2025-08-04Z",
   "eligibilityTerminationDate": null,
   "entitlementDetails": {
     "maxCh31Entitlement": { "month": 48, "days": 0 },
