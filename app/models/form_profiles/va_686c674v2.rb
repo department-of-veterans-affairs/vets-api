@@ -121,10 +121,12 @@ class FormProfiles::VA686c674v2 < FormProfile
     @dependents_information = persons.filter_map do |person|
       person_to_dependent_information(person)
     end
+    { success: true, dependents: @dependents_information }
   rescue => e
     monitor.track_event('warn', 'Failure initializing dependents_information', 'dependents.prefill.error',
                         { error: e&.message })
     @dependents_information = []
+    { success: false, dependents: @dependents_information }
   end
 
   ##
