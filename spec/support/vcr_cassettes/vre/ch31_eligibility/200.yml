@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://fwdproxy-staging.vfs.va.gov:4478/suite/webapi/chapter31-eligibility-details-search
+    uri: https://fake_url.com/suite/webapi/chapter31-eligibility-details-search
     body:
       encoding: UTF-8
       string: '{"icn":"1018616478V531227"}'
