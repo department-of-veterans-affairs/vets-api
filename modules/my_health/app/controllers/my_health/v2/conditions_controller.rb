@@ -75,7 +75,7 @@ module MyHealth
       end
 
       def service
-        UnifiedHealthData::Service.new(@current_user)
+        @service ||= UnifiedHealthData::Service.new(@current_user)
       end
     end
   end

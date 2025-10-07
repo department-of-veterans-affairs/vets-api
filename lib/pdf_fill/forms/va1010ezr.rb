@@ -243,12 +243,12 @@ module PdfFill
           return
         end
 
-        dependent_provided_support = @form_data['dependents'].any? do |dependent|
-          dependent['receivedSupportLastYear'] == true
+        dependent_received_support = @form_data['dependents'].any? do |dependent|
+          dependent['receivedSupportLastYear']
         end
 
         @form_data['provideSupportLastYear'] =
-          map_select_value(@form_data['provideSupportLastYear'] || dependent_provided_support)
+          map_select_value(@form_data['provideSupportLastYear'] || dependent_received_support)
       end
 
       def merge_associations(type)

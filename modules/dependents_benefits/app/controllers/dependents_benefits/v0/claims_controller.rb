@@ -15,6 +15,8 @@ module DependentsBenefits
       before_action :load_user, only: %i[create show]
       before_action :check_flipper_flag
 
+      wrap_parameters :dependents_application, format: [:json]
+
       service_tag 'dependent-change'
 
       def show
