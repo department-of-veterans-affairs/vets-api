@@ -40,14 +40,9 @@ module ClaimsApi
     end
 
     def benefits_doc_upload(claim:, pdf_path:, doc_type:, ptcpnt_vet_id:)
-      if Flipper.enabled?(:claims_api_ews_uploads_bd_refactor)
-        EvidenceWaiverDocumentService.new.create_upload(claim:, pdf_path:, doc_type:, ptcpnt_vet_id:)
-        log_ews_event(claim, :benefits_doc_upload,
-                      'EvidenceWaiverDocumentService creation successful.')
-      else
-        benefits_doc_api.upload(claim:, pdf_path:, doc_type:, pctpnt_vet_id: ptcpnt_vet_id)
-        log_ews_event(claim, :benefits_doc_upload, 'BD API upload successful.')
-      end
+      EvidenceWaiverDocumentService.new.create_upload(claim:, pdf_path:, doc_type:, ptcpnt_vet_id:)
+      log_ews_event(claim, :benefits_doc_upload,
+                    'EvidenceWaiverDocumentService creation successful.')
     end
 
     def update_status_for_submission(lighthouse_claim)
