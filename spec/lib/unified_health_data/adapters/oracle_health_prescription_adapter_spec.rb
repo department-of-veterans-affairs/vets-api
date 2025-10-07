@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'unified_health_data/models/prescription'
 require 'unified_health_data/adapters/oracle_health_prescription_adapter'
+require 'lighthouse/facilities/v1/client'
 
 describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
   subject { described_class.new }
