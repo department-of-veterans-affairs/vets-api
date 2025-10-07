@@ -27,13 +27,13 @@ module TravelPay
 
     private
 
-    # This validation ensures check_out_date is after check_in_date
+    # This validation ensures check_out_date is the same day or after check_in_date
     def check_out_after_check_in
       return unless check_in_date.present? && check_out_date.present?
 
-      if check_out_date <= check_in_date
-        errors.add(:check_out_date, 'must be after check-in date')
-        errors.add(:check_in_date, 'must be before check-out date')
+      if check_out_date < check_in_date
+        errors.add(:check_out_date, 'must be the same day or after check-in date')
+        errors.add(:check_in_date, 'must be the same day or before check-out date')
       end
     end
   end

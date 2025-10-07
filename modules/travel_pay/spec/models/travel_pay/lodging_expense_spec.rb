@@ -91,18 +91,18 @@ RSpec.describe TravelPay::LodgingExpense, type: :model do
       expect(lodging_expense).to be_valid
     end
 
-    it 'is invalid when check_out_date is the same as check_in_date' do
+    it 'is valid when check_out_date is the same as check_in_date' do
       lodging_expense.check_in_date = Time.zone.today
       lodging_expense.check_out_date = Time.zone.today
-      expect(lodging_expense).not_to be_valid
-      expect(lodging_expense.errors[:check_out_date]).to include('must be after check-in date')
+      expect(lodging_expense).to be_valid
     end
 
     it 'is invalid when check_out_date is before check_in_date' do
       lodging_expense.check_in_date = Time.zone.today
       lodging_expense.check_out_date = Time.zone.today - 1.day
       expect(lodging_expense).not_to be_valid
-      expect(lodging_expense.errors[:check_out_date]).to include('must be after check-in date')
+      expect(lodging_expense.errors[:check_out_date]).to include('must be the same day or after check-in date')
+      expect(lodging_expense.errors[:check_in_date]).to include('must be the same day or before check-out date')
     end
   end
 
