@@ -1555,7 +1555,6 @@ vanotify:
         form1880_reminder_email: form1880_reminder_email_template_id
         form1900_action_needed_email: form1900_action_needed_email_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
-        form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1990emeb_approved_confirmation_email: form1990emeb_approved_confirmation_email_template_id
         form1990emeb_denied_confirmation_email: form1990emeb_denied_confirmation_email_template_id
         form1990emeb_offramp_confirmation_email: form1990emeb_offramp_confirmation_email_template_id

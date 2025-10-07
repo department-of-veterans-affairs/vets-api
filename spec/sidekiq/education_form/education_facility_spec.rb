@@ -47,7 +47,7 @@ RSpec.describe EducationForm::EducationFacility do
       end
     end
 
-    %w[1990E 5490 5495].each do |form_type|
+    %w[5490 5495].each do |form_type|
       context "22-#{form_type}" do
         let(:form) { OpenStruct.new(relativeAddress: western_address) }
 

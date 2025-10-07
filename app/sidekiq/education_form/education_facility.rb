@@ -108,7 +108,7 @@ module EducationForm
       case form_type.upcase
       when '1990'
         education_program(record)&.address || record.veteranAddress
-      when '1990E', '5490', '5495'
+      when '5490', '5495'
         record.educationProgram&.address || record.relativeAddress
       when '1995'
         record.newSchool&.address || record.veteranAddress

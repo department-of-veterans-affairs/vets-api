@@ -11,11 +11,15 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
 
   context 'with some sample claims', run_at: '2017-07-27 00:00:00 -0400' do
     let!(:education_benefits_claim_1) do
-      create(:education_benefits_claim_1990e, processed_at: time.beginning_of_day)
+      claim = create(:va5490).education_benefits_claim
+      claim.update!(processed_at: time.beginning_of_day)
+      claim
     end
 
     let!(:education_benefits_claim_2) do
-      create(:education_benefits_claim, processed_at: time.beginning_of_day)
+      claim = create(:education_benefits_claim)
+      claim.update!(processed_at: time.beginning_of_day)
+      claim
     end
 
     before do

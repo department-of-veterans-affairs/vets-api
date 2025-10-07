@@ -954,10 +954,6 @@ features:
     actor_type: user
     description: Enables form 1995 email submission confirmation (VaNotify)
     enable_in_development: true
-  form1990e_confirmation_email:
-    actor_type: user
-    description: Enables form 1990e email submission confirmation (VaNotify)
-    enable_in_development: true
   form21_0966_confirmation_email:
     actor_type: user
     description: Enables form 21-0966 email submission confirmation (VaNotify)
@@ -1767,9 +1763,6 @@ features:
   show_edu_benefits_1990_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 1990 introduction page
-  show_edu_benefits_1990e_wizard:
-    actor_type: user
-    description: This determines when the wizard should show up on the 1990e introduction page
   show_edu_benefits_1995_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 1995 introduction page
@@ -1807,14 +1800,6 @@ features:
     actor_type: user
     description: Displays an alert to users on 1990EZ intro page that the Backend Service is Down.
     enable_in_development: false
-  show_meb_1990E_maintenance_alert:
-    actor_type: user
-    description: Displays an alert to users on 1990E intro page that the Backend Service is Down.
-    enable_in_development: false
-  show_meb_1990E_R6_maintenance_message:
-    actor_type: user
-    description: Displays an alert to users on 1990E intro page that the Backend Service is Down.
-    enable_in_development: false
   show_meb_letters_maintenance_alert:
     actor_type: user
     description: Displays an alert to users on Letters Inbox page that the Backend Service is Down.
@@ -1833,10 +1818,6 @@ features:
   show_meb_5490_maintenance_alert:
     actor_type: user
     description: Displays an alert to users on 5490 intro page that the Backend Service is Down.
-    enable_in_development: false
-  show_meb_5490_1990e_text_update:
-    actor_type: user
-    description: Displays updated text to more clearly explain who needs to fill out form
     enable_in_development: false
   show_one_va_debt_letter:
     actor_type: user
