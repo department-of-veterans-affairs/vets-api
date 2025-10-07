@@ -185,6 +185,11 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           }
         )
       end
+
+      it 'returns nil when encounter has no location' do
+        result = subject.send(:extract_facility_name, resource_with_encounter_no_location)
+        expect(result).to be_nil
+      end
     end
 
     context 'with no performer, encounter, or requester' do
