@@ -12,8 +12,6 @@ module BenefitsIntake
   #   'docType': String,
   #   'businessLine': String, # optional; enum in BUSINESS_LINE
   # }
-  #
-  # https://developer.va.gov/explore/api/benefits-intake/docs
   class Metadata
     # collection of expected businessLine values
     BUSINESS_LINE = {

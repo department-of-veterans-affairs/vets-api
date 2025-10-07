@@ -57,4 +57,15 @@ class Lighthouse::SubmissionAttempt < SubmissionAttempt
   def monitor
     @monitor ||= Logging::Monitor.new('lighthouse_submission_attempt')
   end
+
+  def status_change_hash
+    {
+      submission_id: submission.id,
+      claim_id: submission.saved_claim_id,
+      form_type: submission.form_id,
+      from_state: previous_changes[:status]&.first,
+      to_state: status,
+      benefits_intake_uuid:
+    }
+  end
 end

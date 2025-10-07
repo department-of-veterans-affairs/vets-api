@@ -20,7 +20,10 @@ module BenefitsIntake
     # TODO: process document error similar to service exception
     class InvalidDocumentError < StandardError; end
 
+    # tracking metric prefix
     STATSD_KEY_PREFIX = 'api.benefits_intake'
+
+    # values for a valid pdf
     PDF_VALIDATOR_OPTIONS = {
       size_limit_in_bytes: 100_000_000, # 100 MB
       check_page_dimensions: true,
@@ -62,7 +65,7 @@ module BenefitsIntake
     # Instantiates a new location and uuid for upload to BenefitsIntake
     # - the upload muse be performed within 15 minutes of this request
     #
-    # @param [Boolean] refresh
+    # @param refresh [Boolean] request location and uuid again
     # @return [Array<String>] the upload location and uuid to be used
     def request_upload(refresh: false)
       if refresh || !(@location && @uuid)
@@ -77,7 +80,7 @@ module BenefitsIntake
 
     # Get the status for a previous upload
     #
-    # @param [String] uuid
+    # @param uuid [String] the uuid of the submission
     def get_status(uuid:)
       headers = { 'Accept' => Mime[:json].to_s }
       perform :get, "uploads/#{uuid}", {}, headers
@@ -85,7 +88,7 @@ module BenefitsIntake
 
     # Get the status for a set of prior uploads
     #
-    # @param [Array<String>] uuids
+    # @param uuids [Array<String>] the uuids to check
     def bulk_status(uuids:)
       headers = { 'Content-Type' => Mime[:json].to_s, 'Accept' => Mime[:json].to_s }
       data = { ids: uuids }.to_json
@@ -94,7 +97,7 @@ module BenefitsIntake
 
     # Download a zip of 'what the server sees' for a previous upload
     #
-    # @param [String] uuid
+    # @param uuid [String] the uuid of the submission
     def download(uuid:)
       headers = { 'Accept' => Mime[:zip].to_s }
       perform :get, "uploads/#{uuid}/download", {}, headers
@@ -103,7 +106,7 @@ module BenefitsIntake
     # Validate the metadata satisfies BenefitsIntake specifications.
     # @see BenefitsIntake::Metadata.validate
     #
-    # @param [Hash] metadata
+    # @param metadata [Hash] metadata key-value pairs
     #
     # @return [Hash] validated and corrected metadata
     def valid_metadata?(metadata:)
@@ -116,9 +119,9 @@ module BenefitsIntake
     # @raise [InvalidDocumentError] if document is not a valid pdf
     # @see PDF_VALIDATOR_OPTIONS
     #
-    # @param [String] document: path to file
+    # @param document [String] path to file
     #
-    # @returns [String] path to file
+    # @return [String] path to file
     def valid_document?(document:)
       result = PDFUtilities::PDFValidator::Validator.new(document, PDF_VALIDATOR_OPTIONS).validate
       raise InvalidDocumentError, "Invalid Document: #{result.errors}" unless result.valid_pdf?
@@ -133,9 +136,9 @@ module BenefitsIntake
 
     # Validate the upload meets BenefitsIntake specifications.
     #
-    # @param [Hash] metadata
-    # @param [String] document
-    # @param [Array<String>] attachments; optional, default []
+    # @param metadata [Hash] metadata key-value pairs
+    # @param document [String] path to file
+    # @param attachments [Array<String>] paths to attachments file; optional, default []
     #
     # @return [Hash] payload for upload
     def valid_upload?(metadata:, document:, attachments: [])

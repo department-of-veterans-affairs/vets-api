@@ -14,8 +14,11 @@ module BenefitsIntake
     sidekiq_options retry: false
     attr_reader :pending_attempts
 
+    # tracking metric
     STATS_KEY = 'api.benefits_intake.submission_status'
+    # number of days before a 'stale' submission
     STALE_SLA = Settings.lighthouse.benefits_intake.report.stale_sla || 10
+    # batch size for each request
     BATCH_SIZE = Settings.lighthouse.benefits_intake.report.batch_size || 1000
 
     # Lighthouse `status` mapped to the `result` sent to the handler

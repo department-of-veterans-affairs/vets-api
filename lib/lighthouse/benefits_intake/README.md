@@ -1,27 +1,70 @@
-Write the Overview
-Summarize the purpose, key features, and related VA services.
+# Lighthouse Benefits Intake
 
-Create a Table of Contents
-Link each major heading (Overview, Prerequisites, Installation, …) for easy navigation.
+Allows a programmatic submission of a form via uploaded PDF to the Lighthouse Benefits Intake API.
+The Lighthouse API returns a success on receiving a valid upload, but that does not indicate a successful submission to VBMS.
+This service also contains a job to perform polling to the API for the status of a submission.
+To allow a form/team agnostic approach to this submission and polling a handler is registered
+to provide the uuids to query and processing for handling the response
 
-Document Prerequisites
-List required runtimes, libraries, and OS‑level dependencies in a clear table.
+## Table of Contents
 
-Provide Installation Steps
-Include cloning, dependency installation, and any DB/setup commands.
+- [Prerequisites](#prerequisites)
+- [Configuration](#configuration)
+- [Usage Examples](#usage-examples)
+- [API Reference](#api-reference)
+- [Testing](#testing)
 
-Define Configuration Options
-Show a sample YAML/ENV file, explain defaults, required keys, and secret‑handling tips.
+## Prerequisites
 
-Add Usage Examples
-Supply minimal code snippets for common actions (e.g., initializing the client, fetching data, handling errors).
+For local development you need to acquire a sandbox/staging API key:
+https://developer.va.gov/explore/api/benefits-intake/sandbox-access
 
-Detail API Reference / Endpoints
-Populate a table with HTTP method, path, description, parameters, and return format.
-Link to the full OpenAPI/Swagger spec if available.
+## Configuration
 
-Explain Testing Procedure
-Outline how to run unit and integration tests, including any required environment variables or fixtures.
+Within `config/settings.yml` there is an entry for `lighthouse.benefits_intake`.
+The values are stored in AWS Parameter store, and can be overriden for local development.
 
-Specify Versioning & Release Process
-State the semantic‑versioning scheme, tagging steps, and CI/CD publishing notes.
+The running of the job is controlled in `lib/periodic_jobs.rb`
+
+A handler can be registered with the status job in different ways:
+1. from within `config/initializers/benefits_intake_submission_status_handlers.rb` directly providing the key and class
+2. from within a modules engine initialization, eg. `modules/pensions/lib/pensions/engine.rb`
+
+## Usage Examples
+
+To perform an upload of a form and attachments:
+
+```ruby
+intake_service = BenefitsIntake::Service.new
+metadata = intake_service.valid_metadata?(metadata:)
+form_path = intake_service.valid_document?(document:)
+intake_service.request_upload
+payload = {
+  upload_url: intake_service.location,
+  document: form_path,          # generated pdf path for the form
+  metadata: metadata.to_json,   # metadata is a Hash
+  attachments: attachment_paths # generated pdf path for each attachment; each checked with `valid_document?`
+}
+intake_service.perform_upload(**payload)
+```
+
+To register a handler with the submission status job:
+
+```ruby
+# Register our Pension Benefits Intake Submission Handler
+::BenefitsIntake::SubmissionStatusJob.register_handler(Pensions::FORM_ID, Pensions::BenefitsIntake::SubmissionHandler)
+```
+
+- [burials/benefits_intake/submit_claim_job](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/burials/lib/burials/benefits_intake/submit_claim_job.rb)
+- [pensions/benefits_intake/submit_claim_job](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/pensions/lib/pensions/benefits_intake/submit_claim_job.rb)
+
+## API Reference
+
+https://developer.va.gov/explore/api/benefits-intake/docs
+https://api.va.gov/internal/docs/benefits-intake/v1/openapi.json
+
+## Testing
+
+`rspec spec/lib/lighthouse/benefits_intake`
+
+Register a handler with the status job, create a claim, submit the claim to Lighthouse using the service, run the status job providing the claim form_id
