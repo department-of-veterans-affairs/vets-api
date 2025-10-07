@@ -1823,7 +1823,6 @@ RSpec.describe FormProfile, type: :model do
         %w[
           21P-527EZ
           22-1990
-          22-1990N
           22-1990E
           22-1995
           22-5490
