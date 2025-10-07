@@ -12,6 +12,10 @@ module TravelClaim
   class Configuration < Common::Client::Configuration::REST
     include Singleton
 
+    # Override default timeouts to handle multiple external API calls in travel claims submission
+    self.open_timeout = 30  # Connection establishment timeout
+    self.read_timeout = 30  # Response timeout for external API calls
+
     ##
     # @!attribute [w] server_url
     #   @return [String, nil] Custom server URL that overrides the default base_path

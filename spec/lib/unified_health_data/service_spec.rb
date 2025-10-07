@@ -293,6 +293,238 @@ describe UnifiedHealthData::Service, type: :service do
     end
   end
 
+  # Allergies
+  describe '#get_allergies' do
+    let(:allergies_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'allergies_example.json'
+      ).read)
+    end
+
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: allergies_sample_response
+      )
+    end
+
+    context 'happy path' do
+      context 'when data exists for both VistA + OH' do
+        it 'returns all allergies' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_allergies_by_date)
+            .and_return(sample_client_response)
+
+          allergies = service.get_allergies
+          expect(allergies.size).to eq(13)
+          expect(allergies.map(&:categories)).to contain_exactly(
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['environment'],
+            ['food'],
+            [],
+            ['food'],
+            ['food']
+          )
+          expect(allergies[0]).to have_attributes(
+            {
+              'id' => '2678',
+              'name' => 'TRAZODONE',
+              'date' => nil,
+              'categories' => ['medication'],
+              'reactions' => [],
+              'location' => nil,
+              'observedHistoric' => 'h',
+              'notes' => [],
+              'provider' => nil
+            }
+          )
+          expect(allergies).to all(have_attributes(
+                                     {
+                                       'id' => be_a(String),
+                                       'name' => be_a(String),
+                                       'date' => be_a(String).or(be_nil),
+                                       'categories' => be_an(Array),
+                                       'reactions' => be_an(Array),
+                                       'location' => be_a(String).or(be_nil),
+                                       'observedHistoric' => be_a(String).or(be_nil),
+                                       'notes' => be_an(Array),
+                                       'provider' => be_a(String).or(be_nil)
+                                     }
+                                   ))
+        end
+      end
+
+      context 'when data exists for only VistA or OH' do
+        it 'returns allergies for VistA only' do
+          modified_response = allergies_sample_response.deep_dup
+          modified_response['oracle-health'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_allergies_by_date)
+            .and_return(Faraday::Response.new(
+                          body: modified_response
+                        ))
+          allergies = service.get_allergies
+          expect(allergies.size).to eq(5)
+          expect(allergies.map(&:categories)).to contain_exactly(
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['medication']
+          )
+          expect(allergies).to all(have_attributes(
+                                     {
+                                       'id' => be_a(String),
+                                       'name' => be_a(String),
+                                       'date' => be_a(String).or(be_nil),
+                                       'categories' => be_an(Array),
+                                       'reactions' => be_an(Array),
+                                       'location' => be_a(String).or(be_nil),
+                                       'observedHistoric' => be_a(String).or(be_nil),
+                                       'notes' => be_an(Array),
+                                       'provider' => be_a(String).or(be_nil)
+                                     }
+                                   ))
+        end
+
+        it 'returns allergies for OH only' do
+          modified_response = allergies_sample_response.deep_dup
+          modified_response['vista'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_allergies_by_date)
+            .and_return(Faraday::Response.new(
+                          body: modified_response
+                        ))
+          allergies = service.get_allergies
+          expect(allergies.size).to eq(8)
+          expect(allergies.map(&:categories)).to contain_exactly(
+            ['medication'],
+            ['medication'],
+            ['medication'],
+            ['environment'],
+            ['food'],
+            [],
+            ['food'],
+            ['food']
+          )
+          expect(allergies).to all(have_attributes(
+                                     {
+                                       'id' => be_a(String),
+                                       'name' => be_a(String),
+                                       'date' => be_a(String).or(be_nil),
+                                       'categories' => be_an(Array),
+                                       'reactions' => be_an(Array),
+                                       'location' => be_a(String).or(be_nil),
+                                       'observedHistoric' => be_nil, # OH data doesn't include this field
+                                       'notes' => be_an(Array),
+                                       'provider' => be_a(String).or(be_nil)
+                                     }
+                                   ))
+        end
+      end
+
+      context 'when there are no records in VistA or OH' do
+        it 'returns empty array allergies' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_allergies_by_date)
+            .and_return(Faraday::Response.new(
+                          body: { 'vista' => {}, 'oracle-health' => {} }
+                        ))
+          allergies = service.get_allergies
+          expect(allergies.size).to eq(0)
+        end
+      end
+    end
+
+    context 'error handling' do
+      it 'handles unknown errors' do
+        uhd_service = double
+        allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
+        allow(uhd_service).to receive(:get_allergies).and_raise(StandardError.new('Unknown fetch error'))
+
+        expect do
+          uhd_service.get_allergies
+        end.to raise_error(StandardError, 'Unknown fetch error')
+      end
+    end
+  end
+
+  describe '#get_single_allergy' do
+    let(:allergies_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'allergies_example.json'
+      ).read)
+    end
+
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: allergies_sample_response
+      )
+    end
+
+    before do
+      allow_any_instance_of(UnifiedHealthData::Client)
+        .to receive(:get_allergies_by_date)
+        .and_return(sample_client_response)
+    end
+
+    context 'happy path' do
+      context 'when data exists for both VistA + OH' do
+        it 'returns a single VistA allergy' do
+          allergy = service.get_single_allergy('2679')
+          expect(allergy).to have_attributes(
+            {
+              'id' => '2679',
+              'name' => 'MAXZIDE',
+              'date' => nil,
+              'categories' => ['medication'],
+              'reactions' => [],
+              'location' => nil,
+              'observedHistoric' => 'h',
+              'notes' => [],
+              'provider' => nil
+            }
+          )
+        end
+
+        it 'returns a single OH allergy' do
+          allergy = service.get_single_allergy('132316417')
+          expect(allergy).to have_attributes(
+            {
+              'id' => '132316417',
+              'name' => 'Oxymorphone',
+              'date' => '2019',
+              'categories' => ['medication'],
+              'reactions' => ['Anaphylaxis'],
+              'location' => nil,
+              'observedHistoric' => nil,
+              'notes' => ['Testing Contraindication type reaction', 'Secondary comment for contraindication'],
+              'provider' => ' Victoria A Borland'
+            }
+          )
+        end
+      end
+    end
+
+    context 'error handling' do
+      it 'handles unknown errors' do
+        uhd_service = double
+        allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
+        allow(uhd_service).to receive(:get_single_allergy).and_raise(StandardError.new('Unknown fetch error'))
+
+        expect do
+          uhd_service.get_single_allergy('banana')
+        end.to raise_error(StandardError, 'Unknown fetch error')
+      end
+    end
+  end
+
   # Clinical Notes
   describe '#get_care_summaries_and_notes' do
     let(:notes_sample_response) do
@@ -561,20 +793,25 @@ describe UnifiedHealthData::Service, type: :service do
 
   # Prescriptions
   describe '#get_prescriptions' do
+    before do
+      # Freeze today so the generated end_date in service matches VCR cassette date range expectations
+      allow(Time.zone).to receive(:today).and_return(Date.new(2025, 9, 19))
+    end
+
     context 'with valid prescription responses', :vcr do
       it 'returns prescriptions from both VistA and Oracle Health' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
           prescriptions = service.get_prescriptions
-          expect(prescriptions.size).to eq(78)
+          expect(prescriptions.size).to eq(55)
 
           # Check that prescriptions are UnifiedHealthData::Prescription objects
           expect(prescriptions).to all(be_a(UnifiedHealthData::Prescription))
 
           # Verify delegation methods work
-          expect(prescriptions.map(&:prescription_id)).to include('25809921', '26058413', '26046248', '15214174591',
-                                                                  '15215168033', '15216187241')
-          expect(prescriptions.map(&:prescription_name)).to include('ezetimibe 10 MG Oral Tablet',
-                                                                    'Sertraline 25 MG Oral Tablet')
+          expect(prescriptions.map(&:prescription_id)).to include('25804853', '25804854', '25804855', '15218955729',
+                                                                  '15214174423', '15214303643')
+          expect(prescriptions.map(&:prescription_name)).to include('albuterol (albuterol 90 mcg inhaler [8.5g])',
+                                                                    'warfarin (warfarin 5 mg oral tablet)')
         end
       end
 
@@ -582,7 +819,7 @@ describe UnifiedHealthData::Service, type: :service do
         it 'applies filtering to exclude old discontinued/expired prescriptions' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
             filtered_prescriptions = service.get_prescriptions(current_only: true)
-            expect(filtered_prescriptions.size).to eq(77)
+            expect(filtered_prescriptions.size).to eq(54)
           end
         end
       end
@@ -606,17 +843,28 @@ describe UnifiedHealthData::Service, type: :service do
       it 'properly maps Oracle Health prescription fields' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
           prescriptions = service.get_prescriptions
-          oracle_prescription = prescriptions.find { |p| p.prescription_id == '25809921' }
+          oracle_prescription = prescriptions.find { |p| p.prescription_id == '15214174591' }
 
           expect(oracle_prescription.refill_status).to eq('active')
-          expect(oracle_prescription.refill_remaining).to eq(5)
-          expect(oracle_prescription.prescription_name).to eq('1.5 ML Buprenorphine 200 MG/ML Prefilled Syringe')
+          expect(oracle_prescription.refill_submit_date).to be_nil
+          expect(oracle_prescription.refill_date).to eq('2025-06-24T21:05:53.000Z')
+          expect(oracle_prescription.refill_remaining).to eq(2)
+          expect(oracle_prescription.facility_name).to eq('Ambulatory Pharmacy')
+          expect(oracle_prescription.ordered_date).to eq('2025-05-30T17:58:09Z')
+          expect(oracle_prescription.quantity).to eq('8.5')
+          expect(oracle_prescription.expiration_date).to eq('2026-05-30T04:59:59Z')
+          expect(oracle_prescription.prescription_number).to eq('15214174591')
+          expect(oracle_prescription.prescription_name).to eq('albuterol (albuterol 90 mcg inhaler [8.5g])')
+          expect(oracle_prescription.dispensed_date).to be_nil
+          expect(oracle_prescription.station_number).to eq('556')
+          expect(oracle_prescription.is_refillable).to be true
+          expect(oracle_prescription.is_trackable).to be false
+          expect(oracle_prescription.tracking_information).to eq({})
+          expect(oracle_prescription.prescription_source).to eq('')
           expect(oracle_prescription.instructions).to eq(
-            'See Instructions. This should not be dispensed to the patient but should be dispensed to clinic for ' \
-            'in-clinic administration.. Refills: 5.'
+            '2 Inhalation Inhalation (breathe in) every 4 hours as needed shortness of breath or wheezing. Refills: 2.'
           )
-          expect(oracle_prescription.is_refillable).to be false
-          expect(oracle_prescription.ordered_date).to eq('Fri, 27 Jun 2025 00:00:00 EDT')
+          expect(oracle_prescription.facility_phone_number).to be_nil
         end
       end
 
@@ -645,13 +893,14 @@ describe UnifiedHealthData::Service, type: :service do
             'Refills: 2.'
           )
           expect(oracle_prescription_with_patient_instruction.facility_name).to eq('Ambulatory Pharmacy')
-          expect(oracle_prescription_with_patient_instruction.dispensed_date).to eq('2025-06-24T21:05:53.000Z')
+          expect(oracle_prescription_with_patient_instruction.refill_date).to eq('2025-06-24T21:05:53.000Z')
+          expect(oracle_prescription_with_patient_instruction.dispensed_date).to be_nil
 
           # Test prescription with completed status mapping
           completed_prescription = prescriptions.find { |p| p.prescription_id == '15214166467' }
           expect(completed_prescription.refill_status).to eq('completed')
           expect(completed_prescription.is_refillable).to be false
-          expect(completed_prescription.refill_date).to eq('2025-05-22T21:03:45Z')
+          expect(completed_prescription.refill_date).to be_nil
         end
       end
 
@@ -664,7 +913,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
               message: 'UHD prescriptions retrieved',
-              total_prescriptions: 78,
+              total_prescriptions: 55,
               service: 'unified_health_data'
             )
           )
@@ -685,13 +934,10 @@ describe UnifiedHealthData::Service, type: :service do
       it 'handles VistA-only data' do
         VCR.use_cassette('unified_health_data/get_prescriptions_vista_only') do
           prescriptions = service.get_prescriptions
-          expect(prescriptions.size).to eq(33)
+          expect(prescriptions.size).to eq(10)
           expect(prescriptions.map(&:prescription_id)).to contain_exactly(
-            '25804851', '25804852', '25804853', '25804854', '25804855', '25804856', '25804858', '25804859',
-            '25804860', '25806260', '25804815', '25804816', '25804820', '25804822', '25804825', '25804826',
-            '25804828', '25804831', '25804832', '25804834', '25804836', '25804837', '25804841', '25804842',
-            '25804843', '25804844', '25804848', '25893955', '25859533', '25859534', '25809921', '26058413',
-            '26046248'
+            '25804851', '25804852', '25804853', '25804854', '25804855',
+            '25804856', '25804858', '25804859', '25804860', '25804848'
           )
         end
       end
@@ -801,6 +1047,144 @@ describe UnifiedHealthData::Service, type: :service do
           expect(result[:success]).to eq([])
           expect(result[:failed]).to eq([])
         end
+      end
+    end
+
+    context 'parse_refill_response edge cases' do
+      it 'always returns arrays for success and failed keys with nil response body' do
+        response = double(body: nil)
+        allow(service).to receive(:parse_response_body).with(nil).and_return(nil)
+
+        result = service.send(:parse_refill_response, response)
+
+        expect(result).to have_key(:success)
+        expect(result).to have_key(:failed)
+        expect(result[:success]).to eq([])
+        expect(result[:failed]).to eq([])
+      end
+
+      it 'always returns arrays for success and failed keys with non-array response body' do
+        response = double(body: { error: 'Invalid format' })
+        allow(service).to receive(:parse_response_body).and_return({ error: 'Invalid format' })
+
+        result = service.send(:parse_refill_response, response)
+
+        expect(result).to have_key(:success)
+        expect(result).to have_key(:failed)
+        expect(result[:success]).to eq([])
+        expect(result[:failed]).to eq([])
+      end
+
+      it 'always returns arrays for success and failed keys with empty array response' do
+        response = double(body: [])
+        allow(service).to receive(:parse_response_body).and_return([])
+
+        result = service.send(:parse_refill_response, response)
+
+        expect(result).to have_key(:success)
+        expect(result).to have_key(:failed)
+        expect(result[:success]).to eq([])
+        expect(result[:failed]).to eq([])
+      end
+
+      it 'returns empty failed array when only successes exist' do
+        response = double(body: [
+                            { 'success' => true, 'orderId' => '123', 'message' => 'Success', 'stationNumber' => '570' }
+                          ])
+        allow(service).to receive(:parse_response_body).and_return([
+                                                                     { 'success' => true,
+                                                                       'orderId' => '123',
+                                                                       'message' => 'Success',
+                                                                       'stationNumber' => '570' }
+                                                                   ])
+
+        result = service.send(:parse_refill_response, response)
+
+        expect(result[:success]).to eq([
+                                         { id: '123', status: 'Success', station_number: '570' }
+                                       ])
+        expect(result[:failed]).to eq([])
+        expect(result[:failed]).to be_an(Array)
+      end
+
+      it 'returns empty success array when only failures exist' do
+        response = double(body: [
+                            { 'success' => false, 'orderId' => '456', 'message' => 'Failed', 'stationNumber' => '571' }
+                          ])
+        allow(service).to receive(:parse_response_body).and_return([
+                                                                     { 'success' => false, 'orderId' => '456',
+                                                                       'message' => 'Failed', 'stationNumber' => '571' }
+                                                                   ])
+
+        result = service.send(:parse_refill_response, response)
+
+        expect(result[:success]).to eq([])
+        expect(result[:success]).to be_an(Array)
+        expect(result[:failed]).to eq([
+                                        { id: '456', error: 'Failed', station_number: '571' }
+                                      ])
+      end
+    end
+
+    context 'extract_successful_refills' do
+      it 'returns empty array when no successful refills exist' do
+        refill_items = [
+          { 'success' => false, 'orderId' => '123', 'message' => 'Failed', 'stationNumber' => '570' }
+        ]
+
+        result = service.send(:extract_successful_refills, refill_items)
+
+        expect(result).to eq([])
+      end
+
+      it 'returns empty array when refill_items is empty' do
+        result = service.send(:extract_successful_refills, [])
+
+        expect(result).to eq([])
+      end
+
+      it 'extracts successful refills correctly' do
+        refill_items = [
+          { 'success' => true, 'orderId' => '123', 'message' => 'Success', 'stationNumber' => '570' },
+          { 'success' => false, 'orderId' => '456', 'message' => 'Failed', 'stationNumber' => '571' }
+        ]
+
+        result = service.send(:extract_successful_refills, refill_items)
+
+        expect(result).to eq([
+                               { id: '123', status: 'Success', station_number: '570' }
+                             ])
+      end
+    end
+
+    context 'extract_failed_refills' do
+      it 'returns empty array when no failed refills exist' do
+        refill_items = [
+          { 'success' => true, 'orderId' => '123', 'message' => 'Success', 'stationNumber' => '570' }
+        ]
+
+        result = service.send(:extract_failed_refills, refill_items)
+
+        expect(result).to eq([])
+      end
+
+      it 'returns empty array when refill_items is empty' do
+        result = service.send(:extract_failed_refills, [])
+
+        expect(result).to eq([])
+      end
+
+      it 'extracts failed refills correctly' do
+        refill_items = [
+          { 'success' => true, 'orderId' => '123', 'message' => 'Success', 'stationNumber' => '570' },
+          { 'success' => false, 'orderId' => '456', 'message' => 'Failed', 'stationNumber' => '571' }
+        ]
+
+        result = service.send(:extract_failed_refills, refill_items)
+
+        expect(result).to eq([
+                               { id: '456', error: 'Failed', station_number: '571' }
+                             ])
       end
     end
   end
