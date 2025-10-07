@@ -802,10 +802,6 @@ features:
   disability_526_track_saved_claim_error:
     actor_type: user
     description: enables improved logging of SavedClaim::DisabilityCompensation::Form526AllClaim save failures
-  disability_526_add_claim_date_to_lighthouse:
-    actor_type: user
-    description: enables sending the claim date to Lighthouse when submitting a Form 526EZ when present
-    enable_in_development: true
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -2072,6 +2068,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove the redundant call to facility configurations when determining patient eligibility.
+  va_online_scheduling_use_browser_timezone:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to default to browser timezone when facility timezone is unavailable.
   vaos_appointment_notification_callback:
     actor_type: user
     enable_in_development: true
