@@ -17,19 +17,18 @@ module SimpleFormsApi
         state_code: data.dig('address', 'state'),
         zip_code: data.dig('address', 'postal_code')
       )
-      @signature = data['statement_of_truth_signature']
-      @signature_date_formatted = signature_date.strftime('%m/%d/%Y')
     end
 
     def desired_stamps
       coords = employed? ? [[50, 410]] : [[50, 275]]
-      [{ coords:, text: signature, page: 1 }]
+      # TODO: Use data['statement_of_truth_signature'] when frontend sends it
+      signature_text = "#{data.dig('full_name', 'first')} #{data.dig('full_name', 'last')}".strip
+      
+      [{ coords:, text: signature_text, page: 1 }]
     end
 
     def dob
-      # date_of_birth is in YYYY-MM-DD format
       trimmed_dob = data['date_of_birth']&.tr('-', '')
-
       [trimmed_dob&.[](0..3), trimmed_dob&.[](4..5), trimmed_dob&.[](6..7)]
     end
 
@@ -57,7 +56,7 @@ module SimpleFormsApi
       {
         'veteranFirstName' => data.dig('full_name', 'first'),
         'veteranLastName' => data.dig('full_name', 'last'),
-        'fileNumber' => data['va_file_number'].presence || data['ssn'],
+        'fileNumber' => data.dig('id_number', 'va_file_number').presence || data.dig('id_number', 'ssn'),
         'zipCode' => data.dig('address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => data['form_number'],
@@ -70,11 +69,15 @@ module SimpleFormsApi
     end
 
     def phone_alternate
-      data['mobile_phone'].insert(-8, '-').insert(-5, '-')
+      phone = data['mobile_phone_number']
+      return nil if phone.nil?
+      phone.insert(-8, '-').insert(-5, '-')
     end
 
     def phone_primary
-      data['home_phone'].insert(-8, '-').insert(-5, '-')
+      phone = data['phone_number']
+      return nil if phone.nil?
+      phone.insert(-8, '-').insert(-5, '-')
     end
 
     def signature_date_employed
@@ -94,8 +97,7 @@ module SimpleFormsApi
     end
 
     def ssn
-      trimmed_ssn = data.dig('veteran_id', 'ssn')&.tr('-', '')
-
+      trimmed_ssn = data.dig('id_number', 'ssn')&.tr('-', '')
       [trimmed_ssn&.[](0..2), trimmed_ssn&.[](3..4), trimmed_ssn&.[](5..8)]
     end
 
@@ -116,7 +118,6 @@ module SimpleFormsApi
       ]
     end
 
-    # At the moment, we only allow veterans to submit Form Engine forms.
     def track_user_identity(confirmation_number); end
 
     def words_to_remove
@@ -129,14 +130,21 @@ module SimpleFormsApi
 
     private
 
-    attr_reader :signature, :signature_date_formatted
+    def signature
+      # TODO: Use data['statement_of_truth_signature'] when frontend sends it
+      "#{data.dig('full_name', 'first')} #{data.dig('full_name', 'last')}".strip
+    end
+
+    def signature_date_formatted
+      signature_date.strftime('%m/%d/%Y')
+    end
 
     def address_to_remove
       [address.address_line1, address.address_line2, address.zip_code]
     end
 
     def contact_info
-      [phone_primary, phone_alternate, data['email_address']]
+      [phone_primary, phone_alternate, data['email_address']].compact
     end
   end
 end
