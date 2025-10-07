@@ -15,7 +15,8 @@ module Mobile
                  :relation_type,
                  :location_name,
                  :suggested_name_display,
-                 :health_care_system_name
+                 :health_care_system_name,
+                 :oh_triage_group
     end
   end
 end

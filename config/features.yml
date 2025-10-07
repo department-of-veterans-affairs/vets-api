@@ -120,6 +120,11 @@ features:
     description: >
       Use new CRM environments for Ask VA API
     enable_in_development: true
+  ask_va_api_preprod_for_end_to_end_testing:
+    actor_type: user
+    description: >
+      Use preprod CRM environment to facilitate end to end testing by AVA testers.
+    enable_in_development: false
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -160,18 +165,22 @@ features:
   dv_email_notification:
     actor_type: user
     description: Enables dependents verification emails
+  event_bus_gateway_ep030_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP030 higher level reviews"
   event_bus_gateway_ep040_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP040 claims"
   event_bus_gateway_ep120_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP120 reopened pension claims"
+  event_bus_gateway_ep130_decision_letter_notifications:
+    description: "Gateway: Enable decision letter email notifications for EP130 disability and death dependency"
   event_bus_gateway_ep180_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP180 initial pension claims"
   event_bus_gateway_ep310_decision_letter_notifications:
-    description: "Gateway: Enable decision letter email notifications for EP310 higher level reviews"
+    description: "Gateway: Enable decision letter email notifications for EP310 routine future examination"
   event_bus_gateway_ep600_decision_letter_notifications:
-    description: "Gateway: Enable decision letter email notifications for EP600 higher level reviews"
+    description: "Gateway: Enable decision letter email notifications for EP600 predetermined notice"
   event_bus_gateway_ep930_decision_letter_notifications:
-    description: "Gateway: Enable decision letter email notifications for EP930 higher level reviews"
+    description: "Gateway: Enable decision letter email notifications for EP930 review, referrals, and other"
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -181,17 +190,13 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
+  hca_heif_attachments_enabled:
+    actor_type: user
+    description: Enables HEIF files as attachments that get converted to .jpg files
+    enable_in_development: true
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the upgraded insurance section of the Health Care Application
-    enable_in_development: true
-  hca_in_progress_form_logging:
-    actor_type: user
-    description: Add logging for the 10-10EZ around cleaning up InProgressForms after submission
-    enable_in_development: true
-  hca_in_progress_form_delete_async:
-    actor_type: user
-    description: Enables deleting an InProgressForm in a sidekiq job
     enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
@@ -506,10 +511,6 @@ features:
   cst_filter_ep_960:
     actor_type: user
     description: When enabled, benefits_claims/get_claims service filters 960 EP code claims from the response
-  cst_smooth_loading_experience:
-    actor_type: user
-    description: When enabled, the UI of the CST app will have a smoother loading experience
-    enable_in_development: true
   cst_claim_letters_use_lighthouse_api_provider:
     actor_type: user
     description: When enabled, claims_letters from the Lighthouse API Provider
@@ -665,6 +666,9 @@ features:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
     enable_in_development: true
+  dependency_verification_browser_monitoring_enabled:
+    actor_type: user
+    description: Enable Datadog RUM/LOG monitoring for the form 21-0538
   dependents_enable_form_viewer_mfe:
     actor_type: user
     description: enables display of form viewer microfrontend on 686 post-submission page
@@ -1335,8 +1339,8 @@ features:
     enable_in_development: true
   mhv_secure_messaging_large_attachments:
     actor_type: user
-    description: Disables/Enables Secure Messaging Custom Folders Redesign
-    enable_in_development: true
+    description: Disables/Enables sending large attachments in Secure Messaging using AWS S3 upload method for all eligible messages to Vista or OH recipients
+    enable_in_development: false
   mhv_secure_messaging_curated_list_flow:
     actor_type: user
     description: Disables/Enables Secure Messaging Curated List Flow
@@ -1489,9 +1493,13 @@ features:
     actor_type: user
     description: Enables/disables the use of pre-transformed vital objects
     enable_in_development: true
-  mhv_medications_display_documentation_content:
+  mhv_medical_records_uuid_for_jwt_session_locking:
     actor_type: user
-    description: Enables/disables documentation-related content for Medications on VA.gov
+    description: Use UUID instead of ICN for locking MHV JWT sessions
+    enable_in_development: true
+  mhv_medications_display_allergies:
+    actor_type: user
+    description: Enables/disables allergies and reactions data
     enable_in_development: true
   mhv_medications_display_filter:
     actor_type: user
@@ -1508,6 +1516,10 @@ features:
     actor_type: user
     description: Enables/disables integration with MHV's AAL-creation endpoint
     enable_in_development: true
+  mhv_hash_id_for_mhv_session_locking:
+    actor_type: user
+    description: Hash the MHV Correlation ID when locking MHV sessions
+    enable_in_development: true
   mhv_modern_cta_links:
     actor_type: user
     description: CTA widget links point to va.gov services
@@ -1518,10 +1530,6 @@ features:
   mhv_medications_display_refill_progress:
     actor_type: user
     description: Enables/disables refill progress related work
-    enable_in_development: true
-  mhv_medications_show_ipe_content:
-    actor_type: user
-    description: Enables/disables ipe content
     enable_in_development: true
   mhv_medications_dont_increment_ipe_count:
     actor_type: user
@@ -1582,10 +1590,6 @@ features:
   pdf_fill_redesign_overflow_jumplinks:
     actor_type: user
     description: Enable jumplinks from overflow page back to form, when using v2 PDF overflow generator
-  pension_income_and_assets_clarification:
-    actor_type: user
-    description: >
-      When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -2027,6 +2031,10 @@ features:
   va_online_scheduling_cc_direct_scheduling:
     actor_type: user
     description: Enables CC direct scheduling.
+    enable_in_development: true
+  va_online_scheduling_cc_direct_scheduling_chiropractic:
+    actor_type: user
+    description: Adds chiropractic to the list of services that can be direct scheduled.
     enable_in_development: true
   va_online_scheduling_use_vpg:
     actor_type: user
@@ -2594,3 +2602,6 @@ features:
   form_1919_release:
     actor_type: user
     description: If enabled, show link to digitized form instead of PDF download on SCO page
+  auth_exp_email_verification_enabled:
+    actor_type: user
+    description: If enabled, a user will be required to verify their contact email address

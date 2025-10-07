@@ -59,6 +59,7 @@ ALLOWLIST = %w[
   startedFormVersion
   statsd
   status
+  status_code
   submission_id
   tags
   tempfile

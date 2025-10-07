@@ -44,7 +44,7 @@ module Dependents
     end
 
     def default_payload
-      { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: @claim&.user_account_id, tags: }
+      { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: nil, tags: }
     end
 
     def tags
@@ -147,6 +147,9 @@ module Dependents
 
     def track_event(level, message, stats_key, payload = {})
       submit_event(level, message, stats_key, default_payload.merge(payload))
+    rescue => e
+      Rails.logger.error('Dependents::Monitor#track_event error',
+                         { level:, message:, stats_key:, payload:, error: e.message })
     end
   end
 end

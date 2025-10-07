@@ -22,5 +22,35 @@ RSpec.describe Burials::NotificationEmail do
 
       described_class.new(23).deliver(:confirmation)
     end
+
+    context 'date_received fallback logic' do
+      subject { described_class.new(saved_claim.id) }
+
+      it 'uses lighthouse_updated_at when available' do
+        lighthouse_date = Time.current
+
+        form_submission_attempt = double('form_submission_attempt', lighthouse_updated_at: lighthouse_date)
+        form_submission = double('form_submission', form_submission_attempts: [form_submission_attempt])
+
+        allow(saved_claim).to receive(:form_submissions).and_return([form_submission])
+
+        expect(subject.send(:date_received).to_date).to eq(lighthouse_date.to_date)
+      end
+
+      it 'falls back to submitted_at when lighthouse date is nil' do
+        allow(saved_claim).to receive(:form_submissions).and_return(nil)
+
+        expect(subject.send(:date_received)).to eq(saved_claim.submitted_at)
+      end
+
+      it 'falls back to created_at when both previous dates are nil' do
+        allow(saved_claim).to receive_messages(
+          form_submissions: nil,
+          submitted_at: nil
+        )
+
+        expect(subject.send(:date_received)).to eq(saved_claim.created_at)
+      end
+    end
   end
 end

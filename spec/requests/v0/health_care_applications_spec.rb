@@ -323,7 +323,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
       import_job = instance_double(HCA::StdInstitutionImportJob)
       expect(HCA::StdInstitutionImportJob).to receive(:new).and_return(import_job)
-      expect(import_job).to receive(:perform)
+      expect(import_job).to receive(:import_facilities).with(run_sync: true)
 
       get(facilities_v0_health_care_applications_path(state: 'OH'))
     end
@@ -460,6 +460,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       end
 
       context 'while authenticated', :skip_mvi do
+        let!(:in_progress_form) { create(:in_progress_form, user_uuid: current_user.uuid, form_id: '1010ez') }
         let(:current_user) { build(:user, :mhv) }
         let(:body) do
           {
@@ -472,234 +473,20 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         before do
           sign_in_as(current_user)
           test_veteran.delete('email')
-          allow(Flipper).to receive(:enabled?).with(:hca_in_progress_form_logging).and_return(false)
         end
 
-        context ':hca_in_progress_form_delete_async feature disabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:hca_in_progress_form_delete_async).and_return(false)
-          end
+        it 'renders success and enqueues job to delete InProgressForm', run_at: '2017-01-31' do
+          VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+            expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
 
-          it 'renders success and delete the saved form', run_at: '2017-01-31' do
-            VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
-              expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('1010ez').once
-              expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
-              subject
-              expect(JSON.parse(response.body)).to eq(body)
-            end
-          end
+            expect(DeleteInProgressFormJob).to receive(:perform_in).with(
+              5.minutes,
+              '1010ez',
+              current_user.uuid
+            )
 
-          it 'renders success and logs failed attempt to delete the saved form', run_at: '2017-01-31' do
-            VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
-              expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
-              expect_any_instance_of(ApplicationController).to receive(:clear_saved_form)
-                .with('1010ez')
-                .and_raise(StandardError, 'Database connection failed')
-
-              logger_regex = [
-                /\[10-10EZ\]/,
-                /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                /\[health_care_application_id:\d+\]/,
-                /  - Failed to clear saved form: Database connection failed/
-              ]
-              expect(Rails.logger).to receive(:warn).with(
-                a_string_matching(Regexp.union(logger_regex))
-              )
-
-              subject
-              expect(JSON.parse(response.body)).to eq(body)
-            end
-          end
-
-          context ':hca_in_progress_form_logging feature enabled' do
-            before do
-              allow(Flipper).to receive(:enabled?).with(:hca_in_progress_form_logging).and_return(true)
-            end
-
-            context 'does not have InProgressForm' do
-              it 'renders success and delete the saved form', run_at: '2017-01-31' do
-                VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
-                  expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
-
-                  allow(Rails.logger).to receive(:info)
-                  expect(Rails.logger).to receive(:info)
-                    .with("[10-10EZ][user_uuid:#{current_user.uuid},user_account_id:none]" \
-                          ' - HealthCareApplication has InProgressForm: false')
-
-                  logger_regex = [
-                    /\[10-10EZ\]/,
-                    /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                    /\[health_care_application_id:\d+, form_submission_id: 436426340\]/,
-                    / - InProgressForm exists before attempted delete: false/
-                  ]
-                  expect(Rails.logger).to receive(:info).with(
-                    a_string_matching(Regexp.union(logger_regex))
-                  )
-
-                  subject
-                  expect(JSON.parse(response.body)).to eq(body)
-                end
-              end
-
-              it 'renders success and logs failed attempt to delete the saved form', run_at: '2017-01-31' do
-                VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
-                  expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
-                  expect_any_instance_of(ApplicationController).to receive(:clear_saved_form)
-                    .with('1010ez')
-                    .and_raise(StandardError, 'Database connection failed')
-
-                  logger_regex = [
-                    /\[10-10EZ\]/,
-                    /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                    /\[health_care_application_id:\d+\]/,
-                    / - Failed to clear saved form: Database connection failed/
-                  ]
-                  expect(Rails.logger).to receive(:warn).with(
-                    a_string_matching(Regexp.union(logger_regex))
-                  )
-
-                  subject
-                  expect(JSON.parse(response.body)).to eq(body)
-                end
-              end
-            end
-
-            context 'has InProgressForm' do
-              let!(:in_progress_form) { create(:in_progress_form, user_uuid: current_user.uuid, form_id: '1010ez') }
-
-              before { allow(StatsD).to receive(:increment) }
-
-              it 'renders success and delete the saved form', run_at: '2017-01-31' do
-                VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
-                  expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
-
-                  allow(Rails.logger).to receive(:info)
-                  expect(Rails.logger).to receive(:info)
-                    .with("[10-10EZ][user_uuid:#{current_user.uuid},user_account_id:none]" \
-                          ' - HealthCareApplication has InProgressForm: true')
-
-                  logger_regex_before = [
-                    /\[10-10EZ\]/,
-                    /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                    /\[health_care_application_id:\d+, form_submission_id: 436426340\]/,
-                    / - InProgressForm exists before attempted delete: true/
-                  ]
-                  expect(Rails.logger).to receive(:info).with(
-                    a_string_matching(Regexp.union(logger_regex_before))
-                  )
-
-                  logger_regex_after = [
-                    /\[10-10EZ\]/,
-                    /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                    /\[health_care_application_id:\d+\]/,
-                    /\[ipf_id_before:\d+,ipf_id_after:\d+\]/,
-                    / - InProgressForm successfully deleted: true/
-                  ]
-
-                  expect(Rails.logger).to receive(:info).with(
-                    a_string_matching(Regexp.union(logger_regex_after))
-                  )
-
-                  expect(StatsD).to receive(:increment).with('api.1010ez.in_progress_form_deleted', anything)
-
-                  subject
-                  expect(JSON.parse(response.body)).to eq(body)
-                end
-              end
-
-              context 'form is not deleted' do
-                before do
-                  allow(InProgressForm).to receive(:form_for_user)
-                    .with('1010ez', anything)
-                    .and_return(in_progress_form, in_progress_form)
-                end
-
-                it 'renders success and logs InProgressForm delete info', run_at: '2017-01-31' do
-                  VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
-                    expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
-
-                    allow(Rails.logger).to receive(:info)
-                    expect(Rails.logger).to receive(:info)
-                      .with("[10-10EZ][user_uuid:#{current_user.uuid},user_account_id:none]" \
-                            ' - HealthCareApplication has InProgressForm: true')
-
-                    logger_regex_before = [
-                      /\[10-10EZ\]/,
-                      /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                      /\[health_care_application_id:\d+, form_submission_id: 436426340\]/,
-                      / - InProgressForm exists before attempted delete: true/
-                    ]
-                    expect(Rails.logger).to receive(:info).with(
-                      a_string_matching(Regexp.union(logger_regex_before))
-                    )
-
-                    logger_regex_after = [
-                      /\[10-10EZ\]/,
-                      /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                      /\[health_care_application_id:\d+\]/,
-                      /\[ipf_id_before:\d+,ipf_id_after:\d+\]/,
-                      / - InProgressForm successfully deleted: false/
-                    ]
-
-                    expect(Rails.logger).to receive(:info).with(
-                      a_string_matching(Regexp.union(logger_regex_after))
-                    )
-
-                    expect(StatsD).to receive(:increment).with('api.1010ez.in_progress_form_not_deleted',
-                                                               anything)
-
-                    subject
-                    expect(JSON.parse(response.body)).to eq(body)
-                  end
-                end
-              end
-
-              it 'renders success and logs failed attempt to delete the saved form', run_at: '2017-01-31' do
-                VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
-                  expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
-                  expect_any_instance_of(ApplicationController).to receive(:clear_saved_form)
-                    .with('1010ez')
-                    .and_raise(StandardError, 'Database connection failed')
-
-                  logger_regex = [
-                    /\[10-10EZ\]/,
-                    /\[user_uuid:#{current_user.uuid},user_account_id:none\]/,
-                    /\[health_care_application_id:\d+\]/,
-                    / - Failed to clear saved form: Database connection failed/
-                  ]
-
-                  expect(Rails.logger).to receive(:warn).with(
-                    a_string_matching(Regexp.union(logger_regex))
-                  )
-
-                  subject
-                  expect(JSON.parse(response.body)).to eq(body)
-                end
-              end
-            end
-          end
-        end
-
-        context ':hca_in_progress_form_delete_async feature enabled' do
-          let!(:in_progress_form) { create(:in_progress_form, user_uuid: current_user.uuid, form_id: '1010ez') }
-
-          before do
-            allow(Flipper).to receive(:enabled?).with(:hca_in_progress_form_delete_async).and_return(true)
-          end
-
-          it 'renders success and delete the saved form', run_at: '2017-01-31' do
-            VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
-              expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
-
-              expect(DeleteInProgressFormJob).to receive(:perform_in).with(
-                5.minutes,
-                '1010ez',
-                current_user.uuid
-              )
-
-              subject
-              expect(JSON.parse(response.body)).to eq(body)
-            end
+            subject
+            expect(JSON.parse(response.body)).to eq(body)
           end
         end
       end
