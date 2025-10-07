@@ -7,7 +7,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     create(:va1990).education_benefits_claim
   end
 
-  %w[1990 1995 1990e 5490 5495 0993 0994 10203 1990s 10282 10216 10215 10297 10275].each do |form_type|
+  %w[1990 1995 1990e 5490 5495 0993 0994 10203 10282 10216 10215 10297 10275].each do |form_type|
     method = "is_#{form_type}?"
 
     describe "##{method}" do
@@ -309,8 +309,8 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
 
     it 'appends 22- to passed in array' do
-      form_types = %w[1990s 10203]
-      form_headers = %w[22-1990s 22-10203]
+      form_types = %w[1995 10203]
+      form_headers = %w[22-1995 22-10203]
       expect(described_class.form_headers(form_types)).to eq(form_headers)
     end
   end

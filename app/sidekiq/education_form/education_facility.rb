@@ -75,8 +75,8 @@ module EducationForm
       record = model.open_struct_form
       address = routing_address(record, form_type: model.form_type)
 
-      # special case 0993 and 1990s
-      return :western if %w[0993 1990s].include?(model.form_type)
+      # special case 0993
+      return :western if model.form_type == '0993'
 
       # special case 0994
       # special case 10203

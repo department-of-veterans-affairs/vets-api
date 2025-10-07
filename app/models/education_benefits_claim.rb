@@ -10,7 +10,6 @@ class EducationBenefitsClaim < ApplicationRecord
     0993
     0994
     10203
-    1990s
     10282
     10216
     10215
@@ -132,8 +131,6 @@ class EducationBenefitsClaim < ApplicationRecord
       benefits = parsed_form.slice(*APPLICATION_TYPES)
     when '0994', '10297'
       benefits['vettec'] = true
-    when '1990s'
-      benefits['vrrap'] = true
     when '1995'
       benefit = parsed_form['benefit']&.underscore
       benefits['chapter33'] = true if benefit.present? && benefit.start_with?('chapter33')
