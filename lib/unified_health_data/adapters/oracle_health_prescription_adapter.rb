@@ -29,7 +29,6 @@ module UnifiedHealthData
       def build_core_attributes(resource)
         {
           id: resource['id'],
-          type: 'Prescription',
           refill_status: resource['status'],
           refill_submit_date: nil, # Not available in FHIR
           refill_date: extract_refill_date(resource),
@@ -67,7 +66,7 @@ module UnifiedHealthData
 
         dispenses.filter_map do |dispense|
           extract_tracking_from_dispense(resource, dispense)
-        end.compact
+        end
       end
 
       def extract_tracking_from_dispense(resource, dispense)
