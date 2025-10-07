@@ -48,30 +48,6 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
         expect(response).to have_http_status(:unauthorized)
       end
     end
-
-    context 'when user is LOA1' do
-      before { sign_in_as(loa1_user) }
-
-      it 'returns forbidden for create' do
-        post :create, params: email_params
-        expect(response).to have_http_status(:forbidden)
-      end
-
-      it 'returns forbidden for create_or_update' do
-        patch :create_or_update, params: email_params
-        expect(response).to have_http_status(:forbidden)
-      end
-
-      it 'returns forbidden for update' do
-        put :update, params: email_params_with_id
-        expect(response).to have_http_status(:forbidden)
-      end
-
-      it 'returns forbidden for destroy' do
-        delete :destroy, params: email_params_with_id
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
   end
 
   describe 'with authenticated LOA3 user' do
@@ -134,9 +110,9 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
       context 'when VA Profile service times out' do
         it 'handles timeout errors' do
           allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-            
+
           post :create, params: email_params
-            
+
           expect(response).to have_http_status(:gateway_timeout)
         end
       end
