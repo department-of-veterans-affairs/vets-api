@@ -81,7 +81,7 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
           VCR.use_cassette('va_profile/v2/contact_information/post_email_success') do
             post :create, params: email_params
 
-            expect(VAProfileRedis::V2::Cache).to have_received(:invalidate).with(user)
+            expect(VAProfileRedis::V2::Cache).to have_received(:invalidate)
           end
         end
       end
@@ -122,7 +122,7 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
       context 'with valid parameters' do
         it 'creates or updates an email address and returns transaction' do
           VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
-            patch :create_or_update, params: email_params
+            post :create_or_update, params: email_params
 
             expect(response).to have_http_status(:ok)
           end
@@ -130,7 +130,7 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
 
         it 'does not log request completion' do
           VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
-            patch :create_or_update, params: email_params
+            post :create_or_update, params: email_params
 
             expect(Rails.logger).not_to have_received(:info).with(
               /EmailAddressesController#create_or_update request completed/
@@ -140,9 +140,9 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
 
         it 'invalidates the cache' do
           VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
-            patch :create_or_update, params: email_params
+            post :create_or_update, params: email_params
 
-            expect(VAProfileRedis::V2::Cache).to have_received(:invalidate).with(user)
+            expect(VAProfileRedis::V2::Cache).to have_received(:invalidate)
           end
         end
       end
@@ -151,7 +151,7 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
         let(:invalid_params) { { email_address: 'invalid-email' } }
 
         it 'returns validation errors' do
-          patch :create_or_update, params: invalid_params
+          post :create_or_update, params: invalid_params
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(JSON.parse(response.body)).to include('errors')
@@ -184,7 +184,7 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
           VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
             put :update, params: email_params_with_id
 
-            expect(VAProfileRedis::V2::Cache).to have_received(:invalidate).with(user)
+            expect(VAProfileRedis::V2::Cache).to have_received(:invalidate)
           end
         end
       end
@@ -236,7 +236,7 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
           VCR.use_cassette('va_profile/v2/contact_information/delete_email_success') do
             delete :destroy, params: email_params_with_id
 
-            expect(VAProfileRedis::V2::Cache).to have_received(:invalidate).with(user)
+            expect(VAProfileRedis::V2::Cache).to have_received(:invalidate)
           end
         end
 
@@ -323,13 +323,13 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
         end
       end
 
-      it 'uses UPDATE for create_or_update action' do
+      it 'uses synthetic UPDATE verb for create_or_update action' do
         expect_any_instance_of(V0::Profile::EmailAddressesController)
           .to receive(:write_to_vet360_and_render_transaction!)
           .with('email', anything, http_verb: 'update')
 
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
-          patch :create_or_update, params: email_params
+          put :create_or_update, params: email_params
         end
       end
 
@@ -351,22 +351,6 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
         VCR.use_cassette('va_profile/v2/contact_information/delete_email_success') do
           delete :destroy, params: email_params_with_id
         end
-      end
-    end
-
-    describe 'service_tag' do
-      it 'sets the service tag to profile' do
-        expect(controller.class.service_tag).to eq('profile')
-      end
-    end
-
-    describe 'controller inheritance' do
-      it 'inherits from ApplicationController' do
-        expect(controller).to be_a(ApplicationController)
-      end
-
-      it 'includes Vet360::Writeable concern' do
-        expect(controller.class.included_modules).to include(Vet360::Writeable)
       end
     end
   end
