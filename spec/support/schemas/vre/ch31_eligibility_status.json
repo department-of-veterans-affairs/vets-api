@@ -47,7 +47,7 @@
                     "properties": {
                       "code": { "type": ["string", "null"] },
                       "name": { "type": ["string", "null"] },
-                      "percentage": { "type": ["integer", "null"] }
+                      "percentage": { "type": ["string", "null"] }
                     }
                   }
                 }
