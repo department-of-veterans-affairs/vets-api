@@ -32,7 +32,7 @@ RSpec.describe Caseflow::Service do
       end
 
       it 'increments a statsd metric, logs the offending appeals, ' \
-         'creates a PersonalInformationLog, and raises a JSON schema error',
+         'creates a PersonalInformationLog, and does NOT raise a JSON schema error',
          run_at: 'Wed, 20 Aug 2025 21:59:18 GMT' do
         VCR.use_cassette(
           'caseflow/appeal_with_null_issue_description',
@@ -50,7 +50,8 @@ RSpec.describe Caseflow::Service do
             error_class: 'Caseflow AppealsWithNullIssueDescriptions'
           )
 
-          expect { subject.get_appeals(user) }.to raise_error(JSON::Schema::ValidationError)
+          result = subject.get_appeals(user)
+          expect(result.status).to eq(200)
         end
       end
     end
