@@ -3,6 +3,7 @@
 module MyHealth
   module V1
     class AllTriageTeamsController < SMController
+
       include Vets::SharedLogging
 
       STATSD_KEY_PREFIX = 'api.my_health.all_triage_teams'
