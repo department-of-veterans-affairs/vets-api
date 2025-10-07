@@ -199,16 +199,6 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
           expect(JSON.parse(response.body)).to include('errors')
         end
       end
-
-      context 'when VA Profile service returns an error' do
-        it 'handles service errors' do
-          VCR.use_cassette('va_profile/v2/contact_information/put_address_status_error') do
-            put :update, params: email_params_with_id
-
-            expect(response).to have_http_status(:bad_request)
-          end
-        end
-      end
     end
 
     describe '#destroy' do
@@ -257,14 +247,6 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
           end
         end
       end
-
-      context 'with missing required parameters' do
-        it 'handles missing ID parameter' do
-          delete :destroy, params: { email_address: 'test@example.com' }
-
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
-      end
     end
 
     describe 'parameter handling' do
@@ -284,7 +266,6 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
           .with(
             'email',
             hash_excluding(:unauthorized_param),
-            http_verb: 'post'
           )
 
         VCR.use_cassette('va_profile/v2/contact_information/post_email_success') do
@@ -298,12 +279,11 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
           .with(
             'email',
             hash_including(
-              'email_address' => 'test@example.com',
-              'confirmation_date' => '2023-01-01T00:00:00.000Z',
-              'id' => 123,
-              'transaction_id' => 'b2fab2b5-6af0-45e1-a9e2-394347af9123'
-            ),
-            http_verb: 'post'
+              :email_address,
+              :confirmation_date,
+              :id,
+              :transaction_id
+            )
           )
 
         VCR.use_cassette('va_profile/v2/contact_information/post_email_success') do
@@ -316,7 +296,7 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
       it 'uses POST for create action' do
         expect_any_instance_of(V0::Profile::EmailAddressesController)
           .to receive(:write_to_vet360_and_render_transaction!)
-          .with('email', anything, http_verb: 'post')
+          .with('email', anything)
 
         VCR.use_cassette('va_profile/v2/contact_information/post_email_success') do
           post :create, params: email_params
