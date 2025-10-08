@@ -1591,6 +1591,9 @@ vanotify:
         form21_674_action_needed_email: form21_674_action_needed_email_template_id
         form21_686c_674_action_needed_email: form21_686c_674_action_needed_email_template_id
         form21_686c_action_needed_email: form21_686c_action_needed_email_template_id
+        form21p_0537_confirmation_email: form21p_0537_confirmation_email_template_id
+        form21p_0537_error_email: form21p_0537_error_email_template_id
+        form21p_0537_received_email: form21p_0537_received_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21p_0847_error_email: form21p_0847_error_email_template_id
         form21p_0847_received_email: form21p_0847_received_email_template_id
