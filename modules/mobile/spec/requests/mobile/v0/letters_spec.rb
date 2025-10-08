@@ -251,6 +251,22 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
               end
             end
           end
+
+          it 'includes the COE letter if eligible' do
+            VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/lgy/determination_eligible', match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/lgy/application_not_found', match_requests_on: %i[method uri]) do
+                  get '/mobile/v0/letters', headers: sis_headers({ 'App-Version' => '2.59.0' })
+                  expect(response).to have_http_status(:ok)
+                  expect(JSON.parse(response.body)['data']['attributes']['letters']).to include(
+                    { 'name' => 'Certificate of Eligibility for Home Loan Letter',
+                      'letterType' => 'certificate_of_eligibility_home_loan' }
+                  )
+                  expect(response.body).to match_json_schema('letters')
+                end
+              end
+            end
+          end
         end
 
         context 'with an app version that does not support COE letters' do
@@ -482,28 +498,12 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
                                                   instance_of(User)).and_return(true)
       end
 
-      context 'with an app version that supports COE letters' do
-        it 'downloads a PDF' do
-          VCR.use_cassette 'mobile/lgy/documents_coe_file' do
-            post '/mobile/v0/letters/certificate_of_eligibility_home_loan/download',
-                 headers: sis_headers({ 'App-Version' => '2.59.0' }), as: :json
-            expect(response).to have_http_status(:ok)
-            expect(response.media_type).to eq('application/pdf')
-          end
-        end
-      end
-
-      context 'with an app version that does not support COE letters' do
-        it 'returns 400 bad request' do
+      it 'downloads a PDF' do
+        VCR.use_cassette 'mobile/lgy/documents_coe_file' do
           post '/mobile/v0/letters/certificate_of_eligibility_home_loan/download',
-               headers: sis_headers({ 'App-Version' => '2.58.0' }), as: :json
-
-          expect(response).to have_http_status(:bad_request)
-          expect(response.parsed_body['errors'][0]).to include(
-            'detail' => 'Letter type of certificate_of_eligibility_home_loan is not one of the expected options',
-            'source' => 'Mobile::V0::LettersController',
-            'status' => '400'
-          )
+               headers: sis_headers, as: :json
+          expect(response).to have_http_status(:ok)
+          expect(response.media_type).to eq('application/pdf')
         end
       end
     end

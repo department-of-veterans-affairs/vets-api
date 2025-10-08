@@ -33,7 +33,7 @@ module UnifiedHealthData
           expiration_date: extract_expiration_date(resource),
           prescription_number: extract_prescription_number(resource),
           prescription_name: extract_prescription_name(resource),
-          dispensed_date: extract_dispensed_date(resource),
+          dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
           is_refillable: extract_is_refillable(resource),
           is_trackable: false, # Default for Oracle Health
@@ -45,11 +45,27 @@ module UnifiedHealthData
       # rubocop:enable Metrics/MethodLength
 
       def extract_refill_date(resource)
-        resource.dig('dispenseRequest', 'validityPeriod', 'start')
+        dispense = find_most_recent_medication_dispense(resource['contained'])
+        return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
+
+        nil
       end
 
       def extract_refill_remaining(resource)
-        resource.dig('dispenseRequest', 'numberOfRepeatsAllowed') || 0
+        # non-va meds are never refillable
+        return 0 if non_va_med?(resource)
+
+        repeats_allowed = resource.dig('dispenseRequest', 'numberOfRepeatsAllowed') || 0
+        # subtract dispenses in completed status, except for the first fill
+        dispenses_completed = if resource['contained']
+                                resource['contained'].count do |c|
+                                  c['resourceType'] == 'MedicationDispense' && c['status'] == 'completed'
+                                end
+                              else
+                                0
+                              end
+        remaining = repeats_allowed - [dispenses_completed - 1, 0].max
+        remaining.positive? ? remaining : 0
       end
 
       def extract_facility_name(resource)
@@ -75,10 +91,8 @@ module UnifiedHealthData
         return quantity if quantity
 
         # Fallback: check contained MedicationDispense
-        if resource['contained']
-          dispense = find_most_recent_medication_dispense(resource['contained'])
-          return dispense.dig('quantity', 'value') if dispense
-        end
+        dispense = find_most_recent_medication_dispense(resource['contained'])
+        return dispense.dig('quantity', 'value') if dispense
 
         nil
       end
@@ -99,27 +113,36 @@ module UnifiedHealthData
           resource.dig('medicationReference', 'display')
       end
 
-      def extract_dispensed_date(resource)
-        # Check for contained MedicationDispense resources
-        if resource['contained']
-          dispense = find_most_recent_medication_dispense(resource['contained'])
-          return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
-        end
-
-        # Fallback to initial fill date
-        resource.dig('dispenseRequest', 'initialFill', 'date')
-      end
-
       def extract_station_number(resource)
-        resource.dig('dispenseRequest', 'performer', 'identifier', 'value')
+        dispense = find_most_recent_medication_dispense(resource['contained'])
+        raw_station_number = dispense&.dig('location', 'display')
+        return nil unless raw_station_number
+
+        # Extract first 3 digits from format like "556-RX-MAIN-OP"
+        match = raw_station_number.match(/^(\d{3})/)
+        if match
+          match[1]
+        else
+          Rails.logger.warn("Unable to extract 3-digit station number from: #{raw_station_number}")
+          raw_station_number
+        end
       end
 
       def extract_is_refillable(resource)
-        status = resource['status']
-        refills_remaining = extract_refill_remaining(resource)
+        refillable = true
 
-        # Only active prescriptions with remaining refills are refillable
-        status == 'active' && refills_remaining.positive?
+        # non VA meds are never refillable
+        refillable = false if non_va_med?(resource)
+        # must be active
+        refillable = false unless resource['status'] == 'active'
+        # must not be expired
+        refillable = false unless prescription_not_expired?(resource)
+        # must have refills remaining
+        refillable = false unless extract_refill_remaining(resource).positive?
+        # must have at least one dispense record
+        refillable = false if find_most_recent_medication_dispense(resource['contained']).nil?
+
+        refillable
       end
 
       def extract_instructions(resource)
@@ -149,7 +172,32 @@ module UnifiedHealthData
       end
 
       def extract_prescription_source(resource)
-        resource['reportedBoolean'] == true ? 'NV' : ''
+        non_va_med?(resource) ? 'NV' : ''
+      end
+
+      def non_va_med?(resource)
+        resource['reportedBoolean'] == true
+      end
+
+      def prescription_not_expired?(resource)
+        expiration_date = extract_expiration_date(resource)
+        return false unless expiration_date # No expiration date = not refillable for safety
+
+        begin
+          parsed_date = Time.zone.parse(expiration_date)
+          return parsed_date&.> Time.zone.now if parsed_date
+
+          # If we get here, parsing returned nil (invalid date)
+          log_invalid_expiration_date(resource, expiration_date)
+          false
+        rescue ArgumentError
+          log_invalid_expiration_date(resource, expiration_date)
+          false
+        end
+      end
+
+      def log_invalid_expiration_date(resource, expiration_date)
+        Rails.logger.warn("Invalid expiration date for prescription #{resource['id']}: #{expiration_date}")
       end
 
       def build_instruction_text(instruction)

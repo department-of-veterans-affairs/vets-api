@@ -6,6 +6,7 @@ require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/prescription'
+require_relative 'adapters/allergy_adapter'
 require_relative 'adapters/clinical_notes_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'adapters/conditions_adapter'
@@ -42,8 +43,8 @@ module UnifiedHealthData
 
     def get_conditions
       with_monitoring do
-        start_date = '1900-01-01'
-        end_date = Time.zone.today.to_s
+        start_date = default_start_date
+        end_date = default_end_date
 
         response = uhd_client.get_conditions_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
@@ -55,8 +56,8 @@ module UnifiedHealthData
 
     def get_single_condition(condition_id)
       with_monitoring do
-        start_date = '1900-01-01'
-        end_date = Time.zone.today.to_s
+        start_date = default_start_date
+        end_date = default_end_date
 
         response = uhd_client.get_conditions_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
@@ -77,7 +78,9 @@ module UnifiedHealthData
     # @return [Array<UnifiedHealthData::Prescription>] Array of prescription objects
     def get_prescriptions(current_only: false)
       with_monitoring do
-        response = uhd_client.get_all_prescriptions(@user.icn)
+        start_date = default_start_date
+        end_date = default_end_date
+        response = uhd_client.get_prescriptions_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
         adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new(@user)
@@ -109,8 +112,8 @@ module UnifiedHealthData
     def get_care_summaries_and_notes
       with_monitoring do
         # NOTE: we must pass in a startDate and endDate to SCDF
-        start_date = '1900-01-01'
-        end_date = Time.zone.today.to_s
+        start_date = default_start_date
+        end_date = default_end_date
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
@@ -130,8 +133,8 @@ module UnifiedHealthData
     def get_single_summary_or_note(note_id)
       with_monitoring do
         # TODO: we will replace this with a direct call to the API once available
-        start_date = '1900-01-01'
-        end_date = Time.zone.today.to_s
+        start_date = default_start_date
+        end_date = default_end_date
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
@@ -142,6 +145,41 @@ module UnifiedHealthData
         return nil unless filtered
 
         parse_single_note(filtered)
+      end
+    end
+
+    def get_allergies
+      with_monitoring do
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = parse_response_body(response.body)
+
+        remap_vista_identifier(body)
+        combined_records = fetch_combined_records(body)
+
+        allergy_adapter.parse(combined_records)
+      end
+    end
+
+    def get_single_allergy(allergy_id)
+      with_monitoring do
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = parse_response_body(response.body)
+
+        remap_vista_identifier(body)
+        combined_records = fetch_combined_records(body)
+
+        filtered = combined_records.find { |record| record['resource']['id'] == allergy_id }
+        return nil unless filtered
+
+        allergy_adapter.parse_single_allergy(filtered)
       end
     end
 
@@ -242,8 +280,8 @@ module UnifiedHealthData
       failures = extract_failed_refills(refill_items)
 
       {
-        success: successes,
-        failed: failures
+        success: successes || [],
+        failed: failures || []
       }
     end
 
@@ -268,6 +306,17 @@ module UnifiedHealthData
           error: failure['message'] || 'Unable to process refill',
           station_number: failure['stationNumber']
         }
+      end
+    end
+
+    # Allergies methods
+    def remap_vista_identifier(records)
+      # TODO: Placeholder; will transition to a vista_uid
+      records['vista']['entry']&.each do |allergy|
+        vista_identifier = allergy['resource']['identifier'].find { |id| id['system'].starts_with?('https://va.gov/systems/') }
+        next unless vista_identifier && vista_identifier['value']
+
+        allergy['resource']['id'] = vista_identifier['value']
       end
     end
 
@@ -305,6 +354,10 @@ module UnifiedHealthData
       @uhd_client ||= UnifiedHealthData::Client.new
     end
 
+    def allergy_adapter
+      @allergy_adapter ||= UnifiedHealthData::Adapters::AllergyAdapter.new
+    end
+
     def lab_or_test_adapter
       @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new
     end
@@ -319,6 +372,15 @@ module UnifiedHealthData
 
     def logger
       @logger ||= UnifiedHealthData::Logging.new(@user)
+    end
+
+    # Date helpers (single source for default UHD date range)
+    def default_start_date
+      '1900-01-01'
+    end
+
+    def default_end_date
+      Time.zone.today.to_s
     end
   end
 end
