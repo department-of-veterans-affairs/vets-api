@@ -5,7 +5,6 @@ require 'veteran_enrollment_system/base_configuration'
 module VeteranEnrollmentSystem
   module EnrollmentPeriods
     class Configuration < VeteranEnrollmentSystem::BaseConfiguration
-      # the 1095b key will be renamed in a subsequent ticket
       def self.api_key_path
         :form1095b
       end
