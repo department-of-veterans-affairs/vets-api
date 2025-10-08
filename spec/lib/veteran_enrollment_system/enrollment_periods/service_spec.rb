@@ -33,7 +33,7 @@ RSpec.describe VeteranEnrollmentSystem::EnrollmentPeriods::Service do
 
     context 'when an error status is received' do
       it 'raises an error' do
-        VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_form_not_found',
+        VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_not_found',
                          { match_requests_on: %i[method uri] }) do
           expect { subject.get_enrollment_periods(icn:) }.to raise_error(Common::Client::Errors::ClientError)
         end

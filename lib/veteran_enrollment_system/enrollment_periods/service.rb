@@ -11,9 +11,9 @@ module VeteranEnrollmentSystem
     # This service handles communication with the upstream enrollment system to retrieve
     # enrollment periods for users.
     #
-    # @example Fetch form data for a specific user and tax year
+    # @example Fetch form data for a specific user
     #   service = VeteranEnrollmentSystem::EnrollmentPeriods::Service.new(user)
-    #   enrollment_periods = service.get_form_by_icn(icn: '1234')
+    #   enrollment_periods = service.get_enrollment_periods(icn: '1234')
     #
     class Service < Common::Client::Base
       include Common::Client::Concerns::Monitoring
