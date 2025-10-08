@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'modules/mobile/docs/openapi.yaml'
+      - 'modules/mobile/docs/schemas/**'
+      - 'modules/mobile/docs/examples/**'
+      - 'modules/mobile/docs/params/**'
       - 'modules/mobile/config/routes.rb'
     types: [opened, reopened, synchronize]
 
