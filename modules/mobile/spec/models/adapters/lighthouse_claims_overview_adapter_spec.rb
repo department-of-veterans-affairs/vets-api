@@ -78,7 +78,7 @@ describe Mobile::V0::Adapters::ClaimsOverview, :aggregate_failures do
     end
 
     it 'displayTitle is derived from claim title generator' do
-      allow_any_instance_of(Flipper).to receive(:enabled?)
+      allow(Flipper).to receive(:enabled?)
         .with('cst_use_claim_title_generator_mobile').and_return(true)
       output = Mobile::V0::Adapters::ClaimsOverview.new.parse(claim)
 
@@ -86,7 +86,7 @@ describe Mobile::V0::Adapters::ClaimsOverview, :aggregate_failures do
     end
 
     it 'displayTitle is not derived from claim title generator' do
-      allow_any_instance_of(Flipper).to receive(:enabled?)
+      allow(Flipper).to receive(:enabled?)
         .with('cst_use_claim_title_generator_mobile').and_return(false)
       output = Mobile::V0::Adapters::ClaimsOverview.new.parse(claim)
 

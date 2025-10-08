@@ -138,10 +138,10 @@ module BenefitsClaims
         claim['attributes']['displayTitle'] = titles[:display_title]
         claim['attributes']['claimTypeBase'] = titles[:claim_type_base]
       rescue => e
-        Rails::Logger.error(e.message, {
-                              error_class: self.class.to_s,
-                              backtrace: e.backtrace&.first(3)
-                            })
+        Rails.logger.error(e.message, {
+                             error_class: self.class.to_s,
+                             backtrace: e.backtrace&.first(3)
+                           })
         claim
       end
     end

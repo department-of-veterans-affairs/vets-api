@@ -114,8 +114,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
       it 'sets correct titles for claims with claimTypeCode but null claimType' do
         # rubocop:disable Naming/VariableNumber
-        allow_any_instance_of(Flipper).to receive(:enabled?).with(:cst_filter_ep_960).and_return false
-        allow_any_instance_of(Flipper).to receive(:enabled?).with(:cst_filter_ep_290).and_return false
+        allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_960).and_return false
+        allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_290).and_return false
         # rubocop:enable Naming/VariableNumber
         VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
           get(:index)
