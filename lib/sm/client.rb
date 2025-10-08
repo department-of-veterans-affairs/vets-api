@@ -575,17 +575,7 @@ module SM
     # @!endgroup
 
     ##
-    # Update preferredTeam value for a patient's list of triage teams
-    #
-    # @param updated_triage_teams_list [Array] an array of objects
-    # with triage_team_id and preferred_team values
-    # @return [Fixnum] the response status code
-    #
-    def update_triage_team_preferences(updated_triage_teams_list)
-      custom_headers = token_headers.merge('Content-Type' => 'application/json')
-      response = perform(:post, 'preferences/patientpreferredtriagegroups', updated_triage_teams_list, custom_headers)
-      response&.status
-    end
+
     # @!endgroup
 
     def get_unique_care_systems(all_recipients)
@@ -794,6 +784,20 @@ module SM
       end
     end
 
+    # Polling integration for OH messages on send/reply
+    def poll_status(message)
+      if Settings.vsp_environment == 'staging'
+        Rails.logger.info("MHV SM: message id #{message.id} is in the OH polling path")
+      end
+      result = poll_message_status(message.id, timeout_seconds: 60, interval_seconds: 1, max_errors: 2)
+      status = result && result[:status]
+      raise Common::Exceptions::UnprocessableEntity if %w[FAILED INVALID].include?(status)
+
+      message
+    end
+
+    # @!endgroup
+
     ##
     # @!group StatsD
     ##
@@ -806,18 +810,6 @@ module SM
 
     def statsd_cache_miss
       StatsD.increment("#{STATSD_KEY_PREFIX}.cache.miss")
-    end
-
-    # Polling integration for OH messages on send/reply
-    def poll_status(message)
-      if Settings.vsp_environment == 'staging'
-        Rails.logger.info("MHV SM: message id #{message.id} is in the OH polling path")
-      end
-      result = poll_message_status(message.id, timeout_seconds: 60, interval_seconds: 1, max_errors: 2)
-      status = result && result[:status]
-      raise Common::Exceptions::UnprocessableEntity if %w[FAILED INVALID].include?(status)
-
-      message
     end
 
     # @!endgroup
