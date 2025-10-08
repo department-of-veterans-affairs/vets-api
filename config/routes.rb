@@ -68,13 +68,6 @@ Rails.application.routes.draw do
     get 'apps/scopes/:category', to: 'apps#scopes', defaults: scope_default
     get 'apps/scopes', to: 'apps#scopes', defaults: scope_default
 
-    resources :letters, only: [:index] do
-      collection do
-        get 'beneficiary', to: 'letters#beneficiary'
-        post ':id', to: 'letters#download'
-      end
-    end
-
     resources :letters_discrepancy, only: [:index]
 
     resources :letters_generator, only: [:index] do
