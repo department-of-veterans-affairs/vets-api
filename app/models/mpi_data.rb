@@ -261,7 +261,7 @@ class MPIData < Common::RedisStore
     do_cached_with(key: user_key) do
       find_profile
     rescue ArgumentError, MPI::Errors::ArgumentError => e
-      log_message_to_sentry("[MPI Data] Request error: #{e.message}", :warn)
+      Rails.logger.warn("[MPIData] request error", message: e.message)
       return nil
     end
   end
