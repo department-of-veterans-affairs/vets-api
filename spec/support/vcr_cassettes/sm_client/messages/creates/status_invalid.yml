@@ -1,0 +1,39 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_SM_HOST>/v1/sm/patient/message/674838/status"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Token: "<SESSION_TOKEN>"
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Server:
+          - Apache-Coyote/1.1
+        X-Powered-By:
+          - Servlet/2.5 JSP/2.1
+        Content-Type:
+          - application/json
+        Content-Length:
+          - "639"
+        Date:
+          - Wed, 08 Oct 2025 14:15:47 GMT
+      body:
+        encoding: UTF-8
+        string: '{"messageId": 674838,"status": "INVALID","isOhMessage": true,"ohSecureMessageId":"54282597705.0.-4.prsnl"}'
+      http_version:
+    recorded_at: Wed, 08 Oct 2025 14:15:47 GMT
+recorded_with: VCR 3.0.3

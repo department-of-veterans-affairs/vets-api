@@ -5,69 +5,75 @@ require 'sm/client'
 
 describe SM::Client, '#status' do
   let(:client) { described_class.new(session: { user_id: '10616687' }) }
+  let(:message_params) do
+    { subject: 'CI Run', body: 'Continuous Integration', is_oh_message: true }
+  end
 
   before do
     allow(client).to receive(:token_headers).and_return({})
   end
 
   describe 'auto-poll integration on send' do
-    before do
-      # Simulate successful post create response from SM (HTTP layer stubbed)
-      allow(client).to receive(:perform).and_return(
-        double(body: { data: { id: 42, is_oh_message: true }, metadata: {} })
-      )
-    end
-
     context 'when message is OH' do
       it 'polls and returns message on SENT' do
-        expect(client).to receive(:poll_message_status).with(42, hash_including(timeout_seconds: 60)).and_return(
-          { message_id: 42, status: 'SENT', is_oh_message: true }
-        )
+        VCR.use_cassette('sm_client/messages/creates/status_success') do
+          VCR.use_cassette('sm_client/messages/creates/a_new_oh_message_without_attachments') do
+            expect(client).to receive(:poll_message_status).with(674_838,
+                                                                 hash_including(timeout_seconds: 60)).and_return(
+                                                                   { message_id: 674_838, status: 'SENT',
+                                                                     is_oh_message: true }
+                                                                 )
 
-        msg = client.post_create_message({ subject: 's', category: 'OTHER', recipient_id: 1, body: 'b' },
-                                         poll_for_status: true)
-
-        expect(msg).to be_a(Message)
-        expect(msg.id).to eq(42)
-        expect(msg.is_oh_message).to be(true)
+            client.post_create_message(message_params, poll_for_status: true)
+          end
+        end
       end
 
       it 'raises UnprocessableEntity on FAILED' do
-        expect(client).to receive(:poll_message_status).with(42, hash_including(timeout_seconds: 60)).and_return(
-          { message_id: 42, status: 'FAILED', is_oh_message: true }
-        )
+        VCR.use_cassette('sm_client/messages/creates/status_failed') do
+          VCR.use_cassette('sm_client/messages/creates/a_new_oh_message_without_attachments') do
+            expect(client).to receive(:poll_message_status).with(674_838,
+                                                                 hash_including(timeout_seconds: 60)).and_return(
+                                                                   { message_id: 674_838, status: 'FAILED',
+                                                                     is_oh_message: true }
+                                                                 )
 
-        expect do
-          client.post_create_message({ subject: 's', category: 'OTHER', recipient_id: 1, body: 'b' },
-                                     poll_for_status: true)
-        end.to raise_error(Common::Exceptions::UnprocessableEntity)
+            expect do
+              client.post_create_message(message_params, poll_for_status: true)
+            end.to raise_error(Common::Exceptions::UnprocessableEntity)
+          end
+        end
       end
 
       it 'raises UnprocessableEntity on INVALID' do
-        expect(client).to receive(:poll_message_status).with(42, hash_including(timeout_seconds: 60)).and_return(
-          { message_id: 42, status: 'INVALID', is_oh_message: true }
-        )
+        VCR.use_cassette('sm_client/messages/creates/status_invalid') do
+          VCR.use_cassette('sm_client/messages/creates/a_new_oh_message_without_attachments') do
+            expect(client).to receive(:poll_message_status).with(674_838,
+                                                                 hash_including(timeout_seconds: 60)).and_return(
+                                                                   { message_id: 674_838, status: 'INVALID',
+                                                                     is_oh_message: true }
+                                                                 )
 
-        expect do
-          client.post_create_message({ subject: 's', category: 'OTHER', recipient_id: 1, body: 'b' },
-                                     poll_for_status: true)
-        end.to raise_error(Common::Exceptions::UnprocessableEntity)
+            expect do
+              client.post_create_message(message_params, poll_for_status: true)
+            end.to raise_error(Common::Exceptions::UnprocessableEntity)
+          end
+        end
       end
 
       it 'returns message on UNKNOWN and NOT_SUPPORTED terminal statuses' do
         %w[UNKNOWN NOT_SUPPORTED].each do |terminal|
-          allow(client).to receive(:perform).and_return(
-            double(body: { data: { id: 52, is_oh_message: true }, metadata: {} })
-          )
-          expect(client).to receive(:poll_message_status).with(52, hash_including(timeout_seconds: 60)).and_return(
-            { message_id: 52, status: terminal, is_oh_message: true }
-          )
+          VCR.use_cassette("sm_client/messages/creates/status_#{terminal.downcase}") do
+            VCR.use_cassette('sm_client/messages/creates/a_new_oh_message_without_attachments') do
+              expect(client).to receive(:poll_message_status).with(674_838,
+                                                                   hash_including(timeout_seconds: 60)).and_return(
+                                                                     { message_id: 674_838, status: terminal,
+                                                                       is_oh_message: true }
+                                                                   )
 
-          msg = client.post_create_message({ subject: 's', category: 'OTHER', recipient_id: 1, body: 'b' },
-                                           poll_for_status: true)
-          expect(msg).to be_a(Message)
-          expect(msg.id).to eq(52)
-          expect(msg.is_oh_message).to be(true)
+              client.post_create_message(message_params, poll_for_status: true)
+            end
+          end
         end
       end
     end

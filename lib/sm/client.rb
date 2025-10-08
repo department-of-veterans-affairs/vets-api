@@ -340,8 +340,8 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
     #
-    def post_create_message(args = nil, poll_for_status: false, **kwargs)
-      args = (args || {}).merge(kwargs)
+    def post_create_message(args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_create_context(args)
       json = perform(:post, 'message', args.to_h, token_headers).body
       message = Message.new(json[:data].merge(json[:metadata]))
@@ -357,8 +357,8 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
     #
-    def post_create_message_with_attachment(args = nil, poll_for_status: false, **kwargs)
-      args = (args || {}).merge(kwargs)
+    def post_create_message_with_attachment(args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_create_context(args)
       Rails.logger.info('MESSAGING: post_create_message_with_attachments')
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
@@ -395,8 +395,8 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
     #
-    def post_create_message_with_lg_attachments(args = nil, poll_for_status: false, **kwargs)
-      args = (args || {}).merge(kwargs)
+    def post_create_message_with_lg_attachments(args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_create_context(args)
       Rails.logger.info('MESSAGING: post_create_message_with_lg_attachments')
       message = create_message_with_lg_attachments_request('message/attach', args)
@@ -412,8 +412,8 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message reply context is invalid
     #
-    def post_create_message_reply_with_attachment(id, args = nil, poll_for_status: false, **kwargs)
-      args = (args || {}).merge(kwargs)
+    def post_create_message_reply_with_attachment(id, args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_reply_context(args)
       Rails.logger.info('MESSAGING: post_create_message_reply_with_attachment')
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
@@ -433,8 +433,8 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
     #
-    def post_create_message_reply_with_lg_attachment(id, args = nil, poll_for_status: false, **kwargs)
-      args = (args || {}).merge(kwargs)
+    def post_create_message_reply_with_lg_attachment(id, args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_reply_context(args)
       Rails.logger.info('MESSAGING: post_create_message_reply_with_lg_attachment')
       message = create_message_with_lg_attachments_request("message/#{id}/reply/attach", args)
@@ -450,8 +450,8 @@ module SM
     # @return [Message]
     # @raise [Common::Exceptions::ValidationErrors] if message reply context is invalid
     #
-    def post_create_message_reply(id, args = nil, poll_for_status: false, **kwargs)
-      args = (args || {}).merge(kwargs)
+    def post_create_message_reply(id, args = {}, poll_for_status: false, **kwargs)
+      args.merge!(kwargs)
       validate_reply_context(args)
       json = perform(:post, "message/#{id}/reply", args.to_h, token_headers).body
       message = Message.new(json[:data].merge(json[:metadata]))
@@ -785,9 +785,9 @@ module SM
         rescue Common::Exceptions::GatewayTimeout
           # Immediately re-raise upstream timeouts
           raise
-        rescue
+        rescue => e
           consecutive_errors += 1
-          raise Common::Exceptions::GatewayTimeout if consecutive_errors > max_errors
+          raise e if consecutive_errors > max_errors
         end
 
         sleep interval_seconds
