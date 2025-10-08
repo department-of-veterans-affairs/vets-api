@@ -135,7 +135,7 @@ module VAOS
 
         eps_appointments = eps_appointments_service.get_appointments[:data]
         # Filter out draft EPS appointments when checking referral usage
-        non_draft_eps_appointments = eps_appointments.reject { |appt| appt[:state] == 'draft' }
+        non_draft_eps_appointments = eps_appointments&.reject { |appt| appt[:state] == 'draft' } || []
         { exists: appointment_with_referral_exists?(non_draft_eps_appointments, referral_id) }
       end
 
