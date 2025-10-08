@@ -9,7 +9,7 @@ module TravelPay
       include IdValidation
 
       before_action :validate_claim_id!, only: %i[create show]
-      before_action :validate_expense_id!, only: %i[destroy show]
+      before_action :validate_expense_id!, only: %i[destroy show update]
       before_action :validate_expense_type!
       before_action :check_feature_flag
 
@@ -37,7 +37,6 @@ module TravelPay
         Rails.logger.info(
           message: "Creating expense of type '#{params[:expense_type]}' for claim #{params[:claim_id].slice(0, 8)}"
         )
-
         expense = create_and_validate_expense
         created_expense = expense_service.create_expense(expense_params_for_service(expense))
 
@@ -48,6 +47,25 @@ module TravelPay
         raise Common::Exceptions::BadRequest, detail: e.message
       rescue Faraday::Error => e
         TravelPay::ServiceError.raise_mapped_error(e)
+      end
+
+      def update
+        expense_type = params[:expense_type]
+        expense_id = params[:expense_id]
+        Rails.logger.info(
+          message: "Updating expense of type '#{expense_type}' with expense id #{expense_id&.first(8)}"
+        )
+        expense = create_and_validate_expense
+        response_data = expense_service.update_expense(expense_id, expense_type, expense_params_for_service(expense))
+
+        render json: { expenseId: response_data['id'] }, status: :ok
+      rescue ArgumentError => e
+        raise Common::Exceptions::BadRequest, detail: e.message
+      rescue Faraday::ClientError, Faraday::ServerError => e
+        TravelPay::ServiceError.raise_mapped_error(e)
+      rescue Common::Exceptions::BackendServiceException => e
+        Rails.logger.error("Error updating expense: #{e.message}")
+        render json: { error: 'Error updating expense' }, status: e.original_status
       end
 
       def destroy
@@ -131,7 +149,10 @@ module TravelPay
 
       def build_expense_from_params
         expense_class = expense_class_for_type(params[:expense_type])
-        expense_params = permitted_params.merge(claim_id: params[:claim_id])
+        expense_params = permitted_params.to_h
+
+        # Only add claim_id if it exists in params
+        expense_params[:claim_id] = params[:claim_id] if params[:claim_id].present?
 
         expense_class.new(expense_params)
       end
@@ -152,13 +173,14 @@ module TravelPay
       end
 
       def expense_params_for_service(expense)
-        {
-          'claim_id' => expense.claim_id,
+        params = {
           'purchase_date' => format_purchase_date(expense.purchase_date),
           'description' => expense.description,
           'cost_requested' => expense.cost_requested,
           'expense_type' => expense.expense_type
         }
+        params['claim_id'] = expense.claim_id if expense.claim_id.present?
+        params
       end
 
       # Ensures purchase_date is formatted as ISO8601, regardless of input type
