@@ -17,6 +17,15 @@ module Common
         extend ActiveSupport::Concern
         include MhvLockedSessionClient
 
+        included do
+          attr_reader :icn
+        end
+
+        def initialize(session:, icn: nil, **)
+          super(session:)
+          @icn = icn
+        end
+
         protected
 
         def user_key
