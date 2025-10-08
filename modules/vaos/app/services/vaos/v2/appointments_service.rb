@@ -1027,8 +1027,12 @@ module VAOS
         elsif %w[ADHOC MOBILE_ANY MOBILE_ANY_GROUP MOBILE_GFE].include?(vvs_kind)
           'vaVideoCareAtHome'
         elsif vvs_kind.nil?
-          vvs_video_appt = appointment.dig(:extension, :vvs_vista_video_appt)
-          vvs_video_appt.to_s.downcase == 'true' ? 'vaVideoCareAtHome' : 'vaInPerson'
+          if VAOS::AppointmentsHelper.cerner?(appointment)
+            appointment.dig(:telehealth, :url).nil? ? 'vaInPerson' : 'vaVideoCareAtHome'
+          else
+            vvs_video_appt = appointment.dig(:extension, :vvs_vista_video_appt)
+            vvs_video_appt.to_s.downcase == 'true' ? 'vaVideoCareAtHome' : 'vaInPerson'
+          end
         end
       end
 
