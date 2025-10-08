@@ -181,8 +181,8 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
         expect(response).to have_http_status(:unprocessable_entity)
         resp = JSON.parse(response.body)
-        expect(resp['errors']).to be_an(Array)
-        expect(resp['errors'][0]['detail']).to include('Unable to convert file to PDF')
+        expect(resp['error']).to be_an(Array)
+        expect(resp['error'][0]['detail']).to include('Unable to convert file to PDF')
       end
     end
 
@@ -205,8 +205,8 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
         expect(response).to have_http_status(:unprocessable_entity)
         resp = JSON.parse(response.body)
-        expect(resp['errors']).to be_an(Array)
-        expect(resp['errors'][0]['detail']).to include('file size limit')
+        expect(resp['error']).to be_an(Array)
+        expect(resp['error'][0]['detail']).to include('file size limit')
       end
     end
 
