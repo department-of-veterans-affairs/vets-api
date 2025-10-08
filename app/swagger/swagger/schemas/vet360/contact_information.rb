@@ -26,6 +26,10 @@ module Swagger
                            type: :string,
                            format: 'date-time',
                            example: '2018-04-21T20:09:50Z'
+                  property :confirmation_date,
+                           type: %i[string null],
+                           format: 'date-time',
+                           example: '2018-04-21T20:09:50Z'
                   property :effective_end_date,
                            type: %i[string null],
                            format: 'date-time',

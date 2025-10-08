@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_23_015956) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -642,12 +642,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
   end
 
   create_table "claims_api_record_metadata", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.text "metadata_ciphertext", null: false
-    t.string "record_type", null: false
-    t.uuid "record_id", null: false
+    t.text "metadata_ciphertext"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["record_type", "record_id"], name: "index_record_metadata_on_type_and_id"
+    t.text "encrypted_kms_key"
+    t.boolean "needs_kms_rotation", default: false, null: false
+    t.string "request_url_ciphertext"
+    t.text "request_ciphertext"
+    t.text "response_ciphertext"
+    t.text "request_headers_ciphertext"
+    t.index ["needs_kms_rotation"], name: "index_claims_api_record_metadata_on_needs_kms_rotation"
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1451,7 +1455,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
     t.index ["tracking_number"], name: "index_preneed_submissions_on_tracking_number", unique: true
   end
 
-  create_table "saved_claim_group", force: :cascade do |t|
+  create_table "saved_claim_groups", force: :cascade do |t|
     t.uuid "claim_group_guid", null: false
     t.integer "parent_claim_id", null: false, comment: "ID of the saved claim in vets-api"
     t.integer "saved_claim_id", null: false, comment: "ID of the saved claim in vets-api"
@@ -1461,8 +1465,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
     t.boolean "needs_kms_rotation", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["claim_group_guid"], name: "index_saved_claim_group_on_claim_group_guid"
-    t.index ["needs_kms_rotation"], name: "index_saved_claim_group_on_needs_kms_rotation"
+    t.index ["claim_group_guid"], name: "index_saved_claim_groups_on_claim_group_guid"
+    t.index ["needs_kms_rotation"], name: "index_saved_claim_groups_on_needs_kms_rotation"
   end
 
   create_table "saved_claims", id: :serial, force: :cascade do |t|
@@ -1478,7 +1482,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
     t.datetime "delete_date"
     t.text "metadata"
     t.datetime "metadata_updated_at"
-    t.bigint "user_account_id"
+    t.uuid "user_account_id"
     t.uuid "bpd_uuid"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
@@ -1789,6 +1793,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
     t.datetime "updated_at", null: false
     t.string "backing_idme_uuid"
     t.boolean "locked", default: false, null: false
+    t.string "credential_attributes_digest"
     t.index ["backing_idme_uuid"], name: "index_user_verifications_on_backing_idme_uuid"
     t.index ["dslogon_uuid"], name: "index_user_verifications_on_dslogon_uuid", unique: true
     t.index ["idme_uuid"], name: "index_user_verifications_on_idme_uuid", unique: true
@@ -2190,8 +2195,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_11_094106) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
-  add_foreign_key "saved_claim_group", "saved_claims", column: "parent_claim_id", validate: false
-  add_foreign_key "saved_claim_group", "saved_claims", validate: false
+  add_foreign_key "saved_claim_groups", "saved_claims", column: "parent_claim_id", validate: false
+  add_foreign_key "saved_claim_groups", "saved_claims", validate: false
   add_foreign_key "schema_contract_validations", "user_accounts", validate: false
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "test_user_dashboard_tud_account_availability_logs", "user_accounts"

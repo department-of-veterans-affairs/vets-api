@@ -22,11 +22,16 @@ require 'pdf_fill/forms/va21674v2'
 require 'pdf_fill/forms/va210538'
 require 'pdf_fill/forms/va261880'
 require 'pdf_fill/forms/va5655'
+require 'pdf_fill/forms/va220839'
 require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
 require 'pdf_fill/forms/va2210215a'
 require 'pdf_fill/forms/va221919'
+require 'pdf_fill/forms/va228794'
+require 'pdf_fill/forms/va2210275'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
+require 'pdf_fill/processors/va228794_processor'
+require 'pdf_fill/processors/va220839_processor'
 require 'utilities/date_parser'
 require 'forwardable'
 
@@ -79,10 +84,13 @@ module PdfFill
       '21-674-V2' => PdfFill::Forms::Va21674v2,
       '26-1880' => PdfFill::Forms::Va261880,
       '5655' => PdfFill::Forms::Va5655,
+      '22-0839' => PdfFill::Forms::Va220839,
+      '22-8794' => PdfFill::Forms::Va228794,
       '22-10216' => PdfFill::Forms::Va2210216,
       '22-10215' => PdfFill::Forms::Va2210215,
       '22-10215a' => PdfFill::Forms::Va2210215a,
-      '22-1919' => PdfFill::Forms::Va221919
+      '22-1919' => PdfFill::Forms::Va221919,
+      '22-10275' => PdfFill::Forms::Va2210275
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
     end
@@ -192,10 +200,20 @@ module PdfFill
         fill_options[:show_jumplinks] = Flipper.enabled?(:pdf_fill_redesign_overflow_jumplinks)
       end
 
-      # Handle 22-10215 overflow with continuation sheets
-      if form_id == '22-10215' && form_data['programs'] && form_data['programs'].length > 16
-        return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options)
+      # more complex logic is handled by a dedicated 'processor' class
+      case form_id
+      when '22-10215'
+        if form_data['programs'] && form_data['programs'].length > 16
+          return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension,
+                                                       fill_options)
+        end
+      when '22-0839'
+        return PdfFill::Processors::VA220839Processor.new(form_data, self).process
+      when '22-8794'
+        return PdfFill::Processors::VA228794Processor.new(form_data, self).process
       end
+
+      # Handle 22-8794 has the potential to overflow a lot and require special overflow handling
 
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
@@ -207,7 +225,6 @@ module PdfFill
 
       hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
       new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
-
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
       unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,

@@ -11,7 +11,7 @@
 # The filter_parameters chain will return nil since there is no lambda to call.
 module ParameterFilterHelper
   def filter_params(params)
-    Rails.application.config.filter_parameters.first&.call(nil, params.deep_dup)
+    Rails.application.config.filter_parameters.first&.call(nil, params.deep_dup) || params
   end
   module_function :filter_params
 end

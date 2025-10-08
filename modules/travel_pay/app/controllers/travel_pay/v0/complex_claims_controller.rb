@@ -6,15 +6,15 @@ module TravelPay
       include FeatureFlagHelper
       include AppointmentHelper
       include ClaimHelper
+      include IdValidation
 
       rescue_from Common::Exceptions::BadRequest, with: :render_bad_request
-      rescue_from Common::Exceptions::ServiceUnavailable, with: :render_service_unavailable
 
       before_action :check_feature_flag
 
       def submit
         claim_id = params[:claim_id]
-        validate_claim_id_exists!(claim_id)
+        validate_uuid_exists!(claim_id, 'Claim')
 
         # TODO: add validation to verify there is a document associated to a given expense
         # TODO: possibly add validation to verify the claim id is valid
@@ -75,7 +75,7 @@ module TravelPay
         verify_feature_flag!(
           :travel_pay_enable_complex_claims,
           current_user,
-          error_message: 'Travel Pay create complex claim unavailable per feature toggle'
+          error_message: 'Travel Pay complex claim endpoint unavailable per feature toggle'
         )
       end
 
@@ -88,11 +88,6 @@ module TravelPay
                        end
 
         render json: { errors: [{ detail: error_detail }] }, status: :bad_request
-      end
-
-      def render_service_unavailable(e)
-        Rails.logger.error("Service unavailable: #{e.message}")
-        render json: { error: e.message }, status: :service_unavailable
       end
 
       def validate_datetime_format!(datetime_str)
