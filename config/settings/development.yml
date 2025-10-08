@@ -246,10 +246,9 @@ connected_apps_api:
     auth_access_key: ~
     revoke_url: https://sandbox-api.va.gov/internal/auth/v3/user/consent
     url: https://sandbox-api.va.gov/internal/auth/v3/user/connected-apps
-contention-classification-api:
-  url: ~
 contention_classification_api:
   expanded_contention_classification_path: expanded-contention-classification
+  hybrid_contention_classification_path: hybrid-contention-classification
   open_timeout: 5
   read_timeout: 10
   url: http://contention-classification-api-dev.vfs.va.gov/
@@ -708,6 +707,20 @@ lighthouse:
     url: https://sandbox-api.va.gov
     veterans_health:
       url: ~
+  healthcare_cost_and_coverage:
+    access_token:
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/fake1tcityDg93hgKkd#/v1/token
+      client_id: fake_client_id
+      rsa_key: path/to/fake/pem
+    host: https://test-api.va.gov
+    scopes:
+      - system/ChargeItem.read
+      - system/Invoice.read
+      - system/PaymentReconciliation.read
+      - system/MedicationDispense.read
+      - launch
+    timeout: 30
+    use_mocks: false
   letters_generator:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token
@@ -1163,7 +1176,7 @@ reports:
       - adam.freemer@accenturefederal.com
 res:
   api_key: ~
-  base_url: ~
+  base_url: https://fake_url.com
   mock_ch_31: ~
 review_instance_slug: ~
 rrd:
@@ -1529,6 +1542,9 @@ vanotify:
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
+        contact_email_address_change_confirmation_needed_email: contact_email_address_change_confirmation_needed_email_fake_template_id
+        contact_email_address_confirmation_needed_email: contact_email_address_confirmation_needed_email_fake_template_id
+        contact_email_address_confirmed_email: contact_email_address_confirmed_email_fake_template_id
         contact_info_change: fake_template_id
         covid_vaccine_registration: ~
         direct_deposit: direct_deposit_template_id
@@ -1632,8 +1648,6 @@ vaos:
       hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 vba_documents:
   custom_metadata_allow_list: ~
-  documentation:
-    path_enabled_flag: false
   enable_download_endpoint: ~
   enable_status_override: ~
   enable_validate_document_endpoint: true

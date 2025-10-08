@@ -101,5 +101,10 @@ module BGSDependentsV2
         alt_address: @dependents_application.dig('does_live_with_spouse', 'address')
       )
     end
+
+    # temporarily not used until rbps can handle it in the payload
+    def marriage_method_name
+      @dependents_application.dig('current_marriage_information', 'type_of_marriage')
+    end
   end
 end
