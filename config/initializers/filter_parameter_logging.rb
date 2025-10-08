@@ -16,7 +16,6 @@ ALLOWLIST = %w[
   confirmation_number
   consumer_name
   content_type
-  context
   controller
   cookie_id
   document_id
