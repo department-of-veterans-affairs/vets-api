@@ -96,7 +96,7 @@ module V1
       callback_stats(:success, saml_response)
       Rails.logger.info("SessionsController version:v1 saml_callback complete, user_uuid=#{@current_user&.uuid}")
     rescue SAML::SAMLError => e
-      handle_callback_error(e, :failure, saml_response, e.level, e.context, e.code, e.tag)
+      handle_callback_error(e, :failure, saml_response, e.context, e.code, e.tag)
     rescue => e
       # the saml_response variable may or may not be defined depending on
       # where the exception was raised
@@ -371,7 +371,7 @@ module V1
     end
 
     # rubocop:disable Metrics/ParameterLists
-    def handle_callback_error(exc, status, response, _level = :error, context = {},
+    def handle_callback_error(exc, status, response, context = {},
                               code = SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE, tag = nil)
       # replaces bundled Sentry error message with specific XML messages
       message = if response && response.normalized_errors.count > 1 && response.status_detail
