@@ -121,7 +121,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
     )
   end
 
-  before(:all) do
+  before do
     # Because the 'lastUpdateDate' timestamps differ between the cassette's request body and when
     # they are set in the code, we'll ignore them when matching the request bodies on the put requests.
     VCR.configure do |config|

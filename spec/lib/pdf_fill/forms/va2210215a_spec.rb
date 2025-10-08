@@ -41,7 +41,7 @@ describe PdfFill::Forms::Va2210215a do
 
       # Test program data processing
       expect(merged_data['programs'].first['programDateOfCalculation']).to eq('2024-01-01')
-      expect(merged_data['programs'].first['fte']['supportedPercentageFTE']).to eq('85%')
+      expect(merged_data['programs'].first['fte']['supportedPercentageFTE']).to eq('85.00%')
 
       # Test page numbering
       expect(merged_data['pageNumber']).to eq('2')

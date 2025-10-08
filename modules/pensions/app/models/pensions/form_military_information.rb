@@ -7,7 +7,7 @@ module Pensions
   # Extends FormMilitaryInformation to add additional military information fields to Pension prefill
   # @see app/models/form_profile.rb FormMilitaryInformation
   class FormMilitaryInformation < ::FormMilitaryInformation
-    include Virtus.model
+    include Vets::Model
 
     attribute :first_uniformed_entry_date, String
     attribute :last_active_discharge_date, String

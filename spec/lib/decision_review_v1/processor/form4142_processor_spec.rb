@@ -11,7 +11,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
   let(:form_json) do
     # This file is used to test the form4142 processor with the 2018 template
     # File.read('spec/support/disability_compensation_form/submissions/with_4142.json')
-    File.read('spec/support/disability_compensation_form/submissions/with_4142_2024.json')
+    File.read('spec/support/decision_reviews/with_4142_2024.json')
   end
 
   let(:saved_claim) { create(:va526ez) }
@@ -32,11 +32,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
     submission.created_at.in_time_zone(described_class::TIMEZONE).strftime(described_class::SIGNATURE_TIMESTAMP_FORMAT)
   end
   let(:form4142) { JSON.parse(form_json)['form4142'].merge({ 'signatureDate' => received_date }) }
-
-  before do
-    # By default, this flag is enabled in test environments, turning this off so we are using 2018 form
-    allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
-  end
 
   describe '#initialize' do
     context 'when schema validation is not enabled' do
@@ -67,15 +62,19 @@ describe DecisionReviewV1::Processor::Form4142Processor do
       # Use existing fixture simple.pdf as test input
       let(:fixture_pdf) { Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'simple.pdf') }
       let(:test_pdf) { Rails.root.join('tmp', 'test_output.pdf') }
+      let(:file_path) { test_pdf.to_s }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
 
         # Use a pregenerated PDF file to reduce the cost of generate_stamp_pdf
         FileUtils.cp(fixture_pdf, test_pdf) unless File.exist?(test_pdf)
-        allow_any_instance_of(described_class).to receive(:generate_stamp_pdf)
-          .and_return(Rails.root.join('tmp', 'test_output.pdf').to_s)
+
+        # stub out pdf methods as they are not needed for these tests and are cpu expensive
+        allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
+        allow(PDFUtilities::DatestampPdf)
+          .to receive(:new)
+          .and_return(instance_double(PDFUtilities::DatestampPdf, run: 'tmp/test_output.pdf'))
       end
 
       # Clean up the test output file
@@ -83,7 +82,10 @@ describe DecisionReviewV1::Processor::Form4142Processor do
 
       context 'with valid form data' do
         it 'initializes with submission and form data' do
-          processor = described_class.new(form_data: form4142, submission_id: submission.id)
+          expect(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
+          expect(PDFUtilities::DatestampPdf)
+            .to receive(:new)
+            .and_return(instance_double(PDFUtilities::DatestampPdf, run: 'tmp/test_output.pdf'))
 
           expect(processor.instance_variable_get(:@submission)).to eq(submission)
           expect(processor.instance_variable_get(:@pdf_path)).to be_a(String)
@@ -219,7 +221,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
   end
 
   describe 'PDF version selection via feature flag' do
-    let(:template_flag) { :decision_review_form4142_use_2024_template }
     let(:validation_flag) { :decision_review_form4142_validate_schema }
 
     # Use existing fixture simple.pdf as test input
@@ -248,36 +249,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
     end
 
     describe 'template selection logic' do
-      context 'with legacy template (flag disabled)' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(template_flag).and_return(false)
-        end
-
-        it 'selects 2018 legacy form class ID' do
-          allow_any_instance_of(described_class).to receive(:generate_stamp_pdf)
-            .and_return(Rails.root.join('tmp', 'test_output.pdf').to_s)
-
-          expect(processor.send(:generate_2024_version?)).to be false
-          expect(processor.send(:selected_form_class_id)).to eq('21-4142')
-        end
-
-        it 'calls PDF filler with 2018 legacy form ID' do
-          expect(PdfFill::Filler).to receive(:fill_ancillary_form)
-            .with(hash_including('veteranFullName' => anything), anything, '21-4142')
-            .and_wrap_original do |_m|
-              # Short-circuit the heavy logic
-              Rails.root.join('tmp', 'test_output.pdf').to_s
-            end
-
-          processor
-        end
-      end
-
       context 'with 2024 template (flag enabled)' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(template_flag).and_return(true)
-        end
-
         it 'selects 2024 form class ID' do
           allow_any_instance_of(described_class).to receive(:generate_stamp_pdf)
             .and_return(Rails.root.join('tmp', 'test_output.pdf').to_s)
@@ -305,24 +277,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
           test_processor = described_class.new(form_data: form4142, submission_id: submission.id)
           expect(test_processor.send(:needs_signature_stamp?)).to be true
         end
-      end
-    end
-
-    describe 'feature flag integration' do
-      before do
-        allow_any_instance_of(described_class).to receive(:generate_stamp_pdf)
-          .and_return(Rails.root.join('tmp', 'test_output.pdf').to_s)
-      end
-
-      it 'correctly reads the team-specific template flag' do
-        expect(Flipper).to receive(:enabled?).with(template_flag).and_return(true)
-        processor.send(:generate_2024_version?)
-      end
-
-      it 'defaults to legacy when flag is not set' do
-        allow(Flipper).to receive(:enabled?).with(template_flag).and_return(false)
-
-        expect(processor.send(:generate_2024_version?)).to be false
       end
     end
   end

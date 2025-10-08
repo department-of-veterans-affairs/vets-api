@@ -9,8 +9,6 @@ RSpec.describe 'Mobile::V0::VetVerificationStatuses', type: :request do
   before do
     sign_in_as(user)
     allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return('blahblech')
-    Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-    Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
   end
 
   describe '#show' do
@@ -68,42 +66,17 @@ RSpec.describe 'Mobile::V0::VetVerificationStatuses', type: :request do
         expect(response).to have_http_status(:ok)
       end
 
-      context 'when vet_status_stage_1 is enabled' do
-        before do
-          Flipper.enable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
+      it 'returns a person_not_found reason' do
+        VCR.use_cassette('lighthouse/veteran_verification/status/200_person_not_found_response') do
+          get '/mobile/v0/vet_verification_status', headers: sis_headers
         end
 
-        it 'returns a person_not_found reason' do
-          VCR.use_cassette('lighthouse/veteran_verification/status/200_person_not_found_response') do
-            get '/mobile/v0/vet_verification_status', headers: sis_headers
-          end
-
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body['data']['attributes']['veteranStatus']).to eq('not confirmed')
-          expect(parsed_body['data']['attributes']['notConfirmedReason']).to eq('PERSON_NOT_FOUND')
-          expect(parsed_body['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED)
-          expect(parsed_body['data']['title']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE)
-          expect(parsed_body['data']['status']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS)
-        end
-      end
-
-      context 'when vet_status_stage_1 is disabled' do
-        before do
-          Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
-        end
-
-        it 'returns a person_not_found reason' do
-          VCR.use_cassette('lighthouse/veteran_verification/status/200_person_not_found_response') do
-            get '/mobile/v0/vet_verification_status', headers: sis_headers
-          end
-
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body['data']['attributes']['veteranStatus']).to eq('not confirmed')
-          expect(parsed_body['data']['attributes']['notConfirmedReason']).to eq('PERSON_NOT_FOUND')
-          expect(parsed_body['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE)
-          expect(parsed_body['data']['title']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE)
-          expect(parsed_body['data']['status']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS)
-        end
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body['data']['attributes']['veteranStatus']).to eq('not confirmed')
+        expect(parsed_body['data']['attributes']['notConfirmedReason']).to eq('PERSON_NOT_FOUND')
+        expect(parsed_body['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE)
+        expect(parsed_body['data']['title']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE)
+        expect(parsed_body['data']['status']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS)
       end
     end
   end
