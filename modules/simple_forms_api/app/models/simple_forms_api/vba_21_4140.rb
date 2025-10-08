@@ -23,7 +23,7 @@ module SimpleFormsApi
       coords = employed? ? [[50, 410]] : [[50, 275]]
       # TODO: Use data['statement_of_truth_signature'] when frontend sends it
       signature_text = "#{data.dig('full_name', 'first')} #{data.dig('full_name', 'last')}".strip
-      
+
       [{ coords:, text: signature_text, page: 1 }]
     end
 
@@ -71,12 +71,14 @@ module SimpleFormsApi
     def phone_alternate
       phone = data['mobile_phone_number']
       return nil if phone.nil?
+
       phone.insert(-8, '-').insert(-5, '-')
     end
 
     def phone_primary
       phone = data['phone_number']
       return nil if phone.nil?
+
       phone.insert(-8, '-').insert(-5, '-')
     end
 
