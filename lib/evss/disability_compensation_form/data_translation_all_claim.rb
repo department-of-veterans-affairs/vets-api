@@ -178,7 +178,6 @@ module EVSS
                     input_form['bankAccountNumber'].present? && input_form['bankRoutingNumber'].present?
         # If banking data is not included, then it has not changed and will be retrieved from Lighthouse
         if !populated || redacted(input_form['bankAccountNumber'], input_form['bankRoutingNumber'])
-          monitor.track_526_submission_without_banking_info(@user.uuid)
 
           # NOTE: if the Veteran supplied empty or redacted banking information, we are removing a call to Lighthouse
           # to retrieve banking info the Veteran has on file with Lighthouse, to respect the fact the Veteran left
@@ -186,9 +185,16 @@ module EVSS
           #
           # This change will launch behind a Flipper but the Flipper will eventually be removed and we will return an
           # empty hash here
-          Flipper.enabled?(:disability_526_block_banking_info_retrieval) ? {} : get_banking_info
+          if Flipper.enabled?(:disability_526_block_banking_info_retrieval)
+            monitor.track_526_submission_without_banking_info(@user.uuid)
+            {}
+          else
+            get_banking_info
+          end
         else
-          monitor.track_526_submission_with_banking_info(@user.uuid)
+          if Flipper.enabled?(:disability_526_block_banking_info_retrieval)
+            monitor.track_526_submission_with_banking_info(@user.uuid)
+          end
 
           direct_deposit(
             input_form['bankAccountType'], input_form['bankAccountNumber'],

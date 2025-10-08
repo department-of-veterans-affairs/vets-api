@@ -587,12 +587,40 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         }
       end
 
-      it 'logs the submission was made with banking info' do
-        expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
-          .to receive(:track_526_submission_with_banking_info)
-          .with(user.uuid)
+      context 'when the disability_526_block_banking_info_retrieval Flipper is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(true)
+        end
 
-        subject.send(:translate_banking_info)
+        after do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(false)
+        end
+
+        it 'logs the submission was made with banking info' do
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .to receive(:track_526_submission_with_banking_info)
+            .with(user.uuid)
+
+          subject.send(:translate_banking_info)
+        end
+      end
+
+      context 'when the disability_526_block_banking_info_retrieval Flipper is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(false)
+        end
+
+        after do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(true)
+        end
+
+        it 'does not log the submission was made with banking info' do
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .not_to receive(:track_526_submission_with_banking_info)
+            .with(user.uuid)
+
+          subject.send(:translate_banking_info)
+        end
       end
     end
 
@@ -610,13 +638,43 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
       end
 
-      it 'logs the submission was made without banking info' do
-        expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
-          .to receive(:track_526_submission_without_banking_info)
-          .with(user.uuid)
+      context 'when the disability_526_block_banking_info_retrieval Flipper is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(true)
+        end
 
-        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
-          subject.send(:translate_banking_info)
+        after do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(false)
+        end
+
+        it 'logs the submission was made without banking info' do
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .to receive(:track_526_submission_without_banking_info)
+            .with(user.uuid)
+
+          VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+            subject.send(:translate_banking_info)
+          end
+        end
+      end
+
+      context 'when the disability_526_block_banking_info_retrieval Flipper is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(false)
+        end
+
+        after do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(true)
+        end
+
+        it 'does not log the submission was made without banking info' do
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .not_to receive(:track_526_submission_without_banking_info)
+            .with(user.uuid)
+
+          VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+            subject.send(:translate_banking_info)
+          end
         end
       end
     end
@@ -680,6 +738,17 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             expect_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info).and_return(response)
             expect(subject.send(:translate_banking_info)).to eq({})
           end
+        end
+
+        it 'does not log the submission was made without banking info' do
+          allow_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info)
+            .and_return(Lighthouse::DirectDeposit::Response.new(200, nil, nil, nil))
+
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .not_to receive(:track_526_submission_without_banking_info)
+            .with(user.uuid)
+
+          subject.send(:translate_banking_info)
         end
       end
     end
