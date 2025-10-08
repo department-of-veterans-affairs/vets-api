@@ -5710,7 +5710,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/v1/LabsAndTests.yml
+                $ref: ./schemas/v1/LabsAndTestsV1.yml
           description: OK
         '401':
           $ref: '#/components/responses/401'
@@ -5758,7 +5758,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/v1/Prescriptions.yml
+                $ref: ./schemas/v1/PrescriptionsV1.yml
           description: OK
         '401':
           $ref: '#/components/responses/401'
@@ -5803,7 +5803,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/v1/PrescriptionRefill.yml
+                $ref: ./schemas/v1/PrescriptionRefillV1.yml
           description: OK
         '401':
           $ref: '#/components/responses/401'
