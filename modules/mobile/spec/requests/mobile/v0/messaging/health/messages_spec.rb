@@ -208,6 +208,18 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
             expect(response).to be_successful
           end
+
+          it 'passes poll_for_status=true on reply without attachments when is_oh_triage_group=true' do
+            expect_any_instance_of(Mobile::V0::Messaging::Client).to receive(:poll_message_status)
+              .and_return({ status: 'SENT' })
+            VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
+              post '/mobile/v0/messaging/health/messages/674838/reply?is_oh_triage_group=true',
+                   headers: sis_headers,
+                   params: { message: params }
+            end
+
+            expect(response).to be_successful
+          end
         end
       end
 

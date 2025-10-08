@@ -118,7 +118,10 @@ module Mobile
       end
 
       def build_create_client_response(message, create_message_params)
-        return client.post_create_message(message_params.to_h) if message.uploads.blank?
+        if message.uploads.blank?
+          return client.post_create_message(message_params.to_h,
+                                            poll_for_status: oh_triage_group?)
+        end
 
         client.post_create_message_with_attachment(create_message_params, poll_for_status: oh_triage_group?)
       rescue Common::Client::Errors::Serialization => e
@@ -129,7 +132,10 @@ module Mobile
       end
 
       def build_reply_client_response(message, create_message_params)
-        return client.post_create_message_reply(params[:id], message_params.to_h) if message.uploads.blank?
+        if message.uploads.blank?
+          return client.post_create_message_reply(params[:id], message_params.to_h,
+                                                  poll_for_status: oh_triage_group?)
+        end
 
         client.post_create_message_reply_with_attachment(params[:id], create_message_params,
                                                          poll_for_status: oh_triage_group?)

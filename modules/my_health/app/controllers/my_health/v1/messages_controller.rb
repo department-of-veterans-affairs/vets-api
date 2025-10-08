@@ -97,7 +97,7 @@ module MyHealth
       end
 
       def create_client_response(message, message_params_h, create_message_params)
-        return client.post_create_message(message_params_h) if message.uploads.blank?
+        return client.post_create_message(message_params_h, poll_for_status: oh_triage_group?) if message.uploads.blank?
 
         if use_large_attachment_upload
           Rails.logger.info('MHV SM: Using large attachments endpoint')
@@ -109,7 +109,10 @@ module MyHealth
       end
 
       def reply_client_response(message, message_params_h, create_message_params)
-        return client.post_create_message_reply(params[:id], message_params_h) if message.uploads.blank?
+        if message.uploads.blank?
+          return client.post_create_message_reply(params[:id], message_params_h,
+                                                  poll_for_status: oh_triage_group?)
+        end
 
         if use_large_attachment_upload
           Rails.logger.info('MHV SM: Using large attachments endpoint - reply')
