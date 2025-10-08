@@ -20262,9 +20262,9 @@
                 "example": "2022-10-28T04:00:00.000Z"
               },
               "quantity": {
-                "type": "integer",
+                "type": "string",
                 "nullable": true,
-                "example": 10
+                "example": "10"
               },
               "expirationDate": {
                 "type": "string",
@@ -24341,7 +24341,9 @@
                   "prescriptions": false,
                   "scheduleAppointments": true,
                   "secureMessaging": false,
-                  "userProfileUpdate": true
+                  "userProfileUpdate": true,
+                  "secureMessagingOracleHealthEnabled": false,
+                  "medicationsOracleHealthEnabled": false
                 }
               }
             }
@@ -24534,16 +24536,27 @@
                 "nullable": true,
                 "required": [
                   "id",
-                  "emailAddress"
+                  "emailAddress",
+                  "confirmationDate",
+                  "updatedAt"
                 ],
                 "properties": {
                   "id": {
                     "type": "integer",
                     "example": 157032
                   },
-                  "contactEmail": {
+                  "emailAddress": {
                     "type": "string",
                     "example": "person@example.com"
+                  },
+                  "confirmationDate": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "2018-04-21T20:09:50Z"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "example": "2018-04-21T20:09:50Z"
                   }
                 }
               }

@@ -18,14 +18,21 @@ module AccreditedRepresentativePortal
         end
       end
 
+      # rubocop:disable Metrics/MethodLength
       def create
-        case decision_params[:type]
-        when 'acceptance'
-          process_acceptance
-        when 'declination'
-          process_declination
-        else
-          render_invalid_type_error
+        ar_monitoring.trace('ar.poa.request.decision.create') do |span|
+          decision = decision_params[:type]
+          span.set_tag('poa_request.poa_code', poa_code)
+          span.set_tag('poa_request.decision', decision)
+
+          case decision
+          when 'acceptance'
+            process_acceptance
+          when 'declination'
+            process_declination
+          else
+            render_invalid_type_error
+          end
         end
       rescue PowerOfAttorneyRequestService::Accept::Error => e
         render json: { errors: [e.message] }, status: e.status
@@ -39,6 +46,7 @@ module AccreditedRepresentativePortal
       rescue => e
         render json: { errors: [e.message] }, status: :internal_server_error
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
@@ -91,6 +99,20 @@ module AccreditedRepresentativePortal
         notification = poa_request.notifications.create!(type: 'declined')
         PowerOfAttorneyRequestEmailJob.perform_async(
           notification.id
+        )
+      end
+
+      def poa_code
+        @poa_request.power_of_attorney_holder_poa_code
+      end
+
+      def ar_monitoring
+        @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
+          AccreditedRepresentativePortal::Monitoring::NAME,
+          default_tags: [
+            "controller:#{controller_name}",
+            "action:#{action_name}"
+          ].compact
         )
       end
     end

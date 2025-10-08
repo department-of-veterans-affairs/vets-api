@@ -6,6 +6,7 @@ module AccreditedRepresentativePortal
       Error = Class.new(RuntimeError)
       UnknownError = Class.new(Error)
       WrongAttachmentsError = Class.new(Error)
+      TooManyRequestsError = Class.new(Error)
 
       class RecordInvalidError < Error
         attr_reader :record
@@ -18,6 +19,7 @@ module AccreditedRepresentativePortal
       end
 
       class << self
+        # rubocop:disable Metrics/MethodLength
         def perform(
           type:, metadata:, attachment_guids:,
           claimant_representative:
@@ -48,9 +50,18 @@ module AccreditedRepresentativePortal
         #
         rescue RecordInvalidError, WrongAttachmentsError, BenefitsIntakeService::Service::InvalidDocumentError
           raise
+        rescue Common::Client::Errors::ClientError => e
+          if e.message&.match(/429/)
+            # We are reraising this particular error so vets-website can display a specific message to
+            # the user while we continue to have rate-limiting issues
+            raise TooManyRequestsError
+          else
+            raise UnknownError
+          end
         rescue
           raise UnknownError
         end
+        # rubocop:enable Metrics/MethodLength
 
         private
 

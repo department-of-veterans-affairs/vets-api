@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'securerandom'
+require 'base64'
 
 module TravelPay
   class ExpensesService
@@ -30,18 +31,61 @@ module TravelPay
       # Validate required params
       raise ArgumentError, 'You must provide a claim ID to create an expense.' unless params['claim_id']
 
-      Rails.logger.info("Creating general expense of type: #{params['expense_type']}")
+      Rails.logger.info("Creating expense of type: #{params['expense_type']}")
 
       # Build the request body for the API
       request_body = build_expense_request_body(params)
 
-      begin
-        response = client.add_expense(veis_token, btsss_token, params['expense_type'], request_body)
-        response.body['data']
-      rescue Faraday::Error => e
-        Rails.logger.error("Failed to create expense via API: #{e.message}")
-        raise TravelPay::ServiceError.raise_mapped_error(e)
-      end
+      response = client.add_expense(veis_token, btsss_token, params['expense_type'], request_body)
+      response.body['data']
+    rescue Faraday::Error => e
+      Rails.logger.error("Failed to create expense via API: #{e.message}")
+      TravelPay::ServiceError.raise_mapped_error(e)
+    end
+
+    # Method to retrieve an expense by ID via the API
+    def get_expense(expense_type, expense_id)
+      @auth_manager.authorize => { veis_token:, btsss_token: }
+
+      # Validate required params
+      raise ArgumentError, 'You must provide an expense type to get an expense.' if expense_type.blank?
+      raise ArgumentError, 'You must provide an expense ID to get an expense.' if expense_id.blank?
+
+      Rails.logger.info("Getting expense of type: #{expense_type} with ID: #{expense_id}")
+
+      response = client.get_expense(veis_token, btsss_token, expense_type, expense_id)
+      response.body['data']
+    rescue Faraday::Error => e
+      Rails.logger.error("Failed to get expense via API: #{e.message}")
+      TravelPay::ServiceError.raise_mapped_error(e)
+    end
+
+    # Method to handle expense update via the API
+    def update_expense(expense_id, expense_type, params = {})
+      raise ArgumentError, 'You must provide an expense ID to create an expense.' if expense_id.blank?
+      raise ArgumentError, 'You must provide an expense type to create an expense.' if expense_type.blank?
+      raise ArgumentError, 'You must provide at least one field to update an expense.' if params.blank?
+
+      @auth_manager.authorize => { veis_token:, btsss_token: }
+      Rails.logger.info("Updating expense of type: #{expense_type}")
+
+      # Build the request body for the API
+      request_body = build_expense_request_body(params)
+
+      response = client.update_expense(veis_token, btsss_token, expense_id, expense_type, request_body)
+      response.body['data']
+    end
+
+    # Method to handle expense deletion via the API
+    def delete_expense(expense_id:, expense_type:)
+      raise ArgumentError, 'You must provide an expense ID to create an expense.' if expense_id.blank?
+      raise ArgumentError, 'You must provide an expense type to create an expense.' if expense_type.blank?
+
+      @auth_manager.authorize => { veis_token:, btsss_token: }
+      Rails.logger.info("Deleting expense of type: #{expense_type}")
+
+      response = client.delete_expense(veis_token, btsss_token, expense_id, expense_type)
+      response.body['data']
     end
 
     private
@@ -53,12 +97,38 @@ module TravelPay
     # @return [Hash] The formatted request body
     #
     def build_expense_request_body(params)
-      {
-        'claimId' => params['claim_id'],
+      request_body = {
         'dateIncurred' => params['purchase_date'],
         'description' => params['description'],
-        'amount' => params['cost_requested'],
+        'costRequested' => params['cost_requested'],
         'expenseType' => params['expense_type']
+      }
+
+      # Only add claimId if it exists in params
+      request_body['claimId'] = params['claim_id'] if params['claim_id'].present?
+
+      # Include placeholder receipt unless feature flag is enabled to exclude it
+      unless Flipper.enabled?(:travel_pay_exclude_expense_placeholder_receipt)
+        request_body['expenseReceipt'] = build_placeholder_receipt
+      end
+
+      request_body
+    end
+
+    ##
+    # Builds the smallest possible placeholder receipt that satisfies the client contract
+    #
+    # @return [Hash] The minimal placeholder receipt data
+    #
+    def build_placeholder_receipt
+      # Minimal valid BMP (1x1 white pixel) - 58 bytes
+      bmp_base64 = 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
+
+      {
+        'contentType' => 'image/bmp',
+        'length' => 58,
+        'fileName' => 'placeholder.bmp',
+        'fileData' => bmp_base64
       }
     end
 
