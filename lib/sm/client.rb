@@ -757,7 +757,7 @@ module SM
     # Poll OH message status until terminal state or timeout
     #
     def get_message_status(message_id)
-      path = "messages/#{message_id}/status"
+      path = "message/#{message_id}/status"
       json = perform(:get, path, nil, token_headers).body
       data = json.is_a?(Hash) && json[:data].present? ? json[:data] : json
       {
