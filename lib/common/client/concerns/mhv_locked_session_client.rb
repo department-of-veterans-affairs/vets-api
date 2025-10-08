@@ -22,12 +22,13 @@ module Common
         LOCK_RETRY_DELAY = 0.3 # Number of seconds to wait between attempts to acquire a session lock
         RETRY_ATTEMPTS = 40 # How many times to attempt await of acquiring a session lock by a preceding request
 
-        attr_reader :session
+        attr_reader :session, :icn
 
         ##
         # @param session [Hash] a hash containing a key with which the session will be found or built
         #
-        def initialize(session:)
+        def initialize(session:, icn: nil)
+          @icn = icn || session[:icn]
           refresh_session(session)
         end
 
