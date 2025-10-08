@@ -810,6 +810,9 @@ module SM
 
     # Polling integration for OH messages on send/reply
     def poll_status(message)
+      if Settings.vsp_environment == 'staging'
+        Rails.logger.info("MHV SM: message id #{message.id} is in the OH polling path")
+      end
       result = poll_message_status(message.id, timeout_seconds: 60, interval_seconds: 1, max_errors: 2)
       status = result && result[:status]
       raise Common::Exceptions::UnprocessableEntity if %w[FAILED INVALID].include?(status)

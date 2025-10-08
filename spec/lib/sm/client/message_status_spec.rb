@@ -21,7 +21,7 @@ describe SM::Client, '#status' do
         }
       }
       expect(client).to receive(:perform)
-        .with(:get, 'messages/123/status', nil, anything)
+        .with(:get, 'message/123/status', nil, anything)
         .and_return(double(body: response_body))
 
       result = client.get_message_status(123)
