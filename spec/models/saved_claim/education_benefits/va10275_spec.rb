@@ -33,7 +33,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10275 do
         subject.after_submit(user)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'principles.excellence@va.gov',
+          'form_10275@example.com',
           'form10275_submission_email_template_id',
           satisfy do |args|
             args[:submission_id] == subject.id &&

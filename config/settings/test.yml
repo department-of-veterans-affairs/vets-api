@@ -468,6 +468,8 @@ form526_export:
     bucket: ~
     region: ~
     secret_access_key: ~
+form_10275:
+  submission_email: form_10275@example.com
 form_10282:
   sftp:
     host: ~

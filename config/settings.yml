@@ -471,7 +471,7 @@ form526_export:
     region: us-gov-west-1
     secret_access_key: <%= ENV['form526_export__aws__secret_access_key'] %>
 form_10275:
-  submission_email: principles.excellence@va.gov
+  submission_email: <%= ENV['form_10275__submission_email'] %>
 form_10282:
   sftp:
     host: <%= ENV['form_10282__sftp__host'] %>
