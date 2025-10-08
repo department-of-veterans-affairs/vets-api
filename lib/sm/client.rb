@@ -820,7 +820,6 @@ module SM
       message
     end
 
-    public :get_message_status, :poll_message_status
     # @!endgroup
   end
 end
