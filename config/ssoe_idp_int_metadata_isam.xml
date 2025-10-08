@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" ID="saml20idp20251008115034" entityID="https://sqa.eauth.va.gov/isam/sps/saml20idp/saml20">
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" ID="saml20idp20251008121048" entityID="https://int.eauth.va.gov/isam/sps/saml20idp/saml20">
     <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
         <ds:SignedInfo>
             <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
             <ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
-            <ds:Reference URI="#saml20idp20251008115034">
+            <ds:Reference URI="#saml20idp20251008121048">
                 <ds:Transforms>
                     <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
                     <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
                 </ds:Transforms>
                 <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-                <ds:DigestValue>K/7Dm4cjAwOnGucsdg16oqB2GFY=</ds:DigestValue>
+                <ds:DigestValue>HbOkYIzlwJTE6LEfuq04duri1yc=</ds:DigestValue>
             </ds:Reference>
         </ds:SignedInfo>
-        <ds:SignatureValue>CgQdcA94VA7jq/sGiV2V+dBqvgRsDCuyK9D4s2nkuf8EL1sbXIb6eOhes9VmV7cEHbcgj9kv3AdV7iHRPp5TiKnkPocOwilxhgPEV4AAf9TxjCNMWDG0fBV9O3PrHCebqmqv7TU6UuX43TOcYjJe7YWvUcu2xXO+Gi7dQcZjNvL73DaKxMa9NUlkGycji/6JXyQ0RKliIb1y8LqWFgeDgZJJWspefdj/6OyunsQDV73jgvZHxo7NB3d6MKD9l9+meNSK8IuXB6vIwPnUZmTWqPs6YIz6oNPDqef4pjLanWxlNYXUqB0aWQRZsZevaMiUboRazdFwBPafJsSbl+ijtc+797ACmGC/QBCHMzpQDMmW7VrsUyfNWSe8fPBhmWjyuOEGCch412O5CaDI6BvuIfRyNfXd84XPCvhDvKXlxrq3hZzDl3j5lRdMd7Cka6DYlWuAbl98rvzUN0QXtj0G+3inB1gi5vc4WgCi2MaExXmTi3aJ230Rp9GF5sqEh3BRM+pMgegQkoLIRSP6MseWFpwNz4gYh8wWi/hPaZsPR2ns4K5T+pmONvxXuuvWSiC2R/Mz6G/odzk3yISTKLehc7RHbRxUucHmH5Osw+B2CunsKRcbewq4UO4WFjNw02WOT14mwr5yJUDJcuCLQA/L02MdpbuWFqBfafohG9v/2t8=</ds:SignatureValue>
+        <ds:SignatureValue>n9UgFoMm/My92VNAXmmUxqP1p3Cb49KQt2fdCP+4/wd7oePAcQGJmc2XcIM9O9NA/lZi+aBmsNq6BK+DYAOhuqZ0i888vpEJDDU4ePjdqQp91mIIMbP/xfaJVPc5uRQHu9HxAmUVlLf4Of/JRDo5Lec4WSTEVnOUlbX7hW7nOHrW3WCdp6TDDuN0RTfZ1vL0XaD3U0LeCFmPfsq2q1lgBJk7AA9VYv/CRA2m9KaHUABzgU2TzU5T4BxqN79SKxXStccjSaWQ6i0p8C1+0XzvH1dHo0c7eio2Yit5htVWHNOmRqyaI3xrzVg3kj2ErSXraCbPHAcJcb/SJ+HS5jsGAXLIteolRivaVM8qHPG2+F4k2rGDjZ2Zi1p2JrEjNh4k1cM6RBerkPKale5V78Sh2X6IcirLOsWuwSbzB+CJ4FdYzUX8YnZh5xZkKi+y3pCVO1r5MsOdbl3tp3vFDEfKOniDT1qIrp/gfS365BwWVMSzf1QpGG31X0Rt3W7Ctker672Ly2ArAfwpHoIwT/bTXRbwWvcHAmcNa2+HftE/qGLGEzn9DW2/ZgzR7tFz1PWFmtCQQgywg+gW7QBf4E9ZKN3DtYFYSDaL3ajYmJTBEEJitRcZ/2HkjSxqv2kLDXKhixNpdoTS+m9jx3hFziFER8/GeTxCpERrAJpExAl6xM0=</ds:SignatureValue>
         <ds:KeyInfo>
             <ds:X509Data>
                 <ds:X509Certificate>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</ds:X509Certificate>
             </ds:X509Data>
         </ds:KeyInfo>
     </ds:Signature>
-    <md:IDPSSODescriptor WantAuthnRequestsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <md:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
         <md:KeyDescriptor use="signing">
             <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
                 <X509Data>
@@ -36,18 +36,18 @@
             </KeyInfo>
             <md:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-1_5"/>
         </md:KeyDescriptor>
-        <md:ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://sqa.eauth.va.gov/isam/sps/saml20idp/saml20/soap" index="0" isDefault="true"/>
-        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://sqa.eauth.va.gov/isam/sps/saml20idp/saml20/slo"/>
-        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://sqa.eauth.va.gov/isam/sps/saml20idp/saml20/slo"/>
+        <md:ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://int.eauth.va.gov/isam/sps/saml20idp/saml20/soap" index="0" isDefault="true"/>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://int.eauth.va.gov/isam/sps/saml20idp/saml20/slo"/>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://int.eauth.va.gov/isam/sps/saml20idp/saml20/slo"/>
         <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>
         <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
-        <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://sqa.eauth.va.gov/isam/sps/saml20idp/saml20/login"/>
-        <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://sqa.eauth.va.gov/isam/sps/saml20idp/saml20/login"/>
+        <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://int.eauth.va.gov/isam/sps/saml20idp/saml20/login"/>
+        <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://int.eauth.va.gov/isam/sps/saml20idp/saml20/login"/>
     </md:IDPSSODescriptor>
     <md:Organization>
         <md:OrganizationName xml:lang="en">U.S. Department of Veterans Affairs</md:OrganizationName>
         <md:OrganizationDisplayName xml:lang="en">VA SSOE SAML20</md:OrganizationDisplayName>
-        <md:OrganizationURL xml:lang="en">https://sqa.access.va.gov/accessva/</md:OrganizationURL>
+        <md:OrganizationURL xml:lang="en">https://int.access.va.gov/accessva/</md:OrganizationURL>
     </md:Organization>
     <md:ContactPerson contactType="technical">
         <md:Company>VA SSOE</md:Company>
