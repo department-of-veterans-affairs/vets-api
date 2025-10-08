@@ -9,13 +9,12 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
     return unless Flipper.enabled?(:form22_10275_submission_email)
 
     email_template = Settings.vanotify.services.va_gov.template_id.form10275_submission_email
-
     email_params = construct_email_parts
 
     VANotify::EmailJob.perform_async(
-      POE_EMAIL,
+      Settings.form_10275.submission_email,
       email_template,
-      email_params
+      email_params.merge(submission_id: id)
     )
   end
 

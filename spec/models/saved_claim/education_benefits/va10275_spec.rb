@@ -33,9 +33,10 @@ RSpec.describe SavedClaim::EducationBenefits::VA10275 do
         subject.after_submit(user)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'tbd@example.com',
+          'principles.excellence@va.gov',
           'form10275_submission_email_template_id',
           satisfy do |args|
+            args[:submission_id] == subject.id &&
             args[:header].include?('Springfield University') &&
             args[:header].include?('US123456') &&
             args[:locations].include?('Springfield Technical Institute') &&
