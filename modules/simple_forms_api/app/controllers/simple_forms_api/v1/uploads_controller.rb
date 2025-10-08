@@ -33,8 +33,6 @@ module SimpleFormsApi
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
 
       def submit
-        binding.pry
-        params[:form_number] = '21-4140' if params[:form_number].blank?
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
         response = if intent_service.use_intent_api?
@@ -157,7 +155,6 @@ module SimpleFormsApi
 
       def submit_form_to_benefits_intake
         parsed_form_data = JSON.parse(params.to_json)
-        binding.pry
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
         status, confirmation_number, submission = upload_pdf(file_path, metadata, form)
@@ -189,7 +186,6 @@ module SimpleFormsApi
       end
 
       def get_file_paths_and_metadata(parsed_form_data)
-        binding.pry
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
         # This path can come about if the user is authenticated and, for some reason, doesn't have a participant_id
         if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN' && @current_user
