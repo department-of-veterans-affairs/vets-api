@@ -16,6 +16,32 @@ module UnifiedHealthData
       log_distribution_info(test_code_counts, test_name_counts, records.size)
     end
 
+    # Logs the distribution of loinc codes found in the Notes records for analytics purposes
+    # This helps identify which loinc codes are being used to identify note types
+    def log_loinc_code_distribution(records)
+      loinc_code_counts = Hash.new(0)
+
+      records.each do |record|
+        loinc_codes = record.loinc_codes
+        loinc_codes.each { |code| loinc_code_counts[code] += 1 if code.present? }
+      end
+
+      return if loinc_code_counts.empty?
+
+      sorted_code_counts = loinc_code_counts.sort_by { |_, count| -count }
+      code_count_pairs = sorted_code_counts.map { |code, count| "#{code}:#{count}" }
+
+      Rails.logger.info(
+        {
+          message: 'UHD LOINC code distribution',
+          loinc_code_distribution: code_count_pairs.join(','),
+          total_codes: sorted_code_counts.size,
+          total_records: records.size,
+          service: 'unified_health_data'
+        }
+      )
+    end
+
     private
 
     def count_test_codes_and_names(records)
@@ -23,8 +49,8 @@ module UnifiedHealthData
       test_name_counts = Hash.new(0)
 
       records.each do |record|
-        test_code = record.attributes.test_code
-        test_name = record.attributes.display
+        test_code = record.test_code
+        test_name = record.display
 
         test_code_counts[test_code] += 1 if test_code.present?
         test_name_counts[test_name] += 1 if test_name.present?
@@ -61,11 +87,11 @@ module UnifiedHealthData
     def log_short_test_name_issue(record)
       data = {
         icn: @user.icn,
-        test_code: record.attributes.test_code,
-        test_name: record.attributes.display,
+        test_code: record.test_code,
+        test_name: record.display,
         record_id: record.id,
         resource_type: record.type,
-        date_completed: record.attributes.date_completed,
+        date_completed: record.date_completed,
         service: 'unified_health_data'
       }
 

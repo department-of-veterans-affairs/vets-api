@@ -24,9 +24,10 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
 
   # POST /travel_pay/v0/complex_claims/
   describe '#create' do
-    context 'when feature flag is enabled' do
+    context 'when travel_pay_enable_complex_claims feature flag is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, instance_of(User)).and_return(false)
       end
 
       context 'VCR-backed integration tests' do
@@ -173,11 +174,14 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
         post('/travel_pay/v0/complex_claims', params: {})
 
         expect(response).to have_http_status(:service_unavailable)
+        body = JSON.parse(response.body)
+        expect(body['errors'].first['detail'])
+          .to include('Travel Pay complex claim endpoint unavailable per feature toggle')
       end
     end
   end
 
-  # POST /travel_pay/v0/complex_claims/#{claim_id}/submit
+  # PATCH /travel_pay/v0/complex_claims/#{claim_id}/submit
   describe '#submit' do
     let(:claims_service) { instance_double(TravelPay::ClaimsService) }
 
@@ -189,7 +193,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
       context 'VCR-backed integration tests' do
         it 'submits a complex claim and returns claimId using vcr_cassette' do
           VCR.use_cassette('travel_pay/submit/200_submit_claim', match_requests_on: %i[method path]) do
-            post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+            patch("/travel_pay/v0/complex_claims/#{claim_id}/submit")
 
             expect(response).to have_http_status(:created)
             expect(JSON.parse(response.body)['claimId']).to eq(claim_id)
@@ -200,7 +204,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
           allow_any_instance_of(TravelPay::ClaimsService).to receive(:submit_claim)
             .and_raise(Faraday::ServerError.new('500 Internal Server Error'))
           VCR.use_cassette('travel_pay/submit/500_submit_claim', match_requests_on: %i[method path]) do
-            post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+            patch("/travel_pay/v0/complex_claims/#{claim_id}/submit")
 
             expect(response).to have_http_status(:internal_server_error)
           end
@@ -221,7 +225,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
           end
 
           it 'successfully creates complex claim and returns claimId' do
-            post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+            patch("/travel_pay/v0/complex_claims/#{claim_id}/submit")
 
             expect(response).to have_http_status(:created)
             expect(JSON.parse(response.body)).to eq('claimId' => claim_id)
@@ -232,7 +236,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
           it 'returns bad request when claim_id is invalid' do
             invalid_claim_id = 'invalid$' # safe in URL, fails regex \A[\w-]+\z
 
-            post("/travel_pay/v0/complex_claims/#{invalid_claim_id}/submit")
+            patch("/travel_pay/v0/complex_claims/#{invalid_claim_id}/submit")
 
             expect(response).to have_http_status(:bad_request)
             body = JSON.parse(response.body)
@@ -245,7 +249,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
             error = Faraday::ConnectionFailed.new('Failed to open TCP connection')
             allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
 
-            post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+            patch("/travel_pay/v0/complex_claims/#{claim_id}/submit")
             expect(response).to have_http_status(:internal_server_error)
             body = JSON.parse(response.body)
             expect(body['errors'].first['detail']).to eq('Error creating complex claim')
@@ -260,7 +264,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
               error = Faraday::ClientError.new('Connection failed', nil)
               allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
 
-              post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+              patch("/travel_pay/v0/complex_claims/#{claim_id}/submit")
 
               expect(response).to have_http_status(:bad_request)
               body = JSON.parse(response.body)
@@ -271,7 +275,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
               error = Faraday::ClientError.new('Connection failed', { status: 404, body: '' })
               allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
 
-              post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+              patch("/travel_pay/v0/complex_claims/#{claim_id}/submit")
 
               expect(response).to have_http_status(:not_found)
               body = JSON.parse(response.body)
@@ -282,7 +286,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
               error = Faraday::ClientError.new('404 Not Found', { status: 404, body: 'Claim not found' })
               allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
 
-              post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+              patch("/travel_pay/v0/complex_claims/#{claim_id}/submit")
 
               expect(response).to have_http_status(:not_found)
               body = JSON.parse(response.body)
@@ -299,7 +303,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
               error = Faraday::ServerError.new('Service unavailable', nil)
               allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
 
-              post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+              patch("/travel_pay/v0/complex_claims/#{claim_id}/submit")
 
               expect(response).to have_http_status(:internal_server_error)
               body = JSON.parse(response.body)
@@ -310,7 +314,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
               error = Faraday::ServerError.new('Service Unavailable', { status: 503, body: '' })
               allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
 
-              post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+              patch("/travel_pay/v0/complex_claims/#{claim_id}/submit")
 
               expect(response).to have_http_status(:service_unavailable)
               body = JSON.parse(response.body)
@@ -324,7 +328,7 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
               )
               allow(claims_service).to receive(:submit_claim).with(claim_id).and_raise(error)
 
-              post("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+              patch("/travel_pay/v0/complex_claims/#{claim_id}/submit")
 
               expect(response).to have_http_status(:service_unavailable)
               body = JSON.parse(response.body)
@@ -343,9 +347,12 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
       end
 
       it 'returns 503 Service Unavailable' do
-        post("/travel_pay/v0/complex_claims/#{claim_id}/submit", params: {})
+        patch("/travel_pay/v0/complex_claims/#{claim_id}/submit", params: {})
 
         expect(response).to have_http_status(:service_unavailable)
+        body = JSON.parse(response.body)
+        expect(body['errors'].first['detail'])
+          .to include('Travel Pay complex claim endpoint unavailable per feature toggle')
       end
     end
   end
