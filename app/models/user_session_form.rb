@@ -78,7 +78,7 @@ class UserSessionForm
                                                                ssn: saml_user_attributes[:ssn],
                                                                birth_date: saml_user_attributes[:birth_date],
                                                                idme_uuid:)
-    Rails.logger.warn('[UserSessionForm] Failed Add CSP ID to MPI FAILED', idme: idme_uuid) unless mpi_response.ok?
+    Rails.logger.warn('[UserSessionForm] Failed Add CSP ID to MPI', idme_uuid:) unless mpi_response.ok?
   end
 
   def uuid_from_account(identifier)
