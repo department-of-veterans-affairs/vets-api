@@ -143,13 +143,10 @@ module DependentsBenefits
         response = pension_award_service.get_awards_pension
         response.try(:body)&.dig('awards_pension')&.transform_keys(&:to_sym)
       rescue => e
-        payload = {
-          user_account_uuid: user&.user_account_uuid,
-          error: e.message,
-          form_id:
-        }
         monitor.track_prefill_warning('Failed to retrieve awards pension data', 'awards_pension_error',
-                                      **payload)
+                                      user_account_uuid: user&.user_account_uuid,
+                                      error: e.message,
+                                      form_id:)
         {}
       end
     end
