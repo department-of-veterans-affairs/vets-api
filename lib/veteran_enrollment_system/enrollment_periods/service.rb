@@ -11,7 +11,7 @@ module VeteranEnrollmentSystem
     # This service handles communication with the upstream enrollment system to retrieve
     # enrollment periods for users.
     #
-    # @example Fetch form data for a specific user
+    # @example Fetch enrollment periods data for a specific user
     #   service = VeteranEnrollmentSystem::EnrollmentPeriods::Service.new(user)
     #   enrollment_periods = service.get_enrollment_periods(icn: '1234')
     #
@@ -24,7 +24,7 @@ module VeteranEnrollmentSystem
       # Fetch enrollment periods by ICN from the enrollment system
       #
       # @param icn [String] The ICN of the veteran
-      # @return [Array] The form data returned by the enrollment system
+      # @return [Array] The enrollment periods data returned by the enrollment system
       # @raise [Common::Exceptions::BackendServiceException] If the upstream service returns an error
       def get_enrollment_periods(icn:)
         with_monitoring do
