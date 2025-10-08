@@ -3,6 +3,7 @@
 require 'pdf_fill/hash_converter'
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
+require 'pensions/pdf_fill/sections/section_12'
 require 'string_helpers'
 
 require_relative 'constants'
@@ -66,7 +67,7 @@ module Pensions
       ].freeze
 
       # The PDF Keys
-      KEY = {
+      key = {
         # 1a
         'veteranFullName' => {
           'first' => {
@@ -1391,6 +1392,12 @@ module Pensions
         }
       }.freeze
 
+      SECTION_CLASSES = [Section12].freeze
+
+      SECTION_CLASSES.each { |section| key = key.merge(section::KEY) }
+
+      KEY = key.freeze
+
       ###
       # Merge all the key data together
       #
@@ -1406,7 +1413,9 @@ module Pensions
         expand_income_and_assets
         expand_care_medical_expenses
         expand_direct_deposit_information
-        expand_claim_certification_and_signature
+
+        # Section 12
+        SECTION_CLASSES.each { |section| section.new.expand(form_data) }
 
         @form_data
       end
@@ -1783,14 +1792,6 @@ module Pensions
                            else 2 if @form_data['bankAccount'].nil?
                            end
         )
-      end
-
-      # SECTION XII: CLAIM CERTIFICATION AND SIGNATURE
-      def expand_claim_certification_and_signature
-        @form_data['noRapidProcessing'] = to_checkbox_on_off(@form_data['noRapidProcessing'])
-        # signed on provided date (generally SavedClaim.created_at) or default to today
-        signature_date = @form_data['signatureDate'] || Time.zone.now.strftime('%Y-%m-%d')
-        @form_data['signatureDate'] = split_date(signature_date)
       end
     end
   end
