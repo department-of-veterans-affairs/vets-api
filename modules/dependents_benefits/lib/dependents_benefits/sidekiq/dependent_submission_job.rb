@@ -41,7 +41,7 @@ module DependentsBenefits
       if response&.success?
         handle_job_success
       else
-        handle_job_failure(response.error)
+        handle_job_failure(response&.error)
       end
     rescue => e
       handle_job_failure(e)
