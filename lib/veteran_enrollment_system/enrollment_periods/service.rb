@@ -24,13 +24,13 @@ module VeteranEnrollmentSystem
       # Fetch enrollment periods by ICN from the enrollment system
       #
       # @param icn [String] The ICN of the veteran
-      # @return [Hash] The form data returned by the enrollment system
+      # @return [Array] The form data returned by the enrollment system
       # @raise [Common::Exceptions::BackendServiceException] If the upstream service returns an error
       def get_enrollment_periods(icn:)
         with_monitoring do
           path = "ves-ee-summary-svc/enrollment-periods/person/#{icn}"
           response = perform(:get, path, {})
-          response.body
+          response.body['data']['mecPeriods'] if response.status == 200
         end
       end
     end

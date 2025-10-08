@@ -13,20 +13,12 @@ RSpec.describe VeteranEnrollmentSystem::EnrollmentPeriods::Service do
                          { match_requests_on: %i[method uri] }) do
           response = subject.get_enrollment_periods(icn:)
 
-          expect(response).to eq(
-            {
-              'data' => {
-                'icn' => '1012667122V019349',
-                'mecPeriods' => [
-                  {
-                    'startDate' => '2024-03-05',
-                    'endDate' => '2024-03-05'
-                  }
-                ]
-              },
-              'messages' => []
-            }
-          )
+          expect(response).to eq([
+                                   {
+                                     'startDate' => '2024-03-05',
+                                     'endDate' => '2024-03-05'
+                                   }
+                                 ])
         end
       end
     end
