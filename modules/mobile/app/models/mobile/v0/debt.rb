@@ -22,6 +22,7 @@ module Mobile
         attribute :letter_code, Types::String
         attribute :description, Types::String
       end
+      attribute :fiscal_transaction_data, Types::Array
     end
   end
 end
