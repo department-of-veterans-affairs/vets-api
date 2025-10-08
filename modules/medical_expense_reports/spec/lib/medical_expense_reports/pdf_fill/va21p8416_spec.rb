@@ -27,8 +27,8 @@ describe MedicalExpenseReports::PdfFill::Va21p8416 do
       hash_converter = PdfFill::Filler.make_hash_converter(form_id, form_class, submit_date, fill_options)
       new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
 
-      f2 = File.open File.join(__dir__, '21p-8416_hashed.json')
-      data = JSON.load f2
+      f2 = File.read File.join(__dir__, '21p-8416_hashed.json')
+      data = JSON.parse(f2)
 
       expect(new_hash).to eq(data)
     end
