@@ -808,6 +808,7 @@ lib/admin @department-of-veterans-affairs/backend-review-group
 lib/aes_256_cbc_encryptor.rb @department-of-veterans-affairs/backend-review-group
 lib/apps @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/lighthouse-pivot
 lib/bb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
+lib/benefits_claims/title_generator.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 lib/benefits_intake_service @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 lib/bgs @department-of-veterans-affairs/backend-review-group
 lib/bgsv2 @department-of-veterans-affairs/backend-review-group
