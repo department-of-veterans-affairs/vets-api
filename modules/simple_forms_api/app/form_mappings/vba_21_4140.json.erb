@@ -21,7 +21,8 @@
   "F[0].Page_1[0].Veterans_Social_SecurityNumber_LastFourNumbers[0]": "<%= form.ssn[2] %>",
 
   <%# 3. VA File Number %>
-  "F[0].Page_1[0].VAFileNumber[0]": "<%= form.data.dig('veteran_id', 'va_file_number') %>",
+  "F[0].Page_1[0].VAFileNumber[0]": "<%= form.data.dig('id_number', 'va_file_number') %>",
+
 
   <%# 4. Date of Birth (MM/DD/YYYY) %>
   "F[0].Page_1[0].DOBmonth[0]": "<%= form.dob[1] %>",
