@@ -44,7 +44,7 @@ module SimpleFormsApi
         render json: PersistentAttachmentVAFormSerializer.new(processed_attachment)
       rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
              SimpleFormsApi::ScannedFormProcessor::ValidationError => e
-        render json: { errors: e.errors }, status: :unprocessable_entity
+        render json: { error: e.errors }, status: :unprocessable_entity
       end
 
       private
@@ -77,8 +77,8 @@ module SimpleFormsApi
         [status, confirmation_number]
       end
 
-      def upload_response_with_supporting_documents
-        main_attachment = PersistentAttachment.find_by(guid: params[:confirmation_code])
+      def upload_response_with_supporting_documents # rubocop:disable Metrics/MethodLength
+        main_attachment = PersistentAttachment.find_by!(guid: params[:confirmation_code])
         main_file_path = find_attachment_path(main_attachment.guid)
 
         supporting_attachments = []
@@ -101,6 +101,11 @@ module SimpleFormsApi
           { form_number: params[:form_number], status:, confirmation_number:, file_size: }
         )
         [status, confirmation_number]
+      rescue ActiveRecord::RecordNotFound
+        raise Common::Exceptions::RecordNotFound.new(
+          params[:confirmation_code],
+          detail: 'Attachment not found'
+        )
       end
 
       def find_attachment_path(confirmation_code)

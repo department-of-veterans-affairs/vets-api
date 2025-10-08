@@ -29,14 +29,18 @@ module SimpleFormsApi
     def process!
       pdf_path = convert_to_pdf
       validate_pdf_at_path(pdf_path)
-      pdf_file = File.open(pdf_path, 'rb')
-      attachment.file = pdf_file
-      attachment.save
+
+      File.open(pdf_path, 'rb') do |pdf_file|
+        attachment.file = pdf_file
+        attachment.save
+      end
 
       attachment
     rescue => e
       Rails.logger.error("ScannedFormProcessor failed: #{e.message}")
       raise
+    ensure
+      File.delete(pdf_path) if pdf_path && File.exist?(pdf_path)
     end
 
     private
