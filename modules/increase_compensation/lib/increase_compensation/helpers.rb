@@ -24,6 +24,21 @@ module IncreaseCompensation
       Date.parse(date_string).strftime('%m/%d/%Y')
     end
 
+    ## Format Currency into just thousands and hundreds `{ firstThree="100", lastThree="100" }``
+    #
+    # @param amount [Integer, nil]
+    # @return [Hash]
+    def split_currency_amount_thousands(amount)
+      return {} if !amount&.nonzero? || amount.negative? || amount >= 1_000_000
+
+      thousands = amount.to_s[0..2]
+      hundreds = amount.to_s[3..]
+      {
+        firstThree: thousands,
+        lastThree: hundreds
+      }
+    end
+
     ##
     # Splits a currency amount into thousands, dollars, and cents.
     #

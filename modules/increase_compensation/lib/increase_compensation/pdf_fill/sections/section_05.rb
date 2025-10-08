@@ -4,7 +4,7 @@ require 'increase_compensation/pdf_fill/section'
 
 module IncreaseCompensation
   module PdfFill
-    # Section V: Other Medical Expenses
+    # Section V:  REMARKS
     class Section5 < Section
       # Section configuration hash
       KEY = {

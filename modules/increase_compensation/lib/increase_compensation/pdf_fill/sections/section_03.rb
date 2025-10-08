@@ -4,7 +4,7 @@ require 'increase_compensation/pdf_fill/section'
 
 module IncreaseCompensation
   module PdfFill
-    # Section III: Reporting Period
+    # Section III: EMPLOYMENT STATEMENT
     class Section3 < Section
       # Hash iterator
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
@@ -61,6 +61,7 @@ module IncreaseCompensation
         'occupationDuringMostEarnings' => {
           question_num: 17,
           question_suffix: 'C',
+          limit: 27,
           key: 'form1[0].#subform[0].Occupation_During_That_Year[0]'
         },
         'previousEmployers' => {
@@ -68,10 +69,12 @@ module IncreaseCompensation
           question_num: 18,
           first_key: 'nameAndAddress',
           'nameAndAddress' => {
+            limit: 110,
             iterator_offset: ->(iterator) { iterator + 1 },
             key: "form1[0].#subform[1].NAMEANDADDRESSOFEMPLOYERORUNIT#{ITERATOR}[0]"
           },
           'typeOfWork' => {
+            limit: 39,
             iterator_offset: ->(iterator) { iterator + 1 },
             key: "form1[0].#subform[1].TYPEOFWORK#{ITERATOR}[0]"
           },
@@ -168,10 +171,12 @@ module IncreaseCompensation
           question_num: 22,
           first_key: 'nameAndAddress',
           'nameAndAddress' => {
+            limit: 110,
             iterator_offset: ->(iterator) { iterator + 1 },
             key: "form1[0].#subform[2].Table1[0].Row#{ITERATOR}[0].NAME_AND_ADDRESS_OF_EMPLOYER[0]"
           },
           'workType' => {
+            limit: 62,
             iterator_offset: ->(iterator) { iterator + 1 },
             key: "form1[0].#subform[2].Table1[0].Row#{ITERATOR}[0].TYPE_OF-WORK[0]"
           },
@@ -193,14 +198,19 @@ module IncreaseCompensation
 
       }.freeze
       def expand(form_data = {})
+        # split_currency_amount_sm(,{ 'cents' => 0, 'dollars' => 3, 'thousands' => 3 })
+        form_data['mostEarningsInAYear'] = split_currency_amount(form_data['mostEarningsInAYear'].to_i)
+        form_data['past12MonthsEarnedIncome'] = split_currency_amount(form_data['mostEarningsInAYear'].to_i)
+        form_data['currentMonthlyEarnedIncome'] = split_currency_amount(form_data['currentMonthlyEarnedIncome'].to_i)
+        if form_data['previousEmployers'].length.positive?
+          form_data['previousEmployers'].each do |work|
+            work['mostEarningsInAMonth'] = split_currency_amount(form_data['mostEarningsInAMonth'].to_i)
+          end
+        end
         # if form_data['preventMilitaryDuties'] || YES || NO || OFF
-
         # form_data['leftLastJobDueToDisability'] YES (If &quot;Yes,&quot; explain in Item 26, &quot;Remarks&quot;) || NO || OFF
-
         # form_data['expectDisabilityRetirement'] YES || NO || OFF
-
         # form_data['receiveExpectWorkersCompensation'] YES || NO || OFF
-
         # form_data['attemptedEmploy'] YES (If &quot;Yes,&quot; complete Items 22A, 22B, and 22C) || NO || OFF
       end
     end
