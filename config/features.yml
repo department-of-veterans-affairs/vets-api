@@ -2265,10 +2265,6 @@ features:
   sc_browser_monitoring_enabled:
     actor_type: user
     description: Supplemental Claim Datadog RUM monitoring
-  terms_of_use:
-    actor_type: user
-    description: This determines whether a user is redirected to the Terms of Use page
-    enable_in_development: true
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
