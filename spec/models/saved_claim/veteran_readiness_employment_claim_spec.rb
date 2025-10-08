@@ -23,239 +23,169 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   end
   let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
   let(:user) { OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) }
+  let(:claim) { create(:veteran_readiness_employment_claim) }
 
   before do
     allow_any_instance_of(RES::Ch31Form).to receive(:submit).and_return(true)
   end
 
-  %w[v1 v2].each do |form_type|
-    describe '#form_id' do
-      context "with #{form_type}" do
-        let(:claim) { create_claim(form_type) }
+  describe '#form_id' do
+    it 'returns the correct form ID' do
+      expect(claim.form_id).to eq('28-1900-V2')
+    end
+  end
 
-        it 'returns the correct form ID' do
-          expect(claim.form_id).to eq(form_type == 'v1' ? '28-1900' : '28-1900-V2')
-        end
+  describe '#after_create_metrics' do
+    it 'increments StatsD saved_claim.create' do
+      allow(StatsD).to receive(:increment)
+      claim.save!
+
+      tags = ['form_id:28-1900-V2']
+      expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: })
+    end
+  end
+
+  describe '#add_claimant_info' do
+    it 'adds veteran information' do
+      claim.add_claimant_info(user_object)
+      claimant_keys = %w[fullName dob pid edipi vet360ID regionalOffice regionalOfficeName stationId VAFileNumber
+                         ssn]
+      form_data = {
+        'fullName' => {
+          'first' => 'First',
+          'middle' => 'Middle',
+          'last' => 'Last',
+          'suffix' => 'III'
+        },
+        'dob' => '1986-05-06'
+      }
+      expect(claim.parsed_form['veteranInformation']).to include(form_data)
+      expect(claim.parsed_form['veteranInformation']).to include(*claimant_keys)
+    end
+
+    it 'does not obtain va_file_number' do
+      people_service_object = double('people_service')
+      allow(people_service_object).to receive(:find_person_by_participant_id)
+      allow(BGS::People::Request).to receive(:new) { people_service_object }
+
+      claim.add_claimant_info(user_object)
+      expect(claim.parsed_form['veteranInformation']).to include('VAFileNumber' => nil)
+    end
+  end
+
+  describe '#send_to_vre' do
+    it 'propagates errors from send_to_lighthouse!' do
+      allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'Attachment error')
+
+      expect do
+        claim.send_to_lighthouse!(user_object)
+      end.to raise_error(StandardError, 'Attachment error')
+    end
+
+    context 'when VBMS response is VBMSDownForMaintenance' do
+      before do
+        allow(OpenSSL::PKCS12).to receive(:new).and_return(double.as_null_object)
+        @vbms_client = FakeVBMS.new
+        allow(VBMS::Client).to receive(:from_env_vars).and_return(@vbms_client)
+      end
+
+      it 'calls #send_to_lighthouse!' do
+        expect(claim).to receive(:send_to_lighthouse!)
+        claim.send_to_vre(user_object)
+      end
+
+      it 'does not raise an error' do
+        allow(claim).to receive(:send_to_lighthouse!)
+        expect { claim.send_to_vre(user_object) }.not_to raise_error
       end
     end
 
-    describe '#after_create_metrics' do
-      let(:claim) { create_claim(form_type) }
+    context 'when VBMS upload is successful' do
+      before { expect(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: {}) } }
 
-      it 'increments StatsD saved_claim.create' do
-        allow(StatsD).to receive(:increment)
-        claim.save!
-
-        tags = form_type == 'v1' ? ['form_id:28-1900'] : ['form_id:28-1900-V2']
-        tags += ["doctype:#{claim.doctype}"]
-        expect(StatsD).to have_received(:increment).with('saved_claim.create', tags:)
-      end
-    end
-
-    describe '#add_claimant_info' do
-      context "with #{form_type}" do
-        let(:claim) { create_claim(form_type) }
-
-        it 'adds veteran information' do
-          claim.add_claimant_info(user_object)
-          claimant_keys = %w[fullName dob pid edipi vet360ID regionalOffice regionalOfficeName stationId VAFileNumber
-                             ssn]
-          old_form_data = {
-            'fullName' => {
-              'first' => 'Homer',
-              'middle' => 'John',
-              'last' => 'Simpson'
-            },
-            'dob' => '1986-05-06'
-          }
-          new_form_data = {
-            'fullName' => {
-              'first' => 'First',
-              'middle' => 'Middle',
-              'last' => 'Last',
-              'suffix' => 'III'
-            },
-            'dob' => '1986-05-06'
-          }
-          expect(claim.parsed_form['veteranInformation']).to include(
-            form_type == 'v1' ? old_form_data : new_form_data
-          )
-          expect(claim.parsed_form['veteranInformation']).to include(*claimant_keys)
-        end
-
-        it 'does not obtain va_file_number' do
-          people_service_object = double('people_service')
-          allow(people_service_object).to receive(:find_person_by_participant_id)
-          allow(BGS::People::Request).to receive(:new) { people_service_object }
-
-          claim.add_claimant_info(user_object)
-          expect(claim.parsed_form['veteranInformation']).to include('VAFileNumber' => nil)
-        end
-      end
-    end
-
-    describe '#send_to_vre' do
-      context "with #{form_type} form" do
-        let(:claim) { create_claim(form_type) }
-
-        it 'propagates errors from send_to_lighthouse!' do
-          allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'Attachment error')
-
-          expect do
-            claim.send_to_lighthouse!(user_object)
-          end.to raise_error(StandardError, 'Attachment error')
-        end
-
-        context 'when VBMS response is VBMSDownForMaintenance' do
-          before do
-            allow(OpenSSL::PKCS12).to receive(:new).and_return(double.as_null_object)
-            @vbms_client = FakeVBMS.new
-            allow(VBMS::Client).to receive(:from_env_vars).and_return(@vbms_client)
-          end
-
-          it 'calls #send_to_lighthouse!' do
-            expect(claim).to receive(:send_to_lighthouse!)
-            claim.send_to_vre(user_object)
-          end
-
-          it 'does not raise an error' do
-            allow(claim).to receive(:send_to_lighthouse!)
-            expect { claim.send_to_vre(user_object) }.not_to raise_error
-          end
-        end
-
-        context 'when VBMS upload is successful' do
-          before { expect(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: {}) } }
-
-          context 'submission to VRE' do
-            before do
-              # As the PERMITTED_OFFICE_LOCATIONS constant at
-              # the top of: app/models/saved_claim/veteran_readiness_employment_claim.rb gets changed, you
-              # may need to change this mock below and maybe even move it into different 'it'
-              # blocks if you need to test different routing offices
-              expect_any_instance_of(BGS::RORoutingService).to receive(:get_regional_office_by_zip_code).and_return(
-                { regional_office: { number: '325' } }
-              )
-            end
-
-            it 'sends confirmation email' do
-              expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
-                .with('VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
-
-              claim.send_to_vre(user_object)
-            end
-          end
-
-          # We want all submission to go through with RES
-          context 'non-submission to VRE' do
-            context 'flipper enabled' do
-              it 'stops submission if location is not in list' do
-                expect_any_instance_of(RES::Ch31Form).to receive(:submit)
-                claim.add_claimant_info(user_object)
-
-                claim.send_to_vre(user_object)
-              end
-            end
-          end
-        end
-
-        context 'when user has no PID' do
-          let(:user_object) { create(:unauthorized_evss_user) }
-
-          it 'PDF is sent to Central Mail and not VBMS' do
-            expect(claim).to receive(:process_attachments!)
-            expect(claim).to receive(:send_to_lighthouse!).with(user_object).once.and_call_original
-            expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
-            expect(claim).not_to receive(:upload_to_vbms)
-            expect(VeteranReadinessEmploymentMailer).to receive(:build).with(
-              user_object.participant_id, 'VRE.VBAPIT@va.gov', true
-            ).and_call_original
-            claim.send_to_vre(user_object)
-          end
-        end
-      end
-    end
-
-    describe '#regional_office' do
-      context "with #{form_type}" do
-        let(:claim) { create_claim(form_type) }
-
-        it 'returns an empty array' do
-          expect(claim.regional_office).to be_empty
-        end
-      end
-    end
-
-    describe '#send_vbms_lighthouse_confirmation_email' do
-      let(:user) do
-        OpenStruct.new(
-          edipi: '1007697216',
-          participant_id: '600061742',
-          first_name: 'WESLEY',
-          va_profile_email: 'test@example.com',
-          flipper_id: 'test-user-id'
-        )
-      end
-      let(:claim) { create_claim(form_type) }
-
-      context 'Legacy notification strategy' do
+      context 'submission to VRE' do
         before do
-          allow(Flipper).to receive(:enabled?)
-            .with(:vre_use_new_vfs_notification_library)
-            .and_return(false)
-        end
-
-        it 'calls the VA notify email job' do
-          expect(VANotify::EmailJob).to receive(:perform_async).with(
-            claim.email,
-            'ch31_vbms_fake_template_id',
-            {
-              'date' => Time.zone.today.strftime('%B %d, %Y'),
-              'first_name' => claim.parsed_form['veteranInformation']['fullName']['first']
-            }
+          # As the PERMITTED_OFFICE_LOCATIONS constant at
+          # the top of: app/models/saved_claim/veteran_readiness_employment_claim.rb gets changed, you
+          # may need to change this mock below and maybe even move it into different 'it'
+          # blocks if you need to test different routing offices
+          expect_any_instance_of(BGS::RORoutingService).to receive(:get_regional_office_by_zip_code).and_return(
+            { regional_office: { number: '325' } }
           )
-
-          claim.send_vbms_lighthouse_confirmation_email('VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
         end
+
+        it 'sends confirmation email' do
+          expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
+            .with('VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
+
+          claim.send_to_vre(user_object)
+        end
+      end
+
+      # We want all submission to go through with RES
+      context 'non-submission to VRE' do
+        context 'flipper enabled' do
+          it 'stops submission if location is not in list' do
+            expect_any_instance_of(RES::Ch31Form).to receive(:submit)
+            claim.add_claimant_info(user_object)
+
+            claim.send_to_vre(user_object)
+          end
+        end
+      end
+    end
+
+    context 'when user has no PID' do
+      let(:user_object) { create(:unauthorized_evss_user) }
+
+      it 'PDF is sent to Central Mail and not VBMS' do
+        expect(claim).to receive(:process_attachments!)
+        expect(claim).to receive(:send_to_lighthouse!).with(user_object).once.and_call_original
+        expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
+        expect(claim).not_to receive(:upload_to_vbms)
+        expect(VeteranReadinessEmploymentMailer).to receive(:build).with(
+          user_object.participant_id, 'VRE.VBAPIT@va.gov', true
+        ).and_call_original
+        claim.send_to_vre(user_object)
       end
     end
   end
 
-  describe '#form_matches_schema' do
-    it 'rejects invalid country format' do
-      claim = build(:veteran_readiness_employment_claim, country: 'Invalid')
+  describe '#regional_office' do
+    it 'returns an empty array' do
+      expect(claim.regional_office).to be_empty
+    end
+  end
 
-      expect(claim).not_to be_valid
-      expect(claim.errors.attribute_names).to contain_exactly(:'/veteranAddress/country', :'/newAddress/country')
+  describe '#send_vbms_lighthouse_confirmation_email' do
+    let(:user) do
+      OpenStruct.new(
+        edipi: '1007697216',
+        participant_id: '600061742',
+        first_name: 'WESLEY',
+        va_profile_email: 'test@example.com',
+        flipper_id: 'test-user-id'
+      )
     end
 
-    ['USA', 'United States'].each do |country|
-      context "with #{country} format" do
-        let(:claim) { build(:veteran_readiness_employment_claim, country:) }
-
-        describe 'country validation' do
-          it 'accepts valid country format' do
-            expect(claim).to be_valid
-          end
-
-          it 'validates other fields independently of country format' do
-            claim_data = JSON.parse(claim.form)
-            claim_data['veteranInformation']['fullName'] = {} # Invalid name
-            claim.form = claim_data.to_json
-
-            expect(claim).not_to be_valid
-            expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName')
-          end
-        end
+    context 'Legacy notification strategy' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:vre_use_new_vfs_notification_library)
+          .and_return(false)
       end
-    end
 
-    context 'when first name is invalid' do
-      it 'fails validation' do
-        claim = build(:veteran_readiness_employment_claim, first: '')
+      it 'calls the VA notify email job' do
+        expect(VANotify::EmailJob).to receive(:perform_async).with(
+          claim.email,
+          'ch31_vbms_fake_template_id',
+          {
+            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'first_name' => claim.parsed_form['veteranInformation']['fullName']['first']
+          }
+        )
 
-        expect(claim).not_to be_valid
-        expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName/first')
+        claim.send_vbms_lighthouse_confirmation_email('VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
       end
     end
   end
@@ -263,8 +193,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   describe '#check_form_v2_validations' do
     ['', [], nil, {}].each do |address|
       context "with empty #{address} input" do
-        let(:claim) { build(:new_veteran_readiness_employment_claim) }
-
         describe 'address validation' do
           it 'accepts empty address format as not required' do
             claim_data = JSON.parse(claim.form)
@@ -278,7 +206,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     end
 
     context 'when address is not empty' do
-      let(:claim) { build(:new_veteran_readiness_employment_claim) }
+      let(:claim) { build(:veteran_readiness_employment_claim) }
 
       it 'passes validation with only street and city' do
         claim_data = JSON.parse(claim.form)
@@ -396,7 +324,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
     ['USA', 'United States'].each do |country|
       context "with #{country} format" do
-        let(:claim) { build(:new_veteran_readiness_employment_claim, country:) }
+        let(:claim) { build(:veteran_readiness_employment_claim, country:) }
 
         describe 'country validation' do
           it 'accepts valid country format' do
@@ -419,7 +347,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     ['', ' ', nil].each do |invalid_input|
       context 'when required field is empty' do
         it 'fails validation' do
-          claim = build(:new_veteran_readiness_employment_claim, email: invalid_input, is_moving: invalid_input,
+          claim = build(:veteran_readiness_employment_claim, email: invalid_input, is_moving: invalid_input,
                                                                  years_of_ed: invalid_input, first: invalid_input,
                                                                  last: invalid_input, dob: invalid_input,
                                                                  privacyAgreementAccepted: invalid_input)
@@ -438,7 +366,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     [0, true, ['data']].each do |invalid_type|
       context "when string field receives #{invalid_type} data type" do
         it 'fails validation' do
-          claim = build(:new_veteran_readiness_employment_claim, main_phone: invalid_type, cell_phone: invalid_type,
+          claim = build(:veteran_readiness_employment_claim, main_phone: invalid_type, cell_phone: invalid_type,
                                                                  international_number: invalid_type,
                                                                  email: invalid_type, years_of_ed: invalid_type,
                                                                  first: invalid_type, middle: invalid_type,
@@ -461,7 +389,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     ['true', 1, 0, [], nil].each do |invalid_type|
       context "when isMoving receives #{invalid_type} data type" do
         it 'fails validation' do
-          claim = build(:new_veteran_readiness_employment_claim, is_moving: invalid_type)
+          claim = build(:veteran_readiness_employment_claim, is_moving: invalid_type)
 
           expect(claim).not_to be_valid
           expect(claim.errors.attribute_names).to include(:'/isMoving')
@@ -472,7 +400,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     context 'when name field is allowed length' do
       it 'passes validation' do
         name = 'a' * 30
-        claim = build(:new_veteran_readiness_employment_claim, first: name, middle: name, last: name)
+        claim = build(:veteran_readiness_employment_claim, first: name, middle: name, last: name)
         expect(claim).to be_valid
       end
     end
@@ -480,7 +408,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     context 'when name field is too long' do
       it 'fails validation' do
         long_name = 'a' * 31
-        claim = build(:new_veteran_readiness_employment_claim, first: long_name, middle: long_name, last: long_name)
+        claim = build(:veteran_readiness_employment_claim, first: long_name, middle: long_name, last: long_name)
 
         expect(claim).not_to be_valid
         expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName/first')
@@ -492,7 +420,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     context 'when email field is allowed length' do
       it 'passes validation' do
         email = "#{'a' * 244}@example.com"
-        claim = build(:new_veteran_readiness_employment_claim, email:)
+        claim = build(:veteran_readiness_employment_claim, email:)
         expect(claim).to be_valid
       end
     end
@@ -500,7 +428,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     context 'when email field is too long' do
       it 'fails validation' do
         email = "#{'a' * 245}@example.com"
-        claim = build(:new_veteran_readiness_employment_claim, email:)
+        claim = build(:veteran_readiness_employment_claim, email:)
 
         expect(claim).not_to be_valid
         expect(claim.errors.attribute_names).to include(:'/email')
@@ -510,7 +438,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     ['email.com', '@email.com', 'email', '@.com'].each do |email|
       context 'when email field is not properly formatted' do
         it 'fails validation' do
-          claim = build(:new_veteran_readiness_employment_claim, email:)
+          claim = build(:veteran_readiness_employment_claim, email:)
 
           expect(claim).not_to be_valid
           expect(claim.errors.attribute_names).to include(:'/email')
@@ -521,7 +449,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     ['1', '123456789', '12345678901', 'a' * 10].each do |invalid_phone|
       context 'when phone field is not 10 digits' do
         it 'fails validation' do
-          claim = build(:new_veteran_readiness_employment_claim, main_phone: invalid_phone,
+          claim = build(:veteran_readiness_employment_claim, main_phone: invalid_phone,
                                                                  cell_phone: invalid_phone)
 
           expect(claim).not_to be_valid
@@ -534,7 +462,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     %w[10-30-1990 30-10-1990 90-10-30 1990-10-1 1990-9-9].each do |invalid_dob|
       context 'when dob field does not match YYYY-MM-DD format' do
         it 'fails validation' do
-          claim = build(:new_veteran_readiness_employment_claim, dob: invalid_dob)
+          claim = build(:veteran_readiness_employment_claim, dob: invalid_dob)
 
           expect(claim).not_to be_valid
           expect(claim.errors.attribute_names).to include(:'/veteranInformation/dob')
@@ -546,19 +474,11 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   ['true', 1, 0, [], nil].each do |invalid_type|
     context "when privacyAgreementAccepted receives #{invalid_type} data type" do
       it 'fails validation' do
-        claim = build(:new_veteran_readiness_employment_claim, privacyAgreementAccepted: invalid_type)
+        claim = build(:veteran_readiness_employment_claim, privacyAgreementAccepted: invalid_type)
 
         expect(claim).not_to be_valid
         expect(claim.errors.attribute_names).to include(:'/privacyAgreementAccepted')
       end
-    end
-  end
-
-  def create_claim(form_type)
-    if form_type == 'v1'
-      create(:veteran_readiness_employment_claim)
-    else
-      create(:new_veteran_readiness_employment_claim)
     end
   end
 end
