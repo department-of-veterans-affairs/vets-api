@@ -576,8 +576,6 @@ module SM
 
     ##
 
-    # @!endgroup
-
     def get_unique_care_systems(all_recipients)
       unique_care_system_ids = all_recipients.uniq(&:station_number).map(&:station_number)
       unique_care_system_names = Mobile::FacilitiesHelper.get_facility_names(unique_care_system_ids)
