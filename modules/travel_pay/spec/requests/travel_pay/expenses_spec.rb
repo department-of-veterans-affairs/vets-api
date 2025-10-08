@@ -134,6 +134,89 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
     end
   end
 
+  # PATCH /travel_pay/v0/expenses/:expense_type/:expense_id
+  describe 'PATCH #update' do
+    let(:expense_params) do
+      {
+        expense: {
+          purchase_date: '2025-09-14T21:02:39.000',
+          description: 'Test expense description',
+          cost_requested: 25.50
+        }
+      }
+    end
+
+    context 'when updating a valid expense' do
+      it 'updates an expense successfully', :vcr do
+        VCR.use_cassette('travel_pay/expenses/update/200_other_success') do
+          patch '/travel_pay/v0/expenses/other/123e4567-e89b-12d3-a456-426614174500',
+                params: expense_params,
+                headers: { 'Authorization' => 'Bearer vagov_token' }
+
+          expect(response).to have_http_status(:ok)
+          response_body = JSON.parse(response.body)
+          expect(response_body['expenseId']).to eq(expense_id)
+        end
+      end
+    end
+
+    context 'when expense validation fails' do
+      let(:invalid_expense_params) do
+        {
+          expense: {
+            description: 'Test expense description'
+            # Missing required fields: purchase_date, cost_requested
+          }
+        }
+      end
+
+      it 'returns unprocessable entity status with validation errors' do
+        patch '/travel_pay/v0/expenses/other/123e4567-e89b-12d3-a456-426614174500',
+              params: invalid_expense_params,
+              headers: { 'Authorization' => 'Bearer vagov_token' }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        response_body = JSON.parse(response.body)
+        expect(response_body['errors']).to be_present
+        expect(response_body['errors'].first['detail']).to include("can't be blank")
+      end
+    end
+
+    context 'when expense_type is invalid' do
+      it 'returns bad request' do
+        patch '/travel_pay/v0/expenses/invalid_type/123e4567-e89b-12d3-a456-426614174500', params: expense_params
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'when expense_id is invalid' do
+      it 'returns bad request' do
+        patch '/travel_pay/v0/expenses/other/invalid-uuid', params: expense_params
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'when request body is empty' do
+      it 'returns bad request' do
+        patch expense_path('other'), params: { expense: {} }
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:travel_pay_enable_complex_claims, instance_of(User))
+          .and_return(false)
+      end
+
+      it 'returns service unavailable' do
+        patch expense_path('other'), params: expense_params
+        expect(response).to have_http_status(:service_unavailable)
+      end
+    end
+  end
+
   # DELETE /travel_pay/v0/expenses/:expense_type/:expense_id
   describe 'DELETE #destroy' do
     context 'when feature flag is enabled' do
