@@ -973,9 +973,9 @@ RSpec.describe V1::SessionsController, type: :controller do
         let(:error_code) { SAML::UserAttributeError::MHV_UNVERIFIED_BLOCKED_CODE }
         let(:expected_redirect_params) { { auth: 'fail', code: error_code, request_id:, type: }.to_query }
         let(:expected_error_message) do
-          ["[V1][Sessions Controller] error", {
+          ['[V1][Sessions Controller] error', {
             context: {},
-            message: "MHV account is unverified for context requiring verified account"
+            message: 'MHV account is unverified for context requiring verified account'
           }]
         end
 
@@ -1186,7 +1186,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(Sentry).to receive(:set_tags).once
           expect(Rails.logger)
             .to receive(:error).with(
-              "[V1][Sessions Controller] error",
+              '[V1][Sessions Controller] error',
               hash_including(message: /#{SAML::Responses::Login::ERRORS[:clicked_deny][:short_message]}/)
             )
           expect(call_endpoint).to redirect_to(expected_redirect)
@@ -1202,7 +1202,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'redirects to an auth failure page' do
           expect(Rails.logger)
             .to receive(:error).with(
-              "[V1][Sessions Controller] error",
+              '[V1][Sessions Controller] error',
               hash_including(message: /#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
             )
           expect(call_endpoint).to redirect_to(expected_redirect)
@@ -1218,7 +1218,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'redirects to an auth failure page', :aggregate_failures do
           expect(Rails.logger)
             .to receive(:error).with(
-              "[V1][Sessions Controller] error",
+              '[V1][Sessions Controller] error',
               hash_including(message: /#{SAML::Responses::Login::ERRORS[:auth_too_early][:short_message]}/)
             )
           expect(call_endpoint).to redirect_to(expected_redirect)
@@ -1254,9 +1254,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           }]
         end
         let(:expected_log_message) do
-          ["[V1][Sessions Controller] error", {
+          ['[V1][Sessions Controller] error', {
             context: error_context,
-            message: "Login Failed! Other SAML Response Error(s)"
+            message: 'Login Failed! Other SAML Response Error(s)'
           }]
         end
 
@@ -1309,7 +1309,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         let(:expected_error_message) do
-          ["[V1][Sessions Controller] error", {
+          ['[V1][Sessions Controller] error', {
             context: extra_content,
             message: "<fim:FIMStatusDetail MessageID='could_not_perform_token_exchange'/>"
           }]
@@ -1355,7 +1355,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
         let(:version) { 'v1' }
         let(:expected_log_message) do
-          ["[V1][Sessions Controller] error", {
+          ['[V1][Sessions Controller] error', {
             context: extra_content,
             message: expected_error_message
           }]
@@ -1385,9 +1385,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           ]
         end
         let(:expected_log_message) do
-          ["[V1][Sessions Controller] error", {
+          ['[V1][Sessions Controller] error', {
             context: error_context,
-            message: "Login Failed! Subject did not consent to attribute release Multiple SAML Errors"
+            message: 'Login Failed! Subject did not consent to attribute release Multiple SAML Errors'
           }]
         end
 
