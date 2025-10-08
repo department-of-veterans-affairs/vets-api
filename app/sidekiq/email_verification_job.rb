@@ -82,9 +82,9 @@ class EmailVerificationJob
 
     case template_type
     when 'initial_verification', 'annual_verification', 'email_change_verification'
-      validate_required_fields!(personalisation, %w[verification_link first_name email_address], template_type)
+      validate_required_fields!(personalisation, %w[verification_link first_name email_address])
     when 'verification_success'
-      validate_required_fields!(personalisation, %w[first_name], template_type)
+      validate_required_fields!(personalisation, %w[first_name])
     else
       raise ArgumentError, 'Unknown template type'
     end
