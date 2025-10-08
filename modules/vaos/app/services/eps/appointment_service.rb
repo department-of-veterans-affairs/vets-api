@@ -32,7 +32,7 @@ module Eps
     ##
     # Get appointments data from EPS
     #
-    # @return OpenStruct response from EPS appointments endpoint
+    # @return [Array<Hash>] Array of appointment hashes from EPS
     #
     def get_appointments
       with_monitoring do
@@ -41,9 +41,12 @@ module Eps
 
         # Check for error field in successful responses using reusable helper
         check_for_eps_error!(response.body, response, 'get_appointments')
+        return [] unless response.body.is_a?(Hash)
+
         appointments = response.body[:appointments]
-        merged_appointments = merge_provider_data_with_appointments(appointments)
-        OpenStruct.new(data: merged_appointments)
+        return [] unless appointments.is_a?(Array)
+
+        appointments
       end
     rescue Eps::ServiceException => e
       handle_eps_error!(e, 'get_appointments')
