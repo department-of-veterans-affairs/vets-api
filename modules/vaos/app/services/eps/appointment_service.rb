@@ -54,6 +54,19 @@ module Eps
     end
 
     ##
+    # Get appointments data from EPS with provider information and return as EpsAppointment objects
+    #
+    # @return [Array<VAOS::V2::EpsAppointment>] Array of EpsAppointment objects with provider data
+    #
+    def get_appointments_with_providers
+      appointments = get_appointments
+      return [] if appointments.blank?
+
+      merged_appointments = merge_provider_data_with_appointments(appointments)
+      merged_appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt, appt[:provider]) }
+    end
+
+    ##
     # Create draft appointment in EPS
     #
     # @return OpenStruct response from EPS create draft appointment endpoint
