@@ -10,19 +10,19 @@ module MedicalExpenseReports
       KEY = {
         'today' => {
           'month' => {
-            key: "form1[0].#subform[11].Date_Signed_Month[0]"
+            key: 'form1[0].#subform[11].Date_Signed_Month[0]'
           },
           'day' => {
-            key: "form1[0].#subform[11].Date_Signed_Day[0]"
+            key: 'form1[0].#subform[11].Date_Signed_Day[0]'
           },
           'year' => {
-            key: "form1[0].#subform[11].Date_Signed_Year[0]"
+            key: 'form1[0].#subform[11].Date_Signed_Year[0]'
           }
         }
       }.freeze
 
-      def expand(form_data={})
-        form_data['today'] = split_date(Date.today.strftime('%Y-%m-%d'))
+      def expand(form_data = {})
+        form_data['today'] = split_date(Time.zone.today.strftime('%Y-%m-%d'))
         form_data
       end
     end

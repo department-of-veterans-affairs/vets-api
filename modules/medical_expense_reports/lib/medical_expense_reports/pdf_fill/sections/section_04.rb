@@ -47,7 +47,7 @@ module MedicalExpenseReports
           },
           'monthlyAmount' => {
             'thousands' => {
-              iterator_offset: ->(iterator) { iterator * 3 + 1 },
+              iterator_offset: ->(iterator) { (iterator * 3) + 1 },
               key: "form1[0].#subform[9].Amount_Paid_Monthly[#{ITERATOR}]"
             },
             'dollars' => {
@@ -55,14 +55,14 @@ module MedicalExpenseReports
               key: "form1[0].#subform[9].Amount_Paid_Monthly[#{ITERATOR}]"
             },
             'cents' => {
-              iterator_offset: ->(iterator) { iterator * 3 + 2 },
+              iterator_offset: ->(iterator) { (iterator * 3) + 2 },
               key: "form1[0].#subform[9].Amount_Paid_Monthly[#{ITERATOR}]"
             }
           },
-          "hourlyRate" => {
+          'hourlyRate' => {
             key: "form1[0].#subform[9].Payment_Rate_Per_Hour[#{ITERATOR}]"
           },
-          "weeklyHours" => {
+          'weeklyHours' => {
             key: "form1[0].#subform[9].Hours_Worked_Per_Week[#{ITERATOR}]"
           }
         }
@@ -70,7 +70,8 @@ module MedicalExpenseReports
 
       def expand(form_data = {})
         form_data['primaryCareExpenses'] ||= []
-        form_data['primaryCareExpenses'] = form_data['careExpenses'].take(2).map { |r| expand_recipient(r) } # the rest go on Addendum A
+        form_data['primaryCareExpenses'] =
+          form_data['careExpenses'].take(2).map { |r| expand_recipient(r) } # the rest go on Addendum A
         form_data
       end
 

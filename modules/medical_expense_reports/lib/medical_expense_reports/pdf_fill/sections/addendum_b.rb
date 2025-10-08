@@ -14,7 +14,7 @@ module MedicalExpenseReports
           limit: 7,
           first_key: 'recipient',
           'recipient' => {
-            iterator_offset: ->(iterator) { iterator * 2 + 26 },
+            iterator_offset: ->(iterator) { (iterator * 2) + 26 },
             key: "form1[0].#subform[13].RadioButtonList[#{ITERATOR}]"
           },
           'recipientName' => {
@@ -36,7 +36,7 @@ module MedicalExpenseReports
             }
           },
           'paymentFrequency' => {
-            iterator_offset: ->(iterator) { iterator * 2 + 27 },
+            iterator_offset: ->(iterator) { (iterator * 2) + 27 },
             key: "form1[0].#subform[13].RadioButtonList[#{ITERATOR}]"
           },
           'paymentAmount' => {
@@ -45,13 +45,13 @@ module MedicalExpenseReports
               key: "form1[0].#subform[13].Payment_Amount[#{ITERATOR}]"
             },
             'dollars' => {
-              iterator_offset: ->(iterator) { iterator * 2 + 24 },
+              iterator_offset: ->(iterator) { (iterator * 2) + 24 },
               key: "form1[0].#subform[13].Amount[#{ITERATOR}]"
             },
             'cents' => {
-              iterator_offset: ->(iterator) { iterator * 2 + 25 },
+              iterator_offset: ->(iterator) { (iterator * 2) + 25 },
               key: "form1[0].#subform[13].Amount[#{ITERATOR}]"
-            },
+            }
           },
           'provider' => {
             iterator_offset: ->(iterator) { (iterator + 1) % 7 }, # very wonky iterators!

@@ -99,8 +99,7 @@ module MedicalExpenseReports
         form_data['claimantFullName']['first'] = form_data.dig('claimantFullName', 'first')&.titleize
         form_data['claimantFullName']['middle'] = form_data.dig('claimantFullName', 'middle')&.titleize&.first&.titleize
         form_data['claimantFullName']['last'] = form_data.dig('claimantFullName', 'last')&.titleize
-        form_data['veteranAddress'] ||= {}
-        form_data['claimantAddress'] = form_data['veteranAddress'] # this is a hack until we have the claimant address UI
+        form_data['claimantAddress'] ||= {}
         form_data['primaryPhone'] = expand_phone_number(form_data['mobilePhone'].to_s)
         form_data['claimantEmail'] = form_data['email']
         form_data

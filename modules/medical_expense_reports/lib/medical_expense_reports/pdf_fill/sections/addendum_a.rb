@@ -18,7 +18,7 @@ module MedicalExpenseReports
             key: "form1[0].#subform[12].RadioButtonList[#{ITERATOR}]"
           },
           'recipientName' => {
-            iterator_offset: ->(iterator) { iterator + 13 }, # careful
+            iterator_offset: ->(iterator) { iterator + 13 },
             key: "form1[0].#subform[12].Name_Of_Child_Or_Other[#{ITERATOR}]"
           },
           'provider' => {
@@ -55,34 +55,34 @@ module MedicalExpenseReports
           },
           'monthlyAmount' => {
             'thousands' => {
-              iterator_offset: ->(iterator) { # very mangled field names, beware
+              iterator_offset: lambda { |iterator| # very mangled field names, beware
                 if iterator <= 3
                   iterator + 6
                 else
                   iterator + 5
                 end
               },
-              key_from_iterator: ->(iterator) {
+              key_from_iterator: lambda { |iterator|
                 case iterator
-                when 3 then "form1[0].#subform[12].Amount_You_Pay[0]"
+                when 3 then 'form1[0].#subform[12].Amount_You_Pay[0]'
                 else "form1[0].#subform[12].Amount_Paid_Monthly[#{ITERATOR}]"
                 end
               }
             },
             'dollars' => {
-              iterator_offset: ->(iterator) { iterator * 2 + 12 },
+              iterator_offset: ->(iterator) { (iterator * 2) + 12 },
               key: "form1[0].#subform[12].Amount[#{ITERATOR}]"
             },
             'cents' => {
-              iterator_offset: ->(iterator) { iterator * 2 + 13 },
+              iterator_offset: ->(iterator) { (iterator * 2) + 13 },
               key: "form1[0].#subform[12].Amount[#{ITERATOR}]"
             }
           },
-          "hourlyRate" => {
+          'hourlyRate' => {
             iterator_offset: ->(iterator) { iterator + 2 },
             key: "form1[0].#subform[12].Payment_Rate_Per_Hour[#{ITERATOR}]"
           },
-          "weeklyHours" => {
+          'weeklyHours' => {
             key: "form1[0].#subform[12].Average_Hours_Worked_Per_Week[#{ITERATOR}]"
           }
         }

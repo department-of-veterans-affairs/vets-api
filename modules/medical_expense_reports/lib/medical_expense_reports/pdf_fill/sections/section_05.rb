@@ -38,7 +38,7 @@ module MedicalExpenseReports
           },
           'paymentAmount' => {
             'thousands' => {
-              iterator_offset: ->(iterator) { iterator * 3 + 1 },
+              iterator_offset: ->(iterator) { (iterator * 3) + 1 },
               key: "form1[0].#subform[10].Payment_Amount[#{ITERATOR}]"
             },
             'dollars' => {
@@ -46,9 +46,9 @@ module MedicalExpenseReports
               key: "form1[0].#subform[10].Payment_Amount[#{ITERATOR}]"
             },
             'cents' => {
-              iterator_offset: ->(iterator) { iterator * 3 + 2 },
+              iterator_offset: ->(iterator) { (iterator * 3) + 2 },
               key: "form1[0].#subform[10].Payment_Amount[#{ITERATOR}]"
-            },
+            }
           },
           'provider' => {
             key: "form1[0].#subform[10].Paid_To_Name_Of_Provider_Insurance_Company_ETC[#{ITERATOR}]"
@@ -62,7 +62,8 @@ module MedicalExpenseReports
 
       def expand(form_data = {})
         form_data['primaryMedicalExpenses'] ||= []
-        form_data['primaryMedicalExpenses'] = form_data['medicalExpenses'].take(7).map { |r| expand_expense(r) } # the rest go on Addendum B
+        form_data['primaryMedicalExpenses'] =
+          form_data['medicalExpenses'].take(7).map { |r| expand_expense(r) } # the rest go on Addendum B
         form_data
       end
 

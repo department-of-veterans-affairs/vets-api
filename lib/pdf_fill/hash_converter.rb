@@ -105,12 +105,16 @@ module PdfFill
       end
     end
 
-    def set_value(v, key_data, i, from_array_overflow = false)
-      k = if key_data[:key_from_iterator]&.lambda?
-        key_data[:key_from_iterator].call(i)
+    def key_from_iterator_else_key(key_from_iterator, key)
+      if key_from_iterator&.lambda?
+        key_from_iterator.call(i)
       else
-        key_data[:key]
+        key
       end
+    end
+
+    def set_value(v, key_data, i, from_array_overflow = false)
+      k = key_from_iterator_else_key(key_data[:key_from_iterator], key_data[:key])
       new_value = convert_value(v, key_data)
 
       if k.present? && overflow?(key_data, new_value, from_array_overflow)

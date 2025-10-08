@@ -8,7 +8,6 @@ module MedicalExpenseReports
   module PdfFill
     # Section VI: Mileage
     class Section6 < Section
-
       # The Index Iterator Key
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
@@ -36,7 +35,7 @@ module MedicalExpenseReports
           },
           'travelReimbursementAmount' => {
             'thousands' => {
-              iterator_offset: ->(iterator) { iterator * 3 + 1 },
+              iterator_offset: ->(iterator) { (iterator * 3) + 1 },
               key: "form1[0].#subform[11].Amount[#{ITERATOR}]"
             },
             'dollars' => {
@@ -44,7 +43,7 @@ module MedicalExpenseReports
               key: "form1[0].#subform[11].Amount[#{ITERATOR}]"
             },
             'cents' => {
-              iterator_offset: ->(iterator) { iterator * 3 + 2 },
+              iterator_offset: ->(iterator) { (iterator * 3) + 2 },
               key: "form1[0].#subform[11].Amount[#{ITERATOR}]"
             }
           },
@@ -64,12 +63,14 @@ module MedicalExpenseReports
 
       def expand(form_data = {})
         form_data['primaryMileage'] ||= []
-        form_data['primaryMileage'] = form_data['mileage'].take(4).map { |t| expand_traveler(t) } # the rest go on Addendum C
+        form_data['primaryMileage'] =
+          form_data['mileage'].take(4).map { |t| expand_traveler(t) } # the rest go on Addendum C
         form_data
       end
 
       def expand_traveler(traveler)
-        traveler['travelReimbursementAmount'] = split_currency_amount_sm(traveler['travelReimbursementAmount'], { 'thousands' => 3 })
+        traveler['travelReimbursementAmount'] =
+          split_currency_amount_sm(traveler['travelReimbursementAmount'], { 'thousands' => 3 })
         traveler['travelDate'] = split_date(traveler['travelDate'])
         traveler['travelTraveler'] = Constants::RECIPIENTS[traveler['traveler']] || 'Off'
         traveler

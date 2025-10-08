@@ -39,11 +39,11 @@ module MedicalExpenseReports
               key: "form1[0].#subform[14].Amount_Reimbursed_From_Any_Source_VA_Medical_Center_ETC[#{ITERATOR}]"
             },
             'dollars' => {
-              iterator_offset: ->(iterator) { iterator * 2 + 38 },
+              iterator_offset: ->(iterator) { (iterator * 2) + 38 },
               key: "form1[0].#subform[14].Amount[#{ITERATOR}]"
             },
             'cents' => {
-              iterator_offset: ->(iterator) { iterator * 2 + 39 },
+              iterator_offset: ->(iterator) { (iterator * 2) + 39 },
               key: "form1[0].#subform[14].Amount[#{ITERATOR}]"
             }
           },
@@ -69,7 +69,8 @@ module MedicalExpenseReports
       end
 
       def expand_traveler(traveler)
-        traveler['travelReimbursementAmount'] = split_currency_amount_sm(traveler['travelReimbursementAmount'], { 'thousands' => 3 })
+        traveler['travelReimbursementAmount'] =
+          split_currency_amount_sm(traveler['travelReimbursementAmount'], { 'thousands' => 3 })
         traveler['travelDate'] = split_date(traveler['travelDate'])
         traveler['travelTraveler'] = Constants::RECIPIENTS[traveler['traveler']] || 'Off'
         traveler
