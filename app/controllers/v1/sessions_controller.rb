@@ -374,13 +374,13 @@ module V1
     def handle_callback_error(exc, status, response, _level = :error, context = {},
                               code = SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE, tag = nil)
       # replaces bundled Sentry error message with specific XML messages
-      message = if response.normalized_errors.count > 1 && response.status_detail
+      message = if response && response.normalized_errors.count > 1 && response.status_detail
                   response.status_detail
                 else
                   exc.message
                 end
 
-      Rails.logger.error("SessionsController version:v1 context:#{context} message:#{message}")
+      Rails.logger.error('[V1][Sessions Controller] error', context:, message:)
       Rails.logger.info("SessionsController version:v1 saml_callback failure, user_uuid=#{@current_user&.uuid}")
 
       unless performed?
