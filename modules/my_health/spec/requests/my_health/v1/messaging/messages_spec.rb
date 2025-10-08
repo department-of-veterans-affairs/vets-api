@@ -161,7 +161,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         end
 
         it 'with attachments and is_oh_triage_group param' do
-          allow_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
+          expect_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
           VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
             post '/my_health/v1/messaging/messages?is_oh_triage_group=true', params: params_with_attachments
           end
@@ -174,6 +174,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         end
 
         it 'with attachments and is_oh_triage_group param false' do
+          expect_any_instance_of(SM::Client).not_to receive(:poll_message_status)
           VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
             post '/my_health/v1/messaging/messages?is_oh_triage_group=false', params: params_with_attachments
           end
@@ -240,7 +241,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         end
 
         it 'with attachments and is_oh_triage_group param' do
-          allow_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
+          expect_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
           VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
             post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=true",
                  params: params_with_attachments
@@ -254,6 +255,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         end
 
         it 'with attachments and is_oh_triage_group param false' do
+          expect_any_instance_of(SM::Client).not_to receive(:poll_message_status)
           VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
             post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=false",
                  params: params_with_attachments
@@ -435,7 +437,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         end
 
         it 'with is_oh_triage_group param' do
-          allow_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
+          expect_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
           VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url') do
             post '/my_health/v1/messaging/messages?is_oh_triage_group=true', params: params_with_attachments
           end
@@ -453,7 +455,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         end
 
         it 'with is_oh_triage_group param' do
-          allow_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
+          expect_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
           VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url') do
             post '/my_health/v1/messaging/messages?is_oh_triage_group=true', params: params_with_attachments
           end
@@ -464,6 +466,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         end
 
         it 'without is_oh_triage_group param' do
+          expect_any_instance_of(SM::Client).not_to receive(:poll_message_status)
           VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url') do
             post '/my_health/v1/messaging/messages', params: params_with_attachments
           end
@@ -523,7 +526,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         end
 
         it 'with is_oh_triage_group param' do
-          allow_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
+          expect_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
           VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url_reply') do
             post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=true",
                  params: params_with_attachments
@@ -542,7 +545,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         end
 
         it 'with is_oh_triage_group param' do
-          allow_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
+          expect_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
           VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url_reply') do
             post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=true",
                  params: params_with_attachments
@@ -554,6 +557,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         end
 
         it 'without is_oh_triage_group param' do
+          expect_any_instance_of(SM::Client).not_to receive(:poll_message_status)
           VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url_reply') do
             post "/my_health/v1/messaging/messages/#{reply_message_id}/reply",
                  params: params_with_attachments
