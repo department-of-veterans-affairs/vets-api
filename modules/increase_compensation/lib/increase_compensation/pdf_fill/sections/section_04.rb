@@ -4,7 +4,7 @@ require 'increase_compensation/pdf_fill/section'
 
 module IncreaseCompensation
   module PdfFill
-    # Section IV: In-Home Care And Care Facility Expenses
+    # Section IV: SCHOOLING AND OTHER TRAINING
     class Section4 < Section
       # Section configuration hash
       KEY = {

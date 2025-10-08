@@ -10,6 +10,7 @@ module IncreaseCompensation
       KEY = {
         'listOfDisabilities' => {
           question_num: 8,
+          limit: 81,
           key: 'form1[0].#subform[0].Service_Connected_Disability[0]'
         },
         'doctorsCareInLastYTD' => {
@@ -43,10 +44,12 @@ module IncreaseCompensation
         },
         'nameAndAddressesOfDoctors' => {
           question_num: 11,
+          limit: 135,
           key: 'form1[0].#subform[0].Name_And_Address_Of_Doctors[0]'
         },
         'nameAndAddressesOfHospitals' => {
           question_num: 12,
+          limit: 127,
           key: 'form1[0].#subform[0].Name_And_Address_Of_Hospital[0]'
         },
         'hospitalCareDateRanges' => {

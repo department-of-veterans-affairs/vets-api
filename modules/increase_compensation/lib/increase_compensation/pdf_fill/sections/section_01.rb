@@ -20,7 +20,7 @@ module IncreaseCompensation
             question_text: 'VETERAN\'S FIRST NAME',
             key: 'form1[0].#subform[0].VeteransFirstName[0]'
           },
-          'middle' => {
+          'middleinitial' => {
             limit: 1,
             question_num: 1,
             key: 'form1[0].#subform[0].VeteransMiddleInitial[0]'
@@ -48,6 +48,39 @@ module IncreaseCompensation
             limit: 3,
             question_num: 2,
             key: 'form1[0].#subform[0].SSNLastFourNumbers[0]'
+          }
+        },
+        'veteranSocialSecurityNumber1' => {
+          'first' => {
+            key: 'form1[0].#subform[1].SSNFirstThreeNumbers[1]'
+          },
+          'second' => {
+            key: 'form1[0].#subform[1].SSNSecondTwoNumbers[1]'
+          },
+          'third' => {
+            key: 'form1[0].#subform[1].SSNLastFourNumbers[1]'
+          }
+        },
+        'veteranSocialSecurityNumber2' => {
+          'first' => {
+            key: 'form1[0].#subform[2].SSNFirstThreeNumbers[2]'
+          },
+          'second' => {
+            key: 'form1[0].#subform[2].SSNSecondTwoNumbers[2]'
+          },
+          'third' => {
+            key: 'form1[0].#subform[2].SSNLastFourNumbers[2]'
+          }
+        },
+        'veteranSocialSecurityNumber3' => {
+          'first' => {
+            key: 'form1[0].#subform[4].SSNFirstThreeNumbers[3]'
+          },
+          'second' => {
+            key: 'form1[0].#subform[4].SSNSecondTwoNumbers[3]'
+          },
+          'third' => {
+            key: 'form1[0].#subform[4].SSNLastFourNumbers[3]'
           }
         },
         'vaFileNumber' => {
@@ -152,33 +185,25 @@ module IncreaseCompensation
         },
         'internationalPhone' => {
           question_num: 7,
-          # limit: 30,
-          # question_num: 2,
-          # question_suffix: 'C',
           question_label: 'International Phone Number',
           question_text: 'International Phone Number',
-          # key: 'form1[0].#subform[48].International_Phone_Number[0]'
           key: 'form1[0].#subform[0].International_Telephone_Number_If_Applicable[0]'
         }
       }.freeze
 
       def expand(form_data = {})
-        # beacuse of how the data is recieved in the form object
-        if form_data['veteranSocialSecurityNumber'].is_a? String
-          f, s, t = form_data['veteranSocialSecurityNumber'].split('-')
-          form_data['veteranSocialSecurityNumber'] = {}
-          form_data['veteranSocialSecurityNumber']['first'] = f
-          form_data['veteranSocialSecurityNumber']['second'] = s
-          form_data['veteranSocialSecurityNumber']['third'] = t
-        end
+        form_data = form_data.merge(form_data['veteran'])
+        # form_data[veteranFullName] = extract_middle_i(form_data['veteranFullName'])
+        form_data['veteranPhone'] = expand_phone_number(form_data['veteranPhone'])
+        form_data['veteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
+        form_data['veteranSocialSecurityNumber1'] = form_data['veteranSocialSecurityNumber']
+        form_data['veteranSocialSecurityNumber2'] = form_data['veteranSocialSecurityNumber']
+        form_data['veteranSocialSecurityNumber3'] = form_data['veteranSocialSecurityNumber']
 
-        if form_data['veteranPhone']
-          phone = expand_phone_number(form_data['veteranPhone'])
-          form_data['veteranPhone'] = {}
-          form_data['veteranPhone']['areaCode'] = phone['phone_area_code']
-          form_data['veteranPhone']['firstThree'] = phone['phone_first_three_numbers']
-          form_data['veteranPhone']['lastFour'] = phone['phone_last_four_numbers']
+        if validate_date(form_data['veteranDateOfBirth'])
+          form_data['veteranDateOfBirth'] = split_date(form_data['veteranDateOfBirth'])
         end
+        form_data['veteranAddress']['zip_code'] = split_postal_code(form_data['veteranAddress'])
       end
     end
   end

@@ -4,7 +4,7 @@ require 'increase_compensation/pdf_fill/section'
 
 module IncreaseCompensation
   module PdfFill
-    # Section VI: Mileage
+    # Section VI: AUTHORIZATION, CERTIFICATION, AND SIGNATURE
     class Section6 < Section
       # Section configuration hash
       KEY = {
