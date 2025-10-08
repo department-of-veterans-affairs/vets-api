@@ -1069,6 +1069,9 @@ features:
   form21p0847:
     actor_type: user
     description: If enabled shows the digital form experience for form 21P-0847
+  form21p0537:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21P-0537
   form264555:
     actor_type: user
     description: If enabled shows the digital form experience for form 26-4555
@@ -2072,6 +2075,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove the redundant call to facility configurations when determining patient eligibility.
+  va_online_scheduling_use_browser_timezone:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to default to browser timezone when facility timezone is unavailable.
   vaos_appointment_notification_callback:
     actor_type: user
     enable_in_development: true
@@ -2095,9 +2102,6 @@ features:
   vre_cutover_notice:
     actor_type: user
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
-  vre_trigger_action_needed_email:
-    actor_type: user
-    description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
   vre_use_new_vfs_notification_library:
     actor_type: user
     description: Whether or not to use the VFS library for interacting with VA Notify
