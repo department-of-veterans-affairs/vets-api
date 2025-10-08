@@ -12,9 +12,9 @@ describe MedicalExpenseReports::PdfFill::Va21p8416 do
 
   describe '#to_pdf' do
     it 'merges the right keys' do
-      f1 = File.open File.join(__dir__, '21p-8416_kitchen-sink.json')
+      f1 = File.read File.join(__dir__, '21p-8416_kitchen-sink.json')
 
-      claim = MedicalExpenseReports::SavedClaim.new(form: JSON.load(f1).to_s)
+      claim = MedicalExpenseReports::SavedClaim.new(form: JSON.parse(f1).to_s)
 
       form_id = MedicalExpenseReports::FORM_ID
       form_class = MedicalExpenseReports::PdfFill::Va21p8416
