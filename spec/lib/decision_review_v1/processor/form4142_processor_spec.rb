@@ -233,14 +233,12 @@ describe DecisionReviewV1::Processor::Form4142Processor do
       allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_call_original
 
       # generate_stamp_pdf is needed but we don't want to incur the cost of the methods it calls.
-      # Stub out pdf methods as they are not needed for these tests and are cpu expensive
+      # Stub out PDFUtilities::DatestampPdf it's not needed for the tests and is cpu expensive
       FileUtils.cp(fixture_pdf, test_pdf) unless File.exist?(test_pdf)
-      allow_any_instance_of(described_class).to receive(:add_signature_stamp)
-        .and_return(Rails.root.join('tmp', 'test_output.pdf').to_s)
-      allow_any_instance_of(described_class).to receive(:add_vagov_timestamp)
-        .and_return(Rails.root.join('tmp', 'test_output.pdf').to_s)
-      allow_any_instance_of(described_class).to receive(:submission_date_stamp)
-        .and_return(Rails.root.join('tmp', 'test_output.pdf').to_s)
+
+      allow(PDFUtilities::DatestampPdf)
+        .to receive(:new)
+        .and_return(instance_double(PDFUtilities::DatestampPdf, run: 'tmp/test_output.pdf'))
     end
 
     # Clean up the test output file
@@ -250,9 +248,14 @@ describe DecisionReviewV1::Processor::Form4142Processor do
 
     describe 'template selection logic' do
       context 'with 2024 template (flag enabled)' do
+        let(:file_path) { 'tmp/test_output.pdf' }
+
         it 'selects 2024 form class ID' do
-          allow_any_instance_of(described_class).to receive(:generate_stamp_pdf)
-            .and_return(Rails.root.join('tmp', 'test_output.pdf').to_s)
+          # Don't need this heavy processing for this test
+          allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
+          allow(PDFUtilities::DatestampPdf)
+            .to receive(:new)
+            .and_return(instance_double(PDFUtilities::DatestampPdf, run: file_path))
 
           expect(processor.send(:generate_2024_version?)).to be true
           expect(processor.send(:selected_form_class_id)).to eq('21-4142-2024')
@@ -263,16 +266,18 @@ describe DecisionReviewV1::Processor::Form4142Processor do
             .with(hash_including('veteranFullName' => anything), anything, '21-4142-2024')
             .and_wrap_original do |_m|
               # Short-circuit the heavy logic
-              Rails.root.join('tmp', 'test_output.pdf').to_s
+              file_path
             end
 
           processor
         end
 
         it 'requires signature stamping when signature is present' do
-          # We don't need this heavy processing as we're just testing needs_signature_stamp
-          allow_any_instance_of(described_class).to receive(:generate_stamp_pdf)
-            .and_return(Rails.root.join('tmp', 'test_output.pdf').to_s)
+          # Don't need this heavy processing for this test
+          allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
+          allow(PDFUtilities::DatestampPdf)
+            .to receive(:new)
+            .and_return(instance_double(PDFUtilities::DatestampPdf, run: file_path))
 
           test_processor = described_class.new(form_data: form4142, submission_id: submission.id)
           expect(test_processor.send(:needs_signature_stamp?)).to be true
