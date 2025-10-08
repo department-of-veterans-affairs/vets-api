@@ -1493,10 +1493,6 @@ features:
     actor_type: user
     description: Enables/disables the use of pre-transformed vital objects
     enable_in_development: true
-  mhv_medical_records_uuid_for_jwt_session_locking:
-    actor_type: user
-    description: Use UUID instead of ICN for locking MHV JWT sessions
-    enable_in_development: true
   mhv_medications_display_allergies:
     actor_type: user
     description: Enables/disables allergies and reactions data
