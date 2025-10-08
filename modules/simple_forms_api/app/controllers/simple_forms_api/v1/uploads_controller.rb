@@ -24,6 +24,7 @@ module SimpleFormsApi
         '21-4138' => 'vba_21_4138',
         '21-4140' => 'vba_21_4140',
         '21-4142' => 'vba_21_4142',
+        '21P-0537' => 'vba_21p_0537',
         '21P-0847' => 'vba_21p_0847',
         '21P-0601' => 'vba_21p_601',
         '26-4555' => 'vba_26_4555',
@@ -34,6 +35,9 @@ module SimpleFormsApi
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
 
       def submit
+        # Temporarily gate submissions to 21P-0537 while in development
+        return if (params[:form_number] == '21P-0537') && !Flipper.enabled?(:form21p0537, @current_user)
+
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
         response = if intent_service.use_intent_api?
