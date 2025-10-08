@@ -128,6 +128,13 @@ module SimpleFormsApi
       address.country_code_iso3 == 'USA'
     end
 
+    def get_attachments
+      return [] unless data['supporting_evidence']
+
+      attachment_guids = data['supporting_evidence'].map { |doc| doc['confirmation_code'] }.compact
+      PersistentAttachment.where(guid: attachment_guids).map(&:to_pdf)
+    end
+
     private
 
     def signature
@@ -147,11 +154,4 @@ module SimpleFormsApi
       [phone_primary, phone_alternate, data['email_address']].compact
     end
   end
-
-  def get_attachments
-      return [] unless data['supporting_evidence']
-      
-      attachment_guids = data['supporting_evidence'].map { |doc| doc['confirmation_code'] }.compact
-      PersistentAttachment.where(guid: attachment_guids).map(&:to_pdf)
-    end
 end

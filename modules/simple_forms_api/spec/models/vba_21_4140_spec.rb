@@ -99,7 +99,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     it 'returns an array of four EmploymentHistory instances' do
       expect(employment_history.length).to eq 4
       expect(employment_history[0]).to be_a FormEngine::EmploymentHistory
-      expect(employment_history[0].lost_time).to eq data['employers'][0]['lost_time']
+      expect(employment_history[0].lost_time).to eq data['employers'][0]['lost_time_from_illness']
       expect(employment_history[3]).to be_a FormEngine::EmploymentHistory
       expect(employment_history[3].lost_time).to be_nil
     end
@@ -111,6 +111,37 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     it('is limited to twelve characters') do
       expect(data.dig('full_name', 'first').length).to be > 12
       expect(subject.length).to eq 12
+    end
+  end
+
+  describe '#get_attachments' do
+    subject { form.get_attachments }
+
+    context 'when supporting_evidence exists' do
+      let(:attachment1) { instance_double(PersistentAttachment) }
+      let(:attachment2) { instance_double(PersistentAttachment) }
+      let(:pdf1) { 'pdf_content_1' }
+      let(:pdf2) { 'pdf_content_2' }
+
+      before do
+        allow(PersistentAttachment).to receive(:where).with(
+          guid: ['guid1', 'guid2']
+        ).and_return([attachment1, attachment2])
+        allow(attachment1).to receive(:to_pdf).and_return(pdf1)
+        allow(attachment2).to receive(:to_pdf).and_return(pdf2)
+      end
+
+      it 'returns an array of PDFs' do
+        expect(subject).to eq([pdf1, pdf2])
+      end
+    end
+
+    context 'when supporting_evidence does not exist' do
+      let(:fixture_file) { 'vba_21_4140-min.json' }
+
+      it 'returns an empty array' do
+        expect(subject).to eq([])
+      end
     end
   end
 
@@ -131,7 +162,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
         {
           'veteranFirstName' => data.dig('full_name', 'first'),
           'veteranLastName' => data.dig('full_name', 'last'),
-          'fileNumber' => data['va_file_number'],
+          'fileNumber' => data.dig('id_number', 'va_file_number') || data.dig('id_number', 'ssn'),
           'zipCode' => data.dig('address', 'postal_code'),
           'source' => 'VA Platform Digital Forms',
           'docType' => data['form_number'],
@@ -206,7 +237,8 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     subject { form.signature_employed }
 
     context 'when employed' do
-      it { is_expected.to eq data['statement_of_truth_signature'] }
+      # Updated to use mocked signature (full name) instead of statement_of_truth_signature
+      it { is_expected.to eq "#{data.dig('full_name', 'first')} #{data.dig('full_name', 'last')}" }
     end
 
     context 'when unemployed' do
@@ -226,7 +258,8 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     context 'when unemployed' do
       let(:fixture_file) { 'vba_21_4140-min.json' }
 
-      it { is_expected.to eq data['statement_of_truth_signature'] }
+      # Updated to use mocked signature (full name) instead of statement_of_truth_signature
+      it { is_expected.to eq "#{data.dig('full_name', 'first')} #{data.dig('full_name', 'last')}" }
     end
   end
 
