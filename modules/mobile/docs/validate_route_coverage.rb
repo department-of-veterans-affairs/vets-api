@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require 'yaml'
+require 'date'
 
 # Parse routes.rb to extract all route definitions
 def extract_routes_from_file(routes_file)
