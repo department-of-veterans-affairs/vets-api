@@ -2076,6 +2076,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove the redundant call to facility configurations when determining patient eligibility.
+  va_online_scheduling_use_browser_timezone:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to default to browser timezone when facility timezone is unavailable.
   vaos_appointment_notification_callback:
     actor_type: user
     enable_in_development: true
