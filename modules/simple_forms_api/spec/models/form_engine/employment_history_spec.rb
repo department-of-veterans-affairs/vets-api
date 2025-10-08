@@ -18,7 +18,7 @@ RSpec.describe FormEngine::EmploymentHistory do
 
   it 'sets the correct attributes' do
     expect(employment_history.hours_per_week).to eq data['hours_per_week']
-    expect(employment_history.lost_time).to eq data['lost_time']
+    expect(employment_history.lost_time).to eq data['lost_time_from_illness']
     expect(employment_history.type_of_work).to eq data['type_of_work']
   end
 
@@ -46,7 +46,7 @@ RSpec.describe FormEngine::EmploymentHistory do
     it 'returns a multi-line string' do
       expect(name_and_address).to(
         eq(
-          'Test Employer\\n1234 Executive Ave\\nMetropolis, CA 90210\\nUnited States of America'
+          "Test Employer\n1234 Executive Ave\nMetropolis, CA 90210\nUnited States of America"
         )
       )
     end
