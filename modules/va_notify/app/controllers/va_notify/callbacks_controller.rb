@@ -27,6 +27,7 @@ module VANotify
         @notification.update(notification_params)
         Rails.logger.info("va_notify callbacks - Updating notification: #{@notification.id}",
                           {
+                            notification_id: @notification.id,
                             source_location: @notification.source_location,
                             template_id: @notification.template_id,
                             callback_metadata: @notification.callback_metadata,
@@ -57,10 +58,11 @@ module VANotify
     end
 
     def authenticate_signature
-      return unless Flipper.enabled?(:va_notify_request_level_callbacks)
       return false unless @notification
 
       signature_from_header = request.headers['x-enp-signature'].to_s.strip
+
+      return if signature_from_header.blank?
 
       api_key = get_api_key_value(@notification.service_api_key_path)
 
