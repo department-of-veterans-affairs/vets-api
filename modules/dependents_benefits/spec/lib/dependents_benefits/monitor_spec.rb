@@ -184,7 +184,9 @@ RSpec.describe DependentsBenefits::Monitor do
 
         expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.uuid, anything)
         expect(monitor).to receive(:track_request).with(
-          :error, log, "#{submission_stats_key}.exhausted", call_location: anything, **payload
+          :error, log, "#{submission_stats_key}.exhausted", call_location: anything, **payload, error: { 'args' => [
+            anything, current_user.uuid
+          ] }
         )
         monitor.track_submission_exhaustion(msg, nil)
       end
