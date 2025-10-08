@@ -283,6 +283,41 @@ paths:
       security:
         - Bearer: []
       summary: /v0/appointments/cancel/{cancelId}
+  /v0/appointments/cancel/{id}:
+    put:
+      description: Cancel an appointment by id. Alias for the cancelId endpoint.
+      parameters:
+        - description: The appointment ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '204':
+          description: No Content
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/appointments/cancel/{id}
   /v0/appointments/check-in:
     post:
       description: Check into an appointment.
@@ -2014,6 +2049,58 @@ paths:
       security:
         - Bearer: [ ]
       summary: /v0/facilities-info/{sort_method}
+  /v0/facilities-info/{sort}:
+    get:
+      description: Retrieves facilities info for all facilities a given user has the ability to schedule appointments at
+      parameters:
+        - description: Sort method (Closest to home or current location, alphabetical, or by most recent appointment location)
+          in: path
+          name: sort
+          required: true
+          schema:
+            type: string
+            enum:
+              - current
+              - home
+              - alphabetical
+              - appointments
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        description: Lat Long for user's current location. Only required if sort method is current
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/FacilitiesInfoRequestBody.yml
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/FacilitiesInfo.yml
+          description: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/facilities-info/{sort}
   /v0/financial-status-reports/download:
     post:
       description: Returns financial status report PDF
@@ -2827,6 +2914,38 @@ paths:
       security:
         - Bearer: []
       summary: /v0/messaging/health/folders/{id}
+    delete:
+      description: Delete a secure messaging folder
+      parameters:
+        - description: The folder ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '204':
+          description: No Content
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: DELETE /v0/messaging/health/folders/{id}
   /v0/messaging/health/folders/{id}/messages:
     get:
       description: |
@@ -2967,6 +3086,127 @@ paths:
       security:
         - Bearer: [ ]
       summary: /v0/messaging/health/folders/{id}/threads
+  /v0/messaging/health/folders/{folder_id}/messages:
+    get:
+      description: |
+        List messages in a secure messaging folder. Alias for /v0/messaging/health/folders/{id}/messages.
+      parameters:
+        - description: The folder ID
+          in: path
+          name: folder_id
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: Sort field and direction
+          in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+        - description: Filter criteria
+          in: query
+          name: filter
+          required: false
+          schema:
+            type: string
+        - description: The page number requested
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: The number of records to return per page
+          in: query
+          name: perPage
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/SecureMessageList.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/messaging/health/folders/{folder_id}/messages
+  /v0/messaging/health/folders/{folder_id}/threads:
+    get:
+      description: List of threads in a secure messaging folder. Alias for /v0/messaging/health/folders/{id}/threads.
+      parameters:
+        - description: The folder ID
+          in: path
+          name: folder_id
+          required: true
+          schema:
+            type: integer
+        - description: The size of the pagination. Defaults to 10
+          in: query
+          name: pageSize
+          schema:
+            type: string
+        - description: The page number
+          in: query
+          name: page
+          schema:
+            type: string
+        - description: The field to sort by
+          in: query
+          name: sortField
+          schema:
+            type: string
+            enum: [ SENDER_NAME, RECIPIENT_NAME, SENT_DATE, DRAFT_DATE ]
+        - description: The sort order
+          in: query
+          name: sortOrder
+          schema:
+            type: string
+            enum: [ ASC, DESC ]
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/SecureMessageThreadList.yml
+          description: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/messaging/health/folders/{folder_id}/threads
   /v0/messaging/health/message_drafts:
     post:
       description: Save a new draft message
@@ -3045,6 +3285,46 @@ paths:
       security:
         - Bearer: []
       summary: /v0/messaging/health/message_drafts/{id}
+    patch:
+      description: Update an existing draft message (alias for PUT)
+      parameters:
+        - description: The id of the draft that is to be updated
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example:
+                body: the updated message
+              type: object
+        required: true
+      responses:
+        '204':
+          description: No Content
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: PATCH /v0/messaging/health/message_drafts/{id}
   /v0/messaging/health/message_drafts/{reply_id}/replydraft:
     post:
       description: Save a new draft message as a reply to an existing message
@@ -3135,6 +3415,52 @@ paths:
       security:
         - Bearer: []
       summary: /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}
+    put:
+      description: Update a draft message that was a reply to an existing message
+      parameters:
+        - description: The id of the message that will be replied to
+          in: path
+          name: reply_id
+          required: true
+          schema:
+            type: string
+        - description: The id of the draft that is to be updated
+          in: path
+          name: draft_id
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example:
+                body: the updated message
+              type: object
+        required: true
+      responses:
+        '204':
+          description: No Content
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: PUT /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}
   /v0/messaging/health/messages:
     post:
       description: Send a new secure message
@@ -3405,6 +3731,45 @@ paths:
       security:
         - Bearer: []
       summary: /v0/messaging/health/messages/{id}/move
+  /v0/messaging/health/messages/{id}/move:
+    patch:
+      description: Moves a secure message to a specified folder
+      parameters:
+        - description: The id of the message that is to be moved
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - description: The id of the folder that the message is to be moved to
+          in: query
+          name: folder_id
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '204':
+          description: The message was moved successfully
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: PATCH /v0/messaging/health/messages/{id}/move
   /v0/messaging/health/messages/{id}/attachments/{attachment_id}:
     get:
       description: |
@@ -3450,6 +3815,50 @@ paths:
       security:
         - Bearer: []
       summary: /v0/messaging/health/messages/{id}/attachments/{attachment_id}
+  /v0/messaging/health/messages/{message_id}/attachments/{id}:
+    get:
+      description: Get a secure message attachment content. Alias for /{id}/attachments/{attachment_id}.
+      parameters:
+        - description: ID of the message
+          in: path
+          name: message_id
+          required: true
+          schema:
+            type: integer
+        - description: ID of the attachment
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/octet-stream:
+              schema:
+                format: binary
+                type: string
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/messaging/health/messages/{message_id}/attachments/{id}
   /v0/messaging/health/messages/{id}/reply:
     post:
       description: |
@@ -3948,6 +4357,86 @@ paths:
       security:
         - Bearer: []
       summary: /v0/push/prefs/{endpointSid}
+  /v0/push/prefs/{endpoint_sid}:
+    get:
+      description: Get the user's push notification preferences. Alias for /v0/push/prefs/{endpointSid}.
+      parameters:
+        - description: device endpoint SID provided by the register endpoint
+          in: path
+          name: endpoint_sid
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/PushGetPreferences.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/push/prefs/{endpoint_sid}
+    put:
+      description: Set the user's push notification preferences. Alias for /v0/push/prefs/{endpointSid}.
+      parameters:
+        - description: device endpoint SID provided by the register endpoint
+          in: path
+          name: endpoint_sid
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/PushPreferences.yml
+        description: Push notification preferences
+        required: true
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: PUT /v0/push/prefs/{endpoint_sid}
   /v0/push/register:
     put:
       description: Allows a new app install to register to receive push notifications
@@ -5196,6 +5685,147 @@ paths:
       security:
         - Bearer: []
       summary: /v1/health/immunizations
+  /v1/health/labs-and-tests:
+    get:
+      description: Returns a paginated list of lab and test results for given user (v1)
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: The page number requested. Defaults to 1.
+          in: query
+          name: page[number]
+          schema:
+            type: integer
+        - description: The number of records to return per page. Defaults to 10.
+          in: query
+          name: page[size]
+          schema:
+            type: integer
+        - description: Whether to use cache or fetch from upstream. Defaults to true.
+          in: query
+          name: useCache
+          schema:
+            type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/v1/LabsAndTests.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v1/health/labs-and-tests
+  /v1/health/rx/prescriptions:
+    get:
+      description: Returns a list of prescriptions for given user (v1)
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: The page number requested. Defaults to 1.
+          in: query
+          name: page[number]
+          schema:
+            type: integer
+        - description: The number of records to return per page. Defaults to 10.
+          in: query
+          name: page[size]
+          schema:
+            type: integer
+        - description: Whether to use cache or fetch from upstream. Defaults to true.
+          in: query
+          name: useCache
+          schema:
+            type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/v1/Prescriptions.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v1/health/rx/prescriptions
+  /v1/health/rx/prescriptions/refill:
+    put:
+      description: Refill prescriptions (v1)
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prescriptionIds:
+                  type: array
+                  items:
+                    type: string
+        description: Prescription IDs to refill
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/v1/PrescriptionRefill.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: PUT /v1/health/rx/prescriptions/refill
 
 components:
   securitySchemes:
