@@ -221,6 +221,13 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
           expect(subject).to be_valid
         end
 
+        it 'is valid when departure and arrival are on same day with different times' do
+          base_date = 2.days.from_now.beginning_of_day
+          subject.departure_date = base_date + 8.hours  # 8:00 AM
+          subject.arrival_date = base_date + 14.hours   # 2:00 PM
+          expect(subject).to be_valid
+        end
+
         it 'skips validation when either date is missing' do
           subject.departure_date = nil
           subject.arrival_date = 3.days.from_now
