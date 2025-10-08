@@ -18,10 +18,12 @@ describe MedicalExpenseReports::PdfFill::Va21p8416 do
 
       form_id = MedicalExpenseReports::FORM_ID
       form_class = MedicalExpenseReports::PdfFill::Va21p8416
-      fill_options = {}
+      fill_options = {
+        created_at: '2025-10-08'
+      }
       merged_form_data = form_class.new(claim.parsed_form).merge_fields(fill_options)
       submit_date = Utilities::DateParser.parse(
-        fill_options[:created_at] || merged_form_data['signatureDate'] || Time.now.utc
+        fill_options[:created_at]
       )
 
       hash_converter = PdfFill::Filler.make_hash_converter(form_id, form_class, submit_date, fill_options)
