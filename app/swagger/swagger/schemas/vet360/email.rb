@@ -16,6 +16,8 @@ module Swagger
                    minLength: 6,
                    maxLength: 255,
                    pattern: VAProfile::Models::Email::VALID_EMAIL_REGEX.inspect
+          # Confirmation date is optional and should only be provided if the email is 'confirmed'
+          property :confirmation_date, type: %i[string null], format: 'date-time', example: nil
         end
 
         swagger_schema :PutVet360Email do
@@ -27,6 +29,7 @@ module Swagger
                    minLength: 6,
                    maxLength: 255,
                    pattern: VAProfile::Models::Email::VALID_EMAIL_REGEX.inspect
+          property :confirmation_date, type: %i[string null], format: 'date-time', example: '2022-01-01T00:00:00Z'
         end
       end
     end
