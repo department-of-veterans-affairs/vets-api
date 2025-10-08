@@ -93,7 +93,7 @@
     },
     "/v0/appeal/{id}": {
       "get": {
-        "description": "Returns info on all user's claims and appeals for mobile overview page. Should be identical to the following docs https://developer.va.gov/explore/api/appeals-status/docs?version=current",
+        "description": "Returns info on all user's claims and appeals for the mobile overview page. Should be identical to the following docs https://developer.va.gov/explore/api/appeals-status/docs?version=current",
         "parameters": [
           {
             "description": "Appeal Id",
@@ -1074,6 +1074,63 @@
           }
         ],
         "summary": "/v0/appointments/cancel/{cancelId}"
+      }
+    },
+    "/v0/appointments/cancel/{id}": {
+      "put": {
+        "description": "Cancel an appointment by id. Alias for the cancelId endpoint.",
+        "parameters": [
+          {
+            "description": "The appointment ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/appointments/cancel/{id}"
       }
     },
     "/v0/appointments/check-in": {
@@ -3910,6 +3967,89 @@
         "summary": "/v0/facilities-info/{sort_method}"
       }
     },
+    "/v0/facilities-info/{sort}": {
+      "get": {
+        "description": "Retrieves facilities info for all facilities a given user has the ability to schedule appointments at",
+        "parameters": [
+          {
+            "description": "Sort method (Closest to home or current location, alphabetical, or by most recent appointment location)",
+            "in": "path",
+            "name": "sort",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "current",
+                "home",
+                "alphabetical",
+                "appointments"
+              ]
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "requestBody": {
+          "description": "Lat Long for user's current location. Only required if sort method is current",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FacilitiesInfoRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FacilitiesInfo"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/facilities-info/{sort}"
+      }
+    },
     "/v0/financial-status-reports/download": {
       "post": {
         "description": "Returns financial status report PDF",
@@ -5235,6 +5375,58 @@
           }
         ],
         "summary": "/v0/messaging/health/folders/{id}"
+      },
+      "delete": {
+        "description": "Delete a secure messaging folder",
+        "parameters": [
+          {
+            "description": "The folder ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "DELETE /v0/messaging/health/folders/{id}"
       }
     },
     "/v0/messaging/health/folders/{id}/messages": {
@@ -5457,6 +5649,207 @@
         "summary": "/v0/messaging/health/folders/{id}/threads"
       }
     },
+    "/v0/messaging/health/folders/{folder_id}/messages": {
+      "get": {
+        "description": "List messages in a secure messaging folder. Alias for /v0/messaging/health/folders/{id}/messages.\n",
+        "parameters": [
+          {
+            "description": "The folder ID",
+            "in": "path",
+            "name": "folder_id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          },
+          {
+            "description": "Sort field and direction",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter criteria",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The page number requested",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The number of records to return per page",
+            "in": "query",
+            "name": "perPage",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureMessageList"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/messaging/health/folders/{folder_id}/messages"
+      }
+    },
+    "/v0/messaging/health/folders/{folder_id}/threads": {
+      "get": {
+        "description": "List of threads in a secure messaging folder. Alias for /v0/messaging/health/folders/{id}/threads.",
+        "parameters": [
+          {
+            "description": "The folder ID",
+            "in": "path",
+            "name": "folder_id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The size of the pagination. Defaults to 10",
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The page number",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The field to sort by",
+            "in": "query",
+            "name": "sortField",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SENDER_NAME",
+                "RECIPIENT_NAME",
+                "SENT_DATE",
+                "DRAFT_DATE"
+              ]
+            }
+          },
+          {
+            "description": "The sort order",
+            "in": "query",
+            "name": "sortOrder",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureMessageThreadList"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/messaging/health/folders/{folder_id}/threads"
+      }
+    },
     "/v0/messaging/health/message_drafts": {
       "post": {
         "description": "Save a new draft message",
@@ -5584,6 +5977,71 @@
           }
         ],
         "summary": "/v0/messaging/health/message_drafts/{id}"
+      },
+      "patch": {
+        "description": "Update an existing draft message (alias for PUT)",
+        "parameters": [
+          {
+            "description": "The id of the draft that is to be updated",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "body": "the updated message"
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "PATCH /v0/messaging/health/message_drafts/{id}"
       }
     },
     "/v0/messaging/health/message_drafts/{reply_id}/replydraft": {
@@ -5731,6 +6189,80 @@
           }
         ],
         "summary": "/v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}"
+      },
+      "put": {
+        "description": "Update a draft message that was a reply to an existing message",
+        "parameters": [
+          {
+            "description": "The id of the message that will be replied to",
+            "in": "path",
+            "name": "reply_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The id of the draft that is to be updated",
+            "in": "path",
+            "name": "draft_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "body": "the updated message"
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "PUT /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}"
       }
     },
     "/v0/messaging/health/messages": {
@@ -6113,6 +6645,69 @@
         "summary": "/v0/messaging/health/messages/{id}/move"
       }
     },
+    "/v0/messaging/health/messages/{id}/move": {
+      "patch": {
+        "description": "Moves a secure message to a specified folder",
+        "parameters": [
+          {
+            "description": "The id of the message that is to be moved",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The id of the folder that the message is to be moved to",
+            "in": "query",
+            "name": "folder_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The message was moved successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "PATCH /v0/messaging/health/messages/{id}/move"
+      }
+    },
     "/v0/messaging/health/messages/{id}/attachments/{attachment_id}": {
       "get": {
         "description": "Get a secure message attachment content as a direct binary download. Secure messaging supports the following file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.\n",
@@ -6181,6 +6776,77 @@
           }
         ],
         "summary": "/v0/messaging/health/messages/{id}/attachments/{attachment_id}"
+      }
+    },
+    "/v0/messaging/health/messages/{message_id}/attachments/{id}": {
+      "get": {
+        "description": "Get a secure message attachment content. Alias for /{id}/attachments/{attachment_id}.",
+        "parameters": [
+          {
+            "description": "ID of the message",
+            "in": "path",
+            "name": "message_id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "ID of the attachment",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/messaging/health/messages/{message_id}/attachments/{id}"
       }
     },
     "/v0/messaging/health/messages/{id}/reply": {
@@ -6950,6 +7616,136 @@
         "summary": "/v0/push/prefs/{endpointSid}"
       }
     },
+    "/v0/push/prefs/{endpoint_sid}": {
+      "get": {
+        "description": "Get the user's push notification preferences. Alias for /v0/push/prefs/{endpointSid}.",
+        "parameters": [
+          {
+            "description": "device endpoint SID provided by the register endpoint",
+            "in": "path",
+            "name": "endpoint_sid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushGetPreferences"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/push/prefs/{endpoint_sid}"
+      },
+      "put": {
+        "description": "Set the user's push notification preferences. Alias for /v0/push/prefs/{endpointSid}.",
+        "parameters": [
+          {
+            "description": "device endpoint SID provided by the register endpoint",
+            "in": "path",
+            "name": "endpoint_sid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushPreferences"
+              }
+            }
+          },
+          "description": "Push notification preferences",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "PUT /v0/push/prefs/{endpoint_sid}"
+      }
+    },
     "/v0/push/register": {
       "put": {
         "description": "Allows a new app install to register to receive push notifications",
@@ -7314,6 +8110,69 @@
           }
         ],
         "summary": "/v0/travel-pay/claims"
+      }
+    },
+    "/v0/travel-pay/claims/{id}": {
+      "get": {
+        "description": "Retrieve details for a specific travel pay claim by ID.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          },
+          {
+            "description": "The unique identifier for the travel pay claim",
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPayClaimDetails"
+                }
+              }
+            },
+            "description": "Travel pay claim details retrieved successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/travel-pay/claims/{id}"
       }
     },
     "/v0/user": {
@@ -8919,6 +9778,238 @@
           }
         ],
         "summary": "/v1/health/immunizations"
+      }
+    },
+    "/v1/health/labs-and-tests": {
+      "get": {
+        "description": "Returns a paginated list of lab and test results for given user (v1)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          },
+          {
+            "description": "The page number requested. Defaults to 1.",
+            "in": "query",
+            "name": "page[number]",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The number of records to return per page. Defaults to 10.",
+            "in": "query",
+            "name": "page[size]",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Whether to use cache or fetch from upstream. Defaults to true.",
+            "in": "query",
+            "name": "useCache",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabsAndTestsV1"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v1/health/labs-and-tests"
+      }
+    },
+    "/v1/health/rx/prescriptions": {
+      "get": {
+        "description": "Returns a list of prescriptions for given user (v1)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          },
+          {
+            "description": "The page number requested. Defaults to 1.",
+            "in": "query",
+            "name": "page[number]",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The number of records to return per page. Defaults to 10.",
+            "in": "query",
+            "name": "page[size]",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Whether to use cache or fetch from upstream. Defaults to true.",
+            "in": "query",
+            "name": "useCache",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrescriptionsV1"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v1/health/rx/prescriptions"
+      }
+    },
+    "/v1/health/rx/prescriptions/refill": {
+      "put": {
+        "description": "Refill prescriptions (v1)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prescriptionIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": "Prescription IDs to refill",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrescriptionRefillV1"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "PUT /v1/health/rx/prescriptions/refill"
       }
     }
   },
@@ -23093,7 +24184,8 @@
                     "relationType",
                     "locationName",
                     "suggestedNameDisplay",
-                    "healthCareSystemName"
+                    "healthCareSystemName",
+                    "ohTriageGroup"
                   ],
                   "properties": {
                     "triageTeamId": {
@@ -23126,6 +24218,10 @@
                     "healthCareSystemName": {
                       "type": "string",
                       "example": "VA Health Care System"
+                    },
+                    "ohTriageGroup": {
+                      "type": "boolean",
+                      "example": true
                     }
                   }
                 }
@@ -23174,7 +24270,17 @@
                   "required": [
                     "stationNumber",
                     "healthCareSystemName"
-                  ]
+                  ],
+                  "properties": {
+                    "stationNumber": {
+                      "type": "string",
+                      "example": "979"
+                    },
+                    "healthCareSystemName": {
+                      "type": "string",
+                      "example": "VAMC Columbus"
+                    }
+                  }
                 }
               }
             }
@@ -24005,6 +25111,230 @@
             "type": "string",
             "description": "The name of the appointment. Optional, but if provided cannot be an empty string.",
             "example": "Primary care appointment with Dr. Smith"
+          }
+        }
+      },
+      "TravelPayClaimDetails": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "claimStatus",
+          "appointmentDate",
+          "createdOn",
+          "modifiedOn"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": false,
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          },
+          "claimNumber": {
+            "type": "string",
+            "nullable": true,
+            "example": "TC0000000000001"
+          },
+          "claimName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Claim created for NOLLE BARAKAT"
+          },
+          "claimantFirstName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Nolle"
+          },
+          "claimantMiddleName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Polite"
+          },
+          "claimantLastName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Barakat"
+          },
+          "claimStatus": {
+            "type": "string",
+            "nullable": false,
+            "example": "Pre approved for payment"
+          },
+          "appointmentDate": {
+            "type": "string",
+            "nullable": false,
+            "example": "2024-01-01T16:45:34.465Z"
+          },
+          "facilityName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Cheyenne VA Medical Center"
+          },
+          "totalCostRequested": {
+            "type": "number",
+            "nullable": true,
+            "example": 20
+          },
+          "reimbursementAmount": {
+            "type": "number",
+            "nullable": true,
+            "example": 14.52
+          },
+          "rejectionReason": {
+            "type": "object",
+            "nullable": true,
+            "description": "Rejection reason description",
+            "additionalProperties": false,
+            "properties": {
+              "rejectionReasonId": {
+                "type": "string",
+                "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              },
+              "rejectionReasonName": {
+                "type": "string",
+                "example": "INCOMPLETE_DOCUMENTATION"
+              },
+              "rejectionReasonTitle": {
+                "type": "string",
+                "example": "Incomplete Documentation"
+              },
+              "rejectionReasonDescription": {
+                "type": "string",
+                "example": "The claim was rejected due to missing required documentation"
+              }
+            }
+          },
+          "appointment": {
+            "type": "object",
+            "nullable": false,
+            "description": "Appointment details associated with the claim",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              },
+              "appointmentSource": {
+                "type": "string",
+                "example": "API"
+              },
+              "appointmentDateTime": {
+                "type": "string",
+                "example": "2024-01-01T16:45:34.465Z"
+              },
+              "appointmentType": {
+                "type": "string",
+                "example": "EnvironmentalHealth"
+              },
+              "facilityId": {
+                "type": "string",
+                "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              },
+              "facilityName": {
+                "type": "string",
+                "example": "Cheyenne VA Medical Center"
+              },
+              "serviceConnectedDisability": {
+                "type": "integer",
+                "example": 30
+              },
+              "appointmentStatus": {
+                "type": "string",
+                "example": "Complete"
+              },
+              "externalAppointmentId": {
+                "type": "string",
+                "example": "12345"
+              },
+              "associatedClaimId": {
+                "type": "string",
+                "example": "uuid1"
+              },
+              "associatedClaimNumber": {
+                "type": "string",
+                "example": "TC0000000000001"
+              },
+              "isCompleted": {
+                "type": "boolean",
+                "example": true
+              }
+            }
+          },
+          "expenses": {
+            "type": "array",
+            "nullable": true,
+            "description": "List of expenses associated with the claim",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                },
+                "expenseType": {
+                  "type": "string",
+                  "example": "Mileage"
+                },
+                "name": {
+                  "type": "string",
+                  "example": ""
+                },
+                "dateIncurred": {
+                  "type": "string",
+                  "example": "2024-01-01T16:45:34.465Z"
+                },
+                "description": {
+                  "type": "string",
+                  "example": "mileage-expense"
+                },
+                "costRequested": {
+                  "type": "number",
+                  "example": 20
+                },
+                "costSubmitted": {
+                  "type": "number",
+                  "example": 20
+                }
+              }
+            }
+          },
+          "documents": {
+            "type": "array",
+            "nullable": true,
+            "description": "List of documents associated with the claim",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "documentId": {
+                  "type": "string",
+                  "example": "uuid1"
+                },
+                "filename": {
+                  "type": "string",
+                  "example": "DecisionLetter.pdf"
+                },
+                "mimetype": {
+                  "type": "string",
+                  "example": "application/pdf"
+                },
+                "createdon": {
+                  "type": "string",
+                  "example": "2025-03-24T14:00:52.893Z"
+                }
+              }
+            }
+          },
+          "createdOn": {
+            "type": "string",
+            "nullable": false,
+            "example": "2025-03-12T20:27:14.088Z"
+          },
+          "modifiedOn": {
+            "type": "string",
+            "nullable": false,
+            "example": "2025-03-12T20:27:14.088Z"
           }
         }
       },
@@ -25560,6 +26890,219 @@
                     "type": "integer",
                     "example": 15
                   }
+                }
+              }
+            }
+          }
+        }
+      },
+      "LabsAndTestsV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "attributes"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "labsAndTests"
+                },
+                "id": {
+                  "type": "string",
+                  "example": "abe3f152-90b0-45cb-8776-4958bad0e0ef",
+                  "description": "Upstream identifier"
+                },
+                "attributes": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "category",
+                    "subject",
+                    "effectiveDateTime",
+                    "issued",
+                    "code",
+                    "status"
+                  ],
+                  "properties": {
+                    "category": {
+                      "type": "string",
+                      "example": "LAB"
+                    },
+                    "subject": {
+                      "type": "string",
+                      "example": "Patient/1234567"
+                    },
+                    "effectiveDateTime": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2021-01-01T00:00:00Z"
+                    },
+                    "issued": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2021-01-01T00:00:00Z"
+                    },
+                    "code": {
+                      "type": "object",
+                      "properties": {
+                        "coding": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "final"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pagination"
+            ],
+            "properties": {
+              "pagination": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "currentPage",
+                  "perPage",
+                  "totalPages",
+                  "totalEntries"
+                ],
+                "properties": {
+                  "currentPage": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "perPage": {
+                    "type": "integer",
+                    "example": 10
+                  },
+                  "totalPages": {
+                    "type": "integer",
+                    "example": 2
+                  },
+                  "totalEntries": {
+                    "type": "integer",
+                    "example": 15
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "PrescriptionsV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "$ref": "#/components/schemas/PrescriptionRecord"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pagination"
+            ],
+            "properties": {
+              "pagination": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "currentPage",
+                  "perPage",
+                  "totalPages",
+                  "totalEntries"
+                ],
+                "properties": {
+                  "currentPage": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "perPage": {
+                    "type": "integer",
+                    "example": 10
+                  },
+                  "totalPages": {
+                    "type": "integer",
+                    "example": 2
+                  },
+                  "totalEntries": {
+                    "type": "integer",
+                    "example": 15
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "PrescriptionRefillV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "prescriptionId",
+                "status"
+              ],
+              "properties": {
+                "prescriptionId": {
+                  "type": "string",
+                  "example": "12345"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "success",
+                    "failed"
+                  ],
+                  "example": "success"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Refill request submitted successfully"
                 }
               }
             }
