@@ -35,6 +35,7 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job, vcr: 'bgs/person_web_ser
 
           subject.new.perform(power_of_attorney.id)
           power_of_attorney.reload
+
           expect(power_of_attorney.vbms_upload_failure_count).to eq(1)
         end
       end
@@ -44,6 +45,7 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job, vcr: 'bgs/person_web_ser
           allow_any_instance_of(BGS::PersonWebService)
             .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           expect(ClaimsApi::PoaUpdater).not_to receive(:perform_async)
+
           expect do
             subject.new.perform(power_of_attorney.id)
           end.to change(subject.jobs, :size).by(1)
@@ -55,8 +57,8 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job, vcr: 'bgs/person_web_ser
           allow_any_instance_of(BGS::PersonWebService)
             .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           expect(ClaimsApi::PoaUpdater).not_to receive(:perform_async)
-
           power_of_attorney.update(vbms_upload_failure_count: 4)
+
           expect do
             subject.new.perform(power_of_attorney.id)
           end.not_to change(subject.jobs, :size)
@@ -75,8 +77,10 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job, vcr: 'bgs/person_web_ser
             .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
           allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload_document).and_raise(Errno::ENOENT)
+
           expect { subject.new.perform(power_of_attorney.id) }.to raise_error(Errno::ENOENT)
           power_of_attorney.reload
+
           expect(power_of_attorney.status).to eq('errored')
         end
       end
@@ -143,8 +147,10 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job, vcr: 'bgs/person_web_ser
           allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
           allow_any_instance_of(VBMS::Client).to receive(:send_request).and_return(response)
           allow(VBMS::Requests::UploadDocument).to receive(:new).and_return({})
+
           subject.new.perform(power_of_attorney.id)
           power_of_attorney.reload
+
           expect(power_of_attorney.status).to eq('uploaded')
         end
       end
@@ -226,34 +232,33 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job, vcr: 'bgs/person_web_ser
     let(:pdf_path) { 'some/path' }
     let(:doc_type) { 'L075' }
 
-    context 'when the bd upload feature flag is enabled and BD refactor flag is disabled' do
+    context 'when the bd upload feature flag is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
-        allow(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return false
       end
 
-      it 'calls the benefits document API with doc_type L075' do
+      it 'calls the PoaDocumentService with doc_type L075' do
         allow_any_instance_of(BGS::PersonWebService)
           .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
         allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record)
           .and_return({ return_code: 'BMOD0001' })
-        expect_any_instance_of(ClaimsApi::BD).to receive(:upload).with(
-          claim: power_of_attorney,
-          pctpnt_vet_id: nil,
+        expect_any_instance_of(ClaimsApi::PoaDocumentService).to receive(:create_upload).with(
+          poa: power_of_attorney,
           pdf_path: anything,
           doc_type: 'L075',
           action: 'post'
         )
+
         subject.new.perform(power_of_attorney.id)
       end
 
-      it 'rescues errors from BD and sets the status to errored' do
+      it 'rescues errors and sets the status to errored' do
         VCR.use_cassette('claims_api/bd/upload_error') do
           subject.new.perform(power_of_attorney.id)
-          bd_stub = instance_double(ClaimsApi::BD)
-          allow(ClaimsApi::BD).to receive(:new) { bd_stub }
-          allow(bd_stub).to receive(:upload).with(claim: power_of_attorney, pdf_path:, doc_type:)
-                                            .and_raise(Common::Exceptions::BackendServiceException.new(errors))
+
+          allow(ClaimsApi::PoaDocumentService).to receive(:create_upload).with(
+            poa: power_of_attorney, pdf_path:, doc_type:, action: 'put'
+          ).and_raise(Common::Exceptions::BackendServiceException.new(errors))
         rescue => e
           expect(e.message).to eq('BackendServiceException: {:status=>400, :detail=>nil, :code=>"VA900", :source=>nil}')
           power_of_attorney.reload
@@ -262,12 +267,8 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job, vcr: 'bgs/person_web_ser
         end
       end
 
-      context 'when the BD upload refactor feature flag is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return true
-        end
-
-        it 'calls the PoaDocumentService' do
+      context "when the 'put' action is sent" do
+        it 'calls the PoaDocumentService with the correct action' do
           allow_any_instance_of(BGS::PersonWebService)
             .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record)
@@ -278,6 +279,7 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job, vcr: 'bgs/person_web_ser
             doc_type: 'L075',
             action: 'put'
           )
+
           subject.new.perform(power_of_attorney.id, 'put')
         end
       end
@@ -290,6 +292,7 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job, vcr: 'bgs/person_web_ser
         allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record)
           .and_return({ return_code: 'BMOD0001' })
         expect_any_instance_of(subject).to receive(:upload_to_vbms)
+
         subject.new.perform(power_of_attorney.id)
       end
     end
