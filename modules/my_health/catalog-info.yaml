@@ -1,0 +1,26 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  annotations:
+    github.com/project-slug: department-of-veterans-affairs/vets-api
+    backstage.io/edit-url: https://github.com/department-of-veterans-affairs/platform-pst-console-ui-configuration/edit/main/backend-review-group/apis/my-health-api.yaml
+    backstage.io/source-location: url:https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/my_health/
+    backstage.io/view-url: https://github.com/department-of-veterans-affairs/platform-pst-console-ui-configuration/blob/main/backend-review-group/apis/my-health-api.yaml
+  description: APIs for My_Health
+  namespace: vagov-platform
+  name: my-health-api
+  tags:
+  - ruby
+  - rails
+  title: VA.gov My Health Api
+spec:
+  definition: |
+   $text: https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/my_health/docs/openapi_merged.yaml
+    info:
+      title: My Health Api
+      version: 1.0.0
+    swagger: "2.0"
+  lifecycle: production
+  owner: backend-review-group
+  system: vets-api
+  type: openapi
