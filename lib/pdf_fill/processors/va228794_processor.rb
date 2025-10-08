@@ -79,8 +79,8 @@ module PdfFill
       end
 
       def extract_extra_from_array(arr, count)
-        extra = arr[count..]
-        arr[0..count]
+        extra = arr[count..] || []
+        arr.pop(extra.size)
         extra
       end
 
