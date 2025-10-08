@@ -183,57 +183,57 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
             }
           }
         }
+        power_of_attorney.auth_headers.deep_merge!(
+          {
+            'dependent' => {
+              'first_name' => 'Mitchell',
+              'last_name' => 'Jenkins'
+            }
+          }
+        )
         power_of_attorney.save
+      end
+
+      let(:data) do
+        power_of_attorney
+          .form_data
+          .deep_merge(
+            {
+              'veteran' => {
+                'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
+                'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
+                'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
+                'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+              },
+              'text_signatures' => {
+                'page2' => [
+                  {
+                    'signature' => 'Mitchell Jenkins - signed via api.va.gov',
+                    'x' => 35,
+                    'y' => 306
+                  },
+                  {
+                    'signature' => 'Bob Representative - signed via api.va.gov',
+                    'x' => 35,
+                    'y' => 200
+                  }
+                ]
+              },
+              'representative' => {
+                'firstName' => 'Bob',
+                'lastName' => 'Representative'
+              },
+              'dependent' => {
+                'first_name' => 'Mitchell',
+                'last_name' => 'Jenkins'
+              },
+              'appointmentDate' => power_of_attorney.created_at
+            }
+          )
       end
 
       it 'generates e-signatures correctly for a non-veteran claimant' do
         VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
-          data = power_of_attorney
-                 .form_data
-                 .deep_merge(
-                   {
-                     'veteran' => {
-                       'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
-                       'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
-                       'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
-                       'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
-                     },
-                     'text_signatures' => {
-                       'page2' => [
-                         {
-                           'signature' => 'Mitchell Jenkins - signed via api.va.gov',
-                           'x' => 35,
-                           'y' => 306
-                         },
-                         {
-                           'signature' => 'Bob Representative - signed via api.va.gov',
-                           'x' => 35,
-                           'y' => 200
-                         }
-                       ]
-                     },
-                     'representative' => {
-                       'firstName' => 'Bob',
-                       'lastName' => 'Representative'
-                     },
-                     'dependent' => {
-                       'first_name' => 'Mitchell',
-                       'last_name' => 'Jenkins'
-                     },
-                     'appointmentDate' => power_of_attorney.created_at
-                   }
-                 )
-
-          power_of_attorney.auth_headers.deep_merge!(
-            {
-              'dependent' => {
-                'first_name' => 'Mitchell',
-                'last_name' => 'Jenkins'
-              }
-            }
-          )
-          power_of_attorney.save!
-
           allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Individual)
             .to receive(:construct)
@@ -243,6 +243,21 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
           subject.new.perform(power_of_attorney.id, '2122A', 'post',
                               rep.id)
         end
+      end
+
+      it 'calls the PoaAssignDependentClaimantJob job for a dependent filing' do
+        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+        allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:upload_to_vbms).and_return(true)
+        expect(ClaimsApi::PoaAssignDependentClaimantJob).to receive(:perform_async)
+
+        subject.new.perform(power_of_attorney.id, '2122A', 'post',
+                            rep.id)
+      end
+
+      it 'detects a dependent filing correctly' do
+        result = subject.new.send(:dependent_filing?, power_of_attorney)
+
+        expect(result).to be(true)
       end
     end
 
