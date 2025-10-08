@@ -30,7 +30,8 @@ module Pensions
         end
 
         if claim.present? && Flipper.enabled?(:pension_kafka_event_bus_submission_enabled)
-          user_icn = UserAccount.find_by(id: claim&.user_account_id)&.icn.to_s
+          # TODO: Set this back to claim&.user_account_id once the DB migration is done
+          user_icn = UserAccount.find_by(id: msg['args'].last)&.icn.to_s
 
           Kafka.submit_event(
             icn: user_icn,

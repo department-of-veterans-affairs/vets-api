@@ -174,5 +174,121 @@ describe PdfFill::Forms::Va1010ez do
         end
       end
     end
+
+    describe '#merge_provide_support_last_year' do
+      context 'spouse as dependent' do
+        let(:form_data) { { 'provideSupportLastYear' => true } }
+
+        it 'merges based on provideSupportLastYear value' do
+          expect(merged_fields).to include(
+            'provideSupportLastYear' => 1
+          )
+        end
+
+        context 'and one child dependent' do
+          let(:form_data) do
+            { 'dependents' => [{ 'receivedSupportLastYear' => false }], 'provideSupportLastYear' => true }
+          end
+
+          it 'merges based on provideSupportLastYear value and dependent receivedSupportLastYear' do
+            expect(merged_fields).to include(
+              'provideSupportLastYear' => 1
+            )
+            expect(merged_fields['dependents'].first).to include(
+              'receivedSupportLastYear' => 'NO'
+            )
+          end
+        end
+
+        context 'and more than one child dependent' do
+          context 'where no support was provided' do
+            let(:form_data) do
+              { 'dependents' => [
+                { 'receivedSupportLastYear' => false },
+                { 'receivedSupportLastYear' => false }
+              ], 'provideSupportLastYear' => false }
+            end
+
+            it 'merges based on provideSupportLastYear value and dependent receivedSupportLastYear' do
+              expect(merged_fields).to include(
+                'provideSupportLastYear' => 2
+              )
+              expect(merged_fields['dependents'].first).to include(
+                'receivedSupportLastYear' => 'NO'
+              )
+              expect(merged_fields['dependents'].second).to include(
+                'receivedSupportLastYear' => 'NO'
+              )
+            end
+          end
+
+          context 'where at least one has support provided' do
+            let(:form_data) do
+              { 'dependents' => [
+                { 'receivedSupportLastYear' => false },
+                { 'receivedSupportLastYear' => true }
+              ], 'provideSupportLastYear' => false }
+            end
+
+            it 'merges based on provideSupportLastYear value and dependent receivedSupportLastYear' do
+              expect(merged_fields).to include(
+                'provideSupportLastYear' => 1
+              )
+              expect(merged_fields['dependents'].first).to include(
+                'receivedSupportLastYear' => 'NO'
+              )
+              expect(merged_fields['dependents'].second).to include(
+                'receivedSupportLastYear' => 'YES'
+              )
+            end
+          end
+        end
+      end
+
+      context 'only child as dependent' do
+        let(:form_data) do
+          { 'dependents' => [
+            { 'receivedSupportLastYear' => true }
+          ] }
+        end
+
+        it 'merges based on dependent receivedSupportLastYear' do
+          expect(merged_fields).to include(
+            'provideSupportLastYear' => 1
+          )
+          expect(merged_fields['dependents'].first).to include(
+            'receivedSupportLastYear' => 'YES'
+          )
+        end
+      end
+    end
+
+    describe 'dependentRelation for one dependent' do
+      described_class::DEPENDENT_RELATIONSHIP.each do |relationship, value|
+        context "when dependent relationship is #{relationship}" do
+          let(:form_data) { { 'dependents' => [{ 'dependentRelation' => relationship }] } }
+
+          it "merges relationship to #{value}" do
+            expect(merged_fields['dependents'].first).to include(
+              'dependentRelation' => value
+            )
+          end
+        end
+      end
+
+      context 'when relation is unknown' do
+        let(:form_data) do
+          get_fixture('pdf_fill/10-10EZ/kitchen_sink').merge(
+            { 'dependents' => [{ 'dependentRelation' => 'invalid' }] }
+          )
+        end
+
+        it 'defaults to OFF' do
+          expect(merged_fields['dependents'].first).to include(
+            'dependentRelation' => described_class::OFF
+          )
+        end
+      end
+    end
   end
 end
