@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
-
   let(:user) { build(:user, :loa3) }
   let(:loa1_user) { build(:user, :loa1) }
   let(:email_params) do
@@ -265,7 +264,7 @@ RSpec.describe V0::Profile::EmailAddressesController, type: :controller do
           .to receive(:write_to_vet360_and_render_transaction!)
           .with(
             'email',
-            hash_excluding(:unauthorized_param),
+            hash_excluding(:unauthorized_param)
           )
 
         VCR.use_cassette('va_profile/v2/contact_information/post_email_success') do
