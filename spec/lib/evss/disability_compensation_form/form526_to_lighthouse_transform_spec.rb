@@ -15,30 +15,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(lh_request_body.claimant_certification).to be(true)
     end
 
-    it 'adds claim_date to the Lighthouse request body' do
-      data['form526']['claimDate'] = '2023-07-19' # arbitrary date
-      lh_request_body = transformer.transform(data)
-      expect(lh_request_body.claim_date).to eq('2023-07-19')
-    end
-
-    it 'does not add claim_date to the Lighthouse request body if not provided' do
-      data['form526']['claimDate'] = nil
-      lh_request_body = transformer.transform(data)
-      expect(lh_request_body.claim_date).to be_nil
-    end
-
-    it 'does not add claim_date to the Lighthouse request body if blank' do
-      data['form526']['claimDate'] = ''
-      lh_request_body = transformer.transform(data)
-      expect(lh_request_body.claim_date).to be_nil
-    end
-
-    it 'does not add claim_date to the Lighthouse request body if malformed date' do
-      data['form526']['claimDate'] = 'invalid-date'
-      lh_request_body = transformer.transform(data)
-      expect(lh_request_body.claim_date).to be_nil
-    end
-
     # TODO: re-visit once we get clarification on whether claimDate needs to be restored to LH request
     # context 'when claim_date is provided' do
     #   let(:claim_date) { Date.new(2023, 7, 19).strftime('%Y-%m-%d') }

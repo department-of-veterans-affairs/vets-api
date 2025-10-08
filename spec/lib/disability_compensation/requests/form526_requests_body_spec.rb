@@ -15,10 +15,6 @@ Rspec.describe Requests do
       expect(form).to respond_to(:claim_process_type)
     end
 
-    it 'has claim_date attribute' do
-      expect(form).to respond_to(:claim_date)
-    end
-
     # TODO: revisit if LH adds it back to the request
     # it 'has claim_date attribute' do
     #   expect(form).to respond_to(:claim_date)

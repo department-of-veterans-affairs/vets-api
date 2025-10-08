@@ -56,7 +56,6 @@ describe VRE::VRESubmit1900Job do
       allow(VRE::VREVeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
       allow(VRE::VREMonitor).to receive(:new).and_return(monitor)
       allow(monitor).to receive :track_submission_exhaustion
-      Flipper.enable(:vre_trigger_action_needed_email)
     end
 
     context 'when email is present' do
