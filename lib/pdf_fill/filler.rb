@@ -299,7 +299,7 @@ module PdfFill
             use_hexapdf: fill_options.fetch(:use_hexapdf, false)
           )
         else
-          ExtrasGenerator.new
+          ExtrasGenerator.new(use_hexapdf: fill_options.fetch(:use_hexapdf, false))
         end
       HashConverter.new(form_class.date_strftime, extras_generator)
     end
