@@ -30,7 +30,7 @@ module VeteranEnrollmentSystem
         with_monitoring do
           path = "ves-ee-summary-svc/enrollment-periods/person/#{icn}"
           response = perform(:get, path, {})
-          response.body['data']['mecPeriods'] if response.status == 200
+          response.body['data']['mecPeriods']
         end
       end
     end
