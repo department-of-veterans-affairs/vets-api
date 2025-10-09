@@ -279,8 +279,8 @@ GEM
     bcp47 (0.3.3)
       i18n
     benchmark (0.4.1)
-    bigdecimal (3.2.3)
-    bigdecimal (3.2.3-java)
+    bigdecimal (3.3.0)
+    bigdecimal (3.3.0-java)
     bindex (0.8.1)
     blind_index (2.7.0)
       activesupport (>= 7.1)
@@ -723,7 +723,7 @@ GEM
       logger
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (5.25.5)
+    minitest (5.26.0)
     mock_redis (0.51.0)
       redis (~> 5)
     msgpack (1.8.0)
@@ -1032,7 +1032,7 @@ GEM
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.33.3)
+    rubocop-rails (2.33.4)
       activesupport (>= 4.2.0)
       lint_roller (~> 1.1)
       rack (>= 1.1)
