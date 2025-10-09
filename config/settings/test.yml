@@ -683,6 +683,7 @@ lighthouse:
     use_mocks: true
   benefits_intake:
     api_key: fake_api_key
+    breakers_error_threshold: 80
     host: https://sandbox-api.va.gov
     path: "/services/vba_documents"
     report:

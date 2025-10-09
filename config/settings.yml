@@ -685,6 +685,7 @@ lighthouse:
     use_mocks: <%= ENV['lighthouse__benefits_education__use_mocks'] %>
   benefits_intake:
     api_key: <%= ENV['lighthouse__benefits_intake__api_key'] %>
+    breakers_error_threshold: 80
     host: <%= ENV['lighthouse__benefits_intake__host'] %>
     path: <%= ENV['lighthouse__benefits_intake__path'] %>
     report:
