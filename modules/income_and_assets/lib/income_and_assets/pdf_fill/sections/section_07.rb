@@ -212,7 +212,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         transfers = form_data['assetTransfers']
-        form_data['assetTransfer'] = transfers&.length ? 0 : 1
+        form_data['assetTransfer'] = radio_yesno(transfers&.length)
         form_data['assetTransfers'] = transfers&.map { |item| expand_item(item) }
       end
 

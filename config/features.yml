@@ -1529,6 +1529,10 @@ features:
   mhv_modern_cta_links:
     actor_type: user
     description: CTA widget links point to va.gov services
+  mhv_medications_display_new_cerner_facility_alert:
+    actor_type: user
+    description: Enables/disables new facility alert for OH/Cerner users in medications
+    enable_in_development: true
   mhv_medications_display_pending_meds:
     actor_type: user
     description: Enables/disables pending medications related work
