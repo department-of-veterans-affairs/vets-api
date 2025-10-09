@@ -27,17 +27,12 @@ module ClaimsApi
           self.class.perform_in(30.minutes, uuid, record_type)
         end
       else
-        auth_headers = auto_claim.auth_headers
         uploader = claim_object.uploader
         original_filename = claim_object.file_data['filename']
         uploader.retrieve_from_store!(original_filename)
         file_body = uploader.read
         ClaimsApi::Logger.log('lighthouse_claim_uploader', claim_id: auto_claim.id, attachment_id: uuid)
-        if Flipper.enabled? :claims_claim_uploader_use_bd
-          bd_upload_body(auto_claim:, file_body:, doc_type:, original_filename:)
-        else
-          EVSS::DocumentsService.new(auth_headers).upload(file_body, claim_upload_document(claim_object))
-        end
+        bd_upload_body(auto_claim:, file_body:, doc_type:, original_filename:)
       end
     end
 
