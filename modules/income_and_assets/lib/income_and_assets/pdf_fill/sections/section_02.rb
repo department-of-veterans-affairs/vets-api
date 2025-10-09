@@ -70,7 +70,7 @@ module IncomeAndAssets
           form_data['incomeNetWorthDateRange'] = {
             'from' => nil,
             'to' => nil,
-            'useDateReceivedByVA' => true
+            'useDateReceivedByVA' => '1'
           }
         else
           form_data['incomeNetWorthDateRange'] = {

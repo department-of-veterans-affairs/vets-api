@@ -295,7 +295,8 @@ module PdfFill
             start_page: form_class::START_PAGE,
             sections: form_class::SECTIONS,
             label_width: form_class::DEFAULT_LABEL_WIDTH,
-            show_jumplinks: fill_options.fetch(:show_jumplinks, false)
+            show_jumplinks: fill_options.fetch(:show_jumplinks, false),
+            use_hexapdf: fill_options.fetch(:use_hexapdf, false)
           )
         else
           ExtrasGenerator.new

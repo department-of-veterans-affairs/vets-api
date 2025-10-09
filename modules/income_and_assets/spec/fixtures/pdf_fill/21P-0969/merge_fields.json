@@ -606,7 +606,7 @@
       "expectedIncome": {},
       "paymentResumeDate": null,
       "paymentResumeDateOverflow": null,
-      "paymentWillNotResume": true,
+      "paymentWillNotResume": "1",
       "paymentWillResumeOverflow": "NO"
     }
   ],

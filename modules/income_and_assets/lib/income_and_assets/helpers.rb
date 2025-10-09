@@ -82,7 +82,7 @@ module IncomeAndAssets
     # @return [Boolean]
     #
     def checkbox_value(value)
-      value ? true : 'Off'
+      value ? '1' : 'Off'
     end
 
     ##
