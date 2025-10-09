@@ -5,7 +5,6 @@ require 'lighthouse/benefits_documents/configuration'
 require 'lighthouse/service_exception'
 require 'lighthouse/benefits_documents/constants'
 require 'lighthouse/benefits_documents/utilities/helpers'
-require 'logging/helper/parameter_filter'
 
 module BenefitsDocuments
   class Service < Common::Client::Base
@@ -253,9 +252,9 @@ module BenefitsDocuments
           # Merge the files and nested files into a single hash
           all_file_data = files.merge(claims_and_appeal: nested_files).compact
           # Filter all file data
-          Logging::Helper::ParameterFilter.filter_params(all_file_data)
+          ParameterFilterHelper.filter_params(all_file_data)
         else
-          Logging::Helper::ParameterFilter.filter_params(allowed_params.slice(:file))
+          ParameterFilterHelper.filter_params(allowed_params.slice(:file))
         end
       # Return everything except the disallowed params plus the filtered params
       allowed_params.merge(filtered_params)

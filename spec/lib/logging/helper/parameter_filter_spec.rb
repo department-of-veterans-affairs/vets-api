@@ -153,9 +153,8 @@ RSpec.describe Logging::Helper::ParameterFilter do
         ssn: '123456789',
         class: String,
         not_whitelisted: [{ id: 1 }],
-        errors: [{ class: 'TEST', should_omit: 'FOOBAR', integer_omit: 12_345 }],
-        context: [:should_return, [:this_too, { id: 23, should_omit: 'foobar' }],
-                  { class: String, integer_omit: 12_345 }]
+        errors: [:should_return, [:this_too, { id: 23, should_omit: 'foobar' }],
+                 { class: 'TEST', integer_omit: 12_345 }]
       }
       filtered = described_class.filter_params(params)
 
@@ -169,15 +168,10 @@ RSpec.describe Logging::Helper::ParameterFilter do
       expect(filtered[:not_whitelisted][0][:id]).to eq(1)
 
       # errors is whitelisted, so it recurses
-      expect(filtered[:errors]).to be_an(Array)
-      expect(filtered[:errors][0][:class]).to eq('TEST')
-      expect(filtered[:errors][0][:should_omit]).to eq('[FILTERED]')
-      expect(filtered[:errors][0][:integer_omit]).to eq('[FILTERED]')
-
       # complex structure
-      expect(filtered[:context]).to be_an(Array)
-      expect(filtered[:context]).to eq([:should_return, [:this_too, { id: 23, should_omit: '[FILTERED]' }],
-                                        { class: String, integer_omit: '[FILTERED]' }])
+      expect(filtered[:errors]).to be_an(Array)
+      expect(filtered[:errors]).to eq([:should_return, [:this_too, { id: 23, should_omit: '[FILTERED]' }],
+                                       { class: 'TEST', integer_omit: '[FILTERED]' }])
     end
   end
 end

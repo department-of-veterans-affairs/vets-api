@@ -17,13 +17,13 @@ module Dependents
     # stats key for pdf submission
     PDF_SUBMISSION_STATS_KEY = 'worker.submit_dependents_pdf'
 
-    # statsd key for backup sidekiq
+    # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'worker.submit_686c_674_backup_submission'
 
     # statsd key for email notifications
     EMAIL_STATS_KEY = 'dependents.email_notification'
 
-    attr_accessor :form_id
+    attr_writer :form_id
 
     def initialize(claim_id, form_id = nil)
       @claim_id = claim_id
@@ -34,6 +34,18 @@ module Dependents
       super('dependents-application')
 
       @tags += ["service:#{service}", "v2:#{@use_v2}"]
+    end
+
+    def name
+      self.class.to_s
+    end
+
+    def form_id
+      @form_id ||= @claim&.form_id
+    end
+
+    def submission_stats_key
+      SUBMISSION_STATS_KEY
     end
 
     def use_v2
@@ -111,8 +123,13 @@ module Dependents
     end
 
     def track_send_received_email_failure(e, user_account_uuid = nil)
-      track_send_email_failure("'Received' email failure for claim #{@claim_id}", "#{EMAIL_STATS_KEY}.received.failure",
-                               e, user_account_uuid)
+      track_send_email_failure(
+        @claim,
+        nil, # lighthouse_service (I don't know if we have this) TODO: Research by application team.
+        user_account_uuid,
+        'submitted',
+        e
+      )
     end
 
     def track_pdf_upload_error
