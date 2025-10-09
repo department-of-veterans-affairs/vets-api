@@ -24,7 +24,7 @@ module ClaimsApi
 
       classes = %w[ClaimsApi::V1:DisabilityCompensationPdfGenerator
                    ClaimApi::V1::Form526EstablishmentUpload
-                   ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader].freeze
+                   ClaimsApi::DisabilityCompensationBenefitsDocumentsUploader].freeze
 
       claim_id = message&.dig('args', 0)
 
