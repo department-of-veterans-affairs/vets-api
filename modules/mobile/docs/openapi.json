@@ -9179,33 +9179,29 @@
     },
     "/v1/health/labs-and-tests": {
       "get": {
-        "description": "Returns a paginated list of lab and test results for given user (v1)",
+        "description": "Returns a list of lab and test results for given user (v1)",
         "parameters": [
           {
             "$ref": "#/components/parameters/InflectionHeader"
           },
           {
-            "description": "The page number requested. Defaults to 1.",
+            "description": "Start date for filtering lab results (ISO 8601 format)",
             "in": "query",
-            "name": "page[number]",
+            "name": "startDate",
+            "required": false,
             "schema": {
-              "type": "integer"
+              "type": "string",
+              "format": "date"
             }
           },
           {
-            "description": "The number of records to return per page. Defaults to 10.",
+            "description": "End date for filtering lab results (ISO 8601 format)",
             "in": "query",
-            "name": "page[size]",
+            "name": "endDate",
+            "required": false,
             "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "description": "Whether to use cache or fetch from upstream. Defaults to true.",
-            "in": "query",
-            "name": "useCache",
-            "schema": {
-              "type": "boolean"
+              "type": "string",
+              "format": "date"
             }
           }
         ],
@@ -9258,33 +9254,36 @@
     },
     "/v1/health/rx/prescriptions": {
       "get": {
-        "description": "Returns a list of prescriptions for given user (v1)",
+        "description": "Returns a paginated list of prescriptions for given user (v1)",
         "parameters": [
           {
             "$ref": "#/components/parameters/InflectionHeader"
           },
           {
-            "description": "The page number requested. Defaults to 1.",
+            "description": "The page number requested",
             "in": "query",
             "name": "page[number]",
+            "required": false,
             "schema": {
               "type": "integer"
             }
           },
           {
-            "description": "The number of records to return per page. Defaults to 10.",
+            "description": "The number of records to return per page",
             "in": "query",
             "name": "page[size]",
+            "required": false,
             "schema": {
               "type": "integer"
             }
           },
           {
-            "description": "Whether to use cache or fetch from upstream. Defaults to true.",
+            "description": "Sort field for prescriptions",
             "in": "query",
-            "name": "useCache",
+            "name": "sort",
+            "required": false,
             "schema": {
-              "type": "boolean"
+              "type": "string"
             }
           }
         ],
@@ -9347,19 +9346,28 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "prescriptionIds": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "stationNumber",
+                    "id"
+                  ],
+                  "properties": {
+                    "stationNumber": {
+                      "type": "string",
+                      "description": "The station number for the prescription"
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The prescription ID"
                     }
                   }
                 }
               }
             }
           },
-          "description": "Prescription IDs to refill",
+          "description": "Array of orders to refill, each with stationNumber and id",
           "required": true
         },
         "responses": {
