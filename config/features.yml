@@ -34,10 +34,6 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
     enable_in_development: true
-  accredited_representative_portal_search:
-    actor_type: user
-    description: Enables the people search of the accredited representative portal
-    enable_in_development: true
   accredited_representative_portal_form_21a:
     actor_type: user
     description: >
@@ -48,10 +44,6 @@ features:
     actor_type: user
     description: >
       When enabled, shows form 526ez in the accredited representative portal.
-    enable_in_development: true
-  accredited_representative_portal_submissions:
-    actor_type: user
-    description: Enables the form submissions view in the accredited representative portal
     enable_in_development: true
   accredited_representative_portal_email_delivery_callback:
     actor_type: user
@@ -1526,6 +1518,10 @@ features:
   mhv_modern_cta_links:
     actor_type: user
     description: CTA widget links point to va.gov services
+  mhv_medications_display_new_cerner_facility_alert:
+    actor_type: user
+    description: Enables/disables new facility alert for OH/Cerner users in medications
+    enable_in_development: true
   mhv_medications_display_pending_meds:
     actor_type: user
     description: Enables/disables pending medications related work
