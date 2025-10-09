@@ -110,7 +110,7 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
                     'lastAction' => 'remand' },
                   { 'active' => true, 'date' => '2016-05-03', 'description' => '', 'diagnosticCode' => '5260',
                     'lastAction' => 'remand' },
-                  { 'active' => true, 'date' => '2016-05-03', 'description' => 'Service connectiion, hearing loss',
+                  { 'active' => true, 'date' => '2016-05-03', 'description' => 'Service connection, hearing loss',
                     'diagnosticCode' => '5242', 'lastAction' => 'remand' }
                 ],
                 'location' => 'aoj',
@@ -137,7 +137,7 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
 
           expect(issues[0]['description']).to eq("We're unable to show this issue on your Higher-Level Review")
           expect(issues[1]['description']).to eq("We're unable to show this issue on your Higher-Level Review")
-          expect(issues[2]['description']).to eq('Service connectiion, hearing loss')
+          expect(issues[2]['description']).to eq('Service connection, hearing loss')
         end
       end
 
