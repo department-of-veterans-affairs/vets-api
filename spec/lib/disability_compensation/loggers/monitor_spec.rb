@@ -120,12 +120,24 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
 
       monitor.track_526_submission_with_banking_info(user.uuid)
     end
+
+    it 'increments the correct metric' do
+      expect(StatsD).to receive(:increment).with(
+        "#{described_class::SUBMISSION_STATS_KEY}.with_banking_info",
+        tags: [
+          'service:disability-compensation',
+          'function:track_526_submission_with_banking_info'
+        ]
+      )
+
+      monitor.track_526_submission_with_banking_info(user.uuid)
+    end
   end
 
   describe('#track_526_submission_without_banking_info') do
     let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
 
-    it 'logs the submission' do
+    it 'logs the submission and increments the correct metric' do
       expect(monitor).to receive(:submit_event).with(
         :info,
         'Form 526 submitted without Veteran-supplied banking info',
@@ -134,6 +146,17 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         form_id: described_class::FORM_ID
       )
 
+      monitor.track_526_submission_without_banking_info(user.uuid)
+    end
+
+    it 'increments the correct metric' do
+      expect(StatsD).to receive(:increment).with(
+        "#{described_class::SUBMISSION_STATS_KEY}.without_banking_info",
+        tags: [
+          'service:disability-compensation',
+          'function:track_526_submission_without_banking_info'
+        ]
+      )
       monitor.track_526_submission_without_banking_info(user.uuid)
     end
   end
