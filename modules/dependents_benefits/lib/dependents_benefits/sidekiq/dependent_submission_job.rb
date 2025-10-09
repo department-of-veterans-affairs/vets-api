@@ -41,7 +41,7 @@ module DependentsBenefits
       if response&.success?
         handle_job_success
       else
-        handle_job_failure(response.error)
+        handle_job_failure(response&.error)
       end
     rescue => e
       handle_job_failure(e)
@@ -108,7 +108,7 @@ module DependentsBenefits
         end
       end
     rescue => e
-      monitor.track_submission_error('Error handling job success', 'success_failure', { error: e })
+      monitor.track_submission_error('Error handling job success', 'success_failure', error: e)
     end
 
     def all_child_groups_succeeded?
@@ -117,7 +117,7 @@ module DependentsBenefits
 
     # Distinguishes permanent vs transient failures for retry logic
     def handle_job_failure(error)
-      monitor.track_submission_error("Error submitting #{self.class}", 'error', { error: })
+      monitor.track_submission_error("Error submitting #{self.class}", 'error', error:)
       mark_submission_attempt_failed(error)
 
       if permanent_failure?(error)

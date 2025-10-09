@@ -231,7 +231,7 @@ RSpec.describe BGS::DependentService do
         allow_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
           .with(user.participant_id, user.ssn).and_return([])
 
-        response = BGS::DependentV2Service.new(user).get_dependents
+        response = BGS::DependentService.new(user).get_dependents
 
         expect(response).to have_key(:persons)
       end
