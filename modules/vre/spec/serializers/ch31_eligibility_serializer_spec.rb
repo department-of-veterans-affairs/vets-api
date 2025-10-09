@@ -40,6 +40,26 @@ RSpec.describe VRE::Ch31EligibilitySerializer, type: :serializer do
     expect(attributes['res_case_id']).to eq(body['res_case_id'])
   end
 
+  it 'includes :qualifying_military_service_status' do
+    expect(attributes['qualifying_military_service_status']).to eq(body['qualifying_military_service_status'])
+  end
+
+  it 'includes :character_of_discharge_status' do
+    expect(attributes['character_of_discharge_status']).to eq(body['character_of_discharge_status'])
+  end
+
+  it 'includes :disability_rating_status' do
+    expect(attributes['disability_rating_status']).to eq(body['disability_rating_status'])
+  end
+
+  it 'includes :irnd_status' do
+    expect(attributes['irnd_status']).to eq(body['irnd_status'])
+  end
+
+  it 'includes :eligibility_termination_date_status' do
+    expect(attributes['eligibility_termination_date_status']).to eq(body['eligibility_termination_date_status'])
+  end
+
   it 'includes :res_eligibiltiy_recommendation' do
     expect(attributes['res_eligibiltiy_recommendation']).to eq(body['res_eligibiltiy_recommendation'])
   end
