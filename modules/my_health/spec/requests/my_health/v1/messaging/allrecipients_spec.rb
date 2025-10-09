@@ -60,6 +60,15 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
       expect(response.body).to be_a(String)
       expect(response).to match_camelized_response_schema('my_health/messaging/v1/all_triage_teams')
     end
+
+    it 'when resource is blank returns 404 RecordNotFound' do
+      allow_any_instance_of(SM::Client).to receive(:get_all_triage_teams).and_return(nil)
+
+      get '/my_health/v1/messaging/allrecipients'
+
+      expect(response).to have_http_status(:not_found)
+      expect(response.body).to include('Triage teams for user ID')
+    end
   end
 
   context 'with requires_oh flag enabled' do

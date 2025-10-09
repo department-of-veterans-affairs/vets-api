@@ -114,19 +114,13 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
         allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
           .and_raise(Common::Exceptions::BackendServiceException)
-        allow_any_instance_of(BGS::DependentService).to receive(:submit_to_central_service)
       end
 
-      it 'returns error' do
+      it 'submits to central service' do
+        expect_any_instance_of(BGS::DependentService).to receive(:submit_to_central_service)
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           post('/mobile/v0/dependents', params: test_form, headers: sis_headers)
         end
-        assert_schema_conform(400)
-        expect(response.parsed_body).to eq({ 'errors' => [
-                                             { 'title' => 'Operation failed',
-                                               'detail' => 'Operation failed',
-                                               'code' => 'VA900', 'status' => '400' }
-                                           ] })
       end
     end
   end

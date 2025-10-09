@@ -61,7 +61,6 @@ describe VRE::Submit1900Job do
           allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
           allow(VRE::Monitor).to receive(:new).and_return(monitor)
           allow(monitor).to receive :track_submission_exhaustion
-          allow(Flipper).to receive(:enabled?).with(:vre_trigger_action_needed_email).and_return(true)
         end
 
         it 'when queue is exhausted' do
@@ -89,14 +88,13 @@ describe VRE::Submit1900Job do
           allow(VRE::Monitor).to receive(:new).and_return(monitor)
           allow(monitor).to receive :track_submission_exhaustion
           user_struct.va_profile_email = nil
-          allow(Flipper).to receive(:enabled?).with(:vre_trigger_action_needed_email).and_return(true)
         end
 
         it 'when queue is exhausted with no email' do
           VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
             expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
             exhaustion_msg['args'] = [claim.id, encrypted_user]
-            claim.parsed_form.delete('email')
+            allow(claim).to receive(:email).and_return(nil)
             expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
           end
         end

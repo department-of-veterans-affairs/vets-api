@@ -1083,6 +1083,16 @@ describe VAOS::V2::AppointmentsService do
             expect(resp[:show_schedule_link]).to be_nil
           end
         end
+
+        it 'returns a booked cerner appointment without clinic fields' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_booked_cerner',
+                           match_requests_on: %i[method path query]) do
+            resp = subject.get_appointment('180402')
+            expect(resp[:id]).to eq('180402')
+            expect(resp.respond_to?(:service_name)).to be false
+            expect(resp.respond_to?(:physical_location)).to be false
+          end
+        end
       end
 
       context 'when requesting a CnP appointment' do
@@ -1231,6 +1241,16 @@ describe VAOS::V2::AppointmentsService do
             expect(resp[:show_schedule_link]).to be_nil
           end
         end
+
+        it 'returns a booked cerner appointment without clinic fields' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_booked_cerner_vpg',
+                           match_requests_on: %i[method path query]) do
+            resp = subject.get_appointment('180402')
+            expect(resp[:id]).to eq('180402')
+            expect(resp.respond_to?(:service_name)).to be false
+            expect(resp.respond_to?(:physical_location)).to be false
+          end
+        end
       end
 
       context 'when requesting a CnP appointment' do
@@ -1337,6 +1357,10 @@ describe VAOS::V2::AppointmentsService do
                   response = subject.update_appointment('70060', 'cancelled')
                   expect(response.status).to eq('cancelled')
                   expect(response[:show_schedule_link]).to be(true)
+                  expect(response[:modality]).to be('vaInPerson')
+                  expect(response[:past]).to be(true)
+                  expect(response[:pending]).to be(true)
+                  expect(response[:future]).to be(false)
                 end
               end
             end
@@ -1370,6 +1394,10 @@ describe VAOS::V2::AppointmentsService do
                   response = subject.update_appointment('70060', 'cancelled')
                   expect(response.status).to eq('cancelled')
                   expect(response[:show_schedule_link]).to be(true)
+                  expect(response[:modality]).to be('vaInPerson')
+                  expect(response[:past]).to be(true)
+                  expect(response[:pending]).to be(true)
+                  expect(response[:future]).to be(false)
                 end
               end
             end
@@ -1495,6 +1523,32 @@ describe VAOS::V2::AppointmentsService do
             .and_return(OpenStruct.new(data: []))
           result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
           expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to be_empty
+        end
+      end
+
+      it 'sets future and past flags on eps appointments based on start time' do
+        VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          Timecop.freeze(Time.zone.parse('2024-12-02T12:01:00Z')) do
+            allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+
+            result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+            data = result[:data]
+
+            eps124 = data.find { |a| a.dig(:referral, :referral_number) == 'ref124' }
+            eps125 = data.find { |a| a.dig(:referral, :referral_number) == 'ref125' }
+
+            expect(eps124).not_to be_nil
+            expect(eps125).not_to be_nil
+
+            # 2024-12-02T10:00:00Z should be past at 12:01Z (past true, future false)
+            expect(eps124[:past]).to be(true)
+            expect(eps124[:future]).to be(false)
+
+            # 2024-12-03T10:00:00Z should be future at 2024-12-02T12:01Z
+            expect(eps125[:past]).to be(false)
+            expect(eps125[:future]).to be(true)
+          end
         end
       end
 
@@ -1830,20 +1884,6 @@ describe VAOS::V2::AppointmentsService do
 
     it 'returns false for non-medical appointments' do
       expect(subject.send(:medical?, appt_non)).to be(false)
-    end
-  end
-
-  describe '#cerner?' do
-    it 'raises an ArgumentError if appt is nil' do
-      expect { subject.send(:cerner?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
-    end
-
-    it 'returns true for appointments with a "CERN" prefix' do
-      expect(subject.send(:cerner?, { id: 'CERN99999' })).to be(true)
-    end
-
-    it 'returns false for appointments without a "CERN" prefix' do
-      expect(subject.send(:cerner?, { id: '99999' })).to be(false)
     end
   end
 
@@ -2259,15 +2299,15 @@ describe VAOS::V2::AppointmentsService do
       # demonstrates that the preferred dates from reason code text are not overwritten.
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, user:).attributes
       subject.send(:extract_appointment_fields, appt)
-      expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
-                                            'Wed, June 26, 2024 in the afternoon'])
+      expect(appt[:preferred_dates]).to eq(['Wednesday, June 26, 2024 in the morning',
+                                            'Wednesday, June 26, 2024 in the afternoon'])
     end
 
     it 'extracts preferred dates if possible' do
       appt = build(:appointment_form_v2, :community_cares_multiple_request_dates, user:).attributes
       subject.send(:extract_appointment_fields, appt)
-      expect(appt[:preferred_dates]).to eq(['Wed, August 28, 2024 in the morning',
-                                            'Wed, August 28, 2024 in the afternoon'])
+      expect(appt[:preferred_dates]).to eq(['Wednesday, August 28, 2024 in the morning',
+                                            'Wednesday, August 28, 2024 in the afternoon'])
     end
 
     it 'do not extract preferred dates if no requested periods' do
@@ -2309,7 +2349,7 @@ describe VAOS::V2::AppointmentsService do
     it 'sets telehealth visibility to nil if appointment is not a telehealth type' do
       appt = appt_med
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be_nil
+      expect(appt.dig(:telehealth, :display_link)).to be_nil
     end
 
     it 'sets telehealth visibility to true if current time is 30 minutes before start time' do
@@ -2317,7 +2357,7 @@ describe VAOS::V2::AppointmentsService do
       appt[:start] = '2022-09-21T12:30:00+00:00'.to_datetime
       appt[:modality] = 'vaVideoCareAtHome'
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be(true)
+      expect(appt.dig(:telehealth, :display_link)).to be(true)
     end
 
     it 'sets telehealth visibility to true if current time is within 4 hours of start time' do
@@ -2325,7 +2365,7 @@ describe VAOS::V2::AppointmentsService do
       appt[:start] = '2022-09-21T08:00:00+00:00'.to_datetime
       appt[:modality] = 'vaVideoCareAtHome'
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be(true)
+      expect(appt.dig(:telehealth, :display_link)).to be(true)
     end
 
     it 'sets telehealth visibility to false if current time is more than 30 minutes from start time' do
@@ -2333,7 +2373,7 @@ describe VAOS::V2::AppointmentsService do
       appt[:start] = '2022-09-21T12:31:00+00:00'.to_datetime
       appt[:modality] = 'vaVideoCareAtHome'
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be(false)
+      expect(appt.dig(:telehealth, :display_link)).to be(false)
     end
 
     it 'sets telehealth visibility to false if current time is more than 4 hours from start time' do
@@ -2341,7 +2381,7 @@ describe VAOS::V2::AppointmentsService do
       appt[:start] = '2022-09-21T07:59:00+00:00'.to_datetime
       appt[:modality] = 'vaVideoCareAtHome'
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to be(false)
+      expect(appt.dig(:telehealth, :display_link)).to be(false)
     end
   end
 
@@ -2381,17 +2421,49 @@ describe VAOS::V2::AppointmentsService do
       end
     end
 
-    it 'is vaInPerson for nil vvsKind and false vvsVistaVideoAppt' do
+    it 'is vaInPerson for nil vvsKind, non-cerner and false vvsVistaVideoAppt' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth, :vistaVideoFalse).attributes
       appt[:telehealth][:vvs_kind] = nil
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('vaInPerson')
     end
 
-    it 'is vaVideoCareAtHome for nil vvsKind and true vvsVistaVideoAppt' do
+    it 'is vaVideoCareAtHome for nil vvsKind, non-cerner and true vvsVistaVideoAppt' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth, :vistaVideoTrue).attributes
       appt[:telehealth][:vvs_kind] = nil
       subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaVideoCareAtHome')
+    end
+
+    it 'is vaInPerson for nil vvsKind, cerner and url not available' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :cerner_telehealth).attributes
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
+      subject.send(:set_modality, appt)
+      expect(appt[:kind]).to eq('telehealth')
+      expect(appt.dig(:telehealth, :vvs_kind)).to be_nil
+      expect(VAOS::AppointmentsHelper.cerner?(appt)).to be(true)
+      expect(appt.dig(:telehealth, :url)).to be_nil
+      expect(appt[:modality]).to eq('vaInPerson')
+    end
+
+    it 'is vaVideoCareAtHome for nil vvsKind, cerner and url available' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :cerner_telehealth_url).attributes
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
+      subject.send(:set_modality, appt)
+      expect(appt[:kind]).to eq('telehealth')
+      expect(appt.dig(:telehealth, :vvs_kind)).to be_nil
+      expect(VAOS::AppointmentsHelper.cerner?(appt)).to be(true)
+      expect(appt.dig(:telehealth, :url)).not_to be_nil
       expect(appt[:modality]).to eq('vaVideoCareAtHome')
     end
 
@@ -2556,6 +2628,12 @@ describe VAOS::V2::AppointmentsService do
     it 'has a type of request for Cerner appointments without end dates' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = 'CERN1234'
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
       appt[:end] = nil
       subject.send(:set_type, appt)
       expect(appt[:type]).to eq('REQUEST')
@@ -2564,6 +2642,12 @@ describe VAOS::V2::AppointmentsService do
     it 'is a VA appointment for Cerner appointments with a valid end date' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = 'CERN1234'
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
       appt[:end] = :end_date
       subject.send(:set_type, appt)
       expect(appt[:type]).to eq('VA')
@@ -2610,6 +2694,12 @@ describe VAOS::V2::AppointmentsService do
     it 'is a cc request for Cerner with no start date or requested periods' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = 'CERN1234'
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
       appt[:kind] = 'cc'
       appt[:start] = nil
       appt[:requested_periods] = []

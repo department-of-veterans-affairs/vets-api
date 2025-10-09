@@ -56,7 +56,6 @@ describe VRE::VRESubmit1900Job do
       allow(VRE::VREVeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
       allow(VRE::VREMonitor).to receive(:new).and_return(monitor)
       allow(monitor).to receive :track_submission_exhaustion
-      Flipper.enable(:vre_trigger_action_needed_email)
     end
 
     context 'when email is present' do
@@ -85,7 +84,7 @@ describe VRE::VRESubmit1900Job do
         VRE::VRESubmit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
           expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
           exhaustion_msg['args'] = [claim.id, encrypted_user]
-          claim.parsed_form.delete('email')
+          allow(claim).to receive(:email).and_return(nil)
           expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
           expect(VANotify::EmailJob).not_to receive(:perform_async)
         end

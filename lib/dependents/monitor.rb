@@ -17,7 +17,7 @@ module Dependents
     # stats key for pdf submission
     PDF_SUBMISSION_STATS_KEY = 'worker.submit_dependents_pdf'
 
-    # statsd key for backup sidekiq
+    # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'worker.submit_686c_674_backup_submission'
 
     # statsd key for email notifications
@@ -28,6 +28,18 @@ module Dependents
       @claim = claim(claim_id)
       @use_v2 = use_v2
       super('dependents-application')
+    end
+
+    # lib/logging/base_monitor (on or about line 33) requires a `name` method
+    delegate :name, to: :class
+
+    # lib/logging/base_monitor (on or about line 37) requires a `form_id` method
+    def form_id
+      @claim&.form_id
+    end
+
+    def submission_stats_key
+      SUBMISSION_STATS_KEY
     end
 
     def use_v2
@@ -44,7 +56,7 @@ module Dependents
     end
 
     def default_payload
-      { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: @claim&.user_account_id, tags: }
+      { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: nil, tags: }
     end
 
     def tags
@@ -52,11 +64,11 @@ module Dependents
     end
 
     def track_submission_exhaustion(msg, email = nil)
-      additional_context = default_payload.merge({ message: msg })
+      additional_context = default_payload.merge({ error: msg })
       if email
         # if an email address is present it means an email has been sent by vanotify
         # this means the silent failure is avoided.
-        log_silent_failure_no_confirmation(additional_context, call_location: caller_locations.first)
+        log_silent_failure_avoided(additional_context, call_location: caller_locations.first)
       else
         # if no email is present, log silent failure
         log_silent_failure(additional_context, call_location: caller_locations.first)
@@ -109,8 +121,21 @@ module Dependents
     end
 
     def track_send_received_email_failure(e, user_account_uuid = nil)
-      track_send_email_failure("'Received' email failure for claim #{@claim_id}", "#{EMAIL_STATS_KEY}.received.failure",
-                               e, user_account_uuid)
+      track_send_email_failure(
+        @claim,
+        nil, # lighthouse_service (I don't know if we have this) TODO: Research by application team.
+        user_account_uuid,
+        'submitted',
+        e
+      )
+    end
+
+    def track_pdf_upload_error
+      metric = "#{CLAIM_STATS_KEY}.upload_pdf.failure"
+      metric = "#{metric}.v2" if @use_v2
+      payload = default_payload.merge({ statsd: metric })
+
+      track_event('error', 'DependencyClaim error in upload_to_vbms method', metric, payload)
     end
 
     def track_to_pdf_failure(e, form_id)
@@ -139,6 +164,9 @@ module Dependents
 
     def track_event(level, message, stats_key, payload = {})
       submit_event(level, message, stats_key, default_payload.merge(payload))
+    rescue => e
+      Rails.logger.error('Dependents::Monitor#track_event error',
+                         { level:, message:, stats_key:, payload:, error: e.message })
     end
   end
 end

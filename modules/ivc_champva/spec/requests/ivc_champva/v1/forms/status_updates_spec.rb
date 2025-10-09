@@ -389,6 +389,147 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
       end
     end
 
+    context 'tracking submit to callback duration metrics' do
+      let(:form_uuid) { '12345678-1234-5678-1234-567812345678' }
+      let(:created_time) { 30.minutes.ago }
+
+      before do
+        allow_any_instance_of(IvcChampva::Email).to receive(:valid_environment?).and_return(true)
+        allow(StatsD).to receive(:histogram)
+        IvcChampvaForm.delete_all
+      end
+
+      it 'tracks duration metrics for main form files when status is Processed' do
+        # Create main form file (should be tracked)
+        IvcChampvaForm.create!(
+          form_uuid:,
+          email: 'test@email.com',
+          first_name: 'Veteran',
+          last_name: 'Surname',
+          form_number: '10-10D',
+          file_name: "#{form_uuid}_vha_10_10d.pdf",
+          s3_status: 'Submitted',
+          pega_status: nil,
+          case_id: nil,
+          email_sent: false,
+          created_at: created_time
+        )
+
+        # Create supporting document (should not be tracked)
+        IvcChampvaForm.create!(
+          form_uuid:,
+          email: 'test@email.com',
+          first_name: 'Veteran',
+          last_name: 'Surname',
+          form_number: '10-10D',
+          file_name: "#{form_uuid}_vha_10_10d_supporting_doc-1.pdf",
+          s3_status: 'Submitted',
+          pega_status: nil,
+          case_id: nil,
+          email_sent: false,
+          created_at: created_time
+        )
+
+        payload = {
+          'form_uuid' => form_uuid,
+          'file_names' => [
+            "#{form_uuid}_vha_10_10d.pdf",
+            "#{form_uuid}_vha_10_10d_supporting_doc-1.pdf"
+          ],
+          'case_id' => 'ABC-1234',
+          'status' => 'Processed'
+        }
+
+        post '/ivc_champva/v1/forms/status_updates', params: payload
+
+        # Verify StatsD was called with correct parameters
+        expect(StatsD).to have_received(:histogram).with(
+          'champva.submit_to_callback.duration_seconds',
+          be_within(60).of(1800), # ~30 minutes in seconds
+          tags: [
+            'service:veteran-ivc-champva-forms',
+            'form_number:10-10D'
+          ]
+        )
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'does not track duration metrics when status is Not Processed' do
+        # Create main form file
+        IvcChampvaForm.create!(
+          form_uuid:,
+          email: 'test@email.com',
+          first_name: 'Veteran',
+          last_name: 'Surname',
+          form_number: '10-10D',
+          file_name: "#{form_uuid}_vha_10_10d.pdf",
+          s3_status: 'Submitted',
+          pega_status: nil,
+          case_id: nil,
+          email_sent: false,
+          created_at: created_time
+        )
+
+        payload = {
+          'form_uuid' => form_uuid,
+          'file_names' => ["#{form_uuid}_vha_10_10d.pdf"],
+          'case_id' => 'ABC-1234',
+          'status' => 'Not Processed'
+        }
+
+        post '/ivc_champva/v1/forms/status_updates', params: payload
+
+        # Verify StatsD was not called for duration tracking
+        expect(StatsD).not_to have_received(:histogram).with(
+          'champva.submit_to_callback.duration_seconds',
+          anything,
+          anything
+        )
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'handles tracking errors gracefully without disrupting callback flow' do
+        # Create main form file
+        IvcChampvaForm.create!(
+          form_uuid:,
+          email: 'test@email.com',
+          first_name: 'Veteran',
+          last_name: 'Surname',
+          form_number: '10-10D',
+          file_name: "#{form_uuid}_vha_10_10d.pdf",
+          s3_status: 'Submitted',
+          pega_status: nil,
+          case_id: nil,
+          email_sent: false,
+          created_at: created_time
+        )
+
+        # Make StatsD raise an error
+        allow(StatsD).to receive(:histogram).and_raise(StandardError, 'StatsD error')
+        allow(Rails.logger).to receive(:error)
+
+        payload = {
+          'form_uuid' => form_uuid,
+          'file_names' => ["#{form_uuid}_vha_10_10d.pdf"],
+          'case_id' => 'ABC-1234',
+          'status' => 'Processed'
+        }
+
+        post '/ivc_champva/v1/forms/status_updates', params: payload
+
+        # Verify error was logged but callback still succeeded
+        expect(Rails.logger).to have_received(:error).with(/Error tracking submit to callback duration/)
+        expect(response).to have_http_status(:ok)
+
+        # Verify the form was still updated despite tracking error
+        updated_form = IvcChampvaForm.find_by(form_uuid:)
+        expect(updated_form.pega_status).to eq('Processed')
+        expect(updated_form.case_id).to eq('ABC-1234')
+      end
+    end
+
     context 'with invalid payload' do
       let(:invalid_payload) { { status: 'invalid' } }
 

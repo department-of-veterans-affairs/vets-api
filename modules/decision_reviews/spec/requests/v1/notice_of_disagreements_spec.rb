@@ -44,6 +44,52 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
 
   before { sign_in_as(user) }
 
+  describe '#show' do
+    subject do
+      get "/decision_reviews/v1/notice_of_disagreements/#{id}",
+          headers:
+    end
+
+    let(:id) { '1234567a-89b0-123c-d456-789e01234f56' }
+
+    def personal_information_logs
+      PersonalInformationLog.where 'error_class like ?',
+                                   'DecisionReviews::V1::NoticeOfDisagreementsController#show exception % (NOD_V1)'
+    end
+
+    context 'successful GET request' do
+      it 'returns the NOD data' do
+        VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-200_V2') do
+          subject
+
+          expect(response).to have_http_status(:ok)
+          parsed_response = JSON.parse(response.body)
+          expect(parsed_response.dig('data', 'id')).to eq(id)
+          expect(parsed_response.dig('data', 'type')).to eq('noticeOfDisagreement')
+        end
+      end
+    end
+
+    context 'when the service raises an error' do
+      let(:expected_error_class) do
+        'DecisionReviews::V1::NoticeOfDisagreementsController#show exception ' \
+          'VCR::Errors::UnhandledHTTPRequestError (NOD_V1)'
+      end
+
+      it 'logs the exception properly' do
+        VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-404_V1') do
+          expect(personal_information_logs.count).to be 0
+          subject
+          expect(personal_information_logs.count).to be 1
+
+          expect(response).to have_http_status(:internal_server_error)
+          pil = personal_information_logs.first
+          expect(pil.error_class).to eq(expected_error_class)
+        end
+      end
+    end
+  end
+
   describe '#create' do
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?',

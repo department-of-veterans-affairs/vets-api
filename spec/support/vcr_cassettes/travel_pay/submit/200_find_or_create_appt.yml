@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://btsss.gov/api/v2/appointments/find-or-add
+    uri: <TRAVEL_PAY_BASE_URL>/api/v2/appointments/find-or-add
     body:
       encoding: US-ASCII
       string: ''
