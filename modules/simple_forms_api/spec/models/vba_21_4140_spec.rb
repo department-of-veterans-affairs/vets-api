@@ -48,7 +48,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     end
 
     it 'contains the correct properties' do
-      expect(desired_stamps[0][:text]).to eq form.signature_employed
+      expect(desired_stamps[0][:text]).to eq data['statement_of_truth_signature']
       expect(desired_stamps[0][:page]).to eq 1
     end
   end
@@ -237,8 +237,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     subject { form.signature_employed }
 
     context 'when employed' do
-      # Updated to use mocked signature (full name) instead of statement_of_truth_signature
-      it { is_expected.to eq "#{data.dig('full_name', 'first')} #{data.dig('full_name', 'last')}" }
+      it { is_expected.to eq data['statement_of_truth_signature'] }
     end
 
     context 'when unemployed' do
@@ -258,8 +257,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     context 'when unemployed' do
       let(:fixture_file) { 'vba_21_4140-min.json' }
 
-      # Updated to use mocked signature (full name) instead of statement_of_truth_signature
-      it { is_expected.to eq "#{data.dig('full_name', 'first')} #{data.dig('full_name', 'last')}" }
+      it { is_expected.to eq data['statement_of_truth_signature'] }
     end
   end
 

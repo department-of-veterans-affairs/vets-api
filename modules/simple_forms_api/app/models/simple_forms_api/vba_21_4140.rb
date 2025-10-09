@@ -21,8 +21,7 @@ module SimpleFormsApi
 
     def desired_stamps
       coords = employed? ? [[50, 410]] : [[50, 275]]
-      # TODO: Use data['statement_of_truth_signature'] when frontend sends it
-      signature_text = "#{data.dig('full_name', 'first')} #{data.dig('full_name', 'last')}".strip
+      signature_text = data['statement_of_truth_signature']
 
       [{ coords:, text: signature_text, page: 1 }]
     end
@@ -140,8 +139,7 @@ module SimpleFormsApi
     private
 
     def signature
-      # TODO: Use data['statement_of_truth_signature'] when frontend sends it
-      "#{data.dig('full_name', 'first')} #{data.dig('full_name', 'last')}".strip
+      data['statement_of_truth_signature']
     end
 
     def signature_date_formatted
@@ -149,7 +147,7 @@ module SimpleFormsApi
     end
 
     def address_to_remove
-      [address.address_line1, address.address_line2, address.zip_code]
+      [address.address_line1, address.address_line2, address.zip_code].compact
     end
 
     def contact_info
