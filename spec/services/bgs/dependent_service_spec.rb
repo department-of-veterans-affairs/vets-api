@@ -379,6 +379,7 @@ RSpec.describe BGS::DependentService do
 
       allow(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return(uploader)
       allow(PDFUtilities::PDFStamper).to receive(:new).and_return(stamper)
+      allow(PdfFill::Filler).to receive(:fill_form).and_return(claim.form_id)
 
       service.instance_variable_set(:@ssn, ssn)
     end
