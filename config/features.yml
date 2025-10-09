@@ -2605,3 +2605,6 @@ features:
   auth_exp_email_verification_enabled:
     actor_type: user
     description: If enabled, a user will be required to verify their contact email address
+  sidenav_526ez_enabled:
+    actor_type: user
+    description: If enabled, the 526EZ sidenav will be shown
