@@ -84,13 +84,6 @@ module PdfFill
       key_format_options = key_data&.dig(:format_options) || {}
       format_options = array_format_options.merge(key_format_options)
 
-      # if key_data[:question_num] == 3 && key_data[:question_suffix] == 'A'
-      #   p 'PRINTING'
-      #   p key_data
-      #   p v
-      #   puts
-      # end
-
       @extras_generator.add_text(
         v,
         key_data.slice(
@@ -102,8 +95,6 @@ module PdfFill
     end
 
     def add_array_to_extras(arr, pdftk_keys)
-      # p 'ARRR'
-      # p arr
       arr.each_with_index do |v, i|
         i = nil if pdftk_keys[:always_overflow]
         if v.is_a?(Hash)
