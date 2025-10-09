@@ -1034,6 +1034,7 @@ modules/dhp_connected_devices @department-of-veterans-affairs/digital-health-pla
 modules/facilities_api @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/backend-review-group
 modules/income_and_assets @department-of-veterans-affairs/income-and-assets @department-of-veterans-affairs/backend-review-group
 modules/income_limits @department-of-veterans-affairs/vfs-public-websites-frontend @department-of-veterans-affairs/backend-review-group
+modules/increase_compensation @department-of-veterans-affairs/backend-review-group  @department-of-veterans-affairs/benefits-intake-pingwind
 modules/ivc_champva @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 modules/meb_api @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/backend-review-group
 modules/medical_expense_reports @department-of-veterans-affairs/medical-expense-reports @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/bio-huntridge

@@ -20,13 +20,13 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmissionHandler do
 
   describe '.pending_attempts' do
     let(:submission_attempt) { double('Lighthouse::SubmissionAttempt') }
-    let(:submission) { double('Lighthouse::Submission', form_id: '21P-8416') }
+    let(:submission) { double('Lighthouse::Submission', form_id: '21-8940') }
 
     before do
       allow(Lighthouse::SubmissionAttempt).to receive(:joins).with(:submission)
                                                              .and_return(Lighthouse::SubmissionAttempt)
       allow(Lighthouse::SubmissionAttempt).to receive(:where).with(status: 'pending',
-                                                                   'lighthouse_submissions.form_id' => '21P-8416')
+                                                                   'lighthouse_submissions.form_id' => '21-8940')
                                                              .and_return([submission_attempt])
     end
 
@@ -38,7 +38,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmissionHandler do
     it 'queries with the correct status and form_id' do
       expect(Lighthouse::SubmissionAttempt).to receive(:joins).with(:submission)
       expect(Lighthouse::SubmissionAttempt).to receive(:where).with(status: 'pending',
-                                                                    'lighthouse_submissions.form_id' => '21P-8416')
+                                                                    'lighthouse_submissions.form_id' => '21-8940')
       handler.pending_attempts
     end
   end
