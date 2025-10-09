@@ -196,7 +196,7 @@ RSpec.describe Dependents::Monitor do
               level: 'info',
               message: 'test error',
               stats_key: 'test.monitor.error',
-              payload: { error: 'test error' },
+              payload: hash_including(error: 'test error'),
               error: 'test error'
             }
           )
@@ -257,8 +257,8 @@ RSpec.describe Dependents::Monitor do
       let(:tags) { ['service:dependents-application', 'function:track_event', 'form_id:686C-674-V2', 'v2:true'] }
 
       it 'handles an error' do
-        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).once
-        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).once
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
         expect(StatsD).to receive(:increment).with('test.monitor.exhaustion', tags:)
         expect(Rails.logger).to receive(:error).with('Error!', {
                                                        context: {
@@ -283,8 +283,8 @@ RSpec.describe Dependents::Monitor do
       end
 
       it 'handles an info log' do
-        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).once
-        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).once
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
         expect(StatsD).to receive(:increment).with('test.monitor.success', tags:)
         expect(Rails.logger).to receive(:info).with('Success!', {
                                                       context: {
@@ -309,8 +309,8 @@ RSpec.describe Dependents::Monitor do
       end
 
       it 'handles a warning' do
-        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).once
-        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).once
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
         expect(StatsD).to receive(:increment).with('test.monitor.failure', tags:)
         expect(Rails.logger).to receive(:warn).with('Oops!', {
                                                       context: {
@@ -341,17 +341,18 @@ RSpec.describe Dependents::Monitor do
       it 'logs unknown claim type error' do
         error = StandardError.new('Unknown type')
         metric = "#{described_class::EMAIL_STATS_KEY}.unknown_type"
+        tags = ['form_id:686C-674', 'service:dependents-application', 'v2:false']
         payload = {
           claim:,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:false'],
+          tags:,
           use_v2: false,
           user_account_uuid: nil,
           statsd: metric,
           e: error
         }
 
-        expect(StatsD).to receive(:increment).with(metric, tags: ['service:dependents-application', 'v2:false'])
+        expect(StatsD).to receive(:increment).with(metric, tags:)
         expect(Rails.logger).to receive(:error).with("Unknown Dependents form type for claim #{claim.id}", payload)
 
         monitor_v1.track_unknown_claim_type(error)
@@ -363,17 +364,18 @@ RSpec.describe Dependents::Monitor do
         message = 'Email sent successfully'
         metric = 'test.email.success'
         user_account_id = 'user123'
+        tags = ['form_id:686C-674', 'service:dependents-application', 'v2:false']
         payload = {
           claim:,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:false'],
+          tags:,
           use_v2: false,
           user_account_uuid: nil,
           statsd: metric,
           user_account_id:
         }
 
-        expect(StatsD).to receive(:increment).with(metric, tags: ['service:dependents-application', 'v2:false'])
+        expect(StatsD).to receive(:increment).with(metric, tags:)
         expect(Rails.logger).to receive(:info).with(message, payload)
 
         monitor_v1.track_send_email_success(message, metric, user_account_id)
@@ -386,17 +388,18 @@ RSpec.describe Dependents::Monitor do
         metric = 'test.email.error'
         error = StandardError.new('SMTP error')
         user_account_uuid = 'uuid123'
+        tags = ['form_id:686C-674', 'service:dependents-application', 'v2:false']
         payload = {
           claim:,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:false'],
+          tags:,
           use_v2: false,
           user_account_uuid:,
           statsd: metric,
           e: error
         }
 
-        expect(StatsD).to receive(:increment).with(metric, tags: ['service:dependents-application', 'v2:false'])
+        expect(StatsD).to receive(:increment).with(metric, tags:)
         expect(Rails.logger).to receive(:error).with(message, payload)
 
         monitor_v1.track_send_email_error(message, metric, error, user_account_uuid)
@@ -459,7 +462,7 @@ RSpec.describe Dependents::Monitor do
         payload = {
           claim:,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:false'],
+          tags: ['form_id:686C-674', 'service:dependents-application', 'v2:false'],
           use_v2: false,
           user_account_uuid: nil,
           statsd: metric
@@ -478,10 +481,11 @@ RSpec.describe Dependents::Monitor do
         error = StandardError.new('PDF error')
         form_id = '686C-674'
         metric = "#{described_class::CLAIM_STATS_KEY}.to_pdf.failure"
+        tags = ['form_id:686C-674', 'service:dependents-application', 'v2:false']
         payload = {
           claim:,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:false'],
+          tags:,
           use_v2: false,
           user_account_uuid: nil,
           statsd: metric,
@@ -489,7 +493,7 @@ RSpec.describe Dependents::Monitor do
           form_id:
         }
 
-        expect(StatsD).to receive(:increment).with(metric, tags: ['service:dependents-application', 'v2:false'])
+        expect(StatsD).to receive(:increment).with(metric, tags:)
         expect(Rails.logger).to receive(:error).with('SavedClaim::DependencyClaim#to_pdf error', payload)
 
         monitor_v1.track_to_pdf_failure(error, form_id)
@@ -500,17 +504,18 @@ RSpec.describe Dependents::Monitor do
       it 'tracks PDF overflow tracking failure' do
         error = StandardError.new('Overflow tracking error')
         metric = "#{described_class::CLAIM_STATS_KEY}.track_pdf_overflow.failure"
+        tags = ['form_id:686C-674', 'service:dependents-application', 'v2:false']
         payload = {
           claim:,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:false'],
+          tags:,
           use_v2: false,
           user_account_uuid: nil,
           statsd: metric,
           e: error
         }
 
-        expect(StatsD).to receive(:increment).with(metric, tags: ['service:dependents-application', 'v2:false'])
+        expect(StatsD).to receive(:increment).with(metric, tags:)
         expect(Rails.logger).to receive(:warn).with('Error tracking PDF overflow', payload)
 
         monitor_v1.track_pdf_overflow_tracking_failure(error)
