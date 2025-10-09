@@ -70,7 +70,7 @@ class PrescriptionDetails < Prescription
     return cmop_division_phone if cmop_division_phone.present?
     return dial_cmop_division_phone if dial_cmop_division_phone.present?
 
-    if rx_rf_records.present?
+    if rx_rf_records.present? && rx_rf_records.length.positive?
       cmop_phone = rx_rf_records.find { |item| item[:cmop_division_phone].present? }&.dig(:cmop_division_phone)
       return cmop_phone if cmop_phone.present?
 
