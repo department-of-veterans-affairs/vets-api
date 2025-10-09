@@ -71,6 +71,31 @@ describe SimpleFormsApi::PdfStamper do
               end
             end
 
+            describe '#get_auth_text_stamp' do
+              let(:instance) { described_class.new(stamped_template_path: 'test-path', form:, current_loa: 3) }
+
+              context 'when form is present' do
+                let(:form) { double('form') }
+
+                it 'returns coords and submission text without timestamp' do
+                  result = instance.send(:get_auth_text_stamp)
+
+                  expect(result[:coords]).to eq([10, 10])
+                  expect(result[:text]).to eq(SimpleFormsApi::PdfStamper::SUBMISSION_TEXT)
+                  expect(result[:text]).not_to include(Time.current.strftime('%H:%M:%S'))
+                end
+              end
+
+              it 'returns expected text constants' do
+                instance_with_form = described_class.new(stamped_template_path: 'test-path', form: double('form'))
+                instance_without_form = described_class.new(stamped_template_path: 'test-path', form: nil)
+
+                expect(instance_with_form.send(:get_auth_text_stamp)[:text])
+                  .to eq('Signed electronically and submitted via VA.gov at ')
+                expect(instance_without_form.send(:get_auth_text_stamp)[:text]).to eq('Submitted via VA.gov at ')
+              end
+            end
+
             context 'page is not specified' do
               let(:desired_stamp) { { coords: {} } }
 
