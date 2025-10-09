@@ -31,7 +31,7 @@ RSpec.describe 'VRE::V0::Ch31EligibilityStatus', type: :request do
       end
     end
 
-    context 'when eligibility not authorized for user' do
+    context 'when eligibility forbidden for user' do
       let(:user) { create(:user, icn: '1234') }
 
       it 'returns 3 response' do
@@ -39,7 +39,7 @@ RSpec.describe 'VRE::V0::Ch31EligibilityStatus', type: :request do
           get '/vre/v0/ch31_eligibility_status'
           expect(response).to have_http_status(:forbidden)
           message = JSON.parse(response.body)['errors'].first['detail']
-          expect(message).to eq('Not Authorized')
+          expect(message).to eq('Forbidden')
         end
       end
     end
