@@ -5286,7 +5286,7 @@
             "Bearer": []
           }
         ],
-        "summary": "DELETE /v0/messaging/health/folders/{id}"
+        "summary": "/v0/messaging/health/folders/{id}"
       }
     },
     "/v0/messaging/health/folders/{id}/messages": {
@@ -5700,7 +5700,7 @@
             "Bearer": []
           }
         ],
-        "summary": "PATCH /v0/messaging/health/message_drafts/{id}"
+        "summary": "/v0/messaging/health/message_drafts/{id}"
       }
     },
     "/v0/messaging/health/message_drafts/{reply_id}/replydraft": {
@@ -5921,7 +5921,7 @@
             "Bearer": []
           }
         ],
-        "summary": "PUT /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}"
+        "summary": "/v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}"
       }
     },
     "/v0/messaging/health/messages": {
@@ -6364,7 +6364,7 @@
             "Bearer": []
           }
         ],
-        "summary": "PATCH /v0/messaging/health/messages/{id}/move"
+        "summary": "/v0/messaging/health/messages/{id}/move"
       }
     },
     "/v0/messaging/health/messages/{id}/attachments/{attachment_id}": {
@@ -9467,7 +9467,7 @@
             "Bearer": []
           }
         ],
-        "summary": "PUT /v1/health/rx/prescriptions/refill"
+        "summary": "/v1/health/rx/prescriptions/refill"
       }
     }
   },
