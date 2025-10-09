@@ -65,4 +65,21 @@ class PrescriptionDetails < Prescription
   def cmop_ndc_value
     rx_rf_records&.pluck(:cmop_ndc_number)&.compact&.first || cmop_ndc_number.presence
   end
+
+  def pharmacy_phone_number
+    return nil if self.nil?
+
+    return cmop_division_phone if cmop_division_phone.present?
+    return dial_cmop_division_phone if dial_cmop_division_phone.present?
+
+    if rx_rf_records.present? && rx_rf_records.length > 0
+      cmop_phone = rx_rf_records.find { |item| item[:cmop_division_phone].present? }&.dig(:cmop_division_phone)
+      return cmop_phone if cmop_phone.present?
+
+      dial_phone = rx_rf_records.find { |item| item[:dial_cmop_division_phone].present? }&.dig(:dial_cmop_division_phone)
+      return dial_phone if dial_phone.present?
+    end
+
+    nil
+  end
 end
