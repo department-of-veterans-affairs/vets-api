@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module FormEngine
   class EmploymentHistory
     attr_reader :date_ended,
@@ -21,6 +22,7 @@ module FormEngine
 
     def format_date(date)
       return nil if date.nil?
+
       date_arr = date.split('-')
 
       "#{date_arr[1]}/#{date_arr[2]}/#{date_arr[0]}"
@@ -42,7 +44,7 @@ module FormEngine
       @country = data.dig('employer_address', 'country')
       @date_ended = format_date(data['employment_end_date'])
       @date_started = format_date(data['employment_start_date'])
-      @highest_income = data['highest_gross_income_per_month'] ? ActiveSupport::NumberHelper.number_to_currency(data['highest_gross_income_per_month']) : nil
+      @highest_income = format_currency(data['highest_gross_income_per_month'])
       @hours_per_week = data['hours_per_week']
       @lost_time = data['lost_time_from_illness']
       @name = data['employer_name']
@@ -52,6 +54,12 @@ module FormEngine
       @type_of_work = data['type_of_work']
 
       @name_and_address = format_name_and_address
+    end
+
+    def format_currency(amount)
+      return nil unless amount
+
+      ActiveSupport::NumberHelper.number_to_currency(amount)
     end
   end
 end

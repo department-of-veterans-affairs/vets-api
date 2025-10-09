@@ -125,7 +125,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
 
       before do
         allow(PersistentAttachment).to receive(:where).with(
-          guid: ['guid1', 'guid2']
+          guid: %w[guid1 guid2]
         ).and_return([attachment1, attachment2])
         allow(attachment1).to receive(:to_pdf).and_return(pdf1)
         allow(attachment2).to receive(:to_pdf).and_return(pdf2)
