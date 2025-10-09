@@ -2858,7 +2858,7 @@ paths:
           $ref: '#/components/responses/504'
       security:
         - Bearer: []
-      summary: DELETE /v0/messaging/health/folders/{id}
+      summary: /v0/messaging/health/folders/{id}
   /v0/messaging/health/folders/{id}/messages:
     get:
       description: |
@@ -3116,7 +3116,7 @@ paths:
           $ref: '#/components/responses/504'
       security:
         - Bearer: []
-      summary: PATCH /v0/messaging/health/message_drafts/{id}
+      summary: /v0/messaging/health/message_drafts/{id}
   /v0/messaging/health/message_drafts/{reply_id}/replydraft:
     post:
       description: Save a new draft message as a reply to an existing message
@@ -3252,7 +3252,7 @@ paths:
           $ref: '#/components/responses/504'
       security:
         - Bearer: []
-      summary: PUT /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}
+      summary: /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}
   /v0/messaging/health/messages:
     post:
       description: Send a new secure message
@@ -3561,7 +3561,7 @@ paths:
           $ref: '#/components/responses/504'
       security:
         - Bearer: []
-      summary: PATCH /v0/messaging/health/messages/{id}/move
+      summary: /v0/messaging/health/messages/{id}/move
   /v0/messaging/health/messages/{id}/attachments/{attachment_id}:
     get:
       description: |
@@ -5493,7 +5493,7 @@ paths:
           $ref: '#/components/responses/504'
       security:
         - Bearer: []
-      summary: PUT /v1/health/rx/prescriptions/refill
+      summary: /v1/health/rx/prescriptions/refill
 
 components:
   securitySchemes:
