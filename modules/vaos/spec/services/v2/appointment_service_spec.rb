@@ -2417,17 +2417,49 @@ describe VAOS::V2::AppointmentsService do
       end
     end
 
-    it 'is vaInPerson for nil vvsKind and false vvsVistaVideoAppt' do
+    it 'is vaInPerson for nil vvsKind, non-cerner and false vvsVistaVideoAppt' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth, :vistaVideoFalse).attributes
       appt[:telehealth][:vvs_kind] = nil
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('vaInPerson')
     end
 
-    it 'is vaVideoCareAtHome for nil vvsKind and true vvsVistaVideoAppt' do
+    it 'is vaVideoCareAtHome for nil vvsKind, non-cerner and true vvsVistaVideoAppt' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth, :vistaVideoTrue).attributes
       appt[:telehealth][:vvs_kind] = nil
       subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaVideoCareAtHome')
+    end
+
+    it 'is vaInPerson for nil vvsKind, cerner and url not available' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :cerner_telehealth).attributes
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
+      subject.send(:set_modality, appt)
+      expect(appt[:kind]).to eq('telehealth')
+      expect(appt.dig(:telehealth, :vvs_kind)).to be_nil
+      expect(VAOS::AppointmentsHelper.cerner?(appt)).to be(true)
+      expect(appt.dig(:telehealth, :url)).to be_nil
+      expect(appt[:modality]).to eq('vaInPerson')
+    end
+
+    it 'is vaVideoCareAtHome for nil vvsKind, cerner and url available' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :cerner_telehealth_url).attributes
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
+      subject.send(:set_modality, appt)
+      expect(appt[:kind]).to eq('telehealth')
+      expect(appt.dig(:telehealth, :vvs_kind)).to be_nil
+      expect(VAOS::AppointmentsHelper.cerner?(appt)).to be(true)
+      expect(appt.dig(:telehealth, :url)).not_to be_nil
       expect(appt[:modality]).to eq('vaVideoCareAtHome')
     end
 
