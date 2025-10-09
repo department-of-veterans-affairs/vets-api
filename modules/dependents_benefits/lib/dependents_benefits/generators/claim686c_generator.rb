@@ -32,6 +32,8 @@ module DependentsBenefits
         deaths
         child_marriage
         child_stopped_attending_school
+        spouse_supporting_documents
+        child_supporting_documents
       ].freeze
 
       ##
@@ -53,13 +55,8 @@ module DependentsBenefits
         form_686c_data
       end
 
-      ##
-      # Return the form_id for VA Form 21-686c claims
-      #
-      # @return [String] The VA Form 21-686c form_id
-      #
-      def form_id
-        '21-686c'
+      def claim_class
+        AddRemoveDependent
       end
     end
   end

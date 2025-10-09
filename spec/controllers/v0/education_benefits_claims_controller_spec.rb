@@ -67,7 +67,8 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
         body = JSON.parse response.body
         expect(body['errors']).to be_present
 
-        expect(StatsD).to have_received(:increment).with('api.education_benefits_claim.221990.failure')
+        expect(StatsD).to have_received(:increment).with('api.education_benefits_claim.create.221990.failure')
+        expect(StatsD).to have_received(:increment).with('api.education_benefits_claim.create.failure')
       end
     end
   end
@@ -115,6 +116,15 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
         disposition: 'attachment'
       )
       expect(StatsD).to have_received(:increment).with('api.education_benefits_claim.pdf_download.221990.success')
+    end
+
+    context 'with a non-1990 form' do
+      let(:education_benefits_claim) { create(:education_benefits_claim_10203) } # rubocop:disable Naming/VariableNumber
+
+      it 'increments the StatsD metric with the correct name' do
+        get :download_pdf, params: { id: education_benefits_claim.id }
+        expect(StatsD).to have_received(:increment).with('api.education_benefits_claim.pdf_download.2210203.success')
+      end
     end
 
     it 'cleans up the temporary file after successful download' do

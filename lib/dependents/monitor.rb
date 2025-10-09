@@ -17,7 +17,7 @@ module Dependents
     # stats key for pdf submission
     PDF_SUBMISSION_STATS_KEY = 'worker.submit_dependents_pdf'
 
-    # statsd key for backup sidekiq
+    # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'worker.submit_686c_674_backup_submission'
 
     # statsd key for email notifications
@@ -28,6 +28,18 @@ module Dependents
       @claim = claim(claim_id)
       @use_v2 = use_v2
       super('dependents-application')
+    end
+
+    # lib/logging/base_monitor (on or about line 33) requires a `name` method
+    delegate :name, to: :class
+
+    # lib/logging/base_monitor (on or about line 37) requires a `form_id` method
+    def form_id
+      @claim&.form_id
+    end
+
+    def submission_stats_key
+      SUBMISSION_STATS_KEY
     end
 
     def use_v2
@@ -44,7 +56,7 @@ module Dependents
     end
 
     def default_payload
-      { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: @claim&.user_account_id, tags: }
+      { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: nil, tags: }
     end
 
     def tags
@@ -109,8 +121,13 @@ module Dependents
     end
 
     def track_send_received_email_failure(e, user_account_uuid = nil)
-      track_send_email_failure("'Received' email failure for claim #{@claim_id}", "#{EMAIL_STATS_KEY}.received.failure",
-                               e, user_account_uuid)
+      track_send_email_failure(
+        @claim,
+        nil, # lighthouse_service (I don't know if we have this) TODO: Research by application team.
+        user_account_uuid,
+        'submitted',
+        e
+      )
     end
 
     def track_pdf_upload_error

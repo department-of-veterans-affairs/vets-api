@@ -101,7 +101,7 @@ module SignIn
     def validate_sec_id
       return if sec_id.present?
 
-      sign_in_logger.info('mpi record missing sec_id', icn: verified_icn)
+      sign_in_logger.info('mpi record missing sec_id', icn: verified_icn, pce_status: sec_id_pce_status)
     end
 
     def add_mpi_user
@@ -233,6 +233,10 @@ module SignIn
 
     def sec_id
       @sec_id ||= mpi_response_profile.sec_id
+    end
+
+    def sec_id_pce_status
+      @sec_id_pce_status ||= mpi_response_profile.full_mvi_ids.any? { |id| id.include? '200PROV^USDVA^PCE' }
     end
 
     def credential_uuid

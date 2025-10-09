@@ -4,31 +4,25 @@ require 'forwardable'
 require 'digest'
 
 module TravelClaim
-  ##
-  # Unified client for all Travel Claim API operations.
-  # Consolidates functionality from individual clients into a single interface.
-  #
   class TravelPayClient < Common::Client::Base
     extend Forwardable
     include Common::Client::Concerns::Monitoring
 
     EXPENSE_DESCRIPTION = 'mileage'
-    TRIP_TYPE = 'RoundTrip'
-    GRANT_TYPE = 'client_credentials'
-    CLIENT_TYPE = '1'
-    CLAIM_NAME = 'Travel Reimbursement'
-    CLAIMANT_TYPE = 'Veteran'
-    STATSD_KEY_PREFIX = 'api.check_in.travel_claim'
+    TRIP_TYPE           = 'RoundTrip'
+    GRANT_TYPE          = 'client_credentials'
+    CLIENT_TYPE         = '1'
+    CLAIM_NAME          = 'Travel Reimbursement'
+    CLAIMANT_TYPE       = 'Veteran'
+    STATSD_KEY_PREFIX   = 'api.check_in.travel_claim'
 
     attr_reader :redis_client, :settings
 
-    # Delegate settings methods directly to the settings object
     def_delegators :settings, :auth_url, :tenant_id, :travel_pay_client_id, :travel_pay_client_secret,
                    :scope, :claims_url_v2, :subscription_key, :e_subscription_key, :s_subscription_key,
                    :client_number, :travel_pay_resource, :client_secret
 
-    def initialize(uuid:, check_in_uuid:, appointment_date_time:)
-      @uuid = uuid
+    def initialize(check_in_uuid:, appointment_date_time:)
       @check_in_uuid = check_in_uuid
       @appointment_date_time = appointment_date_time
       @redis_client = TravelClaim::RedisClient.build
@@ -51,6 +45,8 @@ module TravelClaim
     def config
       TravelClaim::Configuration.instance
     end
+
+    # ------------ Auth requests ------------
 
     ##
     # Gets a VEIS access token for API authentication.
@@ -82,6 +78,12 @@ module TravelClaim
     # @return [Faraday::Response] HTTP response containing access token
     #
     def system_access_token_request(veis_access_token:, icn:)
+      # Log presence booleans only — no PHI/PII
+      Rails.logger.info('TravelPayClient BTSSS auth preflight', {
+                          correlation_id: @correlation_id,
+                          icn_present: icn.present?
+                        })
+
       with_monitoring do
         body = { secret: travel_pay_client_secret, icn: }
 
@@ -193,6 +195,8 @@ module TravelClaim
       handle_backend_service_exception(e)
     end
 
+    # ------------ Keys / headers ------------
+
     ##
     # Builds environment-specific subscription key headers for API authentication.
     # Production uses separate E and S subscription keys, while other environments
@@ -215,20 +219,39 @@ module TravelClaim
     # Ensures valid tokens are available.
     # Fetches tokens from Redis cache or fetches new ones if needed.
     #
-    def ensure_tokens!
-      return if @current_veis_token && @current_btsss_token
-
-      cached_veis = @redis_client.token
-      if cached_veis
-        @current_veis_token = cached_veis
-        fetch_btsss_token! if @current_btsss_token.nil?
-        return
+    def headers
+      if @current_veis_token.blank? || @current_btsss_token.blank?
+        Rails.logger.error('TravelPayClient building headers without tokens', {
+                             correlation_id: @correlation_id,
+                             veis_token_present: @current_veis_token.present?,
+                             btsss_token_present: @current_btsss_token.present?
+                           })
+        missing_tokens = []
+        missing_tokens << 'VEIS token' if @current_veis_token.blank?
+        missing_tokens << 'BTSSS token' if @current_btsss_token.blank?
+        raise TravelClaim::Errors::InvalidArgument,
+              "Missing auth token(s) for request headers: #{missing_tokens.join(', ')}"
       end
 
-      fetch_tokens!
+      {
+        'Content-Type' => 'application/json',
+        'Authorization' => "Bearer #{@current_veis_token}",
+        'BTSSS-Access-Token' => @current_btsss_token,
+        'X-Correlation-ID' => @correlation_id
+      }.merge(subscription_key_headers)
+    end
+
+    # ------------ Token lifecycle ------------
+
+    def ensure_tokens!
+      ensure_identity_context!
+      veis_token!
+      btsss_token!
     end
 
     private
+
+    # ------------ Identity prerequisites ------------
 
     ##
     # Loads required data from Redis with error handling.
@@ -236,45 +259,113 @@ module TravelClaim
     #
     def load_redis_data
       @icn = @redis_client.icn(uuid: @check_in_uuid)
-      @station_number = @redis_client.station_number(uuid: @uuid)
+      @station_number = @redis_client.station_number(uuid: @check_in_uuid)
     rescue Redis::BaseError
       log_redis_error('load_user_data')
-      raise ArgumentError,
-            "Failed to load data from Redis for check_in_session UUID #{@check_in_uuid} " \
-            "and station number #{@station_number}"
+      raise TravelClaim::Errors::InvalidArgument,
+            "Failed to load data from Redis for check-in UUID #{@check_in_uuid}"
     end
 
     def validate_required_arguments
-      raise ArgumentError, 'UUID cannot be blank' if @uuid.blank?
-      raise ArgumentError, 'Check-in UUID cannot be blank' if @check_in_uuid.blank?
-      raise ArgumentError, 'appointment date time cannot be blank' if @appointment_date_time.blank?
-    end
+      raise TravelClaim::Errors::InvalidArgument, 'Check-in UUID cannot be blank' if @check_in_uuid.blank?
 
-    def validate_redis_data
-      missing_args = []
-      missing_args << 'ICN' if @icn.blank?
-      missing_args << 'station number' if @station_number.blank?
-
-      unless missing_args.empty?
-        log_initialization_error(missing_args)
-        raise ArgumentError, "Missing required arguments: #{missing_args.join(', ')}"
+      if @appointment_date_time.blank?
+        raise TravelClaim::Errors::InvalidArgument,
+              'appointment date time cannot be blank'
       end
     end
 
-    def production_environment?
-      Settings.vsp_environment == 'production'
+    def validate_redis_data
+      missing = []
+      missing << 'ICN'            if @icn.blank?
+      missing << 'station number' if @station_number.blank?
+
+      unless missing.empty?
+        log_initialization_error(missing)
+        raise TravelClaim::Errors::InvalidArgument, "Missing required arguments: #{missing.join(', ')}"
+      end
     end
 
-    def headers
-      headers = {
-        'Content-Type' => 'application/json',
-        'Authorization' => "Bearer #{@current_veis_token}",
-        'BTSSS-Access-Token' => @current_btsss_token,
-        'X-Correlation-ID' => @correlation_id
-      }
+    def ensure_identity_context!
+      icn_ok = @icn.present?
+      stn_ok = @station_number.present?
 
-      headers.merge!(subscription_key_headers)
+      unless icn_ok && stn_ok
+        Rails.logger.error('TravelPayClient identity context missing', {
+                             correlation_id: @correlation_id,
+                             icn_present: icn_ok,
+                             station_number_present: stn_ok
+                           })
+        missing = []
+        missing << 'ICN' unless icn_ok
+        missing << 'station number' unless stn_ok
+        raise TravelClaim::Errors::InvalidArgument, "Missing required arguments: #{missing.join(', ')}"
+      end
     end
+
+    def btsss_token!
+      return @current_btsss_token if @current_btsss_token.present?
+
+      veis_token! if @current_veis_token.blank?
+
+      if @icn.blank?
+        Rails.logger.error('TravelPayClient BTSSS token mint aborted (missing ICN)',
+                           correlation_id: @correlation_id, icn_present: false)
+        raise TravelClaim::Errors::InvalidArgument, 'ICN is required to request BTSSS token'
+      end
+
+      Rails.logger.debug('TravelPayClient BTSSS auth preflight',
+                         correlation_id: @correlation_id, icn_present: true)
+
+      resp  = system_access_token_request(veis_access_token: @current_veis_token, icn: @icn)
+      token = resp.body.dig('data', 'accessToken')
+      if token.blank?
+        Rails.logger.error('TravelPayClient BTSSS token response missing accessToken',
+                           correlation_id: @correlation_id)
+        raise Common::Exceptions::BackendServiceException.new('VA900',
+                                                              { detail: 'BTSSS auth missing accessToken' }, 502)
+      end
+
+      @current_btsss_token = token
+    end
+
+    def veis_token!
+      return @current_veis_token if @current_veis_token.present?
+
+      cached = @redis_client.token
+      if cached.present?
+        @current_veis_token = cached
+        Rails.logger.debug('TravelPayClient VEIS token from cache', correlation_id: @correlation_id)
+      else
+        @current_veis_token = mint_veis_token
+        @redis_client.save_token(token: @current_veis_token)
+      end
+
+      @current_veis_token
+    end
+
+    def mint_veis_token
+      resp  = veis_token_request
+      token = resp.body['access_token']
+      if token.blank?
+        Rails.logger.error('TravelPayClient VEIS token response missing access_token', correlation_id: @correlation_id)
+        raise Common::Exceptions::BackendServiceException.new('VA900', { detail: 'VEIS auth missing access_token' },
+                                                              502)
+      end
+      token
+    rescue Common::Exceptions::BackendServiceException
+      log_token_error('VEIS', 'token_request_failed')
+      raise
+    end
+
+    def refresh_tokens!
+      @current_veis_token  = nil
+      @current_btsss_token = nil
+      @redis_client.save_token(token: nil)
+      ensure_tokens!
+    end
+
+    # ------------ Auth wrapper ------------
 
     ##
     # Wraps external API calls to ensure proper authentication.
@@ -286,59 +377,47 @@ module TravelClaim
     def with_auth
       @auth_retry_attempted = false
       ensure_tokens!
+      assert_auth_context!
       yield
     rescue Common::Exceptions::BackendServiceException => e
       if e.original_status == 401 && !@auth_retry_attempted
         @auth_retry_attempted = true
         log_auth_retry
         refresh_tokens!
-        yield # Retry once with fresh tokens
+        assert_auth_context!
+        yield
       elsif e.original_status == 401 && @auth_retry_attempted
         log_auth_error(e.class.name, e.respond_to?(:original_status) ? e.original_status : nil)
         raise
       else
-        raise e
+        raise
       end
     end
 
-    ##
-    # Fetches fresh tokens.
-    # Updates internal token state and stores VEIS token in Redis.
-    #
-    def fetch_tokens!
-      veis_response = veis_token_request
-      @current_veis_token = veis_response.body['access_token']
-      fetch_btsss_token!
-      @redis_client.save_token(token: @current_veis_token)
-    rescue Common::Exceptions::BackendServiceException => e
-      log_token_error('VEIS', 'token_request_failed')
-      raise e
+    def assert_auth_context!
+      veis_ok  = @current_veis_token.present?
+      btsss_ok = @current_btsss_token.present?
+      icn_ok   = @icn.present?
+
+      return if veis_ok && btsss_ok && icn_ok
+
+      Rails.logger.error('TravelPayClient auth context incomplete', {
+                           correlation_id: @correlation_id,
+                           veis_token_present: veis_ok,
+                           btsss_token_present: btsss_ok,
+                           icn_present: icn_ok
+                         })
+      missing = []
+      missing << 'VEIS token'  unless veis_ok
+      missing << 'BTSSS token' unless btsss_ok
+      missing << 'ICN'         unless icn_ok
+      raise TravelClaim::Errors::InvalidArgument, "Auth context missing: #{missing.join(', ')}"
     end
 
-    ##
-    # Fetches BTSSS token using current VEIS token.
-    # BTSSS token is user-specific and stored only in instance.
-    #
-    def fetch_btsss_token!
-      btsss_response = system_access_token_request(
-        veis_access_token: @current_veis_token,
-        icn: @icn
-      )
-      @current_btsss_token = btsss_response.body['data']['accessToken']
-    rescue Common::Exceptions::BackendServiceException => e
-      log_token_error('BTSSS', 'token_request_failed')
-      raise e
-    end
+    # ------------ Env & perform ------------
 
-    ##
-    # Refreshes tokens.
-    # Clears current tokens and Redis cache, then fetches new ones.
-    #
-    def refresh_tokens!
-      @current_veis_token = nil
-      @current_btsss_token = nil
-      @redis_client.save_token(token: nil)
-      fetch_tokens!
+    def production_environment?
+      Settings.vsp_environment == 'production'
     end
 
     ##
@@ -362,14 +441,12 @@ module TravelClaim
       end
     end
 
-    ##
-    # Logging helper methods for errors and state information only
-    #
+    # ------------ Logging helpers (no PHI) ------------
 
     def log_initialization_error(missing_args)
       Rails.logger.error('TravelPayClient initialization failed', {
                            correlation_id: @correlation_id,
-                           uuid_hash: @uuid,
+                           check_in_uuid: @check_in_uuid,
                            missing_arguments: missing_args,
                            redis_data_loaded: @icn.present? && @station_number.present?
                          })
@@ -378,7 +455,7 @@ module TravelClaim
     def log_redis_error(operation)
       Rails.logger.error('TravelPayClient Redis error', {
                            correlation_id: @correlation_id,
-                           uuid_hash: @uuid,
+                           check_in_uuid: @check_in_uuid,
                            operation:,
                            icn_present: @icn.present?,
                            station_number_present: @station_number.present?
@@ -388,7 +465,7 @@ module TravelClaim
     def log_auth_retry
       Rails.logger.error('TravelPayClient 401 error - retrying authentication', {
                            correlation_id: @correlation_id,
-                           uuid_hash: @uuid,
+                           check_in_uuid: @check_in_uuid,
                            veis_token_present: @current_veis_token.present?,
                            btsss_token_present: @current_btsss_token.present?
                          })
@@ -397,7 +474,7 @@ module TravelClaim
     def log_auth_error(error_type, status_code)
       Rails.logger.error('TravelPayClient authentication failed', {
                            correlation_id: @correlation_id,
-                           uuid_hash: @uuid,
+                           check_in_uuid: @check_in_uuid,
                            error_type:,
                            status_code:,
                            veis_token_present: @current_veis_token.present?,
@@ -408,7 +485,7 @@ module TravelClaim
     def log_token_error(service, issue)
       Rails.logger.error('TravelPayClient token error', {
                            correlation_id: @correlation_id,
-                           uuid_hash: @uuid,
+                           check_in_uuid: @check_in_uuid,
                            service:,
                            issue:,
                            veis_token_present: @current_veis_token.present?,
@@ -419,7 +496,7 @@ module TravelClaim
     def log_existing_claim_error
       Rails.logger.error('TravelPayClient existing claim error', {
                            correlation_id: @correlation_id,
-                           uuid_hash: @uuid,
+                           check_in_uuid: @check_in_uuid,
                            message: 'Validation failed: A claim has already been created for this appointment.'
                          })
     end
@@ -427,12 +504,7 @@ module TravelClaim
     def extract_message_from_response(body)
       return nil unless body
 
-      parsed = if body.is_a?(String)
-                 JSON.parse(body)
-               else
-                 body
-               end
-
+      parsed = body.is_a?(String) ? JSON.parse(body) : body
       parsed['message']
     rescue JSON::ParserError
       nil

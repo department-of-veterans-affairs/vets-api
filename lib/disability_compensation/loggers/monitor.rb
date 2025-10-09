@@ -13,10 +13,10 @@ module DisabilityCompensation
 
     class Monitor < ::Logging::BaseMonitor
       SERVICE_NAME = 'disability-compensation'
-      FORM_ID = '21-526EZ'
+      FORM_ID = '21-526EZ-ALLCLAIMS'
 
       # Metrics prefixes for SavedClaim and Form526Submission events, respectively
-      CLAIM_STATS_KEY = 'api.disability_compensation.claim'
+      CLAIM_STATS_KEY = 'api.disability_compensation'
       SUBMISSION_STATS_KEY = 'api.disability_compensation.submission'
 
       def initialize
@@ -31,16 +31,34 @@ module DisabilityCompensation
       #
       # @param saved_claim_errors [Array<ActiveModel::Error>] array of error objects from SavedClaim that failed to save
       # @param in_progress_form_id [Integer] ID of the InProgressForm for this claim
-      # @param user_uuid [uuid] uuid of the user attempting to save the claim
-      def track_saved_claim_save_error(errors, in_progress_form_id, user_uuid)
+      # @param user_account_uuid [uuid] uuid of the user attempting to save the claim
+      def track_saved_claim_save_error(errors, in_progress_form_id, user_account_uuid)
         submit_event(
           :error,
           "#{self.class.name} Form526 SavedClaim save error",
-          self.class::CLAIM_STATS_KEY,
+          "#{self.class::CLAIM_STATS_KEY}.failure",
           in_progress_form_id:,
-          user_account_uuid: user_uuid,
-          form_id: '21-526EZ-ALLCLAIMS',
+          user_account_uuid:,
+          form_id: self.class::FORM_ID,
           errors: format_active_model_errors(errors)
+        )
+      end
+
+      # Logs SavedClaim ActiveRecord save successes
+      #
+      # We use these logs to track when
+      # SavedClaim::DisabilityCompensation::Form526AllClaim saves to the database.
+      #
+      # @param claim [SavedClaim::DisabilityCompensation::Form526AllClaim] the claim that was successfully saved
+      # @param user_account_uuid [uuid] uuid of the user attempting to save the claim
+      def track_saved_claim_save_success(claim, user_account_uuid)
+        submit_event(
+          :info,
+          "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}",
+          "#{self.class::CLAIM_STATS_KEY}.success",
+          claim:,
+          user_account_uuid:,
+          form_id: self.class::FORM_ID
         )
       end
 
