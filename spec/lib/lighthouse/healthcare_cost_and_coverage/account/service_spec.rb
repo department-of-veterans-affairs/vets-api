@@ -90,5 +90,18 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Account::Service do
         expect(service.list).to eq(:error_envelope)
       end
     end
+
+    context 'when Faraday::ServerError is raised' do
+      before do
+        allow(service.send(:config)).to receive(:get)
+                                          .and_raise(Faraday::ServerError.new('500', nil))
+        allow(Lighthouse::ServiceException).to receive(:send_error)
+                                                 .and_return(:error_envelope)
+      end
+
+      it 'calls handle_error and returns error envelope' do
+        expect(service.list).to eq(:error_envelope)
+      end
+    end
   end
 end
