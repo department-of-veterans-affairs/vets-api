@@ -1,9 +1,11 @@
 # frozen_string_literal: true
+
 # Temporary stub implementation for Form 21-0779 to enable parallel frontend development
 # This entire file will be replaced with the full implementation in Phase 1
 
 module V0
   class Form210779Controller < ApplicationController
+    service_tag 'nursing-home-information'
     skip_before_action :authenticate
 
     def create
@@ -17,7 +19,7 @@ module V0
           attributes: {
             submitted_at: submitted_at.iso8601,
             regional_office: [],
-            confirmation_number: confirmation_number,
+            confirmation_number:,
             guid: confirmation_number,
             form: '21-0779'
           }
