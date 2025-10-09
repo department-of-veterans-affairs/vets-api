@@ -183,6 +183,15 @@ module PdfFill
       process_form(form_id, form_data, FORM_CLASSES[form_id], claim_id, fill_options)
     end
 
+    ##
+    # Fills a form using HexaPDF instead of PDFtk
+    #
+    # @param template_path [String] The path to the PDF template.
+    # @param output_path [String] The path to save the filled PDF.
+    # @param hash_data [Hash] The data to fill in the form.
+    #
+    # @return [None]
+    #
     def fill_form_with_hexapdf(template_path, output_path, hash_data)
       doc = HexaPDF::Document.open(template_path)
       form = doc.acro_form

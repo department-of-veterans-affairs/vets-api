@@ -76,7 +76,7 @@ module IncomeAndAssets
           form_data['incomeNetWorthDateRange'] = {
             'from' => format_date_to_mm_dd_yyyy(net_worth_date_range['from']),
             'to' => format_date_to_mm_dd_yyyy(net_worth_date_range['to']),
-            'useDateReceivedByVA' => false
+            'useDateReceivedByVA' => 'Off' # Always set to 'Off' (unchecked) when dates are provided
           }
         end
       end
