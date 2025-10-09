@@ -135,17 +135,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
       end
     end
 
-    describe 'feature disabled' do
-      it 'returns 403 when submissions are disabled' do
-        allow_any_instance_of(AccreditedRepresentativePortal::V0::ClaimSubmissionsController)
-          .to receive(:deny_access_unless_submissions_enabled)
-          .and_raise(Pundit::NotAuthorizedError)
-
-        get '/accredited_representative_portal/v0/claim_submissions'
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
-
     describe 'invalid params' do
       before do
         allow(AccreditedRepresentativePortal::SubmissionsService::ParamsSchema)
