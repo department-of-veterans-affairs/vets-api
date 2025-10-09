@@ -574,20 +574,16 @@ module SM
     end
 
     ##
-    # Update preferred triage teams
+    # Update preferredTeam value for a patient's list of triage teams
     #
-    # @param updated_triage_teams [Array<Hash>] array of triage team updates with triage_team_id and preferred_team
-    # @return [String] the response body
+    # @param updated_triage_teams_list [Array] an array of objects
+    # with triage_team_id and preferred_team values
+    # @return [Fixnum] the response status code
     #
-    def update_triage_team_preferences(updated_triage_teams)
-      camelized_teams = updated_triage_teams.map do |team|
-        {
-          'triageTeamId' => team['triage_team_id'],
-          'preferredTeam' => team['preferred_team']
-        }
-      end
-      headers = token_headers.except('x-api-key')
-      perform(:post, 'patient/preferences/patientpreferredtriagegroups', camelized_teams, headers).body
+    def update_triage_team_preferences(updated_triage_teams_list)
+      custom_headers = token_headers.merge('Content-Type' => 'application/json')
+      response = perform(:post, 'preferences/patientpreferredtriagegroups', updated_triage_teams_list, custom_headers)
+      response&.status
     end
     # @!endgroup
 
