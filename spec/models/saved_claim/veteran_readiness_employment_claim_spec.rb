@@ -348,9 +348,9 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       context 'when required field is empty' do
         it 'fails validation' do
           claim = build(:veteran_readiness_employment_claim, email: invalid_input, is_moving: invalid_input,
-                                                                 years_of_ed: invalid_input, first: invalid_input,
-                                                                 last: invalid_input, dob: invalid_input,
-                                                                 privacyAgreementAccepted: invalid_input)
+                                                             years_of_ed: invalid_input, first: invalid_input,
+                                                             last: invalid_input, dob: invalid_input,
+                                                             privacyAgreementAccepted: invalid_input)
 
           expect(claim).not_to be_valid
           expect(claim.errors.attribute_names).to include(:'/email')
@@ -367,10 +367,10 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       context "when string field receives #{invalid_type} data type" do
         it 'fails validation' do
           claim = build(:veteran_readiness_employment_claim, main_phone: invalid_type, cell_phone: invalid_type,
-                                                                 international_number: invalid_type,
-                                                                 email: invalid_type, years_of_ed: invalid_type,
-                                                                 first: invalid_type, middle: invalid_type,
-                                                                 last: invalid_type, dob: invalid_type)
+                                                             international_number: invalid_type,
+                                                             email: invalid_type, years_of_ed: invalid_type,
+                                                             first: invalid_type, middle: invalid_type,
+                                                             last: invalid_type, dob: invalid_type)
 
           expect(claim).not_to be_valid
           expect(claim.errors.attribute_names).to include(:'/mainPhone')
@@ -450,7 +450,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       context 'when phone field is not 10 digits' do
         it 'fails validation' do
           claim = build(:veteran_readiness_employment_claim, main_phone: invalid_phone,
-                                                                 cell_phone: invalid_phone)
+                                                             cell_phone: invalid_phone)
 
           expect(claim).not_to be_valid
           expect(claim.errors.attribute_names).to include(:'/mainPhone')
