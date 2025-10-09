@@ -56,7 +56,8 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        return unless %w[40-0247 20-10207 40-10007].include?(params[:form_id])
+        binding.pry
+        return unless %w[40-0247 20-10207 40-10007 21-4140].include?(params[:form_id])
 
         attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
         attachment.file = params['file']
@@ -82,7 +83,7 @@ module SimpleFormsApi
       private
 
       def validate_document_if_needed(file_path)
-        return true unless %w[40-0247 40-10007].include?(params[:form_id]) &&
+        return true unless %w[40-0247 40-10007 21-4140].include?(params[:form_id]) &&
                            File.extname(file_path).downcase == '.pdf'
 
         service = BenefitsIntakeService::Service.new
