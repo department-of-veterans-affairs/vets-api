@@ -98,6 +98,12 @@ def normalize_route(route)
   { method: route[:method], path: }
 end
 
+# Normalize path parameters for flexible matching
+# Converts all path parameters to a generic placeholder so {id}, {cancelId}, etc. all match
+def normalize_path_params(path)
+  path.gsub(/\{[^}]+\}/, '{param}')
+end
+
 # Main validation
 def validate_coverage(routes_file, openapi_file)
   routes = extract_routes_from_file(routes_file)
@@ -113,7 +119,10 @@ end
 
 def find_undocumented_routes(routes, documented)
   routes.reject do |route|
-    documented.any? { |doc| doc[:method] == route[:method] && doc[:path] == route[:path] }
+    documented.any? do |doc|
+      doc[:method] == route[:method] &&
+        normalize_path_params(doc[:path]) == normalize_path_params(route[:path])
+    end
   end
 end
 
