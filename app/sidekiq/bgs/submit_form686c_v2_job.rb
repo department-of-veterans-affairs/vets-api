@@ -120,7 +120,15 @@ module BGS
       BGSV2::Form686c.new(user, claim).submit(claim_data)
 
       # If Form 686c job succeeds, then enqueue 674 job.
-      BGS::SubmitForm674V2Job.perform_async(user_uuid, saved_claim_id, encrypted_vet_info, KmsEncrypted::Box.new.encrypt(user.to_h.to_json)) if claim.submittable_674? # rubocop:disable Layout/LineLength
+      if claim.submittable_674?
+        BGS::SubmitForm674V2Job
+          .perform_async(
+            user_uuid,
+            saved_claim_id,
+            encrypted_vet_info,
+            KmsEncrypted::Box.new.encrypt(user.to_h.to_json)
+          )
+      end
     end
 
     def submit_686c
