@@ -23,7 +23,7 @@ module Dependents
     # statsd key for email notifications
     EMAIL_STATS_KEY = 'dependents.email_notification'
 
-    attr_accessor :form_id
+    attr_writer :form_id
 
     def initialize(claim_id, form_id = nil)
       @claim_id = claim_id
@@ -36,12 +36,12 @@ module Dependents
       @tags += ["service:#{service}", "v2:#{@use_v2}"]
     end
 
-    # lib/logging/base_monitor (on or about line 33) requires a `name` method
-    delegate :name, to: :class
+    def name
+      self.class.to_s
+    end
 
-    # lib/logging/base_monitor (on or about line 37) requires a `form_id` method
     def form_id
-      @claim&.form_id
+      @form_id ||= @claim&.form_id
     end
 
     def submission_stats_key
