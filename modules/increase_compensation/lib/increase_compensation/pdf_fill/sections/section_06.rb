@@ -23,12 +23,18 @@ module IncreaseCompensation
           }
         },
         'witnessSignature1' => {
-          'signature' => { key: 'form1[0].#subform[4].Signature[0]' },
+          'signature' => {
+            limit: 38,
+            key: 'form1[0].#subform[4].Signature[0]'
+          },
           'address' => { key: 'form1[0].#subform[4].ADDRESS_OF_WITNESS[0]' },
           'address2' => { key: 'form1[0].#subform[4].ADDRESS_OF_WITNESS[1]' }
         },
         'witnessSignature2' => {
-          'signature' => { key: 'form1[0].#subform[4].Signature[1]' },
+          'signature' => {
+            limit: 38,
+            key: 'form1[0].#subform[4].Signature[1]'
+          },
           'address' => { key: 'form1[0].#subform[4].ADDRESS_OF_WITNESS[2]' },
           'address2' => { key: 'form1[0].#subform[4].ADDRESS_OF_WITNESS[3]' }
         }

@@ -199,6 +199,7 @@ module IncreaseCompensation
       }.freeze
       def expand(form_data = {})
         # split_currency_amount_sm(,{ 'cents' => 0, 'dollars' => 3, 'thousands' => 3 })
+
         form_data['mostEarningsInAYear'] = split_currency_amount(form_data['mostEarningsInAYear'].to_i)
         form_data['past12MonthsEarnedIncome'] = split_currency_amount(form_data['mostEarningsInAYear'].to_i)
         form_data['currentMonthlyEarnedIncome'] = split_currency_amount(form_data['currentMonthlyEarnedIncome'].to_i)
@@ -207,6 +208,7 @@ module IncreaseCompensation
             work['mostEarningsInAMonth'] = split_currency_amount(form_data['mostEarningsInAMonth'].to_i)
           end
         end
+
         # if form_data['preventMilitaryDuties'] || YES || NO || OFF
         # form_data['leftLastJobDueToDisability'] YES (If &quot;Yes,&quot; explain in Item 26, &quot;Remarks&quot;) || NO || OFF
         # form_data['expectDisabilityRetirement'] YES || NO || OFF

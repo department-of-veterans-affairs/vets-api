@@ -193,7 +193,7 @@ module IncreaseCompensation
 
       def expand(form_data = {})
         form_data = form_data.merge(form_data['veteran'])
-        # form_data[veteranFullName] = extract_middle_i(form_data['veteranFullName'])
+        form_data['veteranFullName'] = extract_middle_i(form_data['veteranFullName'])
         form_data['veteranPhone'] = expand_phone_number(form_data['veteranPhone'])
         form_data['veteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
         form_data['veteranSocialSecurityNumber1'] = form_data['veteranSocialSecurityNumber']
