@@ -717,6 +717,7 @@ lighthouse:
       - system/Invoice.read
       - system/PaymentReconciliation.read
       - system/MedicationDispense.read
+      - system/Encounter.read
       - launch
     timeout: 30
     use_mocks: false
@@ -1620,6 +1621,15 @@ vanotify:
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         reactivation_email_test_b: ~
         va_appointment_failure: fake_template_id
+    veteran_readiness_and_employment:
+      api_key: 'fake'
+      email:
+        confirmation_lighthouse:
+          template_id: 'confirmation_lighthouse_email_template_id'
+        confirmation_vbms:
+          template_id: 'confirmation_vbms_email_template_id'
+        error:
+          template_id: 'error_email_template_id'
   status_callback:
     bearer_token: fake_bearer_token
 vaos:
@@ -1739,7 +1749,6 @@ veteran_enrollment_system:
 veteran_onboarding:
   onboarding_threshold_days: ~
 veteran_readiness_and_employment:
-  api_key: ~
   auth_endpoint: https://fake_url.com/auth/oauth/token
   base_url: https://fake_url.com
   credentials: fake_auth
@@ -1805,13 +1814,6 @@ veteran_readiness_and_employment:
       - VRE.VBAANC@va.gov
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
-  email:
-    confirmation_lighthouse:
-      template_id: 'confirmation_lighthouse'
-    confirmation_vbms:
-      template_id: 'confirmation_vbms'
-    error:
-      template_id: 'error'
 vetext:
   mock: ~
 vetext_push:
