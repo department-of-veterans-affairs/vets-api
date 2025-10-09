@@ -46,7 +46,7 @@ RSpec.describe FormEngine::EmploymentHistory do
     it 'returns a multi-line string' do
       expect(name_and_address).to(
         eq(
-          "Test Employer\n1234 Executive Ave\nMetropolis, CA 90210\nUnited States of America"
+          'Test Employer\\n1234 Executive Ave\\nMetropolis, CA 90210\\nUnited States of America'
         )
       )
     end
