@@ -146,6 +146,7 @@ describe PdfFill::Filler, type: :model do
       it 'uses UNICODE_PDF_FORMS to fill the form for form_id 21-0781V2' do
         # Mock the hash converter and its behavior
         allow(extras_generator).to receive(:text?).once.and_return(true)
+        allow(extras_generator).to receive(:use_hexapdf).and_return(false)
         allow(extras_generator).to receive(:add_text)
         allow(hash_converter).to receive(:transform_data).and_return(new_hash)
 

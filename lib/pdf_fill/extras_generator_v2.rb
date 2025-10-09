@@ -367,7 +367,7 @@ module PdfFill
       @section_coordinates    = options[:section_coordinates] || []
       @use_hexapdf            = options[:use_hexapdf] || false
       @questions              = {}
-      super()
+      super(options)
     end
 
     def placeholder_text
