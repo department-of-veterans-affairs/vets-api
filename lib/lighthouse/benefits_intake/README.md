@@ -19,10 +19,31 @@ to provide the uuids to query and processing for handling the response
 For local development you need to acquire a sandbox/staging API key:
 https://developer.va.gov/explore/api/benefits-intake/sandbox-access
 
+| Requirement | Version | Notes |
+|-------------|---------|-------|
+| Ruby | 3.1+ | Rails application dependency |
+| Rails | 7.0+ | Parent application framework |
+| PostgreSQL | 12+ | Database with PostGIS |
+| Redis | 6+ | Background job processing |
+
 ## Configuration
 
 Within `config/settings.yml` there is an entry for `lighthouse.benefits_intake`.
 The values are stored in AWS Parameter store, and can be overriden for local development.
+
+```yaml
+lighthouse:
+  benefits_intake:
+    api_key: <%= ENV['lighthouse__benefits_intake__api_key'] %>
+    breakers_error_threshold: 80
+    host: <%= ENV['lighthouse__benefits_intake__host'] %>
+    path: <%= ENV['lighthouse__benefits_intake__path'] %>
+    report:
+      batch_size: <%= ENV['lighthouse__benefits_intake__report__batch_size'] %>
+      stale_sla: <%= ENV['lighthouse__benefits_intake__report__stale_sla'] %>
+    use_mocks: <%= ENV['lighthouse__benefits_intake__use_mocks'] %>
+    version: <%= ENV['lighthouse__benefits_intake__version'] %>
+```
 
 The running of the job is controlled in `lib/periodic_jobs.rb`
 
@@ -65,6 +86,9 @@ https://api.va.gov/internal/docs/benefits-intake/v1/openapi.json
 
 ## Testing
 
-`rspec spec/lib/lighthouse/benefits_intake`
+```bash
+# Run module tests
+bundle exec rspec spec/lib/lighthouse/benefits_intake
+```
 
 Register a handler with the status job, create a claim, submit the claim to Lighthouse using the service, run the status job providing the claim form_id

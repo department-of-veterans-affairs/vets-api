@@ -32,12 +32,13 @@ Centralized utilities for veteran-facing applications on VA.gov, providing stand
 # config/settings.yml
 vanotify:
   services:
-    21p_527ez:
+    21p_527ez: &vanotify_services_pension
       api_key: <%= ENV['VANOTIFY_API_KEY'] %>
       email:
         confirmation:
           template_id: form527ez_confirmation_template
           flipper_id: form527ez_confirmation_email
+    pensions: *vanotify_services_pension
 ```
 
 ## Usage Examples

@@ -31,9 +31,9 @@ monitor.track_request(:error, 'API call failed', 'my_service.error',
 
 ### Other Components
 
-- [`Logging::DataScrubber`](lib/logging/data_scrubber.rb) - PII removal utilities
+- [`Logging::Helper::DataScrubber`](lib/logging/helper/data_scrubber.rb) - PII removal utilities
 - [`Logging::ThirdPartyTransaction`](lib/logging/third_party_transaction.rb) - External service call logging
-- [`Logging::Controller::Monitor`](lib/logging/controller/monitor.rb) - Controller-specific monitoring
+- [`Logging::Include::Controller`](lib/logging/include/controller.rb) - Controller-specific monitoring
 
 ## Usage Patterns
 
@@ -54,7 +54,7 @@ class MyService
     result
   rescue StandardError => e
     @monitor.track_request(:error, "Operation failed: #{e.message}",
-                          'my_service.error', exception: e.message)
+                          'my_service.error', error: e.message)
     raise
   end
 end

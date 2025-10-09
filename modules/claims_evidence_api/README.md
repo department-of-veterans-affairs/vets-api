@@ -4,6 +4,8 @@
 
 The Claims Evidence API module provides a standardized interface for uploading veteran claim evidence documents to the VA's Claims Evidence service. It handles secure file uploads, validation, and metadata submission for disability compensation claims and other VA benefit forms.
 
+This module provides a modern interface to the Claims Evidence API, replacing legacy VBMS eFolder uploads with improved reliability and monitoring.
+
 **Key Features:**
 - Secure document upload with JWT authentication
 - File validation and virus scanning
@@ -38,14 +40,20 @@ Configure the module through the main application settings:
 ```yaml
 # config/settings.yml
 claims_evidence_api:
-  base_url: 'https://claimevidence-api.dev.bip.va.gov'
+  base_url: <%= ENV['claims_evidence_api__base_url'] %>
+  breakers_error_threshold: 80
+  include_request: false
+  jwt_secret: <%= ENV['claims_evidence_api__jwt_secret'] %>
+  mock: false
   ssl: true
-  timeout: 60
-  jwt_secret: <%= ENV['CLAIMS_EVIDENCE_JWT_SECRET'] %>
+  timeout:
+    open: 30
+    read: 30
 ```
 
-**Required Environment Variables:**
-- `CLAIMS_EVIDENCE_JWT_SECRET` - JWT signing secret for API authentication
+For local development you can establish a tunnel to a VA forward-proxy, mapping a local port.
+The local settings would then contain `base_url: https://localhost:[PORT]/api/v1/rest`
+See `script/forward-proxy-tunnel.sh`
 
 ## Usage Examples
 
@@ -73,6 +81,8 @@ response = service.upload('/path/to/document.pdf', provider_data: metadata)
 
 ## API Reference
 
+https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html
+
 ### ClaimsEvidenceApi::Uploader
 
 | Method | Parameters | Description |
@@ -93,16 +103,5 @@ response = service.upload('/path/to/document.pdf', provider_data: metadata)
 
 ```bash
 # Run module tests
-bundle exec rspec modules/claims_evidence_api/spec/
+bundle exec rspec modules/claims_evidence_api
 ```
-
-### Feature Flag Testing
-
-```ruby
-# Stub feature flags in tests
-allow(Flipper).to receive(:enabled?)
-  .with(:claims_evidence_api_upload)
-  .and_return(true)
-```
-
-This module provides a modern interface to the Claims Evidence API, replacing legacy VBMS eFolder uploads with improved reliability and monitoring.
