@@ -3161,7 +3161,7 @@ paths:
         - Bearer: []
       summary: /v0/messaging/health/message_drafts/{reply_id}/replydraft
   /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}:
-    post:
+    put:
       description: Edit a draft message that was a reply to an existing message
       parameters:
         - description: The id of the message that will be replied to
