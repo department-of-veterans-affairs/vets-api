@@ -28,7 +28,7 @@ module FormPrefillSpecData
       'veteranSsnLastFour' => '1863',
       'veteranVaFileNumberLastFour' => '1863',
       'isInReceiptOfPension' => -1,
-      'netWorthLimit' => 159240 # rubocop:disable Style/NumericLiterals
+      'netWorthLimit' => 159_240
     }
   end
 

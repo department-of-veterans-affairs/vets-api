@@ -131,7 +131,7 @@ module DependentsBenefits
       end
     end
 
-    # @return [Integer] the net worth limit for pension, default is 159240 as of 2025
+    # @return [Integer] the net worth limit for pension, default is 159,240 as of 2025
     # Default will be cached in future enhancement
     def net_worth_limit
       awards_pension[:net_worth_limit] || 159_240

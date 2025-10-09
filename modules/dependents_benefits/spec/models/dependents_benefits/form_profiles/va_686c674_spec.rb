@@ -256,7 +256,7 @@ RSpec.describe FormProfile, type: :model do
                 prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
 
                 expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
-                expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(159240) # rubocop:disable Style/NumericLiterals
+                expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(159_240)
               end
             end
           end
