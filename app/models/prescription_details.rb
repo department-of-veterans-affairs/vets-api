@@ -67,8 +67,6 @@ class PrescriptionDetails < Prescription
   end
 
   def pharmacy_phone_number
-    return nil if self.nil?
-
     return cmop_division_phone if cmop_division_phone.present?
     return dial_cmop_division_phone if dial_cmop_division_phone.present?
 
@@ -76,7 +74,8 @@ class PrescriptionDetails < Prescription
       cmop_phone = rx_rf_records.find { |item| item[:cmop_division_phone].present? }&.dig(:cmop_division_phone)
       return cmop_phone if cmop_phone.present?
 
-      dial_phone = rx_rf_records.find { |item| item[:dial_cmop_division_phone].present? }&.dig(:dial_cmop_division_phone)
+      dial_phone = rx_rf_records.find { |item| item[:dial_cmop_division_phone].present? }
+                                &.dig(:dial_cmop_division_phone)
       return dial_phone if dial_phone.present?
     end
 
