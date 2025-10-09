@@ -42,8 +42,7 @@ module Mobile
           # The following letters need to be filtered out due to outdated content
           next if FILTERED_LETTER_TYPES.include? letter[:letterType]
 
-          Mobile::V0::Letter.new(letter_type: letter[:letterType], name: letter[:name],
-                                 reference_number: nil, coe_status: nil)
+          Mobile::V0::Letter.new(letter_type: letter[:letterType], name: letter[:name])
         end
         response.append(get_coe_letter_type).compact! if Flipper.enabled?(:mobile_coe_letter_use_lgy_service,
                                                                           @current_user) && coe_app_version?
