@@ -5,6 +5,9 @@ on:
   workflow_run:
     workflows: ["Code Checks", "Check CODEOWNERS Entries", "Service Tags", "CodeQL"]
     types: [completed]
+    branches-ignore:
+      - master
+      - production-bypass
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
