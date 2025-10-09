@@ -5,8 +5,6 @@ module VAOS
     class EpsAppointment
       COMMUNITY_CARE_APPOINTMENT = 'COMMUNITY_CARE_APPOINTMENT'
       COMMUNITY_CARE_REQUEST = 'COMMUNITY_CARE_REQUEST'
-      KIND = 'cc'
-      MODALITY = 'communityCareEps'
 
       attr_reader :id, :status, :patient_icn, :created, :location_id, :clinic,
                   :start, :is_latest, :last_retrieved, :contact, :referral_id,
@@ -32,7 +30,7 @@ module VAOS
         @provider_service_id = appointment_data[:provider_service_id]
         @provider_name = appointment_data.dig(:provider, :name).presence || 'unknown'
         @provider = provider
-        @modality = MODALITY
+        @modality = 'communityCareEps'
         @location = build_location_data
       end
 
@@ -42,7 +40,7 @@ module VAOS
           location_id: @location_id, clinic: @clinic, start: @start, contact: @contact,
           referral_id: @referral_id, referral: @referral,
           provider_service_id: @provider_service_id, provider_name: @provider_name,
-          kind: KIND, modality: @modality, type: eps_type,
+          kind: 'cc', modality: @modality, type: eps_type,
           pending: request_type?, past: past_appointment?, future: future_appointment?
         }
 
