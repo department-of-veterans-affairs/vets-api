@@ -51,7 +51,7 @@
   "F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": "<%= form.address.zip_code_suffix %>",
 
   <%# 10. Were you employed by VA, others or self employed at any time during the past 12 months? %>
-  "F[0].Page_1[0].RadioButtonList[0]": "<%= form.data.dig('RadioButtonList') %>",
+  "F[0].Page_1[0].RadioButtonList[0]": "<%= form.employed? ? 'YES' : 'NO' %>",
 
   <%# Section II - Employment Certification %>
   <%# 11A. Name and Address of Employer %>
