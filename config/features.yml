@@ -2572,9 +2572,6 @@ features:
   accredited_representative_portal_homepage:
     actor_type: user
     description: Enables new homepage redesign for ARP
-  accredited_representative_portal_dashboard_link:
-    actor_type: user
-    description: Enables new dashboard link on nav
   gi_comparison_tool_cautionary_info_update:
     actor_type: user
     description: Enables updated cautionary info student feedback ui for GI Comparison Tool
