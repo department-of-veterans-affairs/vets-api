@@ -81,7 +81,6 @@ app/controllers/v0/id_card_announcement_subscription_controller.rb @department-o
 app/controllers/v0/id_card_attributes_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/in_progress_forms_controller.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-dependents-management
 app/controllers/v0/intent_to_files_controller.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/pensions @department-of-veterans-affairs/backend-review-group
-app/controllers/v0/letters_controller.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/letters_discrepancy_controller.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/letters_generator_controller.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/maintenance_windows_controller.rb @department-of-veterans-affairs/backend-review-group
