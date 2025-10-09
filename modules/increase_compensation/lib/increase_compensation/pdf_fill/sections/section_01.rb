@@ -170,15 +170,15 @@ module IncreaseCompensation
         },
         'veteranPhone' => {
           question_num: 7,
-          'areaCode' => {
+          'phone_area_code' => {
             limit: 3,
             key: 'form1[0].#subform[0].AreaCode[0]'
           },
-          'firstThree' => {
+          'phone_first_three_numbers' => {
             limit: 3,
             key: 'form1[0].#subform[0].FirstThreeNumbers[0]'
           },
-          'lastFour' => {
+          'phone_last_four_numbers' => {
             limit: 4,
             key: 'form1[0].#subform[0].LastFourNumbers[0]'
           }
@@ -204,6 +204,7 @@ module IncreaseCompensation
           form_data['veteranDateOfBirth'] = split_date(form_data['veteranDateOfBirth'])
         end
         form_data['veteranAddress']['zip_code'] = split_postal_code(form_data['veteranAddress'])
+        form_data['electronicCorrespondance'] = form_data['electronicCorrespondance'] ? 1 : 0
       end
     end
   end
