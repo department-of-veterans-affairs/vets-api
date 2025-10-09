@@ -18,6 +18,9 @@ module Lighthouse
           super()
         end
 
+        # - If `id` is provided, the request is made with `?_id=<id>` and `patient` is ignored.
+        # - Otherwise the request is made with `?patient=<patient>` (defaults to the ICN passed at initialize).
+        # - Any extra `params` are merged into the query and may override `_id` or `patient` if keys collide.
         def list(id: nil, patient: @icn, **params)
           endpoint = 'r4/Account'
           query = {}
