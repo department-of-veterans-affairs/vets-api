@@ -160,7 +160,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         rop = form_data['royaltiesAndOtherProperties']
-        form_data['royaltiesAndOtherProperty'] = rop&.length ? 0 : 1
+        form_data['royaltiesAndOtherProperty'] = radio_yesno(rop&.length)
         form_data['royaltiesAndOtherProperties'] = rop&.map do |item|
           item.merge(expand_item(item))
         end
