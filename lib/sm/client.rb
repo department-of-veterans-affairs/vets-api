@@ -572,6 +572,23 @@ module SM
         data
       end
     end
+
+    ##
+    # Update preferred triage teams
+    #
+    # @param updated_triage_teams [Array<Hash>] array of triage team updates with triage_team_id and preferred_team
+    # @return [String] the response body
+    #
+    def update_triage_team_preferences(updated_triage_teams)
+      camelized_teams = updated_triage_teams.map do |team|
+        {
+          'triageTeamId' => team['triage_team_id'],
+          'preferredTeam' => team['preferred_team']
+        }
+      end
+      headers = token_headers.except('x-api-key')
+      perform(:post, 'patient/preferences/patientpreferredtriagegroups', camelized_teams, headers).body
+    end
     # @!endgroup
 
     ##
