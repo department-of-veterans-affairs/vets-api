@@ -96,14 +96,14 @@ module BBInternal
     #
     # @return [Hash] The status of the image request, including percent complete
     #
-    def request_study(id)
+    def request_study(icn, id)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
         # Fetch the original studyIdUrn from the Redis cache
         study_id = get_study_id_from_cache(id)
 
         # Perform the API call with the original studyIdUrn
         response = perform(
-          :get, "bluebutton/studyjob/#{session.patient_id}/icn/#{session.icn}/studyid/#{study_id}", nil,
+          :get, "bluebutton/studyjob/#{session.patient_id}/icn/#{icn}/studyid/#{study_id}", nil,
           token_headers
         )
         data = response.body
@@ -490,10 +490,10 @@ module BBInternal
     end
 
     ##
-    # Overriding MHVSessionBasedClient's method to ensure the thread blocks if ICN or patient ID are not yet set.
+    # Overriding MHVSessionBasedClient's method to ensure the thread blocks if patient ID is not yet set.
     #
     def invalid?(session)
-      super(session) || session.icn.blank? || session.patient_id.blank?
+      super(session) || session.patient_id.blank?
     end
 
     ##
