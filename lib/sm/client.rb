@@ -554,6 +554,7 @@ module SM
         data
       end
     end
+    # @!endgroup
 
     ##
     # Get a collection of all triage team recipients, including blocked
