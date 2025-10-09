@@ -652,9 +652,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             .to receive(:track_526_submission_without_banking_info)
             .with(user.uuid)
 
-          VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
-            subject.send(:translate_banking_info)
-          end
+          subject.send(:translate_banking_info)
         end
       end
 
