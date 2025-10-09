@@ -1574,6 +1574,9 @@ vanotify:
         form21_674_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form21_674_action_needed_email'] %>
         form21_686c_674_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form21_686c_674_action_needed_email'] %>
         form21_686c_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form21_686c_action_needed_email'] %>
+        form21p_0537_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0537_confirmation_email'] %>
+        form21p_0537_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0537_error_email'] %>
+        form21p_0537_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0537_received_email'] %>
         form21p_0847_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0847_confirmation_email'] %>
         form21p_0847_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0847_error_email'] %>
         form21p_0847_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0847_received_email'] %>
