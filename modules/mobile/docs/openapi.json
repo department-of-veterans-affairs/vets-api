@@ -5286,7 +5286,7 @@
             "Bearer": []
           }
         ],
-        "summary": "DELETE /v0/messaging/health/folders/{id}"
+        "summary": "/v0/messaging/health/folders/{id}"
       }
     },
     "/v0/messaging/health/folders/{id}/messages": {
@@ -5700,7 +5700,7 @@
             "Bearer": []
           }
         ],
-        "summary": "PATCH /v0/messaging/health/message_drafts/{id}"
+        "summary": "/v0/messaging/health/message_drafts/{id}"
       }
     },
     "/v0/messaging/health/message_drafts/{reply_id}/replydraft": {
@@ -5921,7 +5921,7 @@
             "Bearer": []
           }
         ],
-        "summary": "PUT /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}"
+        "summary": "/v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}"
       }
     },
     "/v0/messaging/health/messages": {
@@ -6241,67 +6241,6 @@
           }
         ],
         "summary": "/v0/messaging/health/messages/{id}"
-      },
-      "patch": {
-        "description": "Moves a secure message to a specified folder",
-        "parameters": [
-          {
-            "description": "The id of the message that is to be moved",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "The id of the folder that the message is to be moved to",
-            "in": "query",
-            "name": "folder_id,",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "$ref": "#/components/parameters/InflectionHeader"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "The message was moved successfully"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "408": {
-            "$ref": "#/components/responses/408"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          },
-          "502": {
-            "$ref": "#/components/responses/502"
-          },
-          "503": {
-            "$ref": "#/components/responses/503"
-          },
-          "504": {
-            "$ref": "#/components/responses/504"
-          }
-        },
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "summary": "/v0/messaging/health/messages/{id}/move"
       }
     },
     "/v0/messaging/health/messages/{id}/move": {
@@ -6364,7 +6303,7 @@
             "Bearer": []
           }
         ],
-        "summary": "PATCH /v0/messaging/health/messages/{id}/move"
+        "summary": "/v0/messaging/health/messages/{id}/move"
       }
     },
     "/v0/messaging/health/messages/{id}/attachments/{attachment_id}": {
@@ -9467,7 +9406,7 @@
             "Bearer": []
           }
         ],
-        "summary": "PUT /v1/health/rx/prescriptions/refill"
+        "summary": "/v1/health/rx/prescriptions/refill"
       }
     }
   },
