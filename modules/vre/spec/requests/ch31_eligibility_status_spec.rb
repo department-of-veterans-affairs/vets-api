@@ -44,7 +44,7 @@ RSpec.describe 'VRE::V0::Ch31EligibilityStatus', type: :request do
       end
     end
 
-    context 'when upstream service is unavailable' do
+    context 'when upstream service is not available' do
       let(:user) { create(:user, icn: '1012667145V762142') }
 
       it 'returns 503 response' do
