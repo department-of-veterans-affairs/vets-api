@@ -46,7 +46,7 @@ module V0
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE)
       handle_pre_login_error(e, client_id)
     rescue => e
-      sign_in_logger.error('authorize error', { errors: e.message, client_id:, type:, acr: })
+      sign_in_logger.error('authorize error', { errors: e.message, client_id:, type:, acr:, operation: })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE)
       handle_pre_login_error(e, client_id)
     end
