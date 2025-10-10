@@ -118,6 +118,7 @@ module IncreaseCompensation
           form['veteranFullName']['first'],
           form['veteranFullName']['last'],
           form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+          form['veteranAddress']['postalCode'],
           self.class.to_s,
           @claim.form_id,
           @claim.business_line
