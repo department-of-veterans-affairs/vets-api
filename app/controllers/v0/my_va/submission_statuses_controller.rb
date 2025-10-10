@@ -8,6 +8,7 @@ module V0
       service_tag 'form-submission-statuses'
 
       def show
+        binding.pry
         report = Forms::SubmissionStatuses::Report.new(
           user_account: @current_user.user_account,
           allowed_forms: forms_based_on_feature_toggle
@@ -28,6 +29,7 @@ module V0
           21-0972
           21-10210
           21-4142
+          21-4140
           21-4142a
           21P-0847
         ] + uploadable_forms
