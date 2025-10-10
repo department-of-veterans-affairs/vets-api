@@ -133,7 +133,8 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
     context 'when feature toggles' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents, an_instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
       end
 
       it 'processes files through ScannedFormProcessor and returns success' do
@@ -161,7 +162,8 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
     context 'when conversion fails' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents, an_instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
       end
 
       it 'returns conversion error from processor' do
@@ -190,7 +192,8 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
     context 'when validation fails' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents, an_instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
       end
 
       it 'returns validation error from processor' do
@@ -218,7 +221,8 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
     context 'when basic attachment validation fails' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents, an_instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
       end
 
       it 'returns validation errors without calling processor' do
@@ -239,7 +243,8 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
     context 'when feature toggle is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents, an_instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(false)
       end
 
       it 'returns not found' do
