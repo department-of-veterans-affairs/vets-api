@@ -19,6 +19,6 @@ spec:
   definition:
     $text: https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/my_health/docs/openapi_merged.yaml
   lifecycle: production
-  owner: backend-review-group
+  owner: vfs-mhv-integration
   system: vets-api
   type: openapi
