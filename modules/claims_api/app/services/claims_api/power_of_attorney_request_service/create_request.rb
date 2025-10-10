@@ -274,7 +274,9 @@ module ClaimsApi
 
         if is_international
           # International number: store full concatenated value in frgnPhoneRfrncTxt (max 30 chars)
+          # Use placeholder in phone_nbr since BGS requires it (NOT NULL constraint)
           {
+            phone_nbr: '0000000000', # 10-digit placeholder required by BGS
             cntry_nbr: country_code,
             frgn_phone_rfrnc_txt: "#{country_code}#{area_code}#{phone_number}"
           }
@@ -354,7 +356,14 @@ module ClaimsApi
       end
 
       def format_phone(phone)
-        "#{phone[:areaCode]}#{phone[:phoneNumber]}"
+        # For international numbers (countryCode != 1), include country code in formatted result
+        if phone[:countryCode].present? && phone[:countryCode] != '1'
+          # International: return full number with country code (areaCode may be nil)
+          "#{phone[:countryCode]}#{phone[:areaCode]}#{phone[:phoneNumber]}"
+        else
+          # Domestic US: area code + phone number only
+          "#{phone[:areaCode]}#{phone[:phoneNumber]}"
+        end
       end
 
       def add_meta_ids(vet_obj)
