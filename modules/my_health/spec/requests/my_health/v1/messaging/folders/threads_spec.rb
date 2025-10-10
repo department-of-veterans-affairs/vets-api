@@ -72,11 +72,13 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders::Threads', type: :request do
         end
 
         it 'returns an empty array when there are no messages in the folder' do
+          allow(StatsD).to receive(:increment)
           VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder_no_messages') do
             get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
                 params: { page_size: '5', page_number: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
           end
 
+          expect(StatsD).to have_received(:increment).with('api.my_health.threads.fail')
           expect(response).to be_successful
 
           json_response = JSON.parse(response.body)

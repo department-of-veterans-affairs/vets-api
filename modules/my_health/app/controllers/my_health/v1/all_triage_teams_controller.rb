@@ -3,6 +3,10 @@
 module MyHealth
   module V1
     class AllTriageTeamsController < SMController
+      include Vets::SharedLogging
+
+      STATSD_KEY_PREFIX = 'api.my_health.all_triage_teams'
+
       def index
         resource = client.get_all_triage_teams(@current_user.uuid, use_cache?)
         if resource.blank?
@@ -14,6 +18,10 @@ module MyHealth
 
         # Even though this is a collection action we are not going to paginate
         render json: AllTriageTeamsSerializer.new(resource.data, { meta: resource.metadata })
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.fail")
+        log_exception_to_rails(e)
+        raise e
       end
     end
   end
