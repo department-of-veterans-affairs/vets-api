@@ -1661,9 +1661,11 @@ RSpec.describe FormProfile, type: :model do
               }
             }
           end
+
           before do
             allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(true)
           end
+
           context 'with a 686c-674 v1 form' do
             it 'omits address fields in 686c-674 form' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
@@ -1860,6 +1862,7 @@ RSpec.describe FormProfile, type: :model do
           before do
             allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(false)
           end
+
           context 'with a 686c-674 v1 form' do
             it 'omits address fields in 686c-674 form' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
