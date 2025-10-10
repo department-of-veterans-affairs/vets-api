@@ -234,6 +234,9 @@ claims_evidence_api:
   jwt_secret: fake-secret
   mock: false
   ssl: false
+  timeout:
+    open: 30
+    read: 30
 clamav:
   host: 0.0.0.0
   mock: true
@@ -681,6 +684,7 @@ lighthouse:
     use_mocks: false
   benefits_intake:
     api_key: ~
+    breakers_error_threshold: 80
     host: https://sandbox-api.va.gov
     path: "/services/vba_documents"
     report:
@@ -718,6 +722,7 @@ lighthouse:
       - system/Invoice.read
       - system/PaymentReconciliation.read
       - system/MedicationDispense.read
+      - system/Encounter.read
       - launch
     timeout: 30
     use_mocks: false
@@ -1592,6 +1597,9 @@ vanotify:
         form21_674_action_needed_email: form21_674_action_needed_email_template_id
         form21_686c_674_action_needed_email: form21_686c_674_action_needed_email_template_id
         form21_686c_action_needed_email: form21_686c_action_needed_email_template_id
+        form21p_0537_confirmation_email: form21p_0537_confirmation_email_template_id
+        form21p_0537_error_email: form21p_0537_error_email_template_id
+        form21p_0537_received_email: form21p_0537_received_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21p_0847_error_email: form21p_0847_error_email_template_id
         form21p_0847_received_email: form21p_0847_received_email_template_id
@@ -1621,6 +1629,15 @@ vanotify:
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         reactivation_email_test_b: ~
         va_appointment_failure: fake_template_id
+    veteran_readiness_and_employment:
+      api_key: ~
+      email:
+        confirmation_lighthouse:
+          template_id: 'confirmation_lighthouse_email_template_id'
+        confirmation_vbms:
+          template_id: 'confirmation_vbms_email_template_id'
+        error:
+          template_id: 'error_email_template_id'
   status_callback:
     bearer_token: fake_bearer_token
 vaos:
@@ -1740,7 +1757,6 @@ veteran_enrollment_system:
 veteran_onboarding:
   onboarding_threshold_days: ~
 veteran_readiness_and_employment:
-  api_key: ~
   auth_endpoint: ~
   base_url: ~
   credentials: ~
@@ -1806,13 +1822,6 @@ veteran_readiness_and_employment:
       - VRE.VBAANC@va.gov
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
-  email:
-    confirmation_lighthouse:
-      template_id: 'confirmation_lighthouse'
-    confirmation_vbms:
-      template_id: 'confirmation_vbms'
-    error:
-      template_id: 'error'
 vetext:
   mock: ~
 vetext_push:

@@ -234,6 +234,9 @@ claims_evidence_api:
   jwt_secret: <%= ENV['claims_evidence_api__jwt_secret'] %>
   mock: false
   ssl: true
+  timeout:
+    open: 30
+    read: 30
 clamav:
   host: clamav
   mock: <%= ENV['clamav__mock'] %>
@@ -682,6 +685,7 @@ lighthouse:
     use_mocks: <%= ENV['lighthouse__benefits_education__use_mocks'] %>
   benefits_intake:
     api_key: <%= ENV['lighthouse__benefits_intake__api_key'] %>
+    breakers_error_threshold: 80
     host: <%= ENV['lighthouse__benefits_intake__host'] %>
     path: <%= ENV['lighthouse__benefits_intake__path'] %>
     report:
@@ -719,6 +723,7 @@ lighthouse:
       - system/Invoice.read
       - system/PaymentReconciliation.read
       - system/MedicationDispense.read
+      - system/Encounter.read
       - launch
     timeout: 30
     use_mocks: false
@@ -1573,6 +1578,9 @@ vanotify:
         form21_674_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form21_674_action_needed_email'] %>
         form21_686c_674_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form21_686c_674_action_needed_email'] %>
         form21_686c_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form21_686c_action_needed_email'] %>
+        form21p_0537_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0537_confirmation_email'] %>
+        form21p_0537_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0537_error_email'] %>
+        form21p_0537_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0537_received_email'] %>
         form21p_0847_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0847_confirmation_email'] %>
         form21p_0847_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0847_error_email'] %>
         form21p_0847_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0847_received_email'] %>
@@ -1602,6 +1610,15 @@ vanotify:
         preneeds_burial_form_email: <%= ENV['vanotify__services__va_gov__template_id__preneeds_burial_form_email'] %>
         reactivation_email_test_b: <%= ENV['vanotify__services__va_gov__template_id__reactivation_email_test_b'] %>
         va_appointment_failure: <%= ENV['vanotify__services__va_gov__template_id__va_appointment_failure'] %>
+    veteran_readiness_and_employment:
+      api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
+      email:
+        confirmation_lighthouse:
+          template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
+        confirmation_vbms:
+          template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
+        error:
+          template_id: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
   status_callback:
     bearer_token: <%= ENV['vanotify__status_callback__bearer_token'] %>
 vaos:
@@ -1719,7 +1736,6 @@ veteran_enrollment_system:
 veteran_onboarding:
   onboarding_threshold_days: <%= ENV['veteran_onboarding__onboarding_threshold_days'] %>
 veteran_readiness_and_employment:
-  api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
   auth_endpoint: <%= ENV['veteran_readiness_and_employment__auth_endpoint'] %>
   base_url: <%= ENV['veteran_readiness_and_employment__base_url'] %>
   credentials: <%= ENV['veteran_readiness_and_employment__credentials'] %>
@@ -1785,13 +1801,6 @@ veteran_readiness_and_employment:
     - VRE.VBAANC@va.gov
     - VRE.VBAPIT@va.gov
     - VRE-CMS.VBAVACO@va.gov
-  email:
-    confirmation_lighthouse:
-      template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
-    confirmation_vbms:
-      template_id: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
-    error:
-      template_id: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
 vetext:
   mock: <%= ENV['vetext__mock'] %>
 vetext_push:

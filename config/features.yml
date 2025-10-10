@@ -34,10 +34,6 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
     enable_in_development: true
-  accredited_representative_portal_search:
-    actor_type: user
-    description: Enables the people search of the accredited representative portal
-    enable_in_development: true
   accredited_representative_portal_form_21a:
     actor_type: user
     description: >
@@ -48,10 +44,6 @@ features:
     actor_type: user
     description: >
       When enabled, shows form 526ez in the accredited representative portal.
-    enable_in_development: true
-  accredited_representative_portal_submissions:
-    actor_type: user
-    description: Enables the form submissions view in the accredited representative portal
     enable_in_development: true
   accredited_representative_portal_email_delivery_callback:
     actor_type: user
@@ -120,6 +112,11 @@ features:
     description: >
       Use new CRM environments for Ask VA API
     enable_in_development: true
+  ask_va_api_preprod_for_end_to_end_testing:
+    actor_type: user
+    description: >
+      Use preprod CRM environment to facilitate end to end testing by AVA testers.
+    enable_in_development: false
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -984,6 +981,10 @@ features:
     actor_type: user
     description: Enables form 21-0845 email submission confirmation (VaNotify)
     enable_in_development: true
+  form21p_0537_confirmation_email:
+    actor_type: user
+    description: Enables form 21p-0537 email submission confirmation (VaNotify)
+    enable_in_development: true
   form21p_0847_confirmation_email:
     actor_type: user
     description: Enables form 21p-0847 email submission confirmation (VaNotify)
@@ -1064,6 +1065,9 @@ features:
   form21p0847:
     actor_type: user
     description: If enabled shows the digital form experience for form 21P-0847
+  form21p0537:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21P-0537
   form264555:
     actor_type: user
     description: If enabled shows the digital form experience for form 26-4555
@@ -1488,10 +1492,6 @@ features:
     actor_type: user
     description: Enables/disables the use of pre-transformed vital objects
     enable_in_development: true
-  mhv_medical_records_uuid_for_jwt_session_locking:
-    actor_type: user
-    description: Use UUID instead of ICN for locking MHV JWT sessions
-    enable_in_development: true
   mhv_medications_display_allergies:
     actor_type: user
     description: Enables/disables allergies and reactions data
@@ -1499,10 +1499,6 @@ features:
   mhv_medications_display_filter:
     actor_type: user
     description: Enables/disables filter feature for medications list
-    enable_in_development: true
-  mhv_medications_display_grouping:
-    actor_type: user
-    description: Enables/disables grouping medications related work
     enable_in_development: true
   mhv_medications_cerner_pilot:
     actor_type: user
@@ -1518,6 +1514,10 @@ features:
   mhv_modern_cta_links:
     actor_type: user
     description: CTA widget links point to va.gov services
+  mhv_medications_display_new_cerner_facility_alert:
+    actor_type: user
+    description: Enables/disables new facility alert for OH/Cerner users in medications
+    enable_in_development: true
   mhv_medications_display_pending_meds:
     actor_type: user
     description: Enables/disables pending medications related work
@@ -2067,6 +2067,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove the redundant call to facility configurations when determining patient eligibility.
+  va_online_scheduling_use_browser_timezone:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to default to browser timezone when facility timezone is unavailable.
   vaos_appointment_notification_callback:
     actor_type: user
     enable_in_development: true
@@ -2090,9 +2094,6 @@ features:
   vre_cutover_notice:
     actor_type: user
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
-  vre_trigger_action_needed_email:
-    actor_type: user
-    description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
   vre_use_new_vfs_notification_library:
     actor_type: user
     description: Whether or not to use the VFS library for interacting with VA Notify
@@ -2256,10 +2257,6 @@ features:
   sc_browser_monitoring_enabled:
     actor_type: user
     description: Supplemental Claim Datadog RUM monitoring
-  terms_of_use:
-    actor_type: user
-    description: This determines whether a user is redirected to the Terms of Use page
-    enable_in_development: true
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
@@ -2536,9 +2533,6 @@ features:
   gi_ct_mapbox_mitigation:
     actor_type: user
     description: If enabled, hides search by location feature affected by MapBox loss
-  accredited_representative_portal_form:
-    actor_type: user
-    description: Enables form with new options for rep
   my_va_display_all_lighthouse_benefits_intake_forms:
     actor_type: user
     description: When enabled, a user will see all submitted Lighthouse Benefits Intake forms in My VA for form status.
