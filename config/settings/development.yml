@@ -234,6 +234,9 @@ claims_evidence_api:
   jwt_secret: fake-secret
   mock: false
   ssl: false
+  timeout:
+    open: 30
+    read: 30
 clamav:
   host: 0.0.0.0
   mock: true
@@ -681,6 +684,7 @@ lighthouse:
     use_mocks: false
   benefits_intake:
     api_key: ~
+    breakers_error_threshold: 80
     host: https://sandbox-api.va.gov
     path: "/services/vba_documents"
     report:

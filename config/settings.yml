@@ -234,6 +234,9 @@ claims_evidence_api:
   jwt_secret: <%= ENV['claims_evidence_api__jwt_secret'] %>
   mock: false
   ssl: true
+  timeout:
+    open: 30
+    read: 30
 clamav:
   host: clamav
   mock: <%= ENV['clamav__mock'] %>
@@ -682,6 +685,7 @@ lighthouse:
     use_mocks: <%= ENV['lighthouse__benefits_education__use_mocks'] %>
   benefits_intake:
     api_key: <%= ENV['lighthouse__benefits_intake__api_key'] %>
+    breakers_error_threshold: 80
     host: <%= ENV['lighthouse__benefits_intake__host'] %>
     path: <%= ENV['lighthouse__benefits_intake__path'] %>
     report:
