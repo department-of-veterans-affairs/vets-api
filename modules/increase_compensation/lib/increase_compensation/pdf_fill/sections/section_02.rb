@@ -86,9 +86,23 @@ module IncreaseCompensation
       }.freeze
 
       def expand(form_data = {})
-        # form_data['doctorsCareInLastYTD'] == 'YES'
-        # form_data['doctorsCareInLastYTD'] == 'NO'
-        # form_data['doctorsCareInLastYTD'] == 'OFF'
+        form_data['doctorsCareInLastYTD'] = case form_data['doctorsCareInLastYTD']
+                                            when true
+                                              'YES'
+                                            when false
+                                              'NO'
+                                            else
+                                              'OFF'
+                                            end
+        # dates
+        form_data['doctorsTreatmentDates'] = {
+          'from' => split_date(form_data['doctorsTreatmentDates']['from']),
+          'to' => split_date(form_data['doctorsTreatmentDates']['to'])
+        }
+        form_data['hospitalCareDateRanges'] = {
+          'from' => split_date(form_data['hospitalCareDateRanges']['from']),
+          'to' => split_date(form_data['hospitalCareDateRanges']['to'])
+        }
       end
     end
   end

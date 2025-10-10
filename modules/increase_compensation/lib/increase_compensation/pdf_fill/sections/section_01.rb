@@ -162,7 +162,7 @@ module IncreaseCompensation
             question_num: 6,
             key: 'form1[0].#subform[0].E_Mail_Address_If_Applicable[0]'
           },
-          'emai2' => {
+          'email2' => {
             limit: 17,
             question_num: 6,
             key: 'form1[0].#subform[0].E_Mail_Address_If_Applicable[1]'
@@ -192,19 +192,19 @@ module IncreaseCompensation
       }.freeze
 
       def expand(form_data = {})
-        form_data = form_data.merge(form_data['veteran'])
-        form_data['veteranFullName'] = extract_middle_i(form_data['veteranFullName'])
+        form_data['veteranFullName'] = extract_middle_i(form_data, 'veteranFullName')
         form_data['veteranPhone'] = expand_phone_number(form_data['veteranPhone'])
         form_data['veteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
         form_data['veteranSocialSecurityNumber1'] = form_data['veteranSocialSecurityNumber']
         form_data['veteranSocialSecurityNumber2'] = form_data['veteranSocialSecurityNumber']
         form_data['veteranSocialSecurityNumber3'] = form_data['veteranSocialSecurityNumber']
 
-        if validate_date(form_data['veteranDateOfBirth'])
-          form_data['veteranDateOfBirth'] = split_date(form_data['veteranDateOfBirth'])
-        end
-        form_data['veteranAddress']['zip_code'] = split_postal_code(form_data['veteranAddress'])
+        form_data['veteranDateOfBirth'] = split_date(form_data['dateOfBirth'])
+
+        form_data['veteranAddress']['postalCode'] = split_postal_code(form_data['veteranAddress'])
         form_data['electronicCorrespondance'] = form_data['electronicCorrespondance'] ? 1 : 0
+        #  Email addreess overflows to next line
+        form_data['emailAddresses'] = two_line_overflow(form_data['email'], 'email', 17)
       end
     end
   end

@@ -22,81 +22,112 @@ module IncreaseCompensation
         'trainingPreDisabled' => {
           key: 'form1[0].#subform[2].RadioButtonList[6]'
         },
-        'otherEducationTrainingPreUnemployability' => {
+        'educationTrainingPreUnemployability' => {
           'name' => {
-            limit: 15,
+            limit: 12,
             key: 'form1[0].#subform[2].Type_Of_Education_Or_Training[0]'
           },
-          'from' => {
-            'month' => {
-              key: 'form1[0].#subform[2].DATESOFTRAINING_BEGINNING_MONTH[0]'
+          'datesOfTraining' => {
+            'from' => {
+              'month' => {
+                key: 'form1[0].#subform[2].DATESOFTRAINING_BEGINNING_MONTH[0]'
+              },
+              'day' => {
+                key: 'form1[0].#subform[2].DATESOFTRAINING_BEGINNING_DAY[0]'
+              },
+              'year' => {
+                key: 'form1[0].#subform[2].DATESOFTRAINING_BEGINNING_YEAR[0]'
+              }
             },
-            'day' => {
-              key: 'form1[0].#subform[2].DATESOFTRAINING_BEGINNING_DAY[0]'
-            },
-            'year' => {
-              key: 'form1[0].#subform[2].DATESOFTRAINING_BEGINNING_YEAR[0]'
-            }
-          },
-          'to' => {
-            'month' => {
-              key: 'form1[0].#subform[2].DATESOFTRAINING_COMPLETION_MONTH[0]'
-            },
-            'day' => {
-              key: 'form1[0].#subform[2].DATESOFTRAINING_COMPLETION_DAY[0]'
-            },
-            'year' => {
-              key: 'form1[0].#subform[2].DATESOFTRAINING_COMPLETION_YEAR[0]'
+            'to' => {
+              'month' => {
+                key: 'form1[0].#subform[2].DATESOFTRAINING_COMPLETION_MONTH[0]'
+              },
+              'day' => {
+                key: 'form1[0].#subform[2].DATESOFTRAINING_COMPLETION_DAY[0]'
+              },
+              'year' => {
+                key: 'form1[0].#subform[2].DATESOFTRAINING_COMPLETION_YEAR[0]'
+              }
             }
           }
         },
         'trainingPostUnemployment' => {
+          question_num: 25,
           key: 'form1[0].#subform[2].RadioButtonList[7]'
         },
-        'otherEducationTrainingPostUnemployability' => {
-          limit: 1,
+        'educationTrainingPostUnemployability' => {
           question_num: 25,
-          question_text: 'Other Education or Training After Unemployability',
-          first_key: 'name',
           'name' => {
+            limit: 12,
             key: 'form1[0].#subform[2].Type_Of_Education_Or_Training[1]'
           },
-          'from' => {
-            'month' => {
-              limit: 2,
-              key: 'form1[0].#subform[2].DATESOFTRAINING_BEGINNING_MONTH[1]'
+          'datesOfTraining' => {
+            'from' => {
+              'month' => {
+                limit: 2,
+                key: 'form1[0].#subform[2].DATESOFTRAINING_BEGINNING_MONTH[1]'
+              },
+              'day' => {
+                limit: 2,
+                key: 'form1[0].#subform[2].DATESOFTRAINING_BEGINNING_DAY[1]'
+              },
+              'year' => {
+                limit: 4,
+                key: 'form1[0].#subform[2].DATESOFTRAINING_BEGINNING_YEAR[1]'
+              }
             },
-            'day' => {
-              limit: 2,
-              key: 'form1[0].#subform[2].DATESOFTRAINING_BEGINNING_DAY[1]'
-            },
-            'year' => {
-              limit: 4,
-              key: 'form1[0].#subform[2].DATESOFTRAINING_BEGINNING_YEAR[1]'
-            }
-          },
-          'to' => {
-            'month' => {
-              limit: 2,
-              key: 'form1[0].#subform[2].DATESOFTRAINING_COMPLETION_MONTH[1]'
-            },
-            'day' => {
-              limit: 2,
-              key: 'form1[0].#subform[2].DATESOFTRAINING_COMPLETION_DAY[1]'
-            },
-            'year' => {
-              limit: 4,
-              key: 'form1[0].#subform[2].DATESOFTRAINING_COMPLETION_YEAR[1]'
+            'to' => {
+              'month' => {
+                limit: 2,
+                key: 'form1[0].#subform[2].DATESOFTRAINING_COMPLETION_MONTH[1]'
+              },
+              'day' => {
+                limit: 2,
+                key: 'form1[0].#subform[2].DATESOFTRAINING_COMPLETION_DAY[1]'
+              },
+              'year' => {
+                limit: 4,
+                key: 'form1[0].#subform[2].DATESOFTRAINING_COMPLETION_YEAR[1]'
+              }
             }
           }
         }
       }.freeze
       def expand(form_data = {})
-        # form_data['gradeSchool'] = 1 2 3 4 5 6 7 8 OFF
-        # form_data['highSchool'] = 10 11 12 OFF
-        # form_data['college'] = Fresh Soph Jr Sr Off
-        # form_data['trainingPreDisabled'] = NO || OFF
-        # form_data['trainingPreDisabled'] = YES (If &quot;Yes,&quot; complete Items 25B and 25C) || NO || OFF
+        if form_data['education'].key?('highSchool')
+          form_data['education']['highSchool'] = education_highschool_bug_fix(form_data['education']['highSchool'])
+        end
+        form_data['trainingPreDisabled'] = format_custom_boolean(form_data['trainingPreDisabled'], '1')
+        form_data['educationTrainingPreUnemployability']['datesOfTraining'] =
+          map_date_range(form_data['educationTrainingPreUnemployability']['datesOfTraining'])
+        form_data['educationTrainingPostUnemployability']['datesOfTraining'] =
+          map_date_range(form_data['educationTrainingPostUnemployability']['datesOfTraining'])
+      end
+
+      def map_date_range(date_range)
+        {
+          'from' => split_date(date_range['from']),
+          'to' => split_date(date_range['to'])
+        }
+      end
+
+      # option are off by 1 as grade '9' is not in the pdf data, so grade 12 appears as 'Off'
+      def education_highschool_bug_fix(grade)
+        return {} if grade.nil?
+
+        case grade
+        when 9
+          10
+        when 10
+          11
+        when 11
+          12
+        when 12
+          'Off'
+        else
+          ''
+        end
       end
     end
   end
