@@ -2,7 +2,7 @@
 
 require_relative '../models/clinical_notes'
 require_relative '../models/avs'
-require_relative '../models/avs_binary'
+require_relative '../models/binary_data'
 
 module UnifiedHealthData
   module Adapters
@@ -79,7 +79,7 @@ module UnifiedHealthData
         avs_binary_data = extract_avs_binary(record)
         return nil unless record && avs_binary_data
 
-        UnifiedHealthData::AfterVisitSummaryBinary.new(avs_binary_data)
+        UnifiedHealthData::BinaryData.new(avs_binary_data)
       end
 
       private

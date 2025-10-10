@@ -3,7 +3,7 @@
 require 'vets/model'
 
 module UnifiedHealthData
-  class AfterVisitSummaryBinary
+  class BinaryData
     include Vets::Model
 
     attribute :content_type, String
