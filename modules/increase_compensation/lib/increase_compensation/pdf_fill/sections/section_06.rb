@@ -40,6 +40,7 @@ module IncreaseCompensation
         }
       }.freeze
       def expand(form_data = {})
+        form_data['signatureDate'] = split_date(form_data['signatureDate'])
         if form_data['witnessSignature1']['address'].length > 1
           form_data['witnessSignature1'].merge!(
             two_line_overflow(form_data['witnessSignature1']['address'], 'address', 17)
