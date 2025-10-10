@@ -133,9 +133,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
     context 'when feature toggles' do
       before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:simple_forms_upload_supporting_documents, @current_user)
-          .and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents, an_instance_of(User)).and_return(true)
       end
 
       it 'processes files through ScannedFormProcessor and returns success' do
@@ -162,6 +160,10 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     end
 
     context 'when conversion fails' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents, an_instance_of(User)).and_return(true)
+      end
+
       it 'returns conversion error from processor' do
         processor = double('ScannedFormProcessor')
         expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new).and_return(processor)
@@ -187,6 +189,10 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     end
 
     context 'when validation fails' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents, an_instance_of(User)).and_return(true)
+      end
+
       it 'returns validation error from processor' do
         processor = double('ScannedFormProcessor')
         expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new).and_return(processor)
@@ -211,6 +217,10 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     end
 
     context 'when basic attachment validation fails' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents, an_instance_of(User)).and_return(true)
+      end
+
       it 'returns validation errors without calling processor' do
         allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:valid?) do |attachment|
           attachment.errors.add(:file, 'is invalid')
@@ -226,16 +236,17 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
-  end
 
-  context 'when feature toggle is disabled' do
-    it 'returns not found' do
-      allow(Flipper).to receive(:enabled?)
-        .with(:simple_forms_upload_supporting_documents, anything)
-        .and_return(false)
-      params = { form_id: '123', file: valid_pdf_file }
-      post('/simple_forms_api/v1/supporting_documents_upload', params:)
-      expect(response).to have_http_status(:not_found)
+    context 'when feature toggle is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents, an_instance_of(User)).and_return(false)
+      end
+
+      it 'returns not found' do
+        params = { form_id: '123', file: valid_pdf_file }
+        post('/simple_forms_api/v1/supporting_documents_upload', params:)
+        expect(response).to have_http_status(:not_found)
+      end
     end
   end
 end
