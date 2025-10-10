@@ -234,6 +234,9 @@ claims_evidence_api:
   jwt_secret: <%= ENV['claims_evidence_api__jwt_secret'] %>
   mock: false
   ssl: true
+  timeout:
+    open: 30
+    read: 30
 clamav:
   host: clamav
   mock: <%= ENV['clamav__mock'] %>
@@ -682,6 +685,7 @@ lighthouse:
     use_mocks: <%= ENV['lighthouse__benefits_education__use_mocks'] %>
   benefits_intake:
     api_key: <%= ENV['lighthouse__benefits_intake__api_key'] %>
+    breakers_error_threshold: 80
     host: <%= ENV['lighthouse__benefits_intake__host'] %>
     path: <%= ENV['lighthouse__benefits_intake__path'] %>
     report:
@@ -1574,6 +1578,9 @@ vanotify:
         form21_674_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form21_674_action_needed_email'] %>
         form21_686c_674_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form21_686c_674_action_needed_email'] %>
         form21_686c_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form21_686c_action_needed_email'] %>
+        form21p_0537_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0537_confirmation_email'] %>
+        form21p_0537_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0537_error_email'] %>
+        form21p_0537_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0537_received_email'] %>
         form21p_0847_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0847_confirmation_email'] %>
         form21p_0847_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0847_error_email'] %>
         form21p_0847_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21p_0847_received_email'] %>
