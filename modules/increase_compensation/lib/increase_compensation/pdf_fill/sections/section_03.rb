@@ -6,6 +6,7 @@ module IncreaseCompensation
   module PdfFill
     # Section III: EMPLOYMENT STATEMENT
     class Section3 < Section
+      include Helpers
       # Hash iterator
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
       # Section configuration hash
@@ -83,32 +84,34 @@ module IncreaseCompensation
             limit: 3,
             key: "form1[0].#subform[1].HOURSPERWEEK#{ITERATOR}[0]"
           },
-          'from' => {
-            'month' => {
-              iterator_offset: ->(iterator) { iterator + 1 },
-              key: "form1[0].#subform[1].DATESOFEMPLOYMENT#{ITERATOR}_FROM_MONTH[0]"
+          'datesOfEmployment' => {
+            'from' => {
+              'month' => {
+                iterator_offset: ->(iterator) { iterator + 1 },
+                key: "form1[0].#subform[1].DATESOFEMPLOYMENT#{ITERATOR}_FROM_MONTH[0]"
+              },
+              'day' => {
+                iterator_offset: ->(iterator) { iterator + 1 },
+                key: "form1[0].#subform[1].DATESOFEMPLOYMENT#{ITERATOR}_FROM_DAY[0]"
+              },
+              'year' => {
+                iterator_offset: ->(iterator) { iterator + 1 },
+                key: "form1[0].#subform[1].DATESOFEMPLOYMENT#{ITERATOR}_FROM_YEAR[0]"
+              }
             },
-            'day' => {
-              iterator_offset: ->(iterator) { iterator + 1 },
-              key: "form1[0].#subform[1].DATESOFEMPLOYMENT#{ITERATOR}_FROM_DAY[0]"
-            },
-            'year' => {
-              iterator_offset: ->(iterator) { iterator + 1 },
-              key: "form1[0].#subform[1].DATESOFEMPLOYMENT#{ITERATOR}_FROM_YEAR[0]"
-            }
-          },
-          'to' => {
-            'month' => {
-              iterator_offset: ->(iterator) { iterator + 1 },
-              key: "form1[0].#subform[1].DATESOFEMPLOYMENT#{ITERATOR}_TO_MONTH[0]"
-            },
-            'day' => {
-              iterator_offset: ->(iterator) { iterator + 1 },
-              key: "form1[0].#subform[1].DATESOFEMPLOYMENT#{ITERATOR}_TO_DAY[0]"
-            },
-            'year' => {
-              iterator_offset: ->(iterator) { iterator + 1 },
-              key: "form1[0].#subform[1].DATESOFEMPLOYMENT#{ITERATOR}_TO_YEAR[0]"
+            'to' => {
+              'month' => {
+                iterator_offset: ->(iterator) { iterator + 1 },
+                key: "form1[0].#subform[1].DATESOFEMPLOYMENT#{ITERATOR}_TO_MONTH[0]"
+              },
+              'day' => {
+                iterator_offset: ->(iterator) { iterator + 1 },
+                key: "form1[0].#subform[1].DATESOFEMPLOYMENT#{ITERATOR}_TO_DAY[0]"
+              },
+              'year' => {
+                iterator_offset: ->(iterator) { iterator + 1 },
+                key: "form1[0].#subform[1].DATESOFEMPLOYMENT#{ITERATOR}_TO_YEAR[0]"
+              }
             }
           },
           'timeLostFromIllness' => {
@@ -175,12 +178,12 @@ module IncreaseCompensation
             iterator_offset: ->(iterator) { iterator + 1 },
             key: "form1[0].#subform[2].Table1[0].Row#{ITERATOR}[0].NAME_AND_ADDRESS_OF_EMPLOYER[0]"
           },
-          'workType' => {
+          'typeOfWork' => {
             limit: 62,
             iterator_offset: ->(iterator) { iterator + 1 },
             key: "form1[0].#subform[2].Table1[0].Row#{ITERATOR}[0].TYPE_OF-WORK[0]"
           },
-          'date' => {
+          'dateApplied' => {
             'month' => {
               iterator_offset: ->(iterator) { iterator + 1 },
               key: "form1[0].#subform[2].Table1[0].Row#{ITERATOR}[0].#subform[0].DATESOFEMPLOYMENT5_FROM_MONTH[0]"
@@ -198,22 +201,58 @@ module IncreaseCompensation
 
       }.freeze
       def expand(form_data = {})
-        # split_currency_amount_sm(,{ 'cents' => 0, 'dollars' => 3, 'thousands' => 3 })
+        form_data = format_employment(form_data)
+        form_data = format_applications(form_data)
+        form_data = format_boolean_fields(form_data)
+        form_data['disabilityAffectEmployFTDate'] = split_date(form_data['disabilityAffectEmployFTDate'])
+        form_data['lastWorkedFullTimeDate'] = split_date(form_data['lastWorkedFullTimeDate'])
+        form_data['becameTooDisabledToWorkDate'] = split_date(form_data['becameTooDisabledToWorkDate'])
+        form_data['mostEarningsInAYear'] = split_currency_amount_thousands(form_data['mostEarningsInAYear'])
+        form_data['past12MonthsEarnedIncome'] = split_currency_amount_thousands(form_data['past12MonthsEarnedIncome'])
+        form_data['currentMonthlyEarnedIncome'] =
+          split_currency_amount_thousands(form_data['currentMonthlyEarnedIncome'])
+      end
 
-        form_data['mostEarningsInAYear'] = split_currency_amount(form_data['mostEarningsInAYear'].to_i)
-        form_data['past12MonthsEarnedIncome'] = split_currency_amount(form_data['mostEarningsInAYear'].to_i)
-        form_data['currentMonthlyEarnedIncome'] = split_currency_amount(form_data['currentMonthlyEarnedIncome'].to_i)
-        if form_data['previousEmployers'].length.positive?
-          form_data['previousEmployers'].each do |work|
-            work['mostEarningsInAMonth'] = split_currency_amount(form_data['mostEarningsInAMonth'].to_i)
-          end
+      def format_boolean_fields(form_data)
+        form_data['preventMilitaryDuties'] = format_custom_boolean(
+          form_data['preventMilitaryDuties']
+        )
+        form_data['leftLastJobDueToDisability'] = format_custom_boolean(
+          form_data['leftLastJobDueToDisability'],
+          'YES (If "Yes," explain in Item 26, "Remarks")'
+        )
+        form_data['expectDisabilityRetirement'] = format_custom_boolean(
+          form_data['expectDisabilityRetirement']
+        )
+        form_data['receiveExpectWorkersCompensation'] = format_custom_boolean(
+          form_data['receiveExpectWorkersCompensation']
+        )
+        form_data['attemptedEmploy'] = format_custom_boolean(
+          form_data['attemptedEmploy'],
+          'YES (If "Yes," complete Items 22A, 22B, and 22C)'
+        )
+        form_data
+      end
+
+      def format_employment(form_data)
+        return form_data if form_data['previousEmployers'].length < 1
+
+        form_data['previousEmployers'].each do |work|
+          work['hoursPerWeek'] = work['hoursPerWeek'].to_s.rjust(3)
+          work['mostEarningsInAMonth'] = split_currency_amount_thousands(work['mostEarningsInAMonth'])
+          work['datesOfEmployment']['from'] = split_date(work['datesOfEmployment']['from'])
+          work['datesOfEmployment']['to'] = split_date(work['datesOfEmployment']['to'])
         end
+        form_data
+      end
 
-        # if form_data['preventMilitaryDuties'] || YES || NO || OFF
-        # form_data['leftLastJobDueToDisability'] YES (If &quot;Yes,&quot; explain in Item 26, &quot;Remarks&quot;) || NO || OFF
-        # form_data['expectDisabilityRetirement'] YES || NO || OFF
-        # form_data['receiveExpectWorkersCompensation'] YES || NO || OFF
-        # form_data['attemptedEmploy'] YES (If &quot;Yes,&quot; complete Items 22A, 22B, and 22C) || NO || OFF
+      def format_applications(form_data)
+        return form_data if form_data['appliedEmployers'].length < 1
+
+        form_data['appliedEmployers'].each do |work|
+          work['dateApplied'] = split_date(work['dateApplied'])
+        end
+        form_data
       end
     end
   end

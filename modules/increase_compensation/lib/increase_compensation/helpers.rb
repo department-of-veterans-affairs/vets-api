@@ -24,19 +24,26 @@ module IncreaseCompensation
       Date.parse(date_string).strftime('%m/%d/%Y')
     end
 
-    ## Format Currency into just thousands and hundreds `{ firstThree="100", lastThree="100" }``
+    ##
+    # Format Currency into just thousands and hundreds `{ firstThree="100", lastThree="100" }``
     #
     # @param amount [Integer, nil]
     # @return [Hash]
     def split_currency_amount_thousands(amount)
-      return {} if !amount&.nonzero? || amount.negative? || amount >= 1_000_000
+      return {} if amount.nil? || amount.negative? || amount >= 1_000_000
 
-      thousands = amount.to_s[0..2]
-      hundreds = amount.to_s[3..]
-      {
-        firstThree: thousands,
-        lastThree: hundreds
-      }
+      if amount > 999
+        thousands = amount.to_s[..-4]
+        hundreds = amount.to_s[-3..]
+        {
+          'firstThree' => thousands.to_s.rjust(3),
+          'lastThree' => hundreds
+        }
+      else
+        {
+          'lastThree' => amount.to_s.rjust(3)
+        }
+      end
     end
 
     ##
@@ -98,6 +105,41 @@ module IncreaseCompensation
       value = arr.length >= -neg_i ? arr[neg_i] : nil
       (field_length - value.length).times { value = value.dup.prepend(' ') } if value
       value
+    end
+
+    ##
+    # Map a boolean to custom text responses. Some pdf include text with the YES/NO field, for example `YES (If &quot;Yes,&quot; explain in Item 26, &quot;Remarks&quot;)`
+    #
+    # @param bool_value [Boolean]
+    # @param custom_yes_value [String]
+    # @param custom_no_value [String]
+    # @return [String]
+    #
+    def format_custom_boolean(bool_value, custom_yes_value = 'YES', custom_no_value = 'NO')
+      return 'Off' if bool_value.nil?
+
+      bool_value ? custom_yes_value : custom_no_value
+    end
+
+    ##
+    # form has text field with two lines, wrap text to next line
+    #
+    # param string [String]
+    # param key_name [String]
+    # param limit [Integer]
+    # return [Hash]
+    #
+    def two_line_overflow(string, key_name, limit)
+      if string.length > limit
+        {
+          "#{key_name}1" => string[..17],
+          "#{key_name}2" => string[(limit + 1)..]
+        }
+      else
+        {
+          "#{key_name}1" => string
+        }
+      end
     end
 
     ##

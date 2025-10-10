@@ -27,7 +27,7 @@ module IncreaseCompensation
             limit: 38,
             key: 'form1[0].#subform[4].Signature[0]'
           },
-          'address' => { key: 'form1[0].#subform[4].ADDRESS_OF_WITNESS[0]' },
+          'address1' => { key: 'form1[0].#subform[4].ADDRESS_OF_WITNESS[0]' },
           'address2' => { key: 'form1[0].#subform[4].ADDRESS_OF_WITNESS[1]' }
         },
         'witnessSignature2' => {
@@ -35,11 +35,21 @@ module IncreaseCompensation
             limit: 38,
             key: 'form1[0].#subform[4].Signature[1]'
           },
-          'address' => { key: 'form1[0].#subform[4].ADDRESS_OF_WITNESS[2]' },
+          'address1' => { key: 'form1[0].#subform[4].ADDRESS_OF_WITNESS[2]' },
           'address2' => { key: 'form1[0].#subform[4].ADDRESS_OF_WITNESS[3]' }
         }
       }.freeze
       def expand(form_data = {})
+        if form_data['witnessSignature1']['address'].length > 1
+          form_data['witnessSignature1'].merge!(
+            two_line_overflow(form_data['witnessSignature1']['address'], 'address', 17)
+          )
+        end
+        if form_data['witnessSignature2']['address'].length > 1
+          form_data['witnessSignature2'].merge!(
+            two_line_overflow(form_data['witnessSignature2']['address'], 'address', 17)
+          )
+        end
       end
     end
   end
