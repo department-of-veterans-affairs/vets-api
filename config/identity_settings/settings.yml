@@ -73,6 +73,8 @@ sign_in:
   arp_client_id: arp
   auto_uplevel: true
   cookies_secure: false
+  credential_attributes_digester:
+    pepper: ~
   info_cookie_domain: localhost
   jwt_encode_key: spec/fixtures/sign_in/privatekey.pem
   jwt_old_encode_key: spec/fixtures/sign_in/privatekey_old.pem
