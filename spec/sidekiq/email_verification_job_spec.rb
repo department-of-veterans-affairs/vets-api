@@ -17,10 +17,6 @@ RSpec.describe EmailVerificationJob, type: :job do
     allow(Rails.logger).to receive(:error)
   end
 
-  after do
-    Sidekiq::Testing.disable!
-  end
-
   describe '#perform' do
     context 'when feature flag is enabled' do
       before do
