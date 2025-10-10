@@ -62,11 +62,123 @@ module DisabilityCompensation
         )
       end
 
+      # Logs toxic exposure data purge events during Form 526 submission
+      #
+      # Compares InProgressForm toxic exposure data with submitted claim data
+      # to detect when toxic exposure data has been purged by the frontend.
+      # Logs which specific keys were removed or modified to validate purge logic.
+      #
+      # @param in_progress_form [InProgressForm] User's saved form data
+      # @param submitted_claim [SavedClaim::DisabilityCompensation::Form526AllClaim] The submitted claim
+      # @param submission [Form526Submission] The submission record
+      # @param user_uuid [String] User's UUID
+      # @return [void]
+      def track_toxic_exposure_purge(in_progress_form:, submitted_claim:, submission:, user_uuid:)
+        sip_data = parse_form_data(in_progress_form.form_data)
+        submitted_data = parse_form_data(submitted_claim.form)
+        return unless sip_data && submitted_data
+
+        # NOTE: Both InProgressForm.form_data and SavedClaim.form store only the inner
+        # content of the form526 submission (without the 'form526' wrapper).
+        # The wrapper only exists in the original HTTP request body.
+        # Keys use camelCase format (toxicExposure, gulfWar1990, etc.)
+        sip_toxic_exposure = sip_data['toxicExposure']
+        submitted_toxic_exposure = submitted_data['toxicExposure']
+
+        # Only log if toxic exposure existed in SIP but changed or was removed
+        return if sip_toxic_exposure.nil? || sip_toxic_exposure == submitted_toxic_exposure
+
+        change_metadata = calculate_toxic_exposure_changes(sip_toxic_exposure, submitted_toxic_exposure)
+
+        # Don't log if no meaningful changes (after filtering view: fields and empty hashes)
+        return if change_metadata[:removed_keys].empty? && !change_metadata[:completely_removed]
+
+        log_toxic_exposure_changes(
+          in_progress_form:,
+          submitted_claim:,
+          submission:,
+          user_uuid:,
+          change_metadata:
+        )
+      end
+
       private
+
+      # Parse form data from JSON string or Hash
+      #
+      # Handles both Hash and JSON string formats for form data
+      # and returns nil for invalid JSON or unsupported types.
+      #
+      # @param data [Hash, String] Form data to parse
+      # @return [Hash, nil] Parsed form data hash or nil if parsing fails
+      def parse_form_data(data)
+        return data if data.is_a?(Hash)
+        return JSON.parse(data) if data.is_a?(String)
+
+        nil
+      rescue JSON::ParserError
+        nil
+      end
 
       # Loops through array of ActiveModel::Error instances and formats a readable log
       def format_active_model_errors(errors)
         errors.map { |error| { "#{error.attribute}": error.type.to_s } }.to_s
+      end
+
+      # Log the toxic exposure changes with metadata
+      #
+      # Submits a logging event to DataDog with minimal metadata about
+      # which toxic exposure keys were removed during submission.
+      # Uses minimal data to reduce fingerprinting risk.
+      #
+      # @param in_progress_form [InProgressForm] User's saved form data (unused, for signature compatibility)
+      # @param submitted_claim [SavedClaim::DisabilityCompensation::Form526AllClaim] The SavedClaim record (unused)
+      # @param submission [Form526Submission] The Form526Submission record
+      # @param user_uuid [String] User's UUID (unused, for signature compatibility)
+      # @param change_metadata [Hash] Hash containing removed_keys and removal flags
+      # @return [void]
+      # rubocop:disable Lint/UnusedMethodArgument
+      def log_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:,
+                                     user_uuid:, change_metadata:)
+        log_data = {
+          submission_id: submission.id,
+          completely_removed: change_metadata[:completely_removed],
+          removed_keys: change_metadata[:removed_keys]
+        }
+
+        submit_event(
+          :info,
+          "Form526Submission=#{submission.id} ToxicExposureChanges=detected",
+          "#{self.class::CLAIM_STATS_KEY}.toxic_exposure_changes",
+          log_data
+        )
+      end
+      # rubocop:enable Lint/UnusedMethodArgument
+
+      # Calculate removed keys from toxic exposure changes
+      #
+      # Analyzes differences between SIP and submitted toxic exposure data
+      # to identify which keys were removed. Filters out expected removals like
+      # 'view:' prefixed UI fields and empty hash values to reduce noise.
+      #
+      # @param sip_toxic_exposure [Hash] Toxic exposure data from InProgressForm
+      # @param submitted_toxic_exposure [Hash, nil] Toxic exposure data from submitted claim
+      # @return [Hash] Metadata with completely_removed and removed_keys
+      def calculate_toxic_exposure_changes(sip_toxic_exposure, submitted_toxic_exposure)
+        all_removed_keys = sip_toxic_exposure.keys - (submitted_toxic_exposure&.keys || [])
+
+        # Filter out expected removals to reduce noise:
+        # - 'view:' prefixed fields are UI-only and always stripped by backend
+        # - Empty hashes contain no meaningful data
+        removed_keys = all_removed_keys.reject do |key|
+          key.to_s.start_with?('view:') ||
+            (sip_toxic_exposure[key].is_a?(Hash) && sip_toxic_exposure[key].empty?)
+        end
+
+        {
+          completely_removed: submitted_toxic_exposure.nil?,
+          removed_keys: removed_keys.sort
+        }
       end
 
       ##
