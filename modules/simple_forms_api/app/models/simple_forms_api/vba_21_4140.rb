@@ -68,17 +68,11 @@ module SimpleFormsApi
     end
 
     def phone_alternate
-      phone = data['mobile_phone_number']
-      return nil if phone.nil?
-
-      phone.insert(-8, '-').insert(-5, '-')
+      format_phone(data['mobile_phone_number'])
     end
 
     def phone_primary
-      phone = data['phone_number']
-      return nil if phone.nil?
-
-      phone.insert(-8, '-').insert(-5, '-')
+      format_phone(data['phone_number'])
     end
 
     def signature_date_employed
@@ -151,7 +145,13 @@ module SimpleFormsApi
     end
 
     def contact_info
-      [phone_primary, phone_alternate, data['email_address']].compact
+      [data['phone_number'], data['mobile_phone_number'], data['email_address']].compact
+    end
+
+    def format_phone(phone)
+      return nil if phone.nil?
+
+      "#{phone[0...-7]}-#{phone[-7...-4]}-#{phone[-4..]}"
     end
   end
 end
