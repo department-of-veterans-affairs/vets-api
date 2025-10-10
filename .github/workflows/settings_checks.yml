@@ -99,6 +99,11 @@ jobs:
             echo "  - $key"
           done
 
+          if [[ ${#keys[@]} -eq 0 ]]; then
+            echo "No ENV variables found in changes."
+            exit 0
+          fi
+
           invalid_parameters=()
 
           for key in "${keys[@]}"; do
