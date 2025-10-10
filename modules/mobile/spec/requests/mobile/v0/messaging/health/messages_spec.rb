@@ -188,6 +188,39 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(response).to match_camelized_response_schema('message_with_attachment')
           end
         end
+
+        context 'poll_for_status parameter' do
+          let(:attachment_type) { 'image/jpg' }
+          let(:uploads) { [Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', attachment_type)] }
+          let(:message_params) { attributes_for(:message, subject: 'OH Group Subject', body: 'Body') }
+          let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
+          let(:params_with_attachments) { { message: params, uploads: } }
+
+          it 'passes poll_for_status=true on create with attachments when is_oh_triage_group=true' do
+            expect_any_instance_of(Mobile::V0::Messaging::Client)
+              .to receive(:post_create_message_with_attachment)
+              .with(kind_of(Hash), poll_for_status: true)
+              .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
+
+            post '/mobile/v0/messaging/health/messages?is_oh_triage_group=true',
+                 headers: sis_headers,
+                 params: params_with_attachments
+
+            expect(response).to be_successful
+          end
+
+          it 'passes poll_for_status=true on reply without attachments when is_oh_triage_group=true' do
+            expect_any_instance_of(Mobile::V0::Messaging::Client).to receive(:poll_message_status)
+              .and_return({ status: 'SENT' })
+            VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
+              post '/mobile/v0/messaging/health/messages/674838/reply?is_oh_triage_group=true',
+                   headers: sis_headers,
+                   params: { message: params }
+            end
+
+            expect(response).to be_successful
+          end
+        end
       end
 
       describe '#thread' do
