@@ -28,6 +28,9 @@
     "name": {
       "type": "string"
     },
+    "approximate_date": { 
+      "type": ["string", "null"] 
+    },
     "effective_date": {
       "type": "datetime"
     },
