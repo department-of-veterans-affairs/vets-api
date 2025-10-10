@@ -276,8 +276,7 @@ module ClaimsApi
           # International number: store full concatenated value in frgnPhoneRfrncTxt (max 30 chars)
           {
             cntry_nbr: country_code,
-            frgn_phone_rfrnc_txt: "#{country_code}#{area_code}#{phone_number}",
-            phone_nbr: nil
+            frgn_phone_rfrnc_txt: "#{country_code}#{area_code}#{phone_number}"
           }
         else
           # Domestic US number: use existing phone_nbr field

@@ -1,0 +1,560 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpProcWebServiceBeanV2/VnpProcServiceV2"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://procService.services.v2.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600043284</vaws:ExternalUid>
+              <vaws:ExternalKey>600043284</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpProcCreate><arg0>
+          <VnpProcDTO>
+            <vnpProcTypeCd>POAAUTHZ</vnpProcTypeCd>
+          </VnpProcDTO>
+        </arg0>
+        </tns:vnpProcCreate>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpProcCreate"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 18:05:23 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpProcCreateResponse
+        xmlns:ns0="http://procService.services.v2.vonapp.vba.va.gov/"><return><vnpProcId>3860074</vnpProcId></return></ns0:vnpProcCreateResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 06 Mar 2025 18:05:23 GMT
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://ptcpntService.services.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600043284</vaws:ExternalUid>
+              <vaws:ExternalKey>600043284</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpPtcpntCreate><arg0>
+          <vnpProcId>3860074</vnpProcId><vnpPtcpntId xsi:nil="true"/><fraudInd xsi:nil="true"/><legacyPoaCd xsi:nil="true"/><miscVendorInd xsi:nil="true"/><ptcpntShortNm xsi:nil="true"/><ptcpntTypeNm>Person</ptcpntTypeNm><taxIdfctnNbr xsi:nil="true"/><tinWaiverReasonTypeCd xsi:nil="true"/><ptcpntFkPtcpntId xsi:nil="true"/><corpPtcpntId>600043284</corpPtcpntId><jrnDt>2025-03-06T18:05:24Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId>
+          </arg0>
+        </tns:vnpPtcpntCreate>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpPtcpntCreate"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 18:05:24 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPtcpntCreateResponse
+        xmlns:ns0="http://ptcpntService.services.vonapp.vba.va.gov/"><return><vnpPtcpntId>188854</vnpPtcpntId><vnpProcId>3860074</vnpProcId><jrnDt>2025-03-06T18:05:24Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><ptcpntTypeNm>Person</ptcpntTypeNm><corpPtcpntId>600043284</corpPtcpntId></return></ns0:vnpPtcpntCreateResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 06 Mar 2025 18:05:24 GMT
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpProcFormWebServiceBean/VnpProcFormService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://procFormService.services.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600043284</vaws:ExternalUid>
+              <vaws:ExternalKey>600043284</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpProcFormCreate><arg0>
+          <compId>
+            <vnpProcId>3860074</vnpProcId>
+            <formTypeCd>21-22</formTypeCd>
+          </compId>
+        <vnpPtcpntId xsi:nil="true"/><jrnDt>2025-03-06T18:05:24Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId>
+        </arg0>
+        </tns:vnpProcFormCreate>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpProcFormCreate"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 18:05:24 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpProcFormCreateResponse
+        xmlns:ns0="http://procFormService.services.vonapp.vba.va.gov/"><return><compId><vnpProcId>3860074</vnpProcId><formTypeCd>21-22</formTypeCd></compId><jrnDt>2025-03-06T12:05:24-06:00</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId></return></ns0:vnpProcFormCreateResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 06 Mar 2025 18:05:24 GMT
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://ptcpntAddrsService.services.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600043284</vaws:ExternalUid>
+              <vaws:ExternalKey>600043284</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpPtcpntAddrsCreate><arg0>
+        <vnpPtcpntAddrsId xsi:nil="true"/><vnpProcId>3860074</vnpProcId><vnpPtcpntId>188854</vnpPtcpntId><efctvDt>2025-03-06T18:05:25Z</efctvDt><addrsOneTxt>2719 Hyperion Ave</addrsOneTxt><addrsThreeTxt xsi:nil="true"/><addrsTwoTxt>Apt 2</addrsTwoTxt><badAddrsInd xsi:nil="true"/><cityNm>Los Angeles</cityNm><cntryNm>USA</cntryNm><countyNm xsi:nil="true"/><eftWaiverTypeNm xsi:nil="true"/><emailAddrsTxt xsi:nil="true"/><endDt xsi:nil="true"/><fmsAddrsCodeTxt xsi:nil="true"/><frgnPostalCd xsi:nil="true"/><group1VerifdTypeCd xsi:nil="true"/><lctnNm xsi:nil="true"/><mltyPostalTypeCd xsi:nil="true"/><mltyPostOfficeTypeCd xsi:nil="true"/><postalCd>CA</postalCd><prvncNm xsi:nil="true"/><ptcpntAddrsTypeNm>Mailing</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><trsuryAddrsFiveTxt xsi:nil="true"/><trsuryAddrsFourTxt xsi:nil="true"/><trsuryAddrsOneTxt xsi:nil="true"/><trsuryAddrsSixTxt xsi:nil="true"/><trsuryAddrsThreeTxt xsi:nil="true"/><trsuryAddrsTwoTxt xsi:nil="true"/><trsurySeqNbr xsi:nil="true"/><trtryNm xsi:nil="true"/><zipFirstSuffixNbr>0200</zipFirstSuffixNbr><zipPrefixNbr>92264</zipPrefixNbr><zipSecondSuffixNbr xsi:nil="true"/><jrnDt>2025-03-06T18:05:25Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId>
+        </arg0>
+        </tns:vnpPtcpntAddrsCreate>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpPtcpntAddrsCreate"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 18:05:26 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPtcpntAddrsCreateResponse
+        xmlns:ns0="http://ptcpntAddrsService.services.vonapp.vba.va.gov/"><return><vnpPtcpntAddrsId>150999</vnpPtcpntAddrsId><efctvDt>2025-03-06T18:05:25Z</efctvDt><vnpPtcpntId>188854</vnpPtcpntId><vnpProcId>3860074</vnpProcId><addrsOneTxt>2719
+        Hyperion Ave</addrsOneTxt><addrsTwoTxt>Apt 2</addrsTwoTxt><cityNm>Los Angeles</cityNm><cntryNm>USA</cntryNm><jrnDt>2025-03-06T18:05:25Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><postalCd>CA</postalCd><ptcpntAddrsTypeNm>Mailing</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><zipFirstSuffixNbr>0200</zipFirstSuffixNbr><zipPrefixNbr>92264</zipPrefixNbr></return></ns0:vnpPtcpntAddrsCreateResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 06 Mar 2025 18:05:26 GMT
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpPersonWebServiceBean/VnpPersonService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://personService.services.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600043284</vaws:ExternalUid>
+              <vaws:ExternalKey>600043284</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpPersonCreate><arg0>
+          <jrnDt>2025-03-06T18:05:24Z</jrnDt>
+          <jrnLctnId>281</jrnLctnId>
+          <jrnStatusTypeCd>U</jrnStatusTypeCd>
+          <jrnUserId>VAgovAPI</jrnUserId>
+          <jrnObjId>VAgovAPI</jrnObjId>
+          <vnpProcId>3860074</vnpProcId>
+          <vnpPtcpntId>188854</vnpPtcpntId>
+          <firstNm>Bob</firstNm>
+          <lastNm>Rep</lastNm>
+          <brthdyDt>1965-07-15T08:00:00Z</brthdyDt>
+          <ssnNbr>867530999</ssnNbr>
+          <fileNbr xsi:nil="true"/>
+        </arg0>
+        </tns:vnpPersonCreate>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpPersonCreate"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 18:05:26 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPersonCreateResponse
+        xmlns:ns0="http://personService.services.vonapp.vba.va.gov/"><return><vnpPtcpntId>188854</vnpPtcpntId><brthdyDt>1965-07-15T03:00:00-05:00</brthdyDt><firstNm>Bob</firstNm><jrnDt>2025-03-06T12:05:24-06:00</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><lastNm>Rep</lastNm><ssnNbr>867530999</ssnNbr><vnpProcId>3860074</vnpProcId></return></ns0:vnpPersonCreateResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 06 Mar 2025 18:05:26 GMT
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://ptcpntPhoneService.services.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600043284</vaws:ExternalUid>
+              <vaws:ExternalKey>600043284</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpPtcpntPhoneCreate><arg0>
+        <vnpProcId>3860074</vnpProcId><vnpPtcpntId>188854</vnpPtcpntId><phoneTypeNm>Daytime</phoneTypeNm><phoneNbr>5555551234</phoneNbr><efctvDt>2025-03-06T18:05:25Z</efctvDt></arg0>
+        </tns:vnpPtcpntPhoneCreate>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpPtcpntPhoneCreate"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 18:05:26 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPtcpntPhoneCreateResponse
+        xmlns:ns0="http://ptcpntPhoneService.services.vonapp.vba.va.gov/"><return><vnpPtcpntPhoneId>107813</vnpPtcpntPhoneId><vnpProcId>3860074</vnpProcId><vnpPtcpntId>188854</vnpPtcpntId><phoneTypeNm>Daytime</phoneTypeNm><phoneNbr>5555551234</phoneNbr><efctvDt>2025-03-06T18:05:25Z</efctvDt></return></ns0:vnpPtcpntPhoneCreateResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 06 Mar 2025 18:05:26 GMT
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://ptcpntAddrsService.services.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600043284</vaws:ExternalUid>
+              <vaws:ExternalKey>600043284</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpPtcpntAddrsCreate><arg0>
+        <vnpPtcpntAddrsId xsi:nil="true"/><vnpProcId>3860074</vnpProcId><vnpPtcpntId>188854</vnpPtcpntId><efctvDt>2025-03-06T18:05:25Z</efctvDt><addrsOneTxt xsi:nil="true"/><addrsThreeTxt xsi:nil="true"/><addrsTwoTxt xsi:nil="true"/><badAddrsInd xsi:nil="true"/><cityNm xsi:nil="true"/><cntryNm xsi:nil="true"/><countyNm xsi:nil="true"/><eftWaiverTypeNm xsi:nil="true"/><emailAddrsTxt>test@test.com</emailAddrsTxt><endDt xsi:nil="true"/><fmsAddrsCodeTxt xsi:nil="true"/><frgnPostalCd xsi:nil="true"/><group1VerifdTypeCd xsi:nil="true"/><lctnNm xsi:nil="true"/><mltyPostalTypeCd xsi:nil="true"/><mltyPostOfficeTypeCd xsi:nil="true"/><postalCd xsi:nil="true"/><prvncNm xsi:nil="true"/><ptcpntAddrsTypeNm>Email</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><trsuryAddrsFiveTxt xsi:nil="true"/><trsuryAddrsFourTxt xsi:nil="true"/><trsuryAddrsOneTxt xsi:nil="true"/><trsuryAddrsSixTxt xsi:nil="true"/><trsuryAddrsThreeTxt xsi:nil="true"/><trsuryAddrsTwoTxt xsi:nil="true"/><trsurySeqNbr xsi:nil="true"/><trtryNm xsi:nil="true"/><zipFirstSuffixNbr xsi:nil="true"/><zipPrefixNbr xsi:nil="true"/><zipSecondSuffixNbr xsi:nil="true"/><jrnDt>2025-03-06T18:05:25Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId>
+        </arg0>
+        </tns:vnpPtcpntAddrsCreate>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpPtcpntAddrsCreate"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 18:05:26 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPtcpntAddrsCreateResponse
+        xmlns:ns0="http://ptcpntAddrsService.services.vonapp.vba.va.gov/"><return><vnpPtcpntAddrsId>151000</vnpPtcpntAddrsId><efctvDt>2025-03-06T18:05:25Z</efctvDt><vnpPtcpntId>188854</vnpPtcpntId><vnpProcId>3860074</vnpProcId><emailAddrsTxt>test@test.com</emailAddrsTxt><jrnDt>2025-03-06T18:05:25Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><ptcpntAddrsTypeNm>Email</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd></return></ns0:vnpPtcpntAddrsCreateResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 06 Mar 2025 18:05:26 GMT
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VDC/VeteranRepresentativeService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://gov.va.vba.benefits.vdc/services" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:data="http://gov.va.vba.benefits.vdc/data">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600043284</vaws:ExternalUid>
+              <vaws:ExternalKey>600043284</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:createVeteranRepresentative><data:VeteranRepresentative>
+          <addressLine1>2719 Hyperion Ave</addressLine1><addressLine2>Apt 2</addressLine2><changeAddressAuth>true</changeAddressAuth><city>Los Angeles</city><claimantPtcpntId>188854</claimantPtcpntId><claimantRelationship xsi:nil="true"/><formTypeCode>21-22</formTypeCode><insuranceNumbers>1234567890</insuranceNumbers><limitationAlcohol>true</limitationAlcohol><limitationDrugAbuse>true</limitationDrugAbuse><limitationHIV>true</limitationHIV><limitationSCA>true</limitationSCA><organizationName xsi:nil="true"/><otherServiceBranch xsi:nil="true"/><phoneNumber>5555551234</phoneNumber><poaCode>067</poaCode><postalCode>92264</postalCode><procId>3860074</procId><representativeFirstName xsi:nil="true"/><representativeLastName xsi:nil="true"/><representativeTitle xsi:nil="true"/><representativeType>Recognized Veterans Service Organization</representativeType><section7332Auth>true</section7332Auth><serviceBranch>Army</serviceBranch><serviceNumber>123678453</serviceNumber><state>CA</state><submittedDate>2025-03-06T18:05:26Z</submittedDate><vdcStatus>SUBMITTED</vdcStatus><veteranPtcpntId>188854</veteranPtcpntId>
+        </data:VeteranRepresentative>
+        </tns:createVeteranRepresentative>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"createVeteranRepresentative"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 18:05:27 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header/><S:Body><ns0:createVeteranRepresentativeResponse
+        xmlns:ns0="http://gov.va.vba.benefits.vdc/services" xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
+        xmlns:ns2="http://gov.va.vba.benefits.vdc/data"><ns2:VeteranRepresentativeReturn><addressLine1>2719
+        Hyperion Ave</addressLine1><addressLine2>Apt 2</addressLine2><addressLine3></addressLine3><changeAddressAuth>true</changeAddressAuth><city>Los
+        Angeles</city><claimantPtcpntId>188854</claimantPtcpntId><claimantRelationship></claimantRelationship><formTypeCode>21-22
+        </formTypeCode><insuranceNumbers>1234567890</insuranceNumbers><limitationAlcohol>true</limitationAlcohol><limitationDrugAbuse>true</limitationDrugAbuse><limitationHIV>true</limitationHIV><limitationSCA>true</limitationSCA><organizationName></organizationName><otherServiceBranch></otherServiceBranch><phoneNumber>5555551234</phoneNumber><poaCode>067</poaCode><postalCode>92264</postalCode><procId>3860074</procId><representativeFirstName></representativeFirstName><representativeLastName></representativeLastName><representativeLawFirmOrAgencyName></representativeLawFirmOrAgencyName><representativeTitle></representativeTitle><representativeType>Recognized
+        Veterans Service Organization</representativeType><section7332Auth>true</section7332Auth><serviceBranch>Army</serviceBranch><serviceNumber>123678453</serviceNumber><state>CA</state><vdcStatus>SUBMITTED</vdcStatus><veteranPtcpntId>188854</veteranPtcpntId><acceptedBy></acceptedBy><claimantFirstName>BOB</claimantFirstName><claimantLastName>REP</claimantLastName><claimantMiddleName></claimantMiddleName><declinedBy></declinedBy><declinedReason></declinedReason><secondaryStatus>New</secondaryStatus><veteranFirstName>BOB</veteranFirstName><veteranLastName>REP</veteranLastName><veteranMiddleName></veteranMiddleName><veteranSSN>867530999</veteranSSN><veteranVAFileNumber></veteranVAFileNumber></ns2:VeteranRepresentativeReturn></ns0:createVeteranRepresentativeResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 06 Mar 2025 18:05:28 GMT
+recorded_with: VCR 6.3.1
