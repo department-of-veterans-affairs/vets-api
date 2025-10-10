@@ -57,14 +57,17 @@ module UnifiedHealthData
       # While skipping fields that are not necessary for the AVS response
       def parse_avs_with_metadata(avs, appt_id, include_binary)
         record = avs['resource']
-        avs_binary_data = get_avs_binary(record)
+        avs_binary_data = extract_avs_binary(record)
+
+        # @returns nil if pdf or plain text binary string is not available
         return nil unless record && avs_binary_data
 
         UnifiedHealthData::AfterVisitSummary.new({
                                                    appt_id:,
                                                    id: record['id'],
                                                    name: get_title(record),
-                                                   note_type: get_avs_record_type(record), # map to only the AVS
+                                                   # map to only the AVS codes
+                                                   note_type: get_avs_record_type(record),
                                                    loinc_codes: get_loinc_codes(record),
                                                    content_type: avs_binary_data[:content_type],
                                                    binary: (avs_binary_data[:binary] if include_binary) || nil
@@ -73,7 +76,7 @@ module UnifiedHealthData
 
       def parse_avs_binary(avs)
         record = avs['resource']
-        avs_binary_data = get_avs_binary(record)
+        avs_binary_data = extract_avs_binary(record)
         return nil unless record && avs_binary_data
 
         UnifiedHealthData::AfterVisitSummaryBinary.new(avs_binary_data)
@@ -178,29 +181,30 @@ module UnifiedHealthData
         nil
       end
 
-      def get_avs_binary(record)
+      def extract_avs_binary(record)
         # First check contained to see if we get an item with content type either pdf or plain text
         # in the contained array with a data string
         if array_and_has_items(record['contained'])
           binary_resource = record['contained'].find do |res|
-            res['resourceType'] == FHIR_RESOURCE_TYPES[:BINARY] && ['application/pdf',
-                                                                    'text/plain'].include?(res['contentType'])
+            res['resourceType'] == FHIR_RESOURCE_TYPES[:BINARY]
           end
-          if binary_resource && binary_resource['data'].present?
-            { content_type: binary_resource['contentType'], binary: binary_resource['data'] }
+          if binary_resource && ['application/pdf',
+                                 'text/plain'].include?(binary_resource['contentType']) && binary_resource['data']
+            return { content_type: binary_resource['contentType'], binary: binary_resource['data'] }
           end
+        end
 
         # Fallback check for pdf or plain text with data string in the content array
-        elsif array_and_has_items(record['content'])
+        if array_and_has_items(record['content'])
           content_item = record['content'].find do |item|
             item['attachment']['data'] && ['application/pdf', 'text/plain'].include?(item['attachment']['contentType'])
           end
 
-          if content_item['attachment']
-            { content_type: content_item['attachment']['contentType'], binary: content_item['attachment']['data'] }
+          if content_item
+            return { content_type: content_item['attachment']['contentType'],
+                     binary: content_item['attachment']['data'] }
           end
         end
-      rescue
         nil
       end
 
