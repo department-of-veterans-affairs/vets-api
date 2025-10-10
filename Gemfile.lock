@@ -1404,8 +1404,6 @@ DEPENDENCIES
   rubocop-thread_safety
   ruby-saml
   rubyzip
-  sidekiq-ent!
-  sidekiq-pro!
   rufus-scheduler
   savon
   seedbank
@@ -1413,6 +1411,8 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq
+  sidekiq-ent!
+  sidekiq-pro!
   sign_in_service
   simple_forms_api!
   simplecov
