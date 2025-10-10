@@ -103,6 +103,13 @@ RSpec.describe SimpleFormsApi::VBA214140 do
       expect(employment_history[3]).to be_a FormEngine::EmploymentHistory
       expect(employment_history[3].lost_time).to be_nil
     end
+
+    it 'correctly parses nested employmentDates structure' do
+      expect(employment_history[0].date_started).to eq '03/15/2018'
+      expect(employment_history[0].date_ended).to eq '06/30/2020'
+      expect(employment_history[1].date_started).to eq '07/01/2020'
+      expect(employment_history[1].date_ended).to eq '09/13/2022'
+    end
   end
 
   describe '#first_name' do

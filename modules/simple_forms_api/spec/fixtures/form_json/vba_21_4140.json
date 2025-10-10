@@ -28,8 +28,10 @@
          "hours_per_week": "40",
          "lost_time_from_illness": "13",
          "highest_gross_income_per_month": 2300,
-         "employment_start_date": "2018-03-15",
-         "employment_end_date": "2020-06-30",
+         "employmentDates": {
+            "from": "2018-03-15",
+            "to": "2020-06-30"
+         },
          "employer_name": "Test Employer",
          "employer_address": {
             "country": "USA",
@@ -44,8 +46,10 @@
          "hours_per_week": "20",
          "lost_time_from_illness": "30",
          "highest_gross_income_per_month": 1300,
-         "employment_start_date": "2020-07-01",
-         "employment_end_date": "2022-09-13",
+         "employmentDates": {
+            "from": "2020-07-01",
+            "to": "2022-09-13"
+         },
          "employer_name": "Freelancer",
          "employer_address": {
             "country": "USA",
@@ -60,8 +64,10 @@
          "hours_per_week": "60",
          "lost_time_from_illness": "56",
          "highest_gross_income_per_month": 600,
-         "employment_start_date": "2022-10-11",
-         "employment_end_date": "2024-04-07",
+         "employmentDates": {
+            "from": "2022-10-11",
+            "to": "2024-04-07"
+         },
          "employer_name": "Example Construction Company",
          "employer_address": {
             "country": "CAN",
