@@ -14,9 +14,5 @@ class CreateBGSSubmissionAttempts < ActiveRecord::Migration[7.2]
 
       t.timestamps
     end
-
-    add_index :bgs_submission_attempts, :bgs_submission_id
-    add_index :bgs_submission_attempts, :needs_kms_rotation
-    add_index :bgs_submission_attempts, :status
   end
 end
