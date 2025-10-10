@@ -50,7 +50,6 @@ module IncomeAndAssets
             'cents' => { key: "F[0].ValueOfYourPortionOfProperty4_10[#{ITERATOR}]" }
           },
           'ownedPortionValueOverflow' => {
-            key: "ownedPortionValueOverflow[#{ITERATOR}]",
             limit: 14,
             dollar: true,
             question_num: 10,

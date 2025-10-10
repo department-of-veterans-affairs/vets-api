@@ -21,6 +21,8 @@ module PdfFill
         v ? 1 : 0
       elsif key_data.try(:[], :format) == 'date'
         convert_val_as_date(v)
+      elsif v == 'Off' && @extras_generator.use_hexapdf
+        'false'
       else
         convert_val_as_string(v)
       end

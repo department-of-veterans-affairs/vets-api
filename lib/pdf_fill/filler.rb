@@ -184,6 +184,25 @@ module PdfFill
     end
 
     ##
+    # Fills a form using HexaPDF instead of PDFtk
+    #
+    # @param template_path [String] The path to the PDF template.
+    # @param output_path [String] The path to save the filled PDF.
+    # @param hash_data [Hash] The data to fill in the form.
+    #
+    # @return [None]
+    #
+    def fill_form_with_hexapdf(template_path, output_path, hash_data)
+      doc = HexaPDF::Document.open(template_path)
+      form = doc.acro_form
+      raise 'No AcroForm found in PDF template.' if form.nil?
+
+      form.fill(hash_data)
+
+      doc.write(output_path)
+    end
+
+    ##
     # Processes a form by filling it with data and saving it to a file.
     #
     # @param form_id [String] The form ID.
@@ -218,6 +237,7 @@ module PdfFill
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
+
       merged_form_data = form_class.new(form_data).merge_fields(fill_options)
       submit_date = Utilities::DateParser.parse(
         fill_options[:created_at] || merged_form_data['signatureDate'] || Time.now.utc
@@ -225,13 +245,19 @@ module PdfFill
 
       hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
       new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
+
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
-      unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,
-                               EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2]
-      (form_id.in?(unicode_pdf_form_list) ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
-        template_path, file_path, new_hash, flatten: Rails.env.production?
-      )
+
+      if fill_options.fetch(:use_hexapdf, false)
+        fill_form_with_hexapdf(template_path, file_path, new_hash)
+      else
+        unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,
+                                 EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2]
+        (form_id.in?(unicode_pdf_form_list) ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
+          template_path, file_path, new_hash, flatten: Rails.env.production?
+        )
+      end
 
       file_path = stamp_form(file_path, submit_date) if should_stamp_form?(form_id, fill_options, submit_date)
       combine_extras(file_path, hash_converter.extras_generator, form_class)
@@ -269,10 +295,11 @@ module PdfFill
             start_page: form_class::START_PAGE,
             sections: form_class::SECTIONS,
             label_width: form_class::DEFAULT_LABEL_WIDTH,
-            show_jumplinks: fill_options.fetch(:show_jumplinks, false)
+            show_jumplinks: fill_options.fetch(:show_jumplinks, false),
+            use_hexapdf: fill_options.fetch(:use_hexapdf, false)
           )
         else
-          ExtrasGenerator.new
+          ExtrasGenerator.new(use_hexapdf: fill_options.fetch(:use_hexapdf, false))
         end
       HashConverter.new(form_class.date_strftime, extras_generator)
     end

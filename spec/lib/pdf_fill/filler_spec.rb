@@ -41,6 +41,18 @@ describe PdfFill::Filler, type: :model do
     end
   end
 
+  # NOTE: 21P-0969 is one of the only forms that uses data types that are supported by HexaPDF currently
+  describe '#fill_form_with_hexapdf' do
+    it_behaves_like 'a form filler', {
+      form_id: IncomeAndAssets::FORM_ID,
+      factory: :income_and_assets_claim,
+      use_vets_json_schema: true,
+      input_data_fixture_dir: "modules/income_and_assets/spec/fixtures/pdf_fill/#{IncomeAndAssets::FORM_ID}",
+      output_pdf_fixture_dir: "modules/income_and_assets/spec/fixtures/pdf_fill/#{IncomeAndAssets::FORM_ID}",
+      fill_options: { extras_redesign: true, omit_esign_stamp: true, use_hexapdf: true }
+    }
+  end
+
   # see `fill_form_examples.rb` for documentation about options
   describe '#fill_form' do
     [
@@ -134,6 +146,7 @@ describe PdfFill::Filler, type: :model do
       it 'uses UNICODE_PDF_FORMS to fill the form for form_id 21-0781V2' do
         # Mock the hash converter and its behavior
         allow(extras_generator).to receive(:text?).once.and_return(true)
+        allow(extras_generator).to receive(:use_hexapdf).and_return(false)
         allow(extras_generator).to receive(:add_text)
         allow(hash_converter).to receive(:transform_data).and_return(new_hash)
 
