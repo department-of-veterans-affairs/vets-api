@@ -56,6 +56,17 @@ RSpec.describe Eps::EpsAppointmentSerializer do
           state: 'CA',
           zip: '12345'
         }
+      },
+      modality: 'communityCareEps',
+      location: {
+        id: 'Aq7wgAux',
+        type: 'appointments',
+        attributes: {
+          name: 'Test Medical Complex',
+          timezone: {
+            timeZoneId: 'America/New_York'
+          }
+        }
       }
     )
   end
@@ -67,7 +78,17 @@ RSpec.describe Eps::EpsAppointmentSerializer do
       expect(serialized[:data][:attributes][:id]).to eq('qdm61cJ5')
       expect(serialized[:data][:attributes][:status]).to eq('booked')
       expect(serialized[:data][:attributes][:start]).to eq('2024-11-21T18:00:00Z')
-      expect(serialized[:data][:attributes][:modality]).to eq('OV')
+      expect(serialized[:data][:attributes][:modality]).to eq('communityCareEps')
+      expect(serialized[:data][:attributes][:location]).to eq({
+                                                                id: 'Aq7wgAux',
+                                                                type: 'appointments',
+                                                                attributes: {
+                                                                  name: 'Test Medical Complex',
+                                                                  timezone: {
+                                                                    timeZoneId: 'America/New_York'
+                                                                  }
+                                                                }
+                                                              })
     end
 
     it 'includes provider details' do
@@ -98,6 +119,63 @@ RSpec.describe Eps::EpsAppointmentSerializer do
     end
   end
 
+  describe 'location functionality' do
+    it 'includes location data when present' do
+      expect(serialized[:data][:attributes][:location]).to eq({
+                                                                id: 'Aq7wgAux',
+                                                                type: 'appointments',
+                                                                attributes: {
+                                                                  name: 'Test Medical Complex',
+                                                                  timezone: {
+                                                                    timeZoneId: 'America/New_York'
+                                                                  }
+                                                                }
+                                                              })
+    end
+
+    context 'when location data is nil' do
+      let(:eps_appointment) do
+        instance_double(
+          VAOS::V2::EpsAppointment,
+          id: 'qdm61cJ5',
+          status: 'booked',
+          start: '2024-11-21T18:00:00Z',
+          is_latest: true,
+          last_retrieved: '2023-10-01T12:00:00Z',
+          provider: nil,
+          provider_details: nil,
+          modality: 'communityCareEps',
+          location: nil
+        )
+      end
+
+      it 'returns nil for location' do
+        expect(serialized[:data][:attributes][:location]).to be_nil
+      end
+    end
+
+    context 'when location data is empty' do
+      let(:eps_appointment) do
+        instance_double(
+          VAOS::V2::EpsAppointment,
+          id: 'qdm61cJ5',
+          status: 'booked',
+          start: '2024-11-21T18:00:00Z',
+          is_latest: true,
+          last_retrieved: '2023-10-01T12:00:00Z',
+          provider: nil,
+          provider_details: nil,
+          modality: 'communityCareEps',
+          location: {}
+        )
+      end
+
+      it 'returns nil for location when empty' do
+        expect(serialized[:data][:attributes][:location]).to be_nil
+      end
+    end
+  end
+
   describe 'edge cases' do
     context 'when provider is nil' do
       let(:eps_appointment) do
@@ -109,7 +187,9 @@ RSpec.describe Eps::EpsAppointmentSerializer do
           is_latest: true,
           last_retrieved: '2023-10-01T12:00:00Z',
           provider: nil,
-          provider_details: nil
+          provider_details: nil,
+          modality: 'communityCareEps',
+          location: nil
         )
       end
 
