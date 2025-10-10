@@ -791,6 +791,185 @@ describe UnifiedHealthData::Service, type: :service do
     end
   end
 
+  # After Visit Summaries
+  describe '#get_appt_avs' do
+    let(:avs_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'after_visit_summary.json'
+      ).read)
+    end
+
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: avs_sample_response
+      )
+    end
+
+    before do
+      allow_any_instance_of(UnifiedHealthData::Client)
+        .to receive(:get_avs)
+        .and_return(sample_client_response)
+    end
+
+    context 'happy path' do
+      context 'when include_binary is not passed it defaults to false' do
+        it 'returns avs with metadata and no binary file' do
+          avs = service.get_appt_avs(appt_id: '12345')
+          expect(avs.size).to eq(2)
+          expect(avs.map(&:note_type)).to contain_exactly(
+            'ambulatory_patient_summary',
+            'ambulatory_patient_summary'
+          )
+          expect(avs[0]).to have_attributes(
+            {
+              'appt_id' => '12345',
+              'id' => '15249638961',
+              'name' => 'Ambulatory Visit Summary',
+              'loinc_codes' => %w[4189669 96345-4],
+              'note_type' => 'ambulatory_patient_summary',
+              'content_type' => 'application/pdf',
+              'binary' => nil
+            }
+          )
+          expect(avs).to all(have_attributes(
+                               {
+                                 'appt_id' => be_a(String),
+                                 'id' => be_a(String),
+                                 'name' => be_a(String),
+                                 'loinc_codes' => be_an(Array),
+                                 'note_type' => be_a(String),
+                                 'content_type' => be_a(String),
+                                 'binary' => be_nil # should all be nil since include_binary is not passed
+                               }
+                             ))
+        end
+      end
+
+      context 'when include_binary is passed as true' do
+        it 'returns avs with metadata and binary file' do
+          avs = service.get_appt_avs(appt_id: '12345', include_binary: true)
+          expect(avs.size).to eq(2)
+          expect(avs.map(&:note_type)).to contain_exactly(
+            'ambulatory_patient_summary',
+            'ambulatory_patient_summary'
+          )
+          expect(avs[0]).to have_attributes(
+            {
+              'appt_id' => '12345',
+              'id' => '15249638961',
+              'name' => 'Ambulatory Visit Summary',
+              'loinc_codes' => %w[4189669 96345-4],
+              'note_type' => 'ambulatory_patient_summary',
+              'content_type' => 'application/pdf',
+              'binary' => /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e/i
+            }
+          )
+          expect(avs).to all(have_attributes(
+                               {
+                                 'appt_id' => be_a(String),
+                                 'id' => be_a(String),
+                                 'name' => be_a(String),
+                                 'loinc_codes' => be_an(Array),
+                                 'note_type' => be_a(String),
+                                 'content_type' => be_a(String),
+                                 'binary' => be_a(String)
+                               }
+                             ))
+        end
+      end
+    end
+
+    context 'error handling' do
+      it 'handles unknown errors' do
+        uhd_service = double
+        allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
+        allow(uhd_service).to receive(:get_appt_avs).and_raise(StandardError.new('Unknown fetch error'))
+
+        expect do
+          uhd_service.get_appt_avs(appt_id: '12345', include_binary: true)
+        end.to raise_error(StandardError, 'Unknown fetch error')
+      end
+    end
+
+    context 'LOINC code logging' do
+      before do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_avs)
+          .and_return(sample_client_response)
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'logs LOINC code distribution when flipper enabled' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
+                                                  user).and_return(true)
+
+        service.get_appt_avs(appt_id: '12345', include_binary: true)
+
+        expect(Rails.logger).to have_received(:info).with(
+          {
+            message: 'UHD LOINC code distribution',
+            loinc_code_distribution: '4189669:2,96345-4:2',
+            total_codes: 2,
+            total_records: 2,
+            service: 'unified_health_data'
+          }
+        )
+      end
+
+      it 'does not log LOINC code distribution when flipper disabled' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
+                                                  user).and_return(false)
+
+        expect(Rails.logger).not_to receive(:info)
+        service.get_appt_avs(appt_id: '12345', include_binary: true)
+      end
+    end
+  end
+
+  describe '#get_avs_binary_data' do
+    let(:avs_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'after_visit_summary.json'
+      ).read)
+    end
+
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: avs_sample_response
+      )
+    end
+
+    before do
+      allow_any_instance_of(UnifiedHealthData::Client)
+        .to receive(:get_avs)
+        .and_return(sample_client_response)
+    end
+
+    context 'happy path' do
+      it 'returns avs binary data and content type' do
+        avs = service.get_avs_binary_data(appt_id: '12345', doc_id: '15249638961')
+        expect(avs).to have_attributes(
+          {
+            'content_type' => 'application/pdf',
+            'binary' => /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e/i
+          }
+        )
+      end
+    end
+
+    context 'error handling' do
+      it 'handles unknown errors' do
+        uhd_service = double
+        allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
+        allow(uhd_service).to receive(:get_avs_binary_data).and_raise(StandardError.new('Unknown fetch error'))
+
+        expect do
+          uhd_service.get_avs_binary_data(appt_id: '12345', doc_id: 'banana')
+        end.to raise_error(StandardError, 'Unknown fetch error')
+      end
+    end
+  end
+
   # Prescriptions
   describe '#get_prescriptions' do
     before do
