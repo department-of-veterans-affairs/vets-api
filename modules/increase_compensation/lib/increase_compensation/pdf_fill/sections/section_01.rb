@@ -36,16 +36,13 @@ module IncreaseCompensation
         'veteranSocialSecurityNumber' => {
           'first' => {
             question_num: 2,
-            limit: 3,
             key: 'form1[0].#subform[0].SSNFirstThreeNumbers[0]'
           },
           'second' => {
             question_num: 2,
-            limit: 2,
             key: 'form1[0].#subform[0].SSNSecondTwoNumbers[0]'
           },
           'third' => {
-            limit: 3,
             question_num: 2,
             key: 'form1[0].#subform[0].SSNLastFourNumbers[0]'
           }
@@ -152,8 +149,6 @@ module IncreaseCompensation
           #  value: 1 or 0
         },
         'emailAddresses' => {
-          # limit: 32,
-          # ? is it 2 lines? or is it 2 email addresses?
           question_num: 6,
           question_label: "Veteran's E-Mail Address",
           question_text: 'VETERAN\'S E-MAIL ADDRESS',
@@ -194,10 +189,11 @@ module IncreaseCompensation
       def expand(form_data = {})
         form_data['veteranFullName'] = extract_middle_i(form_data, 'veteranFullName')
         form_data['veteranPhone'] = expand_phone_number(form_data['veteranPhone'])
-        form_data['veteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
-        form_data['veteranSocialSecurityNumber1'] = form_data['veteranSocialSecurityNumber']
-        form_data['veteranSocialSecurityNumber2'] = form_data['veteranSocialSecurityNumber']
-        form_data['veteranSocialSecurityNumber3'] = form_data['veteranSocialSecurityNumber']
+        ssn = split_ssn(form_data['veteranSocialSecurityNumber'])
+        form_data['veteranSocialSecurityNumber'] = ssn
+        form_data['veteranSocialSecurityNumber1'] = ssn
+        form_data['veteranSocialSecurityNumber2'] = ssn
+        form_data['veteranSocialSecurityNumber3'] = ssn
 
         form_data['veteranDateOfBirth'] = split_date(form_data['dateOfBirth'])
 
