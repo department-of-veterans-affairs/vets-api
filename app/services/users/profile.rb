@@ -136,14 +136,25 @@ module Users
       }
     rescue => e
       error_hash = Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
+      error_hash[:method] = 'vet360_contact_information'
       scaffold.errors << error_hash
-      log_external_service_error(error_hash, 'vet360_contact_information')
+      log_external_service_error(error_hash)
       nil
     end
 
     # rubocop:disable Metrics/MethodLength
     def mpi_profile
-      return handle_non_loa3_user unless user.loa3?
+      unless user.loa3?
+        error_hash = {
+          external_service: 'MVI',
+          description: 'User is not LOA3, MPI access denied',
+          user_uuid: user.uuid,
+          loa: user.loa,
+          method: 'mpi_profile'
+        }
+        log_external_service_error(error_hash)
+        return nil
+      end
 
       status = user.mpi_status
       if status == :ok
@@ -163,35 +174,26 @@ module Users
         }
       else
         error_hash = Users::ExceptionHandler.new(user.mpi_error, 'MVI').serialize_error
+        error_hash[:method] = 'mpi_profile'
         scaffold.errors << error_hash
-        log_external_service_error(error_hash, 'mpi_profile')
+        log_external_service_error(error_hash)
         nil
       end
     end
     # rubocop:enable Metrics/MethodLength
 
     def veteran_status
-      veteran_status_object = {
-        status: RESPONSE_STATUS[:ok],
-        is_veteran: nil,
-        served_in_military: nil
-      }
-
       if user.edipi.blank?
-        Rails.logger.info('Skipping VAProfile veteran status call, No EDIPI present',
-                          user_uuid: user.uuid,
-                          loa: user.loa)
-
-        return veteran_status_object
+        log_for_missing_edipi
+        return build_veteran_status_object(nil, nil)
       end
 
-      veteran_status_object[:is_veteran] = user.veteran?
-      veteran_status_object[:served_in_military] = user.served_in_military?
-      veteran_status_object
+      build_veteran_status_object(user.veteran?, user.served_in_military?)
     rescue => e
       error_hash = Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
+      error_hash[:method] = 'veteran_status'
       scaffold.errors << error_hash
-      log_external_service_error(error_hash, 'veteran_status')
+      log_external_service_error(error_hash)
       nil
     end
 
@@ -247,9 +249,7 @@ module Users
       }
     end
 
-    def log_external_service_error(error_hash, source_method)
-      error_hash[:method] = source_method
-
+    def log_external_service_error(error_hash)
       Rails.logger.warn(
         'Users::Profile external service error',
         {
@@ -260,15 +260,18 @@ module Users
       )
     end
 
-    def handle_non_loa3_user
-      error_hash = {
-        external_service: 'MVI',
-        description: 'User is not LOA3, MPI access denied',
-        user_uuid: user.uuid,
-        loa: user.loa
+    def log_for_missing_edipi
+      Rails.logger.info('Skipping VAProfile veteran status call, No EDIPI present',
+                        user_uuid: user.uuid,
+                        loa: user.loa)
+    end
+
+    def build_veteran_status_object(is_veteran, served_in_military)
+      {
+        status: RESPONSE_STATUS[:ok],
+        is_veteran:,
+        served_in_military:
       }
-      log_external_service_error(error_hash, 'mpi_profile')
-      nil
     end
   end
 end
