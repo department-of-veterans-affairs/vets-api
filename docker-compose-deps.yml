@@ -19,5 +19,6 @@ services:
     image: clamav/clamav
     ports:
       - 33100:3310
+    platform: linux/amd64
 volumes:
  shared-vol:
