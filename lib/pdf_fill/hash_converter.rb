@@ -105,8 +105,16 @@ module PdfFill
       end
     end
 
+    def key_from_iterator_else_key(key_from_iterator, key, i)
+      if key_from_iterator&.lambda?
+        key_from_iterator.call(i)
+      else
+        key
+      end
+    end
+
     def set_value(v, key_data, i, from_array_overflow = false)
-      k = key_data[:key]
+      k = key_from_iterator_else_key(key_data[:key_from_iterator], key_data[:key], i)
       new_value = convert_value(v, key_data)
 
       if k.present? && overflow?(key_data, new_value, from_array_overflow)
@@ -118,6 +126,9 @@ module PdfFill
       end
 
       return if k.blank?
+
+      # Allows the form to handle annoying, consecutively-numbered fields, for example RadioButtonList
+      i = key_data[:iterator_offset].call(i) if key_data[:iterator_offset]&.lambda?
 
       # If multiple keys(read-only, etc) are mapped to the same value, set the value for each key
       # Example PDF field data:

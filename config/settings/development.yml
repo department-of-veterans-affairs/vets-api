@@ -234,6 +234,9 @@ claims_evidence_api:
   jwt_secret: fake-secret
   mock: false
   ssl: false
+  timeout:
+    open: 30
+    read: 30
 clamav:
   host: 0.0.0.0
   mock: true
@@ -681,6 +684,7 @@ lighthouse:
     use_mocks: false
   benefits_intake:
     api_key: ~
+    breakers_error_threshold: 80
     host: https://sandbox-api.va.gov
     path: "/services/vba_documents"
     report:
@@ -719,6 +723,7 @@ lighthouse:
       - system/PaymentReconciliation.read
       - system/MedicationDispense.read
       - system/Encounter.read
+      - system/Account.read
       - launch
     timeout: 30
     use_mocks: false
@@ -1593,6 +1598,9 @@ vanotify:
         form21_674_action_needed_email: form21_674_action_needed_email_template_id
         form21_686c_674_action_needed_email: form21_686c_674_action_needed_email_template_id
         form21_686c_action_needed_email: form21_686c_action_needed_email_template_id
+        form21p_0537_confirmation_email: form21p_0537_confirmation_email_template_id
+        form21p_0537_error_email: form21p_0537_error_email_template_id
+        form21p_0537_received_email: form21p_0537_received_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21p_0847_error_email: form21p_0847_error_email_template_id
         form21p_0847_received_email: form21p_0847_received_email_template_id
