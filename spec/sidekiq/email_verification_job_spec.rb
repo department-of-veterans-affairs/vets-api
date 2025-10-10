@@ -3,6 +3,8 @@
 require 'rails_helper'
 require 'sidekiq/testing'
 
+Sidekiq::Testing.fake!
+
 RSpec.describe EmailVerificationJob, type: :job do
   subject { described_class }
 
@@ -11,14 +13,9 @@ RSpec.describe EmailVerificationJob, type: :job do
   let(:personalisation) { { 'verification_link' => 'https://va.gov/verify/123', 'first_name' => 'John', 'email_address' => email_address } }
 
   before do
-    Sidekiq::Testing.fake!
     allow(StatsD).to receive(:increment)
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
-  end
-
-  after do
-    Sidekiq::Testing.disable!
   end
 
   describe '#perform' do
