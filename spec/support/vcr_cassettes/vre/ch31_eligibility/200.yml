@@ -21,11 +21,11 @@ http_interactions:
       message: '200'
     headers:
       date:
-      - Mon, 15 Sep 2025 13:58:28 GMT
+      - Mon, 06 Oct 2025 15:51:09 GMT
       content-type:
-      - application/json
+      - application/json;charset=UTF-8
       content-length:
-      - '666'
+      - '391'
       connection:
       - keep-alive
       server:
@@ -39,9 +39,9 @@ http_interactions:
       x-frame-options:
       - SAMEORIGIN
       content-security-policy-report-only:
-      - 'style-src ''unsafe-inline'' ''self'' ''strict-dynamic'' ''nonce-ZTUzMzY5OGYtZjljMS00NWZiLWFhYzgtNmYyN2JhMTdlNmNj'';
+      - 'style-src ''unsafe-inline'' ''self'' ''strict-dynamic'' ''nonce-MzZlOTkyZDAtOTI3NS00Y2QxLTgxNWMtYzYzZmY1NTg5MGIy'';
         child-src ''none''; script-src ''self'' ''unsafe-inline'' ''unsafe-eval''
-        ''strict-dynamic'' ''nonce-MTUxMTc0M2ItOGNiNC00ODMwLWEwMWYtNDVhNDI2NmExMGJk'';
+        ''strict-dynamic'' ''nonce-MmRlYTdiOTItNWI5My00ZmRlLTg1MzMtOGNmZjYwM2RlNjIx'';
         object-src https:; frame-src https:; img-src https:; default-src ''self'';
         font-src ''self'' https: data:; report-uri /suite/rest/a/logging/latest/csp/report;
         report-to report;'
@@ -53,12 +53,16 @@ http_interactions:
       - 1; mode=block
       requested-while-authenticated:
       - 'false'
+      vary:
+      - Accept-Encoding
+      content-encoding:
+      - gzip
       x-content-type-options:
       - nosniff
       strict-transport-security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"veteranProfile":{"firstName":"VICTORIA","lastName":"DUNCAN","dob":"1901-09-11Z","characterOfDischarge":"Honorable","servicePeriod":[{"serviceBeganDate":"1941-12-05Z","serviceEndDate":"1960-12-07Z","characterOfDischarge":"Honorable"},{"serviceBeganDate":"2021-01-01Z","serviceEndDate":"2023-04-01Z","characterOfDischarge":"Honorable"}]},"disabilityRating":{"combinedScd":0,"SCDDetails":[]},"IRNDDate":"2025-08-04Z","eligibilityTerminationDate":null,"entitlementDetails":{"maxCh31Entitlement":{"month":48,"days":0},"ch31EntitlementRemaining":{"month":0,"days":0},"entitlementUsed":{"month":0,"days":0}},"resCaseId":685,"resEligibilityRecommendation":"Ineligible"}'
-  recorded_at: Mon, 15 Sep 2025 13:58:28 GMT
+      string: '{"veteranProfile":{"firstName":"VICTORIA","lastName":"DUNCAN","dob":"1901-09-11Z","characterOfDischarge":"Honorable","servicePeriod":[{"serviceBeganDate":"1941-12-05Z","serviceEndDate":"1960-12-07Z","characterOfDischarge":"Honorable"},{"serviceBeganDate":"2021-01-01Z","serviceEndDate":"2023-04-01Z","characterOfDischarge":"Honorable"}]},"disabilityRating":{"combinedScd":0,"scdDetails":[]},"irndDate":"2025-08-04Z","eligibilityTerminationDate":null,"entitlementDetails":{"maxCh31Entitlement":{"month":48,"days":0},"ch31EntitlementRemaining":{"month":0,"days":0},"entitlementUsed":{"month":0,"days":0}},"resCaseId":685,"qualifyingMilitaryServiceStatus":"Eligible","characterOfDischargeStatus":"Eligible","disabilityRatingStatus":"Ineligible","irndStatus":"Eligible","eligibilityTerminationDateStatus":"Eligible","resEligibilityRecommendation":"Ineligible"}'
+  recorded_at: Mon, 06 Oct 2025 15:51:09 GMT
 recorded_with: VCR 6.3.1

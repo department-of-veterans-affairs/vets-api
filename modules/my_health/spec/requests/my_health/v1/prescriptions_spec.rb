@@ -58,8 +58,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       end
 
       it 'responds to GET #show' do
-        VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription_v1') do
-          get '/my_health/v1/prescriptions/12284508'
+        VCR.use_cassette('rx_client/prescriptions/gets_a_single_grouped_prescription') do
+          get '/my_health/v1/prescriptions/24891624'
         end
 
         expect(response).to be_successful
@@ -68,8 +68,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       end
 
       it 'responds to GET #show with camel-inlfection' do
-        VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription_v1') do
-          get '/my_health/v1/prescriptions/12284508', headers: inflection_header
+        VCR.use_cassette('rx_client/prescriptions/gets_a_single_grouped_prescription') do
+          get '/my_health/v1/prescriptions/24891624', headers: inflection_header
         end
 
         expect(response).to be_successful
@@ -172,10 +172,6 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       end
 
       context 'grouping medications' do
-        before do
-          Flipper.enable('mhv_medications_display_grouping')
-        end
-
         it 'responds to GET #index by grouping medications and removes grouped medications from original list' do
           VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_grouped_prescriptions') do
             get '/my_health/v1/prescriptions?page=1&per_page=20'
@@ -221,8 +217,6 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           expect(errors).to be_truthy
           expect(errors['detail']).to eq("The record identified by #{prescription_id} could not be found")
         end
-
-        Flipper.disable('mhv_medications_display_grouping')
       end
 
       it 'responds to GET #get_prescription_image with image' do
@@ -612,8 +606,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         end
 
         it 'includes prescription description fields' do
-          VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription_v1') do
-            get '/my_health/v1/prescriptions/12284508'
+          VCR.use_cassette('rx_client/prescriptions/gets_a_single_grouped_prescription') do
+            get '/my_health/v1/prescriptions/24891624'
           end
 
           expect(response).to be_successful

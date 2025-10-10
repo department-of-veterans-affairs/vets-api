@@ -118,7 +118,8 @@ module MedicalExpenseReports
           form['veteranFullName']['first'],
           form['veteranFullName']['last'],
           form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-          self.class.to_s,
+          form['veteranAddress']['postalCode'],
+          'va_gov_bio_huntridge',
           @claim.form_id,
           @claim.business_line
         )

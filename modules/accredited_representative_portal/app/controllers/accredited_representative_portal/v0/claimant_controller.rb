@@ -3,8 +3,6 @@
 module AccreditedRepresentativePortal
   module V0
     class ClaimantController < ApplicationController
-      before_action :check_feature_toggle
-
       def search # rubocop:disable Metrics/MethodLength
         authorize nil, policy_class: ClaimantPolicy
 
@@ -51,17 +49,6 @@ module AccreditedRepresentativePortal
         raise Common::Exceptions::BadRequest.new(
           detail: e.message
         )
-      end
-
-      private
-
-      def check_feature_toggle
-        unless Flipper.enabled?(:accredited_representative_portal_search, @current_user)
-          message = 'The accredited_representative_portal_search feature flag is disabled ' \
-                    "for the user with uuid: #{@current_user.uuid}"
-
-          raise Common::Exceptions::Forbidden, detail: message
-        end
       end
     end
   end

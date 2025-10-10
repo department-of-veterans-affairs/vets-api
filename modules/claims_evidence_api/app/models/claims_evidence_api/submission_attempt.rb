@@ -28,8 +28,13 @@ class ClaimsEvidenceApi::SubmissionAttempt < SubmissionAttempt
                           inverse_of: :submission_attempts
   has_one :saved_claim, through: :submission
 
+  enum :status, {
+    pending: 'pending',
+    accepted: 'accepted',
+    failed: 'failed'
+  }
+
   after_create { monitor.track_event(:create, **tracking_attributes) }
-  after_update { monitor.track_event(:update, **tracking_attributes) }
   after_destroy { monitor.track_event(:destroy, **tracking_attributes) }
 
   # @see ClaimsEvidenceApi::Monitor::Record

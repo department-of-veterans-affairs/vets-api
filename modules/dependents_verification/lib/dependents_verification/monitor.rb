@@ -20,12 +20,8 @@ module DependentsVerification
     # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'app.dependents_verification.submit_benefits_intake_claim'
 
-    attr_reader :tags
-
     def initialize
       super('dependents-verification')
-
-      @tags = ["form_id:#{form_id}"]
     end
 
     ##
@@ -35,8 +31,11 @@ module DependentsVerification
     # @param error [StandardError] The error that occurred during prefill
     # @return [void]
     def track_prefill_error(category, error)
-      submit_event('info', "Form21-0538 #{category} prefill failed. #{error.message}",
-                   "#{claim_stats_key}.prefill_error", { form_id:, tags: })
+      message = "Form21-0538 #{category} prefill failed. #{error.message}"
+      stats_key = "#{claim_stats_key}.prefill_error"
+      context = { error: error.message }
+
+      submit_event(:info, message, stats_key, **context)
     end
 
     ##
@@ -45,8 +44,10 @@ module DependentsVerification
     # @param error [StandardError] The error that occurred during prefill
     # @return [void]
     def track_missing_dependent_info
-      submit_event('info', 'Form21-0538 missing dependent information.',
-                   "#{claim_stats_key}.missing_dependent_info", { form_id:, tags: })
+      message = 'Form21-0538 missing dependent information.'
+      stats_key = "#{claim_stats_key}.missing_dependent_info"
+
+      submit_event(:info, message, stats_key) # no additional context
     end
 
     private

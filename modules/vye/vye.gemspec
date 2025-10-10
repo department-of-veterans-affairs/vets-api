@@ -16,15 +16,10 @@ Gem::Specification.new do |spec|
   spec.description = 'This module was auto-generated please update this description'
   spec.license     = 'CC0-1.0'
 
-  spec.files = Dir['{app,config,db,lib}/**/*', 'Rakefile', 'README.md']
-
-  spec.test_files = Dir['spec/**/*']
-
-  # spec.add_dependency 'jsonapi-serializer', '>= 2.2.0'
-  # spec.add_dependency 'sidekiq'
-
-  # spec.add_development_dependency 'factory_bot_rails'
-  # spec.add_development_dependency 'pg'
+  spec.files = Dir['{app,config,db,lib,spec}/**/*', 'Rakefile', 'README.md']
 
   spec.add_development_dependency 'rspec-rails'
+
+  # Rubocop flagged this missing and Claude.ai says it won't break anything
+  spec.metadata['rubygems_mfa_required'] = 'true'
 end

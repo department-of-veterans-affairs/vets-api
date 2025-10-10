@@ -133,9 +133,10 @@ module VAOS
           return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
         end
 
-        eps_appointments = eps_appointments_service.get_appointments[:data]
+        eps_appointments = eps_appointments_service.get_appointments
+
         # Filter out draft EPS appointments when checking referral usage
-        non_draft_eps_appointments = eps_appointments.reject { |appt| appt[:state] == 'draft' }
+        non_draft_eps_appointments = eps_appointments&.reject { |appt| appt[:state] == 'draft' } || []
         { exists: appointment_with_referral_exists?(non_draft_eps_appointments, referral_id) }
       end
 
@@ -1200,28 +1201,41 @@ module VAOS
 
       def eps_appointments
         @eps_appointments ||= begin
-          appointments = eps_appointments_service.get_appointments[:data]
-          appointments = [] if appointments.blank? || appointments.all?(&:empty?)
-
-          # Log removed appointments without start time
-          removed_appts = appointments.select do |appt|
-            appt.dig(:appointment_details, :start).nil?
+          eps_appts = eps_appointments_service.get_appointments_with_providers
+          if eps_appts.blank?
+            []
+          else
+            kept_appts, removed_appts = separate_appointments_by_start_time(eps_appts)
+            log_appointment_separation(kept_appts, removed_appts)
+            kept_appts
           end
-          removed_eps_appts = removed_appts.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
-          removed_facilities = extract_facility_identifiers(removed_eps_appts)
-          appointments.reject! { |appt| appt.dig(:appointment_details, :start).nil? }
-
-          kept_eps_appts = appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
-          kept_facilities = extract_facility_identifiers(kept_eps_appts)
-          removed_msg = removed_facilities.any? ? ", removed #{removed_facilities}" : ''
-          Rails.logger.info("EPS Debug: Kept #{kept_facilities}#{removed_msg}")
-
-          appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
         end
       end
 
       def eps_serializer
         @eps_serializer ||= VAOS::V2::EpsAppointment.new
+      end
+
+      def separate_appointments_by_start_time(appointments)
+        kept_appts = []
+        removed_appts = []
+
+        appointments.each do |appt|
+          if appt.start.present?
+            kept_appts << appt
+          else
+            removed_appts << appt
+          end
+        end
+
+        [kept_appts, removed_appts]
+      end
+
+      def log_appointment_separation(kept_appts, removed_appts)
+        removed_facilities = extract_facility_identifiers(removed_appts)
+        kept_facilities = extract_facility_identifiers(kept_appts)
+        removed_msg = removed_facilities.any? ? ", removed #{removed_facilities}" : ''
+        Rails.logger.info("EPS Debug: Kept #{kept_facilities}#{removed_msg}")
       end
 
       ##

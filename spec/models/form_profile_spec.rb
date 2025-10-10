@@ -10,6 +10,7 @@ RSpec.describe FormProfile, type: :model do
 
   before do
     allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:dependents_module_enabled, anything).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, anything).and_return(false)
     described_class.instance_variable_set(:@mappings, nil)
   end
@@ -1739,7 +1740,7 @@ RSpec.describe FormProfile, type: :model do
               let(:dependents_information) do
                 [{
                   'fullName' => { 'first' => 'JANE', 'middle' => 'M', 'last' => 'WEBB' },
-                  'dateOfBirth' => '1960-02-01',
+                  'dateOfBirth' => '1960-01-02',
                   'ssn' => '222883214',
                   'relationshipToVeteran' => 'Spouse',
                   'awardIndicator' => 'Y'

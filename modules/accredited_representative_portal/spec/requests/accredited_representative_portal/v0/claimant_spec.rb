@@ -7,10 +7,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
     login_as(test_user)
     travel_to(time)
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
-    allow(Flipper).to receive(:enabled?).with(
-      :accredited_representative_portal_search,
-      instance_of(AccreditedRepresentativePortal::RepresentativeUser)
-    ).and_return(feature_flag_state)
   end
 
   let!(:poa_code) { '067' }
@@ -43,15 +39,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
   let(:feature_flag_state) { true }
 
   describe 'GET /accredited_representative_portal/v0/claimant/search' do
-    context 'when feature flag is off' do
-      let(:feature_flag_state) { false }
-
-      it 'returns 403 error' do
-        post('/accredited_representative_portal/v0/claimant/search')
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
-
     context 'when providing incomplete search params' do
       it 'returns a 400 error' do
         post('/accredited_representative_portal/v0/claimant/search', params: {

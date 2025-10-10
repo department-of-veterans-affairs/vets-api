@@ -50,12 +50,105 @@ describe VAOS::V2::EpsAppointment do
           provider_service_id: 'clinic_1',
           provider_name: 'unknown',
           kind: 'cc',
+          modality: 'communityCareEps',
           type: 'COMMUNITY_CARE_APPOINTMENT',
           pending: false,
           past: true,
           future: false
         }
         expect(subject.serializable_hash).to eq(expected_hash)
+      end
+    end
+  end
+
+  describe 'location functionality' do
+    let(:provider_data) do
+      OpenStruct.new(
+        id: 'provider-123',
+        name: 'Test Provider',
+        location: OpenStruct.new(
+          name: 'Test Medical Center',
+          timezone: 'America/New_York'
+        )
+      )
+    end
+
+    let(:appointment_with_provider) { described_class.new(params, provider_data) }
+
+    context 'when provider data is present' do
+      it 'includes location data in serializable_hash' do
+        result = appointment_with_provider.serializable_hash
+        expect(result[:location]).to eq({
+                                          id: 'clinic_1',
+                                          type: 'appointments',
+                                          attributes: {
+                                            name: 'Test Medical Center',
+                                            timezone: {
+                                              timeZoneId: 'America/New_York'
+                                            }
+                                          }
+                                        })
+      end
+
+      it 'uses provider_service_id as location id' do
+        result = appointment_with_provider.serializable_hash
+        expect(result[:location][:id]).to eq('clinic_1')
+      end
+
+      it 'sets type as appointments' do
+        result = appointment_with_provider.serializable_hash
+        expect(result[:location][:type]).to eq('appointments')
+      end
+
+      it 'includes provider location name' do
+        result = appointment_with_provider.serializable_hash
+        expect(result[:location][:attributes][:name]).to eq('Test Medical Center')
+      end
+
+      it 'includes timezone from provider location' do
+        result = appointment_with_provider.serializable_hash
+        expect(result[:location][:attributes][:timezone][:timeZoneId]).to eq('America/New_York')
+      end
+
+      it 'defaults to UTC when timezone is blank' do
+        provider_data.location.timezone = ''
+        appointment = described_class.new(params, provider_data)
+        result = appointment.serializable_hash
+        expect(result[:location][:attributes][:timezone][:timeZoneId]).to eq('UTC')
+      end
+
+      it 'defaults to UTC when timezone is nil' do
+        provider_data.location.timezone = nil
+        appointment = described_class.new(params, provider_data)
+        result = appointment.serializable_hash
+        expect(result[:location][:attributes][:timezone][:timeZoneId]).to eq('UTC')
+      end
+    end
+
+    context 'when provider data is nil' do
+      it 'sets location to nil' do
+        result = subject.serializable_hash
+        expect(result[:location]).to be_nil
+      end
+    end
+
+    context 'when provider has no location data' do
+      let(:provider_without_location) { OpenStruct.new(id: 'provider-123', name: 'Test Provider') }
+      let(:appointment_without_location) { described_class.new(params, provider_without_location) }
+
+      it 'sets location to nil' do
+        result = appointment_without_location.serializable_hash
+        expect(result[:location]).to be_nil
+      end
+    end
+
+    context 'when provider location is nil' do
+      let(:provider_with_nil_location) { OpenStruct.new(id: 'provider-123', name: 'Test Provider', location: nil) }
+      let(:appointment_with_nil_location) { described_class.new(params, provider_with_nil_location) }
+
+      it 'sets location to nil' do
+        result = appointment_with_nil_location.serializable_hash
+        expect(result[:location]).to be_nil
       end
     end
   end
