@@ -12,8 +12,7 @@ module IncreaseCompensation
           key: 'form1[0].#subform[4].Remarks_Ifany[0]'
         }
       }.freeze
-      def expand(form_data = {})
-      end
+      def expand(form_data = {}); end
     end
   end
 end

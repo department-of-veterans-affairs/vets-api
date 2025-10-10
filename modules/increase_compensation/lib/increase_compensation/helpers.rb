@@ -108,7 +108,8 @@ module IncreaseCompensation
     end
 
     ##
-    # Map a boolean to custom text responses. Some pdf include text with the YES/NO field, for example `YES (If &quot;Yes,&quot; explain in Item 26, &quot;Remarks&quot;)`
+    # Map a boolean to custom text responses. Some pdf include text with the YES/NO field,
+    # for example `YES (If &quot;Yes,&quot; explain in Item 26, &quot;Remarks&quot;)`
     #
     # @param bool_value [Boolean]
     # @param custom_yes_value [String]
