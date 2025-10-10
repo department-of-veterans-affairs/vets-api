@@ -67,7 +67,8 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
         body = JSON.parse response.body
         expect(body['errors']).to be_present
 
-        expect(StatsD).to have_received(:increment).with('api.education_benefits_claim.221990.failure')
+        expect(StatsD).to have_received(:increment).with('api.education_benefits_claim.create.221990.failure')
+        expect(StatsD).to have_received(:increment).with('api.education_benefits_claim.create.failure')
       end
     end
   end

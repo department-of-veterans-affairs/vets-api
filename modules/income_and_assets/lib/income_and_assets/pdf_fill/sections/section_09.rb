@@ -173,7 +173,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         annuities = form_data['annuities']
-        form_data['annuity'] = annuities&.length ? 0 : 1
+        form_data['annuity'] = radio_yesno(annuities&.length)
         form_data['annuities'] = annuities&.map { |item| expand_item(item) }
       end
 

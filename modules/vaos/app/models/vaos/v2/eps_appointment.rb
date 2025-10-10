@@ -3,10 +3,13 @@
 module VAOS
   module V2
     class EpsAppointment
+      COMMUNITY_CARE_APPOINTMENT = 'COMMUNITY_CARE_APPOINTMENT'
+      COMMUNITY_CARE_REQUEST = 'COMMUNITY_CARE_REQUEST'
+
       attr_reader :id, :status, :patient_icn, :created, :location_id, :clinic,
                   :start, :is_latest, :last_retrieved, :contact, :referral_id,
                   :referral, :provider_service_id, :provider_name,
-                  :provider
+                  :provider, :modality, :location
 
       def initialize(appointment_data = {}, provider = nil)
         appointment_details = appointment_data[:appointment_details]
@@ -27,29 +30,23 @@ module VAOS
         @provider_service_id = appointment_data[:provider_service_id]
         @provider_name = appointment_data.dig(:provider, :name).presence || 'unknown'
         @provider = provider
+        @modality = 'communityCareEps'
+        @location = build_location_data
       end
 
       def serializable_hash
-        {
-          id: @id,
-          status: @status,
-          patient_icn: @patient_icn,
-          created: @created,
-          location_id: @location_id,
-          clinic: @clinic,
-          start: @start,
-          contact: @contact,
-          referral_id: @referral_id,
-          referral: @referral,
-          provider_service_id: @provider_service_id,
-          provider_name: @provider_name,
-          # EPS appointments are community care by definition
-          kind: 'cc',
-          type: eps_type,
-          pending: request_type?,
-          past: past_appointment?,
-          future: future_appointment?
-        }.compact
+        base_hash = {
+          id: @id, status: @status, patient_icn: @patient_icn, created: @created,
+          location_id: @location_id, clinic: @clinic, start: @start, contact: @contact,
+          referral_id: @referral_id, referral: @referral,
+          provider_service_id: @provider_service_id, provider_name: @provider_name,
+          kind: 'cc', modality: @modality, type: eps_type,
+          pending: request_type?, past: past_appointment?, future: future_appointment?
+        }
+
+        base_hash[:location] = @location if @location.present?
+
+        base_hash.compact
       end
 
       def provider_details
@@ -78,12 +75,28 @@ module VAOS
 
       private
 
+      def build_location_data
+        return nil if @provider.nil? || @provider[:location].nil?
+
+        location = @provider[:location]
+        {
+          id: @provider_service_id,
+          type: 'appointments',
+          attributes: {
+            name: location[:name],
+            timezone: {
+              timeZoneId: location[:timezone].presence || 'UTC'
+            }
+          }
+        }
+      end
+
       def determine_status(status)
         status == 'booked' ? 'booked' : 'proposed'
       end
 
       def eps_type
-        @start.present? ? 'COMMUNITY_CARE_APPOINTMENT' : 'COMMUNITY_CARE_REQUEST'
+        @start.present? ? COMMUNITY_CARE_APPOINTMENT : COMMUNITY_CARE_REQUEST
       end
 
       def request_type?

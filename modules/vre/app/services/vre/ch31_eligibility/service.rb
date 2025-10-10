@@ -37,8 +37,8 @@ module VRE
 
       def log_error(e)
         message = e.original_body['errorMessageList'] || e.original_body['error']
-        Rails.logger.error(e)
-        Rails.logger.error({ message: }) if message.present?
+        Rails.logger.error("Failed to retrieve Ch. 31 eligibility details: #{message}",
+                           backtrace: e.backtrace)
       end
 
       def service_unavailable?(e)

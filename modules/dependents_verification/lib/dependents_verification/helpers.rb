@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 module DependentsVerification
-  ##
-  # See app/models/dependents_verification/form_profiles/va_210538.rb
-  #
+  # @see DependentsVerification::FormProfiles::VA210538
+  # app/models/dependents_verification/form_profiles/va_210538.rb
   module PrefillHelpers
-    ##
     # Calculates the age of a dependent based on their date of birth
     #
     # @param date_of_birth [String] The date of birth of the dependent
@@ -24,16 +22,14 @@ module DependentsVerification
       now.year - dob.year - (after_birthday ? 0 : 1)
     end
 
-    ##
     # Safely parses a date string, handling various formats
     #
     # @param date_string [String, Date, nil] The date to parse
     # @return [Date, nil] The parsed date or nil if parsing fails
     def parse_date_safely(date_string)
       return nil if date_string.blank?
-      return date_string if date_string.is_a?(Date)
 
-      Date.parse(date_string.to_s)
+      DateTime.parse(date_string.to_s).strftime('%m/%d/%Y')
     rescue ArgumentError, TypeError
       nil
     end

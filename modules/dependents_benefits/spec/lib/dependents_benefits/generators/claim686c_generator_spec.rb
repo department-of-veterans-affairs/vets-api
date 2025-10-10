@@ -4,8 +4,9 @@ require 'rails_helper'
 require 'dependents_benefits/generators/claim686c_generator'
 
 RSpec.describe DependentsBenefits::Generators::Claim686cGenerator, type: :model do
-  let(:form_data) { create(:dependents_claim).parsed_form }
-  let(:parent_id) { create(:dependents_claim).id }
+  let(:parent_claim) { create(:dependents_claim) }
+  let(:form_data) { parent_claim.parsed_form }
+  let(:parent_id) { parent_claim.id }
   let(:generator) { described_class.new(form_data, parent_id) }
 
   before do
@@ -46,10 +47,11 @@ RSpec.describe DependentsBenefits::Generators::Claim686cGenerator, type: :model 
   end
 
   describe '#generate' do
-    let(:mock_group) { create(:saved_claim_group) }
-
-    before do
-      allow(SavedClaimGroup).to receive(:find_by).and_return(mock_group)
+    let!(:parent_claim_group) do
+      create(:saved_claim_group,
+             claim_group_guid: parent_claim.guid,
+             parent_claim_id: parent_claim.id,
+             saved_claim_id: parent_claim.id)
     end
 
     it 'creates a 686c claim' do
@@ -58,6 +60,14 @@ RSpec.describe DependentsBenefits::Generators::Claim686cGenerator, type: :model 
 
       parsed_form = JSON.parse(created_claim.form)
       expect(parsed_form['veteran_information']).to eq(form_data['veteran_information'])
+
+      # Verify that a new claim group was created linking the new claim to the parent
+      new_claim_group = SavedClaimGroup.find_by(
+        parent_claim_id: parent_claim.id,
+        saved_claim_id: created_claim.id
+      )
+      expect(new_claim_group).to be_present
+      expect(new_claim_group.claim_group_guid).to eq(parent_claim.guid)
     end
   end
 end

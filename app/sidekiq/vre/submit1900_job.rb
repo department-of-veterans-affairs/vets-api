@@ -16,7 +16,7 @@ module VRE
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
-      VRE::Submit1900Job.trigger_failure_events(msg) if Flipper.enabled?(:vre_trigger_action_needed_email)
+      VRE::Submit1900Job.trigger_failure_events(msg)
       StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
     end
 

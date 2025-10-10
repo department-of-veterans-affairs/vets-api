@@ -192,7 +192,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         trusts = form_data['trusts']
-        form_data['trust'] = trusts&.length ? 0 : 1
+        form_data['trust'] = radio_yesno(trusts&.length)
         form_data['trusts'] = trusts&.map { |item| expand_item(item) }
       end
 

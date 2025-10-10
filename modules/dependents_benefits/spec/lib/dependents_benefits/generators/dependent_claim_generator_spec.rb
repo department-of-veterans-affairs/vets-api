@@ -63,26 +63,24 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
     end
 
     describe '#create_claim_group_item' do
-      let!(:parent_claim) { create(:dependents_claim, id: parent_id) }
-      let(:mock_claim) { create(:dependents_claim) }
-      let(:claim_group_guid) { SecureRandom.uuid }
-      let(:mock_group) do
-        instance_double(SavedClaimGroup, parent_claim_id: parent_id, claim_group_guid:)
+      let(:parent_claim) { create(:dependents_claim) }
+      let(:child_claim) { create(:student_claim) }
+      let(:parent_claim_group) do
+        create(:saved_claim_group,
+               claim_group_guid: parent_claim.guid,
+               parent_claim_id: parent_claim.id,
+               saved_claim_id: parent_claim.id)
       end
+      let(:parent_id) { parent_claim.id }
 
-      before do
-        allow(Rails.logger).to receive(:info)
-        allow(SavedClaimGroup).to receive(:find_by).and_return(mock_group)
-      end
-
-      it 'creates a claim group' do
+      it 'creates a claim group child item' do
         expect(SavedClaimGroup).to receive(:new).with(
-          claim_group_guid: mock_group.claim_group_guid,
-          parent_claim_id: parent_id,
-          saved_claim_id: mock_claim.id
+          claim_group_guid: parent_claim_group.claim_group_guid,
+          parent_claim_id: parent_claim.id,
+          saved_claim_id: child_claim.id
         ).and_call_original
 
-        result = generator.send(:create_claim_group_item, mock_claim)
+        result = generator.send(:create_claim_group_item, child_claim)
         expect(result).to be_a(SavedClaimGroup)
       end
     end

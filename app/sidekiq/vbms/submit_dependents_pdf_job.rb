@@ -37,7 +37,7 @@ module VBMS
     rescue => e
       error = Flipper.enabled?(:dependents_log_vbms_errors) ? e.message : '[REDACTED]'
       monitor.track_event('error', 'VBMS::SubmitDependentsPdfJob failed!',
-                          "#{STATSD_KEY}.failure", { error: })
+                          "#{STATSD_KEY}.failure", error:)
       @saved_claim_id = saved_claim_id
       raise
     end

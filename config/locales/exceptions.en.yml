@@ -810,9 +810,9 @@ en:
         status: 400
       RES_CH31_ELIGIBILITY_403:
         <<: *external_defaults
-        title: Not Found
+        title: Forbidden
         code: 'RES_CH31_ELIGIBILITY_403'
-        detail: 'Not Authorized'
+        detail: 'Forbidden'
         status: 403
       RES_CH31_ELIGIBILITY_500:
         <<: *external_defaults

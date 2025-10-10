@@ -83,7 +83,7 @@ RSpec.describe VBMS::SubmitDependentsPdfV2Job do
 
       job = described_class.new
 
-      expect(Rails.logger).to receive(:error)
+      expect(Rails.logger).to receive(:error).at_least(:once)
 
       vet_info['veteran_information'].delete('ssn')
       expect do
