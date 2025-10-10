@@ -297,4 +297,8 @@ module Requests
     attribute :direct_deposit, DirectDeposit
     attribute :claim_notes, String
   end
+
+  class Form526Pdf < Form526
+    attribute :claim_date, String, default: nil
+  end
 end
