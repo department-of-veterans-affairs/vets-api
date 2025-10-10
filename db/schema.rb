@@ -573,6 +573,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_06_192747) do
     t.text "auth_headers_ciphertext"
     t.text "file_data_ciphertext"
     t.text "evss_response_ciphertext"
+    t.text "bgs_flash_responses_ciphertext"
+    t.text "bgs_special_issue_responses_ciphertext"
     t.text "encrypted_kms_key"
     t.string "cid"
     t.string "transaction_id"
