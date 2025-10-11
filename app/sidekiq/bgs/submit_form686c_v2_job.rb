@@ -12,6 +12,7 @@ module BGS
 
     attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn
 
+    # 'worker.submit_686c_v2_bgs' ?
     STATS_KEY = 'worker.submit_686c_bgs'
 
     # retry for  2d 1h 47m 12s
@@ -22,6 +23,8 @@ module BGS
       user_uuid, saved_claim_id, encrypted_vet_info = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       monitor = ::Dependents::Monitor.new(saved_claim_id)
+
+      # BGS::SubmitForm686cV2Job & worker.submit_686c_v2_bgs.exhaustion ?
       monitor.track_event('error',
                           "BGS::SubmitForm686cJob failed, retries exhausted! Last error: #{msg['error_message']}",
                           'worker.submit_686c_bgs.exhaustion')
@@ -32,11 +35,13 @@ module BGS
     # method length lint disabled because this will be cut in half when flipper is removed
     def perform(user_uuid, saved_claim_id, encrypted_vet_info)
       @monitor = init_monitor(saved_claim_id)
+      # BGS::SubmitForm686cV2Job ?
       @monitor.track_event('info', 'BGS::SubmitForm686cJob running!', "#{STATS_KEY}.begin")
 
       instance_params(encrypted_vet_info, user_uuid, saved_claim_id)
 
       submit_686c
+      # BGS::SubmitForm686cV2Job ?
       @monitor.track_event('info', 'BGS::SubmitForm686cJob succeeded!', "#{STATS_KEY}.success")
 
       if claim.submittable_674?
@@ -48,7 +53,7 @@ module BGS
       end
     rescue => e
       handle_filtered_errors!(e:, encrypted_vet_info:)
-
+      # BGS::SubmitForm686cV2Job ?
       @monitor.track_event('warn', 'BGS::SubmitForm686cJob received error, retrying...', "#{STATS_KEY}.failure",
                            { error: e.message, nested_error: e.cause&.message })
       raise
@@ -59,6 +64,7 @@ module BGS
       filter = FILTERED_ERRORS.any? { |filtered| e.message.include?(filtered) || e.cause&.message&.include?(filtered) }
       return unless filter
 
+      # BGS::SubmitForm686cV2Job ?
       @monitor.track_event('warn', 'BGS::SubmitForm686cJob received error, skipping retries...',
                            "#{STATS_KEY}.skip_retries", { error: e.message, nested_error: e.cause&.message })
 
@@ -102,7 +108,8 @@ module BGS
       )
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
-      monitor = Dependents::Monitor.new(saved_claim_id)
+      monitor = ::Dependents::Monitor.new(saved_claim_id)
+      # BGS::SubmitForm686cV2Job ?
       monitor.track_event('error', 'BGS::SubmitForm686cJob backup submission failed...',
                           "#{STATS_KEY}.backup_failure", { error: e.message, nested_error: e.cause&.message })
       InProgressForm.find_by(form_id: FORM_ID, user_uuid:)&.submission_pending!
@@ -110,6 +117,7 @@ module BGS
 
     private
 
+    # This is probably dead code and can be removed.
     def submit_forms(encrypted_vet_info)
       claim.add_veteran_info(vet_info)
 
@@ -142,6 +150,7 @@ module BGS
       claim.send_received_email(user)
     end
 
+    # This is probably dead code and can be removed.
     def send_confirmation_email
       return if user.va_profile_email.blank?
 
