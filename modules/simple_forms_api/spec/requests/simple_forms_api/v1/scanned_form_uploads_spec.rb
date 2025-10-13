@@ -30,7 +30,8 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     let(:attachment) { double }
 
     before do
-      Flipper.disable(:simple_forms_upload_supporting_documents)
+      allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                an_instance_of(User)).and_return(false)
       VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
       VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
       allow(Common::FileHelpers).to receive(:random_file_path).and_return(file_seed)
