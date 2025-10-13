@@ -233,7 +233,6 @@ module Representatives
     # @return [Hash] the response from the address validation service
     def modified_validation(address, retry_count)
       address_attempt = address.dup
-      @slack_messages << "Modified address validation.  Address: #{address_attempt}"
       case retry_count
       when 1 # only use the original address_line1
       when 2 # set address_line1 to the original address_line2
@@ -271,11 +270,10 @@ module Representatives
         line_present = rep_address[line_key].present?
         next unless line_present && retriable?(api_response)
 
-        @slack_messages << "Modified address validation attempt #{attempt_number}"
         begin
           api_response = modified_validation(rep_address, attempt_number)
         rescue Common::Exceptions::BackendServiceException => e
-          @slack_messages << "Attempt #{attempt_number} failed: #{e.message}"
+          log_error("Attempt #{attempt_number} failed: #{e.message}")
         end
       end
 
