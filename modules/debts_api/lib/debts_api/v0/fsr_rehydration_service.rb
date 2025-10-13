@@ -2,7 +2,6 @@
 
 module DebtsApi
   class V0::FsrRehydrationService
-
     class UserDoesNotOwnsubmission < StandardError; end
     class NoInProgressFormDataStored < StandardError; end
 
