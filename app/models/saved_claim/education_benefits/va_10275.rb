@@ -14,6 +14,7 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
       institution_details: construct_institution_details,
       additional_locations: construct_additional_locations,
       points_of_contact: construct_points_of_contact,
+      principles_of_excellence: construct_principles_of_excellence,
       submission_information: construct_submission_information,
       submission_id: id
     }
@@ -21,11 +22,25 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
     VANotify::EmailJob.perform_async(
       Settings.form_10275.submission_email,
       email_template,
-      email_params
+      email_params,
+      callback_metadata
     )
   end
 
   private
+
+  def callback_metadata
+    {
+      callback_metadata: {
+        notification_type: 'error',
+        form_number: '22-10275',
+        statsd_tags: {
+          service: 'submit-10275-form',
+          function: 'form_10275_failure_confirmation_email_sending'
+        }
+      }
+    }
+  end
 
   def construct_agreement_type
     case parsed_form['agreementType']
@@ -68,6 +83,23 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
     end
 
     str
+  end
+
+  def construct_principles_of_excellence
+    return '' unless parsed_form['agreementType'] == 'newCommitment'
+
+    <<~POE
+      ### Principles of Excellence agreement
+
+      **Principle 1:** Institution agrees#{'  '}
+      **Principle 2:** Institution agrees#{'  '}
+      **Principle 3:** Institution agrees#{'  '}
+      **Principle 4:** Institution agrees#{'  '}
+      **Principle 5:** Institution agrees#{'  '}
+      **Principle 6:** Institution agrees#{'  '}
+      **Principle 7:** Institution agrees#{'  '}
+      **Principle 8:** Institution agrees
+    POE
   end
 
   def construct_submission_information

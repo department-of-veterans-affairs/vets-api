@@ -45,7 +45,8 @@ RSpec.describe SavedClaim::EducationBenefits::VA10275 do
             args[:points_of_contact].include?('michael.brown@springfield.edu') &&
             args[:points_of_contact].include?('emily.johnson@springfield.edu') &&
             args[:submission_information].include?('Robert Smith')
-          end
+          end,
+          anything
         )
       end
     end
