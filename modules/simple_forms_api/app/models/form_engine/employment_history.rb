@@ -42,8 +42,8 @@ module FormEngine
     def set_ivars
       @city = data.dig('employer_address', 'city')
       @country = data.dig('employer_address', 'country')
-      @date_ended = format_date(data.dig('employmentDates', 'to'))
-      @date_started = format_date(data.dig('employmentDates', 'from'))
+      @date_ended = format_date(data.dig('employment_dates', 'to'))
+      @date_started = format_date(data.dig('employment_dates', 'from'))
       @highest_income = format_currency(data['highest_gross_income_per_month'])
       @hours_per_week = data['hours_per_week']
       @lost_time = data['lost_time_from_illness']

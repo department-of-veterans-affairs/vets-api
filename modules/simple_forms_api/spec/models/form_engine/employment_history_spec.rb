@@ -12,7 +12,7 @@ RSpec.describe FormEngine::EmploymentHistory do
       'hours_per_week' => '40',
       'lost_time_from_illness' => '13',
       'highest_gross_income_per_month' => 2300,
-      'employmentDates' => {
+      'employment_dates' => {
         'from' => '2018-03-15',
         'to' => '2020-06-30'
       },
