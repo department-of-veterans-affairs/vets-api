@@ -79,7 +79,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     shared_context 'error response rails log' do
       let(:expected_error) { 'Access token JWT is malformed' }
       let(:log_context) do
-        { access_token_authorization_header: access_token, access_token_cookie: }.compact
+        { errors: expected_error, access_token_authorization_header: access_token, access_token_cookie: }.compact
       end
 
       it_behaves_like 'error response'
@@ -87,7 +87,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       it 'logs error to Rails logger' do
         expect(Rails.logger).to receive(:error).with(
           '[SignIn][Authentication] authentication error',
-          hash_including(:errors, **log_context)
+          hash_including(**log_context)
         )
         subject
       end
