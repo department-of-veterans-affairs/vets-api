@@ -2,7 +2,6 @@
 
 module DebtsApi
   class V0::FsrRehydrationService
-    include Vets::SharedLogging
 
     class UserDoesNotOwnsubmission < StandardError; end
     class NoInProgressFormDataStored < StandardError; end
