@@ -144,6 +144,21 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
         end
       end
 
+      describe 'no claims found response from lighthouse' do
+        it 'returns an empty array when lighthouse responds with resource not found' do
+          benefits_claims_service = instance_double(BenefitsClaims::Service)
+          allow(BenefitsClaims::Service).to receive(:new).and_return(benefits_claims_service)
+          allow(benefits_claims_service).to receive(:get_claims)
+            .and_raise(Common::Exceptions::ResourceNotFound.new(detail: 'Not found'))
+
+          get_claims
+
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['data']).to eq([])
+          expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'SUCCESS'
+        end
+      end
+
       describe 'no conversation id' do
         it 'raises exception when no conversation id is found' do
           VCR.use_cassette('lighthouse/benefits_claims/index/claims_chatbot_zero_claims') do
