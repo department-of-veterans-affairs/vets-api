@@ -74,11 +74,12 @@ module RepresentationManagement
       report = "Accreditation API Entity Counts Report:\n"
       TYPES.each do |type|
         type = type.to_sym
+        presentation_type = type.to_s == 'representatives' ? 'VSO representatives' : type.to_s
         current_count = current_api_counts[type]
         previous_count = current_db_counts[type]
         change_percentage = percentage_change(previous_count, current_count)
 
-        report += "#{type.to_s.humanize}: Current: #{current_count}, Previous: #{previous_count}, " \
+        report += "#{presentation_type.humanize.titleize}: Current: #{current_count}, Previous: #{previous_count}, " \
                   "Change: #{change_percentage}%\n"
       end
       report << db_record_count_report
