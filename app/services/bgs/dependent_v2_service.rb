@@ -35,7 +35,7 @@ module BGS
       @email = user.email
       @icn = user.icn
       @participant_id = user.participant_id
-      @va_profile_email = user.va_profile_email
+      @va_profile_email = get_user_email(user)
     end
 
     def get_dependents
@@ -281,6 +281,20 @@ module BGS
           'icn' => icn
         }
       }
+    end
+
+    def get_user_email(user)
+      # Safeguard for when VAProfileRedis::V2::ContactInformation.for_user fails in app/models/user.rb
+      # Failure is expected occasionally due to 404 errors from the redis cache
+      # New users or users that have not logged on in over a month will need to obtain/refresh VAProfile_ID
+      # Originates here: lib/va_profile/contact_information/v2/service.rb
+      user.va_profile_email
+    rescue => e
+      # We don't have a claim id accessible yet
+      @monitor = init_monitor(nil)
+      @monitor.track_event('warn', 'BGS::DependentV2Service#get_user_email failed to get va_profile_email',
+                           "#{STATS_KEY}.get_va_profile_email.failure", { error: e.message })
+      nil
     end
 
     def init_monitor(saved_claim_id)
