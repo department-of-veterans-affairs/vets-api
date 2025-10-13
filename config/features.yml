@@ -2602,3 +2602,9 @@ features:
   auth_exp_email_verification_enabled:
     actor_type: user
     description: If enabled, a user will be required to verify their contact email address
+  simple_forms_upload_supporting_documents:
+    actor_type: user
+    description: >
+      Enables the upload_supporting_documents endpoint for scanned form uploads for supporting evidence.
+      Owned by Simple Forms API team.
+
