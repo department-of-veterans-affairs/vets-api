@@ -14,13 +14,14 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
       institution_details: construct_institution_details,
       additional_locations: construct_additional_locations,
       points_of_contact: construct_points_of_contact,
-      submission_information: construct_submission_information
+      submission_information: construct_submission_information,
+      submission_id: id
     }
 
     VANotify::EmailJob.perform_async(
       Settings.form_10275.submission_email,
       email_template,
-      email_params.merge(submission_id: id)
+      email_params
     )
   end
 
@@ -28,8 +29,8 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
 
   def construct_agreement_type
     case parsed_form['agreementType']
-    when "newCommitment" then 'New commitment'
-    when "withdrawal" then 'Withdrawl'
+    when 'newCommitment' then 'New commitment'
+    when 'withdrawal' then 'Withdrawl'
     else
       'Unknown'
     end
@@ -38,15 +39,15 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
   def construct_institution_details
     institution = parsed_form['mainInstitution']
     <<~DETAILS
-    **Institution name:** #{institution['institutionName']}
-    **Facility code:** #{institution['facilityCode']}
-    **Institution address:**  
-    #{format_address(institution['institutionAddress'])}
+      **Institution name:** #{institution['institutionName']}
+      **Facility code:** #{institution['facilityCode']}
+      **Institution address:**#{'  '}
+      #{format_address(institution['institutionAddress'])}
     DETAILS
   end
 
   def construct_additional_locations
-    locations = (parsed_form['additionalInstitutions'] || []).map do |location|
+    (parsed_form['additionalInstitutions'] || []).map do |location|
       format_location(location)
     end.join("\n\n")
   end
@@ -60,9 +61,9 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
       str += <<~OFF
 
 
-        #{format_official(poc, 'Principles of Excellence point of contact', false)}
+        #{format_official(poc, 'Principles of Excellence point of contact', include_title: false)}
 
-        #{format_official(sco, 'School certifying official', false)}
+        #{format_official(sco, 'School certifying official', include_title: false)}
       OFF
     end
 
@@ -71,24 +72,24 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
 
   def construct_submission_information
     <<~SUBMISSION
-    **Date and time submitted:** #{parsed_form['dateSigned']}
-    **Digitally signed by:** #{parsed_form['statementOfTruthSignature']}
-    **Submission ID:** #{id}
+      **Date submitted:** #{parsed_form['dateSigned']}
+      **Digitally signed by:** #{parsed_form['statementOfTruthSignature']}
+      **Submission ID:** #{id}
     SUBMISSION
   end
 
   def format_location(location_hash)
     <<~LOCATION
-      **#{location_hash['institutionName']}**  
+      **#{location_hash['institutionName']}**#{'  '}
       **Facility code:** #{location_hash['facilityCode']}
-      **Address:**  
+      **Address:**#{'  '}
       #{format_address(location_hash['institutionAddress']).chomp}
       **Point of contact:** #{format_name(location_hash['pointOfContact']['fullName'])}
       **Email:**  #{location_hash['pointOfContact']['email']}
     LOCATION
   end
 
-  def format_official(official_hash, header, include_title = true)
+  def format_official(official_hash, header, include_title: true)
     str = "**#{header}:** #{format_name(official_hash['fullName'])}"
     str += "\n**Title:** #{official_hash['title']}" if include_title
     str += "\n**Phone number:** #{official_hash['usPhone'] || official_hash['internationalPhone']}"
@@ -103,7 +104,7 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
       #{address_hash['city']}, #{address_hash['state']}, #{address_hash['postalCode']}
     ADDRESS
 
-    str += "#{address_hash['country']}" unless ['US','USA'].include?(address_hash['country'])
+    str += address_hash['country'] unless %w[US USA].include?(address_hash['country'])
     str
   end
 

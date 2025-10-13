@@ -37,13 +37,14 @@ RSpec.describe SavedClaim::EducationBenefits::VA10275 do
           'form10275_submission_email_template_id',
           satisfy do |args|
             args[:submission_id] == subject.id &&
-            args[:header].include?('Springfield University') &&
-            args[:header].include?('US123456') &&
-            args[:locations].include?('Springfield Technical Institute') &&
-            args[:locations].include?('US654321') &&
-            args[:officials].include?('michael.brown@springfield.edu') &&
-            args[:officials].include?('emily.johnson@springfield.edu') &&
-            args[:signature].include?('Robert Smith')
+            args[:agreement_type] == 'New commitment' &&
+            args[:institution_details].include?('Springfield University') &&
+            args[:institution_details].include?('US123456') &&
+            args[:additional_locations].include?('Springfield Technical Institute') &&
+            args[:additional_locations].include?('US654321') &&
+            args[:points_of_contact].include?('michael.brown@springfield.edu') &&
+            args[:points_of_contact].include?('emily.johnson@springfield.edu') &&
+            args[:submission_information].include?('Robert Smith')
           end
         )
       end
