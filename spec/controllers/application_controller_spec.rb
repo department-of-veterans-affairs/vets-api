@@ -688,6 +688,15 @@ RSpec.describe ApplicationController, type: :controller do
           expect(Rails.logger).to receive(:info).with(expected_result)
           subject
         end
+
+        it 'stores controller_name in RequestStore for Sidekiq middleware' do
+          expect(Rails.logger).to receive(:info).with(expected_result)
+          subject
+
+          additional_attrs = RequestStore.store['additional_request_attributes']
+          expect(additional_attrs).to be_present
+          expect(additional_attrs['controller_name']).to eq('anonymous')
+        end
       end
 
       context 'when controller has no name' do
