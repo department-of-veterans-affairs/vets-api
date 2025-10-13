@@ -1,11 +1,16 @@
 {
+   "form_number": "21-4140",
    "veteran_id": {
-      "ssn": "547-90-1234",
+      "ssn": "547901234",
+      "va_file_number": "12345678"
+   },
+   "id_number": {
+      "ssn": "547901234",
       "va_file_number": "12345678"
    },
    "service_number": "A12345678",
-   "home_phone": "1231231233",
-   "mobile_phone": "9876543210",
+   "phone_number": "1231231233",
+   "mobile_phone_number": "9876543210",
    "email_address": "test@example.com",
    "address": {
       "country": "USA",
@@ -24,62 +29,22 @@
    "date_of_birth": "1979-02-27",
    "employers": [
       {
-         "type_of_work": "Full-time",
-         "hours_per_week": "40",
-         "lost_time": "13",
-         "highest_income": "2300",
-         "date_range": {
-            "from": "2018-03-15",
-            "to": "2020-06-30"
-         },
-         "name": "Test Employer",
-         "address": {
+         "employer_name": "Test Employer",
+         "employer_address": {
             "country": "USA",
             "street": "1234 Executive Ave",
             "city": "Metropolis",
             "state": "CA",
             "postal_code": "90210"
-         }
-      },
-      {
-         "type_of_work": "Freelance",
-         "hours_per_week": "20",
-         "lost_time": "30",
-         "highest_income": "1300",
-         "date_range": {
-            "from": "2020-07-01",
-            "to": "2022-09-13"
          },
-         "name": "Freelancer",
-         "address": {
-            "country": "USA",
-            "street": "123 Test St",
-            "city": "Test City",
-            "state": "CA",
-            "postal_code": "90210"
-         }
-      },
-      {
-         "type_of_work": "Sub-contractor",
-         "hours_per_week": "60",
-         "lost_time": "56",
-         "highest_income": "600",
-         "date_range": {
-            "from": "2022-10-11",
-            "to": "2024-04-07"
-         },
-         "name": "Example \"Construction\" Company",
-         "address": {
-            "country": "CAN",
-            "street": "4321 Example Ave",
-            "city": "Test City",
-            "state": "NS",
-            "postal_code": "M4B 1G5"
-         }
-      },
-      {}
+         "type_of_work": "Representing \"work stuff\" like...Representing work stuff like...Representing work stuff like...Representing work stuff like...Representing work stuff like...Representing work stuff like...",
+         "employment_start_date": "2018-03-15",
+         "employment_end_date": "2020-06-30",
+         "hours_per_week": "40",
+         "lost_time_from_illness": "13",
+         "highest_gross_income_per_month": 2300
+      }
    ],
    "statement_of_truth_signature": "Example Test User",
-   "statement_of_truth_certified": true,
-   "form_number": "21-4140"
+   "statement_of_truth_certified": true
 }
