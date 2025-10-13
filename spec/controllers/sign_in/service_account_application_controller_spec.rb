@@ -22,7 +22,7 @@ RSpec.describe SignIn::ServiceAccountApplicationController, type: :controller do
 
     shared_context 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
-      let(:log_context) { { access_token_authorization_header: access_token } }
+      let(:log_context) { { errors: expected_error, access_token_authorization_header: access_token } }
 
       it 'renders Malformed Params error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
@@ -35,7 +35,7 @@ RSpec.describe SignIn::ServiceAccountApplicationController, type: :controller do
       it 'logs error to Rails logger' do
         expect(Rails.logger).to receive(:error).with(
           '[SignIn][ServiceAccountAuthentication] authentication error',
-          hash_including(:errors, **log_context)
+          hash_including(**log_context)
         )
         subject
       end
