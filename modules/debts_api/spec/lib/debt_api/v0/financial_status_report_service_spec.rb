@@ -244,7 +244,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         )
       end
 
-      it 'logs to sentry' do
+      it 'logs to rails' do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             res = subject.submit_vba_fsr(valid_form_data)
