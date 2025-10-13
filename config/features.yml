@@ -176,6 +176,9 @@ features:
     description: "Gateway: Enable decision letter email notifications for EP600 predetermined notice"
   event_bus_gateway_ep930_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP930 review, referrals, and other"
+  event_bus_gateway_pension_email_template:
+    actor_type: user
+    description: Toggle to enable pension email template in eventbus-gateway
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
