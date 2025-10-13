@@ -239,29 +239,30 @@ module BGS
     end
 
     def get_form_hash_686c
-      # include ssn in call to BGS for mocks
-      bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
-      @file_number = bgs_person[:file_nbr]
-      # BGS's file number is supposed to be an eight or nine-digit string, and
-      # our code is built upon the assumption that this is the case. However,
-      # we've seen cases where BGS returns a file number with dashes
-      # (e.g. XXX-XX-XXXX). In this case specifically, we can simply strip out
-      # the dashes and proceed with form submission.
-      @file_number = file_number.delete('-') if file_number =~ /\A\d{3}-\d{2}-\d{4}\z/
+      begin
+        #  include ssn in call to BGS for mocks
+        bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+        @file_number = bgs_person[:file_nbr]
+        # BGS's file number is supposed to be an eight or nine-digit string, and
+        # our code is built upon the assumption that this is the case. However,
+        # we've seen cases where BGS returns a file number with dashes
+        # (e.g. XXX-XX-XXXX). In this case specifically, we can simply strip out
+        # the dashes and proceed with form submission.
+        @file_number = file_number.delete('-') if file_number =~ /\A\d{3}-\d{2}-\d{4}\z/
 
-      # The `validate_*!` calls below will raise errors if we have an invalid
-      # file number, or if the file number and SSN don't match. Even if this is
-      # the case, we still want to submit a PDF to the veteran's VBMS eFolder.
-      # This is because we are currently relying on the presence of a PDF and
-      # absence of a BGS-established claim to identify cases where Form 686c-674
-      # submission failed.
+        # The `validate_*!` calls below will raise errors if we have an invalid
+        # file number, or if the file number and SSN don't match. Even if this is
+        # the case, we still want to submit a PDF to the veteran's VBMS eFolder.
+        # This is because we are currently relying on the presence of a PDF and
+        # absence of a BGS-established claim to identify cases where Form 686c-674
+        # submission failed.
+      rescue
+        @monitor.track_event('warn',
+                             'BGS::DependentV2Service#get_form_hash_686c failed',
+                             "#{STATS_KEY}.get_form_hash.failure", { error: 'Could not retrieve file number from BGS' })
+      end
 
       generate_hash_from_details
-    rescue
-      @monitor.track_event('warn',
-                           'BGS::DependentV2Service#get_form_hash_686c failed',
-                           "#{STATS_KEY}.get_form_hash.failure", { error: 'Could not retrieve file number from BGS' })
-      raise BgsServicesError
     end
 
     def generate_hash_from_details
@@ -275,7 +276,7 @@ module BGS
           'email' => email,
           'participant_id' => participant_id,
           'ssn' => ssn,
-          'va_file_number' => file_number,
+          'va_file_number' => file_number || ssn,
           'birth_date' => birth_date,
           'uuid' => uuid,
           'icn' => icn
