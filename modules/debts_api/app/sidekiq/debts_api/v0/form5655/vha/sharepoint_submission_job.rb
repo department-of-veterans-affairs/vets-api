@@ -5,7 +5,7 @@ require 'debt_management_center/sharepoint/request'
 module DebtsApi
   class V0::Form5655::VHA::SharepointSubmissionJob
     include Sidekiq::Worker
-    include SentryLogging
+    include Vets::SharedLogging
     STATS_KEY = 'api.vha_sharepoint_submission'
 
     sidekiq_options retry: 10
