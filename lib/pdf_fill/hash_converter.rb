@@ -22,7 +22,10 @@ module PdfFill
       elsif key_data.try(:[], :format) == 'date'
         convert_val_as_date(v)
       elsif v == 'Off' && @extras_generator.use_hexapdf
-        'false'
+        # HexaPDF accepts a certain set of values for checkboxes, one of them being
+        # false, but it converts that value to 'Off' when filling the PDF. This conversion
+        # allows us to maintain interoperability with HexaPDF (uses false) and PDFtk (uses 'Off')
+        false
       else
         convert_val_as_string(v)
       end
