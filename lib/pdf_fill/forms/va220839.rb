@@ -9,7 +9,7 @@ module PdfFill
       AGREEMENT_TYPES = {
         'startNewOpenEndedAgreement' => 'New open-ended agreement',
         'modifyExistingAgreement' => 'Modification to existing agreement',
-        'withdrawFromYellowRibbonProgram' => 'Withdrawl of Yellow Ribbon agreement'
+        'withdrawFromYellowRibbonProgram' => 'Withdrawal of Yellow Ribbon agreement'
       }.freeze
 
       KEY = {

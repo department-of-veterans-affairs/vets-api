@@ -55,8 +55,8 @@ describe PdfFill::Processors::VA220839Processor do
       end
     end
 
-    context 'with a withdrawl submission' do
-      let(:saved_claim) { create(:va0839_withdrawl) }
+    context 'with a withdrawal submission' do
+      let(:saved_claim) { create(:va0839_withdrawal) }
 
       it 'creates the pdf correctly' do
         described_class.new(form_data, filler).process
