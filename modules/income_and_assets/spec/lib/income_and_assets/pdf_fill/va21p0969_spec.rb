@@ -30,7 +30,7 @@ describe IncomeAndAssets::PdfFill::Va21p0969 do
       input_data_fixture_dir: "modules/income_and_assets/spec/fixtures/pdf_fill/#{IncomeAndAssets::FORM_ID}",
       output_pdf_fixture_dir: "modules/income_and_assets/spec/fixtures/pdf_fill/#{IncomeAndAssets::FORM_ID}",
       test_data_types:,
-      fill_options: { extras_redesign: true, omit_esign_stamp: true }
+      fill_options: { extras_redesign: true, omit_esign_stamp: true, use_hexapdf: true }
     }
   end
 
@@ -42,10 +42,12 @@ describe IncomeAndAssets::PdfFill::Va21p0969 do
         )
 
         expected = JSON.parse(File.read(expected)) unless expected.is_a?(Hash)
-
         actual = described_class.new(form_data).merge_fields
 
-        expect(normalize_values(actual)).to match_array(normalize_values(expected))
+        # Create a diff that is easy to read when expected/actual differ
+        diff = Hashdiff.diff(normalize_values(expected), normalize_values(actual))
+
+        expect(diff).to eq([])
       end
     ensure
       Timecop.return

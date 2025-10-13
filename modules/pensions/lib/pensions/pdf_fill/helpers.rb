@@ -34,14 +34,14 @@ module Pensions
         split_hash
       end
 
-      # Convert an objects truthiness to a radio on/off.
-      def to_checkbox_on_off(obj)
-        obj ? 1 : 'Off'
+      # Convert a given values truthiness to a checkbox on/off.
+      def to_checkbox(value)
+        value ? '1' : 'Off'
       end
 
-      # Convert an objects truthiness to a radio yes/no.
-      def to_radio_yes_no(obj)
-        obj ? 1 : 2
+      # Convert a given values truthiness to a radio yes/no.
+      def to_radio_yesno(value)
+        value ? 0 : 1
       end
     end
   end

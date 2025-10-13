@@ -1424,7 +1424,7 @@ module Pensions
         @form_data['veteranFullName']['last'] = @form_data.dig('veteranFullName', 'last')&.titleize
         @form_data['veteranSocialSecurityNumber'] = split_ssn(@form_data['veteranSocialSecurityNumber'])
         @form_data['veteranDateOfBirth'] = split_date(@form_data['veteranDateOfBirth'])
-        @form_data['vaClaimsHistory'] = to_radio_yes_no(@form_data['vaClaimsHistory'])
+        @form_data['vaClaimsHistory'] = to_radio_yesno(@form_data['vaClaimsHistory'])
       end
 
       # SECTION II: VETERAN'S CONTACT INFORMATION
@@ -1446,8 +1446,8 @@ module Pensions
         }
         @form_data['serviceBranch'] = @form_data['serviceBranch']&.select { |_, value| value == true }
 
-        @form_data['pow'] = to_radio_yes_no(@form_data['powDateRange'].present?)
-        if @form_data['pow'] == 1
+        @form_data['pow'] = to_radio_yesno(@form_data['powDateRange'].present?)
+        if @form_data['pow'].zero?
           @form_data['powDateRange'] ||= {}
           @form_data['powDateRange']['from'] = split_date(@form_data.dig('powDateRange', 'from'))
           @form_data['powDateRange']['to'] = split_date(@form_data.dig('powDateRange', 'to'))
@@ -1465,29 +1465,29 @@ module Pensions
 
       # SECTION IV: PENSION INFORMATION
       def expand_pension_information
-        @form_data['nursingHome'] = to_radio_yes_no(@form_data['nursingHome'])
-        @form_data['medicaidStatus'] = to_radio_yes_no(
+        @form_data['nursingHome'] = to_radio_yesno(@form_data['nursingHome'])
+        @form_data['medicaidStatus'] = to_radio_yesno(
           @form_data['medicaidStatus'] || @form_data['medicaidCoverage']
         )
-        @form_data['specialMonthlyPension'] = to_radio_yes_no(@form_data['specialMonthlyPension'])
-        @form_data['medicalCondition'] = to_radio_yes_no(@form_data['medicalCondition'])
-        @form_data['socialSecurityDisability'] = to_radio_yes_no(
+        @form_data['specialMonthlyPension'] = to_radio_yesno(@form_data['specialMonthlyPension'])
+        @form_data['medicalCondition'] = to_radio_yesno(@form_data['medicalCondition'])
+        @form_data['socialSecurityDisability'] = to_radio_yesno(
           @form_data['socialSecurityDisability'] || @form_data['isOver65']
         )
 
         # If "YES," skip question 4B
-        @form_data['medicalCondition'] = 'Off' if @form_data['socialSecurityDisability'] == 1
+        @form_data['medicalCondition'] = nil if @form_data['socialSecurityDisability'].zero?
 
         # If "NO," skip question 4D
-        @form_data['medicaidStatus'] = 'Off' if @form_data['nursingHome'] == 2
+        @form_data['medicaidStatus'] = nil if @form_data['nursingHome'] == 1
 
-        @form_data['vaTreatmentHistory'] = to_radio_yes_no(@form_data['vaTreatmentHistory'])
-        @form_data['federalTreatmentHistory'] = to_radio_yes_no(@form_data['federalTreatmentHistory'])
+        @form_data['vaTreatmentHistory'] = to_radio_yesno(@form_data['vaTreatmentHistory'])
+        @form_data['federalTreatmentHistory'] = to_radio_yesno(@form_data['federalTreatmentHistory'])
       end
 
       # SECTION V: EMPLOYMENT HISTORY
       def expand_employment_history
-        @form_data['currentEmployment'] = to_radio_yes_no(@form_data['currentEmployment'])
+        @form_data['currentEmployment'] = to_radio_yesno(@form_data['currentEmployment'])
 
         @form_data['previousEmployers'] = @form_data['previousEmployers']&.map do |pe|
           pe.merge({
@@ -1506,7 +1506,7 @@ module Pensions
         @form_data['spouseDateOfBirth'] = split_date(@form_data['spouseDateOfBirth'])
         @form_data['spouseSocialSecurityNumber'] = split_ssn(@form_data['spouseSocialSecurityNumber'])
         if @form_data['maritalStatus'] != 2
-          @form_data['spouseIsVeteran'] = to_radio_yes_no(@form_data['spouseIsVeteran'])
+          @form_data['spouseIsVeteran'] = to_radio_yesno(@form_data['spouseIsVeteran'])
         end
         @form_data['spouseAddress'] ||= {}
         @form_data['spouseAddress']['postalCode'] = split_postal_code(@form_data['spouseAddress'])
@@ -1561,10 +1561,10 @@ module Pensions
         @form_data['marriages'] = build_marital_history(@form_data['marriages'], 'VETERAN')
         @form_data['spouseMarriages'] = build_marital_history(@form_data['spouseMarriages'], 'SPOUSE')
         if @form_data['marriages']&.any?
-          @form_data['additionalMarriages'] = to_radio_yes_no(@form_data['marriages'].length.to_i > 3)
+          @form_data['additionalMarriages'] = to_radio_yesno(@form_data['marriages'].length.to_i > 3)
         end
         if @form_data['spouseMarriages']&.any?
-          @form_data['additionalSpouseMarriages'] = to_radio_yes_no(@form_data['spouseMarriages'].length.to_i > 2)
+          @form_data['additionalSpouseMarriages'] = to_radio_yesno(@form_data['spouseMarriages'].length.to_i > 2)
         end
       end
 
@@ -1604,7 +1604,7 @@ module Pensions
           end
         end
         if custodian_addresses.any?
-          @form_data['dependentsNotWithYouAtSameAddress'] = to_radio_yes_no(custodian_addresses.length == 1)
+          @form_data['dependentsNotWithYouAtSameAddress'] = to_radio_yesno(custodian_addresses.length == 1)
         end
         @form_data['custodians'] = custodian_addresses.values
       end
@@ -1665,14 +1665,14 @@ module Pensions
                    'childSocialSecurityNumber' => split_ssn(dependent['childSocialSecurityNumber']),
                    'childSocialSecurityNumberOverflow' => dependent['childSocialSecurityNumber'],
                    'childRelationship' => {
-                     'biological' => to_checkbox_on_off(dependent['childRelationship'] == 'BIOLOGICAL'),
-                     'adopted' => to_checkbox_on_off(dependent['childRelationship'] == 'ADOPTED'),
-                     'stepchild' => to_checkbox_on_off(dependent['childRelationship'] == 'STEP_CHILD')
+                     'biological' => to_checkbox(dependent['childRelationship'] == 'BIOLOGICAL'),
+                     'adopted' => to_checkbox(dependent['childRelationship'] == 'ADOPTED'),
+                     'stepchild' => to_checkbox(dependent['childRelationship'] == 'STEP_CHILD')
                    },
-                   'disabled' => to_checkbox_on_off(dependent['disabled']),
-                   'attendingCollege' => to_checkbox_on_off(dependent['attendingCollege']),
-                   'previouslyMarried' => to_checkbox_on_off(dependent['previouslyMarried']),
-                   'childNotInHousehold' => to_checkbox_on_off(!dependent['childInHousehold']),
+                   'disabled' => to_checkbox(dependent['disabled']),
+                   'attendingCollege' => to_checkbox(dependent['attendingCollege']),
+                   'previouslyMarried' => to_checkbox(dependent['previouslyMarried']),
+                   'childNotInHousehold' => to_checkbox(!dependent['childInHousehold']),
                    'childStatusOverflow' => child_status_overflow(dependent).join(', '),
                    'monthlyPayment' => split_currency_amount(dependent['monthlyPayment']),
                    'monthlyPaymentOverflow' => number_to_currency(dependent['monthlyPayment'])
@@ -1681,23 +1681,23 @@ module Pensions
 
       # SECTION IX: INCOME AND ASSETS
       def expand_income_and_assets
-        @form_data['totalNetWorth'] = to_radio_yes_no(@form_data['totalNetWorth'])
+        @form_data['totalNetWorth'] = to_radio_yesno(@form_data['totalNetWorth'])
         if @form_data['netWorthEstimation']
           @form_data['netWorthEstimation'] =
             split_currency_amount(@form_data['netWorthEstimation'])
         end
-        @form_data['transferredAssets'] = to_radio_yes_no(@form_data['transferredAssets'])
-        @form_data['homeOwnership'] = to_radio_yes_no(@form_data['homeOwnership'])
-        if @form_data['homeOwnership'] == 1
-          @form_data['homeAcreageMoreThanTwo'] = to_radio_yes_no(@form_data['homeAcreageMoreThanTwo'])
-          @form_data['landMarketable'] = to_radio_yes_no(@form_data['landMarketable'])
+        @form_data['transferredAssets'] = to_radio_yesno(@form_data['transferredAssets'])
+        @form_data['homeOwnership'] = to_radio_yesno(@form_data['homeOwnership'])
+        if @form_data['homeOwnership'].zero?
+          @form_data['homeAcreageMoreThanTwo'] = to_radio_yesno(@form_data['homeAcreageMoreThanTwo'])
+          @form_data['landMarketable'] = to_radio_yesno(@form_data['landMarketable'])
         end
         if @form_data['homeAcreageValue'].present?
           @form_data['homeAcreageValue'] =
             split_currency_amount(@form_data['homeAcreageValue'])
         end
         @form_data['moreThanFourIncomeSources'] =
-          to_radio_yes_no(@form_data['incomeSources'].present? && @form_data['incomeSources'].length > 4)
+          to_radio_yesno(@form_data['incomeSources'].present? && @form_data['incomeSources'].length > 4)
         @form_data['incomeSources'] = merge_income_sources(@form_data['incomeSources'])
       end
 
@@ -1723,7 +1723,7 @@ module Pensions
       # SECTION X: CARE/MEDICAL EXPENSES
       def expand_care_medical_expenses
         @form_data['hasAnyExpenses'] =
-          to_radio_yes_no(@form_data['hasCareExpenses'] || @form_data['hasMedicalExpenses'])
+          to_radio_yesno(@form_data['hasCareExpenses'] || @form_data['hasMedicalExpenses'])
         @form_data['careExpenses'] = merge_care_expenses(@form_data['careExpenses'])
         @form_data['medicalExpenses'] = merge_medical_expenses(@form_data['medicalExpenses'])
       end
@@ -1750,7 +1750,7 @@ module Pensions
             'to' => split_date(care_expense.dig('careDateRange', 'to'))
           },
           'careDateRangeOverflow' => build_date_range_string(care_expense['careDateRange']),
-          'noCareEndDate' => to_checkbox_on_off(care_expense['noCareEndDate']),
+          'noCareEndDate' => to_checkbox(care_expense['noCareEndDate']),
           'paymentFrequency' => Constants::PAYMENT_FREQUENCY[care_expense['paymentFrequency']],
           'paymentFrequencyOverflow' => care_expense['paymentFrequency'],
           'paymentAmount' => split_currency_amount(care_expense['paymentAmount']),
@@ -1792,7 +1792,7 @@ module Pensions
 
       # SECTION XII: CLAIM CERTIFICATION AND SIGNATURE
       def expand_claim_certification_and_signature
-        @form_data['noRapidProcessing'] = to_checkbox_on_off(@form_data['noRapidProcessing'])
+        @form_data['noRapidProcessing'] = to_checkbox(@form_data['noRapidProcessing'])
         # signed on provided date (generally SavedClaim.created_at) or default to today
         signature_date = @form_data['signatureDate'] || Time.zone.now.strftime('%Y-%m-%d')
         @form_data['signatureDate'] = split_date(signature_date)
