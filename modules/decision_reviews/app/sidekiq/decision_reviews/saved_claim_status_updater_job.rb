@@ -364,7 +364,7 @@ module DecisionReviews
       # Use created_at to measure how long submission has existed (not when status last changed)
       # This gives consistent age measurement since updated_at changes with every polling cycle
       if FINAL_STATUSES.exclude?(status) && record.created_at < stuck_threshold
-        days_stuck = (Time.current - record.created_at) / 1.day
+        days_stuck = (Time.current - record.created_at) / 1.day.to_f
 
         Rails.logger.warn(
           "#{log_prefix} form stuck in non-final status",
@@ -384,7 +384,7 @@ module DecisionReviews
       # Use submission created_at since individual upload timestamps aren't available
       # This gives consistent age measurement since updated_at changes with every polling cycle
       if record.created_at < stuck_threshold
-        days_stuck = (Time.current - record.created_at) / 1.day
+        days_stuck = (Time.current - record.created_at) / 1.day.to_f
 
         Rails.logger.warn(
           "#{log_prefix} evidence stuck in non-final status",
