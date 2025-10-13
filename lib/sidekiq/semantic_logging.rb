@@ -18,12 +18,15 @@ class Sidekiq::SemanticLogging < Sidekiq::JobLogger
       remote_ip: item['remote_ip'],
       user_agent: item['user_agent'],
       user_uuid: item['user_uuid'] || 'N/A',
-      source: item['source']
+      source: item['source'],
+      origin: item['origin']
     }
     Thread.current[:sidekiq_context] = {}
 
     @logger.tagged(**logger_tags) do
-      super(item, queue)
+      SemanticLogger.named_tagged(origin: item['origin']) do
+        super(item, queue)
+      end
     end
   end
 end

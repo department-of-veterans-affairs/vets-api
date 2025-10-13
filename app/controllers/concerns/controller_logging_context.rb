@@ -12,7 +12,8 @@ module ControllerLoggingContext
       'remote_ip' => request.remote_ip,
       'user_agent' => request.user_agent,
       'user_uuid' => current_user&.uuid,
-      'source' => request.headers['Source-App-Name']
+      'source' => request.headers['Source-App-Name'],
+      'controller_name' => controller_name
     }
   end
 end
