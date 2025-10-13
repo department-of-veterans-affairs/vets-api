@@ -244,6 +244,18 @@ module VAProfile
           public_send("#{verb}_#{method_name}", model)
         end
 
+        def post_or_put_data(method, model, path, response_class)
+          with_monitoring do
+            verify_user!
+            request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(vaprofile_aaid)}" + "/#{path}"
+            raw_response = perform(method, request_path, model.in_json)
+            response_class.from(raw_response)
+          end
+        rescue => e
+          handle_error(e)
+        end
+
+
         def get_email_personalisation(type)
           { 'contact_info' => EMAIL_PERSONALISATIONS[type] }
         end
@@ -288,17 +300,6 @@ module VAProfile
 
             old_email.destroy
           end
-        end
-
-        def post_or_put_data(method, model, path, response_class)
-          with_monitoring do
-            verify_user!
-            request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(vaprofile_aaid)}" + "/#{path}"
-            raw_response = perform(method, request_path, model.in_json)
-            response_class.from(raw_response)
-          end
-        rescue => e
-          handle_error(e)
         end
 
         def get_transaction_status(path, response_class)
