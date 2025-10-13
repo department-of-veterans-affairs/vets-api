@@ -24,9 +24,7 @@ class Sidekiq::SemanticLogging < Sidekiq::JobLogger
     Thread.current[:sidekiq_context] = {}
 
     @logger.tagged(**logger_tags) do
-      SemanticLogger.named_tagged(origin: item['origin']) do
-        super(item, queue)
-      end
+      super(item, queue)
     end
   end
 end
