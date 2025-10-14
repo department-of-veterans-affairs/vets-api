@@ -94,6 +94,9 @@ module IvcChampva
       #
       # @return [Hash] response from build_json
       def handle_file_uploads_wrapper(form_id, parsed_form_data)
+        # Build VES JSON and add to supporting docs regardless of whether VES is enabled
+        generate_ves_json(parsed_form_data)
+
         if Flipper.enabled?(:champva_send_to_ves, @current_user) && form_id == 'vha_10_10d'
           # first, prepare and validate the VES request
           ves_request = prepare_ves_request(parsed_form_data)
@@ -114,6 +117,17 @@ module IvcChampva
           statuses, error_messages = call_handle_file_uploads(form_id, parsed_form_data)
 
           build_json(statuses, error_messages)
+        end
+      end
+
+      def generate_ves_json(parsed_form_data)
+        if Flipper.enabled?(:champva_send_ves_to_pega, @current_user) && form_id == 'vha_10_10d'
+          ves_file_path = "tmp/#{parsed_form_data['uuid']}_#{form_id}_ves.json"
+          ves_data = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+          File.write(ves_file_path, ves_data.to_json)
+
+          ves_supporting_doc = create_custom_attachment(ves_file_path, 'VES JSON')
+          add_supporting_doc(parsed_form_data, ves_supporting_doc)
         end
       end
 
