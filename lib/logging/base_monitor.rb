@@ -11,11 +11,20 @@ module Logging
     include Logging::Include::BenefitsIntake
     include Logging::Include::ZeroSilentFailures
 
+    ALLOWED_PARAMS = %w[
+      form_id
+      claim_id
+      confirmation_number
+    ].freeze
+
     attr_reader :tags
 
-    def initialize(service)
-      super(service)
+    def initialize(service, allowed_params: [])
       @tags = ["form_id:#{form_id}"]
+      @allowed_params = ALLOWED_PARAMS + allowed_params
+
+      super(service, allowed_params:)
+
     end
 
     private

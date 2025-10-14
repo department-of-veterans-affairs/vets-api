@@ -15,7 +15,9 @@ module Logging
       module_function
 
       # filter disallowed parameters from logging payload
-      def filter_params(params)
+      def filter_params(params, allowed_params: [])
+        return params if defined?(Rails::Console)
+
         Rails.application.config.filter_parameters.first&.call(nil, params.deep_dup) || params
       end
     end
