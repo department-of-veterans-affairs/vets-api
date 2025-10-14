@@ -16,6 +16,7 @@ module UnifiedHealthData
                :location,
                :ordered_by,
                :body_site,
+               :status,
                :observations
   end
 end

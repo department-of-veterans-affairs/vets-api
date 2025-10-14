@@ -633,8 +633,68 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result.observations).to eq([])
         expect(result.sample_tested).to eq('')
         expect(result.body_site).to eq('')
+        expect(result.status).to eq('partial')
         expect(result.location).to be_nil
         expect(result.ordered_by).to be_nil
+      end
+    end
+  end
+
+  describe 'status field extraction' do
+    context 'with different status values' do
+      it 'extracts final status correctly' do
+        record = {
+          'resource' => {
+            'resourceType' => 'DiagnosticReport',
+            'id' => '123',
+            'status' => 'final',
+            'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+            'code' => { 'text' => 'Test Report' },
+            'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+            'presentedForm' => [{ 'data' => 'test_data' }]
+          }
+        }
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.status).to eq('final')
+      end
+
+      it 'extracts preliminary status correctly' do
+        record = {
+          'resource' => {
+            'resourceType' => 'DiagnosticReport',
+            'id' => '456',
+            'status' => 'preliminary',
+            'category' => [{ 'coding' => [{ 'code' => 'SP' }] }],
+            'code' => { 'text' => 'Lab Report' },
+            'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+            'presentedForm' => [{ 'data' => 'test_data' }]
+          }
+        }
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.status).to eq('preliminary')
+      end
+    end
+
+    context 'when status is missing' do
+      it 'returns nil for status' do
+        record = {
+          'resource' => {
+            'resourceType' => 'DiagnosticReport',
+            'id' => '789',
+            'category' => [{ 'coding' => [{ 'code' => 'MB' }] }],
+            'code' => { 'text' => 'Missing Status Report' },
+            'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+            'presentedForm' => [{ 'data' => 'test_data' }]
+          }
+        }
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.status).to be_nil
       end
     end
   end
