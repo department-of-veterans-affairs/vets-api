@@ -250,10 +250,6 @@ module DebtsApi
         # Instead use #validate! to raise an ActiveModel::ValidationError error which contains a more detailed message
         fsr.validate!
       rescue ActiveModel::ValidationError => e
-        context = { attributes: fsr.attributes, response: response.to_h }
-        Rails.logger.error(
-          "[FinancialStatusReportService#update_filenet_id] Validation failed: #{e.message} | #{context.to_json}"
-        )
         log_exception_to_rails(e)
       end
     end
