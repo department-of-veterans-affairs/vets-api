@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../models/clinical_notes'
+require_relative '../models/binary_data'
 
 module UnifiedHealthData
   module Adapters
@@ -16,6 +17,11 @@ module UnifiedHealthData
         'CONSULT_RESULT' => 'consult_result',
         'DISCHARGE_SUMMARY' => 'discharge_summary',
         'OTHER' => 'other'
+      }.freeze
+
+      CCD_LOINC_CODE_MAPPING = {
+        '34133-9' => 'continuity_of_care_document',
+        '34133-9-0' => 'continuity_of_care_document'
       }.freeze
 
       FHIR_RESOURCE_TYPES = {
@@ -46,6 +52,57 @@ module UnifiedHealthData
                                                discharge_date: record['context']&.dig('period', 'end') || nil,
                                                note: get_note(record)
                                              })
+      end
+
+      # Parses CCD metadata from DocumentReference
+      #
+      # @param document_ref_entry [Hash] FHIR DocumentReference entry
+      # @return [Hash] CCD metadata
+      def parse_ccd_metadata(document_ref_entry)
+        resource = document_ref_entry['resource']
+        content = resource['content'].first
+        attachment = content['attachment']
+
+        {
+          id: resource['id'],
+          type: 'Continuity of Care Document',
+          date: resource['date'],
+          status: resource['status'],
+          loinc_code: extract_ccd_loinc_code(resource),
+          available_formats: detect_available_formats(attachment),
+          size_bytes: attachment['size']
+        }
+      end
+
+      # Parses CCD binary data for download
+      #
+      # @param document_ref_entry [Hash] FHIR DocumentReference entry
+      # @param format [String] Format to extract: 'xml', 'html', or 'pdf'
+      # @return [UnifiedHealthData::BinaryData] Binary data object with Base64 encoded content
+      def parse_ccd_binary(document_ref_entry, format = 'xml')
+        resource = document_ref_entry['resource']
+        content = resource['content'].first
+        attachment = content['attachment']
+
+        # Determine which format to return
+        format_data = case format.downcase
+                      when 'xml'
+                        attachment['data']
+                      when 'html'
+                        attachment.dig('html', 'data')
+                      when 'pdf'
+                        attachment.dig('pdf', 'data')
+                      else
+                        raise ArgumentError, "Invalid format: #{format}. Use xml, html, or pdf"
+                      end
+
+        raise "Format #{format} not available for this CCD" unless format_data
+
+        # Return BinaryData object with Base64 encoded content
+        UnifiedHealthData::BinaryData.new(
+          content_type: content_type_for_format(format),
+          binary: format_data
+        )
       end
 
       private
@@ -174,6 +231,33 @@ module UnifiedHealthData
           return nil unless resource && (resource['resourceType'] == type_id.first || resource['resourceType'] == type)
         end
         resource
+      end
+
+      # Extracts CCD LOINC code from DocumentReference
+      def extract_ccd_loinc_code(resource)
+        loinc_coding = resource.dig('type', 'coding')&.find do |coding|
+          coding['system'] == 'http://loinc.org'
+        end
+        loinc_coding&.dig('code')
+      end
+
+      # Detects which formats are available in the attachment
+      def detect_available_formats(attachment)
+        formats = []
+        formats << 'xml' if attachment['data']
+        formats << 'html' if attachment['html']
+        formats << 'pdf' if attachment['pdf']
+        formats
+      end
+
+      # Returns proper content type for format
+      def content_type_for_format(format)
+        case format.downcase
+        when 'xml' then 'application/xml'
+        when 'html' then 'text/html'
+        when 'pdf' then 'application/pdf'
+        else 'application/octet-stream'
+        end
       end
     end
   end

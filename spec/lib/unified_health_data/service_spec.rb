@@ -1364,4 +1364,110 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
   end
+
+  describe '#get_ccd_metadata' do
+    let(:start_date) { '2024-01-01' }
+    let(:end_date) { '2024-12-31' }
+    let(:ccd_fixture) do
+      Rails.root.join('spec', 'fixtures', 'unified_health_data', 'ccd_example.json').read
+    end
+    let(:ccd_response) do
+      Faraday::Response.new(body: ccd_fixture)
+    end
+
+    before do
+      allow_any_instance_of(UnifiedHealthData::Client).to receive(:get_ccd).and_return(ccd_response)
+    end
+
+    context 'when successful' do
+      it 'returns CCD metadata' do
+        result = service.get_ccd_metadata(start_date:, end_date:)
+
+        expect(result).to be_a(Hash)
+        expect(result[:type]).to eq('Continuity of Care Document')
+        expect(result[:available_formats]).to include('xml')
+        expect(result[:id]).to be_present
+      end
+
+      it 'calls the client with correct parameters' do
+        client_spy = spy('client')
+        allow(UnifiedHealthData::Client).to receive(:new).and_return(client_spy)
+        allow(client_spy).to receive(:get_ccd).and_return(ccd_response)
+
+        service.get_ccd_metadata(start_date:, end_date:)
+
+        expect(client_spy).to have_received(:get_ccd)
+          .with(patient_id: user.icn, start_date:, end_date:)
+      end
+    end
+
+    context 'when DocumentReference is missing' do
+      let(:empty_bundle) { '{"entry": []}' }
+      let(:ccd_response) do
+        Faraday::Response.new(body: empty_bundle)
+      end
+
+      it 'raises an error' do
+        expect do
+          service.get_ccd_metadata(start_date:, end_date:)
+        end.to raise_error(RuntimeError, 'DocumentReference not found in response')
+      end
+    end
+  end
+
+  describe '#get_ccd_binary' do
+    let(:start_date) { '2024-01-01' }
+    let(:end_date) { '2024-12-31' }
+    let(:ccd_fixture) do
+      Rails.root.join('spec', 'fixtures', 'unified_health_data', 'ccd_example.json').read
+    end
+    let(:ccd_response) do
+      Faraday::Response.new(body: ccd_fixture)
+    end
+
+    before do
+      allow_any_instance_of(UnifiedHealthData::Client).to receive(:get_ccd).and_return(ccd_response)
+    end
+
+    context 'when requesting XML format' do
+      it 'returns BinaryData object with Base64 encoded XML' do
+        result = service.get_ccd_binary(start_date:, end_date:, format: 'xml')
+
+        expect(result).to be_a(UnifiedHealthData::BinaryData)
+        expect(result.content_type).to eq('application/xml')
+        expect(result.binary).to be_present
+        # Verify it's Base64 encoded by decoding and checking for XML declaration
+        decoded = Base64.decode64(result.binary)
+        expect(decoded).to match(/^<\?xml/)
+      end
+    end
+
+    context 'when requesting unavailable format' do
+      let(:ccd_data) { JSON.parse(ccd_fixture) }
+      let(:modified_ccd) do
+        # Remove HTML/PDF from fixture
+        doc_ref = ccd_data['entry'].find { |e| e['resource']['resourceType'] == 'DocumentReference' }
+        doc_ref['resource']['content'].first['attachment'].delete('html')
+        doc_ref['resource']['content'].first['attachment'].delete('pdf')
+        ccd_data.to_json
+      end
+      let(:ccd_response) do
+        Faraday::Response.new(body: modified_ccd)
+      end
+
+      it 'raises an error for missing HTML' do
+        expect do
+          service.get_ccd_binary(start_date:, end_date:, format: 'html')
+        end.to raise_error(RuntimeError, /Format html not available/)
+      end
+    end
+
+    context 'when requesting invalid format' do
+      it 'raises an ArgumentError' do
+        expect do
+          service.get_ccd_binary(start_date:, end_date:, format: 'json')
+        end.to raise_error(ArgumentError, /Invalid format/)
+      end
+    end
+  end
 end

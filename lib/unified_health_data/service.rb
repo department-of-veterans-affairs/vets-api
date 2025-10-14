@@ -6,6 +6,7 @@ require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/prescription'
+require_relative 'models/binary_data'
 require_relative 'adapters/allergy_adapter'
 require_relative 'adapters/clinical_notes_adapter'
 require_relative 'adapters/prescriptions_adapter'
@@ -180,6 +181,51 @@ module UnifiedHealthData
         return nil unless filtered
 
         allergy_adapter.parse_single_allergy(filtered)
+      end
+    end
+
+    # Retrieves CCD metadata for the current user
+    #
+    # @param start_date [String] ISO 8601 date string (YYYY-MM-DD)
+    # @param end_date [String] ISO 8601 date string (YYYY-MM-DD)
+    # @return [Hash] CCD metadata including available formats
+    def get_ccd_metadata(start_date:, end_date:)
+      with_monitoring do
+        response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
+        body = parse_response_body(response.body)
+
+        # Find DocumentReference for CCD
+        document_ref = body['entry'].find do |entry|
+          entry['resource']['resourceType'] == 'DocumentReference'
+        end
+
+        raise 'DocumentReference not found in response' unless document_ref
+
+        # Parse and return metadata
+        clinical_notes_adapter.parse_ccd_metadata(document_ref)
+      end
+    end
+
+    # Retrieves CCD binary data for download
+    #
+    # @param start_date [String] ISO 8601 date string (YYYY-MM-DD)
+    # @param end_date [String] ISO 8601 date string (YYYY-MM-DD)
+    # @param format [String] Format to retrieve: 'xml', 'html', or 'pdf'
+    # @return [UnifiedHealthData::BinaryData] Binary data object with Base64 encoded content
+    def get_ccd_binary(start_date:, end_date:, format: 'xml')
+      with_monitoring do
+        response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
+        body = parse_response_body(response.body)
+
+        # Find DocumentReference for CCD
+        document_ref = body['entry'].find do |entry|
+          entry['resource']['resourceType'] == 'DocumentReference'
+        end
+
+        raise 'DocumentReference not found in response' unless document_ref
+
+        # Parse and return binary data for requested format
+        clinical_notes_adapter.parse_ccd_binary(document_ref, format)
       end
     end
 

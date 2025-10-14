@@ -115,4 +115,78 @@ RSpec.describe 'ClinicalNotesAdapter' do
       expect(parsed_note).to be_nil
     end
   end
+
+  describe '#parse_ccd_metadata' do
+    let(:ccd_fixture) do
+      JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'ccd_example.json').read)
+    end
+    let(:document_ref_entry) do
+      ccd_fixture['entry'].find { |e| e['resource']['resourceType'] == 'DocumentReference' }
+    end
+
+    it 'extracts CCD metadata' do
+      result = adapter.parse_ccd_metadata(document_ref_entry)
+
+      expect(result[:type]).to eq('Continuity of Care Document')
+      expect(result[:id]).to be_present
+      expect(result[:status]).to eq('current')
+      expect(result[:available_formats]).to include('xml')
+    end
+
+    it 'detects all available formats' do
+      result = adapter.parse_ccd_metadata(document_ref_entry)
+
+      expect(result[:available_formats]).to be_an(Array)
+      expect(result[:available_formats]).not_to be_empty
+    end
+
+    it 'extracts LOINC code' do
+      result = adapter.parse_ccd_metadata(document_ref_entry)
+
+      expect(result[:loinc_code]).to be_present
+    end
+  end
+
+  describe '#parse_ccd_binary' do
+    let(:ccd_fixture) do
+      JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'ccd_example.json').read)
+    end
+    let(:document_ref_entry) do
+      ccd_fixture['entry'].find { |e| e['resource']['resourceType'] == 'DocumentReference' }
+    end
+
+    it 'returns BinaryData object with XML content' do
+      result = adapter.parse_ccd_binary(document_ref_entry, 'xml')
+
+      expect(result).to be_a(UnifiedHealthData::BinaryData)
+      expect(result.content_type).to eq('application/xml')
+      expect(result.binary).to be_present
+    end
+
+    it 'keeps data Base64 encoded' do
+      result = adapter.parse_ccd_binary(document_ref_entry, 'xml')
+
+      # Verify it's still Base64 encoded (not decoded in adapter)
+      expect(result.binary).to be_a(String)
+      # Decoded XML should start with XML declaration
+      decoded = Base64.decode64(result.binary)
+      expect(decoded).to match(/^<\?xml/)
+    end
+
+    it 'raises error for invalid format' do
+      expect do
+        adapter.parse_ccd_binary(document_ref_entry, 'invalid')
+      end.to raise_error(ArgumentError, /Invalid format/)
+    end
+
+    it 'raises error for unavailable format' do
+      # Modify fixture to remove HTML
+      modified_entry = document_ref_entry.dup
+      modified_entry['resource']['content'].first['attachment'].delete('html')
+
+      expect do
+        adapter.parse_ccd_binary(modified_entry, 'html')
+      end.to raise_error(RuntimeError, /Format html not available/)
+    end
+  end
 end
