@@ -67,7 +67,7 @@ module UnifiedHealthData
 
         dispenses.filter_map do |dispense|
           extract_tracking_from_dispense(resource, dispense)
-        end.compact
+        end
       end
 
       def extract_tracking_from_dispense(resource, dispense)
