@@ -234,10 +234,6 @@ module SurvivorsBenefits
         form_data['custodianAddress']['postalCode'] =
           split_postal_code(form_data['custodianAddress'])
 
-        puts "=== form data ==="
-        puts form_data
-        puts "================="
-
         form_data
       end
 

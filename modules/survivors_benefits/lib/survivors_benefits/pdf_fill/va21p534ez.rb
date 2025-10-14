@@ -12,6 +12,7 @@ require 'survivors_benefits/pdf_fill/sections/section_04'
 require 'survivors_benefits/pdf_fill/sections/section_05'
 require 'survivors_benefits/pdf_fill/sections/section_06'
 require 'survivors_benefits/pdf_fill/sections/section_07'
+require 'survivors_benefits/pdf_fill/sections/section_08'
 
 module SurvivorsBenefits
   module PdfFill
@@ -70,7 +71,7 @@ module SurvivorsBenefits
       # The list of section classes for form expansion and key building
       SECTION_CLASSES = [Section1, Section2, Section3,
                          Section4, Section5, Section6,
-                         Section7].freeze
+                         Section7, Section8].freeze
 
       key = {}
 

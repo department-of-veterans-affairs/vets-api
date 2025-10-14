@@ -79,11 +79,6 @@ module SurvivorsBenefits
             'endDate' => split_date(treatment['treatmentDates']['end'])
           }
         end
-
-        puts "=== form data ==="
-        puts form_data
-        puts "================="
-
         form_data
       end
 
