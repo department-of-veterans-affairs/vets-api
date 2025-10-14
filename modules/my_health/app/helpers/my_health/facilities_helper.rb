@@ -9,10 +9,12 @@ module MyHealth
     def set_health_care_system_names(all_triage_teams_collection)
       triage_teams = all_triage_teams_collection.records
       facility_ids = triage_teams.map(&:station_number).uniq
+      triage_teams.each do |team|
+        team.station_number = convert_non_prod_id(team.station_number)
+      end
       begin
         facility_map = get_facility_map(facility_ids)
         triage_teams.each do |team|
-          team.station_number = convert_non_prod_id(team.station_number)
           team.health_care_system_name = facility_map[team.station_number] if team.health_care_system_name.blank?
         end
       rescue => e
