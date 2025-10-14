@@ -65,7 +65,7 @@ module DependentsBenefits
       # @return [void]
       #
       def create_claim_group_item(claim)
-        parent_claim_group = SavedClaimGroup.find_by!(parent_claim_id: parent_id)
+        parent_claim_group = SavedClaimGroup.by_saved_claim_id(parent_id).first!
         claim_group = SavedClaimGroup.new(claim_group_guid: parent_claim_group.claim_group_guid,
                                           parent_claim_id: parent_id,
                                           saved_claim_id: claim.id)

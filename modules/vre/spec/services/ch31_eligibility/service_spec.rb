@@ -48,8 +48,8 @@ RSpec.describe VRE::Ch31Eligibility::Service do
       it 'logs and raises error' do
         allow(Rails.logger).to receive(:error)
         expect { service.get_details }.to raise_error(error_klass)
-        expect(Rails.logger).to have_received(:error).with(error)
-        expect(Rails.logger).to have_received(:error).with(message:)
+        expect(Rails.logger).to have_received(:error)
+          .with("Failed to retrieve Ch. 31 eligibility details: #{message}", backtrace: error.backtrace)
       end
     end
 
@@ -68,8 +68,8 @@ RSpec.describe VRE::Ch31Eligibility::Service do
         expect { service.get_details }.to raise_error(error_klass) do |raised|
           expect(raised.key).to eq('RES_CH31_ELIGIBILITY_503')
         end
-        expect(Rails.logger).to have_received(:error).with(error)
-        expect(Rails.logger).to have_received(:error).with(message:)
+        expect(Rails.logger).to have_received(:error)
+          .with("Failed to retrieve Ch. 31 eligibility details: #{message}", backtrace: error.backtrace)
       end
     end
   end
