@@ -116,7 +116,8 @@ describe PrescriptionDetails do
                 { dial_cmop_division_phone: '555-333-4444' }
               ]
             ]
-          ]))
+          ]
+        ))
       end
 
       it 'returns cmop_division_phone from rx_rf_records' do
@@ -137,7 +138,8 @@ describe PrescriptionDetails do
                 { dial_cmop_division_phone: '555-333-4444' }
               ]
             ]
-          ]))
+          ]
+        ))
       end
 
       it 'returns dial_cmop_division_phone from rx_rf_records' do
@@ -151,7 +153,8 @@ describe PrescriptionDetails do
           :prescription_details,
           cmop_division_phone: nil,
           dial_cmop_division_phone: nil,
-          rx_rf_records: []))
+          rx_rf_records: []
+        ))
       end
 
       it 'returns nil' do
@@ -165,7 +168,8 @@ describe PrescriptionDetails do
           :prescription_details,
           cmop_division_phone: nil,
           dial_cmop_division_phone: nil,
-          rx_rf_records: nil))
+          rx_rf_records: nil
+        ))
       end
 
       it 'returns nil' do
@@ -186,7 +190,8 @@ describe PrescriptionDetails do
                 { cmop_division_phone: '', dial_cmop_division_phone: '' }
               ]
             ]
-          ]))
+          ]
+        ))
       end
 
       it 'returns nil' do
