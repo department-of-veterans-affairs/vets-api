@@ -121,15 +121,10 @@ class FormProfiles::VA686c674v2 < FormProfile
     @dependents_information = persons.filter_map do |person|
       person_to_dependent_information(person)
     end
-    if Flipper.enabled?(:va_dependents_v3, user)
-      @dependents_information = { success: 'true', dependents: @dependents_information }
-    else
-      @dependents_information
-    end
   rescue => e
     monitor.track_event('warn', 'Failure initializing dependents_information', 'dependents.prefill.error',
                         { error: e&.message })
-    @dependents_information = Flipper.enabled?(:va_dependents_v3, user) ? { success: 'false', dependents: [] } : []
+    @dependents_information = []
   end
 
   ##
