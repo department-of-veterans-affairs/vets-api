@@ -298,6 +298,7 @@ module Requests
     attribute :claim_notes, String
   end
 
+  # Currently only used for the getPDF LH Claims API endpoint for backup 526 submissions
   class Form526Pdf < Form526
     attribute :claim_date, String, default: nil
   end
