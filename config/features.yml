@@ -34,10 +34,6 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
     enable_in_development: true
-  accredited_representative_portal_search:
-    actor_type: user
-    description: Enables the people search of the accredited representative portal
-    enable_in_development: true
   accredited_representative_portal_form_21a:
     actor_type: user
     description: >
@@ -48,10 +44,6 @@ features:
     actor_type: user
     description: >
       When enabled, shows form 526ez in the accredited representative portal.
-    enable_in_development: true
-  accredited_representative_portal_submissions:
-    actor_type: user
-    description: Enables the form submissions view in the accredited representative portal
     enable_in_development: true
   accredited_representative_portal_email_delivery_callback:
     actor_type: user
@@ -851,6 +843,10 @@ features:
     actor_type: user
     description: Use progressive disclosure in the Facility Locator UI
     enable_in_development: true
+  show_facility_locator_notice_about_non_va_care:
+    actor_type: user
+    description: Show a warning on the Facility Locator UI about non-VA urgent and emergency care
+    enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
@@ -920,6 +916,10 @@ features:
   accredited_representative_portal_declination:
     actor_type: user
     description: Enables declination reason feature for frontend and backend
+    enable_in_development: true
+  accredited_representative_portal_id_me:
+    actor_type: user
+    description: Enables ID.me authentication feature for frontend and backend
     enable_in_development: true
   form526_legacy:
     actor_type: user
@@ -991,6 +991,10 @@ features:
   form21_0845_confirmation_email:
     actor_type: user
     description: Enables form 21-0845 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form21p_0537_confirmation_email:
+    actor_type: user
+    description: Enables form 21p-0537 email submission confirmation (VaNotify)
     enable_in_development: true
   form21p_0847_confirmation_email:
     actor_type: user
@@ -1499,10 +1503,6 @@ features:
     actor_type: user
     description: Enables/disables the use of pre-transformed vital objects
     enable_in_development: true
-  mhv_medical_records_uuid_for_jwt_session_locking:
-    actor_type: user
-    description: Use UUID instead of ICN for locking MHV JWT sessions
-    enable_in_development: true
   mhv_medications_display_allergies:
     actor_type: user
     description: Enables/disables allergies and reactions data
@@ -1510,10 +1510,6 @@ features:
   mhv_medications_display_filter:
     actor_type: user
     description: Enables/disables filter feature for medications list
-    enable_in_development: true
-  mhv_medications_display_grouping:
-    actor_type: user
-    description: Enables/disables grouping medications related work
     enable_in_development: true
   mhv_medications_cerner_pilot:
     actor_type: user
@@ -1529,6 +1525,10 @@ features:
   mhv_modern_cta_links:
     actor_type: user
     description: CTA widget links point to va.gov services
+  mhv_medications_display_new_cerner_facility_alert:
+    actor_type: user
+    description: Enables/disables new facility alert for OH/Cerner users in medications
+    enable_in_development: true
   mhv_medications_display_pending_meds:
     actor_type: user
     description: Enables/disables pending medications related work
@@ -2544,9 +2544,6 @@ features:
   gi_ct_mapbox_mitigation:
     actor_type: user
     description: If enabled, hides search by location feature affected by MapBox loss
-  accredited_representative_portal_form:
-    actor_type: user
-    description: Enables form with new options for rep
   my_va_display_all_lighthouse_benefits_intake_forms:
     actor_type: user
     description: When enabled, a user will see all submitted Lighthouse Benefits Intake forms in My VA for form status.
@@ -2608,3 +2605,9 @@ features:
   auth_exp_email_verification_enabled:
     actor_type: user
     description: If enabled, a user will be required to verify their contact email address
+  simple_forms_upload_supporting_documents:
+    actor_type: user
+    description: >
+      Enables the upload_supporting_documents endpoint for scanned form uploads for supporting evidence.
+      Owned by Simple Forms API team.
+

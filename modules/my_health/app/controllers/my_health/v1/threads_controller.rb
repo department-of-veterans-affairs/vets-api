@@ -3,6 +3,10 @@
 module MyHealth
   module V1
     class ThreadsController < SMController
+      include Vets::SharedLogging
+
+      STATSD_KEY_PREFIX = 'api.my_health.threads'
+
       def index
         resource = fetch_folder_threads
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
@@ -28,10 +32,12 @@ module MyHealth
         }
         client.get_folder_threads(params[:folder_id].to_s, options)
       rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.fail")
         handle_error(e)
       end
 
       def handle_error(e)
+        log_exception_to_rails(e)
         error = e.errors.first
         if error.status.to_i == 400 && error.detail == 'No messages in the requested folder'
           Common::Collection.new(
