@@ -15,30 +15,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(lh_request_body.claimant_certification).to be(true)
     end
 
-    it 'adds claim_date to the Lighthouse request body' do
-      data['form526']['claimDate'] = '2023-07-19' # arbitrary date
-      lh_request_body = transformer.transform(data)
-      expect(lh_request_body.claim_date).to eq('2023-07-19')
-    end
-
-    it 'does not add claim_date to the Lighthouse request body if not provided' do
-      data['form526']['claimDate'] = nil
-      lh_request_body = transformer.transform(data)
-      expect(lh_request_body.claim_date).to be_nil
-    end
-
-    it 'does not add claim_date to the Lighthouse request body if blank' do
-      data['form526']['claimDate'] = ''
-      lh_request_body = transformer.transform(data)
-      expect(lh_request_body.claim_date).to be_nil
-    end
-
-    it 'does not add claim_date to the Lighthouse request body if malformed date' do
-      data['form526']['claimDate'] = 'invalid-date'
-      lh_request_body = transformer.transform(data)
-      expect(lh_request_body.claim_date).to be_nil
-    end
-
     # TODO: re-visit once we get clarification on whether claimDate needs to be restored to LH request
     # context 'when claim_date is provided' do
     #   let(:claim_date) { Date.new(2023, 7, 19).strftime('%Y-%m-%d') }
@@ -362,6 +338,46 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(results[2].exposure_or_event_or_injury).to eq(cause_map[:WORSENED].sub(/[.]?$/, '; toxic exposure.'))
       # last condition is not a toxic exposure condition
       expect(results.last.exposure_or_event_or_injury).to eq(cause_map[:SECONDARY])
+    end
+
+    context 'when approximateDate is provided' do
+      let(:base_source) { data_without_te.first.deep_dup }
+
+      it 'leaves approximate_date nil when approximateDate is absent' do
+        source = base_source.except('approximateDate')
+        result = transformer.send(:transform_disabilities, [source], nil).first
+        expect(result.approximate_date).to be_nil
+      end
+
+      it 'sets YYYY when only year is provided' do
+        source = base_source.merge('approximateDate' => { 'year' => '1973' })
+        result = transformer.send(:transform_disabilities, [source], nil).first
+        expect(result.approximate_date).to eq('1973')
+      end
+
+      it 'sets YYYY-MM when year and month are provided' do
+        source = base_source.merge('approximateDate' => { 'year' => '1973', 'month' => '03' })
+        result = transformer.send(:transform_disabilities, [source], nil).first
+        expect(result.approximate_date).to eq('1973-03')
+      end
+
+      it 'sets YYYY-MM-DD when year, month, and day are provided' do
+        source = base_source.merge('approximateDate' => { 'year' => '1973', 'month' => '03', 'day' => '22' })
+        result = transformer.send(:transform_disabilities, [source], nil).first
+        expect(result.approximate_date).to eq('1973-03-22')
+      end
+
+      it 'leaves approximate_date nil when approximateDate is an empty hash' do
+        source = base_source.merge('approximateDate' => {})
+        result = transformer.send(:transform_disabilities, [source], nil).first
+        expect(result.approximate_date).to be_nil
+      end
+
+      it 'ignores blank month/day strings' do
+        source = base_source.merge('approximateDate' => { 'year' => '1973', 'month' => '', 'day' => '' })
+        result = transformer.send(:transform_disabilities, [source], nil).first
+        expect(result.approximate_date).to eq('1973')
+      end
     end
   end
 
