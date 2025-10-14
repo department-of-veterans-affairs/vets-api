@@ -5,7 +5,7 @@ module Swagger
     class Form210779
       include Swagger::Blocks
 
-      swagger_path '/v0/form21_0779' do
+      swagger_path '/v0/form210779' do
         operation :post do
           extend Swagger::Responses::ValidationError
           extend Swagger::Responses::SavedForm
@@ -117,7 +117,7 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/form21_0779/download_pdf' do
+      swagger_path '/v0/form210779/download_pdf' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
 
