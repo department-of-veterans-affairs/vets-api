@@ -119,9 +119,7 @@ module DecisionReviews
 
       # Monitor for forms stuck >30 days in non-final status
       # Only check after fresh API poll to ensure we have current status before alerting
-      if decision_review_stuck_records_monitoring_enabled? && FINAL_STATUSES.exclude?(status)
-        monitor_stuck_form_with_metadata(record, status, metadata)
-      end
+      monitor_stuck_form_with_metadata(record, status, metadata) if decision_review_stuck_records_monitoring_enabled?
 
       [status, attributes]
     rescue DecisionReviews::V1::ServiceException => e
@@ -145,9 +143,7 @@ module DecisionReviews
 
         # Monitor for evidence uploads stuck >30 days in non-final status
         # Only check after fresh API poll to ensure we have current status before alerting
-        if decision_review_stuck_records_monitoring_enabled? && FINAL_STATUSES.exclude?(result.last['status'])
-          monitor_stuck_evidence_upload(record, guid, result.last)
-        end
+        monitor_stuck_evidence_upload(record, guid, result.last) if decision_review_stuck_records_monitoring_enabled?
       end
 
       result
@@ -359,43 +355,40 @@ module DecisionReviews
     end
 
     def monitor_stuck_form_with_metadata(record, status, _metadata)
+      monitor_stuck_record(
+        record:,
+        status:,
+        type: 'form',
+        additional_context: {}
+      )
+    end
+
+    def monitor_stuck_evidence_upload(record, upload_id, upload_data)
+      monitor_stuck_record(
+        record:,
+        status: upload_data['status'],
+        type: 'evidence',
+        additional_context: { upload_id: }
+      )
+    end
+
+    def monitor_stuck_record(record:, status:, type:, additional_context:)
       stuck_threshold = 30.days.ago
 
       # Use created_at to measure how long submission has existed (not when status last changed)
       # This gives consistent age measurement since updated_at changes with every polling cycle
-      if FINAL_STATUSES.exclude?(status) && record.created_at < stuck_threshold
-        days_stuck = (Time.current - record.created_at) / 1.day.to_f
+      return unless FINAL_STATUSES.exclude?(status) && record.created_at < stuck_threshold
 
-        Rails.logger.warn(
-          "#{log_prefix} form stuck in non-final status",
-          {
-            guid: record.guid,
-            days_stuck: days_stuck.round(2),
-            created_at: record.created_at,
-            current_status: status
-          }
-        )
-      end
-    end
+      days_stuck = (Time.current - record.created_at) / 1.day.to_f
 
-    def monitor_stuck_evidence_upload(record, upload_id, upload_data)
-      stuck_threshold = 30.days.ago
+      log_context = {
+        appeal_submission_id: record.appeal_submission&.id,
+        days_stuck: days_stuck.round(2),
+        created_at: record.created_at,
+        current_status: status
+      }.merge(additional_context)
 
-      # Use submission created_at since individual upload timestamps aren't available
-      # This gives consistent age measurement since updated_at changes with every polling cycle
-      if record.created_at < stuck_threshold
-        days_stuck = (Time.current - record.created_at) / 1.day.to_f
-
-        Rails.logger.warn(
-          "#{log_prefix} evidence stuck in non-final status",
-          {
-            guid: record.guid,
-            upload_id:,
-            days_stuck: days_stuck.round(2),
-            current_status: upload_data['status']
-          }
-        )
-      end
+      Rails.logger.warn("#{log_prefix} #{type} stuck in non-final status", log_context)
     end
 
     # Feature flag helpers for clean removal later

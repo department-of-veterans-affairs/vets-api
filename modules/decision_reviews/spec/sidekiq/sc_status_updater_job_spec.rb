@@ -1352,9 +1352,12 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
     end
 
     describe 'monitor_stuck_form_with_metadata' do
+      let!(:old_appeal_submission) { create(:appeal_submission) }
+      let!(:recent_appeal_submission) { create(:appeal_submission) }
+
       let!(:old_saved_claim) do
         SavedClaim::SupplementalClaim.create(
-          guid: SecureRandom.uuid,
+          guid: old_appeal_submission.submitted_appeal_uuid,
           form: valid_form_data,
           created_at: frozen_time - 35.days
         )
@@ -1362,7 +1365,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
 
       let!(:recent_saved_claim) do
         SavedClaim::SupplementalClaim.create(
-          guid: SecureRandom.uuid,
+          guid: recent_appeal_submission.submitted_appeal_uuid,
           form: valid_form_data,
           created_at: frozen_time - 25.days
         )
@@ -1409,16 +1412,22 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
             expect(Rails.logger).to receive(:warn).with(
               'DecisionReviews::SavedClaimScStatusUpdaterJob form stuck in non-final status',
               {
-                guid: old_saved_claim.guid,
+                appeal_submission_id: old_saved_claim.appeal_submission.id,
                 days_stuck: 35.0,
                 created_at: old_saved_claim.created_at,
                 current_status: 'processing'
               }
             )
 
+            subject.new.perform
+          end
+        end
+
+        it 'does not log for forms more recent than 30 days' do
+          Timecop.freeze(frozen_time) do
             expect(Rails.logger).not_to receive(:warn).with(
               'DecisionReviews::SavedClaimScStatusUpdaterJob form stuck in non-final status',
-              hash_including(guid: recent_saved_claim.guid)
+              hash_including(appeal_submission_id: recent_saved_claim.appeal_submission.id)
             )
 
             subject.new.perform
@@ -1433,7 +1442,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           Timecop.freeze(frozen_time) do
             expect(Rails.logger).not_to receive(:warn).with(
               'DecisionReviews::SavedClaimScStatusUpdaterJob form stuck in non-final status',
-              hash_including(guid: old_saved_claim.guid)
+              hash_including(appeal_submission_id: old_saved_claim.appeal_submission.id)
             )
 
             subject.new.perform
@@ -1569,13 +1578,20 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
             expect(Rails.logger).to receive(:warn).with(
               'DecisionReviews::SavedClaimScStatusUpdaterJob evidence stuck in non-final status',
               {
-                guid: old_saved_claim.guid,
-                upload_id: old_upload.lighthouse_upload_id,
+                appeal_submission_id: old_saved_claim.appeal_submission.id,
                 days_stuck: 35.0,
-                current_status: 'processing'
+                created_at: old_saved_claim.created_at,
+                current_status: 'processing',
+                upload_id: old_upload.lighthouse_upload_id
               }
             )
 
+            subject.new.perform
+          end
+        end
+
+        it 'does not log for evidence uploads more recent than 30 days' do
+          Timecop.freeze(frozen_time) do
             expect(Rails.logger).not_to receive(:warn).with(
               'DecisionReviews::SavedClaimScStatusUpdaterJob evidence stuck in non-final status',
               hash_including(upload_id: recent_upload.lighthouse_upload_id)
