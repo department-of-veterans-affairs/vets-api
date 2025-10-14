@@ -694,7 +694,7 @@ module SM
         'attachmentName' => file.original_filename,
         'mimeType' => file.content_type,
         'size' => file.size,
-        'lgAttachmentId' => uploaded_file_name
+        'lgAttachmentId' => CGI.unescape(uploaded_file_name) # Decode URL-encoded filename
       }
     end
 

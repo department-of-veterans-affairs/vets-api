@@ -63,6 +63,24 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
       expect(response).to match_camelized_response_schema('all_triage_teams')
     end
 
+    it 'responds to GET #index with requires_oh flipper enabled' do
+      allow(Flipper).to receive(:enabled?)
+        .with(:mhv_secure_messaging_cerner_pilot, anything)
+        .and_return(true)
+      allow_any_instance_of(Mobile::V0::Messaging::Client).to receive(:get_unique_care_systems).and_return(
+        care_systems_stub
+      )
+      VCR.use_cassette('sm_client/session_require_oh') do
+        VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_require_oh') do
+          get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
+        end
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      expect(response).to match_camelized_response_schema('all_triage_teams')
+    end
+
     context 'when there are cached triage teams' do
       let(:params) { { useCache: true } }
 
