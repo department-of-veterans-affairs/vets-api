@@ -298,17 +298,26 @@ module UnifiedHealthData
 
       def fetch_facility_name_from_api(station_number)
         facility_id = "vha_#{station_number}"
+        cache_key = "uhd:facility_names:#{station_number}"
 
         begin
           facilities_client = Lighthouse::Facilities::V1::Client.new
           facilities = facilities_client.get_facilities(facilityIds: facility_id)
 
-          if facilities&.any?
-            facilities.first.name
-          else
-            Rails.logger.info("No facility found for station number #{station_number} in Lighthouse API")
-            nil
-          end
+          facility_name = if facilities&.any?
+                            facilities.first.name
+                          else
+                            Rails.logger.info(
+                              "No facility found for station number #{station_number} in Lighthouse API"
+                            )
+                            nil
+                          end
+
+          # Cache the result (including nil) to avoid repeated API calls
+          # Use a reasonable TTL - 24 hours for facility names since they rarely change
+          Rails.cache.write(cache_key, facility_name, expires_in: 24.hours)
+
+          facility_name
         rescue => e
           Rails.logger.warn("Failed to fetch facility name from API for station #{station_number}: #{e.message}")
           StatsD.increment('unified_health_data.facility_name_fallback.api_error')

@@ -276,6 +276,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     context 'when API returns facility data' do
       before do
         allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([mock_facility])
+        allow(Rails.cache).to receive(:write)
       end
 
       it 'returns the facility name' do
@@ -287,11 +288,21 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         subject.send(:fetch_facility_name_from_api, '556')
         expect(mock_client).to have_received(:get_facilities).with(facilityIds: 'vha_556')
       end
+
+      it 'writes the facility name to cache with TTL' do
+        subject.send(:fetch_facility_name_from_api, '556')
+        expect(Rails.cache).to have_received(:write).with(
+          'uhd:facility_names:556',
+          'Test VA Medical Center',
+          expires_in: 24.hours
+        )
+      end
     end
 
     context 'when API returns empty array' do
       before do
         allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([])
+        allow(Rails.cache).to receive(:write)
       end
 
       it 'returns nil and logs info message' do
@@ -299,6 +310,15 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result).to be_nil
         expect(Rails.logger).to have_received(:info).with(
           'No facility found for station number 556 in Lighthouse API'
+        )
+      end
+
+      it 'caches nil result to avoid repeated API calls' do
+        subject.send(:fetch_facility_name_from_api, '556')
+        expect(Rails.cache).to have_received(:write).with(
+          'uhd:facility_names:556',
+          nil,
+          expires_in: 24.hours
         )
       end
     end
@@ -322,6 +342,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       before do
         allow(mock_client).to receive(:get_facilities).and_raise(api_error)
+        allow(Rails.cache).to receive(:write)
       end
 
       it 'returns nil, logs warning, and increments StatsD metric' do
@@ -334,6 +355,11 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(StatsD).to have_received(:increment).with(
           'unified_health_data.facility_name_fallback.api_error'
         )
+      end
+
+      it 'does not cache error results' do
+        subject.send(:fetch_facility_name_from_api, '556')
+        expect(Rails.cache).not_to have_received(:write)
       end
     end
 
