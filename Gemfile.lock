@@ -1182,7 +1182,7 @@ GEM
       addressable
       faraday (>= 1.9, < 3)
       nokogiri (>= 1.13.9)
-    waterdrop (2.8.11)
+    waterdrop (2.8.12)
       karafka-core (>= 2.4.9, < 3.0.0)
       karafka-rdkafka (>= 0.20.0)
       zeitwerk (~> 2.3)
@@ -1326,7 +1326,6 @@ DEPENDENCIES
   jsonapi-serializer
   jwe
   jwt
-  karafka-core
   kms_encrypted
   liquid
   lockbox
