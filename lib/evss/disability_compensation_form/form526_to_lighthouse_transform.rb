@@ -141,6 +141,10 @@ module EVSS
           # that does not include claim_date, otherwise, it will error Lighthouse's validation
           Requests::Form526.new
         end
+      rescue => e
+        # If anything goes wrong, rescue to using the non-pdf request
+        Rails.logger.error("Error transforming Form526 to Lighthouse: #{e.message}")
+        Requests::Form526.new
       end
 
       # returns "STANDARD_CLAIM_PROCESS", "BDD_PROGRAM", or "FDC_PROGRAM"
