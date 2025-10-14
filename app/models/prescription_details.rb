@@ -72,9 +72,8 @@ class PrescriptionDetails < Prescription
 
     if rx_rf_records.present? && rx_rf_records.length.positive?
       most_recent_record = rx_rf_records
-        .select { |item| item[:dispensed_date].present? }
-        .sort_by { |item| item[:dispensed_date] }
-        .last
+                           .select { |item| item[:dispensed_date].present? }
+                           .max_by { |item| item[:dispensed_date] }
 
       most_recent_record ||= rx_rf_records.first
 
