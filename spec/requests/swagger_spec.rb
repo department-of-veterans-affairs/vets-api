@@ -2780,6 +2780,61 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
+    describe 'Form 21-2680' do
+      context 'generating PDF' do
+        let(:valid_form_data) do
+          {
+            form_21_2680: {
+              veteranInformation: {
+                fullName: {
+                  first: 'John',
+                  middle: 'A',
+                  last: 'Doe'
+                },
+                ssn: '123456789',
+                vaFileNumber: '987654321',
+                dateOfBirth: '1990-01-01'
+              },
+              claimantInformation: {
+                fullName: {
+                  first: 'Jane',
+                  middle: 'B',
+                  last: 'Doe'
+                },
+                relationship: 'Spouse',
+                address: {
+                  street: '123 Main St',
+                  city: 'Anytown',
+                  state: 'CA',
+                  zipCode: '12345'
+                }
+              },
+              benefitInformation: {
+                claimType: 'Aid and Attendance'
+              },
+              additionalInformation: {
+                currentlyHospitalized: false,
+                nursingHome: false
+              },
+              veteranSignature: {
+                signature: 'John A Doe',
+                date: '2025-10-01'
+              }
+            }
+          }
+        end
+
+        it 'successfully generates PDF instructions' do
+          expect(subject).to validate(
+            :post,
+            '/v0/form212680/download_pdf',
+            200,
+            '_data' => valid_form_data
+          )
+        end
+      end
+    end
+
     describe 'form 21-0779 nursing home information' do
       let(:valid_form210779) do
         {

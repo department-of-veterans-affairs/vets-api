@@ -61,6 +61,8 @@ Rails.application.routes.draw do
       end
     end
 
+    post 'form212680/download_pdf', to: 'form212680#download_pdf'
+
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
