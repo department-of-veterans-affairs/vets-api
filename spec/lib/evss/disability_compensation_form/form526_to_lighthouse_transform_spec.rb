@@ -5,12 +5,12 @@ require 'claims_api/form_schemas'
 require 'json_schema/json_api_missing_attribute'
 require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
 
+LH_SCHEMA_KEY = 'GENERATE_PDF_526'
+
 RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
   let(:transformer) { subject }
   let(:pdf_enabled_transformer) { EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new(pdf_request: true) }
   let(:pdf_disabled_transformer) { EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new(pdf_request: false) }
-
-  LH_SCHEMA_KEY = 'GENERATE_PDF_526'
 
   def validate_lighthouse_schema(lh_request_body)
     # This validation method mimics the same validation logic used in the actual controller
