@@ -197,10 +197,8 @@ module UnifiedHealthData
         # Handle standard data field or extensions indicating data-absent-reason
         if presented_form['data']
           presented_form['data']
-        elsif presented_form['extension']&.any? { |ext| ext['url'] == 'http://hl7.org/fhir/StructureDefinition/data-absent-reason' }
-          # Return empty string when data is absent for a known reason (e.g., unsupported)
-          ''
         else
+          # Return empty string when data is absent (either with data-absent-reason extension or missing)
           ''
         end
       end
@@ -211,8 +209,6 @@ module UnifiedHealthData
           resource['effectiveDateTime']
         elsif resource['effectivePeriod']&.dig('start')
           resource['effectivePeriod']['start']
-        else
-          nil
         end
       end
     end
