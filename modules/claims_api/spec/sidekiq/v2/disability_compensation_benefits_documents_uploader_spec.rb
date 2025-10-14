@@ -77,6 +77,29 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     end
   end
 
+  context 'errored submission' do
+    service = described_class.new
+
+    let(:error) { StandardError.new('Connection timeout') }
+
+    before do
+      allow_any_instance_of(subject).to receive(:get_file_body).and_raise(error)
+    end
+
+    it 'logs the error message and re-raises' do
+      expect(service).to receive(:log_job_progress).with(
+        claim.id,
+        'BD upload job started'
+      )
+      expect(service).to receive(:log_job_progress).with(
+        claim.id,
+        'BD failure StandardError: Connection timeout'
+      )
+
+      expect { service.perform(claim.id) }.to raise_error(StandardError)
+    end
+  end
+
   context 'when the pdf is mocked' do
     it 'uploads to BD' do
       with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
