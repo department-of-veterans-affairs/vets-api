@@ -101,8 +101,6 @@ module Representatives
     # @param response [Hash] The response from the address validation service.
     # @return [Boolean] True if the address is valid, false otherwise.
     def address_valid?(response)
-      return false if response.blank?
-
       response.key?('candidate_addresses') && !response['candidate_addresses'].empty?
     end
 
