@@ -275,9 +275,9 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
                 params: [{ stationNumber: '123', id: '99999999999999' }].to_json,
                 headers: sis_headers.merge('Content-Type' => 'application/json')
 
-            expect(response).to have_http_status(:bad_gateway)
-            expect(response.parsed_body['errors'][0]['code']).to eq('MOBL_502_upstream_error')
-            expect(response.parsed_body['errors'][0]['detail']).to include('invalid response from the upstream server')
+            expect(response).to have_http_status(:bad_request)
+            expect(response.parsed_body['errors'][0]['code']).to eq('VA900')
+            expect(response.parsed_body['errors'][0]['detail']).to include('Operation failed')
           end
         end
       end
