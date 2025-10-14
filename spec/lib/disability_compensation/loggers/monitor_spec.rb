@@ -126,7 +126,8 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         "#{described_class::SUBMISSION_STATS_KEY}.with_banking_info",
         tags: [
           'service:disability-compensation',
-          'function:track_526_submission_with_banking_info'
+          'function:track_526_submission_with_banking_info',
+          "form_id:#{described_class::FORM_ID}"
         ]
       )
 
@@ -154,7 +155,8 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         "#{described_class::SUBMISSION_STATS_KEY}.without_banking_info",
         tags: [
           'service:disability-compensation',
-          'function:track_526_submission_without_banking_info'
+          'function:track_526_submission_without_banking_info',
+          "form_id:#{described_class::FORM_ID}"
         ]
       )
       monitor.track_526_submission_without_banking_info(user.uuid)
