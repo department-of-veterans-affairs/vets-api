@@ -10,6 +10,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
   let(:pdf_enabled_transformer) { EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new(pdf_request: true) }
   let(:pdf_disabled_transformer) { EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new(pdf_request: false) }
 
+  LH_SCHEMA_KEY = 'GENERATE_PDF_526'
+
   def validate_lighthouse_schema(lh_request_body)
     # This validation method mimics the same validation logic used in the actual controller
     # https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/app/controllers/claims_api/v2/veterans/base.rb#L18
@@ -20,7 +22,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     request_body_hash = lh_request_body.as_json
     camelized_request_body = transform_with_olivebranch(request_body_hash)
 
-    validator.validate!('GENERATE_PDF_526', camelized_request_body)
+    validator.validate!(LH_SCHEMA_KEY, camelized_request_body)
   end
 
   private
