@@ -104,18 +104,19 @@ describe PrescriptionDetails do
 
     context 'when phone numbers are in rx_rf_records' do
       subject do
-        described_class.new(attributes_for(:prescription_details,
-                                           cmop_division_phone: nil,
-                                           dial_cmop_division_phone: nil,
-                                           rx_rf_records: [
-                                             [
-                                               'rf_record',
-                                               [
-                                                 { cmop_division_phone: '555-111-2222' },
-                                                 { dial_cmop_division_phone: '555-333-4444' }
-                                               ]
-                                             ]
-                                           ]))
+        described_class.new(attributes_for(
+          :prescription_details,
+          cmop_division_phone: nil,
+          dial_cmop_division_phone: nil,
+          rx_rf_records: [
+            [
+              'rf_record',
+              [
+                { cmop_division_phone: '555-111-2222' },
+                { dial_cmop_division_phone: '555-333-4444' }
+              ]
+            ]
+          ]))
       end
 
       it 'returns cmop_division_phone from rx_rf_records' do
@@ -125,17 +126,18 @@ describe PrescriptionDetails do
 
     context 'when only dial_cmop_division_phone is in rx_rf_records' do
       subject do
-        described_class.new(attributes_for(:prescription_details,
-                                           cmop_division_phone: nil,
-                                           dial_cmop_division_phone: nil,
-                                           rx_rf_records: [
-                                             [
-                                               'rf_record',
-                                               [
-                                                 { dial_cmop_division_phone: '555-333-4444' }
-                                               ]
-                                             ]
-                                           ]))
+        described_class.new(attributes_for(
+          :prescription_details,
+          cmop_division_phone: nil,
+          dial_cmop_division_phone: nil,
+          rx_rf_records: [
+            [
+              'rf_record',
+              [
+                { dial_cmop_division_phone: '555-333-4444' }
+              ]
+            ]
+          ]))
       end
 
       it 'returns dial_cmop_division_phone from rx_rf_records' do
@@ -145,10 +147,11 @@ describe PrescriptionDetails do
 
     context 'when no phone numbers are available' do
       subject do
-        described_class.new(attributes_for(:prescription_details,
-                                           cmop_division_phone: nil,
-                                           dial_cmop_division_phone: nil,
-                                           rx_rf_records: []))
+        described_class.new(attributes_for(
+          :prescription_details,
+          cmop_division_phone: nil,
+          dial_cmop_division_phone: nil,
+          rx_rf_records: []))
       end
 
       it 'returns nil' do
@@ -158,10 +161,11 @@ describe PrescriptionDetails do
 
     context 'when rx_rf_records is nil' do
       subject do
-        described_class.new(attributes_for(:prescription_details,
-                                           cmop_division_phone: nil,
-                                           dial_cmop_division_phone: nil,
-                                           rx_rf_records: nil))
+        described_class.new(attributes_for(
+          :prescription_details,
+          cmop_division_phone: nil,
+          dial_cmop_division_phone: nil,
+          rx_rf_records: nil))
       end
 
       it 'returns nil' do
@@ -171,17 +175,18 @@ describe PrescriptionDetails do
 
     context 'when rx_rf_records has empty phone numbers' do
       subject do
-        described_class.new(attributes_for(:prescription_details,
-                                           cmop_division_phone: nil,
-                                           dial_cmop_division_phone: nil,
-                                           rx_rf_records: [
-                                             [
-                                               'rf_record',
-                                               [
-                                                 { cmop_division_phone: '', dial_cmop_division_phone: '' }
-                                               ]
-                                             ]
-                                           ]))
+        described_class.new(attributes_for(
+          :prescription_details,
+          cmop_division_phone: nil,
+          dial_cmop_division_phone: nil,
+          rx_rf_records: [
+            [
+              'rf_record',
+              [
+                { cmop_division_phone: '', dial_cmop_division_phone: '' }
+              ]
+            ]
+          ]))
       end
 
       it 'returns nil' do
