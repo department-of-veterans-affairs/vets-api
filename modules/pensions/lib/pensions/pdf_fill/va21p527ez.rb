@@ -1420,7 +1420,7 @@ module Pensions
       def expand_veteran_identification_information
         @form_data['veteranFullName'] ||= {}
         @form_data['veteranFullName']['first'] = @form_data.dig('veteranFullName', 'first')&.titleize
-        @form_data['veteranFullName']['middle'] = @form_data.dig('veteranFullName', 'middle')&.titleize
+        @form_data['veteranFullName']['middle'] = @form_data.dig('veteranFullName', 'middle').try(:[], 0)&.upcase
         @form_data['veteranFullName']['last'] = @form_data.dig('veteranFullName', 'last')&.titleize
         @form_data['veteranSocialSecurityNumber'] = split_ssn(@form_data['veteranSocialSecurityNumber'])
         @form_data['veteranDateOfBirth'] = split_date(@form_data['veteranDateOfBirth'])
@@ -1432,6 +1432,9 @@ module Pensions
         @form_data['veteranAddress'] ||= {}
         @form_data['veteranAddress']['postalCode'] =
           split_postal_code(@form_data['veteranAddress'])
+        p "COUNTRY A: #{@form_data['veteranAddress']['country']}"
+        @form_data['veteranAddress']['country'] = @form_data.dig('veteranAddress', 'country').slice(0, 2)
+        p "COUNTRY: #{@form_data['veteranAddress']['country']}"
         @form_data['mobilePhone'] = expand_phone_number(@form_data['mobilePhone'].to_s)
       end
 
@@ -1445,7 +1448,7 @@ module Pensions
           'to' => split_date(@form_data.dig('activeServiceDateRange', 'to'))
         }
         @form_data['serviceBranch'] = @form_data['serviceBranch']&.select { |_, value| value == true }
-
+        @form_data['serviceBranch'] = @form_data['serviceBranch']&.each_key { |k| @form_data['serviceBranch'][k] = '1' }
         @form_data['pow'] = to_radio_yesno(@form_data['powDateRange'].present?)
         if @form_data['pow'].zero?
           @form_data['powDateRange'] ||= {}
@@ -1552,7 +1555,6 @@ module Pensions
         when 'RELATIONSHIP' then 1
         when 'LOCATION' then 2
         when 'OTHER' then 3
-        else 'Off'
         end
       end
 

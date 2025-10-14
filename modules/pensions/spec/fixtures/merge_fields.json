@@ -1,7 +1,7 @@
 {
   "veteranFullName": {
     "first": "John",
-    "middle": "Edmund",
+    "middle": "E",
     "last": "Doe",
     "suffix": "Sr."
   },
@@ -18,8 +18,8 @@
     "year": "1960"
   },
   "serviceBranch": {
-    "army": true,
-    "navy": true
+    "army": "1",
+    "navy": "1"
   },
   "activeServiceDateRange": {
     "from": {
@@ -146,7 +146,7 @@
     "street": "123 7th st",
     "street2": "Apt 3",
     "city": "Pittsfield",
-    "country": "USA",
+    "country": "US",
     "state": "MA",
     "postalCode": {
       "firstFive": "01050",
