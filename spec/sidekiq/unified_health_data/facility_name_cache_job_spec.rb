@@ -55,7 +55,8 @@ RSpec.describe UnifiedHealthData::FacilityNameCacheJob, type: :job do
         expect(Rails.cache).to have_received(:write).with('uhd:facility_names:648', 'Portland VA Medical Center',
                                                           expires_in: 4.hours)
         expect(Rails.cache).to have_received(:write).with('uhd:facility_names:556',
-                                                          'Captain James A. Lovell Federal Health Care Center', expires_in: 4.hours)
+                                                          'Captain James A. Lovell Federal Health Care Center',
+                                                          expires_in: 4.hours)
         expect(Rails.cache).to have_received(:write).with('uhd:facility_names:442', 'Cheyenne VA Medical Center',
                                                           expires_in: 4.hours)
       end
@@ -64,7 +65,9 @@ RSpec.describe UnifiedHealthData::FacilityNameCacheJob, type: :job do
         job.perform
 
         expect(Rails.logger).to have_received(:info).with('[UnifiedHealthData] - Starting facility name cache refresh')
-        expect(Rails.logger).to have_received(:info).with('[UnifiedHealthData] - Cache operation complete: 3 facilities cached')
+        expect(Rails.logger).to have_received(:info).with(
+          '[UnifiedHealthData] - Cache operation complete: 3 facilities cached'
+        )
       end
 
       it 'sends success metrics to StatsD' do
