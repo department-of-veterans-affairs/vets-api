@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'vre/notification_email'
+require 'vre/notification_callback'
 
 RSpec.describe VRE::NotificationEmail do
   describe '#deliver' do
