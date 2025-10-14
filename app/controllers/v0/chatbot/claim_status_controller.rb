@@ -114,13 +114,20 @@ module V0
 
       def service_exception_handler(exception)
         context = 'An error occurred while attempting to retrieve the claim(s).'
-        log_exception_to_sentry(exception, 'context' => context)
+        Rails.logger.error(formatted_exception_message(exception, context))
         render nothing: true, status: :service_unavailable
       end
 
       def report_exception_handler(exception)
         context = 'An error occurred while attempting to report the claim(s).'
-        log_exception_to_sentry(exception, 'context' => context)
+        Rails.logger.error(formatted_exception_message(exception, context))
+      end
+
+      def formatted_exception_message(exception, context)
+        return "#{context} #{exception.full_message(highlight: false)}" if exception.respond_to?(:full_message)
+
+        backtrace = exception.backtrace ? "\n#{exception.backtrace.join("\n")}" : ''
+        "#{context} #{exception.class}: #{exception.message}#{backtrace}"
       end
 
       def log_no_claims_found(exception)
