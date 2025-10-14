@@ -40,17 +40,17 @@ describe Pensions::PdfFill::Va21p527ez do
     end
   end
 
-  describe '#to_radio_yesno' do
+  describe '#to_radio_yes_no' do
     it 'returns correct values' do
-      expect(described_class.new({}).to_radio_yesno(true)).to eq(1)
-      expect(described_class.new({}).to_radio_yesno(false)).to eq(2)
+      expect(described_class.new({}).to_radio_yes_no(true)).to eq(1)
+      expect(described_class.new({}).to_radio_yes_no(false)).to eq(2)
     end
   end
 
-  describe '#to_checkbox' do
+  describe '#to_checkbox_on_off' do
     it 'returns correct values' do
-      expect(described_class.new({}).to_checkbox(true)).to eq(1)
-      expect(described_class.new({}).to_checkbox(false)).to eq('Off')
+      expect(described_class.new({}).to_checkbox_on_off(true)).to eq(1)
+      expect(described_class.new({}).to_checkbox_on_off(false)).to eq('Off')
     end
   end
 
