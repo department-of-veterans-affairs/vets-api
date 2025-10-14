@@ -21,7 +21,7 @@ module UnifiedHealthData
 
         contained = record['resource']['contained']
         code = get_code(record)
-        encoded_data = record['resource']['presentedForm'] ? record['resource']['presentedForm'].first['data'] : ''
+        encoded_data = get_encoded_data(record['resource'])
         observations = get_observations(record)
         return nil unless code && (encoded_data || observations)
 
@@ -30,7 +30,7 @@ module UnifiedHealthData
           type: record['resource']['resourceType'],
           display: format_display(record),
           test_code: code,
-          date_completed: record['resource']['effectiveDateTime'],
+          date_completed: get_date_completed(record['resource']),
           sample_tested: get_sample_tested(record['resource'], contained),
           encoded_data:,
           location: get_location(record),
@@ -186,6 +186,32 @@ module UnifiedHealthData
           service_request['code']['text']
         else
           record['resource']['code'] ? record['resource']['code']['text'] : ''
+        end
+      end
+
+      def get_encoded_data(resource)
+        return '' unless resource['presentedForm']&.first
+
+        presented_form = resource['presentedForm'].first
+        # Handle standard data field or extensions indicating data-absent-reason
+        if presented_form['data']
+          presented_form['data']
+        elsif presented_form['extension']&.any? { |ext| ext['url'] == 'http://hl7.org/fhir/StructureDefinition/data-absent-reason' }
+          # Return empty string when data is absent for a known reason (e.g., unsupported)
+          ''
+        else
+          ''
+        end
+      end
+
+      def get_date_completed(resource)
+        # Handle both effectiveDateTime and effectivePeriod formats
+        if resource['effectiveDateTime']
+          resource['effectiveDateTime']
+        elsif resource['effectivePeriod']&.dig('start')
+          resource['effectivePeriod']['start']
+        else
+          nil
         end
       end
     end
