@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 7e99d7e7ccea30ffa8def9dff0ea221103eaf73c
+  revision: a93605ae716d23da10695548117066531c2767c8
   branch: master
   specs:
-    vets_json_schema (25.2.8)
+    vets_json_schema (25.2.11)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -865,7 +865,7 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.19)
+    rack (2.2.20)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -1358,7 +1358,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 2.2.19)
+  rack (~> 2.2.20)
   rack-attack
   rack-cors
   rack-test (= 2.2.0)
