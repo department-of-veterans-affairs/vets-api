@@ -573,7 +573,7 @@ describe Eps::ProviderService do
     context 'when single page response (no pagination)', :vcr do
       it 'returns an OpenStruct with all slots and correct count' do
         VCR.use_cassette('vaos/eps/get_provider_slots/200') do
-          result = service.get_provider_slots('53mL4LAZ', {
+          result = service.get_provider_slots('Aq7wgAux', {
                                                 appointmentTypeId: 'ov',
                                                 startOnOrAfter: '2025-01-01T00:00:00Z',
                                                 startBefore: '2025-01-03T00:00:00Z',
@@ -589,7 +589,7 @@ describe Eps::ProviderService do
 
       it 'removes nextToken from response' do
         VCR.use_cassette('vaos/eps/get_provider_slots/200') do
-          result = service.get_provider_slots('53mL4LAZ', {
+          result = service.get_provider_slots('Aq7wgAux', {
                                                 appointmentTypeId: 'ov',
                                                 startOnOrAfter: '2025-01-01T00:00:00Z',
                                                 startBefore: '2025-01-03T00:00:00Z',

@@ -222,6 +222,11 @@ class FormProfile
   # lookup FormProfile subclass by form_id and initialize (or use FormProfile if lookup fails)
   def self.for(form_id:, user:)
     form_id = form_id.upcase
+
+    if form_id == '686C-674-V2' && Flipper.enabled?(:dependents_module_enabled, user)
+      return DependentsBenefits::FormProfiles::VA686c674.new(form_id:, user:)
+    end
+
     FORM_ID_TO_CLASS.fetch(form_id, self).new(form_id:, user:)
   end
 
