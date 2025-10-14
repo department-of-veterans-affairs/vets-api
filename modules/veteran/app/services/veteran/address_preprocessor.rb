@@ -17,7 +17,6 @@ module Veteran
       # Extract PO Box to address_line1
       if (m = line1.match(PO_BOX_REGEX))
         po = m.to_s.strip
-        line1.sub(PO_BOX_REGEX, '').strip
         cleaned['address_line1'] = po
         cleaned['address_line2'] = nil
         return cleaned
