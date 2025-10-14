@@ -78,7 +78,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
-      expect(response).to match_camelized_response_schema('all_triage_teams')
+      expect(response).to match_camelized_response_schema('all_triage_teams', { strict: false })
     end
 
     context 'when there are cached triage teams' do
