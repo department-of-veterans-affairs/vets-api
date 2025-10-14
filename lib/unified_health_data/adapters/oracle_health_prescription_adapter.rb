@@ -147,7 +147,10 @@ module UnifiedHealthData
         # Check Rails cache first for VHA facility name
         cache_key = "uhd:facility_names:#{station_number}"
         cached_name = Rails.cache.read(cache_key)
-        cached_name if cached_name
+        return cached_name if cached_name
+
+        # If not in cache, fetch from API as fallback
+        fetch_facility_name_from_api(station_number)
       end
 
       def extract_quantity(resource)

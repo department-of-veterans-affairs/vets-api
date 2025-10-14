@@ -799,6 +799,11 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     context 'with valid prescription responses', :vcr do
+      before do
+        # Stub the cache to return the expected facility name for station 556
+        allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Ambulatory Pharmacy')
+      end
+
       it 'returns prescriptions from both VistA and Oracle Health' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
           prescriptions = service.get_prescriptions
@@ -901,6 +906,64 @@ describe UnifiedHealthData::Service, type: :service do
           expect(completed_prescription.refill_status).to eq('completed')
           expect(completed_prescription.is_refillable).to be false
           expect(completed_prescription.refill_date).to be_nil
+        end
+      end
+
+      context 'facility name extraction integration' do
+        it 'uses cache when available and API when cache misses' do
+          # Test cache hit scenario
+          allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Cached Facility Name')
+
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            prescriptions = service.get_prescriptions
+            oracle_prescription = prescriptions.find { |p| p.prescription_id == '15214174591' }
+
+            expect(oracle_prescription.facility_name).to eq('Cached Facility Name')
+          end
+        end
+
+        it 'falls back to API when cache is empty' do
+          allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return(nil)
+
+          # Mock the Lighthouse API call
+          mock_client = instance_double(Lighthouse::Facilities::V1::Client)
+          mock_facility = double('facility', name: 'API Retrieved Facility')
+          allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
+          allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([mock_facility])
+
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            prescriptions = service.get_prescriptions
+            oracle_prescription = prescriptions.find { |p| p.prescription_id == '15214174591' }
+
+            expect(oracle_prescription.facility_name).to eq('API Retrieved Facility')
+            # API is called multiple times for different prescriptions with same station number
+            expect(mock_client).to have_received(:get_facilities).with(facilityIds: 'vha_556').at_least(:once)
+          end
+        end
+
+        it 'handles API errors gracefully' do
+          allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return(nil)
+          allow(Rails.logger).to receive(:warn)
+          allow(StatsD).to receive(:increment)
+
+          # Mock API to raise an error
+          mock_client = instance_double(Lighthouse::Facilities::V1::Client)
+          allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
+          allow(mock_client).to receive(:get_facilities).and_raise(StandardError, 'API unavailable')
+
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            prescriptions = service.get_prescriptions
+            oracle_prescription = prescriptions.find { |p| p.prescription_id == '15214174591' }
+
+            expect(oracle_prescription.facility_name).to be_nil
+            # Warning is logged multiple times for different prescriptions with same station number
+            expect(Rails.logger).to have_received(:warn).with(
+              'Failed to fetch facility name from API for station 556: API unavailable'
+            ).at_least(:once)
+            expect(StatsD).to have_received(:increment).with(
+              'unified_health_data.facility_name_fallback.api_error'
+            ).at_least(:once)
+          end
         end
       end
 

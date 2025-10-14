@@ -97,101 +97,271 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
   end
 
   describe '#extract_facility_name' do
-    context 'with dispenseRequest performer' do
-      let(:resource_with_performer) do
-        base_resource.merge(
-          'dispenseRequest' => {
-            'performer' => {
-              'display' => 'Main Pharmacy'
-            }
-          }
-        )
-      end
-
-      it 'returns the performer display name' do
-        result = subject.send(:extract_facility_name, resource_with_performer)
-        expect(result).to eq('Main Pharmacy')
-      end
-    end
-
-    context 'with encounter location in contained resources' do
-      let(:resource_with_encounter) do
-        base_resource.merge(
-          'contained' => [
-            {
-              'resourceType' => 'Encounter',
-              'id' => 'encounter-1',
-              'location' => [
-                {
-                  'location' => {
-                    'display' => 'VA Medical Center - Emergency'
-                  }
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      it 'returns the encounter location display name' do
-        result = subject.send(:extract_facility_name, resource_with_encounter)
-        expect(result).to eq('VA Medical Center - Emergency')
-      end
-    end
-
-    context 'with multiple contained resources including encounter' do
-      let(:resource_with_multiple_contained) do
+    context 'with MedicationDispense containing station number' do
+      let(:resource_with_station_number) do
         base_resource.merge(
           'contained' => [
             {
               'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1'
-            },
-            {
-              'resourceType' => 'Encounter',
-              'id' => 'encounter-1',
-              'location' => [
-                {
-                  'location' => {
-                    'display' => 'Outpatient Clinic'
-                  }
-                }
-              ]
-            },
-            {
-              'resourceType' => 'Organization',
-              'id' => 'org-1'
+              'id' => 'dispense-1',
+              'location' => { 'display' => '556-RX-MAIN-OP' }
             }
           ]
         )
       end
 
-      it 'finds and returns the encounter location display name' do
-        result = subject.send(:extract_facility_name, resource_with_multiple_contained)
-        expect(result).to eq('Outpatient Clinic')
+      context 'when facility name is cached' do
+        before do
+          allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Cached Facility Name')
+        end
+
+        it 'returns the cached facility name' do
+          result = subject.send(:extract_facility_name, resource_with_station_number)
+          expect(result).to eq('Cached Facility Name')
+        end
+
+        it 'does not call the API when cache hit occurs' do
+          # Mock the Lighthouse client to ensure it's not called
+          mock_client = instance_double(Lighthouse::Facilities::V1::Client)
+          allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
+          expect(mock_client).not_to receive(:get_facilities)
+
+          subject.send(:extract_facility_name, resource_with_station_number)
+        end
+      end
+
+      context 'when facility name is not cached' do
+        before do
+          allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return(nil)
+          allow(Rails.cache).to receive(:write)
+        end
+
+        it 'calls the API and returns the facility name' do
+          # Mock the Lighthouse API to return a facility
+          mock_client = instance_double(Lighthouse::Facilities::V1::Client)
+          mock_facility = double('facility', name: 'API Facility Name')
+          allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
+          allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([mock_facility])
+
+          result = subject.send(:extract_facility_name, resource_with_station_number)
+          expect(result).to eq('API Facility Name')
+          expect(mock_client).to have_received(:get_facilities).with(facilityIds: 'vha_556')
+        end
+      end
+
+      context 'when API returns nil' do
+        before do
+          allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return(nil)
+          allow(Rails.cache).to receive(:write)
+          allow(Rails.logger).to receive(:warn)
+          allow(StatsD).to receive(:increment)
+        end
+
+        it 'returns nil when API call returns nil' do
+          # Mock the Lighthouse API to return empty array
+          mock_client = instance_double(Lighthouse::Facilities::V1::Client)
+          allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
+          allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([])
+
+          result = subject.send(:extract_facility_name, resource_with_station_number)
+          expect(result).to be_nil
+        end
       end
     end
 
-    context 'with encounter but no location' do
-      let(:resource_with_encounter_no_location) do
+    context 'with MedicationDispense containing non-standard station format' do
+      let(:resource_with_short_station) do
+        base_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'location' => { 'display' => '12-PHARMACY' }
+            }
+          ]
+        )
+      end
+
+      it 'returns nil when station number does not match 3-digit pattern' do
+        result = subject.send(:extract_facility_name, resource_with_short_station)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with no MedicationDispense in contained resources' do
+      let(:resource_without_dispense) do
         base_resource.merge(
           'contained' => [
             {
               'resourceType' => 'Encounter',
               'id' => 'encounter-1'
             }
-          ],
-          'requester' => {
-            'display' => 'Fallback Provider'
-          }
+          ]
+        )
+      end
+
+      it 'returns nil when no MedicationDispense found' do
+        result = subject.send(:extract_facility_name, resource_without_dispense)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with MedicationDispense but no location' do
+      let(:resource_no_location) do
+        base_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1'
+            }
+          ]
+        )
+      end
+
+      it 'returns nil when MedicationDispense has no location' do
+        result = subject.send(:extract_facility_name, resource_no_location)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with multiple MedicationDispense resources' do
+      let(:resource_multiple_dispenses) do
+        base_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'location' => { 'display' => '442-RX-MAIN' },
+              'whenHandedOver' => '2025-01-15T10:00:00Z'
+            },
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-2',
+              'location' => { 'display' => '556-RX-MAIN-OP' },
+              'whenHandedOver' => '2025-01-20T10:00:00Z'
+            }
+          ]
+        )
+      end
+
+      before do
+        allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Recent Facility')
+      end
+
+      it 'uses the most recent MedicationDispense for station number' do
+        result = subject.send(:extract_facility_name, resource_multiple_dispenses)
+        expect(result).to eq('Recent Facility')
+      end
+    end
+
+    context 'with no contained resources' do
+      it 'returns nil when no contained resources exist' do
+        result = subject.send(:extract_facility_name, base_resource)
+        expect(result).to be_nil
+      end
+    end
+  end
+
+  describe '#fetch_facility_name_from_api' do
+    let(:mock_client) { instance_double(Lighthouse::Facilities::V1::Client) }
+    let(:mock_facility) { double('facility', name: 'Test VA Medical Center') }
+
+    before do
+      allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
+      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:warn)
+      allow(StatsD).to receive(:increment)
+    end
+
+    context 'when API returns facility data' do
+      before do
+        allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([mock_facility])
+      end
+
+      it 'returns the facility name' do
+        result = subject.send(:fetch_facility_name_from_api, '556')
+        expect(result).to eq('Test VA Medical Center')
+      end
+
+      it 'calls the Lighthouse API with correct facility ID format' do
+        subject.send(:fetch_facility_name_from_api, '556')
+        expect(mock_client).to have_received(:get_facilities).with(facilityIds: 'vha_556')
+      end
+    end
+
+    context 'when API returns empty array' do
+      before do
+        allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([])
+      end
+
+      it 'returns nil and logs info message' do
+        result = subject.send(:fetch_facility_name_from_api, '556')
+        expect(result).to be_nil
+        expect(Rails.logger).to have_received(:info).with(
+          'No facility found for station number 556 in Lighthouse API'
         )
       end
     end
 
-    context 'with no performer, encounter, or requester' do
-      it 'returns nil' do
-        result = subject.send(:extract_facility_name, base_resource)
+    context 'when API returns nil' do
+      before do
+        allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return(nil)
+      end
+
+      it 'returns nil and logs info message' do
+        result = subject.send(:fetch_facility_name_from_api, '556')
         expect(result).to be_nil
+        expect(Rails.logger).to have_received(:info).with(
+          'No facility found for station number 556 in Lighthouse API'
+        )
+      end
+    end
+
+    context 'when API raises an exception' do
+      let(:api_error) { StandardError.new('API connection failed') }
+
+      before do
+        allow(mock_client).to receive(:get_facilities).and_raise(api_error)
+      end
+
+      it 'returns nil, logs warning, and increments StatsD metric' do
+        result = subject.send(:fetch_facility_name_from_api, '556')
+
+        expect(result).to be_nil
+        expect(Rails.logger).to have_received(:warn).with(
+          'Failed to fetch facility name from API for station 556: API connection failed'
+        )
+        expect(StatsD).to have_received(:increment).with(
+          'unified_health_data.facility_name_fallback.api_error'
+        )
+      end
+    end
+
+    context 'when API returns facility without name' do
+      let(:facility_without_name) { double('facility', name: nil) }
+
+      before do
+        allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([facility_without_name])
+      end
+
+      it 'returns nil when facility name is nil' do
+        result = subject.send(:fetch_facility_name_from_api, '556')
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when API returns multiple facilities' do
+      let(:facility_one) { double('facility', name: 'First Facility') }
+      let(:facility_two) { double('facility', name: 'Second Facility') }
+
+      before do
+        allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([facility_one,
+                                                                                                facility_two])
+      end
+
+      it 'returns the name of the first facility' do
+        result = subject.send(:fetch_facility_name_from_api, '556')
+        expect(result).to eq('First Facility')
       end
     end
   end
