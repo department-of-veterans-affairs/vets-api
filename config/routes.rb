@@ -55,6 +55,12 @@ Rails.application.routes.draw do
     resources :user_actions, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
 
+    resources :form210779, only: [:create] do
+      collection do
+        post :download_pdf
+      end
+    end
+
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
@@ -156,6 +162,7 @@ Rails.application.routes.draw do
     resources :benefits_claims, only: %i[index show] do
       post :submit5103, on: :member
       post 'benefits_documents', to: 'benefits_documents#create'
+      get :failed_upload_evidence_submissions, on: :collection
     end
 
     resources :evidence_submissions, only: %i[index]
@@ -392,6 +399,7 @@ Rails.application.routes.draw do
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
+  mount BPDS::Engine, at: '/bpds'
   mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
   mount ClaimsEvidenceApi::Engine, at: '/claims_evidence_api'

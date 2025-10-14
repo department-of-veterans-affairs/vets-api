@@ -136,7 +136,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         associated_incomes = form_data['associatedIncomes']
-        form_data['associatedIncome'] = associated_incomes&.length ? 0 : 1
+        form_data['associatedIncome'] = radio_yesno(associated_incomes&.length)
         form_data['associatedIncomes'] = associated_incomes&.map do |item|
           expand_item(item)
         end
