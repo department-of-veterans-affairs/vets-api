@@ -25,7 +25,6 @@ module VAProfile
       # @return [VAProfile::VeteranStatus::VeteranStatusResponse] response wrapper around a veteran_status object
       def get_veteran_status
         with_monitoring do
-          edipi_present!
           response = perform(:post, identity_path, VAProfile::Models::VeteranStatus.in_json)
           VeteranStatusResponse.from(@current_user, response)
         end
@@ -81,10 +80,6 @@ module VAProfile
           raise VAProfile::VeteranStatus::VAProfileError.new(status: e.status)
         end
         handle_error(e)
-      end
-
-      def edipi_present!
-        raise 'User does not have a valid edipi' if @user&.edipi.blank?
       end
 
       def edipi_with_aaid
