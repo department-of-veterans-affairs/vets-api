@@ -69,7 +69,7 @@ module UnifiedHealthData
 
         dispenses.filter_map do |dispense|
           extract_tracking_from_dispense(resource, dispense)
-        end.compact
+        end
       end
 
       def extract_tracking_from_dispense(resource, dispense)
@@ -86,7 +86,7 @@ module UnifiedHealthData
           prescription_name: extract_prescription_name(resource),
           prescription_number: prescription_number || extract_prescription_number(resource),
           ndc_number: extract_ndc_number(dispense),
-          prescription_id: resource['id'].to_i,
+          prescription_id: resource['id'],
           tracking_number:,
           shipped_date:,
           carrier:,
