@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-module AccreditedRepresentativePortal
-  class BenefitsIntakeService < BenefitsIntakeService::Service
-    configuration BenefitsIntakeConfiguration # ARP-specific configuration
+require 'benefits_intake_service/service'
 
-    def initialize(*)
-      super(*)
-    end
+module AccreditedRepresentativePortal
+  class BenefitsIntakeService < ::BenefitsIntakeService::Service
+    configuration BenefitsIntakeConfiguration # ARP-specific configuration
   end
 end
