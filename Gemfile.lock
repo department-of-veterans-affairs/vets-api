@@ -279,8 +279,8 @@ GEM
     bcp47 (0.3.3)
       i18n
     benchmark (0.4.1)
-    bigdecimal (3.3.0)
-    bigdecimal (3.3.0-java)
+    bigdecimal (3.3.1)
+    bigdecimal (3.3.1-java)
     bindex (0.8.1)
     blind_index (2.7.0)
       activesupport (>= 7.1)
@@ -873,7 +873,7 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.19)
+    rack (2.2.20)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -1204,7 +1204,7 @@ GEM
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     will_paginate (4.0.1)
-    with_advisory_lock (7.0.1)
+    with_advisory_lock (7.0.2)
       activerecord (>= 7.2)
       zeitwerk (>= 2.7)
     xmldsig (0.3.2)
@@ -1365,7 +1365,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 2.2.19)
+  rack (~> 2.2.20)
   rack-attack
   rack-cors
   rack-test (= 2.2.0)
