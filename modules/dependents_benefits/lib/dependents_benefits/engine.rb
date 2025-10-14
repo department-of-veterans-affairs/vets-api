@@ -19,5 +19,16 @@ module DependentsBenefits
         end
       end
     end
+
+    initializer 'dependents_benefits.benefits_intake.register_handler' do |app|
+      app.config.to_prepare do
+        require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
+        require 'dependents_benefits/benefits_intake/submission_handler'
+
+        # Register our Pension Benefits Intake Submission Handler
+        ::BenefitsIntake::SubmissionStatusJob.register_handler(DependentsBenefits::FORM_ID_V2,
+                                                               DependentsBenefits::BenefitsIntake::SubmissionHandler)
+      end
+    end
   end
 end
