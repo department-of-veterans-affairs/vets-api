@@ -755,7 +755,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           prescription_name: 'HALCINONIDE 0.1% OINT',
           prescription_number: '2720334',
           ndc_number: '00013264681',
-          prescription_id: 12_345,
+          prescription_id: '12345',
           tracking_number: '77298027203980000000398',
           shipped_date: '2022-10-15T00:00:00.000Z',
           carrier: 'UPS',

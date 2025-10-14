@@ -84,7 +84,7 @@ module UnifiedHealthData
           prescription_name: extract_prescription_name(resource),
           prescription_number: prescription_number || extract_prescription_number(resource),
           ndc_number: extract_ndc_number(dispense),
-          prescription_id: resource['id'].to_i,
+          prescription_id: resource['id'],
           tracking_number:,
           shipped_date:,
           carrier:,
