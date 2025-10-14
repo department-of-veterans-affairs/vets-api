@@ -39,6 +39,8 @@ module Crm
     def call(endpoint:, method: :get, payload: {})
       organization = crm_env[vsp_environment]
 
+      Rails.logger.info("CRM API Review Instance info => #{crm_env}: #{crm_env[vsp_environment]}")
+
       uri = build_uri(endpoint, method, organization)
       response = conn(url: base_url).public_send(method, uri, request_body(method, payload, organization)) do |req|
         req.headers = request_headers
