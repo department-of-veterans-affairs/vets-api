@@ -376,16 +376,8 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
       it 'includes all entity types in the report' do
         report = model.count_report
 
-        # Map internal types to their expected report labels
-        type_labels = {
-          agents: 'Agents',
-          attorneys: 'Attorneys',
-          representatives: 'VSO Representatives', # We're adding the "VSO" prefix here
-          veteran_service_organizations: 'Veteran Service Organizations'
-        }
-
         described_class::TYPES.each do |type|
-          expect(report).to include(type_labels[type.to_sym])
+          expect(report).to include(described_class::TYPE_LABELS[type.to_sym])
         end
       end
     end
