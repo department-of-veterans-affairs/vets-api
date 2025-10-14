@@ -21,32 +21,36 @@ describe Pensions::PdfFill::Va21p527ez do
     use_vets_json_schema: true,
     input_data_fixture_dir: 'modules/pensions/spec/fixtures',
     output_pdf_fixture_dir: 'modules/pensions/spec/fixtures',
-    fill_options: { extras_redesign: true, omit_esign_stamp: true }
+    fill_options: { extras_redesign: true, omit_esign_stamp: true, use_hexapdf: true }
   }
 
   describe '#merge_fields' do
     it 'merges the right fields' do
       Timecop.freeze(Time.zone.parse('2016-12-31 00:00:00 EDT')) do
-        expect(described_class.new(form_data).merge_fields.to_json).to eq(
-          get_fixture_absolute("#{Pensions::MODULE_PATH}/spec/fixtures/merge_fields").to_json
-        )
+        expected = get_fixture_absolute("#{Pensions::MODULE_PATH}/spec/fixtures/merge_fields")
+        actual = described_class.new(form_data).merge_fields
+
+        # Create a diff that is easy to read when expected/actual differ
+        diff = Hashdiff.diff(expected, actual)
+
+        expect(diff).to eq([])
       end
     ensure
       Timecop.return
     end
   end
 
-  describe '#to_radio_yes_no' do
+  describe '#to_radio_yesno' do
     it 'returns correct values' do
-      expect(described_class.new({}).to_radio_yes_no(true)).to eq(1)
-      expect(described_class.new({}).to_radio_yes_no(false)).to eq(2)
+      expect(described_class.new({}).to_radio_yesno(true)).to eq(0)
+      expect(described_class.new({}).to_radio_yesno(false)).to eq(1)
     end
   end
 
-  describe '#to_checkbox_on_off' do
+  describe '#to_checkbox' do
     it 'returns correct values' do
-      expect(described_class.new({}).to_checkbox_on_off(true)).to eq(1)
-      expect(described_class.new({}).to_checkbox_on_off(false)).to eq('Off')
+      expect(described_class.new({}).to_checkbox(true)).to eq('1')
+      expect(described_class.new({}).to_checkbox(false)).to eq('Off')
     end
   end
 
@@ -99,7 +103,7 @@ describe Pensions::PdfFill::Va21p527ez do
       expect(updated_data['dependents'].length).to eq(1)
       expect(updated_data['custodians'].length).to eq(1)
       expect(updated_data['dependentChildrenInHousehold']).to eq('0')
-      expect(updated_data['dependentsNotWithYouAtSameAddress']).to eq(1)
+      expect(updated_data['dependentsNotWithYouAtSameAddress']).to eq(0)
     end
 
     it 'handles overflow for dependent children not in the same household' do
