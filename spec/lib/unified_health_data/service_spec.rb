@@ -716,7 +716,7 @@ describe UnifiedHealthData::Service, type: :service do
 
         expect(Rails.logger).to have_received(:info).with(
           {
-            message: 'UHD LOINC code distribution',
+            message: 'Clinical Notes LOINC code distribution',
             loinc_code_distribution: '11506-3:3,11488-4:1,4189665:1,18842-5:1,4189666:1,96339-7:1',
             total_codes: 6,
             total_records: 6,
@@ -907,7 +907,7 @@ describe UnifiedHealthData::Service, type: :service do
 
         expect(Rails.logger).to have_received(:info).with(
           {
-            message: 'UHD LOINC code distribution',
+            message: 'AVS LOINC code distribution',
             loinc_code_distribution: '4189669:2,96345-4:2',
             total_codes: 2,
             total_records: 2,

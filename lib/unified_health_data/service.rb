@@ -124,7 +124,7 @@ module UnifiedHealthData
 
         parsed_notes = parse_notes(filtered)
 
-        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes)
+        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
 
         parsed_notes
       end
@@ -202,7 +202,7 @@ module UnifiedHealthData
         parsed_avs_meta = summaries.map do |summary|
           clinical_notes_adapter.parse_avs_with_metadata(summary, appt_id, include_binary)
         end
-        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_avs_meta)
+        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_avs_meta, 'AVS')
         parsed_avs_meta.compact
       end
     end
