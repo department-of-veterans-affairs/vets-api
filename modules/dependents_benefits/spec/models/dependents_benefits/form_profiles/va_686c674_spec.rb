@@ -189,7 +189,195 @@ RSpec.describe FormProfile, type: :model do
       context 'with a user that can prefill VA Profile' do
         before { can_prefill_vaprofile(true) }
 
-        context 'with a 686c-674 form' do
+        context 'with a 686c-674 form v3 enabled' do
+          let(:v686_c_674_v2_expected) do
+            {
+              'veteranContactInformation' => {
+                'veteranAddress' => {
+                  'street' => '140 Rock Creek Rd',
+                  'country' => 'USA',
+                  'city' => 'Washington',
+                  'state' => 'DC',
+                  'postalCode' => '20011'
+                },
+                'phoneNumber' => us_phone,
+                'emailAddress' => user.va_profile_email
+              },
+              'nonPrefill' => {
+                'dependents' => {
+                  'success' => 'false'
+                },
+                'veteranSsnLastFour' => '1863',
+                'veteranVaFileNumberLastFour' => '1863',
+                'isInReceiptOfPension' => -1,
+                'netWorthLimit' => 159240 # rubocop:disable Style/NumericLiterals
+              },
+              'veteranInformation' => {
+                'fullName' => {
+                  'first' => user.first_name.capitalize,
+                  'last' => user.last_name.capitalize
+                },
+                'ssn' => '796111863',
+                'birthDate' => '1809-02-12'
+              }
+            }
+          end
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(true)
+          end
+
+          it 'omits address fields in 686c-674-V2 form' do
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                             allow_playback_repeats: true) do
+              expect_prefilled('686C-674-V2')
+            end
+          end
+
+          context 'with pension awards prefill' do
+            let(:user) { create(:evss_user, :loa3) }
+            let(:form_profile) do
+              FormProfiles::VA686c674v2.new(user:, form_id: '686C-674-V2')
+            end
+
+            before do
+              allow(Rails.logger).to receive(:warn)
+            end
+
+            it 'prefills net worth limit' do
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                               allow_playback_repeats: true) do
+                VCR.use_cassette('bid/awards/get_awards_pension') do
+                  prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(129094) # rubocop:disable Style/NumericLiterals
+                end
+              end
+            end
+
+            it 'prefills 1 when user is in receipt of pension' do
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                               allow_playback_repeats: true) do
+                VCR.use_cassette('bid/awards/get_awards_pension') do
+                  prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+
+                  expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(1)
+                end
+              end
+            end
+
+            it 'prefills 0 when user is not in receipt of pension' do
+              prefill_no_receipt_of_pension = {
+                is_in_receipt_of_pension: false
+              }
+              form_profile_instance = described_class.for(form_id: '686C-674-V2', user:)
+              allow(form_profile_instance).to receive(:awards_pension).and_return(prefill_no_receipt_of_pension)
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                               allow_playback_repeats: true) do
+                prefilled_data = form_profile_instance.prefill[:form_data]
+
+                expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(0)
+              end
+            end
+
+            it 'prefills -1 and default net worth limit when bid awards service returns an error' do
+              allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+              allow(dependent_service).to receive(:get_dependents).and_return(dependents_data)
+
+              error = StandardError.new('awards pension error')
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                               allow_playback_repeats: true) do
+                allow_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_raise(error)
+
+                expect(Rails.logger).to receive(:warn).with('Failed to retrieve awards pension data', anything)
+
+                prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+
+                expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
+                expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(159_240)
+              end
+            end
+          end
+
+          context 'with dependents prefill' do
+            let(:user) { create(:evss_user, :loa3) }
+            let(:form_profile) { FormProfiles::VA686c674v2.new(user:, form_id: '686C-674-V2') }
+
+            before { allow(Rails.logger).to receive(:warn) }
+
+            it 'returns formatted dependent information' do
+              # Mock the dependent service to return active dependents
+              allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+              allow(dependent_service).to receive(:get_dependents).and_return(dependents_data)
+
+              result = form_profile.prefill
+              expect(result[:form_data]).to have_key('veteranInformation')
+              expect(result[:form_data]).to have_key('veteranContactInformation')
+              expect(result[:form_data]).to have_key('nonPrefill')
+              expect(result[:form_data]['nonPrefill']).to have_key('dependents')
+              expect(result[:form_data]['nonPrefill']['dependents']['dependents']).to eq(dependents_information)
+            end
+
+            it 'handles a dependent information error' do
+              # Mock the dependent service to return an error
+              allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+              allow(dependent_service).to receive(:get_dependents).and_raise(
+                StandardError.new('Dependent information error')
+              )
+              result = form_profile.prefill
+              expect(result[:form_data]).to have_key('veteranInformation')
+              expect(result[:form_data]).to have_key('veteranContactInformation')
+              expect(result[:form_data]).to have_key('nonPrefill')
+              expect(result[:form_data]['nonPrefill']['dependents']).not_to have_key('dependents')
+            end
+
+            it 'handles missing dependents data' do
+              # Mock the dependent service to return no dependents
+              allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+              allow(dependent_service).to receive(:get_dependents).and_return(nil)
+              result = form_profile.prefill
+              expect(result[:form_data]).to have_key('veteranInformation')
+              expect(result[:form_data]).to have_key('veteranContactInformation')
+              expect(result[:form_data]).to have_key('nonPrefill')
+              expect(result[:form_data]['nonPrefill']['dependents']).not_to have_key('dependents')
+            end
+
+            it 'handles invalid date formats gracefully' do
+              invalid_date_data = dependents_data.dup
+              invalid_date_data[:persons][0][:date_of_birth] = 'invalid-date'
+
+              allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+              allow(dependent_service).to receive(:get_dependents).and_return(invalid_date_data)
+
+              result = form_profile.prefill
+              expect(result[:form_data]).to have_key('nonPrefill')
+              expect(result[:form_data]['nonPrefill']).to have_key('dependents')
+              dependents = result[:form_data]['nonPrefill']['dependents']
+              expect(dependents).to be_an(Object)
+              expect(dependents['dependents'].first['dateOfBirth']).to be_nil
+            end
+
+            it 'handles nil date gracefully' do
+              nil_date_data = dependents_data.dup
+              nil_date_data[:persons][0][:date_of_birth] = nil
+
+              allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+              allow(dependent_service).to receive(:get_dependents).and_return(nil_date_data)
+
+              result = form_profile.prefill
+              expect(result[:form_data]).to have_key('nonPrefill')
+              expect(result[:form_data]['nonPrefill']).to have_key('dependents')
+              dependents = result[:form_data]['nonPrefill']['dependents']
+              expect(dependents).to be_an(Object)
+              expect(dependents['dependents'].first['dateOfBirth']).to be_nil
+            end
+          end
+        end
+
+        context 'with a 686c-674 form v3 disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(false)
+          end
+
           it 'omits address fields in 686c-674-V2 form' do
             VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                              allow_playback_repeats: true) do
@@ -334,12 +522,12 @@ RSpec.describe FormProfile, type: :model do
               expect(dependents.first['dateOfBirth']).to be_nil
             end
           end
-        end
 
-        it 'returns prefilled 686C-674-V2' do
-          VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
-                           allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-            expect_prefilled('686C-674-V2')
+          it 'returns prefilled 686C-674-V2' do
+            VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
+                             allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
+              expect_prefilled('686C-674-V2')
+            end
           end
         end
       end
