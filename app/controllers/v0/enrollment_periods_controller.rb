@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require Rails.root.join('lib/veteran_enrollment_system/enrollment_periods/service.rb')
+
 module V0
   class EnrollmentPeriodsController < ApplicationController
     service_tag 'enrollment-periods'
@@ -7,7 +9,7 @@ module V0
 
     def index
       service = VeteranEnrollmentSystem::EnrollmentPeriods::Service.new
-      periods = service.get_enrollment_periods(@current_user.icn)
+      periods = service.get_enrollment_periods(icn: @current_user.icn)
       render json: { enrollment_periods: periods }
     end
   end
