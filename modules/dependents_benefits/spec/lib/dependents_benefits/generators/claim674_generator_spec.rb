@@ -4,18 +4,17 @@ require 'rails_helper'
 require 'dependents_benefits/generators/claim674_generator'
 
 RSpec.describe DependentsBenefits::Generators::Claim674Generator, type: :model do
-  let(:form_data) { create(:dependents_claim).parsed_form }
+  let(:parent_claim) { create(:dependents_claim) }
+  let(:form_data) { parent_claim.parsed_form }
   let(:student_data) do
     form_data['dependents_application']['student_information'][0]
   end
 
-  let(:parent_id) { 123 }
+  let(:parent_id) { parent_claim.id }
   let(:generator) { described_class.new(form_data, parent_id, student_data) }
 
-  describe '#form_id' do
-    it 'returns the correct form_id for 674' do
-      expect(generator.send(:form_id)).to eq('21-674')
-    end
+  before do
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
   end
 
   describe '#extract_form_data' do
@@ -59,18 +58,27 @@ RSpec.describe DependentsBenefits::Generators::Claim674Generator, type: :model d
   end
 
   describe '#generate' do
+    let!(:parent_claim_group) do
+      create(:saved_claim_group,
+             claim_group_guid: parent_claim.guid,
+             parent_claim_id: parent_claim.id,
+             saved_claim_id: parent_claim.id)
+    end
+
     it 'creates a 674 claim with extracted student data' do
       created_claim = generator.generate
       expect(created_claim.form_id).to eq('21-674')
 
       parsed_form = JSON.parse(created_claim.form)
       expect(parsed_form['dependents_application']['student_information']).to eq(student_data)
-    end
 
-    it 'logs a TODO message for claim linking' do
-      expect(Rails.logger).to receive(:info).with(match('Stamping PDF')).at_least(:once)
-      expect(Rails.logger).to receive(:info).with(match("TODO: Link claim \\d+ to parent #{parent_id}"))
-      generator.generate
+      # Verify that a new claim group was created linking the new claim to the parent
+      new_claim_group = SavedClaimGroup.find_by(
+        parent_claim_id: parent_claim.id,
+        saved_claim_id: created_claim.id
+      )
+      expect(new_claim_group).to be_present
+      expect(new_claim_group.claim_group_guid).to eq(parent_claim.guid)
     end
   end
 end

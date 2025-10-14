@@ -1,11 +1,18 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'dependents_benefits/generators/dependent_claim_generator'
 
 RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :model do
   let(:form_data) { { 'test' => 'data' } }
   let(:parent_id) { 123 }
   let(:generator) { described_class.new(form_data, parent_id) }
+
+  before do
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+
+    allow(generator).to receive(:claim_class).and_return(DependentsBenefits::SavedClaim)
+  end
 
   describe 'initialization' do
     it 'stores form_data and parent_id' do
@@ -32,18 +39,11 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
       end
     end
 
-    describe '#form_id' do
-      it 'raises NotImplementedError' do
-        expect { generator.send(:form_id) }.to raise_error(NotImplementedError, 'Subclasses must implement form_id')
-      end
-    end
-
     describe '#create_claim' do
       let(:extracted_data) { { 'extracted' => 'data' } }
       let(:mock_claim) { instance_double(DependentsBenefits::SavedClaim, id: 456) }
 
       before do
-        allow(generator).to receive(:form_id).and_return('test-form-id')
         allow(DependentsBenefits::SavedClaim).to receive(:new).and_return(mock_claim)
         allow(mock_claim).to receive(:validate!)
         allow(mock_claim).to receive(:save!)
@@ -52,10 +52,7 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
       it 'creates a SavedClaim with the correct data and form_id' do
         generator.send(:create_claim, extracted_data)
 
-        expect(DependentsBenefits::SavedClaim).to have_received(:new).with(
-          form: extracted_data.to_json,
-          form_id: 'test-form-id'
-        )
+        expect(DependentsBenefits::SavedClaim).to have_received(:new).with(form: extracted_data.to_json)
         expect(mock_claim).to have_received(:save!)
       end
 
@@ -66,21 +63,25 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
     end
 
     describe '#create_claim_group_item' do
-      let(:mock_claim) { instance_double(DependentsBenefits::SavedClaim, id: 456) }
-
-      before do
-        allow(Rails.logger).to receive(:info)
+      let(:parent_claim) { create(:dependents_claim) }
+      let(:child_claim) { create(:student_claim) }
+      let(:parent_claim_group) do
+        create(:saved_claim_group,
+               claim_group_guid: parent_claim.guid,
+               parent_claim_id: parent_claim.id,
+               saved_claim_id: parent_claim.id)
       end
+      let(:parent_id) { parent_claim.id }
 
-      it 'logs a TODO message for claim linking' do
-        generator.send(:create_claim_group_item, mock_claim)
+      it 'creates a claim group child item' do
+        expect(SavedClaimGroup).to receive(:new).with(
+          claim_group_guid: parent_claim_group.claim_group_guid,
+          parent_claim_id: parent_claim.id,
+          saved_claim_id: child_claim.id
+        ).and_call_original
 
-        expect(Rails.logger).to have_received(:info).with("TODO: Link claim 456 to parent #{parent_id}")
-      end
-
-      it 'returns nil (stubbed method)' do
-        result = generator.send(:create_claim_group_item, mock_claim)
-        expect(result).to be_nil
+        result = generator.send(:create_claim_group_item, child_claim)
+        expect(result).to be_a(SavedClaimGroup)
       end
     end
   end

@@ -183,6 +183,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Request updated statuses for benefits intake submissions
   mgr.register('45 * * * *', 'VBADocuments::UploadStatusBatch')
 
+  # Request updated statuses for benefits intake submissions with upstream processing errors
+  mgr.register('13 */6 * * *', 'VBADocuments::UploadStatusErrorBatch')
+
   # Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status
   mgr.register('5 */2 * * *', 'VBADocuments::RunUnsuccessfulSubmissions')
 
@@ -260,14 +263,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Engine version: Send Decision Review emails to Veteran for failed form/evidence submissions
   mgr.register('5 0 * * *', 'DecisionReviews::FailureNotificationEmailJob')
-
-  # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
-  mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
-  mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
-  # Daily 0600 hrs job for Vye: activates ingressed state, and egresses the changes for the day.
-  mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
-  # Daily 1900 job for Vye: clears deactivated BDNs every evening.
-  mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
 
   # Daily cleanup of > 12 month old UserAction records
   mgr.register('45 3 * * *', 'UserActionsCleanupJob')

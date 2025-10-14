@@ -1,10 +1,20 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'dependents_benefits/generators/claim674_generator'
+require 'dependents_benefits/generators/claim686c_generator'
 
 RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
-  let(:parent_claim_id) { 123 }
   let(:form_data) { create(:dependents_claim).parsed_form }
+  let(:parent_claim) { create(:dependents_claim) }
+  let(:parent_claim_group) do
+    create(:saved_claim_group, parent_claim_id: parent_claim.id, saved_claim_id: parent_claim.id)
+  end
+  let(:parent_claim_id) { parent_claim_group.parent_claim_id }
+
+  before do
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+  end
 
   describe 'Creating 686c and 674 claims from combined form data' do
     before do
@@ -34,12 +44,7 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
         expect(parsed_form['dependents_application']).not_to have_key('program_information')
 
         # Should have correct form_id
-        expect(claim_686c.form_id).to eq('21-686c')
-
-        # Should log TODO message for claim linking
-        expect(Rails.logger).to have_received(:info).with(
-          "TODO: Link claim #{claim_686c.id} to parent #{parent_claim_id}"
-        )
+        expect(claim_686c.form_id).to eq('21-686C')
       end
     end
 
@@ -71,11 +76,6 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
 
         # Should have correct form_id
         expect(claim674.form_id).to eq('21-674')
-
-        # Should log TODO message for claim linking
-        expect(Rails.logger).to have_received(:info).with(
-          "TODO: Link claim #{claim674.id} to parent #{parent_claim_id}"
-        )
       end
     end
 
@@ -90,7 +90,7 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
         claim674 = generator674.generate
 
         # Claims should have different form_ids
-        expect(claim_686c.form_id).to eq('21-686c')
+        expect(claim_686c.form_id).to eq('21-686C')
         expect(claim674.form_id).to eq('21-674')
 
         # Should have different form data
@@ -100,14 +100,6 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
         expect(form_686c['dependents_application']).not_to have_key('student_information')
 
         expect(form674['dependents_application']).to have_key('student_information')
-
-        # Should log TODO messages for both claims
-        expect(Rails.logger).to have_received(:info).with(
-          "TODO: Link claim #{claim_686c.id} to parent #{parent_claim_id}"
-        )
-        expect(Rails.logger).to have_received(:info).with(
-          "TODO: Link claim #{claim674.id} to parent #{parent_claim_id}"
-        )
       end
     end
   end

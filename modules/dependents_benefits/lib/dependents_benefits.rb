@@ -8,7 +8,8 @@ require 'dependents_benefits/engine'
 module DependentsBenefits
   # The form_id
   FORM_ID = '686C-674'
-  ADD_REMOVE_DEPENDENT = '21-686c'
+  FORM_ID_V2 = '686C-674-V2'
+  ADD_REMOVE_DEPENDENT = '21-686C'
   SCHOOL_ATTENDANCE_APPROVAL = '21-674'
   PARENT_DEPENDENCY = '21-509'
 

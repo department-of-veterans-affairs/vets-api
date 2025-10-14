@@ -261,4 +261,18 @@ describe ClaimsApi::PdfMapperBase do
       expect(result).not_to have_key(:exposureOrEventOrInjury)
     end
   end
+
+  describe '#handle_yes_no' do
+    it "return 'NO' when sent false" do
+      res = subject.handle_yes_no(false)
+
+      expect(res).to eq('NO')
+    end
+
+    it "return 'YES' when sent true" do
+      res = subject.handle_yes_no(true)
+
+      expect(res).to eq('YES')
+    end
+  end
 end

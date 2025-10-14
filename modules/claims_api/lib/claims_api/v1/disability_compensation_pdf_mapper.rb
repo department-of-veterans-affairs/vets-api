@@ -1,11 +1,28 @@
 # frozen_string_literal: true
 
 require_relative '../pdf_mapper_base'
+require_relative 'mapper_helpers/auth_headers_lookup'
+require_relative 'mapper_helpers/auto_claim_lookup'
 
 module ClaimsApi
   module V1
-    class DisabilityCompensationPdfMapper
+    class DisabilityCompensationPdfMapper # rubocop:disable Metrics/ClassLength
       include PdfMapperBase
+      include AuthHeadersLookup # get_auth_header
+      include AutoClaimLookup # lookup_in_auto_claim
+
+      SECTIONS = %i[
+        section_0_claim_attributes
+        section_1_veteran_identification
+        section_2_change_of_address
+        section_3_homeless_information
+        section_5_disabilities
+        section_5_treatment_centers
+        section_6_service_information
+        section_7_service_pay
+        section_8_direct_deposit
+        section_9_claim_certification_and_signature
+      ].freeze
 
       HOMELESSNESS_RISK_SITUATION_TYPES = {
         'fleeing' => 'FLEEING_CURRENT_RESIDENCE',
@@ -21,21 +38,16 @@ module ClaimsApi
         'other' => 'OTHER'
       }.freeze
 
-      def initialize(auto_claim, pdf_data, auth_headers, middle_initial)
+      def initialize(auto_claim, pdf_data, auth_headers, middle_initial, created_at)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
         @auth_headers = auth_headers&.deep_symbolize_keys
         @middle_initial = middle_initial
+        @created_at = created_at.strftime('%Y-%m-%d').to_s
       end
 
       def map_claim
-        section_0_claim_attributes
-        section_1_veteran_identification
-        section_2_change_of_address
-        section_3_homeless_information
-        section_5_disabilities
-        section_5_treatment_centers
-        section_6_service_information
+        SECTIONS.each { |section| send(section) }
 
         @pdf_data
       end
@@ -43,14 +55,15 @@ module ClaimsApi
       private
 
       def section_0_claim_attributes
-        claim_process_type = @auto_claim['standardClaim'] ? 'STANDARD_CLAIM_PROCESS' : 'FDC_PROGRAM'
+        claim_process_type = lookup_in_auto_claim(:standard_claim) ? 'STANDARD_CLAIM_PROCESS' : 'FDC_PROGRAM'
         claim_process_type = 'BDD_PROGRAM' if any_service_end_dates_in_bdd_window?
 
         @pdf_data[:data][:attributes][:claimProcessType] = claim_process_type
       end
 
       def any_service_end_dates_in_bdd_window?
-        @auto_claim['serviceInformation']['servicePeriods'].each do |sp|
+        service_periods_data = lookup_in_auto_claim(:service_periods)
+        service_periods_data.each do |sp|
           end_date = sp['activeDutyEndDate'].to_date
           if end_date >= 90.days.from_now.to_date && end_date <= 180.days.from_now.to_date
             set_pdf_data_for_section_one
@@ -78,7 +91,7 @@ module ClaimsApi
       end
 
       def mailing_address
-        mailing_addr = @auto_claim&.dig('veteran', 'currentMailingAddress')
+        mailing_addr = lookup_in_auto_claim(:veteran_current_mailing_address)
         return if mailing_addr.blank?
 
         set_pdf_data_for_mailing_address
@@ -98,27 +111,27 @@ module ClaimsApi
       end
 
       def va_employee_status
-        employee_status = @auto_claim&.dig('veteran', 'currentlyVAEmployee')
+        employee_status = lookup_in_auto_claim(:veteran_current_va_employee)
         return if employee_status.nil?
 
         @pdf_data[:data][:attributes][:identificationInformation][:currentVaEmployee] = employee_status
       end
 
       def veteran_ssn
-        ssn = @auth_headers[:va_eauth_pnid]
+        ssn = get_auth_header(:pnid)
         @pdf_data[:data][:attributes][:identificationInformation][:ssn] = format_ssn(ssn) if ssn.present?
       end
 
       def veteran_file_number
-        file_number = @auth_headers[:va_eauth_birlsfilenumber]
+        file_number = get_auth_header(:birls_file_number)
         @pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber] = file_number
       end
 
       def veteran_name
         set_veteran_name
 
-        fname = @auth_headers[:va_eauth_firstName]
-        lname = @auth_headers[:va_eauth_lastName]
+        fname = get_auth_header(:first_name)
+        lname = get_auth_header(:last_name)
 
         @pdf_data[:data][:attributes][:identificationInformation][:name][:firstName] = fname
         @pdf_data[:data][:attributes][:identificationInformation][:name][:lastName] = lname
@@ -126,7 +139,7 @@ module ClaimsApi
       end
 
       def veteran_birth_date
-        birth_date_data = @auth_headers[:va_eauth_birthdate]
+        birth_date_data = get_auth_header(:birth_date)
         birth_date = format_birth_date(birth_date_data) if birth_date_data
 
         @pdf_data[:data][:attributes][:identificationInformation][:dateOfBirth] = birth_date
@@ -149,7 +162,7 @@ module ClaimsApi
       end
 
       def section_2_change_of_address
-        address_info = @auto_claim&.dig('veteran', 'changeOfAddress')
+        address_info = lookup_in_auto_claim(:veteran_change_of_address)
         return if address_info.blank?
 
         set_pdf_data_for_section_two
@@ -216,7 +229,7 @@ module ClaimsApi
       end
 
       def section_3_homeless_information
-        homeless_info = @auto_claim&.dig('veteran', 'homelessness')
+        homeless_info = lookup_in_auto_claim(:veteran_homelessness)
         return if homeless_info.blank?
 
         set_pdf_data_for_homeless_information
@@ -235,7 +248,7 @@ module ClaimsApi
       # If "pointOfContact" is on the form "pointOfContactName", "primaryPhone" are required via the schema
       # "primaryPhone" requires both "areaCode" and "phoneNumber" via the schema
       def point_of_contact
-        point_of_contact_info = @auto_claim&.dig('veteran', 'homelessness', 'pointOfContact')
+        point_of_contact_info = lookup_in_auto_claim(:veteran_homelessness_point_of_contact)
         return if point_of_contact_info.blank?
 
         @pdf_data[:data][:attributes][:homelessInformation][:pointOfContact] =
@@ -249,7 +262,7 @@ module ClaimsApi
 
       # if "currentlyHomeless" is present "homelessSituationType", "otherLivingSituation" are required by the schema
       def currently_homeless
-        currently_homeless_info = @auto_claim&.dig('veteran', 'homelessness', 'currentlyHomeless')
+        currently_homeless_info = lookup_in_auto_claim(:veteran_homelessness_currently_homeless)
         return if currently_homeless_info.blank?
 
         set_pdf_data_for_currently_homeless_information
@@ -268,7 +281,7 @@ module ClaimsApi
 
       # if "homelessnessRisk" is on the submission "homelessnessRiskSituationType", "otherLivingSituation" are required
       def homelessness_risk
-        homelessness_risk_info = @auto_claim&.dig('veteran', 'homelessness', 'homelessnessRisk')
+        homelessness_risk_info = lookup_in_auto_claim(:veteran_homelessness_risk)
         return if homelessness_risk_info.blank?
 
         set_pdf_data_for_homelessness_risk_information
@@ -309,7 +322,8 @@ module ClaimsApi
       end
 
       def transform_disabilities
-        @auto_claim['disabilities'].flat_map do |disability|
+        disabilities_data = lookup_in_auto_claim(:disabilities)
+        disabilities_data.flat_map do |disability|
           primary_disability = build_primary_disability(disability)
           secondary_disabilities = if disability['secondaryDisabilities'].present?
                                      build_secondary_disabilities(disability)
@@ -346,7 +360,7 @@ module ClaimsApi
       # 'treatments' is optional
       # If 'treatments' is provided 'treatedDisabilityNames' and 'center' are required via the schema
       def section_5_treatment_centers
-        treatment_info = @auto_claim&.dig('treatments')
+        treatment_info = lookup_in_auto_claim(:treatments)
         return if treatment_info.blank?
 
         set_pdf_data_for_claim_information
@@ -410,6 +424,10 @@ module ClaimsApi
         set_pdf_data_for_service_information
 
         service_periods
+
+        confinements if @auto_claim.dig('serviceInformation', 'confinements')
+        reserves_national_guard_service if lookup_in_auto_claim(:reserves_service)
+        alternate_names if lookup_in_auto_claim(:reserves_alternate_names)
       end
 
       def set_pdf_data_for_service_information
@@ -421,14 +439,15 @@ module ClaimsApi
       # 'serviceBranch', 'activeDutyBeginDate' & 'activeDutyEndDate' are required via the schema
       def service_periods
         set_pdf_data_for_most_recent_service_period
-        service_periods_data = @auto_claim.dig('serviceInformation', 'servicePeriods')
-        most_recent_service_period = service_periods_data.max_by do |sp|
+        service_periods_data = lookup_in_auto_claim(:service_periods)
+
+        most_recent_service_period_data = service_periods_data.max_by do |sp|
           sp['activeDutyEndDate'].presence || {}
         end
-        most_recent_branch = most_recent_service_period['serviceBranch']
-        most_recent_service_period(most_recent_service_period, most_recent_branch)
+        most_recent_branch = most_recent_service_period_data['serviceBranch']
+        most_recent_service_period(most_recent_service_period_data, most_recent_branch)
 
-        remaining_periods = service_periods_data - [most_recent_service_period]
+        remaining_periods = service_periods_data - [most_recent_service_period_data]
         additional_service_periods(remaining_periods) if remaining_periods
       end
 
@@ -469,6 +488,286 @@ module ClaimsApi
           }
         end
         @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = additional_periods
+      end
+
+      def confinements
+        set_pdf_data_for_pow_confinement
+
+        confinement_periods
+      end
+
+      def set_pdf_data_for_pow_confinement
+        return if @pdf_data[:data][:attributes][:serviceInformation]&.key?(:prisonerOfWarConfinement)
+
+        @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] = {}
+      end
+
+      # 'confinementBeginDate' & 'confinementEndDate' are required via the schema if confinements are present
+      def confinement_periods
+        confinements_data = @auto_claim.dig('serviceInformation', 'confinements')
+
+        periods_of_confinement = []
+        confinements_data.each do |c|
+          begin_date = make_date_object(c['confinementBeginDate'], c['confinementBeginDate'].length)
+          end_date = make_date_object(c['confinementEndDate'], c['confinementEndDate'].length)
+
+          periods_of_confinement << { start: begin_date, end: end_date }
+        end
+        @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] =
+          { confinementDates: periods_of_confinement }
+      end
+
+      # If reserves are present
+      # 'obligationTermOfServiceFromDate', 'obligationTermOfServiceToDate' & 'unitName' are required via the schema
+      def reserves_national_guard_service
+        set_pdf_data_for_serves_national_guard_service
+
+        required_reserves_data
+        optional_reserves_data
+      end
+
+      def set_pdf_data_for_serves_national_guard_service
+        return if @pdf_data[:data][:attributes][:serviceInformation]&.key?(:reservesNationalGuardService)
+
+        @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService] = {}
+      end
+
+      def required_reserves_data
+        reserves_data_object_base = @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+        unit_name = lookup_in_auto_claim(:reserves_unit_name)
+        begin_date = lookup_in_auto_claim(:reserves_obligation_from)
+        end_date = lookup_in_auto_claim(:reserves_obligation_to)
+
+        reserves_data_object_base[:unitName] = unit_name
+        reserves_data_object_base[:obligationTermsOfService] = {
+          start: make_date_object(begin_date, begin_date.length),
+          end: make_date_object(end_date, end_date.length)
+        }
+      end
+
+      def optional_reserves_data
+        reserves_data = lookup_in_auto_claim(:reserves_service)
+
+        unit_phone(reserves_data) if reserves_data['unitPhone']
+        inactive_duty_training_pay(reserves_data) if reserves_data.key?('receivingInactiveDutyTrainingPay')
+        title_10_activation if reserves_data['title10Activation']
+      end
+
+      def unit_phone(reserves_data)
+        if reserves_data&.dig('unitPhone')
+          @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:unitPhoneNumber] = [
+            reserves_data&.dig('unitPhone', 'areaCode'),
+            reserves_data&.dig('unitPhone', 'phoneNumber')&.tr('-', '')
+          ].compact.join
+        end
+      end
+
+      def inactive_duty_training_pay(reserves_data)
+        reserves_data_object_base = @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+        reserves_data_object_base[:receivingInactiveDutyTrainingPay] =
+          handle_yes_no(reserves_data['receivingInactiveDutyTrainingPay'])
+      end
+
+      # if 'title_10_activation' is present
+      # 'anticipatedSeparationDate' & 'title10ActivationDate'
+      def title_10_activation
+        title_10_data = lookup_in_auto_claim(:reserves_title_10_activation)
+        activation_date_data = title_10_data['title10ActivationDate']
+        anticipated_separation_date_data = title_10_data['anticipatedSeparationDate']
+        activation_date = make_date_object(activation_date_data, activation_date_data.length)
+        anticipated_separation_date = make_date_object(
+          anticipated_separation_date_data, anticipated_separation_date_data.length
+        )
+
+        @pdf_data[:data][:attributes][:serviceInformation][:federalActivation] = {
+          activationDate: activation_date,
+          anticipatedSeparationDate: anticipated_separation_date
+        }
+      end
+
+      def alternate_names
+        alt_names = lookup_in_auto_claim(:reserves_alternate_names)
+
+        names = alt_names.map do |n|
+          n.values_at('firstName', 'middleName', 'lastName').compact.join(' ')
+        end
+
+        @pdf_data[:data][:attributes][:serviceInformation][:alternateNames] = names
+      end
+
+      def section_7_service_pay
+        return unless lookup_in_auto_claim(:service_pay)
+
+        set_pdf_data_for_service_pay
+
+        service_pay_base = @pdf_data[:data][:attributes][:servicePay]
+        claim_service_pay_data = lookup_in_auto_claim(:service_pay)
+
+        training_pay = lookup_in_auto_claim(:service_pay_retain_training_pay)
+        if claim_service_pay_data.key?('waiveVABenefitsToRetainTrainingPay')
+          service_pay_base[:favorTrainingPay] = training_pay
+        end
+
+        retain_retired_pay = lookup_in_auto_claim(:service_pay_retain_retired_pay)
+        if claim_service_pay_data.key?('waiveVABenefitsToRetainRetiredPay')
+          service_pay_base[:favorMilitaryRetiredPay] = retain_retired_pay
+        end
+
+        military_retired_pay = lookup_in_auto_claim(:service_pay_military_retired_pay)
+        map_military_retired_pay(military_retired_pay, service_pay_base) if military_retired_pay.present?
+
+        map_separation_pay if lookup_in_auto_claim(:service_pay_separation_pay)
+      end
+
+      def set_pdf_data_for_service_pay
+        return if @pdf_data[:data][:attributes]&.key?(:servicePay)
+
+        @pdf_data[:data][:attributes][:servicePay] = {}
+      end
+
+      # if 'militaryRetiredPay' is included
+      # 'receiving' & 'payment' are required via the schema
+      def map_military_retired_pay(military_retired_pay_data, service_pay_base)
+        retired_pay = lookup_in_auto_claim(:service_pay_receiving_retired_pay)
+        service_pay_base[:receivingMilitaryRetiredPay] = handle_yes_no(retired_pay)
+
+        future_retired_pay = lookup_in_auto_claim(:service_pay_future_military_pay)
+        if military_retired_pay_data.key?('willReceiveInFuture')
+          service_pay_base[:futureMilitaryRetiredPay] = handle_yes_no(future_retired_pay)
+        end
+
+        explanation = lookup_in_auto_claim(:service_pay_future_pay_explanation)
+        service_pay_base[:futureMilitaryRetiredPayExplanation] = explanation if explanation
+
+        retired_pay_payment if lookup_in_auto_claim(:military_retired_pay_payment)
+      end
+
+      # if 'payment' is included
+      # 'serviceBranch' is required via the schema
+      def retired_pay_payment
+        set_pdf_path_for_military_retired_pay
+
+        retired_branch_of_service = lookup_in_auto_claim(:military_retired_pay_service_branch)
+        @pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay][:branchOfService] =
+          { branch: retired_branch_of_service }
+
+        retired_pay_amount = lookup_in_auto_claim(:military_retired_pay_amount)
+        if retired_pay_amount
+          @pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay][:monthlyAmount] =
+            retired_pay_amount
+        end
+      end
+
+      def set_pdf_path_for_military_retired_pay
+        return if @pdf_data[:data][:attributes][:servicePay]&.key?(:militaryRetiredPay)
+
+        @pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay] = {}
+      end
+
+      # if 'separationPay' is included
+      # 'received' is required via the schema
+      def map_separation_pay
+        serverance_or_separation_pay = lookup_in_auto_claim(:service_pay_separation_or_severance_pay_received)
+        @pdf_data[:data][:attributes][:servicePay][:receivedSeparationOrSeverancePay] =
+          handle_yes_no(serverance_or_separation_pay)
+
+        set_separation_severance_pay_pdf_data
+
+        received_date = lookup_in_auto_claim(:separation_pay_received_date)
+        if received_date
+          @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:datePaymentReceived] =
+            make_date_object(received_date, received_date.length)
+        end
+
+        separation_pay_branch = lookup_in_auto_claim(:separation_pay_branch_of_service)
+        if separation_pay_branch
+          @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:branchOfService] =
+            { branch: separation_pay_branch }
+        end
+
+        amount = lookup_in_auto_claim(:separation_pay_amount)
+        @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:preTaxAmountReceived] = amount if amount
+      end
+
+      def set_separation_severance_pay_pdf_data
+        return if @pdf_data[:data][:attributes][:servicePay]&.key?(:separationSeverancePay)
+
+        @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay] = {}
+      end
+
+      # if 'drectDeposit' is included
+      # 'accountType', 'accountNumber' & 'routingNumber' are required via the schema
+      def section_8_direct_deposit
+        return unless lookup_in_auto_claim(:direct_deposit)
+
+        set_direct_deposit_pdf_data
+
+        direct_deposit_required_fields
+        direct_deposit_optional_fields if lookup_in_auto_claim(:direct_deposit_bank_name)
+      end
+
+      def direct_deposit_required_fields
+        @pdf_data[:data][:attributes][:directDepositInformation][:accountType] =
+          lookup_in_auto_claim(:direct_deposit_account_type)
+        @pdf_data[:data][:attributes][:directDepositInformation][:accountNumber] =
+          lookup_in_auto_claim(:direct_deposit_account_number)
+        @pdf_data[:data][:attributes][:directDepositInformation][:routingNumber] =
+          lookup_in_auto_claim(:direct_deposit_routing_number)
+      end
+
+      def direct_deposit_optional_fields
+        @pdf_data[:data][:attributes][:directDepositInformation][:financialInstitutionName] =
+          lookup_in_auto_claim(:direct_deposit_bank_name)
+      end
+
+      def set_direct_deposit_pdf_data
+        return if @pdf_data[:data][:attributes]&.key?(:directDepositInformation)
+
+        @pdf_data[:data][:attributes][:directDepositInformation] = {}
+      end
+
+      def section_9_claim_certification_and_signature
+        set_claim_cert_pdf_data
+
+        claim_date_raw = lookup_in_auto_claim(:claim_date)
+        claim_date_str = extract_date_safely(claim_date_raw)
+
+        if claim_date_str && valid_date?(claim_date_str)
+          @pdf_data[:data][:attributes][:claimCertificationAndSignature][:dateSigned] =
+            make_date_object(claim_date_str, claim_date_str.length)
+        else
+          @pdf_data[:data][:attributes][:claimCertificationAndSignature][:dateSigned] =
+            make_date_object(@created_at, @created_at.length)
+        end
+
+        signature = "#{get_auth_header(:first_name)} #{get_auth_header(:last_name)}"
+        @pdf_data[:data][:attributes][:claimCertificationAndSignature][:signature] = signature
+      end
+
+      def set_claim_cert_pdf_data
+        return if @pdf_data[:data][:attributes]&.key?(:claimCertificationAndSignature)
+
+        @pdf_data[:data][:attributes][:claimCertificationAndSignature] = {}
+      end
+
+      def extract_date_safely(date_input)
+        return nil if date_input.blank?
+
+        # schema specifies this format, but does not enforce it enough for us to trust
+        if date_input.include?('T')
+          date_input.split('T').first
+        else
+          date_input
+        end
+      end
+
+      def valid_date?(date_string)
+        return false if date_string.blank?
+
+        Date.parse(date_string)
+        true
+      rescue ArgumentError, TypeError
+        false
       end
     end
   end
