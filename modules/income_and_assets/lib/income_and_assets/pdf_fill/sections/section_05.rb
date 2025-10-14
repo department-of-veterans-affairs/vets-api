@@ -75,7 +75,6 @@ module IncomeAndAssets
             }
           },
           'grossMonthlyIncomeOverflow' => {
-            key: "grossMonthlyIncomeOverflow[#{ITERATOR}]", # Fake key for overflow handling
             limit: 10,
             dollar: true,
             question_num: 5,
@@ -99,7 +98,6 @@ module IncomeAndAssets
             }
           },
           'ownedPortionValueOverflow' => {
-            key: "ownedPortionValueOverflow[#{ITERATOR}]", # Fake key for overflow handling
             limit: 14,
             dollar: true,
             question_num: 5,
