@@ -113,7 +113,7 @@ class FormProfiles::VA686c674v2 < FormProfile
   # If no dependents are found or if they are not active for benefits, it returns an empty array.
   def prefill_dependents_information
     dependents = dependent_service.get_dependents
-    persons = if dependents.nil? || dependents[:persons].blank?
+    persons = if dependents.blank? || dependents[:persons].blank?
                 []
               else
                 dependents[:persons]
@@ -121,10 +121,15 @@ class FormProfiles::VA686c674v2 < FormProfile
     @dependents_information = persons.filter_map do |person|
       person_to_dependent_information(person)
     end
+    if Flipper.enabled?(:va_dependents_v3, user)
+      @dependents_information = { success: 'true', dependents: @dependents_information }
+    else
+      @dependents_information
+    end
   rescue => e
     monitor.track_event('warn', 'Failure initializing dependents_information', 'dependents.prefill.error',
                         { error: e&.message })
-    @dependents_information = []
+    @dependents_information = Flipper.enabled?(:va_dependents_v3, user) ? { success: 'false', dependents: [] } : []
   end
 
   ##
@@ -133,18 +138,26 @@ class FormProfiles::VA686c674v2 < FormProfile
   # @param person [Hash] The dependent's information as a hash
   # @return [DependentInformation] The dependent's information mapped to the model
   def person_to_dependent_information(person)
-    parsed_date = parse_date_safely(person[:date_of_birth])
+    first_name = person[:first_name]
+    last_name = person[:last_name]
+    middle_name = person[:middle_name]
+    ssn = person[:ssn]
+    date_of_birth = person[:date_of_birth]
+    relationship = person[:relationship]
+    award_indicator = person[:award_indicator]
+
+    parsed_date = parse_date_safely(date_of_birth)
 
     DependentInformation.new(
       full_name: FormFullName.new({
-                                    first: person[:first_name],
-                                    middle: person[:middle_name],
-                                    last: person[:last_name]
+                                    first: first_name,
+                                    middle: middle_name,
+                                    last: last_name
                                   }),
       date_of_birth: parsed_date,
-      ssn: person[:ssn],
-      relationship_to_veteran: person[:relationship],
-      award_indicator: person[:award_indicator]
+      ssn:,
+      relationship_to_veteran: relationship,
+      award_indicator:
     )
   end
 
@@ -167,9 +180,10 @@ class FormProfiles::VA686c674v2 < FormProfile
   # @return [Date, nil] The parsed date or nil if parsing fails
   def parse_date_safely(date_string)
     return nil if date_string.blank?
+
     return date_string if date_string.is_a?(Date)
 
-    Date.parse(date_string.to_s)
+    Date.strptime(date_string.to_s, '%m/%d/%Y')
   rescue ArgumentError, TypeError
     nil
   end
