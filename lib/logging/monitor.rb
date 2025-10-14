@@ -17,7 +17,7 @@ module Logging
     include Logging::Helper::DataScrubber
     include Logging::Helper::ParameterFilter
 
-    ALLOWED_PARAMS = %w[
+    WHITELIST = %w[
       statsd
       service
       function
@@ -25,14 +25,21 @@ module Logging
       context
     ].freeze
 
-    attr_reader :allowed_params, :service
+    BLACKLIST = %w[
+      file
+      ssn
+      icn
+      edipi
+    ]
+
+    attr_reader :allowlist, :service
 
     # create a monitor
     #
     # @param service [String] the service name for this monitor; will be included with each log message
-    def initialize(service, allowed_params: [])
+    def initialize(service, allowlist: [])
       @service = service
-      @allowed_params = (ALLOWED_PARAMS + allowed_params.map(&:to_s)).uniq
+      @allowlist = (WHITELIST + allowlist.map(&:to_s)).uniq - BLACKLIST
     end
 
     # perform monitoring actions - StatsD.increment and Rails.logger
@@ -48,7 +55,7 @@ module Logging
       tags = (["service:#{service}", "function:#{function}"] + (context[:tags] || [])).uniq
       StatsD.increment(metric, tags:)
 
-      filtered_context = scrub(filter_params(context, allowed_params:))
+      filtered_context = scrub(filter_params(context, allowlist:))
 
       unless %w[debug info warn error fatal unknown].include?(level.to_s)
         Rails.logger.error("#{self.class} Invalid log level: #{level}", service:, function:, file:, line:)
