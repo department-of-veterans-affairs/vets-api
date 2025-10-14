@@ -71,11 +71,17 @@ class PrescriptionDetails < Prescription
     return dial_cmop_division_phone if dial_cmop_division_phone.present?
 
     if rx_rf_records.present? && rx_rf_records.length.positive?
-      cmop_phone = rx_rf_records.find { |item| item[:cmop_division_phone].present? }&.dig(:cmop_division_phone)
+      most_recent_record = rx_rf_records
+        .select { |item| item[:dispensed_date].present? }
+        .sort_by { |item| item[:dispensed_date] }
+        .last
+
+      most_recent_record ||= rx_rf_records.first
+
+      cmop_phone = most_recent_record&.dig(:cmop_division_phone)
       return cmop_phone if cmop_phone.present?
 
-      dial_phone = rx_rf_records.find { |item| item[:dial_cmop_division_phone].present? }
-                                &.dig(:dial_cmop_division_phone)
+      dial_phone = most_recent_record&.dig(:dial_cmop_division_phone)
       return dial_phone if dial_phone.present?
     end
 
