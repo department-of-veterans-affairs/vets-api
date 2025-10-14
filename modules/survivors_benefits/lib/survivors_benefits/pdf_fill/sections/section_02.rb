@@ -2,6 +2,8 @@
 
 require 'survivors_benefits/pdf_fill/section'
 
+require_relative '../../constants'
+
 module SurvivorsBenefits
   module PdfFill
     # Section 2: Claimants's Identification Information
@@ -17,7 +19,7 @@ module SurvivorsBenefits
             limit: 12,
             question_num: 1,
             question_suffix: 'A',
-            question_label: "Claimant's First Name",
+            question_label: 'Claimant\'s First Name',
             question_text: 'CLAIMANT\'S FIRST NAME',
             key: 'form1[0].#subform[207].ClaimantsFirstName[0]'
           },
@@ -31,7 +33,7 @@ module SurvivorsBenefits
             limit: 18,
             question_num: 1,
             question_suffix: 'A',
-            question_label: "Claimant's Last Name",
+            question_label: 'Claimant\'s Last Name',
             question_text: 'CLAIMANTS\'S LAST NAME',
             key: 'form1[0].#subform[207].ClaimantsLastName[0]'
           }
@@ -144,7 +146,7 @@ module SurvivorsBenefits
       def expand(form_data = {})
         form_data['claimantFullName'] ||= {}
         form_data['claimantFullName']['first'] = form_data.dig('claimantFullName', 'first')&.titleize
-        form_data['claimantFullName']['middle'] = form_data.dig('claimantFullName', 'middle')&.first.titleize
+        form_data['claimantFullName']['middle'] = form_data.dig('claimantFullName', 'middle')&.first&.titleize
         form_data['claimantFullName']['last'] = form_data.dig('claimantFullName', 'last')&.titleize
         form_data['claimantRelationship'] = relationship_to_radio(form_data['claimantRelationship'])
         form_data['claimantSocialSecurityNumber'] = split_ssn(form_data['claimantSocialSecurityNumber'])
@@ -158,8 +160,8 @@ module SurvivorsBenefits
       end
 
       def relationship_to_radio(relationship)
-        if ['SURVIVING_SPOUSE', 'CHILD_18-23_IN_SCHOOL', 'CUSTODIAN_FILING_FOR_CHILD_UNDER_18', 'HELPLESS_ADULT_CHILD'].include?(relationship)
-          relationship.tr!("_", " ")
+        if Constants::RELATIONSHIPS.include?(relationship)
+          relationship&.humanize&.upcase
         else
           'OFF'
         end

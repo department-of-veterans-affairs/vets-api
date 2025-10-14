@@ -70,10 +70,10 @@ module SurvivorsBenefits
           key: 'form1[0].#subform[207].VAFileNumber[0]'
         },
         'diedOnDuty' => {
-          key: "form1[0].#subform[207].RadioButtonList[1]"
+          key: 'form1[0].#subform[207].RadioButtonList[1]'
         },
         'veteranServiceNumber' => {
-          key: "form1[0].#subform[207].VETERANS_SERVICE_NUMBER[0]"
+          key: 'form1[0].#subform[207].VETERANS_SERVICE_NUMBER[0]'
         },
         'veteranDateOfDeath' => {
           'month' => {
@@ -91,7 +91,7 @@ module SurvivorsBenefits
       def expand(form_data = {})
         form_data['veteranFullName'] ||= {}
         form_data['veteranFullName']['first'] = form_data.dig('veteranFullName', 'first')&.titleize
-        form_data['veteranFullName']['middle'] = form_data.dig('veteranFullName', 'middle')&.first.titleize
+        form_data['veteranFullName']['middle'] = form_data.dig('veteranFullName', 'middle')&.first&.titleize
         form_data['veteranFullName']['last'] = form_data.dig('veteranFullName', 'last')&.titleize
         form_data['section1VeteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
         form_data['veteranDateOfBirth'] = split_date(form_data['veteranDateOfBirth'])

@@ -16,7 +16,7 @@ module SurvivorsBenefits
         }
       }.freeze
 
-      def expand(form_data={})
+      def expand(form_data = {})
         form_data['claimingMonthlySpecialPension'] =
           case form_data['claimingMonthlySpecialPension']
           when true then 1
@@ -30,10 +30,6 @@ module SurvivorsBenefits
           when false then 'NO'
           else 'Off'
           end
-
-        puts "=== form data ==="
-        puts form_data
-        puts "================="
 
         form_data
       end

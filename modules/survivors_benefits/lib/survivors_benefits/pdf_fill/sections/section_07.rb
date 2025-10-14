@@ -8,7 +8,6 @@ module SurvivorsBenefits
   module PdfFill
     # Section 7: Dependency and Indemnity Compensation (D.I.C.)
     class Section7 < Section
-
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
       KEY = {
@@ -66,7 +65,7 @@ module SurvivorsBenefits
             }
           }
         }
-      }
+      }.freeze
 
       def expand(form_data)
         form_data['p14HeaderVeteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
@@ -87,16 +86,16 @@ module SurvivorsBenefits
         case benefit
         when 'DIC' then 'D.I.C.'
         when 'pactActDIC' then 'D.I.C. due to claimant election of a re-evaluation of a previously' \
-          ' denied claim based on expanded eligibility under PL 117-168 (PACT Act)' \
-          ' (Note: Please refer to Instructions page 6 for guidance on PACT Act)'
+                               ' denied claim based on expanded eligibility under PL 117-168 (PACT Act)' \
+                               ' (Note: Please refer to Instructions page 6 for guidance on PACT Act)'
         when '1151DIC' then 'D.I.C. under U.S.C. 1151 (Note: D.I.C. under 38 U.S.C. is a rare benefit.' \
-          ' Please refer to the Instructions page 5 for guidance on 38 U.S.C. 1151)'
+                            ' Please refer to the Instructions page 5 for guidance on 38 U.S.C. 1151)'
         else 'Off'
         end
       end
 
       def bool_to_radio(bool)
-        return bool ? 1 : 'OFF'
+        bool ? 1 : 'OFF'
       end
     end
   end

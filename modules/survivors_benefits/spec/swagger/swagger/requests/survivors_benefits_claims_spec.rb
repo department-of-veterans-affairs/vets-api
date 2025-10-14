@@ -6,7 +6,7 @@ reg_office = 'Department of Veteran Affairs, Pension Intake Center, P.O. Box 536
 
 # Income and Assets Claim Integration
 RSpec.describe Swagger::Requests::SurvivorsBenefitsClaims, skip: 'TODO after schema built',
-                                                               type: %i[request serializer] do
+                                                           type: %i[request serializer] do
   before do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)

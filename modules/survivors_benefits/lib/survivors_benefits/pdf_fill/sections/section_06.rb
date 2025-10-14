@@ -8,7 +8,6 @@ module SurvivorsBenefits
   module PdfFill
     # Section 6: Children of the Veteran Information
     class Section6 < Section
-
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
       KEY = {
@@ -54,7 +53,7 @@ module SurvivorsBenefits
               question_text: 'CHILD\'S LAST NAME',
               iterator_offset: ->(iterator) { 2 - iterator },
               key: "form1[0].#subform[210].Childs_LastName[#{ITERATOR}]"
-            },
+            }
           },
           'childDateOfBirth' => {
             'month' => {
@@ -112,18 +111,18 @@ module SurvivorsBenefits
           'childSupport' => {
             'thousands' => {
               iterator_offset: ->(iterator) { 3 - iterator },
-              key_from_iterator: ->(iterator) {
+              key_from_iterator: lambda { |iterator|
                 case iterator
-                when 0 then "form1[0].#subform[210].Monthly_Amount_Contribution[1]"
+                when 0 then 'form1[0].#subform[210].Monthly_Amount_Contribution[1]'
                 else "form1[0].#subform[210].Total_Annual_Earnings_Amount[#{ITERATOR}]"
                 end
               }
             },
             'dollars' => {
-              iterator_offset: ->(iterator) { 6 - iterator * 3 },
-              key_from_iterator: ->(iterator) {
+              iterator_offset: ->(iterator) { 6 - (iterator * 3) },
+              key_from_iterator: lambda { |iterator|
                 case iterator
-                when 0 then "form1[0].#subform[210].Monthly_Amount_Contribution[0]"
+                when 0 then 'form1[0].#subform[210].Monthly_Amount_Contribution[0]'
                 else "form1[0].#subform[210].Total_Annual_Earnings_Amount[#{ITERATOR}]"
                 end
               }
@@ -138,15 +137,15 @@ module SurvivorsBenefits
             limit: 12,
             question_num: 1,
             question_suffix: 'A',
-            question_label: "Custodian's First Name",
+            question_label: 'Custodian\'s First Name',
             question_text: 'CUSTODIAN\'S FIRST NAME',
-            key: "form1[0].#subform[210].Custodians_FirstName[0]"
+            key: 'form1[0].#subform[210].Custodians_FirstName[0]'
           },
           'middle' => {
             limit: 1,
             question_num: 1,
             question_suffix: 'A',
-            key: "form1[0].#subform[210].Custodians_MiddleInitial1[0]"
+            key: 'form1[0].#subform[210].Custodians_MiddleInitial1[0]'
           },
           'last' => {
             limit: 18,
@@ -154,7 +153,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: "Custodian's Last Name",
             question_text: 'CUSTODIAN\'S LAST NAME',
-            key: "form1[0].#subform[210].Custodians_LastName[0]"
+            key: 'form1[0].#subform[210].Custodians_LastName[0]'
           }
         },
         'custodianAddress' => {
@@ -202,30 +201,13 @@ module SurvivorsBenefits
             }
           }
         }
-      }
+      }.freeze
 
       def expand(form_data)
         form_data['p13HeaderVeteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
-        form_data['veteransChildren'] = form_data['veteransChildren'].map do |child|
-            child_full_name ||= {}
-            child_full_name['first'] = child.dig('childFullName', 'first')&.titleize
-            child_full_name['middle'] = child.dig('childFullName', 'middle')&.first.titleize
-            child_full_name['last'] = child.dig('childFullName', 'last')&.titleize
-            child.merge({
-              'childFullName' => child_full_name,
-              'childDateOfBirth' => split_date(child['childDateOfBirth']),
-              'childSocialSecurityNumber' => split_ssn(child['childSocialSecurityNumber']),
-              'childStatusBiological' => bool_to_radio(child['childStatus'].include?('BIOLOGICAL')),
-              'childStatusAdopted' => bool_to_radio(child['childStatus'].include?('ADOPTED')),
-              'childStatusStepchild' => bool_to_radio(child['childStatus'].include?('STEPCHILD')),
-              'childStatusMinor' => bool_to_radio(child['childStatus'].include?('18-23_YEARS_OLD')),
-              'childStatusDisabled' => bool_to_radio(child['childStatus'].include?('SERIOUSLY_DISABLED')),
-              'childStatusMarried' => bool_to_radio(child['childStatus'].include?('CHILD_PREVIOUSLY_MARRIED')),
-              'childStatusSupported' => bool_to_radio(child['childStatus'].include?('DOES_NOT_LIVE_WITH_SPOUSE')),
-              'childSupport' => split_currency_amount_sm(child['childSupport'], { 'thousands' => 3 })
-            })
-        end
-        form_data['childrenLiveTogetherButNotWithSpouse'] = to_radio_yes_no_numeric(form_data['childrenLiveTogetherButNotWithSpouse'])
+        form_data['veteransChildren'] = form_data['veteransChildren'].map(expand_child)
+        form_data['childrenLiveTogetherButNotWithSpouse'] =
+          to_radio_yes_no_numeric(form_data['childrenLiveTogetherButNotWithSpouse'])
         form_data['custodianFullName'] ||= {}
         form_data['custodianFullName']['first'] = form_data.dig('custodianFullName', 'first')&.titleize
         form_data['custodianFullName']['middle'] = form_data.dig('custodianFullName', 'middle')&.first&.titleize
@@ -237,8 +219,29 @@ module SurvivorsBenefits
         form_data
       end
 
+      def expand_child(child = {})
+        child_full_name ||= {}
+        child_full_name['first'] = child.dig('childFullName', 'first')&.titleize
+        child_full_name['middle'] = child.dig('childFullName', 'middle')&.first&.titleize
+        child_full_name['last'] = child.dig('childFullName', 'last')&.titleize
+        child.merge({
+                      'childFullName' => child_full_name,
+                      'childDateOfBirth' => split_date(child['childDateOfBirth']),
+                      'childSocialSecurityNumber' => split_ssn(child['childSocialSecurityNumber']),
+                      'childStatusBiological' => bool_to_radio(child['childStatus'].include?('BIOLOGICAL')),
+                      'childStatusAdopted' => bool_to_radio(child['childStatus'].include?('ADOPTED')),
+                      'childStatusStepchild' => bool_to_radio(child['childStatus'].include?('STEPCHILD')),
+                      'childStatusMinor' => bool_to_radio(child['childStatus'].include?('18-23_YEARS_OLD')),
+                      'childStatusDisabled' => bool_to_radio(child['childStatus'].include?('SERIOUSLY_DISABLED')),
+                      'childStatusMarried' => bool_to_radio(child['childStatus'].include?('CHILD_PREVIOUSLY_MARRIED')),
+                      'childStatusSupported' =>
+                        bool_to_radio(child['childStatus'].include?('DOES_NOT_LIVE_WITH_SPOUSE')),
+                      'childSupport' => split_currency_amount_sm(child['childSupport'], { 'thousands' => 3 })
+                    })
+      end
+
       def bool_to_radio(bool)
-        return bool ? 1 : 'OFF'
+        bool || 'Off'
       end
 
       def to_radio_yes_no_numeric(obj)

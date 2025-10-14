@@ -8,7 +8,6 @@ module SurvivorsBenefits
   module PdfFill
     # Section 5: Marital History
     class Section5 < Section
-
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
       KEY = {
@@ -63,15 +62,15 @@ module SurvivorsBenefits
           },
           'dateOfMarriage' => {
             'month' => {
-              iterator_offset: ->(iterator) { 3 - iterator * 3 },
+              iterator_offset: ->(iterator) { 3 - (iterator * 3) },
               key: "form1[0].#subform[209].Date_Month[#{ITERATOR}]"
             },
             'day' => {
-              iterator_offset: ->(iterator) { 3 - iterator * 3 },
+              iterator_offset: ->(iterator) { 3 - (iterator * 3) },
               key: "form1[0].#subform[209].Date_Day[#{ITERATOR}]"
             },
             'year' => {
-              iterator_offset: ->(iterator) { 3 - iterator * 3 },
+              iterator_offset: ->(iterator) { 3 - (iterator * 3) },
               key: "form1[0].#subform[209].Date_Year[#{ITERATOR}]"
             }
           },
@@ -151,15 +150,15 @@ module SurvivorsBenefits
           },
           'dateOfMarriage' => {
             'month' => {
-              iterator_offset: ->(iterator) { 7 - iterator * 3 },
+              iterator_offset: ->(iterator) { 7 - (iterator * 3) },
               key: "form1[0].#subform[209].Date_Month[#{ITERATOR}]"
             },
             'day' => {
-              iterator_offset: ->(iterator) { 7 - iterator * 3 },
+              iterator_offset: ->(iterator) { 7 - (iterator * 3) },
               key: "form1[0].#subform[209].Date_Day[#{ITERATOR}]"
             },
             'year' => {
-              iterator_offset: ->(iterator) { 7 - iterator * 3 },
+              iterator_offset: ->(iterator) { 7 - (iterator * 3) },
               key: "form1[0].#subform[209].Date_Year[#{ITERATOR}]"
             }
           },
@@ -199,7 +198,7 @@ module SurvivorsBenefits
         'spouseHasAdditionalMarriages' => {
           key: 'form1[0].#subform[209].RadioButtonList[22]'
         }
-      }
+      }.freeze
 
       def expand(form_data)
         form_data['p12HeaderVeteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
@@ -218,7 +217,8 @@ module SurvivorsBenefits
           marriage.merge({
                            'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
                            'dateOfSeparation' => split_date(marriage['dateOfSeparation']),
-                           'reasonForSeparation' => Constants::REASONS_FOR_SEPARATION[reason_for_separation] })
+                           'reasonForSeparation' => Constants::REASONS_FOR_SEPARATION[reason_for_separation]
+                         })
         end
       end
 

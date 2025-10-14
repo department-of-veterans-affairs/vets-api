@@ -157,7 +157,7 @@ module SurvivorsBenefits
       def expand(form_data = {})
         form_data['p11HeaderVeteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
         form_data['veteranPreviousNames'] ||= []
-        form_data['veteranHasPreviousNames'] = to_radio_yes_no(form_data['veteranPreviousNames'].length > 0)
+        form_data['veteranHasPreviousNames'] = to_radio_yes_no(form_data['veteranPreviousNames'].length.positive?)
         form_data['activeServiceDateRange'] = {
           'from' => split_date(form_data.dig('activeServiceDateRange', 'from')),
           'to' => split_date(form_data.dig('activeServiceDateRange', 'to'))
@@ -172,7 +172,6 @@ module SurvivorsBenefits
           'from' => split_date(form_data.dig('powDateRange', 'from')),
           'to' => split_date(form_data.dig('powDateRange', 'to'))
         }
-        puts form_data
         form_data
       end
 
@@ -192,15 +191,14 @@ module SurvivorsBenefits
         end
       end
 
-      def split_unit_into_lines(unitNameAndAddress)
-        unitNameAndAddress ||= ""
-        parts = unitNameAndAddress.scan(/.{1,20}/)
-        res = {
+      def split_unit_into_lines(unit_name_and_address)
+        unit_name_and_address ||= ''
+        parts = unit_name_and_address.scan(/.{1,20}/)
+        {
           'line_one' => parts[0],
           'line_two' => parts[1],
           'line_three' => parts[2]
         }
-        res
       end
     end
   end

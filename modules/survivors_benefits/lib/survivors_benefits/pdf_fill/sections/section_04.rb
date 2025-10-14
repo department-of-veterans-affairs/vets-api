@@ -6,7 +6,6 @@ module SurvivorsBenefits
   module PdfFill
     # Section 4: Marital Information
     class Section4 < Section
-
       KEY = {
         'validMarriage' => {
           key: 'form1[0].#subform[208].RadioButtonList[7]'
@@ -102,7 +101,7 @@ module SurvivorsBenefits
             'year' => {
               key: 'form1[0].#subform[208].Date_Of_Remarriage_End_Year[0]'
             }
-          },
+          }
         },
         'remarriageEndCauseDeath' => {
           key: 'form1[0].#subform[208].CheckBox_DEATH[0]'
@@ -122,9 +121,19 @@ module SurvivorsBenefits
         'claimantHasAdditionalMarriages' => {
           key: 'form1[0].#subform[208].RadioButtonList[14]'
         }
-      }
+      }.freeze
 
       def expand(form_data)
+        composed_expanders = (
+          expand_marriage <<
+          expand_separation <<
+          expand_remarriage <<
+          expand_additional_marriages
+        )
+        composed_expanders.call(form_data)
+      end
+
+      def expand_marriage(form_data)
         form_data['validMarriage'] = to_radio_yes_no(form_data['validMarriage'])
         form_data['marriedToVeteranAtTimeOfDeath'] = to_radio_yes_no(form_data['marriedToVeteranAtTimeOfDeath'])
         form_data['howMarriageEnded'] = radio_marriage_ended(form_data['howMarriageEnded'])
@@ -136,27 +145,35 @@ module SurvivorsBenefits
         form_data['childWithVeteran'] = to_radio_yes_no(form_data['childWithVeteran'])
         form_data['pregnantWithVeteran'] = to_radio_yes_no_numeric(form_data['pregnantWithVeteran'])
         form_data['livedContinuouslyWithVeteran'] = to_radio_yes_no(form_data['livedContinuouslyWithVeteran'])
-        
-        # this field is split in the pdf, not like the other radios
+        form_data
+      end
+
+      def expand_separation(form_data)
         form_data['separationDueToAssignedReasonsYes'] = boolean_or_off(form_data['separationDueToAssignedReasons'])
         form_data['separationDueToAssignedReasonsNo'] = boolean_or_off(!form_data['separationDueToAssignedReasons'])
+        form_data
+      end
 
+      def expand_remarriage(form_data)
         form_data['remarriedAfterVeteralDeath'] = to_radio_yes_no_numeric(form_data['remarriedAfterVeteralDeath'])
         form_data['remarriageDates'] = {
           'from' => split_date(form_data.dig('remarriageDates', 'from')),
           'to' => split_date(form_data.dig('remarriageDates', 'to'))
         }
-        
         form_data['remarriageEndCauseDeath'] = boolean_or_off(form_data['remarriageEndCause'] == 'death')
         form_data['remarriageEndCauseDivorce'] = boolean_or_off(form_data['remarriageEndCause'] == 'divorce')
         form_data['remarriageEndCauseDidNotEnd'] = boolean_or_off(form_data['remarriageEndCause'] == 'didNotEnd')
         form_data['remarriageEndCauseOther'] = boolean_or_off(form_data['remarriageEndCause'] == 'other')
+        form_data
+      end
 
+      def expand_additional_marriages(form_data)
         form_data['claimantHasAdditionalMarriages'] = to_radio_yes_no(form_data['claimantHasAdditionalMarriages'])
+        form_data
       end
 
       def boolean_or_off(bool)
-        bool ? bool : 'OFF'
+        bool || 'Off'
       end
 
       def to_radio_yes_no(obj)

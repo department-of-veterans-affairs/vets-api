@@ -15,10 +15,18 @@ module SurvivorsBenefits
     }.freeze
 
     # The reason for marital separation
-      REASONS_FOR_SEPARATION = {
-        'DEATH' => 1,
-        'DIVORCE' => 2,
-        'OTHER' => 4
-      }.freeze
+    REASONS_FOR_SEPARATION = {
+      'DEATH' => 1,
+      'DIVORCE' => 2,
+      'OTHER' => 4
+    }.freeze
+
+    # Relationship types
+    RELATIONSHIPS = %w[
+      SURVIVING_SPOUSE
+      CHILD_18-23_IN_SCHOOL
+      CUSTODIAN_FILING_FOR_CHILD_UNDER_18
+      HELPLESS_ADULT_CHILD
+    ].freeze
   end
 end
