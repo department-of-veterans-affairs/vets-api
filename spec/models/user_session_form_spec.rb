@@ -131,11 +131,12 @@ RSpec.describe UserSessionForm, type: :model do
 
         context 'when failure occurs during adding identifier to existing mpi record' do
           let(:status) { 'some-not-successful-status' }
-          let(:sentry_log) { "Failed Add CSP ID to MPI FAILED, idme: #{idme_uuid}" }
-          let(:sentry_level) { :warn }
 
-          it 'logs a message to sentry' do
-            expect_any_instance_of(UserSessionForm).to receive(:log_message_to_sentry).with(sentry_log, sentry_level)
+          it 'logs a message to Rails logger' do
+            expect(Rails.logger).to receive(:warn).with(
+              '[UserSessionForm] Failed Add CSP ID to MPI',
+              idme_uuid:
+            )
             UserSessionForm.new(saml_response)
           end
         end
