@@ -7,6 +7,8 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
 
   let(:user) { create(:evss_user) }
   let(:test_form) { build(:dependents_claim).parsed_form }
+  let(:bgs_service) { double('BGS::Services') }
+  let(:bgs_people) { double('BGS::People') }
 
   before do
     sign_in_as(user)
@@ -49,6 +51,9 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
     context 'with valid params and flipper enabled' do
       before do
         allow_any_instance_of(BGSV2::Service).to receive(:create_proc).and_return({ vnp_proc_id: '21875' })
+        allow(BGS::Services).to receive(:new).and_return(bgs_service)
+        allow(bgs_service).to receive(:people).and_return(bgs_people)
+        allow(bgs_people).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '987654321' })
       end
 
       it 'validates successfully' do
@@ -67,7 +72,28 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
           ).by(1)
           .and change(
             DependentsBenefits::SchoolAttendanceApproval, :count
-          ).by(1)
+          ).by(1).and change(
+            SavedClaimGroup, :count
+          ).by(3)
+      end
+
+      it 'creates SavedClaimGroup with current user data' do
+        post(:create, params: test_form, as: :json)
+
+        parent_group = SavedClaimGroup.last.parent_claim_group_for_child
+        expected_user = { 'veteran_information' => { 'full_name' => { 'first' => user.first_name,
+                                                                      'last' => user.last_name },
+                                                     'common_name' => user.common_name,
+                                                     'va_profile_email' => user.va_profile_email,
+                                                     'email' => user.email,
+                                                     'participant_id' => user.participant_id,
+                                                     'ssn' => user.ssn,
+                                                     'va_file_number' => '987654321',
+                                                     'birth_date' => user.birth_date,
+                                                     'uuid' => user.uuid,
+                                                     'icn' => user.icn } }
+        user_hash = JSON.parse(parent_group.user_data)
+        expect(user_hash).to eq(expected_user)
       end
 
       it 'calls ClaimProcessor with correct parameters' do
