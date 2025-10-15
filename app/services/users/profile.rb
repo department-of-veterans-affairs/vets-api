@@ -218,8 +218,6 @@ module Users
     def update_status_and_errors
       if scaffold.errors.present?
         scaffold.status = HTTP_SOME_ERRORS
-      elsif user.edipi.blank? || !user.loa3?
-        scaffold.errors = []
       else
         scaffold.errors = nil
       end
