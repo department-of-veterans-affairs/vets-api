@@ -865,6 +865,7 @@ maintenance:
     vetext_vaccine: <%= ENV['maintenance__services__vetext_vaccine'] %>
     vic: <%= ENV['maintenance__services__vic'] %>
     vre: <%= ENV['maintenance__services__vre'] %>
+    vre_ch31_eligibility: <%= ENV['maintenance__services__vre_ch31_eligibility'] %>
 mcp:
   notifications:
     batch_size: 10
