@@ -27,9 +27,13 @@ describe Pensions::PdfFill::Va21p527ez do
   describe '#merge_fields' do
     it 'merges the right fields' do
       Timecop.freeze(Time.zone.parse('2016-12-31 00:00:00 EDT')) do
-        expect(described_class.new(form_data).merge_fields.to_json).to eq(
-          get_fixture_absolute("#{Pensions::MODULE_PATH}/spec/fixtures/merge_fields").to_json
-        )
+        expected = get_fixture_absolute("#{Pensions::MODULE_PATH}/spec/fixtures/merge_fields")
+        actual = described_class.new(form_data).merge_fields
+
+        # Create a diff that is easy to read when expected/actual differ
+        diff = Hashdiff.diff(expected, actual)
+
+        expect(diff).to eq([])
       end
     ensure
       Timecop.return
