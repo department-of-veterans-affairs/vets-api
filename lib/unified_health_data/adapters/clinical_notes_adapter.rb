@@ -54,14 +54,8 @@ module UnifiedHealthData
       # @param document_ref_entry [Hash] FHIR DocumentReference entry
       # @return [Hash, nil] CCD metadata or nil if malformed
       def parse_ccd_metadata(document_ref_entry)
-        resource = document_ref_entry['resource']
-        return nil unless resource
-
-        content = resource['content']&.first
-        return nil unless content
-
-        attachment = content['attachment']
-        return nil unless attachment
+        resource, attachment = fetch_resource_and_attachment(document_ref_entry)
+        return nil unless resource && attachment
 
         {
           id: resource['id'],
@@ -80,13 +74,7 @@ module UnifiedHealthData
       # @param format [String] Format to extract: 'xml', 'html', or 'pdf'
       # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content, or nil if malformed
       def parse_ccd_binary(document_ref_entry, format = 'xml')
-        resource = document_ref_entry['resource']
-        return nil unless resource
-
-        content = resource['content']&.first
-        return nil unless content
-
-        attachment = content['attachment']
+        _resource, attachment = fetch_resource_and_attachment(document_ref_entry)
         return nil unless attachment
 
         format_data = extract_format_data(attachment, format)
@@ -224,6 +212,24 @@ module UnifiedHealthData
           return nil unless resource && (resource['resourceType'] == type_id.first || resource['resourceType'] == type)
         end
         resource
+      end
+
+      # Extracts resource and attachment from DocumentReference entry with nil checks
+      # Used by CCD parsing methods to reduce duplication
+      #
+      # @param document_ref_entry [Hash] FHIR DocumentReference entry
+      # @return [Array<Hash, Hash>, Array<nil, nil>] [resource, attachment] or [nil, nil] if malformed
+      def fetch_resource_and_attachment(document_ref_entry)
+        resource = document_ref_entry['resource']
+        return [nil, nil] unless resource
+
+        content = resource['content']&.first
+        return [nil, nil] unless content
+
+        attachment = content['attachment']
+        return [nil, nil] unless attachment
+
+        [resource, attachment]
       end
 
       # Extracts CCD LOINC code from DocumentReference
