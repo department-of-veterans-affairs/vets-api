@@ -211,11 +211,11 @@ RSpec.describe 'V0::User', type: :request do
     end
 
     it 'returns a status of 200 and no errors (VAProfile suppressed for LOA1)', :aggregate_failures do
-      body = JSON.parse(response.body)
+      body  = JSON.parse(response.body)
       errors = body.dig('meta', 'errors')
 
-      expect(response).to have_http_status :ok
-      expect(errors).to eq([]).or be_nil
+      expect(response).to have_http_status 200
+      expect(errors).to eq([]).or eq(nil)
     end
 
     context 'with camel inflection' do
