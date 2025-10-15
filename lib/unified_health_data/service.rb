@@ -188,20 +188,19 @@ module UnifiedHealthData
     #
     # @param start_date [String] ISO 8601 date string (YYYY-MM-DD)
     # @param end_date [String] ISO 8601 date string (YYYY-MM-DD)
-    # @return [Hash] CCD metadata including available formats
+    # @return [Hash, nil] CCD metadata including available formats, or nil if not found
     def get_ccd_metadata(start_date:, end_date:)
       with_monitoring do
         response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
         # Find DocumentReference for CCD
-        document_ref = body['entry'].find do |entry|
+        document_ref = body['entry']&.find do |entry|
           entry['resource']['resourceType'] == 'DocumentReference'
         end
 
-        raise 'DocumentReference not found in response' unless document_ref
+        return nil unless document_ref
 
-        # Parse and return metadata
         clinical_notes_adapter.parse_ccd_metadata(document_ref)
       end
     end
@@ -211,20 +210,19 @@ module UnifiedHealthData
     # @param start_date [String] ISO 8601 date string (YYYY-MM-DD)
     # @param end_date [String] ISO 8601 date string (YYYY-MM-DD)
     # @param format [String] Format to retrieve: 'xml', 'html', or 'pdf'
-    # @return [UnifiedHealthData::BinaryData] Binary data object with Base64 encoded content
+    # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content, or nil if not found
     def get_ccd_binary(start_date:, end_date:, format: 'xml')
       with_monitoring do
         response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
         # Find DocumentReference for CCD
-        document_ref = body['entry'].find do |entry|
+        document_ref = body['entry']&.find do |entry|
           entry['resource']['resourceType'] == 'DocumentReference'
         end
 
-        raise 'DocumentReference not found in response' unless document_ref
+        return nil unless document_ref
 
-        # Parse and return binary data for requested format
         clinical_notes_adapter.parse_ccd_binary(document_ref, format)
       end
     end

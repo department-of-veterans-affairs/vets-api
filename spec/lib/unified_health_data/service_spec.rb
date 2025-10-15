@@ -1407,10 +1407,9 @@ describe UnifiedHealthData::Service, type: :service do
         Faraday::Response.new(body: empty_bundle)
       end
 
-      it 'raises an error' do
-        expect do
-          service.get_ccd_metadata(start_date:, end_date:)
-        end.to raise_error(RuntimeError, 'DocumentReference not found in response')
+      it 'returns nil when no CCD document exists' do
+        result = service.get_ccd_metadata(start_date:, end_date:)
+        expect(result).to be_nil
       end
     end
   end

@@ -19,6 +19,9 @@ module UnifiedHealthData
         'OTHER' => 'other'
       }.freeze
 
+      # LOINC codes for Continuity of Care Document (CCD)
+      # 34133-9: Standard CCD LOINC code (C-CDA R2.1)
+      # 34133-9-0: Alternative format sometimes used by SCDF/Oracle Health
       CCD_LOINC_CODE_MAPPING = {
         '34133-9' => 'continuity_of_care_document',
         '34133-9-0' => 'continuity_of_care_document'
@@ -57,11 +60,16 @@ module UnifiedHealthData
       # Parses CCD metadata from DocumentReference
       #
       # @param document_ref_entry [Hash] FHIR DocumentReference entry
-      # @return [Hash] CCD metadata
+      # @return [Hash, nil] CCD metadata or nil if malformed
       def parse_ccd_metadata(document_ref_entry)
         resource = document_ref_entry['resource']
-        content = resource['content'].first
+        return nil unless resource
+
+        content = resource['content']&.first
+        return nil unless content
+
         attachment = content['attachment']
+        return nil unless attachment
 
         {
           id: resource['id'],
@@ -78,27 +86,20 @@ module UnifiedHealthData
       #
       # @param document_ref_entry [Hash] FHIR DocumentReference entry
       # @param format [String] Format to extract: 'xml', 'html', or 'pdf'
-      # @return [UnifiedHealthData::BinaryData] Binary data object with Base64 encoded content
+      # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content, or nil if malformed
       def parse_ccd_binary(document_ref_entry, format = 'xml')
         resource = document_ref_entry['resource']
-        content = resource['content'].first
+        return nil unless resource
+
+        content = resource['content']&.first
+        return nil unless content
+
         attachment = content['attachment']
+        return nil unless attachment
 
-        # Determine which format to return
-        format_data = case format.downcase
-                      when 'xml'
-                        attachment['data']
-                      when 'html'
-                        attachment.dig('html', 'data')
-                      when 'pdf'
-                        attachment.dig('pdf', 'data')
-                      else
-                        raise ArgumentError, "Invalid format: #{format}. Use xml, html, or pdf"
-                      end
-
+        format_data = extract_format_data(attachment, format)
         raise "Format #{format} not available for this CCD" unless format_data
 
-        # Return BinaryData object with Base64 encoded content
         UnifiedHealthData::BinaryData.new(
           content_type: content_type_for_format(format),
           binary: format_data
@@ -248,6 +249,17 @@ module UnifiedHealthData
         formats << 'html' if attachment['html']
         formats << 'pdf' if attachment['pdf']
         formats
+      end
+
+      # Extracts format data from attachment
+      def extract_format_data(attachment, format)
+        case format.downcase
+        when 'xml' then attachment['data']
+        when 'html' then attachment.dig('html', 'data')
+        when 'pdf' then attachment.dig('pdf', 'data')
+        else
+          raise ArgumentError, "Invalid format: #{format}. Use xml, html, or pdf"
+        end
       end
 
       # Returns proper content type for format
