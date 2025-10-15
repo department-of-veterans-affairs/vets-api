@@ -62,7 +62,8 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
                   'longitude' => -80.032819,
                   'timezone' => 'America/New_York'
                 }
-              }
+              },
+              'past' => true
             }
           }
         }
