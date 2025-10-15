@@ -122,7 +122,7 @@ paths:
       description: |
         Download the Continuity of Care Document (CCD) specified by the date parameter.
         The response format can be set by adding an extension to the path (e.g. `/v1/medical_records/ccd/download.xml`, `/v1/medical_records/ccd/download.pdf`, `/v1/medical_records/ccd/download.html`).
-        If neither is specified, the default is XML.
+        If the format extension is not included, the default is XML.
       operationId: download_ccd
       parameters:
         - name: date
