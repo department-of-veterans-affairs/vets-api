@@ -239,26 +239,12 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       subject { described_class.new(user_data) }
 
       before do
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry) do |_self, arg1, arg2|
-          expect(arg1).to be_instance_of(ActiveModel::ValidationError)
-          expect(arg1.message).to eq('Validation failed: Filenet can\'t be blank')
-          expect(arg2).to eq(
-            {
-              fsr_attributes: {
-                uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-                filenet_id: nil
-              },
-              fsr_response: {
-                response_body: {
-                  'status' => 'Document created successfully and uploaded to File Net.'
-                }
-              }
-            }
-          )
-        end
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_rails).with(
+          an_instance_of(ActiveModel::ValidationError)
+        )
       end
 
-      it 'logs to sentry' do
+      it 'logs to rails' do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             res = subject.submit_vba_fsr(valid_form_data)

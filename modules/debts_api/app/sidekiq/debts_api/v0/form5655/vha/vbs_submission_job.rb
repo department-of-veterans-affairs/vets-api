@@ -5,7 +5,6 @@ require 'debts_api/v0/financial_status_report_service'
 module DebtsApi
   class V0::Form5655::VHA::VBSSubmissionJob
     include Sidekiq::Worker
-    include SentryLogging
     STATS_KEY = 'api.vbs_submission'
 
     sidekiq_options retry: 4

@@ -67,15 +67,37 @@ RSpec.describe AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob do
     )
   end
 
-  it 'performs' do
-    use_cassette('performs', vcr_options) do
-      expect_any_instance_of(BenefitsIntakeService::Service).to(
-        receive(:upload_doc).and_call_original
-      )
+  context 'accredited_representative_portal_lighthouse_api_key is set' do
+    it 'performs using ARP BenefitsIntakeService' do
+      use_cassette('performs', vcr_options) do
+        expect_any_instance_of(AccreditedRepresentativePortal::BenefitsIntakeService).to(
+          receive(:upload_doc).and_call_original
+        )
 
-      expect { perform }.to change {
-        FormSubmissionAttempt.where.not(benefits_intake_uuid: nil).count
-      }.by(1)
+        expect { perform }.to change {
+          FormSubmissionAttempt.where.not(benefits_intake_uuid: nil).count
+        }.by(1)
+      end
+    end
+  end
+
+  context 'accredited_representative_portal_lighthouse_api_key is not set' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(
+        :accredited_representative_portal_lighthouse_api_key
+      ).and_return(false)
+    end
+
+    it 'performs using BenefitsIntakeService::Service' do
+      use_cassette('performs', vcr_options) do
+        expect_any_instance_of(BenefitsIntakeService::Service).to(
+          receive(:upload_doc).and_call_original
+        )
+
+        expect { perform }.to change {
+          FormSubmissionAttempt.where.not(benefits_intake_uuid: nil).count
+        }.by(1)
+      end
     end
   end
 
