@@ -16,6 +16,14 @@ RSpec.describe 'V0::EnrollmentPeriods', type: :request do
         VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success', match_requests_on: %i[uri method body]) do
           get '/v0/enrollment_periods'
           expect(response).to have_http_status(:success)
+          expect(response.parsed_body).to eq({"enrollment_periods" => [{ "startDate" => "2024-03-05", "endDate" => "2024-03-05" }]})
+        end
+      end
+
+      it 'returns error codes' do
+        VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_not_found', match_requests_on: %i[uri method body]) do
+          get '/v0/enrollment_periods'
+          expect(response).to have_http_status(:not_found)
         end
       end
     end
