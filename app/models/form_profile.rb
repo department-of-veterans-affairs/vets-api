@@ -150,6 +150,7 @@ class FormProfile
     '21-22A' => ::FormProfiles::VA2122a,
     '21-526EZ' => ::FormProfiles::VA526ez,
     '21P-0969' => IncomeAndAssets::FormProfiles::VA21p0969,
+    '21-8940' => IncreaseCompensation::FormProfiles::VA218940,
     '21P-8416' => MedicalExpenseReports::FormProfiles::VA21p8416,
     '21P-527EZ' => Pensions::FormProfiles::VA21p527ez,
     '21P-530EZ' => Burials::FormProfiles::VA21p530ez,

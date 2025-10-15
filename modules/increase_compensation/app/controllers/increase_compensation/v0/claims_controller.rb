@@ -10,8 +10,6 @@ module IncreaseCompensation
     # The Increase Compensation claim controller that handles form submissions
     #
     class ClaimsController < ClaimsBaseController
-      # protect_from_forgery with: :null_session
-      # skip_before_action :verify_authenticity_token
       before_action :check_flipper_flag
       service_tag 'increase-compensation-application'
 
