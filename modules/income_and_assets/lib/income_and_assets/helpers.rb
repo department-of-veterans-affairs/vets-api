@@ -87,10 +87,9 @@ module IncomeAndAssets
 
     ##
     # Converts a value to a radio button-compatible '0' or '1'.
-    # NOTE: for HexaPDF compatibility, return value must be a String or Symbol
     #
     # @param value [Any]
-    # @return [String] '0' for 'yes', '1' for 'no'
+    # @return [String] 0 for 'yes', 1 for 'no'
     #
     def radio_yesno(value)
       value ? 0 : 1
