@@ -336,14 +336,6 @@ RSpec.describe Users::Profile do
     end
 
     describe '#veteran_status' do
-      let(:veteran_status_with_nil) do
-        {
-          status: Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok],
-          is_veteran: nil,
-          served_in_military: nil
-        }
-      end
-
       context 'when a veteran status is successfully returned' do
         it 'includes is_veteran' do
           VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
@@ -422,7 +414,11 @@ RSpec.describe Users::Profile do
         end
 
         it 'returns object with nils for veteran_status when edipi is blank' do
-          expect(veteran_status).to eq(veteran_status_with_nil)
+          expect(veteran_status).to eq({
+                                         status: Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok],
+                                         is_veteran: nil,
+                                         served_in_military: nil
+                                       })
         end
 
         it 'logs skipping message' do
@@ -443,7 +439,12 @@ RSpec.describe Users::Profile do
         let(:edipi) { nil }
 
         it 'returns object with nils for veteran_status when edipi is blank' do
-          expect(veteran_status).to eq(veteran_status_with_nil)
+          allow(user).to receive(:edipi).and_return(nil)
+          expect(veteran_status).to eq({
+                                         status: Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok],
+                                         is_veteran: nil,
+                                         served_in_military: nil
+                                       })
         end
 
         it 'logs skipping message' do
