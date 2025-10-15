@@ -779,8 +779,6 @@ module SM
           result = get_message_status(message_id)
           status = result[:status]
           return result if status && terminal_statuses.include?(status)
-
-          consecutive_errors = 0
         rescue Common::Exceptions::GatewayTimeout
           # Immediately re-raise upstream timeouts
           raise
