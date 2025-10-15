@@ -89,6 +89,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
                                                                   }
                                                                 }
                                                               })
+      expect(serialized[:data][:attributes][:past]).to eq(true)
     end
 
     it 'includes provider details' do
