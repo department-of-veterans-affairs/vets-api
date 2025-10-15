@@ -64,8 +64,8 @@ jobs:
       - name: Set up Redis
         run: |
           sudo apt-get install -y redis-server
-          sudo systemctl start redis
-          sudo systemctl enable redis
+          sudo systemctl start redis-server
+          sudo systemctl enable redis-server
 
       - name: Configure database connection
         run: |
