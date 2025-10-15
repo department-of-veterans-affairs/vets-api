@@ -255,7 +255,7 @@ app/models/persistent_attachment.rb @department-of-veterans-affairs/benefits-non
 app/models/persistent_attachments/claim_evidence.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-lifestage
 app/models/persistent_attachments/dependency_claim.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/models/persistent_attachments/lgy_claim.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
-app/models/persistent_attachments/military_records.rb @department-of-veterans-affairs/backend-review-group @platform-va-product-forms
+app/models/persistent_attachments/military_records.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/platform-va-product-forms
 app/models/persistent_attachments/va_form_documentation.rb @department-of-veterans-affairs/backend-review-group
 app/models/persistent_attachments/va_form.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/backend-review-group
 app/models/personal_information_log.rb @department-of-veterans-affairs/backend-review-group
@@ -1181,6 +1181,7 @@ spec/factories/ask.rb @department-of-veterans-affairs/backend-review-group
 spec/factories/async_transactions.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/factories/attachments.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/factories/audit/ @department-of-veterans-affairs/octo-identity
+spec/factories/bgs @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 spec/factories/caregivers_assistance_claim.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 spec/factories/central_mail_submissions.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/factories/chatbot @department-of-veterans-affairs/vfs-virtual-agent-chatbot @department-of-veterans-affairs/backend-review-group
