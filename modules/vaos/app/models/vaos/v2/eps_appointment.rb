@@ -9,7 +9,7 @@ module VAOS
       attr_reader :id, :status, :patient_icn, :created, :location_id, :clinic,
                   :start, :is_latest, :last_retrieved, :contact, :referral_id,
                   :referral, :provider_service_id, :provider_name,
-                  :provider, :modality, :location
+                  :provider, :modality, :location, :past
 
       def initialize(appointment_data = {}, provider = nil)
         appointment_details = appointment_data[:appointment_details]
@@ -32,6 +32,7 @@ module VAOS
         @provider = provider
         @modality = 'communityCareEps'
         @location = build_location_data
+        @past = past_appointment?
       end
 
       def serializable_hash
@@ -41,7 +42,7 @@ module VAOS
           referral_id: @referral_id, referral: @referral,
           provider_service_id: @provider_service_id, provider_name: @provider_name,
           kind: 'cc', modality: @modality, type: eps_type,
-          pending: request_type?, past: past_appointment?, future: future_appointment?
+          pending: request_type?, past: @past, future: future_appointment?
         }
 
         base_hash[:location] = @location if @location.present?
