@@ -173,15 +173,17 @@ describe Burials::PdfFill::Forms::Va21p530ez do
 
   describe '#merge_fields' do
     it 'merges the right fields', run_at: '2024-03-21 00:00:00 EDT' do
-      expect(described_class.new(
-        JSON.parse(File.read(
-                     "#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/kitchen_sink.json"
-                   ))
-      ).merge_fields.to_json).to eq(
-        JSON.parse(File.read(
-                     "#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/merge_fields.json"
-                   )).to_json
-      )
+      expected = described_class.new(JSON.parse(File.read(
+                                                  "#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/kitchen_sink.json"
+                                                ))).merge_fields
+      actual = JSON.parse(File.read(
+                            "#{Burials::MODULE_PATH}/spec/fixtures/pdf_fill/#{Burials::FORM_ID}/merge_fields.json"
+                          ))
+
+      # Create a diff that is easy to read when expected/actual differ
+      diff = Hashdiff.diff(expected, actual)
+
+      expect(diff).to eq([])
     end
 
     it 'leaves benefit selections blank on pdf if unselected', run_at: '2024-03-21 00:00:00 EDT' do
