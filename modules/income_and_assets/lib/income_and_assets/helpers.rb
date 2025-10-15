@@ -86,10 +86,10 @@ module IncomeAndAssets
     end
 
     ##
-    # Converts a value to a radio button-compatible '0' or '1'.
+    # Converts a value to a radio button-compatible 0 or 1.
     #
     # @param value [Any]
-    # @return [String] 0 for 'yes', 1 for 'no'
+    # @return [Integer] 0 for 'yes', 1 for 'no'
     #
     def radio_yesno(value)
       value ? 0 : 1
