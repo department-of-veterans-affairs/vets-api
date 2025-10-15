@@ -9,9 +9,10 @@ module BPDS
   class Monitor < Logging::Monitor
     # metric prefix
     STATSD_KEY_PREFIX = 'api.bpds_service'
+    ALLOWLIST = %w[claim_id error errors bpds_uuid lookup_service tags]
 
     def initialize
-      super('bpds-service')
+      super('bpds-service', allowlist: ALLOWLIST)
     end
 
     # Track submission request started

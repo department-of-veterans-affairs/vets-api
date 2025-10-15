@@ -6,7 +6,7 @@ module ClaimsEvidenceApi
   # @see Logging::Monitor
   class Monitor < ::Logging::Monitor
     def initialize
-      super('claims-evidence-api')
+      super('claims-evidence-api', allowlist: ALLOWLIST)
     end
 
     # utility function, @see Rails.logger
@@ -31,6 +31,10 @@ module ClaimsEvidenceApi
     class Record < Monitor
       # StatsD metric
       METRIC = 'module.claims_evidence_api.record'
+      ALLOWLIST = %w[class form_id doctype action
+        id file_uuid saved_claim_id persistent_attachment_id status
+        submission_id
+      ]
 
       attr_reader :record
 
@@ -61,6 +65,7 @@ module ClaimsEvidenceApi
     class Service < Monitor
       # StatsD metric
       METRIC = 'module.claims_evidence_api.service.request'
+      ALLOWLIST = %w[method code endpoint reason]
 
       # track the api request performed and the response/error
       # @see Common::Client::Base#perform
@@ -87,6 +92,9 @@ module ClaimsEvidenceApi
     class Uploader < Monitor
       # StatsD metric
       METRIC = 'module.claims_evidence_api.uploader'
+      ALLOWLIST = %w[action form_id doctype error
+        saved_claim_id persistent_attachment_id stamp_set
+      ]
 
       # track evidence upload started
       #
@@ -127,7 +135,8 @@ module ClaimsEvidenceApi
         msg = "upload #{stage}"
         msg += " - #{error}" if error
 
-        tags = { action: stage.to_s, form_id: context[:form_id], doctype: context[:doctype] }
+        context[:action] = stage.to_s
+        tags = context.slice(:action, :form_id, :doctype)
 
         call_location = caller_locations.second
         level = stage == :failure ? :error : :info

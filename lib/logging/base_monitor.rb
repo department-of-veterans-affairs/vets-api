@@ -12,9 +12,14 @@ module Logging
     include Logging::Include::ZeroSilentFailures
 
     PARAMS = %w[
-      form_id
+      benefits_intake_uuid
       claim_id
       confirmation_number
+      error
+      errors
+      form_id
+      in_progress_form_id
+      user_account_uuid
     ].freeze
 
     attr_reader :tags
