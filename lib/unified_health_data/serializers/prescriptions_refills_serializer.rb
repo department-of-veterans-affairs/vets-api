@@ -16,51 +16,56 @@ module UnifiedHealthData
                  :info_messages
 
       def initialize(id, resource)
-        # Extract failed prescription IDs from the new format
-        failed_prescription_list = resource[:failed]&.map do |failed_item|
-          failed_item[:id]
-        end || []
-
-        # Extract station numbers from failed items
-        failed_station_list = resource[:failed]&.map do |failed_item|
-          failed_item[:station_number]
-        end&.uniq || []
-
-        # Extract successful prescription IDs
+        failed_prescription_list = extract_failed_prescription_ids(resource)
+        failed_station_list = extract_failed_station_numbers(resource)
         successful_prescription_list = resource[:success] || []
+        successful_station_list = extract_successful_station_numbers(resource)
+        last_updated_time = calculate_last_updated_time(resource)
+        info_messages = build_info_messages(resource)
+        errors = build_errors(resource)
 
-        # Extract station numbers from successful items
-        successful_station_list = resource[:success]&.map do |success_item|
-          success_item[:station_number]
-        end&.uniq || []
+        super(PrescriptionsRefillStruct.new(id, failed_station_list, successful_station_list,
+                                            last_updated_time,
+                                            successful_prescription_list, # prescription_list
+                                            failed_prescription_list, errors, info_messages))
+      end
 
-        # Set last_updated_time to current time when there are any results
-        last_updated_time = if resource[:success]&.any? || resource[:failed]&.any?
-                              Time.current.iso8601
-                            end
+      private
 
-        # Collect info messages from successful refills
-        info_messages = resource[:success]&.map do |success_item|
+      def extract_failed_prescription_ids(resource)
+        resource[:failed]&.map { |failed_item| failed_item[:id] } || []
+      end
+
+      def extract_failed_station_numbers(resource)
+        resource[:failed]&.map { |failed_item| failed_item[:station_number] }&.uniq || []
+      end
+
+      def extract_successful_station_numbers(resource)
+        resource[:success]&.map { |success_item| success_item[:station_number] }&.uniq || []
+      end
+
+      def calculate_last_updated_time(resource)
+        Time.current.iso8601 if resource[:success]&.any? || resource[:failed]&.any?
+      end
+
+      def build_info_messages(resource)
+        resource[:success]&.map do |success_item|
           {
             prescription_id: success_item[:id],
             message: success_item[:status] || 'Refill submitted successfully',
             station_number: success_item[:station_number]
           }
         end || []
+      end
 
-        # Convert failed items to error format for backwards compatibility
-        errors = resource[:failed]&.map do |failed_item|
+      def build_errors(resource)
+        resource[:failed]&.map do |failed_item|
           {
             developer_message: failed_item[:error],
             prescription_id: failed_item[:id],
             station_number: failed_item[:station_number]
           }
         end || []
-
-        super(PrescriptionsRefillStruct.new(id, failed_station_list, successful_station_list,
-                                            last_updated_time,
-                                            successful_prescription_list, # prescription_list
-                                            failed_prescription_list, errors, info_messages))
       end
     end
 

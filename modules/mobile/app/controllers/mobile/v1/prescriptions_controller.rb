@@ -27,6 +27,7 @@ module Mobile
         result = unified_health_service.refill_prescription(orders)
         response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
         raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' unless response
+
         render json: response.serializable_hash
       end
 

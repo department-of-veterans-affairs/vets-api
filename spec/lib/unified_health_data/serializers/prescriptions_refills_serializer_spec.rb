@@ -33,12 +33,12 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer, t
         expect(result[:data][:attributes][:last_updated_time]).to be_present
         expect(result[:data][:attributes][:info_messages]).to eq([])
         expect(result[:data][:attributes][:errors]).to eq([
-          {
-            developer_message: '^ER:Error:',
-            prescription_id: '15215488543',
-            station_number: '556'
-          }
-        ])
+                                                            {
+                                                              developer_message: '^ER:Error:',
+                                                              prescription_id: '15215488543',
+                                                              station_number: '556'
+                                                            }
+                                                          ])
       end
     end
 
@@ -66,19 +66,19 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer, t
         expect(result[:data][:attributes][:successful_station_list]).to eq(['123'])
         expect(result[:data][:attributes][:last_updated_time]).to be_present
         expect(result[:data][:attributes][:prescription_list]).to eq([
-          {
-            id: '12345',
-            status: 'submitted',
-            station_number: '123'
-          }
-        ])
+                                                                       {
+                                                                         id: '12345',
+                                                                         status: 'submitted',
+                                                                         station_number: '123'
+                                                                       }
+                                                                     ])
         expect(result[:data][:attributes][:info_messages]).to eq([
-          {
-            prescription_id: '12345',
-            message: 'submitted',
-            station_number: '123'
-          }
-        ])
+                                                                   {
+                                                                     prescription_id: '12345',
+                                                                     message: 'submitted',
+                                                                     station_number: '123'
+                                                                   }
+                                                                 ])
         expect(result[:data][:attributes][:errors]).to eq([])
       end
     end
@@ -113,26 +113,26 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer, t
         expect(result[:data][:attributes][:successful_station_list]).to eq(['556'])
         expect(result[:data][:attributes][:last_updated_time]).to be_present
         expect(result[:data][:attributes][:prescription_list]).to eq([
-          {
-            id: '15214174591',
-            status: 'submitted',
-            station_number: '556'
-          }
-        ])
+                                                                       {
+                                                                         id: '15214174591',
+                                                                         status: 'submitted',
+                                                                         station_number: '556'
+                                                                       }
+                                                                     ])
         expect(result[:data][:attributes][:info_messages]).to eq([
-          {
-            prescription_id: '15214174591',
-            message: 'submitted',
-            station_number: '556'
-          }
-        ])
+                                                                   {
+                                                                     prescription_id: '15214174591',
+                                                                     message: 'submitted',
+                                                                     station_number: '556'
+                                                                   }
+                                                                 ])
         expect(result[:data][:attributes][:errors]).to eq([
-          {
-            developer_message: '^ER:Error:',
-            prescription_id: '15215488543',
-            station_number: '556'
-          }
-        ])
+                                                            {
+                                                              developer_message: '^ER:Error:',
+                                                              prescription_id: '15215488543',
+                                                              station_number: '556'
+                                                            }
+                                                          ])
       end
     end
 
@@ -165,29 +165,29 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer, t
         result = serializer.serializable_hash
 
         expect(result[:data][:type]).to eq(:PrescriptionRefills)
-        expect(result[:data][:attributes][:failed_prescription_ids]).to eq(['11111', '22222', '33333'])
+        expect(result[:data][:attributes][:failed_prescription_ids]).to eq(%w[11111 22222 33333])
         expect(result[:data][:attributes][:failed_station_list]).to eq(['556'])
         expect(result[:data][:attributes][:successful_station_list]).to eq([])
         expect(result[:data][:attributes][:last_updated_time]).to be_present
         expect(result[:data][:attributes][:prescription_list]).to eq([])
         expect(result[:data][:attributes][:info_messages]).to eq([])
         expect(result[:data][:attributes][:errors]).to eq([
-          {
-            developer_message: 'Prescription expired',
-            prescription_id: '11111',
-            station_number: '556'
-          },
-          {
-            developer_message: 'Not refillable',
-            prescription_id: '22222',
-            station_number: '556'
-          },
-          {
-            developer_message: 'Invalid prescription',
-            prescription_id: '33333',
-            station_number: '556'
-          }
-        ])
+                                                            {
+                                                              developer_message: 'Prescription expired',
+                                                              prescription_id: '11111',
+                                                              station_number: '556'
+                                                            },
+                                                            {
+                                                              developer_message: 'Not refillable',
+                                                              prescription_id: '22222',
+                                                              station_number: '556'
+                                                            },
+                                                            {
+                                                              developer_message: 'Invalid prescription',
+                                                              prescription_id: '33333',
+                                                              station_number: '556'
+                                                            }
+                                                          ])
       end
     end
 
@@ -221,26 +221,26 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer, t
         expect(result[:data][:attributes][:successful_station_list]).to eq(['556'])
         expect(result[:data][:attributes][:last_updated_time]).to be_present
         expect(result[:data][:attributes][:prescription_list]).to eq([
-          {
-            id: '15214174591',
-            status: 'Already in Queue',
-            station_number: '556'
-          }
-        ])
+                                                                       {
+                                                                         id: '15214174591',
+                                                                         status: 'Already in Queue',
+                                                                         station_number: '556'
+                                                                       }
+                                                                     ])
         expect(result[:data][:attributes][:info_messages]).to eq([
-          {
-            prescription_id: '15214174591',
-            message: 'Already in Queue',
-            station_number: '556'
-          }
-        ])
+                                                                   {
+                                                                     prescription_id: '15214174591',
+                                                                     message: 'Already in Queue',
+                                                                     station_number: '556'
+                                                                   }
+                                                                 ])
         expect(result[:data][:attributes][:errors]).to eq([
-          {
-            developer_message: '^ER:Error:',
-            prescription_id: '15215488543',
-            station_number: '556'
-          }
-        ])
+                                                            {
+                                                              developer_message: '^ER:Error:',
+                                                              prescription_id: '15215488543',
+                                                              station_number: '556'
+                                                            }
+                                                          ])
       end
     end
 
@@ -297,26 +297,26 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer, t
         expect(result[:data][:attributes][:successful_station_list]).to eq(['123'])
         expect(result[:data][:attributes][:last_updated_time]).to be_present
         expect(result[:data][:attributes][:prescription_list]).to eq([
-          {
-            id: '12345',
-            status: 'submitted',
-            station_number: '123'
-          }
-        ])
+                                                                       {
+                                                                         id: '12345',
+                                                                         status: 'submitted',
+                                                                         station_number: '123'
+                                                                       }
+                                                                     ])
         expect(result[:data][:attributes][:info_messages]).to eq([
-          {
-            prescription_id: '12345',
-            message: 'submitted',
-            station_number: '123'
-          }
-        ])
+                                                                   {
+                                                                     prescription_id: '12345',
+                                                                     message: 'submitted',
+                                                                     station_number: '123'
+                                                                   }
+                                                                 ])
         expect(result[:data][:attributes][:errors]).to eq([
-          {
-            developer_message: 'Not found',
-            prescription_id: '67890',
-            station_number: '456'
-          }
-        ])
+                                                            {
+                                                              developer_message: 'Not found',
+                                                              prescription_id: '67890',
+                                                              station_number: '456'
+                                                            }
+                                                          ])
       end
     end
   end
