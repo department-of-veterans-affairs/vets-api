@@ -1,0 +1,200 @@
+# GitHub Copilot coding agent setup configuration for vets-api
+# This file defines the environment setup required for a functional Rails development environment
+# with PostgreSQL/PostGIS and Redis to run tests, linting, and other development tasks.
+
+name: vets-api-development-environment
+description: Setup a functional Rails environment with PostGIS for vets-api development
+
+# Environment requirements for running rubocop, specs, and development tasks
+environment:
+  # Ruby version requirement (matches .ruby-version)
+  ruby: "3.3.6"
+  
+  # Database requirements
+  database:
+    primary: "postgresql"
+    version: "15.x"
+    extensions:
+      - "postgis:3.x"
+    configuration:
+      - "shared_preload_libraries=pg_stat_statements"
+      - "pg_stat_statements.track=all"
+      - "max_connections=200"
+  
+  # Cache/session store
+  redis:
+    version: "6.2.x"
+    
+  # Required system dependencies
+  system_packages:
+    - "imagemagick"
+    - "poppler-utils" 
+    - "pdftk"
+    - "clamav"
+
+# Setup steps for development environment
+setup_steps:
+  # 1. System dependencies
+  - name: "Install system dependencies"
+    description: "Install required system packages"
+    commands:
+      ubuntu:
+        - "apt-get update"
+        - "apt-get install -y imagemagick poppler-utils pdftk clamav"
+      macos:
+        - "brew install imagemagick poppler pdftk clamav"
+
+  # 2. Database setup
+  - name: "Setup PostgreSQL with PostGIS"
+    description: "Install and configure PostgreSQL 15 with PostGIS 3 extension"
+    commands:
+      ubuntu:
+        - "wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -"
+        - "echo 'deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main' | tee /etc/apt/sources.list.d/pgdg.list"
+        - "apt-get update"
+        - "apt-get install -y postgresql-15 postgresql-15-postgis-3 postgresql-15-postgis-3-scripts"
+        - "systemctl start postgresql"
+        - "sudo -u postgres createuser --superuser $USER || true"
+      macos:
+        - "brew install postgresql@15"
+        - "brew services start postgresql@15"
+        - "createuser --superuser $USER || true"
+      docker:
+        - "docker run -d --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=password postgis/postgis:15-3.3-alpine"
+
+  # 3. Redis setup  
+  - name: "Setup Redis"
+    description: "Install and start Redis server"
+    commands:
+      ubuntu:
+        - "apt-get install -y redis-server"
+        - "systemctl start redis"
+      macos:
+        - "brew install redis"
+        - "brew services start redis"
+      docker:
+        - "docker run -d --name redis -p 6379:6379 redis:6.2-alpine"
+
+  # 4. Ruby environment
+  - name: "Setup Ruby environment"  
+    description: "Install Ruby and bundler dependencies"
+    commands:
+      - "gem install bundler"
+      - "bundle install"
+
+  # 5. Database initialization
+  - name: "Initialize databases"
+    description: "Setup and migrate development and test databases"
+    commands:
+      - "bin/rails db:setup"
+      - "bin/rails db:migrate"
+      - "RAILS_ENV=test bin/rails db:setup"
+      - "RAILS_ENV=test bin/rails db:migrate"
+
+  # 6. Configuration setup
+  - name: "Setup local configuration"
+    description: "Create necessary configuration files"
+    commands:
+      - "cp config/settings.local.yml.example config/settings.local.yml"
+      - "mkdir -p config/certs"
+      - "touch config/certs/vetsgov-localhost.crt"
+      - "touch config/certs/vetsgov-localhost.key"
+
+# Commands available after setup
+available_commands:
+  test:
+    description: "Run test suite"
+    commands:
+      - "bundle exec rspec spec/"
+      - "make spec"
+      - "make spec_parallel"  # Faster parallel test execution
+  
+  lint:
+    description: "Run code linting"
+    commands:
+      - "bundle exec rubocop"
+      - "make lint"
+  
+  console:
+    description: "Start Rails console"
+    commands:
+      - "bundle exec rails console"
+      - "make console"
+  
+  server:
+    description: "Start development server"
+    commands:
+      - "bundle exec rails server"
+      - "foreman start -m all=1"
+      - "make server"
+  
+  database:
+    description: "Database operations"
+    commands:
+      - "bin/rails db:migrate"
+      - "make migrate"
+      - "make db"
+
+# Docker-based alternative setup (recommended for consistency)
+docker_setup:
+  description: "Use Docker Compose for consistent environment"
+  commands:
+    - "docker-compose build"
+    - "docker-compose up -d postgres redis clamav"
+    - "docker-compose run --rm web bundle install"
+    - "docker-compose run --rm web bin/rails db:setup db:migrate"
+    - "docker-compose run --rm web RAILS_ENV=test bin/rails db:setup db:migrate"
+  
+  # Available commands in Docker environment
+  docker_commands:
+    test: "docker-compose run --rm web bundle exec rspec spec/"
+    lint: "docker-compose run --rm web bundle exec rubocop"
+    console: "docker-compose run --rm web bundle exec rails console"
+    server: "docker-compose up"
+
+# Health checks to verify setup
+health_checks:
+  - name: "PostgreSQL connection"
+    command: "bin/rails runner 'ActiveRecord::Base.connection.execute(\"SELECT 1\")'"
+    
+  - name: "PostGIS extension"
+    command: "bin/rails runner 'ActiveRecord::Base.connection.execute(\"SELECT PostGIS_version()\")'"
+    
+  - name: "Redis connection"  
+    command: "bin/rails runner 'Rails.cache.write(\"test\", \"ok\"); puts Rails.cache.read(\"test\")'"
+    
+  - name: "Bundle dependencies"
+    command: "bundle check"
+    
+  - name: "RuboCop availability"
+    command: "bundle exec rubocop --version"
+    
+  - name: "RSpec availability"
+    command: "bundle exec rspec --version"
+
+# Common troubleshooting
+troubleshooting:
+  database_connection_error:
+    description: "PostgreSQL connection issues"
+    solutions:
+      - "Ensure PostgreSQL service is running"
+      - "Check database configuration in config/database.yml"
+      - "Verify user permissions: sudo -u postgres createuser --superuser $USER"
+      
+  postgis_missing:
+    description: "PostGIS extension not available"
+    solutions:
+      - "Install PostGIS: apt-get install postgresql-15-postgis-3"
+      - "Enable extension: sudo -u postgres psql -c 'CREATE EXTENSION postgis;'"
+      
+  bundle_install_fails:
+    description: "Bundle install fails with gem compilation errors"
+    solutions:
+      - "Install development packages: apt-get install build-essential libpq-dev"
+      - "For pg gem issues: gem install pg -- --with-pg-config=/usr/bin/pg_config"
+      
+  sidekiq_enterprise_license:
+    description: "Sidekiq Enterprise license required for some features"
+    solutions:
+      - "See: https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/engineering/sidekiq-enterprise-setup.md"
+      - "Open source version will be used if license not available"
