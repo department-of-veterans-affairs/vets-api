@@ -1687,6 +1687,14 @@ features:
     description: Use VA Forms System Core for forms instead of schema based forms
     actor_type: user
     enable_in_development: true
+  profile_2_enabled:
+    actor_type: user
+    description: Enables the new Profile 2.0 experience on VA.gov
+    enable_in_development: true
+  profile_health_care_settings_page:
+    actor_type: user
+    description: Enables the new Health Care Settings page within the Profile on VA.gov
+    enable_in_development: true
   pw_ehr_cta_use_slo:
     actor_type: user
     description: Use single-logout (SLO) paths for Public Websites-managed EHR CTAs
