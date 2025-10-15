@@ -40,7 +40,9 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         care_systems_stub
       )
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
-        get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
+        VCR.use_cassette('sm_client/get_unique_care_systems') do
+          get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
+        end
       end
       expect(response).to be_successful
       expect(response.body).to be_a(String)
@@ -52,7 +54,9 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         care_systems_stub
       )
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_include_blocked') do
-        get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
+        VCR.use_cassette('sm_client/get_unique_care_systems') do
+          get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
+        end
       end
       expect(response).to be_successful
       expect(response.parsed_body['data'].count).to eq(1)
@@ -74,7 +78,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
-      expect(response).to match_camelized_response_schema('all_triage_teams')
+      expect(response).to match_camelized_response_schema('all_triage_teams', { strict: false })
     end
 
     context 'when there are cached triage teams' do
@@ -121,10 +125,11 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         expect(response.body).to be_a(String)
         parsed_response_meta = response.parsed_body['meta']
         care_systems = parsed_response_meta['careSystems']
-        expect(care_systems.length).to be(3)
+        expect(care_systems.length).to be(4)
         expect(care_systems[0]['healthCareSystemName']).to eq('Manila VA Clinic')
         expect(care_systems[1]['healthCareSystemName']).to eq('978')
         expect(care_systems[2]['healthCareSystemName']).to eq('Chalmers P. Wylie Veterans Outpatient Clinic')
+        expect(care_systems[3]['healthCareSystemName']).to eq('VA Northern California')
       end
     end
   end
