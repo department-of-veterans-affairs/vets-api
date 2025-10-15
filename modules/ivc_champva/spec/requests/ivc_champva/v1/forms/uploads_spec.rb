@@ -1527,6 +1527,128 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  describe '#generate_ves_json_document' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:parsed_form_data) do
+      JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
+    end
+    let(:mock_ves_request) { double('VesRequest') }
+    let(:mock_attachment) { { 'attachment_id' => 'VES JSON', 'confirmation_code' => 'test-guid' } }
+
+    before do
+      allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
+      allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(mock_ves_request)
+      allow(mock_ves_request).to receive(:to_json).and_return('{"test": "data"}')
+      allow(File).to receive(:write)
+      allow(controller).to receive(:create_custom_attachment).and_return(mock_attachment)
+      allow(controller).to receive(:add_supporting_doc)
+      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:error)
+    end
+
+    context 'when flipper is enabled and form_id is vha_10_10d' do
+      let(:form_id) { 'vha_10_10d' }
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_send_ves_to_pega, nil)
+          .and_return(true)
+      end
+
+      it 'generates VES JSON file and adds it as supporting document' do
+        controller.send(:generate_ves_json_document, form_id, parsed_form_data)
+
+        expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request).with(parsed_form_data)
+        expect(File).to have_received(:write).with(
+          "tmp/#{parsed_form_data['uuid']}_#{form_id}_ves.json",
+          '{"test": "data"}'
+        )
+        expect(controller).to have_received(:create_custom_attachment).with(
+          anything, # mock form object
+          "tmp/#{parsed_form_data['uuid']}_#{form_id}_ves.json",
+          'VES JSON'
+        )
+        expect(controller).to have_received(:add_supporting_doc).with(parsed_form_data, mock_attachment)
+        expect(Rails.logger).to have_received(:info).with(
+          "VES JSON document generated and added as supporting document for form #{form_id}"
+        )
+      end
+
+      context 'when VES data generation fails' do
+        before do
+          allow(IvcChampva::VesDataFormatter).to receive(:format_for_request)
+            .and_raise(StandardError.new('VES formatting error'))
+        end
+
+        it 'logs the error and does not raise' do
+          expect do
+            controller.send(:generate_ves_json_document, form_id, parsed_form_data)
+          end.not_to raise_error
+
+          expect(Rails.logger).to have_received(:error).with('Error generating VES JSON document: VES formatting error')
+          expect(controller).not_to have_received(:add_supporting_doc)
+        end
+      end
+    end
+
+    context 'when flipper is disabled' do
+      let(:form_id) { 'vha_10_10d' }
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_send_ves_to_pega, nil)
+          .and_return(false)
+      end
+
+      it 'does not generate VES JSON' do
+        controller.send(:generate_ves_json_document, form_id, parsed_form_data)
+
+        expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
+        expect(controller).not_to have_received(:add_supporting_doc)
+      end
+    end
+
+    context 'when form_id is not vha_10_10d' do
+      let(:form_id) { 'vha_10_7959c' }
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_send_ves_to_pega, nil)
+          .and_return(true)
+      end
+
+      it 'does not generate VES JSON' do
+        controller.send(:generate_ves_json_document, form_id, parsed_form_data)
+
+        expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
+        expect(controller).not_to have_received(:add_supporting_doc)
+      end
+    end
+  end
+
+  describe '#handle_file_uploads_wrapper VES JSON integration' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:form_id) { 'vha_10_10d' }
+    let(:parsed_form_data) do
+      JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
+    end
+
+    before do
+      allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
+      allow(controller).to receive(:generate_ves_json_document)
+      allow(controller).to receive_messages(call_handle_file_uploads: [[200], []],
+                                            build_json: { json: {},
+                                                          status: 200 })
+      allow(Flipper).to receive(:enabled?).with(:champva_send_to_ves, nil).and_return(false)
+    end
+
+    it 'always calls generate_ves_json_document' do
+      controller.send(:handle_file_uploads_wrapper, form_id, parsed_form_data)
+
+      expect(controller).to have_received(:generate_ves_json_document).with(form_id, parsed_form_data)
+    end
+  end
+
   describe '#launch_background_job' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:file_path) { '/tmp/some_file.pdf' }
