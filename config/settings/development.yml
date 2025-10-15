@@ -1194,6 +1194,8 @@ res:
   api_key: ~
   base_url: https://fake_url.com
   mock_ch_31: ~
+  ch_31_eligibility:
+    mock: ~
 review_instance_slug: ~
 rrd:
   alerts:
