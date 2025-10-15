@@ -2566,9 +2566,6 @@ features:
   discover_your_benefits_browser_monitoring_enabled:
     actor_type: user
     description: Discover Your Benefits Datadog RUM monitoring
-  accredited_representative_portal_homepage:
-    actor_type: user
-    description: Enables new homepage redesign for ARP
   accredited_representative_portal_dashboard_link:
     actor_type: user
     description: Enables new dashboard link on nav
