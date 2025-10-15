@@ -19,7 +19,7 @@ RSpec.describe 'Transformation Pega', type: :request do
     Aws.config = @original_aws_config
   end
 
-  describe '#submit with flipper champva_send_to_ves enabled' do
+  describe '#submit' do
     champva_send_to_ves = [true, true, false, false]
     champva_retry_logic_refactor = [true, false, true, false]
     champva_send_to_ves.each_with_index do |flipper_value, flipper_index|
