@@ -31,10 +31,19 @@ module ClaimsEvidenceApi
     class Record < Monitor
       # StatsD metric
       METRIC = 'module.claims_evidence_api.record'
-      ALLOWLIST = %w[class form_id doctype action
-        id file_uuid saved_claim_id persistent_attachment_id status
+      # allowed logging params
+      ALLOWLIST = %w[
+        action
+        class
+        doctype
+        file_uuid
+        form_id
+        id
+        persistent_attachment_id
+        saved_claim_id
+        status
         submission_id
-      ]
+      ].freeze
 
       attr_reader :record
 
@@ -65,7 +74,13 @@ module ClaimsEvidenceApi
     class Service < Monitor
       # StatsD metric
       METRIC = 'module.claims_evidence_api.service.request'
-      ALLOWLIST = %w[method code endpoint reason]
+      # allowed logging params
+      ALLOWLIST = %w[
+        code
+        endpoint
+        mehtod
+        reason
+      ].freeze
 
       # track the api request performed and the response/error
       # @see Common::Client::Base#perform
@@ -92,9 +107,16 @@ module ClaimsEvidenceApi
     class Uploader < Monitor
       # StatsD metric
       METRIC = 'module.claims_evidence_api.uploader'
-      ALLOWLIST = %w[action form_id doctype error
-        saved_claim_id persistent_attachment_id stamp_set
-      ]
+      # allowed logging params
+      ALLOWLIST = %w[
+        action
+        doctype
+        error
+        form_id
+        persistent_attachment_id
+        saved_claim_id
+        stamp_set
+      ].freeze
 
       # track evidence upload started
       #

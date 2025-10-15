@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'logging/helper/parameter_filter'
 
 RSpec.describe Logging::Helper::ParameterFilter do
-  let(:allowlist) { %w[action class controller errors id status ] }
+  let(:allowlist) { %w[action class controller errors id status] }
 
   describe '.filter_params' do
     it 'filters sensitive values from a hash' do

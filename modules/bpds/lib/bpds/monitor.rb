@@ -9,7 +9,15 @@ module BPDS
   class Monitor < Logging::Monitor
     # metric prefix
     STATSD_KEY_PREFIX = 'api.bpds_service'
-    ALLOWLIST = %w[claim_id error errors bpds_uuid lookup_service tags]
+    # allowed logging params
+    ALLOWLIST = %w[
+      bpds_uuid
+      claim_id
+      error
+      errors
+      lookup_service
+      tags
+    ].freeze
 
     def initialize
       super('bpds-service', allowlist: ALLOWLIST)

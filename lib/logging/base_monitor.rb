@@ -11,6 +11,8 @@ module Logging
     include Logging::Include::BenefitsIntake
     include Logging::Include::ZeroSilentFailures
 
+    # allowed logging params
+    # compiled form _this_ and the included modules
     PARAMS = %w[
       benefits_intake_uuid
       claim_id

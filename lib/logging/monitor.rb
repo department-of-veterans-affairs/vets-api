@@ -17,6 +17,7 @@ module Logging
     include Logging::Helper::DataScrubber
     include Logging::Helper::ParameterFilter
 
+    # allowed logging params
     WHITELIST = %w[
       statsd
       service
@@ -25,6 +26,7 @@ module Logging
       context
     ].freeze
 
+    # excluded logging params
     BLACKLIST = %w[
       file
       ssn
@@ -32,7 +34,7 @@ module Logging
       edipi
       email
       phone
-    ]
+    ].freeze
 
     attr_reader :allowlist, :service
 
