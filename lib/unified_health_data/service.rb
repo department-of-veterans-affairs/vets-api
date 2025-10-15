@@ -417,7 +417,7 @@ module UnifiedHealthData
     # @return [Hash, nil] DocumentReference entry or nil if not found
     def find_document_reference(body)
       body['entry']&.find do |entry|
-        entry['resource']['resourceType'] == 'DocumentReference'
+        entry['resource'] && entry['resource']['resourceType'] == 'DocumentReference'
       end
     end
 
