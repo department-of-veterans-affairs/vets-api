@@ -30,6 +30,8 @@ module Logging
       ssn
       icn
       edipi
+      email
+      phone
     ]
 
     attr_reader :allowlist, :service
