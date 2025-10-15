@@ -29,8 +29,7 @@ RSpec.describe DependentsBenefits::Jobs::BGS674Job, type: :job do
                                              create_proc_form: {}, create_relationship: {},
                                              vnp_create_benefit_claim: {}, insert_benefit_claim: {},
                                              vnp_benefit_claim_update: {}, create_note: {}, update_proc: {},
-                                             create_child_school: {}, create_child_student: {}
-                                             )
+                                             create_child_school: {}, create_child_student: {})
       allow_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_return(
         double('Response', body: { 'awards_pension' => { 'is_in_receipt_of_pension' => true } })
       )
