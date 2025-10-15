@@ -95,7 +95,7 @@ module IncreaseCompensation
         }
       }.freeze
       def expand(form_data = {})
-        if form_data['education'].key?('highSchool')
+        if form_data.key?('education') && form_data['education'].key?('highSchool')
           form_data['education']['highSchool'] = education_highschool_bug_fix(form_data['education']['highSchool'])
         end
         form_data['trainingPreDisabled'] = format_custom_boolean(form_data['trainingPreDisabled'], '1')

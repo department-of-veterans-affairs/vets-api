@@ -201,8 +201,8 @@ module IncreaseCompensation
 
       }.freeze
       def expand(form_data = {})
-        form_data = format_employment(form_data)
-        form_data = format_applications(form_data)
+        form_data = format_employment(form_data) if form_data.key?('previousEmployers')
+        form_data = format_applications(form_data) if form_data.key?('appliedEmployers')
         form_data = format_boolean_fields(form_data)
         form_data['disabilityAffectEmployFTDate'] = split_date(form_data['disabilityAffectEmployFTDate'])
         form_data['lastWorkedFullTimeDate'] = split_date(form_data['lastWorkedFullTimeDate'])
