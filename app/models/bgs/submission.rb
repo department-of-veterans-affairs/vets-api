@@ -10,11 +10,11 @@ class BGS::Submission < Submission
   belongs_to :saved_claim, optional: true
 
   def latest_attempt
-    submission_attempts.order(created_at: :asc).last
+    submission_attempts.order(created_at: :desc).first
   end
 
   def latest_pending_attempt
-    submission_attempts.where(status: 'pending').order(created_at: :asc).last
+    submission_attempts.where(status: 'pending').order(created_at: :desc).first
   end
 
   def non_failure_attempt
