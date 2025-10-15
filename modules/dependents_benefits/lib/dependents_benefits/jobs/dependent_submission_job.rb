@@ -217,11 +217,11 @@ module DependentsBenefits::Jobs
     end
 
     def current_group
-      SavedClaimGroup.by_saved_claim_id(claim_id)&.first!
+      SavedClaimGroup.by_saved_claim_id(claim_id).first!
     end
 
     def parent_group
-      SavedClaimGroup.by_saved_claim_id(parent_claim_id)&.first!
+      SavedClaimGroup.by_saved_claim_id(parent_claim_id).first!
     end
 
     def saved_claim
