@@ -46,6 +46,7 @@ class SourceAppMiddleware
     '21-0966-intent-to-file-a-claim',
     '21-0972-alternate-signer',
     '21-4142-medical-release',
+    '21p-0537',
     '21P-0847-substitute-claimant',
     '21P-601',
     '25-8832-planning-and-career-guidance',
