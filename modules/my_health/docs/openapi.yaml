@@ -119,7 +119,10 @@ paths:
       summary: /v1/medical_records/ccd/generate
   /v1/medical_records/ccd/download:
     get:
-      description: Download the Continuity of Care Document specified by the date parameter.
+      description: |
+        Download the Continuity of Care Document (CCD) specified by the date parameter.
+        The response format can be set by adding an extension to the path (e.g. `/v1/medical_records/ccd/download.xml`, `/v1/medical_records/ccd/download.pdf`, `/v1/medical_records/ccd/download.html`).
+        If neither is specified, the default is XML.
       operationId: download_ccd
       parameters:
         - name: date
@@ -128,15 +131,35 @@ paths:
           description: Date of the desired study, as pulled verbatim from the generate endpoint response
           schema:
             type: string
+        - name: format
+          in: path
+          required: false
+          description: |
+            The format of the returned CCD document, as a path extension. Can be 'xml', 'html', or 'pdf'.
+            If not specified, defaults to 'xml'.
+          schema:
+            type: string
+            enum: [xml, html, pdf]
+            default: xml
       responses:
         "200":
+          description: OK
           content:
             application/xml:
               schema:
-                type: object
-                description: >
-                  The returned document is an XML file representing the patient's Continuity of Care Document.
-          description: OK
+                type: string
+                format: binary
+                description: The returned document is an XML file representing the patient's Continuity of Care Document.
+            text/html:
+              schema:
+                type: string
+                format: binary
+                description: The returned document is an HTML file representing the patient's Continuity of Care Document.
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+                description: The returned document is a PDF file representing the patient's Continuity of Care Document.
         "401":
           content:
             application/json:
