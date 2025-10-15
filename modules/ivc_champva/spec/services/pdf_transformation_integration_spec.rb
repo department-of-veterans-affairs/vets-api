@@ -156,10 +156,6 @@ RSpec.describe IvcChampva::PdfFiller, type: :service do
     erb_content.scan(/"([^"]+)"\s*:/).flatten
   end
 
-  def form_has_stamps?(form_id)
-    FORM_CONFIGS[form_id][:has_stamps]
-  end
-
   # Main validation method that routes each field to its appropriate validator
   def verify_field_types_semantically(json_data, pdf_mapped_data) # rubocop:disable Metrics/MethodLength
     pdf_mapped_data.each do |pdf_field_name, pdf_value|
