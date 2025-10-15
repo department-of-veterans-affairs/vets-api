@@ -10,6 +10,7 @@
     "location": "CHYSHR TEST LAB",
     "orderedBy": "MARCI P MCGUIRE",
     "bodySite": "",
+    "status": null,
     "observations": [
       {
         "testCode": "GLUCOSE",
