@@ -171,23 +171,11 @@ module Users
     # rubocop:enable Metrics/MethodLength
 
     def veteran_status
-      veteran_status_object = {
+      {
         status: RESPONSE_STATUS[:ok],
-        is_veteran: nil,
-        served_in_military: nil
+        is_veteran: user.veteran?,
+        served_in_military: user.served_in_military?
       }
-
-      if user.edipi.blank?
-        Rails.logger.info('Skipping VAProfile veteran status call, No EDIPI present',
-                          user_uuid: user.uuid,
-                          loa: user.loa)
-
-        return veteran_status_object
-      end
-
-      veteran_status_object[:is_veteran] = user.veteran?
-      veteran_status_object[:served_in_military] = user.served_in_military?
-      veteran_status_object
     rescue => e
       error_hash = Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
       scaffold.errors << error_hash
