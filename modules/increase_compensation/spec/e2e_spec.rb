@@ -6,7 +6,7 @@ require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
 require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
 
-RSpec.describe 'Income and Assets End to End', skip: 'TODO after schema built', type: :request do
+RSpec.describe 'Increase Compensation End to End', skip: 'TODO after schema built', type: :request do
   let(:form) { build(:increase_compensation_claim) }
   let(:param_name) { :increase_compensation_claim }
   let(:pdf_path) { 'random/path/to/pdf' }

@@ -99,10 +99,14 @@ module IncreaseCompensation
           form_data['education']['highSchool'] = education_highschool_bug_fix(form_data['education']['highSchool'])
         end
         form_data['trainingPreDisabled'] = format_custom_boolean(form_data['trainingPreDisabled'], '1')
-        form_data['educationTrainingPreUnemployability']['datesOfTraining'] =
-          map_date_range(form_data['educationTrainingPreUnemployability']['datesOfTraining'])
-        form_data['educationTrainingPostUnemployability']['datesOfTraining'] =
-          map_date_range(form_data['educationTrainingPostUnemployability']['datesOfTraining'])
+        if form_data.key?('educationTrainingPreUnemployability') && form_data['educationTrainingPreUnemployability'].key?('datesOfTraining') # rubocop:disable Layout/LineLength
+          form_data['educationTrainingPreUnemployability']['datesOfTraining'] =
+            map_date_range(form_data['educationTrainingPreUnemployability']['datesOfTraining'])
+        end
+        if form_data.key?('educationTrainingPostUnemployability') && form_data['educationTrainingPostUnemployability'].key?('datesOfTraining') # rubocop:disable Layout/LineLength
+          form_data['educationTrainingPostUnemployability']['datesOfTraining'] =
+            map_date_range(form_data['educationTrainingPostUnemployability']['datesOfTraining'])
+        end
       end
 
       def map_date_range(date_range)

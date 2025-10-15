@@ -88,4 +88,60 @@ RSpec.describe IncreaseCompensation::Helpers do
       expect(subject.change_hash_to_string(nil)).to eq('')
     end
   end
+
+  describe '#split_currency_amount_thousands' do
+    it 'returns empty hash for zero, nil, negative, or too large amounts' do
+      expect(subject.split_currency_amount_thousands(nil)).to eq({})
+      expect(subject.split_currency_amount_thousands(-1)).to eq({})
+      expect(subject.split_currency_amount_thousands(1_000_000)).to eq({})
+    end
+
+    it 'returns hash with 2 left spaced values if greater than 999' do
+      expect(subject.split_currency_amount_thousands(1250)).to eq({
+                                                                    'firstThree' => '  1',
+                                                                    'lastThree' => '250'
+                                                                  })
+    end
+
+    it 'returns has of 1 values if less than 1000' do
+      expect(subject.split_currency_amount_thousands(500)).to eq({ 'lastThree' => '500' })
+      expect(subject.split_currency_amount_thousands(0)).to eq({ 'lastThree' => '  0' })
+    end
+  end
+
+  describe '#format_custom_boolean' do
+    it 'returns Off' do
+      expect(subject.format_custom_boolean(nil)).to eq('Off')
+      expect(subject.format_custom_boolean('')).to eq('Off')
+    end
+
+    it 'returns YES or custom value' do
+      expect(subject.format_custom_boolean(true)).to eq('YES')
+      expect(subject.format_custom_boolean(true, 'YES, explain')).to eq('YES, explain')
+    end
+
+    it 'returns No or custom values' do
+      expect(subject.format_custom_boolean(false)).to eq('NO')
+      expect(subject.format_custom_boolean(false, 'YES', 'No, explain')).to eq('No, explain')
+    end
+  end
+
+  describe '#two_line_overflow' do
+    it 'returns {} if the string is blank' do
+      expect(subject.two_line_overflow('', 'test', 8)).to eq({})
+    end
+
+    it 'returns hash of 2 lines if over limit' do
+      expect(subject.two_line_overflow('Too long String', 'test', 8)).to eq({
+                                                                              'test1' => 'Too long',
+                                                                              'test2' => ' String'
+                                                                            })
+    end
+
+    it 'return hash of 1 line if under limit' do
+      expect(subject.two_line_overflow('Under Limit', 'test', 12)).to eq({
+                                                                           'test1' => 'Under Limit'
+                                                                         })
+    end
+  end
 end

@@ -2,7 +2,7 @@
 
 module IncreaseCompensation
   ##
-  # Form profile for VA Form 21P-8416 (Medical Expense Report)
+  # Form profile for VA Form 21-8940 (APPLICATION FOR INCREASED COMPENSATION BASED ON UNEMPLOYABILITY)
   # extends app/models/form_profile.rb, which handles form prefill
   class FormProfiles::VA218940 < FormProfile
     ##

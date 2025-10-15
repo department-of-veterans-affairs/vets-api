@@ -153,12 +153,10 @@ module IncreaseCompensation
           question_label: "Veteran's E-Mail Address",
           question_text: 'VETERAN\'S E-MAIL ADDRESS',
           'email1' => {
-            limit: 17,
             question_num: 6,
             key: 'form1[0].#subform[0].E_Mail_Address_If_Applicable[0]'
           },
           'email2' => {
-            limit: 17,
             question_num: 6,
             key: 'form1[0].#subform[0].E_Mail_Address_If_Applicable[1]'
           }

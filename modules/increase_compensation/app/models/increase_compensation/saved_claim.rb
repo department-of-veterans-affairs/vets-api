@@ -5,7 +5,7 @@ require 'pdf_fill/filler'
 
 module IncreaseCompensation
   ##
-  # IncreaseCompensation 21P-8416 Active::Record
+  # IncreaseCompensation 21-8940 Active::Record
   # @see app/model/saved_claim
   #
   class SavedClaim < ::SavedClaim

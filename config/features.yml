@@ -2343,6 +2343,28 @@ features:
   income_and_assets_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  increase_compensation_form_enabled:
+    enable_in_development: true
+    actor_type: user
+    description: Enable form 21-8940 APPLICATION FOR INCREASED COMPENSATION BASED ON UNEMPLOYABILITY Form
+      income_and_assets_browser_monitoring_enabled:
+    actor_type: user
+    description: Increase Compensation form Datadog RUM monitoring
+  increase_compensation_content_updates:
+    actor_type: user
+    description: Implement plain language and content updates
+  increase_compensation_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  increase_compensation_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  increase_compensation_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
+  increase_compensation_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
@@ -2618,4 +2640,3 @@ features:
     description: >
       Enables the upload_supporting_documents endpoint for scanned form uploads for supporting evidence.
       Owned by Simple Forms API team.
-

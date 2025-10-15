@@ -117,7 +117,7 @@ module IncreaseCompensation
     # @return [String]
     #
     def format_custom_boolean(bool_value, custom_yes_value = 'YES', custom_no_value = 'NO')
-      return 'Off' if bool_value.nil?
+      return 'Off' if bool_value.nil? || bool_value == ''
 
       bool_value ? custom_yes_value : custom_no_value
     end
@@ -131,10 +131,12 @@ module IncreaseCompensation
     # return [Hash]
     #
     def two_line_overflow(string, key_name, limit)
+      return {} if string.blank?
+
       if string.length > limit
         {
-          "#{key_name}1" => string[..17],
-          "#{key_name}2" => string[(limit + 1)..]
+          "#{key_name}1" => string[..(limit - 1)],
+          "#{key_name}2" => string[limit..]
         }
       else
         {

@@ -12,14 +12,36 @@ def basic_class
 end
 
 def test_data_types
-  %w[kitchen_sink overflow simple]
+  %w[kitchen_sink]
 end
 
 describe IncreaseCompensation::PdfFill::Va218940, skip: 'TODO after schema built' do
   include SchemaMatchers
 
-  let(:form_data) do
-    VetsJsonSchema::EXAMPLES.fetch('21-8940')
+  describe '#to_pdf' do
+    it 'merges the right keys' do
+      f1 = File.read File.join(__dir__, '21-8940_kitchen-sink.json')
+
+      claim = IncreaseCompensation::SavedClaim.new(form: JSON.parse(f1).to_s)
+
+      form_id = IncreaseCompensation::FORM_ID
+      form_class = IncreaseCompensation::PdfFill::Va218940
+      fill_options = {
+        created_at: '2025-10-15'
+      }
+      merged_form_data = form_class.new(claim.parsed_form).merge_fields(fill_options)
+      submit_date = Utilities::DateParser.parse(
+        fill_options[:created_at]
+      )
+
+      hash_converter = PdfFill::Filler.make_hash_converter(form_id, form_class, submit_date, fill_options)
+      new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
+
+      f2 = File.read File.join(__dir__, '21-8940_hashed.json')
+      data = JSON.parse(f2)
+
+      expect(new_hash).to eq(data)
+    end
   end
 
   context "with #{test_data_types.join(', ')}" do
@@ -35,6 +57,10 @@ describe IncreaseCompensation::PdfFill::Va218940, skip: 'TODO after schema built
   end
 
   describe '#merge_fields' do
+    let(:form_data) do
+      VetsJsonSchema::EXAMPLES.fetch('21-8940')
+    end
+
     it 'merges the right fields' do
       Timecop.freeze(Time.zone.parse('2016-12-31 00:00:00 EDT')) do
         expected = get_fixture_absolute(
