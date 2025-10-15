@@ -45,20 +45,21 @@ jobs:
           # Install PostgreSQL 15 and PostGIS 3 for PostgreSQL 15
           sudo apt-get install -y postgresql-15 postgresql-15-postgis-3 postgresql-15-postgis-3-scripts postgresql-client-15
           
-          # Stop any existing PostgreSQL services and configure to use PostgreSQL 15
+          # Remove any default PostgreSQL clusters and create PostgreSQL 15 cluster
           sudo systemctl stop postgresql || true
-          sudo systemctl start postgresql@15-main || sudo systemctl start postgresql
-          sudo systemctl enable postgresql
+          sudo pg_dropcluster --stop 16 main || true
+          sudo pg_dropcluster --stop 14 main || true
+          sudo pg_createcluster 15 main --start
           
-          # Configure PostgreSQL for development
-          sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'password';"
+          # Configure PostgreSQL 15 for development
+          sudo -u postgres psql -p 5432 -c "ALTER USER postgres PASSWORD 'password';"
           sudo -u postgres createuser --superuser runner || true
           sudo -u postgres createdb vets_api_development -O runner || true
           sudo -u postgres createdb vets_api_test -O runner || true
           
           # Enable PostGIS extension in PostgreSQL 15
-          sudo -u postgres psql -d vets_api_development -c "CREATE EXTENSION IF NOT EXISTS postgis;"
-          sudo -u postgres psql -d vets_api_test -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+          sudo -u postgres psql -p 5432 -d vets_api_development -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+          sudo -u postgres psql -p 5432 -d vets_api_test -c "CREATE EXTENSION IF NOT EXISTS postgis;"
 
       - name: Set up Redis
         run: |
@@ -98,8 +99,8 @@ jobs:
 
       - name: Verify setup
         run: |
-          # Verify PostgreSQL version and connection
-          sudo -u postgres psql -c "SELECT version();"
+          # Verify PostgreSQL version and connection  
+          sudo -u postgres psql -p 5432 -c "SELECT version();"
           bundle exec rails runner "ActiveRecord::Base.connection.execute('SELECT 1')"
           
           # Verify PostGIS extension
