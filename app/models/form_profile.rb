@@ -132,6 +132,7 @@ class FormProfile
     ivc_champva: ['10-7959C'],
     mdot: ['MDOT'],
     pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ],
+    travel_pay: ['CC'],
     vre_counseling: ['28-8832'],
     vre_readiness: %w[28-1900 28-1900-V2]
   }.freeze
@@ -202,7 +203,8 @@ class FormProfile
     '21P-0517-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0519C-1-UPLOAD' => ::FormProfiles::FormUpload,
-    '21-8951-2-UPLOAD' => ::FormProfiles::FormUpload
+    '21-8951-2-UPLOAD' => ::FormProfiles::FormUpload,
+    'CC' => ::FormProfiles::CC
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i

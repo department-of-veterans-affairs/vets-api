@@ -72,6 +72,7 @@ class SourceAppMiddleware
     'coe',
     'coe-status',
     'combined-debt-portal',
+    'complex-claim-form-prototype',
     'coronavirus-research',
     'coronavirus-research-update',
     'covid19screen',

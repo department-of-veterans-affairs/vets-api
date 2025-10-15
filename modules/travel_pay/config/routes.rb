@@ -4,6 +4,9 @@ TravelPay::Engine.routes.draw do
   namespace :v0 do
     resources :claims, only: %i[index show create]
 
+    resources :in_progress_forms,
+              only: %i[index show update destroy]
+
     scope '/claims/:claim_id', constraints: { claim_id: %r{[^/]+} } do
       resources :documents, only: %i[index show create destroy]
       post 'expenses/:expense_type', to: 'expenses#create', constraints: { expense_type: %r{[^/]+} }

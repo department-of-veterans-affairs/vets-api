@@ -1254,6 +1254,7 @@ travel_pay:
   client_number: <%= ENV['travel_pay__client_number'] %>
   mobile_client_number: <%= ENV['travel_pay__mobile_client_number'] %>
   mock: <%= ENV['travel_pay__mock'] %>
+  prefill: true
   service_name: BTSSS-API
   sts:
     scope: <%= ENV['travel_pay__sts__scope'] %>
