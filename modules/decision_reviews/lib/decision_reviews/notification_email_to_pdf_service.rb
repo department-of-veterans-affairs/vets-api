@@ -4,7 +4,35 @@ require 'prawn/table'
 
 module DecisionReviews
   class NotificationEmailToPdfService
-    def initialize(email_content:, email_subject:, email_address:, sent_date:, submission_date:, first_name:, evidence_filename: nil)
+    BODY_TEXT_SIZE = 12
+    METADATA_TEXT_SIZE = 11
+    GRAY_BOX_HEIGHT = 185
+    GRAY_BOX_TOP_PADDING = 24
+    BLOCKQUOTE_INDENT = 40
+    CONTENT_INDENT = 40
+    TEXT_LEADING = 2.5
+    SPACE_SINGLE_HALF = 4
+    SPACE_SINGLE = 8
+    SPACE_SINGLE_HALF = 12
+    SPACE_DOUBLE = 16
+
+    LINK_COLOR = '004795'
+
+    HEADER_UNDERLINE = /^={3,}/
+    DR_EMAIL_HEADER = /^Decision Reviews Notification Email$/
+    METADATA_HEADERS = [/^Email Metadata:$/, /^Email Content:$/].freeze
+    SECTION_DIVIDER = /^-{3,}/
+    BLOCKQUOTE_PATTERN = /^>\s*(.*)/
+    FULL_LINE_BOLDED_TEXT = /^\*\*(.+?)\*\*$/
+    INLINE_BOLDED_TEXT = /(\*\*.*?\*\*)/
+    REGULAR_LINK_PATTERN = /\[(.+?)\]\((.+?)\)/
+    ACTION_LINK_PATTERN = /^\(action-link\)\[(.+?)\]\((.+?)\)/
+    METADATA_PATTERN = /^(To|Subject|Email Sent Date|Original Submission Date|Evidence Filename):/
+    ADDRESS_PATTERN = /^\(address\)(.+)$/
+    FOOTER_SEPARATOR = /^---$/
+
+    def initialize(email_content:, email_subject:, email_address:, sent_date:, submission_date:, first_name:,
+                   evidence_filename: nil)
       @email_content = email_content
       @email_subject = email_subject
       @email_address = email_address
@@ -18,8 +46,6 @@ module DecisionReviews
       pdf_content = build_pdf_content
       generate_pdf_file(pdf_content)
     end
-
-    private
 
     def build_pdf_content
       # Replace redacted fields in email content with personalization data
@@ -37,9 +63,7 @@ module DecisionReviews
         Original Submission Date: #{@submission_date.strftime('%B %d, %Y at %I:%M %p %Z')}
       CONTENT
 
-      if @evidence_filename
-        content += "Evidence Filename: #{@evidence_filename}\n"
-      end
+      content += "Evidence Filename: #{@evidence_filename}\n" if @evidence_filename
 
       content += <<~CONTENT
 
@@ -62,14 +86,12 @@ module DecisionReviews
       # 2. If evidence filename exists, replace <redacted> after "Here's the file name of the document we need"
       if @evidence_filename
         content = content.gsub(/Here's the file name of the document we need[:\s]*<redacted>/i,
-                              "Here's the file name of the document we need: #{@evidence_filename}")
+                               "Here's the file name of the document we need: #{@evidence_filename}")
       end
 
       # 3. Replace any remaining <redacted> fields with formatted submission date
       formatted_submission_date = @submission_date.strftime('%B %d, %Y')
-      content = content.gsub('<redacted>', formatted_submission_date)
-
-      content
+      content.gsub('<redacted>', formatted_submission_date)
     end
 
     def generate_pdf_file(content)
@@ -88,75 +110,297 @@ module DecisionReviews
     def convert_to_pdf(content)
       Prawn::Document.new(page_size: 'LETTER', margin: 50) do |pdf|
         pdf.font_families.update('Helvetica' => {
-          normal: 'Helvetica',
-          bold: 'Helvetica-Bold'
-        })
+                                   normal: 'Helvetica',
+                                   bold: 'Helvetica-Bold'
+                                 })
         pdf.font 'Helvetica'
+        pdf.fill_color '323A45'
 
         add_header(pdf)
 
-        add_formatted_content(pdf, content)
+        pdf.indent(CONTENT_INDENT) do
+          add_formatted_content(pdf, content)
+        end
+
+        pdf.move_down 40
 
         add_footer(pdf)
       end.render
     end
 
-    def add_header(pdf)
-      # VA logo area (placeholder for now)
-      pdf.bounding_box([0, pdf.cursor], width: pdf.bounds.width, height: 60) do
-        pdf.font 'Helvetica-Bold', size: 16
-        pdf.text 'Department of Veterans Affairs', align: :center
-        pdf.move_down 5
-        pdf.font 'Helvetica', size: 12
-        pdf.text 'Decision Reviews Notification Email Archive', align: :center
-        pdf.stroke_horizontal_rule
+    def self.heading_pattern(level)
+      /^\s*(?:<\s*)?#{'\#' * level}(?!#)\s*(.+)/
+    end
+
+    H1_PATTERN = heading_pattern(1)
+    H2_PATTERN = heading_pattern(2)
+    H3_PATTERN = heading_pattern(3)
+
+    def create_va_logo_header(pdf)
+      header_top = pdf.cursor
+
+      pdf.canvas do
+        pdf.fill_color '112E51'
+        pdf.fill_rectangle [0, pdf.bounds.absolute_top], pdf.bounds.absolute_right, 80
       end
-      pdf.move_down 20
+
+      pdf.fill_color '323A45'
+
+      pdf.image 'modules/decision_reviews/spec/fixtures/header-logo.png',
+                at: [CONTENT_INDENT, pdf.bounds.absolute_top - 20],
+                width: 215,
+                height: 48
+
+      pdf.move_cursor_to header_top - CONTENT_INDENT
+      pdf.move_down SPACE_DOUBLE
+    end
+
+    def format_blockquote(pdf, text)
+      pdf.indent(BLOCKQUOTE_INDENT) do
+        text.split("\n").each do |line|
+          pdf.move_down SPACE_DOUBLE if line.strip.empty?
+
+          add_formatted_content(pdf, line)
+        end
+      end
+    end
+
+    def create_gray_section(pdf, text)
+      start_y = pdf.cursor
+
+      pdf.fill_color 'F1F1F1'
+      pdf.fill_rectangle [20, start_y], pdf.bounds.width - 60, GRAY_BOX_HEIGHT
+
+      # Reset color and render content on top
+      pdf.fill_color '323A45'
+
+      pdf.move_down GRAY_BOX_TOP_PADDING
+      format_blockquote(pdf, text)
+    end
+
+    def add_header(pdf)
+      create_va_logo_header(pdf)
+
+      pdf.text 'Department of Veterans Affairs',
+               align: :center,
+               size: 16,
+               style: :bold
+
+      pdf.move_down SPACE_SINGLE_HALF
+
+      pdf.text 'Decision Reviews Notification Email Archive',
+               align: :center,
+               size: 12
+
+      pdf.move_down SPACE_SINGLE
+      pdf.stroke_horizontal_rule
+      pdf.move_down SPACE_DOUBLE
+    end
+
+    def format_section_divider(pdf)
+      pdf.move_down SPACE_SINGLE
+      pdf.stroke_horizontal_rule
+      pdf.move_down SPACE_SINGLE
+    end
+
+    def format_dr_email_header(pdf, line)
+      pdf.font 'Helvetica-Bold', size: 18
+      pdf.text line,
+               align: :center,
+               style: :bold
+      pdf.move_down SPACE_DOUBLE
+    end
+
+    def format_metadata_headers(pdf, line)
+      pdf.move_down SPACE_SINGLE
+      pdf.font 'Helvetica-Bold', size: BODY_TEXT_SIZE
+      pdf.text line,
+               style: :bold
+      pdf.move_down SPACE_SINGLE
+    end
+
+    def format_heading(pdf, text, level:)
+      sizes = { h1: 24, h2: 18, h3: 14 }
+      leadings = { h1: 1.75, h2: 1.25, h3: 1.0 }
+      spacing = { h1: 0, h2: SPACE_SINGLE, h3: SPACE_SINGLE }
+
+      pdf.move_down SPACE_DOUBLE if level == :h1
+
+      pdf.text text,
+               size: sizes[level],
+               leading: leadings[level],
+               style: :bold
+
+      pdf.move_down spacing[level]
+    end
+
+    def format_links(pdf, link_text, link_url, bold: false, **options)
+      styles = options[:styles] || (bold ? %i[underline bold] : [:underline])
+      color = options[:color] || LINK_COLOR
+
+      pdf.formatted_text [{
+        text: link_text,
+        color:,
+        link: link_url,
+        styles:
+      }]
+    end
+
+    def format_action_links(pdf, link_text, link_url)
+      start_y = pdf.cursor
+
+      # Draw image on the left
+      pdf.bounding_box([0, start_y], width: 20, height: 20) do
+        pdf.image 'modules/decision_reviews/spec/fixtures/action-link-arrow.png',
+                  width: 16,
+                  height: 16,
+                  position: :left
+      end
+
+      # Draw text on the right at the same y position
+      pdf.bounding_box([20, start_y - 4], width: pdf.bounds.width - 20, height: 20) do
+        format_links(pdf, link_text, link_url, bold: true)
+      end
+
+      pdf.move_down SPACE_SINGLE_HALF
+    end
+
+    def format_metadata_text(pdf, key, value)
+      pdf.text "#{key}:",
+               size: METADATA_TEXT_SIZE,
+               style: :bold,
+               inline_format: true
+
+      if value
+        pdf.text value.strip,
+                 size: METADATA_TEXT_SIZE,
+                 style: :normal
+      end
+
+      pdf.move_down SPACE_SINGLE_HALF
+    end
+
+    def parse_inline_formatting(text)
+      fragments = []
+      last_pos = 0
+
+      # Scan for all bold and link matches in order
+      text.scan(/\*\*(.+?)\*\*|\[(.+?)\]\((.+?)\)/) do
+        match = Regexp.last_match
+        match_start = match.begin(0)
+        match_end = match.end(0)
+
+        # Add any text before this match
+        fragments << { text: text[last_pos...match_start] } if match_start > last_pos
+
+        # Add the matched element
+        fragments << if match[1] # Bold text (first capture group)
+                       { text: match[1], styles: [:bold] }
+                     else # Link (second and third capture groups, text and URL)
+                       {
+                         text: match[2],
+                         color: LINK_COLOR,
+                         link: match[3],
+                         styles: [:underline]
+                       }
+                     end
+
+        last_pos = match_end
+      end
+
+      # Add any remaining text after the last match
+      fragments << { text: text[last_pos..] } if last_pos < text.length
+
+      fragments
+    end
+
+    def format_paragraph_content(pdf, line)
+      if line.strip.empty?
+        pdf.move_down SPACE_DOUBLE
+      elsif line.include?('**') || line.include?('[')
+        fragments = parse_inline_formatting(line.strip)
+        pdf.formatted_text fragments,
+                           size: BODY_TEXT_SIZE,
+                           leading: TEXT_LEADING
+      else
+        pdf.font 'Helvetica'
+        pdf.text line.strip,
+                 size: BODY_TEXT_SIZE,
+                 leading: TEXT_LEADING
+      end
+    end
+
+    def format_address_block(pdf, address_text)
+      address_lines = address_text.split('|').map(&:strip)
+
+      address_lines.each do |address_line|
+        pdf.text address_line,
+                 size: BODY_TEXT_SIZE,
+                 leading: TEXT_LEADING
+      end
+    end
+
+    def format_footer_separator(pdf)
+      pdf.move_down SPACE_DOUBLE
+      pdf.stroke_horizontal_rule
+      pdf.move_down SPACE_SINGLE
     end
 
     def add_formatted_content(pdf, content)
       lines = content.split("\n")
+      i = 0
 
-      lines.each do |line|
+      while i < lines.length
+        line = lines[i]
+
         case line
-        when /^={3,}/ # Header underlines
-          next # Skip underline characters, we'll format headers differently
-        when /^-{3,}/ # Section dividers
-          pdf.move_down 10
-          pdf.stroke_horizontal_rule
-          pdf.move_down 10
-        when /^Decision Reviews Notification Email$/
-          pdf.font 'Helvetica-Bold', size: 18
-          pdf.text line, align: :center
-          pdf.move_down 15
-        when /^Email Metadata:$/, /^Email Content:$/
-          pdf.move_down 10
-          pdf.font 'Helvetica-Bold', size: 14
-          pdf.text line
-          pdf.move_down 8
-        when /^(To|Subject|Email Sent Date|Original Submission Date|Evidence Filename):/
+        when HEADER_UNDERLINE
+          # Skip underline characters, we'll format headers differently
+        when SECTION_DIVIDER
+          format_section_divider(pdf)
+        when DR_EMAIL_HEADER
+          format_dr_email_header(pdf, line)
+        when *METADATA_HEADERS
+          format_metadata_headers(pdf, line)
+        when H1_PATTERN
+          header_text = Regexp.last_match(1).strip
+          format_heading(pdf, header_text, level: :h1)
+        when H2_PATTERN
+          header_text = Regexp.last_match(1).strip
+          format_heading(pdf, header_text, level: :h2)
+        when H3_PATTERN
+          header_text = Regexp.last_match(1).strip
+          format_heading(pdf, header_text, level: :h3)
+        when ACTION_LINK_PATTERN
+          link_text = Regexp.last_match(1)
+          link_url = Regexp.last_match(2)
+          format_action_links(pdf, link_text, link_url)
+        when METADATA_PATTERN
           # Format metadata as key-value pairs
           key, value = line.split(':', 2)
-          pdf.font 'Helvetica-Bold', size: 11
-          pdf.text key + ':', inline_format: true
-          pdf.font 'Helvetica', size: 11
-          pdf.text value.strip if value
-          pdf.move_down 5
-        when /^---$/
-          # Footer separator
-          pdf.move_down 15
-          pdf.stroke_horizontal_rule
-          pdf.move_down 10
-        else
-          # Regular content
-          unless line.strip.empty?
-            pdf.font 'Helvetica', size: 11
-            pdf.text line.strip
-            pdf.move_down 5
-          else
-            pdf.move_down 8
+          format_metadata_text(pdf, key, value)
+        when ADDRESS_PATTERN
+          address_text = Regexp.last_match(1)
+          format_address_block(pdf, address_text)
+        when BLOCKQUOTE_PATTERN
+          blockquote_lines = []
+
+          while i < lines.length && lines[i] =~ BLOCKQUOTE_PATTERN
+            blockquote_lines << Regexp.last_match(1) # Capture text after '>'
+            i += 1
           end
+
+          i -= 1 # Back up one since the outer loop will increment
+
+          blockquote_text = blockquote_lines.join("\n")
+          create_gray_section(pdf, blockquote_text)
+        when FOOTER_SEPARATOR
+          format_footer_separator(pdf)
+        else
+          format_paragraph_content(pdf, line)
         end
+
+        i += 1
       end
     end
 
@@ -164,7 +408,6 @@ module DecisionReviews
       pdf.bounding_box([0, 50], width: pdf.bounds.width, height: 40) do
         pdf.font 'Helvetica', size: 8
         pdf.text "Generated: #{Time.current.strftime('%B %d, %Y at %I:%M %p %Z')}", align: :center
-        pdf.move_down 2
         pdf.text "Document ID: #{generate_document_id}", align: :center
       end
     end

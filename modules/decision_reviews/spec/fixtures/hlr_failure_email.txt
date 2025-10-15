@@ -8,19 +8,17 @@ You submitted a request for a Higher-Level Review (VA Form 20-0996), but we had 
 You'll need to submit your form again. We recommend you submit your form again by mail or in person.
 
 You’ll need to download and fill out a Decision Review Request: Higher-Level Review (VA Form 20-0996).
->>[Get VA Form 20-0996 to download](https://www.va.gov/find-forms/about-form-20-0996/)\u2028
+
+(action-link)[Get VA Form 20-0996 to download](https://www.va.gov/find-forms/about-form-20-0996/)\u2028
 
 ### Option 1: By mail
 Mail the completed form to this address:
 
-Department of Veterans Affairs
-Claims Intake Center
-PO Box 4444
-Janesville, WI 53547-4444
+(address)Department of Veterans Affairs | Claims Intake Center | PO Box 4444 | Janesville, WI 53547-4444
 
 ### Option 2: In person
 Bring the completed form to a VA regional office.
-[Find a VA regional office near you](https://www.va.gov/find-locations/)\u2028
+[Find a VA regional office near you](https://www.va.gov/find-locations/)
 
 **Note:** You can ask a VA regional office for copies of the forms to fill out. Or call us at 800-827-1000 (TTY: 711) to request forms. We’re here Monday through Friday, 8:00 a.m. to 9:00 p.m. ET. 
 
@@ -35,7 +33,6 @@ Bring the completed form to a VA regional office.
 
 ## What to do if you have questions
 Call us at 800-827-1000 (TTY: 711). We’re here Monday through Friday, 8:00 a.m. to 9:00 p.m. ET.
-
 
 Thank you
 

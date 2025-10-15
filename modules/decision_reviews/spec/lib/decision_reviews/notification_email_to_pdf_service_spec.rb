@@ -4,7 +4,9 @@ require './modules/decision_reviews/spec/dr_spec_helper'
 require './modules/decision_reviews/lib/decision_reviews/notification_email_to_pdf_service'
 
 RSpec.describe DecisionReviews::NotificationEmailToPdfService do
-  let(:email_content) { File.read(Rails.root.join('modules/decision_reviews/spec/fixtures/hlr_failure_email.txt')) }
+  let(:email_content) do
+    File.read(Rails.root.join('modules', 'decision_reviews', 'spec', 'fixtures', 'hlr_failure_email.txt'))
+  end
   let(:email_subject) { 'Action needed: We can\'t process your request for a Higher-Level Review' }
   let(:email_address) { 'john.doe@example.com' }
   let(:sent_date) { Time.zone.parse('2025-10-01 10:00:00') }
@@ -15,12 +17,12 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
   describe '#initialize' do
     it 'creates service with required parameters' do
       service = described_class.new(
-        email_content: email_content,
-        email_subject: email_subject,
-        email_address: email_address,
-        sent_date: sent_date,
-        submission_date: submission_date,
-        first_name: first_name
+        email_content:,
+        email_subject:,
+        email_address:,
+        sent_date:,
+        submission_date:,
+        first_name:
       )
 
       expect(service).to be_instance_of(described_class)
@@ -28,13 +30,13 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
 
     it 'creates service with optional evidence filename' do
       service = described_class.new(
-        email_content: email_content,
-        email_subject: email_subject,
-        email_address: email_address,
-        sent_date: sent_date,
-        submission_date: submission_date,
-        first_name: first_name,
-        evidence_filename: evidence_filename
+        email_content:,
+        email_subject:,
+        email_address:,
+        sent_date:,
+        submission_date:,
+        first_name:,
+        evidence_filename:
       )
 
       expect(service).to be_instance_of(described_class)
@@ -42,12 +44,12 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
 
     it 'creates service without evidence filename' do
       service = described_class.new(
-        email_content: email_content,
-        email_subject: email_subject,
-        email_address: email_address,
-        sent_date: sent_date,
-        submission_date: submission_date,
-        first_name: first_name,
+        email_content:,
+        email_subject:,
+        email_address:,
+        sent_date:,
+        submission_date:,
+        first_name:,
         evidence_filename: nil
       )
 
@@ -58,12 +60,12 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
   describe '#generate_pdf' do
     let(:service) do
       described_class.new(
-        email_content: email_content,
-        email_subject: email_subject,
-        email_address: email_address,
-        sent_date: sent_date,
-        submission_date: submission_date,
-        first_name: first_name
+        email_content:,
+        email_subject:,
+        email_address:,
+        sent_date:,
+        submission_date:,
+        first_name:
       )
     end
 
@@ -110,13 +112,13 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
     context 'with evidence filename' do
       let(:service_with_evidence) do
         described_class.new(
-          email_content: email_content,
-          email_subject: email_subject,
-          email_address: email_address,
-          sent_date: sent_date,
-          submission_date: submission_date,
-          first_name: first_name,
-          evidence_filename: evidence_filename
+          email_content:,
+          email_subject:,
+          email_address:,
+          sent_date:,
+          submission_date:,
+          first_name:,
+          evidence_filename:
         )
       end
 
@@ -134,11 +136,11 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
         long_content = 'This is a very long email content. ' * 100
         long_service = described_class.new(
           email_content: long_content,
-          email_subject: email_subject,
-          email_address: email_address,
-          sent_date: sent_date,
-          submission_date: submission_date,
-          first_name: first_name
+          email_subject:,
+          email_address:,
+          sent_date:,
+          submission_date:,
+          first_name:
         )
 
         pdf_path = long_service.generate_pdf
@@ -154,8 +156,8 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
           email_content: special_content,
           email_subject: 'Subject with spëcial chârs',
           email_address: 'tëst@ëxample.com',
-          sent_date: sent_date,
-          submission_date: submission_date,
+          sent_date:,
+          submission_date:,
           first_name: 'Tëst'
         )
 
@@ -188,12 +190,12 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
 
       it 'handles edge case dates' do
         edge_service = described_class.new(
-          email_content: email_content,
-          email_subject: email_subject,
-          email_address: email_address,
+          email_content:,
+          email_subject:,
+          email_address:,
           sent_date: Time.zone.parse('2025-12-31 23:59:59'),
           submission_date: Time.zone.parse('2025-01-01 00:00:01'),
-          first_name: first_name
+          first_name:
         )
 
         pdf_path = edge_service.generate_pdf
@@ -210,10 +212,10 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       redacted_content = 'Dear <redacted>, your form was submitted on <redacted>.'
       service = described_class.new(
         email_content: redacted_content,
-        email_subject: email_subject,
-        email_address: email_address,
-        sent_date: sent_date,
-        submission_date: submission_date,
+        email_subject:,
+        email_address:,
+        sent_date:,
+        submission_date:,
         first_name: 'Jane'
       )
 
@@ -228,10 +230,10 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       redacted_content = 'Dear <redacted>, Here\'s the file name of the document we need: <redacted>. Submission date: <redacted>.'
       service = described_class.new(
         email_content: redacted_content,
-        email_subject: email_subject,
-        email_address: email_address,
-        sent_date: sent_date,
-        submission_date: submission_date,
+        email_subject:,
+        email_address:,
+        sent_date:,
+        submission_date:,
         first_name: 'Bob',
         evidence_filename: 'evidence_document.pdf'
       )
@@ -247,10 +249,10 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       redacted_content = 'Dear <redacted>, your submission on <redacted> was received. Follow-up date: <redacted>.'
       service = described_class.new(
         email_content: redacted_content,
-        email_subject: email_subject,
-        email_address: email_address,
-        sent_date: sent_date,
-        submission_date: submission_date,
+        email_subject:,
+        email_address:,
+        sent_date:,
+        submission_date:,
         first_name: 'Charlie'
       )
 
@@ -264,11 +266,11 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
     it 'handles all replacement types in fixture content' do
       # The fixture file contains "Dear <redacted>," and a submission date "<redacted>"
       service = described_class.new(
-        email_content: email_content,
-        email_subject: email_subject,
-        email_address: email_address,
-        sent_date: sent_date,
-        submission_date: submission_date,
+        email_content:,
+        email_subject:,
+        email_address:,
+        sent_date:,
+        submission_date:,
         first_name: 'Sarah'
       )
 
@@ -284,10 +286,10 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       redacted_content = 'dear <redacted>, your form was processed.'
       service = described_class.new(
         email_content: redacted_content,
-        email_subject: email_subject,
-        email_address: email_address,
-        sent_date: sent_date,
-        submission_date: submission_date,
+        email_subject:,
+        email_address:,
+        sent_date:,
+        submission_date:,
         first_name: 'David'
       )
 
