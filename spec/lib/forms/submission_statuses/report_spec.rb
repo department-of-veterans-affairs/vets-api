@@ -9,13 +9,14 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
   subject { described_class.new(user_account:, allowed_forms:) }
 
   let(:user_account) { create(:user_account) }
-  let(:allowed_forms) { %w[20-10207 21-0845 21-0972 21-10210 21-4142 21-4142a 21P-0847 21-4140] }
+  let(:allowed_forms) { %w[20-10207 21-0845 21-0972 21-10210 21-4142 21-4142a 21P-0847 21-4140 21P-530EZ] }
 
   context 'when user has no submissions' do
     let(:benefits_intake_gateway) { Forms::SubmissionStatuses::BenefitsIntakeGateway }
 
     before do
       allow_any_instance_of(benefits_intake_gateway).to receive(:submissions).and_return([])
+      allow_any_instance_of(benefits_intake_gateway).to receive(:lighthouse_submissions).and_return([])
       allow_any_instance_of(benefits_intake_gateway).to receive(:intake_statuses).and_return([nil, nil])
     end
 
@@ -25,7 +26,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
     end
   end
 
-  context 'when user has submissions' do
+  context 'when user has form submissions only' do
     before do
       create(:form_submission, :with_form214142, user_account_id: user_account.id)
       create(:form_submission, :with_form210845, user_account_id: user_account.id)
@@ -36,6 +37,9 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
 
       # This 20-10207 form is older than 60 days and should not be included in the results
       create(:form_submission, :with_form2010207, user_account_id: user_account.id)
+
+      allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
+        .to receive(:lighthouse_submissions).and_return([])
     end
 
     context 'has statuses' do
@@ -105,66 +109,144 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
         expect(submission_status.pdf_support).to be(true)
       end
     end
+  end
 
-    context 'when no statuses' do
-      before do
-        allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
-          .to receive(:intake_statuses)
-          .and_return([nil, nil])
-      end
+  context 'when user has lighthouse submissions only' do
+    let!(:saved_claim) { create(:burials_saved_claim, :pending, user_account:) }
+    let!(:lighthouse_submission) { saved_claim.lighthouse_submissions.first }
 
-      it 'returns the correct count' do
-        result = subject.run
-
-        expect(result.submission_statuses.size).to be(3)
-      end
-
-      it 'returns the correct values' do
-        result = subject.run
-
-        submission_status = result.submission_statuses.first
-        expect(submission_status.id).to eq('4b846069-e496-4f83-8587-42b570f24483')
-        expect(submission_status.detail).to be_nil
-        expect(submission_status.form_type).to eq('21-4142')
-        expect(submission_status.message).to be_nil
-        expect(submission_status.status).to be_nil
-        expect(submission_status.pdf_support).to be(true)
-      end
+    before do
+      allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
+        .to receive(:submissions).and_return([])
     end
 
-    context 'when missing status' do
+    context 'has statuses' do
       before do
+        benefits_intake_uuid = lighthouse_submission.submission_attempts.last&.benefits_intake_uuid || 'test-uuid-123'
+
+        allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway).to receive(:intake_statuses).and_return(
+          [
+            [
+              {
+                'id' => benefits_intake_uuid,
+                'attributes' => {
+                  'detail' => 'lighthouse detail',
+                  'guid' => benefits_intake_uuid,
+                  'message' => 'lighthouse message',
+                  'status' => 'pending',
+                  'updated_at' => 1.day.ago
+                }
+              }
+            ],
+            nil
+          ]
+        )
+      end
+
+      it 'returns lighthouse submission data' do
+        result = subject.run
+
+        expect(result.submission_statuses.size).to be(1)
+        submission_status = result.submission_statuses.first
+
+        benefits_intake_uuid = lighthouse_submission.submission_attempts.last&.benefits_intake_uuid || 'test-uuid-123'
+        expect(submission_status.id).to eq(benefits_intake_uuid)
+        expect(submission_status.form_type).to eq('21P-530EZ')
+        expect(submission_status.status).to eq('pending')
+      end
+    end
+  end
+
+  context 'when user has mixed submissions' do
+    let!(:saved_claim) { create(:burials_saved_claim, :pending, user_account:) }
+    let!(:lighthouse_submission) { saved_claim.lighthouse_submissions.first }
+
+    before do
+      create(:form_submission, :with_form214142, user_account_id: user_account.id)
+    end
+
+    context 'combines both submission types' do
+      before do
+        benefits_intake_uuid = lighthouse_submission.submission_attempts.last&.benefits_intake_uuid || 'test-uuid-123'
         allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway).to receive(:intake_statuses).and_return(
           [
             [
               {
                 'id' => '4b846069-e496-4f83-8587-42b570f24483',
                 'attributes' => {
-                  'detail' => 'detail',
-                  'guid' => '4b846069-e496-4f83-8587-42b570f24483',
-                  'message' => 'message',
+                  'status' => 'received',
                   'updated_at' => 2.days.ago,
-                  'status' => 'received'
+                  'detail' => 'form submission detail',
+                  'guid' => '4b846069-e496-4f83-8587-42b570f24483',
+                  'message' => 'form submission message'
+                }
+              },
+              {
+                'id' => benefits_intake_uuid,
+                'attributes' => {
+                  'status' => 'processing',
+                  'updated_at' => 1.day.ago,
+                  'detail' => 'lighthouse detail',
+                  'guid' => benefits_intake_uuid,
+                  'message' => 'lighthouse message'
                 }
               }
-            ]
-          ],
-          nil
+            ],
+            nil
+          ]
         )
       end
 
-      it 'returns the correct count' do
+      it 'returns combined submission count' do
         result = subject.run
 
-        expect(result.submission_statuses.size).to be(3)
+        expect(result.submission_statuses.size).to be(2)
+
+        # Check we have both types
+        form_types = result.submission_statuses.map(&:form_type)
+        expect(form_types).to include('21-4142', '21P-530EZ')
       end
 
-      it 'sorts results' do
+      it 'sorts by creation time across both types' do
         result = subject.run
 
-        expect(result.submission_statuses.first.updated_at).to be_nil
-        expect(result.submission_statuses.last.updated_at).not_to be_nil
+        submission_statuses = result.submission_statuses
+        expect(submission_statuses.first.updated_at).to be <= submission_statuses.last.updated_at
+
+        # Verify the sorting order - older should come first
+        expect(submission_statuses.first.updated_at.to_date).to eq(2.days.ago.to_date)
+        expect(submission_statuses.last.updated_at.to_date).to eq(1.day.ago.to_date)
       end
+    end
+  end
+
+  context 'when no statuses' do
+    before do
+      create(:form_submission, :with_form214142, user_account_id: user_account.id)
+
+      allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
+        .to receive(:lighthouse_submissions).and_return([])
+      allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
+        .to receive(:intake_statuses)
+        .and_return([nil, nil])
+    end
+
+    it 'returns the correct count' do
+      result = subject.run
+
+      expect(result.submission_statuses.size).to be(1)
+    end
+
+    it 'returns the correct values' do
+      result = subject.run
+
+      submission_status = result.submission_statuses.first
+      expect(submission_status.id).to eq('4b846069-e496-4f83-8587-42b570f24483')
+      expect(submission_status.detail).to be_nil
+      expect(submission_status.form_type).to eq('21-4142')
+      expect(submission_status.message).to be_nil
+      expect(submission_status.status).to be_nil
+      expect(submission_status.pdf_support).to be(true)
     end
   end
 
