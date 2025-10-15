@@ -20,7 +20,26 @@ module AccreditedRepresentativePortal
       before_action :feature_enabled
       before_action :parse_request_body, :validate_form, only: [:submit]
 
+      def details
+        details_slug = params[:details_slug]
+        Rails.logger.info("Received Form21a details submission for: #{details_slug}")
+
+        # debugger
+        render json: {
+          data: {
+            attributes: {
+              confirmationCode: SecureRandom.uuid,
+              name: params[:file].original_filename,
+              size: params[:file].size,
+              fileType: params[:file].content_type,
+              # createdAt: Time.zone.now.iso8601
+            }
+          }
+        }, status: :ok
+      end
+
       def submit
+        # debugger
         form_hash = JSON.parse(@parsed_request_body)
 
         begin
@@ -70,6 +89,7 @@ module AccreditedRepresentativePortal
       end
 
       def validate_form
+        debugger
         errors = JSON::Validator.fully_validate(schema, @parsed_request_body)
         raise SchemaValidationError, errors if errors.any?
       rescue SchemaValidationError => e
