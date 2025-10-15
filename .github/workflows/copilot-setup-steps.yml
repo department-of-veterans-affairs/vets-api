@@ -22,7 +22,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3.6'
-          bundler-cache: true
+          bundler-cache: false
 
       - name: Install system dependencies
         run: |
@@ -72,6 +72,9 @@ jobs:
       - name: Install Ruby dependencies
         run: |
           gem install bundler
+          # Configure bundler to not be in frozen mode and allow missing Sidekiq Enterprise gems
+          # This is expected - Sidekiq Enterprise requires a license that's not available in CI
+          bundle config set frozen false
           bundle install --jobs 4 --retry 3
 
       - name: Setup configuration files
