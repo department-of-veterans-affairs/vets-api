@@ -1192,9 +1192,9 @@ reports:
 res:
   api_key: fake_auth
   base_url: https://fake_url.com
-  mock_ch_31: ~
   ch_31_eligibility:
     mock: ~
+  mock_ch_31: ~
 review_instance_slug: ~
 rrd:
   alerts:

@@ -1177,9 +1177,9 @@ reports:
 res:
   api_key: <%= ENV['res__api_key'] %>
   base_url: <%= ENV['res__base_url'] %>
-  mock_ch_31: <%= ENV['res__mock_ch31'] %>
   ch_31_eligibility:
     mock: <%= ENV['res__ch_31_eligibility__mock']%>
+  mock_ch_31: <%= ENV['res__mock_ch31'] %>
 review_instance_slug: <%= ENV['review_instance_slug'] %>
 rrd:
   alerts:
