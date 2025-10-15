@@ -2341,7 +2341,7 @@ features:
     description: Toggle sending of the Persistent Attachment Error email notification
   pbb_forms_require_loa3:
     actor_type: user
-    description: Toggle to lock forms to authenticated users only (Pension, Burials, Income and Assets)
+    description: Require LOA3 authentication to access Pension, Burials, and Income and Assets forms
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
