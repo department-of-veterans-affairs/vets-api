@@ -68,7 +68,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
 
       expect(response).to be_successful
       resp_body = JSON.parse(response.body)
-      puts "  resp_body: #{resp_body}"
       expect(resp_body['data'][0]['attributes']['station_number']).to eq('612A4')
     end
 
