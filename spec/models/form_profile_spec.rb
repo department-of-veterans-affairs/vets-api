@@ -1777,7 +1777,7 @@ RSpec.describe FormProfile, type: :model do
               let(:dependents_information) do
                 [{
                   'fullName' => { 'first' => 'JANE', 'middle' => 'M', 'last' => 'WEBB' },
-                  'dateOfBirth' => '1960-02-01',
+                  'dateOfBirth' => '1960-01-02',
                   'ssn' => '222883214',
                   'relationshipToVeteran' => 'Spouse',
                   'awardIndicator' => 'Y'
@@ -1794,7 +1794,6 @@ RSpec.describe FormProfile, type: :model do
                 allow(dependent_service).to receive(:get_dependents).and_return(dependents_data)
 
                 result = form_profile.prefill
-                puts result
                 expect(result[:form_data]).to have_key('veteranInformation')
                 expect(result[:form_data]).to have_key('veteranContactInformation')
                 expect(result[:form_data]).to have_key('nonPrefill')
