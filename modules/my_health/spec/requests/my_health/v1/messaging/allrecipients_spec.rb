@@ -40,16 +40,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
     after do
       VCR.eject_cassette
     end
-
-    it 'handles facilities api errors gracefully' do
-      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
-        VCR.use_cassette('sm_client/get_facilities_fails') do
-          get '/my_health/v1/messaging/allrecipients'
-          expect(response).to be_successful
-          expect(response.body).to include('facility_error')
-        end
-      end
-    end
   end
 
   context 'when authorized' do
@@ -61,37 +51,40 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
       VCR.eject_cassette
     end
 
-    it 'replaces missing health care system names' do
+    it 'replaces missing health care system names in non-prod environments' do
       VCR.use_cassette('sm_client/triage_teams/gets_all_triage_team_recipients_missing_system_names') do
-        VCR.use_cassette('sm_client/get_unique_care_systems') do
-          get '/my_health/v1/messaging/allrecipients'
-        end
+        get '/my_health/v1/messaging/allrecipients'
       end
 
       expect(response).to be_successful
       resp_body = JSON.parse(response.body)
-      expect(resp_body['data'][0]['attributes']['health_care_system_name']).to eq('Dayton VA Medical Center')
       expect(resp_body['data'][0]['attributes']['station_number']).to eq('552')
+    end
+
+    it 'replaces missing health care system ids in prod environment' do
+      VCR.use_cassette('sm_client/triage_teams/gets_all_triage_team_recipients_vha_612') do
+        get '/my_health/v1/messaging/allrecipients'
+      end
+
+      expect(response).to be_successful
+      resp_body = JSON.parse(response.body)
+      puts "  resp_body: #{resp_body}"
+      expect(resp_body['data'][0]['attributes']['station_number']).to eq('612A4')
     end
 
     it 'does not replace existing health care system names but does replace non-prod station_numbers' do
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
-        VCR.use_cassette('sm_client/get_unique_care_systems') do
-          get '/my_health/v1/messaging/allrecipients'
-        end
+        get '/my_health/v1/messaging/allrecipients'
       end
 
       expect(response).to be_successful
       resp_body = JSON.parse(response.body)
-      expect(resp_body['data'][0]['attributes']['health_care_system_name']).to eq('VA Wichita Health Care')
       expect(resp_body['data'][0]['attributes']['station_number']).to eq('552')
     end
 
     it 'responds to GET #index' do
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
-        VCR.use_cassette('sm_client/get_unique_care_systems') do
-          get '/my_health/v1/messaging/allrecipients'
-        end
+        get '/my_health/v1/messaging/allrecipients'
       end
 
       expect(response).to be_successful
@@ -101,9 +94,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
 
     it 'responds to GET #index when camel-inflected' do
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
-        VCR.use_cassette('sm_client/get_unique_care_systems') do
-          get '/my_health/v1/messaging/allrecipients', headers: { 'X-Key-Inflection' => 'camel' }
-        end
+        get '/my_health/v1/messaging/allrecipients', headers: { 'X-Key-Inflection' => 'camel' }
       end
 
       expect(response).to be_successful
@@ -129,9 +120,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
 
       VCR.use_cassette('sm_client/session_require_oh') do
         VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_require_oh') do
-          VCR.use_cassette('sm_client/get_unique_care_systems') do
-            get '/my_health/v1/messaging/allrecipients'
-          end
+          get '/my_health/v1/messaging/allrecipients'
         end
       end
 

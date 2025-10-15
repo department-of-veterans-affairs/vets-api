@@ -8,32 +8,12 @@ module MyHealth
 
     def set_health_care_system_names(all_triage_teams_collection)
       triage_teams = all_triage_teams_collection.records
-      facility_ids = triage_teams.map(&:station_number).uniq
       triage_teams.each do |team|
-        team.station_number = convert_non_prod_id(team.station_number)
-      end
-      begin
-        facility_map = get_facility_map(facility_ids)
-        triage_teams.each do |team|
-          team.health_care_system_name = facility_map[team.station_number] if team.health_care_system_name.blank?
-        end
-      rescue => e
-        all_triage_teams_collection.metadata[:facility_error] = e.message
+        station_number = convert_non_prod_id(team.station_number)
+        station_number = convert_prod_id(station_number)
+        team.station_number = station_number
       end
       all_triage_teams_collection
-    end
-
-    def get_facility_map(facility_ids)
-      converted_facility_ids = convert_non_prod_ids(facility_ids)
-      facilities = get_facilities(converted_facility_ids)
-      facilities.each_with_object({}) do |facility, map|
-        id = facility.id.sub(/^vha_/, '')
-        map[id] = facility.name
-      end
-    end
-
-    def get_facilities(facility_ids)
-      facilities_service.get_facilities(facilityIds: facility_ids.to_a.map { |id| "vha_#{id}" }.join(','))
     end
 
     def convert_non_prod_ids(ids)
@@ -57,8 +37,13 @@ module MyHealth
       end
     end
 
-    def facilities_service
-      Lighthouse::Facilities::V1::Client.new
+    def convert_prod_id(id)
+      case id
+      when '612'
+        '612A4'
+      else
+        id
+      end
     end
   end
 end
