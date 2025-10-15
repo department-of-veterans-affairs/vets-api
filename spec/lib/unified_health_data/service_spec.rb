@@ -1374,9 +1374,11 @@ describe UnifiedHealthData::Service, type: :service do
     let(:ccd_response) do
       Faraday::Response.new(body: ccd_fixture)
     end
+    let(:client_double) { instance_double(UnifiedHealthData::Client) }
 
     before do
-      allow_any_instance_of(UnifiedHealthData::Client).to receive(:get_ccd).and_return(ccd_response)
+      allow(UnifiedHealthData::Client).to receive(:new).and_return(client_double)
+      allow(client_double).to receive(:get_ccd).and_return(ccd_response)
     end
 
     context 'when successful' do
@@ -1390,13 +1392,9 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'calls the client with correct parameters' do
-        client_spy = spy('client')
-        allow(UnifiedHealthData::Client).to receive(:new).and_return(client_spy)
-        allow(client_spy).to receive(:get_ccd).and_return(ccd_response)
-
         service.get_ccd_metadata(start_date:, end_date:)
 
-        expect(client_spy).to have_received(:get_ccd)
+        expect(client_double).to have_received(:get_ccd)
           .with(patient_id: user.icn, start_date:, end_date:)
       end
     end
@@ -1424,8 +1422,11 @@ describe UnifiedHealthData::Service, type: :service do
       Faraday::Response.new(body: ccd_fixture)
     end
 
+    let(:client_double) { instance_double(UnifiedHealthData::Client) }
+
     before do
-      allow_any_instance_of(UnifiedHealthData::Client).to receive(:get_ccd).and_return(ccd_response)
+      allow(UnifiedHealthData::Client).to receive(:new).and_return(client_double)
+      allow(client_double).to receive(:get_ccd).and_return(ccd_response)
     end
 
     context 'when requesting XML format' do
@@ -1457,7 +1458,7 @@ describe UnifiedHealthData::Service, type: :service do
       it 'raises an error for missing HTML' do
         expect do
           service.get_ccd_binary(start_date:, end_date:, format: 'html')
-        end.to raise_error(RuntimeError, /Format html not available/)
+        end.to raise_error(ArgumentError, /Format html not available/)
       end
     end
 
@@ -1466,6 +1467,18 @@ describe UnifiedHealthData::Service, type: :service do
         expect do
           service.get_ccd_binary(start_date:, end_date:, format: 'json')
         end.to raise_error(ArgumentError, /Invalid format/)
+      end
+    end
+
+    context 'when DocumentReference is missing' do
+      let(:empty_bundle) { '{"entry": []}' }
+      let(:ccd_response) do
+        Faraday::Response.new(body: empty_bundle)
+      end
+
+      it 'returns nil when no CCD document exists' do
+        result = service.get_ccd_binary(start_date:, end_date:, format: 'xml')
+        expect(result).to be_nil
       end
     end
   end

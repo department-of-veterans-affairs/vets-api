@@ -180,13 +180,13 @@ RSpec.describe 'ClinicalNotesAdapter' do
     end
 
     it 'raises error for unavailable format' do
-      # Modify fixture to remove HTML
-      modified_entry = document_ref_entry.dup
+      # Deep copy fixture to remove HTML without mutating original
+      modified_entry = JSON.parse(document_ref_entry.to_json)
       modified_entry['resource']['content'].first['attachment'].delete('html')
 
       expect do
         adapter.parse_ccd_binary(modified_entry, 'html')
-      end.to raise_error(RuntimeError, /Format html not available/)
+      end.to raise_error(ArgumentError, /Format html not available/)
     end
   end
 end

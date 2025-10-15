@@ -194,11 +194,7 @@ module UnifiedHealthData
         response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
-        # Find DocumentReference for CCD
-        document_ref = body['entry']&.find do |entry|
-          entry['resource']['resourceType'] == 'DocumentReference'
-        end
-
+        document_ref = find_document_reference(body)
         return nil unless document_ref
 
         clinical_notes_adapter.parse_ccd_metadata(document_ref)
@@ -216,11 +212,7 @@ module UnifiedHealthData
         response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
-        # Find DocumentReference for CCD
-        document_ref = body['entry']&.find do |entry|
-          entry['resource']['resourceType'] == 'DocumentReference'
-        end
-
+        document_ref = find_document_reference(body)
         return nil unless document_ref
 
         clinical_notes_adapter.parse_ccd_binary(document_ref, format)
@@ -416,6 +408,17 @@ module UnifiedHealthData
 
     def logger
       @logger ||= UnifiedHealthData::Logging.new(@user)
+    end
+
+    # Finds DocumentReference resource in FHIR Bundle response
+    # Used for CCD and similar document-based resources
+    #
+    # @param body [Hash] Parsed FHIR Bundle response body
+    # @return [Hash, nil] DocumentReference entry or nil if not found
+    def find_document_reference(body)
+      body['entry']&.find do |entry|
+        entry['resource']['resourceType'] == 'DocumentReference'
+      end
     end
 
     # Date helpers (single source for default UHD date range)

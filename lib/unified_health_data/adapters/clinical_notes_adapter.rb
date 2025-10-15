@@ -19,14 +19,6 @@ module UnifiedHealthData
         'OTHER' => 'other'
       }.freeze
 
-      # LOINC codes for Continuity of Care Document (CCD)
-      # 34133-9: Standard CCD LOINC code (C-CDA R2.1)
-      # 34133-9-0: Alternative format sometimes used by SCDF/Oracle Health
-      CCD_LOINC_CODE_MAPPING = {
-        '34133-9' => 'continuity_of_care_document',
-        '34133-9-0' => 'continuity_of_care_document'
-      }.freeze
-
       FHIR_RESOURCE_TYPES = {
         BUNDLE: 'Bundle',
         DIAGNOSTIC_REPORT: 'DiagnosticReport',
@@ -98,7 +90,7 @@ module UnifiedHealthData
         return nil unless attachment
 
         format_data = extract_format_data(attachment, format)
-        raise "Format #{format} not available for this CCD" unless format_data
+        raise ArgumentError, "Format #{format} not available for this CCD" unless format_data
 
         UnifiedHealthData::BinaryData.new(
           content_type: content_type_for_format(format),
