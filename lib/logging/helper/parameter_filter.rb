@@ -28,7 +28,7 @@ module Logging
         return params if filter_parameters.try(:empty?) # empty array; undefined lambda
 
         allowlist = allowlist.map(&:to_s).uniq
-        filter_param(nil, params, allowlist)
+        filter_param(nil, params.deep_dup, allowlist)
       end
 
       # check if a key/value pair should be filtered
