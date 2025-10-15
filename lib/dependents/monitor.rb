@@ -23,6 +23,12 @@ module Dependents
     # statsd key for email notifications
     EMAIL_STATS_KEY = 'dependents.email_notification'
 
+    # allowed logging params
+    PARAMS = %w[
+      tags
+      use_v2
+    ]
+
     attr_writer :form_id
 
     def initialize(claim_id, form_id = nil)
@@ -31,7 +37,7 @@ module Dependents
       @use_v2 = use_v2
       @form_id = form_id || @claim&.form_id
 
-      super('dependents-application')
+      super('dependents-application', allowlist: PARAMS)
 
       @tags += ["service:#{service}", "v2:#{@use_v2}"]
     end
