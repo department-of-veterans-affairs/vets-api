@@ -27,7 +27,7 @@ module Dependents
     PARAMS = %w[
       tags
       use_v2
-    ]
+    ].freeze
 
     attr_writer :form_id
 
