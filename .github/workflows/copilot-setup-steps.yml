@@ -37,12 +37,12 @@ jobs:
 
       - name: Set up PostgreSQL with PostGIS
         run: |
-          # Install PostgreSQL 15 and PostGIS
+          # Install PostgreSQL 15 and PostGIS for Ubuntu 24.04
           wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
-          echo "deb http://apt.postgresql.org/pub/repos/apt/ jammy-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          echo "deb http://apt.postgresql.org/pub/repos/apt/ noble-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
           sudo apt-get update
           
-          # Explicitly install PostgreSQL 15 and PostGIS 3 for PostgreSQL 15
+          # Install PostgreSQL 15 and PostGIS 3 for PostgreSQL 15
           sudo apt-get install -y postgresql-15 postgresql-15-postgis-3 postgresql-15-postgis-3-scripts postgresql-client-15
           
           # Stop any existing PostgreSQL services and configure to use PostgreSQL 15
