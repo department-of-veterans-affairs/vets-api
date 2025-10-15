@@ -1311,6 +1311,7 @@ DEPENDENCIES
   guard-rspec
   guard-rubocop
   gyoku
+  hashdiff
   hexapdf
   holidays
   httpclient
