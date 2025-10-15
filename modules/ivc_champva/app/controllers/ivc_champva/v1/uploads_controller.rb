@@ -94,8 +94,8 @@ module IvcChampva
       #
       # @return [Hash] response from build_json
       def handle_file_uploads_wrapper(form_id, parsed_form_data)
-        # Build VES JSON and add to supporting docs regardless of whether VES is enabled
-        generate_ves_json(parsed_form_data)
+        # Generate VES JSON as supporting document if conditions are met
+        generate_ves_json_document(form_id, parsed_form_data)
 
         if Flipper.enabled?(:champva_send_to_ves, @current_user) && form_id == 'vha_10_10d'
           # first, prepare and validate the VES request
@@ -120,15 +120,41 @@ module IvcChampva
         end
       end
 
-      def generate_ves_json(parsed_form_data)
-        if Flipper.enabled?(:champva_send_ves_to_pega, @current_user) && form_id == 'vha_10_10d'
-          ves_file_path = "tmp/#{parsed_form_data['uuid']}_#{form_id}_ves.json"
-          ves_data = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
-          File.write(ves_file_path, ves_data.to_json)
+      ##
+      # Determines if VES JSON should be generated as a supporting document
+      #
+      # @param [String] form_id The ID of the current form
+      # @return [Boolean] true if VES JSON should be generated
+      def should_generate_ves_json?(form_id)
+        Flipper.enabled?(:champva_send_ves_to_pega, @current_user) && form_id == 'vha_10_10d'
+      end
 
-          ves_supporting_doc = create_custom_attachment(ves_file_path, 'VES JSON')
-          add_supporting_doc(parsed_form_data, ves_supporting_doc)
-        end
+      ##
+      # Generates VES JSON file and adds it as a supporting document
+      #
+      # @param [String] form_id The ID of the current form
+      # @param [Hash] parsed_form_data complete form submission data object
+      def generate_ves_json_document(form_id, parsed_form_data)
+        return unless should_generate_ves_json?(form_id)
+
+        # Generate VES data
+        ves_data = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+
+        # Create temporary JSON file
+        ves_file_path = "tmp/#{parsed_form_data['uuid']}_#{form_id}_ves.json"
+        File.write(ves_file_path, ves_data.to_json)
+
+        # Create a mock form object for create_custom_attachment
+        mock_form = OpenStruct.new(form_id:)
+
+        # Create supporting document attachment
+        ves_supporting_doc = create_custom_attachment(mock_form, ves_file_path, 'VES JSON')
+        add_supporting_doc(parsed_form_data, ves_supporting_doc)
+
+        Rails.logger.info "VES JSON document generated and added as supporting document for form #{form_id}"
+      rescue => e
+        # Don't raise - we don't want VES JSON generation failure to break the entire submission
+        Rails.logger.error "Error generating VES JSON document: #{e.message}"
       end
 
       # Prepares data for VES, raising an exception if this cannot be done
