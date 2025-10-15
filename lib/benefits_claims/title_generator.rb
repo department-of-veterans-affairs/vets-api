@@ -20,15 +20,13 @@ module BenefitsClaims
     }.freeze
 
     DEPENDENCY_CODES = %w[
-      130DPNDCYAUT 130DPNAUTREJ 130SCHATTAUT 130SCHAUTREJ 130ADOD2D
-      130ADSD2D 130DAD2D 130DARD2D 130PDARD2D 130PSARD2D 130SAD2D
-      130SARD2D 130DPNDCY 130DCY674 130DCY686 130DPV0538 130DRASDP
-      130DPNEBNADJ 130DPEBNAJRE 130SCHATTEBN 130PDA 130PDAE 130PSA
-      130PSAE 130DPNPMCAUT 130DPMCAUREJ 130SCPMAUREJ 130DV0538PMC
-      130DPNDCYPMC 130DCY674PMC 130DCY686PMC 130DRASDPMC 130PDAPMC
-      130PDAEPMC 130PSAPMC 130PSAEPMC 130SD2DPMC 130AD2DPMC 130DD2DPMC
-      130D2DPMC 130ARD2DPMC 130ADOD2DPMC 130ADSD2DPMC 130DAD2DPMC
-      130DARD2DPMC 130PDARD2DPM 130PSARD2DPM 130SARD2DPMC
+      130DPNDCYAUT 130DPNAUTREJ 130SCHATTAUT 130SCHAUTREJ 130ADOD2D 130ADSD2D 130DAD2D
+      130DARD2D 130PDARD2D 130PSARD2D 130SAD2D 130SARD2D 130DPNDCY 130DCY674
+      130DCY686 130DPV0538 130DRASDP 130DPNEBNADJ 130DPEBNAJRE 130SCHATTEBN 130PDA
+      130PDAE 130PSA 130PSAE 130DPNPMCAUT 130DPMCAUREJ 130SCPMAUREJ 130DV0538PMC
+      130DPNDCYPMC 130DCY674PMC 130DV05378PMC 130SSRDPMC 130SSRDPMCE 130DAEBNPMC 130DAEBNPMCR
+      130SCAEBNPMC 130SCAEBPMCR 130PDAJPMC 130PDAJEXPMC 130PSCHAPMC 130PSCHAEPMC
+      130RD 130SSRD 130SSRDE 130SCHEBNREJ
     ].freeze
 
     # Pension subcategory mappings
@@ -51,7 +49,7 @@ module BenefitsClaims
       VETERANS_PENSION_CODES.each do |code|
         mapping[code] = Title.new(
           display_title: 'Claim for Veterans Pension',
-          claim_type_base: 'veterans pension claim'
+          claim_type_base: 'Veterans Pension claim'
         )
       end
 
@@ -59,7 +57,7 @@ module BenefitsClaims
       SURVIVORS_PENSION_CODES.each do |code|
         mapping[code] = Title.new(
           display_title: 'Claim for Survivors Pension',
-          claim_type_base: 'survivors pension claim'
+          claim_type_base: 'Survivors Pension claim'
         )
       end
 
@@ -67,7 +65,7 @@ module BenefitsClaims
       DIC_CODES.each do |code|
         mapping[code] = Title.new(
           display_title: 'Claim for Dependency and Indemnity Compensation',
-          claim_type_base: 'dependency and indemnity compensation claim'
+          claim_type_base: 'Dependency and Indemnity Compensation claim'
         )
       end
 
@@ -78,24 +76,6 @@ module BenefitsClaims
           claim_type_base: 'pension claim'
         )
       end
-
-      # Add null claimType cases
-      mapping['290DV'] = Title.new(
-        display_title: 'Debt Validation',
-        claim_type_base: 'debt validation'
-      )
-      mapping['290DVPMC'] = Title.new(
-        display_title: 'PMC - Debt Validation',
-        claim_type_base: 'debt validation'
-      )
-      mapping['130ISDDI'] = Title.new(
-        display_title: 'In Service Death Dependency',
-        claim_type_base: 'in service death dependency'
-      )
-      mapping['330DVRPMC'] = Title.new(
-        display_title: 'Dependency Verification',
-        claim_type_base: 'dependency verification'
-      )
     end.freeze
 
     class << self
@@ -123,8 +103,8 @@ module BenefitsClaims
           }
         end
 
-        # Priority 4: Return nil for missing data (triggers frontend fallback)
-        { display_title: nil, claim_type_base: nil }
+        # Priority 4: Return default for missing data (triggers frontend fallback)
+        { display_title: 'disability compensation', claim_type_base: 'disability compensation claim' }
       end
 
       def update_claim_title(claim)

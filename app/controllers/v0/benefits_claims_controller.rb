@@ -30,13 +30,11 @@ module V0
 
       claims['data'].each do |claim|
         update_claim_type_language(claim)
+
         # Add has_failed_uploads field for document uploads that were added
         if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
           claim['attributes']['hasFailedUploads'] = add_has_failed_uploads(claim)
         end
-
-        # Adds displayTitle and claimTypeBase to the claim response object
-        BenefitsClaims::TitleGenerator.update_claim_title(claim)
       end
 
       tap_claims(claims['data'])
@@ -155,9 +153,14 @@ module V0
     end
 
     def update_claim_type_language(claim)
-      language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
-      if language_map.key?(claim.dig('attributes', 'claimType'))
-        claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
+      if Flipper.enabled?(:cst_use_claim_title_generator_web)
+        # Adds displayTitle and claimTypeBase to the claim response object
+        BenefitsClaims::TitleGenerator.update_claim_title(claim)
+      else
+        language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
+        if language_map.key?(claim.dig('attributes', 'claimType'))
+          claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
+        end
       end
     end
 
