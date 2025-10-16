@@ -4,10 +4,9 @@ require 'prawn/table'
 
 module DecisionReviews
   class NotificationEmailToPdfService
-    BODY_TEXT_SIZE = 12
-    METADATA_TEXT_SIZE = 11
+    BODY_TEXT_SIZE = 11
     GRAY_BOX_HEIGHT = 185
-    GRAY_BOX_TOP_PADDING = 24
+    GRAY_BOX_TOP_PADDING = 20
     BLOCKQUOTE_INDENT = 40
     CONTENT_INDENT = 40
     TEXT_LEADING = 2.5
@@ -141,15 +140,15 @@ module DecisionReviews
 
       pdf.canvas do
         pdf.fill_color '112E51'
-        pdf.fill_rectangle [0, pdf.bounds.absolute_top], pdf.bounds.absolute_right, 80
+        pdf.fill_rectangle [0, pdf.bounds.absolute_top], pdf.bounds.absolute_right, 60
       end
 
       pdf.fill_color '323A45'
 
       pdf.image 'modules/decision_reviews/spec/fixtures/header-logo.png',
-                at: [CONTENT_INDENT, pdf.bounds.absolute_top - 20],
-                width: 215,
-                height: 48
+                at: [CONTENT_INDENT, pdf.bounds.absolute_top - 12],
+                width: 175,
+                height: 39
 
       pdf.move_cursor_to header_top - CONTENT_INDENT
       pdf.move_down SPACE_DOUBLE
@@ -165,17 +164,49 @@ module DecisionReviews
       end
     end
 
+    # We want the gray section to flex in height based on the length of the content
+    def measure_gray_section_content(text)
+      # Measure content height using a temporary PDF with correct width
+      temp_pdf = Prawn::Document.new
+      temp_pdf.font 'Helvetica', size: BODY_TEXT_SIZE
+      temp_start = temp_pdf.cursor
+
+      # Use the same width as the actual rendering (accounting for indents)
+      temp_pdf.indent(BLOCKQUOTE_INDENT) do
+        text.split("\n").each do |line|
+          stripped = line.strip
+          if stripped.empty?
+            temp_pdf.move_down SPACE_DOUBLE
+          else
+            # Measure with proper width constraints
+            temp_pdf.text stripped, size: BODY_TEXT_SIZE
+          end
+        end
+      end
+
+      temp_start - temp_pdf.cursor
+    end
+
     def create_gray_section(pdf, text)
       start_y = pdf.cursor
 
+      # Calculate available width for content (total width minus left/right margins and indents)
+      gray_box_width = pdf.bounds.width - 60
+      available_content_width = gray_box_width - (BLOCKQUOTE_INDENT * 2)
+
+      content_height = measure_gray_section_content(text)
+
+      # Draw gray rectangle
       pdf.fill_color 'F1F1F1'
-      pdf.fill_rectangle [20, start_y], pdf.bounds.width - 60, GRAY_BOX_HEIGHT
+      pdf.fill_rectangle [20, start_y],
+                         gray_box_width,
+                         content_height + (GRAY_BOX_TOP_PADDING * 2) + 20 # Reduced extra padding
 
-      # Reset color and render content on top
+      # Reset color and render content
       pdf.fill_color '323A45'
-
       pdf.move_down GRAY_BOX_TOP_PADDING
       format_blockquote(pdf, text)
+      pdf.move_down GRAY_BOX_TOP_PADDING
     end
 
     def add_header(pdf)
@@ -261,25 +292,24 @@ module DecisionReviews
       pdf.bounding_box([20, start_y - 4], width: pdf.bounds.width - 20, height: 20) do
         format_links(pdf, link_text, link_url, bold: true)
       end
-
-      pdf.move_down SPACE_SINGLE_HALF
     end
 
     def format_metadata_text(pdf, key, value)
       pdf.text "#{key}:",
-               size: METADATA_TEXT_SIZE,
+               size: BODY_TEXT_SIZE,
                style: :bold,
                inline_format: true
 
       if value
         pdf.text value.strip,
-                 size: METADATA_TEXT_SIZE,
+                 size: BODY_TEXT_SIZE,
                  style: :normal
       end
 
       pdf.move_down SPACE_SINGLE_HALF
     end
 
+    # Handles bolding and links within sentences
     def parse_inline_formatting(text)
       fragments = []
       last_pos = 0
@@ -314,6 +344,7 @@ module DecisionReviews
       fragments
     end
 
+    # Handles normal paragraphs, empty lines, and inline formatting
     def format_paragraph_content(pdf, line)
       if line.strip.empty?
         pdf.move_down SPACE_DOUBLE
@@ -405,9 +436,17 @@ module DecisionReviews
     end
 
     def add_footer(pdf)
-      pdf.bounding_box([0, 50], width: pdf.bounds.width, height: 40) do
+      # Calculate position - 20 pixels from bottom of page
+      footer_y_position = 0
+
+      # Start a new page if we're too close to the bottom
+      pdf.start_new_page if pdf.cursor < 80 # Need at least 80 points for footer
+
+      # Position at bottom of current page
+      pdf.bounding_box([0, footer_y_position + 30], width: pdf.bounds.width, height: 30) do
         pdf.font 'Helvetica', size: 8
         pdf.text "Generated: #{Time.current.strftime('%B %d, %Y at %I:%M %p %Z')}", align: :center
+        pdf.move_down 2
         pdf.text "Document ID: #{generate_document_id}", align: :center
       end
     end

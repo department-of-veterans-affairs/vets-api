@@ -5,7 +5,7 @@ require './modules/decision_reviews/lib/decision_reviews/notification_email_to_p
 
 RSpec.describe DecisionReviews::NotificationEmailToPdfService do
   let(:email_content) do
-    File.read(Rails.root.join('modules', 'decision_reviews', 'spec', 'fixtures', 'hlr_failure_email.txt'))
+    File.read(Rails.root.join('modules', 'decision_reviews', 'spec', 'fixtures', '4142_form_failure_email.txt'))
   end
   let(:email_subject) { 'Action needed: We can\'t process your request for a Higher-Level Review' }
   let(:email_address) { 'john.doe@example.com' }
