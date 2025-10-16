@@ -1584,8 +1584,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
     before do
       allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
-      allow(controller).to receive(:get_attachment_ids_and_form).and_return([['doc1'], mock_form])
-      allow(controller).to receive(:should_generate_ves_json?).and_return(false)
+      allow(controller).to receive_messages(get_attachment_ids_and_form: [['doc1'], mock_form],
+                                            should_generate_ves_json?: false)
       allow(controller).to receive(:generate_ves_json_file)
       allow(IvcChampva::FormVersionManager).to receive(:get_legacy_form_id).and_return('vha_10_10d')
       allow_any_instance_of(IvcChampva::PdfFiller).to receive(:generate).and_return('test_path.pdf')
