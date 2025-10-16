@@ -149,7 +149,7 @@ RSpec.describe BGS::SubmitForm686cV2Job, type: :job do
       # Expect the monitor to track the exhaustion event
       expect(monitor_double).to receive(:track_event).with(
         'error',
-        'BGS::SubmitForm686cJob failed, retries exhausted! Last error: Connection timeout',
+        'BGS::SubmitForm686cV2Job failed, retries exhausted! Last error: Connection timeout',
         'worker.submit_686c_bgs.exhaustion'
       )
 
@@ -190,7 +190,7 @@ RSpec.describe BGS::SubmitForm686cV2Job, type: :job do
       # Expect the monitor to track the error event
       expect(monitor_double).to receive(:track_event).with(
         'error',
-        'BGS::SubmitForm686cJob backup submission failed...',
+        'BGS::SubmitForm686cV2Job backup submission failed...',
         'worker.submit_686c_bgs.backup_failure',
         hash_including(error: 'Backup submission failed')
       )
