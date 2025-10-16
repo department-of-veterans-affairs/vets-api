@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# FIXME: remove after re-factoring class
-
 require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
@@ -186,9 +184,9 @@ module UnifiedHealthData
     private
 
     # Shared
+    # Response bodies are automatically parsed by Faraday's json_parser middleware
     def parse_response_body(body)
-      # FIXME: workaround for testing
-      body.is_a?(String) ? JSON.parse(body) : body
+      body
     end
 
     def fetch_combined_records(body)
