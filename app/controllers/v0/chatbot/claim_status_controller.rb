@@ -124,10 +124,10 @@ module V0
       end
 
       def formatted_exception_message(exception, context)
-        return "#{context} #{exception.full_message(highlight: false)}" if exception.respond_to?(:full_message)
-
-        backtrace = exception.backtrace ? "\n#{exception.backtrace.join("\n")}" : ''
-        "#{context} #{exception.class}: #{exception.message}#{backtrace}"
+        sanitized_message = exception.message.to_s
+        truncated_backtrace = exception.backtrace&.take(5)
+        backtrace_str = truncated_backtrace ? "\nBacktrace:\n#{truncated_backtrace.join("\n")}" : ''
+        "#{context} #{exception.class}: #{sanitized_message}#{backtrace_str}"
       end
 
       def log_no_claims_found(exception)
