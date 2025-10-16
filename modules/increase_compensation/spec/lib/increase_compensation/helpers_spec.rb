@@ -144,4 +144,29 @@ RSpec.describe IncreaseCompensation::Helpers do
                                                                          })
     end
   end
+
+  describe '#map_date_range' do
+    it 'splits the dates in a range into month,day,year' do
+      dates = { 'from' => '2025-01-01', 'to' => '2025-02-02' }
+      expect(subject.map_date_range(dates)).to eq(
+        {
+          'from' => {
+            'month' => '01',
+            'day' => '01',
+            'year' => '2025'
+          },
+          'to' => {
+            'month' => '02',
+            'day' => '02',
+            'year' => '2025'
+          }
+        }
+      )
+    end
+
+    it 'returns {} if date range is nil or has no from date' do
+      expect(subject.map_date_range({})).to eq({})
+      expect(subject.map_date_range(nil)).to eq({})
+    end
+  end
 end

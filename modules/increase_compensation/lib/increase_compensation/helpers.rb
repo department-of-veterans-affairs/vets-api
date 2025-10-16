@@ -6,6 +6,7 @@ module IncreaseCompensation
   #
   module Helpers
     include ActiveSupport::NumberHelper
+    include ::PdfFill::Forms::FormHelper
 
     # Small currency lengths
     CURRENCY_LENGTHS_SM = { 'cents' => 2, 'dollars' => 3, 'thousands' => 2 }.freeze
@@ -22,6 +23,20 @@ module IncreaseCompensation
       return nil if date_string.blank?
 
       Date.parse(date_string).strftime('%m/%d/%Y')
+    end
+
+    # Maps a date_range to a hash of from and to dates split into month, day, and year
+    #
+    # @param date_range [Hash]
+    # @return [Hash]
+    #
+    def map_date_range(date_range)
+      return {} if date_range.nil? || date_range['from'].nil?
+
+      {
+        'from' => split_date(date_range['from']),
+        'to' => split_date(date_range['to'])
+      }
     end
 
     ##

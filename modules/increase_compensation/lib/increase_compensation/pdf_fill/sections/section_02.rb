@@ -94,18 +94,12 @@ module IncreaseCompensation
                                             else
                                               'OFF'
                                             end
-        if form_data.key?('doctorsTreatmentDates')
-          form_data['doctorsTreatmentDates'] = {
-            'from' => split_date(form_data['doctorsTreatmentDates']['from']),
-            'to' => split_date(form_data['doctorsTreatmentDates']['to'])
-          }
-        end
-        if form_data.key?('hospitalCareDateRanges')
-          form_data['hospitalCareDateRanges'] = {
-            'from' => split_date(form_data['hospitalCareDateRanges']['from']),
-            'to' => split_date(form_data['hospitalCareDateRanges']['to'])
-          }
-        end
+        # if form_data.key?('doctorsTreatmentDates')
+          form_data['doctorsTreatmentDates'] = map_date_range(form_data['doctorsTreatmentDates'])
+        # end
+        # if form_data.key?('hospitalCareDateRanges')
+          form_data['hospitalCareDateRanges'] = map_date_range(form_data['hospitalCareDateRanges'])
+        # end
       end
     end
   end

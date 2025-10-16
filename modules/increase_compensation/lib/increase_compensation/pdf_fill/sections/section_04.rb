@@ -99,21 +99,14 @@ module IncreaseCompensation
           form_data['education']['highSchool'] = education_highschool_bug_fix(form_data['education']['highSchool'])
         end
         form_data['trainingPreDisabled'] = format_custom_boolean(form_data['trainingPreDisabled'], '1')
-        if form_data.key?('educationTrainingPreUnemployability') && form_data['educationTrainingPreUnemployability'].key?('datesOfTraining') # rubocop:disable Layout/LineLength
+        if form_data.dig('educationTrainingPreUnemployability', 'datesOfTraining')
           form_data['educationTrainingPreUnemployability']['datesOfTraining'] =
             map_date_range(form_data['educationTrainingPreUnemployability']['datesOfTraining'])
         end
-        if form_data.key?('educationTrainingPostUnemployability') && form_data['educationTrainingPostUnemployability'].key?('datesOfTraining') # rubocop:disable Layout/LineLength
+        if form_data.dig('educationTrainingPostUnemployability', 'datesOfTraining')
           form_data['educationTrainingPostUnemployability']['datesOfTraining'] =
             map_date_range(form_data['educationTrainingPostUnemployability']['datesOfTraining'])
         end
-      end
-
-      def map_date_range(date_range)
-        {
-          'from' => split_date(date_range['from']),
-          'to' => split_date(date_range['to'])
-        }
       end
 
       # option are off by 1 as grade '9' is not in the pdf data, so grade 12 appears as 'Off'

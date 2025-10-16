@@ -240,8 +240,7 @@ module IncreaseCompensation
         form_data['previousEmployers'].each do |work|
           work['hoursPerWeek'] = work['hoursPerWeek'].to_s.rjust(3)
           work['mostEarningsInAMonth'] = split_currency_amount_thousands(work['mostEarningsInAMonth'])
-          work['datesOfEmployment']['from'] = split_date(work['datesOfEmployment']['from'])
-          work['datesOfEmployment']['to'] = split_date(work['datesOfEmployment']['to'])
+          work['datesOfEmployment'] = map_date_range(work['datesOfEmployment'])
         end
         form_data
       end
