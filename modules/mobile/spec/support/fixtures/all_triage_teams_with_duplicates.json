@@ -38,15 +38,5 @@
     "location_name": "Robert J. Dole III VA Medical And Regional Office Center",
     "suggested_name_display": "Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr",
     "health_care_system_name": "VA Kansas City Health Care"
-  },
-  {
-    "triage_team_id": 4399547,
-    "name": "589GR Pharmacy Ask a pharmacist SLC10 JAMES III, DON",
-    "station_number": "612",
-    "preferred_team": true,
-    "relation_type": "PATIENT",
-    "location_name": "Robert J. Dole III VA Medical And Regional Office Center",
-    "suggested_name_display": "Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr",
-    "health_care_system_name": "VA Kansas City Health Care"
   }
 ]

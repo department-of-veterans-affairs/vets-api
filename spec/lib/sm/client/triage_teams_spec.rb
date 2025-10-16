@@ -23,15 +23,6 @@ describe 'sm client' do
       expect(folders.type).to eq(TriageTeam)
     end
 
-    it 'populates health care system names' do
-      VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
-        VCR.use_cassette('sm_client/get_unique_care_systems') do
-          all_triage_teams = client.get_all_triage_teams('1234', false)
-          all_triage_teams.records.each { |record| expect(record.health_care_system_name).not_to be_nil }
-        end
-      end
-    end
-
     context 'when not caching' do
       it 'does not cache triage teams' do
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_triage_team_recipients' do
@@ -43,11 +34,9 @@ describe 'sm client' do
 
       it 'does not cache all triage teams' do
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
-          VCR.use_cassette('sm_client/get_unique_care_systems') do
-            allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_no_cache).and_return(true)
-            client.get_all_triage_teams('1234', false)
-            expect(AllTriageTeams.get_cached('1234-all-triage-teams')).to be_nil
-          end
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_no_cache).and_return(true)
+          client.get_all_triage_teams('1234', false)
+          expect(AllTriageTeams.get_cached('1234-all-triage-teams')).to be_nil
         end
       end
     end
@@ -63,11 +52,9 @@ describe 'sm client' do
 
       it 'does cache all triage teams' do
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
-          VCR.use_cassette('sm_client/get_unique_care_systems') do
-            allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_no_cache).and_return(false)
-            client.get_all_triage_teams('1234', false)
-            expect(AllTriageTeams.get_cached('1234-all-triage-teams').class).to eq(Array)
-          end
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_no_cache).and_return(false)
+          client.get_all_triage_teams('1234', false)
+          expect(AllTriageTeams.get_cached('1234-all-triage-teams').class).to eq(Array)
         end
       end
     end

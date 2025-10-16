@@ -32,16 +32,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
     include_examples 'for user account level', message: 'You do not have access to messaging'
   end
 
-  context 'when facilities api call fails' do
-    before do
-      VCR.insert_cassette('sm_client/session')
-    end
-
-    after do
-      VCR.eject_cassette
-    end
-  end
-
   context 'when authorized' do
     before do
       VCR.insert_cassette('sm_client/session')
@@ -49,36 +39,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
 
     after do
       VCR.eject_cassette
-    end
-
-    it 'replaces missing health care system names in non-prod environments' do
-      VCR.use_cassette('sm_client/triage_teams/gets_all_triage_team_recipients_missing_system_names') do
-        get '/my_health/v1/messaging/allrecipients'
-      end
-
-      expect(response).to be_successful
-      resp_body = JSON.parse(response.body)
-      expect(resp_body['data'][0]['attributes']['station_number']).to eq('552')
-    end
-
-    it 'replaces missing health care system ids in prod environment' do
-      VCR.use_cassette('sm_client/triage_teams/gets_all_triage_team_recipients_vha_612') do
-        get '/my_health/v1/messaging/allrecipients'
-      end
-
-      expect(response).to be_successful
-      resp_body = JSON.parse(response.body)
-      expect(resp_body['data'][0]['attributes']['station_number']).to eq('612A4')
-    end
-
-    it 'does not replace existing health care system names but does replace non-prod station_numbers' do
-      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
-        get '/my_health/v1/messaging/allrecipients'
-      end
-
-      expect(response).to be_successful
-      resp_body = JSON.parse(response.body)
-      expect(resp_body['data'][0]['attributes']['station_number']).to eq('552')
     end
 
     it 'responds to GET #index' do
