@@ -314,8 +314,8 @@ module UnifiedHealthData
                           end
 
           # Cache the result (including nil) to avoid repeated API calls
-          # Use a reasonable TTL - 24 hours for facility names since they rarely change
-          Rails.cache.write(cache_key, facility_name, expires_in: 24.hours)
+          # Keep TTL aligned with FacilityNameCacheJob refresh cadence (4 hours)
+          Rails.cache.write(cache_key, facility_name, expires_in: 4.hours)
 
           facility_name
         rescue => e

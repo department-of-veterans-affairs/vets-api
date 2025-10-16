@@ -64,7 +64,6 @@ RSpec.describe UnifiedHealthData::FacilityNameCacheJob, type: :job do
       it 'logs successful completion' do
         job.perform
 
-        expect(Rails.logger).to have_received(:info).with('[UnifiedHealthData] - Starting facility name cache refresh')
         expect(Rails.logger).to have_received(:info).with(
           '[UnifiedHealthData] - Cache operation complete: 3 facilities cached'
         )
@@ -103,6 +102,42 @@ RSpec.describe UnifiedHealthData::FacilityNameCacheJob, type: :job do
 
         expect(Rails.cache).not_to have_received(:write)
         expect(StatsD).to have_received(:gauge).with('unified_health_data.facility_name_cache_job.facilities_cached', 0)
+      end
+    end
+
+    context 'when multiple pages of facilities exist' do
+      let(:first_page_response) { instance_double(Lighthouse::Facilities::V1::Response) }
+      let(:second_page_response) { instance_double(Lighthouse::Facilities::V1::Response) }
+      let(:batch_size) { UnifiedHealthData::FacilityNameCacheJob::BATCH_SIZE }
+
+      before do
+        paginated_facilities = Array.new(batch_size) do |index|
+          double('Facility', id: format('vha_%03d', index), name: "Facility #{index}")
+        end
+        allow(first_page_response).to receive(:facilities).and_return(paginated_facilities)
+        allow(second_page_response).to receive(:facilities).and_return(
+          [double('Facility', id: 'vha_1000', name: 'Facility 1000')]
+        )
+
+        allow(mock_lighthouse_client).to receive(:get_paginated_facilities).and_return(
+          first_page_response,
+          second_page_response
+        )
+      end
+
+      it 'requests subsequent pages until the final page is smaller than the batch size' do
+        job.perform
+
+        expect(mock_lighthouse_client).to have_received(:get_paginated_facilities).with(
+          type: 'health',
+          per_page: batch_size,
+          page: 1
+        )
+        expect(mock_lighthouse_client).to have_received(:get_paginated_facilities).with(
+          type: 'health',
+          per_page: batch_size,
+          page: 2
+        )
       end
     end
   end

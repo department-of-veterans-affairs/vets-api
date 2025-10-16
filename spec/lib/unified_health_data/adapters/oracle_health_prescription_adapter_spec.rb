@@ -294,7 +294,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(Rails.cache).to have_received(:write).with(
           'uhd:facility_names:556',
           'Test VA Medical Center',
-          expires_in: 24.hours
+          expires_in: 4.hours
         )
       end
     end
@@ -318,7 +318,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(Rails.cache).to have_received(:write).with(
           'uhd:facility_names:556',
           nil,
-          expires_in: 24.hours
+          expires_in: 4.hours
         )
       end
     end

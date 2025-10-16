@@ -35,8 +35,6 @@ module UnifiedHealthData
     end
 
     def perform
-      Rails.logger.info('[UnifiedHealthData] - Starting facility name cache refresh')
-
       facility_map = fetch_vha_facilities
       cache_facility_names(facility_map)
 
@@ -54,7 +52,7 @@ module UnifiedHealthData
     def fetch_vha_facilities
       facilities_client = Lighthouse::Facilities::V1::Client.new
       all_facilities = []
-      page = 1
+      current_page = 1
 
       Rails.logger.info('[UnifiedHealthData] - Fetching VHA facilities from Lighthouse API')
 
@@ -62,7 +60,7 @@ module UnifiedHealthData
         facilities = facilities_client.get_paginated_facilities(
           type: 'health',
           per_page: BATCH_SIZE,
-          page:
+          page: current_page
         )
 
         # Filter to VHA facilities and extract station numbers
@@ -76,7 +74,7 @@ module UnifiedHealthData
         all_facilities.concat(vha_facilities)
         break if facilities.facilities.size < BATCH_SIZE
 
-        page += 1
+        current_page += 1
       end
 
       # Convert to hash for easy lookup
