@@ -4195,7 +4195,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas/TravelPayClaimDetails.yml'
+                $ref: ./schemas/TravelPayClaimDetails.yml
           description: Travel pay claim details retrieved successfully
         '400':
           $ref: '#/components/responses/400'
