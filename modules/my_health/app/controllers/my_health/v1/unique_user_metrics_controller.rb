@@ -83,10 +83,16 @@ module MyHealth
         # Validate event_names is not empty
         raise Common::Exceptions::InvalidFieldValue.new('event_names', 'cannot be empty') if params[:event_names].empty?
 
-        # Validate each event name is a non-empty string
+        # Validate each event name is a non-empty string and in the registry
         params[:event_names].each do |event_name|
           unless event_name.is_a?(String) && event_name.present?
             raise Common::Exceptions::InvalidFieldValue.new('event_names', 'must contain non-empty strings')
+          end
+
+          unless UniqueUserEvents::EventRegistry.valid_event?(event_name)
+            raise Common::Exceptions::InvalidFieldValue.new('event_names',
+                                                            "contains invalid event: '#{event_name}'. " \
+                                                            'Use EventRegistry constants.')
           end
         end
       end
