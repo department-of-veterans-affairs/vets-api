@@ -24,10 +24,6 @@ module BGS
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       monitor = ::Dependents::Monitor.new(saved_claim_id)
 
-<<<<<<< HEAD
-      # BGS::SubmitForm686cV2Job & worker.submit_686c_v2_bgs.exhaustion ?
-=======
->>>>>>> master
       monitor.track_event('error',
                           "BGS::SubmitForm686cV2Job failed, retries exhausted! Last error: #{msg['error_message']}",
                           'worker.submit_686c_bgs.exhaustion')
@@ -37,22 +33,13 @@ module BGS
 
     def perform(user_uuid, saved_claim_id, encrypted_vet_info)
       @monitor = init_monitor(saved_claim_id)
-<<<<<<< HEAD
-      # BGS::SubmitForm686cV2Job ?
-      @monitor.track_event('info', 'BGS::SubmitForm686cJob running!', "#{STATS_KEY}.begin")
-=======
       @monitor.track_event('info', 'BGS::SubmitForm686cV2Job running!', "#{STATS_KEY}.begin")
 >>>>>>> master
 
       instance_params(encrypted_vet_info, user_uuid, saved_claim_id)
 
       submit_686c
-<<<<<<< HEAD
-      # BGS::SubmitForm686cV2Job ?
-      @monitor.track_event('info', 'BGS::SubmitForm686cJob succeeded!', "#{STATS_KEY}.success")
-=======
       @monitor.track_event('info', 'BGS::SubmitForm686cV2Job succeeded!', "#{STATS_KEY}.success")
->>>>>>> master
 
       if claim.submittable_674?
         enqueue_674_job(encrypted_vet_info)
@@ -63,12 +50,7 @@ module BGS
       end
     rescue => e
       handle_filtered_errors!(e:, encrypted_vet_info:)
-<<<<<<< HEAD
-      # BGS::SubmitForm686cV2Job ?
-      @monitor.track_event('warn', 'BGS::SubmitForm686cJob received error, retrying...', "#{STATS_KEY}.failure",
-=======
       @monitor.track_event('warn', 'BGS::SubmitForm686cV2Job received error, retrying...', "#{STATS_KEY}.failure",
->>>>>>> master
                            { error: e.message, nested_error: e.cause&.message })
       raise
     end
@@ -78,12 +60,7 @@ module BGS
       filter = FILTERED_ERRORS.any? { |filtered| e.message.include?(filtered) || e.cause&.message&.include?(filtered) }
       return unless filter
 
-<<<<<<< HEAD
-      # BGS::SubmitForm686cV2Job ?
-      @monitor.track_event('warn', 'BGS::SubmitForm686cJob received error, skipping retries...',
-=======
       @monitor.track_event('warn', 'BGS::SubmitForm686cV2Job received error, skipping retries...',
->>>>>>> master
                            "#{STATS_KEY}.skip_retries", { error: e.message, nested_error: e.cause&.message })
 
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
@@ -127,12 +104,7 @@ module BGS
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
       monitor = ::Dependents::Monitor.new(saved_claim_id)
-<<<<<<< HEAD
-      # BGS::SubmitForm686cV2Job ?
-      monitor.track_event('error', 'BGS::SubmitForm686cJob backup submission failed...',
-=======
       monitor.track_event('error', 'BGS::SubmitForm686cV2Job backup submission failed...',
->>>>>>> master
                           "#{STATS_KEY}.backup_failure", { error: e.message, nested_error: e.cause&.message })
       InProgressForm.find_by(form_id: FORM_ID, user_uuid:)&.submission_pending!
     end
