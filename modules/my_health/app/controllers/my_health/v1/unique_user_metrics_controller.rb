@@ -38,11 +38,24 @@ module MyHealth
       #     ]
       #   }
       #
+      # @example Success response with invalid event name (200 OK)
+      #   {
+      #     "results": [
+      #       { "event_name": "valid_event", "status": "created", "new_event": true },
+      #       { "event_name": "invalid_event", "status": "invalid", "new_event": false }
+      #     ]
+      #   }
+      #
       def create
         event_names = metrics_params[:event_names]
 
         # Process all events and collect results
         results = event_names.flat_map do |event_name|
+          # Validate event name is in registry before processing
+          unless UniqueUserEvents::EventRegistry.valid_event?(event_name)
+            next [UniqueUserEvents::Service.build_invalid_result(event_name)]
+          end
+
           UniqueUserEvents.log_event(user: current_user, event_name:)
         end
 
@@ -83,18 +96,13 @@ module MyHealth
         # Validate event_names is not empty
         raise Common::Exceptions::InvalidFieldValue.new('event_names', 'cannot be empty') if params[:event_names].empty?
 
-        # Validate each event name is a non-empty string and in the registry
+        # Validate each event name is a non-empty string
         params[:event_names].each do |event_name|
           unless event_name.is_a?(String) && event_name.present?
             raise Common::Exceptions::InvalidFieldValue.new('event_names', 'must contain non-empty strings')
           end
-
-          unless UniqueUserEvents::EventRegistry.valid_event?(event_name)
-            raise Common::Exceptions::InvalidFieldValue.new('event_names',
-                                                            "contains invalid event: '#{event_name}'. " \
-                                                            'Use EventRegistry constants.')
-          end
         end
+        # NOTE: Event registry validation happens in create() to return 'invalid' status instead of raising error
       end
     end
   end

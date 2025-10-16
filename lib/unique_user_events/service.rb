@@ -173,6 +173,18 @@ module UniqueUserEvents
       }
     end
 
+    # Build invalid result hash for API response
+    #
+    # @param event_name [String] Name of the event
+    # @return [Hash] Invalid result hash
+    def self.build_invalid_result(event_name)
+      {
+        event_name:,
+        status: 'invalid',
+        new_event: false
+      }
+    end
+
     private_class_method :increment_statsd_counter, :get_all_events_to_log, :log_single_event, :extract_user_id,
                          :build_event_result
   end
