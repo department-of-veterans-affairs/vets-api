@@ -1021,6 +1021,10 @@ features:
     actor_type: user
     description: Enables form 40-10007 email submission error (VaNotify)
     enable_in_development: true
+  form1990emeb_confirmation_email:
+    actor_type: user
+    description: Enables form 1990e MEB email submission confirmation (VaNotify)
+    enable_in_development: true
   form1990meb_confirmation_email:
     actor_type: user
     description: Enables form 1990 MEB email submission confirmation (VaNotify)
@@ -1835,6 +1839,10 @@ features:
   show_meb_5490_maintenance_alert:
     actor_type: user
     description: Displays an alert to users on 5490 intro page that the Backend Service is Down.
+    enable_in_development: false
+  show_meb_5490_1990e_text_update:
+    actor_type: user
+    description: Displays updated text to more clearly explain who needs to fill out form
     enable_in_development: false
   show_one_va_debt_letter:
     actor_type: user

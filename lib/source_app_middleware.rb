@@ -38,7 +38,6 @@ class SourceAppMiddleware
     '1330m2-medallions',
     '1330m-medallions',
     '1990-edu-benefits',
-    '1990e-edu-benefits',
     '1990ez-edu-benefits',
     '1990n-edu-benefits',
     '1990s-edu-benefits',
