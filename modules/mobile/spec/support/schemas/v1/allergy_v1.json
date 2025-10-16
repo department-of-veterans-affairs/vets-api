@@ -50,14 +50,14 @@
               "categories": {
                 "type": "array",
                 "items": {
-                  "type": ["string", "null"]
+                  "type": "string"
                 },
                 "example": ["medication"]
               },
               "reactions": {
                 "type": "array",
                 "items": {
-                  "type": ["string", "null"]
+                  "type": "string"
                 },
                 "example": ["Hives", "Swelling"]
               },
@@ -72,7 +72,7 @@
               "notes": {
                 "type": "array",
                 "items": {
-                  "type": ["string", "null"]
+                  "type": "string"
                 },
                 "example": ["Patient states allergy to trazodone."]
               },
