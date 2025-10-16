@@ -18,10 +18,6 @@ features:
   this_is_only_a_test_two:
     actor_type: user
     description: Used in feature toggle specs.
-  accredited_representative_portal_custom_login:
-    actor_type: cookie_id
-    description: Controls whether the ARP application uses its custom login page or the platform login.
-    enable_in_development: true
   accredited_representative_portal_frontend:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
@@ -34,10 +30,6 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
     enable_in_development: true
-  accredited_representative_portal_search:
-    actor_type: user
-    description: Enables the people search of the accredited representative portal
-    enable_in_development: true
   accredited_representative_portal_form_21a:
     actor_type: user
     description: >
@@ -49,13 +41,12 @@ features:
     description: >
       When enabled, shows form 526ez in the accredited representative portal.
     enable_in_development: true
-  accredited_representative_portal_submissions:
-    actor_type: user
-    description: Enables the form submissions view in the accredited representative portal
-    enable_in_development: true
   accredited_representative_portal_email_delivery_callback:
     actor_type: user
     description: Enables a custom email delivery callback to track and log all notification statuses beyond errors
+  accredited_representative_portal_lighthouse_api_key:
+    actor_type: user
+    description: Switches ARP LH benefits intake API key to be ARP-specific
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -120,6 +111,11 @@ features:
     description: >
       Use new CRM environments for Ask VA API
     enable_in_development: true
+  ask_va_api_preprod_for_end_to_end_testing:
+    actor_type: user
+    description: >
+      Use preprod CRM environment to facilitate end to end testing by AVA testers.
+    enable_in_development: false
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -185,13 +181,13 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
+  hca_heif_attachments_enabled:
+    actor_type: user
+    description: Enables HEIF files as attachments that get converted to .jpg files
+    enable_in_development: true
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the upgraded insurance section of the Health Care Application
-    enable_in_development: true
-  hca_in_progress_form_delete_async:
-    actor_type: user
-    description: Enables deleting an InProgressForm in a sidekiq job
     enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
@@ -661,6 +657,9 @@ features:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
     enable_in_development: true
+  dependency_verification_browser_monitoring_enabled:
+    actor_type: user
+    description: Enable Datadog RUM/LOG monitoring for the form 21-0538
   dependents_enable_form_viewer_mfe:
     actor_type: user
     description: enables display of form viewer microfrontend on 686 post-submission page
@@ -840,6 +839,10 @@ features:
     actor_type: user
     description: Use progressive disclosure in the Facility Locator UI
     enable_in_development: true
+  show_facility_locator_notice_about_non_va_care:
+    actor_type: user
+    description: Show a warning on the Facility Locator UI about non-VA urgent and emergency care
+    enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
@@ -906,9 +909,9 @@ features:
     actor_type: user
     description: Enables Representative Status widget 2.0 features for frontend and backend
     enable_in_development: true
-  accredited_representative_portal_declination:
+  accredited_representative_portal_id_me:
     actor_type: user
-    description: Enables declination reason feature for frontend and backend
+    description: Enables ID.me authentication feature for frontend and backend
     enable_in_development: true
   form526_legacy:
     actor_type: user
@@ -980,6 +983,10 @@ features:
   form21_0845_confirmation_email:
     actor_type: user
     description: Enables form 21-0845 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form21p_0537_confirmation_email:
+    actor_type: user
+    description: Enables form 21p-0537 email submission confirmation (VaNotify)
     enable_in_development: true
   form21p_0847_confirmation_email:
     actor_type: user
@@ -1061,6 +1068,9 @@ features:
   form21p0847:
     actor_type: user
     description: If enabled shows the digital form experience for form 21P-0847
+  form21p0537:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21P-0537
   form264555:
     actor_type: user
     description: If enabled shows the digital form experience for form 26-4555
@@ -1147,10 +1157,6 @@ features:
   kendra_enabled_for_resources_and_support_search:
     actor_type: user
     description: Enable/disable Amazon Kendra for Resources and Support search
-    enable_in_development: true
-  letters_page_new_design:
-    actor_type: user
-    description: Enables ability to show updated letter page design
     enable_in_development: true
   lighthouse_claims_api_v2_add_person_proxy:
     actor_type: user
@@ -1331,8 +1337,8 @@ features:
     enable_in_development: true
   mhv_secure_messaging_large_attachments:
     actor_type: user
-    description: Disables/Enables Secure Messaging Custom Folders Redesign
-    enable_in_development: true
+    description: Disables/Enables sending large attachments in Secure Messaging using AWS S3 upload method for all eligible messages to Vista or OH recipients
+    enable_in_development: false
   mhv_secure_messaging_curated_list_flow:
     actor_type: user
     description: Disables/Enables Secure Messaging Curated List Flow
@@ -1485,10 +1491,6 @@ features:
     actor_type: user
     description: Enables/disables the use of pre-transformed vital objects
     enable_in_development: true
-  mhv_medical_records_uuid_for_jwt_session_locking:
-    actor_type: user
-    description: Use UUID instead of ICN for locking MHV JWT sessions
-    enable_in_development: true
   mhv_medications_display_allergies:
     actor_type: user
     description: Enables/disables allergies and reactions data
@@ -1497,10 +1499,6 @@ features:
     actor_type: user
     description: Enables/disables filter feature for medications list
     enable_in_development: true
-  mhv_medications_display_grouping:
-    actor_type: user
-    description: Enables/disables grouping medications related work
-    enable_in_development: true
   mhv_medications_cerner_pilot:
     actor_type: user
     description: Enables/disables Medications Cerner Transition Pilot environment on VA.gov and VHAB
@@ -1508,9 +1506,17 @@ features:
     actor_type: user
     description: Enables/disables integration with MHV's AAL-creation endpoint
     enable_in_development: true
+  mhv_hash_id_for_mhv_session_locking:
+    actor_type: user
+    description: Hash the MHV Correlation ID when locking MHV sessions
+    enable_in_development: true
   mhv_modern_cta_links:
     actor_type: user
     description: CTA widget links point to va.gov services
+  mhv_medications_display_new_cerner_facility_alert:
+    actor_type: user
+    description: Enables/disables new facility alert for OH/Cerner users in medications
+    enable_in_development: true
   mhv_medications_display_pending_meds:
     actor_type: user
     description: Enables/disables pending medications related work
@@ -1671,6 +1677,14 @@ features:
   profile_use_vafsc:
     description: Use VA Forms System Core for forms instead of schema based forms
     actor_type: user
+    enable_in_development: true
+  profile_2_enabled:
+    actor_type: user
+    description: Enables the new Profile 2.0 experience on VA.gov
+    enable_in_development: true
+  profile_health_care_settings_page:
+    actor_type: user
+    description: Enables the new Health Care Settings page within the Profile on VA.gov
     enable_in_development: true
   pw_ehr_cta_use_slo:
     actor_type: user
@@ -2060,6 +2074,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove the redundant call to facility configurations when determining patient eligibility.
+  va_online_scheduling_use_browser_timezone:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to default to browser timezone when facility timezone is unavailable.
   vaos_appointment_notification_callback:
     actor_type: user
     enable_in_development: true
@@ -2083,9 +2101,6 @@ features:
   vre_cutover_notice:
     actor_type: user
     description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
-  vre_trigger_action_needed_email:
-    actor_type: user
-    description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
   vre_use_new_vfs_notification_library:
     actor_type: user
     description: Whether or not to use the VFS library for interacting with VA Notify
@@ -2228,6 +2243,10 @@ features:
   virtual_agent_use_sts_authentication:
     actor_type: user
     description: Use STS authentication for the virtual agent chatbot application
+  virtual_agent_chatbot_session_persistence_enabled:
+    actor_type: user
+    description: Gate replay/persistence behavior for Virtual Agent (reuse conversation, watermark replay, token reuse)
+    enable_in_development: true
   notification_center:
     actor_type: user
     description: Enable Notification Center
@@ -2249,10 +2268,6 @@ features:
   sc_browser_monitoring_enabled:
     actor_type: user
     description: Supplemental Claim Datadog RUM monitoring
-  terms_of_use:
-    actor_type: user
-    description: This determines whether a user is redirected to the Terms of Use page
-    enable_in_development: true
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
@@ -2320,6 +2335,9 @@ features:
   income_and_assets_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  pbb_forms_require_loa3:
+    actor_type: user
+    description: Require LOA3 authentication to access Pension, Burials, and Income and Assets forms
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
@@ -2529,9 +2547,6 @@ features:
   gi_ct_mapbox_mitigation:
     actor_type: user
     description: If enabled, hides search by location feature affected by MapBox loss
-  accredited_representative_portal_form:
-    actor_type: user
-    description: Enables form with new options for rep
   my_va_display_all_lighthouse_benefits_intake_forms:
     actor_type: user
     description: When enabled, a user will see all submitted Lighthouse Benefits Intake forms in My VA for form status.
@@ -2548,9 +2563,6 @@ features:
   accredited_representative_portal_full_poa_redaction:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
-  calculator_constants_versioning:
-    actor_type:
-    description: (gibct-data-service) If enabled, updates GIDS UI and includes calculator constants in GIDS version generation
   vre_eligibility_status_updates:
     actor_type: user
     description: If enabled, show VRE eligibility content and status updates
@@ -2563,9 +2575,6 @@ features:
   accredited_representative_portal_homepage:
     actor_type: user
     description: Enables new homepage redesign for ARP
-  accredited_representative_portal_dashboard_link:
-    actor_type: user
-    description: Enables new dashboard link on nav
   gi_comparison_tool_cautionary_info_update:
     actor_type: user
     description: Enables updated cautionary info student feedback ui for GI Comparison Tool
@@ -2593,3 +2602,12 @@ features:
   auth_exp_email_verification_enabled:
     actor_type: user
     description: If enabled, a user will be required to verify their contact email address
+  sidenav_526ez_enabled:
+    actor_type: user
+    description: If enabled, the 526EZ sidenav will be shown
+  simple_forms_upload_supporting_documents:
+    actor_type: user
+    description: >
+      Enables the upload_supporting_documents endpoint for scanned form uploads for supporting evidence.
+      Owned by Simple Forms API team.
+

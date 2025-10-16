@@ -2,6 +2,7 @@
 :services:
 
 # BGS
+# FYI: mocks are generally managed in the bgs-ext gem.
 - :name: "BGS"
   :base_uri: <%= "#{URI(Settings.bgs.url).host}:#{URI(Settings.bgs.url).port}" %>
   :endpoints:
@@ -632,8 +633,22 @@
         :uid_location: 'url'
         :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments\/^[a-zA-Z0-9]+'
     - :method: :get
-      :path: "/facilities/v2/facilities/*"
+      :path: "/vpg/v1/patients/*/appointments"
+      :file_path: "vaos/vpg/appointments"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/vpg\/v1\/patients\/([a-zA-Z0-9]+)\/appointments'
+    - :method: :get
+      :path: "/facilities/v2/facilities"
       :file_path: "vaos/facilities"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'query'
+        :uid_locator: 'ids'
+    - :method: :get
+      :path: "/facilities/v2/facilities/*"
+      :file_path: "vaos/facilities/get"
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: 'url'
@@ -1041,6 +1056,12 @@
 - :name: "MHV UHD"
   :base_uri: <%= "#{URI(Settings.mhv.uhd.host).host}:#{URI(Settings.mhv.uhd.host).port}" %>
   :endpoints:
+    - :method: :get
+      :path: "/v1/medicalrecords/allergies"
+      :file_path: "mhv/uhd/allergies"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patientId"
     - :method: :get
       :path: "/v1/medicalrecords/labs"
       :file_path: "mhv/uhd/labs"
