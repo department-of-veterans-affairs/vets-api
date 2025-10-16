@@ -30,9 +30,7 @@ module Forms
       end
 
       def lighthouse_submissions
-        query = Lighthouse::Submission.joins(:saved_claim, :submission_attempts)
-                                      .where(saved_claims: { user_account_id: @user_account.id })
-                                      .where.not(lighthouse_submission_attempts: { benefits_intake_uuid: nil })
+        query = Lighthouse::Submission.with_intake_uuid_for_user(@user_account)
         query = query.where(form_id: @allowed_forms) if @allowed_forms.present?
         query.order(:created_at).to_a
       end
