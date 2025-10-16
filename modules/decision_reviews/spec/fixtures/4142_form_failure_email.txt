@@ -1,0 +1,42 @@
+# We need a supporting form for your Supplemental Claim
+
+Dear <redacted>,
+
+You submitted a Supplemental Claim (VA Form 20-0995) on VA.gov on <redacted>, but there was a problem with our system. We couldn't process your supporting form. We're sorry about this.
+
+In order for us to request your non-VA records, you'll need to resubmit an Authorization to Disclose Information to the Department of Veterans Affairs (VA Form 21-4142 and 21-4142a). Submit this form as soon as possible.
+
+## What to do next
+We recommend resubmitting your VA Form 21-4142 online or by mail as soon as possible.
+
+### Option 1: Submit your form online
+The fastest way to submit this form is online on VA.gov.
+
+[Submit VA Form 21-4142 and 21-4142a on VA.gov](https://www.va.gov/supporting-forms-for-claims/release-information-to-va-form-21-4142)
+
+### Option 2: Submit your form by mail
+You can also print the form, fill it out, and mail it to us.
+[Get VA Form 21-4142 and 21-4142a on VA.gov](https://www.va.gov/find-forms/about-form-21-4142/)
+
+(address)Department of Veterans Affairs | Evidence Intake Center | PO Box 4444 | Janesville, WI 53547-4444
+
+> ## Submission Details
+> ### Form submitted
+> **Authorization to Disclose Information to the Department of Veterans Affairs**
+> VA Form 21-4142 and 21-4142a
+>
+> ### Date submitted
+> <redacted>
+>
+> ### Submitted with
+> **Decision Reviews Request: Supplemental Claim**
+> VA Form 20-0995
+
+## What to do if you have questions
+Call us at 800-827-1000 (TTY: 711). We're here Monday through Friday, 8:00 a.m. to 9:00 p.m. ET.
+
+Thank you
+
+***
+
+You're receiving this email because you submitted a form on [VA.gov](http://www.va.gov). Don't reply to this email.
