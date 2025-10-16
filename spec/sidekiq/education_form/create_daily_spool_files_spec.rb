@@ -111,7 +111,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
       end
     end
 
-
     context 'with a 1990n form' do
       let(:application_1606) { create(:va1990n_full_form).education_benefits_claim }
 

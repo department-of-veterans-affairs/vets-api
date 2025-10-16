@@ -156,7 +156,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
     end
 
-
     context 'with a form type of 5490' do
       subject do
         create(:va5490)

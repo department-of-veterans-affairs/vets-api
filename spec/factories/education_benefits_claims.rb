@@ -7,7 +7,6 @@ FactoryBot.define do
     end
   end
 
-
   factory :education_benefits_claim_1990n, class: 'EducationBenefitsClaim' do
     after(:build) do |education_benefits_claim|
       education_benefits_claim.saved_claim ||= build(:va1990n)
