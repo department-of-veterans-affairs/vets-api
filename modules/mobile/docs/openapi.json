@@ -22991,7 +22991,8 @@
               "recipientName",
               "readReceipt",
               "triageGroupName",
-              "proxySenderName"
+              "proxySenderName",
+              "isOhMessage"
             ],
             "properties": {
               "messageId": {
@@ -23060,6 +23061,10 @@
                 "type": "string",
                 "nullable": true,
                 "example": "SMITH, JOHN"
+              },
+              "isOhMessage": {
+                "type": "boolean",
+                "example": true
               }
             }
           },
