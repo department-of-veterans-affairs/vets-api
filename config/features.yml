@@ -953,10 +953,6 @@ features:
     actor_type: user
     description: Enables form 1995 email submission confirmation (VaNotify)
     enable_in_development: true
-  form1990e_confirmation_email:
-    actor_type: user
-    description: Enables form 1990e email submission confirmation (VaNotify)
-    enable_in_development: true
   form21_0966_confirmation_email:
     actor_type: user
     description: Enables form 21-0966 email submission confirmation (VaNotify)
@@ -1028,10 +1024,6 @@ features:
   form1990meb_confirmation_email:
     actor_type: user
     description: Enables form 1990 MEB email submission confirmation (VaNotify)
-    enable_in_development: true
-  form1990emeb_confirmation_email:
-    actor_type: user
-    description: Enables form 1990e MEB email submission confirmation (VaNotify)
     enable_in_development: true
   form5490_confirmation_email:
     actor_type: user
@@ -1777,9 +1769,6 @@ features:
   show_edu_benefits_1990_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 1990 introduction page
-  show_edu_benefits_1990e_wizard:
-    actor_type: user
-    description: This determines when the wizard should show up on the 1990e introduction page
   show_edu_benefits_1990n_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 1990N introduction page
@@ -1846,10 +1835,6 @@ features:
   show_meb_5490_maintenance_alert:
     actor_type: user
     description: Displays an alert to users on 5490 intro page that the Backend Service is Down.
-    enable_in_development: false
-  show_meb_5490_1990e_text_update:
-    actor_type: user
-    description: Displays updated text to more clearly explain who needs to fill out form
     enable_in_development: false
   show_one_va_debt_letter:
     actor_type: user
