@@ -11,6 +11,16 @@ accredited_representative_portal:
       path: ~
       repo: ~
   frontend_base_url: http://localhost:3001/representative
+  lighthouse:
+    benefits_intake:
+      api_key: ~
+      host: https://sandbox-api.va.gov
+      path: "/services/vba_documents"
+      report:
+        batch_size: 1000
+        stale_sla: 10
+      use_mocks: false
+      version: v1
 adapted_housing:
   prefill: true
 argocd:
@@ -1183,6 +1193,8 @@ reports:
 res:
   api_key: ~
   base_url: https://fake_url.com
+  ch_31_eligibility:
+    mock: ~
   mock_ch_31: ~
 review_instance_slug: ~
 rrd:
