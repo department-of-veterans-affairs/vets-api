@@ -6,8 +6,8 @@ require 'unique_user_events'
 RSpec.describe UniqueUserEvents::Service do
   let(:user) { double('User', user_account_uuid: SecureRandom.uuid, vha_facility_ids: []) }
   let(:user_id) { user.user_account_uuid }
-  let(:event_name) { 'test_event' }
-  let(:oh_event_name) { 'mhv_sm_message_sent' }
+  let(:event_name) { UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED }
+  let(:oh_event_name) { UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT }
 
   describe '.log_event' do
     before do
@@ -110,6 +110,28 @@ RSpec.describe UniqueUserEvents::Service do
           .with('UUM: Failed to log event', { user_id:, event_name:, error: error_message })
       end
     end
+
+    context 'when event name is invalid' do
+      let(:invalid_event_name) { 'invalid_unregistered_event' }
+
+      it 'raises ArgumentError' do
+        expect do
+          described_class.log_event(user:, event_name: invalid_event_name)
+        end.to raise_error(ArgumentError, /Invalid event name/)
+      end
+
+      it 'includes the invalid event name in error message' do
+        expect do
+          described_class.log_event(user:, event_name: invalid_event_name)
+        end.to raise_error(ArgumentError, /invalid_unregistered_event/)
+      end
+
+      it 'includes list of valid events in error message' do
+        expect do
+          described_class.log_event(user:, event_name: invalid_event_name)
+        end.to raise_error(ArgumentError, /Must be one of:/)
+      end
+    end
   end
 
   describe '.event_logged?' do
@@ -148,6 +170,16 @@ RSpec.describe UniqueUserEvents::Service do
         expect(result).to be(false)
         expect(Rails.logger).to have_received(:error)
           .with('UUM: Failed to check event', { user_id:, event_name:, error: error_message })
+      end
+    end
+
+    context 'when event name is invalid' do
+      let(:invalid_event_name) { 'invalid_unregistered_event' }
+
+      it 'raises ArgumentError' do
+        expect do
+          described_class.event_logged?(user:, event_name: invalid_event_name)
+        end.to raise_error(ArgumentError, /Invalid event name/)
       end
     end
   end

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'unique_user_events/event_registry'
 require 'unique_user_events/oracle_health'
 
 # Top-level module for Unique User Metrics system
@@ -27,8 +28,18 @@ module UniqueUserEvents
     #
     # @param user [User] the authenticated User object
     # @param event_name [String] Name of the event being logged
+    #   Use EventRegistry constants (e.g., EventRegistry::PRESCRIPTIONS_ACCESSED)
+    #   instead of raw strings to prevent typos and enable IDE autocomplete.
     # @return [Array<Hash>] Array of event results with event_name, status, and new_event keys
+    # @raise [ArgumentError] if event_name is not in the registry
+    #
+    # @example Using EventRegistry constants (recommended)
+    #   UniqueUserEvents::Service.log_event(
+    #     user: current_user,
+    #     event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+    #   )
     def self.log_event(user:, event_name:)
+      EventRegistry.validate_event!(event_name)
       user_id = extract_user_id(user)
 
       # Get all events to be logged (original + OH events)
@@ -38,6 +49,9 @@ module UniqueUserEvents
       events_to_log.map do |event_name_to_log|
         log_single_event(user_id:, event_name: event_name_to_log)
       end
+    rescue ArgumentError
+      # Re-raise validation errors - these are programmer errors
+      raise
     rescue => e
       Rails.logger.error('UUM: Failed to log event', { user_id:, event_name:, error: e.message })
       # Don't raise - this is analytics, shouldn't break user flow
@@ -48,10 +62,17 @@ module UniqueUserEvents
     #
     # @param user [User] the authenticated User object
     # @param event_name [String] Name of the event
+    #   Use EventRegistry constants (e.g., EventRegistry::PRESCRIPTIONS_ACCESSED)
+    #   instead of raw strings to prevent typos and enable IDE autocomplete.
     # @return [Boolean] true if event exists, false otherwise
+    # @raise [ArgumentError] if event_name is not in the registry
     def self.event_logged?(user:, event_name:)
+      EventRegistry.validate_event!(event_name)
       user_id = extract_user_id(user)
       MHVMetricsUniqueUserEvent.event_exists?(user_id:, event_name:)
+    rescue ArgumentError
+      # Re-raise validation errors - these are programmer errors
+      raise
     rescue => e
       Rails.logger.error('UUM: Failed to check event', { user_id:, event_name:, error: e.message })
       # Don't raise - return false if we can't check

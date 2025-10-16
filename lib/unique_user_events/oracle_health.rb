@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'unique_user_events/event_registry'
+
 module UniqueUserEvents
   # Oracle Health specific functionality for unique user metrics
   #
@@ -10,18 +12,17 @@ module UniqueUserEvents
     TRACKED_FACILITY_IDS = %w[757].freeze
 
     # Events that should generate Oracle Health site-specific events
-    # These must match events from
-    # https://github.com/department-of-veterans-affairs/vets-website/blob/main/src/platform/mhv/unique_user_metrics/eventRegistry.js
-    TRACKED_EVENTS = %w[
-      mhv_sm_message_sent
-      mhv_rx_refill_requested
-      mhv_appointments_accessed
-      mhv_mr_allergies_accessed
-      mhv_mr_vaccines_accessed
-      mhv_mr_labs_accessed
-      mhv_mr_notes_accessed
-      mhv_mr_vitals_accessed
-      mhv_mr_conditions_accessed
+    # Uses EventRegistry constants to avoid string duplication
+    TRACKED_EVENTS = [
+      EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+      EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+      EventRegistry::APPOINTMENTS_ACCESSED,
+      EventRegistry::MEDICAL_RECORDS_ALLERGIES_ACCESSED,
+      EventRegistry::MEDICAL_RECORDS_VACCINES_ACCESSED,
+      EventRegistry::MEDICAL_RECORDS_LABS_ACCESSED,
+      EventRegistry::MEDICAL_RECORDS_NOTES_ACCESSED,
+      EventRegistry::MEDICAL_RECORDS_VITALS_ACCESSED,
+      EventRegistry::MEDICAL_RECORDS_CONDITIONS_ACCESSED
     ].freeze
 
     # Generate Oracle Health events for a user and event

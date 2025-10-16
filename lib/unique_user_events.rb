@@ -22,11 +22,16 @@ module UniqueUserEvents
   #
   # @param user [User] the authenticated User object
   # @param event_name [String] Name of the event being logged (max 50 chars)
+  #   Use EventRegistry constants (e.g., EventRegistry::PRESCRIPTIONS_ACCESSED)
+  #   instead of raw strings to prevent typos and enable IDE autocomplete.
   # @return [Array<Hash>] Array of event results
   # @raise [ArgumentError] if parameters are invalid
   #
-  # @example
-  #   UniqueUserEvents.log_event(user: current_user, event_name: 'appointments_viewed')
+  # @example Using EventRegistry constants (recommended)
+  #   UniqueUserEvents.log_event(
+  #     user: current_user,
+  #     event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+  #   )
   def self.log_event(user:, event_name:)
     return [Service.build_disabled_result(event_name)] unless Flipper.enabled?(:unique_user_metrics_logging)
 
@@ -45,12 +50,17 @@ module UniqueUserEvents
   #
   # @param user [User] the authenticated User object
   # @param event_name [String] Name of the event to check
+  #   Use EventRegistry constants (e.g., EventRegistry::PRESCRIPTIONS_ACCESSED)
+  #   instead of raw strings to prevent typos and enable IDE autocomplete.
   # @return [Boolean] true if event exists, false otherwise
   # @raise [ArgumentError] if parameters are invalid
   #
   # @example
-  #   if UniqueUserEvents.event_logged?(user: current_user, event_name: 'mhv_landing_accessed')
-  #     # User has already accessed MHV landing page
+  #   if UniqueUserEvents.event_logged?(
+  #     user: current_user,
+  #     event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+  #   )
+  #     # User has already accessed prescriptions
   #   end
   def self.event_logged?(user:, event_name:)
     Service.event_logged?(user:, event_name:)

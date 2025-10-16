@@ -5,7 +5,7 @@ require 'unique_user_events'
 
 RSpec.describe UniqueUserEvents do
   let(:user) { double('User', user_account_uuid: SecureRandom.uuid) }
-  let(:event_name) { 'test_event' }
+  let(:event_name) { UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED }
 
   describe '.log_event' do
     before do
