@@ -94,9 +94,6 @@ module IvcChampva
       #
       # @return [Hash] response from build_json
       def handle_file_uploads_wrapper(form_id, parsed_form_data)
-        # Generate VES JSON as supporting document if conditions are met
-        generate_ves_json_document(form_id, parsed_form_data)
-
         if Flipper.enabled?(:champva_send_to_ves, @current_user) && form_id == 'vha_10_10d'
           # first, prepare and validate the VES request
           ves_request = prepare_ves_request(parsed_form_data)
@@ -130,31 +127,25 @@ module IvcChampva
       end
 
       ##
-      # Generates VES JSON file and adds it as a supporting document
+      # Generates VES JSON file and returns the file path
       #
-      # @param [String] form_id The ID of the current form
+      # @param [Object] form The form instance with proper UUID and form_id
       # @param [Hash] parsed_form_data complete form submission data object
-      def generate_ves_json_document(form_id, parsed_form_data)
-        return unless should_generate_ves_json?(form_id)
-
+      # @return [String] The path to the generated VES JSON file
+      def generate_ves_json_file(form, parsed_form_data)
         # Generate VES data
         ves_data = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
 
-        # Create temporary JSON file
-        ves_file_path = "tmp/#{parsed_form_data['uuid']}_#{form_id}_ves.json"
+        # Create temporary JSON file using form.uuid (absolute path like PDF files)
+        ves_file_path = Rails.root.join("tmp/#{form.uuid}_#{form.form_id}_ves.json").to_s
         File.write(ves_file_path, ves_data.to_json)
 
-        # Create a mock form object for create_custom_attachment
-        mock_form = OpenStruct.new(form_id:)
-
-        # Create supporting document attachment
-        ves_supporting_doc = create_custom_attachment(mock_form, ves_file_path, 'VES JSON')
-        add_supporting_doc(parsed_form_data, ves_supporting_doc)
-
-        Rails.logger.info "VES JSON document generated and added as supporting document for form #{form_id}"
+        Rails.logger.info "VES JSON file generated for form #{form.form_id}: #{ves_file_path}"
+        ves_file_path
       rescue => e
         # Don't raise - we don't want VES JSON generation failure to break the entire submission
-        Rails.logger.error "Error generating VES JSON document: #{e.message}"
+        Rails.logger.error "Error generating VES JSON file: #{e.message}"
+        nil
       end
 
       # Prepares data for VES, raising an exception if this cannot be done
@@ -886,6 +877,15 @@ module IvcChampva
         metadata = IvcChampva::MetadataValidator.validate(form.metadata)
 
         file_paths = form.handle_attachments(file_path)
+
+        # Generate VES JSON file and add to file_paths if conditions are met
+        if should_generate_ves_json?(form.form_id)
+          ves_json_path = generate_ves_json_file(form, parsed_form_data)
+          if ves_json_path
+            file_paths << ves_json_path
+            attachment_ids << 'VES JSON'
+          end
+        end
 
         [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]
       end
