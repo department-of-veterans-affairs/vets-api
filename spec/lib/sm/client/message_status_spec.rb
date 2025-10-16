@@ -132,47 +132,33 @@ describe SM::Client, '#status' do
     end
 
     it 'raises GatewayTimeout when timeout is reached' do
-      allow(client).to receive(:get_message_status).and_return({ status: 'IN_PROGRESS' })
-      expect { client.send(:poll_message_status, 123, timeout_seconds: 0) }.to raise_error(Common::Exceptions::GatewayTimeout)
+      VCR.use_cassette('sm_client/messages/creates/status_in_progress', allow_playback_repeats: true) do
+        expect do
+          client.send(:poll_message_status, 674_838, timeout_seconds: 0.01, interval_seconds: 0)
+        end.to raise_error(Common::Exceptions::GatewayTimeout)
+      end
     end
 
     it 'raises error after exceeding max_errors consecutive errors' do
-      allow(client).to receive(:get_message_status).and_raise(StandardError.new('API error'))
-      expect { client.send(:poll_message_status, 123, max_errors: 2) }.to raise_error(StandardError)
+      VCR.use_cassette('sm_client/messages/creates/status_error', allow_playback_repeats: true) do
+        expect { client.send(:poll_message_status, 674_838, max_errors: 2) }.to raise_error(SM::ServiceException)
+      end
     end
 
     it 'continues polling on non-terminal statuses and returns when terminal' do
-      call_count = 0
-      allow(client).to receive(:get_message_status) do
-        call_count += 1
-        if call_count < 3
-          { status: 'IN_PROGRESS' }
-        else
-          { status: 'SENT' }
-        end
+      VCR.use_cassette('sm_client/messages/creates/status_polling_sequence') do
+        result = client.send(:poll_message_status, 674_838)
+        expect(result).to eq({ message_id: 674_838, status: 'SENT', is_oh_message: true,
+                               oh_secure_message_id: '54282597705.0.-4.prsnl' })
       end
-      allow(client).to receive(:sleep)
-      result = client.send(:poll_message_status, 123)
-      expect(result).to eq({ status: 'SENT' })
-      expect(call_count).to eq(3)
     end
 
     it 'resets consecutive_errors on successful call' do
-      call_count = 0
-      allow(client).to receive(:get_message_status) do
-        call_count += 1
-        if call_count == 1
-          raise StandardError.new('API error')
-        elsif call_count == 2
-          raise StandardError.new('API error')
-        else
-          { status: 'SENT' }
-        end
+      VCR.use_cassette('sm_client/messages/creates/status_error_reset') do
+        result = client.send(:poll_message_status, 674_838, max_errors: 2)
+        expect(result).to eq({ message_id: 674_838, status: 'SENT', is_oh_message: true,
+                               oh_secure_message_id: '54282597705.0.-4.prsnl' })
       end
-      allow(client).to receive(:sleep)
-      result = client.send(:poll_message_status, 123, max_errors: 2)
-      expect(result).to eq({ status: 'SENT' })
-      expect(call_count).to eq(3)
     end
   end
 end
