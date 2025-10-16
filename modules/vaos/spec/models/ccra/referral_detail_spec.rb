@@ -7,7 +7,7 @@ describe Ccra::ReferralDetail do
   shared_examples 'has nil attributes' do
     it 'sets all attributes to nil' do
       # Use reflection to iterate through the object's instance variables
-      instance_variables = subject.instance_variables.reject { |v| v == :@uuid }
+      instance_variables = subject.instance_variables.reject { |v| %i[@uuid @appointments].include?(v) }
       instance_variables.each do |var|
         value = subject.instance_variable_get(var)
         expect(value).to be_nil, "Expected #{var} to be nil, but got #{value.inspect}"
@@ -26,7 +26,6 @@ describe Ccra::ReferralDetail do
         referral_number: 'VA0000005681',
         referral_date: '2024-07-24',
         station_id: '528A6',
-        appointments: [{ appointment_date: '2024-08-15' }],
         referring_facility_info: {
           facility_name: 'Bath VA Medical Center',
           phone: '555-123-4567',
@@ -65,7 +64,7 @@ describe Ccra::ReferralDetail do
       expect(subject.referral_date).to eq('2024-07-24')
       expect(subject.station_id).to eq('528A6')
       expect(subject.uuid).to be_nil
-      expect(subject.has_appointments).to be(true)
+      expect(subject.appointments).to eq([])
 
       # Provider info
       expect(subject.provider_name).to eq('Dr. Smith')
@@ -106,22 +105,27 @@ describe Ccra::ReferralDetail do
     end
 
     context 'with appointments array' do
-      it 'sets has_appointments to true when appointments are present' do
-        attributes = { appointments: [{ appointment_date: '2024-08-15' }] }
-        detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be(true)
+      it 'initializes appointments as empty array by default' do
+        detail = described_class.new({})
+        expect(detail.appointments).to eq([])
       end
 
-      it 'sets has_appointments to false when appointments is empty array' do
-        attributes = { appointments: [] }
-        detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be(false)
+      it 'can be set to appointments data after initialization' do
+        detail = described_class.new({})
+        detail.appointments = { 'system' => 'VAOS', 'data' => [{ 'id' => '12345' }] }
+        expect(detail.appointments).to eq({ 'system' => 'VAOS', 'data' => [{ 'id' => '12345' }] })
       end
 
-      it 'sets has_appointments to false when appointments is nil' do
-        attributes = { appointments: nil }
-        detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be(false)
+      it 'can be set to empty array after initialization' do
+        detail = described_class.new({})
+        detail.appointments = []
+        expect(detail.appointments).to eq([])
+      end
+
+      it 'can be set to nil after initialization' do
+        detail = described_class.new({})
+        detail.appointments = nil
+        expect(detail.appointments).to be_nil
       end
     end
 
@@ -154,7 +158,6 @@ describe Ccra::ReferralDetail do
         'referral_number' => 'VA0000005681',
         'referral_date' => '2024-07-24',
         'station_id' => '528A6',
-        'has_appointments' => true,
         'provider_name' => 'Dr. Smith',
         'provider_npi' => '1659458917',
         'provider_specialty' => 'CARDIOLOGY',
@@ -194,7 +197,7 @@ describe Ccra::ReferralDetail do
       expect(subject.referral_number).to eq('VA0000005681')
       expect(subject.referral_date).to eq('2024-07-24')
       expect(subject.station_id).to eq('528A6')
-      expect(subject.has_appointments).to be(true)
+      expect(subject.appointments).to eq([])
 
       # Provider info
       expect(subject.provider_name).to eq('Dr. Smith')
