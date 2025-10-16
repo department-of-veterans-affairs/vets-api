@@ -42,7 +42,8 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
                'description' => 'Second Demand Letter - Potential Negative Referral' },
              { 'date' => '11/15/1994', 'letterCode' => '603', 'description' => 'Late Or Missed Payment Notification' },
              { 'date' => '09/10/1994', 'letterCode' => '123',
-               'description' => 'Third Demand Letter - Potential Treasury Referral' }] } }
+               'description' => 'Third Demand Letter - Potential Treasury Referral' }],
+          'fiscalTransactionData' => [] } }
   end
 
   let(:debt2) do
@@ -63,7 +64,9 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
           'debtHistory' =>
             [{ 'date' => '02/12/2009',
                'letterCode' => '487',
-               'description' => 'Death Case Pending Action' }] }
+               'description' => 'Death Case Pending Action' }],
+          'fiscalTransactionData' => [] }
+
     }
   end
 
@@ -82,7 +85,8 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
         'amountWithheld' => 0.0,
         'originalAr' => 166.67,
         'currentAr' => 0.0,
-        'debtHistory' => []
+        'debtHistory' => [],
+        'fiscalTransactionData' => []
       }
     }
   end
@@ -108,7 +112,8 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
              { 'date' => '11/18/2015', 'letterCode' => '130', 'description' => 'Debt Increase - Due Process' },
              { 'date' => '04/08/2015', 'letterCode' => '608', 'description' => 'Full C&P Benefit Offset Notification' },
              { 'date' => '03/26/2015', 'letterCode' => '100',
-               'description' => 'First Demand Letter - Inactive Benefits - Due Process' }]
+               'description' => 'First Demand Letter - Inactive Benefits - Due Process' }],
+          'fiscalTransactionData' => []
         }
     }
   end
@@ -131,7 +136,8 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
           'debtHistory' =>
             [{ 'date' => '08/08/2018', 'letterCode' => '608', 'description' => 'Full C&P Benefit Offset Notification' },
              { 'date' => '07/19/2018', 'letterCode' => '100',
-               'description' => 'First Demand Letter - Inactive Benefits - Due Process' }]
+               'description' => 'First Demand Letter - Inactive Benefits - Due Process' }],
+          'fiscalTransactionData' => []
         } }
   end
 
@@ -208,7 +214,8 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
             'currentAr' => 123.34,
             'debtHistory' =>
               [{ 'date' => '09/12/1998', 'letterCode' => '123',
-                 'description' => 'Third Demand Letter - Potential Treasury Referral' }] }
+                 'description' => 'Third Demand Letter - Potential Treasury Referral' }],
+            'fiscalTransactionData' => [] }
       }
     end
 
@@ -226,7 +233,8 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
                  'currentAR' => 123.34,
                  'debtHistory' =>
                    [{ 'date' => '09/12/1998', 'letterCode' => '123',
-                      'description' => 'Third Demand Letter - Potential Treasury Referral' }] }]
+                      'description' => 'Third Demand Letter - Potential Treasury Referral' }],
+                 'fiscalTransactionData' => [] }]
       debts[0]['id'] = debt_id
       debt_store = DebtManagementCenter::DebtStore.find_or_build(user.uuid)
       debt_store.update(debts:, uuid: user.uuid)
