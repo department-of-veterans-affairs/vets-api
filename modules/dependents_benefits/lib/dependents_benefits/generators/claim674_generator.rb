@@ -39,7 +39,8 @@ module DependentsBenefits
           'statement_of_truth_certified'
         )
 
-        form_674_top['view:selectable686_options'] = dependent_data['dependents_application']['view:selectable686_options']
+        selectable686_options = dependent_data['dependents_application']&.dig('view:selectable686_options')
+        form_674_top['view:selectable686_options'] = selectable686_options
 
         form_674_nested = dependent_data['dependents_application'].slice(
           'veteran_contact_information',
