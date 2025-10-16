@@ -56,6 +56,7 @@ describe VRE::VRESubmit1900Job do
       allow(VRE::VREVeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
       allow(VRE::VREMonitor).to receive(:new).and_return(monitor)
       allow(monitor).to receive :track_submission_exhaustion
+      Flipper.enable(:vre_use_new_vfs_notification_library)
     end
 
     context 'when email is present' do
@@ -63,16 +64,8 @@ describe VRE::VRESubmit1900Job do
         VRE::VRESubmit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
           expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
           exhaustion_msg['args'] = [claim.id, encrypted_user]
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim.parsed_form['email'])
-          expect(VANotify::EmailJob).to receive(:perform_async).with(
-            'email@test.com',
-            'form1900_action_needed_email_template_id',
-            {
-              'first_name' => 'First',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => claim.confirmation_number
-            }
-          )
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+          expect(claim).to receive(:send_failure_email)
         end
       end
     end
@@ -85,8 +78,8 @@ describe VRE::VRESubmit1900Job do
           expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
           exhaustion_msg['args'] = [claim.id, encrypted_user]
           allow(claim).to receive(:email).and_return(nil)
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
-          expect(VANotify::EmailJob).not_to receive(:perform_async)
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+          expect(VRE::NotificationEmail).not_to receive(:new)
         end
       end
     end

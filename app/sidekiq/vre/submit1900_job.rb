@@ -31,10 +31,15 @@ module VRE
     end
 
     def self.trigger_failure_events(msg)
-      monitor = VRE::Monitor.new
       claim_id = msg['args'][0]
       claim = SavedClaim.find(claim_id)
-      monitor.track_submission_exhaustion(msg, claim.email)
+
+      if Flipper.enabled?(:vre_use_new_vfs_notification_library)
+        VRE::VREMonitor.new.track_submission_exhaustion(msg, claim)
+      else
+        VRE::Monitor.new.track_submission_exhaustion(msg, claim.email)
+      end
+
       claim.send_failure_email if claim.present?
     end
   end
