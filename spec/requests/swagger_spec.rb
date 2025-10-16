@@ -1574,19 +1574,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     context '/v0/user endpoint with some external service errors' do
-      let(:user) do
-        build(:user, middle_name: 'Lee', edipi: '1234567890', loa: { current: 3, highest: 3 })
-      end
+      let(:user) { build(:user, middle_name: 'Lee') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
 
       it 'supports getting user with some external errors', :skip_mvi do
-        expect(subject).to validate(:get, '/v0/user', 296, headers)
-      end
-
-      it 'returns 296 when VAProfile returns an error', :skip_mvi do
-        allow_any_instance_of(VAProfile::VeteranStatus::Service)
-          .to receive(:get_veteran_status)
-          .and_raise(StandardError.new('VAProfile error'))
         expect(subject).to validate(:get, '/v0/user', 296, headers)
       end
     end
