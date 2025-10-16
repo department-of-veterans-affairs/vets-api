@@ -2,7 +2,7 @@
 
 module PdfFill
   class ExtrasGeneratorV2 < ExtrasGenerator
-    attr_reader :section_coordinates
+    attr_reader :section_coordinates, :use_hexapdf
 
     HEADER_FONT_SIZE = 14.5
     SUBHEADER_FONT_SIZE = 10.5
@@ -365,8 +365,9 @@ module PdfFill
       @default_label_width    = options[:label_width] || LABEL_WIDTH
       @show_jumplinks         = options[:show_jumplinks] || false
       @section_coordinates    = options[:section_coordinates] || []
+      @use_hexapdf            = options[:use_hexapdf] || false
       @questions              = {}
-      super()
+      super(options)
     end
 
     def placeholder_text
