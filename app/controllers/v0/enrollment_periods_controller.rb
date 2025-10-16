@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require Rails.root.join('lib/veteran_enrollment_system/enrollment_periods/service.rb')
+# require Rails.root.join('lib/veteran_enrollmeont_system/enrollment_periods/service.rb')
+require 'veteran_enrollment_system/enrollment_periods/service'
 
 module V0
   class EnrollmentPeriodsController < ApplicationController
