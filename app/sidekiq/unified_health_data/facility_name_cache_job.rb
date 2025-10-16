@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lighthouse/facilities/v1/client'
+
 module UnifiedHealthData
   # FacilityNameCacheJob
   #
