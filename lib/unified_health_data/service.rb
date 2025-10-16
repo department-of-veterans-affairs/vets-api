@@ -185,6 +185,7 @@ module UnifiedHealthData
 
     # Shared
     # Response bodies are automatically parsed by Faraday's json_parser middleware
+    # configured in UnifiedHealthData::Configuration
     def parse_response_body(body)
       body
     end
