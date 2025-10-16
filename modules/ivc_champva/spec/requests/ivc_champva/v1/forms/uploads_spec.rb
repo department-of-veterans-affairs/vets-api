@@ -1569,7 +1569,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         result = controller.send(:generate_ves_json_file, mock_form, parsed_form_data)
 
         expect(result).to be_nil
-        expect(Rails.logger).to have_received(:error).with('Error generating VES JSON file: VES formatting error')
+        expect(Rails.logger).to have_received(:error)
+          .with('Error generating VES JSON file for form vha_10_10d: VES formatting error')
         expect(File).not_to have_received(:write)
       end
     end
