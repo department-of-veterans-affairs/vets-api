@@ -42,7 +42,10 @@ module Burials
       # @return [JSON]
       # @raise [Exception]
       def create
-        claim = claim_class.new(form: filtered_params[:form], user_account: @current_user.user_account)
+        claim_attributes = { form: filtered_params[:form] }
+        claim_attributes[:user_account] = @current_user.user_account if @current_user&.user_account
+
+        claim = claim_class.new(**claim_attributes)
         monitor.track_create_attempt(claim, current_user)
 
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
