@@ -22,7 +22,11 @@ module Mobile
         resource.records = resource.records.select(&:preferred_team)
         resource = resource.sort(params[:sort])
 
-        resource.metadata[:care_systems] = client.get_unique_care_systems(resource.records)
+        resource.metadata[:care_systems] = if Flipper.enabled?(:mhv_secure_messaging_612_care_systems_fix, @user)
+                                             client.get_unique_care_systems612_fix(resource.records)
+                                           else
+                                             client.get_unique_care_systems(resource.records)
+                                           end
 
         # Even though this is a collection action we are not going to paginate
         options = { meta: resource.metadata }
