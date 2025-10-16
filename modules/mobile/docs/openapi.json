@@ -20043,7 +20043,7 @@
                       },
                       "nullable": true,
                       "example": [
-                        "Patient states allergy to trazodone."
+                        "Patient states prior allergic reaction to trazodone."
                       ]
                     },
                     "provider": {

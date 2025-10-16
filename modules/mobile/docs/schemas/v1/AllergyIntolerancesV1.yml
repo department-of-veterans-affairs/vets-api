@@ -72,7 +72,7 @@ properties:
               items:
                 type: string
               nullable: true
-              example: ["Patient states allergy to trazodone."]
+              example: ["Patient states prior allergic reaction to trazodone."]
             provider:
               type: string
               nullable: true
