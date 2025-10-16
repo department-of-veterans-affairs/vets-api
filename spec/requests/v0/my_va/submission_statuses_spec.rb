@@ -206,7 +206,8 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
   context 'when user has no submissions' do
     before do
       allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway).to receive(:submissions).and_return([])
-      allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway).to receive(:lighthouse_submissions).and_return([])
+      allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
+        .to receive(:lighthouse_submissions).and_return([])
     end
 
     it 'returns an empty array' do
