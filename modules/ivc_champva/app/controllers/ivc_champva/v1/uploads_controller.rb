@@ -144,7 +144,7 @@ module IvcChampva
         ves_file_path
       rescue => e
         # Don't raise - we don't want VES JSON generation failure to break the entire submission
-        Rails.logger.error "Error generating VES JSON file: #{e.message}"
+        Rails.logger.error "Error generating VES JSON file for form #{form.form_id}: #{e.message}"
         nil
       end
 
