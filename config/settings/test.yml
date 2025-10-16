@@ -1614,7 +1614,6 @@ vanotify:
         form21p_601_error_email: form21p_601_error_email_template_id
         form21p_601_received_email: form21p_601_received_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
-        form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21p_0847_error_email: form21p_0847_error_email_template_id
         form21p_0847_received_email: form21p_0847_received_email_template_id
         form26_4555_confirmation_email: form26_4555_confirmation_email_template_id
