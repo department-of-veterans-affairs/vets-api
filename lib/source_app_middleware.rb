@@ -155,7 +155,8 @@ class SourceAppMiddleware
     'virtual-agent',
     'welcome-va-setup-review-information',
     'yellow-ribbon',
-    'your-debt'
+    'your-debt',
+    'ch31-eligibility-entitlement'
   ].freeze
 
   MOBILE_APP_NAMES = Set.new %w[

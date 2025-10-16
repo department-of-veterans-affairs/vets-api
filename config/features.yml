@@ -909,10 +909,6 @@ features:
     actor_type: user
     description: Enables Representative Status widget 2.0 features for frontend and backend
     enable_in_development: true
-  accredited_representative_portal_declination:
-    actor_type: user
-    description: Enables declination reason feature for frontend and backend
-    enable_in_development: true
   accredited_representative_portal_id_me:
     actor_type: user
     description: Enables ID.me authentication feature for frontend and backend
@@ -1162,10 +1158,6 @@ features:
     actor_type: user
     description: Enable/disable Amazon Kendra for Resources and Support search
     enable_in_development: true
-  letters_page_new_design:
-    actor_type: user
-    description: Enables ability to show updated letter page design
-    enable_in_development: true
   lighthouse_claims_api_v2_add_person_proxy:
     actor_type: user
     description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID
@@ -1355,6 +1347,9 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging Recent Recipients
     enable_in_development: true
+  mhv_secure_messaging_612_care_systems_fix:
+    actor_type: user
+    description: Enables/disables fix for 612 care systems bug just in case of catastrophic failure during shutdown
   mhv_bypass_downtime_notification:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
@@ -2266,10 +2261,6 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
-  sc_new_form:
-    actor_type: user
-    description: Supplemental Claim new form updates
-    enable_in_development: true
   hlr_browser_monitoring_enabled:
     actor_type: user
     description: HLR Datadog RUM monitoring
@@ -2343,6 +2334,9 @@ features:
   income_and_assets_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  pbb_forms_require_loa3:
+    actor_type: user
+    description: Require LOA3 authentication to access Pension, Burials, and Income and Assets forms
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
@@ -2580,9 +2574,6 @@ features:
   accredited_representative_portal_homepage:
     actor_type: user
     description: Enables new homepage redesign for ARP
-  accredited_representative_portal_dashboard_link:
-    actor_type: user
-    description: Enables new dashboard link on nav
   gi_comparison_tool_cautionary_info_update:
     actor_type: user
     description: Enables updated cautionary info student feedback ui for GI Comparison Tool
