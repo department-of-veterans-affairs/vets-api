@@ -32,6 +32,7 @@ module Forms
       def lighthouse_submissions
         query = Lighthouse::Submission.joins(:saved_claim, :submission_attempts)
                                       .where(saved_claims: { user_account_id: @user_account.id })
+                                      .where.not(lighthouse_submission_attempts: { benefits_intake_uuid: nil })
         query = query.where(form_id: @allowed_forms) if @allowed_forms.present?
         query.order(:created_at).to_a
       end
@@ -67,7 +68,7 @@ module Forms
       private
 
       def extract_uuids(submissions)
-        submissions.map(&:benefits_intake_uuid).compact # Fix: add .compact for nil handling
+        submissions.map(&:benefits_intake_uuid).compact
       end
 
       def fetch_bulk_status(uuids)
