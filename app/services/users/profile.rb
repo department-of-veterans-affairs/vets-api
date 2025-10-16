@@ -135,10 +135,7 @@ module Users
         fax_number: person.fax_number
       }
     rescue => e
-      error_hash = Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
-      error_hash[:method] = 'vet360_contact_information'
-      scaffold.errors << error_hash
-      log_external_service_error(error_hash)
+      handle_service_error(e, 'VAProfile', 'vet360_contact_information')
       nil
     end
 
@@ -153,7 +150,7 @@ module Users
           method: 'mpi_profile'
         }
         log_external_service_error(error_hash)
-        return nil
+        return { status: RESPONSE_STATUS[:ok] }
       end
 
       status = user.mpi_status
@@ -173,10 +170,7 @@ module Users
           active_mhv_ids: user.active_mhv_ids
         }
       else
-        error_hash = Users::ExceptionHandler.new(user.mpi_error, 'MVI').serialize_error
-        error_hash[:method] = 'mpi_profile'
-        scaffold.errors << error_hash
-        log_external_service_error(error_hash)
+        handle_service_error(user.mpi_error, 'MVI', 'mpi_profile')
         nil
       end
     end
@@ -185,15 +179,13 @@ module Users
     def veteran_status
       if user.edipi.blank?
         log_for_missing_edipi
+
         return build_veteran_status_object(nil, nil)
       end
 
       build_veteran_status_object(user.veteran?, user.served_in_military?)
     rescue => e
-      error_hash = Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
-      error_hash[:method] = 'veteran_status'
-      scaffold.errors << error_hash
-      log_external_service_error(error_hash)
+      handle_service_error(e, 'VAProfile', 'veteran_status')
       nil
     end
 
@@ -261,9 +253,11 @@ module Users
     end
 
     def log_for_missing_edipi
-      Rails.logger.info('Skipping VAProfile veteran status call, No EDIPI present',
-                        user_uuid: user.uuid,
-                        loa: user.loa)
+      Rails.logger.info(
+        'Skipping VAProfile veteran status call, No EDIPI present',
+        user_uuid: user.uuid,
+        loa: user.loa
+      )
     end
 
     def build_veteran_status_object(is_veteran, served_in_military)
@@ -272,6 +266,13 @@ module Users
         is_veteran:,
         served_in_military:
       }
+    end
+
+    def handle_service_error(error, service, method_name)
+      error_hash = Users::ExceptionHandler.new(error, service).serialize_error
+      error_hash[:method] = method_name
+      scaffold.errors << error_hash
+      log_external_service_error(error_hash)
     end
   end
 end

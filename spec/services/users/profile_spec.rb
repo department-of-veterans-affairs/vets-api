@@ -290,9 +290,12 @@ RSpec.describe Users::Profile do
 
       context 'when mpi_profile is nil' do
         let(:user) { build(:user) }
+        let(:ok_status) do
+          Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok]
+        end
 
         it 'returns va_profile as null' do
-          expect(va_profile).to be_nil
+          expect(va_profile).to eq({ status: ok_status })
         end
 
         it 'does not populate the #errors array with the serialized error', :aggregate_failures do
@@ -415,48 +418,58 @@ RSpec.describe Users::Profile do
       end
 
       context 'when LOA1 user' do
-        let(:edipi) { nil }
-
         before do
           user.loa[:current] = 1
         end
 
-        it 'returns object with nils for veteran_status when edipi is blank' do
-          expect(veteran_status).to eq(veteran_status_with_nil)
-        end
+        context 'with blank edipi' do
+          let(:edipi) { nil }
+          let(:expected_object) do
+            { status: ok_status, is_veteran: nil, served_in_military: nil }
+          end
+          let(:ok_status) do
+            Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok]
+          end
 
-        it 'logs skipping message' do
-          expect(Rails.logger).to receive(:info).with(
-            'Skipping VAProfile veteran status call, No EDIPI present',
-            user_uuid: user.uuid,
-            loa: user.loa
-          )
-          Users::Profile.new(user).send(:veteran_status)
-        end
+          it 'returns nil for veteran_status' do
+            expect(veteran_status).to eq(expected_object)
+          end
 
-        it 'sets the status to 200 when edipi is blank' do
-          expect(subject.status).to eq 200
+          it 'logs skipping message' do
+            expect(Rails.logger).to receive(:info).with(
+              'Skipping VAProfile veteran status call, No EDIPI present',
+              user_uuid: user.uuid,
+              loa: user.loa
+            )
+            Users::Profile.new(user).send(:veteran_status)
+          end
+
+          it 'sets the status to 200 when edipi is blank' do
+            expect(subject.status).to eq 200
+          end
         end
       end
 
       context 'when a LOA3 user' do
-        let(:edipi) { nil }
+        context 'with blank edipi' do
+          let(:edipi) { nil }
 
-        it 'returns object with nils for veteran_status when edipi is blank' do
-          expect(veteran_status).to eq(veteran_status_with_nil)
-        end
+          it 'returns object with nils for veteran_status when edipi is blank' do
+            expect(veteran_status).to eq(veteran_status_with_nil)
+          end
 
-        it 'logs skipping message' do
-          expect(Rails.logger).to receive(:info).with(
-            'Skipping VAProfile veteran status call, No EDIPI present',
-            user_uuid: user.uuid,
-            loa: user.loa
-          )
-          Users::Profile.new(user).send(:veteran_status)
-        end
+          it 'logs skipping message' do
+            expect(Rails.logger).to receive(:info).with(
+              'Skipping VAProfile veteran status call, No EDIPI present',
+              user_uuid: user.uuid,
+              loa: user.loa
+            )
+            Users::Profile.new(user).send(:veteran_status)
+          end
 
-        it 'sets the status to 200 when edipi is blank' do
-          expect(subject.status).to eq 200
+          it 'sets the status to 200 when edipi is blank' do
+            expect(subject.status).to eq 200
+          end
         end
       end
     end
