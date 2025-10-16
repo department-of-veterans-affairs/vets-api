@@ -78,7 +78,7 @@ module ClaimsEvidenceApi
       ALLOWLIST = %w[
         code
         endpoint
-        mehtod
+        method
         reason
       ].freeze
 
