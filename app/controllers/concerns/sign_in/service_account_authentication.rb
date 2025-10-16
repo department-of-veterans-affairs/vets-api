@@ -32,7 +32,9 @@ module SignIn
     end
 
     def handle_authenticate_error(error)
-      log_message_to_sentry(error.message, :error, { access_token_authorization_header: bearer_token })
+      Rails.logger.error('[SignIn][ServiceAccountAuthentication] authentication error',
+                         access_token_authorization_header: bearer_token,
+                         errors: error.message)
       render json: { errors: error }, status: :unauthorized
     end
 
