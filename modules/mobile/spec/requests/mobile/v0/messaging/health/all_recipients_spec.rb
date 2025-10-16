@@ -39,7 +39,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
     end
 
     it 'responds to GET #all_recipients' do
-      allow_any_instance_of(Mobile::V0::Messaging::Client).to receive(:get_unique_care_systems).and_return(
+      allow_any_instance_of(Mobile::V0::RecipientsController).to receive(:get_unique_care_systems).and_return(
         care_systems_stub
       )
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
@@ -51,7 +51,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
     end
 
     it 'filters out teams with blocked_status == true' do
-      allow_any_instance_of(Mobile::V0::Messaging::Client).to receive(:get_unique_care_systems).and_return(
+      allow_any_instance_of(Mobile::V0::RecipientsController).to receive(:get_unique_care_systems).and_return(
         care_systems_stub
       )
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_include_blocked') do
@@ -121,7 +121,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
       end
 
       it 'retrieve cached triage teams rather than hitting the service' do
-        allow_any_instance_of(Mobile::V0::Messaging::Client).to receive(:get_unique_care_systems).and_return(
+        allow_any_instance_of(Mobile::V0::RecipientsController).to receive(:get_unique_care_systems).and_return(
           care_systems_stub
         )
         expect do
