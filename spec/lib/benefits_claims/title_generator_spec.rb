@@ -27,7 +27,7 @@ RSpec.describe BenefitsClaims::TitleGenerator do
 
             expect(result).to eq({
                                    display_title: 'Claim for Veterans Pension',
-                                   claim_type_base: 'veterans pension claim'
+                                   claim_type_base: 'Veterans Pension claim'
                                  })
           end
         end
@@ -40,7 +40,7 @@ RSpec.describe BenefitsClaims::TitleGenerator do
 
             expect(result).to eq({
                                    display_title: 'Claim for Survivors Pension',
-                                   claim_type_base: 'survivors pension claim'
+                                   claim_type_base: 'Survivors Pension claim'
                                  })
           end
         end
@@ -53,7 +53,7 @@ RSpec.describe BenefitsClaims::TitleGenerator do
 
             expect(result).to eq({
                                    display_title: 'Claim for Dependency and Indemnity Compensation',
-                                   claim_type_base: 'dependency and indemnity compensation claim'
+                                   claim_type_base: 'Dependency and Indemnity Compensation claim'
                                  })
           end
         end
@@ -69,44 +69,6 @@ RSpec.describe BenefitsClaims::TitleGenerator do
                                    claim_type_base: 'pension claim'
                                  })
           end
-        end
-      end
-
-      context 'with null claimType special cases' do
-        it 'returns debt validation title for 290DV' do
-          result = described_class.generate_titles(nil, '290DV')
-
-          expect(result).to eq({
-                                 display_title: 'Debt Validation',
-                                 claim_type_base: 'debt validation'
-                               })
-        end
-
-        it 'returns PMC debt validation title for 290DVPMC' do
-          result = described_class.generate_titles(nil, '290DVPMC')
-
-          expect(result).to eq({
-                                 display_title: 'PMC - Debt Validation',
-                                 claim_type_base: 'debt validation'
-                               })
-        end
-
-        it 'returns in service death dependency title for 130ISDDI' do
-          result = described_class.generate_titles(nil, '130ISDDI')
-
-          expect(result).to eq({
-                                 display_title: 'In Service Death Dependency',
-                                 claim_type_base: 'in service death dependency'
-                               })
-        end
-
-        it 'returns dependency verification title for 330DVRPMC' do
-          result = described_class.generate_titles(nil, '330DVRPMC')
-
-          expect(result).to eq({
-                                 display_title: 'Dependency Verification',
-                                 claim_type_base: 'dependency verification'
-                               })
         end
       end
     end
@@ -165,8 +127,8 @@ RSpec.describe BenefitsClaims::TitleGenerator do
         result = described_class.generate_titles(nil, nil)
 
         expect(result).to eq({
-                               display_title: nil,
-                               claim_type_base: nil
+                               display_title: 'disability compensation',
+                               claim_type_base: 'disability compensation claim'
                              })
       end
 
@@ -174,8 +136,8 @@ RSpec.describe BenefitsClaims::TitleGenerator do
         result = described_class.generate_titles('', '')
 
         expect(result).to eq({
-                               display_title: nil,
-                               claim_type_base: nil
+                               display_title: 'disability compensation',
+                               claim_type_base: 'disability compensation claim'
                              })
       end
 
@@ -183,8 +145,8 @@ RSpec.describe BenefitsClaims::TitleGenerator do
         result = described_class.generate_titles('', 'UNKNOWN_CODE')
 
         expect(result).to eq({
-                               display_title: nil,
-                               claim_type_base: nil
+                               display_title: 'disability compensation',
+                               claim_type_base: 'disability compensation claim'
                              })
       end
 
@@ -203,8 +165,8 @@ RSpec.describe BenefitsClaims::TitleGenerator do
         result = described_class.generate_titles('   ', nil)
 
         expect(result).to eq({
-                               display_title: nil,
-                               claim_type_base: nil
+                               display_title: 'disability compensation',
+                               claim_type_base: 'disability compensation claim'
                              })
       end
 
@@ -277,14 +239,14 @@ RSpec.describe BenefitsClaims::TitleGenerator do
     end
 
     context 'with missing data' do
-      it 'updates claim with nil values when no data is present' do
+      it 'updates claim with default values when no data is present' do
         claim['attributes']['claimType'] = nil
         claim['attributes']['claimTypeCode'] = nil
 
         described_class.update_claim_title(claim)
 
-        expect(claim['attributes']['displayTitle']).to be_nil
-        expect(claim['attributes']['claimTypeBase']).to be_nil
+        expect(claim['attributes']['displayTitle']).to eq('disability compensation')
+        expect(claim['attributes']['claimTypeBase']).to eq('disability compensation claim')
       end
     end
 
@@ -324,7 +286,7 @@ RSpec.describe BenefitsClaims::TitleGenerator do
   describe 'constants and data integrity' do
     describe 'DEPENDENCY_CODES' do
       it 'contains the expected number of codes' do
-        expect(BenefitsClaims::TitleGenerator::DEPENDENCY_CODES.length).to eq(48)
+        expect(BenefitsClaims::TitleGenerator::DEPENDENCY_CODES.length).to eq(45)
       end
 
       it 'contains unique codes' do
@@ -389,14 +351,6 @@ RSpec.describe BenefitsClaims::TitleGenerator do
         all_pension_codes.each do |code|
           expect(mapping).to have_key(code)
         end
-      end
-
-      it 'includes special null claimType cases' do
-        mapping = BenefitsClaims::TitleGenerator::CLAIM_TYPE_CODE_MAPPING
-        expect(mapping).to have_key('290DV')
-        expect(mapping).to have_key('290DVPMC')
-        expect(mapping).to have_key('130ISDDI')
-        expect(mapping).to have_key('330DVRPMC')
       end
     end
 
