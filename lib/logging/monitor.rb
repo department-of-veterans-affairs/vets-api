@@ -41,6 +41,7 @@ module Logging
     # create a monitor
     #
     # @param service [String] the service name for this monitor; will be included with each log message
+    # @param allowlist [Array<String>] the list of allowed parameters
     def initialize(service, allowlist: [])
       @service = service
       @allowlist = (WHITELIST + allowlist.map(&:to_s)).uniq - BLACKLIST

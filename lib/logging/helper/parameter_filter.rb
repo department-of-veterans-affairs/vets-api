@@ -5,8 +5,16 @@ module Logging
     # This helper provides a method to filter parameters
     #
     # @example
-    #   filter_params({statsd: 'test', notallowed: 23,  form_id: 'TEST'}, allowlist: ['statsd', 'form_id'])
-    #   #=> {statsd: 'test', notallowed: '[FILTERED]',  form_id: 'TEST'}
+    #     # Filter sensitive data, keeping only allowed parameters
+    #     params = {
+    #       veteran_ssn: '123-45-6789',
+    #       email: 'veteran@example.com',
+    #       form_id: '21P-527EZ',
+    #       statsd: 'submission_success'
+    #     }
+    #
+    #     filtered = filter_params(params, allowlist: ['form_id', 'statsd'])
+    #     # => { veteran_ssn: '[FILTERED]', email: '[FILTERED]', form_id: '21P-527EZ', statsd: 'submission_success' }
     #
     # Note:
     # When running in Rails Console, Rails.application.config.filter_parameters == []
