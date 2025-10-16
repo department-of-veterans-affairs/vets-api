@@ -32,6 +32,8 @@ module UnifiedHealthData
         PRACTITIONER: 'Practitioner'
       }.freeze
 
+      AVS_CONTENT_TYPES = ['application/pdf', 'text/plain'].freeze
+
       def parse(note)
         record = note['resource']
         return nil unless record && get_note(record)
@@ -70,7 +72,7 @@ module UnifiedHealthData
                                                    note_type: get_avs_record_type(record),
                                                    loinc_codes: get_loinc_codes(record),
                                                    content_type: avs_binary_data[:content_type],
-                                                   binary: (avs_binary_data[:binary] if include_binary) || nil
+                                                   binary: include_binary ? avs_binary_data[:binary] : nil
                                                  })
       end
 
@@ -185,19 +187,18 @@ module UnifiedHealthData
         # First check contained to see if we get an item with content type either pdf or plain text
         # in the contained array with a data string
         if array_and_has_items(record['contained'])
-          binary_resource = record['contained'].find do |res|
+          resource = record['contained'].find do |res|
             res['resourceType'] == FHIR_RESOURCE_TYPES[:BINARY]
           end
-          if binary_resource && ['application/pdf',
-                                 'text/plain'].include?(binary_resource['contentType']) && binary_resource['data']
-            return { content_type: binary_resource['contentType'], binary: binary_resource['data'] }
+          if resource && resource['data'] && AVS_CONTENT_TYPES.include?(resource['contentType'])
+            return { content_type: resource['contentType'], binary: resource['data'] }
           end
         end
 
         # Fallback check for pdf or plain text with data string in the content array
         if array_and_has_items(record['content'])
           content_item = record['content'].find do |item|
-            item['attachment']['data'] && ['application/pdf', 'text/plain'].include?(item['attachment']['contentType'])
+            item['attachment']['data'] && AVS_CONTENT_TYPES.include?(item['attachment']['contentType'])
           end
 
           if content_item
