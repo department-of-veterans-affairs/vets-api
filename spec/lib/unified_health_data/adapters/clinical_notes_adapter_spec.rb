@@ -238,4 +238,57 @@ RSpec.describe 'ClinicalNotesAdapter' do
       end
     end
   end
+
+  describe '#parse_ccd_binary' do
+    let(:ccd_fixture) do
+      JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'ccd_example.json').read)
+    end
+    let(:document_ref_entry) do
+      ccd_fixture['entry'].find { |e| e['resource']['resourceType'] == 'DocumentReference' }
+    end
+
+    it 'returns BinaryData object with XML content' do
+      result = adapter.parse_ccd_binary(document_ref_entry, 'xml')
+
+      expect(result).to be_a(UnifiedHealthData::BinaryData)
+      expect(result.content_type).to eq('application/xml')
+      expect(result.binary).to be_present
+    end
+
+    it 'keeps data Base64 encoded' do
+      result = adapter.parse_ccd_binary(document_ref_entry, 'xml')
+
+      # The binary data should remain Base64 encoded (not decoded)
+      expect(result.binary).to be_a(String)
+      expect(result.binary).not_to include('<') # Should not be decoded XML
+    end
+
+    it 'returns BinaryData object with HTML content' do
+      result = adapter.parse_ccd_binary(document_ref_entry, 'html')
+
+      expect(result).to be_a(UnifiedHealthData::BinaryData)
+      expect(result.content_type).to eq('text/html')
+      expect(result.binary).to be_present
+    end
+
+    it 'returns BinaryData object with PDF content' do
+      result = adapter.parse_ccd_binary(document_ref_entry, 'pdf')
+
+      expect(result).to be_a(UnifiedHealthData::BinaryData)
+      expect(result.content_type).to eq('application/pdf')
+      expect(result.binary).to be_present
+    end
+
+    it 'raises ArgumentError for unavailable format' do
+      # Modify fixture to remove HTML content item
+      modified_entry = JSON.parse(document_ref_entry.to_json)
+      modified_entry['resource']['content'].reject! do |item|
+        item['attachment']['contentType'] == 'text/html'
+      end
+
+      expect do
+        adapter.parse_ccd_binary(modified_entry, 'html')
+      end.to raise_error(ArgumentError, 'Format html not available for this CCD')
+    end
+  end
 end

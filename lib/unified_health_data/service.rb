@@ -6,6 +6,7 @@ require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/prescription'
+require_relative 'models/binary_data'
 require_relative 'adapters/allergy_adapter'
 require_relative 'adapters/clinical_notes_adapter'
 require_relative 'adapters/prescriptions_adapter'
@@ -218,6 +219,25 @@ module UnifiedHealthData
       end
     end
 
+    # Retrieves CCD binary data for download
+    #
+    # @param start_date [String] ISO 8601 date string (YYYY-MM-DD)
+    # @param end_date [String] ISO 8601 date string (YYYY-MM-DD)
+    # @param format [String] Format to retrieve: 'xml', 'html', or 'pdf'
+    # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content, or nil if not found
+    # @raise [ArgumentError] if the format is invalid or not available
+    def get_ccd_binary(start_date:, end_date:, format: 'xml')
+      with_monitoring do
+        response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
+        body = parse_response_body(response.body)
+
+        document_ref = find_document_reference(body)
+        return nil unless document_ref
+
+        clinical_notes_adapter.parse_ccd_binary(document_ref, format)
+      end
+    end
+
     private
 
     # Shared
@@ -407,6 +427,17 @@ module UnifiedHealthData
 
     def logger
       @logger ||= UnifiedHealthData::Logging.new(@user)
+    end
+
+    # Finds DocumentReference resource in FHIR Bundle response
+    # Used for CCD and similar document-based resources
+    #
+    # @param body [Hash] Parsed FHIR Bundle response body
+    # @return [Hash, nil] DocumentReference entry or nil if not found
+    def find_document_reference(body)
+      body['entry']&.find do |entry|
+        entry['resource'] && entry['resource']['resourceType'] == 'DocumentReference'
+      end
     end
 
     # Date helpers (single source for default UHD date range)

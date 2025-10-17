@@ -1543,4 +1543,80 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
   end
+
+  describe '#get_ccd_binary' do
+    let(:start_date) { '2024-01-01' }
+    let(:end_date) { '2024-12-31' }
+    let(:ccd_fixture) do
+      Rails.root.join('spec', 'fixtures', 'unified_health_data', 'ccd_example.json').read
+    end
+    let(:ccd_response) do
+      Faraday::Response.new(body: ccd_fixture)
+    end
+
+    let(:client_double) { instance_double(UnifiedHealthData::Client) }
+
+    before do
+      allow(UnifiedHealthData::Client).to receive(:new).and_return(client_double)
+      allow(client_double).to receive(:get_ccd).and_return(ccd_response)
+    end
+
+    context 'when requesting XML format' do
+      it 'returns BinaryData object with Base64 encoded XML' do
+        result = service.get_ccd_binary(start_date:, end_date:, format: 'xml')
+
+        expect(result).to be_a(UnifiedHealthData::BinaryData)
+        expect(result.content_type).to eq('application/xml')
+        expect(result.binary).to be_present
+        # Verify it's Base64 encoded by decoding and checking for XML declaration
+        decoded = Base64.decode64(result.binary)
+        expect(decoded).to match(/^<\?xml/)
+      end
+    end
+
+    context 'when requesting unavailable format' do
+      let(:ccd_data) { JSON.parse(ccd_fixture) }
+      let(:modified_ccd) do
+        # Remove HTML content item from fixture
+        doc_ref = ccd_data['entry'].find { |e| e['resource']['resourceType'] == 'DocumentReference' }
+        doc_ref['resource']['content'].reject! do |item|
+          item['attachment']['contentType'] == 'text/html'
+        end
+        ccd_data.to_json
+      end
+      let(:ccd_response) do
+        Faraday::Response.new(body: modified_ccd)
+      end
+
+      before do
+        allow(client_double).to receive(:get_ccd).and_return(ccd_response)
+      end
+
+      it 'raises an error for missing HTML' do
+        expect do
+          service.get_ccd_binary(start_date:, end_date:, format: 'html')
+        end.to raise_error(ArgumentError, /Format html not available/)
+      end
+    end
+
+    context 'when requesting invalid format' do
+      it 'raises an ArgumentError' do
+        expect do
+          service.get_ccd_binary(start_date:, end_date:, format: 'json')
+        end.to raise_error(ArgumentError, /Invalid format/)
+      end
+    end
+
+    context 'when DocumentReference is missing' do
+      let(:empty_bundle) { '{"entry": []}' }
+      let(:ccd_response) do
+        Faraday::Response.new(body: empty_bundle)
+      end
+
+      it 'returns nil when no CCD document exists' do
+        result = service.get_ccd_binary(start_date:, end_date:, format: 'xml')
+        expect(result).to be_nil
+      end
+    end
+  end
 end
