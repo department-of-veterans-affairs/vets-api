@@ -66,8 +66,8 @@ module Eps
     # @param referral_number [String] The referral number to fetch appointments for
     # @return [Hash] Result hash with system, data, and optional errors
     #   - { system: 'EPS', data: [...] } if active appointments found
-    #   - { system: nil, data: [], errors: { eps: <error> } } if service failed
-    #   - { system: nil, data: [] } if no active appointments found
+    #   - { system: 'EPS', data: [] } if no active appointments found
+    #   - { system: 'EPS', data: [], errors: { 'Failure to fetch EPS appointments' => <error_class_name> } } if service failed
     #
     def get_active_appointments_for_referral(referral_number)
       appointments = get_appointments(referral_number:)
