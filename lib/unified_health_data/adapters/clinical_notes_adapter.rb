@@ -90,14 +90,22 @@ module UnifiedHealthData
       # @param format [String] Format to extract: 'xml', 'html', or 'pdf'
       # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content, or nil if malformed
       def parse_ccd_binary(document_ref_entry, format = 'xml')
-        _resource, attachment = fetch_resource_and_attachment(document_ref_entry)
-        return nil unless attachment
+        resource = document_ref_entry['resource']
+        return nil unless resource
 
-        format_data = extract_format_data(attachment, format)
+        # For CCD, we need to search through all content items to find the matching format
+        content_type = content_type_for_format(format)
+        content_item = resource['content']&.find do |item|
+          item['attachment']&.dig('contentType') == content_type
+        end
+
+        raise ArgumentError, "Format #{format} not available for this CCD" unless content_item
+
+        format_data = content_item['attachment']['data']
         raise ArgumentError, "Format #{format} not available for this CCD" unless format_data
 
         UnifiedHealthData::BinaryData.new(
-          content_type: content_type_for_format(format),
+          content_type:,
           binary: format_data
         )
       end
