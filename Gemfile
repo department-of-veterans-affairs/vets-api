@@ -107,6 +107,7 @@ gem 'json-schema'
 gem 'json_schemer'
 gem 'jwe'
 gem 'jwt'
+gem 'karafka-core', '2.5.5' # Temporary lock until new release of karafka-rdkafka (dependency of karafka-core) is available
 gem 'kms_encrypted'
 gem 'liquid'
 gem 'lockbox'
@@ -172,7 +173,7 @@ gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'warden-github'
-gem 'waterdrop'
+gem 'waterdrop', '2.8.6' # to temporarily undo dependabot commit 1fd3c5de899081010bbb27b7bfcedb8f27be2a53
 gem 'will_paginate'
 gem 'with_advisory_lock'
 
@@ -193,7 +194,6 @@ end
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.1.0.vsp'
   gem 'committee-rails'
-  gem 'hashdiff'
   gem 'mock_redis'
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'
