@@ -1360,6 +1360,10 @@ features:
   mhv_secure_messaging_612_care_systems_fix:
     actor_type: user
     description: Enables/disables fix for 612 care systems bug just in case of catastrophic failure during shutdown
+  mhv_secure_messaging_medications_renewal_request:
+    actor_type: user
+    description: Enables/disables Secure Messaging Medications Renewal Request feature
+    enable_in_development: true
   mhv_bypass_downtime_notification:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
@@ -2613,4 +2617,3 @@ features:
     description: >
       Enables the upload_supporting_documents endpoint for scanned form uploads for supporting evidence.
       Owned by Simple Forms API team.
-
