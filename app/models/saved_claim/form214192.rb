@@ -7,7 +7,6 @@ class SavedClaim::Form214192 < SavedClaim
   validates_with Form214192Validator
 
   def process_attachments!
-    # Attach any supporting documents
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
