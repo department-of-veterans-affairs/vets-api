@@ -19,6 +19,8 @@ module Eps
 
     attribute :provider, &:provider_details
 
+    attribute :past, &:past
+
     attribute :location do |object|
       location_data = object.location
       location_data.presence
