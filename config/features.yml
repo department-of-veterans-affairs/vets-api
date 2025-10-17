@@ -849,6 +849,14 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
+  form_214192_enabled:
+    actor_type: cookie_id
+    description: >
+      Enables VA Form 21-4192 (Request for Employment Information) endpoints.
+      This form is completed by employers to provide employment information for veterans
+      applying for Total Disability Individual Unemployability (TDIU) benefits.
+      Both form submission (POST /v0/form214192) and PDF download endpoints are protected.
+    enable_in_development: true
   fsr_5655_server_side_transform:
     actor_type: user
     description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
