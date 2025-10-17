@@ -78,7 +78,7 @@ module V0
 
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       # if jid = 0 then the submission was prevented from going any further in the process
-      submission = create_submission(saved_claim).tap { |sub| log_toxic_exposure_purge(saved_claim, sub) }
+      submission = create_submission(saved_claim).tap { |sub| log_toxic_exposure_changes(saved_claim, sub) }
       jid = 0
       # Feature flag to stop submission from being submitted to third-party service
       # With this on, the submission will NOT be processed by EVSS or Lighthouse,
@@ -274,22 +274,22 @@ module V0
       @monitor ||= DisabilityCompensation::Loggers::Monitor.new
     end
 
-    # Logs toxic exposure data purge events during Form 526 submission
+    # Logs toxic exposure data changes during Form 526 submission
     #
     # Compares the user's InProgressForm with the submitted claim to detect
-    # when toxic exposure data has been purged by the frontend. This is wrapped
+    # when toxic exposure data has been changed or removed by the frontend. This is wrapped
     # in error handling to ensure logging failures do not impact veteran submissions.
     #
     # @param saved_claim [SavedClaim::DisabilityCompensation::Form526AllClaim] The submitted claim
     # @param submission [Form526Submission] The submission record
     # @return [void]
-    def log_toxic_exposure_purge(saved_claim, submission)
+    def log_toxic_exposure_changes(saved_claim, submission)
       return unless Flipper.enabled?(:disability_526_log_toxic_exposure_purge, @current_user)
 
       in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user)
       return unless in_progress_form
 
-      monitor.track_toxic_exposure_purge(
+      monitor.track_toxic_exposure_changes(
         in_progress_form:,
         submitted_claim: saved_claim,
         submission:,
@@ -298,7 +298,7 @@ module V0
     rescue => e
       # Don't fail submission if logging fails
       Rails.logger.error(
-        'Error logging toxic exposure purge',
+        'Error logging toxic exposure changes',
         user_uuid: @current_user&.uuid,
         saved_claim_id: saved_claim&.id,
         submission_id: submission&.id,

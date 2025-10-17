@@ -62,33 +62,33 @@ module DisabilityCompensation
         )
       end
 
-      # Logs toxic exposure data purge events during Form 526 submission
+      # Logs toxic exposure data changes during Form 526 submission
       #
       # Compares InProgressForm toxic exposure data with submitted claim data
-      # to detect when toxic exposure data has been purged by the frontend.
-      # Logs which specific keys were removed or modified to validate purge logic.
+      # to detect when toxic exposure data has been changed or removed by the frontend.
+      # Logs which specific keys were removed to validate purge logic.
       #
       # @param in_progress_form [InProgressForm] User's saved form data
       # @param submitted_claim [SavedClaim::DisabilityCompensation::Form526AllClaim] The submitted claim
       # @param submission [Form526Submission] The submission record
       # @param user_uuid [String] User's UUID
       # @return [void]
-      def track_toxic_exposure_purge(in_progress_form:, submitted_claim:, submission:, user_uuid:)
-        sip_data = parse_form_data(in_progress_form.form_data)
+      def track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:, user_uuid:)
+        in_progress_form_data = parse_form_data(in_progress_form.form_data)
         submitted_data = parse_form_data(submitted_claim.form)
-        return unless sip_data && submitted_data
+        return unless in_progress_form_data && submitted_data
 
         # NOTE: Both InProgressForm.form_data and SavedClaim.form store only the inner
         # content of the form526 submission (without the 'form526' wrapper).
         # The wrapper only exists in the original HTTP request body.
         # Keys use camelCase format (toxicExposure, gulfWar1990, etc.)
-        sip_toxic_exposure = sip_data['toxicExposure']
+        in_progress_toxic_exposure = in_progress_form_data['toxicExposure']
         submitted_toxic_exposure = submitted_data['toxicExposure']
 
-        # Only log if toxic exposure existed in SIP but changed or was removed
-        return if sip_toxic_exposure.nil? || sip_toxic_exposure == submitted_toxic_exposure
+        # Only log if toxic exposure existed in save-in-progress but changed or was removed
+        return if in_progress_toxic_exposure.nil? || in_progress_toxic_exposure == submitted_toxic_exposure
 
-        change_metadata = calculate_toxic_exposure_changes(sip_toxic_exposure, submitted_toxic_exposure)
+        change_metadata = calculate_toxic_exposure_changes(in_progress_toxic_exposure, submitted_toxic_exposure)
 
         # Don't log if no meaningful changes (after filtering view: fields and empty hashes)
         return if change_metadata[:removed_keys].empty? && !change_metadata[:completely_removed]
@@ -157,22 +157,22 @@ module DisabilityCompensation
 
       # Calculate removed keys from toxic exposure changes
       #
-      # Analyzes differences between SIP and submitted toxic exposure data
+      # Analyzes differences between save-in-progress and submitted toxic exposure data
       # to identify which keys were removed. Filters out expected removals like
       # 'view:' prefixed UI fields and empty hash values to reduce noise.
       #
-      # @param sip_toxic_exposure [Hash] Toxic exposure data from InProgressForm
-      # @param submitted_toxic_exposure [Hash, nil] Toxic exposure data from submitted claim
+      # @param in_progress_toxic_exposure [Hash] Toxic exposure data from InProgressForm
+      # @param submitted_toxic_exposure [Hash, nil] Toxic exposure data from SavedClaim
       # @return [Hash] Metadata with completely_removed and removed_keys
-      def calculate_toxic_exposure_changes(sip_toxic_exposure, submitted_toxic_exposure)
-        all_removed_keys = sip_toxic_exposure.keys - (submitted_toxic_exposure&.keys || [])
+      def calculate_toxic_exposure_changes(in_progress_toxic_exposure, submitted_toxic_exposure)
+        all_removed_keys = in_progress_toxic_exposure.keys - (submitted_toxic_exposure&.keys || [])
 
         # Filter out expected removals to reduce noise:
         # - 'view:' prefixed fields are UI-only and always stripped by backend
         # - Empty hashes contain no meaningful data
         removed_keys = all_removed_keys.reject do |key|
           key.to_s.start_with?('view:') ||
-            (sip_toxic_exposure[key].is_a?(Hash) && sip_toxic_exposure[key].empty?)
+            (in_progress_toxic_exposure[key].is_a?(Hash) && in_progress_toxic_exposure[key].empty?)
         end
 
         {

@@ -797,6 +797,7 @@ features:
   disability_526_log_toxic_exposure_purge:
     actor_type: user
     description: enables logging of toxic exposure data purging during Form 526 submission to track when toxic exposure data changes between save-in-progress and submission
+    enable_in_development: true
   disability_526_track_saved_claim_error:
     actor_type: user
     description: enables improved logging of SavedClaim::DisabilityCompensation::Form526AllClaim save failures

@@ -324,7 +324,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
                 'gulfWar1990' => { 'iraq' => true }
               }
 
-              expect(monitor).to receive(:track_toxic_exposure_purge).with(
+              expect(monitor).to receive(:track_toxic_exposure_changes).with(
                 hash_including(
                   in_progress_form:,
                   submitted_claim: kind_of(SavedClaim::DisabilityCompensation::Form526AllClaim),
@@ -354,7 +354,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
               # Submit without any toxic exposure
               parsed_payload['form526'].delete('toxicExposure')
 
-              expect(monitor).to receive(:track_toxic_exposure_purge)
+              expect(monitor).to receive(:track_toxic_exposure_changes)
 
               post('/v0/disability_compensation_form/submit_all_claim',
                    params: JSON.generate(parsed_payload),
@@ -380,9 +380,9 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
                 'gulfWar1990' => { 'iraq' => true }
               }
 
-              # track_toxic_exposure_purge will still be called, but monitor.submit_event should not
+              # track_toxic_exposure_changes will still be called, but monitor.submit_event should not
               # (the method returns early if no changes)
-              allow(monitor).to receive(:track_toxic_exposure_purge)
+              allow(monitor).to receive(:track_toxic_exposure_changes)
               expect(monitor).not_to receive(:submit_event)
 
               post('/v0/disability_compensation_form/submit_all_claim',
@@ -400,7 +400,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
               in_progress_form_data.delete('toxicExposure')
               in_progress_form.update!(form_data: in_progress_form_data.to_json)
 
-              allow(monitor).to receive(:track_toxic_exposure_purge)
+              allow(monitor).to receive(:track_toxic_exposure_changes)
               expect(monitor).not_to receive(:submit_event)
 
               post('/v0/disability_compensation_form/submit_all_claim',
@@ -411,13 +411,35 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
           end
 
           context 'when flipper flag is disabled' do
-            it 'does not call track_toxic_exposure_purge' do
+            it 'does not call track_toxic_exposure_changes' do
               allow(Flipper).to receive(:enabled?)
                 .with(:disability_526_log_toxic_exposure_purge, anything)
                 .and_return(false)
 
-              expect(monitor).not_to receive(:track_toxic_exposure_purge)
+              expect(monitor).not_to receive(:track_toxic_exposure_changes)
 
+              post('/v0/disability_compensation_form/submit_all_claim',
+                   params: all_claims_form,
+                   headers:)
+              expect(response).to have_http_status(:ok)
+            end
+          end
+
+          context 'when logging raises an error' do
+            it 'does not fail the submission' do
+              # Simulate an error in the logging method
+              allow(monitor).to receive(:track_toxic_exposure_changes).and_raise(StandardError, 'Logging failed')
+
+              # Expect the error to be logged
+              expect(Rails.logger).to receive(:error).with(
+                'Error logging toxic exposure changes',
+                hash_including(
+                  user_uuid: user.uuid,
+                  error: 'Logging failed'
+                )
+              )
+
+              # Submission should still succeed
               post('/v0/disability_compensation_form/submit_all_claim',
                    params: all_claims_form,
                    headers:)

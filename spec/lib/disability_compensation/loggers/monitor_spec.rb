@@ -106,9 +106,9 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
     end
   end
 
-  describe('#track_toxic_exposure_purge') do
+  describe('#track_toxic_exposure_changes') do
     let(:user_uuid) { SecureRandom.uuid }
-    let(:sip_data) do
+    let(:in_progress_form_data) do
       {
         'toxicExposure' => {
           'conditions' => { 'asthma' => true },
@@ -116,7 +116,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         }
       }
     end
-    let(:in_progress_form) { create(:in_progress_form, form_id: '21-526EZ', form_data: sip_data.to_json) }
+    let(:in_progress_form) { create(:in_progress_form, form_id: '21-526EZ', form_data: in_progress_form_data.to_json) }
     let(:saved_claim) { build(:fake_saved_claim, form_id: described_class::FORM_ID, guid: '1234') }
     let(:submission) { instance_double(Form526Submission, id: 67_890) }
 
@@ -132,7 +132,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
             completely_removed:
           )
         )
-        monitor.track_toxic_exposure_purge(in_progress_form:, submitted_claim: saved_claim, submission:, user_uuid:)
+        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim: saved_claim, submission:, user_uuid:)
       end
     end
 
@@ -156,7 +156,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
     end
 
     context 'when view: fields removed (no logging - expected behavior)' do
-      let(:sip_with_view_fields) do
+      let(:in_progress_form_data_with_view_fields) do
         {
           'toxicExposure' => {
             'view:hasConditions' => true,
@@ -166,17 +166,17 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         }
       end
       let(:in_progress_form_with_view) do
-        create(:in_progress_form, form_id: '21-526EZ', form_data: sip_with_view_fields.to_json)
+        create(:in_progress_form, form_id: '21-526EZ', form_data: in_progress_form_data_with_view_fields.to_json)
       end
 
       before do
         # Submitted data has view: fields stripped (expected)
-        allow(saved_claim).to receive(:form).and_return(sip_data.to_json)
+        allow(saved_claim).to receive(:form).and_return(in_progress_form_data.to_json)
       end
 
       it 'does not log when only view: fields removed' do
         expect(monitor).not_to receive(:submit_event)
-        monitor.track_toxic_exposure_purge(
+        monitor.track_toxic_exposure_changes(
           in_progress_form: in_progress_form_with_view,
           submitted_claim: saved_claim,
           submission:,
@@ -186,11 +186,11 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
     end
 
     context 'when unchanged' do
-      before { allow(saved_claim).to receive(:form).and_return(sip_data.to_json) }
+      before { allow(saved_claim).to receive(:form).and_return(in_progress_form_data.to_json) }
 
       it 'does not log' do
         expect(monitor).not_to receive(:submit_event)
-        monitor.track_toxic_exposure_purge(in_progress_form:, submitted_claim: saved_claim, submission:, user_uuid:)
+        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim: saved_claim, submission:, user_uuid:)
       end
     end
   end
