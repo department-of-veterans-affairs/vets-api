@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../../../../../support/helpers/rails_helper'
+require 'unique_user_events'
 
 RSpec.describe 'Mobile::V0::Messaging::Health::Folders::Threads', type: :request do
   include SchemaMatchers
@@ -65,6 +66,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders::Threads', type: :request
     end
 
     it 'responds to GET #index' do
+      allow(UniqueUserEvents).to receive(:log_event)
       VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder') do
         get "/mobile/v0/messaging/health/folders/#{inbox_id}/threads",
             headers: sis_headers,
@@ -74,6 +76,12 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders::Threads', type: :request
       expect(response).to be_successful
       first_thread = response.parsed_body.dig('data', 0)
       expect(first_thread).to match(example_thread)
+
+      # Verify event logging was called
+      expect(UniqueUserEvents).to have_received(:log_event).with(
+        user: anything,
+        event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
+      )
     end
 
     it 'responds 400 to GET #index with none existent folder' do
