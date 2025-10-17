@@ -5,7 +5,6 @@ Dear <redacted>,
 You submitted a Supplemental Claim (VA Form 20-0995) on <redacted>, but we had a problem with our system. We couldn't upload your supporting document. We're sorry about this.
 
 > ## Here's the file name of the document we need
->
 > <redacted>
 >
 > For your privacy, we're showing only part of the file name here.
@@ -29,6 +28,6 @@ Call us at 800-827-1000 (TTY: 711). We're here Monday through Friday, 8:00 a.m. 
 
 Thank you
 
-***
+<hr>
 
 You're receiving this email because you submitted a form on VA.gov. Don't reply to this email.

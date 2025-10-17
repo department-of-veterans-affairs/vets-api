@@ -40,6 +40,6 @@ Thank you
 
 Thank you
 
-***
+<hr>
 
 You're receiving this email because you submitted a form on [VA.gov](http://www.va.gov). Don't reply to this email.
