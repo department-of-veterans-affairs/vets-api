@@ -149,6 +149,48 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         end
       end
 
+  context 'when 3-digit lookup misses but full facility identifier exists' do
+        let(:resource_with_extended_station) do
+          base_resource.merge(
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-extended',
+                'location' => { 'display' => '648A4-RX-MAIN' }
+              }
+            ]
+          )
+        end
+
+        before do
+          allow(Rails.cache).to receive(:read).with('uhd:facility_names:648').and_return(nil)
+          allow(Rails.cache).to receive(:read).with('uhd:facility_names:648A4').and_return('Full Station Facility')
+        end
+
+        it 'falls back to the full station identifier' do
+          result = subject.send(:extract_facility_name, resource_with_extended_station)
+          expect(result).to eq('Full Station Facility')
+        end
+      end
+
+      context 'when extended station identifier is invalid' do
+        let(:resource_with_invalid_station) do
+          base_resource.merge(
+            'contained' => [
+              {
+                'resourceType' => 'MedicationDispense',
+                'id' => 'dispense-invalid',
+                'location' => { 'display' => 'ABC-RX-MAIN' }
+              }
+            ]
+          )
+        end
+
+        it 'returns nil without attempting lookup' do
+          expect(subject.send(:extract_facility_name, resource_with_invalid_station)).to be_nil
+        end
+      end
+
       context 'when API returns nil' do
         before do
           allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return(nil)

@@ -138,19 +138,21 @@ module UnifiedHealthData
         location_display = latest_dispense.dig('location', 'display')
         return nil unless location_display
 
-        # Get first 3 digits for station number lookup
-        match = location_display.match(/^(\d{3})/)
-        return nil unless match
+        # First try the legacy 3-digit station number
+        three_digit_station = location_display.match(/^(\d{3})/)&.[](1)
+        facility_name = attempt_facility_lookup(three_digit_station)
+        return facility_name if facility_name
 
-        station_number = match[1]
+  # If that fails, try the full facility identifier before the first hyphen (e.g., 648A4)
+        station_segment = location_display.split('-').first
+        # Valid format: 3 digits + up to 2 alpha (e.g., 648A, 648A4)
+        valid_station_regex = /^\d{3}[A-Za-z0-9]{0,2}$/
+        if station_segment.present? && station_segment != three_digit_station &&
+           station_segment.match?(valid_station_regex)
+          return attempt_facility_lookup(station_segment)
+        end
 
-        # Check Rails cache first for VHA facility name
-        cache_key = "uhd:facility_names:#{station_number}"
-        cached_name = Rails.cache.read(cache_key)
-        return cached_name if cached_name
-
-        # If not in cache, fetch from API as fallback
-        fetch_facility_name_from_api(station_number)
+        nil
       end
 
       def extract_quantity(resource)
@@ -323,6 +325,16 @@ module UnifiedHealthData
           StatsD.increment('unified_health_data.facility_name_fallback.api_error')
           nil
         end
+      end
+
+      def attempt_facility_lookup(station_identifier)
+        return nil if station_identifier.blank?
+
+        cache_key = "uhd:facility_names:#{station_identifier}"
+        cached_name = Rails.cache.read(cache_key)
+        return cached_name if cached_name
+
+        fetch_facility_name_from_api(station_identifier)
       end
     end
   end
