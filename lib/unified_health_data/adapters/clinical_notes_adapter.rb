@@ -88,7 +88,8 @@ module UnifiedHealthData
       #
       # @param document_ref_entry [Hash] FHIR DocumentReference entry
       # @param format [String] Format to extract: 'xml', 'html', or 'pdf'
-      # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content, or nil if resource is absent
+      # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content,
+      #   or nil if resource is absent
       # @raise [ArgumentError] if the requested format is invalid (not xml/html/pdf)
       # @raise [ArgumentError] if the requested format is not available for this CCD
       def parse_ccd_binary(document_ref_entry, format = 'xml')
