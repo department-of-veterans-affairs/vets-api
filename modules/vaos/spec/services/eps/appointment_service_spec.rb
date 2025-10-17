@@ -418,4 +418,88 @@ describe Eps::AppointmentService do
       end
     end
   end
+
+  describe '#get_active_appointments_for_referral' do
+    let(:referral_number) { 'ref-123' }
+    let(:icn) { '1012845331V153043' }
+
+    # Don't stub config for these VCR-based tests - VCR needs real HTTP connections
+    before do
+      # Remove the stubbed config to let VCR work properly
+      allow_any_instance_of(Eps::BaseService).to receive(:config).and_call_original
+    end
+
+    context 'when there are active appointments' do
+      it 'returns EPS appointments with cancelled and draft filtered out' do
+        VCR.use_cassette('vaos/eps/token/token_200',
+                         match_requests_on: %i[method path],
+                         allow_playback_repeats: true, tag: :force_utf8) do
+          VCR.use_cassette('vaos/eps/get_appointments/mixed_statuses_for_referral_test',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            result = service.get_active_appointments_for_referral(referral_number)
+            expect(result[:system]).to eq('EPS')
+            expect(result[:data]).to be_an(Array)
+            expect(result[:data].length).to eq(2) # Only confirmed and completed, no cancelled or draft
+            expect(result[:data].all? { |appt| %w[cancelled draft].exclude?(appt[:state]) }).to be true
+            expect(result[:data].all? { |appt| appt.dig(:appointment_details, :status) != 'cancelled' }).to be true
+          end
+        end
+      end
+
+      it 'sorts appointments by start time (least to most recent)' do
+        VCR.use_cassette('vaos/eps/token/token_200',
+                         match_requests_on: %i[method path],
+                         allow_playback_repeats: true, tag: :force_utf8) do
+          VCR.use_cassette('vaos/eps/get_appointments/mixed_statuses_for_referral_test',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            result = service.get_active_appointments_for_referral(referral_number)
+            expect(result[:system]).to eq('EPS')
+            expect(result[:data].map { |appt| appt[:id] }).to eq(%w[appt4 appt1])
+            # Verify they are sorted by start time
+            start_times = result[:data].map { |appt| appt.dig(:appointment_details, :start) }
+            expect(start_times).to eq(start_times.sort)
+          end
+        end
+      end
+    end
+
+    context 'when there are no active appointments' do
+      it 'returns EPS system with empty data' do
+        VCR.use_cassette('vaos/eps/token/token_200',
+                         match_requests_on: %i[method path],
+                         allow_playback_repeats: true, tag: :force_utf8) do
+          VCR.use_cassette('vaos/eps/get_appointments/200_with_referral_number_no_appointments',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            result = service.get_active_appointments_for_referral('ref-999')
+            expect(result[:system]).to eq('EPS')
+            expect(result[:data]).to eq([])
+          end
+        end
+      end
+    end
+
+    context 'when EPS service fails' do
+      before do
+        allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments)
+          .and_raise(Eps::ServiceException.new('EPS error', {}, 500, 'Internal Server Error'))
+      end
+
+      it 'returns error hash' do
+        result = service.get_active_appointments_for_referral(referral_number)
+        expect(result[:system]).to eq('EPS')
+        expect(result[:data]).to eq([])
+        expect(result[:errors]).to be_a(Hash)
+        expect(result[:errors]['Failure to fetch EPS appointments']).to eq('Eps::ServiceException')
+      end
+
+      it 'logs the failure with masked referral number' do
+        expect(Rails.logger).to receive(:warn).with('Failed to fetch EPS appointments for referral',
+                                                    { referral_ending_in: '-123', error: 'Eps::ServiceException' })
+        service.get_active_appointments_for_referral(referral_number)
+      end
+    end
+  end
 end

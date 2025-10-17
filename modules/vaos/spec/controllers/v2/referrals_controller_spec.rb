@@ -321,6 +321,9 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
           .with(referral_consult_id, icn)
           .and_return(referral_detail)
+        allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+          .with(referral_number)
+          .and_return({ system: 'EPS', data: [] })
       end
 
       it 'returns a referral detail in JSON:API format' do
@@ -338,6 +341,37 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(response_data['data']['attributes']['expirationDate']).to be_a(String)
         expect(response_data['data']['attributes']['referralNumber']).to eq(referral_number)
         expect(response_data['data']['attributes']['referralConsultId']).to eq(referral_consult_id)
+        expect(response_data['data']['attributes']).to have_key('appointments')
+        expect(response_data['data']['attributes']['appointments']).to eq({ 'system' => 'EPS', 'data' => [] })
+      end
+
+      context 'when EPS has active appointments' do
+        before do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+            .with(referral_number)
+            .and_return({
+                          system: 'EPS',
+                          data: [
+                            { id: 'eps-123' },
+                            { id: 'eps-456' }
+                          ]
+                        })
+        end
+
+        it 'returns EPS appointments' do
+          get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
+
+          expect(response).to have_http_status(:ok)
+          response_data = JSON.parse(response.body)
+
+          expect(response_data['data']['attributes']['appointments']).to eq({
+                                                                              'system' => 'EPS',
+                                                                              'data' => [
+                                                                                { 'id' => 'eps-123' },
+                                                                                { 'id' => 'eps-456' }
+                                                                              ]
+                                                                            })
+        end
       end
 
       it 'sets the booking start time in the cache' do
@@ -396,6 +430,9 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
           allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
             .with(referral_consult_id, icn)
             .and_return(referral_detail_missing_data)
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+            .with(referral_number)
+            .and_return({ system: 'EPS', data: [] })
         end
 
         it 'logs missing provider data with JSON structured format' do
@@ -440,6 +477,9 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
             allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
               .with(referral_consult_id, icn)
               .and_return(referral_detail_partial_missing)
+            allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+              .with(referral_number)
+              .and_return({ system: 'EPS', data: [] })
           end
 
           it 'logs only the missing referring facility code in structured format' do
@@ -464,6 +504,9 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
             allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
               .with(referral_consult_id, icn)
               .and_return(referral_detail)
+            allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+              .with(referral_number)
+              .and_return({ system: 'EPS', data: [] })
           end
 
           it 'does not log any missing provider data errors' do
