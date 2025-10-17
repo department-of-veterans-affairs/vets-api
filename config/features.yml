@@ -677,6 +677,18 @@ features:
     actor_type: user
     description: Enables new Dependents module
     enable_in_development: false
+  dependents_benefits_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  dependents_benefits_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  dependents_benefits_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
+  dependents_benefits_persistent_attachment_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Persistent Attachment Error email notification
   dependents_pension_check:
     actor_type: user
     description: Manage whether or not Pension check is enabled for the 686/674
