@@ -2457,6 +2457,81 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
+    describe 'Form 21P-530a' do
+      context 'submitting a 21P-530a form' do
+        let(:valid_form_data) do
+          {
+            form21p530a: {
+              veteranFullName: {
+                first: 'John',
+                middle: 'M',
+                last: 'Doe',
+                suffix: 'Jr'
+              },
+              veteranSocialSecurityNumber: '123456789',
+              veteranServiceNumber: 'RA12345678',
+              vaFileNumber: '987654321',
+              veteranDateOfBirth: '1940-05-15',
+              placeOfBirth: {
+                city: 'Springfield',
+                state: 'IL',
+                country: 'USA'
+              },
+              deathDate: '2023-12-01',
+              servicePeriods: [
+                {
+                  serviceBranch: 'Army',
+                  dateEnteredService: '1960-01-15',
+                  placeEnteredService: 'Fort Benning, GA',
+                  rankAtSeparation: 'E-5',
+                  dateLeftService: '1965-12-31',
+                  placeLeftService: 'Fort Hood, TX'
+                }
+              ],
+              serviceUnderOtherName: {
+                used: false
+              },
+              cemeteryOrganizationName: 'Illinois Department of Veterans Affairs',
+              placeOfBurial: {
+                cemeteryName: 'Springfield Veterans Cemetery',
+                cemeteryLocation: {
+                  street: '1000 Memorial Drive',
+                  city: 'Springfield',
+                  state: 'IL',
+                  postalCode: '62701'
+                }
+              },
+              burialDate: '2023-12-05',
+              recipientOrganizationName: 'Illinois Department of Veterans Affairs',
+              recipientOrganizationPhoneNumber: '217-555-0123',
+              recipientOrganizationContactEmail: 'burials@illinois.gov',
+              recipientOrganizationAddress: {
+                street: '401 Capitol Ave',
+                street2: 'Suite 100',
+                city: 'Springfield',
+                state: 'IL',
+                postalCode: '62701',
+                country: 'USA'
+              },
+              certificationSignature: 'Jane Smith',
+              certificationTitle: 'Cemetery Director',
+              certificationDate: '2024-01-15',
+              remarks: 'Veteran served honorably during Vietnam War'
+            }
+          }
+        end
+
+        it 'successfully submits a 21P-530a form' do
+          expect(subject).to validate(
+            :post,
+            '/v0/form21p530a',
+            200,
+            '_data' => valid_form_data
+          )
+        end
+      end
+    end
+
     describe '1095-B' do
       let(:user) { build(:user, :loa3, icn: '3456787654324567') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
@@ -3296,6 +3371,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/coe/document_download/{id}')
       subject.untested_mappings.delete('/v0/caregivers_assistance_claims/download_pdf')
       subject.untested_mappings.delete('/v0/health_care_applications/download_pdf')
+      subject.untested_mappings.delete('/v0/form21p530a/download_pdf')
       subject.untested_mappings.delete('/v0/form0969')
       subject.untested_mappings.delete('/v0/form210779/download_pdf')
       subject.untested_mappings.delete('/travel_pay/v0/claims/{claimId}/documents/{docId}')
