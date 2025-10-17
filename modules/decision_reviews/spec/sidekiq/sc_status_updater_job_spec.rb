@@ -19,6 +19,8 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           .with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?)
           .with(:decision_review_track_4142_submissions).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:decision_review_stuck_records_monitoring).and_return(false)
       end
 
       include_examples 'engine status updater job with base forms', SavedClaim::SupplementalClaim
@@ -31,6 +33,8 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           .with(:decision_review_saved_claim_sc_status_updater_job_enabled).and_return(false)
         allow(Flipper).to receive(:enabled?)
           .with(:decision_review_track_4142_submissions).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:decision_review_stuck_records_monitoring).and_return(false)
       end
 
       it 'does not query SavedClaim::SupplementalClaim records' do
@@ -93,6 +97,8 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           .with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?)
           .with(:decision_review_track_4142_submissions).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:decision_review_stuck_records_monitoring).and_return(false)
 
         allow(DecisionReviews::V1::Service).to receive(:new).and_return(service)
         allow(BenefitsIntake::Service).to receive(:new).and_return(benefits_intake_service)
@@ -221,6 +227,8 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           .with(:decision_review_final_status_polling).and_return(true)
         allow(Flipper).to receive(:enabled?)
           .with(:saved_claim_pdf_overflow_tracking).and_call_original
+        allow(Flipper).to receive(:enabled?)
+          .with(:decision_review_stuck_records_monitoring).and_return(false)
         allow(DecisionReviews::V1::Service).to receive(:new).and_return(service)
         allow(BenefitsIntake::Service).to receive(:new).and_return(benefits_intake_service)
         allow(StatsD).to receive(:increment)
@@ -1139,6 +1147,8 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           .with(:decision_review_final_status_polling).and_return(false)
         allow(Flipper).to receive(:enabled?)
           .with(:saved_claim_pdf_overflow_tracking).and_call_original
+        allow(Flipper).to receive(:enabled?)
+          .with(:decision_review_stuck_records_monitoring).and_return(false)
         allow(DecisionReviews::V1::Service).to receive(:new).and_return(service)
         allow(BenefitsIntake::Service).to receive(:new).and_return(benefits_intake_service)
         allow(StatsD).to receive(:increment)
@@ -1320,6 +1330,395 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           expect(secondary_form3.reload.status).to include('error')
           expect(secondary_form3.reload.status_updated_at).to eq frozen_time
           expect(secondary_form3.reload.delete_date).to be_nil
+        end
+      end
+    end
+  end
+
+  # RECORDS STUCK IN NON-FINAL STATUS MONITORING
+  describe 'stuck records monitoring' do
+    let(:service) { instance_double(DecisionReviews::V1::Service) }
+    let(:frozen_time) { DateTime.new(2024, 1, 15, 10, 0, 0).utc }
+    let(:valid_form_data) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY_V1').to_json }
+
+    before do
+      allow(Flipper).to receive(:enabled?)
+                    .with(:decision_review_saved_claim_sc_status_updater_job_enabled).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:decision_review_stuck_records_monitoring).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
+      allow(DecisionReviews::V1::Service).to receive(:new).and_return(service)
+      allow(StatsD).to receive(:increment)
+    end
+
+    describe 'monitor_stuck_form_with_metadata' do
+      let!(:old_appeal_submission) { create(:appeal_submission) }
+      let!(:recent_appeal_submission) { create(:appeal_submission) }
+
+      let!(:old_saved_claim) do
+        SavedClaim::SupplementalClaim.create(
+          guid: old_appeal_submission.submitted_appeal_uuid,
+          form: valid_form_data,
+          created_at: frozen_time - 35.days
+        )
+      end
+
+      let!(:recent_saved_claim) do
+        SavedClaim::SupplementalClaim.create(
+          guid: recent_appeal_submission.submitted_appeal_uuid,
+          form: valid_form_data,
+          created_at: frozen_time - 25.days
+        )
+      end
+
+      let(:response_processing) do
+        {
+          'data' => {
+            'attributes' => {
+              'status' => 'processing',
+              'detail' => 'Still processing',
+              'createDate' => '2024-01-01T00:00:00.000Z',
+              'updateDate' => '2024-01-01T10:00:00.000Z'
+            }
+          }
+        }
+      end
+
+      let(:response_complete) do
+        {
+          'data' => {
+            'attributes' => {
+              'status' => 'complete',
+              'detail' => 'Completed successfully',
+              'createDate' => '2024-01-01T00:00:00.000Z',
+              'updateDate' => '2024-01-01T10:00:00.000Z'
+            }
+          }
+        }
+      end
+
+      before do
+        allow(service).to receive(:get_supplemental_claim).with(old_saved_claim.guid).and_return(
+          instance_double(Faraday::Response, body: response_processing)
+        )
+        allow(service).to receive(:get_supplemental_claim).with(recent_saved_claim.guid).and_return(
+          instance_double(Faraday::Response, body: response_processing)
+        )
+      end
+
+      context 'when monitoring is enabled' do
+        it 'logs warning for forms stuck >30 days in non-final status' do
+          Timecop.freeze(frozen_time) do
+            expect(Rails.logger).to receive(:warn).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob form stuck in non-final status',
+              {
+                appeal_submission_id: old_saved_claim.appeal_submission.id,
+                days_stuck: 35.0,
+                created_at: old_saved_claim.created_at,
+                current_status: 'processing'
+              }
+            )
+
+            subject.new.perform
+          end
+        end
+
+        it 'does not log for forms more recent than 30 days' do
+          Timecop.freeze(frozen_time) do
+            expect(Rails.logger).not_to receive(:warn).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob form stuck in non-final status',
+              hash_including(appeal_submission_id: recent_saved_claim.appeal_submission.id)
+            )
+
+            subject.new.perform
+          end
+        end
+
+        it 'does not log for forms in final status even if older than 30 days' do
+          allow(service).to receive(:get_supplemental_claim).with(old_saved_claim.guid).and_return(
+            instance_double(Faraday::Response, body: response_complete)
+          )
+
+          Timecop.freeze(frozen_time) do
+            expect(Rails.logger).not_to receive(:warn).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob form stuck in non-final status',
+              hash_including(appeal_submission_id: old_saved_claim.appeal_submission.id)
+            )
+
+            subject.new.perform
+          end
+        end
+
+        it 'calculates days_stuck correctly using created_at timestamp' do
+          old_saved_claim.update!(created_at: frozen_time - 32.5.days)
+
+          Timecop.freeze(frozen_time) do
+            expect(Rails.logger).to receive(:warn).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob form stuck in non-final status',
+              hash_including(days_stuck: 32.5)
+            )
+
+            subject.new.perform
+          end
+        end
+      end
+
+      context 'when monitoring is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:decision_review_stuck_records_monitoring).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
+        end
+
+        it 'does not log warnings even for stuck forms' do
+          Timecop.freeze(frozen_time) do
+            expect(Rails.logger).not_to receive(:warn).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob form stuck in non-final status',
+              any_args
+            )
+
+            subject.new.perform
+          end
+        end
+      end
+    end
+
+    describe 'monitor_stuck_evidence_upload' do
+      let!(:appeal_submission_old) { create(:appeal_submission) }
+      let!(:appeal_submission_recent) { create(:appeal_submission) }
+
+      let!(:old_saved_claim) do
+        SavedClaim::SupplementalClaim.create(
+          guid: appeal_submission_old.submitted_appeal_uuid,
+          form: valid_form_data,
+          created_at: frozen_time - 35.days
+        )
+      end
+
+      let!(:recent_saved_claim) do
+        SavedClaim::SupplementalClaim.create(
+          guid: appeal_submission_recent.submitted_appeal_uuid,
+          form: valid_form_data,
+          created_at: frozen_time - 25.days
+        )
+      end
+
+      let!(:old_upload) do
+        create(:appeal_submission_upload,
+               appeal_submission: appeal_submission_old,
+               lighthouse_upload_id: SecureRandom.uuid)
+      end
+
+      let!(:recent_upload) do
+        create(:appeal_submission_upload,
+               appeal_submission: appeal_submission_recent,
+               lighthouse_upload_id: SecureRandom.uuid)
+      end
+
+      let(:response_complete) do
+        {
+          'data' => {
+            'attributes' => {
+              'status' => 'complete',
+              'detail' => 'Completed successfully',
+              'createDate' => '2024-01-01T00:00:00.000Z',
+              'updateDate' => '2024-01-01T10:00:00.000Z'
+            }
+          }
+        }
+      end
+
+      let(:upload_response_processing) do
+        {
+          'data' => {
+            'attributes' => {
+              'status' => 'processing',
+              'detail' => 'Still processing',
+              'createDate' => '2024-01-01T00:00:00.000Z',
+              'updateDate' => '2024-01-01T10:00:00.000Z'
+            }
+          }
+        }
+      end
+
+      let(:upload_response_vbms) do
+        {
+          'data' => {
+            'attributes' => {
+              'status' => 'vbms',
+              'detail' => 'Successfully uploaded',
+              'createDate' => '2024-01-01T00:00:00.000Z',
+              'updateDate' => '2024-01-01T10:00:00.000Z'
+            }
+          }
+        }
+      end
+
+      before do
+        allow(service).to receive(:get_supplemental_claim).with(old_saved_claim.guid).and_return(
+          instance_double(Faraday::Response, body: response_complete)
+        )
+        allow(service).to receive(:get_supplemental_claim).with(recent_saved_claim.guid).and_return(
+          instance_double(Faraday::Response, body: response_complete)
+        )
+
+        allow(service).to receive(:get_supplemental_claim_upload)
+                      .with(guid: old_upload.lighthouse_upload_id).and_return(
+                        instance_double(Faraday::Response, body: upload_response_processing)
+                      )
+        allow(service).to receive(:get_supplemental_claim_upload)
+                      .with(guid: recent_upload.lighthouse_upload_id).and_return(
+                        instance_double(Faraday::Response, body: upload_response_processing)
+                      )
+      end
+
+      context 'when monitoring is enabled' do
+        it 'logs warning for evidence uploads stuck >30 days in non-final status' do
+          Timecop.freeze(frozen_time) do
+            expect(Rails.logger).to receive(:warn).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob evidence stuck in non-final status',
+              {
+                appeal_submission_id: old_saved_claim.appeal_submission.id,
+                days_stuck: 35.0,
+                created_at: old_saved_claim.created_at,
+                current_status: 'processing',
+                upload_id: old_upload.lighthouse_upload_id
+              }
+            )
+
+            subject.new.perform
+          end
+        end
+
+        it 'does not log for evidence uploads more recent than 30 days' do
+          Timecop.freeze(frozen_time) do
+            expect(Rails.logger).not_to receive(:warn).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob evidence stuck in non-final status',
+              hash_including(upload_id: recent_upload.lighthouse_upload_id)
+            )
+
+            subject.new.perform
+          end
+        end
+
+        it 'does not log for evidence uploads in final status even if older than 30 days' do
+          allow(service).to receive(:get_supplemental_claim_upload)
+                        .with(guid: old_upload.lighthouse_upload_id).and_return(
+                          instance_double(Faraday::Response, body: upload_response_vbms)
+                        )
+
+          Timecop.freeze(frozen_time) do
+            expect(Rails.logger).not_to receive(:warn).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob evidence stuck in non-final status',
+              hash_including(upload_id: old_upload.lighthouse_upload_id)
+            )
+
+            subject.new.perform
+          end
+        end
+
+        it 'logs for multiple stuck evidence uploads on same form' do
+          second_old_upload = create(:appeal_submission_upload, appeal_submission: appeal_submission_old)
+
+          allow(service).to receive(:get_supplemental_claim_upload)
+                        .with(guid: second_old_upload.lighthouse_upload_id).and_return(
+                          instance_double(Faraday::Response, body: upload_response_processing)
+                        )
+
+          Timecop.freeze(frozen_time) do
+            expect(Rails.logger).to receive(:warn).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob evidence stuck in non-final status',
+              hash_including(upload_id: old_upload.lighthouse_upload_id)
+            )
+
+            expect(Rails.logger).to receive(:warn).with(
+              'DecisionReviews::SavedClaimScStatusUpdaterJob evidence stuck in non-final status',
+              hash_including(upload_id: second_old_upload.lighthouse_upload_id)
+            )
+
+            subject.new.perform
+          end
+        end
+
+        context 'when monitoring is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:decision_review_stuck_records_monitoring).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
+          end
+
+          it 'does not log warnings even for stuck evidence uploads' do
+            Timecop.freeze(frozen_time) do
+              expect(Rails.logger).not_to receive(:warn).with(
+                'DecisionReviews::SavedClaimScStatusUpdaterJob evidence stuck in non-final status',
+                any_args
+              )
+
+              subject.new.perform
+            end
+          end
+        end
+      end
+
+      describe 'monitoring integration with existing job flow' do
+        let!(:appeal_submission) { create(:appeal_submission) }
+        let!(:stuck_saved_claim) do
+          SavedClaim::SupplementalClaim.create(
+            guid: appeal_submission.submitted_appeal_uuid,
+            form: valid_form_data,
+            created_at: frozen_time - 35.days
+          )
+        end
+        let!(:stuck_upload) do
+          create(:appeal_submission_upload,
+                 appeal_submission:,
+                 lighthouse_upload_id: SecureRandom.uuid)
+        end
+
+        let(:response_processing) do
+          {
+            'data' => {
+              'attributes' => {
+                'status' => 'processing',
+                'detail' => 'Still processing',
+                'createDate' => '2024-01-01T00:00:00.000Z',
+                'updateDate' => '2024-01-01T10:00:00.000Z'
+              }
+            }
+          }
+        end
+
+        let(:upload_response_processing) do
+          {
+            'data' => {
+              'attributes' => {
+                'status' => 'processing',
+                'detail' => 'Still processing upload',
+                'createDate' => '2024-01-01T00:00:00.000Z',
+                'updateDate' => '2024-01-01T10:00:00.000Z'
+              }
+            }
+          }
+        end
+
+        before do
+          allow(service).to receive(:get_supplemental_claim).with(stuck_saved_claim.guid).and_return(
+            instance_double(Faraday::Response, body: response_processing)
+          )
+          allow(service).to receive(:get_supplemental_claim_upload)
+            .with(guid: stuck_upload.lighthouse_upload_id).and_return(
+              instance_double(Faraday::Response, body: upload_response_processing)
+            )
+        end
+
+        it 'does not affect delete_date logic when monitoring detects stuck records' do
+          Timecop.freeze(frozen_time) do
+            subject.new.perform
+
+            stuck_saved_claim.reload
+
+            expect(stuck_saved_claim.delete_date).to be_nil
+          end
         end
       end
     end
