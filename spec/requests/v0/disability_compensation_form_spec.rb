@@ -301,6 +301,8 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
           before do
             allow(DisabilityCompensation::Loggers::Monitor).to receive(:new).and_return(monitor)
             allow(monitor).to receive(:track_saved_claim_save_success)
+            allow(monitor).to receive(:track_526_submission_with_banking_info)
+            allow(monitor).to receive(:track_526_submission_without_banking_info)
             allow(Flipper).to receive(:enabled?)
               .with(:disability_526_log_toxic_exposure_purge, anything)
               .and_return(true)
