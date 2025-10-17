@@ -4,6 +4,7 @@ require_rel '../form_engine'
 
 module SimpleFormsApi
   class VBA214140 < BaseForm
+    STATS_KEY = 'api.simple_forms_api.21_4140'
     attr_reader :address
 
     def initialize(data)
@@ -113,7 +114,11 @@ module SimpleFormsApi
       ]
     end
 
-    def track_user_identity(confirmation_number); end
+    def track_user_identity(confirmation_number)
+      identity = employed? ? 'employed' : 'unemployed'
+      StatsD.increment("#{STATS_KEY}.#{identity}")
+      Rails.logger.info('Simple forms api - 21-4140 submission user identity', identity:, confirmation_number:)
+    end
 
     def words_to_remove
       ssn + dob + address_to_remove + contact_info
