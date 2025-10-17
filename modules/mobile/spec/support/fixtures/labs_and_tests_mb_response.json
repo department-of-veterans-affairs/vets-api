@@ -10,7 +10,7 @@
     "location": "CHYSHR TEST LAB",
     "orderedBy": "MARCI P MCGUIRE",
     "bodySite": "",
-    "status": null,
+    "status": "final",
     "observations": [
       {
         "testCode": "GRAM STAIN",
