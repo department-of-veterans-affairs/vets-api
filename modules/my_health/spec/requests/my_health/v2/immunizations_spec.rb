@@ -15,6 +15,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
   describe 'GET /my_health/v2/medical_records/immunizations' do
     context 'happy path' do
       before do
+        allow(UniqueUserEvents).to receive(:log_events)
         VCR.use_cassette(immunizations_cassette) do
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
         end
@@ -22,6 +23,16 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
       it 'returns a successful response' do
         expect(response).to be_successful
+      end
+
+      it 'logs unique user events for immunizations/vaccines accessed' do
+        expect(UniqueUserEvents).to have_received(:log_events).with(
+          user: anything,
+          event_names: [
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_VACCINES_ACCESSED
+          ]
+        )
       end
 
       context 'when date parameters are not provided' do

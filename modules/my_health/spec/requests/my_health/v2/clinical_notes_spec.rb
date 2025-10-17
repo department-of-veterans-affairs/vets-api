@@ -32,6 +32,7 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
   describe 'GET /my_health/v2/medical_records/notes#index' do
     context 'happy path' do
       it 'returns a successful response' do
+        allow(UniqueUserEvents).to receive(:log_events)
         VCR.use_cassette('unified_health_data/get_clinical_notes_200', match_requests_on: %i[method path]) do
           get '/my_health/v2/medical_records/clinical_notes', headers: { 'X-Key-Inflection' => 'camel' }
         end
@@ -58,6 +59,15 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
           'dischargeDate',
           'location',
           'note'
+        )
+
+        # Verify event logging was called
+        expect(UniqueUserEvents).to have_received(:log_events).with(
+          user: anything,
+          event_names: [
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_NOTES_ACCESSED
+          ]
         )
       end
 
