@@ -161,7 +161,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
                                            @sent_to_lighthouse).deliver_later
 
     send_to_res(user)
-    send_submission_confirmation_email
+    Flipper.enabled?(:vre_use_new_vfs_notification_library) && send_submission_confirmation_email
   end
 
   # Submit claim into VBMS service, uploading document directly to VBMS,
@@ -187,6 +187,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         update!(form: updated_form.to_json)
       end
     end
+
+    !Flipper.enabled?(:vre_use_new_vfs_notification_library) &&
+      send_vbms_lighthouse_confirmation_email('VBMS', CONFIRMATION_EMAIL_TEMPLATE_VBMS)
   rescue => e
     Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, messsage: e.message })
     send_to_lighthouse!(user)
@@ -219,6 +222,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     process_attachments!
     @sent_to_lighthouse = true
+
+    !Flipper.enabled?(:vre_use_new_vfs_notification_library) &&
+      send_vbms_lighthouse_confirmation_email('Lighthouse', CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE)
   rescue => e
     Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
     raise
@@ -279,20 +285,21 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   # Lighthouse::SubmitBenefitsIntakeClaim will call the function `send_confirmation_email` (if it exists).
   # Do not name a function `send_confirmation_email`, unless it accepts 0 arguments.
+  def send_vbms_lighthouse_confirmation_email(service, email_template)
+    VANotify::EmailJob.perform_async(
+      email,
+      email_template,
+      {
+        'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
+        'date' => Time.zone.today.strftime('%B %d, %Y')
+      }
+    )
+    Rails.logger.info("VRE Submit1900Job successful. #{service} confirmation email sent.")
+  end
+
   def send_submission_confirmation_email
     sent_to = @sent_to_lighthouse ? LIGHTHOUSE : VBMS
-    if Flipper.enabled?(:vrew_use_new_vfs_notification_library)
-      VRE::NotificationEmail.new(id).deliver(CONFIRMATION_EMAIL_TYPES[sent_to])
-    else
-      VANotify::EmailJob.perform_async(
-        email,
-        CONFIRMATION_EMAIL_TYPES[sent_to],
-        {
-          'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
-          'date' => Time.zone.today.strftime('%B %d, %Y')
-        }
-      )
-    end
+    VRE::NotificationEmail.new(id).deliver(CONFIRMATION_EMAIL_TYPES[sent_to])
     Rails.logger.info("VRE Submit1900Job successful. #{sent_to} confirmation email sent.")
   end
 
