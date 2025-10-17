@@ -22,7 +22,7 @@ module Ccra
     # @option attributes [Hash] :referral The main referral data container.
     def initialize(attributes = {})
       @uuid = nil # Will be set by controller
-      @appointments = [] # Will be populated by controller
+      @appointments = {} # Will be populated by controller
 
       return if attributes.blank?
 

@@ -64,7 +64,7 @@ describe Ccra::ReferralDetail do
       expect(subject.referral_date).to eq('2024-07-24')
       expect(subject.station_id).to eq('528A6')
       expect(subject.uuid).to be_nil
-      expect(subject.appointments).to eq([])
+      expect(subject.appointments).to eq({})
 
       # Provider info
       expect(subject.provider_name).to eq('Dr. Smith')
@@ -107,7 +107,7 @@ describe Ccra::ReferralDetail do
     context 'with appointments array' do
       it 'initializes appointments as empty array by default' do
         detail = described_class.new({})
-        expect(detail.appointments).to eq([])
+        expect(detail.appointments).to eq({})
       end
 
       it 'can be set to appointments data after initialization' do
