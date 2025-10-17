@@ -2,6 +2,7 @@
 
 require 'unified_health_data/service'
 require 'unified_health_data/serializers/condition_serializer'
+require 'unique_user_events'
 
 module MyHealth
   module V2
@@ -10,6 +11,16 @@ module MyHealth
 
       def index
         conditions = service.get_conditions
+
+        # Log unique user events for conditions accessed
+        UniqueUserEvents.log_events(
+          user: @current_user,
+          event_names: [
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_CONDITIONS_ACCESSED
+          ]
+        )
+
         render json: UnifiedHealthData::Serializers::ConditionSerializer.new(conditions),
                status: :ok
       rescue Common::Client::Errors::ClientError,
