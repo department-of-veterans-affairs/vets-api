@@ -1439,7 +1439,7 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
-      it 'handles eps appointments with no provider name' do
+      it 'includes eps appointments with provider names when available' do
         VCR.use_cassette('vaos/eps/token/token_200',
                          match_requests_on: %i[method path],
                          allow_playback_repeats: true, tag: :force_utf8) do
@@ -1463,6 +1463,27 @@ describe VAOS::V2::AppointmentsService do
             end
           end
         end
+      end
+
+      it 'defaults provider_name to "unknown" for eps appointments without provider name' do
+        # Mock EPS response with appointment missing provider name
+        eps_appointment_data = {
+          id: 'test-123',
+          state: 'booked',
+          patient_id: user.icn,
+          provider_service_id: 'provider-123',
+          appointment_details: {
+            status: 'booked',
+            start: '2023-11-01T10:00:00Z'
+          },
+          referral: {
+            referral_number: 'REF-12345'
+          }
+          # NOTE: No provider field
+        }
+
+        eps_appointment = VAOS::V2::EpsAppointment.new(eps_appointment_data)
+        expect(eps_appointment.provider_name).to eq('unknown')
       end
     end
   end
