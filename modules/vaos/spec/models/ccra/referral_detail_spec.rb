@@ -104,8 +104,8 @@ describe Ccra::ReferralDetail do
       include_examples 'has nil attributes'
     end
 
-    context 'with appointments array' do
-      it 'initializes appointments as empty array by default' do
+    context 'with appointments hash' do
+      it 'initializes appointments as empty hash by default' do
         detail = described_class.new({})
         expect(detail.appointments).to eq({})
       end
@@ -197,7 +197,7 @@ describe Ccra::ReferralDetail do
       expect(subject.referral_number).to eq('VA0000005681')
       expect(subject.referral_date).to eq('2024-07-24')
       expect(subject.station_id).to eq('528A6')
-      expect(subject.appointments).to eq([])
+      expect(subject.appointments).to eq({})
 
       # Provider info
       expect(subject.provider_name).to eq('Dr. Smith')

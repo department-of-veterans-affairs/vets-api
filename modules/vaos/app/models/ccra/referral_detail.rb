@@ -106,7 +106,7 @@ module Ccra
       @referral_number = hash['referral_number']
       @referral_date = hash['referral_date']
       @station_id = hash['station_id']
-      @appointments = hash['appointments'] || []
+      @appointments = hash['appointments'] || {}
       @referral_consult_id = hash['referral_consult_id']
       @uuid = hash['uuid']
     end
