@@ -70,7 +70,7 @@ module SimpleFormsApi
       ssn_parts = @data.dig('veteran', 'ssn')
       return '' unless ssn_parts
 
-      "#{ssn_parts['first3']}-#{ssn_parts['middle2']}-#{ssn_parts['last4']}"
+      "#{ssn_parts['first3']}#{ssn_parts['middle2']}#{ssn_parts['last4']}"
     end
 
     def veteran_ssn
