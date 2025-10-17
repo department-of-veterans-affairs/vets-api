@@ -60,7 +60,7 @@ paths:
       summary: /
   /v0/appeal/{id}:
     get:
-      description: Returns info on all user's claims and appeals for mobile overview
+      description: Returns info on all user's claims and appeals for the mobile overview
         page. Should be identical to the following docs https://developer.va.gov/explore/api/appeals-status/docs?version=current
       parameters:
         - description: Appeal Id
@@ -2827,6 +2827,38 @@ paths:
       security:
         - Bearer: []
       summary: /v0/messaging/health/folders/{id}
+    delete:
+      description: Delete a secure messaging folder
+      parameters:
+        - description: The folder ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '204':
+          description: No Content
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/messaging/health/folders/{id}
   /v0/messaging/health/folders/{id}/messages:
     get:
       description: |
@@ -3045,6 +3077,46 @@ paths:
       security:
         - Bearer: []
       summary: /v0/messaging/health/message_drafts/{id}
+    patch:
+      description: Update an existing draft message (alias for PUT)
+      parameters:
+        - description: The id of the draft that is to be updated
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example:
+                body: the updated message
+              type: object
+        required: true
+      responses:
+        '204':
+          description: No Content
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/messaging/health/message_drafts/{id}
   /v0/messaging/health/message_drafts/{reply_id}/replydraft:
     post:
       description: Save a new draft message as a reply to an existing message
@@ -3089,7 +3161,7 @@ paths:
         - Bearer: []
       summary: /v0/messaging/health/message_drafts/{reply_id}/replydraft
   /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}:
-    post:
+    put:
       description: Edit a draft message that was a reply to an existing message
       parameters:
         - description: The id of the message that will be replied to
@@ -3367,6 +3439,7 @@ paths:
       security:
         - Bearer: []
       summary: /v0/messaging/health/messages/{id}
+  /v0/messaging/health/messages/{id}/move:
     patch:
       description: Moves a secure message to a specified folder
       parameters:
@@ -3378,7 +3451,7 @@ paths:
             type: string
         - description: The id of the folder that the message is to be moved to
           in: query
-          name: folder_id,
+          name: folder_id
           required: true
           schema:
             type: string
@@ -5196,6 +5269,156 @@ paths:
       security:
         - Bearer: []
       summary: /v1/health/immunizations
+  /v1/health/labs-and-tests:
+    get:
+      description: Returns a list of lab and test results for given user (v1)
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: Start date for filtering lab results (ISO 8601 format)
+          in: query
+          name: startDate
+          required: false
+          schema:
+            type: string
+            format: date
+        - description: End date for filtering lab results (ISO 8601 format)
+          in: query
+          name: endDate
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/v1/LabsAndTestsV1.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v1/health/labs-and-tests
+  /v1/health/rx/prescriptions:
+    get:
+      description: Returns a paginated list of prescriptions for given user (v1)
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: The page number requested
+          in: query
+          name: page[number]
+          required: false
+          schema:
+            type: integer
+        - description: The number of records to return per page
+          in: query
+          name: page[size]
+          required: false
+          schema:
+            type: integer
+        - description: Sort field for prescriptions
+          in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/v1/PrescriptionsV1.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v1/health/rx/prescriptions
+  /v1/health/rx/prescriptions/refill:
+    put:
+      description: Refill prescriptions (v1)
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required:
+                  - stationNumber
+                  - id
+                properties:
+                  stationNumber:
+                    type: string
+                    description: The station number for the prescription
+                  id:
+                    type: string
+                    description: The prescription ID
+        description: Array of orders to refill, each with stationNumber and id
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/v1/PrescriptionRefillV1.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v1/health/rx/prescriptions/refill
 
 components:
   securitySchemes:

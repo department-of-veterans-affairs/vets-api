@@ -125,6 +125,8 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
 
       context 'message' do
         it 'without attachments' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
           VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
             post '/my_health/v1/messaging/messages', params: { message: params }
           end
@@ -134,6 +136,12 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
           expect(response).to match_response_schema('my_health/messaging/v1/message')
+
+          # Verify event logging was called
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          )
         end
 
         it 'without attachments when camel-inflected' do
@@ -201,6 +209,8 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         let(:reply_message_id) { 674_838 }
 
         it 'without attachments' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
           VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
             post "/my_health/v1/messaging/messages/#{reply_message_id}/reply", params: { message: params }
           end
@@ -210,6 +220,12 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
           expect(response).to match_response_schema('my_health/messaging/v1/message')
+
+          # Verify event logging was called
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          )
         end
 
         it 'without attachments when camel-inflected' do

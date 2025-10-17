@@ -4,7 +4,7 @@ require 'logging/monitor'
 
 module DecisionReviews
   class NotificationMonitor < Logging::Monitor
-    def track(error_level, message, metric, call_location: nil, **context) # rubocop:disable Lint/UnusedMethodArgument
+    def track_request(error_level, message, metric, call_location: nil, **context) # rubocop:disable Lint/UnusedMethodArgument
       function = context[:callback_metadata][:function]
       tags = (["service:#{service}", "function:#{function}"] + (context[:tags] || [])).uniq
       StatsD.increment(metric, tags:)

@@ -6,38 +6,49 @@ require_relative '../../../app/models/form_engine/employment_history'
 RSpec.describe FormEngine::EmploymentHistory do
   subject(:employment_history) { described_class.new(data) }
 
-  let(:fixture_file) { 'vba_21_4140.json' }
-  let(:fixture_path) do
-    Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', fixture_file)
+  let(:data) do
+    {
+      'type_of_work' => 'Full-time',
+      'hours_per_week' => '40',
+      'lost_time_from_illness' => '13',
+      'highest_gross_income_per_month' => 2300,
+      'employment_dates' => {
+        'from' => '2018-03-15',
+        'to' => '2020-06-30'
+      },
+      'employer_name' => 'Test Employer',
+      'employer_address' => {
+        'country' => 'USA',
+        'street' => '1234 Executive Ave',
+        'city' => 'Metropolis',
+        'state' => 'CA',
+        'postal_code' => '90210'
+      }
+    }
   end
-  let(:data) { JSON.parse(fixture_path.read)['employers'][0] }
 
-  shared_examples 'properly formatted date' do
-    it { is_expected.to match(%r{\d{2}/\d{2}/\d{4}}) }
-  end
-
-  it 'sets the correct attributes' do
-    expect(employment_history.hours_per_week).to eq data['hours_per_week']
-    expect(employment_history.lost_time).to eq data['lost_time']
-    expect(employment_history.type_of_work).to eq data['type_of_work']
-  end
-
-  describe '.date_ended' do
-    subject { employment_history.date_ended }
-
-    it_behaves_like 'properly formatted date'
-  end
-
-  describe '.date_started' do
+  describe '#date_started' do
     subject { employment_history.date_started }
 
-    it_behaves_like 'properly formatted date'
+    it 'formats the date correctly' do
+      expect(subject).to eq '03/15/2018'
+    end
+  end
+
+  describe '#date_ended' do
+    subject { employment_history.date_ended }
+
+    it 'formats the date correctly' do
+      expect(subject).to eq '06/30/2020'
+    end
   end
 
   describe '#highest_income' do
     subject { employment_history.highest_income }
 
-    it { is_expected.to eq '$2,300.00' }
+    it 'formats as currency' do
+      expect(subject).to eq '$2,300.00'
+    end
   end
 
   describe '#name_and_address' do

@@ -156,7 +156,7 @@ module IncomeAndAssets
           'expectedIncomeOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['expectedIncome']),
           'paymentResumeDate' => split_date(payment_resume_date),
           'paymentResumeDateOverflow' => format_date_to_mm_dd_yyyy(payment_resume_date),
-          'paymentWillNotResume' => !checkbox_value(payment_resume_date),
+          'paymentWillNotResume' => checkbox_value(!payment_resume_date),
           'paymentWillResumeOverflow' => payment_resume_date ? 'YES' : 'NO',
           'waivedGrossMonthlyIncome' => split_currency_amount_sm(item['waivedGrossMonthlyIncome'],
                                                                  { 'thousands' => 3 }),

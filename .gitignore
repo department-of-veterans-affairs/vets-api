@@ -76,6 +76,10 @@ modules/**/Gemfile.lock
 .idea
 *.iml
 
+# Ignore Cursor ide files
+.cursor
+.cursorrules
+
 # ctags (vim/neovim/emacs)
 tags
 

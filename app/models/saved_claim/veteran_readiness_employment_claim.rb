@@ -7,7 +7,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include Vets::SharedLogging
 
   FORM = '28-1900'
-  FORMV2 = '28-1900_V2' # use full country name instead of abbreviation ("USA" -> "United States")
   # We will be adding numbers here and eventually completeley removing this and the caller to open up VRE submissions
   # to all vets
   PERMITTED_OFFICE_LOCATIONS = %w[].freeze
@@ -248,33 +247,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def form_matches_schema
     return unless form_is_string
 
-    if form_id == self.class::FORM
-      validate_form_v1
-    else
-      validate_form_v2
-    end
+    validate_form
   end
 
-  def validate_form_v1
-    schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
-    schema_v2 = VetsJsonSchema::SCHEMAS[self.class::FORMV2]
-
-    schema_errors = validate_schema(schema)
-    validation_errors = validate_form(schema)
-
-    if validation_errors.length.positive? && validation_errors.any? { |e| e[:fragment].end_with?('/country') }
-      schema_v2_errors = validate_schema(schema_v2)
-      v2_errors = validate_form(schema_v2)
-      add_errors_from_form_validation(v2_errors)
-      return schema_v2_errors.empty? && v2_errors.empty?
-    end
-
-    add_errors_from_form_validation(validation_errors)
-
-    schema_errors.empty? && validation_errors.empty?
-  end
-
-  def validate_form_v2
+  def validate_form
     validate_required_fields
     validate_string_fields
     validate_boolean_fields

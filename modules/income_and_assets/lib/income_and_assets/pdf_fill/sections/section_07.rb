@@ -143,7 +143,6 @@ module IncomeAndAssets
             }
           },
           'fairMarketValueOverflow' => {
-            key: "fairMarketValueOverflow[#{ITERATOR}]", # Fake key for overflow handling
             limit: 14,
             dollar: true,
             question_num: 7,
@@ -167,7 +166,6 @@ module IncomeAndAssets
             }
           },
           'saleValueOverflow' => {
-            key: "saleValueOverflow[#{ITERATOR}]", # Fake key for overflow handling
             limit: 14,
             dollar: true,
             question_num: 7,
@@ -191,7 +189,6 @@ module IncomeAndAssets
             }
           },
           'capitalGainValueOverflow' => {
-            key: "capitalGainValueOverflow[#{ITERATOR}]", # Fake key for overflow handling
             limit: 14,
             dollar: true,
             question_num: 7,

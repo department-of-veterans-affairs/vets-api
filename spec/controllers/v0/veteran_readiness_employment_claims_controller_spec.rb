@@ -12,7 +12,7 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
     build(:veteran_readiness_employment_claim)
   end
   let(:new_test_form) do
-    build(:new_veteran_readiness_employment_claim)
+    build(:veteran_readiness_employment_claim)
   end
 
   let(:no_veteran_info) do

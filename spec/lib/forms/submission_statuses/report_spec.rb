@@ -9,7 +9,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
   subject { described_class.new(user_account:, allowed_forms:) }
 
   let(:user_account) { create(:user_account) }
-  let(:allowed_forms) { %w[20-10207 21-0845 21-0972 21-10210 21-4142 21-4142a 21P-0847] }
+  let(:allowed_forms) { %w[20-10207 21-0845 21-0972 21-10210 21-4142 21-4142a 21P-0847 21-4140] }
 
   context 'when user has no submissions' do
     let(:benefits_intake_gateway) { Forms::SubmissionStatuses::BenefitsIntakeGateway }
@@ -29,6 +29,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
     before do
       create(:form_submission, :with_form214142, user_account_id: user_account.id)
       create(:form_submission, :with_form210845, user_account_id: user_account.id)
+      create(:form_submission, :with_form214140, user_account_id: user_account.id)
 
       # This form is not in the allowed forms list and should not be included
       create(:form_submission, :with_form_blocked, user_account_id: user_account.id)
@@ -61,6 +62,16 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
                   'status' => 'received',
                   'updated_at' => 3.days.ago
                 }
+              },
+              {
+                'id' => 'a1b2c3d4-e496-4f83-8587-42b570f24483',
+                'attributes' => {
+                  'detail' => 'detail',
+                  'guid' => 'a1b2c3d4-e496-4f83-8587-42b570f24483',
+                  'message' => 'message',
+                  'status' => 'received',
+                  'updated_at' => 1.day.ago
+                }
               }
             ],
             nil
@@ -71,7 +82,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
       it 'returns the correct count' do
         result = subject.run
 
-        expect(result.submission_statuses.size).to be(2)
+        expect(result.submission_statuses.size).to be(3)
         expect(result.errors).to be_empty
       end
 
@@ -105,7 +116,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
       it 'returns the correct count' do
         result = subject.run
 
-        expect(result.submission_statuses.size).to be(2)
+        expect(result.submission_statuses.size).to be(3)
       end
 
       it 'returns the correct values' do
@@ -145,7 +156,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
       it 'returns the correct count' do
         result = subject.run
 
-        expect(result.submission_statuses.size).to be(2)
+        expect(result.submission_statuses.size).to be(3)
       end
 
       it 'sorts results' do

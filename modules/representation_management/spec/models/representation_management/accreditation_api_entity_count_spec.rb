@@ -369,16 +369,15 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
         expect(report).to include('Accreditation API Entity Counts Report:')
         expect(report).to include('Agents: Current: 120, Previous: 100, Change: 20.0%')
         expect(report).to include('Attorneys: Current: 85, Previous: 100, Change: -15.0%')
-        expect(report).to include('Representatives: Current: 95, Previous: 100, Change: -5.0%')
-        expect(report).to include('Veteran service organizations: Current: 150, Previous: 100, Change: 50.0%')
+        expect(report).to include('VSO Representatives: Current: 95, Previous: 100, Change: -5.0%')
+        expect(report).to include('Veteran Service Organizations: Current: 150, Previous: 100, Change: 50.0%')
       end
 
       it 'includes all entity types in the report' do
         report = model.count_report
 
         described_class::TYPES.each do |type|
-          humanized_type = type.to_s.humanize
-          expect(report).to include(humanized_type)
+          expect(report).to include(described_class::TYPE_LABELS[type.to_sym])
         end
       end
     end
@@ -406,8 +405,8 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
 
         expect(report).to include('Agents: Current: 100, Previous: 100, Change: 0.0%')
         expect(report).to include('Attorneys: Current: 120, Previous: 100, Change: 20.0%')
-        expect(report).to include('Representatives: Current: 75, Previous: 100, Change: -25.0%')
-        expect(report).to include('Veteran service organizations: Current: 200, Previous: 100, Change: 100.0%')
+        expect(report).to include('VSO Representatives: Current: 75, Previous: 100, Change: -25.0%')
+        expect(report).to include('Veteran Service Organizations: Current: 200, Previous: 100, Change: 100.0%')
       end
     end
 
@@ -434,8 +433,8 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
 
         expect(report).to include('Agents: Current: 50, Previous: , Change: 0.0%')
         expect(report).to include('Attorneys: Current: 75, Previous: 0, Change: 0.0%')
-        expect(report).to include('Representatives: Current: 25, Previous: 100, Change: -75.0%')
-        expect(report).to include('Veteran service organizations: Current: 10, Previous: 50, Change: -80.0%')
+        expect(report).to include('VSO Representatives: Current: 25, Previous: 100, Change: -75.0%')
+        expect(report).to include('Veteran Service Organizations: Current: 10, Previous: 50, Change: -80.0%')
       end
     end
 
@@ -462,8 +461,8 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
 
         expect(report).to include('Agents: Current: 33, Previous: 30, Change: 10.0%')
         expect(report).to include('Attorneys: Current: 67, Previous: 60, Change: 11.67%')
-        expect(report).to include('Representatives: Current: 34, Previous: 35, Change: -2.86%')
-        expect(report).to include('Veteran service organizations: Current: 29, Previous: 30, Change: -3.33%')
+        expect(report).to include('VSO Representatives: Current: 34, Previous: 35, Change: -2.86%')
+        expect(report).to include('Veteran Service Organizations: Current: 29, Previous: 30, Change: -3.33%')
       end
     end
 

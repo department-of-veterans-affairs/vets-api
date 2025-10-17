@@ -51,8 +51,8 @@ module V0
                 disposition: 'attachment'
       StatsD.increment("#{stats_key('pdf_download')}.22#{education_claim.form_type}.success")
     rescue => e
-      StatsD.increment("#{stats_key('pdf_download')}.22#{education_claim.form_type}.failure")
-      Rails.logger.error "EBCC::download_pdf Failed to download pdf ClaimID=#{education_claim.id} #{e.message}"
+      StatsD.increment("#{stats_key('pdf_download')}.failure")
+      Rails.logger.error "EBCC::download_pdf Failed to download pdf ClaimID=#{params[:id].to_i} #{e.message}"
       raise e
     ensure
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)

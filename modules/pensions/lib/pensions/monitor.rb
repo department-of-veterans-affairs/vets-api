@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pensions/notification_email'
 require 'logging/base_monitor'
 
 module Pensions
@@ -21,12 +20,8 @@ module Pensions
     # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'worker.lighthouse.pension_benefit_intake_job'
 
-    attr_reader :tags
-
     def initialize
       super('pension-application')
-
-      @tags = ['form_id:21P-527EZ']
     end
 
     private

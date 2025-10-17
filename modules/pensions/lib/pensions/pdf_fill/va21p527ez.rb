@@ -1447,7 +1447,7 @@ module Pensions
         @form_data['serviceBranch'] = @form_data['serviceBranch']&.select { |_, value| value == true }
 
         @form_data['pow'] = to_radio_yes_no(@form_data['powDateRange'].present?)
-        if @form_data['pow'] == 1
+        if @form_data['pow'].zero?
           @form_data['powDateRange'] ||= {}
           @form_data['powDateRange']['from'] = split_date(@form_data.dig('powDateRange', 'from'))
           @form_data['powDateRange']['to'] = split_date(@form_data.dig('powDateRange', 'to'))
@@ -1476,10 +1476,10 @@ module Pensions
         )
 
         # If "YES," skip question 4B
-        @form_data['medicalCondition'] = 'Off' if @form_data['socialSecurityDisability'] == 1
+        @form_data['medicalCondition'] = nil if @form_data['socialSecurityDisability'].zero?
 
         # If "NO," skip question 4D
-        @form_data['medicaidStatus'] = 'Off' if @form_data['nursingHome'] == 2
+        @form_data['medicaidStatus'] = nil if @form_data['nursingHome'] == 1
 
         @form_data['vaTreatmentHistory'] = to_radio_yes_no(@form_data['vaTreatmentHistory'])
         @form_data['federalTreatmentHistory'] = to_radio_yes_no(@form_data['federalTreatmentHistory'])
@@ -1496,7 +1496,7 @@ module Pensions
                    })
         end
 
-        @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 2
+        @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 1
       end
 
       # SECTION VI: MARITAL STATUS
@@ -1688,7 +1688,7 @@ module Pensions
         end
         @form_data['transferredAssets'] = to_radio_yes_no(@form_data['transferredAssets'])
         @form_data['homeOwnership'] = to_radio_yes_no(@form_data['homeOwnership'])
-        if @form_data['homeOwnership'] == 1
+        if @form_data['homeOwnership'].zero?
           @form_data['homeAcreageMoreThanTwo'] = to_radio_yes_no(@form_data['homeAcreageMoreThanTwo'])
           @form_data['landMarketable'] = to_radio_yes_no(@form_data['landMarketable'])
         end

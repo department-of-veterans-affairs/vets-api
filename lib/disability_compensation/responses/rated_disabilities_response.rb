@@ -19,6 +19,7 @@ module DisabilityCompensation
       attribute :diagnostic_code, Integer
       attribute :hyphenated_diagnostic_code, Integer
       attribute :name, String
+      attribute :approximate_date, String
       attribute :effective_date, DateTime
       attribute :rated_disability_id, String
       attribute :rating_decision_id, String

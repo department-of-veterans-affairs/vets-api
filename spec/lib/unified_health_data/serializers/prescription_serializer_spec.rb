@@ -23,7 +23,18 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       station_number: '589',
       is_refillable: true,
       is_trackable: true,
-      tracking_information: {},
+      tracking: [
+        {
+          prescription_name: 'METFORMIN HCL 500MG TAB',
+          prescription_number: 'RX123456',
+          ndc_number: '00123456789',
+          prescription_id: 12_345,
+          tracking_number: '1Z999AA1234567890',
+          shipped_date: '2023-05-16T00:00:00.000Z',
+          carrier: 'UPS',
+          other_prescriptions: []
+        }
+      ],
       instructions: 'Take twice daily with meals',
       facility_phone_number: '555-123-4567',
       prescription_source: 'VA'
@@ -54,7 +65,12 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       expect(attributes[:facility_phone_number]).to eq('555-123-4567')
 
       # tracking
-      expect(attributes[:tracking_information]).to eq({})
+      expect(attributes[:tracking]).to be_an(Array)
+      expect(attributes[:tracking].first).to include(
+        prescription_name: 'METFORMIN HCL 500MG TAB',
+        tracking_number: '1Z999AA1234567890',
+        carrier: 'UPS'
+      )
     end
   end
 end

@@ -18,8 +18,15 @@ module UnifiedHealthData
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def build_prescription_attributes(resource)
+        tracking_data = build_tracking_information(resource)
+
+        build_core_attributes(resource)
+          .merge(build_tracking_attributes(tracking_data))
+          .merge(build_contact_and_source_attributes(resource))
+      end
+
+      def build_core_attributes(resource)
         {
           id: resource['id'],
           type: 'Prescription',
@@ -35,14 +42,66 @@ module UnifiedHealthData
           prescription_name: extract_prescription_name(resource),
           dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
-          is_refillable: extract_is_refillable(resource),
-          is_trackable: false, # Default for Oracle Health
+          is_refillable: extract_is_refillable(resource)
+        }
+      end
+
+      def build_tracking_attributes(tracking_data)
+        {
+          is_trackable: tracking_data.any?,
+          tracking: tracking_data
+        }
+      end
+
+      def build_contact_and_source_attributes(resource)
+        {
           instructions: extract_instructions(resource),
-          cmop_division_phone: extract_facility_phone_number(resource),
+          facility_phone_number: extract_facility_phone_number(resource),
           prescription_source: extract_prescription_source(resource)
         }
       end
-      # rubocop:enable Metrics/MethodLength
+
+      def build_tracking_information(resource)
+        contained_resources = resource['contained'] || []
+        dispenses = contained_resources.select { |c| c['resourceType'] == 'MedicationDispense' }
+
+        dispenses.filter_map do |dispense|
+          extract_tracking_from_dispense(resource, dispense)
+        end
+      end
+
+      def extract_tracking_from_dispense(resource, dispense)
+        identifiers = dispense['identifier'] || []
+
+        tracking_number = find_identifier_value(identifiers, 'Tracking Number')
+        return nil unless tracking_number # Only create tracking record if we have a tracking number
+
+        prescription_number = find_identifier_value(identifiers, 'Prescription Number')
+        carrier = find_identifier_value(identifiers, 'Carrier')
+        shipped_date = find_identifier_value(identifiers, 'Shipped Date')
+
+        {
+          prescription_name: extract_prescription_name(resource),
+          prescription_number: prescription_number || extract_prescription_number(resource),
+          ndc_number: extract_ndc_number(dispense),
+          prescription_id: resource['id'],
+          tracking_number:,
+          shipped_date:,
+          carrier:,
+          other_prescriptions: [] # TODO: Implement logic to find other prescriptions in this package
+        }
+      end
+
+      def find_identifier_value(identifiers, type_text)
+        identifier = identifiers.find { |id| id.dig('type', 'text') == type_text }
+        identifier&.dig('value')
+      end
+
+      def extract_ndc_number(dispense)
+        coding = dispense.dig('medicationCodeableConcept', 'coding') || []
+        ndc_coding = coding.find { |c| c['system'] == 'http://hl7.org/fhir/sid/ndc' }
+        ndc_coding&.dig('code')
+      end
 
       def extract_refill_date(resource)
         dispense = find_most_recent_medication_dispense(resource['contained'])

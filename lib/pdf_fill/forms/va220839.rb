@@ -9,7 +9,7 @@ module PdfFill
       AGREEMENT_TYPES = {
         'startNewOpenEndedAgreement' => 'New open-ended agreement',
         'modifyExistingAgreement' => 'Modification to existing agreement',
-        'withdrawFromYellowRibbonProgram' => 'Withdrawl of Yellow Ribbon agreement'
+        'withdrawFromYellowRibbonProgram' => 'Withdrawal of Yellow Ribbon agreement'
       }.freeze
 
       KEY = {
@@ -27,10 +27,10 @@ module PdfFill
         'branchCampuses' => {
           limit: 4,
           'nameAndAddress' => {
-            key: "branch_campus[#{ITERATOR}][name]"
+            key: "branch_campus_#{ITERATOR}_name"
           },
           'facilityCode' => {
-            key: "branch_campus[#{ITERATOR}][facility_code]"
+            key: "branch_campus_#{ITERATOR}_facility_code"
           }
         },
         'agreementType' => {
@@ -102,31 +102,31 @@ module PdfFill
           limit: 11,
           label_all: true,
           'maximumNumberofStudents' => {
-            key: "us_school[#{ITERATOR}][max_students]"
+            key: "us_school_#{ITERATOR}_max_students"
           },
           'degreeLevel' => {
-            key: "us_school[#{ITERATOR}][degree_level]"
+            key: "us_school_#{ITERATOR}_degree_level"
           },
           'degreeProgram' => {
-            key: "us_school[#{ITERATOR}][college]"
+            key: "us_school_#{ITERATOR}_college"
           },
           'maximumContributionAmount' => {
-            key: "us_school[#{ITERATOR}][maximum_contribution]"
+            key: "us_school_#{ITERATOR}_maximum_contribution"
           }
         },
         'foreignSchools' => {
           limit: 4,
           'maximumNumberofStudents' => {
-            key: "foreign_school[#{ITERATOR}][max_students]"
+            key: "foreign_school_#{ITERATOR}_max_students"
           },
           'degreeLevel' => {
-            key: "foreign_school[#{ITERATOR}][degree_level]"
+            key: "foreign_school_#{ITERATOR}_degree_level"
           },
           'currencyType' => {
-            key: "foreign_school[#{ITERATOR}][currency_type]"
+            key: "foreign_school_#{ITERATOR}_currency_type"
           },
           'maximumContributionAmount' => {
-            key: "foreign_school[#{ITERATOR}][maximum_contribution]"
+            key: "foreign_school_#{ITERATOR}_maximum_contribution"
           }
         }
       }.freeze
@@ -138,9 +138,9 @@ module PdfFill
         convert_full_name(form_data, %w[pointOfContactTwo fullName])
         convert_full_name(form_data, %w[authorizedOfficial fullName])
 
-        format_agreement_type(form_data)
         format_institutions(form_data)
         format_schools(form_data)
+        format_agreement_type(form_data)
 
         form_data['authenticatedUser'] =
           form_data['isAuthenticated'] ? 'Filled out by authenticated user' : 'Filled out by unauthenticated user'
@@ -167,12 +167,18 @@ module PdfFill
       end
 
       def format_institutions(form_data)
-        if form_data['institutionDetails'].present?
-          form_data['primaryInstitution'] = form_data['institutionDetails'].first
+        institution_arr = if form_data['agreementType'] == 'withdrawFromYellowRibbonProgram'
+                            form_data['withdrawFromYellowRibbonProgram']
+                          else
+                            form_data['institutionDetails']
+                          end
+
+        if institution_arr.present?
+          form_data['primaryInstitution'] = institution_arr.first
           form_data['primaryInstitution']['institutionAddress'] =
             combine_full_address(form_data['primaryInstitution']['institutionAddress'])
 
-          form_data['branchCampuses'] = form_data['institutionDetails'][1..].map do |d|
+          form_data['branchCampuses'] = institution_arr[1..].map do |d|
             d.merge({
                       'nameAndAddress' => "#{d['institutionName']}\n#{combine_full_address(d['institutionAddress'])}"
                     })

@@ -65,10 +65,10 @@ describe VRE::VRESubmit1900Job do
           exhaustion_msg['args'] = [claim.id, encrypted_user]
           expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim.parsed_form['email'])
           expect(VANotify::EmailJob).to receive(:perform_async).with(
-            'test@gmail.xom',
+            'email@test.com',
             'form1900_action_needed_email_template_id',
             {
-              'first_name' => 'Homer',
+              'first_name' => 'First',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
               'confirmation_number' => claim.confirmation_number
             }

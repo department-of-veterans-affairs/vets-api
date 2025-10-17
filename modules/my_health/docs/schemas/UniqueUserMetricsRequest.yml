@@ -4,7 +4,12 @@ required:
 properties:
   event_names:
     type: array
-    description: Array of event names to log for the authenticated user
+    description: |
+      Array of event names to log for the authenticated user. Event names must be from the approved registry
+      of valid events defined in the EventRegistry module. See the complete list of valid event names at:
+      https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/unique_user_events/event_registry.rb
+      
+      Invalid event names will return a status of 'invalid' in the response without causing the request to fail.
     items:
       type: string
       minLength: 1

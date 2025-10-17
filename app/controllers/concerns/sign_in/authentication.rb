@@ -79,7 +79,10 @@ module SignIn
         access_token_cookie: cookie_access_token(access_token_cookie_name:)
       }.compact
 
-      log_message_to_sentry(error.message, :error, context) if context.present?
+      if context.present?
+        Rails.logger.error('[SignIn][Authentication] authentication error',
+                           context.merge(errors: error.message))
+      end
       render json: { errors: error }, status: :unauthorized
     end
 

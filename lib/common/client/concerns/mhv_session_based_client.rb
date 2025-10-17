@@ -18,7 +18,7 @@ module Common
       module MHVSessionBasedClient
         extend ActiveSupport::Concern
         include MhvLockedSessionClient
-        include SentryLogging
+        include Vets::SharedLogging
 
         attr_reader :session
 
@@ -74,10 +74,7 @@ module Common
         private
 
         def get_session_tagged
-          Sentry.set_tags(error: 'mhv_session')
-          env = perform(:get, 'session', nil, auth_headers)
-          Sentry.get_current_scope.tags.delete(:error)
-          env
+          perform(:get, 'session', nil, auth_headers)
         end
 
         def token_headers

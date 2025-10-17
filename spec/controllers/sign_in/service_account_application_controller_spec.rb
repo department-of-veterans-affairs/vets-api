@@ -22,8 +22,7 @@ RSpec.describe SignIn::ServiceAccountApplicationController, type: :controller do
 
     shared_context 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
-      let(:sentry_context) { { access_token_authorization_header: access_token } }
-      let(:sentry_log_level) { :error }
+      let(:log_context) { { errors: expected_error, access_token_authorization_header: access_token } }
 
       it 'renders Malformed Params error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
@@ -33,10 +32,11 @@ RSpec.describe SignIn::ServiceAccountApplicationController, type: :controller do
         expect(subject).to have_http_status(:unauthorized)
       end
 
-      it 'logs error to sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error,
-                                                                                      sentry_log_level,
-                                                                                      sentry_context)
+      it 'logs error to Rails logger' do
+        expect(Rails.logger).to receive(:error).with(
+          '[SignIn][ServiceAccountAuthentication] authentication error',
+          hash_including(**log_context)
+        )
         subject
       end
     end

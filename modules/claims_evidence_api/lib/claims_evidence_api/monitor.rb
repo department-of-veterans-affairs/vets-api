@@ -3,10 +3,13 @@
 require 'logging/monitor'
 
 module ClaimsEvidenceApi
-  # @see Logging::BaseMonitor
+  # @see Logging::Monitor
   class Monitor < ::Logging::Monitor
-    def initialize
-      super('claims-evidence-api')
+    # create a claims evidence monitor
+    #
+    # @param allowlist [Array<String>] list of allowed params
+    def initialize(allowlist = [])
+      super('claims-evidence-api', allowlist:)
     end
 
     # utility function, @see Rails.logger
@@ -15,28 +18,40 @@ module ClaimsEvidenceApi
     #
     # @return [String] the formatted message, preceded with the monitor class name
     def format_message(msg)
-      this = self.class.name
-      format('%<class>s: %<msg>s', { class: this, msg: msg.to_s })
+      format('%<class>s: %<msg>s', { class: self.class.name, msg: msg.to_s })
     end
 
     # utility function to format metric tags for DataDog
     #
-    # @param tags [Hash] key-value pairs for metric tags
+    # @param tag_hash [Hash] key-value pairs for metric tags
     #
     # @return [Array<String>] an array of string; eg. ["key:value" ...]
-    def format_tags(tags)
-      tags.map { |key, value| "#{key}:#{value}" }
+    def format_tags(tag_hash)
+      tag_hash.map { |key, value| "#{key}:#{value}" }
     end
 
     # Monitor to be used within ActiveRecord models
     class Record < Monitor
       # StatsD metric
       METRIC = 'module.claims_evidence_api.record'
+      # allowed logging params
+      ALLOWLIST = %w[
+        action
+        class
+        doctype
+        file_uuid
+        form_id
+        id
+        persistent_attachment_id
+        saved_claim_id
+        status
+        submission_id
+      ].freeze
 
       attr_reader :record
 
       def initialize(record)
-        super()
+        super(ALLOWLIST)
         @record = record
       end
 
@@ -47,7 +62,12 @@ module ClaimsEvidenceApi
       def track_event(action, **attributes)
         call_location = caller_locations.first
         message = format_message("#{record.class} #{action}")
-        tags = format_tags({ class: record.class.to_s.downcase.gsub(/:+/, '_'), action: })
+        tags = format_tags({
+                             class: record.class.to_s.downcase.gsub(/:+/, '_'),
+                             form_id: attributes[:form_id],
+                             doctype: attributes[:doctype],
+                             action:
+                           })
 
         track_request(:info, message, METRIC, call_location:, tags:, **attributes)
       end
@@ -57,21 +77,33 @@ module ClaimsEvidenceApi
     class Service < Monitor
       # StatsD metric
       METRIC = 'module.claims_evidence_api.service.request'
+      # allowed logging params
+      ALLOWLIST = %w[
+        code
+        endpoint
+        method
+        reason
+      ].freeze
+
+      def initialize
+        super(ALLOWLIST)
+      end
 
       # track the api request performed and the response/error
       # @see Common::Client::Base#perform
       # @see Common::Client::Errors::ClientError
       #
       # @param method [String|Symbol] eg. get, post, put
-      # @param path [String] the requested url path
+      # @param endpoint [String] the requested service endpoint
       # @param code [Integer|String] the response code
       # @param reason [String] the response `reason_phrase`
       # @param call_location [Logging::CallLocation|Thread::Backtrace::Location] calling point to be logged
-      def track_api_request(method, path, code, reason, call_location: nil)
+      def track_api_request(method, endpoint, code, reason, call_location: nil)
         call_location ||= caller_locations.first
 
         message = format_message("#{code} #{reason}")
-        tags = { method:, code:, root: path.split('/').first }
+        tags = { method:, code:, endpoint: }
+
         level = /^2\d\d$/.match?(code.to_s.strip) ? :info : :error
 
         track_request(level, message, METRIC, call_location:, reason:, tags: format_tags(tags), **tags)
@@ -82,6 +114,20 @@ module ClaimsEvidenceApi
     class Uploader < Monitor
       # StatsD metric
       METRIC = 'module.claims_evidence_api.uploader'
+      # allowed logging params
+      ALLOWLIST = %w[
+        action
+        doctype
+        error
+        form_id
+        persistent_attachment_id
+        saved_claim_id
+        stamp_set
+      ].freeze
+
+      def initialize
+        super(ALLOWLIST)
+      end
 
       # track evidence upload started
       #
@@ -122,8 +168,8 @@ module ClaimsEvidenceApi
         msg = "upload #{stage}"
         msg += " - #{error}" if error
 
-        tags = { action: stage.to_s }
-        tags[:content_source] = context[:content_source].to_s.downcase if context[:content_source]
+        context[:action] = stage.to_s
+        tags = context.slice(:action, :form_id, :doctype)
 
         call_location = caller_locations.second
         level = stage == :failure ? :error : :info
