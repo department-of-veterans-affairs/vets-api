@@ -36,11 +36,13 @@ module Eps
     # @return [Array<Hash>] Array of appointment hashes from EPS
     #
     def get_appointments(referral_number: nil)
-      query_params = "patientId=#{patient_id}"
-      query_params += "&referralNumber=#{referral_number}" if referral_number.present?
+      params = { patientId: patient_id }
+      params[:referralNumber] = referral_number if referral_number.present?
+
+      query_string = URI.encode_www_form(params)
 
       with_monitoring do
-        response = perform(:get, "/#{config.base_path}/appointments?#{query_params}",
+        response = perform(:get, "/#{config.base_path}/appointments?#{query_string}",
                            {}, request_headers_with_correlation_id)
 
         # Check for error field in successful responses using reusable helper
@@ -55,6 +57,35 @@ module Eps
     rescue Eps::ServiceException => e
       handle_eps_error!(e, 'get_appointments')
       raise e
+    end
+
+    ##
+    # Get active appointments for a referral from EPS
+    # Filters out cancelled and draft appointments
+    #
+    # @param referral_number [String] The referral number to fetch appointments for
+    # @return [Hash] Result hash with system, data, and optional errors
+    #   - { system: 'EPS', data: [...] } if active appointments found
+    #   - { system: nil, data: [], errors: { eps: <error> } } if service failed
+    #   - { system: nil, data: [] } if no active appointments found
+    #
+    def get_active_appointments_for_referral(referral_number)
+      appointments = get_appointments(referral_number:)
+
+      active_appointments = appointments.reject do |appt|
+        %w[cancelled draft].include?(appt[:state]) ||
+          appt.dig(:appointment_details, :status) == 'cancelled'
+      end
+
+      active_appointments.sort_by! { |appt| appt.dig(:appointment_details, :start) || '' }
+
+      { system: 'EPS', data: active_appointments }
+    rescue Eps::ServiceException, VAOS::Exceptions::BackendServiceException,
+           Common::Exceptions::BackendServiceException => e
+      masked_referral = referral_number&.last(4) || 'unknown'
+      Rails.logger.warn('Failed to fetch EPS appointments for referral',
+                        { referral_ending_in: masked_referral, error: e.class.name })
+      { system: 'EPS', data: [], errors: { 'Failure to fetch EPS appointments' => e.class.name.to_s } }
     end
 
     ##
