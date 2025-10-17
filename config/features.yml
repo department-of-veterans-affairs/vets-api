@@ -156,6 +156,10 @@ features:
   dv_email_notification:
     actor_type: user
     description: Enables dependents verification emails
+  empty_state_benefit_letters:
+    actor_type: user
+    description: Enables text if no benefit letters exist
+    enable_in_development: true
   event_bus_gateway_ep030_decision_letter_notifications:
     description: "Gateway: Enable decision letter email notifications for EP030 higher level reviews"
   event_bus_gateway_ep040_decision_letter_notifications:
