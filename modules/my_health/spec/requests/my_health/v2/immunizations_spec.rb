@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'unique_user_events'
 
 RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validation, type: :request do
   let(:default_params) { { start_date: '2015-01-01', end_date: '2015-12-31' } }

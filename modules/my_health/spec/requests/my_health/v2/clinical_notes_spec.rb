@@ -6,6 +6,7 @@ require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
 require 'unified_health_data/service'
+require 'unique_user_events'
 
 RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validation, type: :request do
   let(:user_id) { '11898795' }
