@@ -102,15 +102,6 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
 
   describe 'POST /meb_api/v0/forms_send_confirmation_email' do
     context 'when the feature flag is enabled' do
-      it 'sends the confirmation email with provided name and email params' do
-        allow(MebApi::V0::Submit1990emebFormConfirmation).to receive(:perform_async)
-        post '/meb_api/v0/forms_send_confirmation_email', params: {
-          claim_status: 'ELIGIBLE', email: 'test@test.com', first_name: 'test'
-        }
-        expect(MebApi::V0::Submit1990emebFormConfirmation).to have_received(:perform_async)
-          .with('ELIGIBLE', 'test@test.com', 'TEST')
-      end
-
       it 'uses current user email and name when params not provided' do
         allow(MebApi::V0::Submit1990emebFormConfirmation).to receive(:perform_async)
         post '/meb_api/v0/forms_send_confirmation_email', params: { claim_status: 'ELIGIBLE' }

@@ -41,7 +41,6 @@ class SourceAppMiddleware
     '1990e-edu-benefits',
     '1990ez-edu-benefits',
     '1990n-edu-benefits',
-    '1990s-edu-benefits',
     '1995-edu-benefits',
     '21-0966-intent-to-file-a-claim',
     '21-0972-alternate-signer',

@@ -1,3 +1,0 @@
-relativeFullName: [identity_information, full_name]
-relativeSocialSecurityNumber: [identity_information, ssn]
-relativeAddress: [contact_information, address]
