@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'mobile/v0/exceptions/custom_errors'
+require 'unique_user_events'
 
 module Mobile
   module V0
@@ -29,6 +30,12 @@ module Mobile
             travel_pay_days_limit: TRAVEL_PAY_DAYS_LIMIT
           )
         end
+
+        # Log unique user event for appointments accessed
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
+        )
 
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data), status:
       end
