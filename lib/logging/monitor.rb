@@ -17,13 +17,34 @@ module Logging
     include Logging::Helper::DataScrubber
     include Logging::Helper::ParameterFilter
 
-    attr_reader :service
+    # allowed logging params
+    ALLOWLIST = %w[
+      statsd
+      service
+      function
+      line
+      context
+    ].freeze
+
+    # excluded logging params
+    BLOCKLIST = %w[
+      file
+      ssn
+      icn
+      edipi
+      email
+      phone
+    ].freeze
+
+    attr_reader :allowlist, :service
 
     # create a monitor
     #
     # @param service [String] the service name for this monitor; will be included with each log message
-    def initialize(service)
+    # @param allowlist [Array<String>] the list of allowed parameters
+    def initialize(service, allowlist: [])
       @service = service
+      @allowlist = (ALLOWLIST + allowlist.map(&:to_s)).uniq - BLOCKLIST
     end
 
     # perform monitoring actions - StatsD.increment and Rails.logger
@@ -39,7 +60,7 @@ module Logging
       tags = (["service:#{service}", "function:#{function}"] + (context[:tags] || [])).uniq
       StatsD.increment(metric, tags:)
 
-      filtered_context = scrub(filter_params(context))
+      filtered_context = scrub(filter_params(context, allowlist:))
 
       unless %w[debug info warn error fatal unknown].include?(level.to_s)
         Rails.logger.error("#{self.class} Invalid log level: #{level}", service:, function:, file:, line:)
