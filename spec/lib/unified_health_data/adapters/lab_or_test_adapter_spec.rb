@@ -153,6 +153,76 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result).to eq('')
       end
     end
+
+    context 'when specimen reference is not found in contained array' do
+      it 'returns an empty string' do
+        record = { 'specimen' => { 'reference' => 'Specimen/456' } }
+        contained = [{ 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('')
+      end
+    end
+
+    context 'when specimen object exists but type is missing' do
+      it 'returns an empty string' do
+        record = { 'specimen' => { 'reference' => 'Specimen/123' } }
+        contained = [{ 'resourceType' => 'Specimen', 'id' => '123' }]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('')
+      end
+    end
+
+    context 'when specimen reference is found with valid type' do
+      it 'returns the specimen type text' do
+        record = { 'specimen' => { 'reference' => 'Specimen/123' } }
+        contained = [{ 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('Blood')
+      end
+    end
+
+    context 'when multiple specimen references are provided' do
+      it 'returns all specimen types joined by comma' do
+        record = {
+          'specimen' => [
+            { 'reference' => 'Specimen/123' },
+            { 'reference' => 'Specimen/456' }
+          ]
+        }
+        contained = [
+          { 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } },
+          { 'resourceType' => 'Specimen', 'id' => '456', 'type' => { 'text' => 'Urine' } }
+        ]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('Blood, Urine')
+      end
+    end
+
+    context 'when some specimen references are not found in contained array' do
+      it 'returns only the found specimens' do
+        record = {
+          'specimen' => [
+            { 'reference' => 'Specimen/123' },
+            { 'reference' => 'Specimen/999' }
+          ]
+        }
+        contained = [
+          { 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }
+        ]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('Blood')
+      end
+    end
   end
 
   describe '#get_observations' do
