@@ -2,6 +2,7 @@
 
 require_relative '../../../../support/helpers/rails_helper'
 require 'unified_health_data/service'
+require 'unique_user_events'
 
 RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
   include JsonSchemaMatchers
@@ -64,6 +65,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
       context 'when UHD service returns prescriptions successfully' do
         it 'returns prescriptions with mobile-specific metadata' do
+          allow(UniqueUserEvents).to receive(:log_event)
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
             get '/mobile/v1/health/rx/prescriptions', headers: sis_headers
 
@@ -81,6 +83,12 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
               expect(first_prescription['attributes']).to have_key('tracking')
               expect(first_prescription['attributes']['tracking']).to eq([])
             end
+
+            # Verify event logging was called
+            expect(UniqueUserEvents).to have_received(:log_event).with(
+              user: anything,
+              event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+            )
           end
         end
 
@@ -244,6 +252,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
       context 'when refill is successful' do
         it 'returns success response for batch refill' do
+          allow(UniqueUserEvents).to receive(:log_event)
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
             VCR.use_cassette('unified_health_data/refill_prescription_success') do
               put '/mobile/v1/health/rx/prescriptions/refill',
@@ -263,6 +272,12 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
               expect(data['attributes']).to have_key('failedPrescriptionIds')
               expect(data['attributes']).to have_key('errors')
               expect(data['attributes']).to have_key('infoMessages')
+
+              # Verify event logging was called
+              expect(UniqueUserEvents).to have_received(:log_event).with(
+                user: anything,
+                event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+              )
             end
           end
         end
