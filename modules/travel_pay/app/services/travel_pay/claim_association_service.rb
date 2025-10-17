@@ -33,8 +33,14 @@ module TravelPay
     # @returns
     # appointments: [VAOS::Appointment + travelPayClaim]
 
-    def associate_appointments_to_claims(params = {})
-      date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
+    # Fetches claims by date range and returns claims data and metadata
+    # This method can be used for parallel execution
+    #
+    # @param start_date [String] start date for the query
+    # @param end_date [String] end date for the query
+    # @return [Hash] hash with :claims and :metadata keys, or :error key on failure
+    def fetch_claims_by_date(start_date, end_date)
+      date_range = DateUtils.try_parse_date_range(start_date, end_date)
       date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
       client_params = {
         page_size: DEFAULT_PAGE_SIZE
@@ -51,14 +57,31 @@ module TravelPay
           sc
         end
 
-        append_claims(params['appointments'],
-                      data,
-                      build_metadata(faraday_response.body))
-
+        {
+          claims: data,
+          metadata: build_metadata(faraday_response.body)
+        }
+      else
+        {
+          claims: nil,
+          metadata: build_metadata(faraday_response.body)
+        }
       end
     rescue => e
-      append_error(params['appointments'],
-                   rescue_errors(e))
+      {
+        error: true,
+        metadata: rescue_errors(e)
+      }
+    end
+
+    def associate_appointments_to_claims(params = {})
+      result = fetch_claims_by_date(params['start_date'], params['end_date'])
+
+      if result[:error]
+        append_error(params['appointments'], result[:metadata])
+      else
+        append_claims(params['appointments'], result[:claims], result[:metadata])
+      end
     end
 
     def associate_single_appointment_to_claim(params = {})

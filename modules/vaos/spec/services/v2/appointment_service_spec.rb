@@ -728,6 +728,112 @@ describe VAOS::V2::AppointmentsService do
           end
         end
       end
+
+      context 'with parallel travel claims fetch enabled' do
+        let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_parallel_travel_claims,
+                                                     user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
+          allow(TravelPay::AuthManager)
+            .to receive(:new)
+            .and_return(double('AuthManager', authorize: tokens))
+          allow(Settings.travel_pay).to receive_messages(client_number: '12345', mobile_client_number: '56789')
+        end
+
+        it 'fetches appointments and claims in parallel and returns merged data' do
+          expect(TravelPay::AuthManager).to receive(:new).with('12345', user)
+
+          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
+                             allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+              response = subject.get_appointments(start_date2, end_date2, nil, {},
+                                                  { travel_pay_claims: true })
+
+              # Verify the response structure
+              appt_with_claim = response[:data][0]
+              expect(appt_with_claim[:travelPayClaim]).not_to be_empty
+              expect(appt_with_claim[:travelPayClaim]['claim']).not_to be_nil
+              expect(appt_with_claim[:travelPayClaim]['metadata']['status']).to eq(200)
+            end
+          end
+        end
+
+        it 'handles travel claims service errors gracefully without failing the appointment request' do
+          allow_any_instance_of(TravelPay::ClaimAssociationService)
+            .to receive(:fetch_claims_by_date)
+            .and_raise(StandardError.new('Travel claims service error'))
+
+          expect(Rails.logger).to receive(:warn).with(/Travel claims fetch failed/)
+
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
+                           allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+            response = subject.get_appointments(start_date2, end_date2, nil, {},
+                                                { travel_pay_claims: true })
+
+            # Appointments should still be returned
+            expect(response[:data].size).to eq(16)
+            # All appointments should have error metadata
+            response[:data].each do |appt|
+              expect(appt['travelPayClaim']).not_to be_nil
+              expect(appt['travelPayClaim']['metadata']['success']).to eq(false)
+            end
+          end
+        end
+
+        it 'handles appointment fetch errors and re-raises them' do
+          allow_any_instance_of(VAOS::V2::AppointmentsService)
+            .to receive(:send_appointments_request)
+            .and_raise(Common::Exceptions::BackendServiceException.new('VAOS502'))
+
+          expect do
+            subject.get_appointments(start_date2, end_date2, nil, {}, { travel_pay_claims: true })
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+
+        it 'logs errors when travel claims fetch fails but continues with appointments' do
+          error_msg = 'Claims API timeout'
+          allow_any_instance_of(TravelPay::ClaimAssociationService)
+            .to receive(:fetch_claims_by_date)
+            .and_raise(StandardError.new(error_msg))
+
+          expect(Rails.logger).to receive(:error).with(/Error fetching travel claims in parallel/)
+          expect(Rails.logger).to receive(:warn).with(/Travel claims fetch failed/)
+
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
+                           allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+            response = subject.get_appointments(start_date2, end_date2, nil, {},
+                                                { travel_pay_claims: true })
+            expect(response[:data].size).to be > 0
+          end
+        end
+
+        it 'works correctly when feature flag is disabled and uses sequential fetching' do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_parallel_travel_claims,
+                                                     user).and_return(false)
+
+          expect(TravelPay::AuthManager).to receive(:new).with('12345', user)
+
+          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
+                             allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+              response = subject.get_appointments(start_date2, end_date2, nil, {},
+                                                  { travel_pay_claims: true })
+
+              # Should still work with sequential fetching
+              appt_with_claim = response[:data][0]
+              expect(appt_with_claim[:travelPayClaim]).not_to be_empty
+              expect(appt_with_claim[:travelPayClaim]['claim']).not_to be_nil
+              expect(appt_with_claim[:travelPayClaim]['metadata']['status']).to eq(200)
+            end
+          end
+        end
+      end
     end
 
     context 'when a MAP token error occurs' do

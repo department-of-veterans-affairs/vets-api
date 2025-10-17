@@ -2075,6 +2075,12 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to enable request workflow for Oracle Health appointments.
+  va_online_scheduling_parallel_travel_claims:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggle to enable parallel fetching of appointments and travel claims in get_appointments.
+      When enabled, appointments and travel claims are fetched concurrently, reducing response time.
   va_online_scheduling_remove_podiatry:
     actor_type: user
     enable_in_development: true
