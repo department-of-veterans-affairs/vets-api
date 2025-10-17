@@ -367,49 +367,45 @@ module VAOS
 
       private
 
-      # rubocop:disable ThreadSafety/NewThread, Metrics/MethodLength
-      # Fetches appointments and travel claims in parallel using threads
+      # Fetches appointments and travel claims in parallel using Concurrent::Promises
       # @return [Array] Array containing [response, travel_claims_result]
       def fetch_appointments_and_claims_parallel(start_date, end_date, statuses, pagination_params, tp_client)
-        appointments_response = nil
-        travel_claims_result = nil
-        appointments_error = nil
-        travel_claims_error = nil
+        require 'concurrent-ruby'
 
-        # Create threads for parallel execution
-        appointments_thread = Thread.new do
-          appointments_response = send_appointments_request(start_date, end_date, __method__, pagination_params,
-                                                            statuses)
-        rescue => e
-          appointments_error = e
-          Rails.logger.error("Error fetching appointments in parallel: #{e.message}")
+        # Create futures for parallel execution
+        appointments_future = Concurrent::Promises.future do
+          send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
         end
 
-        travel_claims_thread = Thread.new do
+        travel_claims_future = Concurrent::Promises.future do
           service = TravelPay::ClaimAssociationService.new(user, tp_client)
-          travel_claims_result = service.fetch_claims_by_date(start_date, end_date)
-        rescue => e
-          travel_claims_error = e
-          Rails.logger.error("Error fetching travel claims in parallel: #{e.message}")
+          service.fetch_claims_by_date(start_date, end_date)
         end
 
-        # Wait for both threads to complete
-        appointments_thread.join
-        travel_claims_thread.join
-
-        # Re-raise appointments error if it occurred (critical path)
-        raise appointments_error if appointments_error
-
-        # Log travel claims error but don't fail the request
-        if travel_claims_error
-          Rails.logger.warn("Travel claims fetch failed, continuing without claims: #{travel_claims_error.message}")
-          travel_claims_result = { error: true, metadata: { 'status' => 500, 'success' => false,
-                                                            'message' => 'Travel claims service unavailable' } }
-        end
+        # Wait for both futures to complete and handle results
+        appointments_response = handle_appointments_future(appointments_future)
+        travel_claims_result = handle_travel_claims_future(travel_claims_future)
 
         [appointments_response, travel_claims_result]
       end
-      # rubocop:enable ThreadSafety/NewThread, Metrics/MethodLength
+
+      # Handles the appointments future result, re-raising errors
+      def handle_appointments_future(future)
+        future.value!
+      rescue => e
+        Rails.logger.error("Error fetching appointments in parallel: #{e.message}")
+        raise e
+      end
+
+      # Handles the travel claims future result, returning error metadata on failure
+      def handle_travel_claims_future(future)
+        future.value!
+      rescue => e
+        Rails.logger.error("Error fetching travel claims in parallel: #{e.message}")
+        Rails.logger.warn("Travel claims fetch failed, continuing without claims: #{e.message}")
+        { error: true, metadata: { 'status' => 500, 'success' => false,
+                                   'message' => 'Travel claims service unavailable' } }
+      end
 
       # Merges pre-fetched claims data with appointments
       # @param appointments [Array] Array of appointment hashes

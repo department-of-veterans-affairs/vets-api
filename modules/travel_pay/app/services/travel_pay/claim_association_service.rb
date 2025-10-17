@@ -39,42 +39,15 @@ module TravelPay
     # @param start_date [String] start date for the query
     # @param end_date [String] end date for the query
     # @return [Hash] hash with :claims and :metadata keys, or :error key on failure
-    # rubocop:disable Metrics/MethodLength
     def fetch_claims_by_date(start_date, end_date)
-      date_range = DateUtils.try_parse_date_range(start_date, end_date)
-      date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
-      client_params = {
-        page_size: DEFAULT_PAGE_SIZE
-      }.merge!(date_range)
-
+      client_params = build_claims_request_params(start_date, end_date)
       auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
 
-      if faraday_response.status == 200
-        raw_claims = faraday_response.body['data'].deep_dup
-
-        data = raw_claims&.map do |sc|
-          sc['claimStatus'] = sc['claimStatus'].underscore.humanize
-          sc
-        end
-
-        {
-          claims: data,
-          metadata: build_metadata(faraday_response.body)
-        }
-      else
-        {
-          claims: nil,
-          metadata: build_metadata(faraday_response.body)
-        }
-      end
+      process_claims_response(faraday_response)
     rescue => e
-      {
-        error: true,
-        metadata: rescue_errors(e)
-      }
+      { error: true, metadata: rescue_errors(e) }
     end
-    # rubocop:enable Metrics/MethodLength
 
     def associate_appointments_to_claims(params = {})
       result = fetch_claims_by_date(params['start_date'], params['end_date'])
@@ -83,6 +56,29 @@ module TravelPay
         append_error(params['appointments'], result[:metadata])
       else
         append_claims(params['appointments'], result[:claims], result[:metadata])
+      end
+    end
+
+    def build_claims_request_params(start_date, end_date)
+      date_range = DateUtils.try_parse_date_range(start_date, end_date)
+      date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
+      { page_size: DEFAULT_PAGE_SIZE }.merge!(date_range)
+    end
+
+    def process_claims_response(faraday_response)
+      if faraday_response.status == 200
+        raw_claims = faraday_response.body['data'].deep_dup
+        data = format_claims_data(raw_claims)
+        { claims: data, metadata: build_metadata(faraday_response.body) }
+      else
+        { claims: nil, metadata: build_metadata(faraday_response.body) }
+      end
+    end
+
+    def format_claims_data(raw_claims)
+      raw_claims&.map do |sc|
+        sc['claimStatus'] = sc['claimStatus'].underscore.humanize
+        sc
       end
     end
 
