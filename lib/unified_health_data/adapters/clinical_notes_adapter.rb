@@ -1,25 +1,28 @@
 # frozen_string_literal: true
 
 require_relative '../models/clinical_notes'
+require_relative '../models/avs'
 require_relative '../models/binary_data'
 
 module UnifiedHealthData
   module Adapters
     class ClinicalNotesAdapter
       LOINC_CODES = {
-        '11506-3' => 'PHYSICIAN_PROCEDURE_NOTE',
-        '11488-4' => 'CONSULT_RESULT',
-        '18842-5' => 'DISCHARGE_SUMMARY'
+        '11506-3' => 'physician_procedure_note',
+        '11488-4' => 'consult_result',
+        '18842-5' => 'discharge_summary'
       }.freeze
 
-      NOTE_TYPES = {
-        'PHYSICIAN_PROCEDURE_NOTE' => 'physician_procedure_note',
-        'CONSULT_RESULT' => 'consult_result',
-        'DISCHARGE_SUMMARY' => 'discharge_summary',
-        'OTHER' => 'other'
+      AVS_LOINC_CODE_MAPPING = {
+        '96345-4' => 'ambulatory_patient_summary',
+        '68834-1' => 'primary_care_note',
+        '18842-5' => 'discharge_summary',
+        '96339-7' => 'inpatient_patient_summary',
+        '78583-2' => 'pharmacology_discharge_instructions'
       }.freeze
 
       FHIR_RESOURCE_TYPES = {
+        BINARY: 'Binary',
         BUNDLE: 'Bundle',
         DIAGNOSTIC_REPORT: 'DiagnosticReport',
         DOCUMENT_REFERENCE: 'DocumentReference',
@@ -28,6 +31,8 @@ module UnifiedHealthData
         ORGANIZATION: 'Organization',
         PRACTITIONER: 'Practitioner'
       }.freeze
+
+      AVS_CONTENT_TYPES = ['application/pdf', 'text/plain'].freeze
 
       def parse(note)
         record = note['resource']
@@ -47,6 +52,36 @@ module UnifiedHealthData
                                                discharge_date: record['context']&.dig('period', 'end') || nil,
                                                note: get_note(record)
                                              })
+      end
+
+      # The AVS is a DocumentReference FHIR type and specific type of note
+      # Using a modified version of parse to add the appt_id and optionally include the binary data
+      # While skipping fields that are not necessary for the AVS response
+      def parse_avs_with_metadata(avs, appt_id, include_binary)
+        record = avs['resource']
+        avs_binary_data = extract_avs_binary(record)
+
+        # @returns nil if pdf or plain text binary string is not available
+        return nil unless record && avs_binary_data
+
+        UnifiedHealthData::AfterVisitSummary.new({
+                                                   appt_id:,
+                                                   id: record['id'],
+                                                   name: get_title(record),
+                                                   # map to only the AVS codes
+                                                   note_type: get_avs_record_type(record),
+                                                   loinc_codes: get_loinc_codes(record),
+                                                   content_type: avs_binary_data[:content_type],
+                                                   binary: include_binary ? avs_binary_data[:binary] : nil
+                                                 })
+      end
+
+      def parse_avs_binary(avs)
+        record = avs['resource']
+        avs_binary_data = extract_avs_binary(record)
+        return nil unless record && avs_binary_data
+
+        UnifiedHealthData::BinaryData.new(avs_binary_data)
       end
 
       # Parses CCD binary data for download
@@ -71,9 +106,16 @@ module UnifiedHealthData
 
       def get_record_type(record)
         LOINC_CODES.each do |key, value|
-          return NOTE_TYPES[value] if record['type']['coding']&.any? { |coding| coding['code'] == key }
+          return value if record['type']['coding']&.any? { |coding| coding['code'] == key }
         end
-        NOTE_TYPES['OTHER']
+        'other'
+      end
+
+      def get_avs_record_type(record)
+        AVS_LOINC_CODE_MAPPING.each do |key, value|
+          return value if record['type']['coding']&.any? { |coding| coding['code'] == key }
+        end
+        'other'
       end
 
       def get_loinc_codes(record)
@@ -156,6 +198,32 @@ module UnifiedHealthData
           resource['name'] || nil
         end
       rescue
+        nil
+      end
+
+      def extract_avs_binary(record)
+        # First check contained to see if we get an item with content type either pdf or plain text
+        # in the contained array with a data string
+        if array_and_has_items(record['contained'])
+          resource = record['contained'].find do |res|
+            res['resourceType'] == FHIR_RESOURCE_TYPES[:BINARY]
+          end
+          if resource && resource['data'] && AVS_CONTENT_TYPES.include?(resource['contentType'])
+            return { content_type: resource['contentType'], binary: resource['data'] }
+          end
+        end
+
+        # Fallback check for pdf or plain text with data string in the content array
+        if array_and_has_items(record['content'])
+          content_item = record['content'].find do |item|
+            item['attachment']['data'] && AVS_CONTENT_TYPES.include?(item['attachment']['contentType'])
+          end
+
+          if content_item
+            return { content_type: content_item['attachment']['contentType'],
+                     binary: content_item['attachment']['data'] }
+          end
+        end
         nil
       end
 

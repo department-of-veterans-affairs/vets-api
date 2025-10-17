@@ -210,12 +210,14 @@ RSpec.describe 'V0::User', type: :request do
       expect(response).to match_response_schema('user_loa1')
     end
 
-    it 'returns a status of 200 and no errors (VAProfile suppressed for LOA1)', :aggregate_failures do
-      body = JSON.parse(response.body)
-      errors = body.dig('meta', 'errors')
+    it 'returns a status of 296 with errors', :aggregate_failures do
+      body  = JSON.parse(response.body)
+      error = body.dig('meta', 'errors').first
 
-      expect(response).to have_http_status :ok
-      expect(errors).to eq([]).or be_nil
+      expect(response).to have_http_status 296
+      expect(error['external_service']).to eq 'MVI'
+      expect(error['description']).to be_present
+      expect(error['status']).to eq 401
     end
 
     context 'with camel inflection' do
