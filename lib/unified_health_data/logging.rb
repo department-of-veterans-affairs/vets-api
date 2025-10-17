@@ -18,7 +18,7 @@ module UnifiedHealthData
 
     # Logs the distribution of loinc codes found in the Notes records for analytics purposes
     # This helps identify which loinc codes are being used to identify note types
-    def log_loinc_code_distribution(records)
+    def log_loinc_code_distribution(records, record_type = 'Clinical Notes')
       loinc_code_counts = Hash.new(0)
 
       records.each do |record|
@@ -33,7 +33,7 @@ module UnifiedHealthData
 
       Rails.logger.info(
         {
-          message: 'UHD LOINC code distribution',
+          message: "#{record_type} LOINC code distribution",
           loinc_code_distribution: code_count_pairs.join(','),
           total_codes: sorted_code_counts.size,
           total_records: records.size,
