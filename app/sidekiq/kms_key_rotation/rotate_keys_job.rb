@@ -12,6 +12,7 @@ module KmsKeyRotation
 
       records.each do |r|
         r.rotate_kms_key!
+        r.update_column("needs_kms_rotation", false)
       rescue => e
         Rails.logger.error("Error rotating record (id: #{r.to_global_id}): #{e.message}")
       end
