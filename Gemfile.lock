@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 14254416545e9d35bc4f4924248d0d564360dd2e
+  revision: a93605ae716d23da10695548117066531c2767c8
   branch: master
   specs:
-    vets_json_schema (25.2.12)
+    vets_json_schema (25.2.11)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -134,6 +134,17 @@ PATH
     veteran (0.0.1)
     vre (0.1.0)
     vye (0.1.0)
+
+GEM
+  remote: https://enterprise.contribsys.com/
+  specs:
+    sidekiq-ent (7.3.4)
+      einhorn (~> 1.0)
+      gserver
+      sidekiq (>= 7.3.7, < 8)
+      sidekiq-pro (>= 7.3.4, < 8)
+    sidekiq-pro (7.3.6)
+      sidekiq (>= 7.3.7, < 8)
 
 GEM
   remote: https://rubygems.org/
@@ -425,6 +436,7 @@ GEM
       dry-initializer (~> 3.2)
       dry-schema (~> 1.14)
       zeitwerk (~> 2.6)
+    einhorn (1.0.0)
     erb (5.0.2)
     erb (5.0.2-java)
     erubi (1.13.1)
@@ -565,6 +577,7 @@ GEM
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
+    gserver (0.0.1)
     guard (2.18.1)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
@@ -626,8 +639,8 @@ GEM
     jar-dependencies (0.5.5)
     jmespath (1.6.2)
     jruby-openssl (0.15.5-java)
-    json (2.15.1)
-    json (2.15.1-java)
+    json (2.15.0)
+    json (2.15.0-java)
     json-schema (5.2.2)
       addressable (~> 2.8)
       bigdecimal (~> 3.1)
@@ -644,24 +657,16 @@ GEM
       base64
     jwt (2.10.2)
       base64
-    karafka-core (2.5.7)
-      karafka-rdkafka (>= 0.20.0)
+    karafka-core (2.5.5)
+      karafka-rdkafka (>= 0.19.2, < 0.21.0)
       logger (>= 1.6.0)
-    karafka-rdkafka (0.22.2)
+    karafka-rdkafka (0.20.1)
       ffi (~> 1.15)
-      json (> 2.0)
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
-    karafka-rdkafka (0.22.2-aarch64-linux-gnu)
+    karafka-rdkafka (0.20.1-x86_64-linux-gnu)
       ffi (~> 1.15)
-      json (> 2.0)
-      logger
-      mini_portile2 (~> 2.6)
-      rake (> 12)
-    karafka-rdkafka (0.22.2-x86_64-linux-gnu)
-      ffi (~> 1.15)
-      json (> 2.0)
       logger
       mini_portile2 (~> 2.6)
       rake (> 12)
@@ -831,7 +836,7 @@ GEM
     prawn-table (0.2.2)
       prawn (>= 1.3.0, < 3.0.0)
     prettyprint (0.2.0)
-    prism (1.5.2)
+    prism (1.5.1)
     process_executer (1.3.0)
     pry (0.15.2)
       coderay (~> 1.1)
@@ -1006,7 +1011,7 @@ GEM
       actionpack (>= 5.2, < 8.1)
       railties (>= 5.2, < 8.1)
     rtesseract (3.1.4)
-    rubocop (1.81.1)
+    rubocop (1.81.0)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -1169,7 +1174,7 @@ GEM
       addressable
       faraday (>= 1.9, < 3)
       nokogiri (>= 1.13.9)
-    waterdrop (2.8.12)
+    waterdrop (2.8.6)
       karafka-core (>= 2.4.9, < 3.0.0)
       karafka-rdkafka (>= 0.20.0)
       zeitwerk (~> 2.3)
@@ -1298,7 +1303,6 @@ DEPENDENCIES
   guard-rspec
   guard-rubocop
   gyoku
-  hashdiff
   hexapdf
   holidays
   httpclient
@@ -1314,6 +1318,7 @@ DEPENDENCIES
   jsonapi-serializer
   jwe
   jwt
+  karafka-core (= 2.5.5)
   kms_encrypted
   liquid
   lockbox
@@ -1398,6 +1403,8 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq
+  sidekiq-ent!
+  sidekiq-pro!
   sign_in_service
   simple_forms_api!
   simplecov
@@ -1424,7 +1431,7 @@ DEPENDENCIES
   vre!
   vye!
   warden-github
-  waterdrop
+  waterdrop (= 2.8.6)
   web-console
   webmock
   webrick
