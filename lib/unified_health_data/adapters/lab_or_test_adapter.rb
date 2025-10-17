@@ -195,12 +195,8 @@ module UnifiedHealthData
 
         presented_form = resource['presentedForm'].first
         # Handle standard data field or extensions indicating data-absent-reason
-        if presented_form['data']
-          presented_form['data']
-        else
-          # Return empty string when data is absent (either with data-absent-reason extension or missing)
-          ''
-        end
+        # Return empty string when data is absent (either with data-absent-reason extension or missing)
+        presented_form['data'] || ''
       end
 
       def get_date_completed(resource)
