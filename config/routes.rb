@@ -61,6 +61,12 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :form214192, only: [:create] do
+      collection do
+        post :download_pdf
+      end
+    end
+
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
