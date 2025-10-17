@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'unique_user_events'
+
 module Mobile
   module V0
     class MessagesController < MessagingController
@@ -15,6 +17,12 @@ module Mobile
         links = pagination_links(resource)
         resource = resource.paginate(**pagination_params)
         resource.metadata.merge!(message_counts(resource))
+
+        # Log unique user event for inbox accessed
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
+        )
 
         options = { meta: resource.metadata, links: }
         render json: Mobile::V0::MessagesSerializer.new(resource.data, options)
@@ -56,6 +64,12 @@ module Mobile
                             client.post_create_message(message_params.to_h)
                           end
 
+        # Log unique user event for message sent
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+        )
+
         options = { meta: {} }
         options[:include] = [:attachments] if client_response.attachment
         render json: Mobile::V0::MessageSerializer.new(client_response, options)
@@ -88,6 +102,12 @@ module Mobile
                           else
                             client.post_create_message_reply(params[:id], message_params.to_h)
                           end
+
+        # Log unique user event for message sent
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+        )
 
         options = {}
         options[:include] = [:attachments] if client_response.attachment
