@@ -39,6 +39,7 @@ module TravelPay
     # @param start_date [String] start date for the query
     # @param end_date [String] end date for the query
     # @return [Hash] hash with :claims and :metadata keys, or :error key on failure
+    # rubocop:disable Metrics/MethodLength
     def fetch_claims_by_date(start_date, end_date)
       date_range = DateUtils.try_parse_date_range(start_date, end_date)
       date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
@@ -73,6 +74,7 @@ module TravelPay
         metadata: rescue_errors(e)
       }
     end
+    # rubocop:enable Metrics/MethodLength
 
     def associate_appointments_to_claims(params = {})
       result = fetch_claims_by_date(params['start_date'], params['end_date'])

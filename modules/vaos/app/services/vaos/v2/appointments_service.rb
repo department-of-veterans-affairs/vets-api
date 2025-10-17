@@ -57,7 +57,7 @@ module VAOS
 
         # Determine if we should fetch travel claims in parallel
         should_fetch_travel_claims = Flipper.enabled?(:travel_pay_view_claim_details, user) &&
-                                      include[:travel_pay_claims]
+                                     include[:travel_pay_claims]
         parallelize_fetch = should_fetch_travel_claims &&
                             Flipper.enabled?(:va_online_scheduling_parallel_travel_claims, user)
 
@@ -85,13 +85,13 @@ module VAOS
 
         # Merge travel claims - either from parallel fetch or sequential fetch
         if should_fetch_travel_claims
-          if parallelize_fetch && travel_claims_result
-            # Use pre-fetched claims data from parallel execution
-            appointments = merge_claims_with_appointments(appointments, travel_claims_result)
-          else
-            # Fetch and merge sequentially (original behavior)
-            appointments = merge_all_travel_claims(start_date, end_date, appointments, tp_client)
-          end
+          appointments = if parallelize_fetch && travel_claims_result
+                           # Use pre-fetched claims data from parallel execution
+                           merge_claims_with_appointments(appointments, travel_claims_result)
+                         else
+                           # Fetch and merge sequentially (original behavior)
+                           merge_all_travel_claims(start_date, end_date, appointments, tp_client)
+                         end
         end
 
         if Flipper.enabled?(:appointments_consolidation, user)
@@ -367,7 +367,7 @@ module VAOS
 
       private
 
-      # rubocop:disable ThreadSafety/NewThread
+      # rubocop:disable ThreadSafety/NewThread, Metrics/MethodLength
       # Fetches appointments and travel claims in parallel using threads
       # @return [Array] Array containing [response, travel_claims_result]
       def fetch_appointments_and_claims_parallel(start_date, end_date, statuses, pagination_params, tp_client)
@@ -378,23 +378,19 @@ module VAOS
 
         # Create threads for parallel execution
         appointments_thread = Thread.new do
-          begin
-            appointments_response = send_appointments_request(start_date, end_date, __method__, pagination_params,
-                                                              statuses)
-          rescue => e
-            appointments_error = e
-            Rails.logger.error("Error fetching appointments in parallel: #{e.message}")
-          end
+          appointments_response = send_appointments_request(start_date, end_date, __method__, pagination_params,
+                                                            statuses)
+        rescue => e
+          appointments_error = e
+          Rails.logger.error("Error fetching appointments in parallel: #{e.message}")
         end
 
         travel_claims_thread = Thread.new do
-          begin
-            service = TravelPay::ClaimAssociationService.new(user, tp_client)
-            travel_claims_result = service.fetch_claims_by_date(start_date, end_date)
-          rescue => e
-            travel_claims_error = e
-            Rails.logger.error("Error fetching travel claims in parallel: #{e.message}")
-          end
+          service = TravelPay::ClaimAssociationService.new(user, tp_client)
+          travel_claims_result = service.fetch_claims_by_date(start_date, end_date)
+        rescue => e
+          travel_claims_error = e
+          Rails.logger.error("Error fetching travel claims in parallel: #{e.message}")
         end
 
         # Wait for both threads to complete
@@ -413,7 +409,7 @@ module VAOS
 
         [appointments_response, travel_claims_result]
       end
-      # rubocop:enable ThreadSafety/NewThread
+      # rubocop:enable ThreadSafety/NewThread, Metrics/MethodLength
 
       # Merges pre-fetched claims data with appointments
       # @param appointments [Array] Array of appointment hashes
