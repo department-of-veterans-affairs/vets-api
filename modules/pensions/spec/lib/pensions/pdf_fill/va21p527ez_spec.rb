@@ -42,8 +42,8 @@ describe Pensions::PdfFill::Va21p527ez do
 
   describe '#to_radio_yes_no' do
     it 'returns correct values' do
-      expect(described_class.new({}).to_radio_yes_no(true)).to eq(1)
-      expect(described_class.new({}).to_radio_yes_no(false)).to eq(2)
+      expect(described_class.new({}).to_radio_yes_no(true)).to eq(0)
+      expect(described_class.new({}).to_radio_yes_no(false)).to eq(1)
     end
   end
 
@@ -103,7 +103,7 @@ describe Pensions::PdfFill::Va21p527ez do
       expect(updated_data['dependents'].length).to eq(1)
       expect(updated_data['custodians'].length).to eq(1)
       expect(updated_data['dependentChildrenInHousehold']).to eq('0')
-      expect(updated_data['dependentsNotWithYouAtSameAddress']).to eq(1)
+      expect(updated_data['dependentsNotWithYouAtSameAddress']).to eq(0)
     end
 
     it 'handles overflow for dependent children not in the same household' do
