@@ -1438,7 +1438,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           VCR.use_cassette('vaos/ccra/post_get_referral_ref_123', match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
               VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
-                VCR.use_cassette('vaos/eps/get_appointments/200', match_requests_on: %i[method path]) do
+                VCR.use_cassette('vaos/eps/get_appointments/200_with_referral_number_no_appointments',
+                                 match_requests_on: %i[method path]) do
                   VCR.use_cassette('vaos/eps/search_provider_services/200', match_requests_on: %i[method path]) do
                     VCR.use_cassette('vaos/eps/get_provider_slots/200', match_requests_on: %i[method path]) do
                       VCR.use_cassette('vaos/eps/get_drive_times/200', match_requests_on: %i[method path]) do
@@ -1492,28 +1493,27 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                     VCR.use_cassette 'vaos/eps/draft_appointment/500_internal_server_error',
                                      match_requests_on: %i[method path] do
                       VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
-                        allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments)
-                          .and_return(OpenStruct.new(data: []))
+                        VCR.use_cassette('vaos/eps/get_appointments/200_with_referral_number_no_appointments',
+                                         match_requests_on: %i[method path]) do
+                          expect_metric_increment(described_class::APPT_DRAFT_CREATION_FAILURE_METRIC) do
+                            post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+                          end
 
-                        expect_metric_increment(described_class::APPT_DRAFT_CREATION_FAILURE_METRIC) do
-                          post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+                          expect(response).to have_http_status(:bad_gateway)
+                          response_obj = JSON.parse(response.body)
+                          expect(response_obj).to have_key('errors')
+                          expect(response_obj['errors']).to be_an(Array)
+                          error = response_obj['errors'].first
+                          expect(error['title']).to eq('Appointment creation failed')
+                          expect(error['detail']).to eq('Could not create appointment')
+                          expect(error['meta']).to include(
+                            'code' => 500,
+                            'backendResponse' => '{"isFault": true,"isTemporary": true,"name": "Internal Server Error"}'
+                          )
+                          expect(error['meta']['originalError']).to include('BackendServiceException')
+                          expect(error['meta']['originalError']).to include('vamf_url')
+                          expect(error['meta']['originalError']).to include('VAOS_502')
                         end
-
-                        expect(response).to have_http_status(:bad_gateway)
-                        response_obj = JSON.parse(response.body)
-                        expect(response_obj).to have_key('errors')
-                        expect(response_obj['errors']).to be_an(Array)
-                        error = response_obj['errors'].first
-                        expect(error['title']).to eq('Appointment creation failed')
-                        expect(error['detail']).to eq('Could not create appointment')
-                        expect(error['meta']).to include(
-                          'code' => 500,
-                          'backendResponse' => '{"isFault": true,"isTemporary": true,"name": "Internal Server Error"}'
-                        )
-
-                        expect(error['meta']['originalError']).to include('BackendServiceException')
-                        expect(error['meta']['originalError']).to include('vamf_url')
-                        expect(error['meta']['originalError']).to include('VAOS_502')
                       end
                     end
                   end
@@ -1533,24 +1533,23 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                   VCR.use_cassette 'vaos/eps/search_provider_services/200', match_requests_on: %i[method path] do
                     VCR.use_cassette 'vaos/eps/draft_appointment/200', match_requests_on: %i[method path] do
                       VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
-                        allow_any_instance_of(Eps::AppointmentService)
-                          .to receive(:get_appointments)
-                          .and_return(OpenStruct.new(data: []))
+                        VCR.use_cassette('vaos/eps/get_appointments/200_with_referral_number_no_appointments',
+                                         match_requests_on: %i[method path]) do
+                          expect_metric_increment(described_class::APPT_DRAFT_CREATION_FAILURE_METRIC) do
+                            post '/vaos/v2/appointments/draft', params: draft_params
+                          end
 
-                        expect_metric_increment(described_class::APPT_DRAFT_CREATION_FAILURE_METRIC) do
-                          post '/vaos/v2/appointments/draft', params: draft_params
+                          expect(response).to have_http_status(:bad_request)
+                          response_obj = JSON.parse(response.body)
+                          expect(response_obj).to have_key('errors')
+                          expect(response_obj['errors']).to be_an(Array)
+                          error = response_obj['errors'].first
+                          expect(error['title']).to eq('Appointment creation failed')
+                          expect(error['detail']).to eq('Could not create appointment')
+                          expect(error['meta']).to include(
+                            'original_detail' => 'body.latitude must be lesser or equal than 90 but got value 91'
+                          )
                         end
-
-                        expect(response).to have_http_status(:bad_request)
-                        response_obj = JSON.parse(response.body)
-                        expect(response_obj).to have_key('errors')
-                        expect(response_obj['errors']).to be_an(Array)
-                        error = response_obj['errors'].first
-                        expect(error['title']).to eq('Appointment creation failed')
-                        expect(error['detail']).to eq('Could not create appointment')
-                        expect(error['meta']).to include(
-                          'original_detail' => 'body.latitude must be lesser or equal than 90 but got value 91'
-                        )
                       end
                     end
                   end
@@ -1586,21 +1585,20 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
               VCR.use_cassette 'vaos/eps/search_provider_services/empty_200', match_requests_on: %i[method path] do
                 VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
-                  allow_any_instance_of(Eps::AppointmentService)
-                    .to receive(:get_appointments)
-                    .and_return(OpenStruct.new(data: []))
+                  VCR.use_cassette('vaos/eps/get_appointments/200_with_referral_number_no_appointments',
+                                   match_requests_on: %i[method path]) do
+                    expect_metric_increment(described_class::APPT_DRAFT_CREATION_FAILURE_METRIC) do
+                      post '/vaos/v2/appointments/draft', params: draft_params
+                    end
 
-                  expect_metric_increment(described_class::APPT_DRAFT_CREATION_FAILURE_METRIC) do
-                    post '/vaos/v2/appointments/draft', params: draft_params
+                    expect(response).to have_http_status(:not_found)
+                    response_obj = JSON.parse(response.body)
+                    expect(response_obj).to have_key('errors')
+                    expect(response_obj['errors']).to be_an(Array)
+                    error = response_obj['errors'].first
+                    expect(error['title']).to eq('Appointment creation failed')
+                    expect(error['detail']).to eq('Provider not found')
                   end
-
-                  expect(response).to have_http_status(:not_found)
-                  response_obj = JSON.parse(response.body)
-                  expect(response_obj).to have_key('errors')
-                  expect(response_obj['errors']).to be_an(Array)
-                  error = response_obj['errors'].first
-                  expect(error['title']).to eq('Appointment creation failed')
-                  expect(error['detail']).to eq('Provider not found')
                 end
               end
             end
@@ -1619,37 +1617,36 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                   VCR.use_cassette 'vaos/eps/draft_appointment/400_invalid_patientid',
                                    match_requests_on: %i[method path] do
                     VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
-                      allow_any_instance_of(Eps::AppointmentService)
-                        .to receive(:get_appointments)
-                        .and_return(OpenStruct.new(data: []))
+                      VCR.use_cassette('vaos/eps/get_appointments/200_with_referral_number_no_appointments',
+                                       match_requests_on: %i[method path]) do
+                        expect_metric_increment(described_class::APPT_DRAFT_CREATION_FAILURE_METRIC) do
+                          post '/vaos/v2/appointments/draft', params: draft_params
+                        end
 
-                      expect_metric_increment(described_class::APPT_DRAFT_CREATION_FAILURE_METRIC) do
-                        post '/vaos/v2/appointments/draft', params: draft_params
-                      end
-
-                      expect(response).to have_http_status(:bad_request)
-                      response_obj = JSON.parse(response.body)
-                      expect(response_obj).to have_key('errors')
-                      expect(response_obj['errors']).to be_an(Array)
-                      error = response_obj['errors'].first
-                      expect(error['title']).to eq('Appointment creation failed')
-                      expect(error['detail']).to eq('Could not create appointment')
-                      expect(error['meta']).to include(
-                        'original_detail' => 'invalid patientId'
-                      )
-
-                      # Assert EXACTLY what our EPS logging emitted
-                      expect(Rails.logger).to have_received(:error).with(
-                        'Community Care Appointments: EPS service error',
-                        hash_including(
-                          service: 'EPS',
-                          method: 'create_draft_appointment',
-                          error_class: 'Eps::ServiceException',
-                          code: 'VAOS_400',
-                          upstream_status: 400,
-                          upstream_body: a_string_including('invalid patientId')
+                        expect(response).to have_http_status(:bad_request)
+                        response_obj = JSON.parse(response.body)
+                        expect(response_obj).to have_key('errors')
+                        expect(response_obj['errors']).to be_an(Array)
+                        error = response_obj['errors'].first
+                        expect(error['title']).to eq('Appointment creation failed')
+                        expect(error['detail']).to eq('Could not create appointment')
+                        expect(error['meta']).to include(
+                          'original_detail' => 'invalid patientId'
                         )
-                      )
+
+                        # Assert EXACTLY what our EPS logging emitted
+                        expect(Rails.logger).to have_received(:error).with(
+                          'Community Care Appointments: EPS service error',
+                          hash_including(
+                            service: 'EPS',
+                            method: 'create_draft_appointment',
+                            error_class: 'Eps::ServiceException',
+                            code: 'VAOS_400',
+                            upstream_status: 400,
+                            upstream_body: a_string_including('invalid patientId')
+                          )
+                        )
+                      end
                     end
                   end
                 end
@@ -1683,7 +1680,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           VCR.use_cassette('vaos/ccra/post_get_referral_ref_123', match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
               VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
-                VCR.use_cassette('vaos/eps/get_appointments/200_v2', match_requests_on: %i[method path]) do
+                VCR.use_cassette('vaos/eps/get_appointments/200_with_referral_number_no_appointments',
+                                 match_requests_on: %i[method path]) do
                   expect_metric_increment(described_class::APPT_DRAFT_CREATION_FAILURE_METRIC) do
                     post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
                   end
@@ -1727,7 +1725,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                                 state: 'FL',
                                 zip: '12345'
                               },
-                              has_appointments: false)
+                              appointments: { system: 'EPS', data: [] })
             )
 
           expected_error = MAP::SecurityToken::Errors::MissingICNError.new 'Missing ICN message'

@@ -1,0 +1,131 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<VAOS_EPS_API_URL>/care-navigation/v1/appointments?patientId=1012845331V153043&referralNumber=ref-123"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - 5d202f6b-a460-4d4b-91ee-b89771def980
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 24 Mar 2025 16:20:54 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '2'
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{
+        "count": 4,
+        "appointments": [
+          {
+            "id": "appt1",
+            "state": "confirmed",
+            "patientId": "1012845331V153043",
+            "referral": {
+              "referralNumber": "ref-123"
+            },
+            "providerServiceId": "Aq7wgAux",
+            "networkId": "sandbox-network-5vuTac8v",
+            "slotIds": [
+              "5vuTac8v-practitioner-3-role-3|2c0737a0-8ef5-40ad-9187-46c5c5fc424e|2024-11-20T17:00:00Z|30m0s|7488049538371|ov"
+            ],
+            "appointmentDetails": {
+              "status": "booked",
+              "start": "2024-11-20T17:00:00Z",
+              "isLatest": true,
+              "lastRetrieved": "2025-01-29T16:30:25Z"
+            }
+          },
+          {
+            "id": "appt2",
+            "state": "cancelled",
+            "patientId": "1012845331V153043",
+            "referral": {
+              "referralNumber": "ref-123"
+            },
+            "providerServiceId": "Aq7wgAux",
+            "networkId": "sandbox-network-5vuTac8v",
+            "slotIds": [
+              "5vuTac8v-practitioner-3-role-3|0a7370c2-8ef5-40ad-9187-e424cf5c5c64|2024-11-21T18:00:00Z|30m0s|1738359408847|ov"
+            ],
+            "appointmentDetails": {
+              "status": "cancelled",
+              "start": "2024-11-21T18:00:00Z",
+              "isLatest": true,
+              "lastRetrieved": "2025-02-10T14:35:44Z"
+            }
+          },
+          {
+            "id": "appt3",
+            "state": "draft",
+            "patientId": "1012845331V153043",
+            "referral": {
+              "referralNumber": "ref-123"
+            },
+            "providerServiceId": "Aq7wgAux",
+            "networkId": "sandbox-network-5vuTac8v",
+            "slotIds": [
+              "5vuTac8v-practitioner-3-role-3|0a7370c2-8ef5-40ad-9187-e424cf5c5c64|2024-11-22T18:00:00Z|30m0s|1738359400000|ov"
+            ],
+            "appointmentDetails": {
+              "status": "booked",
+              "start": "2024-11-22T18:00:00Z",
+              "isLatest": true,
+              "lastRetrieved": "2025-02-10T14:35:44Z"
+            }
+          },
+          {
+            "id": "appt4",
+            "state": "completed",
+            "patientId": "1012845331V153043",
+            "referral": {
+              "referralNumber": "ref-123"
+            },
+            "providerServiceId": "Aq7wgAux",
+            "networkId": "sandbox-network-5vuTac8v",
+            "slotIds": [
+              "5vuTac8v-practitioner-3-role-3|0a7370c2-8ef5-40ad-9187-e424cf5c5c64|2024-11-19T18:00:00Z|30m0s|1738359402222|ov"
+            ],
+            "appointmentDetails": {
+              "status": "fulfilled",
+              "start": "2024-11-19T18:00:00Z",
+              "isLatest": true,
+              "lastRetrieved": "2025-02-10T14:35:44Z"
+            }
+          }
+        ]
+      }'
+  recorded_at: Thu, 02 Sep 2021 14:00:00 GMT
+recorded_with: VCR 6.3.1

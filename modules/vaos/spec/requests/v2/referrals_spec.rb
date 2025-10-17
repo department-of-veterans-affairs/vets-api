@@ -120,6 +120,9 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         .to receive(:decrypt)
         .with('invalid')
         .and_raise(Common::Exceptions::ParameterMissing.new('id'))
+      allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+        .with(referral_number)
+        .and_return({ system: 'EPS', data: [] })
     end
 
     context 'when user is not authenticated' do
@@ -184,6 +187,107 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         allow(StatsD).to receive(:increment)
 
         get "/vaos/v2/referrals/#{encrypted_uuid}"
+      end
+
+      context 'when fetching appointments' do
+        context 'when EPS has active appointments' do
+          before do
+            allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+              .with(referral_number)
+              .and_return({
+                            system: 'EPS',
+                            data: [
+                              { id: 'eps-appt-1', state: 'confirmed' },
+                              { id: 'eps-appt-2', state: 'completed' }
+                            ]
+                          })
+          end
+
+          it 'includes EPS appointments in the response' do
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+
+            expect(response).to have_http_status(:ok)
+            response_data = JSON.parse(response.body)
+
+            expect(response_data['data']['attributes']).to have_key('appointments')
+            appointments = response_data['data']['attributes']['appointments']
+            expect(appointments['system']).to eq('EPS')
+            expect(appointments['data']).to be_an(Array)
+            expect(appointments['data'].length).to eq(2)
+            expect(appointments['data'][0]['id']).to eq('eps-appt-1')
+            expect(appointments['data'][1]['id']).to eq('eps-appt-2')
+            expect(appointments).not_to have_key('errors')
+          end
+        end
+
+        context 'when there are no active appointments' do
+          before do
+            allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+              .with(referral_number)
+              .and_return({ system: 'EPS', data: [] })
+          end
+
+          it 'returns empty appointments data with EPS system' do
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+
+            expect(response).to have_http_status(:ok)
+            response_data = JSON.parse(response.body)
+
+            expect(response_data['data']['attributes']).to have_key('appointments')
+            appointments = response_data['data']['attributes']['appointments']
+            expect(appointments['system']).to eq('EPS')
+            expect(appointments['data']).to eq([])
+            expect(appointments).not_to have_key('errors')
+          end
+        end
+
+        context 'when EPS service fails' do
+          before do
+            allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+              .with(referral_number)
+              .and_return({
+                            system: 'EPS',
+                            data: [],
+                            errors: { 'Failure to fetch EPS appointments' => 'Eps::ServiceException' }
+                          })
+          end
+
+          it 'includes error information in the response' do
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+
+            expect(response).to have_http_status(:ok)
+            response_data = JSON.parse(response.body)
+
+            expect(response_data['data']['attributes']).to have_key('appointments')
+            appointments = response_data['data']['attributes']['appointments']
+            expect(appointments['system']).to eq('EPS')
+            expect(appointments['data']).to eq([])
+            expect(appointments).to have_key('errors')
+            expect(appointments['errors'])
+              .to eq({ 'Failure to fetch EPS appointments' => 'Eps::ServiceException' })
+          end
+        end
+
+        context 'when appointments are filtered due to cancelled/draft status' do
+          before do
+            # Simulating that EPS returned appointments but all were filtered out
+            allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+              .with(referral_number)
+              .and_return({ system: 'EPS', data: [] })
+          end
+
+          it 'returns empty appointments data with EPS system when all are filtered' do
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+
+            expect(response).to have_http_status(:ok)
+            response_data = JSON.parse(response.body)
+
+            expect(response_data['data']['attributes']).to have_key('appointments')
+            appointments = response_data['data']['attributes']['appointments']
+            expect(appointments['system']).to eq('EPS')
+            expect(appointments['data']).to eq([])
+          end
+        end
       end
 
       context 'when provider IDs are missing' do
