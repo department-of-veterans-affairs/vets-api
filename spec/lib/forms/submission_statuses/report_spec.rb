@@ -123,24 +123,24 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
     context 'has statuses' do
       before do
         benefits_intake_uuid = lighthouse_submission.submission_attempts.last&.benefits_intake_uuid || 'test-uuid-123'
-
-        allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway).to receive(:intake_statuses).and_return(
+        lighthouse_intake_statuses = [
           [
-            [
-              {
-                'id' => benefits_intake_uuid,
-                'attributes' => {
-                  'detail' => 'lighthouse detail',
-                  'guid' => benefits_intake_uuid,
-                  'message' => 'lighthouse message',
-                  'status' => 'pending',
-                  'updated_at' => 1.day.ago
-                }
+            {
+              'id' => benefits_intake_uuid,
+              'attributes' => {
+                'detail' => 'lighthouse detail',
+                'guid' => benefits_intake_uuid,
+                'message' => 'lighthouse message',
+                'status' => 'pending',
+                'updated_at' => 1.day.ago
               }
-            ],
-            nil
-          ]
-        )
+            }
+          ],
+          nil
+        ]
+
+        allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
+          .to receive(:intake_statuses).and_return(lighthouse_intake_statuses)
       end
 
       it 'returns lighthouse submission data' do
@@ -168,33 +168,34 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
     context 'combines both submission types' do
       before do
         benefits_intake_uuid = lighthouse_submission.submission_attempts.last&.benefits_intake_uuid || 'test-uuid-123'
-        allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway).to receive(:intake_statuses).and_return(
+        mixed_intake_statuses = [
           [
-            [
-              {
-                'id' => '4b846069-e496-4f83-8587-42b570f24483',
-                'attributes' => {
-                  'status' => 'received',
-                  'updated_at' => 2.days.ago,
-                  'detail' => 'form submission detail',
-                  'guid' => '4b846069-e496-4f83-8587-42b570f24483',
-                  'message' => 'form submission message'
-                }
-              },
-              {
-                'id' => benefits_intake_uuid,
-                'attributes' => {
-                  'status' => 'processing',
-                  'updated_at' => 1.day.ago,
-                  'detail' => 'lighthouse detail',
-                  'guid' => benefits_intake_uuid,
-                  'message' => 'lighthouse message'
-                }
+            {
+              'id' => '4b846069-e496-4f83-8587-42b570f24483',
+              'attributes' => {
+                'status' => 'received',
+                'updated_at' => 2.days.ago,
+                'detail' => 'form submission detail',
+                'guid' => '4b846069-e496-4f83-8587-42b570f24483',
+                'message' => 'form submission message'
               }
-            ],
-            nil
-          ]
-        )
+            },
+            {
+              'id' => benefits_intake_uuid,
+              'attributes' => {
+                'status' => 'processing',
+                'updated_at' => 1.day.ago,
+                'detail' => 'lighthouse detail',
+                'guid' => benefits_intake_uuid,
+                'message' => 'lighthouse message'
+              }
+            }
+          ],
+          nil
+        ]
+
+        allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
+          .to receive(:intake_statuses).and_return(mixed_intake_statuses)
       end
 
       it 'returns combined submission count' do

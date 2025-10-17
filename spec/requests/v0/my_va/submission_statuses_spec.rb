@@ -177,20 +177,22 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
 
       # Mock the Benefits Intake API response to avoid 401 errors
       benefits_intake_uuid = saved_claim.lighthouse_submissions.first.submission_attempts.first.benefits_intake_uuid
+      lighthouse_intake_statuses = [
+        [{
+          'id' => benefits_intake_uuid,
+          'attributes' => {
+            'status' => 'pending',
+            'updated_at' => 1.day.ago,
+            'detail' => 'Processing burial claim',
+            'guid' => benefits_intake_uuid,
+            'message' => 'Form received and processing'
+          }
+        }],
+        nil
+      ]
       allow_any_instance_of(Forms::SubmissionStatuses::BenefitsIntakeGateway)
-        .to receive(:intake_statuses).and_return([
-                                                   [{
-                                                     'id' => benefits_intake_uuid,
-                                                     'attributes' => {
-                                                       'status' => 'pending',
-                                                       'updated_at' => 1.day.ago,
-                                                       'detail' => 'Processing burial claim',
-                                                       'guid' => benefits_intake_uuid,
-                                                       'message' => 'Form received and processing'
-                                                     }
-                                                   }],
-                                                   nil
-                                                 ])
+        .to receive(:intake_statuses).and_return(lighthouse_intake_statuses)
+
       allow(Flipper[display_all_forms_toggle]).to receive(:enabled?).and_return(false)
     end
 
