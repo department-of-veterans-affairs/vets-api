@@ -975,12 +975,14 @@ describe UnifiedHealthData::Service, type: :service do
     before do
       # Freeze today so the generated end_date in service matches VCR cassette date range expectations
       allow(Time.zone).to receive(:today).and_return(Date.new(2025, 9, 19))
+      allow(Rails.cache).to receive(:exist?).and_return(false)
     end
 
     context 'with valid prescription responses', :vcr do
       before do
         # Stub the cache to return the expected facility name for station 556
         allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Ambulatory Pharmacy')
+        allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
       end
 
       it 'returns prescriptions from both VistA and Oracle Health' do
@@ -1092,6 +1094,7 @@ describe UnifiedHealthData::Service, type: :service do
         it 'uses cache when available and API when cache misses' do
           # Test cache hit scenario
           allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Cached Facility Name')
+          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
 
           VCR.use_cassette('unified_health_data/get_prescriptions_success') do
             prescriptions = service.get_prescriptions
@@ -1103,6 +1106,7 @@ describe UnifiedHealthData::Service, type: :service do
 
         it 'falls back to API when cache is empty' do
           allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return(nil)
+          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(false)
 
           # Mock the Lighthouse API call
           mock_client = instance_double(Lighthouse::Facilities::V1::Client)
@@ -1122,6 +1126,7 @@ describe UnifiedHealthData::Service, type: :service do
 
         it 'handles API errors gracefully' do
           allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return(nil)
+          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(false)
           allow(Rails.logger).to receive(:warn)
           allow(StatsD).to receive(:increment)
 

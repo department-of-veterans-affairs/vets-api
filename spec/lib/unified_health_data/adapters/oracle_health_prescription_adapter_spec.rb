@@ -25,6 +25,10 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     }
   end
 
+  before do
+    allow(Rails.cache).to receive(:exist?).and_return(false)
+  end
+
   describe '#parse' do
     context 'with valid resource' do
       it 'returns a UnifiedHealthData::Prescription object' do
@@ -113,6 +117,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       context 'when facility name is cached' do
         before do
           allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Cached Facility Name')
+          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
         end
 
         it 'returns the cached facility name' do
@@ -134,6 +139,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         before do
           allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return(nil)
           allow(Rails.cache).to receive(:write)
+          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(false)
         end
 
         it 'calls the API and returns the facility name' do
@@ -165,6 +171,8 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         before do
           allow(Rails.cache).to receive(:read).with('uhd:facility_names:648').and_return(nil)
           allow(Rails.cache).to receive(:read).with('uhd:facility_names:648A4').and_return('Full Station Facility')
+          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648').and_return(false)
+          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648A4').and_return(true)
         end
 
         it 'falls back to the full station identifier' do
@@ -197,6 +205,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           allow(Rails.cache).to receive(:write)
           allow(Rails.logger).to receive(:warn)
           allow(StatsD).to receive(:increment)
+          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(false)
         end
 
         it 'returns nil when API call returns nil' do
@@ -310,6 +319,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
       before do
         allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Recent Facility')
+        allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
       end
 
       it 'uses the most recent MedicationDispense for station number' do

@@ -93,6 +93,10 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
     }
   end
 
+  before do
+    allow(Rails.cache).to receive(:exist?).and_return(false)
+  end
+
   describe '#parse' do
     context 'with unified response data' do
       before do
@@ -387,6 +391,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       before do
         # Mock Rails cache to return a facility name for station 648
         allow(Rails.cache).to receive(:read).with('uhd:facility_names:648').and_return('Portland VA Medical Center')
+        allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648').and_return(true)
         allow(StatsD).to receive(:increment)
       end
 

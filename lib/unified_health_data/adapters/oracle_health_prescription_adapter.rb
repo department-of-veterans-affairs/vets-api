@@ -332,7 +332,7 @@ module UnifiedHealthData
 
         cache_key = "uhd:facility_names:#{station_identifier}"
         cached_name = Rails.cache.read(cache_key)
-        return cached_name if cached_name
+        return cached_name if Rails.cache.exist?(cache_key)
 
         fetch_facility_name_from_api(station_identifier)
       end
