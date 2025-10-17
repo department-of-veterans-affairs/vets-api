@@ -51,12 +51,12 @@ RSpec.describe V0::Form214192Controller, type: :controller do
           post :create, params: { form214192: form_data }
         end.to change(SavedClaim::Form214192, :count).by(1)
       end
-      
+
       it 'returns expected response structure with success status' do
         post :create, params: { form214192: form_data }
-        
+
         expect(response).to have_http_status(:ok)
-        
+
         json = JSON.parse(response.body)
         expect(json['data']['type']).to eq('saved_claims')
         expect(json['data']['attributes']['form']).to eq('21-4192')
@@ -115,7 +115,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
       it 'allows unauthenticated access to create endpoint' do
         post :create, params: { form214192: form_data }
-        
+
         expect(response).to have_http_status(:ok)
       end
     end
@@ -235,7 +235,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
       it 'allows unauthenticated access to download_pdf endpoint' do
         post :download_pdf, params: { form: form_data.to_json }
-        
+
         expect(response).to have_http_status(:ok)
       end
     end

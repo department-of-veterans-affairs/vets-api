@@ -3,8 +3,14 @@
 class SavedClaim::Form214192 < SavedClaim
   FORM = '21-4192'
 
-  validates :form_data, presence: true
+  validates :form, presence: true
   validates_with Form214192Validator
+
+  # Skip JSON schema validation since we're using custom validator and moving away from vets-json-schema
+  def form_matches_schema
+    # Custom validation handled by Form214192Validator
+    true
+  end
 
   def process_attachments!
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten

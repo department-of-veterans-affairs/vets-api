@@ -6,6 +6,7 @@ module V0
 
     service_tag 'employment-information'
     skip_before_action :authenticate, only: %i[create download_pdf]
+    skip_before_action :verify_authenticity_token, only: %i[create download_pdf]
 
     before_action :feature_enabled?
     before_action :record_submission_attempt, only: :create
@@ -30,14 +31,17 @@ module V0
     end
 
     def download_pdf
-      parsed_form = JSON.parse(params[:form])
+      parsed_form = params[:form].is_a?(String) ? JSON.parse(params[:form]) : params[:form].to_unsafe_h
+
+      # Convert snake_case keys to camelCase for PDF generation
+      camel_case_form = convert_keys_to_camel_case(parsed_form)
       file_name = SecureRandom.uuid
 
       source_file_path = with_retries('Generate 21-4192 PDF') do
-        PdfFill::Filler.fill_ancillary_form(parsed_form, file_name, '21-4192')
+        PdfFill::Filler.fill_ancillary_form(camel_case_form, file_name, '21-4192')
       end
 
-      employer_name = parsed_form.dig('employmentInformation', 'employerName')
+      employer_name = parsed_form.dig('employment_information', 'employer_name')
       file_path_name = employer_name ? employer_name.gsub(/[^0-9A-Za-z]/, '_') : '21-4192'
       client_file_name = "#{file_path_name}_21-4192_#{Time.zone.now.to_i}.pdf"
 
@@ -64,6 +68,18 @@ module V0
 
     def stats_key
       'api.form214192'
+    end
+
+    def convert_keys_to_camel_case(hash)
+      case hash
+      when Hash
+        hash.transform_keys { |key| key.to_s.camelize(:lower) }
+            .transform_values { |value| convert_keys_to_camel_case(value) }
+      when Array
+        hash.map { |item| convert_keys_to_camel_case(item) }
+      else
+        hash
+      end
     end
   end
 end

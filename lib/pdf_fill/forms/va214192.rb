@@ -40,6 +40,20 @@ module PdfFill
               limit: 4
             }
           },
+          'ssnPage2' => {
+            'first' => {
+              key: 'F[0].#subform[1].SocialSecurityNumber_FirstThreeNumbers[0]',
+              limit: 3
+            },
+            'second' => {
+              key: 'F[0].#subform[1].SocialSecurityNumber_SecondTwoNumbers[0]',
+              limit: 2
+            },
+            'third' => {
+              key: 'F[0].#subform[1].SocialSecurityNumber_LastFourNumbers[0]',
+              limit: 4
+            }
+          },
           'vaFileNumber' => {
             key: 'F[0].Page_1[0].VA_File_Number_If_Applicable[0]',
             limit: 9
@@ -280,85 +294,101 @@ module PdfFill
         return unless @form_data['veteranInformation']
 
         vet_info = @form_data['veteranInformation']
-
-        if vet_info['ssn']
-          ssn = vet_info['ssn'].to_s.gsub(/\D/, '')
-          @form_data['veteranInformation']['ssn'] = {
-            'first' => ssn[0..2],
-            'second' => ssn[3..4],
-            'third' => ssn[5..8]
-          }
-        end
-
-        if vet_info['dateOfBirth']
-          dob = parse_date(vet_info['dateOfBirth'])
-          if dob
-            @form_data['veteranInformation']['dateOfBirth'] = {
-              'month' => dob[:month],
-              'day' => dob[:day],
-              'year' => dob[:year]
-            }
-          end
-        end
+        merge_ssn_fields(vet_info)
+        merge_date_of_birth(vet_info)
       end
 
-      # rubocop:disable Metrics/MethodLength
+      def merge_ssn_fields(vet_info)
+        return unless vet_info['ssn']
+
+        ssn = vet_info['ssn'].to_s.gsub(/\D/, '')
+        ssn_parts = {
+          'first' => ssn[0..2],
+          'second' => ssn[3..4],
+          'third' => ssn[5..8]
+        }
+        # Populate SSN on both page 1 and page 2
+        @form_data['veteranInformation']['ssn'] = ssn_parts
+        @form_data['veteranInformation']['ssnPage2'] = ssn_parts
+      end
+
+      def merge_date_of_birth(vet_info)
+        return unless vet_info['dateOfBirth']
+
+        dob = parse_date(vet_info['dateOfBirth'])
+        return unless dob
+
+        @form_data['veteranInformation']['dateOfBirth'] = {
+          'month' => dob[:month],
+          'day' => dob[:day],
+          'year' => dob[:year]
+        }
+      end
+
       def merge_employment_info
         return unless @form_data['employmentInformation']
-        
+
         emp_info = @form_data['employmentInformation']
+        merge_employer_address(emp_info)
+        merge_employment_dates(emp_info)
+        merge_amount_earned(emp_info)
+        merge_radio_buttons(emp_info)
+      end
 
-        # Combine employer name and address
-        if emp_info['employerName'] || emp_info['employerAddress']
-          name_and_addr = []
-          name_and_addr << emp_info['employerName'] if emp_info['employerName']
-          if emp_info['employerAddress']
-            addr = emp_info['employerAddress']
-            name_and_addr << addr['street'] if addr['street']
-            name_and_addr << addr['street2'] if addr['street2']
-            name_and_addr << "#{addr['city']}, #{addr['state']} #{addr['postalCode']}" if addr['city']
-          end
-          @form_data['employmentInformation']['employerNameAndAddress'] = name_and_addr.join("\n")
+      def merge_employer_address(emp_info)
+        return unless emp_info['employerName'] || emp_info['employerAddress']
+
+        name_and_addr = []
+        name_and_addr << emp_info['employerName'] if emp_info['employerName']
+        if emp_info['employerAddress']
+          addr = emp_info['employerAddress']
+          name_and_addr << addr['street'] if addr['street']
+          name_and_addr << addr['street2'] if addr['street2']
+          name_and_addr << "#{addr['city']}, #{addr['state']} #{addr['postalCode']}" if addr['city']
         end
+        @form_data['employmentInformation']['employerNameAndAddress'] = name_and_addr.join("\n")
+      end
 
-        # Format dates
+      def merge_employment_dates(emp_info)
         %w[beginningDateOfEmployment endingDateOfEmployment dateLastWorked lastPaymentDate
            datePaid].each do |date_field|
           next unless emp_info[date_field]
 
           parsed = parse_date(emp_info[date_field])
-          if parsed
-            @form_data['employmentInformation'][date_field] = {
-              'month' => parsed[:month],
-              'day' => parsed[:day],
-              'year' => parsed[:year]
-            }
-          end
-        end
+          next unless parsed
 
-        # Format amount earned (split into thousands, hundreds, cents)
-        if emp_info['amountEarnedLast12MonthsOfEmployment']
-          amount = emp_info['amountEarnedLast12MonthsOfEmployment'].to_f
-          dollars = amount.floor
-          cents = ((amount - dollars) * 100).round
-
-          thousands = (dollars / 1000).floor
-          hundreds = dollars % 1000
-
-          @form_data['employmentInformation']['amountEarnedLast12Months'] = {
-            'thousands' => thousands.to_s.rjust(3, '0'),
-            'hundreds' => hundreds.to_s.rjust(3, '0'),
-            'cents' => cents.to_s.rjust(2, '0')
+          @form_data['employmentInformation'][date_field] = {
+            'month' => parsed[:month],
+            'day' => parsed[:day],
+            'year' => parsed[:year]
           }
         end
-
-        # Convert boolean to YES/NO for radio buttons
-        if emp_info.key?('lumpSumPaymentMade')
-          @form_data['employmentInformation']['lumpSumPaymentMade'] = emp_info['lumpSumPaymentMade'] ? 'YES' : 'NO'
-        end
       end
-      # rubocop:enable Metrics/MethodLength
-      
+
+      def merge_amount_earned(emp_info)
+        return unless emp_info['amountEarnedLast12Months']
+
+        amount = emp_info['amountEarnedLast12Months'].to_f
+        dollars = amount.floor
+        cents = ((amount - dollars) * 100).round
+
+        thousands = (dollars / 1000).floor
+        hundreds = dollars % 1000
+
+        amount_parts = {
+          'thousands' => thousands.to_s.rjust(3, '0'),
+          'hundreds' => hundreds.to_s.rjust(3, '0'),
+          'cents' => cents.to_s.rjust(2, '0')
+        }
+        @form_data['employmentInformation']['amountEarnedLast12Months'] = amount_parts
+      end
+
+      def merge_radio_buttons(emp_info)
+        return unless emp_info.key?('lumpSumPaymentMade')
+
+        @form_data['employmentInformation']['lumpSumPaymentMade'] = emp_info['lumpSumPaymentMade'] ? 'YES' : 'NO'
+      end
+
       def merge_military_duty
         return unless @form_data['militaryDutyStatus']
 
@@ -369,49 +399,53 @@ module PdfFill
         end
       end
 
-      # rubocop:disable Metrics/MethodLength
       def merge_benefits
         return unless @form_data['benefitEntitlementPayments']
-        
+
         benefits = @form_data['benefitEntitlementPayments']
+        merge_benefit_radio_buttons(benefits)
+        merge_benefit_amount(benefits)
+        merge_benefit_dates(benefits)
+      end
 
-        # Convert boolean to YES/NO for radio button
-        if benefits.key?('sickRetirementOtherBenefits')
-          @form_data['benefitEntitlementPayments']['sickRetirementOtherBenefits'] =
-            benefits['sickRetirementOtherBenefits'] ? 'YES' : 'NO'
-        end
+      def merge_benefit_radio_buttons(benefits)
+        return unless benefits.key?('sickRetirementOtherBenefits')
 
-        # Format benefit amount
-        if benefits['grossMonthlyAmountOfBenefit']
-          amount = benefits['grossMonthlyAmountOfBenefit'].to_f
-          dollars = amount.floor
-          cents = ((amount - dollars) * 100).round
+        @form_data['benefitEntitlementPayments']['sickRetirementOtherBenefits'] =
+          benefits['sickRetirementOtherBenefits'] ? 'YES' : 'NO'
+      end
 
-          thousands = (dollars / 1000).floor
-          hundreds = dollars % 1000
+      def merge_benefit_amount(benefits)
+        return unless benefits['grossMonthlyAmountOfBenefit']
 
-          @form_data['benefitEntitlementPayments']['grossMonthlyAmountOfBenefit'] = {
-            'thousands' => thousands.to_s.rjust(3, '0'),
-            'hundreds' => hundreds.to_s.rjust(3, '0'),
-            'cents' => cents.to_s.rjust(2, '0')
-          }
-        end
+        amount = benefits['grossMonthlyAmountOfBenefit'].to_f
+        dollars = amount.floor
+        cents = ((amount - dollars) * 100).round
 
-        # Format dates
+        thousands = (dollars / 1000).floor
+        hundreds = dollars % 1000
+
+        @form_data['benefitEntitlementPayments']['grossMonthlyAmountOfBenefit'] = {
+          'thousands' => thousands.to_s.rjust(3, '0'),
+          'hundreds' => hundreds.to_s.rjust(3, '0'),
+          'cents' => cents.to_s.rjust(2, '0')
+        }
+      end
+
+      def merge_benefit_dates(benefits)
         %w[dateBenefitBegan dateFirstPaymentIssued dateBenefitWillStop].each do |date_field|
           next unless benefits[date_field]
 
           parsed = parse_date(benefits[date_field])
-          if parsed
-            @form_data['benefitEntitlementPayments'][date_field] = {
-              'month' => parsed[:month],
-              'day' => parsed[:day],
-              'year' => parsed[:year]
-            }
-          end
+          next unless parsed
+
+          @form_data['benefitEntitlementPayments'][date_field] = {
+            'month' => parsed[:month],
+            'day' => parsed[:day],
+            'year' => parsed[:year]
+          }
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       def merge_certification
         return unless @form_data['employerCertification']
