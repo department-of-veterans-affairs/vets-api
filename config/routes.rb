@@ -448,8 +448,9 @@ Rails.application.routes.draw do
   require 'github_authentication/sidekiq_web'
   require 'github_authentication/coverband_reporters_web'
 
+  mount Rswag::Ui::Engine => 'swagger' if Settings.rswag_ui.enabled
+
   mount Sidekiq::Web, at: '/sidekiq'
-  mount Rswag::Ui::Engine => 'swagger' if Rails.env.development? || Settings.rswag_ui.enabled
 
   Sidekiq::Web.register GithubAuthentication::SidekiqWeb unless Rails.env.development? || Settings.sidekiq_admin_panel
 

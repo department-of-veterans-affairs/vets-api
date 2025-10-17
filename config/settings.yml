@@ -1191,6 +1191,8 @@ rrd:
   pact_tracking:
     recipients:
     - fake_email
+rswag_ui:
+  enabled: <%= ENV['rswag_ui__enabled'] %>
 salesforce:
   consumer_key: <%= ENV['salesforce__consumer_key'] %>
   env: <%= ENV['salesforce__env'] %>

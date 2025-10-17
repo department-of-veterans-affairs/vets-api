@@ -1210,6 +1210,8 @@ rrd:
   pact_tracking:
     recipients:
       - fake_email
+rswag_ui:
+  enabled: true
 salesforce:
   consumer_key: ~
   env: dev
