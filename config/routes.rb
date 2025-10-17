@@ -55,6 +55,18 @@ Rails.application.routes.draw do
     resources :user_actions, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
 
+    resources :form210779, only: [:create] do
+      collection do
+        post :download_pdf
+      end
+    end
+
+    resources :form214192, only: [:create] do
+      collection do
+        post :download_pdf
+      end
+    end
+
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
