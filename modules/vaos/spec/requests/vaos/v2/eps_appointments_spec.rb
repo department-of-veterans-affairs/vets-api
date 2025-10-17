@@ -55,6 +55,8 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
               },
               'provider' => {
                 'id' => 'test-provider-id',
+                'name' => 'Timothy Bob',
+                'practice' => 'test-provider-org-name',
                 'location' => {
                   'name' => 'Test Medical Complex',
                   'address' => '207 Davishill Ln',
