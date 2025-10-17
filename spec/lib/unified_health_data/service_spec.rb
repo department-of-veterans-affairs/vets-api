@@ -1365,53 +1365,6 @@ describe UnifiedHealthData::Service, type: :service do
     end
   end
 
-  describe '#get_ccd_metadata' do
-    let(:start_date) { '2024-01-01' }
-    let(:end_date) { '2024-12-31' }
-    let(:ccd_fixture) do
-      Rails.root.join('spec', 'fixtures', 'unified_health_data', 'ccd_example.json').read
-    end
-    let(:ccd_response) do
-      Faraday::Response.new(body: ccd_fixture)
-    end
-    let(:client_double) { instance_double(UnifiedHealthData::Client) }
-
-    before do
-      allow(UnifiedHealthData::Client).to receive(:new).and_return(client_double)
-      allow(client_double).to receive(:get_ccd).and_return(ccd_response)
-    end
-
-    context 'when successful' do
-      it 'returns CCD metadata' do
-        result = service.get_ccd_metadata(start_date:, end_date:)
-
-        expect(result).to be_a(Hash)
-        expect(result[:type]).to eq('Continuity of Care Document')
-        expect(result[:available_formats]).to include('xml')
-        expect(result[:id]).to be_present
-      end
-
-      it 'calls the client with correct parameters' do
-        service.get_ccd_metadata(start_date:, end_date:)
-
-        expect(client_double).to have_received(:get_ccd)
-          .with(patient_id: user.icn, start_date:, end_date:)
-      end
-    end
-
-    context 'when DocumentReference is missing' do
-      let(:empty_bundle) { '{"entry": []}' }
-      let(:ccd_response) do
-        Faraday::Response.new(body: empty_bundle)
-      end
-
-      it 'returns nil when no CCD document exists' do
-        result = service.get_ccd_metadata(start_date:, end_date:)
-        expect(result).to be_nil
-      end
-    end
-  end
-
   describe '#get_ccd_binary' do
     let(:start_date) { '2024-01-01' }
     let(:end_date) { '2024-12-31' }

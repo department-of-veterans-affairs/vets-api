@@ -116,37 +116,6 @@ RSpec.describe 'ClinicalNotesAdapter' do
     end
   end
 
-  describe '#parse_ccd_metadata' do
-    let(:ccd_fixture) do
-      JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'ccd_example.json').read)
-    end
-    let(:document_ref_entry) do
-      ccd_fixture['entry'].find { |e| e['resource']['resourceType'] == 'DocumentReference' }
-    end
-
-    it 'extracts CCD metadata' do
-      result = adapter.parse_ccd_metadata(document_ref_entry)
-
-      expect(result[:type]).to eq('Continuity of Care Document')
-      expect(result[:id]).to be_present
-      expect(result[:status]).to eq('current')
-      expect(result[:available_formats]).to include('xml')
-    end
-
-    it 'detects all available formats' do
-      result = adapter.parse_ccd_metadata(document_ref_entry)
-
-      expect(result[:available_formats]).to be_an(Array)
-      expect(result[:available_formats]).not_to be_empty
-    end
-
-    it 'extracts LOINC code' do
-      result = adapter.parse_ccd_metadata(document_ref_entry)
-
-      expect(result[:loinc_code]).to be_present
-    end
-  end
-
   describe '#parse_ccd_binary' do
     let(:ccd_fixture) do
       JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'ccd_example.json').read)

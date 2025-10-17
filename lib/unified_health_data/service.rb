@@ -184,23 +184,6 @@ module UnifiedHealthData
       end
     end
 
-    # Retrieves CCD metadata for the current user
-    #
-    # @param start_date [String] ISO 8601 date string (YYYY-MM-DD)
-    # @param end_date [String] ISO 8601 date string (YYYY-MM-DD)
-    # @return [Hash, nil] CCD metadata including available formats, or nil if not found
-    def get_ccd_metadata(start_date:, end_date:)
-      with_monitoring do
-        response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
-
-        document_ref = find_document_reference(body)
-        return nil unless document_ref
-
-        clinical_notes_adapter.parse_ccd_metadata(document_ref)
-      end
-    end
-
     # Retrieves CCD binary data for download
     #
     # @param start_date [String] ISO 8601 date string (YYYY-MM-DD)

@@ -49,25 +49,6 @@ module UnifiedHealthData
                                              })
       end
 
-      # Parses CCD metadata from DocumentReference
-      #
-      # @param document_ref_entry [Hash] FHIR DocumentReference entry
-      # @return [Hash, nil] CCD metadata or nil if malformed
-      def parse_ccd_metadata(document_ref_entry)
-        resource, attachment = fetch_resource_and_attachment(document_ref_entry)
-        return nil unless resource && attachment
-
-        {
-          id: resource['id'],
-          type: 'Continuity of Care Document',
-          date: resource['date'],
-          status: resource['status'],
-          loinc_code: extract_ccd_loinc_code(resource),
-          available_formats: detect_available_formats(attachment),
-          size_bytes: attachment['size']
-        }
-      end
-
       # Parses CCD binary data for download
       #
       # @param document_ref_entry [Hash] FHIR DocumentReference entry
@@ -230,23 +211,6 @@ module UnifiedHealthData
         return [nil, nil] unless attachment
 
         [resource, attachment]
-      end
-
-      # Extracts CCD LOINC code from DocumentReference
-      def extract_ccd_loinc_code(resource)
-        loinc_coding = resource.dig('type', 'coding')&.find do |coding|
-          coding['system'] == 'http://loinc.org'
-        end
-        loinc_coding&.dig('code')
-      end
-
-      # Detects which formats are available in the attachment
-      def detect_available_formats(attachment)
-        formats = []
-        formats << 'xml' if attachment['data']
-        formats << 'html' if attachment['html']
-        formats << 'pdf' if attachment['pdf']
-        formats
       end
 
       # Extracts format data from attachment
