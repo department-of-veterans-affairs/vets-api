@@ -31,13 +31,13 @@ module UnifiedHealthData
       Faraday.new(base_path) do |conn|
         conn.use(:breakers, service_name:)
         conn.request :json
+        conn.response :json_parser
 
         # Uncomment this if you want curl command equivalent or response output to log
         # conn.request(:curl, ::Logger.new($stdout), :warn) unless Rails.env.production?
         # conn.response(:logger, ::Logger.new($stdout), bodies: true) unless Rails.env.production?
 
         conn.response :betamocks if settings.mock
-        conn.response :json_parser
         conn.response :raise_custom_error, error_prefix: 'UHD'
         conn.adapter Faraday.default_adapter
       end
