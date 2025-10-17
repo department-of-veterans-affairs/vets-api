@@ -49,6 +49,8 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders::Threads', type: :request do
     describe '#index' do
       context 'with valid params' do
         it 'responds to GET #index' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
           VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder') do
             get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
                 params: { page_size: '5', page_number: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
@@ -57,6 +59,12 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders::Threads', type: :request do
           expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('my_health/messaging/v1/message_threads')
+
+          # Verify event logging was called
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
+          )
         end
 
         it 'responds to GET #index when camel-inflected' do

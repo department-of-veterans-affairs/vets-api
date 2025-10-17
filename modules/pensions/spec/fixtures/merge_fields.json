@@ -10,7 +10,7 @@
     "second": "22",
     "third": "4444"
   },
-  "vaClaimsHistory": 1,
+  "vaClaimsHistory": 0,
   "vaFileNumber": "12345678",
   "veteranDateOfBirth": {
     "month": "01",
@@ -55,25 +55,25 @@
       "year": "1973"
     }
   },
-  "socialSecurityDisability": 2,
-  "medicalCondition": 2,
-  "nursingHome": 1,
+  "socialSecurityDisability": 1,
+  "medicalCondition": 1,
+  "nursingHome": 0,
   "medicaidCoverage": false,
-  "medicaidStatus": 1,
-  "specialMonthlyPension": 2,
-  "vaTreatmentHistory": 1,
+  "medicaidStatus": 0,
+  "specialMonthlyPension": 1,
+  "vaTreatmentHistory": 0,
   "vaMedicalCenters": [
     {
       "medicalCenter": "Dallas VA Medical Center"
     }
   ],
-  "federalTreatmentHistory": 1,
+  "federalTreatmentHistory": 0,
   "federalMedicalCenters": [
     {
       "medicalCenter": "Memphis Health Care"
     }
   ],
-  "currentEmployment": 1,
+  "currentEmployment": 0,
   "currentEmployers": [
     {
       "jobType": "Customer service",
@@ -140,7 +140,7 @@
     "second": "22",
     "third": "4444"
   },
-  "spouseIsVeteran": 1,
+  "spouseIsVeteran": 0,
   "spouseVaFileNumber": "23423444",
   "spouseAddress": {
     "street": "123 7th st",
@@ -344,7 +344,7 @@
       "monthlyPaymentOverflow": "$2,300.00"
     }
   ],
-  "totalNetWorth": 2,
+  "totalNetWorth": 1,
   "netWorthEstimation": {
     "part_cents": "00",
     "part_two": "1",
@@ -578,15 +578,15 @@
       "paymentAmountOverflow": "$100.00"
     }
   ],
-  "transferredAssets": 1,
-  "homeOwnership": 1,
-  "homeAcreageMoreThanTwo": 1,
+  "transferredAssets": 0,
+  "homeOwnership": 0,
+  "homeAcreageMoreThanTwo": 0,
   "homeAcreageValue": {
     "part_cents": "00",
     "part_two": "75",
     "part_one": "000"
   },
-  "landMarketable": 1,
+  "landMarketable": 0,
   "receivesIncome": true,
   "incomeSources": [
     {
@@ -672,7 +672,7 @@
   "noRapidProcessing": 1,
   "statementOfTruthCertified": true,
   "statementOfTruthSignature": "John Edmund Doe",
-  "pow": 1,
+  "pow": 0,
   "placeOfSeparationLineOne": "West Brookfield, M",
   "placeOfSeparationLineTwo": "A",
   "previousEmployers": null,
@@ -691,10 +691,10 @@
     "marriageType": 1,
     "otherExplanation": "Other reason"
   },
-  "additionalMarriages": 2,
-  "additionalSpouseMarriages": 2,
+  "additionalMarriages": 1,
+  "additionalSpouseMarriages": 1,
   "dependentChildrenInHousehold": "2",
-  "dependentsNotWithYouAtSameAddress": 1,
+  "dependentsNotWithYouAtSameAddress": 0,
   "custodians": [
     {
       "first": "Joe",
@@ -714,8 +714,8 @@
       "dependentsWithCustodianOverflow": "Emily Anne Doe"
     }
   ],
-  "moreThanFourIncomeSources": 2,
-  "hasAnyExpenses": 1,
+  "moreThanFourIncomeSources": 1,
+  "hasAnyExpenses": 0,
   "signatureDate": {
     "month": "12",
     "day": "31",
