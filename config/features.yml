@@ -44,6 +44,9 @@ features:
   accredited_representative_portal_email_delivery_callback:
     actor_type: user
     description: Enables a custom email delivery callback to track and log all notification statuses beyond errors
+  accredited_representative_portal_lighthouse_api_key:
+    actor_type: user
+    description: Switches ARP LH benefits intake API key to be ARP-specific
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -790,6 +793,9 @@ features:
   disability_526_track_saved_claim_error:
     actor_type: user
     description: enables improved logging of SavedClaim::DisabilityCompensation::Form526AllClaim save failures
+  disability_526_block_banking_info_retrieval:
+    actor_type: user
+    description: disables call to Lighthouse Direct Deposit API to fill in banking information without Veteran consent
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -906,10 +912,6 @@ features:
     actor_type: user
     description: Enables Representative Status widget 2.0 features for frontend and backend
     enable_in_development: true
-  accredited_representative_portal_declination:
-    actor_type: user
-    description: Enables declination reason feature for frontend and backend
-    enable_in_development: true
   accredited_representative_portal_id_me:
     actor_type: user
     description: Enables ID.me authentication feature for frontend and backend
@@ -989,6 +991,10 @@ features:
     actor_type: user
     description: Enables form 21p-0537 email submission confirmation (VaNotify)
     enable_in_development: true
+  form21p_601_confirmation_email:
+    actor_type: user
+    description: Enables form 21p-601 email submission confirmation (VaNotify)
+    enable_in_development: true
   form21p_0847_confirmation_email:
     actor_type: user
     description: Enables form 21p-0847 email submission confirmation (VaNotify)
@@ -1066,6 +1072,9 @@ features:
   form2110210:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-10210
+  form21p601:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21P-601
   form21p0847:
     actor_type: user
     description: If enabled shows the digital form experience for form 21P-0847
@@ -1158,10 +1167,6 @@ features:
   kendra_enabled_for_resources_and_support_search:
     actor_type: user
     description: Enable/disable Amazon Kendra for Resources and Support search
-    enable_in_development: true
-  letters_page_new_design:
-    actor_type: user
-    description: Enables ability to show updated letter page design
     enable_in_development: true
   lighthouse_claims_api_v2_add_person_proxy:
     actor_type: user
@@ -1351,6 +1356,13 @@ features:
   mhv_secure_messaging_recent_recipients:
     actor_type: user
     description: Disables/Enables Secure Messaging Recent Recipients
+    enable_in_development: true
+  mhv_secure_messaging_612_care_systems_fix:
+    actor_type: user
+    description: Enables/disables fix for 612 care systems bug just in case of catastrophic failure during shutdown
+  mhv_secure_messaging_medications_renewal_request:
+    actor_type: user
+    description: Enables/disables Secure Messaging Medications Renewal Request feature
     enable_in_development: true
   mhv_bypass_downtime_notification:
     actor_type: user
@@ -2248,6 +2260,10 @@ features:
   virtual_agent_use_sts_authentication:
     actor_type: user
     description: Use STS authentication for the virtual agent chatbot application
+  virtual_agent_chatbot_session_persistence_enabled:
+    actor_type: user
+    description: Gate replay/persistence behavior for Virtual Agent (reuse conversation, watermark replay, token reuse)
+    enable_in_development: true
   notification_center:
     actor_type: user
     description: Enable Notification Center
@@ -2259,10 +2275,6 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
-  sc_new_form:
-    actor_type: user
-    description: Supplemental Claim new form updates
-    enable_in_development: true
   hlr_browser_monitoring_enabled:
     actor_type: user
     description: HLR Datadog RUM monitoring
@@ -2336,6 +2348,9 @@ features:
   income_and_assets_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  pbb_forms_require_loa3:
+    actor_type: user
+    description: Require LOA3 authentication to access Pension, Burials, and Income and Assets forms
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
@@ -2518,9 +2533,6 @@ features:
   accredited_representative_portal_sort_by:
     actor_type: user
     description: Enables sort by in POA Request Search page
-  accredited_representative_portal_help:
-    actor_type: user
-    description: Enables Get Help link on navigation
   accredited_representative_portal_profile:
     actor_type: user
     description: Enables Profile link on navigation dropdown
@@ -2570,12 +2582,6 @@ features:
   discover_your_benefits_browser_monitoring_enabled:
     actor_type: user
     description: Discover Your Benefits Datadog RUM monitoring
-  accredited_representative_portal_homepage:
-    actor_type: user
-    description: Enables new homepage redesign for ARP
-  accredited_representative_portal_dashboard_link:
-    actor_type: user
-    description: Enables new dashboard link on nav
   gi_comparison_tool_cautionary_info_update:
     actor_type: user
     description: Enables updated cautionary info student feedback ui for GI Comparison Tool
@@ -2611,4 +2617,3 @@ features:
     description: >
       Enables the upload_supporting_documents endpoint for scanned form uploads for supporting evidence.
       Owned by Simple Forms API team.
-

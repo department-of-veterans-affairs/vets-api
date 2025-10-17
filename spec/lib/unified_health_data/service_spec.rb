@@ -1038,7 +1038,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription.station_number).to eq('556')
           expect(oracle_prescription.is_refillable).to be true
           expect(oracle_prescription.is_trackable).to be false
-          expect(oracle_prescription.tracking_information).to eq({})
+          expect(oracle_prescription.tracking).to eq([])
           expect(oracle_prescription.prescription_source).to eq('')
           expect(oracle_prescription.instructions).to eq(
             '2 Inhalation Inhalation (breathe in) every 4 hours as needed shortness of breath or wheezing. Refills: 2.'
