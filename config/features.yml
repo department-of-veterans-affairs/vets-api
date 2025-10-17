@@ -793,6 +793,13 @@ features:
   disability_526_track_saved_claim_error:
     actor_type: user
     description: enables improved logging of SavedClaim::DisabilityCompensation::Form526AllClaim save failures
+  disability_526_add_claim_date_to_lighthouse:
+    actor_type: user
+    description: enables sending the claim date to Lighthouse when submitting a Form 526EZ when present
+    enable_in_development: true
+  disability_526_block_banking_info_retrieval:
+    actor_type: user
+    description: disables call to Lighthouse Direct Deposit API to fill in banking information without Veteran consent
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -988,6 +995,10 @@ features:
     actor_type: user
     description: Enables form 21p-0537 email submission confirmation (VaNotify)
     enable_in_development: true
+  form21p_601_confirmation_email:
+    actor_type: user
+    description: Enables form 21p-601 email submission confirmation (VaNotify)
+    enable_in_development: true
   form21p_0847_confirmation_email:
     actor_type: user
     description: Enables form 21p-0847 email submission confirmation (VaNotify)
@@ -1065,6 +1076,9 @@ features:
   form2110210:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-10210
+  form21p601:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21P-601
   form21p0847:
     actor_type: user
     description: If enabled shows the digital form experience for form 21P-0847
@@ -1350,6 +1364,10 @@ features:
   mhv_secure_messaging_612_care_systems_fix:
     actor_type: user
     description: Enables/disables fix for 612 care systems bug just in case of catastrophic failure during shutdown
+  mhv_secure_messaging_medications_renewal_request:
+    actor_type: user
+    description: Enables/disables Secure Messaging Medications Renewal Request feature
+    enable_in_development: true
   mhv_bypass_downtime_notification:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
@@ -2261,10 +2279,6 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
-  sc_new_form:
-    actor_type: user
-    description: Supplemental Claim new form updates
-    enable_in_development: true
   hlr_browser_monitoring_enabled:
     actor_type: user
     description: HLR Datadog RUM monitoring
@@ -2523,9 +2537,6 @@ features:
   accredited_representative_portal_sort_by:
     actor_type: user
     description: Enables sort by in POA Request Search page
-  accredited_representative_portal_help:
-    actor_type: user
-    description: Enables Get Help link on navigation
   accredited_representative_portal_profile:
     actor_type: user
     description: Enables Profile link on navigation dropdown
@@ -2575,9 +2586,6 @@ features:
   discover_your_benefits_browser_monitoring_enabled:
     actor_type: user
     description: Discover Your Benefits Datadog RUM monitoring
-  accredited_representative_portal_homepage:
-    actor_type: user
-    description: Enables new homepage redesign for ARP
   gi_comparison_tool_cautionary_info_update:
     actor_type: user
     description: Enables updated cautionary info student feedback ui for GI Comparison Tool
@@ -2613,4 +2621,3 @@ features:
     description: >
       Enables the upload_supporting_documents endpoint for scanned form uploads for supporting evidence.
       Owned by Simple Forms API team.
-

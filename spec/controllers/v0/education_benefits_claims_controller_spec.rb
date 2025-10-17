@@ -168,7 +168,7 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
       it 'increments the failed metric and returns 500' do
         get :download_pdf, params: { id: education_benefits_claim.id }
         expect(response).to have_http_status(:internal_server_error)
-        expect(StatsD).to have_received(:increment).with('api.education_benefits_claim.pdf_download.221990.failure')
+        expect(StatsD).to have_received(:increment).with('api.education_benefits_claim.pdf_download.failure')
       end
     end
   end
