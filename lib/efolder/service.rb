@@ -12,12 +12,12 @@ module Efolder
     def initialize(user)
       @user = user
       @client = VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
-      @bgs_doc_uuids = bgs_doc_uuids
     end
 
     def list_documents
+      bgs_ids = bgs_doc_uuids
       vbms_docs.map do |document|
-        if @bgs_doc_uuids.include?(document[:document_id].delete('{}'))
+        if bgs_ids.include?(document[:document_id].delete('{}'))
           document.marshal_dump.slice(
             :document_id, :doc_type, :type_description, :received_at
           )
@@ -31,6 +31,16 @@ module Efolder
       @client.send_request(
         VBMS::Requests::GetDocumentContent.new(document_id)
       ).content
+    end
+
+    def get_document_by_subject(subject)
+      vbms_docs.map do |document|
+        if document[:subject] == subject
+          document.marshal_dump.slice(
+            :document_id, :doc_type, :type_description, :received_at
+          )
+        end
+      end.compact
     end
 
     private

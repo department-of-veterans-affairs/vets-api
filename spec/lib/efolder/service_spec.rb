@@ -98,4 +98,14 @@ RSpec.describe Efolder::Service do
       end
     end
   end
+
+  describe 'get_document_by_subject' do
+    it 'returns requested document' do
+      VCR.use_cassette('vbms/list_documents') do
+        expect(subject.get_document_by_subject('123456789')).to eq({
+
+        })
+      end
+    end
+  end
 end

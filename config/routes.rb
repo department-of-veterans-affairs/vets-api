@@ -181,6 +181,7 @@ Rails.application.routes.draw do
     get 'average_days_for_claim_completion', to: 'average_days_for_claim_completion#index'
 
     resources :efolder, only: %i[index show]
+    get 'efolder/tsa_letter', to: 'efolder#tsa_letter'
 
     resources :evss_claims, only: %i[index show] do
       post :request_decision, on: :member

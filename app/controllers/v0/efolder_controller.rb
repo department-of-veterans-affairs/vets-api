@@ -18,6 +18,11 @@ module V0
       )
     end
 
+    def tsa_letter
+      letter = service.get_document_by_subject('VETS Safe Travel Outreach Letter')
+      render(json: letter)
+    end
+
     private
 
     def service
