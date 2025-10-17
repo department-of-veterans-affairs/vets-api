@@ -55,7 +55,23 @@ module VAOS
                            tp_client = 'vagov') # rubocop:enable Metrics/ParameterLists
         cnp_count = 0
 
-        response = send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
+        # Determine if we should fetch travel claims in parallel
+        should_fetch_travel_claims = Flipper.enabled?(:travel_pay_view_claim_details, user) &&
+                                     include[:travel_pay_claims]
+        parallelize_fetch = should_fetch_travel_claims &&
+                            Flipper.enabled?(:va_online_scheduling_parallel_travel_claims, user)
+
+        if parallelize_fetch
+          # Fetch appointments and travel claims in parallel
+          response, travel_claims_result = fetch_appointments_and_claims_parallel(
+            start_date, end_date, statuses, pagination_params, tp_client
+          )
+        else
+          # Original sequential behavior
+          response = send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
+          travel_claims_result = nil
+        end
+
         return response if response.dig(:meta, :failures)
 
         appointments = response.body[:data]
@@ -67,8 +83,15 @@ module VAOS
 
         appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
 
-        if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
-          appointments = merge_all_travel_claims(start_date, end_date, appointments, tp_client)
+        # Merge travel claims - either from parallel fetch or sequential fetch
+        if should_fetch_travel_claims
+          appointments = if parallelize_fetch && travel_claims_result
+                           # Use pre-fetched claims data from parallel execution
+                           merge_claims_with_appointments(appointments, travel_claims_result)
+                         else
+                           # Fetch and merge sequentially (original behavior)
+                           merge_all_travel_claims(start_date, end_date, appointments, tp_client)
+                         end
         end
 
         if Flipper.enabled?(:appointments_consolidation, user)
@@ -343,6 +366,91 @@ module VAOS
       end
 
       private
+
+      # Fetches appointments and travel claims in parallel using Concurrent::Promises
+      # @return [Array] Array containing [response, travel_claims_result]
+      def fetch_appointments_and_claims_parallel(start_date, end_date, statuses, pagination_params, tp_client)
+        require 'concurrent-ruby'
+
+        # Create futures for parallel execution
+        appointments_future = Concurrent::Promises.future do
+          send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
+        end
+
+        travel_claims_future = Concurrent::Promises.future do
+          service = TravelPay::ClaimAssociationService.new(user, tp_client)
+          service.fetch_claims_by_date(start_date, end_date)
+        end
+
+        # Wait for both futures to complete and handle results
+        appointments_response = handle_appointments_future(appointments_future)
+        travel_claims_result = handle_travel_claims_future(travel_claims_future)
+
+        [appointments_response, travel_claims_result]
+      end
+
+      # Handles the appointments future result, re-raising errors
+      def handle_appointments_future(future)
+        future.value!
+      rescue => e
+        Rails.logger.error("Error fetching appointments in parallel: #{e.message}")
+        raise e
+      end
+
+      # Handles the travel claims future result, returning error metadata on failure
+      def handle_travel_claims_future(future)
+        future.value!
+      rescue => e
+        Rails.logger.error("Error fetching travel claims in parallel: #{e.message}")
+        Rails.logger.warn("Travel claims fetch failed, continuing without claims: #{e.message}")
+        { error: true, metadata: { 'status' => 500, 'success' => false,
+                                   'message' => 'Travel claims service unavailable' } }
+      end
+
+      # Merges pre-fetched claims data with appointments
+      # @param appointments [Array] Array of appointment hashes
+      # @param claims_result [Hash] Result from fetch_claims_by_date
+      # @return [Array] Appointments with merged travel claim data
+      def merge_claims_with_appointments(appointments, claims_result)
+        if claims_result[:error]
+          # Append error metadata to all appointments
+          appointments.each do |appt|
+            appt['travelPayClaim'] = {
+              'metadata' => claims_result[:metadata]
+            }
+          end
+        else
+          # Append claims and metadata to appointments
+          appointments.each do |appt|
+            appt['travelPayClaim'] = {
+              'metadata' => claims_result[:metadata]
+            }
+
+            begin
+              matching_claim = find_matching_claim_for_appointment(claims_result[:claims], appt[:local_start_time])
+              appt['travelPayClaim']['claim'] = matching_claim if matching_claim.present?
+            rescue TravelPay::InvalidComparableError => e
+              Rails.logger.warn(message: "Cannot compare start times. #{e.message}")
+            end
+          end
+        end
+        appointments
+      end
+
+      # Finds a matching claim for an appointment based on start time
+      # @param claims [Array] Array of claim hashes
+      # @param appt_start [String] Appointment start time
+      # @return [Hash, nil] Matching claim or nil
+      def find_matching_claim_for_appointment(claims, appt_start)
+        return nil if claims.nil?
+
+        claims.find do |cl|
+          claim_time = TravelPay::DateUtils.try_parse_date(cl['appointmentDateTime'])
+          appt_time = TravelPay::DateUtils.strip_timezone(appt_start)
+
+          claim_time.eql? appt_time
+        end
+      end
 
       # rubocop:disable Metrics/MethodLength
       def parse_possible_token_related_errors(e, method_name)
