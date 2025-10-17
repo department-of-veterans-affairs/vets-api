@@ -1577,14 +1577,19 @@ describe UnifiedHealthData::Service, type: :service do
     context 'when requesting unavailable format' do
       let(:ccd_data) { JSON.parse(ccd_fixture) }
       let(:modified_ccd) do
-        # Remove HTML/PDF from fixture
+        # Remove HTML content item from fixture
         doc_ref = ccd_data['entry'].find { |e| e['resource']['resourceType'] == 'DocumentReference' }
-        doc_ref['resource']['content'].first['attachment'].delete('html')
-        doc_ref['resource']['content'].first['attachment'].delete('pdf')
+        doc_ref['resource']['content'].reject! do |item|
+          item['attachment']['contentType'] == 'text/html'
+        end
         ccd_data.to_json
       end
       let(:ccd_response) do
         Faraday::Response.new(body: modified_ccd)
+      end
+
+      before do
+        allow(client_double).to receive(:get_ccd).and_return(ccd_response)
       end
 
       it 'raises an error for missing HTML' do

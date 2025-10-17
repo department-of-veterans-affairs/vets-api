@@ -306,7 +306,8 @@ module UnifiedHealthData
         when 'xml' then 'application/xml'
         when 'html' then 'text/html'
         when 'pdf' then 'application/pdf'
-        else 'application/octet-stream'
+        else
+          raise ArgumentError, "Invalid format: #{format}. Use xml, html, or pdf"
         end
       end
     end
