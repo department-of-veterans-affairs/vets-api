@@ -143,7 +143,7 @@ module UnifiedHealthData
         facility_name = attempt_facility_lookup(three_digit_station)
         return facility_name if facility_name
 
-  # If that fails, try the full facility identifier before the first hyphen (e.g., 648A4)
+        # If that fails, try the full facility identifier before the first hyphen (e.g., 648A4)
         station_segment = location_display.split('-').first
         # Valid format: 3 digits + up to 2 alpha (e.g., 648A, 648A4)
         valid_station_regex = /^\d{3}[A-Za-z0-9]{0,2}$/

@@ -149,7 +149,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         end
       end
 
-  context 'when 3-digit lookup misses but full facility identifier exists' do
+      context 'when 3-digit lookup misses but full facility identifier exists' do
         let(:resource_with_extended_station) do
           base_resource.merge(
             'contained' => [
