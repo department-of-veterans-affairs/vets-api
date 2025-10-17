@@ -68,6 +68,7 @@ app/controllers/v0/form1010_ezrs_controller.rb @department-of-veterans-affairs/h
 app/controllers/v0/form1010cg/attachments_controller.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/form1095_bs_controller.rb @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/form210779_controller.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
+app/controllers/v0/form214192_controller.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/forms_controller.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-public-websites-frontend
 app/controllers/v0/gi_bill_feedbacks_controller.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 app/controllers/v0/gids @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
@@ -535,6 +536,7 @@ app/swagger/swagger/requests/form1010_ezrs.rb @department-of-veterans-affairs/he
 app/swagger/swagger/requests/form1010cg @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/form1095_bs.rb @department-of-veterans-affairs/va-iir @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/form210779.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
+app/swagger/swagger/requests/form214192.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/forms.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-public-websites-frontend
 app/swagger/swagger/requests/gibct @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/gibct/calculator_constants.rb @department-of-veterans-affairs/backend-review-group
@@ -943,6 +945,7 @@ lib/pdf_fill/forms/pdfs/686C-674.pdf @department-of-veterans-affairs/benefits-de
 lib/pdf_fill/forms/va2141422024.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/pdf_fill/forms/va21674.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 lib/pdf_fill/forms/va21p0969.rb @department-of-veterans-affairs/income-and-assets @department-of-veterans-affairs/backend-review-group
+lib/pdf_fill/forms/va228794.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 lib/pdf_fill/forms/va281900.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 lib/pdf_fill/forms/va288832.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 lib/pdf_fill/forms/va686c674.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
@@ -1128,6 +1131,7 @@ spec/controllers/v0/form1010_ezr_attachments_controller_spec.rb @department-of-v
 spec/controllers/v0/form1010cg @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/form1010cg/attachments_controller_spec.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/form210779_controller_spec.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
+spec/controllers/v0/form214192_controller_spec.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/forms_controller_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-public-websites-frontend
 spec/controllers/v0/gi_bill_feedbacks_controller_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/controllers/v0/hca_attachments_controller_spec.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group

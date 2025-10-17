@@ -236,7 +236,14 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           'contained' => [
             {
               'resourceType' => 'Encounter',
-              'id' => 'encounter-1'
+              'id' => 'encounter-1',
+              'location' => [
+                {
+                  'location' => {
+                    'display' => 'VA Medical Center - Emergency'
+                  }
+                }
+              ]
             }
           ]
         )
@@ -255,6 +262,21 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
             {
               'resourceType' => 'MedicationDispense',
               'id' => 'dispense-1'
+            },
+            {
+              'resourceType' => 'Encounter',
+              'id' => 'encounter-1',
+              'location' => [
+                {
+                  'location' => {
+                    'display' => 'Outpatient Clinic'
+                  }
+                }
+              ]
+            },
+            {
+              'resourceType' => 'Organization',
+              'id' => 'org-1'
             }
           ]
         )
