@@ -133,11 +133,11 @@ module VAOS
           return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
         end
 
-        eps_appointments = eps_appointments_service.get_appointments
+        eps_appointments = eps_appointments_service.get_appointments(referral_number: referral_id)
 
         # Filter out draft EPS appointments when checking referral usage
         non_draft_eps_appointments = eps_appointments&.reject { |appt| appt[:state] == 'draft' } || []
-        { exists: appointment_with_referral_exists?(non_draft_eps_appointments, referral_id) }
+        { exists: non_draft_eps_appointments.any? }
       end
 
       # rubocop:enable Metrics/MethodLength
@@ -1352,18 +1352,6 @@ module VAOS
                                                                                                     caller_name)
                                                     })
         }
-      end
-
-      ##
-      # Checks if any appointment in the given list has a referral that matches the referral_id
-      #
-      # @param appointments [Array<Hash>] List of appointments to check
-      # @param referral_id [String] The referral ID to search for
-      # @return [Boolean] true if an appointment with matching referral exists, false otherwise
-      def appointment_with_referral_exists?(appointments, referral_id)
-        appointments.any? do |appt|
-          appt[:referral] && appt[:referral][:referral_number] == referral_id
-        end
       end
     end
   end
