@@ -9,7 +9,8 @@
 # - Ensures downstream processes and user features have current institution information.
 #
 # How:
-# - Downloads a CSV file from a remote S3 bucket.
+# - https://github.com/department-of-veterans-affairs/ves-oracle-export exports facility data from VES to CSV file in S3
+# - This job downloads the CSV file from a remote S3 bucket.
 # - Parses and maps the data to the local schema.
 # - Upserts new and updated records, and logs new institutions.
 # - Triggers a HealthFacilitiesImportJob to update related health facility data.
