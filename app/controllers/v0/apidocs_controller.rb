@@ -160,7 +160,6 @@ module V0
       Swagger::Requests::HCAAttachments,
       Swagger::Requests::InProgressForms,
       Swagger::Requests::IntentToFile,
-      Swagger::Requests::Letters,
       Swagger::Requests::MaintenanceWindows,
       Swagger::Requests::MDOT::Supplies,
       Swagger::Requests::MedicalCopays,
