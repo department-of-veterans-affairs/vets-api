@@ -8,6 +8,20 @@ The average request latency for `mobile/v0/appointments#index` exhibited unusual
 
 Meanwhile, `vaos/v2/appointments#index` remained consistent throughout this period. Both endpoints use the same backend service (`VAOS::V2::AppointmentsService`).
 
+## Quick Comparison Table
+
+| Feature | Mobile V0 | VAOS V2 | Impact |
+|---------|-----------|---------|--------|
+| **Schema Adapter** | ✅ Yes (VAOS V2 → Mobile V0) | ❌ No | O(n) transformation |
+| **Client-Side Pagination** | ✅ Yes (array slicing) | ❌ No | Processes ALL appointments |
+| **Sorting** | ✅ Yes (`sort_by`) | ❌ No | O(n log n) operation |
+| **Upcoming Count** | ✅ Yes (always) | ❌ No | O(n) iteration |
+| **Travel Pay Count** | ✅ Yes (conditional) | ❌ No | O(n) iteration with nested hash |
+| **Travel Pay API Call** | ✅ Yes (conditional) | ✅ Yes (conditional) | External API latency (both) |
+| **Presentation Filter** | ✅ Conditional (inverted) | ✅ Conditional | Dataset size variation |
+
+**Key Insight:** Mobile performs 4-5 additional O(n) operations on the dataset, making it sensitive to both dataset size and external API latency.
+
 ## Architecture Overview
 
 ### mobile/v0/appointments#index Flow:
