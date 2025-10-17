@@ -15,7 +15,7 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
     end
 
     let!(:education_benefits_claim_2) do
-      create(:education_benefits_claim_1990n, processed_at: time.beginning_of_day)
+      create(:education_benefits_claim, processed_at: time.beginning_of_day)
     end
 
     before do

@@ -34,19 +34,6 @@ RSpec.describe EducationForm::EducationFacility do
       end
     end
 
-    context '22-1990N' do
-      let(:form) { OpenStruct.new(veteranAddress: western_address) }
-
-      it 'uses educationProgram over veteranAddress' do
-        form.educationProgram = school(central_address)
-        expect(described_class.routing_address(form, form_type: '1990n').state).to eq(central_address.state)
-      end
-
-      it 'uses veteranAddress when no school address is given' do
-        expect(described_class.routing_address(form, form_type: '1990n').state).to eq(western_address.state)
-      end
-    end
-
     context '22-1995' do
       let(:form) { OpenStruct.new(veteranAddress: western_address) }
 
