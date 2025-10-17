@@ -73,6 +73,7 @@ module IvcChampva
       form_number = form.data['form_number']
       if FORM_REQUIRES_STAMP.include? form_number
         form.desired_stamps.each do |desired_stamp|
+          Rails.logger.info "IVC Champva Forms - PdfStamper: desired stamp text: #{desired_stamp[:text]}"
           stamp(desired_stamp, stamped_template_path)
         end
       end
