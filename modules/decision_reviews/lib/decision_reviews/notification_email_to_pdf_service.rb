@@ -6,7 +6,6 @@ module DecisionReviews
   class NotificationEmailToPdfService
     BODY_TEXT_SIZE = 11
     GRAY_BOX_HEIGHT = 185
-    GRAY_BOX_TOP_PADDING = 20
     BLOCKQUOTE_INDENT = 40
     CONTENT_INDENT = 40
     TEXT_LEADING = 2.5
@@ -26,6 +25,7 @@ module DecisionReviews
     INLINE_BOLDED_TEXT = /(\*\*.*?\*\*)/
     REGULAR_LINK_PATTERN = /\[(.+?)\]\((.+?)\)/
     ACTION_LINK_PATTERN = /^\(action-link\)\[(.+?)\]\((.+?)\)/
+    HORIZ_RULE_PATTERN = %r{<hr\s*/?>}i
     METADATA_PATTERN = /^(To|Subject|Email Sent Date|Original Submission Date|Evidence Filename):/
     ADDRESS_PATTERN = /^\(address\)(.+)$/
     FOOTER_SEPARATOR = /^---$/
@@ -82,10 +82,10 @@ module DecisionReviews
       # 1. Replace the first <redacted> after "Dear" with first name
       content = content.sub(/Dear\s+<redacted>/i, "Dear #{@first_name}")
 
-      # 2. If evidence filename exists, replace <redacted> after "Here's the file name of the document we need"
       if @evidence_filename
-        content = content.gsub(/Here's the file name of the document we need[:\s]*<redacted>/i,
-                               "Here's the file name of the document we need: #{@evidence_filename}")
+        content = content.gsub(
+          /(>\s*##\s*Here's the file name of the document we need\s*\n\s*>\s*)<redacted>/im
+        ) { "#{Regexp.last_match(1)}#{@evidence_filename}" }
       end
 
       # 3. Replace any remaining <redacted> fields with formatted submission date
@@ -164,49 +164,51 @@ module DecisionReviews
       end
     end
 
-    # We want the gray section to flex in height based on the length of the content
-    def measure_gray_section_content(text)
-      # Measure content height using a temporary PDF with correct width
-      temp_pdf = Prawn::Document.new
+    # We want the height of the gray box to flex depending on the
+    # height of the text content, so we create a temporary Prawn PDF
+    # and render the text to measure there
+    def measure_height_of_text_content(text)
+      temp_pdf = Prawn::Document.new(page_size: 'LETTER', margin: 50)
       temp_pdf.font 'Helvetica', size: BODY_TEXT_SIZE
-      temp_start = temp_pdf.cursor
 
-      # Use the same width as the actual rendering (accounting for indents)
-      temp_pdf.indent(BLOCKQUOTE_INDENT) do
-        text.split("\n").each do |line|
-          stripped = line.strip
-          if stripped.empty?
-            temp_pdf.move_down SPACE_DOUBLE
-          else
-            # Measure with proper width constraints
-            temp_pdf.text stripped, size: BODY_TEXT_SIZE
-          end
+      temp_pdf.indent(CONTENT_INDENT) do
+        temp_start = temp_pdf.cursor
+        temp_pdf.move_down SPACE_DOUBLE
+
+        temp_pdf.bounding_box([0, temp_pdf.cursor], width: temp_pdf.bounds.width - 60) do
+          format_blockquote(temp_pdf, text)
         end
-      end
 
-      temp_start - temp_pdf.cursor
+        temp_pdf.move_down SPACE_DOUBLE
+        final_cursor = temp_pdf.cursor
+        temp_start - final_cursor
+      end
     end
 
     def create_gray_section(pdf, text)
+      content_height = measure_height_of_text_content(text)
+
+      # Check if we need a new page (need at least the content height + some padding)
+      pdf.start_new_page if pdf.cursor < content_height + 40
       start_y = pdf.cursor
-
-      # Calculate available width for content (total width minus left/right margins and indents)
-      gray_box_width = pdf.bounds.width - 60
-      available_content_width = gray_box_width - (BLOCKQUOTE_INDENT * 2)
-
-      content_height = measure_gray_section_content(text)
 
       # Draw gray rectangle
       pdf.fill_color 'F1F1F1'
       pdf.fill_rectangle [20, start_y],
-                         gray_box_width,
-                         content_height + (GRAY_BOX_TOP_PADDING * 2) + 20 # Reduced extra padding
+                         pdf.bounds.width - 60,
+                         content_height
 
-      # Reset color and render content
+      # Reset color for text
       pdf.fill_color '323A45'
-      pdf.move_down GRAY_BOX_TOP_PADDING
-      format_blockquote(pdf, text)
-      pdf.move_down GRAY_BOX_TOP_PADDING
+
+      pdf.move_down SPACE_DOUBLE
+
+      # Render text (on top of rectangle)
+      pdf.bounding_box([0, pdf.cursor], width: pdf.bounds.width - 60) do
+        format_blockquote(pdf, text)
+      end
+
+      pdf.move_down SPACE_DOUBLE
     end
 
     def add_header(pdf)
@@ -223,15 +225,7 @@ module DecisionReviews
                align: :center,
                size: 12
 
-      pdf.move_down SPACE_SINGLE
-      pdf.stroke_horizontal_rule
-      pdf.move_down SPACE_DOUBLE
-    end
-
-    def format_section_divider(pdf)
-      pdf.move_down SPACE_SINGLE
-      pdf.stroke_horizontal_rule
-      pdf.move_down SPACE_SINGLE
+      format_section_divider(pdf, SPACE_SINGLE, SPACE_DOUBLE)
     end
 
     def format_dr_email_header(pdf, line)
@@ -253,7 +247,7 @@ module DecisionReviews
     def format_heading(pdf, text, level:)
       sizes = { h1: 24, h2: 18, h3: 14 }
       leadings = { h1: 1.75, h2: 1.25, h3: 1.0 }
-      spacing = { h1: 0, h2: SPACE_SINGLE, h3: SPACE_SINGLE }
+      spacing = { h1: 0, h2: SPACE_SINGLE_HALF, h3: SPACE_SINGLE_HALF }
 
       pdf.move_down SPACE_DOUBLE if level == :h1
 
@@ -280,7 +274,6 @@ module DecisionReviews
     def format_action_links(pdf, link_text, link_url)
       start_y = pdf.cursor
 
-      # Draw image on the left
       pdf.bounding_box([0, start_y], width: 20, height: 20) do
         pdf.image 'modules/decision_reviews/spec/fixtures/action-link-arrow.png',
                   width: 16,
@@ -288,7 +281,6 @@ module DecisionReviews
                   position: :left
       end
 
-      # Draw text on the right at the same y position
       pdf.bounding_box([20, start_y - 4], width: pdf.bounds.width - 20, height: 20) do
         format_links(pdf, link_text, link_url, bold: true)
       end
@@ -347,7 +339,7 @@ module DecisionReviews
     # Handles normal paragraphs, empty lines, and inline formatting
     def format_paragraph_content(pdf, line)
       if line.strip.empty?
-        pdf.move_down SPACE_DOUBLE
+        pdf.move_down SPACE_SINGLE_HALF
       elsif line.include?('**') || line.include?('[')
         fragments = parse_inline_formatting(line.strip)
         pdf.formatted_text fragments,
@@ -371,10 +363,17 @@ module DecisionReviews
       end
     end
 
-    def format_footer_separator(pdf)
-      pdf.move_down SPACE_DOUBLE
+    def format_section_divider(pdf, top_space, bottom_space)
+      pdf.move_down top_space
+      pdf.stroke_color 'BFC1C3'
+      pdf.line_width 0.5
       pdf.stroke_horizontal_rule
-      pdf.move_down SPACE_SINGLE
+
+      # Reset stroke color and line width after drawing the horizontal line
+      pdf.stroke_color '000000'
+      pdf.line_width 1
+
+      pdf.move_down bottom_space
     end
 
     def add_formatted_content(pdf, content)
@@ -387,8 +386,6 @@ module DecisionReviews
         case line
         when HEADER_UNDERLINE
           # Skip underline characters, we'll format headers differently
-        when SECTION_DIVIDER
-          format_section_divider(pdf)
         when DR_EMAIL_HEADER
           format_dr_email_header(pdf, line)
         when *METADATA_HEADERS
@@ -425,8 +422,8 @@ module DecisionReviews
 
           blockquote_text = blockquote_lines.join("\n")
           create_gray_section(pdf, blockquote_text)
-        when FOOTER_SEPARATOR
-          format_footer_separator(pdf)
+        when SECTION_DIVIDER, HORIZ_RULE_PATTERN, FOOTER_SEPARATOR
+          format_section_divider(pdf, SPACE_SINGLE, SPACE_SINGLE)
         else
           format_paragraph_content(pdf, line)
         end
@@ -436,13 +433,11 @@ module DecisionReviews
     end
 
     def add_footer(pdf)
-      # Calculate position - 20 pixels from bottom of page
       footer_y_position = 0
 
       # Start a new page if we're too close to the bottom
       pdf.start_new_page if pdf.cursor < 80 # Need at least 80 points for footer
 
-      # Position at bottom of current page
       pdf.bounding_box([0, footer_y_position + 30], width: pdf.bounds.width, height: 30) do
         pdf.font 'Helvetica', size: 8
         pdf.text "Generated: #{Time.current.strftime('%B %d, %Y at %I:%M %p %Z')}", align: :center
