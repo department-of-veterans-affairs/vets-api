@@ -5,8 +5,11 @@ require 'logging/monitor'
 module ClaimsEvidenceApi
   # @see Logging::Monitor
   class Monitor < ::Logging::Monitor
-    def initialize
-      super('claims-evidence-api', allowlist: ALLOWLIST)
+    # create a claims evidence monitor
+    #
+    # @param allowlist [Array<String>] list of allowed params
+    def initialize(allowlist = [])
+      super('claims-evidence-api', allowlist:)
     end
 
     # utility function, @see Rails.logger
@@ -48,7 +51,7 @@ module ClaimsEvidenceApi
       attr_reader :record
 
       def initialize(record)
-        super()
+        super(ALLOWLIST)
         @record = record
       end
 
@@ -81,6 +84,10 @@ module ClaimsEvidenceApi
         method
         reason
       ].freeze
+
+      def initialize
+        super(ALLOWLIST)
+      end
 
       # track the api request performed and the response/error
       # @see Common::Client::Base#perform
@@ -117,6 +124,10 @@ module ClaimsEvidenceApi
         saved_claim_id
         stamp_set
       ].freeze
+
+      def initialize
+        super(ALLOWLIST)
+      end
 
       # track evidence upload started
       #

@@ -18,7 +18,7 @@ module Logging
     include Logging::Helper::ParameterFilter
 
     # allowed logging params
-    WHITELIST = %w[
+    ALLOWLIST = %w[
       statsd
       service
       function
@@ -27,7 +27,7 @@ module Logging
     ].freeze
 
     # excluded logging params
-    BLACKLIST = %w[
+    BLOCKLIST = %w[
       file
       ssn
       icn
@@ -44,7 +44,7 @@ module Logging
     # @param allowlist [Array<String>] the list of allowed parameters
     def initialize(service, allowlist: [])
       @service = service
-      @allowlist = (WHITELIST + allowlist.map(&:to_s)).uniq - BLACKLIST
+      @allowlist = (ALLOWLIST + allowlist.map(&:to_s)).uniq - BLOCKLIST
     end
 
     # perform monitoring actions - StatsD.increment and Rails.logger
