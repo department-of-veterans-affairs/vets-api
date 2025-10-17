@@ -205,11 +205,15 @@ module DependentsBenefits::Jobs
     end
 
     def send_success_notification
-      # TODO
+      DependentsBenefits::NotificationEmail.new(claim_id).deliver(:submitted)
+    rescue => e
+      monitor.track_error_event('Error sending success notification email', 'notification_failure', error: e)
     end
 
     def send_failure_notification
-      # TODO
+      DependentsBenefits::NotificationEmail.new(claim_id).deliver(:error)
+    rescue => e
+      monitor.track_error_event('Error sending failure notification email', 'notification_failure', error: e)
     end
 
     def send_backup_job

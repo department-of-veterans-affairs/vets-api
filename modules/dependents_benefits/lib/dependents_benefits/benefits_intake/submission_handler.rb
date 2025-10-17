@@ -2,6 +2,7 @@
 
 require 'lighthouse/benefits_intake/submission_handler/saved_claim'
 require 'dependents_benefits/monitor'
+require 'dependents_benefits/notification_email'
 
 module DependentsBenefits
   module BenefitsIntake
@@ -30,18 +31,20 @@ module DependentsBenefits
 
       # BenefitsIntake::SubmissionHandler::SavedClaim#notification_email
       def notification_email
-        # TODO: in #120766
+        @notification_email ||= Dependents::NotificationEmail.new(claim.id)
       end
 
       # handle a failure result
       # inheriting class must assign @avoided before calling `super`
       def on_failure
-        # TODO: in #120766
+        @avoided = notification_email.deliver(:error)
+        super
       end
 
       # handle a success result
       def on_success
-        # TODO: in #120766
+        notification.deliver(:received)
+        super
       end
 
       # handle a stale result
