@@ -2124,6 +2124,50 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       summary: /v0/health/allergy-intolerances
+  /v1/health/allergy-intolerances:
+    get:
+      description: >
+        Retrieves a Unified Health Data list of the user's known allergies related to medication, food, or other substances
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: The page number requested. Defaults to 1.
+          example: 1
+          in: query
+          name: page[number]
+          schema:
+            type: integer
+        - description: The number of records to return per page. Defaults to 10.
+          example: 10
+          in: query
+          name: page[size]
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/v1/AllergyIntolerancesV1.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      summary: /v1/health/allergy-intolerances
   /v0/health/labs-and-tests:
     get:
       description: >

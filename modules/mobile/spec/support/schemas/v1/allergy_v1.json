@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["data", "meta"],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "id", "attributes"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "allergy"
+          },
+          "id": {
+            "type": "string",
+            "example": "2678",
+            "description": "Upstream identifier"
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "date",
+              "categories",
+              "reactions",
+              "location",
+              "observedHistoric",
+              "notes",
+              "provider"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "2678"
+              },
+              "name": {
+                "type": ["string", "null"],
+                "example": "TRAZODONE"
+              },
+              "date": {
+                "type": ["string", "null"],
+                "example": "2009-03-19T12:24:55Z"
+              },
+              "categories": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": ["medication"]
+              },
+              "reactions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": ["Hives", "Swelling"]
+              },
+              "location": {
+                "type": ["string", "null"],
+                "example": "Cheyenne VA Medical Center"
+              },
+              "observedHistoric": {
+                "type": ["string", "null"],
+                "example": "h"
+              },
+              "notes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": ["Patient states allergy to trazodone."]
+              },
+              "provider": {
+                "type": ["string", "null"],
+                "example": "Dr. John Smith"
+              }
+            }
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pagination"],
+      "properties": {
+        "pagination": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["currentPage", "perPage", "totalPages", "totalEntries"],
+          "properties": {
+            "currentPage": {
+              "type": "integer",
+              "example": 1
+            },
+            "perPage": {
+              "type": "integer",
+              "example": 10
+            },
+            "totalPages": {
+              "type": "integer",
+              "example": 2
+            },
+            "totalEntries": {
+              "type": "integer",
+              "example": 15
+            }
+          }
+        }
+      }
+    }
+  }
+}
