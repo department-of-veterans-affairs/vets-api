@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'dependents_benefits/jobs/bgs_686c_job'
 require 'dependents_benefits/monitor'
 
 module DependentsBenefits
@@ -61,10 +62,11 @@ module DependentsBenefits
     def enqueue_686c_submission(claim)
       jobs_count = 0
 
-      # Enqueue primary 686c submission job
+      # Enqueue primary 686c submission jobs
+      Jobs::BGS686cJob.perform_async(claim.id, proc_id)
+      jobs_count += 1
+
       # TODO: Add calls to submission jobs here as they are implemented
-      # Example: DependentsBenefits::SubmissionJob.perform_async(claim.id, proc_id)
-      # jobs_count += 1
 
       monitor.track_processor_info('Enqueued 686c submission jobs', 'enqueue_686c',
                                    parent_claim_id:, claim_id: claim.id)
