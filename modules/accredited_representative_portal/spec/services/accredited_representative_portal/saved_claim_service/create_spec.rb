@@ -139,11 +139,13 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
             doc = build(:persistent_attachment_va_form_documentation, form_id: '21-686c')
 
             # Stub organize_attachments! to return our in-memory (non-persisted) attachments
-            allow(described_class).to receive(:organize_attachments!).and_return({ form: form, documentations: [doc] })
+            allow(described_class).to receive(:organize_attachments!).and_return({ form:, documentations: [doc] })
 
             created = nil
             # Stub create! and do NOT call through to prevent any DB side-effects
-            allow(AccreditedRepresentativePortal::SavedClaimClaimantRepresentative).to receive(:create!).and_wrap_original do |_m, *args|
+            allow(
+              AccreditedRepresentativePortal::SavedClaimClaimantRepresentative
+            ).to receive(:create!).and_wrap_original do |_m, *args|
               created = args.first
               # simulate create! returning a record without touching DB
               AccreditedRepresentativePortal::SavedClaimClaimantRepresentative.new(created)
