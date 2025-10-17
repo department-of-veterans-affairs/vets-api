@@ -88,7 +88,9 @@ module UnifiedHealthData
       #
       # @param document_ref_entry [Hash] FHIR DocumentReference entry
       # @param format [String] Format to extract: 'xml', 'html', or 'pdf'
-      # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content, or nil if malformed
+      # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content, or nil if resource is absent
+      # @raise [ArgumentError] if the requested format is invalid (not xml/html/pdf)
+      # @raise [ArgumentError] if the requested format is not available for this CCD
       def parse_ccd_binary(document_ref_entry, format = 'xml')
         resource = document_ref_entry['resource']
         return nil unless resource
@@ -269,35 +271,6 @@ module UnifiedHealthData
           return nil unless resource && (resource['resourceType'] == type_id.first || resource['resourceType'] == type)
         end
         resource
-      end
-
-      # Extracts resource and attachment from DocumentReference entry with nil checks
-      # Used by CCD parsing methods to reduce duplication
-      #
-      # @param document_ref_entry [Hash] FHIR DocumentReference entry
-      # @return [Array<Hash, Hash>, Array<nil, nil>] [resource, attachment] or [nil, nil] if malformed
-      def fetch_resource_and_attachment(document_ref_entry)
-        resource = document_ref_entry['resource']
-        return [nil, nil] unless resource
-
-        content = resource['content']&.first
-        return [nil, nil] unless content
-
-        attachment = content['attachment']
-        return [nil, nil] unless attachment
-
-        [resource, attachment]
-      end
-
-      # Extracts format data from attachment
-      def extract_format_data(attachment, format)
-        case format.downcase
-        when 'xml' then attachment['data']
-        when 'html' then attachment.dig('html', 'data')
-        when 'pdf' then attachment.dig('pdf', 'data')
-        else
-          raise ArgumentError, "Invalid format: #{format}. Use xml, html, or pdf"
-        end
       end
 
       # Returns proper content type for format

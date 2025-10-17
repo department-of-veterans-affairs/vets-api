@@ -225,6 +225,7 @@ module UnifiedHealthData
     # @param end_date [String] ISO 8601 date string (YYYY-MM-DD)
     # @param format [String] Format to retrieve: 'xml', 'html', or 'pdf'
     # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content, or nil if not found
+    # @raise [ArgumentError] if the format is invalid or not available
     def get_ccd_binary(start_date:, end_date:, format: 'xml')
       with_monitoring do
         response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
