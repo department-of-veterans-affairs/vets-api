@@ -4,6 +4,7 @@ require 'rails_helper'
 require 'evss/disability_compensation_form/data_translation_all_claim'
 require 'disability_compensation/factories/api_provider_factory'
 require 'lighthouse/direct_deposit/response'
+require 'disability_compensation/loggers/monitor'
 
 describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   subject { described_class.new(user, form_content, false) }
@@ -17,6 +18,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     frozen_time = Time.zone.parse '2020-11-05 13:19:50 -0500'
     Timecop.freeze(frozen_time)
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+    # Will be removed when Flipper is removed
+    allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(false)
   end
 
   after { Timecop.return }
@@ -583,6 +586,42 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           'bankName' => 'test'
         }
       end
+
+      context 'when the disability_526_block_banking_info_retrieval Flipper is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(true)
+        end
+
+        after do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(false)
+        end
+
+        it 'logs the submission was made with banking info' do
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .to receive(:track_526_submission_with_banking_info)
+            .with(user.uuid)
+
+          subject.send(:translate_banking_info)
+        end
+      end
+
+      context 'when the disability_526_block_banking_info_retrieval Flipper is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(false)
+        end
+
+        after do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(true)
+        end
+
+        it 'does not log the submission was made with banking info' do
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .not_to receive(:track_526_submission_with_banking_info)
+            .with(user.uuid)
+
+          subject.send(:translate_banking_info)
+        end
+      end
     end
 
     context 'when the banking info is redacted' do
@@ -598,30 +637,116 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           }
         end
       end
+
+      context 'when the disability_526_block_banking_info_retrieval Flipper is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(true)
+        end
+
+        after do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(false)
+        end
+
+        it 'logs the submission was made without banking info' do
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .to receive(:track_526_submission_without_banking_info)
+            .with(user.uuid)
+
+          subject.send(:translate_banking_info)
+        end
+      end
+
+      context 'when the disability_526_block_banking_info_retrieval Flipper is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(false)
+        end
+
+        after do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(true)
+        end
+
+        it 'does not log the submission was made without banking info' do
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .not_to receive(:track_526_submission_without_banking_info)
+            .with(user.uuid)
+
+          VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+            subject.send(:translate_banking_info)
+          end
+        end
+      end
     end
 
     context 'when not provided banking info' do
       let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
 
-      context 'and the Lighthouse DirectDeposit service has the account info' do
-        it 'gathers the banking info from the LH DirectDeposit' do
-          VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
-            expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
-              'accountType' => 'CHECKING',
-              'accountNumber' => '1234567890',
-              'routingNumber' => '031000503',
-              'bankName' => 'WELLS FARGO BANK'
-            }
-          end
+      context 'when the disability_526_block_banking_info_retrieval Flipper is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(true)
+        end
+
+        after do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(false)
+        end
+
+        it 'does not make a call to Lighthouse to retrieve banking information' do
+          expect_any_instance_of(DirectDeposit::Client).not_to receive(:get_payment_info)
+          subject.send(:translate_banking_info)
+        end
+
+        it 'does not set payment information' do
+          expect(subject.send(:translate_banking_info)).to eq({})
+        end
+
+        it 'logs the submission was made without banking info' do
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .to receive(:track_526_submission_without_banking_info)
+            .with(user.uuid)
+
+          subject.send(:translate_banking_info)
         end
       end
 
-      context 'and the Lighthouse DirectDeposit service does not have the account info' do
-        let(:response) { Lighthouse::DirectDeposit::Response.new(200, nil, nil, nil) }
+      context 'when the disability_526_block_banking_info_retrieval Flipper is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(false)
+        end
 
-        it 'does not set payment information' do
-          expect_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info).and_return(response)
-          expect(subject.send(:translate_banking_info)).to eq({})
+        after do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_block_banking_info_retrieval).and_return(true)
+        end
+
+        context 'and the Lighthouse DirectDeposit service has the account info' do
+          it 'gathers the banking info from the LH DirectDeposit endpoint' do
+            VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+              expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
+                'accountType' => 'CHECKING',
+                'accountNumber' => '1234567890',
+                'routingNumber' => '031000503',
+                'bankName' => 'WELLS FARGO BANK'
+              }
+            end
+          end
+        end
+
+        context 'and the Lighthouse DirectDeposit service does not have the account info' do
+          let(:response) { Lighthouse::DirectDeposit::Response.new(200, nil, nil, nil) }
+
+          it 'does not set payment information' do
+            expect_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info).and_return(response)
+            expect(subject.send(:translate_banking_info)).to eq({})
+          end
+        end
+
+        it 'does not log the submission was made without banking info' do
+          allow_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info)
+            .and_return(Lighthouse::DirectDeposit::Response.new(200, nil, nil, nil))
+
+          expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+            .not_to receive(:track_526_submission_without_banking_info)
+            .with(user.uuid)
+
+          subject.send(:translate_banking_info)
         end
       end
     end
