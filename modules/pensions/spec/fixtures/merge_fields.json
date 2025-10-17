@@ -1,7 +1,7 @@
 {
   "veteranFullName": {
     "first": "John",
-    "middle": "Edmund",
+    "middle": "E",
     "last": "Doe",
     "suffix": "Sr."
   },
@@ -18,8 +18,8 @@
     "year": "1960"
   },
   "serviceBranch": {
-    "army": true,
-    "navy": true
+    "army": "1",
+    "navy": "1"
   },
   "activeServiceDateRange": {
     "from": {
@@ -85,7 +85,7 @@
     {
       "spouseFullName": {
         "first": "Jessica",
-        "middle": "Middle",
+        "middle": "M",
         "last": "Doe"
       },
       "reasonForSeparation": 2,
@@ -109,7 +109,7 @@
     {
       "spouseFullName": {
         "first": "Jane",
-        "middle": "Middle",
+        "middle": "M",
         "last": "Doe"
       },
       "reasonForSeparation": 0,
@@ -146,7 +146,7 @@
     "street": "123 7th st",
     "street2": "Apt 3",
     "city": "Pittsfield",
-    "country": "USA",
+    "country": "US",
     "state": "MA",
     "postalCode": {
       "firstFive": "01050",
@@ -224,7 +224,7 @@
       },
       "personWhoLivesWithChild": {
         "first": "Joe",
-        "middle": "Middle",
+        "middle": "M",
         "last": "Smith"
       },
       "monthlyPayment": {
@@ -239,16 +239,16 @@
         "third": "4444"
       },
       "childRelationship": {
-        "biological": 1,
+        "biological": "1",
         "adopted": "Off",
         "stepchild": "Off"
       },
-      "previouslyMarried": 1,
+      "previouslyMarried": "1",
       "disabled": "Off",
       "married": true,
       "fullName": {
         "first": "Emily",
-        "middle": "Anne",
+        "middle": "A",
         "last": "Doe"
       },
       "childDateOfBirth": {
@@ -260,7 +260,7 @@
       "childDateOfBirthOverflow": "03-03-2000",
       "childSocialSecurityNumberOverflow": "333224444",
       "attendingCollege": "Off",
-      "childNotInHousehold": 1,
+      "childNotInHousehold": "1",
       "childStatusOverflow": "Biological, previously married, does not live with you but contributes",
       "monthlyPaymentOverflow": "$3,444.00"
     },
@@ -274,15 +274,15 @@
       },
       "childRelationship": {
         "biological": "Off",
-        "adopted": 1,
+        "adopted": "1",
         "stepchild": "Off"
       },
       "previouslyMarried": "Off",
       "disabled": "Off",
-      "attendingCollege": 1,
+      "attendingCollege": "1",
       "fullName": {
         "first": "Bobby",
-        "middle": "Nolan",
+        "middle": "N",
         "last": "Doe"
       },
       "childDateOfBirth": {
@@ -319,15 +319,15 @@
         "third": "4444"
       },
       "childRelationship": {
-        "biological": 1,
+        "biological": "1",
         "adopted": "Off",
         "stepchild": "Off"
       },
       "previouslyMarried": "Off",
-      "disabled": 1,
+      "disabled": "1",
       "fullName": {
         "first": "Jack",
-        "middle": "Sawyer",
+        "middle": "S",
         "last": "Doe"
       },
       "childDateOfBirth": {
@@ -440,7 +440,7 @@
         },
         "to": null
       },
-      "noCareEndDate": 1,
+      "noCareEndDate": "1",
       "paymentFrequency": 1,
       "paymentAmount": {
         "part_cents": "00",
@@ -652,7 +652,7 @@
     "street": "123 8th st",
     "street2": "A-3",
     "city": "Hadley",
-    "country": "USA",
+    "country": "US",
     "state": "ME",
     "postalCode": {
       "firstFive": "01050",
@@ -669,7 +669,7 @@
   },
   "internationalPhone": "001-555-123-4567",
   "isOver65": false,
-  "noRapidProcessing": 1,
+  "noRapidProcessing": "1",
   "statementOfTruthCertified": true,
   "statementOfTruthSignature": "John Edmund Doe",
   "pow": 0,
@@ -679,7 +679,7 @@
   "currentMarriage": {
     "spouseFullName": {
       "first": "Meg",
-      "middle": "Middle",
+      "middle": "M",
       "last": "Doe"
     },
     "dateOfMarriage": {
@@ -698,12 +698,12 @@
   "custodians": [
     {
       "first": "Joe",
-      "middle": "Middle",
+      "middle": "M",
       "last": "Smith",
       "custodianAddress": {
         "street": "123 8th st",
         "city": "Hadley",
-        "country": "USA",
+        "country": "US",
         "state": "ME",
         "postalCode": {
           "firstFive": "01050",
@@ -711,7 +711,7 @@
         }
       },
       "custodianAddressOverflow": "123 8th st\nHadley, ME, USA, 01050",
-      "dependentsWithCustodianOverflow": "Emily Anne Doe"
+      "dependentsWithCustodianOverflow": "Emily A Doe"
     }
   ],
   "moreThanFourIncomeSources": 1,
