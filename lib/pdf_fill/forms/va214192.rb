@@ -5,6 +5,7 @@ require 'pdf_fill/forms/form_helper'
 
 module PdfFill
   module Forms
+    # rubocop:disable Metrics/ClassLength
     class Va214192 < FormBase
       include FormHelper
 
@@ -474,5 +475,6 @@ module PdfFill
         nil
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
