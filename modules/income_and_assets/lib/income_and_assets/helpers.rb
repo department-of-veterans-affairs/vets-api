@@ -71,6 +71,30 @@ module IncomeAndAssets
       amount_hash
     end
 
+    # NOTE: in regards to the checkbox_value and radio_yesno helpers below,
+    #   HexaPDF is more strict about the values it accepts for checkboxes and radio buttons
+    #   than PDFtk. HexaPDF wants true/false for checkboxes and strings/symbols for radio buttons.
+
+    ##
+    # Converts a value to a checkbox-compatible boolean.
+    #
+    # @param value [Any]
+    # @return [Boolean]
+    #
+    def checkbox_value(value)
+      value ? '1' : 'Off'
+    end
+
+    ##
+    # Converts a value to a radio button-compatible 0 or 1.
+    #
+    # @param value [Any]
+    # @return [Integer] 0 for 'yes', 1 for 'no'
+    #
+    def radio_yesno(value)
+      value ? 0 : 1
+    end
+
     ##
     # Retrieves a specific portion of a currency value and formats it to a fixed length.
     #
