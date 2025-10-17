@@ -27,7 +27,8 @@ module TravelPay
 
     private
 
-    # This validation ensures check_out_date is the same day or after check_in_date
+    # This validation ensures check_out_date is after check_in_date
+    # Per TCM and TCP validation this cannot be the same date
     def check_out_after_check_in
       return unless check_in_date.present? && check_out_date.present?
 
