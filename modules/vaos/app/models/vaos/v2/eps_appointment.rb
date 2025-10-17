@@ -28,8 +28,8 @@ module VAOS
         @referral_id = referral_details&.dig(:referral_number)
         @referral = { referral_number: referral_details&.dig(:referral_number)&.to_s }
         @provider_service_id = appointment_data[:provider_service_id]
-        @provider_name = appointment_data.dig(:provider, :name).presence || 'unknown'
         @provider = provider
+        @provider_name = provider&.[](:name).presence || 'unknown'
         @modality = 'communityCareEps'
         @location = build_location_data
         @past = past_appointment?
@@ -54,27 +54,37 @@ module VAOS
         return nil if provider.nil?
 
         result = {
-          id: provider.id,
-          name: provider.provider_name,
-          practice: provider.practice_name,
-          location: provider.location
+          id: provider[:id],
+          name: provider[:name],
+          practice: extract_practice,
+          location: provider[:location],
+          phone: extract_phone_number
         }
-
-        # Transform address fields if address exists
-        if provider.address.present?
-          result[:address] = {
-            street1: provider.address[:line1],
-            street2: provider.address[:line2],
-            city: provider.address[:city],
-            state: provider.address[:state],
-            zip: provider.address[:postal_code]
-          }.compact
-        end
 
         result.compact
       end
 
       private
+
+      def extract_practice
+        provider_org = provider&.[](:provider_organization)
+        return nil if provider_org.blank?
+
+        provider_org[:name]
+      end
+
+      def extract_phone_number
+        contact_details = provider&.[](:contact_details)
+        return nil if contact_details.blank?
+
+        # Filter to phone entries only
+        phone_contacts = contact_details.select { |c| c[:system] == 'phone' }
+        return nil if phone_contacts.blank?
+
+        # Find contact with use == 'for_patient', or use the first phone contact
+        contact = phone_contacts.find { |c| c[:use] == 'for_patient' } || phone_contacts.first
+        contact&.dig(:value)
+      end
 
       def build_location_data
         return nil if @provider.nil? || @provider[:location].nil?
