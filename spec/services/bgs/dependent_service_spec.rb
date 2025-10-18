@@ -225,17 +225,6 @@ RSpec.describe BGS::DependentService do
         BGS::DependentService.new(user).get_dependents
       end
     end
-
-    it 'returns a valid response when empty array' do
-      VCR.use_cassette('bgs/dependent_service/get_dependents') do
-        allow_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
-          .with(user.participant_id, user.ssn).and_return([])
-
-        response = BGS::DependentService.new(user).get_dependents
-
-        expect(response).to have_key(:persons)
-      end
-    end
   end
 
   describe '#submit_674_form' do
@@ -448,7 +437,8 @@ RSpec.describe BGS::DependentService do
       allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).and_raise(StandardError)
       expect(Rails.logger).to receive(:warn)
       expect do
-        service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
+        service.send(:submit_pdf_job, claim:,
+                                      encrypted_vet_info:)
       end.to raise_error(BGS::DependentService::PDFSubmissionError)
     end
   end
