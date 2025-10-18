@@ -23,15 +23,25 @@ module Dependents
     # statsd key for email notifications
     EMAIL_STATS_KEY = 'dependents.email_notification'
 
+    # allowed logging params
+    ALLOWLIST = %w[
+      tags
+      use_v2
+    ].freeze
+
     attr_writer :form_id
 
+    # create a dependents monitor
+    #
+    # @param claim_id [Integer] the database SavedClaim id
+    # @param form_id [String] the form being monitored; 686c-674 or 21-674, etc
     def initialize(claim_id, form_id = nil)
       @claim_id = claim_id
       @claim = claim(claim_id)
       @use_v2 = use_v2
       @form_id = form_id || @claim&.form_id
 
-      super('dependents-application')
+      super('dependents-application', allowlist: ALLOWLIST)
 
       @tags += ["service:#{service}", "v2:#{@use_v2}"]
     end

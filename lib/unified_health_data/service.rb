@@ -124,7 +124,7 @@ module UnifiedHealthData
 
         parsed_notes = parse_notes(filtered)
 
-        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes)
+        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
 
         parsed_notes
       end
@@ -180,6 +180,41 @@ module UnifiedHealthData
         return nil unless filtered
 
         allergy_adapter.parse_single_allergy(filtered)
+      end
+    end
+
+    # Retrieves the After Visit Summary for the given appointment ID from unified health data sources
+    #
+    # @param appt_id [String] The ID of the appointment to retrieve the summary for
+    # NOTE: This is not the ID used by the VAOS service, but from the appointment object's `identifier` field:
+    # `"identifier": [{"system": "urn:va.gov:masv2:cerner:appointment", "value": "Appointment/1234567"}]`
+    #
+    # @param include_binary [Boolean] Whether to include binary data in the response
+    #
+    # @return [Array<UnifiedHealthData::AfterVisitSummary>] Array of AVS objects
+    # Because an appointment can have multiple documents associated with it
+    # (e.g., AVS, discharge instructions, etc.), we return an array here
+    def get_appt_avs(appt_id:, include_binary: false)
+      with_monitoring do
+        response = uhd_client.get_avs(patient_id: @user.icn, appt_id:)
+        body = parse_response_body(response.body)
+        summaries = body['entry'].select { |record| record['resource']['resourceType'] == 'DocumentReference' }
+        parsed_avs_meta = summaries.map do |summary|
+          clinical_notes_adapter.parse_avs_with_metadata(summary, appt_id, include_binary)
+        end
+        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_avs_meta, 'AVS')
+        parsed_avs_meta.compact
+      end
+    end
+
+    def get_avs_binary_data(doc_id:, appt_id:)
+      with_monitoring do
+        response = uhd_client.get_avs(patient_id: @user.icn, appt_id:)
+        body = parse_response_body(response.body)
+        summary = body['entry'].find do |record|
+          record['resource']['resourceType'] == 'DocumentReference' && record['resource']['id'] == doc_id
+        end
+        clinical_notes_adapter.parse_avs_binary(summary)
       end
     end
 
