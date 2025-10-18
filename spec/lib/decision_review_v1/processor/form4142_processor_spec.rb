@@ -35,16 +35,25 @@ describe DecisionReviewV1::Processor::Form4142Processor do
 
   describe '#initialize' do
     context 'when schema validation is not enabled' do
+      let(:test_pdf) { Rails.root.join('tmp', 'test_output.pdf') }
+      let(:fixture_pdf) { Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'simple.pdf') }
+      let(:file_path) { test_pdf.to_s }
+
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(false)
 
-        # Use a minimal PDF file so metadata works. We don't want to incur the cost of generating a real PDF
-        fake_pdf_path = Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'simple.pdf').to_s
+        # Use a pregenerated PDF file to reduce the cost of generate_stamp_pdf
+        FileUtils.cp(fixture_pdf, test_pdf) unless File.exist?(test_pdf)
 
-        allow_any_instance_of(Processors::BaseForm4142Processor)
-          .to receive(:generate_stamp_pdf)
-          .and_return(fake_pdf_path)
+        # stub out pdf methods as they are not needed for these tests and are cpu expensive
+        allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
+        allow(PDFUtilities::DatestampPdf)
+          .to receive(:new)
+          .and_return(instance_double(PDFUtilities::DatestampPdf, run: 'tmp/test_output.pdf'))
       end
+
+      # Clean up the test output file
+      after { FileUtils.rm_f(test_pdf) }
 
       context 'with invalid form data' do
         context 'when a required field is missing' do
@@ -195,6 +204,20 @@ describe DecisionReviewV1::Processor::Form4142Processor do
     context 'when validation is explicitly enabled' do
       context 'with invalid form data' do
         let(:invalid_form_data) { form4142.except('providerFacility') }
+        let(:test_pdf) { Rails.root.join('tmp', 'test_output.pdf') }
+        let(:fixture_pdf) { Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'simple.pdf') }
+        let(:file_path) { test_pdf.to_s }
+
+        before do
+          # Use a pregenerated PDF file to reduce the cost of generate_stamp_pdf
+          FileUtils.cp(fixture_pdf, test_pdf) unless File.exist?(test_pdf)
+
+          # stub out pdf methods as they are not needed for these tests and are cpu expensive
+          allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
+          allow(PDFUtilities::DatestampPdf)
+            .to receive(:new)
+            .and_return(instance_double(PDFUtilities::DatestampPdf, run: 'tmp/test_output.pdf'))
+        end
 
         it 'raises a validation error when flipper is enabled' do
           allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(true)
@@ -205,13 +228,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
 
         it 'does not raise a validation error when flipper is disabled' do
           allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(false)
-
-          # Use a minimal PDF file so metadata works. We don't want to incur the cost of generating a real PDF
-          fake_pdf_path = Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'simple.pdf').to_s
-
-          allow_any_instance_of(Processors::BaseForm4142Processor)
-            .to receive(:generate_stamp_pdf)
-            .and_return(fake_pdf_path)
 
           expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id) }
             .not_to raise_error
