@@ -24,7 +24,7 @@ RUN groupadd --gid $USER_ID nonroot \
 WORKDIR /app
 
 RUN apt-get update --fix-missing
-RUN apt-get install -y poppler-utils build-essential libpq-dev libffi-dev libyaml-dev git curl wget unzip ca-certificates-java file \
+RUN apt-get install -y poppler-utils build-essential libpq-dev libffi-dev libyaml-dev git curl wget unzip ca-certificates ca-certificates-java openssl file \
   imagemagick pdftk tesseract-ocr \
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -34,8 +34,10 @@ RUN sed -i '/rights="none" pattern="PDF"/d' /etc/ImageMagick-6/policy.xml
 
 
 # Install fwdproxy.crt into trust store
-# Relies on update-ca-certificates being run in following step
 COPY config/ca-trust/*.crt /usr/local/share/ca-certificates/
+
+# Update CA certificates before downloading VA certs
+RUN update-ca-certificates
 
 # Download VA Certs
 COPY ./import-va-certs.sh .
