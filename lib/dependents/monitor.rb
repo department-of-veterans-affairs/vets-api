@@ -23,35 +23,19 @@ module Dependents
     # statsd key for email notifications
     EMAIL_STATS_KEY = 'dependents.email_notification'
 
-    # allowed logging params
-    ALLOWLIST = %w[
-      tags
-      use_v2
-    ].freeze
-
-    attr_writer :form_id
-
-    # create a dependents monitor
-    #
-    # @param claim_id [Integer] the database SavedClaim id
-    # @param form_id [String] the form being monitored; 686c-674 or 21-674, etc
-    def initialize(claim_id, form_id = nil)
+    def initialize(claim_id)
       @claim_id = claim_id
       @claim = claim(claim_id)
       @use_v2 = use_v2
-      @form_id = form_id || @claim&.form_id
-
-      super('dependents-application', allowlist: ALLOWLIST)
-
-      @tags += ["service:#{service}", "v2:#{@use_v2}"]
+      super('dependents-application')
     end
 
-    def name
-      self.class.to_s
-    end
+    # lib/logging/base_monitor (on or about line 33) requires a `name` method
+    delegate :name, to: :class
 
+    # lib/logging/base_monitor (on or about line 37) requires a `form_id` method
     def form_id
-      @form_id ||= @claim&.form_id
+      @claim&.form_id
     end
 
     def submission_stats_key
@@ -73,6 +57,10 @@ module Dependents
 
     def default_payload
       { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: nil, tags: }
+    end
+
+    def tags
+      @tags ||= ["service:#{service}", "v2:#{@use_v2}"]
     end
 
     def track_submission_exhaustion(msg, email = nil)
@@ -175,11 +163,10 @@ module Dependents
     end
 
     def track_event(level, message, stats_key, payload = {})
-      payload = default_payload.merge(payload)
-      submit_event(level, message, stats_key, **payload)
+      submit_event(level, message, stats_key, default_payload.merge(payload))
     rescue => e
       Rails.logger.error('Dependents::Monitor#track_event error',
-                         level:, message:, stats_key:, payload:, error: e.message)
+                         { level:, message:, stats_key:, payload:, error: e.message })
     end
   end
 end
