@@ -41,7 +41,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
         # Use a minimal PDF file so metadata works. We don't want to incur the cost of generating a real PDF
         fake_pdf_path = Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'simple.pdf').to_s
 
-        allow_any_instance_of(Processors::BaseForm4142Processor)
+        allow_next_instance_of(Processors::BaseForm4142Processor)
           .to receive(:generate_stamp_pdf)
           .and_return(fake_pdf_path)
       end
