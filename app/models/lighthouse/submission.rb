@@ -27,4 +27,8 @@ class Lighthouse::Submission < Submission
   def non_failure_attempt
     submission_attempts.where(status: %w[pending submitted]).first
   end
+
+  def latest_benefits_intake_uuid
+    submission_attempts.order(created_at: :desc).limit(1).pick(:benefits_intake_uuid)
+  end
 end

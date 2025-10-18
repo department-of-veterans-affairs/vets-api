@@ -9,6 +9,9 @@ module Forms
     class BenefitsIntakeGateway
       attr_accessor :dataset
 
+      # Define a proper struct for Lighthouse::Submissions
+      SubmissionAdapter = Struct.new(:id, :form_id, :form_type, :created_at, :benefits_intake_uuid, :source)
+
       def initialize(user_account:, allowed_forms:)
         @user_account = user_account
         @allowed_forms = allowed_forms
@@ -41,13 +44,13 @@ module Forms
 
         # Convert Lighthouse::Submissions to have benefits_intake_uuid for compatibility
         normalized_lighthouse = lighthouse_subs.map do |submission|
-          OpenStruct.new(
-            id: submission.id,
-            form_id: submission.form_id,
-            form_type: submission.form_id, # For BenefitsIntakeFormatter
-            created_at: submission.created_at,
-            benefits_intake_uuid: submission.submission_attempts.last&.benefits_intake_uuid,
-            source: 'lighthouse_submission'
+          SubmissionAdapter.new(
+            submission.id,
+            submission.form_id,
+            submission.form_id, # For BenefitsIntakeFormatter
+            submission.created_at,
+            submission.latest_benefits_intake_uuid,
+            'lighthouse_submission'
           )
         end
 
