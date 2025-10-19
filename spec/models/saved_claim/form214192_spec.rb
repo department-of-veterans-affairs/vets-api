@@ -176,22 +176,20 @@ RSpec.describe SavedClaim::Form214192, type: :model do
       claim.process_attachments!
     end
 
-    it 'attaches persistent attachments to claim' do
+    it 'submits to Lighthouse without attachments' do
       claim = described_class.create!(form: form_data.to_json)
-      attachment = create(:persistent_attachment, guid: 'test-guid')
 
-      allow(claim).to receive(:attachment_keys).and_return([:supportingDocuments])
-      allow(claim.open_struct_form).to receive(:supportingDocuments)
-        .and_return([OpenStruct.new(confirmationCode: 'test-guid')])
+      # Mock the Sidekiq job
+      expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(claim.id)
 
-      expect { claim.process_attachments! }.to change { attachment.reload.saved_claim_id }.from(nil).to(claim.id)
+      claim.process_attachments!
     end
   end
 
   describe '#attachment_keys' do
-    it 'returns supportingDocuments key' do
+    it 'returns empty array (no attachments in MVP)' do
       claim = described_class.new(form: form_data.to_json)
-      expect(claim.attachment_keys).to eq([:supportingDocuments])
+      expect(claim.attachment_keys).to eq([])
     end
   end
 
