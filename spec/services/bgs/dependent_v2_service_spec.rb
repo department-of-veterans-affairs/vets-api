@@ -483,6 +483,9 @@ RSpec.describe BGS::DependentV2Service do
   end
 
   describe '#submit_pdf_job' do
+    let(:monitor) { Dependents::Monitor.new(claim.id) }
+    let(:stats_key) { BGS::DependentService::STATS_KEY }
+
     before do
       allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
     end
@@ -497,13 +500,24 @@ RSpec.describe BGS::DependentV2Service do
       service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
     end
 
-    it 'in case of error it logs the exception and raises a custom error' do
+    it 'in case of error the monitor tracks the exception as a warning and raises a custom error' do
       service = BGS::DependentV2Service.new(user)
+      allow(Dependents::Monitor).to receive(:new).and_return(monitor)
+      allow(monitor).to receive(:track_event).and_call_original
       allow(VBMS::SubmitDependentsPdfV2Job).to receive(:perform_sync).and_raise(StandardError)
-      expect(Rails.logger).to receive(:error).at_least(:once)
+
       expect do
         service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
       end.to raise_error(BGS::DependentV2Service::PDFSubmissionError)
+
+      expect(monitor)
+        .to have_received(:track_event)
+        .with(
+          'warn',
+          'BGS::DependentV2Service#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
+          'bgs.dependent_service.submit_pdf.failure',
+          { error: 'StandardError' }
+        )
     end
   end
 end
