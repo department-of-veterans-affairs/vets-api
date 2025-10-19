@@ -29,7 +29,7 @@ RSpec.describe PdfFill::Forms::Va214192 do
         'typeOfWorkPerformed' => 'Software Developer',
         'beginningDateOfEmployment' => '2015-01-15',
         'endingDateOfEmployment' => '2023-06-30',
-        'amountEarnedLast12MonthsOfEmployment' => 75_000,
+        'amountEarnedLast12Months' => 75_000,
         'timeLostLast12MonthsOfEmployment' => '2 weeks',
         'hoursWorkedDaily' => 8,
         'hoursWorkedWeekly' => 40,

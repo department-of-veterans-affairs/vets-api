@@ -105,12 +105,13 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       end
 
       it 'logs claim submission' do
-        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:info).and_call_original
         post :create, params: { form214192: form_data }
 
-        expect(Rails.logger).to have_received(:info) do |message|
-          message.include?('ClaimID=') && message.include?('Form=21-4192')
-        end
+        # Check that the logger was called with the expected message
+        expect(Rails.logger).to have_received(:info).with(
+          a_string_including('ClaimID=') & a_string_including('Form=21-4192')
+        ).once
       end
 
       it 'allows unauthenticated access to create endpoint' do
@@ -122,7 +123,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
     context 'with invalid form data' do
       it 'returns validation errors for missing required fields' do
-        post :create, params: { form214192: {} }
+        post :create, params: { form214192: { veteranInformation: { fullName: { first: '' } } } }
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
@@ -150,12 +151,12 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       it 'increments failure metric on validation error' do
         expect(StatsD).to receive(:increment).with('api.form214192.submission_attempt')
         expect(StatsD).to receive(:increment).with('api.form214192.failure')
-        post :create, params: { form214192: {} }
+        post :create, params: { form214192: { veteranInformation: { fullName: { first: '' } } } }
       end
 
       it 'logs error on submission failure' do
         allow(Rails.logger).to receive(:error)
-        post :create, params: { form214192: {} }
+        post :create, params: { form214192: { veteranInformation: { fullName: { first: '' } } } }
 
         expect(Rails.logger).to have_received(:error).with(
           'Form214192: error submitting claim',
@@ -166,9 +167,8 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
     context 'with missing params' do
       it 'returns error when form214192 param is missing' do
-        expect do
-          post :create, params: {}
-        end.to raise_error(ActionController::ParameterMissing)
+        post :create, params: {}
+        expect(response).to have_http_status(:bad_request)
       end
     end
   end
@@ -228,9 +228,8 @@ RSpec.describe V0::Form214192Controller, type: :controller do
         allow(File).to receive(:read).with(temp_file_path).and_raise(StandardError, 'Read error')
         expect(File).to receive(:delete).with(temp_file_path)
 
-        expect do
-          post :download_pdf, params: { form: form_data.to_json }
-        end.to raise_error(StandardError)
+        post :download_pdf, params: { form: form_data.to_json }
+        expect(response).to have_http_status(:internal_server_error)
       end
 
       it 'allows unauthenticated access to download_pdf endpoint' do
@@ -242,19 +241,18 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
     context 'with invalid JSON' do
       it 'raises error for invalid JSON' do
-        expect do
-          post :download_pdf, params: { form: 'invalid json' }
-        end.to raise_error(JSON::ParserError)
+        post :download_pdf, params: { form: 'invalid json' }
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
 
     context 'when PDF generation fails' do
       it 'raises error when PDF filler fails' do
         allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF generation failed')
+        allow(File).to receive(:exist?).and_return(true)
 
-        expect do
-          post :download_pdf, params: { form: form_data.to_json }
-        end.to raise_error(StandardError, 'PDF generation failed')
+        post :download_pdf, params: { form: form_data.to_json }
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end
@@ -266,15 +264,13 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       end
 
       it 'returns 404 for create endpoint' do
-        expect do
-          post :create, params: { form214192: form_data }
-        end.to raise_error(Common::Exceptions::RoutingError)
+        post :create, params: { form214192: form_data }
+        expect(response).to have_http_status(:not_found)
       end
 
       it 'returns 404 for download_pdf endpoint' do
-        expect do
-          post :download_pdf, params: { form: form_data.to_json }
-        end.to raise_error(Common::Exceptions::RoutingError)
+        post :download_pdf, params: { form: form_data.to_json }
+        expect(response).to have_http_status(:not_found)
       end
     end
 

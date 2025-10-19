@@ -40,7 +40,7 @@ module V0
         PdfFill::Filler.fill_ancillary_form(camel_case_form, file_name, '21-4192')
       end
 
-      employer_name = parsed_form.dig('employment_information', 'employer_name')
+      employer_name = parsed_form.dig('employmentInformation', 'employerName')
       file_path_name = employer_name ? employer_name.gsub(/[^0-9A-Za-z]/, '_') : '21-4192'
       client_file_name = "#{file_path_name}_21-4192_#{Time.zone.now.to_i}.pdf"
 
@@ -54,7 +54,7 @@ module V0
     private
 
     def feature_enabled?
-      routing_error unless Flipper.enabled?(:form_214192_enabled)
+      raise Common::Exceptions::RoutingError unless Flipper.enabled?(:form_214192_enabled)
     end
 
     def record_submission_attempt
