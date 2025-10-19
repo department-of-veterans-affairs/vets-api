@@ -435,11 +435,9 @@ RSpec.describe BGS::DependentService do
     it 'in case of error it logs the exception and raises a custom error' do
       service = BGS::DependentService.new(user)
       allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).and_raise(StandardError)
-      expect(Rails.logger).to receive(:warn)
-      expect do
-        service.send(:submit_pdf_job, claim:,
-                                      encrypted_vet_info:)
-      end.to raise_error(BGS::DependentService::PDFSubmissionError)
+      expect(Rails.logger).to receive(:error).at_least(:once)
+      expect { service.send(:submit_pdf_job, claim:, encrypted_vet_info:) }
+        .to raise_error(BGS::DependentService::PDFSubmissionError)
     end
   end
 end
