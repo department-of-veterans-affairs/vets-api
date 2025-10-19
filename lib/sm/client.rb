@@ -568,17 +568,6 @@ module SM
     end
     # @!endgroup
 
-    def get_unique_care_systems(all_recipients)
-      unique_care_system_ids = all_recipients.uniq(&:station_number).map(&:station_number)
-      unique_care_system_names = Mobile::FacilitiesHelper.get_facility_names(unique_care_system_ids)
-      unique_care_system_ids.zip(unique_care_system_names).map! do |system|
-        {
-          station_number: system[0],
-          health_care_system_name: system[1] || system[0]
-        }
-      end
-    end
-
     def get_cached_or_fetch_data(use_cache, cache_key, model)
       data = nil
       data = model.get_cached(cache_key) if use_cache
@@ -693,7 +682,7 @@ module SM
         'attachmentName' => file.original_filename,
         'mimeType' => file.content_type,
         'size' => file.size,
-        'lgAttachmentId' => uploaded_file_name
+        'lgAttachmentId' => CGI.unescape(uploaded_file_name) # Decode URL-encoded filename
       }
     end
 
