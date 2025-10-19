@@ -170,18 +170,9 @@ RSpec.describe SavedClaim::Form214192, type: :model do
   end
 
   describe '#process_attachments!' do
-    it 'queues Lighthouse submission job' do
+    it 'queues Lighthouse submission job without attachments' do
       claim = described_class.create!(form: form_data.to_json)
       expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(claim.id)
-      claim.process_attachments!
-    end
-
-    it 'submits to Lighthouse without attachments' do
-      claim = described_class.create!(form: form_data.to_json)
-
-      # Mock the Sidekiq job
-      expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(claim.id)
-
       claim.process_attachments!
     end
   end
