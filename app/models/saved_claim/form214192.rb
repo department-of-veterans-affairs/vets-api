@@ -13,10 +13,9 @@ class SavedClaim::Form214192 < SavedClaim
   end
 
   def process_attachments!
-    refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
-    files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
-    files.find_each { |f| f.update(saved_claim_id: id) }
-
+    # Form 21-4192 does not support attachments in MVP
+    # This form is completed by employers providing employment information
+    # No supporting documents are collected as part of the form submission
     Lighthouse::SubmitBenefitsIntakeClaim.perform_async(id)
   end
 
@@ -54,7 +53,8 @@ class SavedClaim::Form214192 < SavedClaim
   end
 
   def attachment_keys
-    [:supportingDocuments].freeze
+    # Form 21-4192 does not support attachments in MVP
+    [].freeze
   end
 
   private
