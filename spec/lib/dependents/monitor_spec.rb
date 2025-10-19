@@ -212,11 +212,18 @@ RSpec.describe Dependents::Monitor do
           .with(
             'Dependents::Monitor#track_event error',
             {
+              error: 'test error',
               level: 'info',
               message: 'test error',
               stats_key: 'test.monitor.error',
-              payload: { error: 'test error' },
-              error: 'test error'
+              payload: { 
+                claim:,
+                error: 'test error',
+                service: 'dependents-application',
+                tags: ['form_id:686C-674', 'service:dependents-application', 'v2:false'],
+                use_v2: false,
+                user_account_uuid: nil
+              }
             }
           )
 
@@ -592,14 +599,17 @@ RSpec.describe Dependents::Monitor do
         payload = {
           claim:,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:false'],
+          tags: ['form_id:686C-674', 'service:dependents-application', 'v2:false'],
           use_v2: false,
           user_account_uuid: nil,
           statsd: metric,
           e: error
         }
 
-        expect(StatsD).to receive(:increment).with(metric, tags: ['service:dependents-application', 'v2:false'])
+        expect(StatsD)
+          .to receive(:increment)
+          .with(metric, tags: ['form_id:686C-674', 'service:dependents-application', 'v2:false'])
+
         expect(Rails.logger).to receive(:error).with("Unknown Dependents form type for claim #{claim.id}", payload)
 
         monitor_v1.track_unknown_claim_type(error)
@@ -614,14 +624,17 @@ RSpec.describe Dependents::Monitor do
         payload = {
           claim:,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:false'],
+          tags: ['form_id:686C-674', 'service:dependents-application', 'v2:false'],
           use_v2: false,
           user_account_uuid: nil,
           statsd: metric,
           user_account_id:
         }
 
-        expect(StatsD).to receive(:increment).with(metric, tags: ['service:dependents-application', 'v2:false'])
+        expect(StatsD)
+          .to receive(:increment)
+          .with(metric, tags: ['form_id:686C-674', 'service:dependents-application', 'v2:false'])
+
         expect(Rails.logger).to receive(:info).with(message, payload)
 
         monitor_v1.track_send_email_success(message, metric, user_account_id)
@@ -637,14 +650,17 @@ RSpec.describe Dependents::Monitor do
         payload = {
           claim:,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:false'],
+          tags: ['form_id:686C-674', 'service:dependents-application', 'v2:false'],
           use_v2: false,
           user_account_uuid:,
           statsd: metric,
           e: error
         }
 
-        expect(StatsD).to receive(:increment).with(metric, tags: ['service:dependents-application', 'v2:false'])
+        expect(StatsD)
+          .to receive(:increment)
+          .with(metric, tags: ['form_id:686C-674', 'service:dependents-application', 'v2:false'])
+
         expect(Rails.logger).to receive(:error).with(message, payload)
 
         monitor_v1.track_send_email_error(message, metric, error, user_account_uuid)
@@ -707,7 +723,7 @@ RSpec.describe Dependents::Monitor do
         payload = {
           claim:,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:false'],
+          tags: ['form_id:686C-674', 'service:dependents-application', 'v2:false'],
           use_v2: false,
           user_account_uuid: nil,
           statsd: metric
@@ -729,7 +745,7 @@ RSpec.describe Dependents::Monitor do
         payload = {
           claim:,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:false'],
+          tags: ['form_id:686C-674', 'service:dependents-application', 'v2:false'],
           use_v2: false,
           user_account_uuid: nil,
           statsd: metric,
@@ -737,7 +753,10 @@ RSpec.describe Dependents::Monitor do
           form_id:
         }
 
-        expect(StatsD).to receive(:increment).with(metric, tags: ['service:dependents-application', 'v2:false'])
+        expect(StatsD)
+          .to receive(:increment)
+          .with(metric, tags: ['form_id:686C-674', 'service:dependents-application', 'v2:false'])
+
         expect(Rails.logger).to receive(:error).with('SavedClaim::DependencyClaim#to_pdf error', payload)
 
         monitor_v1.track_to_pdf_failure(error, form_id)
@@ -751,14 +770,17 @@ RSpec.describe Dependents::Monitor do
         payload = {
           claim:,
           service: 'dependents-application',
-          tags: ['service:dependents-application', 'v2:false'],
+          tags: ['form_id:686C-674', 'service:dependents-application', 'v2:false'],
           use_v2: false,
           user_account_uuid: nil,
           statsd: metric,
           e: error
         }
 
-        expect(StatsD).to receive(:increment).with(metric, tags: ['service:dependents-application', 'v2:false'])
+        expect(StatsD)
+          .to receive(:increment)
+          .with(metric, tags: ['form_id:686C-674', 'service:dependents-application', 'v2:false'])
+
         expect(Rails.logger).to receive(:warn).with('Error tracking PDF overflow', payload)
 
         monitor_v1.track_pdf_overflow_tracking_failure(error)
