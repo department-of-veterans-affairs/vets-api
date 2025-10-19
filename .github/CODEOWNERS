@@ -632,6 +632,7 @@ app/uploaders/supporting_evidence_attachment_uploader.rb @department-of-veterans
 app/uploaders/uploader_virus_scan.rb @department-of-veterans-affairs/backend-review-group
 app/uploaders/validate_pdf.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/uploaders/vets_shrine.rb @department-of-veterans-affairs/backend-review-group
+app/validators/form214192_validator.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 app/validators/token_util.rb @department-of-veterans-affairs/backend-review-group
 bin/ @department-of-veterans-affairs/backend-review-group
 Brewfile @department-of-veterans-affairs/backend-review-group
