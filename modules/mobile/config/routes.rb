@@ -117,6 +117,7 @@ Mobile::Engine.routes.draw do
   end
 
   namespace :v1 do
+    get '/health/allergy-intolerances', to: 'allergy_intolerances#index'
     get '/health/immunizations', to: 'immunizations#index'
     get '/health/labs-and-tests', to: 'labs_and_tests#index'
     get '/health/rx/prescriptions', to: 'prescriptions#index'
