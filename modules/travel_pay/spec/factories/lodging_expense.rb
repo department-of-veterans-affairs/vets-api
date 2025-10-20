@@ -32,7 +32,7 @@ FactoryBot.define do
     end
 
     trait :with_blank_vendor do
-      vendor { '' } # whitespace only, should fail validation
+      vendor { '' } # empty string, should fail validation
     end
 
     trait :with_whitespace_vendor do
