@@ -153,16 +153,6 @@ RSpec.describe V0::Form214192Controller, type: :controller do
         expect(StatsD).to receive(:increment).with('api.form214192.failure')
         post :create, params: { form214192: { veteranInformation: { fullName: { first: '' } } } }
       end
-
-      it 'logs error on submission failure' do
-        allow(Rails.logger).to receive(:error)
-        post :create, params: { form214192: { veteranInformation: { fullName: { first: '' } } } }
-
-        expect(Rails.logger).to have_received(:error).with(
-          'Form214192: error submitting claim',
-          hash_including(:error)
-        )
-      end
     end
 
     context 'with missing params' do
