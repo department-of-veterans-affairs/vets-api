@@ -4088,6 +4088,74 @@
         "summary": "/v0/health/allergy-intolerances"
       }
     },
+    "/v1/health/allergy-intolerances": {
+      "get": {
+        "description": "Retrieves a Unified Health Data list of the user's known allergies related to medication, food, or other substances\n",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          },
+          {
+            "description": "The page number requested. Defaults to 1.",
+            "example": 1,
+            "in": "query",
+            "name": "page[number]",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The number of records to return per page. Defaults to 10.",
+            "example": 10,
+            "in": "query",
+            "name": "page[size]",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllergyIntolerancesV1"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "summary": "/v1/health/allergy-intolerances"
+      }
+    },
     "/v0/health/labs-and-tests": {
       "get": {
         "description": "List patient labs and tests. Each report contains a list of which tests were a part of the report, along with links to get the results for those tests.\n",
@@ -20238,6 +20306,154 @@
           }
         }
       },
+      "AllergyIntolerancesV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "attributes"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "allergy"
+                },
+                "id": {
+                  "type": "string",
+                  "example": "2678",
+                  "description": "Upstream identifier"
+                },
+                "attributes": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "name",
+                    "date",
+                    "categories",
+                    "reactions",
+                    "location",
+                    "observedHistoric",
+                    "notes",
+                    "provider"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "nullable": false,
+                      "example": "2678"
+                    },
+                    "name": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "TRAZODONE"
+                    },
+                    "date": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "2009-03-19T12:24:55Z"
+                    },
+                    "categories": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true,
+                      "example": [
+                        "medication"
+                      ]
+                    },
+                    "reactions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true,
+                      "example": [
+                        "Hives",
+                        "Swelling"
+                      ]
+                    },
+                    "location": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "Cheyenne VA Medical Center"
+                    },
+                    "observedHistoric": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "h"
+                    },
+                    "notes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true,
+                      "example": [
+                        "Patient states prior allergic reaction to trazodone."
+                      ]
+                    },
+                    "provider": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "Dr. John Smith"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pagination"
+            ],
+            "properties": {
+              "pagination": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "currentPage",
+                  "perPage",
+                  "totalPages",
+                  "totalEntries"
+                ],
+                "properties": {
+                  "currentPage": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "perPage": {
+                    "type": "integer",
+                    "example": 10
+                  },
+                  "totalPages": {
+                    "type": "integer",
+                    "example": 2
+                  },
+                  "totalEntries": {
+                    "type": "integer",
+                    "example": 15
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "LabsAndTests": {
         "type": "object",
         "additionalProperties": false,
@@ -25002,6 +25218,7 @@
                 "type": "object",
                 "additionalProperties": false,
                 "example": {
+                  "allergiesOracleHealthEnabled": false,
                   "appeals": true,
                   "appointments": true,
                   "claims": true,
