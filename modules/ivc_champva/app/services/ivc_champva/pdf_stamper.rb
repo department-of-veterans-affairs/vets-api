@@ -76,9 +76,10 @@ module IvcChampva
         log_stamp_text = Flipper.enabled?(:champva_stamper_logging) && Settings.vsp_environment != 'production'
 
         form.desired_stamps.each do |desired_stamp|
-          Rails.logger.info "IVC Champva Forms - PdfStamper: desired stamp text: #{desired_stamp[:text]}" if log_stamp_text
+          if log_stamp_text
+            Rails.logger.info "IVC Champva Forms - PdfStamper: desired stamp text: #{desired_stamp[:text]}"
+          end
           stamp(desired_stamp, stamped_template_path)
-        end
         end
       end
     end
