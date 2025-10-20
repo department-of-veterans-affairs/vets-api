@@ -1422,7 +1422,7 @@ module Pensions
         middle_initial = @form_data.dig('veteranFullName', 'middle').try(:[], 0)
         @form_data['veteranFullName'] ||= {}
         @form_data['veteranFullName']['first'] = @form_data.dig('veteranFullName', 'first')&.titleize
-        @form_data['veteranFullName']['middle'] = middle_initial || ""
+        @form_data['veteranFullName']['middle'] = middle_initial || ''
         @form_data['veteranFullName']['last'] = @form_data.dig('veteranFullName', 'last')&.titleize
         @form_data['veteranSocialSecurityNumber'] = split_ssn(@form_data['veteranSocialSecurityNumber'])
         @form_data['veteranDateOfBirth'] = split_date(@form_data['veteranDateOfBirth'])
