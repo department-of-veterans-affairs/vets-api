@@ -670,7 +670,6 @@ config/form_profile_mappings/22-1990.yml @department-of-veterans-affairs/backend
 config/form_profile_mappings/22-1990E.yml @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 config/form_profile_mappings/22-1990EMEB.yml @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/22-1990EZ.yml @department-of-veterans-affairs/backend-review-group
-config/form_profile_mappings/22-1990N.yml @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/22-1990S.yml @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/22-1995.yml @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/22-5490.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
@@ -1302,7 +1301,6 @@ spec/factories/va10297.rb @department-of-veterans-affairs/govcio-vfep-codereview
 spec/factories/va1919.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/factories/va1990.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/factories/va1990e.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
-spec/factories/va1990n.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/factories/va1990s.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/factories/va1995.rb @department-of-veterans-affairs/backend-review-group
 spec/factories/va526ez.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
