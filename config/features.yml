@@ -436,7 +436,7 @@ features:
     description: Enables failure notifications for secondary forms in decision review applications with final status
   decision_review_stuck_records_monitoring:
     actor_type: user
-    description: Enables monitoring for stuck records in decision review applications
+    description: Enable monitoring for stuck records in decision review applications
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
