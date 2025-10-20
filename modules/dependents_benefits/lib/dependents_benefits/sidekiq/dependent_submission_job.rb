@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DependentsBenefits
+module DependentsBenefits::Sidekiq
   ##
   # Abstract base class for coordinated submission of related 686c and 674 claims
   #
@@ -16,7 +16,7 @@ module DependentsBenefits
   # - MAY override permanent_failure? for service-specific error classification
   #
   class DependentSubmissionJob
-    include Sidekiq::Job
+    include ::Sidekiq::Job
 
     # dead: false ensures critical dependent claims never go to dead queue
     # https://github.com/sidekiq/sidekiq/wiki/Advanced-Options#jobs
@@ -35,13 +35,14 @@ module DependentsBenefits
       # Early exit optimization - prevents unnecessary service calls
       return if parent_group_failed?
 
+      find_or_create_form_submission
       create_form_submission_attempt
-      response = submit_to_service
+      @service_response = submit_to_service
 
-      if response&.success?
+      if @service_response&.success?
         handle_job_success
       else
-        handle_job_failure(response&.error)
+        handle_job_failure(@service_response&.error)
       end
     rescue => e
       handle_job_failure(e)
@@ -123,7 +124,7 @@ module DependentsBenefits
       if permanent_failure?(error)
         # Skip Sidekiq retries for permanent failures
         handle_permanent_failure(claim_id, error)
-        raise Sidekiq::JobRetry::Skip
+        raise ::Sidekiq::JobRetry::Skip
       end
 
       case error
@@ -216,11 +217,11 @@ module DependentsBenefits
     end
 
     def current_group
-      SavedClaimGroup.by_saved_claim_id(claim_id)&.first
+      SavedClaimGroup.by_saved_claim_id(claim_id).first!
     end
 
     def parent_group
-      SavedClaimGroup.by_saved_claim_id(parent_claim_id)&.first
+      SavedClaimGroup.by_saved_claim_id(parent_claim_id).first!
     end
 
     def saved_claim
@@ -233,6 +234,27 @@ module DependentsBenefits
 
     def parent_claim_id
       @parent_claim_id ||= current_group&.parent_claim_id
+    end
+
+    def user_data
+      @user_data ||= JSON.parse(parent_group.user_data)
+    end
+
+    def generate_user_struct
+      info = user_data['veteran_information']
+      full_name = info['full_name']
+      OpenStruct.new(
+        first_name: full_name['first'],
+        last_name: full_name['last'],
+        middle_name: full_name['middle'],
+        ssn: info['ssn'],
+        email: info['email'],
+        va_profile_email: info['va_profile_email'],
+        participant_id: info['participant_id'],
+        icn: info['icn'],
+        uuid: info['uuid'],
+        common_name: info['common_name']
+      )
     end
   end
 end
