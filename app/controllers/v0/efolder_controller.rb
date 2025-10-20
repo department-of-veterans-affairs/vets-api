@@ -4,7 +4,7 @@ require 'efolder/service'
 
 module V0
   class EfolderController < ApplicationController
-    service_tag 'deprecated'
+    service_tag 'efolder'
 
     def index
       render(json: service.list_documents)
@@ -18,9 +18,17 @@ module V0
       )
     end
 
-    def tsa_letter
-      letter = service.get_document_by_subject('VETS Safe Travel Outreach Letter')
+    def get_tsa_letter_metadata
+      letter = service.get_tsa_letter
       render(json: letter)
+    end
+
+    def download_tsa_letter
+      send_data(
+        service.download_tsa_letter(params[:id]),
+        type: 'application/pdf',
+        filename: params[:filename]
+      )
     end
 
     private

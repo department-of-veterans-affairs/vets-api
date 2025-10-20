@@ -33,14 +33,21 @@ module Efolder
       ).content
     end
 
-    def get_document_by_subject(subject)
+    def get_tsa_letter
       vbms_docs.map do |document|
-        if document[:subject] == subject
+        if document[:subject] == 'VETS Safe Travel Outreach Letter'
           document.marshal_dump.slice(
             :document_id, :doc_type, :type_description, :received_at
           )
         end
-      end.compact
+      end.compact.first
+    end
+
+    def download_tsa_letter(document_id)
+      # confirm it's the correct letter
+      @client.send_request(
+        VBMS::Requests::GetDocumentContent.new(document_id)
+      ).content
     end
 
     private
