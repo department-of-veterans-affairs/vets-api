@@ -2,12 +2,12 @@
 
 require 'dependents_benefits/monitor'
 require 'dependents_benefits/service_response'
-require 'dependents_benefits/jobs/dependent_submission_job'
+require 'dependents_benefits/sidekiq/dependent_submission_job'
 require 'bgs/job'
 require 'bgsv2/form686c'
 
 module DependentsBenefits
-  module Jobs
+  module Sidekiq
     class BGS686cJob < DependentSubmissionJob
       ##
       # Service-specific submission logic - BGS vs Lighthouse vs Fax

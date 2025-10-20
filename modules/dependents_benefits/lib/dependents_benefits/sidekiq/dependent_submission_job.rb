@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DependentsBenefits::Jobs
+module DependentsBenefits::Sidekiq
   ##
   # Abstract base class for coordinated submission of related 686c and 674 claims
   #
