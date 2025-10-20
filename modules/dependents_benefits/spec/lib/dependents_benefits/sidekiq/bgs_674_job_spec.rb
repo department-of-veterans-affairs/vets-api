@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'dependents_benefits/jobs/bgs_674_job'
+require 'dependents_benefits/sidekiq/bgs_674_job'
 require 'bgsv2/form674'
 require 'dependents_benefits/user_data'
 
-RSpec.describe DependentsBenefits::Jobs::BGS674Job, type: :job do
+RSpec.describe DependentsBenefits::Sidekiq::BGS674Job, type: :job do
   before do
     allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
   end

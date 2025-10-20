@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'dependents_benefits/jobs/bgs_674_job'
+require 'dependents_benefits/sidekiq/bgs_674_job'
 require 'dependents_benefits/sidekiq/bgs_686c_job'
 require 'dependents_benefits/monitor'
 
@@ -79,7 +79,7 @@ module DependentsBenefits
       jobs_count = 0
 
       # Enqueue primary 674 submission job
-      Jobs::BGS674Job.perform_async(claim.id, proc_id)
+      Sidekiq::BGS674Job.perform_async(claim.id, proc_id)
       jobs_count += 1
 
       monitor.track_processor_info('Enqueued 674 submission jobs', 'enqueue_674',

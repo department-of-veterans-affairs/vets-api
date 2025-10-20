@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'dependents_benefits/jobs/dependent_submission_job'
+require 'dependents_benefits/sidekiq/dependent_submission_job'
 require 'dependents_benefits/monitor'
 require 'sidekiq/job_retry'
 
