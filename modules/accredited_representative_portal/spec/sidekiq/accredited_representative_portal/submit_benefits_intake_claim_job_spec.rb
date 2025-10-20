@@ -115,7 +115,7 @@ RSpec.describe AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob do
     before do
       allow(Flipper).to receive(:enabled?).with(
         :accredited_representative_portal_lighthouse_api_key
-      ).and_return('fake_api_key')
+      ).and_return(true)
     end
 
     it 'performs using ARP BenefitsIntakeService' do
