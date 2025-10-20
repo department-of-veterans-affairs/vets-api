@@ -9,6 +9,7 @@ require_relative 'constants'
 require_relative 'helpers'
 
 # rubocop:disable Metrics/ClassLength
+# rubocop:disable Metrics/MethodLength
 module Pensions
   module PdfFill
     # The Va21p527ez Form
@@ -1816,4 +1817,5 @@ module Pensions
     end
   end
 end
+# rubocop:enable Metrics/MethodLength
 # rubocop:enable Metrics/ClassLength
