@@ -116,15 +116,16 @@ module IvcChampva
     end
 
     def insert_merged_pdf_and_docs(file_name, response_status)
+      response_status_string = response_status.to_s
       # insert the combined PDF
-      insert_form(file_name, response_status.to_s)
+      insert_form(file_name, response_status_string)
 
       # insert individual records for all original files
       @file_paths.each do |file_path|
         next if file_path.blank?
 
         original_file_name = File.basename(file_path).gsub('-tmp', '')
-        insert_form(original_file_name, response_status.to_s)
+        insert_form(original_file_name, response_status_string)
       end
     end
 
