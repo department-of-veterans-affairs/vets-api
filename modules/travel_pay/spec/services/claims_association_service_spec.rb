@@ -187,11 +187,13 @@ describe TravelPay::ClaimAssociationService do
       appts_with_claims = nil
 
       expect do
-        appts_with_claims = association_service.associate_appointments_to_claims({
-                                                                                    'appointments' => appointments,
-                                                                                    'start_date' => '2024-10-17T09:00:00Z',
-                                                                                    'end_date' => '2024-12-15T16:45:00Z'
-                                                                                  })
+        appts_with_claims = association_service.associate_appointments_to_claims(
+          {
+            'appointments' => appointments,
+            'start_date' => '2024-10-17T09:00:00Z',
+            'end_date' => '2024-12-15T16:45:00Z'
+          }
+        )
       end.not_to raise_error
 
       expect(appts_with_claims.count).to eq(appointments.count)
