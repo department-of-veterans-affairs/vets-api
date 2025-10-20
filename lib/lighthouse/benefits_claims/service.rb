@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/constants'
 require 'lighthouse/benefits_claims/service_exception'
+require 'lighthouse/benefits_claims/mock_data'
 require 'lighthouse/service_exception'
 
 module BenefitsClaims
@@ -35,6 +36,9 @@ module BenefitsClaims
     end
 
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+      # Return mock data if enabled (for testing title generator mappings)
+      return BenefitsClaims::MockData.get_claims_response if BenefitsClaims::MockData.enabled?
+
       claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
       claims['data'] = filter_by_status(claims['data'])
       claims['data'] = apply_configured_ep_filters(claims['data'])
@@ -47,6 +51,10 @@ module BenefitsClaims
     end
 
     def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+      # Return mock data if available (for testing title generator mappings)
+      mock_response = BenefitsClaims::MockData.get_claim_response(id)
+      return mock_response if mock_response
+
       claim = config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
       # Manual status override for certain tracked items
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
