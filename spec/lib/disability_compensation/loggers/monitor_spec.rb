@@ -124,7 +124,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
       it 'logs with correct keys' do
         expect(monitor).to receive(:submit_event).with(
           :info,
-          "Form526Submission=#{submission.id} ToxicExposureChanges=detected",
+          'Form526Submission toxic exposure orphaned dates purged',
           "#{described_class::CLAIM_STATS_KEY}.toxic_exposure_changes",
           hash_including(
             submission_id: submission.id,

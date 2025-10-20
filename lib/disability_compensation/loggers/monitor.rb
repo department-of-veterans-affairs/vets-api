@@ -183,7 +183,7 @@ module DisabilityCompensation
 
         submit_event(
           :info,
-          "Form526Submission=#{submission.id} ToxicExposureChanges=detected",
+          'Form526Submission toxic exposure orphaned dates purged',
           "#{self.class::CLAIM_STATS_KEY}.toxic_exposure_changes",
           log_data
         )
