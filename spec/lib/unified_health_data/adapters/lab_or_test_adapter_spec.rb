@@ -680,7 +680,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         record = base_record.deep_dup
 
         expect(Rails.logger).to receive(:warn).with(
-          'DiagnosticReport test-456 is missing effectiveDateTime and effectivePeriod start date'
+          'DiagnosticReport test-456 is missing effectiveDateTime'
         )
 
         result = adapter.send(:parse_single_record, record)
@@ -692,7 +692,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         record['resource']['effectivePeriod'] = { 'end' => '2024-06-01T00:00:00Z' }
 
         expect(Rails.logger).to receive(:warn).with(
-          'DiagnosticReport test-456 is missing effectiveDateTime and effectivePeriod start date'
+          'DiagnosticReport test-456 is missing effectiveDateTime and effectivePeriod.start'
         )
 
         result = adapter.send(:parse_single_record, record)

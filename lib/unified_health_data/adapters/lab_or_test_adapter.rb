@@ -76,9 +76,12 @@ module UnifiedHealthData
 
         return if has_valid_date
 
-        Rails.logger.warn(
-          "DiagnosticReport #{resource['id']} is missing effectiveDateTime and effectivePeriod start date"
-        )
+        # Log specific message based on what's missing
+        if effective_period.present? && effective_period['start'].blank?
+          Rails.logger.warn("DiagnosticReport #{resource['id']} is missing effectiveDateTime and effectivePeriod.start")
+        else
+          Rails.logger.warn("DiagnosticReport #{resource['id']} is missing effectiveDateTime")
+        end
       end
 
       def get_location(record)
