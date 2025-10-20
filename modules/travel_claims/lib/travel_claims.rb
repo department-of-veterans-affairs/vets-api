@@ -7,4 +7,3 @@ module TravelClaims
   # Standalone travel claims submission app
   # Uses shared TravelClaim services from lib/travel_claim/
 end
-

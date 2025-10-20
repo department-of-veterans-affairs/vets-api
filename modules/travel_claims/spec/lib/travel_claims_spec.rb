@@ -16,7 +16,7 @@ RSpec.describe TravelClaims do
 
   describe 'engine' do
     it 'is a Rails::Engine' do
-      expect(TravelClaims::Engine.superclass).to eq(::Rails::Engine)
+      expect(TravelClaims::Engine.superclass).to eq(Rails::Engine)
     end
 
     it 'has isolated namespace' do
@@ -24,4 +24,3 @@ RSpec.describe TravelClaims do
     end
   end
 end
-
