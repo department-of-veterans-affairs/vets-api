@@ -54,7 +54,8 @@ module UnifiedHealthData
 
         Rails.logger.warn(
           "DiagnosticReport #{record['resource']['id']} has status 'final' but is missing " \
-          'both encoded data and observations'
+          'both encoded data and observations',
+          { service: 'mhv-medical-records' }
         )
       end
 
@@ -66,9 +67,15 @@ module UnifiedHealthData
         # effectiveDateTime and effectivePeriod are mutually exclusive per FHIR R4
         # Log when both are missing OR when effectivePeriod exists but has no start
         if effective_date_time.blank? && effective_period.blank?
-          Rails.logger.warn("DiagnosticReport #{resource['id']} is missing effectiveDateTime and effectivePeriod")
+          Rails.logger.warn(
+            "DiagnosticReport #{resource['id']} is missing effectiveDateTime and effectivePeriod",
+            { service: 'mhv-medical-records' }
+          )
         elsif effective_period.present? && effective_period['start'].blank?
-          Rails.logger.warn("DiagnosticReport #{resource['id']} is missing effectivePeriod.start")
+          Rails.logger.warn(
+            "DiagnosticReport #{resource['id']} is missing effectivePeriod.start",
+            { service: 'mhv-medical-records' }
+          )
         end
       end
 
