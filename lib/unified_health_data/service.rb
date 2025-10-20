@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# FIXME: remove after re-factoring class
-
 require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
@@ -28,7 +26,7 @@ module UnifiedHealthData
     def get_labs(start_date:, end_date:)
       with_monitoring do
         response = uhd_client.get_labs_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         combined_records = fetch_combined_records(body)
         parsed_records = lab_or_test_adapter.parse_labs(combined_records)
@@ -47,7 +45,7 @@ module UnifiedHealthData
         end_date = default_end_date
 
         response = uhd_client.get_conditions_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         combined_records = fetch_combined_records(body)
         conditions_adapter.parse(combined_records)
@@ -60,7 +58,7 @@ module UnifiedHealthData
         end_date = default_end_date
 
         response = uhd_client.get_conditions_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         combined_records = fetch_combined_records(body)
         target_record = combined_records.find { |record| record['resource']['id'] == condition_id }
@@ -81,7 +79,7 @@ module UnifiedHealthData
         start_date = default_start_date
         end_date = default_end_date
         response = uhd_client.get_prescriptions_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new(@user)
         prescriptions = adapter.parse(body, current_only:)
@@ -116,7 +114,7 @@ module UnifiedHealthData
         end_date = default_end_date
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
@@ -137,7 +135,7 @@ module UnifiedHealthData
         end_date = default_end_date
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
@@ -155,7 +153,7 @@ module UnifiedHealthData
         end_date = default_end_date
 
         response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         remap_vista_identifier(body)
         combined_records = fetch_combined_records(body)
@@ -171,7 +169,7 @@ module UnifiedHealthData
         end_date = default_end_date
 
         response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         remap_vista_identifier(body)
         combined_records = fetch_combined_records(body)
@@ -197,7 +195,7 @@ module UnifiedHealthData
     def get_appt_avs(appt_id:, include_binary: false)
       with_monitoring do
         response = uhd_client.get_avs(patient_id: @user.icn, appt_id:)
-        body = parse_response_body(response.body)
+        body = response.body
         summaries = body['entry'].select { |record| record['resource']['resourceType'] == 'DocumentReference' }
         parsed_avs_meta = summaries.map do |summary|
           clinical_notes_adapter.parse_avs_with_metadata(summary, appt_id, include_binary)
@@ -210,7 +208,7 @@ module UnifiedHealthData
     def get_avs_binary_data(doc_id:, appt_id:)
       with_monitoring do
         response = uhd_client.get_avs(patient_id: @user.icn, appt_id:)
-        body = parse_response_body(response.body)
+        body = response.body
         summary = body['entry'].find do |record|
           record['resource']['resourceType'] == 'DocumentReference' && record['resource']['id'] == doc_id
         end
@@ -221,11 +219,6 @@ module UnifiedHealthData
     private
 
     # Shared
-    def parse_response_body(body)
-      # FIXME: workaround for testing
-      body.is_a?(String) ? JSON.parse(body) : body
-    end
-
     def fetch_combined_records(body)
       return [] if body.nil?
 
@@ -303,7 +296,7 @@ module UnifiedHealthData
     end
 
     def parse_refill_response(response)
-      body = parse_response_body(response.body)
+      body = response.body
 
       # Ensure we have an array response format
       refill_items = body.is_a?(Array) ? body : []
