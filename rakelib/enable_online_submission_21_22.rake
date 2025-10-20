@@ -2,28 +2,33 @@
 
 namespace :vso do
   # rubocop:disable Naming/VariableNumber
-  desc 'Enable online submission of VA Form 21-22 for matching VSOs'
-  task enable_online_submission_21_22: :environment do
-    rep_codes = Veteran::Service::Representative
-                .pluck(:poa_codes)
-                .flatten
-                .compact
-                .uniq
+  desc 'Enable online submission of VA Form 21-22 for the given POA code(s)'
+  task :enable_online_submission_21_22, [:poa_codes] => :environment do |_t, args|
+    # rubocop:disable Layout/LineLength
+    if args[:poa_codes].blank?
+      raise ArgumentError,
+            'Please provide POA codes (comma-separated). Example: rake vso:enable_online_submission_21_22["YHZ,SVS,A1Q"]'
+    end
+    # rubocop:enable Layout/LineLength
 
-    puts "Found #{rep_codes.size} unique POA code(s) from representatives."
+    # Parse and normalize input codes
+    poa_codes = args[:poa_codes].split(',').map(&:strip).uniq
 
-    matching_orgs = Veteran::Service::Organization.where(poa: rep_codes)
+    puts "Received POA codes: #{poa_codes.join(', ')}"
+
+    matching_orgs = Veteran::Service::Organization.where(poa: poa_codes)
 
     if matching_orgs.empty?
-      puts 'No matching organizations found.'
-      next
+      raise StandardError, "No matching organizations found for provided POA codes: #{poa_codes.join(', ')}"
     end
 
     puts "Found #{matching_orgs.size} matching organization(s). Enabling online submission..."
 
     # rubocop:disable Rails/SkipsModelValidations
-    matching_orgs.update_all(can_accept_digital_poa_requests: true)
+    updated = matching_orgs.update_all(can_accept_digital_poa_requests: true)
     # rubocop:enable Rails/SkipsModelValidations
+
+    puts "Successfully updated #{updated} organization(s)."
   end
   # rubocop:enable Naming/VariableNumber
 end
