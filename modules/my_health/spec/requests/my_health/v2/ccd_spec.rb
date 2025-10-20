@@ -30,7 +30,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'returns XML CCD' do
-        get path, params: { start_date:, end_date:, format: 'xml' }
+        get path, params: { start_date:, end_date:, file_file_format: 'xml' }
 
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to include('application/xml')
@@ -38,13 +38,13 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'sets correct filename for XML' do
-        get path, params: { start_date:, end_date:, format: 'xml' }
+        get path, params: { start_date:, end_date:, file_file_format: 'xml' }
 
         expect(response.headers['Content-Disposition']).to include('filename="ccd.xml"')
       end
 
       it 'decodes Base64 data correctly' do
-        get path, params: { start_date:, end_date:, format: 'xml' }
+        get path, params: { start_date:, end_date:, file_file_format: 'xml' }
 
         expect(response.body).not_to match(%r{^[A-Za-z0-9+/=]+$}) # Not Base64
         expect(response.body).to include('<ClinicalDocument>') # Decoded XML
@@ -64,7 +64,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
           .to receive(:get_ccd_binary)
           .and_return(html_data)
 
-        get path, params: { start_date:, end_date:, format: 'html' }
+        get path, params: { start_date:, end_date:, file_format: 'html' }
 
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to include('text/html')
@@ -85,7 +85,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
           .to receive(:get_ccd_binary)
           .and_return(pdf_data)
 
-        get path, params: { start_date:, end_date:, format: 'pdf' }
+        get path, params: { start_date:, end_date:, file_format: 'pdf' }
 
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to eq('application/pdf')
@@ -105,6 +105,35 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to include('application/xml')
         expect(response.headers['Content-Disposition']).to include('filename="ccd.xml"')
+      end
+    end
+
+    context 'when required parameters are missing' do
+      it 'returns 400 bad request when start_date is missing' do
+        get path, params: { end_date: }
+
+        expect(response).to have_http_status(:bad_request)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors'].first['title']).to eq('Missing Parameters')
+        expect(json_response['errors'].first['detail']).to include('start_date and end_date are required')
+      end
+
+      it 'returns 400 bad request when end_date is missing' do
+        get path, params: { start_date: }
+
+        expect(response).to have_http_status(:bad_request)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors'].first['title']).to eq('Missing Parameters')
+        expect(json_response['errors'].first['detail']).to include('start_date and end_date are required')
+      end
+
+      it 'returns 400 bad request when both dates are missing' do
+        get path, params: {}
+
+        expect(response).to have_http_status(:bad_request)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors'].first['title']).to eq('Missing Parameters')
+        expect(json_response['errors'].first['detail']).to include('start_date and end_date are required')
       end
     end
 
@@ -133,7 +162,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'returns 400 bad request' do
-        get path, params: { start_date:, end_date:, format: 'json' }
+        get path, params: { start_date:, end_date:, file_format: 'json' }
 
         expect(response).to have_http_status(:bad_request)
         json_response = JSON.parse(response.body)
@@ -150,7 +179,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'returns 400 bad request' do
-        get path, params: { start_date:, end_date:, format: 'html' }
+        get path, params: { start_date:, end_date:, file_format: 'html' }
 
         expect(response).to have_http_status(:bad_request)
         json_response = JSON.parse(response.body)
@@ -170,10 +199,10 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
           .and_raise(client_error)
       end
 
-      it 'returns 502 bad gateway' do
+      it 'returns correct HTTP status based on error status' do
         get path, params: { start_date:, end_date: }
 
-        expect(response).to have_http_status(:bad_gateway)
+        expect(response).to have_http_status(:service_unavailable)
         json_response = JSON.parse(response.body)
         expect(json_response['errors'].first['title']).to eq('FHIR API Error')
       end

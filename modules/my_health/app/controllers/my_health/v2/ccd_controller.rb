@@ -24,6 +24,13 @@ module MyHealth
       private
 
       def fetch_ccd_binary(file_format)
+        unless params[:start_date].present? && params[:end_date].present?
+          render_error('Missing Parameters',
+                       'start_date and end_date are required parameters',
+                       '400', 400, :bad_request)
+          return nil
+        end
+
         binary_data = service.get_ccd_binary(
           start_date: params[:start_date],
           end_date: params[:end_date],
@@ -54,7 +61,8 @@ module MyHealth
 
         case error
         when Common::Client::Errors::ClientError
-          render_error('FHIR API Error', error.message, error.status, error.status, :bad_gateway)
+          status_symbol = Rack::Utils::SYMBOL_TO_STATUS_CODE.key(error.status) || :bad_gateway
+          render_error('FHIR API Error', error.message, error.status, error.status, status_symbol)
         when Common::Exceptions::BackendServiceException
           render json: { errors: error.errors }, status: :bad_gateway
         else
@@ -74,6 +82,7 @@ module MyHealth
                     "Unexpected error in CCD controller: #{error.message}"
                   end
         Rails.logger.error(message)
+        Rails.logger.error("Backtrace: #{error.backtrace.first(10).join("\n")}")
       end
 
       def render_error(title, detail, code, status, http_status)
