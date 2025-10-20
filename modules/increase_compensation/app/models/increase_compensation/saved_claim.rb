@@ -32,7 +32,7 @@ module IncreaseCompensation
 
     # the VBMS document type for _this_ claim type
     def document_type
-      1292
+      'L149'
     end
 
     # Utility function to retrieve claimant email from form
