@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'travel_claims'
 
 RSpec.describe TravelClaims do
   describe 'module' do
