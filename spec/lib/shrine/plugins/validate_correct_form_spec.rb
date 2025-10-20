@@ -73,7 +73,7 @@ describe Shrine::Plugins::ValidateCorrectForm do
     end
 
     after do
-      Dir.glob(Rails.root.join('tmp', '*.jpg')).each { |f| File.delete(f) }
+      Rails.root.glob('tmp/*.jpg').each { |f| File.delete(f) }
     end
 
     context 'when PDF contains the correct form ID' do
