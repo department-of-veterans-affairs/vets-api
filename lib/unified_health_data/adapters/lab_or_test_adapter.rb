@@ -25,7 +25,7 @@ module UnifiedHealthData
         observations = get_observations(record)
         return nil unless code && (encoded_data || observations)
 
-        log_final_status_warning(record, record['resource']['status'], encoded_data, observations)
+        log_warnings(record, encoded_data, observations)
 
         UnifiedHealthData::LabOrTest.new(
           id: record['resource']['id'],
@@ -44,6 +44,11 @@ module UnifiedHealthData
 
       private
 
+      def log_warnings(record, encoded_data, observations)
+        log_final_status_warning(record, record['resource']['status'], encoded_data, observations)
+        log_missing_date_warning(record)
+      end
+
       def log_final_status_warning(record, status, encoded_data, observations)
         return unless status == 'final' && (encoded_data.blank? || observations.blank?)
 
@@ -57,6 +62,22 @@ module UnifiedHealthData
 
         Rails.logger.warn(
           "DiagnosticReport #{record['resource']['id']} has status 'final' but is missing #{missing_data}"
+        )
+      end
+
+      def log_missing_date_warning(record)
+        resource = record['resource']
+        effective_date_time = resource['effectiveDateTime']
+        effective_period = resource['effectivePeriod']
+
+        # Check if there's no effectiveDateTime and no valid effectivePeriod with start date
+        has_valid_date = effective_date_time.present? ||
+                         (effective_period.present? && effective_period['start'].present?)
+
+        return if has_valid_date
+
+        Rails.logger.warn(
+          "DiagnosticReport #{resource['id']} is missing effectiveDateTime and effectivePeriod start date"
         )
       end
 
