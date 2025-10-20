@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sidekiq/job_retry'
+
 module DependentsBenefits::Sidekiq
   ##
   # Abstract base class for coordinated submission of related 686c and 674 claims
@@ -14,7 +16,9 @@ module DependentsBenefits::Sidekiq
   # - MUST implement submit_to_service for BGS/Lighthouse/Fax submission
   # - MAY override find_or_create_form_submission for service-specific FormSubmission types
   # - MAY override permanent_failure? for service-specific error classification
-  #
+
+  class HandledError < StandardError; end
+
   class DependentSubmissionJob
     include ::Sidekiq::Job
 
@@ -44,6 +48,8 @@ module DependentsBenefits::Sidekiq
       else
         handle_job_failure(@service_response&.error)
       end
+    rescue ::Sidekiq::JobRetry::Skip, HandledError => e
+      raise e
     rescue => e
       handle_job_failure(e)
     end
@@ -128,21 +134,19 @@ module DependentsBenefits::Sidekiq
       end
 
       case error
-      when Exception
-        # Re-raise actual exceptions for Sidekiq retry mechanism
-        raise error
       when nil
         # Handle nil case
-        raise StandardError, 'Unknown error occurred during job execution'
+        raise HandledError, 'Unknown error occurred during job execution'
       else
         # Handle non-exception errors
-        raise StandardError, error
+        raise HandledError, error
       end
     end
 
     # Called from retries_exhausted callback OR permanent failure detection
     # CRITICAL: Recreates instance state since callback runs outside job context
     def handle_permanent_failure(claim_id, exception)
+      monitor.track_submission_error("Error submitting #{self.class}", 'error.permanent', error: exception)
       # Reset claim_id class variable for if this was called from sidekiq_retries_exhausted
       @claim_id = claim_id
       ActiveRecord::Base.transaction do
@@ -238,6 +242,14 @@ module DependentsBenefits::Sidekiq
 
     def user_data
       @user_data ||= JSON.parse(parent_group.user_data)
+    end
+
+    def submission
+      @submission ||= find_or_create_form_submission
+    end
+
+    def submission_attempt
+      @submission_attempt ||= create_form_submission_attempt
     end
 
     def generate_user_struct
