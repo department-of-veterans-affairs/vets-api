@@ -49,7 +49,7 @@ describe Pensions::PdfFill::Va21p527ez do
 
   describe '#to_checkbox_on_off' do
     it 'returns correct values' do
-      expect(described_class.new({}).to_checkbox_on_off(true)).to eq(1)
+      expect(described_class.new({}).to_checkbox_on_off(true)).to eq('1')
       expect(described_class.new({}).to_checkbox_on_off(false)).to eq('Off')
     end
   end
