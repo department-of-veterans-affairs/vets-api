@@ -38,7 +38,7 @@ class SavedClaim::Form214192 < SavedClaim
 
   # SavedClaims require regional_office to be defined
   def regional_office
-    []
+    [].freeze
   end
 
   # Required for Lighthouse Benefits Intake API submission
