@@ -1,0 +1,9 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+# Specify your gem's dependencies in travel_claims.gemspec
+gemspec
+
+gem 'rails', '~> 7.0'
+
