@@ -50,18 +50,11 @@ module UnifiedHealthData
       end
 
       def log_final_status_warning(record, status, encoded_data, observations)
-        return unless status == 'final' && (encoded_data.blank? || observations.blank?)
-
-        missing_data = if encoded_data.blank? && observations.blank?
-                         'both encoded data and observations'
-                       elsif encoded_data.blank?
-                         'encoded data'
-                       else
-                         'observations'
-                       end
+        return unless status == 'final' && encoded_data.blank? && observations.blank?
 
         Rails.logger.warn(
-          "DiagnosticReport #{record['resource']['id']} has status 'final' but is missing #{missing_data}"
+          "DiagnosticReport #{record['resource']['id']} has status 'final' but is missing " \
+          'both encoded data and observations'
         )
       end
 
@@ -70,17 +63,12 @@ module UnifiedHealthData
         effective_date_time = resource['effectiveDateTime']
         effective_period = resource['effectivePeriod']
 
-        # Check if there's no effectiveDateTime and no valid effectivePeriod with start date
-        has_valid_date = effective_date_time.present? ||
-                         (effective_period.present? && effective_period['start'].present?)
-
-        return if has_valid_date
-
-        # Log specific message based on what's missing
-        if effective_period.present? && effective_period['start'].blank?
-          Rails.logger.warn("DiagnosticReport #{resource['id']} is missing effectiveDateTime and effectivePeriod.start")
-        else
-          Rails.logger.warn("DiagnosticReport #{resource['id']} is missing effectiveDateTime")
+        # effectiveDateTime and effectivePeriod are mutually exclusive per FHIR R4
+        # Log when both are missing OR when effectivePeriod exists but has no start
+        if effective_date_time.blank? && effective_period.blank?
+          Rails.logger.warn("DiagnosticReport #{resource['id']} is missing effectiveDateTime and effectivePeriod")
+        elsif effective_period.present? && effective_period['start'].blank?
+          Rails.logger.warn("DiagnosticReport #{resource['id']} is missing effectivePeriod.start")
         end
       end
 

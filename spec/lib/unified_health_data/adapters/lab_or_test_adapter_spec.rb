@@ -570,7 +570,18 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         }
       end
 
-      it 'logs warning when status is final and has no encoded data' do
+      it 'does not log when status is final and has encoded data but no observations' do
+        record = base_record.deep_dup
+        record['resource']['presentedForm'] = [{ 'data' => 'encoded-data-here' }]
+        record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
+
+        expect(Rails.logger).not_to receive(:warn)
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+
+      it 'does not log when status is final and has observations but no encoded data' do
         record = base_record.deep_dup
         record['resource']['contained'] = [
           {
@@ -581,22 +592,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         ]
         record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
 
-        expect(Rails.logger).to receive(:warn).with(
-          "DiagnosticReport test-123 has status 'final' but is missing encoded data"
-        )
-
-        result = adapter.send(:parse_single_record, record)
-        expect(result).not_to be_nil
-      end
-
-      it 'logs warning when status is final and has no observations' do
-        record = base_record.deep_dup
-        record['resource']['presentedForm'] = [{ 'data' => 'encoded-data-here' }]
-        record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
-
-        expect(Rails.logger).to receive(:warn).with(
-          "DiagnosticReport test-123 has status 'final' but is missing observations"
-        )
+        expect(Rails.logger).not_to receive(:warn)
 
         result = adapter.send(:parse_single_record, record)
         expect(result).not_to be_nil
@@ -680,7 +676,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         record = base_record.deep_dup
 
         expect(Rails.logger).to receive(:warn).with(
-          'DiagnosticReport test-456 is missing effectiveDateTime'
+          'DiagnosticReport test-456 is missing effectiveDateTime and effectivePeriod'
         )
 
         result = adapter.send(:parse_single_record, record)
@@ -692,7 +688,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         record['resource']['effectivePeriod'] = { 'end' => '2024-06-01T00:00:00Z' }
 
         expect(Rails.logger).to receive(:warn).with(
-          'DiagnosticReport test-456 is missing effectiveDateTime and effectivePeriod.start'
+          'DiagnosticReport test-456 is missing effectivePeriod.start'
         )
 
         result = adapter.send(:parse_single_record, record)
