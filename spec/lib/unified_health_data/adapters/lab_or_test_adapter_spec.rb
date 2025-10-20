@@ -558,13 +558,43 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
   end
 
   describe '#get_encoded_data' do
-    context 'when presentedForm has data field' do
+    context 'when presentedForm has data field with text/plain contentType' do
       it 'returns the data' do
-        resource = { 'presentedForm' => [{ 'data' => 'encoded_content' }] }
+        resource = { 'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'encoded_content' }] }
 
         result = adapter.send(:get_encoded_data, resource)
 
         expect(result).to eq('encoded_content')
+      end
+    end
+
+    context 'when presentedForm has multiple items' do
+      it 'returns data from text/plain item' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'application/pdf', 'data' => 'pdf_content' },
+            { 'contentType' => 'text/plain', 'data' => 'plain_text_content' },
+            { 'contentType' => 'text/html', 'data' => 'html_content' }
+          ]
+        }
+
+        result = adapter.send(:get_encoded_data, resource)
+
+        expect(result).to eq('plain_text_content')
+      end
+    end
+
+    context 'when presentedForm has no text/plain item' do
+      it 'returns empty string' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'application/pdf', 'data' => 'pdf_content' }
+          ]
+        }
+
+        result = adapter.send(:get_encoded_data, resource)
+
+        expect(result).to eq('')
       end
     end
 

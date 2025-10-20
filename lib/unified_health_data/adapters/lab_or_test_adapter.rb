@@ -191,9 +191,12 @@ module UnifiedHealthData
       end
 
       def get_encoded_data(resource)
-        return '' unless resource['presentedForm']&.first
+        return '' unless resource['presentedForm']&.any?
 
-        presented_form = resource['presentedForm'].first
+        # Find the presentedForm item with contentType 'text/plain'
+        presented_form = resource['presentedForm'].find { |form| form['contentType'] == 'text/plain' }
+        return '' unless presented_form
+
         # Handle standard data field or extensions indicating data-absent-reason
         # Return empty string when data is absent (either with data-absent-reason extension or missing)
         presented_form['data'] || ''
