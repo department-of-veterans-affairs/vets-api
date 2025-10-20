@@ -1410,6 +1410,8 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq
+  sidekiq-ent!
+  sidekiq-pro!
   sign_in_service
   simple_forms_api!
   simplecov
