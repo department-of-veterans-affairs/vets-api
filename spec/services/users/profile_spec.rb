@@ -247,7 +247,7 @@ RSpec.describe Users::Profile do
     end
 
     describe '#va_profile' do
-      context 'when mpi_profile is not nil' do
+      context 'when user.mpi is not nil' do
         it 'includes birth_date' do
           expect(va_profile[:birth_date]).to eq(user.birth_date_mpi)
         end
@@ -288,33 +288,28 @@ RSpec.describe Users::Profile do
         end
       end
 
-      context 'when mpi_profile is nil' do
+      context 'when user.mpi is nil' do
         let(:user) { build(:user) }
 
         it 'returns va_profile as null' do
           expect(va_profile).to be_nil
         end
 
-        it 'does not populate the #errors array with the serialized error', :aggregate_failures do
-          external_services_errors = subject.errors.map { |error| error[:external_service] }
+        it 'populates the #errors array with the serialized error', :aggregate_failures do
+          error = subject.errors.first
 
-          expect(external_services_errors).not_to include 'MVI'
+          expect(error[:external_service]).to eq 'MVI'
+          expect(error[:start_time]).to be_present
+          expect(error[:description]).to include 'Not authorized'
+          expect(error[:status]).to eq 401
         end
 
-        it 'logs an error when user is not loa3' do
-          profile_instance = Users::Profile.new(user)
-          expect(Rails.logger).to receive(:warn) do |message, log_arg|
-            expect(message).to eq('Users::Profile external service error')
-            log_hash = JSON.parse(log_arg)
-            expect(log_hash['error']['external_service']).to eq('MVI')
-            expect(log_hash['error']['description']).to eq('User is not LOA3, MPI access denied')
-            expect(log_hash['error']['method']).to eq('mpi_profile')
-          end
-          profile_instance.send(:mpi_profile)
+        it 'sets the status to 296' do
+          expect(subject.status).to eq 296
         end
       end
 
-      context 'when user.mpi_status is not found' do
+      context 'when user.mpi is not found' do
         before { stub_mpi_not_found }
 
         it 'returns va_profile as null' do
@@ -336,14 +331,6 @@ RSpec.describe Users::Profile do
     end
 
     describe '#veteran_status' do
-      let(:veteran_status_with_nil) do
-        {
-          status: Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok],
-          is_veteran: nil,
-          served_in_military: nil
-        }
-      end
-
       context 'when a veteran status is successfully returned' do
         it 'includes is_veteran' do
           VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
@@ -414,49 +401,27 @@ RSpec.describe Users::Profile do
         end
       end
 
-      context 'when LOA1 user' do
-        let(:edipi) { nil }
+      context 'with a LOA1 user' do
+        let(:user) { build(:user, :loa1) }
 
-        before do
-          user.loa[:current] = 1
+        it 'returns va_profile as null' do
+          expect(veteran_status).to be_nil
         end
 
-        it 'returns object with nils for veteran_status when edipi is blank' do
-          expect(veteran_status).to eq(veteran_status_with_nil)
+        it 'populates the #errors array with the serialized error', :aggregate_failures do
+          VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: %i[method body],
+                                                                                     allow_playback_repeats: true) do
+            vaprofile_error = subject.errors.last
+
+            expect(vaprofile_error[:external_service]).to eq 'VAProfile'
+            expect(vaprofile_error[:start_time]).to be_present
+            expect(vaprofile_error[:description]).to include 'VA Profile failure'
+            expect(vaprofile_error[:status]).to eq 401
+          end
         end
 
-        it 'logs skipping message' do
-          expect(Rails.logger).to receive(:info).with(
-            'Skipping VAProfile veteran status call, No EDIPI present',
-            user_uuid: user.uuid,
-            loa: user.loa
-          )
-          Users::Profile.new(user).send(:veteran_status)
-        end
-
-        it 'sets the status to 200 when edipi is blank' do
-          expect(subject.status).to eq 200
-        end
-      end
-
-      context 'when a LOA3 user' do
-        let(:edipi) { nil }
-
-        it 'returns object with nils for veteran_status when edipi is blank' do
-          expect(veteran_status).to eq(veteran_status_with_nil)
-        end
-
-        it 'logs skipping message' do
-          expect(Rails.logger).to receive(:info).with(
-            'Skipping VAProfile veteran status call, No EDIPI present',
-            user_uuid: user.uuid,
-            loa: user.loa
-          )
-          Users::Profile.new(user).send(:veteran_status)
-        end
-
-        it 'sets the status to 200 when edipi is blank' do
-          expect(subject.status).to eq 200
+        it 'sets the status to 296' do
+          expect(subject.status).to eq 296
         end
       end
     end
@@ -580,22 +545,18 @@ RSpec.describe Users::Profile do
 
         it 'logs errors for vet360_contact_information' do
           allow(logging_user).to receive(:vet360_contact_info).and_raise(vet360_error)
-          expect(Rails.logger).to receive(:warn) do |message, log_arg|
-            expect(message).to eq('Users::Profile external service error')
+          expect(Rails.logger).to receive(:warn) do |log_arg|
             log_hash = JSON.parse(log_arg)
             expect(log_hash).to include(expected_va_profile_log_hash)
-            expect(log_hash['error']['method']).to eq('vet360_contact_information')
           end
           logging_profile.send(:vet360_contact_information)
         end
 
         it 'logs errors for veteran_status' do
           allow(logging_user).to receive(:veteran?).and_raise(vet_status_error)
-          expect(Rails.logger).to receive(:warn) do |message, log_arg|
-            expect(message).to eq('Users::Profile external service error')
+          expect(Rails.logger).to receive(:warn) do |log_arg|
             log_hash = JSON.parse(log_arg)
             expect(log_hash).to include(expected_va_profile_log_hash)
-            expect(log_hash['error']['method']).to eq('veteran_status')
           end
           logging_profile.send(:veteran_status)
         end
@@ -615,11 +576,9 @@ RSpec.describe Users::Profile do
           allow(logging_user).to receive_messages(
             mpi_status: :error, mpi_error:
           )
-          expect(Rails.logger).to receive(:warn) do |message, log_arg|
-            expect(message).to eq('Users::Profile external service error')
+          expect(Rails.logger).to receive(:warn) do |log_arg|
             log_hash = JSON.parse(log_arg)
             expect(log_hash).to include(expected_mpi_log_hash)
-            expect(log_hash['error']['method']).to eq('mpi_profile')
           end
           logging_profile.send(:mpi_profile)
         end
