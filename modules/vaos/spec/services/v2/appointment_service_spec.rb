@@ -736,7 +736,7 @@ describe VAOS::V2::AppointmentsService do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_parallel_travel_claims,
-                                                     user).and_return(true)
+                                                    user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
@@ -781,7 +781,7 @@ describe VAOS::V2::AppointmentsService do
             # All appointments should have error metadata
             response[:data].each do |appt|
               expect(appt['travelPayClaim']).not_to be_nil
-              expect(appt['travelPayClaim']['metadata']['success']).to eq(false)
+              expect(appt['travelPayClaim']['metadata']['success']).to be(false)
             end
           end
         end
@@ -809,13 +809,13 @@ describe VAOS::V2::AppointmentsService do
                            allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
             response = subject.get_appointments(start_date2, end_date2, nil, {},
                                                 { travel_pay_claims: true })
-            expect(response[:data].size).to be > 0
+            expect(response[:data].size).to be_positive
           end
         end
 
         it 'works correctly when feature flag is disabled and uses sequential fetching' do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_parallel_travel_claims,
-                                                     user).and_return(false)
+                                                    user).and_return(false)
 
           expect(TravelPay::AuthManager).to receive(:new).with('12345', user)
 
