@@ -6,7 +6,6 @@ module AccreditedRepresentativePortal
       codes = normalize_codes(poa_codes)
       raise ArgumentError, 'POA codes required' if codes.empty?
 
-      # One scope: only rows that actually need the flip
       matched_orgs = Veteran::Service::Organization
                      .where(poa: codes)
                      .where.not(can_accept_digital_poa_requests: true)
@@ -17,7 +16,6 @@ module AccreditedRepresentativePortal
       updated_count = matched_orgs.update_all(can_accept_digital_poa_requests: true)
       # rubocop:enable Rails/SkipsModelValidations
 
-      # In the single-scope design, "matched_count" == rows that needed updating.
       { poa_codes: codes, matched_count:, updated_count: }
     end
 
