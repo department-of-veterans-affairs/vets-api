@@ -21,7 +21,6 @@ describe Pensions::PdfFill::Va21p527ez do
     use_vets_json_schema: true,
     input_data_fixture_dir: 'modules/pensions/spec/fixtures',
     output_pdf_fixture_dir: 'modules/pensions/spec/fixtures',
-    test_data_types: %w[kitchen_sink],
     fill_options: { extras_redesign: true, omit_esign_stamp: true }
   }
 
