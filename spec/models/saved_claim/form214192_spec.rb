@@ -108,35 +108,35 @@ RSpec.describe SavedClaim::Form214192, type: :model do
       form_data[:employmentInformation].delete(:employerName)
       claim = described_class.new(form: form_data.to_json)
       expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('employerName is required')
+      expect(claim.errors[:form_data]).to include('Employer name is required')
     end
 
     it 'requires employer address' do
       form_data[:employmentInformation].delete(:employerAddress)
       claim = described_class.new(form: form_data.to_json)
       expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('employerAddress is required')
+      expect(claim.errors[:form_data]).to include('Employer address is required')
     end
 
     it 'requires employer email' do
       form_data[:employmentInformation].delete(:employerEmail)
       claim = described_class.new(form: form_data.to_json)
       expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('employerEmail is required')
+      expect(claim.errors[:form_data]).to include('Employer email is required')
     end
 
     it 'requires type of work performed' do
       form_data[:employmentInformation].delete(:typeOfWorkPerformed)
       claim = described_class.new(form: form_data.to_json)
       expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('typeOfWorkPerformed is required')
+      expect(claim.errors[:form_data]).to include('Type of work performed is required')
     end
 
     it 'requires beginning date of employment' do
       form_data[:employmentInformation].delete(:beginningDateOfEmployment)
       claim = described_class.new(form: form_data.to_json)
       expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('beginningDateOfEmployment is required')
+      expect(claim.errors[:form_data]).to include('Beginning date of employment is required')
     end
   end
 
