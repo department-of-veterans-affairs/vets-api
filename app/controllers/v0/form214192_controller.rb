@@ -10,27 +10,27 @@ module V0
     before_action :feature_enabled?
     before_action :record_submission_attempt, only: :create
 
-  def create
-    claim = SavedClaim::Form214192.new(form: form_params.to_json)
+    def create
+      claim = SavedClaim::Form214192.new(form: form_params.to_json)
 
-    if claim.save
-      claim.process_attachments!
+      if claim.save
+        claim.process_attachments!
 
-      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-      claim.send_confirmation_email
+        Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+        claim.send_confirmation_email
 
-      render json: SavedClaimSerializer.new(claim)
-    else
-      StatsD.increment("#{stats_key}.failure")
-      raise Common::Exceptions::ValidationErrors, claim
+        render json: SavedClaimSerializer.new(claim)
+      else
+        StatsD.increment("#{stats_key}.failure")
+        raise Common::Exceptions::ValidationErrors, claim
+      end
     end
-  end
 
-  def download_pdf
-    parsed_form = JSON.parse(params[:form])
+    def download_pdf
+      parsed_form = JSON.parse(params[:form])
 
-    # Convert snake_case keys to camelCase for PDF generation
-    camel_case_form = convert_keys_to_camel_case(parsed_form)
+      # Convert snake_case keys to camelCase for PDF generation
+      camel_case_form = convert_keys_to_camel_case(parsed_form)
       file_name = SecureRandom.uuid
 
       source_file_path = with_retries('Generate 21-4192 PDF') do
