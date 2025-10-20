@@ -203,13 +203,9 @@ module DisabilityCompensation
         all_removed_keys = in_progress_toxic_exposure.keys - (submitted_toxic_exposure&.keys || [])
 
         # Filter out expected removals to reduce noise:
-        # - 'view:' prefixed fields are UI-only and always stripped by backend
         # - Empty hashes contain no meaningful data
         removed_keys = all_removed_keys.reject do |key|
-          is_view_field = key.to_s.start_with?('view:')
-          is_empty_hash = in_progress_toxic_exposure[key].is_a?(Hash) && in_progress_toxic_exposure[key].empty?
-
-          is_view_field || is_empty_hash
+          in_progress_toxic_exposure[key].is_a?(Hash) && in_progress_toxic_exposure[key].empty?
         end
 
         {

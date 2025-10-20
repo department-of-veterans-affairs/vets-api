@@ -155,36 +155,6 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
       include_examples 'logs changes event', removed_keys: %w[conditions gulfWar1990], completely_removed: true
     end
 
-    context 'when view: fields removed (no logging - expected behavior)' do
-      let(:in_progress_form_data_with_view_fields) do
-        {
-          'toxicExposure' => {
-            'view:hasConditions' => true,
-            'conditions' => { 'asthma' => true },
-            'gulfWar1990' => { 'iraq' => true }
-          }
-        }
-      end
-      let(:in_progress_form_with_view) do
-        create(:in_progress_form, form_id: '21-526EZ', form_data: in_progress_form_data_with_view_fields.to_json)
-      end
-
-      before do
-        # Submitted data has view: fields stripped (expected)
-        allow(saved_claim).to receive(:form).and_return(in_progress_form_data.to_json)
-      end
-
-      it 'does not log when only view: fields removed' do
-        expect(monitor).not_to receive(:submit_event)
-        monitor.track_toxic_exposure_changes(
-          in_progress_form: in_progress_form_with_view,
-          submitted_claim: saved_claim,
-          submission:,
-          user_uuid:
-        )
-      end
-    end
-
     context 'when unchanged' do
       before { allow(saved_claim).to receive(:form).and_return(in_progress_form_data.to_json) }
 
