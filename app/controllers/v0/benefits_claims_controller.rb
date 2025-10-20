@@ -167,12 +167,15 @@ module V0
       evidence_submissions = EvidenceSubmission.where(claim_id: claim['id'])
       tracked_items = claim['attributes']['trackedItems']
 
-      filter_evidence_submissions(evidence_submissions, tracked_items)
+      filter_evidence_submissions(evidence_submissions, tracked_items, claim)
     end
 
-    def filter_evidence_submissions(evidence_submissions, tracked_items)
+    def filter_evidence_submissions(evidence_submissions, tracked_items, claim)
+      # Filter out duplicates that already exist as received documents
+      non_duplicate_submissions = filter_duplicate_evidence_submissions(evidence_submissions, claim)
+
       filtered_evidence_submissions = []
-      evidence_submissions.each do |es|
+      non_duplicate_submissions.each do |es|
         filtered_evidence_submissions.push(build_filtered_evidence_submission_record(es, tracked_items))
       end
 
@@ -199,6 +202,30 @@ module V0
       end
 
       filtered_evidence_submissions
+    end
+
+    def filter_duplicate_evidence_submissions(evidence_submissions, claim)
+      supporting_documents = claim['attributes']['supportingDocuments'] || []
+      received_file_names = supporting_documents.map { |doc| doc['originalFileName'] }.compact
+
+      return evidence_submissions if received_file_names.empty?
+
+      evidence_submissions.reject do |evidence_submission|
+        next false if evidence_submission.template_metadata.nil?
+
+        personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
+        file_name = personalisation['file_name']
+
+        # Check if this file name already exists in received documents
+        received_file_names.include?(file_name)
+      rescue JSON::ParserError, NoMethodError, TypeError => e
+        # Log the error but don't filter out the submission if we can't parse metadata
+        ::Rails.logger.warn(
+          '[BenefitsClaimsController] Error parsing evidence submission metadata',
+          { evidence_submission_id: evidence_submission.id }
+        )
+        false # Don't filter out if we can't determine the file name
+      end
     end
 
     def build_filtered_evidence_submission_record(evidence_submission, tracked_items)
