@@ -237,6 +237,7 @@ module UnifiedHealthData
       when 'CH'
         Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
       when 'SP'
+      when 'urn:va:lab-category:SP'
         Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
       when 'MB'
         Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)

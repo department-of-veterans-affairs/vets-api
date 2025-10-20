@@ -7,7 +7,7 @@ require_relative '../../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, type: :request do
   let!(:user) { sis_user(icn: '1000123456V123456') }
-  let(:default_params) { { startDate: '2024-01-01', endDate: '2025-05-31' } }
+  let(:default_params) { { startDate: '2025-01-01', endDate: '2025-09-30' } }
   let(:path) { '/mobile/v1/health/labs-and-tests' }
   let(:labs_cassette) { 'mobile/unified_health_data/get_labs' }
   let(:labs_attachment_cassette) { 'mobile/unified_health_data/get_labs_value_attachment' }
@@ -53,7 +53,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
 
       it 'returns the correct lab records' do
         json_response = JSON.parse(response.body)['data']
-        expect(json_response.count).to eq(9)
+        expect(json_response.count).to eq(17)
         # Check that our test records are included in the response
         # rather than expecting specific indices
         expect(json_response).to include(ch_response)
@@ -161,7 +161,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
       it 'returns all lab records regardless of filtering flags' do
         json_response = JSON.parse(response.body)['data']
         # Should return all 9 records since filtering is disabled
-        expect(json_response.count).to eq(9)
+        expect(json_response.count).to eq(29)
         # All test records should be included regardless of individual toggles
         expect(json_response).to include(ch_response)
         expect(json_response).to include(sp_response)
