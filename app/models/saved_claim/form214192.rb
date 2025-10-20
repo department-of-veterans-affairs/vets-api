@@ -61,14 +61,14 @@ class SavedClaim::Form214192 < SavedClaim
 
   def employer_name
     parsed_form.dig('employmentInformation', 'employerName') || 'Employer'
-  rescue StandardError
+  rescue
     'Employer'
   end
 
   def veteran_name
     "#{parsed_form.dig('veteranInformation', 'fullName',
                        'first')} #{parsed_form.dig('veteranInformation', 'fullName', 'last')}"
-  rescue StandardError
+  rescue
     'Veteran'
   end
 end
