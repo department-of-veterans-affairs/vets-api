@@ -604,7 +604,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
 
         expect(Rails.logger).to receive(:warn).with(
           "DiagnosticReport test-123 has status 'final' but is missing both encoded data and observations",
-          { service: 'mhv-medical-records' }
+          { service: 'unified_health_data' }
         )
 
         result = adapter.send(:parse_single_record, record)
@@ -678,7 +678,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
 
         expect(Rails.logger).to receive(:warn).with(
           'DiagnosticReport test-456 is missing effectiveDateTime and effectivePeriod',
-          { service: 'mhv-medical-records' }
+          { service: 'unified_health_data' }
         )
 
         result = adapter.send(:parse_single_record, record)
@@ -691,7 +691,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
 
         expect(Rails.logger).to receive(:warn).with(
           'DiagnosticReport test-456 is missing effectivePeriod.start',
-          { service: 'mhv-medical-records' }
+          { service: 'unified_health_data' }
         )
 
         result = adapter.send(:parse_single_record, record)
