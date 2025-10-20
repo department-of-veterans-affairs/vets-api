@@ -1434,7 +1434,7 @@ module Pensions
         @form_data['veteranAddress'] ||= {}
         @form_data['veteranAddress']['postalCode'] =
           split_postal_code(@form_data['veteranAddress'])
-        @form_data['veteranAddress']['country'] = @form_data.dig('veteranAddress', 'country').slice(0, 2)
+        @form_data['veteranAddress']['country'] = @form_data.dig('veteranAddress', 'country')&.slice(0, 2)
         @form_data['mobilePhone'] = expand_phone_number(@form_data['mobilePhone'].to_s)
       end
 
@@ -1514,7 +1514,7 @@ module Pensions
         end
         @form_data['spouseAddress'] ||= {}
         @form_data['spouseAddress']['postalCode'] = split_postal_code(@form_data['spouseAddress'])
-        @form_data['spouseAddress']['country'] = @form_data.dig('spouseAddress', 'country').slice(0, 2)
+        @form_data['spouseAddress']['country'] = @form_data.dig('spouseAddress', 'country')&.slice(0, 2)
         @form_data['currentSpouseMonthlySupport'] = split_currency_amount(@form_data['currentSpouseMonthlySupport'])
         @form_data['reasonForCurrentSeparation'] =
           reason_for_current_separation_to_radio(@form_data['reasonForCurrentSeparation'])
@@ -1631,7 +1631,7 @@ module Pensions
                              'dependentsWithCustodianOverflow' => dependent['fullName']&.values&.join(' ')
                            })
         dependent['custodianAddress']['country'] =
-          dependent.dig('custodianAddress', 'country').slice(0, 2)
+          dependent.dig('custodianAddress', 'country')&.slice(0, 2)
         dependent
       end
 
@@ -1689,7 +1689,7 @@ module Pensions
                     'monthlyPayment' => split_currency_amount(dependent['monthlyPayment']),
                     'monthlyPaymentOverflow' => number_to_currency(dependent['monthlyPayment'])
                   })
-        dependent['fullName']['middle'] = dependent['fullName']['middle']&.first
+        dependent.fetch('fullName', {})['middle'] = dependent.dig('fullName', 'middle')&.first
         if dependent['personWhoLivesWithChild'].present?
           dependent['personWhoLivesWithChild']['middle'] = dependent['personWhoLivesWithChild']['middle']&.first
         end
