@@ -31,6 +31,8 @@ module V0
           21-4140
           21-4142a
           21P-0847
+          21P-527EZ
+          21P-530EZ
         ] + uploadable_forms
       end
 
