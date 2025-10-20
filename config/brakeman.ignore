@@ -153,6 +153,29 @@
         79
       ],
       "note": "Explicitly configured years ago in https://github.com/department-of-veterans-affairs/vets-api/commit/c73c8fc5cc23262e8f708fad0f7c1052f9c88a7b"
+    },
+    {
+      "warning_type": "Strong Parameters",
+      "warning_code": 70,
+      "fingerprint": "TBD",
+      "check_name": "StrongParameters",
+      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
+      "file": "app/controllers/v0/form214192_controller.rb",
+      "line": 77,
+      "link": "https://brakemanscanner.org/docs/warning_types/strong_parameters/",
+      "code": "params.require(:form).permit!",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "V0::Form214192Controller",
+        "method": "download_form_params"
+      },
+      "user_input": "params",
+      "confidence": "High",
+      "cwe_id": [
+        915
+      ],
+      "note": "PDF generation endpoint only - no data persistence. Complex nested form structure makes explicit permitting impractical. Security risk is minimal as this endpoint only generates PDFs and doesn't save data to database."
     }
   ],
   "brakeman_version": "7.0.2"
