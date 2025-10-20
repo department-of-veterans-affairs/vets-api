@@ -883,7 +883,6 @@ maintenance:
     vetext_vaccine: P9PG8HG
     vic: P7LW3MS
     vre: ~
-    vre_ch31_eligibility: ~
 mcp:
   notifications:
     batch_size: 10
