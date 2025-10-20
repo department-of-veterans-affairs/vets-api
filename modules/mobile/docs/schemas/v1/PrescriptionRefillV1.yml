@@ -1,0 +1,26 @@
+type: object
+additionalProperties: false
+required:
+  - data
+properties:
+  data:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - prescriptionId
+        - status
+      properties:
+        prescriptionId:
+          type: string
+          example: "12345"
+        status:
+          type: string
+          enum:
+            - success
+            - failed
+          example: success
+        message:
+          type: string
+          example: "Refill request submitted successfully"

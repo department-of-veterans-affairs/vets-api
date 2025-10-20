@@ -5,7 +5,7 @@ require 'dependents_benefits/jobs/dependent_submission_job'
 require 'dependents_benefits/monitor'
 require 'sidekiq/job_retry'
 
-RSpec.describe DependentsBenefits::Jobs::DependentSubmissionJob, type: :job do
+RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job do
   let(:saved_claim) { create(:dependents_claim) }
   let(:claim_id) { saved_claim.id }
   let(:proc_id) { 'test-proc-123' }

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'dependents_benefits/jobs/bgs_686c_job'
 require 'dependents_benefits/jobs/bgs_674_job'
+require 'dependents_benefits/sidekiq/bgs_686c_job'
 require 'dependents_benefits/monitor'
 
 module DependentsBenefits
@@ -64,7 +64,7 @@ module DependentsBenefits
       jobs_count = 0
 
       # Enqueue primary 686c submission jobs
-      Jobs::BGS686cJob.perform_async(claim.id, proc_id)
+      Sidekiq::BGS686cJob.perform_async(claim.id, proc_id)
       jobs_count += 1
 
       # TODO: Add calls to submission jobs here as they are implemented
