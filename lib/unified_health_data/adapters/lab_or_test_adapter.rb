@@ -25,6 +25,8 @@ module UnifiedHealthData
         observations = get_observations(record)
         return nil unless code && (encoded_data || observations)
 
+        log_final_status_warning(record, record['resource']['status'], encoded_data, observations)
+
         UnifiedHealthData::LabOrTest.new(
           id: record['resource']['id'],
           type: record['resource']['resourceType'],
@@ -41,6 +43,22 @@ module UnifiedHealthData
       end
 
       private
+
+      def log_final_status_warning(record, status, encoded_data, observations)
+        return unless status == 'final' && (encoded_data.blank? || observations.blank?)
+
+        missing_data = if encoded_data.blank? && observations.blank?
+                         'both encoded data and observations'
+                       elsif encoded_data.blank?
+                         'encoded data'
+                       else
+                         'observations'
+                       end
+
+        Rails.logger.warn(
+          "DiagnosticReport #{record['resource']['id']} has status 'final' but is missing #{missing_data}"
+        )
+      end
 
       def get_location(record)
         if record['resource']['contained'].nil?

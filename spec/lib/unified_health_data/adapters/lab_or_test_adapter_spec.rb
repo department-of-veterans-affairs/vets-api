@@ -555,6 +555,99 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result).to be_nil
       end
     end
+
+    context 'when status is final and missing data' do
+      let(:base_record) do
+        {
+          'resource' => {
+            'id' => 'test-123',
+            'resourceType' => 'DiagnosticReport',
+            'status' => 'final',
+            'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+            'code' => { 'text' => 'Test' },
+            'contained' => []
+          }
+        }
+      end
+
+      it 'logs warning when status is final and has no encoded data' do
+        record = base_record.deep_dup
+        record['resource']['contained'] = [
+          {
+            'resourceType' => 'Observation',
+            'code' => { 'text' => 'Test Observation' },
+            'status' => 'final'
+          }
+        ]
+
+        expect(Rails.logger).to receive(:warn).with(
+          "DiagnosticReport test-123 has status 'final' but is missing encoded data"
+        )
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+
+      it 'logs warning when status is final and has no observations' do
+        record = base_record.deep_dup
+        record['resource']['presentedForm'] = [{ 'data' => 'encoded-data-here' }]
+
+        expect(Rails.logger).to receive(:warn).with(
+          "DiagnosticReport test-123 has status 'final' but is missing observations"
+        )
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+
+      it 'logs warning when status is final and has neither encoded data nor observations' do
+        record = base_record.deep_dup
+
+        expect(Rails.logger).to receive(:warn).with(
+          "DiagnosticReport test-123 has status 'final' but is missing both encoded data and observations"
+        )
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+
+      it 'does not log when status is final but has both encoded data and observations' do
+        record = base_record.deep_dup
+        record['resource']['presentedForm'] = [{ 'data' => 'encoded-data-here' }]
+        record['resource']['contained'] = [
+          {
+            'resourceType' => 'Observation',
+            'code' => { 'text' => 'Test Observation' },
+            'status' => 'final'
+          }
+        ]
+
+        expect(Rails.logger).not_to receive(:warn)
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+
+      it 'does not log when status is not final even if missing data' do
+        record = base_record.deep_dup
+        record['resource']['status'] = 'preliminary'
+
+        expect(Rails.logger).not_to receive(:warn)
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+
+      it 'does not log when status is nil even if missing data' do
+        record = base_record.deep_dup
+        record['resource']['status'] = nil
+
+        expect(Rails.logger).not_to receive(:warn)
+
+        result = adapter.send(:parse_single_record, record)
+        expect(result).not_to be_nil
+      end
+    end
   end
 
   describe '#parse_labs' do
