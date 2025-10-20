@@ -372,13 +372,21 @@ module VAOS
       def fetch_appointments_and_claims_parallel(start_date, end_date, statuses, pagination_params, tp_client)
         require 'concurrent-ruby'
 
+        # Eagerly load user attributes before threading to avoid thread safety issues with ActiveRecord
+        # The TravelPay service needs user.user_account_uuid and user.icn
+        # Loading these before spawning threads prevents potential race conditions or connection issues
+        current_user = user
+        # Force load these attributes to ensure they're not lazy-loaded inside threads
+        current_user.user_account_uuid
+        current_user.icn
+
         # Create futures for parallel execution
         appointments_future = Concurrent::Promises.future do
           send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
         end
 
         travel_claims_future = Concurrent::Promises.future do
-          service = TravelPay::ClaimAssociationService.new(user, tp_client)
+          service = TravelPay::ClaimAssociationService.new(current_user, tp_client)
           service.fetch_claims_by_date(start_date, end_date)
         end
 
