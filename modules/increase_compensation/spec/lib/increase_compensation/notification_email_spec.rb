@@ -13,9 +13,9 @@ RSpec.describe IncreaseCompensation::NotificationEmail, skip: 'TODO after schema
 
       args = [
         saved_claim.email,
-        Settings.vanotify.services['21-8940'].email.submitted.template_id,
+        Settings.vanotify.services['21-8940V1'].email.submitted.template_id,
         anything,
-        Settings.vanotify.services['21-8940'].api_key,
+        Settings.vanotify.services['21-8940V1'].api_key,
         { callback_klass: IncreaseCompensation::NotificationCallback.to_s,
           callback_metadata: anything }
       ]

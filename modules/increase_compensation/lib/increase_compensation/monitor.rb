@@ -23,7 +23,7 @@ module IncreaseCompensation
     attr_reader :tags
 
     def initialize
-      super('increase-=compensation')
+      super('increase-compensation')
 
       @tags = ["form_id:#{form_id}"]
     end
@@ -34,7 +34,7 @@ module IncreaseCompensation
     # Module application name used for logging
     # @return [String]
     def service_name
-      'medical-expense-reports'
+      'increase-compensation'
     end
 
     ##

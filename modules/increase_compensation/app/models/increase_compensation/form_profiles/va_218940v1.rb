@@ -4,7 +4,7 @@ module IncreaseCompensation
   ##
   # Form profile for VA Form 21-8940 (APPLICATION FOR INCREASED COMPENSATION BASED ON UNEMPLOYABILITY)
   # extends app/models/form_profile.rb, which handles form prefill
-  class FormProfiles::VA218940 < FormProfile
+  class FormProfiles::VA218940V1 < FormProfile
     ##
     # Returns metadata related to the form profile
     #

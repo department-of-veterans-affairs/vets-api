@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :increase_compensation_claim, class: 'IncreaseCompensation::SavedClaim' do
-    form_id { '21-8940' }
+    form_id { '21-8940V1' }
     form do
       {
         veteranFullName: {

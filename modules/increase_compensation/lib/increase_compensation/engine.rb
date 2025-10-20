@@ -13,10 +13,10 @@ module IncreaseCompensation
     initializer 'increase_compensation.pdf_fill.register_form' do |app|
       app.config.to_prepare do
         require 'pdf_fill/filler'
-        require 'increase_compensation/pdf_fill/va218940'
+        require 'increase_compensation/pdf_fill/va218940v1'
 
         # Register our Increase Compensation Pdf Fill form
-        ::PdfFill::Filler.register_form(IncreaseCompensation::FORM_ID, IncreaseCompensation::PdfFill::Va218940)
+        ::PdfFill::Filler.register_form(IncreaseCompensation::FORM_ID, IncreaseCompensation::PdfFill::Va218940v1)
       end
     end
 

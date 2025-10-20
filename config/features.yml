@@ -2370,7 +2370,7 @@ features:
   increase_compensation_form_enabled:
     enable_in_development: true
     actor_type: user
-    description: Enable form 21-8940 APPLICATION FOR INCREASED COMPENSATION BASED ON UNEMPLOYABILITY Form
+    description: Enable form 21-8940 APPLICATION FOR INCREASED COMPENSATION BASED ON UNEMPLOYABILITY
   increase_compensation_browser_monitoring_enabled:
     actor_type: user
     description: Increase Compensation form Datadog RUM monitoring

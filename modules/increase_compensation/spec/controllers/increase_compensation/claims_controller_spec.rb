@@ -26,7 +26,7 @@ RSpec.describe IncreaseCompensation::V0::ClaimsController, type: :request do
   describe '#create' do
     let(:claim) { build(:increase_compensation_claim) }
     let(:param_name) { :increase_compensation_claim }
-    let(:form_id) { '21-8940' }
+    let(:form_id) { '21-8940V1' }
 
     it 'logs validation errors' do
       allow(IncreaseCompensation::SavedClaim).to receive(:new).and_return(claim)

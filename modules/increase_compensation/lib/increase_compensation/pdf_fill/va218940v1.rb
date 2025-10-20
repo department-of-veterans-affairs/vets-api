@@ -8,8 +8,8 @@ require 'increase_compensation/helpers'
 
 module IncreaseCompensation
   module PdfFill
-    # The Va218940 Form
-    class Va218940 < ::PdfFill::Forms::FormBase
+    # The Va218940v1 Form
+    class Va218940v1 < ::PdfFill::Forms::FormBase
       include ::PdfFill::Forms::FormHelper
       include IncreaseCompensation::Helpers
 

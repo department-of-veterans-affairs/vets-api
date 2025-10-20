@@ -9,9 +9,9 @@ module IncreaseCompensation
     # @see BenefitsIntake::SubmissionHandler::SavedClaim
     class SubmissionHandler < ::BenefitsIntake::SubmissionHandler::SavedClaim
       # Retrieves all pending Lighthouse::SubmissionAttempt records associated with submissions where
-      # the form_id is '21-8940'.
+      # the form_id is '21-8940V1'.
       #
-      # @return [ActiveRecord::Relation] a relation containing pending submission attempts for form '21-8940'
+      # @return [ActiveRecord::Relation] a relation containing pending submission attempts for form '21-8940V1'
       def self.pending_attempts
         Lighthouse::SubmissionAttempt.joins(:submission)
                                      .where(
