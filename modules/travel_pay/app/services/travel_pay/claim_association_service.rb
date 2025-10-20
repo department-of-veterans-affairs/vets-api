@@ -66,12 +66,14 @@ module TravelPay
     end
 
     def process_claims_response(faraday_response)
+      metadata = build_metadata(faraday_response.body)
+
       if faraday_response.status == 200
         raw_claims = faraday_response.body['data'].deep_dup
         data = format_claims_data(raw_claims)
-        { claims: data, metadata: build_metadata(faraday_response.body) }
+        { claims: data, metadata: metadata }
       else
-        { claims: nil, metadata: build_metadata(faraday_response.body) }
+        { error: true, metadata: metadata }
       end
     end
 

@@ -168,6 +168,41 @@ describe TravelPay::ClaimAssociationService do
       end
     end
 
+    it 'returns error metadata when claims API response is unsuccessful but does not raise' do
+      claims_error_response = Faraday::Response.new(
+        response_body: {
+          'statusCode' => 500,
+          'message' => 'Internal server error.',
+          'success' => false,
+          'data' => nil
+        },
+        status: 500
+      )
+
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_return(claims_error_response)
+
+      association_service = TravelPay::ClaimAssociationService.new(user, 'vagov')
+      appts_with_claims = nil
+
+      expect do
+        appts_with_claims = association_service.associate_appointments_to_claims({
+                                                                                    'appointments' => appointments,
+                                                                                    'start_date' => '2024-10-17T09:00:00Z',
+                                                                                    'end_date' => '2024-12-15T16:45:00Z'
+                                                                                  })
+      end.not_to raise_error
+
+      expect(appts_with_claims.count).to eq(appointments.count)
+      expect(appts_with_claims.any? { |appt| appt['travelPayClaim']['claim'].present? }).to be(false)
+      appts_with_claims.each do |appt|
+        expect(appt['travelPayClaim']['metadata']['status']).to equal(500)
+        expect(appt['travelPayClaim']['metadata']['message']).to eq('Internal server error.')
+        expect(appt['travelPayClaim']['metadata']['success']).to be(false)
+      end
+    end
+
     it 'handles random, unknown errors' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
