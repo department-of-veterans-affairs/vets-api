@@ -209,7 +209,7 @@ module V0
         nil
       end
     rescue JSON::ParserError, TypeError
-      ::Rails.logger.warn(
+      ::Rails.logger.error(
         '[BenefitsClaimsController] Error parsing evidence submission metadata',
         { evidence_submission_id: evidence_submission.id }
       )

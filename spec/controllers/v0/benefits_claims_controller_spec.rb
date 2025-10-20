@@ -977,7 +977,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
           expect(result).to eq([evidence_submission_invalid])
           expect(result).not_to include(evidence_submission1)
-          expect(Rails.logger).to have_received(:warn).with(
+          expect(Rails.logger).to have_received(:error).with(
             '[BenefitsClaimsController] Error parsing evidence submission metadata',
             { evidence_submission_id: 4 }
           )
