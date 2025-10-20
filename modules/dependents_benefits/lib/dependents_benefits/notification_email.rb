@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'dependent_benefits/notification_callback'
+require 'dependents_benefits/notification_callback'
 require 'veteran_facing_services/notification_email/saved_claim'
 
 module DependentsBenefits

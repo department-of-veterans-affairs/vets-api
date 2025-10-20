@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'dependents_benefits/jobs/dependent_submission_job'
 require 'dependents_benefits/monitor'
+require 'dependents_benefits/notification_email'
 require 'sidekiq/job_retry'
 
 RSpec.describe DependentsBenefits::Jobs::DependentSubmissionJob, type: :job do
@@ -16,10 +17,13 @@ RSpec.describe DependentsBenefits::Jobs::DependentSubmissionJob, type: :job do
   let(:failed_response) { double('ServiceResponse', success?: false, error: 'Service unavailable') }
   let(:successful_response) { double('ServiceResponse', success?: true) }
   let(:monitor) { instance_double(DependentsBenefits::Monitor) }
+  let(:notification_email) { instance_double(DependentsBenefits::NotificationEmail) }
 
   before do
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
     allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
+    allow(DependentsBenefits::NotificationEmail).to receive(:new).and_return(notification_email)
+    allow(notification_email).to receive(:deliver)
     allow(job).to receive(:create_form_submission_attempt)
     allow(job).to receive(:find_or_create_form_submission)
   end
@@ -212,7 +216,7 @@ RSpec.describe DependentsBenefits::Jobs::DependentSubmissionJob, type: :job do
       context 'when any group is still pending' do
         it 'does not mark the parent claim group as succeeded' do
           expect(job).not_to receive(:mark_parent_group_succeeded)
-          expect(job).not_to receive(:send_success_notification)
+          expect(notification_email).not_to receive(:deliver)
           job.send(:handle_job_success)
         end
       end
@@ -221,7 +225,7 @@ RSpec.describe DependentsBenefits::Jobs::DependentSubmissionJob, type: :job do
         it 'marks the parent claim group as succeeded and notifies user' do
           sibling_claim_group.update!(status: SavedClaimGroup::STATUSES[:SUCCESS])
           expect(job).to receive(:mark_parent_group_succeeded).and_call_original
-          expect(job).to receive(:send_success_notification)
+          expect(notification_email).to receive(:deliver).with(:submitted)
           job.send(:handle_job_success)
         end
       end
@@ -232,7 +236,7 @@ RSpec.describe DependentsBenefits::Jobs::DependentSubmissionJob, type: :job do
         parent_claim_group.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
         allow(job).to receive(:mark_submission_succeeded)
         expect(job).not_to receive(:mark_parent_group_succeeded)
-        expect(job).not_to receive(:send_success_notification)
+        expect(notification_email).not_to receive(:deliver)
         job.send(:handle_job_success)
       end
     end
@@ -320,6 +324,7 @@ RSpec.describe DependentsBenefits::Jobs::DependentSubmissionJob, type: :job do
         allow(job).to receive(:mark_submission_failed)
         allow(job).to receive(:send_backup_job).and_raise(StandardError, 'Submission not found')
         expect(monitor).to receive(:log_silent_failure_avoided)
+        expect(notification_email).to receive(:deliver).with(:error)
         job.send(:handle_permanent_failure, child_claim.id, 'Service destroyed')
       end
 
