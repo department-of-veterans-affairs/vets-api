@@ -58,6 +58,7 @@ RSpec.configure do |config|
   config.filter_run focus: true
   config.filter_run_excluding skip: true unless ENV['PENDING'] == 'true'
   config.run_all_when_everything_filtered = true
+  config.profile_examples = 20 unless ENV['CI']
   config.example_status_persistence_file_path = 'tmp/specs.txt'
 
   config.default_retry_count = 3 if ENV['CI']
