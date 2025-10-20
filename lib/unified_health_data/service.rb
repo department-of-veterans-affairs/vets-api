@@ -195,7 +195,7 @@ module UnifiedHealthData
     def get_appt_avs(appt_id:, include_binary: false)
       with_monitoring do
         response = uhd_client.get_avs(patient_id: @user.icn, appt_id:)
-        body = parse_response_body(response.body)
+        body = response.body
         summaries = body['entry'].select { |record| record['resource']['resourceType'] == 'DocumentReference' }
         parsed_avs_meta = summaries.map do |summary|
           clinical_notes_adapter.parse_avs_with_metadata(summary, appt_id, include_binary)
@@ -208,7 +208,7 @@ module UnifiedHealthData
     def get_avs_binary_data(doc_id:, appt_id:)
       with_monitoring do
         response = uhd_client.get_avs(patient_id: @user.icn, appt_id:)
-        body = parse_response_body(response.body)
+        body = response.body
         summary = body['entry'].find do |record|
           record['resource']['resourceType'] == 'DocumentReference' && record['resource']['id'] == doc_id
         end
