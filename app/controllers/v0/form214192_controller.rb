@@ -26,11 +26,11 @@ module V0
       end
     end
 
-  def download_pdf
-    parsed_form = params[:form].is_a?(String) ? JSON.parse(params[:form]) : download_form_params.to_h
+    def download_pdf
+      parsed_form = params[:form].is_a?(String) ? JSON.parse(params[:form]) : download_form_params.to_h
 
-    # Convert snake_case keys to camelCase for PDF generation
-    camel_case_form = convert_keys_to_camel_case(parsed_form)
+      # Convert snake_case keys to camelCase for PDF generation
+      camel_case_form = convert_keys_to_camel_case(parsed_form)
       file_name = SecureRandom.uuid
 
       source_file_path = with_retries('Generate 21-4192 PDF') do
