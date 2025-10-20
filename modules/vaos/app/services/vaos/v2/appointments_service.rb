@@ -435,7 +435,8 @@ module VAOS
             }
 
             begin
-              matching_claim = find_matching_claim_for_appointment(claims_result[:claims], appt[:local_start_time])
+              matching_claim = TravelPay::ClaimMatcher.find_matching_claim(claims_result[:claims],
+                                                                            appt[:local_start_time])
               appt['travelPayClaim']['claim'] = matching_claim if matching_claim.present?
             rescue TravelPay::InvalidComparableError => e
               Rails.logger.warn(message: "Cannot compare start times. #{e.message}")
@@ -443,21 +444,6 @@ module VAOS
           end
         end
         appointments
-      end
-
-      # Finds a matching claim for an appointment based on start time
-      # @param claims [Array] Array of claim hashes
-      # @param appt_start [String] Appointment start time
-      # @return [Hash, nil] Matching claim or nil
-      def find_matching_claim_for_appointment(claims, appt_start)
-        return nil if claims.nil?
-
-        claims.find do |cl|
-          claim_time = TravelPay::DateUtils.try_parse_date(cl['appointmentDateTime'])
-          appt_time = TravelPay::DateUtils.strip_timezone(appt_start)
-
-          claim_time.eql? appt_time
-        end
       end
 
       # rubocop:disable Metrics/MethodLength

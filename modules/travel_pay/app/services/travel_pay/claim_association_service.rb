@@ -155,12 +155,7 @@ module TravelPay
     end
 
     def find_matching_claim(claims, appt_start)
-      claims.find do |cl|
-        claim_time = DateUtils.try_parse_date(cl['appointmentDateTime'])
-        appt_time = DateUtils.strip_timezone(appt_start)
-
-        claim_time.eql? appt_time
-      end
+      ClaimMatcher.find_matching_claim(claims, appt_start)
     end
 
     def append_error(appts, metadata)
