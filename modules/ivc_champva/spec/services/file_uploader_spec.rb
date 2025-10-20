@@ -133,11 +133,9 @@ describe IvcChampva::FileUploader do
         # the rest should be all the original files
         original_files = inserted_files[1..]
         expect(original_files.size).to eq(5)
-        expect(original_files).to include('main_form.pdf')
-        expect(original_files).to include('supporting_doc_1.pdf')
-        expect(original_files).to include('regular_attachment.pdf')
-        expect(original_files).to include('supporting_doc_2.pdf')
-        expect(original_files).to include('another_file.pdf')
+        expect(original_files).to match_array(
+          %w[main_form.pdf supporting_doc_1.pdf regular_attachment.pdf supporting_doc_2.pdf another_file.pdf]
+        )
       end
 
       it 'returns metadata upload results when require_all_s3_success is enabled' do
