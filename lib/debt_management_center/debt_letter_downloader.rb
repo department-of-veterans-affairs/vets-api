@@ -4,7 +4,7 @@ require 'debt_management_center/debts_service'
 
 module DebtManagementCenter
   class DebtLetterDownloader
-    include SentryLogging
+    include Vets::SharedLogging
 
     DEBTS_DOCUMENT_TYPES = %w[
       193
@@ -60,7 +60,7 @@ module DebtManagementCenter
         VBMS::Requests::FindDocumentVersionReference.new(@service.file_number)
       )
     rescue => e
-      log_exception_to_sentry(e)
+      log_exception_to_rails(e)
       []
     end
 
