@@ -67,20 +67,6 @@ RSpec.describe AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob do
     )
   end
 
-  context 'accredited_representative_portal_lighthouse_api_key is set' do
-    it 'performs using ARP BenefitsIntakeService' do
-      use_cassette('performs', vcr_options) do
-        expect_any_instance_of(AccreditedRepresentativePortal::BenefitsIntakeService).to(
-          receive(:upload_doc).and_call_original
-        )
-
-        expect { perform }.to change {
-          FormSubmissionAttempt.where.not(benefits_intake_uuid: nil).count
-        }.by(1)
-      end
-    end
-  end
-
   context 'accredited_representative_portal_lighthouse_api_key is not set' do
     before do
       allow(Flipper).to receive(:enabled?).with(
@@ -99,27 +85,72 @@ RSpec.describe AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob do
         }.by(1)
       end
     end
+
+    context 'submission has additional documentation' do
+      around { |example| Timecop.freeze { example.run } }
+
+      let(:stamper) { double }
+
+      it 'stamps the footer of the additional docs' do
+        timestamp = DateTime.now.utc.strftime('%H:%M:%S  %Y-%m-%d %I:%M %p')
+
+        use_cassette('performs', vcr_options) do
+          # mock stamping of provided VA form
+          allow(SimpleFormsApi::PdfStamper).to receive(:new).and_return(stamper)
+          allow(stamper).to receive(:stamp_pdf)
+
+          expect_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run).with(
+            text: "Submitted via VA.gov at #{timestamp} UTC. Signed in and submitted " \
+                  'with an identity-verified account.',
+            text_only: true, x: 5, y: 5
+          ).and_call_original
+
+          perform
+        end
+      end
+    end
   end
 
-  context 'submission has additional documentation' do
-    around { |example| Timecop.freeze { example.run } }
+  context 'accredited_representative_portal_lighthouse_api_key is set' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(
+        :accredited_representative_portal_lighthouse_api_key
+      ).and_return('fake_api_key')
+    end
 
-    let(:stamper) { double }
-
-    it 'stamps the footer of the additional docs' do
-      timestamp = DateTime.now.utc.strftime('%H:%M:%S  %Y-%m-%d %I:%M %p')
-
+    it 'performs using ARP BenefitsIntakeService' do
       use_cassette('performs', vcr_options) do
-        # mock stamping of provided VA form
-        allow(SimpleFormsApi::PdfStamper).to receive(:new).and_return(stamper)
-        allow(stamper).to receive(:stamp_pdf)
+        expect_any_instance_of(AccreditedRepresentativePortal::BenefitsIntakeService).to(
+          receive(:upload_doc).and_call_original
+        )
 
-        expect_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run).with(
-          text: "Submitted via VA.gov at #{timestamp} UTC. Signed in and submitted with an identity-verified account.",
-          text_only: true, x: 5, y: 5
-        ).and_call_original
+        expect { perform }.to change {
+          FormSubmissionAttempt.where.not(benefits_intake_uuid: nil).count
+        }.by(1)
+      end
+    end
 
-        perform
+    context 'submission has additional documentation' do
+      around { |example| Timecop.freeze { example.run } }
+
+      let(:stamper) { double }
+
+      it 'stamps the footer of the additional docs' do
+        timestamp = DateTime.now.utc.strftime('%H:%M:%S  %Y-%m-%d %I:%M %p')
+
+        use_cassette('performs', vcr_options) do
+          # mock stamping of provided VA form
+          allow(SimpleFormsApi::PdfStamper).to receive(:new).and_return(stamper)
+          allow(stamper).to receive(:stamp_pdf)
+
+          expect_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run).with(
+            text: "Submitted via VA.gov at #{timestamp} UTC. Signed in and submitted " \
+                  'with an identity-verified account.',
+            text_only: true, x: 5, y: 5
+          ).and_call_original
+
+          perform
+        end
       end
     end
   end
