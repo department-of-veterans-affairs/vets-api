@@ -10,6 +10,23 @@ RSpec.describe Efolder::Service do
   let(:file_number) { '796043735' }
   let(:user) { build(:user, :loa3, ssn: file_number) }
   let(:vbms_client) { FakeVBMS.new }
+  let(:tsa_letter_data) do
+    {
+      document_id: '{tsa-letter-document-id}',
+      series_id: '{tsa-letter-series-id}',
+      version: '1',
+      type_description: 'Correspondence',
+      type_id: '34',
+      doc_type: '34',
+      subject: 'VETS Safe Travel Outreach Letter',
+      received_at: '2020-05-28',
+      source: 'Virtual VA',
+      mime_type: 'application/pdf',
+      alt_doc_types: nil,
+      restricted: false,
+      upload_date: '2020-06-03'
+    }
+  end
 
   def stub_vbms_client_request(request_name, args, return_val)
     request_double = double
@@ -77,7 +94,6 @@ RSpec.describe Efolder::Service do
   end
 
   describe '#list_documents' do
-
     before do
       stub_vbms_client_request(
         'FindDocumentVersionReference',
@@ -110,25 +126,7 @@ RSpec.describe Efolder::Service do
     end
   end
 
-  describe 'get_tsa_letter' do
-    let(:tsa_letter_data) do
-      {
-        document_id: '{tsa-letter-document-id}',
-        series_id: '{tsa-letter-series-id}',
-        version: '1',
-        type_description: 'Correspondence',
-        type_id: '34',
-        doc_type: '34',
-        subject: 'VETS Safe Travel Outreach Letter',
-        received_at: '2020-05-28',
-        source: 'Virtual VA',
-        mime_type: 'application/pdf',
-        alt_doc_types: nil,
-        restricted: false,
-        upload_date: '2020-06-03'
-      }
-    end
-
+  describe 'get_tsa_letters' do
     before do
       stub_vbms_client_request(
         'FindDocumentVersionReference',
@@ -139,17 +137,25 @@ RSpec.describe Efolder::Service do
 
     it 'returns requested document' do
       VCR.use_cassette('vbms/list_documents') do
-        expect(subject.get_tsa_letter).to eq(
-          { document_id: '{tsa-letter-document-id}', doc_type: '34', type_description: 'Correspondence',
-            received_at: '2020-05-28' }
+        expect(subject.get_tsa_letters).to eq(
+          [{ document_id: '{tsa-letter-document-id}', doc_type: '34', type_description: 'Correspondence',
+             received_at: '2020-05-28' }]
         )
       end
     end
   end
 
   describe 'download_tsa_letter' do
+    before do
+      stub_vbms_client_request(
+        'FindDocumentVersionReference',
+        file_number,
+        get_fixture('vbms/find_document_version_reference').push(tsa_letter_data).map { |r| OpenStruct.new(r) }
+      )
+    end
+
     context 'when it is the TSA letter' do
-      let(:document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
+      let(:document_id) { '{tsa-letter-document-id}' }
       let(:content) { File.read('spec/fixtures/pdf_fill/extras.pdf') }
 
       before do
@@ -173,6 +179,15 @@ RSpec.describe Efolder::Service do
     end
 
     context 'when it is not the TSA letter' do
+      let(:document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
+
+      it 'raises a descriptive error' do
+        VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            expect { subject.download_tsa_letter('{706E58AA-7164-4968-AC27-50889C2DE794}') }.to raise_error(Common::Exceptions::RecordNotFound)
+          end
+        end
+      end
     end
   end
 end

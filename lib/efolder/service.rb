@@ -33,18 +33,20 @@ module Efolder
       ).content
     end
 
-    def get_tsa_letter
+    def get_tsa_letters
       vbms_docs.map do |document|
         if document[:subject] == 'VETS Safe Travel Outreach Letter'
           document.marshal_dump.slice(
             :document_id, :doc_type, :type_description, :received_at
           )
         end
-      end.compact.first
+      end.compact
     end
 
     def download_tsa_letter(document_id)
-      # confirm it's the correct letter
+      tsa_docs = vbms_docs.select { |doc| doc[:subject] == 'VETS Safe Travel Outreach Letter' && doc[:document_id] == document_id }
+      raise Common::Exceptions::RecordNotFound, "No TSA letter found with doc id #{document_id}" if tsa_docs.empty?
+
       @client.send_request(
         VBMS::Requests::GetDocumentContent.new(document_id)
       ).content
