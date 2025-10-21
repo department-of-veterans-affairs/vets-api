@@ -406,4 +406,143 @@ describe VaNotify::Service do
       end
     end
   end
+
+  describe '#send_push' do
+    subject { VaNotify::Service.new(test_api_key) }
+    
+    let(:push_client) { instance_double(VaNotify::PushClient) }
+    let(:send_push_parameters) do
+      {
+        mobile_app: 'VA_FLAGSHIP_APP',
+        template_id: 'fake-template-id-1234-5678-9012-34567890abcd',
+        recipient_identifier: {
+          id_type: 'ICN',
+          id_value: 'fake-icn-123456789V012345'
+        },
+        personalisation: {
+          veteran_name: 'John Doe'
+        }
+      }
+    end
+    let(:mock_push_response) do
+      {
+        'id' => 'push-notification-123',
+        'reference' => nil,
+        'content' => { 'body' => 'Test push notification' },
+        'template' => { 'id' => 'fake-template-id-1234-5678-9012-34567890abcd', 'version' => 1 }
+      }
+    end
+
+    before do
+      allow(VaNotify::PushClient).to receive(:new).and_return(push_client)
+      allow(push_client).to receive(:send_push).and_return(mock_push_response)
+    end
+
+    it 'initializes push client with correct parameters' do
+      expect(VaNotify::PushClient).to receive(:new).with(test_api_key, {})
+      subject.send_push(send_push_parameters)
+    end
+
+    it 'calls push client with correct parameters' do
+      expect(push_client).to receive(:send_push).with(send_push_parameters)
+      subject.send_push(send_push_parameters)
+    end
+
+    it 'returns the push client response' do
+      response = subject.send_push(send_push_parameters)
+      expect(response).to eq(mock_push_response)
+    end
+
+    it 'sets the template_id instance variable' do
+      subject.send_push(send_push_parameters)
+      expect(subject.template_id).to eq('fake-template-id-1234-5678-9012-34567890abcd')
+    end
+
+    context 'when va_notify_notification_creation is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+        allow(subject).to receive(:create_notification).and_return(instance_double(VANotify::Notification))
+      end
+
+      it 'creates a notification record' do
+        expect(subject).to receive(:create_notification).with(mock_push_response)
+        subject.send_push(send_push_parameters)
+      end
+
+      context 'when va_notify_request_level_callbacks is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(true)
+          allow(subject).to receive(:append_callback_url).and_return(send_push_parameters.merge(callback_url: 'test-url'))
+        end
+
+        it 'appends callback URL to parameters' do
+          expect(subject).to receive(:append_callback_url).with(send_push_parameters)
+          expect(push_client).to receive(:send_push).with(send_push_parameters.merge(callback_url: 'test-url'))
+          subject.send_push(send_push_parameters)
+        end
+      end
+
+      context 'when va_notify_request_level_callbacks is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(false)
+        end
+
+        it 'does not append callback URL' do
+          expect(subject).not_to receive(:append_callback_url)
+          expect(push_client).to receive(:send_push).with(send_push_parameters)
+          subject.send_push(send_push_parameters)
+        end
+      end
+    end
+
+    context 'when va_notify_notification_creation is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(false)
+      end
+
+      it 'does not create a notification record' do
+        expect(subject).not_to receive(:create_notification)
+        subject.send_push(send_push_parameters)
+      end
+
+      it 'still calls the push client' do
+        expect(push_client).to receive(:send_push).with(send_push_parameters)
+        subject.send_push(send_push_parameters)
+      end
+    end
+
+    context 'when push client raises an error' do
+      let(:push_error) { StandardError.new('Push failed') }
+
+      before do
+        allow(push_client).to receive(:send_push).and_raise(push_error)
+        allow(subject).to receive(:handle_error).and_raise(push_error)
+      end
+
+      it 'handles the error' do
+        expect(subject).to receive(:handle_error).with(push_error)
+        expect { subject.send_push(send_push_parameters) }.to raise_error(StandardError, 'Push failed')
+      end
+    end
+
+    context 'with callback options' do
+      let(:callback_options) do
+        {
+          callback_klass: 'TestPushCallback',
+          callback_metadata: { notification_type: 'push' }
+        }
+      end
+      let(:service_with_callbacks) { described_class.new(test_api_key, callback_options) }
+
+      before do
+        allow(VaNotify::PushClient).to receive(:new).and_return(push_client)
+        allow(push_client).to receive(:send_push).and_return(mock_push_response)
+      end
+
+      it 'passes callback options to push client' do
+        expect(VaNotify::PushClient).to receive(:new).with(test_api_key, callback_options)
+        service_with_callbacks.send_push(send_push_parameters)
+      end
+    end
+  end
 end
