@@ -2144,7 +2144,19 @@ describe VAOS::V2::AppointmentsService do
   describe '#fetch_avs_and_update_appt_body' do
     let(:avs_resp) { double(body: [{ icn: '1012846043V576341', sid: '12345' }], status: 200) }
     let(:avs_link) { '/my-health/medical-records/summaries-and-notes/visit-summary/12345' }
-    let(:avs_pdf) { } # TODO: get example data response
+    let(:avs_pdf) {
+      [
+        {
+              'appt_id' => '12345',
+              'id' => '15249638961',
+              'name' => 'Ambulatory Visit Summary',
+              'loinc_codes' => %w[4189669 96345-4],
+              'note_type' => 'ambulatory_patient_summary',
+              'content_type' => 'application/pdf',
+              'binary' => /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e/i
+            }
+      ]
+     } # TODO: verify response structure
     let(:appt) do
       { id: '12345', identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }],
         ien: '12345678', station: '983' }
@@ -2154,18 +2166,18 @@ describe VAOS::V2::AppointmentsService do
     context 'OH AVS PDF'
       context 'when UHD Service successfully retrieved the AVS PDF' do
         it 'fetches the AVS PDF and updates the appt hash' do
-          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_care_summaries_and_notes).and_return(avs_pdf)
-          subject.send(:fetch_avs_and_update_appt_body, appt)
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
+          subject.send(:fetch_avs_and_update_appt_body, appt, true)
           expect(appt[:avs_pdf]).to eq(avs_pdf)
         end
       end
 
       context 'when an error occurs while retrieving AVS PDF' do
         it 'logs the error and sets the avs_error field to an error message' do
-          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_care_summaries_and_notes)
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs)
             .and_raise(Common::Exceptions::BackendServiceException)
           expect(Rails.logger).to receive(:error)
-          subject.send(:fetch_avs_and_update_appt_body, appt)
+          subject.send(:fetch_avs_and_update_appt_body, appt, true)
           expect(appt[:avs_error]).to eq(avs_error_message)
         end
       end

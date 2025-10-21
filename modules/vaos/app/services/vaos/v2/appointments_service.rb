@@ -463,7 +463,7 @@ module VAOS
 
         extract_appointment_fields(appointment)
 
-        fetch_avs_and_update_appt_body(appointment) if avs_applicable?(appointment, include[:avs])
+        fetch_avs_and_update_appt_body(appointment, include[:binary]) if avs_applicable?(appointment, include[:avs])
 
         if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
           find_and_merge_provider_name(appointment)
@@ -618,21 +618,20 @@ module VAOS
         avs_path(data[:sid])
       end
 
-      def get_avs_pdf(appt)
+      def get_avs_pdf(appt, binary)
         return nil if appt[:station].nil? || appt[:ien].nil?
 
-        # TODO: check if needs to be get single
-        avs_resp = unified_health_data_service.get_care_summaries_and_notes
+        avs_resp = unified_health_data_service.get_appt_avs(appt[:id], binary)
 
-        return nil if avs_resp.body.empty? # TODO: other conditions?
+        return nil if avs_resp.empty? # TODO: other conditions?
 
-        data = avs_resp.body.first.with_indifferent_access # TODO how to access, check response structure
+        data = avs_resp.first # This will grab first avs in array (includes id, binary, metadata, etc)
 
         # TODO: is this check relevant? what is the response data structure? awaiting swagger...
-        if data[:icn].nil? || !icns_match?(data[:icn], user[:icn])
-          Rails.logger.warn('VAOS: AVS response ICN does not match user ICN')
-          return nil
-        end
+        # if data[:icn].nil? || !icns_match?(data[:icn], user[:icn])
+        #   Rails.logger.warn('VAOS: AVS response ICN does not match user ICN')
+        #   return nil
+        # end
       end
 
       # Fetches the After Visit Summary (AVS) link for an appointment and updates the `:avs_path` of the `appt`..
@@ -641,12 +640,14 @@ module VAOS
       #
       # @param [Hash] appt The object representing the appointment. Must be an object that allows hash-like access
       #
+      # @param [boolean] binary Indicates if Oracle Health AVS binary data should be returned
+      #
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
-      def fetch_avs_and_update_appt_body(appt)
+      def fetch_avs_and_update_appt_body(appt, binary: false)
         if appt[:id].nil?
           appt[:avs_path] = nil
         elsif VAOS::AppointmentsHelper.cerner?(appt)
-          avs_pdf = get_avs_pdf(appt)
+          avs_pdf = get_avs_pdf(appt, binary)
           appt[:avs_pdf] = avs_pdf
         else
           avs_link = get_avs_link(appt)
