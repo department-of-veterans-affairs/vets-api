@@ -340,8 +340,10 @@ module UnifiedHealthData
     # Allergies methods
     def remap_vista_identifier(records)
       # TODO: Placeholder; will transition to a vista_uid
+      # The &. safe navigation operator prevents NoMethodError if records['vista']['entry'] is nil
       records['vista']['entry']&.each do |allergy|
-        vista_identifier = allergy['resource']['identifier'].find { |id| id['system'].starts_with?('https://va.gov/systems/') }
+        # Use &. to safely handle nil values in the identifier system field
+        vista_identifier = allergy['resource']['identifier'].find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
         next unless vista_identifier && vista_identifier['value']
 
         allergy['resource']['id'] = vista_identifier['value']
@@ -350,6 +352,7 @@ module UnifiedHealthData
 
     # Care Summaries and Notes methods
     def remap_vista_uid(records)
+      # The &. safe navigation operator prevents NoMethodError if records['vista']['entry'] is nil
       records['vista']['entry']&.each do |note|
         vista_uid_identifier = note['resource']['identifier'].find { |id| id['system'] == 'vista-uid' }
         next unless vista_uid_identifier && vista_uid_identifier['value']
