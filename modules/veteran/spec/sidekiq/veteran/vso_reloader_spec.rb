@@ -95,7 +95,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           representative_id: '98765',
           first_name: 'Tamara',
           last_name: 'Ellis',
-          email: 'va.api.user+idme.001@gmail.com',
           poa_codes: %w[067 A1Q 095 074 083 1NY]
         )
 
@@ -103,7 +102,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           representative_id: '12345',
           first_name: 'John',
           last_name: 'Doe',
-          email: 'va.api.user+idme.007@gmail.com',
           poa_codes: %w[072 A1H 095 074 083 1NY]
         )
       end
@@ -189,7 +187,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         'Registration Num' => 'A123',
         'First Name' => 'Sara',
         'Last Name' => 'Whittman',
-        'Email' => 'sara@example.com',
         'Phone' => '202-555-0101',
         'POA Code' => '9GB'
       }
@@ -214,7 +211,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         'Registration Num' => 'A999',
         'First Name' => 'June',
         'Last Name' => 'Park',
-        'Email' => 'june@example.com',
         'Phone' => '202-555-0123',
         'POA Code' => 'ABC'
       }
@@ -226,7 +222,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       rep = Veteran::Service::Representative.find_by!(representative_id: 'A999')
       expect(rep.first_name).to eq('June')
       expect(rep.last_name).to  eq('Park')
-      expect(rep.email).to      eq('june@example.com')
       expect(rep.phone).to      eq('202-555-0123')
       expect(rep.user_types).to include('attorney')
       expect(rep.poa_codes).to  include('ABC')
@@ -237,7 +232,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         'Registration Num' => 'C321',
         'First Name' => 'Leo',
         'Last Name' => 'Ng',
-        'Email' => 'leo@example.com',
         'Phone' => '202-555-0144',
         'POA Code' => 'FDN'
       }
@@ -249,7 +243,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       rep = Veteran::Service::Representative.find_by!(representative_id: 'C321')
       expect(rep.first_name).to eq('Leo')
       expect(rep.last_name).to  eq('Ng')
-      expect(rep.email).to      eq('leo@example.com')
       expect(rep.phone).to      eq('202-555-0144')
       expect(rep.user_types).to include('claim_agents')
       expect(rep.poa_codes).to  include('FDN')
@@ -272,7 +265,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         'Registration Num' => 'S111',
         'First Name' => 'Samuel',
         'Last Name' => 'Hill',
-        'Email' => 'sam@example.com',
         'Phone' => '202-555-0000',
         'POA Code' => 'XYZ'
       }

@@ -143,32 +143,13 @@ module Veteran
       end
     end
 
-    def rep_by_id(rep_id)
-      Veteran::Service::Representative.find_or_initialize_by(representative_id: rep_id)
-    end
-
-    def add_to_set!(record, field, value)
-      return if value.blank?
-
-      arr = Array(record.public_send(field))
-      record.public_send("#{field}=", arr | [value])
-    end
-
     def find_or_create_attorneys(attorney)
-      rep = rep_by_id(attorney['Registration Num'])
-      rep = handle_new_record(rep, attorney) if rep.new_record?
-      add_to_set!(rep, :user_types, USER_TYPE_ATTORNEY)
-      add_to_set!(rep, :poa_codes, attorney['POA Code']&.gsub(/\W/, ''))
-
+      rep = find_or_initialize_by_id(attorney, USER_TYPE_ATTORNEY)
       rep.save
     end
 
     def find_or_create_claim_agents(claim_agent)
-      rep = rep_by_id(claim_agent['Registration Num'])
-      rep = handle_new_record(rep, claim_agent) if rep.new_record?
-      add_to_set!(rep, :user_types, USER_TYPE_CLAIM_AGENT)
-      add_to_set!(rep, :poa_codes, claim_agent['POA Code']&.gsub(/\W/, ''))
-
+      rep = find_or_initialize_by_id(claim_agent, USER_TYPE_CLAIM_AGENT)
       rep.save
     end
 
@@ -177,36 +158,25 @@ module Veteran
         ClaimsApi::Logger.log('VSO', detail: "Rep name not in expected format: #{vso['Registration Num']}")
         return
       end
-      last_name, first_name, middle_initial = vso['Representative'].match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/).captures # rubocop:disable Layout/LineLength
 
-      rep = rep_by_id(vso['Registration Num'])
-
-      if rep.new_record?
-        rep.assign_attributes(
-          first_name:,
-          last_name: last_name&.strip,
-          middle_initial: middle_initial.presence || '',
-          phone: vso['Org Phone']
-        )
-      else
-        rep.middle_initial = rep.middle_initial.presence || (middle_initial.presence || '')
-        rep.phone = rep.phone.presence || vso['Org Phone']
-      end
-
-      add_to_set!(rep, :user_types, USER_TYPE_VSO)
-      add_to_set!(rep, :poa_codes, vso['POA']&.gsub(/\W/, ''))
-
+      rep = find_or_initialize_by_id(convert_vso_to_useable_hash(vso), USER_TYPE_VSO)
       rep.save
     end
 
-    def handle_new_record(rep, hash_object)
-      rep.assign_attributes(
-        first_name: hash_object['First Name'],
-        last_name: hash_object['Last Name'],
-        email: hash_object['Email'],
-        phone: hash_object['Phone']
-      )
-      rep
+    def convert_vso_to_useable_hash(vso)
+      last_name, first_name, middle_initial = vso['Representative'].match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/).captures # rubocop:disable Layout/LineLength
+
+      {
+        'Last Name' => last_name,
+        'First Name' => first_name,
+        'Middle Initial' => middle_initial || '',
+        'Registration Num' => vso['Registration Num'],
+        'POA Code' => vso['POA'],
+        'Phone' => vso['Rep Phone'] || vso['Org Phone'],
+        'City' => vso['Rep City'],
+        'State' => vso['Rep State'] || vso['Org State'],
+        'Zip' => vso['Rep Zip']
+      }
     end
 
     def log_to_slack(message)
