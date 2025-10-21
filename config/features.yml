@@ -1269,21 +1269,6 @@ features:
     actor_type: user
     description: Control whether vets-api logs lab types returned for VistA patients
     enable_in_development: false
-  mhv_accelerated_delivery_uhd_sp_enabled:
-    actor_type: user
-    description: Control whether vets-api allows fetching Surgical Pathology data from MHV UHD
-    enable_in_development: false
-  mhv_accelerated_delivery_uhd_mb_enabled:
-    actor_type: user
-    description: Control whether vets-api allows fetching Microbiology data from MHV UHD
-    enable_in_development: false
-  mhv_accelerated_delivery_uhd_ch_enabled:
-    actor_type: user
-    description: Control whether vets-api allows fetching Chem/Hem data from MHV UHD
-  mhv_accelerated_delivery_uhd_filtering_enabled:
-    actor_type: user
-    description: Control whether vets-api applies filtering logic to UHD lab records
-    enable_in_development: false
   mhv_accelerated_delivery_uhd_loinc_logging_enabled:
     actor_type: user
     description: Control whether vets-api logs LOINC codes returned from UHD notes records
