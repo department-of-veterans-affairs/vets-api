@@ -279,47 +279,47 @@ module TitleGeneratorTestClaims
       },
       'test-veterans-pension-180AILP' => {
         display_title: 'Claim for Veterans Pension',
-        claim_type_base: 'veterans pension claim'
+        claim_type_base: 'Veterans Pension claim'
       },
       'test-veterans-pension-180ORGPEN' => {
         display_title: 'Claim for Veterans Pension',
-        claim_type_base: 'veterans pension claim'
+        claim_type_base: 'Veterans Pension claim'
       },
       'test-survivors-pension-190ORGDPN' => {
         display_title: 'Claim for Survivors Pension',
-        claim_type_base: 'survivors pension claim'
+        claim_type_base: 'Survivors Pension claim'
       },
       'test-survivors-pension-190AID' => {
         display_title: 'Claim for Survivors Pension',
-        claim_type_base: 'survivors pension claim'
+        claim_type_base: 'Survivors Pension claim'
       },
       'test-dic-290DICEDPMC' => {
         display_title: 'Claim for Dependency and Indemnity Compensation',
-        claim_type_base: 'dependency and indemnity compensation claim'
+        claim_type_base: 'Dependency and Indemnity Compensation claim'
       },
       'test-dic-020SMDICPMC' => {
         display_title: 'Claim for Dependency and Indemnity Compensation',
-        claim_type_base: 'dependency and indemnity compensation claim'
+        claim_type_base: 'Dependency and Indemnity Compensation claim'
       },
       'test-generic-pension-150ELECPMC' => {
         display_title: 'Claim for pension',
         claim_type_base: 'pension claim'
       },
       'test-debt-validation-290DV' => {
-        display_title: 'Debt Validation',
-        claim_type_base: 'debt validation'
+        display_title: 'Claim for disability compensation',
+        claim_type_base: 'disability compensation claim'
       },
       'test-debt-validation-pmc-290DVPMC' => {
-        display_title: 'PMC - Debt Validation',
-        claim_type_base: 'debt validation'
+        display_title: 'Claim for disability compensation',
+        claim_type_base: 'disability compensation claim'
       },
       'test-in-service-death-130ISDDI' => {
-        display_title: 'In Service Death Dependency',
-        claim_type_base: 'in service death dependency'
+        display_title: 'Claim for disability compensation',
+        claim_type_base: 'disability compensation claim'
       },
       'test-dependency-verification-330DVRPMC' => {
-        display_title: 'Dependency Verification',
-        claim_type_base: 'dependency verification'
+        display_title: 'Claim for disability compensation',
+        claim_type_base: 'disability compensation claim'
       },
       'test-death-special-case' => {
         display_title: 'Claim for expenses related to death or burial',
@@ -338,16 +338,16 @@ module TitleGeneratorTestClaims
         claim_type_base: 'education claim'
       },
       'test-nil-fallback-both-nil' => {
-        display_title: nil,
-        claim_type_base: nil
+        display_title: 'Claim for disability compensation',
+        claim_type_base: 'disability compensation claim'
       },
       'test-unknown-code' => {
         display_title: 'Claim for education',
         claim_type_base: 'education claim'
       },
       'test-empty-strings' => {
-        display_title: nil,
-        claim_type_base: nil
+        display_title: 'Claim for disability compensation',
+        claim_type_base: 'disability compensation claim'
       },
       'test-mixed-case' => {
         display_title: 'Claim for compensation',
