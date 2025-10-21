@@ -30,7 +30,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         parsed_response = JSON.parse(response.body)
         labs_data = parsed_response['data']
         expect(labs_data).to be_an(Array)
-        expect(labs_data.length).to eq(29) # 29 of 30 DiagnosticReports from cassette (1 filtered by adapter)
+        expect(labs_data.length).to eq(29)
 
         labs_data.each do |lab_record|
           attributes = lab_record['attributes']
