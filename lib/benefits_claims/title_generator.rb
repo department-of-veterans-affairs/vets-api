@@ -104,7 +104,7 @@ module BenefitsClaims
         end
 
         # Priority 4: Return default for missing data (triggers frontend fallback)
-        { display_title: 'disability compensation', claim_type_base: 'disability compensation claim' }
+        { display_title: 'Claim for disability compensation', claim_type_base: 'disability compensation claim' }
       end
 
       def update_claim_title(claim)
