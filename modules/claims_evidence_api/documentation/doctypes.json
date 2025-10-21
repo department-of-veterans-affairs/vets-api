@@ -15676,11 +15676,6 @@
             }
         },
         {
-            "id" : 1681,
-            "createDateTime" : "2022-06-14",
-            "modifiedDateTime" : "2022-06-14T16:46:22",
-            "name" : "L1681",
-            "description" : "VA ON-LINE 1990N",
             "isUserUploadable" : true,
             "is526" : false,
             "documentCategory" : {

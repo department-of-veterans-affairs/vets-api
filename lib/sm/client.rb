@@ -568,25 +568,6 @@ module SM
     end
     # @!endgroup
 
-    def get_unique_care_systems(all_recipients)
-      unique_care_system_ids = all_recipients.uniq(&:station_number).map(&:station_number)
-      does_include612 = unique_care_system_ids.delete('612')
-      unique_care_system_names = Mobile::FacilitiesHelper.get_facility_names(unique_care_system_ids)
-      care_system_map = unique_care_system_ids.zip(unique_care_system_names).map! do |system|
-        {
-          station_number: system[0],
-          health_care_system_name: system[1] || system[0]
-        }
-      end
-
-      if does_include612
-        care_system_map << {
-          station_number: '612',
-          health_care_system_name: 'VA Northern California'
-        }
-      end
-    end
-
     def get_cached_or_fetch_data(use_cache, cache_key, model)
       data = nil
       data = model.get_cached(cache_key) if use_cache
