@@ -127,7 +127,7 @@ RSpec.describe BenefitsClaims::TitleGenerator do
         result = described_class.generate_titles(nil, nil)
 
         expect(result).to eq({
-                               display_title: 'disability compensation',
+                               display_title: 'Claim for disability compensation',
                                claim_type_base: 'disability compensation claim'
                              })
       end
@@ -136,7 +136,7 @@ RSpec.describe BenefitsClaims::TitleGenerator do
         result = described_class.generate_titles('', '')
 
         expect(result).to eq({
-                               display_title: 'disability compensation',
+                               display_title: 'Claim for disability compensation',
                                claim_type_base: 'disability compensation claim'
                              })
       end
@@ -145,7 +145,7 @@ RSpec.describe BenefitsClaims::TitleGenerator do
         result = described_class.generate_titles('', 'UNKNOWN_CODE')
 
         expect(result).to eq({
-                               display_title: 'disability compensation',
+                               display_title: 'Claim for disability compensation',
                                claim_type_base: 'disability compensation claim'
                              })
       end
@@ -165,7 +165,7 @@ RSpec.describe BenefitsClaims::TitleGenerator do
         result = described_class.generate_titles('   ', nil)
 
         expect(result).to eq({
-                               display_title: 'disability compensation',
+                               display_title: 'Claim for disability compensation',
                                claim_type_base: 'disability compensation claim'
                              })
       end
@@ -245,7 +245,7 @@ RSpec.describe BenefitsClaims::TitleGenerator do
 
         described_class.update_claim_title(claim)
 
-        expect(claim['attributes']['displayTitle']).to eq('disability compensation')
+        expect(claim['attributes']['displayTitle']).to eq('Claim for disability compensation')
         expect(claim['attributes']['claimTypeBase']).to eq('disability compensation claim')
       end
     end
