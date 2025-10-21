@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class OpenAPIRswagConfig
+class RswagConfig
   def config
     {
       'public/openapi.json' => {
