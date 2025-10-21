@@ -11,6 +11,16 @@ accredited_representative_portal:
       path: <%= ENV['accredited_representative_portal__allow_list__github__path'] %>
       repo: department-of-veterans-affairs/va.gov-team-sensitive
   frontend_base_url: <%= ENV['accredited_representative_portal__frontend_base_url'] %>
+  lighthouse:
+    benefits_intake:
+      api_key: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__api_key'] %>
+      host: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__host'] %>
+      path: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__path'] %>
+      report:
+        batch_size: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__report__batch_size'] %>
+        stale_sla: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__report__stale_sla'] %>
+      use_mocks: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__use_mocks'] %>
+      version: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__version'] %>
 adapted_housing:
   prefill: true
 argocd:
@@ -234,6 +244,9 @@ claims_evidence_api:
   jwt_secret: <%= ENV['claims_evidence_api__jwt_secret'] %>
   mock: false
   ssl: true
+  timeout:
+    open: 30
+    read: 30
 clamav:
   host: clamav
   mock: <%= ENV['clamav__mock'] %>
@@ -682,6 +695,7 @@ lighthouse:
     use_mocks: <%= ENV['lighthouse__benefits_education__use_mocks'] %>
   benefits_intake:
     api_key: <%= ENV['lighthouse__benefits_intake__api_key'] %>
+    breakers_error_threshold: 80
     host: <%= ENV['lighthouse__benefits_intake__host'] %>
     path: <%= ENV['lighthouse__benefits_intake__path'] %>
     report:
@@ -720,6 +734,7 @@ lighthouse:
       - system/PaymentReconciliation.read
       - system/MedicationDispense.read
       - system/Encounter.read
+      - system/Account.read
       - launch
     timeout: 30
     use_mocks: false

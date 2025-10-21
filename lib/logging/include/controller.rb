@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Logging
-  module Controller
+  module Include
     # Monitor class for tracking claim controller events
-    module Monitor
+    module Controller
       ##
       # log GET 404 from controller
       # @see ClaimsController
@@ -36,7 +36,6 @@ module Logging
           :error,
           "#{message_prefix} fetching submission failed",
           claim_stats_key,
-          claim: nil,
           user_account_uuid: current_user&.user_account_uuid,
           confirmation_number:,
           error: e&.message
