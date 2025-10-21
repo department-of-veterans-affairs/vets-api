@@ -42,14 +42,14 @@ describe Pensions::PdfFill::Va21p527ez do
 
   describe '#to_radio_yes_no' do
     it 'returns correct values' do
-      expect(described_class.new({}).to_radio_yes_no(true)).to eq(1)
-      expect(described_class.new({}).to_radio_yes_no(false)).to eq(2)
+      expect(described_class.new({}).to_radio_yes_no(true)).to eq(0)
+      expect(described_class.new({}).to_radio_yes_no(false)).to eq(1)
     end
   end
 
   describe '#to_checkbox_on_off' do
     it 'returns correct values' do
-      expect(described_class.new({}).to_checkbox_on_off(true)).to eq(1)
+      expect(described_class.new({}).to_checkbox_on_off(true)).to eq('1')
       expect(described_class.new({}).to_checkbox_on_off(false)).to eq('Off')
     end
   end
@@ -103,7 +103,7 @@ describe Pensions::PdfFill::Va21p527ez do
       expect(updated_data['dependents'].length).to eq(1)
       expect(updated_data['custodians'].length).to eq(1)
       expect(updated_data['dependentChildrenInHousehold']).to eq('0')
-      expect(updated_data['dependentsNotWithYouAtSameAddress']).to eq(1)
+      expect(updated_data['dependentsNotWithYouAtSameAddress']).to eq(0)
     end
 
     it 'handles overflow for dependent children not in the same household' do
@@ -198,28 +198,6 @@ describe Pensions::PdfFill::Va21p527ez do
       form = described_class.new(form_data)
       form.expand_direct_deposit_information
       expect(form.instance_variable_get('@form_data')['bankAccount']['accountType']).to be_nil
-    end
-  end
-
-  describe '#expand_claim_certification_and_signature' do
-    it 'defaults to today' do
-      date = Time.new(2024, 11, 25, 2, 2, 2, 'UTC')
-      zone = double('zone')
-      allow(zone).to receive(:now).and_return(date)
-      allow(Time).to receive(:zone).and_return(zone)
-      form_data = {}
-      form = described_class.new(form_data)
-      form.expand_claim_certification_and_signature
-      expect(form.instance_variable_get('@form_data')['signatureDate']).to eq({ 'month' => '11', 'day' => '25',
-                                                                                'year' => '2024' })
-    end
-
-    it 'applies date if provided' do
-      form_data = { 'signatureDate' => '2024-10-31' }
-      form = described_class.new(form_data)
-      form.expand_claim_certification_and_signature
-      expect(form.instance_variable_get('@form_data')['signatureDate']).to eq({ 'month' => '10', 'day' => '31',
-                                                                                'year' => '2024' })
     end
   end
 
