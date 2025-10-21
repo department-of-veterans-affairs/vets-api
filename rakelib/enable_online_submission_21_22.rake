@@ -7,11 +7,15 @@ namespace :vso do
     raise ArgumentError, 'POA codes required (comma-separated)' if args[:poa_codes].blank?
 
     poa_codes = [args[:poa_codes], *args.extras].compact.uniq
-    result = AccreditedRepresentativePortal::EnableOnlineSubmission2122Service.call(poa_codes:)
 
-    Rails.logger.info("Received POA codes: #{result[:poa_codes].join(', ')}")
-    Rails.logger.info("Found #{result[:matched_count]} matching organization(s). Enabling online submission")
-    Rails.logger.info("Successfully updated #{result[:updated_count]} organization(s).")
+    Rails.logger.tagged('rake:vso:enable_online_submission_21_22') do
+      Rails.logger.info("Received POA codes: #{poa_codes.join(', ')}")
+      Rails.logger.info('Enabling online submission for matching organization(s)...')
+
+      result = AccreditedRepresentativePortal::EnableOnlineSubmission2122Service.call(poa_codes:)
+
+      Rails.logger.info("Enabled online submission for #{result} organization(s).")
+    end
   end
   # rubocop:enable Naming/VariableNumber
 end

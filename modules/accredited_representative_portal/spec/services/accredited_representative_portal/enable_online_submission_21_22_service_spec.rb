@@ -14,11 +14,7 @@ RSpec.describe AccreditedRepresentativePortal::EnableOnlineSubmission2122Service
       it 'updates matching orgs and returns counts' do
         result = call_service
 
-        expect(result).to include(
-          poa_codes: match_array(%w[SVS YHZ]),
-          matched_count: 2,
-          updated_count: 2
-        )
+        expect(result).to eq(2)
         expect(org_svs.reload.can_accept_digital_poa_requests).to be(true)
         expect(org_yhz.reload.can_accept_digital_poa_requests).to be(true)
       end
@@ -32,9 +28,7 @@ RSpec.describe AccreditedRepresentativePortal::EnableOnlineSubmission2122Service
       it 'accepts arrays and updates matching orgs' do
         result = call_service
 
-        expect(result[:poa_codes]).to match_array(%w[SVS YHZ])
-        expect(result[:matched_count]).to eq(2)
-        expect(result[:updated_count]).to eq(2)
+        expect(result).to eq(2)
         expect(org_svs.reload.can_accept_digital_poa_requests).to be(true)
         expect(org_yhz.reload.can_accept_digital_poa_requests).to be(true)
       end
@@ -47,9 +41,7 @@ RSpec.describe AccreditedRepresentativePortal::EnableOnlineSubmission2122Service
       it 'trims and de-dupes, updating only needed rows' do
         result = call_service
 
-        expect(result[:poa_codes]).to eq(['SVS'])
-        expect(result[:matched_count]).to eq(1)
-        expect(result[:updated_count]).to eq(1)
+        expect(result).to eq(1)
         expect(org_svs.reload.can_accept_digital_poa_requests).to be(true)
       end
     end
@@ -70,9 +62,7 @@ RSpec.describe AccreditedRepresentativePortal::EnableOnlineSubmission2122Service
         result = nil
         expect { result = call_service }.not_to raise_error
 
-        expect(result[:poa_codes]).to eq(['NOPE'])
-        expect(result[:matched_count]).to eq(0)
-        expect(result[:updated_count]).to eq(0)
+        expect(result).to eq(0)
         expect(org_other.reload.can_accept_digital_poa_requests).to be(false)
       end
     end
@@ -83,13 +73,11 @@ RSpec.describe AccreditedRepresentativePortal::EnableOnlineSubmission2122Service
 
       it 'is safe to call twice; second call updates nothing' do
         first = call_service
-        expect(first[:matched_count]).to eq(1)
-        expect(first[:updated_count]).to eq(1)
+        expect(first).to eq(1)
         expect(org.reload.can_accept_digital_poa_requests).to be(true)
 
         second = described_class.call(poa_codes:)
-        expect(second[:matched_count]).to eq(0)
-        expect(second[:updated_count]).to eq(0)
+        expect(second).to eq(0)
         expect(org.reload.can_accept_digital_poa_requests).to be(true)
       end
     end

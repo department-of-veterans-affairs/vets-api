@@ -6,17 +6,13 @@ module AccreditedRepresentativePortal
       codes = normalize_codes(poa_codes)
       raise ArgumentError, 'POA codes required' if codes.empty?
 
-      matched_orgs = Veteran::Service::Organization
-                     .where(poa: codes)
-                     .where.not(can_accept_digital_poa_requests: true)
-
-      matched_count = matched_orgs.count
+      scope = Veteran::Service::Organization
+              .where(poa: codes)
+              .where.not(can_accept_digital_poa_requests: true)
 
       # rubocop:disable Rails/SkipsModelValidations
-      updated_count = matched_orgs.update_all(can_accept_digital_poa_requests: true)
+      scope.update_all(can_accept_digital_poa_requests: true)
       # rubocop:enable Rails/SkipsModelValidations
-
-      { poa_codes: codes, matched_count:, updated_count: }
     end
 
     def self.normalize_codes(input)
