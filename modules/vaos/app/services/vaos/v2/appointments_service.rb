@@ -376,42 +376,53 @@ module VAOS
       def fetch_appointments_and_claims_parallel(start_date, end_date, statuses, pagination_params, tp_client)
         require 'concurrent-ruby'
 
-        # Eagerly load user attributes before threading to avoid thread safety issues with ActiveRecord
-        # The TravelPay service needs user.user_account_uuid and user.icn
-        # Loading these before spawning threads prevents potential race conditions or connection issues
-        current_user = user
-        # Force load these attributes to ensure they're not lazy-loaded inside threads
-        current_user.user_account_uuid
-        current_user.icn
+        # Preload user attributes to avoid thread safety issues with ActiveRecord
+        preload_user_attributes
 
-        # Track overall parallel fetch duration and individual service metrics
+        # Track overall parallel fetch duration
         StatsD.measure("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.total_duration") do
-          # Create futures for parallel execution with individual duration tracking
-          appointments_future = Concurrent::Promises.future do
-            StatsD.measure("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.appointments_service.duration") do
-              send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
-            end
-          end
+          appointments_future = create_appointments_future(start_date, end_date, statuses, pagination_params)
+          travel_claims_future = create_travel_claims_future(start_date, end_date, tp_client)
 
-          travel_claims_future = Concurrent::Promises.future do
-            StatsD.measure("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.travel_claims_service.duration") do
-              service = TravelPay::ClaimAssociationService.new(current_user, tp_client)
-              service.fetch_claims_by_date(start_date, end_date)
-            end
-          end
-
-          # Wait for both futures to complete and handle results
+          # Wait for both futures and handle results
           appointments_response = handle_appointments_future(appointments_future)
           travel_claims_result = handle_travel_claims_future(travel_claims_future)
 
-          # Track success/failure rates
-          StatsD.increment("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.total")
-          if travel_claims_result[:error]
-            StatsD.increment("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.travel_claims_error")
-          end
+          track_parallel_fetch_metrics(travel_claims_result)
 
           [appointments_response, travel_claims_result]
         end
+      end
+
+      def preload_user_attributes
+        # Force load attributes before threading to prevent race conditions
+        user.user_account_uuid
+        user.icn
+      end
+
+      def create_appointments_future(start_date, end_date, statuses, pagination_params)
+        Concurrent::Promises.future do
+          StatsD.measure("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.appointments_service.duration") do
+            send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
+          end
+        end
+      end
+
+      def create_travel_claims_future(start_date, end_date, tp_client)
+        current_user = user
+        Concurrent::Promises.future do
+          StatsD.measure("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.travel_claims_service.duration") do
+            service = TravelPay::ClaimAssociationService.new(current_user, tp_client)
+            service.fetch_claims_by_date(start_date, end_date)
+          end
+        end
+      end
+
+      def track_parallel_fetch_metrics(travel_claims_result)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.total")
+        return unless travel_claims_result[:error]
+
+        StatsD.increment("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.travel_claims_error")
       end
 
       # Handles the appointments future result, re-raising errors
@@ -439,30 +450,18 @@ module VAOS
       # @param claims_result [Hash] Result from fetch_claims_by_date
       # @return [Array] Appointments with merged travel claim data
       def merge_claims_with_appointments(appointments, claims_result)
-        if claims_result[:error]
-          # Append error metadata to all appointments
-          appointments.each do |appt|
-            appt['travelPayClaim'] = {
-              'metadata' => claims_result[:metadata]
-            }
-          end
-        else
-          # Append claims and metadata to appointments
-          appointments.each do |appt|
-            appt['travelPayClaim'] = {
-              'metadata' => claims_result[:metadata]
-            }
-
-            begin
-              matching_claim = TravelPay::ClaimMatcher.find_matching_claim(claims_result[:claims],
-                                                                            appt[:local_start_time])
-              appt['travelPayClaim']['claim'] = matching_claim if matching_claim.present?
-            rescue TravelPay::InvalidComparableError => e
-              Rails.logger.warn(message: "Cannot compare start times. #{e.message}")
-            end
-          end
+        appointments.each do |appt|
+          appt['travelPayClaim'] = { 'metadata' => claims_result[:metadata] }
+          attach_matching_claim(appt, claims_result) unless claims_result[:error]
         end
         appointments
+      end
+
+      def attach_matching_claim(appt, claims_result)
+        matching_claim = TravelPay::ClaimMatcher.find_matching_claim(claims_result[:claims], appt[:local_start_time])
+        appt['travelPayClaim']['claim'] = matching_claim if matching_claim.present?
+      rescue TravelPay::InvalidComparableError => e
+        Rails.logger.warn(message: "Cannot compare start times. #{e.message}")
       end
 
       # rubocop:disable Metrics/MethodLength
