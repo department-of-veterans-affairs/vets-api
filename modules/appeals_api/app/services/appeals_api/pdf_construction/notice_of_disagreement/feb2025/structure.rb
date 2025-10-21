@@ -4,7 +4,6 @@ require 'prawn/table'
 require 'common/file_helpers'
 
 module AppealsApi
-       AppealsApi
   module PdfConstruction
     module NoticeOfDisagreement::Feb2025
       class Structure
@@ -18,8 +17,7 @@ module AppealsApi
         MAX_ISSUE_TABLE_COLUMN_LINE_LENGTH = 96
 
         attr_reader :notice_of_disagreement
-        attr_accessor :form_fields
-        attr_accessor :form_data
+        attr_accessor :form_fields, :form_data
 
         def initialize(notice_of_disagreement)
           @notice_of_disagreement = notice_of_disagreement
@@ -43,7 +41,7 @@ module AppealsApi
 
           fill_first_five_issue_dates!(options)
         end
-        
+
         # rubocop:disable Metrics/MethodLength
         def insert_overlaid_pages(form_fill_path)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
@@ -141,9 +139,8 @@ module AppealsApi
         def add_additional_pages
           return unless additional_pages?
 
-
           @additional_pages_pdf ||= Prawn::Document.new(skip_page_creation: true)
-          
+
           Pages::LongDataAndExtraIssues.new(
             @additional_pages_pdf, form_data
           ).build!
@@ -185,7 +182,7 @@ module AppealsApi
           # to handle the contestableIssue content, so we fill the date, and do
           # the content afterwards.
           form_row_index = 0
-          
+
           form_data.contestable_issues.take(MAX_ISSUES_ON_MAIN_FORM).each do |issue|
             # skip date on form if text won't fit, this issue will show on overflow page
             next if self.class.issue_text_exceeds_column_width?(issue)
@@ -218,11 +215,10 @@ module AppealsApi
         def insert_issues_into_text_boxes(pdf, text_opts)
           form_row_index = 0
           form_data.contestable_issues.take(MAX_ISSUES_ON_MAIN_FORM)
-            .select(&:text_exists?)
-            .reject { |issue| self.class.issue_text_exceeds_column_width?(issue) }
-            .map {|issue| issue_full_text(issue)}
-            .each do |full_text|
-            
+                   .select(&:text_exists?)
+                   .reject { |issue| self.class.issue_text_exceeds_column_width?(issue) }
+                   .map { |issue| issue_full_text(issue) }
+                   .each do |full_text|
             pdf.text_box(
               full_text,
               text_opts.merge({ at: [-4, 221 - (24 * form_row_index)], width: 465, height: 22, valign: :center })
@@ -239,12 +235,11 @@ module AppealsApi
 
         def issue_full_text(issue)
           full_text = issue.text.strip
-            if (disagreement_area = issue['attributes']['disagreementArea'])
-              full_text += "\nDisagreement: #{disagreement_area.strip}"
-            end
+          if (disagreement_area = issue['attributes']['disagreementArea'])
+            full_text += "\nDisagreement: #{disagreement_area.strip}"
+          end
           full_text
         end
-
       end
     end
   end

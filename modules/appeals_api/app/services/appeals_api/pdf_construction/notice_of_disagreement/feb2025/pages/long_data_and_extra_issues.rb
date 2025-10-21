@@ -5,7 +5,6 @@ module AppealsApi
     module NoticeOfDisagreement::Feb2025
       module Pages
         class LongDataAndExtraIssues
-
           attr_reader :pdf, :form_data
 
           def initialize(pdf, form_data)
@@ -58,11 +57,11 @@ module AppealsApi
             header = ['A. Specific Issue(s)', 'B. Area of Disagreement', 'C. Date of Decision']
 
             form_data.contestable_issues.take(Structure::MAX_ISSUES_ON_MAIN_FORM).select(&:text_exists?).each do |issue|
-                # text fit on issues form table, so skip it here in overflow
-                next unless NoticeOfDisagreement::Feb2025::Structure.issue_text_exceeds_column_width?(issue)
+              # text fit on issues form table, so skip it here in overflow
+              next unless NoticeOfDisagreement::Feb2025::Structure.issue_text_exceeds_column_width?(issue)
 
-                data << [issue['attributes']['issue'], issue['attributes']['disagreementArea'],
-                         issue['attributes']['decisionDate']]
+              data << [issue['attributes']['issue'], issue['attributes']['disagreementArea'],
+                       issue['attributes']['decisionDate']]
             end
 
             data += form_data.contestable_issues.drop(Structure::MAX_ISSUES_ON_MAIN_FORM).map do |issue|

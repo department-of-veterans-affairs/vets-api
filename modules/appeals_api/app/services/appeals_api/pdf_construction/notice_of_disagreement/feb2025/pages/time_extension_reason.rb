@@ -2,7 +2,6 @@
 
 module AppealsApi::PdfConstruction::NoticeOfDisagreement::Feb2025::Pages
   class TimeExtensionReason
-
     attr_reader :pdf, :form_data
 
     # @param [Prawn::Document] pdf
