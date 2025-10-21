@@ -4,18 +4,19 @@ require 'rails_helper'
 require 'sm/client'
 
 describe 'sm client' do
-  describe 'messages' do
-    before do
-      VCR.use_cassette 'sm_client/session' do
-        @client ||= begin
-          client = SM::Client.new(session: { user_id: '10616687' })
-          client.authenticate
-          client
-        end
+  before do
+    VCR.use_cassette 'sm_client/session' do
+      @client ||= begin
+        client = SM::Client.new(session: { user_id: '10616687' })
+        client.authenticate
+        client
       end
     end
+  end
 
-    let(:client)              { @client }
+  let(:client) { @client }
+
+  describe 'messages' do
     let(:existing_message_id) { 573_059 }
     let(:move_message_id)     { 573_052 }
     let(:destroy_message_id)  { 573_052 }
@@ -310,6 +311,26 @@ describe 'sm client' do
           expect(result[:filename]).to eq('encoded-file.pdf')
         end
       end
+    end
+  end
+
+  describe '#build_lg_attachment' do
+    let(:file) { double('file', original_filename: 'test file.pdf', content_type: 'application/pdf', size: 123) }
+
+    it 'decodes URL-encoded characters in lgAttachmentId' do
+      file_path = 'https://example.com/uploads/test%20file.pdf'
+      allow(client).to receive(:create_presigned_url_for_attachment).with(file).and_return({ data: file_path })
+      allow(client).to receive(:upload_attachment_to_s3)
+      allow(client).to receive(:extract_uploaded_file_name).with(file_path).and_return('test%20file.pdf')
+
+      result = client.send(:build_lg_attachment, file)
+
+      # Verify that lgAttachmentId is decoded (space instead of %20)
+      expect(result['lgAttachmentId']).to eq('test file.pdf')
+      # Ensure other fields remain unchanged
+      expect(result['attachmentName']).to eq('test file.pdf')
+      expect(result['mimeType']).to eq('application/pdf')
+      expect(result['size']).to eq(123)
     end
   end
 end
