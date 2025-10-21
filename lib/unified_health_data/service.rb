@@ -340,8 +340,10 @@ module UnifiedHealthData
     # Allergies methods
     def remap_vista_identifier(records)
       # TODO: Placeholder; will transition to a vista_uid
+      # The &. safe navigation operator prevents NoMethodError if records['vista']['entry'] is nil
       records['vista']['entry']&.each do |allergy|
-        vista_identifier = allergy['resource']['identifier'].find { |id| id['system'].starts_with?('https://va.gov/systems/') }
+        # Use &. to safely handle nil values in the identifier system field
+        vista_identifier = allergy['resource']['identifier'].find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
         next unless vista_identifier && vista_identifier['value']
 
         allergy['resource']['id'] = vista_identifier['value']

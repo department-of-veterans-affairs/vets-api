@@ -451,6 +451,24 @@ describe UnifiedHealthData::Service, type: :service do
           uhd_service.get_allergies
         end.to raise_error(StandardError, 'Unknown fetch error')
       end
+
+      it 'handles nil system field in identifier gracefully' do
+        # Test that the safe navigation operator (&.) prevents NoMethodError
+        # when id['system'] is nil
+        modified_response = allergies_sample_response.deep_dup
+        # Add an identifier with nil system to test safe navigation
+        modified_response['vista']['entry'].first['resource']['identifier'] << { 'system' => nil, 'value' => 'test' }
+        
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_allergies_by_date)
+          .and_return(Faraday::Response.new(
+                        body: modified_response
+                      ))
+
+        expect { service.get_allergies }.not_to raise_error
+        allergies = service.get_allergies
+        expect(allergies.size).to eq(13)
+      end
     end
   end
 
