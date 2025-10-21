@@ -3,16 +3,17 @@
 require 'efolder/service'
 
 module V0
-  class EfolderController < ApplicationController
-    service_tag 'deprecated'
+  class TsaLetterController < ApplicationController
+    service_tag 'tsa_letter'
 
     def index
-      render(json: service.list_documents)
+      letter = service.get_tsa_letter
+      render(json: letter)
     end
 
     def show
       send_data(
-        service.get_document(params[:id]),
+        service.download_tsa_letter(params[:id]),
         type: 'application/pdf',
         filename: params[:filename]
       )
