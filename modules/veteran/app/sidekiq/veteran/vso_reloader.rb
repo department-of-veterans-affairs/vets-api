@@ -18,6 +18,7 @@ module Veteran
     USER_TYPE_VSO = 'veteran_service_officer'
 
     def perform
+      remove_duplicates_by_rep_id
       # Track initial counts before processing
       @initial_counts = fetch_initial_counts
       @validation_results = {}
@@ -28,7 +29,6 @@ module Veteran
 
       # Save the results to the database
       save_accreditation_totals
-      remove_duplicates_by_rep_id
 
       # Remove representatives that are no longer in the OGC data
       # By using where.not, we delete anyone whose ID is NOT in the array returned by reload_representatives
@@ -126,21 +126,18 @@ module Veteran
     end
 
     def remove_duplicates_by_rep_id
-      klass = Veteran::Service::Representative
+      klass   = Veteran::Service::Representative
+      dup_ids = klass.group(:representative_id)
+                     .having('COUNT(*) > 1')
+                     .pluck(:representative_id).to_a
 
-      dup_ids = klass.group(:representative_id).having('COUNT(*) > 1').pluck(:representative_id)
-      return if dup_ids.empty?
+      # rubocop:disable Rails/WhereNotWithMultipleConditions
+      non_test_duplicates = klass.where(representative_id: dup_ids)
+                        .where.not(first_name: 'Tamara', last_name: 'Ellis')
+                        .where.not(first_name: 'John', last_name: 'Doe')
+      # rubocop:enable Rails/WhereNotWithMultipleConditions
 
-      dup_ids.each do |rid|
-        keep_ctid = klass.where(representative_id: rid)
-                         .order(updated_at: :desc, created_at: :desc)
-                         .limit(1)
-                         .pick(Arel.sql('ctid'))
-
-        klass.where(representative_id: rid)
-             .where.not(ctid: keep_ctid)
-             .delete_all
-      end
+      non_test_duplicates.delete_all
     end
 
     def find_or_create_attorneys(attorney)

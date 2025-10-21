@@ -282,7 +282,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
   describe 'remove_duplicates_by_rep_id' do
     let(:reloader) { Veteran::VSOReloader.new }
 
-    it 'keeps the most recent row and deletes the others' do
+    it 'deletes all non-test duplicates' do
       Veteran::Service::Representative.create!(
         representative_id: 'DUP1',
         first_name: 'Old',
@@ -301,7 +301,16 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         created_at: 2.days.ago,
         updated_at: 2.days.ago
       )
-      kept = Veteran::Service::Representative.create!(
+      test_user = Veteran::Service::Representative.create!(
+        representative_id: 'DUP1',
+        first_name: 'Tamara',
+        last_name: 'Ellis',
+        user_types: ['veteran_service_officer'],
+        poa_codes: ['CCC'],
+        created_at: 1.day.ago,
+        updated_at: 1.day.ago
+      )
+      Veteran::Service::Representative.create!(
         representative_id: 'DUP1',
         first_name: 'New',
         last_name: 'Name',
@@ -313,13 +322,13 @@ RSpec.describe Veteran::VSOReloader, type: :job do
 
       expect do
         reloader.send(:remove_duplicates_by_rep_id)
-      end.to change { Veteran::Service::Representative.where(representative_id: 'DUP1').count }.from(3).to(1)
+      end.to change { Veteran::Service::Representative.where(representative_id: 'DUP1').count }.from(4).to(1)
 
       survivor = Veteran::Service::Representative.find_by!(representative_id: 'DUP1')
-      expect(survivor.first_name).to eq(kept.first_name)
-      expect(survivor.last_name).to  eq(kept.last_name)
-      expect(survivor.user_types).to eq(kept.user_types)
-      expect(survivor.poa_codes).to  eq(kept.poa_codes)
+      expect(survivor.first_name).to eq(test_user.first_name)
+      expect(survivor.last_name).to eq(test_user.last_name)
+      expect(survivor.user_types).to eq(test_user.user_types)
+      expect(survivor.poa_codes).to eq(test_user.poa_codes)
     end
   end
 
