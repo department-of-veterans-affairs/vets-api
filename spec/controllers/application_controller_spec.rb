@@ -681,21 +681,12 @@ RSpec.describe ApplicationController, type: :controller do
       sign_in_as(user, session_object.token)
     end
 
-    context 'with controller name logging' do
+    context 'with origin logging' do
       context 'when controller has a name' do
-        it 'adds controller name to logs within around_action' do
-          expect(SemanticLogger).to receive(:named_tagged).with(controller_name: 'anonymous').and_call_original
+        it 'adds controller name as origin to logs within around_action' do
+          expect(SemanticLogger).to receive(:named_tagged).with(origin: 'anonymous').and_call_original
           expect(Rails.logger).to receive(:info).with(expected_result)
           subject
-        end
-
-        it 'stores controller_name in RequestStore for Sidekiq middleware' do
-          expect(Rails.logger).to receive(:info).with(expected_result)
-          subject
-
-          additional_attrs = RequestStore.store['additional_request_attributes']
-          expect(additional_attrs).to be_present
-          expect(additional_attrs['controller_name']).to eq('anonymous')
         end
       end
 

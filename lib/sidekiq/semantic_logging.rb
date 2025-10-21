@@ -19,7 +19,7 @@ class Sidekiq::SemanticLogging < Sidekiq::JobLogger
       user_agent: item['user_agent'],
       user_uuid: item['user_uuid'] || 'N/A',
       source: item['source'],
-      origin: item['origin']
+      origin: item['job_name']
     }
     Thread.current[:sidekiq_context] = {}
 

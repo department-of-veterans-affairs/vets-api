@@ -721,12 +721,12 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     end
   end
 
-  describe 'controller name logging' do
+  describe 'origin logging' do
     let(:expected_result) { 'Test log message' }
 
     context 'when controller has a name' do
-      it 'adds controller name to logs within around_action' do
-        expect(SemanticLogger).to receive(:named_tagged).with(controller_name: 'application').and_call_original
+      it 'adds controller name as origin to logs within around_action' do
+        expect(SemanticLogger).to receive(:named_tagged).with(origin: 'application').and_call_original
         expect(Rails.logger).to receive(:info).with(expected_result)
         get :test_logging
         expect(response).to have_http_status :ok
