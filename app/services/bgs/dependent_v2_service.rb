@@ -269,7 +269,8 @@ module BGS
       full_name = { 'first' => first_name, 'last' => last_name }
       full_name['middle'] = middle_name unless middle_name.nil? # nil middle name breaks prod validation
       # Sometimes BGS will return a 502 (Bad Gateway) when trying to find a person by participant id or ssn.
-      # Given this a rare occurrence and almost always file number is the same as ssn, we'll set file number to ssn as a backup.
+      # Given this a rare occurrence and almost always file number is the same as ssn, we'll set file number
+      # to ssn as a backup.
       {
         'veteran_information' => {
           'full_name' => full_name,
