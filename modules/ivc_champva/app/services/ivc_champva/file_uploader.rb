@@ -120,7 +120,7 @@ module IvcChampva
       # insert the combined PDF
       insert_form(file_name, response_status_string)
 
-      # insert individual records for all original files
+      # insert individual records for every original pre-merge file (main form + all attachments)
       @file_paths.each do |file_path|
         next if file_path.blank?
 
