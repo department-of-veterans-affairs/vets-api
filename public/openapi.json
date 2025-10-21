@@ -20,14 +20,17 @@
             "content": {
               "application/json": {
                 "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Invalid Authenticity Token",
-                      "code": "403",
-                      "status": "403"
+                  "data": {
+                    "id": "123456",
+                    "type": "form_submissions",
+                    "attributes": {
+                      "submitted_at": "2024-06-01T12:34:56Z",
+                      "regional_office": ["RO42"],
+                      "confirmation_number": "ABCDEF123456",
+                      "guid": "550e8400-e29b-41d4-a716-446655440000",
+                      "form": "21-4192"
                     }
-                  ]
+                  }
                 },
                 "schema": {
                   "type": "object",
