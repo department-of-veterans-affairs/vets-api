@@ -7,7 +7,7 @@ class SavedClaim::EducationBenefits::VA10282 < SavedClaim::EducationBenefits
     return unless Flipper.enabled?(:form22_10282_confirmation_email)
 
     parsed_form_data = JSON.parse(form)
-    email = parsed_form_data['email']
+    email = parsed_form_data.dig('contactInfo', 'email')
     return if email.blank?
 
     send_confirmation_email(parsed_form_data, email)
