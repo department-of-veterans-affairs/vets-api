@@ -82,6 +82,12 @@ module Pensions
         form_data['vaClaimsHistory'] = to_radio_yes_no(form_data['vaClaimsHistory'])
       end
 
+      ##
+      # Titleizes the veteran's full name and extracts the middle initial.
+      # @param full_name [Hash]
+      #
+      # @note Modifies `full_name`
+      #
       def expand_full_name(full_name)
         middle_initial = full_name['middle']&.[](0) # Get middle initial
 
