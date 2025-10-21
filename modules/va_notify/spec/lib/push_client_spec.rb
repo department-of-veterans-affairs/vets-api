@@ -3,7 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe VaNotify::PushClient do
-  let(:api_key) { 'test-key-92bf7f4b-4d65-47d1-9bbe-9ef31708141c-Ql3GPjQ20gNx6caxK9mXz9C78tybRMr-lodQCw3z7cLXsfBr3a_jYEjOINmCE1RAx-UQm0gTeSoKUsY_iT431w' }
+  let(:api_key) do
+    'test-key-92bf7f4b-4d65-47d1-9bbe-9ef31708141c-Ql3GPjQ20gNx6caxK9mXz9C78tybRMr-lodQCw3z7cLXsfBr3a_jYEjOINmCE1RAx-UQm0gTeSoKUsY_iT431w'
+  end
   let(:callback_options) do
     {
       callback_klass: 'TestCallback',
@@ -103,7 +105,7 @@ RSpec.describe VaNotify::PushClient do
 
     it 'returns the response body' do
       allow_any_instance_of(described_class).to receive(:perform).and_return(mock_response_body)
-      
+
       response = client.send_push(push_args)
       expect(response).to eq(mock_response_body)
     end
@@ -115,7 +117,7 @@ RSpec.describe VaNotify::PushClient do
         allow_any_instance_of(described_class).to receive(:perform).and_return(faraday_env)
         allow(faraday_env).to receive(:is_a?).with(Faraday::Env).and_return(true)
         allow(faraday_env).to receive(:body).and_return(mock_response_body)
-        
+
         response = client.send_push(push_args)
         expect(response).to eq(mock_response_body)
       end
@@ -148,7 +150,7 @@ RSpec.describe VaNotify::PushClient do
   describe '#auth_headers' do
     it 'includes Bearer token authorization' do
       headers = client.send(:auth_headers)
-      
+
       expect(headers['Authorization']).to start_with('Bearer ')
       expect(headers['Content-Type']).to eq('application/json')
       expect(headers['User-Agent']).to eq('vets-api-push-client')
@@ -258,10 +260,10 @@ RSpec.describe VaNotify::PushClient do
       sanitized = client.send(:sanitize_metadata, metadata)
 
       expect(sanitized).to eq({
-        notification_type: 'push',
-        form_number: '123',
-        mobile_app: 'VA_APP'
-      })
+                                notification_type: 'push',
+                                form_number: '123',
+                                mobile_app: 'VA_APP'
+                              })
     end
 
     it 'returns nil for non-hash input' do

@@ -20,12 +20,12 @@ module VaNotify
     def initialize(api_key, callback_options = {})
       @api_key = api_key
       @callback_options = callback_options || {}
-      
+
       # Extract service_id and secret_token from API key (similar to Notifications::Client::Speaker)
-      @service_id = api_key[api_key.length - 73..api_key.length - 38]
-      @secret_token = api_key[api_key.length - 36..api_key.length]
-      
-      #validate_tokens!
+      @service_id = api_key[(api_key.length - 73)..(api_key.length - 38)]
+      @secret_token = api_key[(api_key.length - 36)..api_key.length]
+
+      # validate_tokens!
     end
 
     # Send push notification
@@ -38,9 +38,9 @@ module VaNotify
     # @return [Hash] Response from VA Notify API
     def send_push(args)
       @template_id = args[:template_id]
-      
+
       payload = build_payload(args)
-      
+
       with_monitoring do
         response = perform(:post, 'v2/notifications/push', payload, auth_headers)
         # Parse the response body if it's a Faraday::Env object
@@ -62,15 +62,13 @@ module VaNotify
           id_value: args[:recipient_identifier][:id_value]
         }
       }
-      
+
       # Add personalisation if provided
       payload[:personalisation] = args[:personalisation] if args[:personalisation]
-      
+
       # Add callback URL if request-level callbacks are enabled
-      if Flipper.enabled?(:va_notify_request_level_callbacks)
-        payload[:callback_url] = Settings.vanotify.callback_url
-      end
-      
+      payload[:callback_url] = Settings.vanotify.callback_url if Flipper.enabled?(:va_notify_request_level_callbacks)
+
       # Convert to JSON string for HTTP request body
       payload.to_json
     end
@@ -104,7 +102,7 @@ module VaNotify
         save_error_details(error)
         if Flipper.enabled?(:va_notify_custom_errors) && error.status >= 400
           context = {
-            template_id: template_id,
+            template_id:,
             callback_metadata: sanitize_metadata(
               callback_options[:callback_metadata] || callback_options['callback_metadata']
             )

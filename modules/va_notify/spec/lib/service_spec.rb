@@ -409,7 +409,7 @@ describe VaNotify::Service do
 
   describe '#send_push' do
     subject { VaNotify::Service.new(test_api_key) }
-    
+
     let(:push_client) { instance_double(VaNotify::PushClient) }
     let(:send_push_parameters) do
       {
