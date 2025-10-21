@@ -170,7 +170,7 @@ module Veteran
         'Registration Num' => vso['Registration Num'],
         'POA Code' => vso['POA'],
         'Phone' => vso['Rep Phone'] || vso['Org Phone'],
-        'City' => vso['Rep City'],
+        'City' => vso['Rep City'] || vso['Org City'],
         'State' => vso['Rep State'] || vso['Org State'],
         'Zip' => vso['Rep Zip']
       }
