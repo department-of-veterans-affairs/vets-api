@@ -15,6 +15,13 @@ module UnifiedHealthData
                  :errors,
                  :info_messages
 
+      # Initializes the serializer with prescription refill response data
+      # @param id [String] Unique identifier for this refill transaction
+      # @param resource [Hash] The refill response from UHD service with format:
+      #   {
+      #     success: [{ id: String, status: String, station_number: String }, ...],
+      #     failed: [{ id: String, error: String, station_number: String }, ...]
+      #   }
       def initialize(id, resource)
         failed_prescription_list = extract_failed_prescription_ids(resource)
         failed_station_list = extract_failed_station_numbers(resource)
