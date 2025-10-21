@@ -25,7 +25,7 @@
                     "type": "form_submissions",
                     "attributes": {
                       "submitted_at": "2024-06-01T12:34:56Z",
-                      "regional_office": ["RO42"],
+                      "regional_office": [],
                       "confirmation_number": "ABCDEF123456",
                       "guid": "550e8400-e29b-41d4-a716-446655440000",
                       "form": "21-4192"
@@ -160,15 +160,6 @@
                           "postalCode",
                           "country"
                         ]
-                      },
-                      "phoneNumber": {
-                        "type": "string",
-                        "example": "555-123-4567"
-                      },
-                      "emailAddress": {
-                        "type": "string",
-                        "format": "email",
-                        "example": "veteran@example.com"
                       }
                     }
                   },
@@ -177,7 +168,6 @@
                     "required": [
                       "employerName",
                       "employerAddress",
-                      "employerEmail",
                       "typeOfWorkPerformed",
                       "beginningDateOfEmployment"
                     ],
@@ -219,38 +209,6 @@
                           "state",
                           "postalCode",
                           "country"
-                        ]
-                      },
-                      "employerPhone": {
-                        "type": "string"
-                      },
-                      "employerEmail": {
-                        "type": "string",
-                        "format": "email"
-                      },
-                      "contactPerson": {
-                        "type": "object",
-                        "properties": {
-                          "name": {
-                            "type": "string",
-                            "example": "Jane Smith"
-                          },
-                          "title": {
-                            "type": "string",
-                            "example": "HR Manager"
-                          },
-                          "phone": {
-                            "type": "string",
-                            "example": "555-123-4567"
-                          },
-                          "email": {
-                            "type": "string",
-                            "format": "email",
-                            "example": "jane.smith@company.com"
-                          }
-                        },
-                        "required": [
-                          "name"
                         ]
                       },
                       "typeOfWorkPerformed": {

@@ -49,14 +49,12 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
                   country: { type: :string, example: 'USA' }
                 },
                 required: %i[street city state postalCode country]
-              },
-              phoneNumber: { type: :string, example: '555-123-4567' },
-              emailAddress: { type: :string, format: :email, example: 'veteran@example.com' }
+              }
             }
           },
           employmentInformation: {
             type: :object,
-            required: %i[employerName employerAddress employerEmail typeOfWorkPerformed
+            required: %i[employerName employerAddress typeOfWorkPerformed
                          beginningDateOfEmployment],
             properties: {
               employerName: { type: :string },
@@ -71,18 +69,6 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
                   country: { type: :string, example: 'USA' }
                 },
                 required: %i[street city state postalCode country]
-              },
-              employerPhone: { type: :string },
-              employerEmail: { type: :string, format: :email },
-              contactPerson: {
-                type: :object,
-                properties: {
-                  name: { type: :string, example: 'Jane Smith' },
-                  title: { type: :string, example: 'HR Manager' },
-                  phone: { type: :string, example: '555-123-4567' },
-                  email: { type: :string, format: :email, example: 'jane.smith@company.com' }
-                },
-                required: [:name]
               },
               typeOfWorkPerformed: { type: :string },
               beginningDateOfEmployment: { type: :string, format: :date },
@@ -157,8 +143,6 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
               },
               ssn: '123456789',
               dateOfBirth: '1980-01-01',
-              emailAddress: 'veteran@example.com',
-              phoneNumber: '555-123-4567',
               address: {
                 street: '123 Main St',
                 street2: 'Apt 4B',
@@ -177,13 +161,6 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
                 state: 'IL',
                 postalCode: '60601',
                 country: 'USA'
-              },
-              employerEmail: 'hr@acme.com',
-              contactPerson: {
-                name: 'Jane Smith',
-                title: 'HR Manager',
-                phone: '555-987-6543',
-                email: 'jane.smith@acme.com'
               },
               typeOfWorkPerformed: 'Software Development',
               beginningDateOfEmployment: '2015-06-01'
