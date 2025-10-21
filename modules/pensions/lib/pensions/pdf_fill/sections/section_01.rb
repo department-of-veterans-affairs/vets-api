@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'pensions/pdf_fill/section'
+require_relative '../section'
 
 module Pensions
   module PdfFill
