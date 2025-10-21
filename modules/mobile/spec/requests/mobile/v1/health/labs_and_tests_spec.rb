@@ -30,7 +30,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         parsed_response = JSON.parse(response.body)
         labs_data = parsed_response['data']
         expect(labs_data).to be_an(Array)
-        expect(labs_data.length).to be_positive
+        expect(labs_data.length).to eq(29) # 29 of 30 DiagnosticReports from cassette (1 filtered by adapter)
 
         labs_data.each do |lab_record|
           attributes = lab_record['attributes']
@@ -38,6 +38,13 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
           has_observations = attributes['observations'].present? && attributes['observations'].any?
           expect(has_encoded_data || has_observations).to be_truthy
         end
+      end
+
+      it 'returns the correct count of lab records from cassette' do
+        parsed_response = JSON.parse(response.body)
+        labs_data = parsed_response['data']
+        # The cassette has 29 DiagnosticReports with presentedForm or result
+        expect(labs_data.length).to eq(29)
       end
     end
 

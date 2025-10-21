@@ -45,6 +45,12 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
           expect(has_encoded_data || has_observations).to be_truthy
         end
       end
+
+      it 'returns the correct count of lab records from cassette' do
+        json_response = JSON.parse(response.body)
+        # The cassette has 29 DiagnosticReports with presentedForm or result
+        expect(json_response.length).to eq(29)
+      end
     end
 
     context 'errors' do
