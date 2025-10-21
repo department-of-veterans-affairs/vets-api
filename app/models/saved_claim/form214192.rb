@@ -38,7 +38,7 @@ class SavedClaim::Form214192 < SavedClaim
 
   # SavedClaims require regional_office to be defined
   def regional_office
-    []
+    [].freeze
   end
 
   # Required for Lighthouse Benefits Intake API submission
@@ -61,14 +61,11 @@ class SavedClaim::Form214192 < SavedClaim
 
   def employer_name
     parsed_form.dig('employmentInformation', 'employerName') || 'Employer'
-  rescue
-    'Employer'
   end
 
   def veteran_name
-    "#{parsed_form.dig('veteranInformation', 'fullName',
-                       'first')} #{parsed_form.dig('veteranInformation', 'fullName', 'last')}"
-  rescue
-    'Veteran'
+    first = parsed_form.dig('veteranInformation', 'fullName', 'first')
+    last = parsed_form.dig('veteranInformation', 'fullName', 'last')
+    "#{first} #{last}".strip.presence || 'Veteran'
   end
 end
