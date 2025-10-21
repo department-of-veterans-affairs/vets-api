@@ -343,9 +343,8 @@ Rails.application.routes.draw do
 
     match 'csrf_token', to: 'csrf_token#index', via: :head
 
-    # OpenAPI endpoints (feature flagged)
+    # OpenAPI documentation endpoint
     get 'openapi', to: 'openapi#index'
-    get 'openapi/*path', to: 'openapi#show'
 
     # Swagger UI
     mount Rswag::Ui::Engine => 'swagger'
