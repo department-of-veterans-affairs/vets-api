@@ -81,7 +81,8 @@ describe SM::Client, '#status' do
         VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
           expect(client).not_to receive(:poll_message_status)
 
-          msg = client.post_create_message_reply(674_838, { subject: 's', category: 'OTHER', recipient_id: 1, body: 'b' },
+          msg = client.post_create_message_reply(674_838, { subject: 's', category: 'OTHER',
+                                                            recipient_id: 1, body: 'b' },
                                                  poll_for_status: false)
 
           expect(msg).to be_a(Message)
