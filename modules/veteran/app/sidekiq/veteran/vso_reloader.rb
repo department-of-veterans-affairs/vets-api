@@ -28,6 +28,7 @@ module Veteran
 
       # Save the results to the database
       save_accreditation_totals
+      remove_duplicates_by_rep_id
 
       # Remove representatives that are no longer in the OGC data
       # By using where.not, we delete anyone whose ID is NOT in the array returned by reload_representatives
@@ -124,39 +125,95 @@ module Veteran
       reload_attorneys + reload_claim_agents + reload_vso_reps
     end
 
+    def remove_duplicates_by_rep_id
+      klass = Veteran::Service::Representative
+
+      dup_ids = klass.group(:representative_id).having('COUNT(*) > 1').pluck(:representative_id)
+      return if dup_ids.empty?
+
+      dup_ids.each do |rid|
+        keep_ctid = klass.where(representative_id: rid)
+                         .order(updated_at: :desc, created_at: :desc)
+                         .limit(1)
+                         .pick(Arel.sql('ctid'))
+
+        klass.where(representative_id: rid)
+             .where.not(ctid: keep_ctid)
+             .delete_all
+      end
+    end
+
+    def rep_by_id(rep_id)
+      Veteran::Service::Representative.find_or_initialize_by(representative_id: rep_id)
+    end
+
+    def add_to_set!(record, field, value)
+      return if value.blank?
+
+      arr = Array(record.public_send(field))
+      record.public_send("#{field}=", arr | [value])
+    end
+
     def find_or_create_attorneys(attorney)
-      rep = find_or_initialize(attorney)
-      rep.user_types << USER_TYPE_ATTORNEY unless rep.user_types.include?(USER_TYPE_ATTORNEY)
+      rep = rep_by_id(attorney['Registration Num'])
+
+      if rep.new_record?
+        rep.assign_attributes(
+          first_name: attorney['First Name'],
+          last_name: attorney['Last Name'],
+          email: attorney['Email'],
+          phone: attorney['Phone']
+        )
+      end
+
+      add_to_set!(rep, :user_types, USER_TYPE_ATTORNEY)
+      add_to_set!(rep, :poa_codes, attorney['POA Code']&.gsub(/\W/, ''))
+
       rep.save
     end
 
     def find_or_create_claim_agents(claim_agent)
-      rep = find_or_initialize(claim_agent)
-      rep.user_types << USER_TYPE_CLAIM_AGENT unless rep.user_types.include?(USER_TYPE_CLAIM_AGENT)
+      rep = rep_by_id(claim_agent['Registration Num'])
+
+      if rep.new_record?
+        rep.assign_attributes(
+          first_name: claim_agent['First Name'],
+          last_name: claim_agent['Last Name'],
+          email: claim_agent['Email'],
+          phone: claim_agent['Phone']
+        )
+      end
+
+      add_to_set!(rep, :user_types, USER_TYPE_CLAIM_AGENT)
+      add_to_set!(rep, :poa_codes, claim_agent['POA Code']&.gsub(/\W/, ''))
+
       rep.save
     end
 
     def find_or_create_vso(vso)
-      unless vso['Representative'].match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/)
-        ClaimsApi::Logger.log('VSO',
-                              detail: "Rep name not in expected format: #{vso['Registration Num']}")
+      unless vso['Representative']&.match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/)
+        ClaimsApi::Logger.log('VSO', detail: "Rep name not in expected format: #{vso['Registration Num']}")
         return
       end
+      last_name, first_name, middle_initial = vso['Representative'].match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/).captures # rubocop:disable Layout/LineLength
 
-      last_name, first_name, middle_initial = vso['Representative']
-                                              .match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/).captures
+      rep = rep_by_id(vso['Registration Num'])
 
-      last_name = last_name.strip
+      if rep.new_record?
+        rep.assign_attributes(
+          first_name:,
+          last_name: last_name&.strip,
+          middle_initial: middle_initial.presence || '',
+          phone: vso['Org Phone']
+        )
+      else
+        rep.middle_initial = rep.middle_initial.presence || (middle_initial.presence || '')
+        rep.phone = rep.phone.presence || vso['Org Phone']
+      end
 
-      rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: vso['Registration Num'],
-                                                                   first_name:,
-                                                                   last_name:)
-      poa_code = vso['POA'].gsub(/\W/, '')
-      rep.poa_codes << poa_code unless rep.poa_codes.include?(poa_code)
+      add_to_set!(rep, :user_types, USER_TYPE_VSO)
+      add_to_set!(rep, :poa_codes, vso['POA']&.gsub(/\W/, ''))
 
-      rep.phone = vso['Org Phone']
-      rep.user_types << USER_TYPE_VSO unless rep.user_types.include?(USER_TYPE_VSO)
-      rep.middle_initial = middle_initial.presence || ''
       rep.save
     end
 

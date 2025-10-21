@@ -173,6 +173,164 @@ RSpec.describe Veteran::VSOReloader, type: :job do
     end
   end
 
+  describe 'dedup by representative_id (attorney)' do
+    let(:reloader) { Veteran::VSOReloader.new }
+
+    it 'does not create a duplicate when names vary' do
+      Veteran::Service::Representative.create!(
+        representative_id: 'A123',
+        first_name: 'Sarah',
+        last_name: 'Whitman',
+        user_types: ['attorney'],
+        poa_codes: ['XYZ']
+      )
+
+      payload = {
+        'Registration Num' => 'A123',
+        'First Name' => 'Sara',
+        'Last Name' => 'Whittman',
+        'Email' => 'sara@example.com',
+        'Phone' => '202-555-0101',
+        'POA Code' => '9GB'
+      }
+
+      expect do
+        reloader.send(:find_or_create_attorneys, payload)
+      end.not_to change(Veteran::Service::Representative, :count)
+
+      rep = Veteran::Service::Representative.find_by(representative_id: 'A123')
+      expect(rep.first_name).to eq('Sarah')
+      expect(rep.last_name).to  eq('Whitman')
+      expect(rep.user_types).to include('attorney')
+      expect(rep.poa_codes).to include('9GB')
+    end
+  end
+
+  describe 'initial attribute population for new reps' do
+    let(:reloader) { Veteran::VSOReloader.new }
+
+    it 'fills names/contacts for a NEW attorney record' do
+      payload = {
+        'Registration Num' => 'A999',
+        'First Name' => 'June',
+        'Last Name' => 'Park',
+        'Email' => 'june@example.com',
+        'Phone' => '202-555-0123',
+        'POA Code' => 'ABC'
+      }
+
+      expect do
+        reloader.send(:find_or_create_attorneys, payload)
+      end.to change(Veteran::Service::Representative, :count).by(1)
+
+      rep = Veteran::Service::Representative.find_by!(representative_id: 'A999')
+      expect(rep.first_name).to eq('June')
+      expect(rep.last_name).to  eq('Park')
+      expect(rep.email).to      eq('june@example.com')
+      expect(rep.phone).to      eq('202-555-0123')
+      expect(rep.user_types).to include('attorney')
+      expect(rep.poa_codes).to  include('ABC')
+    end
+
+    it 'fills names/contacts for a NEW claim agent record' do
+      payload = {
+        'Registration Num' => 'C321',
+        'First Name' => 'Leo',
+        'Last Name' => 'Ng',
+        'Email' => 'leo@example.com',
+        'Phone' => '202-555-0144',
+        'POA Code' => 'FDN'
+      }
+
+      expect do
+        reloader.send(:find_or_create_claim_agents, payload)
+      end.to change(Veteran::Service::Representative, :count).by(1)
+
+      rep = Veteran::Service::Representative.find_by!(representative_id: 'C321')
+      expect(rep.first_name).to eq('Leo')
+      expect(rep.last_name).to  eq('Ng')
+      expect(rep.email).to      eq('leo@example.com')
+      expect(rep.phone).to      eq('202-555-0144')
+      expect(rep.user_types).to include('claim_agents')
+      expect(rep.poa_codes).to  include('FDN')
+    end
+  end
+
+  describe 'set semantics for array attributes' do
+    let(:reloader) { Veteran::VSOReloader.new }
+
+    it 'does not duplicate user_types or poa_codes when reprocessing' do
+      rep = Veteran::Service::Representative.create!(
+        representative_id: 'S111',
+        first_name: 'Sam',
+        last_name: 'Hill',
+        user_types: ['attorney'],
+        poa_codes: ['XYZ']
+      )
+
+      payload = {
+        'Registration Num' => 'S111',
+        'First Name' => 'Samuel',
+        'Last Name' => 'Hill',
+        'Email' => 'sam@example.com',
+        'Phone' => '202-555-0000',
+        'POA Code' => 'XYZ'
+      }
+
+      expect do
+        reloader.send(:find_or_create_attorneys, payload)
+      end.not_to change(Veteran::Service::Representative, :count)
+
+      rep.reload
+      expect(rep.user_types.count { |t| t == 'attorney' }).to eq 1
+      expect(rep.poa_codes.count  { |p| p == 'XYZ' }).to eq 1
+    end
+  end
+
+  describe 'remove_duplicates_by_rep_id' do
+    let(:reloader) { Veteran::VSOReloader.new }
+
+    it 'keeps the most recent row and deletes the others' do
+      Veteran::Service::Representative.create!(
+        representative_id: 'DUP1',
+        first_name: 'Old',
+        last_name: 'Name',
+        user_types: ['attorney'],
+        poa_codes: ['AAA'],
+        created_at: 3.days.ago,
+        updated_at: 3.days.ago
+      )
+      Veteran::Service::Representative.create!(
+        representative_id: 'DUP1',
+        first_name: 'Mid',
+        last_name: 'Name',
+        user_types: ['claim_agents'],
+        poa_codes: ['BBB'],
+        created_at: 2.days.ago,
+        updated_at: 2.days.ago
+      )
+      kept = Veteran::Service::Representative.create!(
+        representative_id: 'DUP1',
+        first_name: 'New',
+        last_name: 'Name',
+        user_types: ['veteran_service_officer'],
+        poa_codes: ['CCC'],
+        created_at: 1.day.ago,
+        updated_at: 1.day.ago
+      )
+
+      expect do
+        reloader.send(:remove_duplicates_by_rep_id)
+      end.to change { Veteran::Service::Representative.where(representative_id: 'DUP1').count }.from(3).to(1)
+
+      survivor = Veteran::Service::Representative.find_by!(representative_id: 'DUP1')
+      expect(survivor.first_name).to eq(kept.first_name)
+      expect(survivor.last_name).to  eq(kept.last_name)
+      expect(survivor.user_types).to eq(kept.user_types)
+      expect(survivor.poa_codes).to  eq(kept.poa_codes)
+    end
+  end
+
   describe 'validation logic' do
     let(:reloader) { Veteran::VSOReloader.new }
 
@@ -387,8 +545,8 @@ RSpec.describe Veteran::VSOReloader, type: :job do
 
             # Both VSO reps and orgs should remain unchanged
             expect(Veteran::Service::Representative
-                    .where("'#{Veteran::VSOReloader::USER_TYPE_VSO}' = ANY(user_types)")
-                    .count).to eq initial_vso_rep_count
+                     .where("'#{Veteran::VSOReloader::USER_TYPE_VSO}' = ANY(user_types)")
+                     .count).to eq initial_vso_rep_count
             expect(Veteran::Service::Organization.count).to eq initial_org_count
 
             # Check the saved totals
