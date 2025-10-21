@@ -587,9 +587,9 @@ features:
   decision_review_nod_status_updater_enabled:
     actor_type: user
     description: Enables the Notice of Disagreement status update batch job
-  decision_review_nod_v2028_pdf_enabled:
+  decision_review_nod_FEB2025_pdf_enabled:
     actor_type: user
-    description: Enables utilizing v2028 Notice of Disagreement pdf VA form  
+    description: Enables utilizing FEB2025 Notice of Disagreement pdf VA form  
   decision_review_sc_status_updater_enabled:
     actor_type: user
     description: Enables the Supplemental Claim status update batch job

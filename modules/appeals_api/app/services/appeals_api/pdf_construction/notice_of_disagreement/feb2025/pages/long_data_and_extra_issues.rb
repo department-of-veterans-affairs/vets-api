@@ -2,10 +2,11 @@
 
 module AppealsApi
   module PdfConstruction
-    module NoticeOfDisagreement::V2028
+    module NoticeOfDisagreement::Feb2025
       module Pages
         class LongDataAndExtraIssues
-          MAX_ISSUES_ON_FIRST_PAGE = NoticeOfDisagreement::V2028::Structure::MAX_ISSUES_ON_MAIN_FORM
+
+          attr_reader :pdf, :form_data
 
           def initialize(pdf, form_data)
             @pdf = pdf # Prawn::Document
@@ -31,18 +32,16 @@ module AppealsApi
 
           private
 
-          attr_accessor :pdf, :form_data
-
           def no_content
             !extra_issues? && !form_data.long_preferred_email? && !form_data.long_rep_name?
           end
 
           def extra_issues?
-            return true if form_data.contestable_issues.count > MAX_ISSUES_ON_FIRST_PAGE
+            return true if form_data.contestable_issues.count > Structure::MAX_ISSUES_ON_MAIN_FORM
 
-            # Look for issues skipped because their text is too long to fit in form issues table
-            form_data.contestable_issues.take(MAX_ISSUES_ON_FIRST_PAGE).each do |issue|
-              return true if NoticeOfDisagreement::V2028::Structure.issue_text_exceeds_column_width?(issue)
+            # Look for issues skipped because they were too long to fit in form issues table
+            form_data.contestable_issues.take(Structure::MAX_ISSUES_ON_MAIN_FORM).any? do |issue|
+              NoticeOfDisagreement::Feb2025::Structure.issue_text_exceeds_column_width?(issue)
             end
 
             false
@@ -58,17 +57,15 @@ module AppealsApi
             data = []
             header = ['A. Specific Issue(s)', 'B. Area of Disagreement', 'C. Date of Decision']
 
-            form_data.contestable_issues.take(MAX_ISSUES_ON_FIRST_PAGE).each do |issue|
-              if issue.text_exists?
+            form_data.contestable_issues.take(Structure::MAX_ISSUES_ON_MAIN_FORM).select(&:text_exists?).each do |issue|
                 # text fit on issues form table, so skip it here in overflow
-                next unless NoticeOfDisagreement::V2028::Structure.issue_text_exceeds_column_width?(issue)
+                next unless NoticeOfDisagreement::Feb2025::Structure.issue_text_exceeds_column_width?(issue)
 
                 data << [issue['attributes']['issue'], issue['attributes']['disagreementArea'],
                          issue['attributes']['decisionDate']]
-              end
             end
 
-            data += form_data.contestable_issues.drop(MAX_ISSUES_ON_FIRST_PAGE).map do |issue|
+            data += form_data.contestable_issues.drop(Structure::MAX_ISSUES_ON_MAIN_FORM).map do |issue|
               [issue['attributes']['issue'], issue['attributes']['disagreementArea'],
                issue['attributes']['decisionDate']]
             end

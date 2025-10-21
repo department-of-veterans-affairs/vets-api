@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
-module AppealsApi::PdfConstruction::NoticeOfDisagreement::V2028::Pages
+module AppealsApi::PdfConstruction::NoticeOfDisagreement::Feb2025::Pages
   class TimeExtensionReason
+
+    attr_reader :pdf, :form_data
+
+    # @param [Prawn::Document] pdf
     def initialize(pdf, form_data)
-      @pdf = pdf # Prawn::Document
+      @pdf = pdf
       @form_data = form_data
     end
 
@@ -16,8 +20,6 @@ module AppealsApi::PdfConstruction::NoticeOfDisagreement::V2028::Pages
     end
 
     private
-
-    attr_accessor :pdf, :form_data
 
     def extension_text
       "\n<b>Time Extension Reason:</b>\n#{form_data.extension_reason}\n"

@@ -2,7 +2,7 @@
 
 module AppealsApi
   module PdfConstruction
-    module NoticeOfDisagreement::V2028
+    module NoticeOfDisagreement::Feb2025
       class FormData
         # Limit the combined Name fields(1. Veterans Name, 2. Appellant Name, 12. Signature)
         # length so that if it does get truncated it's consistent across all 3 fields
@@ -20,6 +20,8 @@ module AppealsApi
           'video_conference' => 1,
           'virtual_hearing' => 2
         }.freeze
+
+        attr_accessor :notice_of_disagreement
 
         def initialize(notice_of_disagreement)
           @notice_of_disagreement = notice_of_disagreement
@@ -115,10 +117,6 @@ module AppealsApi
         def date_signed
           appellant_local_time.strftime('%m/%d/%Y')
         end
-
-        private
-
-        attr_accessor :notice_of_disagreement
       end
     end
   end
