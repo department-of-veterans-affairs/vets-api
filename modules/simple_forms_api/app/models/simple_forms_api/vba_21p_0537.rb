@@ -38,7 +38,18 @@ module SimpleFormsApi
     end
 
     def desired_stamps
-      [{ coords: [50, 245], text: data.dig('recipient', 'signature'), page: 1 }]
+      stamp_items = [
+        { coords: [50, 245], text: data.dig('recipient', 'signature'), page: 1 }
+      ]
+
+      # If email address is longer than what fits in the form, just stamp
+      # it at the bottom of the page.
+      if notification_email_address&.length&.> 30
+        stamp_items.push({ coords: [30, 100], text: 'Email overflow:', page: 1, font_size: 9 })
+        stamp_items.push({ coords: [30, 75], text: notification_email_address, page: 1, font_size: 9 })
+      end
+
+      stamp_items
     end
 
     def track_user_identity(confirmation_number)

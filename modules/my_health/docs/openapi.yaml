@@ -2028,6 +2028,10 @@ paths:
 
         This endpoint is used for tracking unique user interactions with MHV Portal features to provide
         opt-out-free analytics that are more accurate than Google Analytics.
+        
+        <strong>Valid Event Names:</strong> Event names must be from the approved registry of valid events.
+        See <a href='https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/unique_user_events/event_registry.rb'>EventRegistry</a>
+        for the complete list of valid event names. Invalid event names will return a status of 'invalid' without causing the request to fail.
       operationId: log_unique_user_metrics
       requestBody:
         content:
@@ -2040,7 +2044,8 @@ paths:
           <strong>NOTES:</strong>
           <ul>
             <li>Each event will only be logged once per user</li>
-            <li>Event names should be descriptive and follow the pattern: feature_action_accessed (e.g., "mhv_landing_page_accessed")</li>
+            <li>Event names must be from the approved registry - see <a href='https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/unique_user_events/event_registry.rb'>EventRegistry</a></li>
+            <li>Invalid event names will return a status of 'invalid' in the response (request will not fail)</li>
             <li>Maximum 50 characters per event name</li>
             <li>At least one event name must be provided</li>
           </ul>
@@ -2062,7 +2067,10 @@ paths:
                   - event_name: "prescriptions_accessed"
                     status: "exists"
                     new_event: false
-          description: OK - All events were duplicates (already existed for this user)
+                  - event_name: "invalid_event_name"
+                    status: "invalid"
+                    new_event: false
+          description: OK - All events were duplicates (already existed for this user) or invalid
         "201":
           content:
             application/json:
@@ -2079,7 +2087,10 @@ paths:
                   - event_name: "prescriptions_accessed"
                     status: "created"
                     new_event: true
-          description: Created - At least one new unique event was logged
+                  - event_name: "invalid_event_name"
+                    status: "invalid"
+                    new_event: false
+          description: Created - At least one new unique event was logged (may also include invalid events)
         "400":
           content:
             application/json:
