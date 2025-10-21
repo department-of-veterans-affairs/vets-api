@@ -113,19 +113,19 @@ RSpec.describe Efolder::Service do
   describe 'get_tsa_letter' do
     let(:tsa_letter_data) do
       {
-        "document_id": "{tsa-letter-document-id}",
-        "series_id": "{tsa-letter-series-id}",
-        "version": "1",
-        "type_description": "Correspondence",
-        "type_id": "34",
-        "doc_type": "34",
-        "subject": 'VETS Safe Travel Outreach Letter',
-        "received_at": "2020-05-28",
-        "source": "Virtual VA",
-        "mime_type": "application/pdf",
-        "alt_doc_types": nil,
-        "restricted": false,
-        "upload_date": "2020-06-03"
+        document_id: '{tsa-letter-document-id}',
+        series_id: '{tsa-letter-series-id}',
+        version: '1',
+        type_description: 'Correspondence',
+        type_id: '34',
+        doc_type: '34',
+        subject: 'VETS Safe Travel Outreach Letter',
+        received_at: '2020-05-28',
+        source: 'Virtual VA',
+        mime_type: 'application/pdf',
+        alt_doc_types: nil,
+        restricted: false,
+        upload_date: '2020-06-03'
       }
     end
 
@@ -133,15 +133,15 @@ RSpec.describe Efolder::Service do
       stub_vbms_client_request(
         'FindDocumentVersionReference',
         file_number,
-        get_fixture("vbms/find_document_version_reference").push(tsa_letter_data).map { |r| OpenStruct.new(r) }
+        get_fixture('vbms/find_document_version_reference').push(tsa_letter_data).map { |r| OpenStruct.new(r) }
       )
     end
 
     it 'returns requested document' do
-      binding.pry
       VCR.use_cassette('vbms/list_documents') do
         expect(subject.get_tsa_letter).to eq(
-          { document_id: "{tsa-letter-document-id}", doc_type: "34", type_description: "Correspondence", received_at: "2020-05-28" }
+          { document_id: '{tsa-letter-document-id}', doc_type: '34', type_description: 'Correspondence',
+            received_at: '2020-05-28' }
         )
       end
     end
@@ -173,7 +173,6 @@ RSpec.describe Efolder::Service do
     end
 
     context 'when it is not the TSA letter' do
-
     end
   end
 end
