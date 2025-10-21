@@ -10,7 +10,7 @@ module V0
 
     def download_pdf
       render json: {
-        message: 'PDF generation stub - not yet implemented',
+        message: 'PDF generation stub - not yet implemented'
       }, status: :ok
     end
   end

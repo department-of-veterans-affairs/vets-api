@@ -27,7 +27,7 @@ module Swagger
           key :tags, %w[benefits_forms]
 
           parameter do
-            key :name, :form_21_2680
+            key :name, :form212680
             key :in, :body
             key :description, 'Form 21-2680 data for PDF generation'
             key :required, true
@@ -99,7 +99,8 @@ module Swagger
                 property :upload_url, type: :string, example: 'https://va.gov/upload-supporting-documents'
                 property :form_number, type: :string, example: '21-2680'
                 property :regional_office, type: :string,
-                        example: 'Department of Veterans Affairs, Pension Management Center, P.O. Box 5365, Janesville, WI 53547-5365'
+                                           example: 'Department of Veterans Affairs, Pension Management Center,' \
+                                                    'P.O. Box 5365, Janesville, WI 53547-5365'
               end
             end
           end

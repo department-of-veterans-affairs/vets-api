@@ -30,7 +30,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
         }
       }
 
-      post(:download_pdf, params: { form_21_2680: form_data })
+      post(:download_pdf, params: { form212680: form_data })
 
       expect(response).to have_http_status(:ok)
 
@@ -52,7 +52,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
         }
       }
 
-      post(:download_pdf, params: { form_21_2680: form_data })
+      post(:download_pdf, params: { form212680: form_data })
 
       expect(response).to have_http_status(:ok)
     end
@@ -65,7 +65,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
         }
       }
 
-      post(:download_pdf, params: { form_21_2680: form_data })
+      post(:download_pdf, params: { form212680: form_data })
 
       json = JSON.parse(response.body)
       instructions = json['instructions']
