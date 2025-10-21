@@ -352,6 +352,7 @@ module UnifiedHealthData
 
     # Care Summaries and Notes methods
     def remap_vista_uid(records)
+      # The &. safe navigation operator prevents NoMethodError if records['vista']['entry'] is nil
       records['vista']['entry']&.each do |note|
         vista_uid_identifier = note['resource']['identifier'].find { |id| id['system'] == 'vista-uid' }
         next unless vista_uid_identifier && vista_uid_identifier['value']

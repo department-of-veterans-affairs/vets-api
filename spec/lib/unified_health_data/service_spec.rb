@@ -458,7 +458,7 @@ describe UnifiedHealthData::Service, type: :service do
         modified_response = allergies_sample_response.deep_dup
         # Add an identifier with nil system to test safe navigation
         modified_response['vista']['entry'].first['resource']['identifier'] << { 'system' => nil, 'value' => 'test' }
-        
+
         allow_any_instance_of(UnifiedHealthData::Client)
           .to receive(:get_allergies_by_date)
           .and_return(Faraday::Response.new(
