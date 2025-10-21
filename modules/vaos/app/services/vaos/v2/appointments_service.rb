@@ -62,11 +62,15 @@ module VAOS
                             Flipper.enabled?(:va_online_scheduling_parallel_travel_claims, user)
 
         if parallelize_fetch
+          # Track that parallel execution path is being used
+          StatsD.increment('appointments.fetch.parallel')
           # Fetch appointments and travel claims in parallel
           response, travel_claims_result = fetch_appointments_and_claims_parallel(
             start_date, end_date, statuses, pagination_params, tp_client
           )
         else
+          # Track that sequential execution path is being used
+          StatsD.increment('appointments.fetch.sequential')
           # Original sequential behavior
           response = send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
           travel_claims_result = nil
@@ -380,27 +384,41 @@ module VAOS
         current_user.user_account_uuid
         current_user.icn
 
-        # Create futures for parallel execution
-        appointments_future = Concurrent::Promises.future do
-          send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
+        # Track overall parallel fetch duration and individual service metrics
+        StatsD.measure("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.total_duration") do
+          # Create futures for parallel execution with individual duration tracking
+          appointments_future = Concurrent::Promises.future do
+            StatsD.measure("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.appointments_service.duration") do
+              send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
+            end
+          end
+
+          travel_claims_future = Concurrent::Promises.future do
+            StatsD.measure("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.travel_claims_service.duration") do
+              service = TravelPay::ClaimAssociationService.new(current_user, tp_client)
+              service.fetch_claims_by_date(start_date, end_date)
+            end
+          end
+
+          # Wait for both futures to complete and handle results
+          appointments_response = handle_appointments_future(appointments_future)
+          travel_claims_result = handle_travel_claims_future(travel_claims_future)
+
+          # Track success/failure rates
+          StatsD.increment("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.total")
+          if travel_claims_result[:error]
+            StatsD.increment("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.travel_claims_error")
+          end
+
+          [appointments_response, travel_claims_result]
         end
-
-        travel_claims_future = Concurrent::Promises.future do
-          service = TravelPay::ClaimAssociationService.new(current_user, tp_client)
-          service.fetch_claims_by_date(start_date, end_date)
-        end
-
-        # Wait for both futures to complete and handle results
-        appointments_response = handle_appointments_future(appointments_future)
-        travel_claims_result = handle_travel_claims_future(travel_claims_future)
-
-        [appointments_response, travel_claims_result]
       end
 
       # Handles the appointments future result, re-raising errors
       def handle_appointments_future(future)
         future.value!
       rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.appointments_error")
         Rails.logger.error("Error fetching appointments in parallel: #{e.message}")
         raise e
       end
@@ -409,6 +427,7 @@ module VAOS
       def handle_travel_claims_future(future)
         future.value!
       rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.travel_claims_error")
         Rails.logger.error("Error fetching travel claims in parallel: #{e.message}")
         Rails.logger.warn("Travel claims fetch failed, continuing without claims: #{e.message}")
         { error: true, metadata: { 'status' => 500, 'success' => false,
@@ -1281,14 +1300,17 @@ module VAOS
       end
 
       def merge_all_travel_claims(start_date, end_date, appointments, tp_client)
-        service = TravelPay::ClaimAssociationService.new(user, tp_client)
-        service.associate_appointments_to_claims(
-          {
-            'start_date' => start_date,
-            'end_date' => end_date,
-            'appointments' => appointments
-          }
-        )
+        # Track sequential travel claims fetch duration for comparison with parallel approach
+        StatsD.measure('appointments.sequential_fetch.travel_claims_service.duration') do
+          service = TravelPay::ClaimAssociationService.new(user, tp_client)
+          service.associate_appointments_to_claims(
+            {
+              'start_date' => start_date,
+              'end_date' => end_date,
+              'appointments' => appointments
+            }
+          )
+        end
       end
 
       def merge_one_travel_claim(appointment, tp_client)
