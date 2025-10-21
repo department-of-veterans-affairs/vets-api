@@ -324,6 +324,9 @@ features:
   champva_use_hexapdf_to_unlock_pdfs:
     actor_type: user
     description: Enables the the use of hexapdf instead of pdftk to unlock password-protected PDFs on form submission
+  champva_stamper_logging:
+    actor_type: user
+    description: Enables logging of the desired stamp text
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -2554,9 +2557,6 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
-  disable_bdn_processing:
-    actor_type: user
-    description: If enabled, skip all BDN-related processing for VYE
   my_va_auth_exp_redesign_available_to_opt_in:
     actor_type: user
     description: When enabled, a user will see the option to switch to the redesigned experience of MyVA.

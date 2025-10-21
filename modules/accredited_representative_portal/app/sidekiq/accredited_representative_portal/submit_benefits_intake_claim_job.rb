@@ -22,16 +22,20 @@ module AccreditedRepresentativePortal
       @lighthouse_service = lighthouse_service
     end
 
-    def lighthouse_service
+    def service
       if Flipper.enabled?(:accredited_representative_portal_lighthouse_api_key)
         ::AccreditedRepresentativePortal::BenefitsIntakeService.new
       else
-        ::BenefitsIntakeService::Service.new.tap do |service|
-          service.define_singleton_method(:config) do
+        ::BenefitsIntakeService::Service.new.tap do |svc|
+          svc.define_singleton_method(:config) do
             BenefitsIntake::Service.configuration
           end
         end
-      end.tap do |service|
+      end
+    end
+
+    def lighthouse_service
+      service.tap do |service|
         upload = service.get_location_and_uuid
         service.instance_variable_set(:@uuid, upload[:uuid])
         service.instance_variable_set(:@location, upload[:location])
