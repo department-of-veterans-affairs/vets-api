@@ -41,6 +41,16 @@ FactoryBot.define do
       end
     end
 
+    trait :with_form214140 do
+      user_account_id { '' }
+      form_type { '21-4140' }
+      updated_at { 1.day.ago }
+      created_at { 2.days.ago }
+      form_submission_attempts do
+        create_list(:form_submission_attempt, 1, benefits_intake_uuid: 'a1b2c3d4-e496-4f83-8587-42b570f24483')
+      end
+    end
+
     trait :with_form210845 do
       user_account_id { '' }
       form_type { '21-0845' }

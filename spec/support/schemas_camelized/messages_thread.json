@@ -40,7 +40,8 @@
                   "senderName",
                   "recipientId",
                   "recipientName",
-                  "readReceipt"
+                  "readReceipt",
+                  "isOhMessage"
                 ],
                 "properties": {
                   "messageId": {
@@ -93,6 +94,9 @@
                       "null",
                       "string"
                     ]
+                  },
+                  "isOhMessage": {
+                    "type": "boolean"
                   }
                 }
               },
