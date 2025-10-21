@@ -321,7 +321,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
           .with(referral_consult_id, icn)
           .and_return(referral_detail)
-        allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+        allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
           .with(referral_number)
           .and_return({ system: 'EPS', data: [] })
       end
@@ -347,7 +347,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
       context 'when EPS has active appointments' do
         before do
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
             .with(referral_number)
             .and_return({
                           system: 'EPS',
@@ -430,7 +430,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
           allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
             .with(referral_consult_id, icn)
             .and_return(referral_detail_missing_data)
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
             .with(referral_number)
             .and_return({ system: 'EPS', data: [] })
         end
@@ -477,7 +477,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
             allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
               .with(referral_consult_id, icn)
               .and_return(referral_detail_partial_missing)
-            allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
               .with(referral_number)
               .and_return({ system: 'EPS', data: [] })
           end
@@ -504,7 +504,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
             allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
               .with(referral_consult_id, icn)
               .and_return(referral_detail)
-            allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
               .with(referral_number)
               .and_return({ system: 'EPS', data: [] })
           end

@@ -120,7 +120,7 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         .to receive(:decrypt)
         .with('invalid')
         .and_raise(Common::Exceptions::ParameterMissing.new('id'))
-      allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+      allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
         .with(referral_number)
         .and_return({ system: 'EPS', data: [] })
     end
@@ -192,7 +192,7 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
       context 'when fetching appointments' do
         context 'when EPS has active appointments' do
           before do
-            allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
               .with(referral_number)
               .and_return({
                             system: 'EPS',
@@ -222,7 +222,7 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
         context 'when there are no active appointments' do
           before do
-            allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
               .with(referral_number)
               .and_return({ system: 'EPS', data: [] })
           end
@@ -243,7 +243,7 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
         context 'when EPS service fails' do
           before do
-            allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
               .with(referral_number)
               .and_return({
                             system: 'EPS',
@@ -271,7 +271,7 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         context 'when appointments are filtered due to cancelled/draft status' do
           before do
             # Simulating that EPS returned appointments but all were filtered out
-            allow_any_instance_of(Eps::AppointmentService).to receive(:get_active_appointments_for_referral)
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
               .with(referral_number)
               .and_return({ system: 'EPS', data: [] })
           end

@@ -48,7 +48,7 @@ module VAOS
       private
 
       def add_appointment_data_to_referral(referral)
-        result = eps_appointment_service.get_active_appointments_for_referral(referral.referral_number)
+        result = appointments_service.get_active_appointments_for_referral(referral.referral_number)
 
         referral.appointments = {
           system: result[:system],
@@ -57,8 +57,8 @@ module VAOS
         referral.appointments[:errors] = result[:errors] if result[:errors].present?
       end
 
-      def eps_appointment_service
-        @eps_appointment_service ||= Eps::AppointmentService.new(current_user)
+      def appointments_service
+        @appointments_service ||= VAOS::V2::AppointmentsService.new(current_user)
       end
 
       # Logs the count of referrals returned from CCRA
