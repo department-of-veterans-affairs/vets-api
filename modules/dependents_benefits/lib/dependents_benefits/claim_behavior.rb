@@ -24,7 +24,10 @@ module DependentsBenefits
     # @return [Boolean] true if all submission attempts succeeded, false otherwise
     def submissions_succeeded?
       # TODO: Add checks for each submission type for claim
-      false
+      bgs_submissions = BGS::Submission.where(saved_claim_id: id)
+      return false if bgs_submissions.empty?
+
+      bgs_submissions.all? { |submission| submission.latest_attempt&.status == 'submitted' }
     end
 
     ##
@@ -62,6 +65,10 @@ module DependentsBenefits
 
     def submittable_674?
       parsed_form.dig('view:selectable686_options', 'report674')
+    end
+
+    def add_veteran_info(user_data)
+      parsed_form.merge!(user_data)
     end
 
     private
