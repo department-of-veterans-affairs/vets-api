@@ -17,7 +17,7 @@ module DependentsBenefits::Sidekiq
   # - MAY override find_or_create_form_submission for service-specific FormSubmission types
   # - MAY override permanent_failure? for service-specific error classification
 
-  class HandledError < StandardError; end
+  class DependentSubmissionError < StandardError; end
 
   class DependentSubmissionJob
     include ::Sidekiq::Job
@@ -43,13 +43,9 @@ module DependentsBenefits::Sidekiq
       create_form_submission_attempt
       @service_response = submit_to_service
 
-      if @service_response&.success?
-        handle_job_success
-      else
-        handle_job_failure(@service_response&.error)
-      end
-    rescue ::Sidekiq::JobRetry::Skip, HandledError => e
-      raise e
+      raise DependentSubmissionError, @service_response&.error unless @service_response&.success?
+
+      handle_job_success
     rescue => e
       handle_job_failure(e)
     end
@@ -126,21 +122,13 @@ module DependentsBenefits::Sidekiq
     def handle_job_failure(error)
       monitor.track_submission_error("Error submitting #{self.class}", 'error', error:)
       mark_submission_attempt_failed(error)
-
       if permanent_failure?(error)
         # Skip Sidekiq retries for permanent failures
         handle_permanent_failure(claim_id, error)
         raise ::Sidekiq::JobRetry::Skip
       end
-
-      case error
-      when nil
-        # Handle nil case
-        raise HandledError, 'Unknown error occurred during job execution'
-      else
-        # Handle non-exception errors
-        raise HandledError, error
-      end
+      # raise other errors to trigger Sidekiq retry mechanism
+      raise DependentSubmissionError, error
     end
 
     # Called from retries_exhausted callback OR permanent failure detection

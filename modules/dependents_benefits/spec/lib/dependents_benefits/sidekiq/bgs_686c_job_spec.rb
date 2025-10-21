@@ -60,7 +60,7 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS686cJob, type: :job do
         allow(job).to receive(:submit_to_service).and_return(failed_response)
 
         # Mock permanent_failure? to return true for the original error
-        allow(job).to receive(:permanent_failure?).with(permanent_error).and_return(true)
+        allow(job).to receive(:permanent_failure?).with(instance_of(DependentsBenefits::Sidekiq::DependentSubmissionError)).and_return(true)
 
         expect(job).to receive(:send_backup_job)
 
