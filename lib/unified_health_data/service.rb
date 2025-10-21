@@ -32,12 +32,11 @@ module UnifiedHealthData
 
         combined_records = fetch_combined_records(body)
         parsed_records = lab_or_test_adapter.parse_labs(combined_records)
-        filtered_records = filter_records(parsed_records)
 
-        # Log test code distribution after filtering is applied
+        # Log test code distribution
         logger.log_test_code_distribution(parsed_records)
 
-        filtered_records
+        parsed_records
       end
     end
 
@@ -197,53 +196,6 @@ module UnifiedHealthData
       vista_records = body.dig('vista', 'entry') || []
       oracle_health_records = body.dig('oracle-health', 'entry') || []
       vista_records + oracle_health_records
-    end
-
-    # Labs and Tests methods
-    def filter_records(records)
-      return all_records_response(records) unless filtering_enabled?
-
-      apply_test_code_filtering(records)
-    end
-
-    def filtering_enabled?
-      Flipper.enabled?(:mhv_accelerated_delivery_uhd_filtering_enabled, @user)
-    end
-
-    def all_records_response(records)
-      Rails.logger.info(
-        message: 'UHD filtering disabled - returning all records',
-        total_records: records.size,
-        service: 'unified_health_data'
-      )
-      records
-    end
-
-    def apply_test_code_filtering(records)
-      filtered = records.select { |record| test_code_enabled?(record.test_code) }
-
-      Rails.logger.info(
-        message: 'UHD filtering enabled - applied test code filtering',
-        total_records: records.size,
-        filtered_records: filtered.size,
-        service: 'unified_health_data'
-      )
-
-      filtered
-    end
-
-    def test_code_enabled?(test_code)
-      case test_code
-      when 'CH'
-        Flipper.enabled?(:mhv_accelerated_delivery_uhd_ch_enabled, @user)
-      when 'SP'
-      when 'urn:va:lab-category:SP'
-        Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
-      when 'MB'
-        Flipper.enabled?(:mhv_accelerated_delivery_uhd_mb_enabled, @user)
-      else
-        false # Reject any other test codes for now, but we'll log them for analysis
-      end
     end
 
     # Prescription refill helper methods

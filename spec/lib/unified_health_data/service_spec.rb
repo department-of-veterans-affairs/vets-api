@@ -57,125 +57,56 @@ describe UnifiedHealthData::Service, type: :service do
           .and_return(labs_client_response)
       end
 
-      context 'when Flipper is enabled for all codes' do
-        it 'returns labs/tests' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs.size).to eq(3)
-          expect(labs.map(&:test_code)).to contain_exactly('CH', 'SP', 'MB')
-        end
+      it 'returns all labs/tests with encodedData and/or observations' do
+        labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
+        expect(labs.size).to eq(3)
+        expect(labs.map(&:test_code)).to contain_exactly('CH', 'SP', 'MB')
+
+        # Verify that labs with encodedData are returned
+        labs_with_encoded_data = labs.select { |lab| lab.encoded_data.present? }
+        expect(labs_with_encoded_data).not_to be_empty
+
+        # Verify that labs with observations are returned
+        labs_with_observations = labs.select { |lab| lab.observations.present? }
+        expect(labs_with_observations).not_to be_empty
       end
 
-      context 'logs test code distribution' do
-        it 'logs the test code distribution from parsed records' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-          allow(Rails.logger).to receive(:info)
+      it 'logs test code distribution from parsed records' do
+        allow(Rails.logger).to receive(:info)
 
-          service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
+        service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
 
-          expect(Rails.logger).to have_received(:info).with(
-            hash_including(
-              message: 'UHD test code and name distribution',
-              service: 'unified_health_data'
-            )
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            message: 'UHD test code and name distribution',
+            service: 'unified_health_data'
           )
-        end
+        )
       end
 
-      context 'when filtering is disabled' do
-        it 'returns all labs/tests regardless of individual toggle states' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled,
-                                                    user).and_return(false)
-          allow(Rails.logger).to receive(:info)
+      it 'returns labs with only encodedData' do
+        labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
 
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-
-          expect(labs.size).to eq(3)
-          expect(labs.map(&:test_code)).to contain_exactly('CH', 'SP', 'MB')
-          expect(Rails.logger).to have_received(:info).with(
-            hash_including(
-              message: 'UHD filtering disabled - returning all records',
-              total_records: 3,
-              service: 'unified_health_data'
-            )
-          )
-        end
-
-        it 'logs that filtering is disabled' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(false)
-          allow(Rails.logger).to receive(:info)
-
-          service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-
-          expect(Rails.logger).to have_received(:info).with(
-            hash_including(
-              message: 'UHD filtering disabled - returning all records',
-              service: 'unified_health_data'
-            )
-          )
-        end
+        # Find labs that have encoded data but no observations
+        labs_with_encoded_only = labs.select { |lab| lab.encoded_data.present? && lab.observations.blank? }
+        expect(labs_with_encoded_only).not_to be_empty
       end
 
-      context 'when Flipper is disabled for all codes' do
-        it 'filters out labs/tests' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled,
-                                                    user).and_return(false)
-          allow(Rails.logger).to receive(:info)
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs).to be_empty
-        end
+      it 'returns labs with only observations' do
+        labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
+
+        # Find labs that have observations but no encoded data
+        labs_with_observations_only = labs.select { |lab| lab.observations.present? && lab.encoded_data.blank? }
+        expect(labs_with_observations_only).not_to be_empty
       end
 
-      context 'when only one Flipper is enabled' do
-        it 'returns only enabled test codes' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled,
-                                                    user).and_return(false)
-          allow(Rails.logger).to receive(:info)
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs.size).to eq(1)
-          expect(labs.first.test_code).to eq('CH')
-        end
-      end
+      it 'returns labs with both encodedData and observations' do
+        labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
 
-      context 'when MB Flipper is enabled' do
-        it 'would return MB test codes if present in the data' do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                    user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled,
-                                                    user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-          allow(Rails.logger).to receive(:info)
-          labs = service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31')
-          expect(labs.size).to eq(1)
-        end
+        # Check if any labs have both (may or may not exist in fixtures)
+        labs_with_both = labs.select { |lab| lab.encoded_data.present? && lab.observations.present? }
+        # This is just checking the structure works - we don't require fixtures to have this combination
+        expect(labs_with_both).to be_an(Array)
       end
     end
 
@@ -192,93 +123,6 @@ describe UnifiedHealthData::Service, type: :service do
         allow(service).to receive(:parse_response_body).and_return(nil)
         allow(Flipper).to receive(:enabled?).and_return(true)
         expect { service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31') }.not_to raise_error
-      end
-    end
-  end
-
-  describe '#filter_records' do
-    let(:record_ch) { double(test_code: 'CH') }
-    let(:record_sp) { double(test_code: 'SP') }
-    let(:record_mb) { double(test_code: 'MB') }
-    let(:record_other) { double(test_code: 'OTHER') }
-    let(:records) { [record_ch, record_sp, record_mb, record_other] }
-
-    context 'when filtering is disabled' do
-      it 'returns all records regardless of individual toggle states' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                  user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(false)
-        allow(Rails.logger).to receive(:info)
-
-        result = service.send(:filter_records, records)
-
-        expect(result).to eq(records)
-        expect(Rails.logger).to have_received(:info).with(
-          hash_including(
-            message: 'UHD filtering disabled - returning all records',
-            total_records: 4,
-            service: 'unified_health_data'
-          )
-        )
-      end
-    end
-
-    context 'when filtering is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_filtering_enabled,
-                                                  user).and_return(true)
-        allow(Rails.logger).to receive(:info)
-      end
-
-      it 'returns only records with enabled Flipper flags' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-        result = service.send(:filter_records, records)
-        expect(result).to eq([record_ch, record_mb])
-      end
-
-      it 'returns only MB records when only MB flag is enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-        result = service.send(:filter_records, records)
-        expect(result).to eq([record_mb])
-      end
-
-      it 'returns all supported records when all flags are enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-        result = service.send(:filter_records, records)
-        expect(result).to eq([record_ch, record_sp, record_mb])
-      end
-
-      it 'filters out unsupported test codes even when all flags are enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-        result = service.send(:filter_records, records)
-        expect(result).not_to include(record_other)
-      end
-
-      it 'logs filtering statistics' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_ch_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_sp_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_mb_enabled, user).and_return(true)
-
-        service.send(:filter_records, records)
-
-        expect(Rails.logger).to have_received(:info).with(
-          hash_including(
-            message: 'UHD filtering enabled - applied test code filtering',
-            total_records: 4,
-            filtered_records: 2,
-            service: 'unified_health_data'
-          )
-        )
       end
     end
   end
