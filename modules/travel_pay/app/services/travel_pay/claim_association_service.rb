@@ -38,7 +38,7 @@ module TravelPay
     #
     # @param start_date [String] start date for the query
     # @param end_date [String] end date for the query
-    # @return [Hash] hash with :claims and :metadata keys, or :error key on failure
+    # @return [Hash] hash with :claims (array), :metadata (hash), and :error (boolean) keys
     def fetch_claims_by_date(start_date, end_date)
       client_params = build_claims_request_params(start_date, end_date)
       auth_manager.authorize => { veis_token:, btsss_token: }
@@ -46,7 +46,7 @@ module TravelPay
 
       process_claims_response(faraday_response)
     rescue => e
-      { error: true, metadata: rescue_errors(e) }
+      { claims: [], metadata: rescue_errors(e), error: true }
     end
 
     def associate_appointments_to_claims(params = {})
@@ -71,9 +71,9 @@ module TravelPay
       if faraday_response.status == 200
         raw_claims = faraday_response.body['data'].deep_dup
         data = format_claims_data(raw_claims)
-        { claims: data, metadata: }
+        { claims: data, metadata:, error: false }
       else
-        { error: true, metadata: }
+        { claims: [], metadata:, error: true }
       end
     end
 

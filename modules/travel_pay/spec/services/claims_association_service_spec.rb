@@ -491,7 +491,7 @@ describe TravelPay::ClaimAssociationService do
       association_service = TravelPay::ClaimAssociationService.new(user, 'vagov')
       result = association_service.fetch_claims_by_date('2024-10-17T09:00:00Z', '2024-12-15T16:45:00Z')
 
-      expect(result[:error]).to be_nil
+      expect(result[:error]).to be(false)
       expect(result[:claims].count).to eq(2)
       expect(result[:claims][0]['claimStatus']).to eq('In progress')
       expect(result[:claims][1]['claimStatus']).to eq('Incomplete')
@@ -519,6 +519,7 @@ describe TravelPay::ClaimAssociationService do
       result = association_service.fetch_claims_by_date('2024-10-17T09:00:00Z', '2024-12-15T16:45:00Z')
 
       expect(result[:error]).to be(true)
+      expect(result[:claims]).to eq([])
       expect(result[:metadata]['status']).to equal(500)
       expect(result[:metadata]['message']).to eq('Internal server error.')
       expect(result[:metadata]['success']).to be(false)
@@ -533,6 +534,7 @@ describe TravelPay::ClaimAssociationService do
       result = association_service.fetch_claims_by_date('2024-10-17T09:00:00Z', '2024-12-15T16:45:00Z')
 
       expect(result[:error]).to be(true)
+      expect(result[:claims]).to eq([])
       expect(result[:metadata]['status']).to equal(520)
       expect(result[:metadata]['success']).to be(false)
       expect(result[:metadata]['message']).to include('Unexpected error')
@@ -543,6 +545,7 @@ describe TravelPay::ClaimAssociationService do
       result = association_service.fetch_claims_by_date('invalid_date', '2024-12-15T16:45:00Z')
 
       expect(result[:error]).to be(true)
+      expect(result[:claims]).to eq([])
       expect(result[:metadata]['status']).to equal(400)
       expect(result[:metadata]['success']).to be(false)
     end
