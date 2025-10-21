@@ -2601,6 +2601,10 @@ features:
     actor_type: user
     description: Enables substance use disorder as care related to mental health appointments with new codes
     enable_in_development: true
+  va_online_scheduling_add_primary_care_mental_health_initiative:
+    actor_type: user
+    description: Enables PCMHI as care related to mental health appointments with new codes
+    enable_in_development: true
   form10203_confirmation_email_with_silent_failure_processing:
     actor_type: user
     description: If enabled, confirmation email will be sent with silent failure processing
