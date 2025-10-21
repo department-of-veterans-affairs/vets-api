@@ -15,7 +15,8 @@ module ExceptionHandling
   SKIP_SENTRY_EXCEPTION_TYPES = [
     Breakers::OutageException,
     JsonSchema::JsonApiMissingAttribute,
-    Pundit::NotAuthorizedError
+    Pundit::NotAuthorizedError,
+    Committee::InvalidRequest
   ].freeze
 
   private
@@ -38,6 +39,9 @@ module ExceptionHandling
           Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
         when ActionController::InvalidAuthenticityToken
           Common::Exceptions::Forbidden.new(detail: 'Invalid Authenticity Token')
+        when Committee::InvalidRequest
+          # Committee OpenAPI validation failure
+          Common::Exceptions::BadRequest.new(detail: exception.message)
         when Common::Exceptions::TokenValidationError,
           Common::Exceptions::BaseError, JsonSchema::JsonApiMissingAttribute,
           Common::Exceptions::ServiceUnavailable, Common::Exceptions::BadGateway,

@@ -16,14 +16,27 @@ RSpec.configure do |config|
   # the root example_group in your specs e.g.
   # describe '...', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json'
 
-  config.openapi_specs = [
-    RepresentationManagement,
-    ClaimsApi,
-    AppealsApi
-  ].inject({}) do |acc, module_name|
-    require_relative "#{module_name::Engine.root.join('spec', 'support')}/rswag_config"
-    acc.merge(module_name::RswagConfig.new.config)
-  end
+  config.openapi_specs = {
+    # Main API specs (non-module)
+    'public/openapi.json' => {
+      openapi: '3.0.3',
+      info: {
+        title: 'OpenAPI Docs',
+        version: '1.0'
+      },
+      paths: {},
+      servers: []
+    }
+  }.merge(
+    [
+      RepresentationManagement,
+      ClaimsApi,
+      AppealsApi
+    ].inject({}) do |acc, module_name|
+      require_relative "#{module_name::Engine.root.join('spec', 'support')}/rswag_config"
+      acc.merge(module_name::RswagConfig.new.config)
+    end
+  )
 
   # Specify the format of the output Swagger file when running 'rswag:specs:swaggerize'.
   # The openapi_specs configuration option has the filename including format in
