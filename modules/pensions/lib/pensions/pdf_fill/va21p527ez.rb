@@ -1400,8 +1400,10 @@ module Pensions
 
       SECTION_CLASSES = [Section12].freeze
 
+      # The list of section classes for form expansion and key building
       SECTION_CLASSES.each { |section| key = key.merge(section::KEY) }
 
+      # form configuration hash
       KEY = key.freeze
 
       ###
