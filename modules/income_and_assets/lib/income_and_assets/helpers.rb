@@ -82,17 +82,17 @@ module IncomeAndAssets
     # @return [Boolean]
     #
     def checkbox_value(value)
-      value ? true : false
+      value ? '1' : 'Off'
     end
 
     ##
-    # Converts a value to a radio button-compatible '0' or '1'.
+    # Converts a value to a radio button-compatible 0 or 1.
     #
     # @param value [Any]
-    # @return [String] '0' for true, '1' for false
+    # @return [Integer] 0 for 'yes', 1 for 'no'
     #
     def radio_yesno(value)
-      value ? '0' : '1'
+      value ? 0 : 1
     end
 
     ##
