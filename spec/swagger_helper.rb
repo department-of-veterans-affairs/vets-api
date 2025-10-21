@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative 'support/open_api_rswag_config'
 
 RSpec.configure do |config|
   # Specify a root folder where Swagger JSON files are generated
@@ -16,14 +17,12 @@ RSpec.configure do |config|
   # the root example_group in your specs e.g.
   # describe '...', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json'
 
-  config.openapi_specs = [
-    RepresentationManagement,
-    ClaimsApi,
-    AppealsApi
-  ].inject({}) do |acc, module_name|
-    require_relative "#{module_name::Engine.root.join('spec', 'support')}/rswag_config"
-    acc.merge(module_name::RswagConfig.new.config)
-  end
+  config.openapi_specs = OpenAPIRswagConfig.new.config.merge(
+    [RepresentationManagement, ClaimsApi, AppealsApi].inject({}) do |acc, module_name|
+      require_relative "#{module_name::Engine.root.join('spec', 'support')}/rswag_config"
+      acc.merge(module_name::RswagConfig.new.config)
+    end
+  )
 
   # Specify the format of the output Swagger file when running 'rswag:specs:swaggerize'.
   # The openapi_specs configuration option has the filename including format in
