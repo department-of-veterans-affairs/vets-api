@@ -220,18 +220,20 @@ module UnifiedHealthData
     end
 
     # Retrieves CCD binary data for download
-    #
-    # @param start_date [String] ISO 8601 date string (YYYY-MM-DD)
-    # @param end_date [String] ISO 8601 date string (YYYY-MM-DD)
     # @param format [String] Format to retrieve: 'xml', 'html', or 'pdf'
     # @return [UnifiedHealthData::BinaryData, nil] Binary data object with Base64 encoded content, or nil if not found
     # @raise [ArgumentError] if the format is invalid or not available
-    def get_ccd_binary(start_date:, end_date:, format: 'xml')
+    def get_ccd_binary(format: 'xml')
       with_monitoring do
+        start_date = default_start_date
+        end_date = default_end_date
+
         response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
         body = parse_response_body(response.body)
 
-        document_ref = find_document_reference(body)
+        document_ref = body['entry']&.find do |entry|
+          entry['resource'] && entry['resource']['resourceType'] == 'DocumentReference'
+        end
         return nil unless document_ref
 
         clinical_notes_adapter.parse_ccd_binary(document_ref, format)
@@ -427,17 +429,6 @@ module UnifiedHealthData
 
     def logger
       @logger ||= UnifiedHealthData::Logging.new(@user)
-    end
-
-    # Finds DocumentReference resource in FHIR Bundle response
-    # Used for CCD and similar document-based resources
-    #
-    # @param body [Hash] Parsed FHIR Bundle response body
-    # @return [Hash, nil] DocumentReference entry or nil if not found
-    def find_document_reference(body)
-      body['entry']&.find do |entry|
-        entry['resource'] && entry['resource']['resourceType'] == 'DocumentReference'
-      end
     end
 
     # Date helpers (single source for default UHD date range)

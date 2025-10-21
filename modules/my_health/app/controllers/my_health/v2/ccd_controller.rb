@@ -9,10 +9,17 @@ module MyHealth
 
       def download
         file_format = params[:file_format] || 'xml'
-        binary_data = fetch_ccd_binary(file_format)
-        return if binary_data.nil?
+        binary_data = service.get_ccd_binary(format: file_format)
 
-        send_ccd_file(binary_data, file_format)
+        if binary_data.nil?
+          render_error('CCD Not Found', 'The requested CCD was not found', '404', 404, :not_found)
+          return
+        end
+
+        send_data Base64.decode64(binary_data.binary),
+                  type: binary_data.content_type,
+                  disposition: "attachment; filename=ccd.#{file_format.downcase}",
+                  status: :ok
       rescue ArgumentError => e
         render_error('Invalid Format', e.message, '400', 400, :bad_request)
       rescue Common::Client::Errors::ClientError,
@@ -22,39 +29,6 @@ module MyHealth
       end
 
       private
-
-      def fetch_ccd_binary(file_format)
-        unless params[:start_date].present? && params[:end_date].present?
-          render_error('Missing Parameters',
-                       'start_date and end_date are required parameters',
-                       '400', 400, :bad_request)
-          return nil
-        end
-
-        binary_data = service.get_ccd_binary(
-          start_date: params[:start_date],
-          end_date: params[:end_date],
-          format: file_format
-        )
-
-        if binary_data.nil?
-          render_error('CCD Not Found',
-                       'The requested CCD was not found',
-                       '404', 404, :not_found)
-          return nil
-        end
-
-        binary_data
-      end
-
-      def send_ccd_file(binary_data, file_format)
-        decoded_data = Base64.decode64(binary_data.binary)
-
-        send_data decoded_data,
-                  type: binary_data.content_type,
-                  disposition: "attachment; filename=\"ccd.#{extension_for_format(file_format)}\"",
-                  status: :ok
-      end
 
       def handle_error(error)
         log_error(error)
@@ -93,14 +67,6 @@ module MyHealth
           status:
         }
         render json: { errors: [error] }, status: http_status
-      end
-
-      def extension_for_format(file_format)
-        case file_format.downcase
-        when 'html' then 'html'
-        when 'pdf' then 'pdf'
-        else 'xml'
-        end
       end
 
       def service

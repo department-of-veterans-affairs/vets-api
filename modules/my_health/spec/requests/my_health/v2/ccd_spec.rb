@@ -6,8 +6,6 @@ require 'unified_health_data/service'
 RSpec.describe 'MyHealth::V2::CcdController', type: :request do
   let(:user_id) { '11898795' }
   let(:current_user) { build(:user, :mhv) }
-  let(:start_date) { '2024-01-01' }
-  let(:end_date) { '2024-12-31' }
   let(:path) { '/my_health/v2/medical_records/ccd/download' }
 
   let(:binary_data) do
@@ -30,7 +28,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'returns XML CCD' do
-        get path, params: { start_date:, end_date:, file_file_format: 'xml' }
+        get path, params: { file_format: 'xml' }
 
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to include('application/xml')
@@ -38,13 +36,13 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'sets correct filename for XML' do
-        get path, params: { start_date:, end_date:, file_file_format: 'xml' }
+        get path, params: { file_format: 'xml' }
 
-        expect(response.headers['Content-Disposition']).to include('filename="ccd.xml"')
+        expect(response.headers['Content-Disposition']).to include('filename=ccd.xml')
       end
 
       it 'decodes Base64 data correctly' do
-        get path, params: { start_date:, end_date:, file_file_format: 'xml' }
+        get path, params: { file_format: 'xml' }
 
         expect(response.body).not_to match(%r{^[A-Za-z0-9+/=]+$}) # Not Base64
         expect(response.body).to include('<ClinicalDocument>') # Decoded XML
@@ -64,7 +62,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
           .to receive(:get_ccd_binary)
           .and_return(html_data)
 
-        get path, params: { start_date:, end_date:, file_format: 'html' }
+        get path, params: { file_format: 'html' }
 
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to include('text/html')
@@ -85,7 +83,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
           .to receive(:get_ccd_binary)
           .and_return(pdf_data)
 
-        get path, params: { start_date:, end_date:, file_format: 'pdf' }
+        get path, params: { file_format: 'pdf' }
 
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to eq('application/pdf')
@@ -100,40 +98,26 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'defaults to XML format' do
-        get path, params: { start_date:, end_date: }
+        get path, params: {}
 
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to include('application/xml')
-        expect(response.headers['Content-Disposition']).to include('filename="ccd.xml"')
+        expect(response.headers['Content-Disposition']).to include('filename=ccd.xml')
       end
     end
 
-    context 'when required parameters are missing' do
-      it 'returns 400 bad request when start_date is missing' do
-        get path, params: { end_date: }
-
-        expect(response).to have_http_status(:bad_request)
-        json_response = JSON.parse(response.body)
-        expect(json_response['errors'].first['title']).to eq('Missing Parameters')
-        expect(json_response['errors'].first['detail']).to include('start_date and end_date are required')
+    context 'when dates are not provided' do
+      before do
+        allow_any_instance_of(UnifiedHealthData::Service)
+          .to receive(:get_ccd_binary)
+          .and_return(binary_data)
       end
 
-      it 'returns 400 bad request when end_date is missing' do
-        get path, params: { start_date: }
-
-        expect(response).to have_http_status(:bad_request)
-        json_response = JSON.parse(response.body)
-        expect(json_response['errors'].first['title']).to eq('Missing Parameters')
-        expect(json_response['errors'].first['detail']).to include('start_date and end_date are required')
-      end
-
-      it 'returns 400 bad request when both dates are missing' do
+      it 'uses default dates and returns CCD successfully' do
         get path, params: {}
 
-        expect(response).to have_http_status(:bad_request)
-        json_response = JSON.parse(response.body)
-        expect(json_response['errors'].first['title']).to eq('Missing Parameters')
-        expect(json_response['errors'].first['detail']).to include('start_date and end_date are required')
+        expect(response).to have_http_status(:ok)
+        expect(response.content_type).to include('application/xml')
       end
     end
 
@@ -145,7 +129,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'returns 404 not found' do
-        get path, params: { start_date:, end_date: }
+        get path, params: {}
 
         expect(response).to have_http_status(:not_found)
         json_response = JSON.parse(response.body)
@@ -162,7 +146,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'returns 400 bad request' do
-        get path, params: { start_date:, end_date:, file_format: 'json' }
+        get path, params: { file_format: 'json' }
 
         expect(response).to have_http_status(:bad_request)
         json_response = JSON.parse(response.body)
@@ -179,7 +163,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'returns 400 bad request' do
-        get path, params: { start_date:, end_date:, file_format: 'html' }
+        get path, params: { file_format: 'html' }
 
         expect(response).to have_http_status(:bad_request)
         json_response = JSON.parse(response.body)
@@ -200,7 +184,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'returns correct HTTP status based on error status' do
-        get path, params: { start_date:, end_date: }
+        get path, params: {}
 
         expect(response).to have_http_status(:service_unavailable)
         json_response = JSON.parse(response.body)
@@ -216,7 +200,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'returns 500 internal server error' do
-        get path, params: { start_date:, end_date: }
+        get path, params: {}
 
         expect(response).to have_http_status(:internal_server_error)
         json_response = JSON.parse(response.body)

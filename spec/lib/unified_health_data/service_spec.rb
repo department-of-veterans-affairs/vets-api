@@ -1545,8 +1545,6 @@ describe UnifiedHealthData::Service, type: :service do
   end
 
   describe '#get_ccd_binary' do
-    let(:start_date) { '2024-01-01' }
-    let(:end_date) { '2024-12-31' }
     let(:ccd_fixture) do
       Rails.root.join('spec', 'fixtures', 'unified_health_data', 'ccd_example.json').read
     end
@@ -1563,7 +1561,7 @@ describe UnifiedHealthData::Service, type: :service do
 
     context 'when requesting XML format' do
       it 'returns BinaryData object with Base64 encoded XML' do
-        result = service.get_ccd_binary(start_date:, end_date:, format: 'xml')
+        result = service.get_ccd_binary(format: 'xml')
 
         expect(result).to be_a(UnifiedHealthData::BinaryData)
         expect(result.content_type).to eq('application/xml')
@@ -1594,7 +1592,7 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'raises an error for missing HTML' do
         expect do
-          service.get_ccd_binary(start_date:, end_date:, format: 'html')
+          service.get_ccd_binary(format: 'html')
         end.to raise_error(ArgumentError, /Format html not available/)
       end
     end
@@ -1602,7 +1600,7 @@ describe UnifiedHealthData::Service, type: :service do
     context 'when requesting invalid format' do
       it 'raises an ArgumentError' do
         expect do
-          service.get_ccd_binary(start_date:, end_date:, format: 'json')
+          service.get_ccd_binary(format: 'json')
         end.to raise_error(ArgumentError, /Invalid format/)
       end
     end
@@ -1614,7 +1612,7 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'returns nil when no CCD document exists' do
-        result = service.get_ccd_binary(start_date:, end_date:, format: 'xml')
+        result = service.get_ccd_binary(format: 'xml')
         expect(result).to be_nil
       end
     end
