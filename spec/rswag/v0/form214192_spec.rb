@@ -122,7 +122,16 @@ RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :r
                        type: :object,
                        properties: {
                          submitted_at: { type: :string, format: 'date-time' },
-                         regional_office: { type: :array },
+                         regional_office: {
+                           type: :array,
+                           items: { type: :string },
+                           example: [
+                             'Department of Veterans Affairs',
+                             'Example Regional Office',
+                             'P.O. Box 1234',
+                             'Example City, Wisconsin 12345-6789'
+                           ]
+                         },
                          confirmation_number: { type: :string },
                          guid: { type: :string },
                          form: { type: :string }

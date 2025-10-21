@@ -33,7 +33,7 @@ end
 
 namespace :rswag do
   namespace :openapi do
-    desc 'Generate rswag docs for all APIs'
+    desc 'Generate rswag docs for all VA.gov APIs'
     task build: :environment do
       ENV['PATTERN'] = 'spec/rswag/v0/*_spec.rb'
       ENV['RAILS_MODULE'] = 'public'

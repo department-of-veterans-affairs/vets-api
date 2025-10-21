@@ -1,8 +1,15 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "OpenAPI Docs",
-    "version": "1.0"
+    "title": "VA.gov OpenAPI Docs",
+    "version": "1.0",
+    "description": "OpenAPI 3.0.3 Documentation for the VA.gov API",
+    "contact": {
+      "name": "https://developer.va.gov/support/contact-us"
+    },
+    "license": {
+      "name": "Creative Commons Zero v1.0 Universal"
+    }
   },
   "paths": {
     "/v0/form214192": {
@@ -19,19 +26,6 @@
             "description": "Form successfully submitted",
             "content": {
               "application/json": {
-                "example": {
-                  "data": {
-                    "id": "123456",
-                    "type": "form_submissions",
-                    "attributes": {
-                      "submitted_at": "2024-06-01T12:34:56Z",
-                      "regional_office": [],
-                      "confirmation_number": "ABCDEF123456",
-                      "guid": "550e8400-e29b-41d4-a716-446655440000",
-                      "form": "21-4192"
-                    }
-                  }
-                },
                 "schema": {
                   "type": "object",
                   "properties": {
@@ -52,7 +46,16 @@
                               "format": "date-time"
                             },
                             "regional_office": {
-                              "type": "array"
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "example": [
+                                "Department of Veterans Affairs",
+                                "Example Regional Office",
+                                "P.O. Box 1234",
+                                "Example City, Wisconsin 12345-6789"
+                              ]
                             },
                             "confirmation_number": {
                               "type": "string"
