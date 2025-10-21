@@ -2,6 +2,7 @@
 
 module V0
   class OpenAPIController < ApplicationController
+    service_tag 'platform-base'
     skip_before_action :authenticate
 
     def index
