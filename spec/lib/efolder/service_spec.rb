@@ -28,15 +28,17 @@ RSpec.describe Efolder::Service do
 
   before do
     allow(VBMS::Client).to receive(:from_env_vars).and_return(vbms_client)
-
-    stub_vbms_client_request(
-      'FindDocumentVersionReference',
-      file_number,
-      get_vbms_fixture('find_document_version_reference')
-    )
   end
 
   describe '#get_document' do
+    before do
+      stub_vbms_client_request(
+        'FindDocumentVersionReference',
+        file_number,
+        get_vbms_fixture('find_document_version_reference')
+      )
+    end
+
     context 'with a document in the users folder' do
       let(:document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
       let(:content) { File.read('spec/fixtures/pdf_fill/extras.pdf') }
@@ -75,6 +77,15 @@ RSpec.describe Efolder::Service do
   end
 
   describe '#list_documents' do
+
+    before do
+      stub_vbms_client_request(
+        'FindDocumentVersionReference',
+        file_number,
+        get_vbms_fixture('find_document_version_reference')
+      )
+    end
+
     it 'lists document ids and descriptions' do
       VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
         VCR.use_cassette('bgs/people_service/person_data') do
@@ -100,16 +111,69 @@ RSpec.describe Efolder::Service do
   end
 
   describe 'get_tsa_letter' do
+    let(:tsa_letter_data) do
+      {
+        "document_id": "{tsa-letter-document-id}",
+        "series_id": "{tsa-letter-series-id}",
+        "version": "1",
+        "type_description": "Correspondence",
+        "type_id": "34",
+        "doc_type": "34",
+        "subject": 'VETS Safe Travel Outreach Letter',
+        "received_at": "2020-05-28",
+        "source": "Virtual VA",
+        "mime_type": "application/pdf",
+        "alt_doc_types": nil,
+        "restricted": false,
+        "upload_date": "2020-06-03"
+      }
+    end
+
+    before do
+      stub_vbms_client_request(
+        'FindDocumentVersionReference',
+        file_number,
+        get_fixture("vbms/find_document_version_reference").push(tsa_letter_data).map { |r| OpenStruct.new(r) }
+      )
+    end
+
     it 'returns requested document' do
+      binding.pry
       VCR.use_cassette('vbms/list_documents') do
         expect(subject.get_tsa_letter).to eq(
-         [{ document_id: "{706E58AA-7164-4968-AC27-50889C2DE794}", doc_type: "533", type_description: "VA 21-526EZ, Fully Developed Claim (Compensation)", received_at: "2020-06-05" }, { document_id: "{93631483-E9F9-44AA-BB55-3552376400D8}", doc_type: "1215", type_description: "DMC - Debt Increase Letter", received_at: "2020-05-28" }, { document_id: "{358692DF-7AE5-43A7-99AB-D5F4F98E3F3A}", doc_type: "1215", type_description: "DMC - Debt Increase Letter", received_at: "2020-05-28" }]
+          { document_id: "{tsa-letter-document-id}", doc_type: "34", type_description: "Correspondence", received_at: "2020-05-28" }
         )
       end
     end
   end
 
   describe 'download_tsa_letter' do
-    
+    context 'when it is the TSA letter' do
+      let(:document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
+      let(:content) { File.read('spec/fixtures/pdf_fill/extras.pdf') }
+
+      before do
+        stub_vbms_client_request(
+          'GetDocumentContent',
+          document_id,
+          OpenStruct.new(
+            document_id:,
+            content:
+          )
+        )
+      end
+
+      it 'downloads a document' do
+        VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            expect(subject.download_tsa_letter(document_id)).to eq(content)
+          end
+        end
+      end
+    end
+
+    context 'when it is not the TSA letter' do
+
+    end
   end
 end
