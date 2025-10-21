@@ -21,7 +21,7 @@ RSpec.configure do |config|
 
   # Load each engine’s rswag config file
   mods.each do |m|
-    require m::Engine.root.join('spec', 'support', 'rswag_config').to_s
+    require_relative m::Engine.root.join('spec', 'support', 'rswag_config')
   end
 
   # Merge base + per-engine configs
