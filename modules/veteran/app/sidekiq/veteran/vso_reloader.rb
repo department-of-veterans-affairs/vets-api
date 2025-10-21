@@ -133,8 +133,8 @@ module Veteran
 
       # rubocop:disable Rails/WhereNotWithMultipleConditions
       non_test_duplicates = klass.where(representative_id: dup_ids)
-                        .where.not(first_name: 'Tamara', last_name: 'Ellis')
-                        .where.not(first_name: 'John', last_name: 'Doe')
+                                 .where.not(first_name: 'Tamara', last_name: 'Ellis')
+                                 .where.not(first_name: 'John', last_name: 'Doe')
       # rubocop:enable Rails/WhereNotWithMultipleConditions
 
       non_test_duplicates.delete_all
