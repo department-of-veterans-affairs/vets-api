@@ -140,6 +140,28 @@ module VAOS
         { exists: non_draft_eps_appointments.any? }
       end
 
+      ##
+      # Get active appointments for a referral, checking EPS first then VAOS as fallback
+      #
+      # Logic:
+      # 1. Check EPS first
+      #    - If active appointment found → return EPS result, skip VAOS
+      #    - If cancelled appointment found → return empty with EPS system, skip VAOS
+      #    - If no appointments found → check VAOS
+      # 2. Check VAOS (only if EPS had no appointments)
+      #    - If active appointment found → return VAOS result
+      #    - If cancelled/no appointments → return empty
+      #
+      # @param referral_number [String] The referral number to search for
+      # @return [Hash] Contains :system ('EPS' or 'VAOS' or nil), :data (array of appointments), :errors (if any)
+      #
+      def get_active_appointments_for_referral(referral_number)
+        eps_result = fetch_eps_appointments_for_referral(referral_number)
+        return eps_result[:result] if eps_result[:result]
+
+        fetch_vaos_appointments_for_referral(referral_number, eps_result[:has_cancelled])
+      end
+
       # rubocop:enable Metrics/MethodLength
       def get_appointment(appointment_id, include = {}, tp_client = 'vagov')
         params = {}
@@ -343,6 +365,84 @@ module VAOS
       end
 
       private
+
+      def fetch_eps_appointments_for_referral(referral_number)
+        eps_appointments = eps_appointments_service.get_appointments(referral_number:)
+
+        return { has_cancelled: false, result: nil } if eps_appointments.empty?
+
+        active_eps = filter_active_eps_appointments(eps_appointments)
+        eps_has_cancelled = active_eps.empty?
+
+        if active_eps.any?
+          active_eps.sort_by! { |appt| appt.dig(:appointment_details, :start) || '' }
+          { result: { system: 'EPS', data: active_eps } }
+        else
+          { has_cancelled: eps_has_cancelled, result: nil }
+        end
+      rescue Eps::ServiceException, VAOS::Exceptions::BackendServiceException,
+             Common::Exceptions::BackendServiceException => e
+        log_appointment_fetch_error(referral_number, 'EPS', e)
+        { result: { system: 'EPS', data: [], errors: { 'Failure to fetch EPS appointments' => e.class.name.to_s } } }
+      end
+
+      def fetch_vaos_appointments_for_referral(referral_number, eps_has_cancelled)
+        vaos_response = get_all_appointments({})
+
+        return handle_vaos_failure(referral_number) if vaos_response[:meta][:failures].present?
+
+        active_vaos = filter_active_vaos_appointments(vaos_response[:data], referral_number)
+
+        if eps_has_cancelled && active_vaos.any?
+          log_appointment_discrepancy(referral_number, active_vaos)
+          return { system: 'EPS', data: [] }
+        end
+
+        build_vaos_result(active_vaos, eps_has_cancelled)
+      rescue Common::Exceptions::BackendServiceException => e
+        log_appointment_fetch_error(referral_number, 'VAOS', e)
+        { system: 'VAOS', data: [], errors: { 'Failure to fetch VAOS appointments' => e.class.name.to_s } }
+      end
+
+      def filter_active_eps_appointments(appointments)
+        appointments.reject do |appt|
+          %w[cancelled draft].include?(appt[:state]) ||
+            appt.dig(:appointment_details, :status) == 'cancelled'
+        end
+      end
+
+      def filter_active_vaos_appointments(appointments, referral_number)
+        vaos_appointments = appointments.select { |appt| appt[:referral_id] == referral_number }
+        active = vaos_appointments.reject { |appt| %w[cancelled draft].include?(appt[:status]) }
+        active.sort_by { |appt| appt[:start] || '' }
+      end
+
+      def handle_vaos_failure(referral_number)
+        log_appointment_fetch_error(referral_number, 'VAOS', 'Request failure')
+        { system: 'VAOS', data: [], errors: { 'Failure to fetch VAOS appointments' => 'Request failed' } }
+      end
+
+      def build_vaos_result(active_vaos, eps_has_cancelled)
+        if active_vaos.any?
+          { system: 'VAOS', data: active_vaos }
+        else
+          { system: eps_has_cancelled ? 'EPS' : 'VAOS', data: [] }
+        end
+      end
+
+      def log_appointment_fetch_error(referral_number, system, error)
+        masked_referral = referral_number&.last(4) || 'unknown'
+        error_msg = error.is_a?(String) ? error : error.class.name
+        Rails.logger.warn("Failed to fetch #{system} appointments for referral",
+                          { referral_ending_in: masked_referral, error: error_msg })
+      end
+
+      def log_appointment_discrepancy(referral_number, active_vaos)
+        masked_referral = referral_number&.last(4) || 'unknown'
+        Rails.logger.warn('Appointment status discrepancy: EPS cancelled but VAOS active',
+                          { referral_ending_in: masked_referral,
+                            vaos_appointment_ids: active_vaos.map { |a| a[:id] } })
+      end
 
       # rubocop:disable Metrics/MethodLength
       def parse_possible_token_related_errors(e, method_name)

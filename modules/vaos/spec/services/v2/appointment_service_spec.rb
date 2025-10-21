@@ -1488,6 +1488,186 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#get_active_appointments_for_referral' do
+    let(:referral_number) { 'REF-12345' }
+
+    before do
+      Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+    end
+
+    after do
+      Timecop.return
+    end
+
+    context 'when EPS has active appointments' do
+      it 'returns EPS appointments and skips VAOS' do
+        appointments_service = VAOS::V2::AppointmentsService.new(user)
+        eps_service = instance_double(Eps::AppointmentService)
+        allow(Eps::AppointmentService).to receive(:new).and_return(eps_service)
+        allow(eps_service).to receive(:config).and_return(double(mock_enabled?: false))
+        allow(eps_service).to receive(:get_appointments).with(referral_number:).and_return([
+                                                                                             {
+                                                                                               id: 'eps-1',
+                                                                                               state: 'booked',
+                                                                                               appointment_details: {
+                                                                                                 start: '2021-09-05T10:00:00Z', # rubocop:disable Layout/LineLength
+                                                                                                 status: 'booked'
+                                                                                               }
+                                                                                             }
+                                                                                           ])
+
+        # Should NOT call VAOS
+        expect(appointments_service).not_to receive(:get_all_appointments)
+
+        result = appointments_service.get_active_appointments_for_referral(referral_number)
+        expect(result[:system]).to eq('EPS')
+        expect(result[:data].length).to eq(1)
+        expect(result[:data].first[:id]).to eq('eps-1')
+      end
+    end
+
+    context 'when EPS has only cancelled appointments' do
+      it 'checks VAOS and returns empty if VAOS also has no active appointments' do
+        appointments_service = VAOS::V2::AppointmentsService.new(user)
+        eps_service = instance_double(Eps::AppointmentService)
+        allow(Eps::AppointmentService).to receive(:new).and_return(eps_service)
+        allow(eps_service).to receive(:config).and_return(double(mock_enabled?: false))
+        allow(eps_service).to receive(:get_appointments).with(referral_number:).and_return([
+                                                                                             {
+                                                                                               id: 'eps-1',
+                                                                                               state: 'cancelled',
+                                                                                               appointment_details: {
+                                                                                                 start: '2021-09-05T10:00:00Z', # rubocop:disable Layout/LineLength
+                                                                                                 status: 'cancelled'
+                                                                                               }
+                                                                                             }
+                                                                                           ])
+
+        # Should check VAOS when EPS only has cancelled
+        allow(appointments_service).to receive(:get_all_appointments).and_return({
+                                                                                   data: [],
+                                                                                   meta: {}
+                                                                                 })
+
+        result = appointments_service.get_active_appointments_for_referral(referral_number)
+        expect(result[:system]).to eq('EPS')
+        expect(result[:data]).to eq([])
+      end
+
+      it 'logs discrepancy and returns empty when EPS has cancelled but VAOS has active appointment' do
+        appointments_service = VAOS::V2::AppointmentsService.new(user)
+        eps_service = instance_double(Eps::AppointmentService)
+        allow(Eps::AppointmentService).to receive(:new).and_return(eps_service)
+        allow(eps_service).to receive(:config).and_return(double(mock_enabled?: false))
+        allow(eps_service).to receive(:get_appointments).with(referral_number:).and_return([
+                                                                                             {
+                                                                                               id: 'eps-1',
+                                                                                               state: 'cancelled',
+                                                                                               appointment_details: {
+                                                                                                 start: '2021-09-05T10:00:00Z', # rubocop:disable Layout/LineLength
+                                                                                                 status: 'cancelled'
+                                                                                               }
+                                                                                             }
+                                                                                           ])
+
+        # VAOS has an active appointment
+        allow(appointments_service).to receive(:get_all_appointments).and_return({
+                                                                                   data: [
+                                                                                     {
+                                                                                       id: 'vaos-1',
+                                                                                       referral_id: referral_number,
+                                                                                       status: 'booked',
+                                                                                       start: '2021-09-05T10:00:00Z'
+                                                                                     }
+                                                                                   ],
+                                                                                   meta: {}
+                                                                                 })
+
+        expect(Rails.logger).to receive(:warn)
+          .with('Appointment status discrepancy: EPS cancelled but VAOS active',
+                { referral_ending_in: '2345', vaos_appointment_ids: ['vaos-1'] })
+
+        result = appointments_service.get_active_appointments_for_referral(referral_number)
+        expect(result[:system]).to eq('EPS')
+        expect(result[:data]).to eq([])
+      end
+    end
+
+    context 'when EPS has no appointments' do
+      it 'checks VAOS and returns VAOS appointments' do
+        appointments_service = VAOS::V2::AppointmentsService.new(user)
+        eps_service = instance_double(Eps::AppointmentService)
+        allow(Eps::AppointmentService).to receive(:new).and_return(eps_service)
+        allow(eps_service).to receive(:config).and_return(double(mock_enabled?: false))
+        allow(eps_service).to receive(:get_appointments).with(referral_number:).and_return([])
+
+        # Mock VAOS response
+        allow(appointments_service).to receive(:get_all_appointments).and_return({
+                                                                                   data: [
+                                                                                     {
+                                                                                       id: 'vaos-1',
+                                                                                       referral_id: referral_number,
+                                                                                       status: 'booked',
+                                                                                       start: '2021-09-05T10:00:00Z'
+                                                                                     }
+                                                                                   ],
+                                                                                   meta: {}
+                                                                                 })
+
+        result = appointments_service.get_active_appointments_for_referral(referral_number)
+        expect(result[:system]).to eq('VAOS')
+        expect(result[:data].length).to eq(1)
+        expect(result[:data].first[:id]).to eq('vaos-1')
+      end
+    end
+
+    context 'when EPS fails' do
+      it 'returns error hash with EPS system' do
+        appointments_service = VAOS::V2::AppointmentsService.new(user)
+        eps_service = instance_double(Eps::AppointmentService)
+        allow(Eps::AppointmentService).to receive(:new).and_return(eps_service)
+        allow(eps_service).to receive(:config).and_return(double(mock_enabled?: false))
+        allow(eps_service).to receive(:get_appointments)
+          .and_raise(Eps::ServiceException.new('EPS error', {}, 500, 'Internal Server Error'))
+
+        expect(Rails.logger).to receive(:warn).with('Failed to fetch EPS appointments for referral',
+                                                    { referral_ending_in: '2345', error: 'Eps::ServiceException' })
+
+        result = appointments_service.get_active_appointments_for_referral(referral_number)
+        expect(result[:system]).to eq('EPS')
+        expect(result[:data]).to eq([])
+        expect(result[:errors]).to be_present
+      end
+    end
+
+    context 'when EPS has no appointments and VAOS fails' do
+      it 'returns error hash with VAOS system' do
+        appointments_service = VAOS::V2::AppointmentsService.new(user)
+        eps_service = instance_double(Eps::AppointmentService)
+        allow(Eps::AppointmentService).to receive(:new).and_return(eps_service)
+        allow(eps_service).to receive(:config).and_return(double(mock_enabled?: false))
+        allow(eps_service).to receive(:get_appointments).with(referral_number:).and_return([])
+
+        # Mock VAOS failure
+        allow(appointments_service).to receive(:get_all_appointments).and_return({
+                                                                                   data: [],
+                                                                                   meta: { failures: ['VAOS error'] }
+                                                                                 })
+
+        expect(Rails.logger).to receive(:warn).with('Failed to fetch VAOS appointments for referral',
+                                                    { referral_ending_in: '2345', error: 'Request failure' })
+
+        result = appointments_service.get_active_appointments_for_referral(referral_number)
+        expect(result[:system]).to eq('VAOS')
+        expect(result[:data]).to eq([])
+        expect(result[:errors]).to be_present
+      end
+    end
+  end
+
   describe '#referral_appointment_already_exists?' do
     before do
       Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
