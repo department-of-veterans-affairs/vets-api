@@ -156,16 +156,7 @@ module Veteran
 
     def find_or_create_attorneys(attorney)
       rep = rep_by_id(attorney['Registration Num'])
-
-      if rep.new_record?
-        rep.assign_attributes(
-          first_name: attorney['First Name'],
-          last_name: attorney['Last Name'],
-          email: attorney['Email'],
-          phone: attorney['Phone']
-        )
-      end
-
+      rep = handle_new_record(rep, attorney) if rep.new_record?
       add_to_set!(rep, :user_types, USER_TYPE_ATTORNEY)
       add_to_set!(rep, :poa_codes, attorney['POA Code']&.gsub(/\W/, ''))
 
@@ -174,16 +165,7 @@ module Veteran
 
     def find_or_create_claim_agents(claim_agent)
       rep = rep_by_id(claim_agent['Registration Num'])
-
-      if rep.new_record?
-        rep.assign_attributes(
-          first_name: claim_agent['First Name'],
-          last_name: claim_agent['Last Name'],
-          email: claim_agent['Email'],
-          phone: claim_agent['Phone']
-        )
-      end
-
+      rep = handle_new_record(rep, claim_agent) if rep.new_record?
       add_to_set!(rep, :user_types, USER_TYPE_CLAIM_AGENT)
       add_to_set!(rep, :poa_codes, claim_agent['POA Code']&.gsub(/\W/, ''))
 
@@ -215,6 +197,16 @@ module Veteran
       add_to_set!(rep, :poa_codes, vso['POA']&.gsub(/\W/, ''))
 
       rep.save
+    end
+
+    def handle_new_record(rep, hash_object)
+      rep.assign_attributes(
+        first_name: hash_object['First Name'],
+        last_name: hash_object['Last Name'],
+        email: hash_object['Email'],
+        phone: hash_object['Phone']
+      )
+      rep
     end
 
     def log_to_slack(message)
