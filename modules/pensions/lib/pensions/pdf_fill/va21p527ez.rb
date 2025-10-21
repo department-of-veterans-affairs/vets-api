@@ -3,11 +3,11 @@
 require 'pdf_fill/hash_converter'
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
-require 'pensions/pdf_fill/sections/section_12'
 require 'string_helpers'
 
 require_relative 'constants'
 require_relative 'helpers'
+require_relative 'sections/section_12'
 
 # rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/MethodLength
