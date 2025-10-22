@@ -34,13 +34,7 @@ module Efolder
     end
 
     def get_tsa_letters
-      vbms_docs.map do |document|
-        if document[:subject] == 'VETS Safe Travel Outreach Letter'
-          document.marshal_dump.slice(
-            :document_id, :doc_type, :type_description, :received_at
-          )
-        end
-      end.compact
+      vbms_docs.select { |document| document[:subject] == 'VETS Safe Travel Outreach Letter' }
     end
 
     def download_tsa_letter(document_id)

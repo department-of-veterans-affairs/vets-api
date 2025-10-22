@@ -8,7 +8,7 @@ module V0
 
     def index
       letters = service.get_tsa_letter
-      render(json: letters)
+      render(json: TsaLetterSerializer.new(letters))
     end
 
     def show
