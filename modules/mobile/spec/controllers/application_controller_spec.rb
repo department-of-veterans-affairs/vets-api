@@ -216,6 +216,16 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
           end
         end
 
+        context 'when the access_token audience is vamock-mobile' do
+          let(:access_token) { create(:access_token, audience: ['vamock-mobile']) }
+
+          it 'returns ok in test environment' do
+            get :index
+
+            expect(response).to have_http_status(:ok)
+          end
+        end
+
         context 'when validating the user\'s MPI profile' do
           context 'and the MPI profile has a deceased date' do
             let(:deceased_date) { '20020202' }
