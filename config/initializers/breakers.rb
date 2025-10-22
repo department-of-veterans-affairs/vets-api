@@ -66,7 +66,6 @@ Rails.application.reloader.to_prepare do
     HCA::Configuration.instance.breakers_service,
     MHVAC::Configuration.instance.breakers_service,
     MPI::Configuration.instance.breakers_service,
-    Post911SOB::DGIB::Configuration.instance.breakers_service,
     Preneeds::Configuration.instance.breakers_service,
     SM::Configuration.instance.breakers_service,
     VeteranEnrollmentSystem::Associations::Configuration.instance.breakers_service,
