@@ -235,45 +235,35 @@ module ClaimsApi
       end
 
       def disabilities
-        return if @data[:disabilities].blank?
+        @fes_claim[:disabilities] = flatten_and_transform_disabilities(@data[:disabilities])
+      end
 
-        # Extract all primary disabilities and their secondaries
-        primary_disabilities = @data[:disabilities]
-        all_disabilities = []
-
-        primary_disabilities.each do |disability|
-          # Add transformed primary disability
+      def flatten_and_transform_disabilities(disabilities_array)
+        disabilities_array.flat_map do |disability|
           primary = disability.deep_dup
-          secondary_disabilities = primary.delete(:secondaryDisabilities) || []
-          all_disabilities << transform_disability_values!(primary) unless primary[:disabilityActionType] == 'NONE'
+          secondaries = primary.delete(:secondaryDisabilities) || []
 
-          # Pull any nested secondary disabilities up into the main disabilities array
-          secondary_disabilities.each do |secondary|
-            transformed_secondary = transform_disability_values!(secondary.deep_dup)
-            # Override the action type so it's always 'NEW':
-            transformed_secondary.merge!(disabilityActionType: 'NEW')
-            all_disabilities << transformed_secondary
+          list = []
+          list << transform_disability_values!(primary) unless primary[:disabilityActionType] == 'NONE'
+          transformed_secondaries = secondaries.map do |secondary|
+            transform_disability_values!(secondary.deep_dup).merge!(disabilityActionType: 'NEW')
           end
-        end
+          list.concat(transformed_secondaries)
 
-        @fes_claim[:disabilities] = all_disabilities
+          list
+        end
       end
 
       def transform_disability_values!(disability)
-        # Remove nil fields similar to EVSS mapper
         disability.delete(:diagnosticCode) if disability&.dig(:diagnosticCode).nil?
         disability.delete(:classificationCode) if disability&.dig(:classificationCode).nil?
 
-        # Transform approximate date to FES format
         if disability[:approximateDate].present?
-          date_info = disability[:approximateDate]
-          disability[:approximateBeginDate] = format_approximate_date(date_info)
+          disability[:approximateBeginDate] = format_approximate_date(disability[:approximateDate])
         end
 
-        # Handle PACT special issue
         check_for_pact_special_issue(disability) if disability[:disabilityActionType] != 'INCREASE'
 
-        # Remove fields not needed for FES
         disability.except(:approximateDate, :isRelatedToToxicExposure, :serviceRelevance,
                           :exposureOrEventOrInjury, :secondaryDisabilities)
       end
