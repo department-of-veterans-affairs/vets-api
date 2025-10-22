@@ -274,17 +274,11 @@ module TravelClaim
     # Loads required identity data from Redis with error handling.
     #
     # Only loads data that hasn't been provided directly (uses ||= for each field).
-    # Provides clear error messages for Redis failures or missing data.
-    #
-    # @raise [TravelClaim::Errors::InvalidArgument] if Redis operations fail
+    # Redis errors should be handled by the calling method.
     #
     def load_redis_data
       @icn ||= redis_client.icn(uuid: @check_in_uuid)
       @station_number ||= redis_client.station_number(uuid: @check_in_uuid)
-    rescue Redis::BaseError
-      log_redis_error('load_user_data')
-      raise TravelClaim::Errors::InvalidArgument,
-            "Failed to load data from Redis for check-in UUID #{@check_in_uuid}"
     end
 
     ##
@@ -298,7 +292,13 @@ module TravelClaim
     # @raise [TravelClaim::Errors::InvalidArgument] if any required arguments are missing
     #
     def validate_arguments
-      load_redis_data if (@icn.blank? || @station_number.blank?) && @check_in_uuid.present?
+      if (@icn.blank? || @station_number.blank?) && @check_in_uuid.present?
+        begin
+          load_redis_data
+        rescue Redis::BaseError
+          log_redis_error('load_user_data')
+        end
+      end
 
       missing = []
       missing << 'appointment date time' if @appointment_date_time.blank?
@@ -387,7 +387,7 @@ module TravelClaim
     def refresh_tokens!
       @current_veis_token  = nil
       @current_btsss_token = nil
-      redis_client.save_token(token: nil) if @redis_client
+      redis_client.save_token(token: nil)
       ensure_tokens!
     end
 
