@@ -487,6 +487,13 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses synchronous evidence uploads
     enable_in_development: true
+  cst_timezone_discrepancy_mitigation:
+    actor_type: user
+    description: >
+      Shows contextual timezone messages in Claims Status when uploaded documents
+      display with next-day dates due to UTC handling. Temporary mitigation while
+      awaiting Lighthouse API timestamp changes.
+    enable_in_development: true
   cst_use_dd_rum:
     actor_type: user
     description: When enabled, claims status tool uses DataDog's Real User Monitoring logging
