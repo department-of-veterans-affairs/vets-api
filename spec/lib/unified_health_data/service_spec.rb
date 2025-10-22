@@ -189,7 +189,9 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'handles gracefully' do
-        allow(service).to receive(:parse_response_body).and_return(nil)
+        # Mock response with nil body (Faraday auto-parses, so body is already a Hash/nil)
+        allow_any_instance_of(UnifiedHealthData::Client).to receive(:get_labs_by_date)
+          .and_return(Faraday::Response.new(body: nil))
         allow(Flipper).to receive(:enabled?).and_return(true)
         expect { service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31') }.not_to raise_error
       end
@@ -1232,7 +1234,6 @@ describe UnifiedHealthData::Service, type: :service do
     context 'parse_refill_response edge cases' do
       it 'always returns arrays for success and failed keys with nil response body' do
         response = double(body: nil)
-        allow(service).to receive(:parse_response_body).with(nil).and_return(nil)
 
         result = service.send(:parse_refill_response, response)
 
@@ -1244,7 +1245,6 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'always returns arrays for success and failed keys with non-array response body' do
         response = double(body: { error: 'Invalid format' })
-        allow(service).to receive(:parse_response_body).and_return({ error: 'Invalid format' })
 
         result = service.send(:parse_refill_response, response)
 
@@ -1256,7 +1256,6 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'always returns arrays for success and failed keys with empty array response' do
         response = double(body: [])
-        allow(service).to receive(:parse_response_body).and_return([])
 
         result = service.send(:parse_refill_response, response)
 
@@ -1270,12 +1269,6 @@ describe UnifiedHealthData::Service, type: :service do
         response = double(body: [
                             { 'success' => true, 'orderId' => '123', 'message' => 'Success', 'stationNumber' => '570' }
                           ])
-        allow(service).to receive(:parse_response_body).and_return([
-                                                                     { 'success' => true,
-                                                                       'orderId' => '123',
-                                                                       'message' => 'Success',
-                                                                       'stationNumber' => '570' }
-                                                                   ])
 
         result = service.send(:parse_refill_response, response)
 
@@ -1290,10 +1283,6 @@ describe UnifiedHealthData::Service, type: :service do
         response = double(body: [
                             { 'success' => false, 'orderId' => '456', 'message' => 'Failed', 'stationNumber' => '571' }
                           ])
-        allow(service).to receive(:parse_response_body).and_return([
-                                                                     { 'success' => false, 'orderId' => '456',
-                                                                       'message' => 'Failed', 'stationNumber' => '571' }
-                                                                   ])
 
         result = service.send(:parse_refill_response, response)
 
