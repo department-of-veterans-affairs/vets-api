@@ -176,16 +176,53 @@ module V0
       evidence_submissions = EvidenceSubmission.where(claim_id: claim['id'])
       tracked_items = claim['attributes']['trackedItems']
 
-      filter_evidence_submissions(evidence_submissions, tracked_items)
+      filter_evidence_submissions(evidence_submissions, tracked_items, claim)
     end
 
-    def filter_evidence_submissions(evidence_submissions, tracked_items)
+    def filter_evidence_submissions(evidence_submissions, tracked_items, claim)
+      non_duplicate_submissions = filter_duplicate_evidence_submissions(evidence_submissions, claim)
+
       filtered_evidence_submissions = []
-      evidence_submissions.each do |es|
+      non_duplicate_submissions.each do |es|
         filtered_evidence_submissions.push(build_filtered_evidence_submission_record(es, tracked_items))
       end
 
       filtered_evidence_submissions
+    end
+
+    def filter_duplicate_evidence_submissions(evidence_submissions, claim)
+      supporting_documents = claim['attributes']['supportingDocuments'] || []
+      received_file_names = supporting_documents.map { |doc| doc['originalFileName'] }.compact
+
+      return evidence_submissions if received_file_names.empty?
+
+      evidence_submissions.reject do |evidence_submission|
+        file_name = extract_evidence_submission_file_name(evidence_submission)
+        file_name && received_file_names.include?(file_name)
+      end
+    end
+
+    def extract_evidence_submission_file_name(evidence_submission)
+      return nil if evidence_submission.template_metadata.nil?
+
+      metadata = JSON.parse(evidence_submission.template_metadata)
+      personalisation = metadata['personalisation']
+
+      if personalisation.is_a?(Hash) && personalisation['file_name']
+        personalisation['file_name']
+      else
+        ::Rails.logger.warn(
+          '[BenefitsClaimsController] Missing or invalid personalisation in evidence submission metadata',
+          { evidence_submission_id: evidence_submission.id }
+        )
+        nil
+      end
+    rescue JSON::ParserError, TypeError
+      ::Rails.logger.error(
+        '[BenefitsClaimsController] Error parsing evidence submission metadata',
+        { evidence_submission_id: evidence_submission.id }
+      )
+      nil
     end
 
     def filter_failed_evidence_submissions
