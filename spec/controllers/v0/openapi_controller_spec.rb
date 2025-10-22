@@ -21,6 +21,15 @@ RSpec.describe V0::OpenapiController, type: :controller do
         expect(parsed_response['info']['title']).to eq('VA.gov OpenAPI Docs')
         expect(parsed_response['paths']).to be_present
       end
+
+      it 'dynamically injects the server URL from request' do
+        get :index
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['servers']).to be_present
+        expect(parsed_response['servers']).to be_an(Array)
+        expect(parsed_response['servers'].first['url']).to eq(request.base_url)
+        expect(parsed_response['servers'].first['url']).to match(%r{^https?://})
+      end
     end
 
     context 'when OpenAPI file does not exist' do
