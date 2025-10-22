@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class OpenAPIController < ApplicationController
+  class OpenApiController < ApplicationController
     service_tag 'platform-base'
     skip_before_action :authenticate
 
