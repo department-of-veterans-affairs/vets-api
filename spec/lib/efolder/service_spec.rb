@@ -166,7 +166,7 @@ RSpec.describe Efolder::Service do
         )
       end
 
-      it 'downloads a document' do
+      it 'sends binary file content' do
         VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
           VCR.use_cassette('bgs/people_service/person_data') do
             expect(subject.download_tsa_letter(document_id)).to eq(content)
