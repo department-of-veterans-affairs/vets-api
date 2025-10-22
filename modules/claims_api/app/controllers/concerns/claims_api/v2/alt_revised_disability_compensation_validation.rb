@@ -94,10 +94,16 @@ module ClaimsApi
         date = change_of_address.dig('dates', 'beginDate')
         return if date.nil? # nullable on schema
 
-        # If the date parse fails, then fall back to the InvalidFieldValue
         begin
-          nil if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
+          begins_in_past = Date.strptime(date, '%Y-%m-%d') < Time.zone.now
+          if 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange']) && begins_in_past
+            collect_error_messages(
+              detail: 'Change of address beginDate must be in the future if addressChangeType is TEMPORARY',
+              source: '/changeOfAddress/dates/beginDate'
+            )
+          end
         rescue
+          # If the date parse fails, then fall back to the InvalidFieldValue
           collect_error_messages(source: '/changeOfAddress/dates/beginDate', detail: 'beginDate is not a valid date.')
         end
       end

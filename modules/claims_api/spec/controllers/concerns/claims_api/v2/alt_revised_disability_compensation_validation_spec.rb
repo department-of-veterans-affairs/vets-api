@@ -423,6 +423,18 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
 
+    context 'when the type is temporary and begin date is in the past' do
+      it 'returns an error array' do
+        subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'
+        subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
+        subject.form_attributes['changeOfAddress']['dates']['endDate'] = '2024-01-01'
+        test_526_validation_instance.send(:validate_form_526_change_of_address_beginning_date)
+        expect(current_error_array[0][:detail]).to eq('Change of address beginDate must be '\
+                                                      'in the future if addressChangeType is TEMPORARY')
+        expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/beginDate')
+      end
+    end
+
     context 'when the type is permanent the end date is prohibited' do
       it 'returns an error array' do
         subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'PERMANENT'
