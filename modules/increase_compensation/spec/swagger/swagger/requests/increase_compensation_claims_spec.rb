@@ -4,7 +4,7 @@ require 'rails_helper'
 
 reg_office = 'Department of Veterans Affairs Evidence Intake Center PO Box 4444 Janesville, WI  53547-4444'
 
-# Income and Assets Claim Integration
+# Increase Compensation Claim Integration
 RSpec.describe Swagger::Requests::IncreaseCompensationClaims, skip: 'TODO after schema built',
                                                               type: %i[request serializer] do
   before do

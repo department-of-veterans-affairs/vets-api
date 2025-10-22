@@ -8,7 +8,7 @@ require 'pdf_utilities/datestamp_pdf'
 
 module IncreaseCompensation
   module BenefitsIntake
-    # Sidekiq job to send pension pdf to Lighthouse:BenefitsIntake API
+    # Sidekiq job to send increase compensation pdf to Lighthouse:BenefitsIntake API
     # @see https://developer.va.gov/explore/api/benefits-intake/docs
     class SubmitClaimJob
       include Sidekiq::Job
@@ -112,7 +112,7 @@ module IncreaseCompensation
       def generate_metadata
         form = @claim.parsed_form
 
-        # also validates/maniuplates the metadata
+        # also validates/manipulates the metadata
         ::BenefitsIntake::Metadata.generate(
           form['veteranFullName']['first'],
           form['veteranFullName']['last'],

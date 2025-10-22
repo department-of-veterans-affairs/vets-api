@@ -104,7 +104,7 @@ module IncreaseCompensation
       end
 
       ##
-      # retreive a monitor for tracking
+      # retrieve a monitor for tracking
       #
       # @return [IncreaseCompensation::Monitor]
       #

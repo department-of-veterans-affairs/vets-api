@@ -91,7 +91,7 @@ RSpec.describe IncreaseCompensation::Helpers do
       expect(subject.split_currency_amount_thousands(1250)).to eq({ 'firstThree' => '  1', 'lastThree' => '250' })
     end
 
-    it 'returns has of 1 values if less than 1000' do
+    it 'returns hash of 1 value if less than 1000' do
       expect(subject.split_currency_amount_thousands(500)).to eq({ 'lastThree' => '500' })
       expect(subject.split_currency_amount_thousands(0)).to eq({ 'lastThree' => '  0' })
     end

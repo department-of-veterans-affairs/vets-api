@@ -7,7 +7,7 @@ module IncreaseCompensation
   ##
   # Monitor class for tracking claim submission events
   #
-  # This class provides methods for tracking various events during the burial claim
+  # This class provides methods for tracking various events during the increase compensation
   # submission process, including successes, failures, and retries.
   #
   # @example Tracking a submission success

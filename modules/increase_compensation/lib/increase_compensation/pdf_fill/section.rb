@@ -15,7 +15,7 @@ module IncreaseCompensation
 
   ##
   # Expands individual section by processing each entry in the section and
-  # in some cases setting an indicator for the presense of entries for the section
+  # in some cases setting an indicator for the presence of entries for the section
   #
   # @abstract
   #
