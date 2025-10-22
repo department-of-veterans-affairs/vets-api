@@ -911,4 +911,294 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       end
     end
   end
+
+  describe 'duplicate prevention integration tests' do
+    let(:claim_id) { 600_383_363 }
+
+    context 'when :cst_show_document_upload_status is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(
+          :cst_show_document_upload_status,
+          instance_of(User)
+        ).and_return(true)
+      end
+
+      context 'when evidence submission exists without duplicates' do
+        let(:tracked_item_id) { 394_443 } # This is a tracked item in the VCR cassette
+        let(:file_name) { 'unique_document.pdf' }
+
+        before do
+          # Create an evidence submission that should appear in "files in progress"
+          create(:bd_evidence_submission_pending,
+                 claim_id:,
+                 tracked_item_id:,
+                 user_account:,
+                 template_metadata: {
+                   personalisation: {
+                     file_name:,
+                     document_type: 'Medical Record'
+                   }
+                 }.to_json)
+        end
+
+        it 'includes the evidence submission in the response' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: claim_id })
+          end
+
+          expect(response).to have_http_status(:ok)
+          parsed_body = JSON.parse(response.body)
+          evidence_submissions = parsed_body.dig('data', 'attributes', 'evidenceSubmissions')
+
+          # The evidence submission should be included because no duplicate exists in VCR cassette
+          expect(evidence_submissions.size).to eq(1)
+          expect(evidence_submissions[0]['file_name']).to eq(file_name)
+          expect_metric('show', 'IN_PROGRESS', 1)
+        end
+      end
+
+      context 'when filter_duplicate_evidence_submissions is called directly' do
+        let(:controller) { described_class.new }
+        let(:mock_evidence_submission) do
+          double('EvidenceSubmission',
+                 id: 1,
+                 template_metadata: {
+                   personalisation: {
+                     file_name: 'test_document.pdf'
+                   }
+                 }.to_json)
+        end
+
+        it 'correctly filters duplicates when supporting documents match' do
+          claim_data = {
+            'attributes' => {
+              'supportingDocuments' => [
+                { 'originalFileName' => 'test_document.pdf' },
+                { 'originalFileName' => 'other_document.pdf' }
+              ]
+            }
+          }
+
+          result = controller.send(:filter_duplicate_evidence_submissions, [mock_evidence_submission], claim_data)
+          expect(result).to be_empty
+        end
+
+        it 'correctly includes evidence submissions when no duplicates exist' do
+          claim_data = {
+            'attributes' => {
+              'supportingDocuments' => [
+                { 'originalFileName' => 'different_document.pdf' },
+                { 'originalFileName' => 'other_document.pdf' }
+              ]
+            }
+          }
+
+          result = controller.send(:filter_duplicate_evidence_submissions, [mock_evidence_submission], claim_data)
+          expect(result).to eq([mock_evidence_submission])
+        end
+      end
+    end
+  end
+
+  describe 'private methods' do
+    let(:controller) { described_class.new }
+    let(:claim_id) { '600383363' }
+
+    describe '#filter_duplicate_evidence_submissions' do
+      let(:evidence_submission1) do
+        double('EvidenceSubmission',
+               id: 1,
+               template_metadata: { personalisation: { file_name: 'document1.pdf' } }.to_json)
+      end
+      let(:evidence_submission2) do
+        double('EvidenceSubmission',
+               id: 2,
+               template_metadata: { personalisation: { file_name: 'document2.pdf' } }.to_json)
+      end
+      let(:evidence_submission3) do
+        double('EvidenceSubmission',
+               id: 3,
+               template_metadata: { personalisation: { file_name: 'document3.pdf' } }.to_json)
+      end
+      let(:evidence_submissions) { [evidence_submission1, evidence_submission2, evidence_submission3] }
+
+      let(:claim_data) do
+        {
+          'id' => claim_id,
+          'attributes' => {
+            'supportingDocuments' => supporting_documents
+          }
+        }
+      end
+
+      context 'when no supporting documents exist' do
+        let(:supporting_documents) { [] }
+
+        it 'returns all evidence submissions unchanged' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+          expect(result).to eq(evidence_submissions)
+        end
+      end
+
+      context 'when supportingDocuments is nil' do
+        let(:claim_data) do
+          {
+            'id' => claim_id,
+            'attributes' => {}
+          }
+        end
+
+        it 'returns all evidence submissions unchanged' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+          expect(result).to eq(evidence_submissions)
+        end
+      end
+
+      context 'when supporting documents exist but no file names match' do
+        let(:supporting_documents) do
+          [
+            { 'originalFileName' => 'different1.pdf' },
+            { 'originalFileName' => 'different2.pdf' }
+          ]
+        end
+
+        it 'returns all evidence submissions unchanged' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+          expect(result).to eq(evidence_submissions)
+        end
+      end
+
+      context 'when supporting documents contain matching file names' do
+        let(:supporting_documents) do
+          [
+            { 'originalFileName' => 'document1.pdf' },  # matches evidence_submission1
+            { 'originalFileName' => 'different.pdf' },
+            { 'originalFileName' => 'document3.pdf' }   # matches evidence_submission3
+          ]
+        end
+
+        it 'filters out evidence submissions with matching file names' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+          expect(result).to eq([evidence_submission2])
+          expect(result).not_to include(evidence_submission1)
+          expect(result).not_to include(evidence_submission3)
+        end
+      end
+
+      context 'when supporting documents have nil originalFileName' do
+        let(:supporting_documents) do
+          [
+            { 'originalFileName' => nil },
+            { 'originalFileName' => 'document2.pdf' }
+          ]
+        end
+
+        it 'handles nil originalFileName gracefully and filters matching files' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+          expect(result).to eq([evidence_submission1, evidence_submission3])
+          expect(result).not_to include(evidence_submission2)
+        end
+      end
+
+      context 'when evidence submission has invalid JSON metadata' do
+        let(:evidence_submission_invalid) do
+          double('EvidenceSubmission',
+                 id: 4,
+                 template_metadata: 'invalid json')
+        end
+        let(:evidence_submissions) { [evidence_submission1, evidence_submission_invalid] }
+        let(:supporting_documents) do
+          [{ 'originalFileName' => 'document1.pdf' }]
+        end
+
+        before do
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'logs warning but does not filter out submission with invalid metadata' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+
+          expect(result).to eq([evidence_submission_invalid])
+          expect(result).not_to include(evidence_submission1)
+          expect(Rails.logger).to have_received(:error).with(
+            '[BenefitsClaimsController] Error parsing evidence submission metadata',
+            { evidence_submission_id: 4 }
+          )
+        end
+      end
+
+      context 'when evidence submission has nil template_metadata' do
+        let(:evidence_submission_nil) do
+          double('EvidenceSubmission',
+                 id: 5,
+                 template_metadata: nil)
+        end
+        let(:evidence_submissions) { [evidence_submission1, evidence_submission_nil] }
+        let(:supporting_documents) do
+          [{ 'originalFileName' => 'document1.pdf' }]
+        end
+
+        it 'does not filter out submission with nil metadata' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+
+          expect(result).to eq([evidence_submission_nil])
+          expect(result).not_to include(evidence_submission1)
+        end
+      end
+
+      context 'when evidence submission has valid JSON but missing personalisation key' do
+        let(:evidence_submission_missing_key) do
+          double('EvidenceSubmission',
+                 id: 6,
+                 template_metadata: { other_data: 'value' }.to_json)
+        end
+        let(:evidence_submissions) { [evidence_submission1, evidence_submission_missing_key] }
+        let(:supporting_documents) do
+          [{ 'originalFileName' => 'document1.pdf' }]
+        end
+
+        before do
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'logs warning about missing personalisation and does not filter out submission' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+
+          expect(result).to eq([evidence_submission_missing_key])
+          expect(result).not_to include(evidence_submission1)
+          expect(Rails.logger).to have_received(:warn).with(
+            '[BenefitsClaimsController] Missing or invalid personalisation in evidence submission metadata',
+            { evidence_submission_id: 6 }
+          )
+        end
+      end
+
+      context 'when evidence submission has personalisation as non-hash' do
+        let(:evidence_submission_invalid_personalisation) do
+          double('EvidenceSubmission',
+                 id: 7,
+                 template_metadata: { personalisation: 'not a hash' }.to_json)
+        end
+        let(:evidence_submissions) { [evidence_submission1, evidence_submission_invalid_personalisation] }
+        let(:supporting_documents) do
+          [{ 'originalFileName' => 'document1.pdf' }]
+        end
+
+        before do
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'logs warning about invalid personalisation and does not filter out submission' do
+          result = controller.send(:filter_duplicate_evidence_submissions, evidence_submissions, claim_data)
+
+          expect(result).to eq([evidence_submission_invalid_personalisation])
+          expect(result).not_to include(evidence_submission1)
+          expect(Rails.logger).to have_received(:warn).with(
+            '[BenefitsClaimsController] Missing or invalid personalisation in evidence submission metadata',
+            { evidence_submission_id: 7 }
+          )
+        end
+      end
+    end
+  end
 end
