@@ -200,6 +200,7 @@ Rails.application.routes.draw do
     get 'status', to: 'admin#status'
     get 'healthcheck', to: 'example#healthcheck', as: :healthcheck
     get 'startup_healthcheck', to: 'example#startup_healthcheck', as: :startup_healthcheck
+    get 'openapi', to: 'openapi#index'
 
     post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
 
