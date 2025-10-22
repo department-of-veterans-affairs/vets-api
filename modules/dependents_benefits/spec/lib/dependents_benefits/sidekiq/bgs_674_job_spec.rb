@@ -55,7 +55,9 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS674Job, type: :job do
     context 'with BGS service error' do
       it 'handles BGS errors gracefully' do
         allow_any_instance_of(BGSV2::Form674).to receive(:submit).and_raise(BGS::ShareError.new('failed', 500))
-        expect { job.perform(saved_claim.id, proc_id) }.to raise_error(BGS::ShareError)
+        expect do
+          job.perform(saved_claim.id, proc_id)
+        end.to raise_error(DependentsBenefits::Sidekiq::DependentSubmissionError, 'failed')
       end
     end
   end
