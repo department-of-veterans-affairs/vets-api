@@ -24,10 +24,9 @@ module Veteran
       rep.poa_codes << poa_code if poa_code.present? && rep.poa_codes.exclude?(poa_code)
       rep.user_types << user_type unless rep.user_types.include?(user_type)
 
-      rep.email = hash_object['Email'] if rep.email.blank?
       rep.phone = hash_object['Phone'] if rep.phone.blank?
       rep.first_name = hash_object['First Name'] if rep.first_name.blank?
-      rep.last_name = hash_object['Last Name'].strip if rep.last_name.blank?
+      rep.last_name = hash_object['Last Name']&.strip if rep.last_name.blank?
       if !hash_object['Middle Initial'].nil? && rep.middle_initial.blank?
         rep.middle_initial = hash_object['Middle Initial']
       end
