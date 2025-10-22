@@ -48,11 +48,12 @@ module ClaimsApi
 
       def flatten_disabilities(disabilities_array)
         disabilities_array.flat_map do |disability|
-          primary_disablity = disability.dup
-          # Remove secondaryDisabilities from primary_disablity before adding to list
-          secondary_disability_data = primary_disablity.delete(:secondaryDisabilities)
+          primary_disability = disability.dup
+          # Remove secondaryDisabilities from primary_disability before adding to list
+          secondary_disability_data = primary_disability.delete(:secondaryDisabilities)
 
-          list = [primary_disablity]
+          list = []
+          list << primary_disability unless primary_disability[:disabilityActionType] == 'NONE'
 
           if secondary_disability_data.present?
             secondaries = secondary_disability_data.map do |secondary|
