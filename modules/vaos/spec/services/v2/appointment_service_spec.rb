@@ -1593,6 +1593,8 @@ describe VAOS::V2::AppointmentsService do
         result = appointments_service.get_active_appointments_for_referral(referral_number)
         expect(result[:system]).to eq('EPS')
         expect(result[:data]).to eq([])
+        expect(result[:errors]).to eq({ 'Appointment status discrepancy' =>
+                                         'EPS has cancelled but VAOS has active appointment' })
       end
     end
 
@@ -1621,6 +1623,24 @@ describe VAOS::V2::AppointmentsService do
         expect(result[:system]).to eq('VAOS')
         expect(result[:data].length).to eq(1)
         expect(result[:data].first[:id]).to eq('vaos-1')
+      end
+
+      it 'returns nil system when both EPS and VAOS have no appointments' do
+        appointments_service = VAOS::V2::AppointmentsService.new(user)
+        eps_service = instance_double(Eps::AppointmentService)
+        allow(Eps::AppointmentService).to receive(:new).and_return(eps_service)
+        allow(eps_service).to receive(:config).and_return(double(mock_enabled?: false))
+        allow(eps_service).to receive(:get_appointments).with(referral_number:).and_return([])
+
+        # Mock VAOS response with no appointments
+        allow(appointments_service).to receive(:get_all_appointments).and_return({
+                                                                                   data: [],
+                                                                                   meta: {}
+                                                                                 })
+
+        result = appointments_service.get_active_appointments_for_referral(referral_number)
+        expect(result[:system]).to be_nil
+        expect(result[:data]).to eq([])
       end
     end
 

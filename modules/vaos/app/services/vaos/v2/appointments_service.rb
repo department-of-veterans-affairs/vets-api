@@ -395,7 +395,11 @@ module VAOS
 
         if eps_has_cancelled && active_vaos.any?
           log_appointment_discrepancy(referral_number, active_vaos)
-          return { system: 'EPS', data: [] }
+          return {
+            system: 'EPS',
+            data: [],
+            errors: { 'Appointment status discrepancy' => 'EPS has cancelled but VAOS has active appointment' }
+          }
         end
 
         build_vaos_result(active_vaos, eps_has_cancelled)
@@ -425,8 +429,12 @@ module VAOS
       def build_vaos_result(active_vaos, eps_has_cancelled)
         if active_vaos.any?
           { system: 'VAOS', data: active_vaos }
+        elsif eps_has_cancelled
+          # EPS had cancelled appointments, so indicate EPS system
+          { system: 'EPS', data: [] }
         else
-          { system: eps_has_cancelled ? 'EPS' : 'VAOS', data: [] }
+          # Neither EPS nor VAOS had any appointments
+          { system: nil, data: [] }
         end
       end
 
