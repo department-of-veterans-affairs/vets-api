@@ -7,7 +7,6 @@ class Sidekiq::SetRequestAttributes
     job['user_agent'] = additional_request_attributes.fetch('user_agent', 'N/A')
     job['user_uuid'] = additional_request_attributes.fetch('user_uuid', 'N/A')
     job['source'] = additional_request_attributes.fetch('source') if additional_request_attributes['source']
-    job['job_name'] = job['class'].underscore
     yield
   end
 end

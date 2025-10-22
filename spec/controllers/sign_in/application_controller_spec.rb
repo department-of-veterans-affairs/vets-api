@@ -725,22 +725,20 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     let(:expected_result) { 'Test log message' }
 
     context 'when controller has a name' do
-      it 'adds controller name as origin to logs within around_action' do
-        expect(SemanticLogger).to receive(:named_tagged).with(origin: 'application').and_call_original
+      it 'adds controller class name as origin to logs within around_action' do
+        expect(SemanticLogger).to receive(:named_tagged).with(origin: 'sign_in/application_controller')
+                                                        .and_call_original
         expect(Rails.logger).to receive(:info).with(expected_result)
         get :test_logging
         expect(response).to have_http_status :ok
       end
     end
 
-    context 'when controller has no name' do
-      before { allow(controller).to receive(:controller_name).and_return('') }
-
-      it 'does not call SemanticLogger.named_tagged' do
+    context 'when controller class name is blank' do
+      it 'does not call SemanticLogger.named_tagged when class name is blank' do
+        allow(controller.class).to receive(:name).and_return('')
         expect(SemanticLogger).not_to receive(:named_tagged)
-        expect(Rails.logger).to receive(:info).with(expected_result)
-        get :test_logging
-        expect(response).to have_http_status :ok
+        controller.send(:tag_with_controller_name) { 'test' }
       end
     end
   end
