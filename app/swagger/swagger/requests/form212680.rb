@@ -7,19 +7,19 @@ module Swagger
 
       swagger_schema :Form212680Address do
         key :type, :object
-        property :street, type: :string, example: '123 Main St'
-        property :street2, type: :string, example: 'Apt 4B'
-        property :city, type: :string, example: 'Springfield'
-        property :state, type: :string, example: 'IL'
-        property :zipCode, type: :string, example: '62701'
-        property :country, type: :string, example: 'USA'
+        property :street, type: :string, example: '123 Main St', maxLength: 30
+        property :street2, type: :string, example: 'Apt 4B', maxLength: 5
+        property :city, type: :string, example: 'Springfield', maxLength: 18
+        property :state, type: :string, example: 'IL', maxLength: 2
+        property :zipCode, type: :string, example: '62701', maxLength: 9
+        property :country, type: :string, example: 'US', maxLength: 2
       end
 
       swagger_schema :Form212680FullName do
         key :type, :object
-        property :first, type: :string, example: 'John'
-        property :middle, type: :string, example: 'A'
-        property :last, type: :string, example: 'Doe'
+        property :first, type: :string, example: 'John', maxLength: 12
+        property :middle, type: :string, example: 'A', maxLength: 1
+        property :last, type: :string, example: 'Doe', maxLength: 18
       end
 
       swagger_path '/v0/form212680/download_pdf' do
@@ -52,8 +52,9 @@ module Swagger
                 property :fullName do
                   key :$ref, :Form212680FullName
                 end
-                property :ssn, type: :string, example: '123456789', description: 'Social Security Number (9 digits)'
-                property :vaFileNumber, type: :string, example: '987654321', description: 'VA File Number'
+                property :ssn, type: :string, example: '123456789', description: 'Social Security Number (9 digits)',
+                               maxLength: 9, minLength: 9
+                property :vaFileNumber, type: :string, example: '987654321', description: 'VA File Number', maxLength: 9
                 property :dateOfBirth, type: :string, format: :date, example: '1950-01-01', description: 'Date of Birth'
               end
 
@@ -65,19 +66,30 @@ module Swagger
                 property :fullName do
                   key :$ref, :Form212680FullName
                 end
+                property :dateOfBirth, type: :string, format: :date, example: '1950-01-01', description: 'Date of Birth'
+                property :ssn, type: :string, example: '123456789', description: 'Social Security Number (9 digits)',
+                               maxLength: 9, minLength: 9
                 property :relationship, type: :string, example: 'Spouse', description: 'Relationship to veteran'
                 property :address do
                   key :$ref, :Form212680Address
                 end
+                property :phoneNumber, type: :string, example: '5551234567', description: 'Phone Number',
+                                       maxLength: 10, minLength: 10, nullable: true
+                property :internationalPhoneNumber, type: :string, example: '5551234567', description: 'Phone Number',
+                                                    nullable: true
+                property :agreeToElectronicCorrespondence, type: :boolean,
+                                                           example: true
+                property :email, type: :string, example: 'test@va.gov', description: 'Email Address', nullable: true,
+                                 maxLength: 70
               end
 
               property :benefitInformation do
                 key :type, :object
-                key :required, %i[claimType]
-                key :description, 'Section III: Benefit Information'
+                key :required, %i[benefitSelection]
+                key :description, 'SECTION III: CLAIM INFORMATION'
 
-                property :claimType, type: :string, example: 'Aid and Attendance',
-                                     description: 'Type of claim: "Aid and Attendance" or "Housebound"'
+                property :benefitSelection, type: :string, example: 'smc',
+                                            description: 'Type of benefit being claimed', emum: %w[smc, smp]
               end
 
               property :additionalInformation do
@@ -86,8 +98,13 @@ module Swagger
 
                 property :currentlyHospitalized, type: :boolean, example: false,
                                                  description: 'Is veteran currently hospitalized?'
-                property :nursingHome, type: :boolean, example: false,
-                                       description: 'Is veteran in a nursing home?'
+                property :admissionDate, type: :string, format: :date, example: '2023-01-01',
+                                         description: 'Date admitted', nullable: true
+                property :hospitalName, type: :string, example: 'VA Medical Center',
+                                        description: 'Name of hospital', nullable: true
+                property :hospitalAddress 
+                  key :$ref, :Form212680Address
+              end
               end
 
               property :veteranSignature do
