@@ -245,7 +245,7 @@ module ClaimsApi
           # Add transformed primary disability
           primary = disability.deep_dup
           secondary_disabilities = primary.delete(:secondaryDisabilities) || []
-          all_disabilities << transform_disability_values!(primary)
+          all_disabilities << transform_disability_values!(primary) unless primary[:disabilityActionType] == 'NONE'
 
           # Pull any nested secondary disabilities up into the main disabilities array
           secondary_disabilities.each do |secondary|
