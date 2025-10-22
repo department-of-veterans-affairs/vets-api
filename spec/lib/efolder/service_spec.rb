@@ -178,13 +178,25 @@ RSpec.describe Efolder::Service do
       end
     end
 
-    context 'when it is not the TSA letter' do
+    context 'when it is not a TSA letter' do
       let(:document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
 
-      it 'raises a descriptive error' do
+      it 'raises a not found error' do
         VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
           VCR.use_cassette('bgs/people_service/person_data') do
-            expect { subject.download_tsa_letter('{706E58AA-7164-4968-AC27-50889C2DE794}') }.to raise_error(Common::Exceptions::RecordNotFound)
+            expect { subject.download_tsa_letter(document_id) }.to raise_error(Common::Exceptions::RecordNotFound)
+          end
+        end
+      end
+    end
+
+    context 'when the document is not found' do
+      let(:document_id) { '{abc}' }
+
+      it 'raises a not found error' do
+        VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            expect { subject.download_tsa_letter(document_id) }.to raise_error(Common::Exceptions::RecordNotFound)
           end
         end
       end

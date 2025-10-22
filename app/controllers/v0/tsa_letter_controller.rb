@@ -7,15 +7,15 @@ module V0
     service_tag 'tsa_letter'
 
     def index
-      letter = service.get_tsa_letter
-      render(json: letter)
+      letters = service.get_tsa_letter
+      render(json: letters)
     end
 
     def show
       send_data(
         service.download_tsa_letter(params[:id]),
         type: 'application/pdf',
-        filename: params[:filename]
+        filename: 'VETS Safe Travel Outreach Letter.pdf'
       )
     end
 

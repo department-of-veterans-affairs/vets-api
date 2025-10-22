@@ -41,7 +41,7 @@ RSpec.describe 'VO::TsaLetter', type: :request do
     end
 
     it 'sends the doc pdf' do
-      get "/v0/tsa_letter/#{CGI.escape(document_id)}", params: { filename: 'test.pdf' }
+      get "/v0/tsa_letter/#{CGI.escape(document_id)}"
       expect(response.body).to eq(content)
     end
   end

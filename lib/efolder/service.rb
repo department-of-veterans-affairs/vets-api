@@ -44,7 +44,9 @@ module Efolder
     end
 
     def download_tsa_letter(document_id)
-      tsa_docs = vbms_docs.select { |doc| doc[:subject] == 'VETS Safe Travel Outreach Letter' && doc[:document_id] == document_id }
+      tsa_docs = vbms_docs.select do |doc|
+        doc[:document_id] == document_id && doc[:subject] == 'VETS Safe Travel Outreach Letter'
+      end
       raise Common::Exceptions::RecordNotFound, "No TSA letter found with doc id #{document_id}" if tsa_docs.empty?
 
       @client.send_request(
