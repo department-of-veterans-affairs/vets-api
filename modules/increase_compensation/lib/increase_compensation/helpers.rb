@@ -141,9 +141,9 @@ module IncreaseCompensation
     ##
     # form has text field with two lines, wrap text to next line
     #
-    # param string [String]
-    # param key_name [String]
-    # param limit [Integer]
+    # @param string [String]
+    # @param key_name [String]
+    # @param limit [Integer]
     # return [Hash]
     #
     def two_line_overflow(string, key_name, limit)
