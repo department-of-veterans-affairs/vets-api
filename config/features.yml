@@ -687,9 +687,12 @@ features:
     actor_type: user
     description: Enables new Dependents module
     enable_in_development: false
+  dependents_benefits_confirmation_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Confirmation email notification
   dependents_benefits_error_email_notification:
     actor_type: cookie_id
-    description: Toggle sending of the Action Needed email notification
+    description: Toggle sending of the Error email notification
   dependents_benefits_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
