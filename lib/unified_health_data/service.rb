@@ -4,7 +4,6 @@ require 'common/client/base'
 require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/prescription'
-require_relative 'models/binary_data'
 require_relative 'adapters/allergy_adapter'
 require_relative 'adapters/clinical_notes_adapter'
 require_relative 'adapters/prescriptions_adapter'
@@ -227,7 +226,7 @@ module UnifiedHealthData
         end_date = default_end_date
 
         response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
-        body = parse_response_body(response.body)
+        body = response.body
 
         document_ref = body['entry']&.find do |entry|
           entry['resource'] && entry['resource']['resourceType'] == 'DocumentReference'

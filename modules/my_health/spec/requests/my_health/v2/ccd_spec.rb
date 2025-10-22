@@ -5,15 +5,9 @@ require 'unified_health_data/service'
 
 RSpec.describe 'MyHealth::V2::CcdController', type: :request do
   let(:user_id) { '11898795' }
-  let(:current_user) { build(:user, :mhv) }
+  let(:current_user) { build(:user, :mhv, icn: '1000123456V123456') }
   let(:path) { '/my_health/v2/medical_records/ccd/download' }
-
-  let(:binary_data) do
-    UnifiedHealthData::BinaryData.new(
-      content_type: 'application/xml',
-      binary: Base64.strict_encode64('<ClinicalDocument>test</ClinicalDocument>')
-    )
-  end
+  let(:ccd_cassette) { 'mobile/unified_health_data/get_ccd' }
 
   before do
     sign_in_as(current_user)
@@ -21,111 +15,88 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
 
   describe 'GET /my_health/v2/medical_records/ccd/download' do
     context 'when successful with XML format' do
-      before do
-        allow_any_instance_of(UnifiedHealthData::Service)
-          .to receive(:get_ccd_binary)
-          .and_return(binary_data)
-      end
-
       it 'returns XML CCD' do
-        get path, params: { file_format: 'xml' }
+        VCR.use_cassette(ccd_cassette) do
+          get path, params: { file_format: 'xml' }
 
-        expect(response).to have_http_status(:ok)
-        expect(response.content_type).to include('application/xml')
-        expect(response.body).to include('<ClinicalDocument>')
+          expect(response).to have_http_status(:ok)
+          expect(response.content_type).to include('application/xml')
+          expect(response.body).to include('ClinicalDocument')
+          expect(response.body).to include('<?xml version')
+        end
       end
 
       it 'sets correct filename for XML' do
-        get path, params: { file_format: 'xml' }
+        VCR.use_cassette(ccd_cassette) do
+          get path, params: { file_format: 'xml' }
 
-        expect(response.headers['Content-Disposition']).to include('filename=ccd.xml')
+          expect(response.headers['Content-Disposition']).to include('filename=ccd.xml')
+        end
       end
 
       it 'decodes Base64 data correctly' do
-        get path, params: { file_format: 'xml' }
+        VCR.use_cassette(ccd_cassette) do
+          get path, params: { file_format: 'xml' }
 
-        expect(response.body).not_to match(%r{^[A-Za-z0-9+/=]+$}) # Not Base64
-        expect(response.body).to include('<ClinicalDocument>') # Decoded XML
+          expect(response.body).to include('<?xml version') # Decoded XML, not Base64
+          expect(response.body).to include('ClinicalDocument')
+        end
       end
     end
 
     context 'when successful with HTML format' do
-      let(:html_data) do
-        UnifiedHealthData::BinaryData.new(
-          content_type: 'text/html',
-          binary: Base64.strict_encode64('<html><body>test</body></html>')
-        )
-      end
-
       it 'returns HTML CCD' do
-        allow_any_instance_of(UnifiedHealthData::Service)
-          .to receive(:get_ccd_binary)
-          .and_return(html_data)
+        VCR.use_cassette(ccd_cassette) do
+          get path, params: { file_format: 'html' }
 
-        get path, params: { file_format: 'html' }
-
-        expect(response).to have_http_status(:ok)
-        expect(response.content_type).to include('text/html')
-        expect(response.body).to include('<html>')
+          expect(response).to have_http_status(:ok)
+          expect(response.content_type).to include('text/html')
+          expect(response.body).to include('<!DOCTYPE html>')
+        end
       end
     end
 
     context 'when successful with PDF format' do
-      let(:pdf_data) do
-        UnifiedHealthData::BinaryData.new(
-          content_type: 'application/pdf',
-          binary: Base64.strict_encode64('%PDF-1.5')
-        )
-      end
-
       it 'returns PDF CCD' do
-        allow_any_instance_of(UnifiedHealthData::Service)
-          .to receive(:get_ccd_binary)
-          .and_return(pdf_data)
+        VCR.use_cassette(ccd_cassette) do
+          get path, params: { file_format: 'pdf' }
 
-        get path, params: { file_format: 'pdf' }
-
-        expect(response).to have_http_status(:ok)
-        expect(response.content_type).to eq('application/pdf')
+          expect(response).to have_http_status(:ok)
+          expect(response.content_type).to eq('application/pdf')
+          expect(response.body).to start_with('%PDF')
+        end
       end
     end
 
     context 'when format is not specified' do
-      before do
-        allow_any_instance_of(UnifiedHealthData::Service)
-          .to receive(:get_ccd_binary)
-          .and_return(binary_data)
-      end
-
       it 'defaults to XML format' do
-        get path, params: {}
+        VCR.use_cassette(ccd_cassette) do
+          get path, params: {}
 
-        expect(response).to have_http_status(:ok)
-        expect(response.content_type).to include('application/xml')
-        expect(response.headers['Content-Disposition']).to include('filename=ccd.xml')
+          expect(response).to have_http_status(:ok)
+          expect(response.content_type).to include('application/xml')
+          expect(response.headers['Content-Disposition']).to include('filename=ccd.xml')
+        end
       end
     end
 
     context 'when dates are not provided' do
-      before do
-        allow_any_instance_of(UnifiedHealthData::Service)
-          .to receive(:get_ccd_binary)
-          .and_return(binary_data)
-      end
-
       it 'uses default dates and returns CCD successfully' do
-        get path, params: {}
+        VCR.use_cassette(ccd_cassette) do
+          get path, params: {}
 
-        expect(response).to have_http_status(:ok)
-        expect(response.content_type).to include('application/xml')
+          expect(response).to have_http_status(:ok)
+          expect(response.content_type).to include('application/xml')
+        end
       end
     end
 
     context 'when CCD is not found' do
+      let(:service_double) { instance_double(UnifiedHealthData::Service) }
+
       before do
-        allow_any_instance_of(UnifiedHealthData::Service)
-          .to receive(:get_ccd_binary)
-          .and_return(nil)
+        allow(UnifiedHealthData::Service).to receive(:new).and_return(service_double)
+        allow(service_double).to receive(:get_ccd_binary).and_return(nil)
       end
 
       it 'returns 404 not found' do
@@ -139,9 +110,11 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
     end
 
     context 'when format is invalid' do
+      let(:service_double) { instance_double(UnifiedHealthData::Service) }
+
       before do
-        allow_any_instance_of(UnifiedHealthData::Service)
-          .to receive(:get_ccd_binary)
+        allow(UnifiedHealthData::Service).to receive(:new).and_return(service_double)
+        allow(service_double).to receive(:get_ccd_binary)
           .and_raise(ArgumentError, 'Invalid format: json. Use xml, html, or pdf')
       end
 
@@ -152,35 +125,39 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
         json_response = JSON.parse(response.body)
         expect(json_response['errors'].first['title']).to eq('Invalid Format')
         expect(json_response['errors'].first['detail']).to include('Invalid format')
+        expect(json_response['errors'].first['status']).to eq(400)
       end
     end
 
     context 'when format is unavailable' do
+      let(:service_double) { instance_double(UnifiedHealthData::Service) }
+
       before do
-        allow_any_instance_of(UnifiedHealthData::Service)
-          .to receive(:get_ccd_binary)
+        allow(UnifiedHealthData::Service).to receive(:new).and_return(service_double)
+        allow(service_double).to receive(:get_ccd_binary)
           .and_raise(ArgumentError, 'Format html not available for this CCD')
       end
 
-      it 'returns 400 bad request' do
+      it 'returns 404 not found' do
         get path, params: { file_format: 'html' }
 
-        expect(response).to have_http_status(:bad_request)
+        expect(response).to have_http_status(:not_found)
         json_response = JSON.parse(response.body)
-        expect(json_response['errors'].first['title']).to eq('Invalid Format')
+        expect(json_response['errors'].first['title']).to eq('CCD Format Not Found')
         expect(json_response['errors'].first['detail']).to include('not available')
+        expect(json_response['errors'].first['status']).to eq(404)
       end
     end
 
     context 'when FHIR API error occurs' do
+      let(:service_double) { instance_double(UnifiedHealthData::Service) }
       let(:client_error) do
         Common::Client::Errors::ClientError.new('SCDF service unavailable', 503)
       end
 
       before do
-        allow_any_instance_of(UnifiedHealthData::Service)
-          .to receive(:get_ccd_binary)
-          .and_raise(client_error)
+        allow(UnifiedHealthData::Service).to receive(:new).and_return(service_double)
+        allow(service_double).to receive(:get_ccd_binary).and_raise(client_error)
       end
 
       it 'returns correct HTTP status based on error status' do
@@ -193,10 +170,11 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
     end
 
     context 'when unexpected error occurs' do
+      let(:service_double) { instance_double(UnifiedHealthData::Service) }
+
       before do
-        allow_any_instance_of(UnifiedHealthData::Service)
-          .to receive(:get_ccd_binary)
-          .and_raise(StandardError, 'Unexpected error')
+        allow(UnifiedHealthData::Service).to receive(:new).and_return(service_double)
+        allow(service_double).to receive(:get_ccd_binary).and_raise(StandardError, 'Unexpected error')
       end
 
       it 'returns 500 internal server error' do

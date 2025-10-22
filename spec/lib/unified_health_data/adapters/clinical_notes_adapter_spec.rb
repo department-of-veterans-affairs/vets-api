@@ -253,14 +253,14 @@ RSpec.describe 'ClinicalNotesAdapter' do
       expect(result).to be_a(UnifiedHealthData::BinaryData)
       expect(result.content_type).to eq('application/xml')
       expect(result.binary).to be_present
+      expect(result.binary[0, 20]).to eq('PD94bWwgdmVyc2lvbj0i')
     end
 
     it 'keeps data Base64 encoded' do
       result = adapter.parse_ccd_binary(document_ref_entry, 'xml')
 
-      # The binary data should remain Base64 encoded (not decoded)
       expect(result.binary).to be_a(String)
-      expect(result.binary).not_to include('<') # Should not be decoded XML
+      expect(result.binary).not_to include('<') 
     end
 
     it 'returns BinaryData object with HTML content' do
@@ -269,6 +269,7 @@ RSpec.describe 'ClinicalNotesAdapter' do
       expect(result).to be_a(UnifiedHealthData::BinaryData)
       expect(result.content_type).to eq('text/html')
       expect(result.binary).to be_present
+      expect(result.binary[0, 20]).to eq('PCEtLSBEbyBOT1QgZWRp')
     end
 
     it 'returns BinaryData object with PDF content' do
@@ -277,6 +278,7 @@ RSpec.describe 'ClinicalNotesAdapter' do
       expect(result).to be_a(UnifiedHealthData::BinaryData)
       expect(result.content_type).to eq('application/pdf')
       expect(result.binary).to be_present
+      expect(result.binary[0, 20]).to eq('JVBERi0xLjUKJeLjz9MK')
     end
 
     it 'raises ArgumentError for unavailable format' do

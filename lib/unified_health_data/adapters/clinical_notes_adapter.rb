@@ -99,17 +99,15 @@ module UnifiedHealthData
         # For CCD, we need to search through all content items to find the matching format
         content_type = content_type_for_format(format)
         content_item = resource['content']&.find do |item|
-          item['attachment']&.dig('contentType') == content_type
+          attachment = item['attachment']
+          attachment&.dig('contentType') == content_type && attachment&.dig('data').present?
         end
 
         raise ArgumentError, "Format #{format} not available for this CCD" unless content_item
 
-        format_data = content_item['attachment']['data']
-        raise ArgumentError, "Format #{format} not available for this CCD" unless format_data
-
         UnifiedHealthData::BinaryData.new(
           content_type:,
-          binary: format_data
+          binary: content_item['attachment']['data']
         )
       end
 

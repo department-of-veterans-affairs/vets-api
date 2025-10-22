@@ -189,6 +189,7 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'handles gracefully' do
+        allow(service).to receive(:parse_response_body).and_return(nil)
         allow(Flipper).to receive(:enabled?).and_return(true)
         expect { service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31') }.not_to raise_error
       end
@@ -1231,6 +1232,7 @@ describe UnifiedHealthData::Service, type: :service do
     context 'parse_refill_response edge cases' do
       it 'always returns arrays for success and failed keys with nil response body' do
         response = double(body: nil)
+        allow(service).to receive(:parse_response_body).with(nil).and_return(nil)
 
         result = service.send(:parse_refill_response, response)
 
@@ -1242,6 +1244,7 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'always returns arrays for success and failed keys with non-array response body' do
         response = double(body: { error: 'Invalid format' })
+        allow(service).to receive(:parse_response_body).and_return({ error: 'Invalid format' })
 
         result = service.send(:parse_refill_response, response)
 
@@ -1253,6 +1256,7 @@ describe UnifiedHealthData::Service, type: :service do
 
       it 'always returns arrays for success and failed keys with empty array response' do
         response = double(body: [])
+        allow(service).to receive(:parse_response_body).and_return([])
 
         result = service.send(:parse_refill_response, response)
 
@@ -1266,6 +1270,12 @@ describe UnifiedHealthData::Service, type: :service do
         response = double(body: [
                             { 'success' => true, 'orderId' => '123', 'message' => 'Success', 'stationNumber' => '570' }
                           ])
+        allow(service).to receive(:parse_response_body).and_return([
+                                                                     { 'success' => true,
+                                                                       'orderId' => '123',
+                                                                       'message' => 'Success',
+                                                                       'stationNumber' => '570' }
+                                                                   ])
 
         result = service.send(:parse_refill_response, response)
 
@@ -1280,6 +1290,10 @@ describe UnifiedHealthData::Service, type: :service do
         response = double(body: [
                             { 'success' => false, 'orderId' => '456', 'message' => 'Failed', 'stationNumber' => '571' }
                           ])
+        allow(service).to receive(:parse_response_body).and_return([
+                                                                     { 'success' => false, 'orderId' => '456',
+                                                                       'message' => 'Failed', 'stationNumber' => '571' }
+                                                                   ])
 
         result = service.send(:parse_refill_response, response)
 
@@ -1532,7 +1546,7 @@ describe UnifiedHealthData::Service, type: :service do
 
   describe '#get_ccd_binary' do
     let(:ccd_fixture) do
-      Rails.root.join('spec', 'fixtures', 'unified_health_data', 'ccd_example.json').read
+      JSON.parse(Rails.root.join('spec', 'fixtures', 'unified_health_data', 'ccd_example.json').read)
     end
     let(:ccd_response) do
       Faraday::Response.new(body: ccd_fixture)
@@ -1552,21 +1566,40 @@ describe UnifiedHealthData::Service, type: :service do
         expect(result).to be_a(UnifiedHealthData::BinaryData)
         expect(result.content_type).to eq('application/xml')
         expect(result.binary).to be_present
-        # Verify it's Base64 encoded by decoding and checking for XML declaration
-        decoded = Base64.decode64(result.binary)
-        expect(decoded).to match(/^<\?xml/)
+        expect(result.binary[0, 20]).to eq('PD94bWwgdmVyc2lvbj0i')
+      end
+    end
+
+    context 'when requesting HTML format' do
+      it 'returns BinaryData object with Base64 encoded HTML' do
+        result = service.get_ccd_binary(format: 'html')
+
+        expect(result).to be_a(UnifiedHealthData::BinaryData)
+        expect(result.content_type).to eq('text/html')
+        expect(result.binary).to be_present
+        expect(result.binary[0, 20]).to eq('PCEtLSBEbyBOT1QgZWRp')
+      end
+    end
+
+    context 'when requesting PDF format' do
+      it 'returns BinaryData object with Base64 encoded PDF' do
+        result = service.get_ccd_binary(format: 'pdf')
+
+        expect(result).to be_a(UnifiedHealthData::BinaryData)
+        expect(result.content_type).to eq('application/pdf')
+        expect(result.binary).to be_present
+        expect(result.binary[0, 20]).to eq('JVBERi0xLjUKJeLjz9MK')
       end
     end
 
     context 'when requesting unavailable format' do
-      let(:ccd_data) { JSON.parse(ccd_fixture) }
       let(:modified_ccd) do
-        # Remove HTML content item from fixture
+        ccd_data = JSON.parse(ccd_fixture.to_json)
         doc_ref = ccd_data['entry'].find { |e| e['resource']['resourceType'] == 'DocumentReference' }
         doc_ref['resource']['content'].reject! do |item|
           item['attachment']['contentType'] == 'text/html'
         end
-        ccd_data.to_json
+        ccd_data
       end
       let(:ccd_response) do
         Faraday::Response.new(body: modified_ccd)
@@ -1592,7 +1625,7 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     context 'when DocumentReference is missing' do
-      let(:empty_bundle) { '{"entry": []}' }
+      let(:empty_bundle) { { 'entry' => [] } }
       let(:ccd_response) do
         Faraday::Response.new(body: empty_bundle)
       end

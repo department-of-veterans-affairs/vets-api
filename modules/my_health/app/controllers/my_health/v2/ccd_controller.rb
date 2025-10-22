@@ -21,7 +21,11 @@ module MyHealth
                   disposition: "attachment; filename=ccd.#{file_format.downcase}",
                   status: :ok
       rescue ArgumentError => e
-        render_error('Invalid Format', e.message, '400', 400, :bad_request)
+        if e.message.include?('not available')
+          render_error('CCD Format Not Found', e.message, '404', 404, :not_found)
+        else
+          render_error('Invalid Format', e.message, '400', 400, :bad_request)
+        end
       rescue Common::Client::Errors::ClientError,
              Common::Exceptions::BackendServiceException,
              StandardError => e
