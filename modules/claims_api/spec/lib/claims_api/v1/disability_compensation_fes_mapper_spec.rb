@@ -126,7 +126,7 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
           form_data['data']['attributes']['disabilities'][0]['disabilityActionType'] = 'NONE'
 
           disability_object = fes_data[:data][:form526][:disabilities]
-          # would be two if not removed
+          # 2 disabilities sent
           expect(disability_object.count).to eq(1)
         end
       end
