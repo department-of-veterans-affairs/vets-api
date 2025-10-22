@@ -24,8 +24,6 @@ RSpec.describe PdfFill::Forms::Va214192 do
           'state' => 'CA',
           'postalCode' => '54321'
         },
-        'employerEmail' => 'hr@acme.com',
-        'employerPhone' => '555-987-6543',
         'typeOfWorkPerformed' => 'Software Developer',
         'beginningDateOfEmployment' => '2015-01-15',
         'endingDateOfEmployment' => '2023-06-30',
