@@ -27,7 +27,7 @@ module IncreaseCompensation
     #
     # @return [String]
     def business_line
-      'NCA'
+      'CMP'
     end
 
     # the VBMS document type for _this_ claim type
@@ -39,7 +39,7 @@ module IncreaseCompensation
     #
     # @return [String] the claimant email
     def email
-      parsed_form['email'] || 'test@example.com' # TODO: update this when we have a real email field
+      parsed_form['email']
     end
 
     # Utility function to retrieve veteran first name from form

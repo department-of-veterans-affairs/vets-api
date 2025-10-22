@@ -40,7 +40,8 @@ module IncreaseCompensation
     end
 
     ##
-    # Format Currency into just thousands and hundreds `{ firstThree="100", lastThree="100" }``
+    # Format Currency into just thousands and hundreds. example 125,100 => `{ firstThree="125", lastThree="100" }`
+    # Amount will be padded so that the value fills space right to left.
     #
     # @param amount [Integer, nil]
     # @return [Hash]
@@ -118,7 +119,7 @@ module IncreaseCompensation
     #
     def get_currency_field(arr, neg_i, field_length)
       value = arr.length >= -neg_i ? arr[neg_i] : nil
-      (field_length - value.length).times { value = value.dup.prepend(' ') } if value
+      value = value.rjust(field_length, ' ') if value
       value
     end
 
