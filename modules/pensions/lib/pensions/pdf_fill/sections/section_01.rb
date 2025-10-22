@@ -4,7 +4,7 @@ require_relative '../section'
 
 module Pensions
   module PdfFill
-    # Section I: Veteran Informations
+    # Section I: Veteran Information
     class Section1 < Section
       # Section configuration hash
       KEY = {
@@ -65,20 +65,35 @@ module Pensions
       }.freeze
 
       ##
-      # Expands the veteran's information by extracting and capitalizing the first letter of the middle name.
+      # Expands and normalizes the veteran's information by:
+      # - Titleizing the first, middle, and last names
+      # - Splitting the Social Security Number into its components
+      # - Splitting the Date of Birth into month, day, and year
+      # - Converting vaClaimsHistory to radio button format
       #
       # @param form_data [Hash]
       #
       # @note Modifies `form_data`
       #
       def expand(form_data)
-        form_data['veteranFullName'] ||= {}
-        form_data['veteranFullName']['first'] = form_data.dig('veteranFullName', 'first')&.titleize
-        form_data['veteranFullName']['middle'] = form_data.dig('veteranFullName', 'middle')&.titleize
-        form_data['veteranFullName']['last'] = form_data.dig('veteranFullName', 'last')&.titleize
+        expand_full_name(form_data['veteranFullName'])
         form_data['veteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
         form_data['veteranDateOfBirth'] = split_date(form_data['veteranDateOfBirth'])
         form_data['vaClaimsHistory'] = to_radio_yes_no(form_data['vaClaimsHistory'])
+      end
+
+      ##
+      # Titleizes the veteran's full name and extracts the middle initial.
+      # @param full_name [Hash]
+      #
+      # @note Modifies `full_name`
+      #
+      def expand_full_name(full_name)
+        middle_initial = full_name['middle']&.[](0) # Get middle initial
+
+        full_name['first'] = full_name['first']&.titleize
+        full_name['middle'] = middle_initial&.upcase
+        full_name['last'] = full_name['last']&.titleize
       end
     end
   end
