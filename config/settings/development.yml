@@ -1386,7 +1386,7 @@ vanotify:
       api_key: fake_secret
       email:
         confirmation:
-          flipper_id: false
+          flipper_id: dependents_benefits_confirmation_email_notification
           template_id: form686c_674_confirmation_email_template_id
         error:
           flipper_id: dependents_benefits_error_email_notification

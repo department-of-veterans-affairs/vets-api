@@ -1367,7 +1367,7 @@ vanotify:
       api_key: <%= ENV['vanotify__services__21_686c_674__api_key'] %>
       email:
         confirmation:
-          flipper_id: false
+          flipper_id: dependents_benefits_confirmation_email_notification
           template_id: <%= ENV['vanotify__services__21_686c_674__email__confirmation__template_id'] %>
         error:
           flipper_id: dependents_benefits_error_email_notification
