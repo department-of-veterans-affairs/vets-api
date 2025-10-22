@@ -260,7 +260,7 @@ RSpec.describe 'ClinicalNotesAdapter' do
       result = adapter.parse_ccd_binary(document_ref_entry, 'xml')
 
       expect(result.binary).to be_a(String)
-      expect(result.binary).not_to include('<') 
+      expect(result.binary).not_to include('<')
     end
 
     it 'returns BinaryData object with HTML content' do
