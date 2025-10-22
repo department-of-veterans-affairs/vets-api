@@ -4,6 +4,8 @@ module Pensions
   module PdfFill
     # Helpers used for PDF mapping
     module Helpers
+      include ActiveSupport::NumberHelper
+
       # Convert a date to a string
       def to_date_string(date)
         date_hash = split_date(date)
@@ -34,14 +36,14 @@ module Pensions
         split_hash
       end
 
-      # Convert an objects truthiness to a radio on/off.
-      def to_checkbox_on_off(obj)
-        obj ? 1 : 'Off'
+      # Convert a given values truthiness to a radio on/off.
+      def to_checkbox_on_off(value)
+        value ? '1' : 'Off'
       end
 
-      # Convert an objects truthiness to a radio yes/no.
-      def to_radio_yes_no(obj)
-        obj ? 1 : 2
+      # Convert a given values truthiness to a radio yes/no.
+      def to_radio_yes_no(value)
+        value ? 0 : 1
       end
     end
   end

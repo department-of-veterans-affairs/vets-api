@@ -109,19 +109,19 @@ module DependentsVerification
             question_suffix: 'a',
             question_text: 'STREET ADDRESS'
           },
-          'city' => {
-            key: key_name('5', 'VeteranAddress', 'City'),
-            limit: 18,
-            question_num: 5,
-            question_suffix: 'b',
-            question_text: 'CITY'
-          },
           'unit_number' => {
             key: key_name('5', 'VeteranAddress', 'UnitNumber'),
             limit: 5,
             question_num: 5,
-            question_suffix: 'c',
+            question_suffix: 'b',
             question_text: 'UNIT NUMBER'
+          },
+          'city' => {
+            key: key_name('5', 'VeteranAddress', 'City'),
+            limit: 18,
+            question_num: 5,
+            question_suffix: 'c',
+            question_text: 'CITY'
           },
           'country' => {
             key: key_name('5', 'VeteranAddress', 'Country'),
