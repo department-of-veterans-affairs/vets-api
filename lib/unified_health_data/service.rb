@@ -341,7 +341,9 @@ module UnifiedHealthData
     def remap_vista_identifier(records)
       # TODO: Placeholder; will transition to a vista_uid
       records['vista']['entry']&.each do |allergy|
-        vista_identifier = allergy['resource']['identifier'].find { |id| id['system'].starts_with?('https://va.gov/systems/') }
+        vista_identifier = allergy['resource']['identifier']&.find do |id|
+          id['system'].starts_with?('https://va.gov/systems/')
+        end
         next unless vista_identifier && vista_identifier['value']
 
         allergy['resource']['id'] = vista_identifier['value']
@@ -351,7 +353,7 @@ module UnifiedHealthData
     # Care Summaries and Notes methods
     def remap_vista_uid(records)
       records['vista']['entry']&.each do |note|
-        vista_uid_identifier = note['resource']['identifier'].find { |id| id['system'] == 'vista-uid' }
+        vista_uid_identifier = note['resource']['identifier']&.find { |id| id['system'] == 'vista-uid' }
         next unless vista_uid_identifier && vista_uid_identifier['value']
 
         new_id_array = vista_uid_identifier['value'].split(':')
