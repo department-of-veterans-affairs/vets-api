@@ -100,7 +100,12 @@ module MedicalExpenseReports
         form_data['claimantFullName']['middle'] = form_data.dig('claimantFullName', 'middle')&.first&.capitalize
         form_data['claimantFullName']['last'] = form_data.dig('claimantFullName', 'last')&.titleize
         form_data['claimantAddress'] ||= {}
-        form_data['primaryPhone'] = expand_phone_number(form_data['mobilePhone'].to_s)
+        form_data['primaryPhone'] ||= {}
+        if form_data['primaryPhone']['countryCode'] == 'US'
+          form_data['primaryPhone'] = expand_phone_number(form_data['primaryPhone']['contact'].to_s)
+        else
+          form_data['internationalPhone'] = form_data['primaryPhone']['contact']
+        end
         form_data['claimantEmail'] = form_data['email']
         form_data
       end
