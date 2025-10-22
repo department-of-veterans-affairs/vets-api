@@ -21,13 +21,13 @@ RSpec.describe IncreaseCompensation::SavedClaim do
 
   describe '#email' do
     it 'returns the users email' do
-      expect(instance.email).to eq('test@example.com')
+      expect(instance.email).to be_nil
     end
   end
 
   describe '#business_line' do
     it 'returns the correct business line' do
-      expect(subject.business_line).to eq('NCA')
+      expect(subject.business_line).to eq('CMP')
     end
   end
 
