@@ -157,7 +157,8 @@ module PdfFill
         # These will be filled out manually by the physician on the printed form
       }.freeze
 
-      def merge_fields
+      def merge_fields(options = {})
+        @pdf_data ||= {}
         merge_veteran_information
         merge_claimant_information
         merge_benefit_information

@@ -46,8 +46,12 @@ class SavedClaim::Form212680 < SavedClaim
 
   # Check if veteran sections are complete
   def veteran_sections_complete?
-    validator = ::Form212680::VeteranSectionsValidator.new(veteran_sections)
-    validator.valid?
+    @validator = ::Form212680::VeteranSectionsValidator.new(veteran_sections)
+    @validator.valid?
+  end
+
+  def veteran_sections_errors
+    @validator.errors
   end
 
   # Generate pre-filled PDF with veteran sections

@@ -36,10 +36,12 @@ RSpec.describe V0::Form212680Controller, type: :controller do
   end
 
   describe 'POST #download_pdf' do
+    let(:pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'lgy_file.pdf').to_s }
+
     context 'with valid form data' do
       before do
         allow_any_instance_of(SavedClaim::Form212680).to receive(:to_pdf)
-          .and_return(Rails.root.join('spec', 'fixtures', 'files', 'lgy_file.pdf').to_s)
+          .and_return(pdf_path)
       end
 
       it 'returns a PDF file' do
@@ -72,7 +74,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
     context 'with missing form data' do
       it 'returns a parameter missing error' do
         post(:download_pdf, params: {})
-        
+
         expect(response).to have_http_status(:bad_request)
       end
     end
@@ -89,7 +91,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
 
       it 'returns 422 unprocessable entity' do
         post(:download_pdf, params: { form212680: incomplete_form_data })
-        
+
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
@@ -103,7 +105,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
 
       it 'returns 422 unprocessable entity' do
         post(:download_pdf, params: { form212680: invalid_form_data })
-        
+
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
@@ -117,7 +119,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
 
       it 'returns 422 unprocessable entity' do
         post(:download_pdf, params: { form212680: old_signature_form_data })
-        
+
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
@@ -130,7 +132,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
 
       it 'returns 500 internal server error' do
         post(:download_pdf, params: { form212680: valid_form_data })
-        
+
         expect(response).to have_http_status(:internal_server_error)
       end
     end

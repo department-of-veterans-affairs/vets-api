@@ -89,7 +89,7 @@ module Swagger
                 key :description, 'SECTION III: CLAIM INFORMATION'
 
                 property :benefitSelection, type: :string, example: 'smc',
-                                            description: 'Type of benefit being claimed', emum: %w[smc, smp]
+                                            description: 'Type of benefit being claimed', emum: %w[smc smp]
               end
 
               property :additionalInformation do
@@ -102,9 +102,9 @@ module Swagger
                                          description: 'Date admitted', nullable: true
                 property :hospitalName, type: :string, example: 'VA Medical Center',
                                         description: 'Name of hospital', nullable: true
-                property :hospitalAddress 
+                property :hospitalAddress do
                   key :$ref, :Form212680Address
-              end
+                end
               end
 
               property :veteranSignature do
