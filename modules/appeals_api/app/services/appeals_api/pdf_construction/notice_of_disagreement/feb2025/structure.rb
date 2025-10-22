@@ -153,7 +153,7 @@ module AppealsApi
         end
 
         def form_title
-          '10182_Feb2025'
+          '10182_feb2025'
         end
 
         # returns nil or a `pdftk.cat` array of page adjustments

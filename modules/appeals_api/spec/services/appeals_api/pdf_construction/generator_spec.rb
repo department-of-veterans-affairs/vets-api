@@ -108,16 +108,16 @@ describe AppealsApi::PdfConstruction::Generator do
         end
       end
 
-      # context 'v3' do
-      #   include_examples 'shared NOD v2 and v3 generator examples', 'v3'
-      # end
+      context 'v3' do
+        include_examples 'shared NOD v2 and v3 generator examples', 'v3'
+      end
 
-      # context 'v2' do
-      #   include_examples 'shared NOD v2 and v3 generator examples', 'v2'
-      # end
+      context 'v2' do
+        include_examples 'shared NOD v2 and v3 generator examples', 'v2'
+      end
 
       context 'Feb2025' do
-        include_examples 'shared NOD v2 and v3 generator examples', 'Feb2025'
+        include_examples 'shared NOD v2 and v3 generator examples', 'feb2025'
       end
     end
 
