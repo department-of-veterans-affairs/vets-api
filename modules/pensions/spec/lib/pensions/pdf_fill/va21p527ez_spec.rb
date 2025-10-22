@@ -177,30 +177,6 @@ describe Pensions::PdfFill::Va21p527ez do
     end
   end
 
-  describe '#expand_direct_deposit_information' do
-    it 'sets correct account type' do
-      form_data = { 'bankAccount' => { 'accountType' => 'checking' } }
-      form = described_class.new(form_data)
-      form.expand_direct_deposit_information
-      expect(form.instance_variable_get('@form_data')['bankAccount']['accountType']).to eq(0)
-
-      form_data = { 'bankAccount' => { 'accountType' => 'savings' } }
-      form = described_class.new(form_data)
-      form.expand_direct_deposit_information
-      expect(form.instance_variable_get('@form_data')['bankAccount']['accountType']).to eq(1)
-
-      form_data = { 'bankAccount' => nil }
-      form = described_class.new(form_data)
-      form.expand_direct_deposit_information
-      expect(form.instance_variable_get('@form_data')['bankAccount']['accountType']).to eq(2)
-
-      form_data = { 'bankAccount' => { 'accountType' => nil } }
-      form = described_class.new(form_data)
-      form.expand_direct_deposit_information
-      expect(form.instance_variable_get('@form_data')['bankAccount']['accountType']).to be_nil
-    end
-  end
-
   describe '#expand_veteran_service_information' do
     it 'puts overflow on line one' do
       long_place_of_separation = 'A very long place name that exceeds thirty-six characters'
