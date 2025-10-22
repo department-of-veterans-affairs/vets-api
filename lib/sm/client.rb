@@ -164,7 +164,6 @@ module SM
 
         loop do
           path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
-          path = append_requires_oh_messages_query(path)
           page_data = perform(:get, path, nil, token_headers).body
           json[:data].concat(page_data[:data])
           json[:metadata].merge(page_data[:metadata])
