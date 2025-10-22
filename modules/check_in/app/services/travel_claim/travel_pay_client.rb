@@ -292,11 +292,16 @@ module TravelClaim
     # @raise [TravelClaim::Errors::InvalidArgument] if any required arguments are missing
     #
     def validate_arguments
+      redis_attempted = false
+      redis_failed = false
+
       if (@icn.blank? || @station_number.blank?) && @check_in_uuid.present?
+        redis_attempted = true
         begin
           load_redis_data
         rescue Redis::BaseError
           log_redis_error('load_user_data')
+          redis_failed = true
         end
       end
 
@@ -307,6 +312,8 @@ module TravelClaim
       missing << 'check-in UUID' if (@icn.blank? || @station_number.blank?) && @check_in_uuid.blank?
 
       return if missing.empty?
+
+      missing << 'data from Redis (check-in UUID provided but Redis unavailable)' if redis_attempted && redis_failed
 
       log_initialization_error(missing)
       raise TravelClaim::Errors::InvalidArgument, "Missing required arguments: #{missing.join(', ')}"

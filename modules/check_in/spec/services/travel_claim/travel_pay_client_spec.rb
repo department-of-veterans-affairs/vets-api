@@ -56,19 +56,20 @@ RSpec.describe TravelClaim::TravelPayClient do
     end
 
     context 'when Redis ICN lookup fails' do
-      it 'catches Redis error and reports missing arguments' do
+      it 'catches Redis error and reports missing arguments with Redis context' do
         allow(redis_client).to receive(:icn).with(uuid: check_in_uuid)
                                             .and_raise(Redis::ConnectionError, 'Connection refused')
 
         expect do
           described_class.new(check_in_uuid:, appointment_date_time:)
         end.to raise_error(TravelClaim::Errors::InvalidArgument,
-                           'Missing required arguments: ICN, station number')
+                           'Missing required arguments: ICN, station number, ' \
+                           'data from Redis (check-in UUID provided but Redis unavailable)')
       end
     end
 
     context 'when Redis station number lookup fails' do
-      it 'catches Redis error and reports missing arguments' do
+      it 'catches Redis error and reports missing arguments with Redis context' do
         allow(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(test_icn)
         allow(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_raise(Redis::TimeoutError,
                                                                                             'Operation timed out')
@@ -76,7 +77,8 @@ RSpec.describe TravelClaim::TravelPayClient do
         expect do
           described_class.new(check_in_uuid:, appointment_date_time:)
         end.to raise_error(TravelClaim::Errors::InvalidArgument,
-                           'Missing required arguments: station number')
+                           'Missing required arguments: station number, ' \
+                           'data from Redis (check-in UUID provided but Redis unavailable)')
       end
     end
 
