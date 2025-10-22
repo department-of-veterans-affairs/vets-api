@@ -1523,42 +1523,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    context 'with a loa1 user' do
-      let(:mhv_user) { build(:user, :loa1) }
-
-      it 'rejects getting EVSS Letters for loa1 users' do
-        expect(subject).to validate(:get, '/v0/letters', 403, headers)
-      end
-
-      it 'rejects getting EVSS benefits Letters for loa1 users' do
-        expect(subject).to validate(:get, '/v0/letters/beneficiary', 403, headers)
-      end
-    end
-
-    context 'without EVSS mock' do
-      before do
-        allow(Settings.evss).to receive_messages(mock_gi_bill_status: false, mock_letters: false)
-      end
-
-      it 'supports getting EVSS Letters' do
-        expect(subject).to validate(:get, '/v0/letters', 401)
-        VCR.use_cassette('evss/letters/letters') do
-          expect(subject).to validate(:get, '/v0/letters', 200, headers)
-        end
-      end
-
-      it 'supports getting EVSS Letters Beneficiary' do
-        expect(subject).to validate(:get, '/v0/letters/beneficiary', 401)
-        VCR.use_cassette('evss/letters/beneficiary') do
-          expect(subject).to validate(:get, '/v0/letters/beneficiary', 200, headers)
-        end
-      end
-
-      it 'supports posting EVSS Letters' do
-        expect(subject).to validate(:post, '/v0/letters/{id}', 401, 'id' => 'commissary')
-      end
-    end
-
     it 'supports getting the 200 user data' do
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[body],
                                                                                   allow_playback_repeats: true) do
@@ -2457,6 +2421,76 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
+    describe 'Form 21-4192' do
+      context 'submitting a 21-4192 form' do
+        let(:valid_form_data) do
+          {
+            form214192: {
+              veteranInformation: {
+                fullName: {
+                  first: 'John',
+                  middle: 'M',
+                  last: 'Doe'
+                },
+                ssn: '123456789',
+                vaFileNumber: '987654321',
+                dateOfBirth: '1980-01-01',
+                address: {
+                  street: '123 Main St',
+                  city: 'Springfield',
+                  state: 'IL',
+                  postalCode: '62701',
+                  country: 'USA'
+                },
+                phoneNumber: '555-123-4567',
+                emailAddress: 'veteran@example.com'
+              },
+              employmentInformation: {
+                employerName: 'Acme Corporation',
+                employerAddress: {
+                  street: '456 Business Blvd',
+                  city: 'Chicago',
+                  state: 'IL',
+                  postalCode: '60601',
+                  country: 'USA'
+                },
+                employerPhone: '555-987-6543',
+                employerEmail: 'hr@acme.com',
+                contactPerson: {
+                  name: 'Jane Smith',
+                  title: 'HR Manager',
+                  phone: '555-987-6544',
+                  email: 'jane.smith@acme.com'
+                },
+                typeOfWorkPerformed: 'Software Developer',
+                beginningDateOfEmployment: '2015-01-15',
+                endingDateOfEmployment: '2023-06-30',
+                amountEarnedLast12MonthsOfEmployment: 75_000,
+                timeLostLast12MonthsOfEmployment: '2 weeks',
+                hoursWorkedDaily: 8,
+                hoursWorkedWeekly: 40,
+                concessions: 'Flexible hours, ergonomic desk',
+                terminationReason: 'Medical disability',
+                dateLastWorked: '2023-06-30',
+                lastPaymentDate: '2023-07-15',
+                lastPaymentGrossAmount: 6250,
+                lumpSumPaymentMade: false
+              }
+            }
+          }
+        end
+
+        it 'successfully submits a 21-4192 form' do
+          expect(subject).to validate(
+            :post,
+            '/v0/form214192',
+            200,
+            '_data' => valid_form_data
+          )
+        end
+      end
+    end
+
     describe '1095-B' do
       let(:user) { build(:user, :loa3, icn: '3456787654324567') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
@@ -2771,6 +2805,60 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
+    describe 'form 21-0779 nursing home information' do
+      let(:valid_form210779) do
+        {
+          veteranInformation: {
+            first: 'John',
+            last: 'Doe',
+            dateOfBirth: '1950-01-01',
+            veteranId: {
+              ssn: '123456789'
+            }
+          },
+          claimantInformation: {
+            first: 'Jane',
+            last: 'Doe',
+            dateOfBirth: '1952-05-15',
+            veteranId: {
+              ssn: '987654321'
+            }
+          },
+          nursingHomeInformation: {
+            nursingHomeName: 'Sunrise Senior Living',
+            nursingHomeAddress: {
+              street: '123 Care Lane',
+              city: 'Springfield',
+              state: 'IL',
+              country: 'USA',
+              postalCode: '62701'
+            }
+          },
+          generalInformation: {
+            admissionDate: '2024-01-01',
+            medicaidFacility: true,
+            medicaidApplication: true,
+            patientMedicaidCovered: true,
+            medicaidStartDate: '2024-02-01',
+            monthlyCosts: '3000.00',
+            certificationLevelOfCare: true,
+            nursingOfficialName: 'Dr. Sarah Smith',
+            nursingOfficialTitle: 'Director of Nursing',
+            nursingOfficialPhoneNumber: '555-789-0123'
+          }
+        }
+      end
+
+      it 'supports submitting a form 21-0779 (stub endpoint)' do
+        expect(subject).to validate(
+          :post,
+          '/v0/form210779',
+          200,
+          '_data' => valid_form210779
+        )
+      end
+    end
+
     describe 'va file number' do
       it 'supports checking if a user has a veteran number' do
         expect(subject).to validate(:get, '/v0/profile/valid_va_file_number', 401)
@@ -2825,6 +2913,74 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         # Response comes from fixture: spec/fixtures/claim_letter/claim_letter_list.json
         expect(subject).to validate(:get, '/v0/claim_letters', 200, headers)
         expect(subject).to validate(:get, '/v0/claim_letters', 401)
+      end
+    end
+
+    describe 'benefits claims' do
+      let(:user) { create(:user, :loa3, :accountable, :legacy_icn, uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
+      let(:invalid_user) { create(:user, :loa3, :accountable, :legacy_icn, participant_id: nil) }
+      let(:user_account) { create(:user_account, id: user.uuid) }
+      let(:claim_id) { 600_383_363 }
+      let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
+      let(:invalid_headers) { { '_headers' => { 'Cookie' => sign_in(invalid_user, nil, true) } } }
+
+      describe 'GET /v0/benefits_claims/failed_upload_evidence_submissions' do
+        before do
+          user.user_account_uuid = user_account.id
+          user.save!
+        end
+
+        context 'when the user is not signed in' do
+          it 'returns a status of 401' do
+            expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 401)
+          end
+        end
+
+        context 'when the user is signed in, but does not have valid credentials' do
+          it 'returns a status of 403' do
+            expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 403,
+                                        invalid_headers)
+          end
+        end
+
+        context 'when the user is signed in and has valid credentials' do
+          before do
+            token = 'fake_access_token'
+            allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
+            create(:bd_lh_evidence_submission_failed_type2_error, claim_id:, user_account:)
+          end
+
+          context 'when the ICN is not found' do
+            it 'returns a status of 404' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/404_response') do
+                expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 404,
+                                            headers)
+              end
+            end
+          end
+
+          context 'when there is a gateway timeout' do
+            it 'returns a status of 504' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/504_response') do
+                expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 504,
+                                            headers)
+              end
+            end
+          end
+
+          context 'when Lighthouse takes too long to respond' do
+            it 'returns a status of 504' do
+              allow_any_instance_of(BenefitsClaims::Configuration).to receive(:get).and_raise(Faraday::TimeoutError)
+              expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 504, headers)
+            end
+          end
+
+          it 'returns a status of 200' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              expect(subject).to validate(:get, '/v0/benefits_claims/failed_upload_evidence_submissions', 200, headers)
+            end
+          end
+        end
       end
     end
 
@@ -3174,7 +3330,9 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/coe/document_download/{id}')
       subject.untested_mappings.delete('/v0/caregivers_assistance_claims/download_pdf')
       subject.untested_mappings.delete('/v0/health_care_applications/download_pdf')
+      subject.untested_mappings.delete('/v0/form214192/download_pdf')
       subject.untested_mappings.delete('/v0/form0969')
+      subject.untested_mappings.delete('/v0/form210779/download_pdf')
       subject.untested_mappings.delete('/travel_pay/v0/claims/{claimId}/documents/{docId}')
 
       # SiS methods that involve forms & redirects

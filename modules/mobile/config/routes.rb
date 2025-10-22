@@ -90,6 +90,7 @@ Mobile::Engine.routes.draw do
     get '/translations/download', to: 'translations#download'
     post '/travel-pay/claims', to: 'travel_pay_claims#create'
     get '/travel-pay/claims', to: 'travel_pay_claims#index'
+    get '/travel-pay/claims/:id', to: 'travel_pay_claims#show'
     get '/user', to: 'users#show'
     get '/user/authorized-services', to: 'authorized_services#index'
     get '/user/contact-info', to: 'contact_info#show'
@@ -116,6 +117,7 @@ Mobile::Engine.routes.draw do
   end
 
   namespace :v1 do
+    get '/health/allergy-intolerances', to: 'allergy_intolerances#index'
     get '/health/immunizations', to: 'immunizations#index'
     get '/health/labs-and-tests', to: 'labs_and_tests#index'
     get '/health/rx/prescriptions', to: 'prescriptions#index'

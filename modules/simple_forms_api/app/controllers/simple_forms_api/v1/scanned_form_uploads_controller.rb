@@ -33,10 +33,9 @@ module SimpleFormsApi
           return
         end
 
-        attachment = PersistentAttachments::VAForm.new
+        attachment = PersistentAttachments::MilitaryRecords.new
         attachment.form_id = params['form_id']
         attachment.file = params['file']
-
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
         processor = SimpleFormsApi::ScannedFormProcessor.new(attachment)
@@ -45,7 +44,7 @@ module SimpleFormsApi
         render json: PersistentAttachmentVAFormSerializer.new(processed_attachment)
       rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
              SimpleFormsApi::ScannedFormProcessor::ValidationError => e
-        render json: { errors: e.errors }, status: :unprocessable_entity
+        render json: { error: e.errors }, status: :unprocessable_entity
       end
 
       private
@@ -78,9 +77,9 @@ module SimpleFormsApi
         [status, confirmation_number]
       end
 
-      def upload_response_with_supporting_documents
-        main_attachment = PersistentAttachment.find_by(guid: params[:confirmation_code])
-        main_file_path = main_attachment.file.open.path
+      def upload_response_with_supporting_documents # rubocop:disable Metrics/MethodLength
+        main_attachment = PersistentAttachment.find_by!(guid: params[:confirmation_code])
+        main_file_path = find_attachment_path(main_attachment.guid)
 
         supporting_attachments = []
         if params[:supporting_documents].present?
@@ -102,16 +101,15 @@ module SimpleFormsApi
           { form_number: params[:form_number], status:, confirmation_number:, file_size: }
         )
         [status, confirmation_number]
+      rescue ActiveRecord::RecordNotFound
+        raise Common::Exceptions::RecordNotFound.new(
+          params[:confirmation_code],
+          detail: 'Attachment not found'
+        )
       end
 
       def find_attachment_path(confirmation_code)
-        attachment = PersistentAttachment.find_by(guid: confirmation_code)
-
-        if attachment.file.metadata['mime_type'] == 'application/pdf'
-          attachment.file.open.path
-        else
-          attachment.to_pdf.to_s
-        end
+        PersistentAttachment.find_by(guid: confirmation_code).to_pdf.to_s
       end
 
       def validated_metadata
@@ -139,7 +137,7 @@ module SimpleFormsApi
         location, uuid = prepare_for_upload
         log_upload_details(location, uuid)
         attachments = supporting_attachments.map do |attachment|
-          attachment.file.open.path
+          find_attachment_path(attachment.guid)
         end
 
         response = lighthouse_service.perform_upload(

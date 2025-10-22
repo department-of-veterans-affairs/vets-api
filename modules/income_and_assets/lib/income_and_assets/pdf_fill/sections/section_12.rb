@@ -129,7 +129,7 @@ module IncomeAndAssets
       def expand(form_data)
         waivers = form_data['incomeReceiptWaivers']
 
-        form_data['incomeReceiptWaiver'] = waivers&.length ? 0 : 1
+        form_data['incomeReceiptWaiver'] = radio_yesno(waivers&.length)
         form_data['incomeReceiptWaivers'] = waivers&.map { |item| expand_item(item) }
       end
 
@@ -156,7 +156,7 @@ module IncomeAndAssets
           'expectedIncomeOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['expectedIncome']),
           'paymentResumeDate' => split_date(payment_resume_date),
           'paymentResumeDateOverflow' => format_date_to_mm_dd_yyyy(payment_resume_date),
-          'paymentWillNotResume' => payment_resume_date ? 0 : 1,
+          'paymentWillNotResume' => checkbox_value(!payment_resume_date),
           'paymentWillResumeOverflow' => payment_resume_date ? 'YES' : 'NO',
           'waivedGrossMonthlyIncome' => split_currency_amount_sm(item['waivedGrossMonthlyIncome'],
                                                                  { 'thousands' => 3 }),

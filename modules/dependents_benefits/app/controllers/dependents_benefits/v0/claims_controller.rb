@@ -5,6 +5,7 @@ require 'dependents_benefits/claim_processor'
 require 'dependents_benefits/generators/claim674_generator'
 require 'dependents_benefits/generators/claim686c_generator'
 require 'dependents_benefits/monitor'
+require 'dependents_benefits/user_data'
 
 module DependentsBenefits
   module V0
@@ -15,6 +16,8 @@ module DependentsBenefits
       before_action :load_user, only: %i[create show]
       before_action :check_flipper_flag
 
+      wrap_parameters :dependents_application, format: [:json]
+
       service_tag 'dependent-change'
 
       def show
@@ -22,8 +25,7 @@ module DependentsBenefits
         dependents[:diaries] = dependency_verification_service.read_diaries
         render json: DependentsSerializer.new(dependents)
       rescue => e
-        monitor.track_error_event('Failure fetching dependents data', "#{stats_key}.show_error",
-                                  { error: e.message })
+        monitor.track_error_event('Failure fetching dependents data', "#{stats_key}.show_error", error: e.message)
         raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
       end
 
@@ -36,8 +38,11 @@ module DependentsBenefits
 
         raise Common::Exceptions::ValidationErrors, claim unless claim.save
 
+        user_data = DependentsBenefits::UserData.new(current_user, claim.parsed_form)
+
         # Matching parent_claim_id and saved_claim_id indicates this is a parent claim
-        SavedClaimGroup.new(claim_group_guid: claim.guid, parent_claim_id: claim.id, saved_claim_id: claim.id).save!
+        SavedClaimGroup.new(claim_group_guid: claim.guid, parent_claim_id: claim.id, saved_claim_id: claim.id,
+                            user_data: user_data.get_user_json).save!
         form_data = claim.parsed_form
 
         raise Common::Exceptions::ValidationErrors if !claim.submittable_686? && !claim.submittable_674?
@@ -53,7 +58,7 @@ module DependentsBenefits
         end
 
         monitor.track_info_event('Successfully created claim', "#{stats_key}.create_success",
-                                 { claim_id: claim.id, user_account_uuid: current_user&.user_account_uuid })
+                                 claim_id: claim.id, user_account_uuid: current_user&.user_account_uuid)
 
         proc_id = create_proc_id
         # Enqueue all submission jobs for the created claims

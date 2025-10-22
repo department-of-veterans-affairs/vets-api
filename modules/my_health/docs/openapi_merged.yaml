@@ -1199,6 +1199,14 @@ paths:
     post:
       description: Send a new secure message
       operationId: post_create_message
+      parameters:
+        - description: Indicates if this message is for an OH triage group (allows larger attachments)
+          in: query
+          name: is_oh_triage_group
+          required: false
+          schema:
+            type: boolean
+        - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
           application/json:
@@ -1216,10 +1224,10 @@ paths:
 
                     <strong>NOTES:</strong>
                     <ul>
-                    <li>A single message may have a maximum of 4 attachments.</li>
-                    <li>A single attachment cannot exceed 3 MB</li>
-                    <li>All attachments combined cannot exceed 6 MB</li>
-                    <li>Supported file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.</li>
+                    <li>A single message may have a maximum of 4 attachments (10 for OH triage groups).</li>
+                    <li>A single attachment cannot exceed 6 MB (25 MB for OH triage groups)</li>
+                    <li>All attachments combined cannot exceed 10 MB (25 MB for OH triage groups)</li>
+                    <li>Supported file types/extensions: DOC, DOCX, GIF, JPG, JPEG, PDF, PNG, RTF, TXT, XLS, XLSX, JFIF, PJPEG, PJP (OH triage groups also support: BMP, TIFF, TIF, PPT, PPTX, PPS, PPSX, ODT, MP4, M4V, MOV, WMV, MPG).</li>
                     </ul>
                   items:
                     format: binary
@@ -1232,16 +1240,16 @@ paths:
           <strong>NOTES:</strong>
           <ul>
             <li>If a subject isn't included, default subject will be "{{Category}} Inquiry" (e.g. Medication Inquiry)</li>
-            <li>Messages can only be replied to for 120 days.  After that, the message is considered "expired"</li>
+            <li>Messages can only be replied to for 45 days.  After that, the message is considered "expired"</li>
             <li>If sending a draft, include the draft's ID in the request body as `draft_id`. Draft will be deleted once sent. Any fields included in request body will overwrite original draft contents.
             <li>If including file attachments, this request must be sent as <i>multipart/form-data</i></li>
             <li>
               File attachment restrictions (as imposed by MHV):
               <ul>
-                <li>User may attach up to 4 files</li>
-                <li>Accepted formats: doc, docx, jpg, pdf, png, rtf, txt, xls, xlsx</li>
-                <li>Single attachment cannot exceed 3 MB</li>
-                <li>Total attachment cannot exceed 6 MB</li>
+                <li>User may attach up to 4 files (10 files for OH triage groups)</li>
+                <li>Single attachment cannot exceed 6 MB (25 MB for OH triage groups)</li>
+                <li>Total attachment cannot exceed 10 MB (25 MB for OH triage groups)</li>
+                <li>Accepted formats: DOC, DOCX, GIF, JPG, JPEG, PDF, PNG, RTF, TXT, XLS, XLSX, JFIF, PJPEG, PJP (OH triage groups also support: BMP, TIFF, TIF, PPT, PPTX, PPS, PPSX, ODT, MP4, M4V, MOV, WMV, MPG)</li>
               </ul>
             </li>
           </ul>
@@ -1266,8 +1274,6 @@ paths:
                 $ref: '#/components/schemas/Errors'
           description: Not authorized for access to secure messages
       summary: /v1/messaging/messages
-      parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
   /v1/messaging/messages/categories:
     get:
       description: List available message categories
@@ -1462,10 +1468,10 @@ paths:
 
         File attachment restrictions (as imposed by MHV):
         <ul>
-          <li>User may attach up to 4 files</li>
-          <li>Accepted formats: doc, docx, jpg, pdf, png, rtf, txt, xls, xlsx</li>
-          <li>Single attachment cannot exceed 3 MB</li>
-          <li>Total attachment cannot exceed 6 MB</li>
+          <li>User may attach up to 4 files (10 files for OH triage groups)</li>
+          <li>Accepted formats: DOC, DOCX, GIF, JPG, JPEG, PDF, PNG, RTF, TXT, XLS, XLSX, JFIF, PJPEG, PJP (OH triage groups also support: BMP, TIFF, TIF, PPT, PPTX, PPS, PPSX, ODT, MP4, M4V, MOV, WMV, MPG)</li>
+          <li>Single attachment cannot exceed 6 MB (25 MB for OH triage groups)</li>
+          <li>Total attachment cannot exceed 10 MB (25 MB for OH triage groups)</li>
         </ul>
       operationId: post_create_message_reply
       parameters:
@@ -1475,6 +1481,12 @@ paths:
           required: true
           schema:
             type: integer
+        - description: Indicates if this message is for an OH triage group (allows larger attachments)
+          in: query
+          name: is_oh_triage_group
+          required: false
+          schema:
+            type: boolean
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
@@ -1493,10 +1505,10 @@ paths:
 
                     <strong>NOTES:</strong>
                     <ul>
-                    <li>A single message may have a maximum of 4 attachments.</li>
-                    <li>A single attachment cannot exceed 3 MB</li>
-                    <li>All attachments combined cannot exceed 6 MB</li>
-                    <li>Supported file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.</li>
+                    <li>A single message may have a maximum of 4 attachments (10 for OH triage groups).</li>
+                    <li>A single attachment cannot exceed 6 MB (25 MB for OH triage groups)</li>
+                    <li>All attachments combined cannot exceed 10 MB (25 MB for OH triage groups)</li>
+                    <li>Supported file types/extensions: DOC, DOCX, GIF, JPG, JPEG, PDF, PNG, RTF, TXT, XLS, XLSX, JFIF, PJPEG, PJP (OH triage groups also support: BMP, TIFF, TIF, PPT, PPTX, PPS, PPSX, ODT, MP4, M4V, MOV, WMV, MPG).</li>
                     </ul>
                   items:
                     format: binary
@@ -4176,6 +4188,13 @@ components:
               type: string
               nullable: true
               example: 1,1
+            grouped_medications:
+              type: array
+              nullable: true
+              items:
+                $ref: '#/components/schemas/PrescriptionDetail'
+              example: []
+              description: Array of related prescription objects that are grouped with this prescription
         links:
           type: object
           required:
