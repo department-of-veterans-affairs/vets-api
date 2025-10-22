@@ -6,7 +6,6 @@ require 'vre/vre_monitor'
 module VRE
   class VRESubmit1900Job
     include Sidekiq::Job
-    include Vets::SharedLogging
 
     STATSD_KEY_PREFIX = 'worker.vre.vre_submit_1900_job'
     # retry for  2d 1h 47m 12s
