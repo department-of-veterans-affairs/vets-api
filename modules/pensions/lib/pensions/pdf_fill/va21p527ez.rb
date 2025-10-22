@@ -6,16 +6,20 @@ require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
 require_relative 'constants'
-require_relative 'helpers'
+
+# Sections
+require_relative 'sections/section_10'
+require_relative 'sections/section_11'
+require_relative 'sections/section_12'
 
 # rubocop:disable Metrics/ClassLength
+# rubocop:disable Metrics/MethodLength
 module Pensions
   module PdfFill
     # The Va21p527ez Form
     class Va21p527ez < ::PdfFill::Forms::FormBase
       include ::PdfFill::Forms::FormHelper
       include ::PdfFill::Forms::FormHelper::PhoneNumberFormatting
-      include ActiveSupport::NumberHelper
       include Helpers
 
       # The Form ID
@@ -66,7 +70,7 @@ module Pensions
       ].freeze
 
       # The PDF Keys
-      KEY = {
+      key = {
         # 1a
         'veteranFullName' => {
           'first' => {
@@ -1396,6 +1400,14 @@ module Pensions
         }
       }.freeze
 
+      # The list of section classes for form expansion and key building
+      SECTION_CLASSES = [Section10, Section11, Section12].freeze
+
+      SECTION_CLASSES.each { |section| key = key.merge(section::KEY) }
+
+      # form configuration hash
+      KEY = key.freeze
+
       ###
       # Merge all the key data together
       #
@@ -1409,18 +1421,19 @@ module Pensions
         expand_prior_marital_history
         expand_dependent_children
         expand_income_and_assets
-        expand_care_medical_expenses
-        expand_direct_deposit_information
-        expand_claim_certification_and_signature
+
+        # Section 12
+        SECTION_CLASSES.each { |section| section.new.expand(form_data) }
 
         @form_data
       end
 
       # SECTION I: VETERAN'S IDENTIFICATION INFORMATION
       def expand_veteran_identification_information
+        middle_initial = @form_data.dig('veteranFullName', 'middle').try(:[], 0)
         @form_data['veteranFullName'] ||= {}
         @form_data['veteranFullName']['first'] = @form_data.dig('veteranFullName', 'first')&.titleize
-        @form_data['veteranFullName']['middle'] = @form_data.dig('veteranFullName', 'middle')&.titleize
+        @form_data['veteranFullName']['middle'] = middle_initial || ''
         @form_data['veteranFullName']['last'] = @form_data.dig('veteranFullName', 'last')&.titleize
         @form_data['veteranSocialSecurityNumber'] = split_ssn(@form_data['veteranSocialSecurityNumber'])
         @form_data['veteranDateOfBirth'] = split_date(@form_data['veteranDateOfBirth'])
@@ -1432,6 +1445,7 @@ module Pensions
         @form_data['veteranAddress'] ||= {}
         @form_data['veteranAddress']['postalCode'] =
           split_postal_code(@form_data['veteranAddress'])
+        @form_data['veteranAddress']['country'] = @form_data.dig('veteranAddress', 'country')&.slice(0, 2)
         @form_data['mobilePhone'] = expand_phone_number(@form_data['mobilePhone'].to_s)
       end
 
@@ -1445,6 +1459,7 @@ module Pensions
           'to' => split_date(@form_data.dig('activeServiceDateRange', 'to'))
         }
         @form_data['serviceBranch'] = @form_data['serviceBranch']&.select { |_, value| value == true }
+        @form_data['serviceBranch'] = @form_data['serviceBranch']&.each_key { |k| @form_data['serviceBranch'][k] = '1' }
 
         @form_data['pow'] = to_radio_yes_no(@form_data['powDateRange'].present?)
         if @form_data['pow'].zero?
@@ -1510,6 +1525,7 @@ module Pensions
         end
         @form_data['spouseAddress'] ||= {}
         @form_data['spouseAddress']['postalCode'] = split_postal_code(@form_data['spouseAddress'])
+        @form_data['spouseAddress']['country'] = @form_data.dig('spouseAddress', 'country')&.slice(0, 2)
         @form_data['currentSpouseMonthlySupport'] = split_currency_amount(@form_data['currentSpouseMonthlySupport'])
         @form_data['reasonForCurrentSeparation'] =
           reason_for_current_separation_to_radio(@form_data['reasonForCurrentSeparation'])
@@ -1537,6 +1553,8 @@ module Pensions
 
         return current_marriage if current_marriage.empty?
 
+        middle_initial = current_marriage.dig('spouseFullName', 'middle')&.first
+        current_marriage['spouseFullName']['middle'] = middle_initial
         marriage_type = current_marriage['marriageType']
         current_marriage['marriageType'] =
           marriage_type == 'CEREMONY' ? 0 : 1
@@ -1578,12 +1596,14 @@ module Pensions
             'from' => marriage['dateOfMarriage'],
             'to' => marriage['dateOfSeparation']
           }
-          marriage.merge({ 'spouseFullNameOverflow' => marriage['spouseFullName']&.values&.join(' '),
-                           'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
-                           'dateOfSeparation' => split_date(marriage['dateOfSeparation']),
-                           'dateRangeOfMarriageOverflow' => build_date_range_string(marriage_date_range),
-                           'reasonForSeparation' => Constants::REASONS_FOR_SEPARATION[reason_for_separation],
-                           'reasonForSeparationOverflow' => reason_for_separation.humanize })
+          marriage.merge!({ 'spouseFullNameOverflow' => marriage['spouseFullName']&.values&.join(' '),
+                            'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
+                            'dateOfSeparation' => split_date(marriage['dateOfSeparation']),
+                            'dateRangeOfMarriageOverflow' => build_date_range_string(marriage_date_range),
+                            'reasonForSeparation' => Constants::REASONS_FOR_SEPARATION[reason_for_separation],
+                            'reasonForSeparationOverflow' => reason_for_separation.humanize })
+          marriage['spouseFullName']['middle'] = marriage['spouseFullName']['middle']&.first
+          marriage
         end
       end
 
@@ -1611,16 +1631,19 @@ module Pensions
 
       # Build the custodian data from dependents
       def build_custodian_hash_from_dependent(dependent)
-        dependent['personWhoLivesWithChild']
-          .merge({
-                   'custodianAddress' => dependent['childAddress'].merge(
-                     'postalCode' => split_postal_code(dependent['childAddress'])
-                   )
-                 })
-          .merge({
-                   'custodianAddressOverflow' => build_address_string(dependent['childAddress']),
-                   'dependentsWithCustodianOverflow' => dependent['fullName']&.values&.join(' ')
-                 })
+        dependent = dependent['personWhoLivesWithChild']
+                    .merge({
+                             'custodianAddress' => dependent['childAddress'].merge(
+                               'postalCode' => split_postal_code(dependent['childAddress'])
+                             )
+                           })
+                    .merge({
+                             'custodianAddressOverflow' => build_address_string(dependent['childAddress']),
+                             'dependentsWithCustodianOverflow' => dependent['fullName']&.values&.join(' ')
+                           })
+        dependent['custodianAddress']['country'] =
+          dependent.dig('custodianAddress', 'country')&.slice(0, 2)
+        dependent
       end
 
       # Create an address string from an address hash
@@ -1658,25 +1681,30 @@ module Pensions
       # Create a hash table from a dependent that outlines all the data joined and formatted together.
       def dependent_to_hash(dependent)
         dependent
-          .merge({
-                   'fullNameOverflow' => dependent['fullName']&.values&.join(' '),
-                   'childDateOfBirth' => split_date(dependent['childDateOfBirth']),
-                   'childDateOfBirthOverflow' => to_date_string(dependent['childDateOfBirth']),
-                   'childSocialSecurityNumber' => split_ssn(dependent['childSocialSecurityNumber']),
-                   'childSocialSecurityNumberOverflow' => dependent['childSocialSecurityNumber'],
-                   'childRelationship' => {
-                     'biological' => to_checkbox_on_off(dependent['childRelationship'] == 'BIOLOGICAL'),
-                     'adopted' => to_checkbox_on_off(dependent['childRelationship'] == 'ADOPTED'),
-                     'stepchild' => to_checkbox_on_off(dependent['childRelationship'] == 'STEP_CHILD')
-                   },
-                   'disabled' => to_checkbox_on_off(dependent['disabled']),
-                   'attendingCollege' => to_checkbox_on_off(dependent['attendingCollege']),
-                   'previouslyMarried' => to_checkbox_on_off(dependent['previouslyMarried']),
-                   'childNotInHousehold' => to_checkbox_on_off(!dependent['childInHousehold']),
-                   'childStatusOverflow' => child_status_overflow(dependent).join(', '),
-                   'monthlyPayment' => split_currency_amount(dependent['monthlyPayment']),
-                   'monthlyPaymentOverflow' => number_to_currency(dependent['monthlyPayment'])
-                 })
+          .merge!({
+                    'fullNameOverflow' => dependent['fullName']&.values&.join(' '),
+                    'childDateOfBirth' => split_date(dependent['childDateOfBirth']),
+                    'childDateOfBirthOverflow' => to_date_string(dependent['childDateOfBirth']),
+                    'childSocialSecurityNumber' => split_ssn(dependent['childSocialSecurityNumber']),
+                    'childSocialSecurityNumberOverflow' => dependent['childSocialSecurityNumber'],
+                    'childRelationship' => {
+                      'biological' => to_checkbox_on_off(dependent['childRelationship'] == 'BIOLOGICAL'),
+                      'adopted' => to_checkbox_on_off(dependent['childRelationship'] == 'ADOPTED'),
+                      'stepchild' => to_checkbox_on_off(dependent['childRelationship'] == 'STEP_CHILD')
+                    },
+                    'disabled' => to_checkbox_on_off(dependent['disabled']),
+                    'attendingCollege' => to_checkbox_on_off(dependent['attendingCollege']),
+                    'previouslyMarried' => to_checkbox_on_off(dependent['previouslyMarried']),
+                    'childNotInHousehold' => to_checkbox_on_off(!dependent['childInHousehold']),
+                    'childStatusOverflow' => child_status_overflow(dependent).join(', '),
+                    'monthlyPayment' => split_currency_amount(dependent['monthlyPayment']),
+                    'monthlyPaymentOverflow' => number_to_currency(dependent['monthlyPayment'])
+                  })
+        dependent.fetch('fullName', {})['middle'] = dependent.dig('fullName', 'middle')&.first
+        if dependent['personWhoLivesWithChild'].present?
+          dependent['personWhoLivesWithChild']['middle'] = dependent['personWhoLivesWithChild']['middle']&.first
+        end
+        dependent
       end
 
       # SECTION IX: INCOME AND ASSETS
@@ -1719,85 +1747,8 @@ module Pensions
           income_source.merge(income_source_hash)
         end
       end
-
-      # SECTION X: CARE/MEDICAL EXPENSES
-      def expand_care_medical_expenses
-        @form_data['hasAnyExpenses'] =
-          to_radio_yes_no(@form_data['hasCareExpenses'] || @form_data['hasMedicalExpenses'])
-        @form_data['careExpenses'] = merge_care_expenses(@form_data['careExpenses'])
-        @form_data['medicalExpenses'] = merge_medical_expenses(@form_data['medicalExpenses'])
-      end
-
-      # Map over the care expenses and expand the data out.
-      def merge_care_expenses(care_expenses)
-        care_expenses&.map do |care_expense|
-          care_expense.merge(care_expense_to_hash(care_expense))
-        end
-      end
-
-      # Expand a care expense data hash.
-      def care_expense_to_hash(care_expense)
-        {
-          'recipients' => Constants::RECIPIENTS[care_expense['recipients']],
-          'recipientsOverflow' => care_expense['recipients']&.humanize,
-          'careType' => Constants::CARE_TYPES[care_expense['careType']],
-          'careTypeOverflow' => care_expense['careType']&.humanize,
-          'ratePerHour' => split_currency_amount(care_expense['ratePerHour']),
-          'ratePerHourOverflow' => number_to_currency(care_expense['ratePerHour']),
-          'hoursPerWeek' => care_expense['hoursPerWeek'].to_s,
-          'careDateRange' => {
-            'from' => split_date(care_expense.dig('careDateRange', 'from')),
-            'to' => split_date(care_expense.dig('careDateRange', 'to'))
-          },
-          'careDateRangeOverflow' => build_date_range_string(care_expense['careDateRange']),
-          'noCareEndDate' => to_checkbox_on_off(care_expense['noCareEndDate']),
-          'paymentFrequency' => Constants::PAYMENT_FREQUENCY[care_expense['paymentFrequency']],
-          'paymentFrequencyOverflow' => care_expense['paymentFrequency'],
-          'paymentAmount' => split_currency_amount(care_expense['paymentAmount']),
-          'paymentAmountOverflow' => number_to_currency(care_expense['paymentAmount'])
-        }
-      end
-
-      # Map over medical expenses and create a set of data.
-      def merge_medical_expenses(medical_expenses)
-        medical_expenses&.map do |medical_expense|
-          medical_expense.merge({
-                                  'recipients' => Constants::RECIPIENTS[medical_expense['recipients']],
-                                  'recipientsOverflow' => medical_expense['recipients']&.humanize,
-                                  'paymentDate' => split_date(medical_expense['paymentDate']),
-                                  'paymentDateOverflow' => to_date_string(medical_expense['paymentDate']),
-                                  'paymentFrequency' =>
-                                    Constants::PAYMENT_FREQUENCY[medical_expense['paymentFrequency']],
-                                  'paymentFrequencyOverflow' => medical_expense['paymentFrequency'],
-                                  'paymentAmount' => split_currency_amount(medical_expense['paymentAmount']),
-                                  'paymentAmountOverflow' => number_to_currency(
-                                    medical_expense['paymentAmount']
-                                  )
-                                })
-        end
-      end
-
-      # SECTION XI: DIRECT DEPOSIT INFORMATION
-      def expand_direct_deposit_information
-        account_type = @form_data.dig('bankAccount', 'accountType')
-
-        @form_data['bankAccount'] = @form_data['bankAccount'].to_h.merge(
-          'accountType' => case account_type
-                           when 'checking' then 0
-                           when 'savings' then 1
-                           else 2 if @form_data['bankAccount'].nil?
-                           end
-        )
-      end
-
-      # SECTION XII: CLAIM CERTIFICATION AND SIGNATURE
-      def expand_claim_certification_and_signature
-        @form_data['noRapidProcessing'] = to_checkbox_on_off(@form_data['noRapidProcessing'])
-        # signed on provided date (generally SavedClaim.created_at) or default to today
-        signature_date = @form_data['signatureDate'] || Time.zone.now.strftime('%Y-%m-%d')
-        @form_data['signatureDate'] = split_date(signature_date)
-      end
     end
   end
 end
+# rubocop:enable Metrics/MethodLength
 # rubocop:enable Metrics/ClassLength
