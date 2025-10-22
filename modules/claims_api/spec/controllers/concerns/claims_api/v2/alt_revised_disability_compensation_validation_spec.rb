@@ -429,7 +429,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
         subject.form_attributes['changeOfAddress']['dates']['endDate'] = '2024-01-01'
         test_526_validation_instance.send(:validate_form_526_change_of_address_beginning_date)
-        expect(current_error_array[0][:detail]).to eq('Change of address beginDate must be '\
+        expect(current_error_array[0][:detail]).to eq('Change of address beginDate must be ' \
                                                       'in the future if addressChangeType is TEMPORARY')
         expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/beginDate')
       end

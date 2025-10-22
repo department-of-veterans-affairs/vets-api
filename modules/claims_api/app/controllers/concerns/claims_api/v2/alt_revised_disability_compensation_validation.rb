@@ -95,7 +95,7 @@ module ClaimsApi
         return if date.nil? # nullable on schema
 
         begin
-          begins_in_past = Date.strptime(date, '%Y-%m-%d') < Time.zone.now
+          begins_in_past = Date.strptime(date, '%Y-%m-%d') <= Date.current
           if 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange']) && begins_in_past
             collect_error_messages(
               detail: 'Change of address beginDate must be in the future if addressChangeType is TEMPORARY',
