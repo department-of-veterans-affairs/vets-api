@@ -141,7 +141,6 @@ paths:
             format: date
         - name: format
           in: path
-          required: true
           description: >
             The format of the returned CCD document. Can be `xml`, `html`, or `pdf`.
           schema:
