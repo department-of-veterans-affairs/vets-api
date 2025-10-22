@@ -487,6 +487,13 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses synchronous evidence uploads
     enable_in_development: true
+  cst_timezone_discrepancy_mitigation:
+    actor_type: user
+    description: >
+      Shows contextual timezone messages in Claims Status when uploaded documents
+      display with next-day dates due to UTC handling. Temporary mitigation while
+      awaiting Lighthouse API timestamp changes.
+    enable_in_development: true
   cst_use_dd_rum:
     actor_type: user
     description: When enabled, claims status tool uses DataDog's Real User Monitoring logging
@@ -970,10 +977,6 @@ features:
     actor_type: user
     description: Enables form 1995 email submission confirmation (VaNotify)
     enable_in_development: true
-  form1990e_confirmation_email:
-    actor_type: user
-    description: Enables form 1990e email submission confirmation (VaNotify)
-    enable_in_development: true
   form21_0966_confirmation_email:
     actor_type: user
     description: Enables form 21-0966 email submission confirmation (VaNotify)
@@ -1209,6 +1212,10 @@ features:
   lighthouse_claims_api_use_birls_id:
     actor_type: user
     description: Lighthouse Benefits Claims API uses MPI birls_id as filenumber parameter to BDS search
+    enable_in_development: true
+  lighthouse_claims_api_save_failed_soap_requests:
+    actor_type: user
+    description: Enable saving the request/response of failed SOAP requests made by ClaimsApi
     enable_in_development: true
   lighthouse_document_convert_to_unlocked_pdf_use_hexapdf:
     description: Enables the LighthouseDocument class's convert_to_unlocked_pdf method to use hexapdf to unlock encrypted pdfs
@@ -1804,9 +1811,6 @@ features:
   show_edu_benefits_1990_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 1990 introduction page
-  show_edu_benefits_1990e_wizard:
-    actor_type: user
-    description: This determines when the wizard should show up on the 1990e introduction page
   show_edu_benefits_1995_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 1995 introduction page
