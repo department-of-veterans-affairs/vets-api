@@ -39,7 +39,9 @@ namespace :accredited_representative_portal do
       records.map(&:to_h).map do |attributes|
         rep = Veteran::Service::Representative.find_by(representative_id: attributes['representative_id'])
         if rep
-          rep.attributes = attributes
+          rep.user_types = [attributes['user_type']]
+          rep.email = attributes['email']
+          rep.poa_codes = [attributes['poa_code_1'], attributes['poa_code_2']].compact
           begin
             rep.save!
             result[:updated_count] += 1
