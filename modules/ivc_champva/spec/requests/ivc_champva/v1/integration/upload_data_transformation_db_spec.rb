@@ -112,6 +112,8 @@ RSpec.describe 'IvcChampva Upload Data Transformation Chain Integration Test', t
       allow_any_instance_of(form_class).to receive(:handle_attachments) { |_, original_path| [original_path] }
       allow_any_instance_of(form_class).to receive(:get_attachments).and_return([test_file_path.to_s])
       allow(IvcChampvaForm).to receive_messages(create!: db_record, new: db_record)
+
+      allow(Flipper).to receive(:enabled?).with(:champva_send_ves_to_pega).and_return(false)
     end
 
     it 'transforms data correctly through the entire chain' do
@@ -216,9 +218,23 @@ RSpec.describe 'IvcChampva Upload Data Transformation Chain Integration Test', t
         end
       end
 
-      expect(transformations[:file_paths_after_handle_attachments]).to eq([test_file_path.to_s])
+      expect(transformations[:file_paths_after_handle_attachments]).to include(test_file_path.to_s)
+      expect(transformations[:metadata_after_merge]['attachment_ids']).to include('Test Document')
+
+      if form_number == '10-10D' && Flipper.enabled?(:champva_send_ves_to_pega, nil)
+        # Check file paths - for form 10-10D, expect VES JSON file to be included when feature flag is enabled
+        expect(transformations[:file_paths_after_handle_attachments].size).to eq(2)
+        expect(transformations[:file_paths_after_handle_attachments]).to include(match(/.*_vha_10_10d_ves\.json$/))
+
+        # Check attachment IDs - for form 10-10D, expect VES JSON to be included when feature flag is enabled
+        expect(transformations[:metadata_after_merge]['attachment_ids']).to include('VES JSON')
+        expect(transformations[:metadata_after_merge]['attachment_ids'].size).to eq(2)
+      else
+        expect(transformations[:file_paths_after_handle_attachments].size).to eq(1)
+        expect(transformations[:metadata_after_merge]['attachment_ids'].size).to eq(1)
+      end
+      
       expect(transformations[:metadata_after_merge]).to include('attachment_ids')
-      expect(transformations[:metadata_after_merge]['attachment_ids']).to eq(['Test Document'])
       expect(transformations[:db_record].form_uuid).to eq(form_uuid)
       expect(transformations[:db_record].form_number).to eq(form_number)
       expect(transformations[:db_record].s3_status).to eq('[200, nil]')
