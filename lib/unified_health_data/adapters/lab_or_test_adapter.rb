@@ -104,7 +104,7 @@ module UnifiedHealthData
             specimen_object = contained.find do |resource|
               resource['resourceType'] == 'Specimen' && resource['id'] == reference
             end
-            specimen_object['type']['text'] if specimen_object
+            specimen_object&.dig('type', 'text')
           end
 
         specimens.compact.join(', ').strip
