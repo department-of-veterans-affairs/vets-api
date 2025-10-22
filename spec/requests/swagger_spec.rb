@@ -2784,7 +2784,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'generating PDF' do
         let(:valid_form_data) do
           {
-            form_21_2680: {
+            form212680: {
               veteranInformation: {
                 fullName: {
                   first: 'John',
