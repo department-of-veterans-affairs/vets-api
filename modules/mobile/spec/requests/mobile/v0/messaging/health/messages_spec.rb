@@ -221,6 +221,84 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(response).to be_successful
           end
         end
+
+        context 'timeout extension for OH triage groups' do
+          let(:message_params) { attributes_for(:message, subject: 'OH Group Subject', body: 'Body') }
+          let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
+
+          it 'extends timeout when is_oh_triage_group=true on create' do
+            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+              VCR.use_cassette('sm_client/messages/creates/status_sent') do
+                post '/mobile/v0/messaging/health/messages?is_oh_triage_group=true',
+                     headers: sis_headers,
+                     params: { message: params }
+
+                expect(response).to be_successful
+                expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv_sm_timeout)
+              end
+            end
+          end
+
+          it 'extends timeout when is_oh_triage_group=true on reply' do
+            expect_any_instance_of(Mobile::V0::Messaging::Client).to receive(:poll_message_status)
+              .and_return({ status: 'SENT' })
+            VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
+              post '/mobile/v0/messaging/health/messages/674838/reply?is_oh_triage_group=true',
+                   headers: sis_headers,
+                   params: { message: params }
+
+              expect(response).to be_successful
+              expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv_sm_timeout)
+            end
+          end
+
+          it 'does not extend timeout when is_oh_triage_group=false on create' do
+            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+              VCR.use_cassette('sm_client/messages/creates/status_sent') do
+                post '/mobile/v0/messaging/health/messages?is_oh_triage_group=false',
+                     headers: sis_headers,
+                     params: { message: params }
+
+                expect(response).to be_successful
+                expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv_sm_timeout)
+              end
+            end
+          end
+
+          it 'does not extend timeout when is_oh_triage_group param is absent on create' do
+            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+              post '/mobile/v0/messaging/health/messages',
+                   headers: sis_headers,
+                   params: { message: params }
+
+              expect(response).to be_successful
+              expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv_sm_timeout)
+            end
+          end
+
+          it 'does not extend timeout when is_oh_triage_group=false on reply' do
+            VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
+              post '/mobile/v0/messaging/health/messages/674838/reply?is_oh_triage_group=false',
+                   headers: sis_headers,
+                   params: { message: params }
+
+              expect(response).to be_successful
+              expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv_sm_timeout)
+            end
+          end
+
+          it 'does not extend timeout for non-create/reply actions like show' do
+            VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
+              VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
+                get "/mobile/v0/messaging/health/messages/#{message_id}?is_oh_triage_group=true",
+                    headers: sis_headers
+
+                expect(response).to be_successful
+                expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv_sm_timeout)
+              end
+            end
+          end
+        end
       end
 
       describe '#thread' do

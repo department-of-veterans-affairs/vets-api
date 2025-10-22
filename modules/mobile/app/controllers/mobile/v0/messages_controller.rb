@@ -5,6 +5,8 @@ module Mobile
     class MessagesController < MessagingController
       include Filterable
 
+      before_action :extend_timeout, only: %i[create reply], if: :oh_triage_group?
+
       def index
         resource = client.get_folder_messages(@current_user.uuid, params[:folder_id].to_s, use_cache?)
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
@@ -151,6 +153,10 @@ module Mobile
             end
           end
         }
+      end
+
+      def extend_timeout
+        request.env['rack-timeout.timeout'] = Settings.mhv_sm_timeout
       end
     end
   end

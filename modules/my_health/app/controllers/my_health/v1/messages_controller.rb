@@ -5,6 +5,8 @@ module MyHealth
     class MessagesController < SMController
       MAX_STANDARD_FILES = 4
 
+      before_action :extend_timeout, only: %i[create reply], if: :oh_triage_group?
+
       def show
         message_id = params[:id].try(:to_i)
         response = client.get_message(message_id)
@@ -157,6 +159,10 @@ module MyHealth
 
         Flipper.enabled?(:mhv_secure_messaging_large_attachments) ||
           (Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, @current_user) && oh_triage_group?)
+      end
+
+      def extend_timeout
+        request.env['rack-timeout.timeout'] = Settings.mhv_sm_timeout
       end
     end
   end
