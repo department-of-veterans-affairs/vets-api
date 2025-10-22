@@ -324,6 +324,9 @@ features:
   champva_use_hexapdf_to_unlock_pdfs:
     actor_type: user
     description: Enables the the use of hexapdf instead of pdftk to unlock password-protected PDFs on form submission
+  champva_stamper_logging:
+    actor_type: user
+    description: Enables logging of the desired stamp text
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -2598,6 +2601,10 @@ features:
     actor_type: user
     description: Enables substance use disorder as care related to mental health appointments with new codes
     enable_in_development: true
+  va_online_scheduling_add_primary_care_mental_health_initiative:
+    actor_type: user
+    description: Enables PCMHI as care related to mental health appointments with new codes
+    enable_in_development: true
   form10203_confirmation_email_with_silent_failure_processing:
     actor_type: user
     description: If enabled, confirmation email will be sent with silent failure processing
@@ -2626,3 +2633,15 @@ features:
     description: >
       Enables the upload_supporting_documents endpoint for scanned form uploads for supporting evidence.
       Owned by Simple Forms API team.
+  form_0779_enabled:
+    actor_type: user
+    description: Enables form 21-0779 on vets-website 
+  form_530a_enabled:
+    actor_type: user
+    description: Enables form 21P-530a on vets-website 
+  form_4192_enabled:
+    actor_type: user
+    description: Enables form 21-4192 on vets-website 
+  form_2680_enabled:
+    actor_type: user
+    description: Enables form 21-2680 on vets-website 
