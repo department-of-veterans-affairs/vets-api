@@ -13,7 +13,6 @@ RSpec.describe V0::InProgressFormsController do
 
     before do
       sign_in_as(user)
-      allow(Flipper).to receive(:enabled?).with(:in_progress_form_custom_expiration).and_return(false)
       enabled_forms = FormProfile.prefill_enabled_forms << 'FAKEFORM'
       allow(FormProfile).to receive(:prefill_enabled_forms).and_return(enabled_forms)
       allow(FormProfile).to receive(:load_form_mapping).and_call_original
