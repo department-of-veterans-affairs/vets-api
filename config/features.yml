@@ -324,6 +324,9 @@ features:
   champva_use_hexapdf_to_unlock_pdfs:
     actor_type: user
     description: Enables the the use of hexapdf instead of pdftk to unlock password-protected PDFs on form submission
+  champva_stamper_logging:
+    actor_type: user
+    description: Enables logging of the desired stamp text
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -484,6 +487,13 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses synchronous evidence uploads
     enable_in_development: true
+  cst_timezone_discrepancy_mitigation:
+    actor_type: user
+    description: >
+      Shows contextual timezone messages in Claims Status when uploaded documents
+      display with next-day dates due to UTC handling. Temporary mitigation while
+      awaiting Lighthouse API timestamp changes.
+    enable_in_development: true
   cst_use_dd_rum:
     actor_type: user
     description: When enabled, claims status tool uses DataDog's Real User Monitoring logging
@@ -512,6 +522,10 @@ features:
   cst_claim_letters_use_lighthouse_api_provider_mobile:
     actor_type: user
     description: When enabled, claims_letters from the Lighthouse API Provider in mobile endpoints
+  cst_use_claim_title_generator_web:
+    description: When enabled, use the title generator to insert claim titles into claim list responses.
+  cst_use_claim_title_generator_mobile:
+    description: When enabled, use the title generator to insert claim titles into mobile claim list responses.
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
@@ -657,6 +671,9 @@ features:
   decision_review_final_status_secondary_form_failure_notifications:
     actor_type: user
     description: Enables failure notifications for secondary forms in decision review applications with final status
+  decision_review_stuck_records_monitoring:
+    actor_type: user
+    description: Enables monitoring for stuck records in decision review applications
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -959,10 +976,6 @@ features:
   form1995_confirmation_email:
     actor_type: user
     description: Enables form 1995 email submission confirmation (VaNotify)
-    enable_in_development: true
-  form1990e_confirmation_email:
-    actor_type: user
-    description: Enables form 1990e email submission confirmation (VaNotify)
     enable_in_development: true
   form21_0966_confirmation_email:
     actor_type: user
@@ -1794,12 +1807,6 @@ features:
   show_edu_benefits_1990_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 1990 introduction page
-  show_edu_benefits_1990e_wizard:
-    actor_type: user
-    description: This determines when the wizard should show up on the 1990e introduction page
-  show_edu_benefits_1990n_wizard:
-    actor_type: user
-    description: This determines when the wizard should show up on the 1990N introduction page
   show_edu_benefits_1995_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 1995 introduction page
@@ -2550,9 +2557,6 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
-  disable_bdn_processing:
-    actor_type: user
-    description: If enabled, skip all BDN-related processing for VYE
   my_va_auth_exp_redesign_available_to_opt_in:
     actor_type: user
     description: When enabled, a user will see the option to switch to the redesigned experience of MyVA.
@@ -2597,6 +2601,10 @@ features:
     actor_type: user
     description: Enables substance use disorder as care related to mental health appointments with new codes
     enable_in_development: true
+  va_online_scheduling_add_primary_care_mental_health_initiative:
+    actor_type: user
+    description: Enables PCMHI as care related to mental health appointments with new codes
+    enable_in_development: true
   form10203_confirmation_email_with_silent_failure_processing:
     actor_type: user
     description: If enabled, confirmation email will be sent with silent failure processing
@@ -2625,3 +2633,15 @@ features:
     description: >
       Enables the upload_supporting_documents endpoint for scanned form uploads for supporting evidence.
       Owned by Simple Forms API team.
+  form_0779_enabled:
+    actor_type: user
+    description: Enables form 21-0779 on vets-website 
+  form_530a_enabled:
+    actor_type: user
+    description: Enables form 21P-530a on vets-website 
+  form_4192_enabled:
+    actor_type: user
+    description: Enables form 21-4192 on vets-website 
+  form_2680_enabled:
+    actor_type: user
+    description: Enables form 21-2680 on vets-website 
