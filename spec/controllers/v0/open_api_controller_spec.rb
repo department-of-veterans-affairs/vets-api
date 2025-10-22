@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::OpenapiController, type: :controller do
+RSpec.describe V0::OpenAPIController, type: :controller do
   describe '#index' do
     let(:openapi_file_path) { Rails.public_path.join('openapi.json') }
 
