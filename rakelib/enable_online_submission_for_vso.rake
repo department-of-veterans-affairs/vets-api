@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 
 namespace :vso do
-  # rubocop:disable Naming/VariableNumber
   desc 'Enable online submission of VA Form 21-22 for the given POA code(s)'
-  task :enable_online_submission_21_22, [:poa_codes] => :environment do |_t, args|
+  task :enable_online_submission_for_vso, [:poa_codes] => :environment do |_t, args|
     raise ArgumentError, 'POA codes required (comma-separated)' if args[:poa_codes].blank?
 
     poa_codes = [args[:poa_codes], *args.extras].compact.uniq
 
-    Rails.logger.tagged('rake:vso:enable_online_submission_21_22') do
+    Rails.logger.tagged('rake:vso:enable_online_submission_for_vso') do
       Rails.logger.info("Received POA codes: #{poa_codes.join(', ')}")
       Rails.logger.info('Enabling online submission for matching organization(s)...')
 
@@ -17,5 +16,4 @@ namespace :vso do
       Rails.logger.info("Enabled online submission for #{result} organization(s).")
     end
   end
-  # rubocop:enable Naming/VariableNumber
 end
