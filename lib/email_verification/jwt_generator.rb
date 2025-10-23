@@ -3,7 +3,7 @@
 module EmailVerification
   # JWT generator for email verification tokens
   class JwtGenerator
-    VALIDITY_LENGTH = 24.hours # Token valid for 24 hours
+    VALIDITY_LENGTH = 30.minutes # Token valid for 30 minutes
     ALGORITHM = 'HS256'
     ISSUER = 'vets-api-email-verification'
 
