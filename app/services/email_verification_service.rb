@@ -4,7 +4,7 @@ require 'email_verification/jwt_generator'
 
 class EmailVerificationService
   TOKEN_BYTES = 32 # 256 bits
-  REDIS_EXPIRATION = 30.minutes.to_i
+  REDIS_EXPIRATION = 15.minutes.to_i
 
   REDIS_NAMESPACE = 'email_verification'
 
