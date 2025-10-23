@@ -668,7 +668,6 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           template_constants(name) ||
             success_metrics(name) ||
             error_metrics(name) ||
-            job_constant(name) ||
             super
         end
 
@@ -701,16 +700,10 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           }
           metrics[name]
         end
-
-        def self.job_constant(name)
-          name == :TravelClaimNotificationJob ? CustomNotificationJob : nil
-        end
       end
     end
 
-    let(:custom_notification_job) do
-      class_double(CustomNotificationJob).as_stubbed_const('CustomNotificationJob')
-    end
+    let(:custom_notification_job) { double('CustomNotificationJob') }
 
     before do
       allow(custom_notification_job).to receive(:perform_async)
@@ -743,7 +736,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           appointment_date:,
           facility_type:,
           check_in_uuid:,
-          context_constants: custom_constants
+          context_constants: custom_constants,
+          notification_job_class: custom_notification_job
         )
       end
 

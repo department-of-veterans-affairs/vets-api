@@ -16,7 +16,7 @@ module TravelClaim
   #   result = service.submit_claim
   #
   class ClaimSubmissionService
-    attr_reader :appointment_date, :facility_type, :check_in_uuid, :context_constants
+    attr_reader :appointment_date, :facility_type, :check_in_uuid, :context_constants, :notification_job_class
 
     CODE_CLAIM_EXISTS = TravelClaim::Response::CODE_CLAIM_EXISTS
     APPOINTMENT_ERROR = 'appointment_error'
@@ -31,12 +31,15 @@ module TravelClaim
     # @param facility_type [String] facility type ('oh' or 'vamc')
     # @param check_in_uuid [String] check-in UUID from request parameters
     # @param context_constants [Module] constants module (defaults to CheckIn::Constants)
+    # @param notification_job_class [Class] notification job class (defaults to CheckIn::TravelClaimNotificationJob)
     #
-    def initialize(appointment_date:, facility_type:, check_in_uuid:, context_constants: CheckIn::Constants)
+    def initialize(appointment_date:, facility_type:, check_in_uuid:, context_constants: CheckIn::Constants,
+                   notification_job_class: CheckIn::TravelClaimNotificationJob)
       @appointment_date = appointment_date
       @facility_type = facility_type
       @check_in_uuid = check_in_uuid
       @context_constants = context_constants
+      @notification_job_class = notification_job_class
     end
 
     ##
@@ -321,7 +324,7 @@ module TravelClaim
       log_message(:info, 'Sending success notification',
                   template_id:, claim_last_four: claim_number_last_four)
 
-      @context_constants::TravelClaimNotificationJob.perform_async(
+      @notification_job_class.perform_async(
         @check_in_uuid,
         @appointment_date_yyyy_mm_dd,
         template_id,
@@ -343,7 +346,7 @@ module TravelClaim
       log_message(:info, 'Sending error notification',
                   template_id:, error_class: error.class.name)
 
-      @context_constants::TravelClaimNotificationJob.perform_async(
+      @notification_job_class.perform_async(
         @check_in_uuid,
         @appointment_date_yyyy_mm_dd,
         template_id,
