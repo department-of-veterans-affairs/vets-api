@@ -30,14 +30,6 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
 
   let(:file_path) { 'tmp/pdfs/mock_form_final.pdf' }
 
-  around do |example|
-    puts "\nStarting: #{example.description}"
-    start_time = Time.now
-    example.run
-    duration = Time.now - start_time
-    puts "Finished: #{example.description} (#{duration.round(2)}s)\n\n"
-  end
-
   describe '#initialize' do
     let(:mock_digest) { instance_double(Digest::SHA256, hexdigest: 'mocked_sha256_digest') }
     let(:mock_page)   { instance_double(PDF::Reader::Page) }
@@ -47,7 +39,7 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
       allow(Flipper).to receive(:enabled?).with(:disability_526_form4142_validate_schema).and_return(false)
 
       # Mock expensive PDF operations to avoid file I/O
-      allow(PdfFill::Filler).to receive(:fill_form).and_return(file_path)
+      allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
       allow(Common::FileHelpers).to receive(:delete_file_if_exists)
       datestamp_instance = instance_double(PDFUtilities::DatestampPdf, run: file_path)
       allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_instance)
