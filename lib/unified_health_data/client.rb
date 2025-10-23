@@ -40,6 +40,11 @@ module UnifiedHealthData
       perform(:post, path, request_body.to_json, request_headers(include_content_type: true))
     end
 
+    def get_avs(patient_id:, appt_id:)
+      path = "#{config.base_path}appointments/#{appt_id}/avs?patientId=#{patient_id}"
+      perform(:get, path, nil, request_headers)
+    end
+
     private
 
     def fetch_access_token

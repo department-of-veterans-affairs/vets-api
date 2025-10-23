@@ -28,7 +28,7 @@
          "hours_per_week": "40",
          "lost_time_from_illness": "13",
          "highest_gross_income_per_month": 2300,
-         "employmentDates": {
+         "employment_dates": {
             "from": "2018-03-15",
             "to": "2020-06-30"
          },
@@ -46,7 +46,7 @@
          "hours_per_week": "20",
          "lost_time_from_illness": "30",
          "highest_gross_income_per_month": 1300,
-         "employmentDates": {
+         "employment_dates": {
             "from": "2020-07-01",
             "to": "2022-09-13"
          },
@@ -64,7 +64,7 @@
          "hours_per_week": "60",
          "lost_time_from_illness": "56",
          "highest_gross_income_per_month": 600,
-         "employmentDates": {
+         "employment_dates": {
             "from": "2022-10-11",
             "to": "2024-04-07"
          },
