@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :veteran_representative, class: 'Veteran::Service::Representative' do
-    representative_id { Faker::Number.unique.number(digits: 6).to_s}
+    representative_id { Faker::Number.unique.number(digits: 6).to_s }
     poa_codes { ['A1Q'] }
     first_name { 'Bob' }
     last_name { 'Law' }
