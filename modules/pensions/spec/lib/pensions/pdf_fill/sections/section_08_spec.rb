@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'pensions/pdf_fill/sections/section_08'
 
 describe Pensions::PdfFill::Section8 do

@@ -11,6 +11,13 @@ module Pensions
       # Section configuration hash
       KEY = {}.freeze
 
+      ##
+      # Expands dependent children section
+      #
+      # @param form_data [Hash]
+      #
+      # @note Modifies `form_data`
+      #
       def expand(form_data)
         form_data['dependentChildrenInHousehold'] = select_children_in_household(form_data['dependents'])
         form_data['dependents'] = form_data['dependents']&.map { |dependent| dependent_to_hash(dependent) }
@@ -49,7 +56,15 @@ module Pensions
         dependent
       end
 
+      ##
       # Create an address string from an address hash
+      #
+      # @param address [Hash]
+      #
+      # @return [String]
+      #
+      # @note Returns empty string if address is blank
+      #
       def build_address_string(address)
         return '' if address.blank?
 
@@ -62,7 +77,13 @@ module Pensions
         address_arr.join("\n")
       end
 
-      # Select the children in a household of the dependents.
+      ##
+      # Select the children in a household of the dependents
+      #
+      # @param dependents [Array<Hash>]
+      #
+      # @return [String] Number of children in household as string
+      #
       def select_children_in_household(dependents)
         return unless dependents&.any?
 
@@ -71,7 +92,13 @@ module Pensions
         end.length.to_s
       end
 
+      ##
       # Build a string to represent the dependents status.
+      #
+      # @param dependent [Hash]
+      #
+      # @return [Array<String>] Array of status strings
+      #
       def child_status_overflow(dependent)
         child_status_overflow = [dependent['childRelationship']&.humanize]
         child_status_overflow << 'seriously disabled' if dependent['disabled']
@@ -81,7 +108,13 @@ module Pensions
         child_status_overflow
       end
 
-      # Create a hash table from a dependent that outlines all the data joined and formatted together.
+      ##
+      # Create a hash table from a dependent that outlines all the data joined and formatted together
+      #
+      # @param dependent [Hash]
+      #
+      # @return [Hash] The formatted dependent hash
+      #
       def dependent_to_hash(dependent)
         dependent
           .merge!({
