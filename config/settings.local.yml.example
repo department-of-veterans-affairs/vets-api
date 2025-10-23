@@ -12,6 +12,11 @@
   # host: '0.0.0.0'
   # port: '33100'
 
+# accredited_representative_portal:
+  # lighthouse:
+    # benefits_intake:
+      # api_key: abc123
+
 # NOTE: This file is excluded by railsconfig in the test env.
 # Use config/settings/test.local.yml instead.
 # See "Note" at https://github.com/rubyconfig/config#developer-specific-config-files

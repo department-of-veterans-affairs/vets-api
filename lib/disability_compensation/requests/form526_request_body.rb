@@ -89,6 +89,7 @@ module Requests
     include Vets::Model
 
     attribute :name, String
+    attribute :approximate_date, String
     attribute :disability_action_type, String
     attribute :classification_code, String
     attribute :service_relevance, String
@@ -99,6 +100,7 @@ module Requests
 
     attribute :disability_action_type, String
     attribute :name, String
+    attribute :approximate_date, String
     attribute :classification_code, String
     attribute :service_relevance, String
     attribute :is_related_to_toxic_exposure, Bool
@@ -296,5 +298,10 @@ module Requests
     attribute :service_pay, ServicePay
     attribute :direct_deposit, DirectDeposit
     attribute :claim_notes, String
+  end
+
+  # Currently only used for the getPDF LH Claims API endpoint for backup 526 submissions
+  class Form526Pdf < Form526
+    attribute :claim_date, String, default: nil
   end
 end

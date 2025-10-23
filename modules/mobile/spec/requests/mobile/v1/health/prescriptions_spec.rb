@@ -74,12 +74,12 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
             expect(response.parsed_body['meta']).to have_key('prescriptionStatusCount')
             expect(response.parsed_body['meta']).to have_key('hasNonVaMeds')
 
-            # Verify that prescription data includes trackingInformation field as empty hash
+            # Verify that prescription data includes tracking field as empty array
             expect(response.parsed_body['data']).to be_an(Array)
             if response.parsed_body['data'].any?
               first_prescription = response.parsed_body['data'].first
-              expect(first_prescription['attributes']).to have_key('trackingInformation')
-              expect(first_prescription['attributes']['trackingInformation']).to eq({})
+              expect(first_prescription['attributes']).to have_key('tracking')
+              expect(first_prescription['attributes']['tracking']).to eq([])
             end
           end
         end
@@ -101,10 +101,10 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
           let(:rx_va) do
             OpenStruct.new(
               id: 'rx-va-1',
-              refill_status: 'active', refill_submit_date: nil, refill_date: nil, refill_remaining: 1,
+              refill_status: 'active', refill_submit_date: nil, refill_date: nil, refill_remaining: 5,
               facility_name: 'VA FAC', ordered_date: nil, quantity: 30, expiration_date: nil,
               prescription_number: '123', prescription_name: 'VA MED', dispensed_date: nil, station_number: '500',
-              is_refillable: true, is_trackable: false, tracking_information: {}, prescription_source: 'RX',
+              is_refillable: true, is_trackable: false, tracking: [], prescription_source: 'RX',
               instructions: 'Take daily', facility_phone_number: '555-555-5555'
             )
           end
@@ -114,7 +114,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
               refill_status: 'active', refill_submit_date: nil, refill_date: nil, refill_remaining: 1,
               facility_name: 'NON VA', ordered_date: nil, quantity: 10, expiration_date: nil,
               prescription_number: 'NV1', prescription_name: 'NON VA MED', dispensed_date: nil, station_number: '600',
-              is_refillable: false, is_trackable: false, tracking_information: {}, prescription_source: 'NV',
+              is_refillable: false, is_trackable: false, tracking: [], prescription_source: 'NV',
               instructions: 'As needed', facility_phone_number: '555-000-0000'
             )
           end
@@ -147,7 +147,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
               refill_remaining: 2,
               facility_name: 'VA FAC', ordered_date: nil, quantity: 60, expiration_date: nil,
               prescription_number: '456', prescription_name: 'VA MED A', dispensed_date: nil, station_number: '500',
-              is_refillable: true, is_trackable: false, tracking_information: {}, prescription_source: 'RX',
+              is_refillable: true, is_trackable: false, tracking: [], prescription_source: 'RX',
               instructions: 'Daily', facility_phone_number: '555-555-5555'
             )
           end
@@ -158,7 +158,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
               refill_remaining: 0,
               facility_name: 'VA FAC', ordered_date: nil, quantity: 15, expiration_date: nil,
               prescription_number: '789', prescription_name: 'VA MED B', dispensed_date: nil, station_number: '500',
-              is_refillable: false, is_trackable: false, tracking_information: {}, prescription_source: 'RX',
+              is_refillable: false, is_trackable: false, tracking: [], prescription_source: 'RX',
               instructions: 'Bid', facility_phone_number: '555-555-5555'
             )
           end
@@ -298,6 +298,128 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
             expect(error['code']).to eq('108')
             expect(error['detail']).to include('orders')
           end
+        end
+      end
+
+      context 'refill response handling' do
+        let(:mock_service) { instance_double(UnifiedHealthData::Service) }
+
+        before do
+          allow(UnifiedHealthData::Service).to receive(:new).and_return(mock_service)
+        end
+
+        it 'handles empty success and failed arrays correctly' do
+          # Mock service returns empty arrays for both success and failed
+          allow(mock_service).to receive(:refill_prescription).and_return({
+                                                                            success: [],
+                                                                            failed: []
+                                                                          })
+
+          put '/mobile/v1/health/rx/prescriptions/refill',
+              params: [{ stationNumber: '123', id: '25804851' }].to_json,
+              headers: sis_headers.merge('Content-Type' => 'application/json')
+
+          expect(response).to have_http_status(:ok)
+          data = response.parsed_body['data']
+          expect(data['type']).to eq('PrescriptionRefills')
+          expect(data['attributes']).to have_key('successfulStationList')
+          expect(data['attributes']).to have_key('failedStationList')
+          expect(data['attributes']).to have_key('prescriptionList')
+        end
+
+        it 'handles service response with only successful refills' do
+          # Mock service returns success array with items, empty failed array
+          allow(mock_service).to receive(:refill_prescription).and_return({
+                                                                            success: [
+                                                                              { id: '25804851', status: 'submitted',
+                                                                                station_number: '123' }
+                                                                            ],
+                                                                            failed: []
+                                                                          })
+
+          put '/mobile/v1/health/rx/prescriptions/refill',
+              params: [{ stationNumber: '123', id: '25804851' }].to_json,
+              headers: sis_headers.merge('Content-Type' => 'application/json')
+
+          expect(response).to have_http_status(:ok)
+          data = response.parsed_body['data']
+          expect(data['type']).to eq('PrescriptionRefills')
+          expect(data['attributes']).to have_key('successfulStationList')
+          expect(data['attributes']).to have_key('failedStationList')
+          expect(data['attributes']).to have_key('prescriptionList')
+        end
+
+        it 'handles service response with only failed refills' do
+          # Mock service returns empty success array, failed array with items
+          allow(mock_service).to receive(:refill_prescription).and_return({
+                                                                            success: [],
+                                                                            failed: [
+                                                                              { id: '25804851', error: 'Not found',
+                                                                                station_number: '123' }
+                                                                            ]
+                                                                          })
+
+          put '/mobile/v1/health/rx/prescriptions/refill',
+              params: [{ stationNumber: '123', id: '25804851' }].to_json,
+              headers: sis_headers.merge('Content-Type' => 'application/json')
+
+          expect(response).to have_http_status(:ok)
+          data = response.parsed_body['data']
+          expect(data['type']).to eq('PrescriptionRefills')
+          expect(data['attributes']).to have_key('successfulStationList')
+          expect(data['attributes']).to have_key('failedStationList')
+          expect(data['attributes']).to have_key('prescriptionList')
+          expect(data['attributes']).to have_key('failedPrescriptionIds')
+        end
+
+        it 'handles service response with mixed success and failed refills' do
+          # Mock service returns both success and failed arrays with items
+          allow(mock_service).to receive(:refill_prescription).and_return({
+                                                                            success: [
+                                                                              { id: '25804851', status: 'submitted',
+                                                                                station_number: '123' }
+                                                                            ],
+                                                                            failed: [
+                                                                              { id: '25804852', error: 'Not found',
+                                                                                station_number: '124' }
+                                                                            ]
+                                                                          })
+
+          put '/mobile/v1/health/rx/prescriptions/refill',
+              params: [
+                { stationNumber: '123', id: '25804851' },
+                { stationNumber: '124', id: '25804852' }
+              ].to_json,
+              headers: sis_headers.merge('Content-Type' => 'application/json')
+
+          expect(response).to have_http_status(:ok)
+          data = response.parsed_body['data']
+          expect(data['type']).to eq('PrescriptionRefills')
+          expect(data['attributes']).to have_key('successfulStationList')
+          expect(data['attributes']).to have_key('failedStationList')
+          expect(data['attributes']).to have_key('prescriptionList')
+          expect(data['attributes']).to have_key('failedPrescriptionIds')
+        end
+
+        it 'always receives arrays from service for success and failed keys' do
+          # This test verifies the service contract - that we always get arrays
+          expect(mock_service).to receive(:refill_prescription) do |orders|
+            expect(orders).to be_an(Array)
+            # Return the expected format with arrays
+            {
+              success: [],
+              failed: []
+            }
+          end
+
+          put '/mobile/v1/health/rx/prescriptions/refill',
+              params: [{ stationNumber: '123', id: '25804851' }].to_json,
+              headers: sis_headers.merge('Content-Type' => 'application/json')
+
+          # Controller now always returns success response with serialized result
+          expect(response).to have_http_status(:ok)
+          data = response.parsed_body['data']
+          expect(data['type']).to eq('PrescriptionRefills')
         end
       end
     end

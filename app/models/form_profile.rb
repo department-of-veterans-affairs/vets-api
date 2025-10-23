@@ -96,7 +96,7 @@ class FormProfile
     dependents: %w[686C-674 686C-674-V2],
     dependents_verification: %w[21-0538],
     dispute_debt: ['DISPUTE-DEBT'],
-    edu: %w[22-1990 22-1990N 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E
+    edu: %w[22-1990 22-1990EMEB 22-1995 22-5490 22-5490E
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ
             22-10297],
     evss: ['21-526EZ'],
@@ -158,10 +158,8 @@ class FormProfile
     '22-10203' => ::FormProfiles::VA10203,
     '22-10297' => ::FormProfiles::VA10297,
     '22-1990' => ::FormProfiles::VA1990,
-    '22-1990E' => ::FormProfiles::VA1990e,
     '22-1990EMEB' => ::FormProfiles::VA1990emeb,
     '22-1990EZ' => ::FormProfiles::VA1990ez,
-    '22-1990N' => ::FormProfiles::VA1990n,
     '22-1990S' => ::FormProfiles::VA1990s,
     '22-1995' => ::FormProfiles::VA1995,
     '22-5490' => ::FormProfiles::VA5490,
@@ -222,6 +220,11 @@ class FormProfile
   # lookup FormProfile subclass by form_id and initialize (or use FormProfile if lookup fails)
   def self.for(form_id:, user:)
     form_id = form_id.upcase
+
+    if form_id == '686C-674-V2' && Flipper.enabled?(:dependents_module_enabled, user)
+      return DependentsBenefits::FormProfiles::VA686c674.new(form_id:, user:)
+    end
+
     FORM_ID_TO_CLASS.fetch(form_id, self).new(form_id:, user:)
   end
 

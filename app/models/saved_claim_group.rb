@@ -16,8 +16,28 @@ class SavedClaimGroup < ApplicationRecord
   has_kms_key
   has_encrypted :user_data, key: :kms_key, **lockbox_options
 
+  belongs_to :parent, class_name: 'SavedClaim', foreign_key: 'parent_claim_id', inverse_of: :parent_of_groups
+  belongs_to :child, class_name: 'SavedClaim', foreign_key: 'saved_claim_id', inverse_of: :child_of_groups
+
+  scope :by_claim_group_guid, ->(claim_group_guid) { where(claim_group_guid:) }
+  scope :by_saved_claim_id, ->(saved_claim_id) { where(saved_claim_id:) }
+  scope :by_parent_id, ->(parent_claim_id) { where(parent_claim_id:) }
+  scope :by_status, ->(status) { where(status:) }
+  scope :pending, -> { by_status('pending') }
+  scope :needs_kms_rotation, -> { where(needs_kms_rotation: true) }
+  scope :child_claims_for, ->(parent_id) { where(parent_claim_id: parent_id).where.not(saved_claim_id: parent_id) }
+
   after_create { track_event(:create) }
   after_destroy { track_event(:destroy) }
+
+  # Claim submission statuses
+  STATUSES = {
+    PENDING: 'pending', # default - waiting to be processed
+    ACCEPTED: 'accepted', # submitted to Sidekiq jobs and/or services
+    FAILURE: 'failure', # submission failed
+    PROCESSING: 'processing', # reached service, waiting for decision
+    SUCCESS: 'success' # submission succeeded
+  }.freeze
 
   def parent
     @parent_claim ||= ::SavedClaim.find(parent_claim_id)
@@ -27,10 +47,30 @@ class SavedClaimGroup < ApplicationRecord
     @child_claim ||= ::SavedClaim.find(saved_claim_id)
   end
 
-  # return all the
-  def children
+  # return all the child claims associated with this group
+  def saved_claim_children
     child_ids = SavedClaimGroup.where(claim_group_guid:, parent_claim_id:).map(&:saved_claim_id)
-    ::SavedClaim.where(id: child_ids)
+    SavedClaim.where(id: child_ids)
+  end
+
+  def parent_claim_group_for_child
+    SavedClaimGroup.find_by(saved_claim_id: parent_claim_id, parent_claim_id:)
+  end
+
+  def children_of_group
+    SavedClaimGroup.where(parent_claim_id:).where.not(saved_claim_id: parent_claim_id)
+  end
+
+  def completed?
+    status.in?([STATUSES[:SUCCESS], STATUSES[:FAILURE]])
+  end
+
+  def failed?
+    status == STATUSES[:FAILURE]
+  end
+
+  def succeeded?
+    status == STATUSES[:SUCCESS]
   end
 
   private
