@@ -116,7 +116,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
       }
     end
     let(:in_progress_form) { create(:in_progress_form, form_id: '21-526EZ', form_data: in_progress_form_data.to_json) }
-    let(:saved_claim) { build(:fake_saved_claim, form_id: described_class::FORM_ID, guid: '1234') }
+    let(:submitted_claim) { build(:fake_saved_claim, form_id: described_class::FORM_ID, guid: '1234') }
     let(:submission) { instance_double(Form526Submission, id: 67_890) }
 
     shared_examples 'logs changes event' do |removed_keys:, completely_removed:|
@@ -131,7 +131,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
             completely_removed:
           )
         )
-        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim: saved_claim, submission:)
+        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
       end
     end
 
@@ -142,7 +142,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
             'conditions' => { 'asthma' => true }
           }
         }
-        allow(saved_claim).to receive(:form).and_return(form_data.to_json)
+        allow(submitted_claim).to receive(:form).and_return(form_data.to_json)
       end
 
       include_examples 'logs changes event', removed_keys: ['gulfWar1990'], completely_removed: false
@@ -155,7 +155,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
             'gulfWar1990' => { 'iraq' => true }
           }
         }
-        allow(saved_claim).to receive(:form).and_return(form_data.to_json)
+        allow(submitted_claim).to receive(:form).and_return(form_data.to_json)
       end
 
       include_examples 'logs changes event', removed_keys: ['conditions'], completely_removed: false
@@ -166,7 +166,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         form_data = {
           'toxicExposure' => {}
         }
-        allow(saved_claim).to receive(:form).and_return(form_data.to_json)
+        allow(submitted_claim).to receive(:form).and_return(form_data.to_json)
       end
 
       include_examples 'logs changes event', removed_keys: %w[conditions gulfWar1990], completely_removed: false
@@ -182,7 +182,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
             completely_removed: false
           )
         )
-        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim: saved_claim, submission:)
+        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
       end
     end
 
@@ -204,24 +204,24 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
             'conditions' => { 'asthma' => true }
           }
         }
-        allow(saved_claim).to receive(:form).and_return(form_data.to_json)
+        allow(submitted_claim).to receive(:form).and_return(form_data.to_json)
       end
 
       include_examples 'logs changes event', removed_keys: %w[gulfWar1990 gulfWar2001], completely_removed: false
     end
 
     context 'when completely removed' do
-      before { allow(saved_claim).to receive(:form).and_return({}.to_json) }
+      before { allow(submitted_claim).to receive(:form).and_return({}.to_json) }
 
       include_examples 'logs changes event', removed_keys: %w[conditions gulfWar1990], completely_removed: true
     end
 
     context 'when unchanged' do
-      before { allow(saved_claim).to receive(:form).and_return(in_progress_form_data.to_json) }
+      before { allow(submitted_claim).to receive(:form).and_return(in_progress_form_data.to_json) }
 
       it 'does not log' do
         expect(monitor).not_to receive(:submit_event)
-        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim: saved_claim, submission:)
+        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
       end
     end
   end

@@ -62,6 +62,7 @@ module V0
       end
     end
 
+    # rubocop:disable Metrics/MethodLength - Method was already at limit (20 lines), adding toxic exposure logging adds 1 line
     def submit_all_claim
       temp_separation_location_fix if Flipper.enabled?(:disability_compensation_temp_separation_location_code_string,
                                                        @current_user)
@@ -78,7 +79,11 @@ module V0
 
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       # if jid = 0 then the submission was prevented from going any further in the process
-      submission = create_submission(saved_claim).tap { |sub| log_toxic_exposure_changes(saved_claim, sub) }
+      submission = create_submission(saved_claim)
+      if Flipper.enabled?(:disability_526_toxic_exposure_opt_out_data_purge, @current_user) ||
+         Flipper.enabled?(:disability_526_toxic_exposure_opt_out_data_purge_by_user, @current_user)
+        log_toxic_exposure_changes(saved_claim, submission)
+      end
       jid = 0
       # Feature flag to stop submission from being submitted to third-party service
       # With this on, the submission will NOT be processed by EVSS or Lighthouse,
@@ -93,6 +98,7 @@ module V0
       render json: { data: { attributes: { job_id: jid } } },
              status: :ok
     end
+    # rubocop:enable Metrics/MethodLength
 
     def submission_status
       job_status = Form526JobStatus.where(job_id: params[:job_id]).first
@@ -284,11 +290,6 @@ module V0
     # @param submission [Form526Submission] The submission record
     # @return [void]
     def log_toxic_exposure_changes(submitted_claim, submission)
-      # Enable logging if either toxic exposure purge flag is enabled
-      # First one is for general audience and second it for user-specific targeting for effected users
-      return unless Flipper.enabled?(:disability_526_toxic_exposure_opt_out_data_purge, @current_user) ||
-                    Flipper.enabled?(:disability_526_toxic_exposure_opt_out_data_purge_by_user, @current_user)
-
       in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user)
       return unless in_progress_form
 
