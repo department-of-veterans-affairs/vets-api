@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'benefits_claims/title_generator'
 require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_claims/constants'
 require 'lighthouse/benefits_documents/constants'
@@ -19,6 +20,8 @@ module V0
       'dependency:lighthouse'
     ].freeze
 
+    FEATURE_USE_TITLE_GENERATOR_WEB = 'cst_use_claim_title_generator_web'
+
     def index
       claims = service.get_claims
 
@@ -27,6 +30,7 @@ module V0
 
       claims['data'].each do |claim|
         update_claim_type_language(claim)
+
         # Add has_failed_uploads field for document uploads that were added
         if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
           claim['attributes']['hasFailedUploads'] = add_has_failed_uploads(claim)
@@ -94,7 +98,23 @@ module V0
       render json: res
     end
 
+    def failed_upload_evidence_submissions
+      if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
+        render json: { data: filter_failed_evidence_submissions }
+      else
+        render json: { data: [] }
+      end
+    end
+
     private
+
+    def failed_evidence_submissions
+      @failed_evidence_submissions ||= EvidenceSubmission.failed.where(user_account: current_user_account.id)
+    end
+
+    def current_user_account
+      UserAccount.find(@current_user.user_account_uuid)
+    end
 
     def claims_scope
       EVSSClaim.for_user(@current_user)
@@ -133,9 +153,14 @@ module V0
     end
 
     def update_claim_type_language(claim)
-      language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
-      if language_map.key?(claim.dig('attributes', 'claimType'))
-        claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
+      if Flipper.enabled?(:cst_use_claim_title_generator_web)
+        # Adds displayTitle and claimTypeBase to the claim response object
+        BenefitsClaims::TitleGenerator.update_claim_title(claim)
+      else
+        language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
+        if language_map.key?(claim.dig('attributes', 'claimType'))
+          claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
+        end
       end
     end
 
@@ -151,12 +176,71 @@ module V0
       evidence_submissions = EvidenceSubmission.where(claim_id: claim['id'])
       tracked_items = claim['attributes']['trackedItems']
 
-      filter_evidence_submissions(evidence_submissions, tracked_items)
+      filter_evidence_submissions(evidence_submissions, tracked_items, claim)
     end
 
-    def filter_evidence_submissions(evidence_submissions, tracked_items)
+    def filter_evidence_submissions(evidence_submissions, tracked_items, claim)
+      non_duplicate_submissions = filter_duplicate_evidence_submissions(evidence_submissions, claim)
+
       filtered_evidence_submissions = []
-      evidence_submissions.each do |es|
+      non_duplicate_submissions.each do |es|
+        filtered_evidence_submissions.push(build_filtered_evidence_submission_record(es, tracked_items))
+      end
+
+      filtered_evidence_submissions
+    end
+
+    def filter_duplicate_evidence_submissions(evidence_submissions, claim)
+      supporting_documents = claim['attributes']['supportingDocuments'] || []
+      received_file_names = supporting_documents.map { |doc| doc['originalFileName'] }.compact
+
+      return evidence_submissions if received_file_names.empty?
+
+      evidence_submissions.reject do |evidence_submission|
+        file_name = extract_evidence_submission_file_name(evidence_submission)
+        file_name && received_file_names.include?(file_name)
+      end
+    end
+
+    def extract_evidence_submission_file_name(evidence_submission)
+      return nil if evidence_submission.template_metadata.nil?
+
+      metadata = JSON.parse(evidence_submission.template_metadata)
+      personalisation = metadata['personalisation']
+
+      if personalisation.is_a?(Hash) && personalisation['file_name']
+        personalisation['file_name']
+      else
+        ::Rails.logger.warn(
+          '[BenefitsClaimsController] Missing or invalid personalisation in evidence submission metadata',
+          { evidence_submission_id: evidence_submission.id }
+        )
+        nil
+      end
+    rescue JSON::ParserError, TypeError
+      ::Rails.logger.error(
+        '[BenefitsClaimsController] Error parsing evidence submission metadata',
+        { evidence_submission_id: evidence_submission.id }
+      )
+      nil
+    end
+
+    def filter_failed_evidence_submissions
+      filtered_evidence_submissions = []
+      claims = {}
+
+      failed_evidence_submissions.each do |es|
+        # When we get a claim we add it to claims so that we prevent calling lighthouse multiple times
+        # to get the same claim.
+        claim = claims[es.claim_id]
+
+        if claim.nil?
+          claim = service.get_claim(es.claim_id)
+          claims[es.claim_id] = claim
+        end
+
+        tracked_items = claim['data']['attributes']['trackedItems']
+
         filtered_evidence_submissions.push(build_filtered_evidence_submission_record(es, tracked_items))
       end
 

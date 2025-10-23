@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../../lib/travel_pay/constants'
+
 module IdValidation
   extend ActiveSupport::Concern
 
@@ -8,10 +10,7 @@ module IdValidation
     # it’s part of the URL path and Rails routing prevents that.
     raise Common::Exceptions::BadRequest.new(detail: "#{id_type} ID is required") if id.blank?
 
-    # Ensure the UUID is the right format, allowing any version
-    uuid_all_version_format = /\A[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}\z/i
-
-    unless uuid_all_version_format.match?(id)
+    unless TravelPay::Constants::UUID_REGEX.match?(id)
       raise Common::Exceptions::BadRequest.new(
         detail: "#{id_type} ID is invalid"
       )

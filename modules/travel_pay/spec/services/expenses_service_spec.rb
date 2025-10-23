@@ -21,7 +21,7 @@ describe TravelPay::ExpensesService do
 
   let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
-  context 'create_expense' do
+  describe 'create_expense' do
     before do
       auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
       @expenses_client = instance_double(TravelPay::ExpensesClient)
@@ -296,7 +296,7 @@ describe TravelPay::ExpensesService do
     end
   end
 
-  context 'add_mileage_expense method' do
+  describe 'add_mileage_expense method' do
     let(:auth_manager) { object_double(TravelPay::AuthManager.new(123, user), authorize: tokens) }
     let(:service) { TravelPay::ExpensesService.new(auth_manager) }
 
@@ -336,6 +336,166 @@ describe TravelPay::ExpensesService do
                               'appt_date' => '2024-10-02T14:36:38.043Z',
                               'trip_type' => 'OneWay' })
       end.to raise_error(ArgumentError, /You must provide/i)
+    end
+  end
+
+  describe '#update_expense' do
+    let(:auth_manager) { instance_double(TravelPay::AuthManager, authorize: { veis_token: 'veis_token', btsss_token: 'btsss_token' }) }
+    let(:service) { described_class.new(auth_manager) }
+    let(:client_double) { instance_double(TravelPay::ExpensesClient) }
+    let(:expense_id) { '123e4567-e89b-12d3-a456-426614174000' }
+    let(:expense_type) { 'other' }
+    let(:update_response) { double(body: { 'data' => { 'id' => expense_id } }) }
+
+    before do
+      allow(TravelPay::ExpensesClient).to receive(:new).and_return(client_double)
+      allow(client_double).to receive(:update_expense).and_return(update_response)
+    end
+
+    context 'when travel_pay_exclude_expense_placeholder_receipt is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_exclude_expense_placeholder_receipt).and_return(false)
+      end
+
+      let(:params) do
+        {
+          'expense_type' => 'lodging',
+          'purchase_date' => '2024-10-02',
+          'description' => 'Hotel stay',
+          'cost_requested' => 125.50
+        }
+      end
+      let(:expected_request_body) do
+        {
+          'dateIncurred' => '2024-10-02',
+          'description' => 'Hotel stay',
+          'costRequested' => 125.50,
+          'expenseType' => 'lodging',
+          'expenseReceipt' => {
+            'contentType' => 'image/bmp',
+            'length' => 58,
+            'fileName' => 'placeholder.bmp',
+            'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
+          }
+        }
+      end
+
+      it 'calls the client with correct arguments' do
+        result = service.update_expense(expense_id, expense_type, params)
+
+        expect(client_double).to have_received(:update_expense)
+          .with('veis_token', 'btsss_token', expense_id, expense_type, expected_request_body)
+        expect(result).to eq({ 'id' => expense_id })
+      end
+
+      it 'handles partial update payload' do
+        partial_params = { 'description' => 'Updated hotel stay' }
+        partial_request_body = {
+          'dateIncurred' => nil,
+          'description' => 'Updated hotel stay',
+          'costRequested' => nil,
+          'expenseType' => nil,
+          'expenseReceipt' => {
+            'contentType' => 'image/bmp',
+            'length' => 58,
+            'fileName' => 'placeholder.bmp',
+            'fileData' => 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA=='
+          }
+        }
+
+        result = service.update_expense(expense_id, expense_type, partial_params)
+        expect(client_double).to have_received(:update_expense)
+          .with('veis_token', 'btsss_token', expense_id, expense_type, partial_request_body)
+        expect(result).to eq({ 'id' => expense_id })
+      end
+
+      it 'raises ArgumentError if expense_id is missing' do
+        expect { service.update_expense(nil, expense_type, params) }
+          .to raise_error(ArgumentError, /You must provide an expense ID/)
+      end
+
+      it 'raises ArgumentError if expense_type is missing' do
+        expect { service.update_expense(expense_id, nil, params) }
+          .to raise_error(ArgumentError, /You must provide an expense type/)
+      end
+
+      it 'raises ArgumentError if params is missing' do
+        expect { service.update_expense(expense_id, expense_type, nil) }
+          .to raise_error(ArgumentError, /You must provide at least one field/)
+      end
+    end
+
+    context 'when travel_pay_exclude_expense_placeholder_receipt is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_exclude_expense_placeholder_receipt).and_return(true)
+      end
+
+      it 'calls the client with correct arguments' do
+        params = {
+          'expense_type' => 'lodging',
+          'purchase_date' => '2024-10-02',
+          'description' => 'Hotel stay',
+          'cost_requested' => 125.50
+        }
+        expected_request_body = {
+          'dateIncurred' => '2024-10-02',
+          'description' => 'Hotel stay',
+          'costRequested' => 125.50,
+          'expenseType' => 'lodging'
+        }
+        result = service.update_expense(expense_id, expense_type, params)
+
+        expect(client_double).to have_received(:update_expense)
+          .with('veis_token', 'btsss_token', expense_id, expense_type, expected_request_body)
+        expect(result).to eq({ 'id' => expense_id })
+      end
+
+      it 'handles partial update payload' do
+        partial_params = { 'description' => 'Updated hotel stay' }
+        partial_request_body = {
+          'dateIncurred' => nil,
+          'description' => 'Updated hotel stay',
+          'costRequested' => nil,
+          'expenseType' => nil
+        }
+
+        result = service.update_expense(expense_id, expense_type, partial_params)
+        expect(client_double).to have_received(:update_expense)
+          .with('veis_token', 'btsss_token', expense_id, expense_type, partial_request_body)
+        expect(result).to eq({ 'id' => expense_id })
+      end
+    end
+  end
+
+  describe '#delete_expense' do
+    let(:auth_manager) { instance_double(TravelPay::AuthManager, authorize: { veis_token: 'veis_token', btsss_token: 'btsss_token' }) }
+    let(:service) { described_class.new(auth_manager) }
+    let(:client_double) { instance_double(TravelPay::ExpensesClient) }
+    let(:expense_id) { '123e4567-e89b-12d3-a456-426614174000' }
+    let(:expense_type) { 'other' }
+    let(:delete_response) { double(body: { 'data' => { 'id' => expense_id } }) }
+
+    before do
+      allow(TravelPay::ExpensesClient).to receive(:new).and_return(client_double)
+      allow(client_double).to receive(:delete_expense).and_return(delete_response)
+    end
+
+    it 'calls the client with correct arguments' do
+      result = service.delete_expense(expense_id:, expense_type:)
+
+      expect(client_double).to have_received(:delete_expense)
+        .with('veis_token', 'btsss_token', expense_id, expense_type)
+      expect(result).to eq({ 'id' => expense_id })
+    end
+
+    it 'raises ArgumentError if expense_id is missing' do
+      expect { service.delete_expense(expense_id: nil, expense_type:) }
+        .to raise_error(ArgumentError, /You must provide an expense ID/)
+    end
+
+    it 'raises ArgumentError if expense_type is missing' do
+      expect { service.delete_expense(expense_id:, expense_type: nil) }
+        .to raise_error(ArgumentError, /You must provide an expense type/)
     end
   end
 end

@@ -29,7 +29,8 @@ RSpec.describe BGS::DependentService do
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
 
   before do
-    allow(claim).to receive_messages(id: '1234', use_v2: false, user_account_id: user.user_account_uuid,
+    # TODO: Add back user_account_id once the DB migration is done
+    allow(claim).to receive_messages(id: '1234', use_v2: false,
                                      submittable_686?: false, submittable_674?: true, add_veteran_info: true,
                                      valid?: true, persistent_attachments: [], upload_pdf: true, form_id: '686C-674')
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
@@ -224,6 +225,17 @@ RSpec.describe BGS::DependentService do
         BGS::DependentService.new(user).get_dependents
       end
     end
+
+    it 'returns a valid response when empty array' do
+      VCR.use_cassette('bgs/dependent_service/get_dependents') do
+        allow_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
+          .with(user.participant_id, user.ssn).and_return([])
+
+        response = BGS::DependentService.new(user).get_dependents
+
+        expect(response).to have_key(:persons)
+      end
+    end
   end
 
   describe '#submit_674_form' do
@@ -378,6 +390,7 @@ RSpec.describe BGS::DependentService do
 
       allow(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return(uploader)
       allow(PDFUtilities::PDFStamper).to receive(:new).and_return(stamper)
+      allow(PdfFill::Filler).to receive(:fill_form).and_return(claim.form_id)
 
       service.instance_variable_set(:@ssn, ssn)
     end
@@ -435,8 +448,7 @@ RSpec.describe BGS::DependentService do
       allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).and_raise(StandardError)
       expect(Rails.logger).to receive(:warn)
       expect do
-        service.send(:submit_pdf_job, claim:,
-                                      encrypted_vet_info:)
+        service.send(:submit_pdf_job, claim:, encrypted_vet_info:)
       end.to raise_error(BGS::DependentService::PDFSubmissionError)
     end
   end

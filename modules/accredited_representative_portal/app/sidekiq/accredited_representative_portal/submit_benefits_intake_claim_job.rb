@@ -18,25 +18,28 @@ module AccreditedRepresentativePortal
     #   - Used to check claims' statuses afterwards
     #
     def init(saved_claim_id)
-      @claim =
-        ::SavedClaim.find(saved_claim_id)
+      @claim = ::SavedClaim.find(saved_claim_id)
+      @lighthouse_service = lighthouse_service
+    end
 
-      @lighthouse_service =
-        ##
-        # Rather than:
-        # ```
-        # BenefitsIntakeService::Service.new(with_upload_location: true)
-        # ```
-        #
-        BenefitsIntakeService::Service.new.tap do |service|
-          service.define_singleton_method(:config) do
+    def service
+      if Flipper.enabled?(:accredited_representative_portal_lighthouse_api_key)
+        ::AccreditedRepresentativePortal::BenefitsIntakeService.new
+      else
+        ::BenefitsIntakeService::Service.new.tap do |svc|
+          svc.define_singleton_method(:config) do
             BenefitsIntake::Service.configuration
           end
-
-          upload = service.get_location_and_uuid
-          service.instance_variable_set(:@uuid, upload[:uuid])
-          service.instance_variable_set(:@location, upload[:location])
         end
+      end
+    end
+
+    def lighthouse_service
+      service.tap do |service|
+        upload = service.get_location_and_uuid
+        service.instance_variable_set(:@uuid, upload[:uuid])
+        service.instance_variable_set(:@location, upload[:location])
+      end
     end
 
     ##
