@@ -126,7 +126,7 @@ RSpec.describe Efolder::Service do
     end
   end
 
-  describe '#get_tsa_letters' do
+  describe '#list_tsa_letters' do
     before do
       stub_vbms_client_request(
         'FindDocumentVersionReference',
@@ -137,12 +137,12 @@ RSpec.describe Efolder::Service do
 
     it 'returns requested document' do
       VCR.use_cassette('vbms/list_documents') do
-        expect(subject.get_tsa_letters).to eq([tsa_letter_data])
+        expect(subject.list_tsa_letters).to eq([tsa_letter_data])
       end
     end
   end
 
-  describe '#download_tsa_letter' do
+  describe '#get_tsa_letter' do
     before do
       stub_vbms_client_request(
         'FindDocumentVersionReference',
@@ -169,7 +169,7 @@ RSpec.describe Efolder::Service do
       it 'sends binary file content' do
         VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
           VCR.use_cassette('bgs/people_service/person_data') do
-            expect(subject.download_tsa_letter(document_id)).to eq(content)
+            expect(subject.get_tsa_letter(document_id)).to eq(content)
           end
         end
       end
@@ -180,7 +180,7 @@ RSpec.describe Efolder::Service do
 
       it 'raises a not found error' do
         VCR.use_cassette('bgs/people_service/person_data') do
-          expect { subject.download_tsa_letter(document_id) }.to raise_error(Common::Exceptions::RecordNotFound)
+          expect { subject.get_tsa_letter(document_id) }.to raise_error(Common::Exceptions::RecordNotFound)
         end
       end
     end
@@ -190,7 +190,7 @@ RSpec.describe Efolder::Service do
 
       it 'raises a not found error' do
         VCR.use_cassette('bgs/people_service/person_data') do
-          expect { subject.download_tsa_letter(document_id) }.to raise_error(Common::Exceptions::RecordNotFound)
+          expect { subject.get_tsa_letter(document_id) }.to raise_error(Common::Exceptions::RecordNotFound)
         end
       end
     end

@@ -23,7 +23,7 @@ RSpec.describe 'VO::TsaLetter', type: :request do
     end
 
     before do
-      expect(efolder_service).to receive(:get_tsa_letter).and_return(tsa_letters)
+      expect(efolder_service).to receive(:list_tsa_letters).and_return(tsa_letters)
     end
 
     it 'returns the tsa letter metadata' do
@@ -42,7 +42,7 @@ RSpec.describe 'VO::TsaLetter', type: :request do
     let(:content) { File.read('spec/fixtures/files/error_message.txt') }
 
     before do
-      expect(efolder_service).to receive(:download_tsa_letter).with(document_id).and_return(content)
+      expect(efolder_service).to receive(:get_tsa_letter).with(document_id).and_return(content)
     end
 
     it 'sends the doc pdf' do
