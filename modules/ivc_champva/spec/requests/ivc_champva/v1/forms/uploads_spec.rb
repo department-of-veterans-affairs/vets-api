@@ -964,6 +964,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   describe '#get_file_paths_and_metadata' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
 
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_send_ves_to_pega, anything).and_return(false)
+    end
+
     form_numbers_and_classes.each do |form_number, form_class|
       context "when form_number is #{form_number}" do
         let(:parsed_form_data) do
