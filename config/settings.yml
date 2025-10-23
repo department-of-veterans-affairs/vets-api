@@ -944,7 +944,7 @@ mhv:
     app_token: <%= ENV['mhv__sm__app_token'] %>
     gw_base_path: <%= ENV['mhv__sm__gw_base_path'] %>
     mock: <%= ENV['mhv__sm__mock'] %>
-    timeout: <%= ENV['mhv_sm_timeout'] || 60 %>
+    timeout: <%= ENV['mhv__sm__timeout'] || 60 %>
     x_api_key: <%= ENV['mhv__sm__x_api_key'] %>
   uhd:
     app_id: <%= ENV['mhv__uhd__app_id'] %>

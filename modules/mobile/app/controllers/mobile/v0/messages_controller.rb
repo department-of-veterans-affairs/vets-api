@@ -196,7 +196,7 @@ module Mobile
       end
 
       def extend_timeout
-        request.env['rack-timeout.timeout'] = Settings.mhv_sm_timeout
+        request.env['rack-timeout.timeout'] = Settings.mhv.sm.timeout
       end
     end
   end

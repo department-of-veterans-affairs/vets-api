@@ -249,7 +249,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                      params: { message: params }
 
                 expect(response).to be_successful
-                expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv_sm_timeout)
+                expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv.sm.timeout)
               end
             end
           end
@@ -263,7 +263,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                    params: { message: params }
 
               expect(response).to be_successful
-              expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv_sm_timeout)
+              expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv.sm.timeout)
             end
           end
 
@@ -275,7 +275,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                      params: { message: params }
 
                 expect(response).to be_successful
-                expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv_sm_timeout)
+                expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
               end
             end
           end
@@ -287,7 +287,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                    params: { message: params }
 
               expect(response).to be_successful
-              expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv_sm_timeout)
+              expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
             end
           end
 
@@ -298,7 +298,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                    params: { message: params }
 
               expect(response).to be_successful
-              expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv_sm_timeout)
+              expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
             end
           end
 
@@ -309,7 +309,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                     headers: sis_headers
 
                 expect(response).to be_successful
-                expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv_sm_timeout)
+                expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
               end
             end
           end

@@ -309,7 +309,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
                    params: { message: params }
 
               expect(response).to be_successful
-              expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv_sm_timeout)
+              expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv.sm.timeout)
             end
           end
         end
@@ -321,7 +321,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
                  params: { message: params }
 
             expect(response).to be_successful
-            expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv_sm_timeout)
+            expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv.sm.timeout)
           end
         end
 
@@ -331,7 +331,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
                  params: { message: params }
 
             expect(response).to be_successful
-            expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv_sm_timeout)
+            expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
           end
         end
 
@@ -341,7 +341,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
                  params: { message: params }
 
             expect(response).to be_successful
-            expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv_sm_timeout)
+            expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
           end
         end
 
@@ -351,7 +351,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
                  params: { message: params }
 
             expect(response).to be_successful
-            expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv_sm_timeout)
+            expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
           end
         end
 
@@ -360,7 +360,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
             get "/my_health/v1/messaging/messages/#{message_id}?is_oh_triage_group=true"
 
             expect(response).to be_successful
-            expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv_sm_timeout)
+            expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
           end
         end
       end

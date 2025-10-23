@@ -957,7 +957,7 @@ mhv:
     app_token: fake-app-token
     gw_base_path: v1/sm/patient/
     mock: true
-    timeout: <%= ENV['mhv_sm_timeout'] || 60 %>
+    timeout: <%= ENV['mhv__sm__timeout'] || 60 %>
     x_api_key: fake-x-api-key
   uhd:
     app_id: 1000
