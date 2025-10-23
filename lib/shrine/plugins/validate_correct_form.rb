@@ -18,12 +18,13 @@ class Shrine
           MiniMagick.convert do |convert|
             convert.density 150
             convert.background 'white'
-            convert << pdf.pages.first.path
-            convert.quality 100
             convert.flatten
+            convert.quality 100
+            convert << pdf.pages.first.path
             convert << image_path
           end
           file_as_string = RTesseract.new(image_path).to_s
+
           record.warnings << WRONG_FORM unless file_as_string.include? form_id
         ensure
           File.delete(image_path) if image_path && File.exist?(image_path)
