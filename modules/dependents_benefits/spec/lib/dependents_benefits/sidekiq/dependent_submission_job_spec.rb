@@ -216,7 +216,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
       context 'when any group is still pending' do
         it 'does not mark the parent claim group as succeeded' do
           expect(job).not_to receive(:mark_parent_group_succeeded)
-          expect(notification_email).not_to receive(:deliver)
+          expect(notification_email).not_to receive(:send_received_notification)
           job.send(:handle_job_success)
         end
       end
@@ -225,7 +225,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
         it 'marks the parent claim group as succeeded and notifies user' do
           sibling_claim_group.update!(status: SavedClaimGroup::STATUSES[:SUCCESS])
           expect(job).to receive(:mark_parent_group_succeeded).and_call_original
-          expect(notification_email).to receive(:deliver).with(:submitted)
+          expect(notification_email).to receive(:send_received_notification)
           job.send(:handle_job_success)
         end
       end
@@ -236,7 +236,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
         parent_claim_group.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
         allow(job).to receive(:mark_submission_succeeded)
         expect(job).not_to receive(:mark_parent_group_succeeded)
-        expect(notification_email).not_to receive(:deliver)
+        expect(notification_email).not_to receive(:send_received_notification)
         job.send(:handle_job_success)
       end
     end
@@ -302,7 +302,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
 
       it 'does not notify the user' do
         expect(job).not_to receive(:mark_parent_group_failed)
-        expect(job).not_to receive(:send_failure_notification)
+        expect(notification_email).not_to receive(:send_error_notification)
         expect(monitor).not_to receive(:log_silent_failure_avoided)
         job.send(:handle_permanent_failure, child_claim.id, 'Service destroyed')
       end
@@ -324,13 +324,13 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
         allow(job).to receive(:mark_submission_failed)
         allow(job).to receive(:send_backup_job).and_raise(StandardError, 'Submission not found')
         expect(monitor).to receive(:log_silent_failure_avoided)
-        expect(notification_email).to receive(:deliver).with(:error)
+        expect(notification_email).to receive(:send_error_notification)
         job.send(:handle_permanent_failure, child_claim.id, 'Service destroyed')
       end
 
       it 'logs a silent failure if notification fails' do
         allow(job).to receive(:mark_submission_failed).and_raise(StandardError, 'Submission not found')
-        allow(job).to receive(:send_failure_notification).and_raise(StandardError, 'User not found')
+        allow(notification_email).to receive(:send_error_notification).and_raise(StandardError, 'Email service down')
         expect(monitor).to receive(:log_silent_failure)
         job.send(:handle_permanent_failure, child_claim.id, 'Service destroyed')
       end

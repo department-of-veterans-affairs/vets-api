@@ -15,6 +15,40 @@ module DependentsBenefits
       super(saved_claim_id, service_name: 'dependents_benefits')
     end
 
+    def send_received_notification
+      # rubocop:disable Naming/VariableNumber
+      received_key = if claim.submittable_686? && claim.submittable_674?
+                       :received_686c_674
+                     elsif claim.submittable_686?
+                       :received_686c_only
+                     elsif claim.submittable_674?
+                       :received_674_only
+                     end
+      # rubocop:enable Naming/VariableNumber
+
+      deliver(received_key)
+    rescue => e
+      monitor.track_error_event('Error sending received notification email', 'notification_failure', error: e)
+      raise e
+    end
+
+    def send_error_notification
+      # rubocop:disable Naming/VariableNumber
+      error_key = if claim.submittable_686? && claim.submittable_674?
+                    :error_686c_674
+                  elsif claim.submittable_686?
+                    :error_686c_only
+                  elsif claim.submittable_674?
+                    :error_674_only
+                  end
+      # rubocop:enable Naming/VariableNumber
+
+      deliver(error_key)
+    rescue => e
+      monitor.track_error_event('Error sending error notification email', 'notification_failure', error: e)
+      raise e
+    end
+
     private
 
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#claim_class
@@ -52,38 +86,6 @@ module DependentsBenefits
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_metadata
     def callback_metadata
       super.merge(claim_id: claim.id)
-    end
-
-    def send_received_notification
-      received_key = if claim.submittable_686? && claim.submittable_674?
-                    :received_686c_674
-                  elsif claim.submittable_686?
-                    :received_686c_only
-                  elsif claim.submittable_674?
-                    :received_674_only
-                  end
-
-      deliver(received_key)
-
-      rescue => e
-        monitor.track_error_event('Error sending received notification email', 'notification_failure', error: e)
-      end
-    end
-
-    def send_error_notification
-      error_key = if claim.submittable_686? && claim.submittable_674?
-                    :error_686c_674
-                  elsif claim.submittable_686?
-                    :error_686c_only
-                  elsif claim.submittable_674?
-                    :error_674_only
-                  end
-
-      deliver(error_key)
-
-      rescue => e
-        monitor.track_error_event('Error sending error notification email', 'notification_failure', error: e)
-      end
     end
 
     def monitor
