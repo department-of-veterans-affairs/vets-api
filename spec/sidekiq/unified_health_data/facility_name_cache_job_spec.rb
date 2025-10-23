@@ -22,8 +22,7 @@ RSpec.describe UnifiedHealthData::FacilityNameCacheJob, type: :job do
   before do
     allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_lighthouse_client)
     allow(mock_lighthouse_client).to receive(:get_paginated_facilities).and_return(mock_response)
-    allow(mock_response).to receive(:facilities).and_return(mock_facilities)
-    allow(mock_response).to receive(:links).and_return(nil) # No next page by default
+    allow(mock_response).to receive_messages(facilities: mock_facilities, links: nil) # No next page by default
 
     # Mock Rails cache
     allow(Rails.cache).to receive(:write)
@@ -120,13 +119,11 @@ RSpec.describe UnifiedHealthData::FacilityNameCacheJob, type: :job do
           double('Facility', id: 'vha_003', name: 'Facility 3')
         ]
 
-        allow(first_page_response).to receive(:facilities).and_return(first_page_facilities)
-        allow(first_page_response).to receive(:links).and_return({
-          'next' => 'https://api.va.gov/services/va_facilities/v1/facilities?type=health&page=2&per_page=1000'
-        })
+        allow(first_page_response).to receive_messages(facilities: first_page_facilities, links: {
+                                                         'next' => 'https://api.va.gov/services/va_facilities/v1/facilities?type=health&page=2&per_page=1000'
+                                                       })
 
-        allow(second_page_response).to receive(:facilities).and_return(second_page_facilities)
-        allow(second_page_response).to receive(:links).and_return(nil) # No next page
+        allow(second_page_response).to receive_messages(facilities: second_page_facilities, links: nil) # No next page
 
         allow(mock_lighthouse_client).to receive(:get_paginated_facilities).and_return(
           first_page_response,

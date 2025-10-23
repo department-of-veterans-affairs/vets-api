@@ -64,28 +64,31 @@ module UnifiedHealthData
       )
 
       loop do
-        # Filter to VHA facilities and extract station numbers
-        vha_facilities = response.facilities.filter_map do |facility|
-          next unless facility.id.start_with?('vha_')
-
-          station_number = facility.id.sub(/^vha_/, '')
-          { station_number:, name: facility.name }
-        end
-
-        all_facilities.concat(vha_facilities)
+        all_facilities.concat(extract_vha_facilities(response))
 
         # Check if there's a next page link
         break unless response.links&.dig('next')
 
-        # Parse the next page URL to extract query parameters
-        next_url = URI.parse(response.links['next'])
-        next_params = URI.decode_www_form(next_url.query).to_h.transform_keys(&:to_sym)
-
-        response = facilities_client.get_paginated_facilities(next_params)
+        response = fetch_next_page(facilities_client, response.links['next'])
       end
 
       # Convert to hash for easy lookup
       all_facilities.to_h { |facility| [facility[:station_number], facility[:name]] }
+    end
+
+    def extract_vha_facilities(response)
+      response.facilities.filter_map do |facility|
+        next unless facility.id.start_with?('vha_')
+
+        station_number = facility.id.sub(/^vha_/, '')
+        { station_number:, name: facility.name }
+      end
+    end
+
+    def fetch_next_page(client, next_url)
+      next_url = URI.parse(next_url)
+      next_params = URI.decode_www_form(next_url.query).to_h.transform_keys(&:to_sym)
+      client.get_paginated_facilities(next_params)
     end
 
     def cache_facility_names(facility_map)
