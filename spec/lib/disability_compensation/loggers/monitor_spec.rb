@@ -186,7 +186,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
       end
     end
 
-    context 'when multiple keys removed (3+ keys)' do
+    context 'when multiple keys removed (2 keys)' do
       before do
         # Setup InProgressForm with 3 keys
         in_progress_data = {
@@ -198,7 +198,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         }
         allow(in_progress_form).to receive(:form_data).and_return(in_progress_data.to_json)
 
-        # Submitted only has conditions
+        # Submitted only has conditions (2 keys removed)
         form_data = {
           'toxicExposure' => {
             'conditions' => { 'asthma' => true }
