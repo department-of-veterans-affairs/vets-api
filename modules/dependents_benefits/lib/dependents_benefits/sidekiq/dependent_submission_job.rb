@@ -204,8 +204,6 @@ module DependentsBenefits::Sidekiq
       parent_group&.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
     end
 
-
-
     def send_backup_job
       # TODO
     end
