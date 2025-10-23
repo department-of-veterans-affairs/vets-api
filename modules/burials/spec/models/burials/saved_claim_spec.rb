@@ -155,7 +155,7 @@ RSpec.describe Burials::SavedClaim do
       instance.form = {
         privacyAgreementAccepted: true,
         veteranFullName: {
-          first: 'WESLEYLONGNAME',
+          first: 'WESLEYREALLYLONGNAMEOVERFLOW',
           last: 'FORD'
         },
         claimantEmail: 'foo@foo.com',
@@ -180,7 +180,8 @@ RSpec.describe Burials::SavedClaim do
       }.to_json
       instance.save!
 
-      expect(StatsD).to have_received(:increment).with('saved_claim.pdf.overflow', tags: ['form_id:21P-530EZ'])
+      tags = ["form_id:#{instance.form_id}", "doctype:#{instance.document_type}"]
+      expect(StatsD).to have_received(:increment).with('saved_claim.pdf.overflow', tags:)
     end
   end
 end

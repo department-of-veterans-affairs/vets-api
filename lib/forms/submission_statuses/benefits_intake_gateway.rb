@@ -9,6 +9,9 @@ module Forms
     class BenefitsIntakeGateway
       attr_accessor :dataset
 
+      # Define a proper struct for Lighthouse::Submissions
+      SubmissionAdapter = Struct.new(:id, :form_id, :form_type, :created_at, :benefits_intake_uuid, :source)
+
       def initialize(user_account:, allowed_forms:)
         @user_account = user_account
         @allowed_forms = allowed_forms
@@ -17,7 +20,7 @@ module Forms
       end
 
       def data
-        @dataset.submissions = submissions
+        @dataset.submissions = combined_submissions
         @dataset.intake_statuses, @dataset.errors = intake_statuses(@dataset.submissions) if @dataset.submissions?
 
         @dataset
@@ -27,6 +30,32 @@ module Forms
         query = FormSubmission.with_latest_benefits_intake_uuid(@user_account)
         query = query.with_form_types(@allowed_forms) if @allowed_forms.present?
         query.order(:created_at).to_a
+      end
+
+      def lighthouse_submissions
+        query = Lighthouse::Submission.with_intake_uuid_for_user(@user_account)
+        query = query.where(form_id: @allowed_forms) if @allowed_forms.present?
+        query.order(:created_at).to_a
+      end
+
+      def combined_submissions
+        form_submissions = submissions
+        lighthouse_subs = lighthouse_submissions
+
+        # Convert Lighthouse::Submissions to have benefits_intake_uuid for compatibility
+        normalized_lighthouse = lighthouse_subs.map do |submission|
+          SubmissionAdapter.new(
+            submission.id,
+            submission.form_id,
+            submission.form_id, # For BenefitsIntakeFormatter
+            submission.created_at,
+            submission.latest_benefits_intake_uuid,
+            'lighthouse_submission'
+          )
+        end
+
+        # Combine and sort by creation time
+        (form_submissions + normalized_lighthouse).sort_by(&:created_at)
       end
 
       def intake_statuses(submissions)
@@ -40,7 +69,7 @@ module Forms
       private
 
       def extract_uuids(submissions)
-        submissions.map(&:benefits_intake_uuid)
+        submissions.map(&:benefits_intake_uuid).compact
       end
 
       def fetch_bulk_status(uuids)
