@@ -115,12 +115,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
     context 'claimant found without matching poa' do
       it 'returns a 403 error' do
-        VCR.use_cassette("#{arp_vcr_path}mpi/invalid_icn_full") do
-          VCR.use_cassette("#{arp_vcr_path}lighthouse/empty_response") do
-            post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
-            expect(response).to have_http_status(:forbidden)
-          end
+        VCR.insert_cassette("#{arp_vcr_path}mpi/invalid_icn_full")
+        VCR.use_cassette("#{arp_vcr_path}lighthouse/empty_response") do
+          post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+          expect(response).to have_http_status(:forbidden)
         end
+        VCR.eject_cassette("#{arp_vcr_path}mpi/invalid_icn_full")
       end
     end
 
@@ -133,17 +133,17 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       end
 
       it 'returns a 429 error' do
-        VCR.use_cassette("#{arp_vcr_path}mpi/valid_icn_full") do
-          VCR.use_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response") do
-            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-              VCR.use_cassette("#{arp_vcr_path}lighthouse/429_response") do
-                post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
-                expect(response).to have_http_status(:service_unavailable)
-                expect(JSON.parse(response.body)['errors'][0]['detail']).to eq 'Temporary system issue'
-              end
-            end
-          end
+        VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
+        VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
+        VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+        VCR.use_cassette("#{arp_vcr_path}lighthouse/429_response") do
+          post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+          expect(response).to have_http_status(:service_unavailable)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq 'Temporary system issue'
         end
+        VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+        VCR.eject_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
+        VCR.eject_cassette("#{arp_vcr_path}mpi/valid_icn_full")
       end
     end
 
@@ -170,18 +170,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
         end
 
         around do |example|
-          begin
-            VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
-            VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_individual_response")
-            VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
-            VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
-            example.run
-          ensure
-            VCR.eject_cassette # lighthouse/benefits_intake/200_lighthouse_intake_upload
-            VCR.eject_cassette # lighthouse/benefits_intake/200_lighthouse_intake_upload_location
-            VCR.eject_cassette # .../lighthouse/200_type_individual_response
-            VCR.eject_cassette # .../mpi/valid_icn_full
-          end
+          VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
+          VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_individual_response")
+          VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+          VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+          example.run
+          VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+          VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+          VCR.eject_cassette("#{arp_vcr_path}lighthouse/200_type_individual_response")
+          VCR.eject_cassette("#{arp_vcr_path}mpi/valid_icn_full")
         end
 
         it 'makes the veteran request' do
@@ -198,18 +195,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
       context 'claimant with matching VSO POA found' do
         around do |example|
-          begin
-            VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
-            VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
-            VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
-            VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
-            example.run
-          ensure
-            VCR.eject_cassette # lighthouse/benefits_intake/200_lighthouse_intake_upload
-            VCR.eject_cassette # lighthouse/benefits_intake/200_lighthouse_intake_upload_location
-            VCR.eject_cassette # .../lighthouse/200_type_organization_response
-            VCR.eject_cassette # .../mpi/valid_icn_full
-          end
+          VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
+          VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
+          VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+          VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+          example.run
+          VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+          VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+          VCR.eject_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
+          VCR.eject_cassette("#{arp_vcr_path}mpi/valid_icn_full")
         end
 
         context 'when email sending succeeds' do
@@ -325,18 +319,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       end
 
       around do |example|
-        begin
-          VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
-          VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
-          VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
-          VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
-          example.run
-        ensure
-          VCR.eject_cassette # lighthouse/benefits_intake/200_lighthouse_intake_upload
-          VCR.eject_cassette # lighthouse/benefits_intake/200_lighthouse_intake_upload_location
-          VCR.eject_cassette # .../lighthouse/200_type_organization_response
-          VCR.eject_cassette # .../mpi/valid_icn_full
-        end
+        VCR.insert_cassette("#{arp_vcr_path}mpi/valid_icn_full")
+        VCR.insert_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
+        VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+        VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+        example.run
+        VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+        VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+        VCR.eject_cassette("#{arp_vcr_path}lighthouse/200_type_organization_response")
+        VCR.eject_cassette("#{arp_vcr_path}mpi/valid_icn_full")
       end
 
       context 'claimant with matching poa found' do
