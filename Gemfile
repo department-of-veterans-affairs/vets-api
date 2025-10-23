@@ -107,7 +107,6 @@ gem 'json-schema'
 gem 'json_schemer'
 gem 'jwe'
 gem 'jwt'
-gem 'karafka-core', '2.5.5' # Temporary lock until new release of karafka-rdkafka (dependency of karafka-core) is available
 gem 'kms_encrypted'
 gem 'liquid'
 gem 'lockbox'
@@ -194,6 +193,7 @@ end
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.1.0.vsp'
   gem 'committee-rails'
+  gem 'hashdiff'
   gem 'mock_redis'
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'

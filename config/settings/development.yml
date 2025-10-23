@@ -11,6 +11,16 @@ accredited_representative_portal:
       path: ~
       repo: ~
   frontend_base_url: http://localhost:3001/representative
+  lighthouse:
+    benefits_intake:
+      api_key: ~
+      host: https://sandbox-api.va.gov
+      path: "/services/vba_documents"
+      report:
+        batch_size: 1000
+        stale_sla: 10
+      use_mocks: false
+      version: v1
 adapted_housing:
   prefill: true
 argocd:
@@ -724,6 +734,7 @@ lighthouse:
       - system/MedicationDispense.read
       - system/Encounter.read
       - system/Account.read
+      - system/Medication.read
       - launch
     timeout: 30
     use_mocks: false
@@ -1183,6 +1194,8 @@ reports:
 res:
   api_key: ~
   base_url: https://fake_url.com
+  ch_31_eligibility:
+    mock: ~
   mock_ch_31: ~
 review_instance_slug: ~
 rrd:
@@ -1561,7 +1574,6 @@ vanotify:
         form1880_reminder_email: form1880_reminder_email_template_id
         form1900_action_needed_email: form1900_action_needed_email_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
-        form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1990emeb_approved_confirmation_email: form1990emeb_approved_confirmation_email_template_id
         form1990emeb_denied_confirmation_email: form1990emeb_denied_confirmation_email_template_id
         form1990emeb_offramp_confirmation_email: form1990emeb_offramp_confirmation_email_template_id
@@ -1604,6 +1616,9 @@ vanotify:
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21p_0847_error_email: form21p_0847_error_email_template_id
         form21p_0847_received_email: form21p_0847_received_email_template_id
+        form21p_601_confirmation_email: form21p_601_confirmation_email_template_id
+        form21p_601_error_email: form21p_601_error_email_template_id
+        form21p_601_received_email: form21p_601_received_email_template_id
         form26_4555_confirmation_email: form26_4555_confirmation_email_template_id
         form26_4555_duplicate_email: form26_4555_duplicate_email_template_id
         form26_4555_rejected_email: form26_4555_rejected_email_template_id
