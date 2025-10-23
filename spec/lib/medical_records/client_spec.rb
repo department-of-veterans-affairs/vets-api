@@ -18,8 +18,8 @@ describe MedicalRecords::Client do
         VCR.use_cassette 'mr_client/session' do
           VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
             @client ||= begin
-              client = MedicalRecords::Client.new(session: { user_uuid: '12345', user_id: '22406991',
-                                                             icn: '1013868614V792025' })
+              client = MedicalRecords::Client.new(session: { user_uuid: '12345', user_id: '22406991' },
+                                                  icn: '1013868614V792025')
               client.authenticate
               client
             end
@@ -644,8 +644,7 @@ describe MedicalRecords::Client do
         VCR.use_cassette 'mr_client/session' do
           VCR.use_cassette 'mr_client/get_a_patient_by_identifier_not_found' do
             partial_client = MedicalRecords::Client.new(session: { user_uuid: '12345',
-                                                                   user_id: '22406991',
-                                                                   icn: '1013868614V792025' })
+                                                                   user_id: '22406991' }, icn: '1013868614V792025')
             partial_client.authenticate
 
             VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
@@ -659,7 +658,7 @@ describe MedicalRecords::Client do
   end
 
   describe '#fhir_search' do
-    let(:client) { MedicalRecords::Client.new(session: { user_id: 'test', icn: 'test' }) }
+    let(:client) { MedicalRecords::Client.new(session: { user_id: 'test' }, icn: 'test') }
     let(:fhir_model) { FHIR::AllergyIntolerance }
     let(:search_params) do
       {
@@ -848,7 +847,7 @@ describe MedicalRecords::Client do
   end
 
   describe '#rewrite_next_link' do
-    let(:client) { MedicalRecords::Client.new(session: { user_id: 'test', icn: 'test' }) }
+    let(:client) { MedicalRecords::Client.new(session: { user_id: 'test' }, icn: 'test') }
 
     it 'rewrites full URL to relative path for /v1/fhir' do
       next_url = 'https://example.org/v1/fhir?_getpages=abc&_getpagesoffset=1&_count=2'
