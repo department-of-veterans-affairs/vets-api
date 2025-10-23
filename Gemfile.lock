@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 49ed6a54ca95df6ca6d0e00d368051bb596bd3d5
+  revision: 0a3ddc2b647869ba38d0dcae2886a729b7dde13d
   branch: master
   specs:
-    vets_json_schema (25.2.14)
+    vets_json_schema (25.2.15)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -705,7 +705,7 @@ GEM
     llhttp-ffi (0.5.0)
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
-    lockbox (2.0.1)
+    lockbox (2.1.0)
     logger (1.7.0)
     loofah (2.24.1)
       crass (~> 1.0.2)
