@@ -44,7 +44,7 @@ module SimpleFormsApi
         render json: PersistentAttachmentVAFormSerializer.new(processed_attachment)
       rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
              SimpleFormsApi::ScannedFormProcessor::ValidationError => e
-        render json: { errors: e.errors.map { |err| { detail: err[:detail] } }}, status: :unprocessable_entity
+        render json: { errors: e.errors.map { |err| { detail: err[:detail] } } }, status: :unprocessable_entity
       end
 
       private
@@ -79,9 +79,9 @@ module SimpleFormsApi
 
       def upload_response_with_supporting_documents
         service = SimpleFormsApi::ScannedFormUploadService.new(
-          params: params,
+          params:,
           current_user: @current_user,
-          lighthouse_service: lighthouse_service
+          lighthouse_service:
         )
         service.upload_with_supporting_documents
       end
