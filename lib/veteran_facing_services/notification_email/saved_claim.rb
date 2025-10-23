@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'va_notify/service'
 require 'veteran_facing_services/notification_callback/saved_claim'
 require 'veteran_facing_services/notification_email'
 
@@ -22,41 +23,42 @@ module VeteranFacingServices
     #     pensions: *vanotify_services_pension
     #
     class SavedClaim
-      # constructor
-      #
+
       # @param saved_claim [SavedClaim] the claim for which to send a notification
       # @param service_name [String] alternative serivce name listed in Settings
       #   default will be the formatted claim.form_id
-      #   @see #vanotify_service
       def initialize(saved_claim_id, service_name: nil)
         @claim = claim_class.find(saved_claim_id)
         @vanotify_service = service_name
       end
 
       # deliver a notification for _claim_
-      # @see VANotify::EmailJob
+      # @see VaNotify::Service
       # @see ClaimVANotification
       #
       # @param email_type [Symbol] one defined in Settings
-      # @param at [String|DateTime] valid date string to schedule sending of notification
-      #   @see VANotify::EmailJob#perform_at
       #
       # @return [ClaimVANotification] db record of notification sent
-      def deliver(email_type, at: nil)
+      def deliver(email_type)
         @email_type = email_type
         @email_template_id = valid_attempt?
         return unless email_template_id
 
-        at ? enqueue_email(email_template_id, at) : send_email(email_template_id)
+        callback_options = { callback_klass:, callback_metadata: }
+        notify_client = VaNotify::Service.new(service_config.api_key, callback_options)
 
-        db_record = claim.insert_notification(email_template_id)
-        tags, context = for_monitoring
-        VeteranFacingServices::NotificationEmail.monitor_deliver_success(tags:, context:)
+        notify_client.send_email(
+          {
+            email_address: email,
+            template_id: email_template_id,
+            personalisation: personalization
+          }.compact
+        )
 
-        db_record
+        monitor.send_success(tags:, context:)
+        claim.insert_notification(email_template_id)
       rescue => e
-        tags, context = for_monitoring
-        VeteranFacingServices::NotificationEmail.monitor_send_failure(e&.message, tags:, context:)
+        monitor.send_failure(e&.message, tags:, context:)
       end
 
       private
@@ -93,49 +95,24 @@ module VeteranFacingServices
         is_enabled = flipper_enabled?(email_config.flipper_id)
         already_sent = claim.va_notification?(email_config.template_id)
         if already_sent
-          tags, context = for_monitoring
-          VeteranFacingServices::NotificationEmail.monitor_duplicate_attempt(tags:, context:)
+          monitor.duplicate_attempt(tags:, context:)
         end
 
         email_template_id if is_enabled && !already_sent
       end
 
-      # create the tags and context for monitoring
-      def for_monitoring
-        tags = ["service_name:#{vanotify_service}",
-                "form_id:#{claim.form_id}",
-                "email_template_id:#{email_template_id}"]
-        context = callback_metadata
-
-        [tags, context]
+      def monitor
+        @monitor ||= VeteranFacingServices::NotificationEmail::Monitor.new
       end
 
-      # schedule sending of email at future date
-      # @see VANotify::EmailJob#perform_at
-      # @param email_template_id [String] the template id to be used
-      # @param at [String|DateTime] valid date string to schedule sending of notification
-      def enqueue_email(email_template_id, at)
-        VANotify::EmailJob.perform_at(
-          at,
-          email,
-          email_template_id,
-          personalization,
-          service_config.api_key,
-          { callback_klass:, callback_metadata: }
-        )
+      # monitoring statsd tags
+      def tags
+        ["service_name:#{vanotify_service}", "form_id:#{claim&.form_id}", "email_type:#{email_type}"]
       end
 
-      # send the notification email immediately
-      # @see VANotify::EmailJob#perform_async
-      # @param email_template_id [String] the template id to be used
-      def send_email(email_template_id)
-        VANotify::EmailJob.perform_async(
-          email,
-          email_template_id,
-          personalization,
-          service_config.api_key,
-          { callback_klass:, callback_metadata: }
-        )
+      # monitoring context
+      def context
+        callback_metadata
       end
 
       # OVERRIDES
@@ -169,6 +146,7 @@ module VeteranFacingServices
       def callback_metadata
         {
           form_id: claim.form_id,
+          claim_id: claim.id,
           saved_claim_id: claim.id,
           service_name: vanotify_service,
           email_type:,

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'veteran_facing_services/notification_callback'
-require 'zero_silent_failures/monitor'
 
 module VeteranFacingServices
   module NotificationCallback
@@ -12,18 +11,18 @@ module VeteranFacingServices
     class SavedClaim < ::VeteranFacingServices::NotificationCallback::Default
       # notification was delivered
       def on_delivered
-        update_database if email?
-
-        if email? && email_type.to_s == 'error'
-          monitor.log_silent_failure_avoided(zsf_additional_context, email_confirmed: true, call_location:)
+        if email?
+          update_database
+          monitor.log_silent_failure_avoided(zsf_additional_context, call_location:) if email_type.to_s == 'error'
         end
       end
 
       # notification has permanently failed
       def on_permanent_failure
-        update_database if email?
-
-        monitor.log_silent_failure(zsf_additional_context, call_location:) if email? && email_type.to_s == 'error'
+        if email?
+          update_database
+          monitor.log_silent_failure(zsf_additional_context, call_location:) if email_type.to_s == 'error'
+        end
       end
 
       # notification has temporarily failed
@@ -60,9 +59,8 @@ module VeteranFacingServices
       end
 
       # the monitor to be used
-      # @see ZeroSilentFailures::Monitor
       def monitor
-        @monitor ||= ZeroSilentFailures::Monitor.new(service_name)
+        @monitor ||= ::VeteranFacingServices::NotificationCallback::Monitor.new
       end
 
       # additional information to be sent with ZSF tracking
@@ -72,10 +70,14 @@ module VeteranFacingServices
       end
 
       # call location to be included with ZSF tracking
-      # @see ZeroSilentFailures::Monitor
       # @see Logging::CallLocation
       def call_location
         nil
+      end
+
+      # monitoring statsd tags
+      def tags
+        ["service_name:#{service_name}", "form_id:#{form_id}", "email_type:#{email_type}"]
       end
     end
   end

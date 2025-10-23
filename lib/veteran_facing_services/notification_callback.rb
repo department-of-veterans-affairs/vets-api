@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'logging/monitor'
+require 'logging/include/zero_silent_failures'
 
 module VeteranFacingServices
   # notification callbacks
@@ -20,7 +21,7 @@ module VeteranFacingServices
 
     # generic parent class for a notification callback
     class Default
-      STATSD = 'api.veteran_facing_services.notification.callback'
+      STATSD = 'api.veteran_facing_services.notification_callback'
 
       # static call to handle notification callback
       # creates an instance of _this_ class and will call the status function
@@ -29,29 +30,29 @@ module VeteranFacingServices
       def self.call(notification)
         callback = new(notification)
 
-        monitor, call_location, context = callback.tracking
+        monitor, call_location, context, tags = callback.tracking
 
         case notification.status
         when 'delivered'
           # success
           callback.on_delivered
-          monitor.track_request(:info, "#{callback.klass}: Delivered", "#{STATSD}.delivered", call_location:, **context)
+          monitor.track_request(:info, "#{callback.klass}: Delivered", "#{STATSD}.delivered", call_location:, tags:, **context)
 
         when 'permanent-failure'
           # delivery failed - log error
           callback.on_permanent_failure
           monitor.track_request(:error, "#{callback.klass}: Permanent Failure",
-                                "#{STATSD}.permanent_failure", call_location:, **context)
+                                "#{STATSD}.permanent_failure", call_location:, tags:, **context)
 
         when 'temporary-failure'
           # the api will continue attempting to deliver - success is still possible
           callback.on_temporary_failure
           monitor.track_request(:warn, "#{callback.klass}: Temporary Failure",
-                                "#{STATSD}.temporary_failure", call_location:, **context)
+                                "#{STATSD}.temporary_failure", call_location:, tags:, **context)
 
         else
           callback.on_other_status
-          monitor.track_request(:warn, "#{callback.klass}: Other", "#{STATSD}.other", **context)
+          monitor.track_request(:warn, "#{callback.klass}: Other", "#{STATSD}.other", call_location:, tags:, **context)
         end
       end
 
@@ -103,7 +104,7 @@ module VeteranFacingServices
       end
 
       def tracking
-        [monitor, call_location, context]
+        [monitor, call_location, context, tags]
       end
 
       private
@@ -119,7 +120,7 @@ module VeteranFacingServices
       # the monitor to be used
       # @see Logging::Monitor
       def monitor
-        @monitor ||= Logging::Monitor.new(klass)
+        @monitor ||= ::Logging::Monitor.new(klass, allowlist: context.keys)
       end
 
       # custom call location to be sent with monitoring
@@ -138,6 +139,29 @@ module VeteranFacingServices
           callback_klass: klass,
           callback_metadata: metadata
         }
+      end
+
+      # tags to accompany the metric
+      def tags
+        []
+      end
+    end
+
+    class Monitor < ::Logging::Monitor
+      include ::Logging::Include::ZeroSilentFailures
+
+      ALLOWLIST = %w[
+        callback_klass
+        callback_metadata
+        notification_id
+        notification_type
+        source
+        status
+        status_reason
+      ]
+
+      def initialize
+        super('vfs-notification-callback', allowlist: ALLOWLIST)
       end
     end
   end
