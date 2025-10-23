@@ -16,31 +16,13 @@ module TravelClaim
   #   result = service.submit_claim
   #
   class ClaimSubmissionService
-    attr_reader :appointment_date, :facility_type, :check_in_uuid
+    attr_reader :appointment_date, :facility_type, :check_in_uuid, :context_constants
 
     CODE_CLAIM_EXISTS = TravelClaim::Response::CODE_CLAIM_EXISTS
     APPOINTMENT_ERROR = 'appointment_error'
     CLAIM_CREATE_ERROR = 'claim_create_error'
     EXPENSE_ADD_ERROR = 'expense_add_error'
     CLAIM_SUBMIT_ERROR = 'claim_submit_error'
-    ERROR_METRICS = {
-      APPOINTMENT_ERROR => {
-        cie: CheckIn::Constants::CIE_STATSD_APPOINTMENT_ERROR,
-        oh: CheckIn::Constants::OH_STATSD_APPOINTMENT_ERROR
-      },
-      CLAIM_CREATE_ERROR => {
-        cie: CheckIn::Constants::CIE_STATSD_CLAIM_CREATE_ERROR,
-        oh: CheckIn::Constants::OH_STATSD_CLAIM_CREATE_ERROR
-      },
-      EXPENSE_ADD_ERROR => {
-        cie: CheckIn::Constants::CIE_STATSD_EXPENSE_ADD_ERROR,
-        oh: CheckIn::Constants::OH_STATSD_EXPENSE_ADD_ERROR
-      },
-      CLAIM_SUBMIT_ERROR => {
-        cie: CheckIn::Constants::CIE_STATSD_CLAIM_SUBMIT_ERROR,
-        oh: CheckIn::Constants::OH_STATSD_CLAIM_SUBMIT_ERROR
-      }
-    }.freeze
 
     ##
     # Initialize the service with required parameters.
@@ -48,11 +30,13 @@ module TravelClaim
     # @param appointment_date [String] ISO 8601 formatted appointment date
     # @param facility_type [String] facility type ('oh' or 'vamc')
     # @param check_in_uuid [String] check-in UUID from request parameters
+    # @param context_constants [Module] constants module (defaults to CheckIn::Constants)
     #
-    def initialize(appointment_date:, facility_type:, check_in_uuid:)
+    def initialize(appointment_date:, facility_type:, check_in_uuid:, context_constants: CheckIn::Constants)
       @appointment_date = appointment_date
       @facility_type = facility_type
       @check_in_uuid = check_in_uuid
+      @context_constants = context_constants
     end
 
     ##
@@ -121,6 +105,32 @@ module TravelClaim
       # Initialize date fields early so they're available for error notifications
       normalized_appointment_datetime
       appointment_date_yyyy_mm_dd
+    end
+
+    ##
+    # Returns error metrics hash based on context constants
+    #
+    # @return [Hash] error metrics configuration
+    #
+    def error_metrics
+      @error_metrics ||= {
+        APPOINTMENT_ERROR => {
+          cie: @context_constants::CIE_STATSD_APPOINTMENT_ERROR,
+          oh: @context_constants::OH_STATSD_APPOINTMENT_ERROR
+        },
+        CLAIM_CREATE_ERROR => {
+          cie: @context_constants::CIE_STATSD_CLAIM_CREATE_ERROR,
+          oh: @context_constants::OH_STATSD_CLAIM_CREATE_ERROR
+        },
+        EXPENSE_ADD_ERROR => {
+          cie: @context_constants::CIE_STATSD_EXPENSE_ADD_ERROR,
+          oh: @context_constants::OH_STATSD_EXPENSE_ADD_ERROR
+        },
+        CLAIM_SUBMIT_ERROR => {
+          cie: @context_constants::CIE_STATSD_CLAIM_SUBMIT_ERROR,
+          oh: @context_constants::OH_STATSD_CLAIM_SUBMIT_ERROR
+        }
+      }.freeze
     end
 
     def normalized_time_utc
@@ -311,7 +321,7 @@ module TravelClaim
       log_message(:info, 'Sending success notification',
                   template_id:, claim_last_four: claim_number_last_four)
 
-      CheckIn::TravelClaimNotificationJob.perform_async(
+      @context_constants::TravelClaimNotificationJob.perform_async(
         @check_in_uuid,
         @appointment_date_yyyy_mm_dd,
         template_id,
@@ -333,7 +343,7 @@ module TravelClaim
       log_message(:info, 'Sending error notification',
                   template_id:, error_class: error.class.name)
 
-      CheckIn::TravelClaimNotificationJob.perform_async(
+      @context_constants::TravelClaimNotificationJob.perform_async(
         @check_in_uuid,
         @appointment_date_yyyy_mm_dd,
         template_id,
@@ -358,9 +368,9 @@ module TravelClaim
     #
     def success_template_id
       if @facility_type&.downcase == 'oh'
-        CheckIn::Constants::OH_SUCCESS_TEMPLATE_ID
+        @context_constants::OH_SUCCESS_TEMPLATE_ID
       else
-        CheckIn::Constants::CIE_SUCCESS_TEMPLATE_ID
+        @context_constants::CIE_SUCCESS_TEMPLATE_ID
       end
     end
 
@@ -371,9 +381,9 @@ module TravelClaim
     #
     def error_template_id
       if @facility_type&.downcase == 'oh'
-        CheckIn::Constants::OH_ERROR_TEMPLATE_ID
+        @context_constants::OH_ERROR_TEMPLATE_ID
       else
-        CheckIn::Constants::CIE_ERROR_TEMPLATE_ID
+        @context_constants::CIE_ERROR_TEMPLATE_ID
       end
     end
 
@@ -383,9 +393,20 @@ module TravelClaim
     def determine_error_template_id(error)
       if error.is_a?(Common::Exceptions::BackendServiceException) &&
          error.response_values[:detail]&.include?('already been created')
-        @facility_type&.downcase == 'oh' ? CheckIn::Constants::OH_DUPLICATE_TEMPLATE_ID : CheckIn::Constants::CIE_DUPLICATE_TEMPLATE_ID
+        template_for_duplicate_error
       else
         error_template_id
+      end
+    end
+
+    ##
+    # Returns duplicate template ID based on facility type
+    #
+    def template_for_duplicate_error
+      if @facility_type&.downcase == 'oh'
+        @context_constants::OH_DUPLICATE_TEMPLATE_ID
+      else
+        @context_constants::CIE_DUPLICATE_TEMPLATE_ID
       end
     end
 
@@ -394,8 +415,8 @@ module TravelClaim
     #
     def increment_success_metric
       increment_metric_by_facility_type(
-        CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS,
-        CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS
+        @context_constants::CIE_STATSD_BTSSS_SUCCESS,
+        @context_constants::OH_STATSD_BTSSS_SUCCESS
       )
     end
 
@@ -406,7 +427,7 @@ module TravelClaim
     #
     def increment_error_metric(metric_type)
       facility_key = @facility_type&.downcase == 'oh' ? :oh : :cie
-      metric = ERROR_METRICS.dig(metric_type, facility_key)
+      metric = error_metrics.dig(metric_type, facility_key)
 
       StatsD.increment(metric) if metric
     end
@@ -431,8 +452,8 @@ module TravelClaim
     #
     def handle_duplicate_claim_error
       increment_metric_by_facility_type(
-        CheckIn::Constants::CIE_STATSD_BTSSS_DUPLICATE,
-        CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE
+        @context_constants::CIE_STATSD_BTSSS_DUPLICATE,
+        @context_constants::OH_STATSD_BTSSS_DUPLICATE
       )
     end
 

@@ -2,6 +2,9 @@
 
 module CheckIn
   module Constants
+    # Delegate to the actual job class for use in services
+    TravelClaimNotificationJob = CheckIn::TravelClaimNotificationJob
+
     # settings for travel claims for vista appts
     STATSD_NOTIFY_ERROR = 'worker.checkin.travel_claim.notify.error'
     STATSD_NOTIFY_SUCCESS = 'worker.checkin.travel_claim.notify.success'

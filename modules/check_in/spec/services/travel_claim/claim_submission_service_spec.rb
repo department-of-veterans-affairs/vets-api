@@ -660,6 +660,173 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
     end
   end
 
+  describe 'custom constants injection' do
+    # Mock custom constants module
+    let(:custom_constants) do
+      Module.new do
+        def self.const_missing(name)
+          template_constants(name) ||
+            success_metrics(name) ||
+            error_metrics(name) ||
+            job_constant(name) ||
+            super
+        end
+
+        def self.template_constants(name)
+          templates = {
+            CIE_SUCCESS_TEMPLATE_ID: 'custom-cie-success', OH_SUCCESS_TEMPLATE_ID: 'custom-oh-success',
+            CIE_ERROR_TEMPLATE_ID: 'custom-cie-error', OH_ERROR_TEMPLATE_ID: 'custom-oh-error',
+            CIE_DUPLICATE_TEMPLATE_ID: 'custom-cie-duplicate', OH_DUPLICATE_TEMPLATE_ID: 'custom-oh-duplicate'
+          }
+          templates[name]
+        end
+
+        def self.success_metrics(name)
+          metrics = { CIE_STATSD_BTSSS_SUCCESS: 'custom.cie.success', OH_STATSD_BTSSS_SUCCESS: 'custom.oh.success',
+                      CIE_STATSD_BTSSS_DUPLICATE: 'custom.cie.duplicate',
+                      OH_STATSD_BTSSS_DUPLICATE: 'custom.oh.duplicate' }
+          metrics[name]
+        end
+
+        def self.error_metrics(name)
+          metrics = {
+            CIE_STATSD_APPOINTMENT_ERROR: 'custom.cie.appointment.error',
+            OH_STATSD_APPOINTMENT_ERROR: 'custom.oh.appointment.error',
+            CIE_STATSD_CLAIM_CREATE_ERROR: 'custom.cie.claim.create.error',
+            OH_STATSD_CLAIM_CREATE_ERROR: 'custom.oh.claim.create.error',
+            CIE_STATSD_EXPENSE_ADD_ERROR: 'custom.cie.expense.add.error',
+            OH_STATSD_EXPENSE_ADD_ERROR: 'custom.oh.expense.add.error',
+            CIE_STATSD_CLAIM_SUBMIT_ERROR: 'custom.cie.claim.submit.error',
+            OH_STATSD_CLAIM_SUBMIT_ERROR: 'custom.oh.claim.submit.error'
+          }
+          metrics[name]
+        end
+
+        def self.job_constant(name)
+          name == :TravelClaimNotificationJob ? CustomNotificationJob : nil
+        end
+      end
+    end
+
+    let(:custom_notification_job) do
+      class_double(CustomNotificationJob).as_stubbed_const('CustomNotificationJob')
+    end
+
+    before do
+      allow(custom_notification_job).to receive(:perform_async)
+      allow(StatsD).to receive(:increment)
+    end
+
+    context 'with default CheckIn::Constants' do
+      let(:service) { described_class.new(appointment_date:, facility_type:, check_in_uuid:) }
+
+      it 'uses CheckIn::Constants by default' do
+        expect(service.context_constants).to eq(CheckIn::Constants)
+      end
+
+      it 'uses default template IDs' do
+        expect(service.send(:success_template_id)).to eq(CheckIn::Constants::OH_SUCCESS_TEMPLATE_ID)
+      end
+
+      it 'sends notification via CheckIn::TravelClaimNotificationJob' do
+        mock_successful_flow_with_claim_response
+
+        service.submit_claim
+
+        expect(CheckIn::TravelClaimNotificationJob).to have_received(:perform_async)
+      end
+    end
+
+    context 'with custom constants module' do
+      let(:service) do
+        described_class.new(
+          appointment_date:,
+          facility_type:,
+          check_in_uuid:,
+          context_constants: custom_constants
+        )
+      end
+
+      it 'accepts custom constants module' do
+        expect(service.context_constants).to eq(custom_constants)
+      end
+
+      it 'uses custom template IDs for success' do
+        expect(service.send(:success_template_id)).to eq('custom-oh-success')
+      end
+
+      it 'uses custom template IDs for error' do
+        expect(service.send(:error_template_id)).to eq('custom-oh-error')
+      end
+
+      context 'with CIE facility type' do
+        let(:facility_type) { 'cie' }
+
+        it 'uses custom CIE template IDs for success' do
+          expect(service.send(:success_template_id)).to eq('custom-cie-success')
+        end
+
+        it 'uses custom CIE template IDs for error' do
+          expect(service.send(:error_template_id)).to eq('custom-cie-error')
+        end
+      end
+
+      it 'uses custom metrics in error_metrics method' do
+        metrics = service.send(:error_metrics)
+        appointment_error = TravelClaim::ClaimSubmissionService::APPOINTMENT_ERROR
+
+        expect(metrics[appointment_error][:oh]).to eq('custom.oh.appointment.error')
+        expect(metrics[appointment_error][:cie]).to eq('custom.cie.appointment.error')
+      end
+
+      it 'increments custom success metrics' do
+        mock_successful_flow
+
+        service.submit_claim
+
+        expect(StatsD).to have_received(:increment).with('custom.oh.success')
+      end
+
+      it 'increments custom error metrics for appointment failure' do
+        mock_appointment_failure(400)
+
+        expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
+
+        expect(StatsD).to have_received(:increment).with('custom.oh.appointment.error')
+      end
+
+      it 'increments custom duplicate metrics' do
+        allow(travel_pay_client).to receive(:send_appointment_request).and_return(
+          double(body: { 'data' => [{ 'id' => 'appointment-123' }] })
+        )
+        allow(travel_pay_client).to receive(:send_claim_request).and_raise(
+          Common::Exceptions::BackendServiceException.new(
+            'VA900',
+            { detail: 'A claim has already been created for this appointment.' },
+            400
+          )
+        )
+
+        expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
+
+        expect(StatsD).to have_received(:increment).with('custom.oh.duplicate')
+      end
+
+      it 'sends notification via custom notification job' do
+        mock_successful_flow_with_claim_response
+
+        service.submit_claim
+
+        expect(custom_notification_job).to have_received(:perform_async).with(
+          'test-uuid',
+          '2024-01-01',
+          'custom-oh-success',
+          '6789'
+        )
+      end
+    end
+  end
+
   describe 'notification helper methods' do
     let(:service) { described_class.new(appointment_date:, facility_type:, check_in_uuid:) }
 
