@@ -71,6 +71,65 @@ RSpec.describe UniqueUserEvents do
     end
   end
 
+  describe '.log_events' do
+    let(:event_name2) { UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_logging).and_return(true)
+      allow(UniqueUserEvents::Service).to receive(:log_event)
+      allow(StatsD).to receive(:measure)
+    end
+
+    it 'logs multiple events and merges results' do
+      result1 = [{ event_name:, status: 'created', new_event: true }]
+      result2 = [{ event_name: event_name2, status: 'exists', new_event: false }]
+
+      allow(UniqueUserEvents::Service).to receive(:log_event).with(user:, event_name:).and_return(result1)
+      allow(UniqueUserEvents::Service).to receive(:log_event).with(user:, event_name: event_name2).and_return(result2)
+
+      result = described_class.log_events(user:, event_names: [event_name, event_name2])
+
+      expect(result).to eq(result1 + result2)
+      expect(UniqueUserEvents::Service).to have_received(:log_event).with(user:, event_name:)
+      expect(UniqueUserEvents::Service).to have_received(:log_event).with(user:, event_name: event_name2)
+    end
+
+    it 'handles empty array' do
+      result = described_class.log_events(user:, event_names: [])
+
+      expect(result).to eq([])
+      expect(UniqueUserEvents::Service).not_to have_received(:log_event)
+    end
+
+    it 'handles single event' do
+      result1 = [{ event_name:, status: 'created', new_event: true }]
+      allow(UniqueUserEvents::Service).to receive(:log_event).and_return(result1)
+
+      result = described_class.log_events(user:, event_names: [event_name])
+
+      expect(result).to eq(result1)
+      expect(UniqueUserEvents::Service).to have_received(:log_event).once
+    end
+
+    it 'flattens results from events that generate OH events' do
+      # First event returns multiple results (original + OH events)
+      result1 = [
+        { event_name:, status: 'created', new_event: true },
+        { event_name: 'oh_983_event', status: 'created', new_event: true }
+      ]
+      # Second event returns single result
+      result2 = [{ event_name: event_name2, status: 'exists', new_event: false }]
+
+      allow(UniqueUserEvents::Service).to receive(:log_event).with(user:, event_name:).and_return(result1)
+      allow(UniqueUserEvents::Service).to receive(:log_event).with(user:, event_name: event_name2).and_return(result2)
+
+      result = described_class.log_events(user:, event_names: [event_name, event_name2])
+
+      expect(result).to eq(result1 + result2)
+      expect(result.length).to eq(3)
+    end
+  end
+
   describe '.event_logged?' do
     before do
       allow(UniqueUserEvents::Service).to receive(:event_logged?)

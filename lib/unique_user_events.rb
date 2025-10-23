@@ -46,6 +46,33 @@ module UniqueUserEvents
     [Service.build_error_result(event_name)]
   end
 
+  # Log multiple unique user events with DataDog metrics
+  #
+  # This method records multiple events in the database (if new) and increments
+  # DataDog counters for unique user metrics analytics. Also logs Oracle Health
+  # events if the user belongs to OH facilities and the events are mapped.
+  #
+  # @param user [User] the authenticated User object
+  # @param event_names [Array<String>] Array of event names to log
+  #   Use EventRegistry constants (e.g., EventRegistry::PRESCRIPTIONS_ACCESSED)
+  #   instead of raw strings to prevent typos and enable IDE autocomplete.
+  # @return [Array<Hash>] Flattened array of all event results
+  # @raise [ArgumentError] if parameters are invalid
+  #
+  # @example Using EventRegistry constants (recommended)
+  #   UniqueUserEvents.log_events(
+  #     user: current_user,
+  #     event_names: [
+  #       UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+  #       UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_LABS_ACCESSED
+  #     ]
+  #   )
+  def self.log_events(user:, event_names:)
+    event_names.flat_map do |event_name|
+      log_event(user:, event_name:)
+    end
+  end
+
   # Check if an event has already been logged for a user
   #
   # @param user [User] the authenticated User object
