@@ -233,7 +233,7 @@ RSpec.describe 'IvcChampva Upload Data Transformation Chain Integration Test', t
         expect(transformations[:file_paths_after_handle_attachments].size).to eq(1)
         expect(transformations[:metadata_after_merge]['attachment_ids'].size).to eq(1)
       end
-      
+
       expect(transformations[:metadata_after_merge]).to include('attachment_ids')
       expect(transformations[:db_record].form_uuid).to eq(form_uuid)
       expect(transformations[:db_record].form_number).to eq(form_number)
