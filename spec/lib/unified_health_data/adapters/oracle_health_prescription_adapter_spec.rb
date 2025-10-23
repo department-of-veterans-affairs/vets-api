@@ -233,8 +233,15 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         )
       end
 
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
+
       it 'returns nil when station number does not match 3-digit pattern' do
         result = subject.send(:extract_facility_name, resource_with_short_station)
+        expect(Rails.logger).to have_received(:error).with(
+          'Unable to extract valid station number from: 12-PHARMACY'
+        )
         expect(result).to be_nil
       end
     end
@@ -379,10 +386,10 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         allow(Rails.cache).to receive(:write)
       end
 
-      it 'returns nil and logs info message' do
+      it 'returns nil and logs warning message' do
         result = subject.send(:fetch_facility_name_from_api, '556')
         expect(result).to be_nil
-        expect(Rails.logger).to have_received(:info).with(
+        expect(Rails.logger).to have_received(:warn).with(
           'No facility found for station number 556 in Lighthouse API'
         )
       end
@@ -402,10 +409,10 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return(nil)
       end
 
-      it 'returns nil and logs info message' do
+      it 'returns nil and logs warning message' do
         result = subject.send(:fetch_facility_name_from_api, '556')
         expect(result).to be_nil
-        expect(Rails.logger).to have_received(:info).with(
+        expect(Rails.logger).to have_received(:warn).with(
           'No facility found for station number 556 in Lighthouse API'
         )
       end
@@ -417,13 +424,14 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       before do
         allow(mock_client).to receive(:get_facilities).and_raise(api_error)
         allow(Rails.cache).to receive(:write)
+        allow(Rails.logger).to receive(:error)
       end
 
-      it 'returns nil, logs warning, and increments StatsD metric' do
+      it 'returns nil, logs error, and increments StatsD metric' do
         result = subject.send(:fetch_facility_name_from_api, '556')
 
         expect(result).to be_nil
-        expect(Rails.logger).to have_received(:warn).with(
+        expect(Rails.logger).to have_received(:error).with(
           'Failed to fetch facility name from API for station 556: API connection failed'
         )
         expect(StatsD).to have_received(:increment).with(

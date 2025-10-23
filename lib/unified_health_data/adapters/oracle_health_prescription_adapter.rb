@@ -152,6 +152,8 @@ module UnifiedHealthData
           return attempt_facility_lookup(facility_identifier)
         end
 
+        Rails.logger.error("Unable to extract valid station number from: #{location_display}")
+
         nil
       end
 
@@ -309,7 +311,7 @@ module UnifiedHealthData
           facility_name = if facilities&.any?
                             facilities.first.name
                           else
-                            Rails.logger.info(
+                            Rails.logger.warn(
                               "No facility found for station number #{station_number} in Lighthouse API"
                             )
                             nil
@@ -321,7 +323,7 @@ module UnifiedHealthData
 
           facility_name
         rescue => e
-          Rails.logger.warn("Failed to fetch facility name from API for station #{station_number}: #{e.message}")
+          Rails.logger.error("Failed to fetch facility name from API for station #{station_number}: #{e.message}")
           StatsD.increment('unified_health_data.facility_name_fallback.api_error')
           nil
         end
