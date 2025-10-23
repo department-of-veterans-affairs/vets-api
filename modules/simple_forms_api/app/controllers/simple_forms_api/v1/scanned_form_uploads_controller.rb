@@ -44,7 +44,7 @@ module SimpleFormsApi
         render json: PersistentAttachmentVAFormSerializer.new(processed_attachment)
       rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
              SimpleFormsApi::ScannedFormProcessor::ValidationError => e
-        render json: { error: e.errors }, status: :unprocessable_entity
+        render json: { errors: e.errors.map { |err| { detail: err[:detail] } }}, status: :unprocessable_entity
       end
 
       private
@@ -77,35 +77,13 @@ module SimpleFormsApi
         [status, confirmation_number]
       end
 
-      def upload_response_with_supporting_documents # rubocop:disable Metrics/MethodLength
-        main_attachment = PersistentAttachment.find_by!(guid: params[:confirmation_code])
-        main_file_path = find_attachment_path(main_attachment.guid)
-
-        supporting_attachments = []
-        if params[:supporting_documents].present?
-          confirmation_codes = params[:supporting_documents].map { |doc| doc[:confirmation_code] }
-          supporting_attachments = PersistentAttachment.where(guid: confirmation_codes)
-        end
-
-        stamper = PdfStamper.new(stamped_template_path: main_file_path, current_loa: @current_user.loa[:current],
-                                 timestamp: Time.current)
-        stamper.stamp_pdf
-
-        metadata = validated_metadata
-        status, confirmation_number = upload_pdf_with_attachments(main_file_path, supporting_attachments, metadata)
-
-        file_size = File.size(main_file_path).to_f / (2**20)
-
-        Rails.logger.info(
-          'Simple forms api - scanned form uploaded',
-          { form_number: params[:form_number], status:, confirmation_number:, file_size: }
+      def upload_response_with_supporting_documents
+        service = SimpleFormsApi::ScannedFormUploadService.new(
+          params: params,
+          current_user: @current_user,
+          lighthouse_service: lighthouse_service
         )
-        [status, confirmation_number]
-      rescue ActiveRecord::RecordNotFound
-        raise Common::Exceptions::RecordNotFound.new(
-          params[:confirmation_code],
-          detail: 'Attachment not found'
-        )
+        service.upload_with_supporting_documents
       end
 
       def find_attachment_path(confirmation_code)
@@ -130,23 +108,6 @@ module SimpleFormsApi
         location, uuid = prepare_for_upload
         log_upload_details(location, uuid)
         response = perform_pdf_upload(location, file_path, metadata)
-        [response.status, uuid]
-      end
-
-      def upload_pdf_with_attachments(main_file_path, supporting_attachments, metadata)
-        location, uuid = prepare_for_upload
-        log_upload_details(location, uuid)
-        attachments = supporting_attachments.map do |attachment|
-          find_attachment_path(attachment.guid)
-        end
-
-        response = lighthouse_service.perform_upload(
-          metadata: metadata.to_json,
-          document: main_file_path,
-          upload_url: location,
-          attachments:
-        )
-
         [response.status, uuid]
       end
 

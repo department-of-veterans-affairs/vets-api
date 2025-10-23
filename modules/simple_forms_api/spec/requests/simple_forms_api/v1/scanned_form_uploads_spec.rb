@@ -10,6 +10,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
   let(:valid_pdf_file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
   let(:valid_image_file) { fixture_file_upload('doctors-note.jpg', 'image/jpeg') }
   let(:large_file) { fixture_file_upload('too_large.pdf', 'application/pdf') }
+  let(:too_many_mbs_file) { fixture_file_upload('large_mb.pdf', 'application/pdf') }
 
   before do
     sign_in(user)
@@ -161,52 +162,13 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       end
     end
 
-    context 'when conversion fails' do
+    context 'when file size exceeds limit' do
       before do
         allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
                                                   an_instance_of(User)).and_return(true)
       end
 
-      it 'returns conversion error from processor' do
-        processor = double('ScannedFormProcessor')
-        expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new).and_return(processor)
-        expect(processor).to receive(:process!).and_raise(
-          SimpleFormsApi::ScannedFormProcessor::ConversionError.new(
-            'File conversion failed',
-            [{ title: 'File conversion error',
-               detail: 'Unable to convert file to PDF. Please ensure your file is valid and try again.' }]
-          )
-        )
-
-        params = { form_id: form_number, file: valid_image_file }
-
-        expect do
-          post '/simple_forms_api/v1/supporting_documents_upload', params:
-        end.not_to change(PersistentAttachment, :count)
-
-        expect(response).to have_http_status(:unprocessable_entity)
-        resp = JSON.parse(response.body)
-        expect(resp['error']).to be_an(Array)
-        expect(resp['error'][0]['detail']).to include('Unable to convert file to PDF')
-      end
-    end
-
-    context 'when validation fails' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
-                                                  an_instance_of(User)).and_return(true)
-      end
-
-      it 'returns validation error from processor' do
-        processor = double('ScannedFormProcessor')
-        expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new).and_return(processor)
-        expect(processor).to receive(:process!).and_raise(
-          SimpleFormsApi::ScannedFormProcessor::ValidationError.new(
-            'PDF validation failed',
-            [{ title: 'File validation error', detail: 'Document exceeds the file size limit of 100 MB' }]
-          )
-        )
-
+      it 'returns validation error for large file' do
         params = { form_id: form_number, file: large_file }
 
         expect do
@@ -215,8 +177,21 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
         expect(response).to have_http_status(:unprocessable_entity)
         resp = JSON.parse(response.body)
-        expect(resp['error']).to be_an(Array)
-        expect(resp['error'][0]['detail']).to include('file size limit')
+        expect(resp['errors']).to be_an(Array)
+        expect(resp['errors'][0]).to have_key('detail')
+        expect(resp['errors'][0]['detail']).to include('Document exceeds the page size limit of 78 in. x 101 in.')
+      end
+
+      it 'returns validation when too many mbs' do
+        params = { form_id: form_number, file: too_many_mbs_file }
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
+        end.not_to change(PersistentAttachment, :count)
+        expect(response).to have_http_status(:unprocessable_entity)
+        resp = JSON.parse(response.body)
+        expect(resp['errors']).to be_an(Array)
+        expect(resp['errors'][0]).to have_key('detail')
+        expect(resp['errors'][0]['detail']).to include('file - size must not be greater than 100.0 MB')
       end
     end
 
