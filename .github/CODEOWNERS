@@ -1042,6 +1042,9 @@ modules/ivc_champva @department-of-veterans-affairs/health-apps-backend @departm
 modules/meb_api @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/backend-review-group
 modules/medical_expense_reports @department-of-veterans-affairs/medical-expense-reports @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/bio-huntridge
 modules/mobile @department-of-veterans-affairs/mobile-api-team
+modules/mobile/app/controllers/mobile/v0/allergy_intolerances_controller.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/backend-review-group
+modules/mobile/app/controllers/mobile/v0/immunizations_controller.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/backend-review-group
+modules/mobile/app/controllers/mobile/v0/labs_and_tests_controller.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/backend-review-group
 modules/mobile/app/assets/translations @department-of-veterans-affairs/flagship-mobile-content @department-of-veterans-affairs/backend-review-group
 modules/mobile/spec/requests/mobile/v0/claim/documents_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 modules/mocked_authentication @department-of-veterans-affairs/octo-identity
