@@ -189,8 +189,6 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'handles gracefully' do
-        allow_any_instance_of(UnifiedHealthData::Client).to receive(:get_labs_by_date)
-          .and_return(Faraday::Response.new(body: nil))
         allow(Flipper).to receive(:enabled?).and_return(true)
         expect { service.get_labs(start_date: '2024-01-01', end_date: '2025-05-31') }.not_to raise_error
       end
