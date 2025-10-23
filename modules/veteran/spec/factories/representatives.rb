@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :veteran_representative, class: 'Veteran::Service::Representative' do
-    sequence(:representative_id) { '1234' }
+    representative_id { '1234' }
     poa_codes { ['A1Q'] }
     first_name { 'Bob' }
     last_name { 'Law' }
