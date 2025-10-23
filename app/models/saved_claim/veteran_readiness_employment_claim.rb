@@ -161,7 +161,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
                                            @sent_to_lighthouse).deliver_later
 
     send_to_res(user)
-    Flipper.enabled?(:vre_use_new_vfs_notification_library) && send_submission_confirmation_email
+
+    Flipper.enabled?(:vre_use_new_vfs_notification_library) && send_email(@sent_to_lighthouse ? LIGHTHOUSE : VBMS)
   end
 
   # Submit claim into VBMS service, uploading document directly to VBMS,
@@ -189,7 +190,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
 
     !Flipper.enabled?(:vre_use_new_vfs_notification_library) &&
-      send_vbms_lighthouse_confirmation_email('VBMS', CONFIRMATION_EMAIL_TEMPLATE_VBMS)
+      send_vbms_lighthouse_confirmation_email('VBMS', CONFIRMATION_EMAIL_TEMPLATES[VBMS])
   rescue => e
     Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, messsage: e.message })
     send_to_lighthouse!(user)
@@ -224,7 +225,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     @sent_to_lighthouse = true
 
     !Flipper.enabled?(:vre_use_new_vfs_notification_library) &&
-      send_vbms_lighthouse_confirmation_email('Lighthouse', CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE)
+      send_vbms_lighthouse_confirmation_email('Lighthouse', CONFIRMATION_EMAIL_TEMPLATES[LIGHTHOUSE])
   rescue => e
     Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
     raise
@@ -297,10 +298,14 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     Rails.logger.info("VRE Submit1900Job successful. #{service} confirmation email sent.")
   end
 
-  def send_submission_confirmation_email
-    sent_to = @sent_to_lighthouse ? LIGHTHOUSE : VBMS
-    VRE::NotificationEmail.new(id).deliver(CONFIRMATION_EMAIL_TYPES[sent_to])
-    Rails.logger.info("VRE Submit1900Job successful. #{sent_to} confirmation email sent.")
+  def send_email(email_type)
+    if email_type in CONFIRMATION_EMAIL_TYPES
+      VRE::NotificationEmail.new(id).deliver(CONFIRMATION_EMAIL_TYPES[email_type])
+      Rails.logger.info("VRE Submit1900Job successful. #{email_type} confirmation email sent.")
+    else
+      VRE::NotificationEmail.new(id).deliver(:error)
+      Rails.logger.info('VRE Submit1900Job retries exhausted, failure email sent to veteran.')
+    end
   end
 
   def process_attachments!
