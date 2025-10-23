@@ -13,7 +13,7 @@ describe CARMA::Client::MuleSoftAuthTokenConfiguration do
   end
 
   describe 'connection' do
-    let(:faraday) { double('Faraday::Connection') }
+    let(:faraday) { double('Faraday::Connection', options: double('Faraday::Options')) }
 
     it 'creates a new Faraday connection with the correct base path' do
       expect(Faraday).to receive(:new).with("#{token_url}/")
@@ -22,11 +22,13 @@ describe CARMA::Client::MuleSoftAuthTokenConfiguration do
 
     it 'creates the connection' do
       allow(Faraday).to receive(:new).and_yield(faraday)
+      allow(faraday.options).to receive(:timeout=)
 
       expect(faraday).to receive(:use).once.with(:breakers, { service_name: subject.service_name })
       expect(faraday).to receive(:request).once.with(:instrumentation,
                                                      { name: 'CARMA::Client::MuleSoftAuthTokenConfiguration' })
       expect(faraday).to receive(:adapter).once.with(Faraday.default_adapter)
+      expect(faraday.options).to receive(:timeout=).once.with(subject.timeout)
 
       subject.connection
     end

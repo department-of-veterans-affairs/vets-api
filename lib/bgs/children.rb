@@ -11,7 +11,7 @@ module BGS
       @proc_id = proc_id
       @views = payload['view:selectable686_options']
       @dependents_application = payload['dependents_application']
-      @is_v2 = Flipper.enabled?(:va_dependents_v2)
+      @is_v2 = false
     end
 
     def create_all

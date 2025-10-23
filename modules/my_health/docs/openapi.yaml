@@ -117,39 +117,68 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Forbidden
       summary: /v1/medical_records/ccd/generate
-  /v1/medical_records/ccd/download:
+  /v1/medical_records/ccd/download.{format}:
     get:
-      description: Download the Continuity of Care Document specified by the date parameter.
+      summary: Download Continuity of Care Document (CCD)
+      description: |
+        Download the Continuity of Care Document (CCD) specified by the `date` parameter.
+
+        The response format is indicated by the path extension — for example:
+        - `/v1/medical_records/ccd/download.xml`
+        - `/v1/medical_records/ccd/download.html`
+        - `/v1/medical_records/ccd/download.pdf`
+
+        If the format extension is not included, the default is XML.
       operationId: download_ccd
       parameters:
         - name: date
           in: query
           required: true
-          description: Date of the desired study, as pulled verbatim from the generate endpoint response
+          description: >
+            Date of the desired CCD, as pulled verbatim from the `generate` endpoint response.
           schema:
             type: string
+            format: date
+        - name: format
+          in: path
+          description: >
+            The format of the returned CCD document. Can be `xml`, `html`, or `pdf`.
+          schema:
+            type: string
+            enum: [xml, html, pdf]
+            default: xml
       responses:
         "200":
+          description: Successful download
           content:
             application/xml:
               schema:
-                type: object
+                type: string
                 description: >
-                  The returned document is an XML file representing the patient's Continuity of Care Document.
-          description: OK
+                  XML-formatted Continuity of Care Document (CCD).
+            text/html:
+              schema:
+                type: string
+                description: >
+                  HTML-formatted Continuity of Care Document (CCD).
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+                description: >
+                  PDF-formatted Continuity of Care Document (CCD).
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
           description: Unauthorized
-        "403":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
+        "403":
           description: Forbidden
-      summary: /v1/medical_records/ccd/download
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
   /v1/medical_records/clinical_notes:
     get:
       description: List patient clinical notes
@@ -562,7 +591,7 @@ paths:
               schema:
                 type: object
                 description: >
-                  The returned object is a 
+                  The returned object is a
                   <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-common-api/blob/development/src/main/java/gov/va/med/mhv/common/api/dto/PatientDTO.java'>PatientDTO object</a>.
           description: OK
         "401":
@@ -589,7 +618,7 @@ paths:
               schema:
                 type: object
                 description: >
-                  The returned object is a 
+                  The returned object is a
                   <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-bluebutton-api/blob/development/mhv-bluebutton-portal-data-jpa/src/main/java/gov/va/med/mhv/bluebutton/model/phr/PhrDemographics.java'>PhrDemographics object</a>.
           description: OK
         "401":
@@ -865,17 +894,6 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/folders
-      parameters:
-        - $ref: "#/components/parameters/InflectionHeader"
-        - name: requires_oh_messages
-          in: query
-          description: Count of folder messages includes Oracle Health messages if set to "1"
-          required: false
-          schema:
-            type: string
-            enum:
-              - "0"
-              - "1"
   /v1/messaging/folders/{id}:
     get:
       description: Get a secure messaging folder
@@ -900,17 +918,6 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/folders/{id}
-      parameters:
-        - $ref: "#/components/parameters/InflectionHeader"
-        - name: requires_oh_messages
-          in: query
-          description: Count of folder messages includes Oracle Health messages if set to "1"
-          required: false
-          schema:
-            type: string
-            enum:
-              - "0"
-              - "1"
     put:
       description: Rename an existing folder
       operationId: post_rename_folder
@@ -942,37 +949,6 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/folders/{id}
-  /v1/messaging/folders/{id}/messages:
-    get:
-      description: |
-        List messages in a secure messaging folder.
-
-        When listing messages, the response for each message will include most but not all of the message attributes.
-        Specifically, the message body and attachment information is not included. Those attributes can be obtained by
-        getting the specific message resource.
-      operationId: get_folder_messages
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/SecureMessageList.yml
-          description: OK
-        "401":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Unauthorized
-        "403":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Not authorized for access to secure messages
-      summary: /v1/messaging/folders/{id}/messages
-      parameters:
-        - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/folders/{id}/threads:
     get:
       description: List threads in a secure messaging folder.
@@ -1010,15 +986,6 @@ paths:
           schema:
             type: string
             enum: [ASC, DESC]
-        - name: requires_oh_messages
-          in: query
-          description: Includes Oracle Health threads if set to "1"
-          required: false
-          schema:
-            type: string
-            enum:
-              - "0"
-              - "1"
         - $ref: "#/components/parameters/InflectionHeader"
       responses:
         "200":
@@ -1065,15 +1032,6 @@ paths:
           schema:
             type: integer
             default: 250
-        - name: requires_oh_messages
-          in: query
-          description: Includes Oracle Health messages in search results if set to "1"
-          required: false
-          schema:
-            type: string
-            enum:
-              - "0"
-              - "1"
         - $ref: "#/components/parameters/InflectionHeader"
       requestBody:
         content:
@@ -1253,6 +1211,14 @@ paths:
     post:
       description: Send a new secure message
       operationId: post_create_message
+      parameters:
+        - description: Indicates if this message is for an OH triage group (allows larger attachments)
+          in: query
+          name: is_oh_triage_group
+          required: false
+          schema:
+            type: boolean
+        - $ref: "#/components/parameters/InflectionHeader"
       requestBody:
         content:
           application/json:
@@ -1273,10 +1239,10 @@ paths:
 
                     <strong>NOTES:</strong>
                     <ul>
-                    <li>A single message may have a maximum of 4 attachments.</li>
-                    <li>A single attachment cannot exceed 3 MB</li>
-                    <li>All attachments combined cannot exceed 6 MB</li>
-                    <li>Supported file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.</li>
+                    <li>A single message may have a maximum of 4 attachments (10 for OH triage groups).</li>
+                    <li>A single attachment cannot exceed 6 MB (25 MB for OH triage groups)</li>
+                    <li>All attachments combined cannot exceed 10 MB (25 MB for OH triage groups)</li>
+                    <li>Supported file types/extensions: DOC, DOCX, GIF, JPG, JPEG, PDF, PNG, RTF, TXT, XLS, XLSX, JFIF, PJPEG, PJP (OH triage groups also support: BMP, TIFF, TIF, PPT, PPTX, PPS, PPSX, ODT, MP4, M4V, MOV, WMV, MPG).</li>
                     </ul>
                   items:
                     format: binary
@@ -1289,16 +1255,16 @@ paths:
           <strong>NOTES:</strong>
           <ul>
             <li>If a subject isn't included, default subject will be "{{Category}} Inquiry" (e.g. Medication Inquiry)</li>
-            <li>Messages can only be replied to for 120 days.  After that, the message is considered "expired"</li>
+            <li>Messages can only be replied to for 45 days.  After that, the message is considered "expired"</li>
             <li>If sending a draft, include the draft's ID in the request body as `draft_id`. Draft will be deleted once sent. Any fields included in request body will overwrite original draft contents.
             <li>If including file attachments, this request must be sent as <i>multipart/form-data</i></li>
             <li>
               File attachment restrictions (as imposed by MHV):
               <ul>
-                <li>User may attach up to 4 files</li>
-                <li>Accepted formats: doc, docx, jpg, pdf, png, rtf, txt, xls, xlsx</li>
-                <li>Single attachment cannot exceed 3 MB</li>
-                <li>Total attachment cannot exceed 6 MB</li>
+                <li>User may attach up to 4 files (10 files for OH triage groups)</li>
+                <li>Single attachment cannot exceed 6 MB (25 MB for OH triage groups)</li>
+                <li>Total attachment cannot exceed 10 MB (25 MB for OH triage groups)</li>
+                <li>Accepted formats: DOC, DOCX, GIF, JPG, JPEG, PDF, PNG, RTF, TXT, XLS, XLSX, JFIF, PJPEG, PJP (OH triage groups also support: BMP, TIFF, TIF, PPT, PPTX, PPS, PPSX, ODT, MP4, M4V, MOV, WMV, MPG)</li>
               </ul>
             </li>
           </ul>
@@ -1323,8 +1289,6 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/messages
-      parameters:
-        - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/messages/categories:
     get:
       description: List available message categories
@@ -1519,10 +1483,10 @@ paths:
 
         File attachment restrictions (as imposed by MHV):
         <ul>
-          <li>User may attach up to 4 files</li>
-          <li>Accepted formats: doc, docx, jpg, pdf, png, rtf, txt, xls, xlsx</li>
-          <li>Single attachment cannot exceed 3 MB</li>
-          <li>Total attachment cannot exceed 6 MB</li>
+          <li>User may attach up to 4 files (10 files for OH triage groups)</li>
+          <li>Accepted formats: DOC, DOCX, GIF, JPG, JPEG, PDF, PNG, RTF, TXT, XLS, XLSX, JFIF, PJPEG, PJP (OH triage groups also support: BMP, TIFF, TIF, PPT, PPTX, PPS, PPSX, ODT, MP4, M4V, MOV, WMV, MPG)</li>
+          <li>Single attachment cannot exceed 6 MB (25 MB for OH triage groups)</li>
+          <li>Total attachment cannot exceed 10 MB (25 MB for OH triage groups)</li>
         </ul>
       operationId: post_create_message_reply
       parameters:
@@ -1532,6 +1496,12 @@ paths:
           required: true
           schema:
             type: integer
+        - description: Indicates if this message is for an OH triage group (allows larger attachments)
+          in: query
+          name: is_oh_triage_group
+          required: false
+          schema:
+            type: boolean
         - $ref: "#/components/parameters/InflectionHeader"
       requestBody:
         content:
@@ -1552,10 +1522,10 @@ paths:
 
                     <strong>NOTES:</strong>
                     <ul>
-                    <li>A single message may have a maximum of 4 attachments.</li>
-                    <li>A single attachment cannot exceed 3 MB</li>
-                    <li>All attachments combined cannot exceed 6 MB</li>
-                    <li>Supported file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.</li>
+                    <li>A single message may have a maximum of 4 attachments (10 for OH triage groups).</li>
+                    <li>A single attachment cannot exceed 6 MB (25 MB for OH triage groups)</li>
+                    <li>All attachments combined cannot exceed 10 MB (25 MB for OH triage groups)</li>
+                    <li>Supported file types/extensions: DOC, DOCX, GIF, JPG, JPEG, PDF, PNG, RTF, TXT, XLS, XLSX, JFIF, PJPEG, PJP (OH triage groups also support: BMP, TIFF, TIF, PPT, PPTX, PPS, PPSX, ODT, MP4, M4V, MOV, WMV, MPG).</li>
                     </ul>
                   items:
                     format: binary
@@ -1618,15 +1588,6 @@ paths:
           required: false
           schema:
             type: boolean
-        - name: requires_oh_messages
-          in: query
-          description: Includes Oracle Health messages if set to "1"
-          required: false
-          schema:
-            type: string
-            enum:
-              - "0"
-              - "1"
         - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/recipients:
     get:
@@ -1678,17 +1639,6 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/allrecipients
-      parameters:
-        - $ref: "#/components/parameters/InflectionHeader"
-        - name: requires_oh
-          in: query
-          description: Includes Oracle Health recipients if set to "1"
-          required: false
-          schema:
-            type: string
-            enum:
-              - "0"
-              - "1"
   /v1/messaging/threads/{id}/move:
     patch:
       description:
@@ -2018,6 +1968,177 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/prescriptions/list_refillable_prescriptions
+  /v1/tooltips:
+    get:
+      description: Retrieve tooltips settings for mhv-medications In-Product Education (IPE)
+      operationId: get_tooltips
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./schemas/Tooltip.yml
+          description: OK
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      description: Create tooltip setting for mhv-medications In-Product Education (IPE)
+      operationId: post_tooltip
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas/TooltipParams.yml"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Tooltip.yml
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+    summary: /v1/tooltips
+  /v1/tooltips/{id}:
+    patch:
+      description: Update tooltip setting for mhv-medications In-Product Education (IPE), typically used for setting 'hidden' attribute
+      operationId: patch_tooltip
+      parameters:
+        - description: The id of the tooltip
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: increment_counter
+          required: false
+          schema:
+            type: boolean
+          description: Value indicates if counter will be incremented
+        - $ref: "#/components/parameters/InflectionHeader"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas/TooltipParams.yml"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Tooltip.yml
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+    summary: /v1/tooltips/{id}
+  /v1/unique_user_metrics:
+    post:
+      description: |
+        Log unique user metrics events for analytics tracking. Processes multiple events in a single batch operation
+        and returns the status of each event. Events are logged only once per user - subsequent submissions of the
+        same event for the same user will return a status of 'exists' rather than creating duplicates.
+
+        This endpoint is used for tracking unique user interactions with MHV Portal features to provide
+        opt-out-free analytics that are more accurate than Google Analytics.
+        
+        <strong>Valid Event Names:</strong> Event names must be from the approved registry of valid events.
+        See <a href='https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/unique_user_events/event_registry.rb'>EventRegistry</a>
+        for the complete list of valid event names. Invalid event names will return a status of 'invalid' without causing the request to fail.
+      operationId: log_unique_user_metrics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/UniqueUserMetricsRequest.yml
+        description: |
+          Array of event names to log for the authenticated user.
+
+          <strong>NOTES:</strong>
+          <ul>
+            <li>Each event will only be logged once per user</li>
+            <li>Event names must be from the approved registry - see <a href='https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/unique_user_events/event_registry.rb'>EventRegistry</a></li>
+            <li>Invalid event names will return a status of 'invalid' in the response (request will not fail)</li>
+            <li>Maximum 50 characters per event name</li>
+            <li>At least one event name must be provided</li>
+          </ul>
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/UniqueUserMetricsResponse.yml
+              example:
+                results:
+                  - event_name: "mhv_landing_page_accessed"
+                    status: "exists"
+                    new_event: false
+                  - event_name: "secure_messaging_accessed"
+                    status: "exists"
+                    new_event: false
+                  - event_name: "prescriptions_accessed"
+                    status: "exists"
+                    new_event: false
+                  - event_name: "invalid_event_name"
+                    status: "invalid"
+                    new_event: false
+          description: OK - All events were duplicates (already existed for this user) or invalid
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/UniqueUserMetricsResponse.yml
+              example:
+                results:
+                  - event_name: "mhv_landing_page_accessed"
+                    status: "created"
+                    new_event: true
+                  - event_name: "secure_messaging_accessed"
+                    status: "exists"
+                    new_event: false
+                  - event_name: "prescriptions_accessed"
+                    status: "created"
+                    new_event: true
+                  - event_name: "invalid_event_name"
+                    status: "invalid"
+                    new_event: false
+          description: Created - At least one new unique event was logged (may also include invalid events)
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Bad Request - Invalid request parameters
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "501":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not Implemented - Unique user metrics logging is currently disabled
+      summary: /v1/unique_user_metrics
   /v2/labs_and_tests:
     get:
       description: |
@@ -2082,14 +2203,25 @@ components:
         type: string
         enum: [camel, snake]
       description: Instructs the API to return camelCase keys rather than snake_case
-    RequiresOHMessages:
-      name: requires_oh_messages
-      in: query
-      required: false
-      schema:
-        type: string
-        enum:
-          - "0"
-          - "1"
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "./schemas/Errors.yml"
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "./schemas/Errors.yml"
+    UnprocessableEntity:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: "./schemas/Errors.yml"
+
 security:
   - CookieAuth: []

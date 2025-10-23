@@ -17,6 +17,13 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
   let(:claimant_expected) do
     { 'firstName' => '[Claimant First Name]', 'lastName' => '[Claimant Last Name]' }
   end
+  let(:dependent) do
+    OpenStruct.new(
+      first_name: 'Wally',
+      last_name: 'Morell',
+      middle_name: nil
+    )
+  end
 
   describe '#index' do
     let(:scopes) { %w[claim.read] }
@@ -207,6 +214,29 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         end
       end
     end
+
+    context 'when the request is filed by a dependent' do
+      let(:dependent_icn) { '1013093331V548481' }
+      let(:poa_list_only_dependent_info) do
+        [
+          {
+            'claimant_icn' => nil
+          }, {
+            'claimant_icn' => dependent_icn
+          }
+        ]
+      end
+
+      it 'add the frst_name and last_name of the claimant to the appropriate records' do
+        allow(subject).to receive(:build_veteran_or_dependent_data).with(anything).and_return(dependent)
+
+        poa_list_with_dependent = subject.send(:add_dependent_data_to_poa_response, poa_list_only_dependent_info)
+        dependent_record = poa_list_with_dependent.find { |item| item['claimant_icn'] == dependent_icn }
+
+        expect(dependent_record['claimantFirstName']).to eq(dependent.first_name)
+        expect(dependent_record['claimantLastName']).to eq(dependent.last_name)
+      end
+    end
   end
 
   describe '#show' do
@@ -273,27 +303,101 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         end
       end
     end
+
+    context 'when the request is filed by a dependent' do
+      let(:service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Show) }
+      let(:dependent_icn) { '1013093331V548481' }
+      let(:poa_res_only_dependent_info) do
+        {
+          'VSOUserEmail' => nil, 'VSOUserFirstName' => 'VDC USER', 'VSOUserLastName' => nil,
+          'changeAddressAuth' => 'Y', 'claimantCity' => 'Los Angeles', 'claimantCountry' => 'Vietnam',
+          'claimantMilitaryPO' => nil, 'claimantMilitaryPostalCode' => nil, 'claimantState' => 'CA',
+          'claimantZip' => '92264', 'dateRequestActioned' => '2025-08-13T15:21:51-05:00',
+          'dateRequestReceived' => '2025-08-13T15:21:51-05:00', 'declinedReason' => nil, 'healthInfoAuth' => 'Y',
+          'poaCode' => '067', 'procID' => '3865154', 'secondaryStatus' => 'New', 'vetFirstName' => 'Margie',
+          'vetLastName' => 'Curtis', 'vetMiddleName' => nil, 'vetPtcpntID' => '600052700'
+        }
+      end
+      let(:poa_request_with_dependent) { create(:claims_api_power_of_attorney_request, claimant_icn: dependent_icn) }
+
+      before do
+        allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
+        allow(service).to receive(:get_poa_request).and_return(poa_res_only_dependent_info)
+      end
+
+      it 'has the claimant firstName and lastName in the response' do
+        mock_ccg(scopes) do |auth_header|
+          show_request_with(id: poa_request_with_dependent.id, auth_header:)
+
+          expect(JSON.parse(response.body)['data']['attributes']['claimant']['firstName']).not_to be_nil
+          expect(JSON.parse(response.body)['data']['attributes']['claimant']['lastName']).not_to be_nil
+        end
+      end
+    end
   end
 
   describe '#decide' do
     let(:scopes) { %w[claim.write] }
-    let(:id) { '348fa995-5b29-4819-91af-13f1bb3c7d77' }
+    let(:lighthouse_id) { '348fa995-5b29-4819-91af-13f1bb3c7d77' }
+    let(:vet_icn) { '1012667169V030190' }
+    let(:dependent_icn) { '1013093331V548481' }
     let(:request_response) do
       ClaimsApi::PowerOfAttorneyRequest.new(
-        id: '348fa995-5b29-4819-91af-13f1bb3c7d77',
+        id: lighthouse_id,
         proc_id: '76529',
-        veteran_icn: '1008714701V416111',
+        veteran_icn: vet_icn,
         claimant_icn: '',
         poa_code: '123',
         metadata: {},
         power_of_attorney_id: nil
       )
     end
+    let(:request_response_with_dependent) do
+      ClaimsApi::PowerOfAttorneyRequest.new(
+        id: lighthouse_id,
+        proc_id: '76529',
+        veteran_icn: vet_icn,
+        claimant_icn: dependent_icn,
+        poa_code: '123',
+        metadata: {},
+        power_of_attorney_id: nil
+      )
+    end
+    let(:accepted_form_attributes) do
+      {
+        decision: 'ACCEPTED',
+        declinedReason: nil,
+        representativeId: '987654321654'
+      }
+    end
+    let(:declined_form_attributes) do
+      {
+        decision: 'DECLINED',
+        declinedReason: 'Reason for declining',
+        representativeId: '123456789456'
+      }
+    end
+    let(:veteran) do
+      OpenStruct.new(
+        icn: vet_icn,
+        first_name: 'Ralph',
+        last_name: 'Lee',
+        middle_name: nil,
+        birls_id: '796378782',
+        birth_date: '1948-10-30',
+        loa: { current: 3, highest: 3 },
+        edipi: nil,
+        ssn: '796378782',
+        participant_id: '600043284',
+        mpi: OpenStruct.new(
+          icn: vet_icn,
+          profile: OpenStruct.new(ssn: '796378782')
+        )
+      )
+    end
 
     context 'when the decide endpoint is called' do
       context 'when decision is not present' do
-        let(:decision) { '' }
-
         before do
           allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
         end
@@ -301,64 +405,230 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         it 'raises an error if decision is not present' do
           mock_ccg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
-              decide_request_with(id:, decision:, auth_header:)
-              expect(response).to have_http_status(:bad_request)
+              accepted_form_attributes[:decision] = ''
+              decide_request_with(id: lighthouse_id, form_attributes: accepted_form_attributes, auth_header:)
+
               response_body = JSON.parse(response.body)
-              expect(response_body['errors'][0]['title']).to eq('Missing parameter')
-              expect(response_body['errors'][0]['status']).to eq('400')
+
+              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response_body['errors'][0]['detail']).to include(
+                'The property /decision did not match the following requirements:'
+              )
             end
           end
         end
       end
 
       context 'when decision is not ACCEPTED or DECLINED' do
-        let(:decision) { 'indecision' }
-
         before do
           allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
         end
 
         it 'raises an error if decision is not valid' do
           mock_ccg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
-              decide_request_with(id:, decision:, auth_header:)
-              expect(response).to have_http_status(:bad_request)
-              response_body = JSON.parse(response.body)
-              expect(response_body['errors'][0]['title']).to eq('Missing parameter')
-              expect(response_body['errors'][0]['status']).to eq('400')
-            end
+            declined_form_attributes[:decision] = 'indecision'
+            decide_request_with(id: lighthouse_id, form_attributes: declined_form_attributes, auth_header:)
+
+            response_body = JSON.parse(response.body)
+
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response_body['errors'][0]['detail']).to include(
+              'The property /decision did not match the following requirements:'
+            )
           end
         end
       end
     end
 
     context 'when procId is present and valid and decision is accepted' do
-      let(:decision) { 'ACCEPTED' }
-      let(:service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Show) }
-
       before do
         allow(ClaimsApi::PowerOfAttorneyRequest).to(receive(:find_by).and_return(request_response))
-        allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
-          .to receive(:fetch_ptcpnt_id).with(anything).and_return('5196105942')
-        allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
-        allow(service).to receive(:get_poa_request).and_return({})
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::Decide
+        ).to receive(:get_poa_request).and_return({ 'id' => lighthouse_id })
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::Decide
+        ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::Decide
+        ).to receive(:build_veteran_and_dependent_data).with(anything, anything).and_return(veteran)
         allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
-          .to receive(:process_poa_decision).and_return(nil)
+          .to receive(:process_poa_decision).and_return(OpenStruct.new(id: request_response.id))
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
       end
 
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do
         mock_ccg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
-            decide_request_with(id:, decision:, auth_header:)
-            expect(response).to have_http_status(:ok)
+            decide_request_with(id: lighthouse_id, form_attributes: accepted_form_attributes, auth_header:)
+
             response_body = JSON.parse(response.body)
-            expect(response_body['data']['id']).to eq(id)
+
+            expect(response).to have_http_status(:ok)
+            expect(response_body['data']['id']).to eq(lighthouse_id)
+          end
+        end
+      end
+
+      it 'includes location in the response header' do
+        mock_ccg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
+            decide_request_with(id: lighthouse_id, form_attributes: accepted_form_attributes, auth_header:)
+
+            expect(response.headers).to have_key('Location')
+          end
+        end
+      end
+    end
+
+    context 'handling the ACCEPTED decision' do
+      let(:ptcpnt_id) { '600043284' }
+      let(:representative_id) { '8942584724354' }
+      let(:params) do
+        {
+          decision: 'ACCEPTED', proc_id: '09876', representative_id:, poa_code:,
+          metadata: {}, veteran:, claimant: nil
+        }
+      end
+      let(:poa_code) { '067' }
+      let(:form_type_code) { '2122a' }
+      let(:return_data) do
+        [{ 'data' => { 'attributes' => { 'some_key' => 'some_value' } } }, form_type_code]
+      end
+      let(:veteran) do
+        OpenStruct.new(
+          participant_id: ptcpnt_id
+        )
+      end
+      let(:form_attributes) do
+        { 'some_key' => 'some_value' }
+      end
+      let(:dummy_record) do
+        OpenStruct.new(id: '8675309')
+      end
+
+      before do
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler
+        ).to receive(:call).and_return(return_data)
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::Decide
+        ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
+        allow_any_instance_of(
+          ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+        ).to receive(:build_auth_headers).and_return({})
+        allow(ClaimsApi::PowerOfAttorney).to receive(:create!).with(anything).and_return(dummy_record)
+        allow_any_instance_of(
+          ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+        ).to receive(:claims_v2_logging)
+      end
+
+      it 'returns nil from the decision handler' do
+        expect_any_instance_of(
+          ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+        ).to receive(:validate_mapped_data!).with(ptcpnt_id, form_type_code, poa_code)
+        expect_any_instance_of(
+          ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+        ).to receive(:decide_request_attributes).with(
+          poa_code:, decide_form_attributes: form_attributes
+        ).and_return(return_data[0]['data']['attributes'])
+        expect_any_instance_of(
+          ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController
+        ).to receive(:claims_v2_logging).with(
+          'process_poa_decision', { message: 'Record saved, sending to POA Form Builder Job' }
+        )
+
+        returned_poa = subject.send(:process_poa_decision, **params)
+
+        expect(returned_poa.id).to eq(dummy_record.id)
+      end
+    end
+
+    context 'when the request has dependent information included' do
+      let(:service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Decide) }
+      let(:veteran_info) do
+        OpenStruct.new(
+          icn: '1013030865V203693',
+          first_name: 'Margie',
+          last_name: 'Curtis',
+          middle_name: nil,
+          birls_id: '234251634',
+          birth_date: '1948-10-30',
+          loa: { current: 3, highest: 3 },
+          edipi: nil,
+          ssn: '234251634',
+          participant_id: '600052700',
+          mpi: OpenStruct.new(
+            icn: vet_icn,
+            profile: OpenStruct.new(ssn: '234251634')
+          )
+        )
+      end
+      let(:claimant_info) do
+        OpenStruct.new(
+          icn: '1013030865V203693',
+          first_name: 'Jerry',
+          last_name: 'Curtis',
+          middle_name: nil,
+          birls_id: '796378782',
+          birth_date: '1948-10-30',
+          loa: { current: 3, highest: 3 },
+          edipi: nil,
+          ssn: '796378782',
+          participant_id: '600052699',
+          mpi: OpenStruct.new(
+            icn: vet_icn,
+            profile: OpenStruct.new(ssn: '796378782')
+          )
+        )
+      end
+      let(:poa_res_only_dependent_info) do
+        {
+          'VSOUserEmail' => nil, 'VSOUserFirstName' => 'VDC USER', 'VSOUserLastName' => nil,
+          'changeAddressAuth' => 'Y', 'claimantCity' => 'Los Angeles', 'claimantCountry' => 'Vietnam',
+          'claimantMilitaryPO' => nil, 'claimantMilitaryPostalCode' => nil, 'claimantState' => 'CA',
+          'claimantZip' => '92264', 'dateRequestActioned' => '2025-08-13T15:21:51-05:00',
+          'dateRequestReceived' => '2025-08-13T15:21:51-05:00', 'declinedReason' => nil, 'healthInfoAuth' => 'Y',
+          'poaCode' => '067', 'procID' => '3865154', 'secondaryStatus' => 'New', 'vetFirstName' => 'Margie',
+          'vetLastName' => 'Curtis', 'vetMiddleName' => nil, 'vetPtcpntID' => '600052700'
+        }
+      end
+      let(:poa_request_with_dependent) do
+        create(
+          :claims_api_power_of_attorney_request, veteran_icn: veteran_info.icn, claimant_icn: claimant_info.icn
+        )
+      end
+
+      before do
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::Decide
+        ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::Decide
+        ).to receive(:build_veteran_and_dependent_data).with(anything,
+                                                             anything).and_return([veteran_info, claimant_info])
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::Decide
+        ).to receive(:get_poa_request).and_return(poa_res_only_dependent_info)
+      end
+
+      it 'has the claimant firstName and lastName in the response' do
+        mock_ccg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
+            decide_request_with(id: poa_request_with_dependent.id, form_attributes: declined_form_attributes,
+                                auth_header:)
+
+            claimant_object = JSON.parse(response.body)['data']['attributes']['claimant']
+
+            expect(claimant_object['firstName']).to eq(claimant_info.first_name)
+            expect(claimant_object['lastName']).to eq(claimant_info.last_name)
           end
         end
       end
     end
 
     context 'when the decision is declined and a ptcpntId is present' do
+      let(:decision) { 'DECLINED' }
       let(:service) { instance_double(ClaimsApi::ManageRepresentativeService) }
       let(:poa_request_response) do
         {
@@ -372,8 +642,6 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         }
       end
       let(:mock_lockbox) { double('Lockbox', encrypt: 'encrypted value') }
-      let(:decision) { 'DECLINED' }
-      let(:representative_id) { '456' }
 
       before do
         allow(ClaimsApi::ManageRepresentativeService).to receive(:new).with(anything).and_return(service)
@@ -381,31 +649,64 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
                                                                  .and_return(poa_request_response)
         allow(service).to receive(:update_poa_request).with(anything).and_return('a successful response')
         allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
+        allow_any_instance_of(
+          ClaimsApi::PowerOfAttorneyRequestService::Decide
+        ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
         allow(Lockbox).to receive(:new).and_return(mock_lockbox)
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
       end
 
       it 'calls the decision handler' do
         mock_ccg(scopes) do |auth_header|
-          VCR.use_cassette('mpi/find_candidate/valid') do
-            expect(ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler).to receive(:new)
+          expect(ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler).to receive(:new)
 
-            decide_request_with(id:, decision:, auth_header:,
-                                representative_id:)
-          end
+          decide_request_with(id: lighthouse_id, form_attributes: declined_form_attributes, auth_header:)
+        end
+      end
+
+      it 'does not include location in the response header' do
+        mock_ccg(scopes) do |auth_header|
+          decide_request_with(id: lighthouse_id, form_attributes: declined_form_attributes, auth_header:)
+
+          expect(response.headers).not_to have_key('Location')
+        end
+      end
+
+      context 'handling the decision' do
+        before do
+          allow_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::DecisionHandler).to receive(:call)
+                                                                                          .and_return(nil)
+        end
+
+        let(:params) do
+          {
+            decision:, proc_id: '09876', representative_id: '8942584724354', poa_code: '083',
+            metadata: {}, veteran: nil, claimant: nil
+          }
+        end
+
+        it 'returns nil from the decision handler' do
+          res = subject.send(:process_poa_decision, **params)
+
+          expect(res).to be_nil
         end
       end
     end
 
-    context 'when id is present but invalid' do
-      let(:id) { '1' }
-      let(:decision) { 'ACCEPTED' }
-      let(:representative_id) { '456' }
+    context 'validating the params' do
+      context 'when id is present but invalid' do
+        let(:id) { '1' }
 
-      it 'raises an error' do
-        mock_ccg(scopes) do |auth_header|
-          VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_not_found') do
-            decide_request_with(id:, decision:, auth_header:, representative_id:)
-            expect(response).to have_http_status(:not_found)
+        it 'raises an error' do
+          mock_ccg(scopes) do |auth_header|
+            VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_not_found') do
+              decide_request_with(id:, form_attributes: accepted_form_attributes, auth_header:)
+
+              expect(response).to have_http_status(:not_found)
+              expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+                "Could not find Power of Attorney request with id: #{id}"
+              )
+            end
           end
         end
       end
@@ -553,6 +854,23 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         expect(response).to have_http_status(:created)
         expect(JSON.parse(response.body)['data']['id']).not_to be_nil
         expect(JSON.parse(response.body)['data']['type']).to eq('power-of-attorney-request')
+      end
+    end
+
+    context 'returning a Lighthouse ID' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(true)
+      end
+
+      let(:sandbox_lh_id) { 'c5ab49ca-0bd3-4529-8c48-5e277083f9eb' }
+
+      it 'returns a specific ID when the flipper is enabled' do
+        mock_ccg(scopes) do |auth_header|
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:created)
+          expect(JSON.parse(response.body)['data']['id']).to eq(sandbox_lh_id)
+        end
       end
     end
 
@@ -739,11 +1057,9 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     get "/services/claims/v2/veterans/power-of-attorney-requests/#{id}", headers: auth_header
   end
 
-  def decide_request_with(id:, decision:, auth_header:, representative_id: nil)
+  def decide_request_with(id:, form_attributes:, auth_header:)
     post "/services/claims/v2/veterans/power-of-attorney-requests/#{id}/decide",
-         params: { data: { attributes: { id:,
-                                         decision:,
-                                         representativeId: representative_id } } }.to_json,
+         params: { data: { attributes: form_attributes } }.to_json,
          headers: auth_header.merge('Content-Type' => 'application/json')
   end
 

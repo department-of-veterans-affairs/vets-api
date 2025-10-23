@@ -50,9 +50,9 @@ RSpec.describe BGS::DependentHigherEdAttendance do
           VCR.use_cassette('bgs/dependent_higher_ed_attendance/create') do
             dependents = BGS::DependentHigherEdAttendance.new(
               proc_id:,
-              payload: form_674_only_v2,
+              payload: form_674_only,
               user: user_object,
-              student: form_674_only_v2['dependents_application']['student_information'][0]
+              student: nil
             ).create
 
             expect(dependents).to include(

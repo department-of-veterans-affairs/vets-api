@@ -4,13 +4,14 @@ require 'rails_helper'
 
 describe Eps::ProviderService do
   let(:service) { described_class.new(user) }
-  let(:user) { double('User', account_uuid: '1234') }
+  let(:user) { double('User', account_uuid: '1234', uuid: 'user-uuid-123') }
 
   before do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
     allow(Rails.logger).to receive(:debug)
     allow(Rails.logger).to receive(:public_send)
+    allow(StatsD).to receive(:increment)
     # Bypass token authentication which is tested in another spec
     allow(Settings.vaos.eps).to receive(:mock).and_return(true)
   end
@@ -61,6 +62,99 @@ describe Eps::ProviderService do
         end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
       end
     end
+
+    context 'when Eps::ServiceException is raised' do
+      let(:eps_exception) do
+        create_eps_exception(
+          code: 'VAOS_401',
+          status: 401,
+          body: '{"name": "Unauthorized"}'
+        )
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(eps_exception)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs EPS error with sanitized context and re-raises' do
+        expect(Rails.logger).to receive(:error).with(
+          'Community Care Appointments: EPS service error',
+          hash_including(
+            service: 'EPS',
+            method: 'get_provider_service',
+            error_class: 'Eps::ServiceException',
+            timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+            code: 'VAOS_401',
+            upstream_status: 401,
+            upstream_body: '{\"name\": \"Unauthorized\"}'
+          )
+        )
+
+        expect do
+          service.get_provider_service(provider_id:)
+        end.to raise_error(Eps::ServiceException)
+      end
+    end
+
+    context 'when provider_id parameter is missing or blank' do
+      it 'raises ArgumentError and logs StatsD metric and Rails warning when provider_id is nil' do
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.provider_service.no_params',
+          tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'get_provider_service',
+            service: 'eps_provider_service',
+            user_uuid: 'user-uuid-123'
+          )
+        )
+
+        expect do
+          service.get_provider_service(provider_id: nil)
+        end.to raise_error(ArgumentError, 'provider_id is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError and logs StatsD metric and Rails warning when provider_id is empty string' do
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.provider_service.no_params',
+          tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'get_provider_service',
+            service: 'eps_provider_service',
+            user_uuid: 'user-uuid-123'
+          )
+        )
+
+        expect do
+          service.get_provider_service(provider_id: '')
+        end.to raise_error(ArgumentError, 'provider_id is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError and logs StatsD metric and Rails warning when provider_id is blank' do
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.provider_service.no_params',
+          tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'get_provider_service',
+            service: 'eps_provider_service',
+            user_uuid: 'user-uuid-123'
+          )
+        )
+
+        expect do
+          service.get_provider_service(provider_id: '   ')
+        end.to raise_error(ArgumentError, 'provider_id is required and cannot be blank')
+      end
+    end
   end
 
   describe '#get_networks' do
@@ -107,6 +201,174 @@ describe Eps::ProviderService do
 
       it 'raises an error' do
         expect { service.get_networks }.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+
+    context 'when Eps::ServiceException is raised' do
+      let(:eps_exception) do
+        create_eps_exception(
+          code: 'VAOS_500',
+          status: 500,
+          body: '{"error": "Internal Service Exception"}'
+        )
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(eps_exception)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs EPS error with sanitized context and re-raises' do
+        expect(Rails.logger).to receive(:error).with(
+          'Community Care Appointments: EPS service error',
+          hash_including(
+            service: 'EPS',
+            method: 'get_networks',
+            error_class: 'Eps::ServiceException',
+            timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+            code: 'VAOS_500',
+            upstream_status: 500,
+            upstream_body: '{\"error\": \"Internal Service Exception\"}'
+          )
+        )
+
+        expect do
+          service.get_networks
+        end.to raise_error(Eps::ServiceException)
+      end
+    end
+  end
+
+  describe '#get_provider_services_by_ids' do
+    let(:provider_ids) { %w[provider1 provider2] }
+    let(:config) { instance_double(Eps::Configuration) }
+    let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
+
+    before do
+      allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false,
+                                        request_types: %i[get put post delete])
+      allow(service).to receive_messages(config:)
+      allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
+    end
+
+    context 'when the request is successful' do
+      let(:response) do
+        double('Response', status: 200, body: {
+                 count: 2,
+                 provider_services: [
+                   { id: 'provider1', name: 'Provider 1' },
+                   { id: 'provider2', name: 'Provider 2' }
+                 ]
+               }, response_headers: { 'Content-Type' => 'application/json' })
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+      end
+
+      it 'returns an OpenStruct with the response body' do
+        result = service.get_provider_services_by_ids(provider_ids:)
+
+        expect(result).to eq(OpenStruct.new(response.body))
+      end
+
+      it 'calls perform with multiple id parameters as required by backend' do
+        expected_url = '/api/v1/provider-services?id=provider1&id=provider2'
+        expect_any_instance_of(VAOS::SessionService).to receive(:perform).with(
+          :get,
+          expected_url,
+          {},
+          headers
+        ).and_return(response)
+
+        service.get_provider_services_by_ids(provider_ids:)
+      end
+    end
+
+    context 'when the request fails' do
+      let(:response) { double('Response', status: 500, body: 'Unknown service exception') }
+      let(:exception) do
+        Common::Exceptions::BackendServiceException.new(nil, {}, response.status, response.body)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
+      end
+
+      it 'raises an error' do
+        expect do
+          service.get_provider_services_by_ids(provider_ids:)
+        end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+
+    context 'when Eps::ServiceException is raised' do
+      let(:eps_exception) do
+        create_eps_exception(
+          code: 'VAOS_401',
+          status: 401,
+          body: '{"name": "Unauthorized"}'
+        )
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(eps_exception)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs EPS error with sanitized context and re-raises' do
+        expect(Rails.logger).to receive(:error).with(
+          'Community Care Appointments: EPS service error',
+          hash_including(
+            service: 'EPS',
+            method: 'get_provider_services_by_ids',
+            error_class: 'Eps::ServiceException',
+            timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+            code: 'VAOS_401',
+            upstream_status: 401,
+            upstream_body: '{\"name\": \"Unauthorized\"}'
+          )
+        )
+
+        expect do
+          service.get_provider_services_by_ids(provider_ids:)
+        end.to raise_error(Eps::ServiceException)
+      end
+    end
+
+    context 'when provider_ids parameter is missing or blank' do
+      it 'returns empty provider_services and logs StatsD metric and Rails warning when provider_ids is nil' do
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.provider_service.no_params',
+          tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'get_provider_services_by_ids',
+            service: 'eps_provider_service'
+          )
+        )
+
+        result = service.get_provider_services_by_ids(provider_ids: nil)
+        expect(result).to eq(OpenStruct.new(provider_services: []))
+      end
+
+      it 'returns empty provider_services and logs StatsD metric and Rails warning when provider_ids is empty array' do
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.provider_service.no_params',
+          tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'get_provider_services_by_ids',
+            service: 'eps_provider_service'
+          )
+        )
+
+        result = service.get_provider_services_by_ids(provider_ids: [])
+        expect(result).to eq(OpenStruct.new(provider_services: []))
       end
     end
   end
@@ -181,6 +443,44 @@ describe Eps::ProviderService do
         expect do
           service.get_drive_times(destinations:, origin:)
         end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+
+    context 'when Eps::ServiceException is raised' do
+      let(:eps_exception) do
+        create_eps_exception(
+          code: 'VAOS_400',
+          status: 400,
+          body: '{"name":"invalid_range","id":"aVFqt9NH",' \
+                '"message":"body.latitude must be lesser or equal than 90 but got value 91",' \
+                '"temporary":false,"timeout":false,"fault":false}'
+        )
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(eps_exception)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs EPS error with sanitized context and re-raises' do
+        expect(Rails.logger).to receive(:error).with(
+          'Community Care Appointments: EPS service error',
+          hash_including(
+            service: 'EPS',
+            method: 'get_drive_times',
+            error_class: 'Eps::ServiceException',
+            timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+            code: 'VAOS_400',
+            upstream_status: 400,
+            upstream_body: '{\"name\":\"invalid_range\",\"id\":\"aVFqt9NH\",' \
+                           '\"message\":\"body.latitude must be lesser or equal than 90 but got value 91\",' \
+                           '\"temporary\":false,\"timeout\":false,\"fault\":false}'
+          )
+        )
+
+        expect do
+          service.get_drive_times(destinations:, origin:)
+        end.to raise_error(Eps::ServiceException)
       end
     end
   end
@@ -273,7 +573,7 @@ describe Eps::ProviderService do
     context 'when single page response (no pagination)', :vcr do
       it 'returns an OpenStruct with all slots and correct count' do
         VCR.use_cassette('vaos/eps/get_provider_slots/200') do
-          result = service.get_provider_slots('53mL4LAZ', {
+          result = service.get_provider_slots('Aq7wgAux', {
                                                 appointmentTypeId: 'ov',
                                                 startOnOrAfter: '2025-01-01T00:00:00Z',
                                                 startBefore: '2025-01-03T00:00:00Z',
@@ -289,7 +589,7 @@ describe Eps::ProviderService do
 
       it 'removes nextToken from response' do
         VCR.use_cassette('vaos/eps/get_provider_slots/200') do
-          result = service.get_provider_slots('53mL4LAZ', {
+          result = service.get_provider_slots('Aq7wgAux', {
                                                 appointmentTypeId: 'ov',
                                                 startOnOrAfter: '2025-01-01T00:00:00Z',
                                                 startBefore: '2025-01-03T00:00:00Z',
@@ -596,13 +896,20 @@ describe Eps::ProviderService do
 
         let(:response_body) do
           {
-            count: 1,
+            count: 2,
             provider_services: [
               {
                 id: 'provider123',
                 specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              },
+              {
+                id: 'provider456',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
               }
             ]
@@ -623,7 +930,10 @@ describe Eps::ProviderService do
           result = service.search_provider_services(npi:, specialty: 'Cardiology', address: non_matching_address)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:warn).with(
-            /No address match found among 1 provider\(s\) for NPI/
+            'Community Care Appointments: No address match found among 2 provider(s) for NPI',
+            hash_including(
+              specialty_matches_count: 2
+            )
           )
         end
       end
@@ -722,13 +1032,20 @@ describe Eps::ProviderService do
 
         let(:response_body) do
           {
-            count: 1,
+            count: 2,
             provider_services: [
               {
                 id: 'provider123',
                 specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              },
+              {
+                id: 'provider456',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
               }
             ]
@@ -763,13 +1080,20 @@ describe Eps::ProviderService do
 
         let(:response_body) do
           {
-            count: 1,
+            count: 2,
             provider_services: [
               {
                 id: 'provider123',
                 specialties: [{ name: 'Cardiology' }],
                 location: {
                   address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              },
+              {
+                id: 'provider456',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
                 }
               }
             ]
@@ -790,12 +1114,16 @@ describe Eps::ProviderService do
           result = service.search_provider_services(npi:, specialty: 'Cardiology', address: different_street_address)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:warn).with(
-            /Provider address partial match.*Street: false.*Zip: true/
+            'Community Care Appointments: Provider address partial match',
+            hash_including(
+              street_matches: false,
+              zip_matches: true
+            )
           )
         end
       end
 
-      context 'when multiple providers match specialty' do
+      context 'when multiple providers match specialty and address validation is performed' do
         let(:matching_address) do
           {
             street1: '1601 NEEDMORE RD ; STE 1 & 2',
@@ -890,7 +1218,10 @@ describe Eps::ProviderService do
           result = service.search_provider_services(npi:, specialty: 'Cardiology', address: non_matching_address)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:warn).with(
-            /No address match found among 2 provider\(s\) for NPI/
+            'Community Care Appointments: No address match found among 2 provider(s) for NPI',
+            hash_including(
+              specialty_matches_count: 2
+            )
           )
         end
       end
@@ -927,12 +1258,19 @@ describe Eps::ProviderService do
 
         before do
           allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
-          allow(Rails.logger).to receive(:warn)
+          allow(Rails.logger).to receive(:info)
         end
 
-        it 'returns nil when provider address cannot be parsed' do
+        it 'returns the provider when it is the only specialty match, regardless of address parsing' do
           result = service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
-          expect(result).to be_nil
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('provider123')
+        end
+
+        it 'logs that address validation was skipped' do
+          service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
+          expect(Rails.logger).to have_received(:info)
+            .with('Single specialty match found for NPI, skipping address validation')
         end
       end
 
@@ -1088,6 +1426,123 @@ describe Eps::ProviderService do
           end
         end
       end
+
+      context 'when only one provider matches specialty' do
+        let(:any_address) do
+          {
+            street1: '999 Different Street',
+            city: 'TOLEDO',
+            state: 'Ohio',
+            zip: '43604'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: 'single_provider',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'returns the provider without address validation' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: any_address)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('single_provider')
+        end
+
+        it 'logs that address validation was skipped' do
+          service.search_provider_services(npi:, specialty: 'Cardiology', address: any_address)
+          expect(Rails.logger).to have_received(:info)
+            .with('Single specialty match found for NPI, skipping address validation')
+        end
+
+        it 'returns provider even when address does not match' do
+          non_matching_address = {
+            street1: '999 Nowhere Street',
+            city: 'TOLEDO',
+            state: 'Ohio',
+            zip: '43604'
+          }
+
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: non_matching_address)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('single_provider')
+        end
+      end
+
+      context 'when multiple providers match specialty' do
+        let(:matching_address) do
+          {
+            street1: '1601 NEEDMORE RD ; STE 1 & 2',
+            city: 'DAYTON',
+            state: 'Ohio',
+            zip: '45414'
+          }
+        end
+
+        let(:response_body) do
+          {
+            count: 2,
+            provider_services: [
+              {
+                id: 'provider123',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '1601 NEEDMORE RD ; STE 1 & 2, DAYTON, OH 45414-3848'
+                }
+              },
+              {
+                id: 'provider456',
+                specialties: [{ name: 'Cardiology' }],
+                location: {
+                  address: '2200 Oak Street, COLUMBUS, OH 43201-1234'
+                }
+              }
+            ]
+          }
+        end
+
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'performs address validation and returns matching provider' do
+          result = service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('provider123')
+        end
+
+        it 'does not log single match message when multiple providers exist' do
+          allow(Rails.logger).to receive(:info)
+          service.search_provider_services(npi:, specialty: 'Cardiology', address: matching_address)
+          expect(Rails.logger).not_to have_received(:info)
+            .with('Single specialty match found for NPI, skipping address validation')
+        end
+      end
     end
 
     context 'when the request fails' do
@@ -1105,5 +1560,139 @@ describe Eps::ProviderService do
           .to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
       end
     end
+  end
+
+  describe '#fetch_provider_services' do
+    let(:npi) { '1234567890' }
+    let(:config) { instance_double(Eps::Configuration) }
+    let(:headers) { { 'Authorization' => 'Bearer token123', 'X-Correlation-ID' => 'test-correlation-id' } }
+
+    before do
+      allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false,
+                                        request_types: %i[get put post delete])
+      allow(service).to receive_messages(config:)
+      allow(service).to receive(:request_headers_with_correlation_id).and_return(headers)
+    end
+
+    context 'when the request is successful' do
+      let(:response) do
+        double('Response', status: 200, body: {
+                 count: 1,
+                 provider_services: [
+                   { id: 'provider1', npi:, name: 'Provider 1' }
+                 ]
+               }, response_headers: { 'Content-Type' => 'application/json' })
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+      end
+
+      it 'returns the response from perform' do
+        result = service.send(:fetch_provider_services, npi)
+
+        expect(result).to eq(response)
+      end
+
+      it 'calls perform with correct parameters' do
+        expect_any_instance_of(VAOS::SessionService).to receive(:perform).with(
+          :get,
+          '/api/v1/provider-services',
+          { npi:, isSelfSchedulable: true },
+          headers
+        ).and_return(response)
+
+        service.send(:fetch_provider_services, npi)
+      end
+    end
+
+    context 'when the request fails' do
+      let(:response) { double('Response', status: 500, body: 'Unknown service exception') }
+      let(:exception) do
+        Common::Exceptions::BackendServiceException.new(nil, {}, response.status, response.body)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
+      end
+
+      it 'raises an error' do
+        expect do
+          service.send(:fetch_provider_services, npi)
+        end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+
+    context 'when npi parameter is missing or blank' do
+      it 'raises ArgumentError and logs StatsD metric and Rails warning when npi is nil' do
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.provider_service.no_params',
+          tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'fetch_provider_services',
+            service: 'eps_provider_service'
+          )
+        )
+
+        expect do
+          service.send(:fetch_provider_services, nil)
+        end.to raise_error(ArgumentError, 'npi is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError and logs StatsD metric and Rails warning when npi is empty string' do
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.provider_service.no_params',
+          tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'fetch_provider_services',
+            service: 'eps_provider_service'
+          )
+        )
+
+        expect do
+          service.send(:fetch_provider_services, '')
+        end.to raise_error(ArgumentError, 'npi is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError and logs StatsD metric and Rails warning when npi is blank' do
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.provider_service.no_params',
+          tags: ['service:community_care_appointments']
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'Community Care Appointments: Provider service called with no parameters',
+          hash_including(
+            method: 'fetch_provider_services',
+            service: 'eps_provider_service'
+          )
+        )
+
+        expect do
+          service.send(:fetch_provider_services, '   ')
+        end.to raise_error(ArgumentError, 'npi is required and cannot be blank')
+      end
+    end
+  end
+
+  # Helper method to create EPS exceptions with properly formatted messages
+  def create_eps_exception(code:, status:, body:)
+    exception = Eps::ServiceException.new(
+      code,
+      { code:, detail: 'Test error' },
+      status,
+      body
+    )
+    # Mock the message to include the parseable format for parse_eps_backend_fields
+    allow(exception).to receive(:message).and_return(
+      "BackendServiceException: {:code=>\"#{code}\", " \
+      ":source=>{:vamf_status=>#{status}, :vamf_body=>#{body.inspect}}}"
+    )
+    exception
   end
 end

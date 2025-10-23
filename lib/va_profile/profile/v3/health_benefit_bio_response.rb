@@ -9,8 +9,8 @@ module VAProfile
     module V3
       class HealthBenefitBioResponse < VAProfile::Response
         attribute :code, String
-        attribute :contacts, Array[VAProfile::Models::AssociatedPerson]
-        attribute :messages, Array[VAProfile::Models::Message]
+        attribute :contacts, VAProfile::Models::AssociatedPerson, array: true, default: []
+        attribute :messages, VAProfile::Models::Message, array: true
         attribute :va_profile_tx_audit_id, String
 
         def initialize(response)

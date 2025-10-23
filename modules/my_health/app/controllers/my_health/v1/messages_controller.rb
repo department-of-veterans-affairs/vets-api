@@ -1,22 +1,11 @@
 # frozen_string_literal: true
 
+require 'unique_user_events'
+
 module MyHealth
   module V1
     class MessagesController < SMController
-      include Filterable
-
-      def index
-        resource = client.get_folder_messages(@current_user.uuid, params[:folder_id].to_s, use_cache?)
-        raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
-
-        resource = resource.find_by(filter_params) if params[:filter].present?
-        resource = resource.sort(params[:sort])
-        resource = resource.paginate(**pagination_params) if pagination_params[:per_page] != '-1'
-
-        links = pagination_links(resource)
-        options = { meta: resource.metadata, links: }
-        render json: MessagesSerializer.new(resource.data, options)
-      end
+      MAX_STANDARD_FILES = 4
 
       def show
         message_id = params[:id].try(:to_i)
@@ -29,27 +18,21 @@ module MyHealth
       end
 
       def create
-        message = Message.new(message_params.merge(upload_params))
+        message = Message.new(message_params.merge(upload_params)
+                  .merge(is_large_attachment_upload: use_large_attachment_upload))
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
-        message_params_h = message_params.to_h
-        message_params_h[:id] = message_params_h.delete(:draft_id) if message_params_h[:draft_id].present?
+        message_params_h = prepare_message_params_h
         create_message_params = { message: message_params_h }.merge(upload_params)
-        client_response =
-          if message.uploads.present?
-            if Flipper.enabled?(:mhv_secure_messaging_large_attachments) && (any_file_too_large || total_size_too_large)
-              Rails.logger.info('MHV SM: Using large attachments endpoint')
-              client.post_create_message_with_lg_attachments(create_message_params)
-            else
-              Rails.logger.info('MHV SM: Using standard attachments endpoint')
-              client.post_create_message_with_attachment(create_message_params)
-            end
-          else
-            client.post_create_message(message_params_h)
-          end
+        client_response = create_client_response(message, message_params_h, create_message_params)
 
-        options = { meta: {} }
-        options[:include] = [:attachments] if client_response.attachment
+        # Log unique user event for message sent
+        UniqueUserEvents.log_event(
+          user: current_user,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+        )
+
+        options = build_response_options(client_response)
         render json: MessageSerializer.new(client_response, options)
       end
 
@@ -62,9 +45,9 @@ module MyHealth
         message_id = params[:id].try(:to_i)
         resource = if params[:full_body] == 'true'
                      # returns full body of message including attachments attributes
-                     client.get_full_messages_for_thread(message_id, params[:requires_oh_messages].to_s)
+                     client.get_full_messages_for_thread(message_id)
                    else
-                     client.get_messages_for_thread(message_id, params[:requires_oh_messages].to_s)
+                     client.get_messages_for_thread(message_id)
                    end
         raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
 
@@ -73,28 +56,22 @@ module MyHealth
       end
 
       def reply
-        message = Message.new(message_params.merge(upload_params)).as_reply
+        Rails.logger.info("MHV SM: Replying to message, large attachment upload: #{use_large_attachment_upload}")
+        message = Message.new(message_params.merge(upload_params)
+          .merge(is_large_attachment_upload: use_large_attachment_upload)).as_reply
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
-        message_params_h = message_params.to_h
-        message_params_h[:id] = message_params_h.delete(:draft_id) if message_params_h[:draft_id].present?
+        message_params_h = prepare_message_params_h
         create_message_params = { message: message_params_h }.merge(upload_params)
+        client_response = reply_client_response(message, message_params_h, create_message_params)
 
-        client_response =
-          if message.uploads.present?
-            if Flipper.enabled?(:mhv_secure_messaging_large_attachments) && (any_file_too_large || total_size_too_large)
-              Rails.logger.info('MHV SM: Using large attachments endpoint - reply')
-              client.post_create_message_reply_with_lg_attachment(params[:id], create_message_params)
-            else
-              Rails.logger.info('MHV SM: Using standard attachments endpoint - reply')
-              client.post_create_message_reply_with_attachment(params[:id], create_message_params)
-            end
-          else
-            client.post_create_message_reply(params[:id], message_params_h)
-          end
+        # Log unique user event for message sent
+        UniqueUserEvents.log_event(
+          user: current_user,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+        )
 
-        options = { meta: {} }
-        options[:include] = [:attachments] if client_response.attachment
+        options = build_response_options(client_response)
         render json: MessageSerializer.new(client_response, options), status: :created
       end
 
@@ -122,6 +99,42 @@ module MyHealth
 
       private
 
+      def prepare_message_params_h
+        message_params_h = message_params.to_h
+        message_params_h[:id] = message_params_h.delete(:draft_id) if message_params_h[:draft_id].present?
+        message_params_h
+      end
+
+      def build_response_options(client_response)
+        options = { meta: {} }
+        options[:include] = [:attachments] if client_response.attachment
+        options
+      end
+
+      def create_client_response(message, message_params_h, create_message_params)
+        return client.post_create_message(message_params_h) if message.uploads.blank?
+
+        if use_large_attachment_upload
+          Rails.logger.info('MHV SM: Using large attachments endpoint')
+          client.post_create_message_with_lg_attachments(create_message_params)
+        else
+          Rails.logger.info('MHV SM: Using standard attachments endpoint')
+          client.post_create_message_with_attachment(create_message_params)
+        end
+      end
+
+      def reply_client_response(message, message_params_h, create_message_params)
+        return client.post_create_message_reply(params[:id], message_params_h) if message.uploads.blank?
+
+        if use_large_attachment_upload
+          Rails.logger.info('MHV SM: Using large attachments endpoint - reply')
+          client.post_create_message_reply_with_lg_attachment(params[:id], create_message_params)
+        else
+          Rails.logger.info('MHV SM: Using standard attachments endpoint - reply')
+          client.post_create_message_reply_with_attachment(params[:id], create_message_params)
+        end
+      end
+
       def message_params
         @message_params ||= begin
           params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
@@ -133,12 +146,27 @@ module MyHealth
         @upload_params ||= { uploads: params[:uploads] }
       end
 
+      def oh_triage_group?
+        ActiveModel::Type::Boolean.new.cast(params[:is_oh_triage_group])
+      end
+
       def any_file_too_large
-        Array(@upload_params[:uploads]).any? { |upload| upload.size > 6.megabytes }
+        Array(upload_params[:uploads]).any? { |upload| upload.size > 6.megabytes }
       end
 
       def total_size_too_large
-        Array(@upload_params[:uploads]).sum(&:size) > 10.megabytes
+        Array(upload_params[:uploads]).sum(&:size) > 10.megabytes
+      end
+
+      def total_file_count_too_large
+        Array(upload_params[:uploads]).size > MAX_STANDARD_FILES
+      end
+
+      def use_large_attachment_upload
+        return false unless any_file_too_large || total_size_too_large || total_file_count_too_large
+
+        Flipper.enabled?(:mhv_secure_messaging_large_attachments) ||
+          (Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, @current_user) && oh_triage_group?)
       end
     end
   end

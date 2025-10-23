@@ -44,7 +44,7 @@ RSpec.describe PDFUtilities::PDFStamper do
       Timecop.travel(Time.zone.local(1999, 12, 31, 23, 59, 59)) do
         stamp_template = [{ text: 'VA.GOV', x: 5, y: 5, append_to_stamp: 'FOOBAR', page_number: 0,
                             template: random_pdf, multistamp: true }]
-        with_template = PDFUtilities::PDFStamper.new(nil, stamps: stamp_template)
+        with_template = PDFUtilities::PDFStamper.new(stamp_template)
         out_path = with_template.run random_pdf
         assert_pdf_stamp(out_path, 'VA.GOV 1999-12-31 11:59 PM UTC. FOOBAR')
       end

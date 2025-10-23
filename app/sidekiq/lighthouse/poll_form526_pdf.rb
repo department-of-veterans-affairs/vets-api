@@ -60,7 +60,7 @@ module Lighthouse
       }
     )
 
-    sidekiq_options retry_for: 48.hours
+    sidekiq_options retry_for: 96.hours
 
     # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
     # :nocov:

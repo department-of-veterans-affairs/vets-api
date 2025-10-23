@@ -38,7 +38,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
               hash_including(vet_info)
             )
 
-            expect(dependency_claim).to receive(:upload_pdf).with('686C-674-V2')
+            expect(dependency_claim).to receive(:upload_pdf).with('686C-674')
 
             described_class.new.perform(dependency_claim.id, encrypted_vet_info, true, false)
           end
@@ -50,7 +50,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
               hash_including(vet_info)
             )
 
-            expect(dependency_claim).to receive(:upload_pdf).with('21-674-V2', doc_type: '142')
+            expect(dependency_claim).to receive(:upload_pdf).with('21-674', doc_type: '142')
 
             described_class.new.perform(dependency_claim.id, encrypted_vet_info, false, true)
           end
@@ -62,8 +62,8 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
               hash_including(vet_info)
             )
 
-            expect(dependency_claim).to receive(:upload_pdf).with('686C-674-V2')
-            expect(dependency_claim).to receive(:upload_pdf).with('21-674-V2', doc_type: '142')
+            expect(dependency_claim).to receive(:upload_pdf).with('686C-674')
+            expect(dependency_claim).to receive(:upload_pdf).with('21-674', doc_type: '142')
 
             described_class.new.perform(dependency_claim.id, encrypted_vet_info, true, true)
           end
@@ -140,12 +140,11 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
 
       job = described_class.new
 
-      expect(Rails.logger).to receive(:error)
+      expect(Rails.logger).to receive(:error).at_least(:once)
 
       vet_info['veteran_information'].delete('ssn')
       expect do
-        job.perform(invalid_dependency_claim.id, encrypted_vet_info, true,
-                    false)
+        job.perform(invalid_dependency_claim.id, encrypted_vet_info, true, false)
       end.to raise_error(VBMS::SubmitDependentsPdfJob::Invalid686cClaim)
     end
   end

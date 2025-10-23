@@ -3,7 +3,9 @@
 module VAOS
   module V2
     class EpsAppointmentsController < VAOS::BaseController
-      STATSD_KEY = 'api.vaos.eps_appointment_detail.access'
+      include VAOS::CommunityCareConstants
+
+      STATSD_KEY = "#{STATSD_PREFIX}.eps_appointment_detail.access".freeze
 
       def show
         appointment = appointment_service.get_appointment(
@@ -12,7 +14,7 @@ module VAOS
         )
 
         response_object = assemble_appt_response_object(appointment)
-        StatsD.increment(STATSD_KEY, tags: ['Community Care Appointments'])
+        StatsD.increment(STATSD_KEY, tags: [COMMUNITY_CARE_SERVICE_TAG])
         render json: response_object
       end
 

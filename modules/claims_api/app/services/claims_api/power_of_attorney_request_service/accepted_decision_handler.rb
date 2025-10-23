@@ -1,45 +1,60 @@
 # frozen_string_literal: true
 
-require 'bgs_service/veteran_representative_service'
-
 module ClaimsApi
   module PowerOfAttorneyRequestService
     class AcceptedDecisionHandler
-      FORM_TYPE_CODE = '21-22'
+      LOG_TAG = 'accepted_decision_handler'
 
-      def initialize(ptcpnt_id:, proc_id:, poa_code:, metadata:, claimant_ptcpnt_id: nil)
-        @vet_ptcpnt_id = ptcpnt_id
+      # rubocop:disable Metrics/ParameterLists
+      def initialize(proc_id:, poa_code:, registration_number:, metadata:, veteran:, claimant: nil)
         @proc_id = proc_id
         @poa_code = poa_code
+        @registration_number = registration_number
         @metadata = metadata
-        @claimant_ptcpnt_id = claimant_ptcpnt_id
+        @veteran = veteran
+        @claimant = claimant
+        @type = determine_type
       end
+      # rubocop:enable Metrics/ParameterLists
 
       def call
-        gather_poa_data
+        ClaimsApi::Logger.log(
+          LOG_TAG, message: "Starting the accepted POA workflow with proc #{@proc_id}."
+        )
 
-        # call sidekiq job
+        gathered_data = poa_auto_establishment_gatherer
+
+        data, type = poa_auto_establishment_mapper(gathered_data)
+
+        [data, type]
       end
 
       private
 
-      def gather_poa_data
-        records = read_all_vateran_representative_records
-
-        gather_read_all_veteran_representative_data(records)
+      def poa_auto_establishment_gatherer
+        ClaimsApi::PowerOfAttorneyRequestService::DataGatherer::PoaAutoEstablishmentDataGatherer.new(
+          proc_id: @proc_id, registration_number: @registration_number, metadata: @metadata,
+          veteran: @veteran, claimant: @claimant
+        ).gather_data
       end
 
-      def gather_read_all_veteran_representative_data(records)
-        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::ReadAllVeteranRepresentativeDataMapper.new(
-          proc_id: @proc_id,
-          records:
-        ).call
+      def poa_auto_establishment_mapper(data)
+        ClaimsApi::PowerOfAttorneyRequestService::DataMapper::PoaAutoEstablishmentDataMapper.new(
+          type: @type,
+          data:
+        ).map_data
       end
 
-      def read_all_vateran_representative_records
-        ClaimsApi::VeteranRepresentativeService
-          .new(external_uid: @vet_ptcpnt_id, external_key: @vet_ptcpnt_id)
-          .read_all_veteran_representatives(type_code: FORM_TYPE_CODE, ptcpnt_id: @vet_ptcpnt_id)
+      def determine_type
+        if poa_code_in_organization?
+          '2122'
+        else
+          '2122a'
+        end
+      end
+
+      def poa_code_in_organization?
+        ::Veteran::Service::Organization.find_by(poa: @poa_code).present?
       end
     end
   end

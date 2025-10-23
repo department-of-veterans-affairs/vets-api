@@ -23,6 +23,7 @@ properties:
         type: object
         additionalProperties: false
         example:
+          allergiesOracleHealthEnabled: false
           appeals: true
           appointments: true
           claims: true
@@ -39,3 +40,5 @@ properties:
           scheduleAppointments: true
           secureMessaging: false
           userProfileUpdate: true
+          secureMessagingOracleHealthEnabled: false
+          medicationsOracleHealthEnabled: false

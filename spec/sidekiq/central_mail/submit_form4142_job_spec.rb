@@ -9,12 +9,11 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
   before do
     Sidekiq::Job.clear_all
     # Make Job use old CentralMail route for all tests
-    Flipper.disable(:disability_compensation_form4142_supplemental)
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_form4142_supplemental).and_return(false)
     # By default, features are enabled in test environments and disabled by default in other environments
-    # This is to ensure that the 2024 4142 template and schema validation is
+    # This is to ensure that the 2024 4142 template is
     # not used in tests unless explicitly enabled
-    Flipper.disable(:disability_526_form4142_use_2024_template)
-    Flipper.disable(:disability_526_form4142_validate_schema)
+    allow(Flipper).to receive(:enabled?).with(:disability_526_form4142_validate_schema).and_return(false)
   end
 
   #######################
@@ -86,7 +85,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         it 'corrects for invalid characters in generated metadata' do
           veteran_first_name = metadata_hash['veteranFirstName']
           veteran_last_name = metadata_hash['veteranLastName']
-          allowed_chars_regex = %r{^[a-zA-Z\/\-\s]}
+          allowed_chars_regex = %r{^[a-zA-Z/\-\s]}
           expect(veteran_first_name).to match(allowed_chars_regex)
           expect(veteran_last_name).to match(allowed_chars_regex)
         end
@@ -206,7 +205,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
   describe 'Test new Lighthouse route' do
     before do
       # Make Job use new Lighthouse route for all tests
-      Flipper.enable(:disability_compensation_form4142_supplemental)
+      allow(Flipper).to receive(:enabled?).with(:disability_compensation_form4142_supplemental).and_return(true)
     end
 
     let(:user_account) { user.user_account }
@@ -318,7 +317,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         it 'corrects for invalid characters in generated metadata' do
           veteran_first_name = metadata_hash['veteranFirstName']
           veteran_last_name = metadata_hash['veteranLastName']
-          allowed_chars_regex = %r{^[a-zA-Z\/\-\s]}
+          allowed_chars_regex = %r{^[a-zA-Z/\-\s]}
           expect(veteran_first_name).to match(allowed_chars_regex)
           expect(veteran_last_name).to match(allowed_chars_regex)
         end

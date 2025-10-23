@@ -60,6 +60,7 @@ RSpec.describe IvcChampva::VHA107959a do
           {
             'claim_status' => 'resubmission',
             'pdi_or_claim_number' => 'PDI number',
+            'identifying_number' => 'va12345678',
             'claim_type' => 'medical',
             'provider_name' => 'BCBS',
             'beginning_date_of_service' => '01-01-1999',
@@ -78,11 +79,18 @@ RSpec.describe IvcChampva::VHA107959a do
         expect(res.keys.include?('provider_name')).to be(true)
         expect(res.keys.include?('beginning_date_of_service')).to be(true)
         expect(res.keys.include?('end_date_of_service')).to be(true)
+        expect(res.keys.include?('pdi_number')).to be(true)
       end
 
       it 'contains resubmission data' do
         res = vha107959a_medical_resubmission.add_resubmission_properties
         expect(res['claim_status']).to eq('resubmission')
+      end
+
+      it 'includes relevant pdi field and excludes claim number field when pdi number was specified' do
+        res = vha107959a_medical_resubmission.add_resubmission_properties
+        expect(res.keys.include?('pdi_number')).to be(true)
+        expect(res.keys.include?('claim_number')).to be(false)
       end
     end
 

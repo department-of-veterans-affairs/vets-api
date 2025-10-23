@@ -20,8 +20,7 @@ module CARMA
           response = perform(:post,
                              auth_token_path,
                              params,
-                             token_headers,
-                             { timeout: config.timeout })
+                             token_headers)
 
           return JSON.parse(response.body)['access_token'] if response.status == 200
 

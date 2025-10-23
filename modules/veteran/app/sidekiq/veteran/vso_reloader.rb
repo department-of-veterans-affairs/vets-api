@@ -10,7 +10,7 @@ module Veteran
 
     # The total number of representatives and organizations parsed from the ingested .ASP files
     # must not decrease by more than this percentage from the previous count
-    DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
+    DECREASE_THRESHOLD = 0.50 # 50% maximum decrease allowed
 
     # User type constants
     USER_TYPE_ATTORNEY = 'attorney'
@@ -161,14 +161,9 @@ module Veteran
     end
 
     def log_to_slack(message)
-      client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
-                                       channel: '#api-benefits-claims',
-                                       username: 'VSOReloader')
-      client.notify(message)
-    end
+      return unless Settings.vsp_environment == 'production'
 
-    def log_to_slack_threshold_channel(message)
-      client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
+      client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                        channel: '#benefits-representation-management-notifications',
                                        username: 'VSOReloader')
       client.notify(message)
@@ -229,7 +224,7 @@ module Veteran
                 "Threshold: #{(threshold * 100).round(2)}%\n" \
                 'Action: Update skipped, manual review required'
 
-      log_to_slack_threshold_channel(message)
+      log_to_slack(message)
       log_message_to_sentry("VSO Reloader threshold exceeded for #{rep_type}", :warn,
                             previous_count:,
                             new_count:,
@@ -257,7 +252,7 @@ module Veteran
     def calculate_vso_counts(vso_data)
       {
         reps: vso_data.count { |v| v['Representative'].present? && v['Registration Num'].present? },
-        orgs: vso_data.map { |v| v['POA'] }.compact.uniq.count # rubocop:disable Rails/Pluck
+        orgs: vso_data.map { |v| v['POA'] }.compact.uniq.count
       }
     end
 

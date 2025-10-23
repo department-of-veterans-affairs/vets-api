@@ -1,0 +1,248 @@
+{
+  "veteranFullName": {
+    "first": "Indiana ZZZZZZZZZZZZZ",
+    "middle": "Bill ZZZZZZZZZZZZZ",
+    "last": "Jones ZZZZZZZZZZZZZ",
+    "suffix": "II"
+  },
+  "veteranSocialSecurityNumber": "234221243",
+  "veteranDateOfBirth": "1980-01-01",
+  "gender": "M",
+  "veteranAddress": {
+    "street": "321 Elm St ZZZZZZZZZZZZZ",
+    "street2": "Unit 4 ZZZZZZZZZZZZZ",
+    "street3": "Apt 4 ZZZZZZZZZZZZZ",
+    "city": "Houston ZZZZZZZZZZZZZ",
+    "country": "USA",
+    "state": "TX",
+    "postalCode": "86764"
+  },
+  "veteranHomeAddress": {
+    "street": "123 NW 5th St ZZZZZZZZZZZZZ ZZZZZZZZZZZZZ ZZZZZZZZZZZZZ",
+    "city": "Ontario ZZZZZZZZZZZZZ",
+    "country": "CAN",
+    "state": "ON",
+    "provinceCode": "ProvinceName",
+    "postalCode": "21231"
+  },
+  "homePhone": "1231241234",
+  "mobilePhone": "1235551234",
+  "email": "foooooooooooooooooooooooooooooooooooooooooooooooo@example.com",
+  "maritalStatus": "Never Married",
+  "providers": [
+    {
+      "insuranceName": "MyInsurance",
+      "insurancePolicyHolderName": "FirstName",
+      "insurancePolicyNumber": "P1234",
+      "insuranceGroupCode": "G1234"
+    },
+    {
+      "insuranceName": "My Other Insurance",
+      "insurancePolicyHolderName": "FirstName",
+      "insurancePolicyNumber": "P22222",
+      "insuranceGroupCode": "D8888888"
+    },
+    {
+      "insuranceName": "Yet Another Insurance",
+      "insurancePolicyHolderName": "FirstName",
+      "insurancePolicyNumber": "P33333",
+      "insuranceGroupCode": "D244444"
+    }
+  ],
+  "isMedicaidEligible": true,
+  "isEnrolledMedicarePartA": true,
+  "medicarePartAEffectiveDate": "1999-10-16",
+  "medicareClaimNumber": "873462432",
+  "spouseFullName": {
+    "first": "FirstSpouse ZZZZZZZZZZZZZ",
+    "middle": "Middle ZZZZZZZZZZZZZ",
+    "last": "LastSpouse ZZZZZZZZZZZZZ",
+    "suffix": "Sr."
+  },
+  "spouseSocialSecurityNumber": "111221234",
+  "spouseDateOfBirth": "1990-04-06",
+  "dateOfMarriage": "2003-05-10",
+  "cohabitedLastYear": false,
+  "provideSupportLastYear": false,
+  "spouseAddress": {
+    "street": "123 NW 8th St ZZZZZZZZZZZZZ ZZZZZZZZZZZZZ ZZZZZZZZZZZZZ ZZZZZZZZZZZZZ",
+    "street2": "Floor 4 ZZZZZZZZZZZZZ ZZZZZZZZZZZZZ",
+    "street3": "Apt 7 ZZZZZZZZZZZZZ ZZZZZZZZZZZZZ",
+    "city": "Dulles",
+    "country": "USA",
+    "state": "VA",
+    "postalCode": "20777"
+  },
+  "dependents": [
+    {
+      "fullName": {
+        "first": "FirstChildA ZZZZZZZZZZZZZ ZZZZZZZZZZZZZ",
+        "middle": "MiddleChildA",
+        "last": "LastChildA",
+        "suffix": "Jr."
+      },
+      "dependentRelation": "Stepson",
+      "socialSecurityNumber": "111229876",
+      "becameDependent": "1992-04-07",
+      "dateOfBirth": "1982-05-05",
+      "disabledBefore18": true,
+      "attendedSchoolLastYear": true,
+      "dependentEducationExpenses": 45.2,
+      "receivedSupportLastYear": false,
+      "grossIncome": 991.9,
+      "netIncome": 981.2,
+      "otherIncome": 91.9
+    },
+    {
+      "fullName": {
+        "first": "Jill",
+        "middle": "Janice",
+        "last": "Jones"
+      },
+      "dependentRelation": "Daughter",
+      "socialSecurityNumber": "143221234",
+      "dateOfBirth": "2001-02-01",
+      "becameDependent": "2001-02-01",
+      "attendedSchoolLastYear": true,
+      "dependentEducationExpenses": 100,
+      "disabledBefore18": false,
+      "cohabitedLastYear": true,
+      "receivedSupportLastYear": true,
+      "grossIncome": 100000,
+      "netIncome": 90000,
+      "otherIncome": 101
+    },
+    {
+      "fullName": {
+        "first": "Jonny",
+        "middle": "Janice",
+        "last": "Jones"
+      },
+      "dependentRelation": "Stepson",
+      "socialSecurityNumber": "143221234",
+      "dateOfBirth": "2001-02-01",
+      "becameDependent": "2001-02-01",
+      "attendedSchoolLastYear": true,
+      "dependentEducationExpenses": 100,
+      "disabledBefore18": false,
+      "cohabitedLastYear": true,
+      "grossIncome": 100000,
+      "netIncome": 90000,
+      "otherIncome": 101
+    }
+  ],
+  "nextOfKins": [
+    {
+      "fullName": {
+        "first": "FirstNoKA ZZZZZZZZZZZZZ",
+        "middle": "MiddleNoKA",
+        "last": "LastNoKA ZZZZZZZZZZZZZ",
+        "suffix": "Jr."
+      },
+      "contactType": "Primary Next of Kin",
+      "relationship": "SON",
+      "address": {
+        "street": "53 West St ZZZZZZZZZZZZZZZZZZ",
+        "street2": "Bldg 2",
+        "street3": "Apt 1",
+        "city": "Tampa",
+        "country": "USA",
+        "state": "FL",
+        "postalCode": "33602"
+      },
+      "primaryPhone": "1239131234"
+    },
+    {
+      "fullName": {
+        "first": "SecondFirstNoKA ZZZZZZZZZZZZZ",
+        "middle": "MiddleNoKA",
+        "last": "LastNoKA ZZZZZZZZZZZZZ",
+        "suffix": "Jr."
+      },
+      "contactType": "Secondary Next of Kin",
+      "relationship": "DAUGHTER",
+      "address": {
+        "street": "53 West St ZZZZZZZZZZZZZZZZZZ",
+        "street2": "Bldg 2",
+        "street3": "Apt 1",
+        "city": "Tampa",
+        "country": "USA",
+        "state": "FL",
+        "postalCode": "33602"
+      },
+      "primaryPhone": "9939131234"
+    }
+  ],
+  "emergencyContacts": [
+    {
+      "fullName": {
+        "first": "FirstECA ZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "middle": "MiddleECA",
+        "last": "LastECA"
+      },
+      "contactType": "Emergency Contact",
+      "relationship": "BROTHER",
+      "address": {
+        "street": "28 NW 78th St ZZZZZZZZZZZZZZZZ",
+        "street2": "Floor 2",
+        "street3": "Apt 3",
+        "city": "Dulles",
+        "country": "USA",
+        "state": "VA",
+        "postalCode": "24544"
+      },
+      "primaryPhone": "7452743546"
+    },
+    {
+      "fullName": {
+        "first": "SecondFirstECA ZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "middle": "MiddleECA",
+        "last": "LastECA"
+      },
+      "contactType": "Emergency Contact",
+      "relationship": "SISTER",
+      "address": {
+        "street": "28 NW 78th St ZZZZZZZZZZZZZZZZ",
+        "street2": "Floor 2",
+        "street3": "Apt 3",
+        "city": "Dulles",
+        "country": "USA",
+        "state": "VA",
+        "postalCode": "24544"
+      },
+      "primaryPhone": "8852743546"
+    }
+  ],
+  "veteranGrossIncome": 123.33,
+  "veteranNetIncome": 90.11,
+  "veteranOtherIncome": 10.1,
+  "spouseGrossIncome": 64.1,
+  "spouseNetIncome": 35.1,
+  "spouseOtherIncome": 12.3,
+  "deductibleMedicalExpenses": 33.3,
+  "deductibleFuneralExpenses": 44.44,
+  "deductibleEducationExpenses": 77.77,
+  "hasTeraResponse": true,
+  "gulfWarService": true,
+  "gulfWarStartDate": "1990-08-XX",
+  "gulfWarEndDate": "1990-09-XX",
+  "combatOperationService": true,
+  "exposedToAgentOrange": true,
+  "agentOrangeStartDate": "1990-08-XX",
+  "agentOrangeEndDate": "1990-08-XX",
+  "exposureToAirPollutants": true,
+  "exposureToAsbestos": true,
+  "exposureToChemicals": true,
+  "exposureToContaminatedWater": true,
+  "exposureToMustardGas": true,
+  "exposureToOccupationalHazards": true,
+  "exposureToRadiation": true,
+  "exposureToShad": true,
+  "exposureToWarfareAgents": true,
+  "exposureToOther": true,
+  "radiationCleanupEfforts": true,
+  "otherToxicExposure": "otherToxicExposure",
+  "toxicExposureStartDate": "1990-08-XX",
+  "toxicExposureEndDate": "1990-09-XX",
+  "privacyAgreementAccepted": true
+}

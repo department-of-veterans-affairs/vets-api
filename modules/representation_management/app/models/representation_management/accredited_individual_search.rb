@@ -6,7 +6,11 @@ module RepresentationManagement
 
     PERMITTED_MAX_DISTANCES = %w[5 10 25 50 100 200].freeze # in miles, no distance provided will default to "all"
     PERMITTED_SORTS = %w[distance_asc first_name_asc first_name_desc last_name_asc last_name_desc].freeze
-    PERMITTED_TYPES = %w[attorney claims_agent representative].freeze
+    # claim_agents and veteran_service_officer are types leftover from the old Veteran::Service::Representative model
+    # and are not used in AccreditedIndividual. They are included here for backwards compatibility.
+    # They will be mapped to the individual_type used in AccreditedIndividual.
+    # They can be removed once the frontend is updated to use the new types.
+    PERMITTED_TYPES = %w[attorney claims_agent representative claim_agents veteran_service_officer].freeze
 
     attr_accessor :distance, :lat, :long, :name, :page, :per_page, :sort, :type
 

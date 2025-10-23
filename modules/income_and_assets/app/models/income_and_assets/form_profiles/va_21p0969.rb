@@ -25,6 +25,10 @@ module IncomeAndAssets
     def prefill
       @identity_information = initialize_identity_information
 
+      @contact_information = initialize_contact_information
+      contact_information.email ||= user.email
+      contact_information.us_phone ||= user&.home_phone&.gsub(/\D/, '')
+
       mappings = self.class.mappings_for_form(form_id)
 
       form_data = generate_prefill(mappings) if FormProfile.prefill_enabled_forms.include?(form_id)

@@ -99,4 +99,48 @@ describe V2::Chip::RedisClient do
       expect(val).to eq(token)
     end
   end
+
+  describe 'feature flag behavior' do
+    context 'when check_in_experience_use_vaec_cie_endpoints flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_use_vaec_cie_endpoints').and_return(false)
+      end
+
+      it 'uses original tmp_api_id for session_id' do
+        expect(redis_client.send(:tmp_api_id)).to eq(Settings.check_in.chip_api_v2.tmp_api_id)
+        expect(redis_client.session_id).to eq('check_in_chip_v2_2dcdrrn5zc')
+      end
+
+      it 'stores and retrieves data with original session_id' do
+        token = 'test_token_123'
+        redis_client.save(token:)
+        expect(redis_client.get).to eq(token)
+      end
+    end
+
+    context 'when check_in_experience_use_vaec_cie_endpoints flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_use_vaec_cie_endpoints').and_return(true)
+      end
+
+      it 'uses v2 tmp_api_id for session_id' do
+        expect(redis_client.send(:tmp_api_id)).to eq(Settings.check_in.chip_api_v2.tmp_api_id_v2)
+        # Since test.yml has the same value for both, session_id will be the same
+        expect(redis_client.session_id).to eq('check_in_chip_v2_2dcdrrn5zc')
+      end
+
+      it 'stores and retrieves data with v2 session_id' do
+        token = 'test_token_v2_456'
+        redis_client.save(token:)
+        expect(redis_client.get).to eq(token)
+      end
+
+      it 'uses different cache key when v2 api_id is different' do
+        # This test demonstrates that if the v2 api_id were different,
+        # it would use a different cache key
+        allow(Settings.check_in.chip_api_v2).to receive(:tmp_api_id_v2).and_return('different_api_id')
+        expect(redis_client.session_id).to eq('check_in_chip_v2_different_api_id')
+      end
+    end
+  end
 end

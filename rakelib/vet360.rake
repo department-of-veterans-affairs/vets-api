@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'va_profile/contact_information/service'
-require 'va_profile/v2/contact_information/service'
+require 'va_profile/contact_information/v2/service'
 require 'va_profile/exceptions/builder'
 require 'va_profile/models/email'
 require 'va_profile/models/telephone'
@@ -19,7 +18,7 @@ namespace :vet360 do
   desc 'Request Vet360 person contact information'
   task :get_person, [:vet360_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
-    trx = VAProfile::ContactInformation::Service.new(user_struct(args[:vet360_id])).get_person
+    trx = VAProfile::ContactInformation::V2::Service.new(user_struct(args[:vet360_id])).get_person
     pp trx.to_h
   end
 
@@ -27,7 +26,7 @@ namespace :vet360 do
   task :get_email_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(args[:vet360_id]))
           .get_email_transaction_status(args[:tx_audit_id])
     pp trx.to_h
@@ -37,7 +36,7 @@ namespace :vet360 do
   task :get_address_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(args[:vet360_id]))
           .get_address_transaction_status(args[:tx_audit_id])
     pp trx.to_h
@@ -47,7 +46,7 @@ namespace :vet360 do
   task :get_telephone_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(args[:vet360_id]))
           .get_telephone_transaction_status(args[:tx_audit_id])
     pp trx.to_h
@@ -57,7 +56,7 @@ namespace :vet360 do
   task :get_permission_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(args[:vet360_id]))
           .get_permission_transaction_status(args[:tx_audit_id])
     pp trx.to_h
@@ -81,10 +80,9 @@ namespace :vet360 do
 
     data = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = data['vet360_id']
-    ensure_var('vet360_id', vet360_id)
 
     email = VAProfile::Models::Email.build_from(data)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(vet360_id))
           .put_email(email)
     pp trx.to_h
@@ -105,10 +103,9 @@ namespace :vet360 do
 
     body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
-    ensure_var('vet360_id', vet360_id)
 
     telephone = VAProfile::Models::Telephone.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(vet360_id))
           .put_telephone(telephone)
     pp trx.to_h
@@ -131,35 +128,11 @@ namespace :vet360 do
 
     body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
-    ensure_var('vet360_id', vet360_id)
 
     address = VAProfile::Models::Address.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(vet360_id))
           .put_address(address)
-    pp trx.to_h
-  end
-
-  desc "Update Vet360 permission (from #{ENV_VAR_NAME})"
-  task put_permission: [:environment] do
-    # EXPECTED FORMAT OF VET360_RAKE_DATA:
-    # {
-    #     "permission_type": "string",
-    #     "permission_value": boolean,
-    #     ...
-    #     [ see lib/vet360/models/permission.rb ]
-    # }
-
-    ensure_data_var
-
-    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
-    vet360_id = body['vet360_id']
-    ensure_var('vet360_id', vet360_id)
-
-    permission = VAProfile::Models::Permission.build_from(body)
-    trx = VAProfile::ContactInformation::Service
-          .new(user_struct(vet360_id))
-          .put_permission(permission)
     pp trx.to_h
   end
 
@@ -180,10 +153,9 @@ namespace :vet360 do
 
     body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
-    ensure_var('vet360_id', vet360_id)
 
     email = VAProfile::Models::Email.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(vet360_id))
           .post_email(email)
     pp trx.to_h
@@ -206,10 +178,9 @@ namespace :vet360 do
 
     body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
-    ensure_var('vet360_id', vet360_id)
 
     telephone = VAProfile::Models::Telephone.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(vet360_id))
           .post_telephone(telephone)
     pp trx.to_h
@@ -230,35 +201,11 @@ namespace :vet360 do
 
     body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
-    ensure_var('vet360_id', vet360_id)
 
     address = VAProfile::Models::Address.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V2::Service
           .new(user_struct(vet360_id))
           .post_address(address)
-    pp trx.to_h
-  end
-
-  desc "Create Vet360 permission (from #{ENV_VAR_NAME})"
-  task post_permission: [:environment] do
-    # EXPECTED FORMAT OF VET360_RAKE_DATA:
-    # {
-    #     "permission_type": "string",
-    #     "permission_value": boolean,
-    #     ...
-    #     [ see lib/vet360/models/permission.rb ]
-    # }
-
-    ensure_data_var
-
-    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
-    vet360_id = body['vet360_id']
-    ensure_var('vet360_id', vet360_id)
-
-    permission = VAProfile::Models::Permission.build_from(body)
-    trx = VAProfile::ContactInformation::Service
-          .new(user_struct(vet360_id))
-          .post_permission(permission)
     pp trx.to_h
   end
 

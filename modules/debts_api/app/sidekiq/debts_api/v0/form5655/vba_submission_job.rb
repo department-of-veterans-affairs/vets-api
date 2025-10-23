@@ -5,7 +5,6 @@ require 'debts_api/v0/financial_status_report_service'
 module DebtsApi
   class V0::Form5655::VBASubmissionJob
     include Sidekiq::Job
-    include SentryLogging
     STATS_KEY = 'api.vba_submission'
 
     sidekiq_options retry: 5
@@ -30,18 +29,50 @@ module DebtsApi
     end
 
     def perform(submission_id, user_uuid)
-      submission = DebtsApi::V0::Form5655Submission.find(submission_id)
+      @submission_id = submission_id
+      @user_uuid = user_uuid
+
+      # Try Redis
       user = UserProfileAttributes.find(user_uuid)
+
+      # Fall back to form data
+      if user.nil?
+        StatsD.increment("#{STATS_KEY}.user_data_fallback_used")
+        user = build_user_from_form_data
+      end
+
       raise MissingUserAttributesError, user_uuid unless user
 
       DebtsApi::V0::FinancialStatusReportService.new(user).submit_vba_fsr(submission.form)
-      user.destroy
+      UserProfileAttributes.find(@user_uuid)&.destroy
       StatsD.increment("#{STATS_KEY}.success")
       submission.register_success
     rescue => e
       StatsD.increment("#{STATS_KEY}.failure")
       Rails.logger.error("V0::Form5655::VBASubmissionJob failed, retrying: #{e.message}")
       raise e
+    end
+
+    private
+
+    def submission
+      @submission ||= DebtsApi::V0::Form5655Submission.find(@submission_id)
+    end
+
+    def build_user_from_form_data
+      ipf_data = submission.ipf_form
+
+      return nil unless ipf_data['personal_data']
+
+      email = ipf_data.dig('personal_data', 'email_address')
+      full_name = ipf_data.dig('personal_data', 'veteran_full_name') || {}
+
+      OpenStruct.new(
+        email:,
+        first_name: full_name['first'] || 'Veteran',
+        last_name: full_name['last'] || '',
+        uuid: @user_uuid
+      )
     end
   end
 end

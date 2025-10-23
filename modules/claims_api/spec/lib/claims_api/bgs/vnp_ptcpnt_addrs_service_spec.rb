@@ -84,4 +84,30 @@ describe ClaimsApi::VnpPtcpntAddrsService, metadata do
       end
     end
   end
+
+  describe 'vnp_ptcpnt_addrs_find_by_primary_key' do
+    let(:id) do
+      {
+        id: '148886'
+      }
+    end
+
+    it 'responds when sent valid params' do
+      VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_addrs_service/valid_vnp_ptcpnt_addrs_find_by_primary_key') do
+        response = subject.vnp_ptcpnt_addrs_find_by_primary_key(id:)
+
+        expect(response).to include(
+          {
+            addrs_one_txt: '2719 Hyperion Ave',
+            addrs_two_txt: 'Apt 2',
+            city_nm: 'Los Angeles',
+            cntry_nm: 'USA',
+            postal_cd: 'CA',
+            zip_first_suffix_nbr: '0200',
+            zip_prefix_nbr: '92264'
+          }
+        )
+      end
+    end
+  end
 end

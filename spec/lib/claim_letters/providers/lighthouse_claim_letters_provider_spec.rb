@@ -49,9 +49,9 @@ RSpec.describe LighthouseClaimLettersProvider do
       letters = provider.get_letters
 
       expect(letters.length).to eq(1)
-      expect(letters.first).to be_a(ClaimLetters::Responses::ClaimLetterResponse)
-      expect(letters.first.subject).to eq('Test Subject')
-      expect(letters.first.document_id).to eq('12345678-ABCD-0123-cdef-124345679ABC')
+      expect(letters.first).to be_a(Hash)
+      expect(letters.first[:subject]).to eq('Test Subject')
+      expect(letters.first[:document_id]).to eq('12345678-ABCD-0123-cdef-124345679ABC')
     end
 
     it 'calls the service with correct parameters' do
@@ -596,9 +596,9 @@ RSpec.describe LighthouseClaimLettersProvider do
       it 'includes BOA documents with nil received_at dates' do
         letters = provider.get_letters
 
-        boa_letter = letters.find { |l| l.doc_type == '27' }
+        boa_letter = letters.find { |l| l[:doc_type] == '27' }
         expect(boa_letter).not_to be_nil
-        expect(boa_letter.subject).to eq('BOA Decision with nil date')
+        expect(boa_letter[:subject]).to eq('BOA Decision with nil date')
       end
     end
 
@@ -644,16 +644,16 @@ RSpec.describe LighthouseClaimLettersProvider do
         letters = provider.get_letters
 
         # Should not include the recent BOA document
-        recent_boa = letters.find { |l| l.document_id == 'recent-boa-uuid' }
+        recent_boa = letters.find { |l| l[:document_id] == 'recent-boa-uuid' }
         expect(recent_boa).to be_nil
 
         # Should include the old BOA document
-        old_boa = letters.find { |l| l.document_id == 'old-boa-uuid' }
+        old_boa = letters.find { |l| l[:document_id] == 'old-boa-uuid' }
         expect(old_boa).not_to be_nil
-        expect(old_boa.subject).to eq('Old BOA Decision')
+        expect(old_boa[:subject]).to eq('Old BOA Decision')
 
         # Should include recent non-BOA documents
-        non_boa = letters.find { |l| l.document_id == 'recent-non-boa-uuid' }
+        non_boa = letters.find { |l| l[:document_id] == 'recent-non-boa-uuid' }
         expect(non_boa).not_to be_nil
       end
     end
@@ -698,14 +698,14 @@ RSpec.describe LighthouseClaimLettersProvider do
         letters = provider.get_letters
 
         # Should not include document with docTypeId 999
-        disallowed = letters.find { |l| l.document_id == 'disallowed-uuid' }
+        disallowed = letters.find { |l| l[:document_id] == 'disallowed-uuid' }
         expect(disallowed).to be_nil
 
         # Should include both string and integer versions of allowed docTypeId
-        string_type = letters.find { |l| l.document_id == 'allowed-string-uuid' }
+        string_type = letters.find { |l| l[:document_id] == 'allowed-string-uuid' }
         expect(string_type).not_to be_nil
 
-        int_type = letters.find { |l| l.document_id == 'allowed-int-uuid' }
+        int_type = letters.find { |l| l[:document_id] == 'allowed-int-uuid' }
         expect(int_type).not_to be_nil
       end
     end
@@ -749,15 +749,15 @@ RSpec.describe LighthouseClaimLettersProvider do
       it 'uses DOCTYPE_TO_TYPE_DESCRIPTION when available' do
         letters = provider_with_unknown_type.get_letters
 
-        boa_letter = letters.find { |l| l.doc_type == '27' }
-        expect(boa_letter.type_description).to eq('Board of Appeals Decision Letter')
+        boa_letter = letters.find { |l| l[:doc_type] == '27' }
+        expect(boa_letter[:type_description]).to eq('Board of Appeals Decision Letter')
       end
 
       it 'falls back to documentTypeLabel for unknown doc types' do
         letters = provider_with_unknown_type.get_letters
 
-        unknown_letter = letters.find { |l| l.doc_type == '999' }
-        expect(unknown_letter.type_description).to eq('Lighthouse Label for Unknown')
+        unknown_letter = letters.find { |l| l[:doc_type] == '999' }
+        expect(unknown_letter[:type_description]).to eq('Lighthouse Label for Unknown')
       end
     end
 
@@ -781,7 +781,7 @@ RSpec.describe LighthouseClaimLettersProvider do
               {
                 'docTypeId' => 184,
                 'documentUuid' => 'valid-date',
-                'receivedAt' => '2023-06-15',
+                'receivedAt' => '2023-06-15T10:30:00Z',
                 'uploadedDateTime' => '2023-06-15T10:30:00Z'
               }
             ]
@@ -795,9 +795,6 @@ RSpec.describe LighthouseClaimLettersProvider do
 
       before do
         allow(mock_service).to receive(:claim_letters_search).and_return(lighthouse_response)
-        allow(Time.zone).to receive(:parse).and_call_original
-        allow(Time.zone).to receive(:parse).with('').and_return(nil)
-        allow(Time.zone).to receive(:parse).with('not-a-date').and_return(nil)
       end
 
       it 'handles various date parsing scenarios' do
@@ -807,16 +804,15 @@ RSpec.describe LighthouseClaimLettersProvider do
         expect(letters.count).to eq(3)
 
         # Documents with unparseable dates should have nil received_at
-        empty_date_letter = letters.find { |l| l.document_id == 'empty-string-date' }
-        expect(empty_date_letter.received_at).to be_nil
+        empty_date_letter = letters.find { |l| l[:document_id] == 'empty-string-date' }
+        expect(empty_date_letter[:received_at]).to be_nil
 
-        invalid_date_letter = letters.find { |l| l.document_id == 'invalid-date-format' }
-        expect(invalid_date_letter.received_at).to be_nil
+        invalid_date_letter = letters.find { |l| l[:document_id] == 'invalid-date-format' }
+        expect(invalid_date_letter[:received_at]).to be_nil
 
         # Valid date should parse correctly
-        valid_date_letter = letters.find { |l| l.document_id == 'valid-date' }
-        expect(valid_date_letter.received_at).not_to be_nil
-        expect(valid_date_letter.received_at).to be_a(Time)
+        valid_date_letter = letters.find { |l| l[:document_id] == 'valid-date' }
+        expect(valid_date_letter[:received_at]).to eq('2023-06-15')
       end
     end
 
@@ -861,7 +857,7 @@ RSpec.describe LighthouseClaimLettersProvider do
       it 'sorts correctly with nil dates present' do
         letters = provider.get_letters
 
-        document_ids = letters.map(&:document_id)
+        document_ids = letters.map { |l| l[:document_id] }
 
         # Most recent first (reverse chronological)
         expect(document_ids.first).to eq('newest')

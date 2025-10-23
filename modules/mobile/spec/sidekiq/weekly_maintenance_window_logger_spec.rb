@@ -8,7 +8,7 @@ RSpec.describe Mobile::V0::WeeklyMaintenanceWindowLogger, type: :job do
 
   describe '#perform' do
     before do
-      create(:mobile_maintenance_evss_first)
+      create(:mobile_maintenance_lighthouse_first)
       create(:mobile_maintenance_mpi)
       create(:mobile_maintenance_dslogon)
     end

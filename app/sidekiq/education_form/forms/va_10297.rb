@@ -47,49 +47,29 @@ module EducationForm::Forms
     end
 
     def applicant_ssn
-      @applicant.applicantFileNumber
+      @applicant.ssn
     end
 
-    def new_bank_info?
-      @applicant.bankAccount&.routingNumber.present? ||
-        @applicant.bankAccount&.accountNumber.present? ||
-        @applicant.bankAccount&.accountType.present?
+    def applicant_va_file_number
+      @applicant.vaFileNumber
     end
 
     def bank_routing_number
-      if @applicant.bankAccount&.routingNumber.present?
-        @applicant.bankAccount.routingNumber
-      elsif !new_bank_info?
-        @applicant.prefillBankAccount&.bankRoutingNumber
-      end
+      @applicant.bankAccount&.routingNumber
     end
 
     def bank_account_number
-      if @applicant.bankAccount&.accountNumber.present?
-        @applicant.bankAccount.accountNumber
-      elsif !new_bank_info?
-        @applicant.prefillBankAccount&.bankAccountNumber
-      end
+      @applicant.bankAccount&.accountNumber
     end
 
     def bank_account_type
-      if @applicant.bankAccount&.accountType.present?
-        @applicant.bankAccount.accountType
-      elsif !new_bank_info?
-        @applicant.prefillBankAccount&.bankAccountType
-      end
+      @applicant.bankAccount&.accountType
     end
 
     def education_level_name
-      return '' if @applicant.highestLevelofEducation.blank?
+      return '' if @applicant.highestLevelOfEducation.blank?
 
-      EDUCATION_TEXT[@applicant.highestLevelofEducation.to_sym]
-    end
-
-    def course_type_name(course_type)
-      return '' if course_type.blank?
-
-      COURSE_TYPE_TEXT[course_type.to_sym]
+      EDUCATION_TEXT[@applicant.highestLevelOfEducation.to_sym]
     end
 
     def high_tech_area_name

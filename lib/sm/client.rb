@@ -79,7 +79,8 @@ module SM
     # @return [Sting] json response
     #
     def post_signature(params)
-      perform(:post, 'preferences/signature', params.to_h, token_headers).body
+      request_body = MessagingSignature.new(params).to_h
+      perform(:post, 'preferences/signature', request_body, token_headers).body
     end
     # @!endgroup
 
@@ -90,15 +91,15 @@ module SM
     #
     # @return [Common::Collection[Folder]]
     #
-    def get_folders(user_uuid, use_cache, requires_oh_messages = nil)
+    def get_folders(user_uuid, use_cache)
       path = 'folder'
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
 
       cache_key = "#{user_uuid}-folders"
       get_cached_or_fetch_data(use_cache, cache_key, Folder) do
         json = perform(:get, path, nil, token_headers).body
         data = Vets::Collection.new(json[:data], Folder, metadata: json[:metadata], errors: json[:errors])
-        Folder.set_cached(cache_key, data.records)
+        Folder.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         data
       end
     end
@@ -108,9 +109,9 @@ module SM
     #
     # @return [Folder]
     #
-    def get_folder(id, requires_oh_messages = nil)
+    def get_folder(id)
       path = "folder/#{id}"
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
 
       json = perform(:get, path, nil, token_headers).body
       Folder.new(json[:data].merge(json[:metadata]))
@@ -163,6 +164,7 @@ module SM
 
         loop do
           path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
+          path = append_requires_oh_messages_query(path)
           page_data = perform(:get, path, nil, token_headers).body
           json[:data].concat(page_data[:data])
           json[:metadata].merge(page_data[:metadata])
@@ -171,7 +173,7 @@ module SM
           page += 1
         end
         messages = Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
-        Message.set_cached(cache_key, messages.records)
+        Message.set_cached(cache_key, messages.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         messages
       end
     end
@@ -196,7 +198,7 @@ module SM
         "sortOrder=#{params[:sort_order]}"
       ].join('&')
       path = "#{base_path}?#{query_params}"
-      path = append_requires_oh_messages_query(path, params[:requires_oh_messages])
+      path = append_requires_oh_messages_query(path)
 
       json = perform(:get, path, nil, token_headers).body
 
@@ -212,12 +214,12 @@ module SM
     # @param args [Hash] arguments for the message search
     # @return [Common::Collection]
     #
-    def post_search_folder(folder_id, page_num, page_size, args = {}, requires_oh_messages = nil)
+    def post_search_folder(folder_id, page_num, page_size, args = {})
       page_num ||= 1
       page_size ||= MHV_MAXIMUM_PER_PAGE
 
       path = "folder/#{folder_id}/searchMessage/page/#{page_num}/pageSize/#{page_size}"
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
 
       json = perform(:post,
                      path,
@@ -311,9 +313,9 @@ module SM
     # @param id [Fixnum] message id
     # @return [Common::Collection[MessageThread]]
     #
-    def get_messages_for_thread(id, requires_oh_messages = nil)
+    def get_messages_for_thread(id)
       path = "message/#{id}/messagesforthread"
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
 
       json = perform(:get, path, nil, token_headers).body
       Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata], errors: json[:errors])
@@ -325,9 +327,9 @@ module SM
     # @param id [Fixnum] message id
     # @return [Common::Collection[MessageThreadDetails]]
     #
-    def get_full_messages_for_thread(id, requires_oh_messages = nil)
+    def get_full_messages_for_thread(id)
       path = "message/#{id}/allmessagesforthread/1"
-      path = append_requires_oh_messages_query(path, requires_oh_messages)
+      path = append_requires_oh_messages_query(path)
       json = perform(:get, path, nil, token_headers).body
       Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata], errors: json[:errors])
     end
@@ -481,37 +483,39 @@ module SM
 
     ##
     # Retrieve a message attachment
-    # Endpoint returns either a binary file response or a AWS S3 URL depending on attachment upload method.
-    # If the response is a URL, it will fetch the file from that URL.
+    # Endpoint returns either a binary file response, or object with AWS S3 URL details.
+    # If the response is a URL (string or object format), it will fetch the file from that URL.
+    # Object format includes: { "url": URL, "mimeType": "application/pdf", "name": "filename.pdf" }
     # 10MB limit of the MHV API gateway.
     #
     # @param message_id [Fixnum] the message id
     # @param attachment_id [Fixnum] the attachment id
-    # @return [Hash] an object with attachment response details
+    # @return [Hash] an object with binary file content and filename { body: binary_data, filename: string }
     #
     def get_attachment(message_id, attachment_id)
       path = "message/#{message_id}/attachment/#{attachment_id}"
       response = perform(:get, path, nil, token_headers)
       data = response.body[:data] if response.body.is_a?(Hash)
 
-      # If response body is a string and looks like a URL, fetch the file from the URL
-      if data.is_a?(String) && data.match?(%r{^https?://})
-        url = data
+      # Attachments that are stored in AWS S3 via presigned URL return an object with URL details
+      if data.is_a?(Hash) && data[:url] && data[:mime_type] && data[:name]
+        url = data[:url]
         uri = URI.parse(url)
         file_response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
           http.get(uri.request_uri)
         end
         unless file_response.is_a?(Net::HTTPSuccess)
-          Rails.logger.error("Failed to fetch attachment from presigned URL: \\#{file_response.body}")
-          raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', 500)
+          Rails.logger.error('Failed to fetch attachment from presigned URL')
+          raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', {},
+                                                                file_response.code)
         end
-        filename = uri.path.split('/').last
-        { body: file_response.body, filename: }
-      else
-        # Default: treat as binary file response
-        filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '').gsub(/%22|"/, '')
-        { body: response.body, filename: }
+        filename = data[:name]
+        return { body: file_response.body, filename: }
       end
+
+      # Default: treat as binary file response
+      filename = response.response_headers['content-disposition']&.gsub(CONTENT_DISPOSITION, '')&.gsub(/%22|"/, '')
+      { body: response.body, filename: }
     end
     # @!endgroup
 
@@ -527,7 +531,7 @@ module SM
       get_cached_or_fetch_data(use_cache, cache_key, TriageTeam) do
         json = perform(:get, 'triageteam', nil, token_headers).body
         data = Vets::Collection.new(json[:data], TriageTeam, metadata: json[:metadata], errors: json[:errors])
-        TriageTeam.set_cached(cache_key, data.records)
+        TriageTeam.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         data
       end
     end
@@ -539,17 +543,13 @@ module SM
     #
     # @return [Common::Collection[AllTriageTeams]]
     #
-    def get_all_triage_teams(user_uuid, use_cache, requires_oh = nil)
+    def get_all_triage_teams(user_uuid, use_cache)
       cache_key = "#{user_uuid}-all-triage-teams"
       get_cached_or_fetch_data(use_cache, cache_key, AllTriageTeams) do
-        path = 'alltriageteams'
-        if requires_oh == '1'
-          separator = path.include?('?') ? '&' : '?'
-          path += "#{separator}requiresOHTriageGroup=#{requires_oh}"
-        end
+        path = append_requires_oh_messages_query('alltriageteams', 'requiresOHTriageGroup')
         json = perform(:get, path, nil, token_headers).body
         data = Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata], errors: json[:errors])
-        AllTriageTeams.set_cached(cache_key, data.records)
+        AllTriageTeams.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
         data
       end
     end
@@ -586,15 +586,7 @@ module SM
 
     def get_session_tagged
       Sentry.set_tags(error: 'mhv_sm_session')
-      current_user = User.find(session.user_uuid)
-
-      requires_oh_messages = '0'
-      if current_user.present? && Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user)
-        requires_oh_messages = '1'
-      end
-
-      Rails.logger.info("secure messaging session tagged with requiresOHMessages=#{requires_oh_messages}")
-      path = append_requires_oh_messages_query('session', requires_oh_messages)
+      path = append_requires_oh_messages_query('session')
       env = perform(:get, path, nil, auth_headers)
       Sentry.get_current_scope.tags.delete(:error)
       env
@@ -603,26 +595,18 @@ module SM
     private
 
     def auth_headers
-      headers = config.base_request_headers.merge(
+      config.base_request_headers.merge(
         'appToken' => config.app_token,
-        'mhvCorrelationId' => session.user_id.to_s
+        'mhvCorrelationId' => session.user_id.to_s,
+        'x-api-key' => config.x_api_key
       )
-      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
-        headers.merge('x-api-key' => config.x_api_key)
-      else
-        headers
-      end
     end
 
     def token_headers
-      headers = config.base_request_headers.merge(
-        'Token' => session.token
+      config.base_request_headers.merge(
+        'Token' => session.token,
+        'x-api-key' => config.x_api_key
       )
-      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
-        headers.merge('x-api-key' => config.x_api_key)
-      else
-        headers
-      end
     end
 
     def reply_draft?(id)
@@ -649,10 +633,11 @@ module SM
       end
     end
 
-    def append_requires_oh_messages_query(path, requires_oh_messages = nil)
-      if requires_oh_messages == '1'
+    def append_requires_oh_messages_query(path, param_name = 'requiresOHMessages')
+      current_user = User.find(session.user_uuid)
+      if current_user.present? && Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user)
         separator = path.include?('?') ? '&' : '?'
-        path += "#{separator}requiresOHMessages=#{requires_oh_messages}"
+        path += "#{separator}#{param_name}=1"
       end
       path
     end
@@ -698,7 +683,7 @@ module SM
         'attachmentName' => file.original_filename,
         'mimeType' => file.content_type,
         'size' => file.size,
-        'lgAttachmentId' => uploaded_file_name
+        'lgAttachmentId' => CGI.unescape(uploaded_file_name) # Decode URL-encoded filename
       }
     end
 

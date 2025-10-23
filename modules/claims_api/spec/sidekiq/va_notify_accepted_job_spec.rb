@@ -12,7 +12,9 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
   end
 
   let(:va_notify_rep) do
-    create(:representative)
+    create(:representative, first_name: 'Rebecca', last_name: 'Rep', address_line1: '123 Park Plaza',
+                            address_line2: 'Suite 2a', city: 'Portland', state_code: 'OR', zip_code: '12345',
+                            zip_suffix: '6789')
   end
 
   let(:rep_poa) do
@@ -88,8 +90,8 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
               rep_first_name: va_notify_rep.first_name,
               rep_last_name: va_notify_rep.last_name,
               representative_type: va_notify_rep_poa_form_data['representative']['type'],
-              address: "123\n 2a",
-              location: 'city, OR 12345-6789',
+              address: "123 Park Plaza\n Suite 2a",
+              location: 'Portland, OR 12345-6789',
               email: va_notify_rep.email,
               phone: va_notify_rep.phone_number
             },
@@ -288,7 +290,7 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
   describe '#build_ind_poa_address' do
     it 'build the address correctly' do
       expected = "123 Park Plaza\n Suite 2a"
-      res = subject.send(:build_ind_poa_address, rep_dep_poa)
+      res = subject.send(:build_ind_poa_address, va_notify_rep)
 
       expect(res).to eq(expected)
     end
@@ -298,6 +300,31 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
     it 'build the address correctly' do
       expected = "345 Sixth St.\n Suite 3"
       res = subject.send(:build_org_address, va_notify_org)
+
+      expect(res).to eq(expected)
+    end
+  end
+
+  describe '#claimant_first_name' do
+    let(:expected) { 'Ralph' }
+
+    it 'returns expected name for v1 forms' do
+      poa = {
+        'form_data' => { 'claimant' => { 'firstName' => 'Ralph' } }
+      }
+
+      res = subject.send(:claimant_first_name, OpenStruct.new(poa))
+
+      expect(res).to eq(expected)
+    end
+
+    it 'returns expected name for v2 forms' do
+      poa = {
+        'form_data' => { 'claimant' => { 'claimantId' => '1012667169V030190' } },
+        'auth_headers' => { 'dependent' => { 'first_name' => 'Ralph' } }
+      }
+
+      res = subject.send(:claimant_first_name, OpenStruct.new(poa))
 
       expect(res).to eq(expected)
     end

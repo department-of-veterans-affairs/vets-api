@@ -19,7 +19,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-32-cores-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -49,12 +49,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: us-gov-west-1
@@ -84,8 +84,8 @@ jobs:
             exit 0
           fi
 
-          new_env_keys=$(git diff origin/master config/settings.yml | \
-            grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
+          new_env_keys=$(git diff --unified=0 origin/master config/settings.yml | \
+            grep '^+' | grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
 
           keys=()
           for line in $new_env_keys; do

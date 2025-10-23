@@ -1,7 +1,24 @@
 # frozen_string_literal: true
 
 class EducationBenefitsClaim < ApplicationRecord
-  FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994 10203 1990s 10282 10216 10215 10297 1919].freeze
+  FORM_TYPES = %w[
+    1990
+    1995
+    5490
+    5495
+    0993
+    0994
+    10203
+    1990s
+    10282
+    10216
+    10215
+    10297
+    1919
+    0839
+    10275
+    8794
+  ].freeze
 
   APPLICATION_TYPES = %w[
     chapter33
@@ -112,8 +129,6 @@ class EducationBenefitsClaim < ApplicationRecord
     case form_type
     when '1990'
       benefits = parsed_form.slice(*APPLICATION_TYPES)
-    when '1990n'
-      return benefits
     when '0994', '10297'
       benefits['vettec'] = true
     when '1990s'

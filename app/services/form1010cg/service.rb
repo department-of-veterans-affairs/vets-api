@@ -10,7 +10,6 @@ require 'mpi/service'
 module Form1010cg
   class Service
     extend Forwardable
-    include SentryLogging
 
     class InvalidVeteranStatus < StandardError
     end
@@ -70,14 +69,10 @@ module Form1010cg
       result
     rescue => e
       self.class::AUDITOR.log_caregiver_request_duration(context: :process, event: :failure, start_time:)
-      if Flipper.enabled?(:caregiver_use_rails_logging_over_sentry)
-        Rails.logger.error(
-          '[10-10CG] - Error processing Caregiver submission',
-          { form: '10-10CG', exception: e, claim_guid: claim.guid }
-        )
-      else
-        log_exception_to_sentry(e, { form: '10-10CG', claim_guid: claim.guid })
-      end
+      Rails.logger.error(
+        '[10-10CG] - Error processing Caregiver submission',
+        { form: '10-10CG', exception: e, claim_guid: claim.guid }
+      )
       raise e
     end
 
@@ -87,11 +82,8 @@ module Form1010cg
     def assert_veteran_status
       if icn_for('veteran') == NOT_FOUND
         error = InvalidVeteranStatus.new
-        if Flipper.enabled?(:caregiver_use_rails_logging_over_sentry)
-          Rails.logger.error('[10-10CG] - Error fetching Veteran ICN', { error: })
-        else
-          log_exception_to_sentry(error)
-        end
+        Rails.logger.error('[10-10CG] - Error fetching Veteran ICN', { error: })
+
         raise error
       end
     end
@@ -147,7 +139,6 @@ module Form1010cg
       end
 
       if response.not_found?
-        Sentry.set_extras(mpi_transaction_id: response.error&.message)
         log_mpi_search_result form_subject, :not_found
         return @cache[:icns][form_subject] = NOT_FOUND
       end

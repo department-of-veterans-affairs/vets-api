@@ -6,16 +6,20 @@ require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
 require_relative 'constants'
-require_relative 'helpers'
+
+# Sections
+require_relative 'sections/section_10'
+require_relative 'sections/section_11'
+require_relative 'sections/section_12'
 
 # rubocop:disable Metrics/ClassLength
+# rubocop:disable Metrics/MethodLength
 module Pensions
   module PdfFill
     # The Va21p527ez Form
     class Va21p527ez < ::PdfFill::Forms::FormBase
       include ::PdfFill::Forms::FormHelper
       include ::PdfFill::Forms::FormHelper::PhoneNumberFormatting
-      include ActiveSupport::NumberHelper
       include Helpers
 
       # The Form ID
@@ -27,14 +31,53 @@ module Pensions
       # The Index Iterator Key
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
+      # Starting page number for overflow pages
+      START_PAGE = 16
+
+      # Default label column width (points) for redesigned extras in this form
+      DEFAULT_LABEL_WIDTH = 130
+
+      # Map question numbers to descriptive titles for overflow attachments
+      QUESTION_KEY = [
+        { question_number: '1', question_text: "Veteran's Identification Information" },
+        { question_number: '2', question_text: "Veteran's Contact Information" },
+        { question_number: '3', question_text: "Veteran's Service Information" },
+        { question_number: '4', question_text: 'Pension Information' },
+        { question_number: '5', question_text: 'Employment History' },
+        { question_number: '6', question_text: 'Marital Status' },
+        { question_number: '7', question_text: 'Prior Marital History' },
+        { question_number: '8', question_text: 'Dependent Children' },
+        { question_number: '9', question_text: 'Income and Assets' },
+        { question_number: '10', question_text: 'Care/Medical Expenses' },
+        { question_number: '11', question_text: 'Direct Deposit Information' },
+        { question_number: '12', question_text: 'Claim Certification and Signature' }
+      ].freeze
+
+      # V2-style sections grouping question numbers for overflow pages
+      SECTIONS = [
+        { label: 'Section I: Veteran\'s Identification Information', question_nums: ['1'] },
+        { label: 'Section II: Veteran\'s Contact Information', question_nums: ['2'] },
+        { label: 'Section III: Veteran\'s Service Information', question_nums: ['3'] },
+        { label: 'Section IV: Pension Information', question_nums: ['4'] },
+        { label: 'Section V: Employment History', question_nums: ['5'] },
+        { label: 'Section VI: Marital Status', question_nums: ['6'] },
+        { label: 'Section VII: Prior Marital History', question_nums: ['7'] },
+        { label: 'Section VIII: Dependent Children', question_nums: ['8'] },
+        { label: 'Section IX: Income and Assets', question_nums: ['9'] },
+        { label: 'Section X: Care/Medical Expenses', question_nums: ['10'] },
+        { label: 'Section XI: Direct Deposit Information', question_nums: ['11'] },
+        { label: 'Section XII: Claim Certification and Signature', question_nums: ['12'] }
+      ].freeze
+
       # The PDF Keys
-      KEY = {
+      key = {
         # 1a
         'veteranFullName' => {
           'first' => {
             limit: 12,
             question_num: 1,
             question_suffix: 'A',
+            question_label: "Veteran's First Name",
             question_text: 'VETERAN\'S FIRST NAME',
             key: 'form1[0].#subform[48].VeteransFirstName[0]'
           },
@@ -45,6 +88,7 @@ module Pensions
             limit: 18,
             question_num: 1,
             question_suffix: 'A',
+            question_label: "Veteran's Last Name",
             question_text: 'VETERAN\'S LAST NAME',
             key: 'form1[0].#subform[48].VeteransLastName[0]'
           }
@@ -87,6 +131,7 @@ module Pensions
             limit: 30,
             question_num: 2,
             question_suffix: 'A',
+            question_label: 'Mailing Address Number And Street',
             question_text: 'MAILING ADDRESS NUMBER AND STREET',
             key: 'form1[0].#subform[48].NumberStreet[0]'
           },
@@ -94,6 +139,7 @@ module Pensions
             limit: 5,
             question_num: 2,
             question_suffix: 'A',
+            question_label: 'Mailing Address Apt/Unit',
             question_text: 'MAILING ADDRESS APT/UNIT',
             key: 'form1[0].#subform[48].Apt_Or_Unit_Number[0]'
           },
@@ -101,6 +147,7 @@ module Pensions
             limit: 18,
             question_num: 2,
             question_suffix: 'A',
+            question_label: 'Mailing Address City',
             question_text: 'MAILING ADDRESS CITY',
             key: 'form1[0].#subform[48].City[0]'
           },
@@ -118,6 +165,7 @@ module Pensions
               limit: 4,
               question_num: 2,
               question_suffix: 'A',
+              question_label: 'Postal Code - Last Four',
               question_text: 'POSTAL CODE - LAST FOUR',
               key: 'form1[0].#subform[48].Zip_Postal_Code[1]'
             }
@@ -139,6 +187,7 @@ module Pensions
           limit: 30,
           question_num: 2,
           question_suffix: 'C',
+          question_label: 'International Phone Number',
           question_text: 'International Phone Number',
           key: 'form1[0].#subform[48].International_Phone_Number[0]'
         },
@@ -147,26 +196,30 @@ module Pensions
           limit: 32,
           question_num: 2,
           question_suffix: 'C',
+          question_label: "Veteran's E-Mail Address",
           question_text: 'VETERAN\'S E-MAIL ADDRESS',
           key: 'form1[0].#subform[48].Veterans_Email_Address_Optional[0]'
         },
         # 3a
         'previousNames' => {
+          item_label: 'Other service name',
           limit: 1,
           first_key: 'first',
           'first' => {
             limit: 12,
             question_num: 3,
             question_suffix: 'A',
+            question_label: 'Other First Name',
             question_text: 'OTHER FIRST NAME',
-            key: 'form1[0].#subform[48].Other_Name_You_Served_Under_First_Name[0]'
+            key: "form1[0].#subform[48].Other_Name_You_Served_Under_First_Name[#{ITERATOR}]"
           },
           'last' => {
             limit: 18,
             question_num: 3,
             question_suffix: 'A',
+            question_label: 'Other Last Name',
             question_text: 'OTHER LAST NAME',
-            key: 'form1[0].#subform[48].Other_Name_You_Served_Under_Last_Name[0]'
+            key: "form1[0].#subform[48].Other_Name_You_Served_Under_Last_Name[#{ITERATOR}]"
           }
         },
         # 3b
@@ -223,18 +276,10 @@ module Pensions
         },
         # 3d
         'serviceNumber' => {
-          limit: 12,
-          question_num: 3,
-          question_suffix: 'D',
-          question_text: 'YOUR SERVICE NUMBER',
           key: 'form1[0].#subform[48].Your_Service_Number[0]'
         },
         # 3f
         'placeOfSeparationLineOne' => {
-          limit: 18,
-          question_num: 3,
-          question_suffix: 'F',
-          question_text: 'PLACE OF YOUR LAST SEPARATION.',
           key: 'form1[0].#subform[48].Place_Of_Your_Last_Separation[1]'
         },
         'placeOfSeparationLineTwo' => {
@@ -294,12 +339,14 @@ module Pensions
           key: 'form1[0].#subform[49].RadioButtonList[7]'
         },
         'vaMedicalCenters' => {
+          item_label: 'VA medical center',
           limit: 1,
           first_key: 'medicalCenter',
           'medicalCenter' => {
             limit: 33,
             question_num: 4,
             question_suffix: 'F',
+            question_label: 'Specify VA Facility',
             question_text: 'Specify VA Facility',
             key: 'form1[0].#subform[49].Facility[0]'
           }
@@ -309,12 +356,14 @@ module Pensions
           key: 'form1[0].#subform[49].RadioButtonList[8]'
         },
         'federalMedicalCenters' => {
+          item_label: 'Federal medical facility',
           limit: 1,
           first_key: 'medicalCenter',
           'medicalCenter' => {
             limit: 44,
             question_num: 4,
             question_suffix: 'G',
+            question_label: 'Specify Federal Facility',
             question_text: 'Specify Federal Facility',
             key: 'form1[0].#subform[49].Facility[1]'
           }
@@ -324,6 +373,7 @@ module Pensions
           key: 'form1[0].#subform[49].RadioButtonList[9]'
         },
         'currentEmployers' => {
+          item_label: 'Current job',
           limit: 1,
           first_key: 'jobType',
           # 5b
@@ -331,6 +381,7 @@ module Pensions
             limit: 35,
             question_num: 5,
             question_suffix: 'B',
+            question_label: 'What Kind Of Work Are You Currently Doing',
             question_text: 'WHAT KIND OF WORK ARE YOU CURRENTLY DOING',
             key: 'form1[0].#subform[49].What_Kind_Of_Work_Are_You_Currently_Doing[0]'
           },
@@ -339,6 +390,7 @@ module Pensions
             limit: 3,
             question_num: 5,
             question_suffix: 'B',
+            question_label: 'How Many Hours Per Week Do You Average',
             question_text: 'HOW MANY HOURS PER WEEK DO YOU AVERAGE',
             key: 'form1[0].#subform[49].How_Many_Hours_Per_Week_Do_You_Average[0]'
           }
@@ -361,6 +413,7 @@ module Pensions
           'jobDateOverflow' => {
             question_num: 5,
             question_suffix: 'D',
+            question_label: 'When Did You Last Work',
             question_text: 'WHEN DID YOU LAST WORK'
           },
           # 5e
@@ -368,6 +421,7 @@ module Pensions
             limit: 3,
             question_num: 5,
             question_suffix: 'E',
+            question_label: 'How Many Hours Per Week Did You Average',
             question_text: 'HOW MANY HOURS PER WEEK DID YOU AVERAGE',
             key: 'form1[0].#subform[49].How_Many_Hours_Per_Week_Did_You_Average[0]'
           },
@@ -376,6 +430,7 @@ module Pensions
             limit: 30,
             question_num: 5,
             question_suffix: 'F',
+            question_label: 'What Was Your Job Title',
             question_text: 'WHAT WAS YOUR JOB TITLE',
             key: 'form1[0].#subform[49].What_Was_Your_Job_Title[0]'
           },
@@ -384,6 +439,7 @@ module Pensions
             limit: 27,
             question_num: 5,
             question_suffix: 'G',
+            question_label: 'What Kind Of Work Did You Do',
             question_text: 'WHAT KIND OF WORK DID YOU DO',
             key: 'form1[0].#subform[49].What_Kind_Of_Work_Did_You_Do[0]'
           }
@@ -399,6 +455,7 @@ module Pensions
               limit: 12,
               question_num: 6,
               question_suffix: 'B',
+              question_label: "Spouse's Current First Name",
               question_text: 'SPOUSE\'S CURRENT FIRST NAME',
               key: 'form1[0].#subform[49].Spouses_Current_Legal_Name_First_Name[0]'
             },
@@ -409,6 +466,7 @@ module Pensions
               limit: 18,
               question_num: 6,
               question_suffix: 'B',
+              question_label: "Spouse's Current Last Name",
               question_text: 'SPOUSE\'S CURRENT LAST NAME',
               key: 'form1[0].#subform[49].Spouses_Last_Name[0]'
             }
@@ -429,6 +487,7 @@ module Pensions
             limit: 22,
             question_num: 6,
             question_suffix: 'E',
+            question_label: 'Place Of Marriage City And State Or Country',
             question_text: 'PLACE OF MARRIAGE CITY AND STATE OR COUNTRY',
             key: 'form1[0].#subform[49].Place_Of_Marriage_City_And_State_Or_Country[0]'
           },
@@ -440,6 +499,7 @@ module Pensions
             limit: 22,
             question_num: 6,
             question_suffix: 'F',
+            question_label: 'Specify Type Of Marriage',
             question_text: 'SPECIFY TYPE OF MARRIAGE',
             key: 'form1[0].#subform[49].Other_Specify[0]'
           }
@@ -493,6 +553,7 @@ module Pensions
             limit: 30,
             question_num: 6,
             question_suffix: 'J',
+            question_label: 'Spouse Mailing Address Street',
             question_text: 'SPOUSE MAILING ADDRESS STREET',
             key: 'form1[0].#subform[49].Number_And_Street[0]'
           },
@@ -500,6 +561,7 @@ module Pensions
             limit: 5,
             question_num: 6,
             question_suffix: 'J',
+            question_label: 'Spouse Mailing Address Apt Number',
             question_text: 'SPOUSE MAILING ADDRESS APT NUMBER',
             key: 'form1[0].#subform[49].Apt_Or_Unit_Number[1]'
           },
@@ -507,6 +569,7 @@ module Pensions
             limit: 18,
             question_num: 6,
             question_suffix: 'J',
+            question_label: 'Spouse Mailing Address City',
             question_text: 'SPOUSE MAILING ADDRESS CITY',
             key: 'form1[0].#subform[49].City[1]'
           },
@@ -547,12 +610,14 @@ module Pensions
               limit: 12,
               question_num: 7.1,
               question_suffix: '[Veteran]',
+              question_label: 'Who Were You Married To? (First Name)',
               question_text: 'WHO WERE YOU MARRIED TO? (FIRST NAME)',
               key: "Marriages.Veterans_Prior_Spouse_FirstName[#{ITERATOR}]"
             },
             'middle' => {
               question_num: 7.1,
               question_suffix: '[Veteran]',
+              question_label: 'Who Were You Married To? (Middle Name)',
               question_text: 'WHO WERE YOU MARRIED TO? (MIDDLE NAME)',
               key: "Marriages.Veterans_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
             },
@@ -560,6 +625,7 @@ module Pensions
               limit: 18,
               question_num: 7.1,
               question_suffix: '[Veteran]',
+              question_label: 'Who Were You Married To? (Last Name)',
               question_text: 'WHO WERE YOU MARRIED TO? (LAST NAME)',
               key: "Marriages.Veterans_Prior_Spouse_LastName[#{ITERATOR}]"
             }
@@ -567,6 +633,7 @@ module Pensions
           'spouseFullNameOverflow' => {
             question_num: 7.1,
             question_suffix: '[Veteran]',
+            question_label: '(1) Who Were You Married To?',
             question_text: '(1) WHO WERE YOU MARRIED TO?'
           },
           'reasonForSeparation' => {
@@ -575,12 +642,14 @@ module Pensions
           'reasonForSeparationOverflow' => {
             question_num: 7.1,
             question_suffix: '[Veteran]',
+            question_label: '(2) How Did Your Previous Marriage End?',
             question_text: '(2) HOW DID YOUR PREVIOUS MARRIAGE END?'
           },
           'otherExplanation' => {
             limit: 43,
             question_num: 7.1,
             question_suffix: '[Veteran]',
+            question_label: '(2) How Did Your Previous Marriage End (Other Reason)?',
             question_text: '(2) HOW DID YOUR PREVIOUS MARRIAGE END (OTHER REASON)?',
             key: "Marriages.Other_Specify[#{ITERATOR}]"
           },
@@ -609,12 +678,14 @@ module Pensions
           'dateRangeOfMarriageOverflow' => {
             question_num: 7.1,
             question_suffix: '[Veteran]',
+            question_label: '(3) What Are The Dates Of The Previous Marriage?',
             question_text: '(3) WHAT ARE THE DATES OF THE PREVIOUS MARRIAGE?'
           },
           'locationOfMarriage' => {
             limit: 63,
             question_num: 7.1,
             question_suffix: '[Veteran]',
+            question_label: '(4) Place Of Marriage',
             question_text: '(4) PLACE OF MARRIAGE',
             key: "Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
@@ -622,6 +693,7 @@ module Pensions
             limit: 54,
             question_num: 7.1,
             question_suffix: '[Veteran]',
+            question_label: '(5) Place Of Marriage Termination',
             question_text: '(5) PLACE OF MARRIAGE TERMINATION',
             key: "Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
@@ -635,12 +707,14 @@ module Pensions
               limit: 12,
               question_num: 7.2,
               question_suffix: '[Spouse]',
+              question_label: 'Who Was Your Spouse Married To? (First Name)',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (FIRST NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_FirstName[#{ITERATOR}]"
             },
             'middle' => {
               question_num: 7.2,
               question_suffix: '[Spouse]',
+              question_label: 'Who Was Your Spouse Married To? (Middle Name)',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (MIDDLE NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
             },
@@ -648,6 +722,7 @@ module Pensions
               limit: 18,
               question_num: 7.2,
               question_suffix: '[Spouse]',
+              question_label: 'Who Was Your Spouse Married To? (Last Name)',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (LAST NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_LastName[#{ITERATOR}]"
             }
@@ -655,6 +730,7 @@ module Pensions
           'spouseFullNameOverflow' => {
             question_num: 7.2,
             question_suffix: '[Spouse]',
+            question_label: '(1) Who Was Your Spouse You Married To?',
             question_text: '(1) WHO WAS YOUR SPOUSE YOU MARRIED TO?'
           },
           'reasonForSeparation' => {
@@ -663,12 +739,14 @@ module Pensions
           'reasonForSeparationOverflow' => {
             question_num: 7.2,
             question_suffix: '[Spouse]',
+            question_label: '(2) How Did The Previous Marriage End?',
             question_text: '(2) HOW DID THE PREVIOUS MARRIAGE END?'
           },
           'otherExplanation' => {
             limit: 43,
             question_num: 7.2,
             question_suffix: '[Spouse]',
+            question_label: '(2) How Did The Previous Marriage End (Other Reason)?',
             question_text: '(2) HOW DID THE PREVIOUS MARRIAGE END (OTHER REASON)?',
             key: "Spouse_Marriages.Other_Specify[#{ITERATOR}]"
           },
@@ -697,12 +775,14 @@ module Pensions
           'dateRangeOfMarriageOverflow' => {
             question_num: 7.2,
             question_suffix: '[Spouse]',
+            question_label: '(3) What Are The Dates Of The Previous Marriage?',
             question_text: '(3) WHAT ARE THE DATES OF THE PREVIOUS MARRIAGE?'
           },
           'locationOfMarriage' => {
             limit: 63,
             question_num: 7.2,
             question_suffix: '[Spouse]',
+            question_label: '(4) Place Of Marriage',
             question_text: '(4) PLACE OF MARRIAGE',
             key: "Spouse_Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
@@ -710,6 +790,7 @@ module Pensions
             limit: 54,
             question_num: 7.2,
             question_suffix: '[Spouse]',
+            question_label: '(5) Place Of Marriage Termination',
             question_text: '(5) PLACE OF MARRIAGE TERMINATION',
             key: "Spouse_Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
@@ -728,6 +809,7 @@ module Pensions
           limit: 2,
           question_num: 8,
           question_suffix: 'A',
+          question_label: 'Number of Dependent Children Who Live With You',
           question_text: 'Number of Dependent Children Who Live With You'
         },
         # 8b-p Dependent Children
@@ -738,17 +820,20 @@ module Pensions
             'first' => {
               limit: 12,
               question_num: 8.1,
+              question_label: "Child's First Name",
               question_text: 'CHILD\'S FIRST NAME',
               key: "Dependent_Children.Childs_FirstName[#{ITERATOR}]"
             },
             'middle' => {
               question_num: 8.1,
+              question_label: "Child's Middle Name",
               question_text: 'CHILD\'S MIDDLE NAME',
               key: "Dependent_Children.Childs_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
               limit: 18,
               question_num: 8.1,
+              question_label: "Child's Last Name",
               question_text: 'CHILD\'S LAST NAME',
               key: "Dependent_Children.Childs_LastName[#{ITERATOR}]"
             }
@@ -770,6 +855,7 @@ module Pensions
           },
           'childDateOfBirthOverflow' => {
             question_num: 8.1,
+            question_label: "(2) Child's Date Of Birth",
             question_text: '(2) CHILD\'S DATE OF BIRTH'
           },
           'childSocialSecurityNumber' => {
@@ -785,11 +871,13 @@ module Pensions
           },
           'childSocialSecurityNumberOverflow' => {
             question_num: 8.1,
+            question_label: "(4) Child's Social Security Number",
             question_text: '(4) CHILD\'S SOCIAL SECURITY NUMBER'
           },
           'childPlaceOfBirth' => {
             limit: 60,
             question_num: 8.1,
+            question_label: "(3) Child's Place Of Birth",
             question_text: '(3) CHILD\'S PLACE OF BIRTH',
             key: "Dependent_Children.Place_Of_Birth_City_And_State_Or_Country[#{ITERATOR}]"
           },
@@ -818,6 +906,7 @@ module Pensions
           },
           'childStatusOverflow' => {
             question_num: 8.1,
+            question_label: "(5) Child's Status",
             question_text: '(5) CHILD\'S STATUS'
           },
           'monthlyPayment' => {
@@ -833,6 +922,7 @@ module Pensions
           },
           'monthlyPaymentOverflow' => {
             question_num: 8.1,
+            question_label: '(6) Amount Of Contribution For Child',
             question_text: '(6) Amount of Contribution For Child'
           }
         },
@@ -848,6 +938,7 @@ module Pensions
             limit: 12,
             question_num: 8.2,
             question_suffix: 'R',
+            question_label: "Custodian's First Name",
             question_text: 'CUSTODIAN\'S FIRST NAME',
             key: 'form1[0].#subform[51].Custodians_FirstName[0]'
           },
@@ -858,6 +949,7 @@ module Pensions
             limit: 18,
             question_num: 8.2,
             question_suffix: 'R',
+            question_label: "Custodian's Last Name",
             question_text: 'CUSTODIAN\'S LAST NAME',
             key: 'form1[0].#subform[51].Custodians_LastName[0]'
           },
@@ -866,6 +958,7 @@ module Pensions
               limit: 30,
               question_num: 8.2,
               question_suffix: 'R',
+              question_label: "Custodian's Address Number and Street",
               question_text: 'CUSTODIAN\'S ADDRESS NUMBER AND STREET',
               key: 'form1[0].#subform[51].NumberStreet[3]'
             },
@@ -873,6 +966,7 @@ module Pensions
               limit: 5,
               question_num: 8.2,
               question_suffix: 'R',
+              question_label: "Custodian's Address Apt/Unit",
               question_text: 'CUSTODIAN\'S ADDRESS APT/UNIT',
               key: 'form1[0].#subform[51].Apt_Or_Unit_Number[2]'
             },
@@ -880,6 +974,7 @@ module Pensions
               limit: 18,
               question_num: 8.2,
               question_suffix: 'R',
+              question_label: "Custodian's Address City",
               question_text: 'CUSTODIAN\'S ADDRESS CITY',
               key: 'form1[0].#subform[51].City[2]'
             },
@@ -907,11 +1002,13 @@ module Pensions
           'custodianAddressOverflow' => {
             question_num: 8.2,
             question_suffix: 'R',
+            question_label: "Custodian's Address",
             question_text: 'CUSTODIAN\'S ADDRESS'
           },
           'dependentsWithCustodianOverflow' => {
             question_num: 8.2,
             question_suffix: 'R',
+            question_label: 'Dependents Living With This Custodian',
             question_text: 'DEPENDENTS LIVING WITH THIS CUSTODIAN'
           }
         },
@@ -961,6 +1058,7 @@ module Pensions
         },
         # 9h-k Income Sources
         'incomeSources' => {
+          item_label: 'Income source',
           limit: 4,
           first_key: 'dependentName',
           # (1) Recipient
@@ -970,6 +1068,7 @@ module Pensions
           'receiverOverflow' => {
             question_num: 9,
             question_suffix: '(1)',
+            question_label: 'Payment Recipient',
             question_text: 'PAYMENT RECIPIENT'
           },
           'dependentName' => {
@@ -977,6 +1076,7 @@ module Pensions
             limit: 29,
             question_num: 9,
             question_suffix: '(1)',
+            question_label: "Child's Name",
             question_text: 'CHILD NAME'
           },
           # (2) Income Type
@@ -986,6 +1086,7 @@ module Pensions
           'typeOfIncomeOverflow' => {
             question_num: 9,
             question_suffix: '(2)',
+            question_label: 'Income Type',
             question_text: 'INCOME TYPE'
           },
           'otherTypeExplanation' => {
@@ -993,6 +1094,7 @@ module Pensions
             limit: 31,
             question_num: 9,
             question_suffix: '(2)',
+            question_label: 'Other Income Type Explanation',
             question_text: 'OTHER INCOME TYPE EXPLANATION'
           },
           # (3) Income Payer
@@ -1001,6 +1103,7 @@ module Pensions
             limit: 25,
             question_num: 9,
             question_suffix: '(3)',
+            question_label: 'Payer Name',
             question_text: 'PAYER NAME'
           },
           # (4) Gross Monthly Income
@@ -1018,264 +1121,19 @@ module Pensions
           'amountOverflow' => {
             question_num: 9,
             question_suffix: '(4)',
+            question_label: 'Current Gross Monthly Income',
             question_text: 'CURRENT GROSS MONTHLY INCOME'
-          }
-        },
-        # 10a
-        'hasAnyExpenses' => {
-          key: 'Has_Any_Expenses_Yes_No'
-        },
-        # 10b-d Care Expenses
-        'careExpenses' => {
-          limit: 3,
-          first_key: 'childName',
-          # (1) Recipient
-          'recipients' => {
-            key: "Care_Expenses.Recipient[#{ITERATOR}]"
-          },
-          'recipientsOverflow' => {
-            question_num: 10.1,
-            question_suffix: '[Care](1)',
-            question_text: 'CARE EXPENSE RECIPIENT'
-          },
-          'childName' => {
-            key: "Care_Expenses.Child_Specify[#{ITERATOR}]",
-            limit: 45,
-            question_num: 10.1,
-            question_suffix: '[Care](1)',
-            question_text: 'CARE EXPENSE CHILD NAME'
-          },
-          # (2) Provider
-          'provider' => {
-            key: "Care_Expenses.Name_Of_Provider[#{ITERATOR}]",
-            limit: 70,
-            question_num: 10.1,
-            question_suffix: '[Care](2)',
-            question_text: 'CARE EXPENSE PROVIDER NAME'
-          },
-          'careType' => {
-            key: "Care_Expenses.Care_Type[#{ITERATOR}]"
-          },
-          'careTypeOverflow' => {
-            question_num: 10.1,
-            question_suffix: '[Care](2)',
-            question_text: 'CARE TYPE'
-          },
-          # (3) Rate Per Hour
-          'ratePerHour' => {
-            'part_one' => {
-              key: "Care_Expenses.Rate_Per_Hour_Amount[#{ITERATOR}]"
-            },
-            'part_cents' => {
-              key: "Care_Expenses.Rate_Per_Hour_Amount_Cents[#{ITERATOR}]"
-            }
-          },
-          'ratePerHourOverflow' => {
-            question_num: 10.1,
-            question_suffix: '[Care](3)',
-            question_text: 'CARE EXPENSE RATE PER HOUR'
-          },
-          'hoursPerWeek' => {
-            limit: 3,
-            question_num: 10.1,
-            question_suffix: '[Care](3)',
-            question_text: 'HOURS PER WEEK CARE RECEIVED',
-            key: "Care_Expenses.Hours_Worked_Per_Week[#{ITERATOR}]"
-          },
-          # (4) Provider Start/End Dates
-          'careDateRange' => {
-            'from' => {
-              'month' => {
-                key: "Care_Expenses.Provider_Start_Date_Month[#{ITERATOR}]"
-              },
-              'day' => {
-                key: "Care_Expenses.Provider_Start_Date_Day[#{ITERATOR}]"
-              },
-              'year' => {
-                key: "Care_Expenses.Provider_Start_Date_Year[#{ITERATOR}]"
-              }
-            },
-            'to' => {
-              'month' => {
-                key: "Care_Expenses.Provider_End_Date_Month[#{ITERATOR}]"
-              },
-              'day' => {
-                key: "Care_Expenses.Provider_End_Date_Day[#{ITERATOR}]"
-              },
-              'year' => {
-                key: "Care_Expenses.Provider_End_Date_Year[#{ITERATOR}]"
-              }
-            }
-          },
-          'careDateRangeOverflow' => {
-            question_num: 10.1,
-            question_suffix: '[Care](4)',
-            question_text: 'DATE RANGE CARE RECEIVED'
-          },
-          'noCareEndDate' => {
-            key: "Care_Expenses.CheckBox_No_End_Date[#{ITERATOR}]"
-          },
-          # (5) Payment Frequency
-          'paymentFrequency' => {
-            key: "Care_Expenses.Payment_Frequency[#{ITERATOR}]"
-          },
-          'paymentFrequencyOverflow' => {
-            question_num: 10.1,
-            question_suffix: '[Care](5)',
-            question_text: 'CARE EXPENSE PAYMENT FREQUENCY'
-          },
-          # (6) Rate Per Frequency
-          'paymentAmount' => {
-            'part_two' => {
-              key: "Care_Expenses.Rate_Per_Frequency_Amount_First_Three[#{ITERATOR}]"
-            },
-            'part_one' => {
-              key: "Care_Expenses.Rate_Per_Frequency_Amount_Last_Three[#{ITERATOR}]"
-            },
-            'part_cents' => {
-              key: "Care_Expenses.Rate_Per_Frequency_Amount_Cents[#{ITERATOR}]"
-            }
-          },
-          'paymentAmountOverflow' => {
-            question_num: 10.1,
-            question_suffix: '[Care](6)',
-            question_text: 'CARE EXPENSE PAYMENT AMOUNT'
-          }
-        },
-        # 10e-j Medical Expenses
-        'medicalExpenses' => {
-          limit: 6,
-          first_key: 'childName',
-          # (1) Recipient
-          'recipients' => {
-            key: "Med_Expenses.Recipient[#{ITERATOR}]"
-          },
-          'recipientsOverflow' => {
-            question_num: 10.2,
-            question_suffix: '[Medical](1)',
-            question_text: 'MEDICAL EXPENSE RECIPIENT'
-          },
-          'childName' => {
-            key: "Med_Expenses.Child_Specify[#{ITERATOR}]",
-            limit: 45,
-            question_num: 10.2,
-            question_suffix: '[Medical](1)',
-            question_text: 'MEDICAL EXPENSE CHILD NAME'
-          },
-          # (2) Provider
-          'provider' => {
-            key: "Med_Expenses.Paid_To[#{ITERATOR}]",
-            limit: 108,
-            question_num: 10.2,
-            question_suffix: '[Medical](2)',
-            question_text: 'MEDICAL EXPENSE PROVIDER NAME'
-          },
-          # (3) Purpose
-          'purpose' => {
-            key: "Med_Expenses.Purpose[#{ITERATOR}]",
-            limit: 108,
-            question_num: 10.2,
-            question_suffix: '[Medical](3)',
-            question_text: 'MEDICAL EXPENSE PURPOSE'
-          },
-          # (4) Payment Date
-          'paymentDate' => {
-            'month' => {
-              key: "Med_Expenses.Date_Costs_Incurred_Month[#{ITERATOR}]"
-            },
-            'day' => {
-              key: "Med_Expenses.Date_Costs_Incurred_Day[#{ITERATOR}]"
-            },
-            'year' => {
-              key: "Med_Expenses.Date_Costs_Incurred_Year[#{ITERATOR}]"
-            }
-          },
-          'paymentDateOverflow' => {
-            question_num: 10.2,
-            question_suffix: '[Medical](4)',
-            question_text: 'MEDICAL EXPENSE PAYMENT DATE'
-          },
-          # (5) Payment Frequency
-          'paymentFrequency' => {
-            key: "Med_Expenses.Payment_Frequency[#{ITERATOR}]"
-          },
-          'paymentFrequencyOverflow' => {
-            question_num: 10.2,
-            question_suffix: '[Medical](5)',
-            question_text: 'MEDICAL EXPENSE PAYMENT FREQUENCY'
-          },
-          # (6) Rate Per Frequency
-          'paymentAmount' => {
-            'part_two' => {
-              limit: 2,
-              key: "Med_Expenses.Amount_First_Two[#{ITERATOR}]"
-            },
-            'part_one' => {
-              key: "Med_Expenses.Amount_Last_Three[#{ITERATOR}]"
-            },
-            'part_cents' => {
-              key: "Med_Expenses.Amount_Cents[#{ITERATOR}]"
-            }
-          },
-          'paymentAmountOverflow' => {
-            question_num: 10.2,
-            question_suffix: '[Medical](6)',
-            question_text: 'MEDICAL EXPENSE PAYMENT AMOUNT'
-          }
-        },
-        'bankAccount' => {
-          # 11a
-          'bankName' => {
-            limit: 30,
-            question_num: 11,
-            question_suffix: 'A',
-            question_text: 'NAME OF FINANCIAL INSTITUTION',
-            key: 'form1[0].#subform[54].Name_Of_Financial_Institution[0]'
-          },
-          # 11b
-          'accountType' => {
-            key: 'form1[0].#subform[54].RadioButtonList[55]'
-          },
-          # 11c
-          'routingNumber' => {
-            limit: 9,
-            question_num: 11,
-            question_suffix: 'C',
-            question_text: 'ROUTING NUMBER',
-            key: 'form1[0].#subform[54].Routing_Number[0]'
-          },
-          # 11d
-          'accountNumber' => {
-            limit: 15,
-            question_num: 11,
-            question_suffix: 'D',
-            question_text: 'ACCOUNT NUMBER',
-            key: 'form1[0].#subform[54].Account_Number[0]'
-          }
-        },
-        # 12a
-        'noRapidProcessing' => {
-          # rubocop:disable Layout/LineLength
-          key: 'form1[0].#subform[54].CheckBox_I_Do_Not_Want_My_Claim_Considered_For_Rapid_Processing_Under_The_F_D_C_Program_Because_I_Plan_To_Submit_Further_Evidence_In_Support_Of_My_Claim[0]'
-          # rubocop:enable Layout/LineLength
-        },
-        # 12b
-        'statementOfTruthSignature' => {
-          key: 'form1[0].#subform[54].SignatureField1[0]'
-        },
-        # 12c
-        'signatureDate' => {
-          'month' => {
-            key: 'form1[0].#subform[54].Date_Signed_Month[0]'
-          },
-          'day' => {
-            key: 'form1[0].#subform[54].Date_Signed_Day[0]'
-          },
-          'year' => {
-            key: 'form1[0].#subform[54].Date_Signed_Year[0]'
           }
         }
       }.freeze
+
+      # The list of section classes for form expansion and key building
+      SECTION_CLASSES = [Section10, Section11, Section12].freeze
+
+      SECTION_CLASSES.each { |section| key = key.merge(section::KEY) }
+
+      # form configuration hash
+      KEY = key.freeze
 
       ###
       # Merge all the key data together
@@ -1290,18 +1148,19 @@ module Pensions
         expand_prior_marital_history
         expand_dependent_children
         expand_income_and_assets
-        expand_care_medical_expenses
-        expand_direct_deposit_information
-        expand_claim_certification_and_signature
+
+        # Section 12
+        SECTION_CLASSES.each { |section| section.new.expand(form_data) }
 
         @form_data
       end
 
       # SECTION I: VETERAN'S IDENTIFICATION INFORMATION
       def expand_veteran_identification_information
+        middle_initial = @form_data.dig('veteranFullName', 'middle').try(:[], 0)
         @form_data['veteranFullName'] ||= {}
         @form_data['veteranFullName']['first'] = @form_data.dig('veteranFullName', 'first')&.titleize
-        @form_data['veteranFullName']['middle'] = @form_data.dig('veteranFullName', 'middle')&.titleize
+        @form_data['veteranFullName']['middle'] = middle_initial || ''
         @form_data['veteranFullName']['last'] = @form_data.dig('veteranFullName', 'last')&.titleize
         @form_data['veteranSocialSecurityNumber'] = split_ssn(@form_data['veteranSocialSecurityNumber'])
         @form_data['veteranDateOfBirth'] = split_date(@form_data['veteranDateOfBirth'])
@@ -1313,6 +1172,7 @@ module Pensions
         @form_data['veteranAddress'] ||= {}
         @form_data['veteranAddress']['postalCode'] =
           split_postal_code(@form_data['veteranAddress'])
+        @form_data['veteranAddress']['country'] = @form_data.dig('veteranAddress', 'country')&.slice(0, 2)
         @form_data['mobilePhone'] = expand_phone_number(@form_data['mobilePhone'].to_s)
       end
 
@@ -1326,9 +1186,10 @@ module Pensions
           'to' => split_date(@form_data.dig('activeServiceDateRange', 'to'))
         }
         @form_data['serviceBranch'] = @form_data['serviceBranch']&.select { |_, value| value == true }
+        @form_data['serviceBranch'] = @form_data['serviceBranch']&.each_key { |k| @form_data['serviceBranch'][k] = '1' }
 
         @form_data['pow'] = to_radio_yes_no(@form_data['powDateRange'].present?)
-        if @form_data['pow'] == 1
+        if @form_data['pow'].zero?
           @form_data['powDateRange'] ||= {}
           @form_data['powDateRange']['from'] = split_date(@form_data.dig('powDateRange', 'from'))
           @form_data['powDateRange']['to'] = split_date(@form_data.dig('powDateRange', 'to'))
@@ -1357,10 +1218,10 @@ module Pensions
         )
 
         # If "YES," skip question 4B
-        @form_data['medicalCondition'] = 'Off' if @form_data['socialSecurityDisability'] == 1
+        @form_data['medicalCondition'] = nil if @form_data['socialSecurityDisability'].zero?
 
         # If "NO," skip question 4D
-        @form_data['medicaidStatus'] = 'Off' if @form_data['nursingHome'] == 2
+        @form_data['medicaidStatus'] = nil if @form_data['nursingHome'] == 1
 
         @form_data['vaTreatmentHistory'] = to_radio_yes_no(@form_data['vaTreatmentHistory'])
         @form_data['federalTreatmentHistory'] = to_radio_yes_no(@form_data['federalTreatmentHistory'])
@@ -1377,7 +1238,7 @@ module Pensions
                    })
         end
 
-        @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 2
+        @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 1
       end
 
       # SECTION VI: MARITAL STATUS
@@ -1391,6 +1252,7 @@ module Pensions
         end
         @form_data['spouseAddress'] ||= {}
         @form_data['spouseAddress']['postalCode'] = split_postal_code(@form_data['spouseAddress'])
+        @form_data['spouseAddress']['country'] = @form_data.dig('spouseAddress', 'country')&.slice(0, 2)
         @form_data['currentSpouseMonthlySupport'] = split_currency_amount(@form_data['currentSpouseMonthlySupport'])
         @form_data['reasonForCurrentSeparation'] =
           reason_for_current_separation_to_radio(@form_data['reasonForCurrentSeparation'])
@@ -1418,6 +1280,8 @@ module Pensions
 
         return current_marriage if current_marriage.empty?
 
+        middle_initial = current_marriage.dig('spouseFullName', 'middle')&.first
+        current_marriage['spouseFullName']['middle'] = middle_initial
         marriage_type = current_marriage['marriageType']
         current_marriage['marriageType'] =
           marriage_type == 'CEREMONY' ? 0 : 1
@@ -1459,12 +1323,14 @@ module Pensions
             'from' => marriage['dateOfMarriage'],
             'to' => marriage['dateOfSeparation']
           }
-          marriage.merge({ 'spouseFullNameOverflow' => marriage['spouseFullName']&.values&.join(' '),
-                           'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
-                           'dateOfSeparation' => split_date(marriage['dateOfSeparation']),
-                           'dateRangeOfMarriageOverflow' => build_date_range_string(marriage_date_range),
-                           'reasonForSeparation' => Constants::REASONS_FOR_SEPARATION[reason_for_separation],
-                           'reasonForSeparationOverflow' => reason_for_separation.humanize })
+          marriage.merge!({ 'spouseFullNameOverflow' => marriage['spouseFullName']&.values&.join(' '),
+                            'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
+                            'dateOfSeparation' => split_date(marriage['dateOfSeparation']),
+                            'dateRangeOfMarriageOverflow' => build_date_range_string(marriage_date_range),
+                            'reasonForSeparation' => Constants::REASONS_FOR_SEPARATION[reason_for_separation],
+                            'reasonForSeparationOverflow' => reason_for_separation.humanize })
+          marriage['spouseFullName']['middle'] = marriage['spouseFullName']['middle']&.first
+          marriage
         end
       end
 
@@ -1492,16 +1358,19 @@ module Pensions
 
       # Build the custodian data from dependents
       def build_custodian_hash_from_dependent(dependent)
-        dependent['personWhoLivesWithChild']
-          .merge({
-                   'custodianAddress' => dependent['childAddress'].merge(
-                     'postalCode' => split_postal_code(dependent['childAddress'])
-                   )
-                 })
-          .merge({
-                   'custodianAddressOverflow' => build_address_string(dependent['childAddress']),
-                   'dependentsWithCustodianOverflow' => dependent['fullName']&.values&.join(' ')
-                 })
+        dependent = dependent['personWhoLivesWithChild']
+                    .merge({
+                             'custodianAddress' => dependent['childAddress'].merge(
+                               'postalCode' => split_postal_code(dependent['childAddress'])
+                             )
+                           })
+                    .merge({
+                             'custodianAddressOverflow' => build_address_string(dependent['childAddress']),
+                             'dependentsWithCustodianOverflow' => dependent['fullName']&.values&.join(' ')
+                           })
+        dependent['custodianAddress']['country'] =
+          dependent.dig('custodianAddress', 'country')&.slice(0, 2)
+        dependent
       end
 
       # Create an address string from an address hash
@@ -1539,25 +1408,30 @@ module Pensions
       # Create a hash table from a dependent that outlines all the data joined and formatted together.
       def dependent_to_hash(dependent)
         dependent
-          .merge({
-                   'fullNameOverflow' => dependent['fullName']&.values&.join(' '),
-                   'childDateOfBirth' => split_date(dependent['childDateOfBirth']),
-                   'childDateOfBirthOverflow' => to_date_string(dependent['childDateOfBirth']),
-                   'childSocialSecurityNumber' => split_ssn(dependent['childSocialSecurityNumber']),
-                   'childSocialSecurityNumberOverflow' => dependent['childSocialSecurityNumber'],
-                   'childRelationship' => {
-                     'biological' => to_checkbox_on_off(dependent['childRelationship'] == 'BIOLOGICAL'),
-                     'adopted' => to_checkbox_on_off(dependent['childRelationship'] == 'ADOPTED'),
-                     'stepchild' => to_checkbox_on_off(dependent['childRelationship'] == 'STEP_CHILD')
-                   },
-                   'disabled' => to_checkbox_on_off(dependent['disabled']),
-                   'attendingCollege' => to_checkbox_on_off(dependent['attendingCollege']),
-                   'previouslyMarried' => to_checkbox_on_off(dependent['previouslyMarried']),
-                   'childNotInHousehold' => to_checkbox_on_off(!dependent['childInHousehold']),
-                   'childStatusOverflow' => child_status_overflow(dependent).join(', '),
-                   'monthlyPayment' => split_currency_amount(dependent['monthlyPayment']),
-                   'monthlyPaymentOverflow' => number_to_currency(dependent['monthlyPayment'])
-                 })
+          .merge!({
+                    'fullNameOverflow' => dependent['fullName']&.values&.join(' '),
+                    'childDateOfBirth' => split_date(dependent['childDateOfBirth']),
+                    'childDateOfBirthOverflow' => to_date_string(dependent['childDateOfBirth']),
+                    'childSocialSecurityNumber' => split_ssn(dependent['childSocialSecurityNumber']),
+                    'childSocialSecurityNumberOverflow' => dependent['childSocialSecurityNumber'],
+                    'childRelationship' => {
+                      'biological' => to_checkbox_on_off(dependent['childRelationship'] == 'BIOLOGICAL'),
+                      'adopted' => to_checkbox_on_off(dependent['childRelationship'] == 'ADOPTED'),
+                      'stepchild' => to_checkbox_on_off(dependent['childRelationship'] == 'STEP_CHILD')
+                    },
+                    'disabled' => to_checkbox_on_off(dependent['disabled']),
+                    'attendingCollege' => to_checkbox_on_off(dependent['attendingCollege']),
+                    'previouslyMarried' => to_checkbox_on_off(dependent['previouslyMarried']),
+                    'childNotInHousehold' => to_checkbox_on_off(!dependent['childInHousehold']),
+                    'childStatusOverflow' => child_status_overflow(dependent).join(', '),
+                    'monthlyPayment' => split_currency_amount(dependent['monthlyPayment']),
+                    'monthlyPaymentOverflow' => number_to_currency(dependent['monthlyPayment'])
+                  })
+        dependent.fetch('fullName', {})['middle'] = dependent.dig('fullName', 'middle')&.first
+        if dependent['personWhoLivesWithChild'].present?
+          dependent['personWhoLivesWithChild']['middle'] = dependent['personWhoLivesWithChild']['middle']&.first
+        end
+        dependent
       end
 
       # SECTION IX: INCOME AND ASSETS
@@ -1569,7 +1443,7 @@ module Pensions
         end
         @form_data['transferredAssets'] = to_radio_yes_no(@form_data['transferredAssets'])
         @form_data['homeOwnership'] = to_radio_yes_no(@form_data['homeOwnership'])
-        if @form_data['homeOwnership'] == 1
+        if @form_data['homeOwnership'].zero?
           @form_data['homeAcreageMoreThanTwo'] = to_radio_yes_no(@form_data['homeAcreageMoreThanTwo'])
           @form_data['landMarketable'] = to_radio_yes_no(@form_data['landMarketable'])
         end
@@ -1600,85 +1474,8 @@ module Pensions
           income_source.merge(income_source_hash)
         end
       end
-
-      # SECTION X: CARE/MEDICAL EXPENSES
-      def expand_care_medical_expenses
-        @form_data['hasAnyExpenses'] =
-          to_radio_yes_no(@form_data['hasCareExpenses'] || @form_data['hasMedicalExpenses'])
-        @form_data['careExpenses'] = merge_care_expenses(@form_data['careExpenses'])
-        @form_data['medicalExpenses'] = merge_medical_expenses(@form_data['medicalExpenses'])
-      end
-
-      # Map over the care expenses and expand the data out.
-      def merge_care_expenses(care_expenses)
-        care_expenses&.map do |care_expense|
-          care_expense.merge(care_expense_to_hash(care_expense))
-        end
-      end
-
-      # Expand a care expense data hash.
-      def care_expense_to_hash(care_expense)
-        {
-          'recipients' => Constants::RECIPIENTS[care_expense['recipients']],
-          'recipientsOverflow' => care_expense['recipients']&.humanize,
-          'careType' => Constants::CARE_TYPES[care_expense['careType']],
-          'careTypeOverflow' => care_expense['careType']&.humanize,
-          'ratePerHour' => split_currency_amount(care_expense['ratePerHour']),
-          'ratePerHourOverflow' => number_to_currency(care_expense['ratePerHour']),
-          'hoursPerWeek' => care_expense['hoursPerWeek'].to_s,
-          'careDateRange' => {
-            'from' => split_date(care_expense.dig('careDateRange', 'from')),
-            'to' => split_date(care_expense.dig('careDateRange', 'to'))
-          },
-          'careDateRangeOverflow' => build_date_range_string(care_expense['careDateRange']),
-          'noCareEndDate' => to_checkbox_on_off(care_expense['noCareEndDate']),
-          'paymentFrequency' => Constants::PAYMENT_FREQUENCY[care_expense['paymentFrequency']],
-          'paymentFrequencyOverflow' => care_expense['paymentFrequency'],
-          'paymentAmount' => split_currency_amount(care_expense['paymentAmount']),
-          'paymentAmountOverflow' => number_to_currency(care_expense['paymentAmount'])
-        }
-      end
-
-      # Map over medical expenses and create a set of data.
-      def merge_medical_expenses(medical_expenses)
-        medical_expenses&.map do |medical_expense|
-          medical_expense.merge({
-                                  'recipients' => Constants::RECIPIENTS[medical_expense['recipients']],
-                                  'recipientsOverflow' => medical_expense['recipients']&.humanize,
-                                  'paymentDate' => split_date(medical_expense['paymentDate']),
-                                  'paymentDateOverflow' => to_date_string(medical_expense['paymentDate']),
-                                  'paymentFrequency' =>
-                                    Constants::PAYMENT_FREQUENCY[medical_expense['paymentFrequency']],
-                                  'paymentFrequencyOverflow' => medical_expense['paymentFrequency'],
-                                  'paymentAmount' => split_currency_amount(medical_expense['paymentAmount']),
-                                  'paymentAmountOverflow' => number_to_currency(
-                                    medical_expense['paymentAmount']
-                                  )
-                                })
-        end
-      end
-
-      # SECTION XI: DIRECT DEPOSIT INFORMATION
-      def expand_direct_deposit_information
-        account_type = @form_data.dig('bankAccount', 'accountType')
-
-        @form_data['bankAccount'] = @form_data['bankAccount'].to_h.merge(
-          'accountType' => case account_type
-                           when 'checking' then 0
-                           when 'savings' then 1
-                           else 2 if @form_data['bankAccount'].nil?
-                           end
-        )
-      end
-
-      # SECTION XII: CLAIM CERTIFICATION AND SIGNATURE
-      def expand_claim_certification_and_signature
-        @form_data['noRapidProcessing'] = to_checkbox_on_off(@form_data['noRapidProcessing'])
-        # signed on provided date (generally SavedClaim.created_at) or default to today
-        signature_date = @form_data['signatureDate'] || Time.zone.now.strftime('%Y-%m-%d')
-        @form_data['signatureDate'] = split_date(signature_date)
-      end
     end
   end
 end
+# rubocop:enable Metrics/MethodLength
 # rubocop:enable Metrics/ClassLength

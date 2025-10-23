@@ -33,6 +33,7 @@ module IncomeAndAssets
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship5[#{ITERATOR}]",
+            limit: 22,
             question_num: 5,
             question_suffix: '(1)(OTHER)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
@@ -41,6 +42,7 @@ module IncomeAndAssets
           # Q2
           'recipientName' => {
             key: "F[0].NameofIncomeRecipient5[#{ITERATOR}]",
+            limit: 45,
             question_num: 5,
             question_suffix: '(2)',
             question_text:
@@ -73,6 +75,7 @@ module IncomeAndAssets
             }
           },
           'grossMonthlyIncomeOverflow' => {
+            limit: 10,
             dollar: true,
             question_num: 5,
             question_suffix: '(4)',
@@ -95,6 +98,7 @@ module IncomeAndAssets
             }
           },
           'ownedPortionValueOverflow' => {
+            limit: 14,
             dollar: true,
             question_num: 5,
             question_suffix: '(5)',
@@ -114,7 +118,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         owned_assets = form_data['ownedAssets']
-        form_data['ownedAsset'] = owned_assets&.length ? 0 : 1
+        form_data['ownedAsset'] = radio_yesno(owned_assets&.length)
         form_data['ownedAssets'] = owned_assets&.map do |item|
           expand_item(item)
         end
@@ -141,9 +145,9 @@ module IncomeAndAssets
           'assetType' => IncomeAndAssets::Constants::ASSET_TYPES[asset_type],
           'assetTypeOverflow' => asset_type,
           'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
-          'grossMonthlyIncomeOverflow' => gross_monthly_income,
+          'grossMonthlyIncomeOverflow' => ActiveSupport::NumberHelper.number_to_currency(gross_monthly_income),
           'ownedPortionValue' => split_currency_amount_lg(portion_value),
-          'ownedPortionValueOverflow' => portion_value
+          'ownedPortionValueOverflow' => ActiveSupport::NumberHelper.number_to_currency(portion_value)
         }
       end
     end

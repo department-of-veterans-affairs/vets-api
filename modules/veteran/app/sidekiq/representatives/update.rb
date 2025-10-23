@@ -2,9 +2,7 @@
 
 require 'sidekiq'
 require 'va_profile/models/validation_address'
-require 'va_profile/address_validation/service'
-require 'va_profile/models/v3/validation_address'
-require 'va_profile/v3/address_validation/service'
+require 'va_profile/address_validation/v3/service'
 
 module Representatives
   # Processes updates for representative records based on provided JSON data.
@@ -47,25 +45,23 @@ module Representatives
 
         if rep_data['address_changed']
           api_response = get_best_address_candidate(rep_data['address'])
-
-          # don't update the record if there is not a valid address with non-zero lat and long at this point
+          # If address validation fails, log and continue to update non-address fields (email/phone)
           if api_response.nil?
-            return
+            log_error("Address validation failed for Rep: #{rep_data['id']}. Proceeding to update non-address fields.")
           else
             address_validation_api_response = api_response
           end
         end
 
-        update_rep_record(rep_data, address_validation_api_response)
-      rescue Common::Exceptions::BackendServiceException => e
-        log_error("Address validation failed for Rep id: #{rep_data}: #{e.message}")
-        return
+        updated_flags = update_rep_record(rep_data, address_validation_api_response)
       rescue => e
         log_error("Update failed for Rep id: #{rep_data}: #{e.message}")
         return
       end
 
-      update_flagged_records(rep_data)
+      # Update flagged records only for fields that were actually updated
+      updated_flags['representative_id'] = rep_data['id'] if updated_flags.is_a?(Hash)
+      update_flagged_records(updated_flags || {})
     end
 
     def record_can_be_updated?(rep_data)
@@ -76,22 +72,20 @@ module Representatives
     # @param address [Hash] A hash containing the details of the representative's address.
     # @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
     def build_validation_address(address)
-      validation_model = if Flipper.enabled?(:remove_pciu)
-                           VAProfile::Models::V3::ValidationAddress
-                         else
-                           VAProfile::Models::ValidationAddress
-                         end
+      validation_model = VAProfile::Models::ValidationAddress
+
+      cleaned = Veteran::AddressPreprocessor.clean(address)
 
       validation_model.new(
-        address_pou: address['address_pou'],
-        address_line1: address['address_line1'],
-        address_line2: address['address_line2'],
-        address_line3: address['address_line3'],
-        city: address['city'],
-        state_code: address['state']['state_code'],
-        zip_code: address['zip_code5'],
-        zip_code_suffix: address['zip_code4'],
-        country_code_iso3: address['country_code_iso3']
+        address_pou: cleaned['address_pou'] || address['address_pou'],
+        address_line1: cleaned['address_line1'],
+        address_line2: cleaned['address_line2'],
+        address_line3: cleaned['address_line3'],
+        city: cleaned['city'] || address['city'],
+        state_code: cleaned.dig('state', 'state_code') || address.dig('state', 'state_code'),
+        zip_code: cleaned['zip_code5'] || address['zip_code5'],
+        zip_code_suffix: cleaned['zip_code4'] || address['zip_code4'],
+        country_code_iso3: cleaned['country_code_iso3'] || address['country_code_iso3']
       )
     end
 
@@ -99,11 +93,7 @@ module Representatives
     # @param candidate_address [VAProfile::Models::ValidationAddress] The address to be validated.
     # @return [Hash] The response from the address validation service.
     def validate_address(candidate_address)
-      validation_service = if Flipper.enabled?(:remove_pciu)
-                             VAProfile::V3::AddressValidation::Service.new
-                           else
-                             VAProfile::AddressValidation::Service.new
-                           end
+      validation_service = VAProfile::AddressValidation::V3::Service.new
       validation_service.candidate(candidate_address)
     end
 
@@ -119,25 +109,56 @@ module Representatives
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
     def update_rep_record(rep_data, api_response)
-      record =
-        Veteran::Service::Representative.find_by(representative_id: rep_data['id'])
-      if record.nil?
-        raise StandardError, 'Representative not found.'
-      else
-        address_attributes = rep_data['address_changed'] ? build_address_attributes(rep_data, api_response) : {}
-        email_attributes = rep_data['email_changed'] ? build_email_attributes(rep_data) : {}
-        phone_attributes = rep_data['phone_number_changed'] ? build_phone_attributes(rep_data) : {}
-        record.update(merge_attributes(address_attributes, email_attributes, phone_attributes))
-      end
+      record = Veteran::Service::Representative.find_by(representative_id: rep_data['id'])
+      raise StandardError, 'Representative not found.' if record.nil?
+
+      attributes, flags = build_rep_update_payload(rep_data, api_response)
+      record.update(attributes)
+      flags
     end
 
-    # Updates flags for the representative's records based on changes in address, email, or phone number.
-    # @param rep_data [Hash] The representative data including the id and flags for changes.
-    def update_flagged_records(rep_data)
-      representative_id = rep_data['id']
-      update_flags(representative_id, 'address') if rep_data['address_changed']
-      update_flags(representative_id, 'email') if rep_data['email_changed']
-      update_flags(representative_id, 'phone_number') if rep_data['phone_number_changed']
+    # Build attributes hash and flags indicating which fields changed
+    # @return [Array<Hash, Hash>] first element is attributes, second is flags
+    def build_rep_update_payload(rep_data, api_response)
+      flags = {}
+
+      address_attrs = if rep_data['address_changed'] && api_response.present?
+                        flags['address'] = true
+                        build_address_attributes(rep_data, api_response)
+                      else
+                        {}
+                      end
+
+      email_attrs = if rep_data['email_changed']
+                      flags['email'] = true
+                      build_email_attributes(rep_data)
+                    else
+                      {}
+                    end
+
+      phone_attrs = if rep_data['phone_number_changed']
+                      flags['phone_number'] = true
+                      build_phone_attributes(rep_data)
+                    else
+                      {}
+                    end
+
+      [merge_attributes(address_attrs, email_attrs, phone_attrs), flags]
+    end
+
+    # Updates flags for the representative's records based on which fields were actually updated.
+    # @param updated_flags [Hash] Hash with keys 'address', 'email', 'phone_number' set to true when updated.
+    def update_flagged_records(updated_flags)
+      return unless updated_flags.is_a?(Hash)
+
+      representative_id = updated_flags['representative_id']
+
+      # If representative_id is missing, we can't update flags
+      return if representative_id.blank?
+
+      update_flags(representative_id, 'address') if updated_flags['address']
+      update_flags(representative_id, 'email') if updated_flags['email']
+      update_flags(representative_id, 'phone_number') if updated_flags['phone_number']
     end
 
     # Updates the flags for a representative's contact data indicating a change.
@@ -155,15 +176,8 @@ module Representatives
     # Updates the given record with the new address and other relevant attributes.
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
-    def build_address_attributes(rep_data, api_response)
-      if Flipper.enabled?(:remove_pciu)
-        build_v3_address(api_response['candidate_addresses'].first)
-      else
-        address = api_response['candidate_addresses'].first['address']
-        geocode = api_response['candidate_addresses'].first['geocode']
-        meta = api_response['candidate_addresses'].first['address_meta_data']
-        build_address(address, geocode, meta).merge({ raw_address: rep_data['address'].to_json })
-      end
+    def build_address_attributes(_rep_data, api_response)
+      build_v3_address(api_response['candidate_addresses'].first)
     end
 
     def build_email_attributes(rep_data)
@@ -180,30 +194,7 @@ module Representatives
 
     # Builds the attributes for the record update from the address, geocode, and metadata.
     # @param address [Hash] Address details from the validation response.
-    # @param geocode [Hash] Geocode details from the validation response.
-    # @param meta [Hash] Metadata about the address from the validation response.
     # @return [Hash] The attributes to update the record with.
-    def build_address(address, geocode, meta)
-      {
-        address_type: meta['address_type'],
-        address_line1: address['address_line1'],
-        address_line2: address['address_line2'],
-        address_line3: address['address_line3'],
-        city: address['city'],
-        province: address['state_province']['name'],
-        state_code: address['state_province']['code'],
-        zip_code: address['zip_code5'],
-        zip_suffix: address['zip_code4'],
-        country_code_iso3: address['country']['iso3_code'],
-        country_name: address['country']['name'],
-        county_name: address.dig('county', 'name'),
-        county_code: address.dig('county', 'county_fips_code'),
-        lat: geocode['latitude'],
-        long: geocode['longitude'],
-        location: "POINT(#{geocode['longitude']} #{geocode['latitude']})"
-      }
-    end
-
     def build_v3_address(address)
       {
         address_type: address['address_type'],
@@ -211,18 +202,25 @@ module Representatives
         address_line2: address['address_line2'],
         address_line3: address['address_line3'],
         city: address['city_name'],
-        province: address['state']['state_name'],
-        state_code: address['state']['state_code'],
+        province: address.dig('state', 'state_name'),
+        state_code: address.dig('state', 'state_code'),
         zip_code: address['zip_code5'],
         zip_suffix: address['zip_code4'],
-        country_code_iso3: address['country']['iso3_code'],
-        country_name: address['country']['country_name'],
+        country_code_iso3: address.dig('country', 'iso3_code'),
+        country_name: address.dig('country', 'country_name'),
         county_name: address.dig('county', 'county_name'),
         county_code: address.dig('county', 'county_code'),
-        lat: address['geocode']['latitude'],
-        long: address['geocode']['longitude'],
-        location: "POINT(#{address['geocode']['longitude']} #{address['geocode']['latitude']})"
+        lat: address.dig('geocode', 'latitude'),
+        long: address.dig('geocode', 'longitude'),
+        location: build_point(address.dig('geocode', 'longitude'), address.dig('geocode', 'latitude'))
       }
+    end
+
+    # Build a WKT point string if both coordinates are present
+    def build_point(longitude, latitude)
+      return nil if longitude.blank? || latitude.blank?
+
+      "POINT(#{longitude} #{latitude})"
     end
 
     # Logs an error to Datadog and adds an error to the array that will be logged to slack.
@@ -235,7 +233,7 @@ module Representatives
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values
     #   for DualAddressError warnings we see with some P.O. Box addresses the validator struggles with
-    # @param candidate_address [Hash] an address hash object returned by [VAProfile::AddressValidation::Service]
+    # @param candidate_address [Hash] an address hash object returned by [VAProfile::AddressValidation::V3::Service]
     # @return [Boolean]
     def lat_long_zero?(candidate_address)
       address = candidate_address['candidate_addresses']&.first
@@ -253,7 +251,6 @@ module Representatives
     # @return [Hash] the response from the address validation service
     def modified_validation(address, retry_count)
       address_attempt = address.dup
-      @slack_messages << "Modified address validation.  Address: #{address_attempt}"
       case retry_count
       when 1 # only use the original address_line1
       when 2 # set address_line1 to the original address_line2
@@ -272,9 +269,7 @@ module Representatives
     # @param response [Hash, Nil] the response from the address validation service
     # @return [Boolean]
     def retriable?(response)
-      return true if response.blank?
-
-      !address_valid?(response) || lat_long_zero?(response)
+      response.blank? || !address_valid?(response) || lat_long_zero?(response)
     end
 
     # Retry address validation
@@ -283,17 +278,19 @@ module Representatives
     def retry_validation(rep_address)
       # the address validation service requires at least one of address_line1, address_line2, and address_line3 to
       #   exist. No need to run the retry if we know it will fail before attempting the api call.
-      @slack_messages << 'Modified address validation attempt 1'
-      api_response = modified_validation(rep_address, 1) if rep_address['address_line1'].present?
+      api_response = nil
+      attempts = %w[address_line1 address_line2 address_line3]
 
-      if retriable?(api_response) && rep_address['address_line2'].present?
-        @slack_messages << 'Modified address validation attempt 2'
-        api_response = modified_validation(rep_address, 2)
-      end
+      attempts.each_with_index do |line_key, idx|
+        attempt_number = idx + 1
+        line_present = rep_address[line_key].present?
+        next unless line_present && retriable?(api_response)
 
-      if retriable?(api_response) && rep_address['address_line3'].present?
-        @slack_messages << 'Modified address validation attempt 3'
-        api_response = modified_validation(rep_address, 3)
+        begin
+          api_response = modified_validation(rep_address, attempt_number)
+        rescue Common::Exceptions::BackendServiceException => e
+          log_error("Attempt #{attempt_number} failed: #{e.message}")
+        end
       end
 
       api_response
@@ -304,22 +301,44 @@ module Representatives
     # @return [Hash, Nil] the response from the address validation service
     def get_best_address_candidate(rep_address)
       candidate_address = build_validation_address(rep_address)
-      original_response = validate_address(candidate_address)
-      return nil unless address_valid?(original_response)
+      original_response = nil
+      begin
+        original_response = validate_address(candidate_address)
+      rescue Common::Exceptions::BackendServiceException => e
+        return handle_candidate_address_not_found(rep_address, e) if candidate_address_not_found_error?(e)
 
-      # retry validation if we get zero as the coordinates - this should indicate some warning with validation that
-      #   is typically seen with addresses that mix street addresses with P.O. Boxes
-      if lat_long_zero?(original_response)
+        # Re-raise for non-retriable backend errors so outer rescue can handle/log
+        raise
+      end
+
+      # If the original response is blank, invalid, or has zero coords, attempt retry logic which will
+      # try modified address lines (including preprocessor-extracted PO Box) before giving up.
+      if retriable?(original_response)
         retry_response = retry_validation(rep_address)
 
-        if retriable?(retry_response)
-          nil
-        else
-          retry_response
-        end
-      else
-        original_response
+        return retriable?(retry_response) ? nil : retry_response
       end
+
+      # If we get here the original response was valid and not retriable (e.g. has non-zero coords)
+      original_response
+    end
+
+    # Determine if the backend exception represents a candidate address not found scenario
+    # @param exception [Common::Exceptions::BackendServiceException]
+    # @return [Boolean]
+    def candidate_address_not_found_error?(exception)
+      msg = exception.message
+      msg.include?('CandidateAddressNotFound') || msg.include?('ADDRVAL108')
+    end
+
+    # Handle CandidateAddressNotFound errors (ADDRVAL108) by invoking modified retry logic
+    # @param rep_address [Hash]
+    # @param exception [Common::Exceptions::BackendServiceException]
+    # @return [Hash, Nil]
+    def handle_candidate_address_not_found(rep_address, exception)
+      log_error("Address validation failed for address: #{rep_address}: #{exception.message}, retrying...")
+      retry_response = retry_validation(rep_address)
+      retriable?(retry_response) ? nil : retry_response
     end
 
     def log_to_slack(message)

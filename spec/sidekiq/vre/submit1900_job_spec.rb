@@ -20,13 +20,13 @@ describe VRE::Submit1900Job do
   end
   let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
   let(:user) { OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) }
-  let(:claim) { create(:veteran_readiness_employment_claim) }
 
   let(:monitor) { double('monitor') }
   let(:exhaustion_msg) do
     { 'args' => [], 'class' => 'VRE::Submit1900Job', 'error_message' => 'An error occurred',
       'queue' => 'default' }
   end
+  let(:claim) { create(:veteran_readiness_employment_claim) }
 
   describe '#perform' do
     subject { described_class.new.perform(claim.id, encrypted_user) }
@@ -56,19 +56,17 @@ describe VRE::Submit1900Job do
       allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
       allow(VRE::Monitor).to receive(:new).and_return(monitor)
       allow(monitor).to receive :track_submission_exhaustion
-      Flipper.enable(:vre_trigger_action_needed_email)
     end
 
     it 'when queue is exhausted' do
       VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-        expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
         exhaustion_msg['args'] = [claim.id, encrypted_user]
         expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim.parsed_form['email'])
         expect(VANotify::EmailJob).to receive(:perform_async).with(
-          'test@gmail.xom',
+          'email@test.com',
           'form1900_action_needed_email_template_id',
           {
-            'first_name' => 'Homer',
+            'first_name' => 'First',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => claim.confirmation_number
           }
@@ -83,14 +81,13 @@ describe VRE::Submit1900Job do
       allow(VRE::Monitor).to receive(:new).and_return(monitor)
       allow(monitor).to receive :track_submission_exhaustion
       user_struct.va_profile_email = nil
-      Flipper.enable(:vre_trigger_action_needed_email)
     end
 
     it 'when queue is exhausted with no email' do
       VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
         expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
         exhaustion_msg['args'] = [claim.id, encrypted_user]
-        claim.parsed_form.delete('email')
+        allow(claim).to receive(:email).and_return(nil)
         expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
       end
     end

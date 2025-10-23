@@ -62,21 +62,6 @@
     "second": "12",
     "third": "6859"
   },
-  "veteranPhone1": {
-    "phone_area_code": "619",
-    "phone_first_three_numbers": "555",
-    "phone_last_four_numbers": "1234"
-  },
-  "veteranPhone2": {
-    "phone_area_code": "619",
-    "phone_first_three_numbers": "555",
-    "phone_last_four_numbers": "1234"
-  },
-  "veteranPhone3": {
-    "phone_area_code": "619",
-    "phone_first_three_numbers": "555",
-    "phone_last_four_numbers": "1234"
-  },
   "veteranFullName1": {
     "first": "Hector",
     "middle": "Nick",

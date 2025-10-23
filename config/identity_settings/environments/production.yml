@@ -79,3 +79,8 @@ ssoe_eauth_cookie:
   domain: .va.gov
   name: vagov_saml_request_prod
   secure: true
+
+ssoe_get_traits:
+  client_cert_path: /etc/pki/tls/certs/vetsgov-mvi-prod-cert.pem
+  client_key_path: /etc/pki/tls/private/vetsgov-mvi.key
+  url: https://services.eauth.va.gov:9303/psim_webservice/IdMSSOeWebService
