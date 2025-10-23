@@ -23,14 +23,14 @@ module BGSV2
     MARRIAGE_TYPES = %w[COMMON-LAW TRIBAL PROXY OTHER].freeze
     RELATIONSHIPS = %w[CHILD DEPENDENT_PARENT].freeze
 
-    def initialize(user, saved_claim)
+    def initialize(user, saved_claim, proc_id = nil)
       @user = user
       @saved_claim = saved_claim
       @end_product_name = '130 - Automated Dependency 686c'
       @end_product_code = '130DPNEBNADJ'
       @proc_state = 'Ready'
       @note_text = nil
-      @proc_id = nil
+      @proc_id = proc_id
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -100,13 +100,17 @@ module BGSV2
     end
 
     def create_proc_id_and_form(vnp_proc_state_type_cd)
-      vnp_response = bgs_service.create_proc(proc_state: vnp_proc_state_type_cd)
+      if @proc_id.nil?
+        vnp_response = bgs_service.create_proc(proc_state: vnp_proc_state_type_cd)
+        @proc_id = vnp_response[:vnp_proc_id]
+      end
+
       bgs_service.create_proc_form(
-        vnp_response[:vnp_proc_id],
+        @proc_id,
         '21-686c'
       )
 
-      vnp_response[:vnp_proc_id]
+      @proc_id
     end
 
     def get_state_type(payload)

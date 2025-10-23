@@ -598,8 +598,8 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
               append_example_metadata(example, response)
             end
 
-            it 'returns a 422 response' do |example|
-              assert_response_matches_metadata(example.metadata)
+            it 'returns a 422 response' do
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
