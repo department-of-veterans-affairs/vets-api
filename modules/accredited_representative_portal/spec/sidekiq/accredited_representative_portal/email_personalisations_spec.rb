@@ -200,7 +200,7 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
 
   describe 'FailedRep subclass' do
     let!(:organization) { create(:organization, name: 'Org Name') }
-    let!(:individual) { create(:representative) }
+    let!(:individual) { create(:representative, :with_rep_id) }
     let!(:user_account) { create(:user_account) }
 
     let(:poa_request) do
@@ -282,6 +282,7 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
 
     it 'returns the first name' do
       result = personalisation.generate
+      # debugger
       expect(result['first_name']).to eq('Bob')
     end
   end

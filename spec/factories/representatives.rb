@@ -36,5 +36,10 @@ FactoryBot.define do
     trait :claim_agents do
       user_types { ['claim_agents'] }
     end
+
+    trait :with_rep_id do
+      transient { rep_id { '1234' } }
+      representative_id { rep_id }
+    end
   end
 end
