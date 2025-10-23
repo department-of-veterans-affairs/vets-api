@@ -143,7 +143,6 @@ module IncomeAndAssets
             }
           },
           'fairMarketValueOverflow' => {
-            key: "fairMarketValueOverflow[#{ITERATOR}]", # Fake key for overflow handling
             limit: 14,
             dollar: true,
             question_num: 7,
@@ -167,7 +166,6 @@ module IncomeAndAssets
             }
           },
           'saleValueOverflow' => {
-            key: "saleValueOverflow[#{ITERATOR}]", # Fake key for overflow handling
             limit: 14,
             dollar: true,
             question_num: 7,
@@ -191,7 +189,6 @@ module IncomeAndAssets
             }
           },
           'capitalGainValueOverflow' => {
-            key: "capitalGainValueOverflow[#{ITERATOR}]", # Fake key for overflow handling
             limit: 14,
             dollar: true,
             question_num: 7,
@@ -212,7 +209,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         transfers = form_data['assetTransfers']
-        form_data['assetTransfer'] = transfers&.length ? 0 : 1
+        form_data['assetTransfer'] = radio_yesno(transfers&.length)
         form_data['assetTransfers'] = transfers&.map { |item| expand_item(item) }
       end
 
