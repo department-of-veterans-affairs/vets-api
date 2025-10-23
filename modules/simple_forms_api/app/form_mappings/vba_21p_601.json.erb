@@ -1,0 +1,303 @@
+{
+  <%# Form: VBA-21P-601 - Application for Accrued Amounts Due a Deceased Beneficiary %>
+  <%# Generated: 2025-10-02 %>
+  <%# IMPORTANT: Field names may not match their purpose - verified with FieldNameAlt! %>
+
+  <%# ============================================ %>
+  <%# SECTION 1: CLAIMANT AND DECEASED BENEFICIARY INFORMATION %>
+  <%# ============================================ %>
+
+  <%# 1. Veteran's Name (First, Middle Initial, Last) %>
+  "form1[0].#subform[2].VeteransFirstName[0]": "<%= form.data.dig('veteran', 'full_name', 'first')&.[](0..11) %>",
+  "form1[0].#subform[2].VeteransMiddleInitial1[0]": "<%= form.data.dig('veteran', 'full_name', 'middle')&.[](0) %>",
+  "form1[0].#subform[2].VeteransLastName[0]": "<%= form.data.dig('veteran', 'full_name', 'last')&.[](0..17) %>",
+
+  <%# 2. Veteran's Social Security Number %>
+  "form1[0].#subform[2].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": "<%= form.data.dig('veteran', 'ssn', 'first3')&.[](0..2) %>",
+  "form1[0].#subform[2].VeteransSocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data.dig('veteran', 'ssn', 'middle2')&.[](0..1) %>",
+  "form1[0].#subform[2].VeteransSocialSecurityNumber_LastFourNumbers[0]": "<%= form.data.dig('veteran', 'ssn', 'last4')&.[](0..3) %>",
+
+  <%# 3. V.A. File Number %>
+  "form1[0].#subform[2].VAFileNumber[0]": "<%= form.data.dig('veteran', 'va_file_number')&.[](0..8) %>",
+
+  <%# 4. Name of Deceased Beneficiary (If other than veteran) %>
+  <% if !form.data.dig('beneficiary', 'is_veteran') %>
+    "form1[0].#subform[2].Name_Of_Deceased_Beneficiary_FirstName[0]": "<%= form.data.dig('beneficiary', 'full_name', 'first')&.[](0..11) %>",
+    "form1[0].#subform[2].Name_Of_Deceased_Beneficiary_MiddleInitial1[0]": "<%= form.data.dig('beneficiary', 'full_name', 'middle')&.[](0) %>",
+    "form1[0].#subform[2].Name_Of_Deceased_Beneficiary_LastName[0]": "<%= form.data.dig('beneficiary', 'full_name', 'last')&.[](0..17) %>",
+  <% else %>
+    "form1[0].#subform[2].Name_Of_Deceased_Beneficiary_FirstName[0]": "",
+    "form1[0].#subform[2].Name_Of_Deceased_Beneficiary_MiddleInitial1[0]": "",
+    "form1[0].#subform[2].Name_Of_Deceased_Beneficiary_LastName[0]": "",
+  <% end %>
+
+  <%# 5. Beneficiary Date of Death %>
+  "form1[0].#subform[2].Beneficiary_Date_Of_Death_Month[0]": "<%= form.data.dig('beneficiary', 'date_of_death', 'month')&.[](0..1) %>",
+  "form1[0].#subform[2].Beneficiary_Date_Of_Death_Day[0]": "<%= form.data.dig('beneficiary', 'date_of_death', 'day')&.[](0..1) %>",
+  "form1[0].#subform[2].Beneficiary_Date_Of_Death_Year[0]": "<%= form.data.dig('beneficiary', 'date_of_death', 'year')&.[](0..3) %>",
+
+  <%# 6. Claimant's Name (First, Middle Initial, Last) %>
+  "form1[0].#subform[2].Claimants_FirstName[0]": "<%= form.data.dig('claimant', 'full_name', 'first')&.[](0..11) %>",
+  "form1[0].#subform[2].Claimants_MiddleInitial1[0]": "<%= form.data.dig('claimant', 'full_name', 'middle')&.[](0) %>",
+  "form1[0].#subform[2].Claimants_LastName[0]": "<%= form.data.dig('claimant', 'full_name', 'last')&.[](0..17) %>",
+
+  <%# 7. Claimant's Social Security Number %>
+  "form1[0].#subform[2].Claimants_SocialSecurityNumber_FirstThreeNumbers[0]": "<%= form.data.dig('claimant', 'ssn', 'first3')&.[](0..2) %>",
+  "form1[0].#subform[2].Claimants_SocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data.dig('claimant', 'ssn', 'middle2')&.[](0..1) %>",
+  "form1[0].#subform[2].Claimants_SocialSecurityNumber_LastFourNumbers[0]": "<%= form.data.dig('claimant', 'ssn', 'last4')&.[](0..3) %>",
+
+  <%# 8. Claimant's Date of Birth %>
+  "form1[0].#subform[2].Claimants_Date_Of_Birth_Month[0]": "<%= form.data.dig('claimant', 'date_of_birth', 'month')&.[](0..1) %>",
+  "form1[0].#subform[2].Claimants_Date_Of_Birth_Day[0]": "<%= form.data.dig('claimant', 'date_of_birth', 'day')&.[](0..1) %>",
+  "form1[0].#subform[2].Claimants_Date_Of_Birth_Year[0]": "<%= form.data.dig('claimant', 'date_of_birth', 'year')&.[](0..3) %>",
+
+  <%# 9. Claimant's Current Mailing Address %>
+  "form1[0].#subform[2].ClaimantsCurrentMailingAddress_NumberAndStreet[0]": "<%= form.data.dig('claimant', 'address', 'street')&.[](0..29) %>",
+  "form1[0].#subform[2].ClaimantsCurrentMailingAddress_ApartmentOrUnitNumber[0]": "<%= form.data.dig('claimant', 'address', 'street2')&.gsub(/\D/, '')&.[](0..4) %>",
+  "form1[0].#subform[2].ClaimantsCurrentMailingAddress_City[0]": "<%= form.data.dig('claimant', 'address', 'city')&.[](0..17) %>",
+  "form1[0].#subform[2].ClaimantsCurrentMailingAddress_StateOrProvince[0]": "<%= form.data.dig('claimant', 'address', 'state')&.[](0..1) %>",
+  "form1[0].#subform[2].ClaimantsCurrentMailingAddress_Country[0]": "<%= form.data.dig('claimant', 'address', 'country')&.[](0..1) %>",
+  "form1[0].#subform[2].ClaimantsCurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": "<%= form.data.dig('claimant', 'address', 'zip_code', 'first5')&.[](0..4) %>",
+  "form1[0].#subform[2].ClaimantsCurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": "<%= form.data.dig('claimant', 'address', 'zip_code', 'last4')&.[](0..3) %>",
+
+  <%# 10. Claimant's Telephone Number (Include Area Code) %>
+  "form1[0].#subform[2].Claimants_Telephone_Number_Include_Area_Code[0]": "<%= form.data.dig('claimant', 'phone', 'area_code') %>-<%= form.data.dig('claimant', 'phone', 'prefix') %>-<%= form.data.dig('claimant', 'phone', 'line_number') %>",
+
+  <%# 11. Preferred E-Mail Address %>
+  "form1[0].#subform[2].Preferredemailaddress[0]": "<%= form.data.dig('claimant', 'email') %>",
+
+  <%# 12. Claimant's Relationship to Deceased Beneficiary %>
+  "form1[0].#subform[2].Claimants_Relationship_To_Deceased_Beneficiary[0]": "<%= form.data.dig('claimant', 'relationship_to_deceased') %>",
+
+  <%# ============================================ %>
+  <%# SECTION 2: DECEASED BENEFICIARY'S SURVIVING RELATIVES %>
+  <%# ============================================ %>
+
+  <%# 13. Who are the deceased beneficiary's surviving relatives? %>
+  "form1[0].#subform[2].CheckBox_Spouse[0]": "<%= form.data.dig('surviving_relatives', 'has_spouse') ? '1' : 'Off' %>",
+  "form1[0].#subform[2].CheckBox_Child_Or_Children[0]": "<%= form.data.dig('surviving_relatives', 'has_children') ? '1' : 'Off' %>",
+  "form1[0].#subform[2].CheckBox_Parent[0]": "<%= form.data.dig('surviving_relatives', 'has_parents') ? '1' : 'Off' %>",
+  "form1[0].#subform[2].CheckBox_None[0]": "<%= form.data.dig('surviving_relatives', 'has_none') ? '1' : 'Off' %>",
+
+  <%# 14. Relatives Surviving Beneficiary at Time of Death (up to 4 entries) %>
+  <% relatives = form.data.dig('surviving_relatives', 'relatives') || [] %>
+
+  <%# Relative 1 (IMPORTANT: Relationship_To_Beneficiary[3] is actually Line 1!) %>
+  <% if relatives[0].present? %>
+    "form1[0].#subform[2].Name_First_Middle_Initial_Last[0]": "<%= relatives[0].dig('full_name', 'first') %> <%= relatives[0].dig('full_name', 'middle')&.[](0) %> <%= relatives[0].dig('full_name', 'last') %>",
+    "form1[0].#subform[2].Relationship_To_Beneficiary[3]": "<%= relatives[0]['relationship'] %>",
+    "form1[0].#subform[2].Date_Of_Birth_MM_DD_YYYY[0]": "<%= relatives[0].dig('date_of_birth', 'month') %>/<%= relatives[0].dig('date_of_birth', 'day') %>/<%= relatives[0].dig('date_of_birth', 'year') %>",
+    "form1[0].#subform[2].Complete_Mailing_Address[0]": "<%= relatives[0].dig('address', 'street') %>, <%= relatives[0].dig('address', 'city') %>, <%= relatives[0].dig('address', 'state') %> <%= relatives[0].dig('address', 'zip_code', 'first5') %>",
+  <% else %>
+    "form1[0].#subform[2].Name_First_Middle_Initial_Last[0]": "",
+    "form1[0].#subform[2].Relationship_To_Beneficiary[3]": "",
+    "form1[0].#subform[2].Date_Of_Birth_MM_DD_YYYY[0]": "",
+    "form1[0].#subform[2].Complete_Mailing_Address[0]": "",
+  <% end %>
+
+  <%# Relative 2 (IMPORTANT: Relationship_To_Beneficiary[0] is actually Line 2!) %>
+  <% if relatives[1].present? %>
+    "form1[0].#subform[2].Name_First_Middle_Initial_Last[1]": "<%= relatives[1].dig('full_name', 'first') %> <%= relatives[1].dig('full_name', 'middle')&.[](0) %> <%= relatives[1].dig('full_name', 'last') %>",
+    "form1[0].#subform[2].Relationship_To_Beneficiary[0]": "<%= relatives[1]['relationship'] %>",
+    "form1[0].#subform[2].Date_Of_Birth_MM_DD_YYYY[1]": "<%= relatives[1].dig('date_of_birth', 'month') %>/<%= relatives[1].dig('date_of_birth', 'day') %>/<%= relatives[1].dig('date_of_birth', 'year') %>",
+    "form1[0].#subform[2].Complete_Mailing_Address[1]": "<%= relatives[1].dig('address', 'street') %>, <%= relatives[1].dig('address', 'city') %>, <%= relatives[1].dig('address', 'state') %> <%= relatives[1].dig('address', 'zip_code', 'first5') %>",
+  <% else %>
+    "form1[0].#subform[2].Name_First_Middle_Initial_Last[1]": "",
+    "form1[0].#subform[2].Relationship_To_Beneficiary[0]": "",
+    "form1[0].#subform[2].Date_Of_Birth_MM_DD_YYYY[1]": "",
+    "form1[0].#subform[2].Complete_Mailing_Address[1]": "",
+  <% end %>
+
+  <%# Relative 3 (IMPORTANT: Relationship_To_Beneficiary[1] is actually Line 3!) %>
+  <% if relatives[2].present? %>
+    "form1[0].#subform[2].Name_First_Middle_Initial_Last[2]": "<%= relatives[2].dig('full_name', 'first') %> <%= relatives[2].dig('full_name', 'middle')&.[](0) %> <%= relatives[2].dig('full_name', 'last') %>",
+    "form1[0].#subform[2].Relationship_To_Beneficiary[1]": "<%= relatives[2]['relationship'] %>",
+    "form1[0].#subform[2].Date_Of_Birth_MM_DD_YYYY[2]": "<%= relatives[2].dig('date_of_birth', 'month') %>/<%= relatives[2].dig('date_of_birth', 'day') %>/<%= relatives[2].dig('date_of_birth', 'year') %>",
+    "form1[0].#subform[2].Complete_Mailing_Address[2]": "<%= relatives[2].dig('address', 'street') %>, <%= relatives[2].dig('address', 'city') %>, <%= relatives[2].dig('address', 'state') %> <%= relatives[2].dig('address', 'zip_code', 'first5') %>",
+  <% else %>
+    "form1[0].#subform[2].Name_First_Middle_Initial_Last[2]": "",
+    "form1[0].#subform[2].Relationship_To_Beneficiary[1]": "",
+    "form1[0].#subform[2].Date_Of_Birth_MM_DD_YYYY[2]": "",
+    "form1[0].#subform[2].Complete_Mailing_Address[2]": "",
+  <% end %>
+
+  <%# Relative 4 (IMPORTANT: Relationship_To_Beneficiary[2] is actually Line 4!) %>
+  <% if relatives[3].present? %>
+    "form1[0].#subform[2].Name_First_Middle_Initial_Last[3]": "<%= relatives[3].dig('full_name', 'first') %> <%= relatives[3].dig('full_name', 'middle')&.[](0) %> <%= relatives[3].dig('full_name', 'last') %>",
+    "form1[0].#subform[2].Relationship_To_Beneficiary[2]": "<%= relatives[3]['relationship'] %>",
+    "form1[0].#subform[2].Date_Of_Birth_MM_DD_YYYY[3]": "<%= relatives[3].dig('date_of_birth', 'month') %>/<%= relatives[3].dig('date_of_birth', 'day') %>/<%= relatives[3].dig('date_of_birth', 'year') %>",
+    "form1[0].#subform[2].Complete_Mailing_Address[3]": "<%= relatives[3].dig('address', 'street') %>, <%= relatives[3].dig('address', 'city') %>, <%= relatives[3].dig('address', 'state') %> <%= relatives[3].dig('address', 'zip_code', 'first5') %>",
+  <% else %>
+    "form1[0].#subform[2].Name_First_Middle_Initial_Last[3]": "",
+    "form1[0].#subform[2].Relationship_To_Beneficiary[2]": "",
+    "form1[0].#subform[2].Date_Of_Birth_MM_DD_YYYY[3]": "",
+    "form1[0].#subform[2].Complete_Mailing_Address[3]": "",
+  <% end %>
+
+  <%# RadioButtonList for question 14 - Do any surviving relatives want to waive substitution? %>
+  "form1[0].#subform[2].RadioButtonList[0]": "<%= form.data.dig('surviving_relatives', 'wants_to_waive_substitution') ? '1' : '2' %>",
+
+  <%# ============================================ %>
+  <%# SECTION 3: INFORMATION ABOUT DEBTS, EXPENSES AND BURIAL %>
+  <%# ============================================ %>
+
+  <%# 15. List the expenses of last sickness and burial (up to 4 entries) %>
+  <% expenses = form.data.dig('expenses', 'expenses_list') || [] %>
+
+  <%# Expense 1 %>
+  <% if expenses[0].present? %>
+    "form1[0].#subform[3].Name_Of_Person_Or_Firm[0]": "<%= expenses[0]['provider'] %>",
+    "form1[0].#subform[3].Nature_Of_Expense[0]": "<%= expenses[0]['expense_type'] %>",
+    "form1[0].#subform[3].Amount[0]": "<%= expenses[0]['amount'] %>",
+    "form1[0].#subform[3].RadioButtonList[1]": "<%= expenses[0]['is_paid'] ? '1' : '2' %>",
+    "form1[0].#subform[3].Name_Of_Person_Or_Estate[0]": "<%= expenses[0]['paid_by'] if expenses[0]['is_paid'] %>",
+  <% else %>
+    "form1[0].#subform[3].Name_Of_Person_Or_Firm[0]": "",
+    "form1[0].#subform[3].Nature_Of_Expense[0]": "",
+    "form1[0].#subform[3].Amount[0]": "",
+    "form1[0].#subform[3].RadioButtonList[1]": "Off",
+    "form1[0].#subform[3].Name_Of_Person_Or_Estate[0]": "",
+  <% end %>
+
+  <%# Expense 2 %>
+  <% if expenses[1].present? %>
+    "form1[0].#subform[3].Name_Of_Person_Or_Firm[1]": "<%= expenses[1]['provider'] %>",
+    "form1[0].#subform[3].Nature_Of_Expense[1]": "<%= expenses[1]['expense_type'] %>",
+    "form1[0].#subform[3].Amount[1]": "<%= expenses[1]['amount'] %>",
+    "form1[0].#subform[3].RadioButtonList[2]": "<%= expenses[1]['is_paid'] ? '1' : '2' %>",
+    "form1[0].#subform[3].Name_Of_Person_Or_Estate[1]": "<%= expenses[1]['paid_by'] if expenses[1]['is_paid'] %>",
+  <% else %>
+    "form1[0].#subform[3].Name_Of_Person_Or_Firm[1]": "",
+    "form1[0].#subform[3].Nature_Of_Expense[1]": "",
+    "form1[0].#subform[3].Amount[1]": "",
+    "form1[0].#subform[3].RadioButtonList[2]": "Off",
+    "form1[0].#subform[3].Name_Of_Person_Or_Estate[1]": "",
+  <% end %>
+
+  <%# Expense 3 %>
+  <% if expenses[2].present? %>
+    "form1[0].#subform[3].Name_Of_Person_Or_Firm[2]": "<%= expenses[2]['provider'] %>",
+    "form1[0].#subform[3].Nature_Of_Expense[2]": "<%= expenses[2]['expense_type'] %>",
+    "form1[0].#subform[3].Amount[2]": "<%= expenses[2]['amount'] %>",
+    "form1[0].#subform[3].RadioButtonList[3]": "<%= expenses[2]['is_paid'] ? '1' : '2' %>",
+    "form1[0].#subform[3].Name_Of_Person_Or_Estate[2]": "<%= expenses[2]['paid_by'] if expenses[2]['is_paid'] %>",
+  <% else %>
+    "form1[0].#subform[3].Name_Of_Person_Or_Firm[2]": "",
+    "form1[0].#subform[3].Nature_Of_Expense[2]": "",
+    "form1[0].#subform[3].Amount[2]": "",
+    "form1[0].#subform[3].RadioButtonList[3]": "Off",
+    "form1[0].#subform[3].Name_Of_Person_Or_Estate[2]": "",
+  <% end %>
+
+  <%# Expense 4 %>
+  <% if expenses[3].present? %>
+    "form1[0].#subform[3].Name_Of_Person_Or_Firm[3]": "<%= expenses[3]['provider'] %>",
+    "form1[0].#subform[3].Nature_Of_Expense[3]": "<%= expenses[3]['expense_type'] %>",
+    "form1[0].#subform[3].Amount[3]": "<%= expenses[3]['amount'] %>",
+    "form1[0].#subform[3].RadioButtonList[4]": "<%= expenses[3]['is_paid'] ? '1' : '2' %>",
+    "form1[0].#subform[3].Name_Of_Person_Or_Estate[3]": "<%= expenses[3]['paid_by'] if expenses[3]['is_paid'] %>",
+  <% else %>
+    "form1[0].#subform[3].Name_Of_Person_Or_Firm[3]": "",
+    "form1[0].#subform[3].Nature_Of_Expense[3]": "",
+    "form1[0].#subform[3].Amount[3]": "",
+    "form1[0].#subform[3].RadioButtonList[4]": "Off",
+    "form1[0].#subform[3].Name_Of_Person_Or_Estate[3]": "",
+  <% end %>
+
+  <%# 16. Enter Amount and Source (If any assets of the deceased beneficiary have been received) %>
+  "form1[0].#subform[3].Enter_Amount_And_Source[0]": "",
+
+  <%# 17. Radio button - Did the VA, a State, or other agency help pay for the deceased beneficiary's last illness or burial? %>
+  "form1[0].#subform[3].YES[0]": "Off",
+
+  <%# 18. List the other debts %>
+  <% other_debts = form.data.dig('expenses', 'other_debts') || [] %>
+
+  <%# Debt 1 (bottom to top ordering based on FieldNameAlt indices) %>
+  <% if other_debts[0].present? %>
+    "form1[0].#subform[3].Nature_Of_Debt[3]": "<%= other_debts[0]['debt_type'] %>",
+    "form1[0].#subform[3].Amount[7]": "<%= other_debts[0]['debt_amount'] %>",
+  <% else %>
+    "form1[0].#subform[3].Nature_Of_Debt[3]": "",
+    "form1[0].#subform[3].Amount[7]": "",
+  <% end %>
+
+  <%# Debt 2 %>
+  <% if other_debts[1].present? %>
+    "form1[0].#subform[3].Nature_Of_Debt[2]": "<%= other_debts[1]['debt_type'] %>",
+    "form1[0].#subform[3].Amount[6]": "<%= other_debts[1]['debt_amount'] %>",
+  <% else %>
+    "form1[0].#subform[3].Nature_Of_Debt[2]": "",
+    "form1[0].#subform[3].Amount[6]": "",
+  <% end %>
+
+  <%# Debt 3 %>
+  <% if other_debts[2].present? %>
+    "form1[0].#subform[3].Nature_Of_Debt[1]": "<%= other_debts[2]['debt_type'] %>",
+    "form1[0].#subform[3].Amount[5]": "<%= other_debts[2]['debt_amount'] %>",
+  <% else %>
+    "form1[0].#subform[3].Nature_Of_Debt[1]": "",
+    "form1[0].#subform[3].Amount[5]": "",
+  <% end %>
+
+  <%# Debt 4 %>
+  <% if other_debts[3].present? %>
+    "form1[0].#subform[3].Nature_Of_Debt[0]": "<%= other_debts[3]['debt_type'] %>",
+    "form1[0].#subform[3].Amount[4]": "<%= other_debts[3]['debt_amount'] %>",
+  <% else %>
+    "form1[0].#subform[3].Nature_Of_Debt[0]": "",
+    "form1[0].#subform[3].Amount[4]": "",
+  <% end %>
+
+  <%# RadioButtonList for expenses (15D) - are these paid or unpaid %>
+  "form1[0].#subform[3].RadioButtonList[5]": "Off",
+  "form1[0].#subform[3].RadioButtonList[6]": "Off",
+
+  <%# ============================================ %>
+  <%# SECTION 4: WAIVER OF REIMBURSEMENT FROM ALL UNPAID CREDITORS %>
+  <%# ============================================ %>
+
+  <%# 20. Unpaid Creditor 1 - Name, Address, Signature, Title, Date %>
+  "form1[0].#subform[3].Name_Of_Unpaid_Creditor_Or_Firm_Number_1[0]": "",
+  "form1[0].#subform[3].Address_Of_Creditor_Or_Firm[0]": "",
+  "form1[0].#subform[3].Signature_Of_Creditor_Or_Person_Signing_For_Firm[0]": "",
+  "form1[0].#subform[3].Title[0]": "",
+  "form1[0].#subform[3].DateField2[0]": "",
+
+  <%# 21. Unpaid Creditor 2 - Name, Address, Signature, Title, Date %>
+  "form1[0].#subform[4].Name_Of_Unpaid_Creditor_Number_2[0]": "",
+  "form1[0].#subform[4].Address_Of_Creditor_Or_Firm[1]": "",
+  "form1[0].#subform[4].Signature_Of_Creditor_Or_Person_Signing_For_Firm[1]": "",
+  "form1[0].#subform[4].Title[1]": "",
+  "form1[0].#subform[4].DateField2[1]": "",
+
+  <%# 22. Unpaid Creditor 3 - Name, Address, Signature, Title, Date %>
+  "form1[0].#subform[4].Name_Of_Unpaid_Creditor_Or_Firm_Number_3[0]": "",
+  "form1[0].#subform[4].Address_Of_Creditor_Or_Firm[2]": "",
+  "form1[0].#subform[4].Signature_Of_Creditor_Or_Person_Signing_For_Firm[2]": "",
+  "form1[0].#subform[4].Title[2]": "",
+  "form1[0].#subform[4].DateField2[2]": "",
+
+  <%# ============================================ %>
+  <%# SECTION 5: SIGNATURE %>
+  <%# ============================================ %>
+
+  <%# 23. Claimant Signature and Date %>
+  "form1[0].#subform[4].Signature_Of_Claimant[0]": "<%= form.data.dig('claimant', 'signature') %>",
+  "form1[0].#subform[4].DateField2[3]": "<%= form.data.dig('claimant', 'signature_date', 'month') %>/<%= form.data.dig('claimant', 'signature_date', 'day') %>/<%= form.data.dig('claimant', 'signature_date', 'year') %>",
+
+  <%# 24. Witness 1 (If claimant signed with X) %>
+  "form1[0].#subform[4].Signature_Of_Witness[0]": "",
+  "form1[0].#subform[4].Printed_Name_And_Address_Of_Witness[0]": "",
+
+  <%# 25. Witness 2 (If claimant signed with X) %>
+  "form1[0].#subform[4].Signature_Of_Witness[1]": "",
+  "form1[0].#subform[4].Printed_Name_And_Address_Of_Witness[1]": "",
+
+  <%# ============================================ %>
+  <%# SECTION 6: REMARKS %>
+  <%# ============================================ %>
+
+  <%# 26. Remarks %>
+  "form1[0].#subform[4].TextField1[0]": "<%= form.data['remarks'] %>"
+}
