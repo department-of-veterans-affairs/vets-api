@@ -32,9 +32,11 @@ RSpec.describe ClaimsEvidenceApi::Monitor do
     describe '#track_event' do
       it 'tracks the record action and attributes' do
         action = :test_event
+        klass = record.record.class.to_s.downcase.gsub(/:+/, '_')
+
         message = "#{record.class}: #{record.record.class} #{action}"
-        tags = ["class:#{record.record.class.to_s.downcase.gsub(/:+/, '_')}", "action:#{action}"]
-        attributes = { foo: :bar, 'test' => 23 }
+        tags = ["class:#{klass}", 'form_id:TEST', 'doctype:10', "action:#{action}"]
+        attributes = { foo: :bar, test: 23, form_id: 'TEST', doctype: 10 }
 
         expect(record).to receive(:track_request).with(:info, message, metric, call_location: anything, tags:,
                                                                                **attributes)
@@ -49,50 +51,50 @@ RSpec.describe ClaimsEvidenceApi::Monitor do
 
     describe '#track_api_request' do
       it 'tracks an OK request' do
-        path = 'test/path/requested'
+        endpoint = 'TEST'
         code = 210
         reason = 'testing ok'
         call_location = 'foobar'
 
-        tags = { method: :get, code:, root: path.split('/').first }
-        formatted_tags = ['method:get', 'code:210', 'root:test']
+        tags = { method: :get, code:, endpoint: }
+        formatted_tags = ['method:get', 'code:210', 'endpoint:TEST']
         message = "#{service.class}: #{code} #{reason}"
 
         kwargs = { call_location:, reason:, tags: formatted_tags, **tags }
         expect(service).to receive(:track_request).with(:info, message, metric, **kwargs)
 
-        service.track_api_request(:get, path, code, reason, call_location:)
+        service.track_api_request(:get, endpoint, code, reason, call_location:)
       end
 
       it 'tracks an Error request' do
-        path = 'test/path/requested'
+        endpoint = 'TEST'
         code = 404
         reason = 'testing 404'
         call_location = 'foobar'
 
-        tags = { method: :get, code:, root: path.split('/').first }
-        formatted_tags = ['method:get', 'code:404', 'root:test']
+        tags = { method: :get, code:, endpoint: }
+        formatted_tags = ['method:get', 'code:404', 'endpoint:TEST']
         message = "#{service.class}: #{code} #{reason}"
 
         kwargs = { call_location:, reason:, tags: formatted_tags, **tags }
         expect(service).to receive(:track_request).with(:error, message, metric, **kwargs)
 
-        service.track_api_request(:get, path, code, reason, call_location:)
+        service.track_api_request(:get, endpoint, code, reason, call_location:)
       end
     end
   end
 
   context 'Uploader monitor functions' do
     let(:metric) { ClaimsEvidenceApi::Monitor::Uploader::METRIC }
-    let(:context) { { foo: :bar, test: 23 } }
+    let(:context) { { foo: :bar, test: 23, form_id: 'TEST', doctype: 10 } }
 
     describe '#track_upload' do
       %i[begun attempt success].each do |action|
         it "tracks #{action}" do
           message = "#{uploader.class}: upload #{action}"
-          tags = ["action:#{action}"]
+          tags = ["action:#{action}", 'form_id:TEST', 'doctype:10']
 
-          kwargs = { call_location: anything, error: nil, tags:, **context }
+          kwargs = { call_location: anything, error: nil, tags:, action: action.to_s, **context }
           expect(uploader).to receive(:track_upload).and_call_original
           expect(uploader).to receive(:track_request).with(:info, message, metric, **kwargs)
 
@@ -104,9 +106,9 @@ RSpec.describe ClaimsEvidenceApi::Monitor do
         action = :failure
         message = 'TESTING FAILURE'
         msg = "#{uploader.class}: upload #{action} - ERROR #{message}"
-        tags = ["action:#{action}"]
+        tags = ["action:#{action}", 'form_id:TEST', 'doctype:10']
 
-        kwargs = { call_location: anything, error: "ERROR #{message}", tags:, **context }
+        kwargs = { call_location: anything, error: "ERROR #{message}", tags:, action: action.to_s, **context }
         expect(uploader).to receive(:track_upload).and_call_original
         expect(uploader).to receive(:track_request).with(:error, msg, metric, **kwargs)
 
