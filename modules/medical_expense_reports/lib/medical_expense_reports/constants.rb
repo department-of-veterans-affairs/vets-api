@@ -5,20 +5,11 @@ module MedicalExpenseReports
   # Constants used for PDF mapping
   #
   class Constants
-    # Types for Claimants
-    CLAIMANT_TYPES = {
-      'VETERAN' => 0,
-      'SPOUSE' => 1,
-      'CHILD' => 2,
-      'PARENT' => 3,
-      'CUSTODIAN' => 4
-    }.freeze
-
     # The Income Types
     RECIPIENTS = {
       'VETERAN' => 4,
       'SPOUSE' => 1,
-      'CHILD' => 3,
+      'DEPENDENT' => 3,
       'OTHER' => 2
     }.freeze
 
