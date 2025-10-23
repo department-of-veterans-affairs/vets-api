@@ -37,13 +37,13 @@ module DependentsBenefits
       # handle a failure result
       # inheriting class must assign @avoided before calling `super`
       def on_failure
-        @avoided = notification_email.deliver(:error)
+        @avoided = notification_email.send_error_notification
         super
       end
 
       # handle a success result
       def on_success
-        notification.deliver(:received)
+        notification_email.send_received_notification
         super
       end
 

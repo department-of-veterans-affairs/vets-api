@@ -2,6 +2,7 @@
 
 require 'dependents_benefits/notification_callback'
 require 'veteran_facing_services/notification_email/saved_claim'
+require 'dependents_benefits/monitor'
 
 module DependentsBenefits
   # @see VeteranFacingServices::NotificationEmail::SavedClaim
@@ -51,6 +52,42 @@ module DependentsBenefits
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_metadata
     def callback_metadata
       super.merge(claim_id: claim.id)
+    end
+
+    def send_received_notification
+      received_key = if claim.submittable_686? && claim.submittable_674?
+                    :received_686c_674
+                  elsif claim.submittable_686?
+                    :received_686c_only
+                  elsif claim.submittable_674?
+                    :received_674_only
+                  end
+
+      deliver(received_key)
+
+      rescue => e
+        monitor.track_error_event('Error sending received notification email', 'notification_failure', error: e)
+      end
+    end
+
+    def send_error_notification
+      error_key = if claim.submittable_686? && claim.submittable_674?
+                    :error_686c_674
+                  elsif claim.submittable_686?
+                    :error_686c_only
+                  elsif claim.submittable_674?
+                    :error_674_only
+                  end
+
+      deliver(error_key)
+
+      rescue => e
+        monitor.track_error_event('Error sending error notification email', 'notification_failure', error: e)
+      end
+    end
+
+    def monitor
+      @monitor ||= DependentsBenefits::Monitor.new
     end
   end
 end
