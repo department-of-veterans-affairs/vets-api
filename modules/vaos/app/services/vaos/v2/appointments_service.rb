@@ -381,7 +381,8 @@ module VAOS
 
         # Track overall parallel fetch duration
         StatsD.measure("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.total_duration") do
-          appointments_future = create_appointments_future(start_date, end_date, statuses, pagination_params)
+          appointments_future = create_appointments_future(start_date, end_date, statuses, pagination_params,
+                                                           :get_appointments)
           travel_claims_future = create_travel_claims_future(start_date, end_date, tp_client)
 
           # Wait for both futures and handle results
@@ -400,10 +401,10 @@ module VAOS
         user.icn
       end
 
-      def create_appointments_future(start_date, end_date, statuses, pagination_params)
+      def create_appointments_future(start_date, end_date, statuses, pagination_params, caller_method_name)
         Concurrent::Promises.future do
           StatsD.measure("#{STATSD_KEY_PREFIX}.get_appointments.parallel_fetch.appointments_service.duration") do
-            send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
+            send_appointments_request(start_date, end_date, caller_method_name, pagination_params, statuses)
           end
         end
       end
