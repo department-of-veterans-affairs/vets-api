@@ -6,6 +6,8 @@ require 'unified_health_data/serializers/lab_or_test_serializer'
 module Mobile
   module V1
     class LabsAndTestsController < ApplicationController
+      service_tag 'mhv-medical-records'
+
       before_action :controller_enabled?
 
       def index

@@ -3,6 +3,8 @@
 module Mobile
   module V1
     class ImmunizationsController < ApplicationController
+      service_tag 'mhv-medical-records'
+
       FUTURE_DATE = '3000-01-01'
 
       def index
