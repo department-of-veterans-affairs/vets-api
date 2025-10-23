@@ -5,14 +5,6 @@ require 'rails_helper'
 RSpec.describe SavedClaim::DependencyClaim do
   subject(:saved_claim) { create(:dependency_claim) }
 
-  # Performance tweak
-  before do
-    allow(PdfFill::Filler)
-      .to receive(:fill_form) { |saved_claim, *_|
-        "tmp/pdfs/686C-674_#{saved_claim.id || 'stub'}_final.pdf"
-      }
-  end
-
   let(:subject_v2) { create(:dependency_claim_v2) }
 
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
@@ -53,7 +45,6 @@ RSpec.describe SavedClaim::DependencyClaim do
   let(:file_path_v2) { "tmp/pdfs/686C-674-V2_#{subject_v2.id}_final.pdf" }
 
   before do
-    # Mock expensive PDF operations to avoid file I/O
     allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow(File).to receive(:rename)
     allow(Common::FileHelpers).to receive(:delete_file_if_exists)
