@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'unique_user_events'
+
 module Mobile
   module V0
     class MessagesController < MessagingController
@@ -17,6 +19,12 @@ module Mobile
         links = pagination_links(resource)
         resource = resource.paginate(**pagination_params)
         resource.metadata.merge!(message_counts(resource))
+
+        # Log unique user event for inbox accessed
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
+        )
 
         options = { meta: resource.metadata, links: }
         render json: Mobile::V0::MessagesSerializer.new(resource.data, options)
@@ -47,6 +55,12 @@ module Mobile
 
         client_response = build_create_client_response(message, create_message_params)
 
+        # Log unique user event for message sent
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+        )
+
         options = { meta: {} }
         options[:include] = [:attachments] if client_response.attachment
         render json: Mobile::V0::MessageSerializer.new(client_response, options)
@@ -76,6 +90,12 @@ module Mobile
 
         client_response = build_reply_client_response(message, create_message_params)
 
+        # Log unique user event for message sent
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+        )
+
         options = {}
         options[:include] = [:attachments] if client_response.attachment
         render json: Mobile::V0::MessageSerializer.new(client_response, options), status: :created
@@ -100,6 +120,26 @@ module Mobile
       end
 
       private
+
+      # Sends a message to the client API with or without attachments
+      #
+      # @param message [Message] the message object to send
+      # @param create_message_params [Hash] the parameters for creating the message
+      # @return [Object] the client response
+      def send_message_to_client(message, create_message_params)
+        if message.uploads.present?
+          begin
+            client.post_create_message_with_attachment(create_message_params)
+          rescue Common::Client::Errors::Serialization => e
+            Rails.logger.info('Mobile SM create with attachment error', status: e&.status,
+                                                                        error_body: e&.body,
+                                                                        message: e&.message)
+            raise e
+          end
+        else
+          client.post_create_message(message_params.to_h)
+        end
+      end
 
       # When we get message parameters as part of a multipart payload (i.e. with attachments),
       # ActionController::Parameters leaves the message part as a string so we have to turn it into
