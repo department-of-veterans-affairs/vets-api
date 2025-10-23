@@ -115,8 +115,9 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         end
 
         it 'sends confirmation email' do
+          Flipper.disable(:vre_use_new_vfs_notification_library)
           expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
-            .with('VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
+            .with('VBMS', 'confirmation_vbms_email_template_id')
 
           claim.send_to_vre(user_object)
         end
@@ -139,6 +140,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       let(:user_object) { create(:unauthorized_evss_user) }
 
       it 'PDF is sent to Central Mail and not VBMS' do
+        Flipper.disable(:vre_use_new_vfs_notification_library)
         expect(claim).to receive(:process_attachments!)
         expect(claim).to receive(:send_to_lighthouse!).with(user_object).once.and_call_original
         expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
@@ -185,7 +187,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           }
         )
 
-        claim.send_vbms_lighthouse_confirmation_email('VBMS', :confirmation_vbms, 'ch31_vbms_fake_template_id')
+        claim.send_vbms_lighthouse_confirmation_email('VBMS', 'ch31_vbms_fake_template_id')
       end
     end
   end
