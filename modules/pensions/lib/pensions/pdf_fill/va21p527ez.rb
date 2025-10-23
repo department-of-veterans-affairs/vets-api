@@ -6,7 +6,10 @@ require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
 require_relative 'constants'
-require_relative 'helpers'
+
+# Sections
+require_relative 'sections/section_10'
+require_relative 'sections/section_11'
 require_relative 'sections/section_12'
 
 # rubocop:disable Metrics/ClassLength
@@ -17,7 +20,6 @@ module Pensions
     class Va21p527ez < ::PdfFill::Forms::FormBase
       include ::PdfFill::Forms::FormHelper
       include ::PdfFill::Forms::FormHelper::PhoneNumberFormatting
-      include ActiveSupport::NumberHelper
       include Helpers
 
       # The Form ID
@@ -1399,7 +1401,7 @@ module Pensions
       }.freeze
 
       # The list of section classes for form expansion and key building
-      SECTION_CLASSES = [Section12].freeze
+      SECTION_CLASSES = [Section10, Section11, Section12].freeze
 
       SECTION_CLASSES.each { |section| key = key.merge(section::KEY) }
 
@@ -1419,8 +1421,6 @@ module Pensions
         expand_prior_marital_history
         expand_dependent_children
         expand_income_and_assets
-        expand_care_medical_expenses
-        expand_direct_deposit_information
 
         # Section 12
         SECTION_CLASSES.each { |section| section.new.expand(form_data) }
@@ -1746,76 +1746,6 @@ module Pensions
           end
           income_source.merge(income_source_hash)
         end
-      end
-
-      # SECTION X: CARE/MEDICAL EXPENSES
-      def expand_care_medical_expenses
-        @form_data['hasAnyExpenses'] =
-          to_radio_yes_no(@form_data['hasCareExpenses'] || @form_data['hasMedicalExpenses'])
-        @form_data['careExpenses'] = merge_care_expenses(@form_data['careExpenses'])
-        @form_data['medicalExpenses'] = merge_medical_expenses(@form_data['medicalExpenses'])
-      end
-
-      # Map over the care expenses and expand the data out.
-      def merge_care_expenses(care_expenses)
-        care_expenses&.map do |care_expense|
-          care_expense.merge(care_expense_to_hash(care_expense))
-        end
-      end
-
-      # Expand a care expense data hash.
-      def care_expense_to_hash(care_expense)
-        {
-          'recipients' => Constants::RECIPIENTS[care_expense['recipients']],
-          'recipientsOverflow' => care_expense['recipients']&.humanize,
-          'careType' => Constants::CARE_TYPES[care_expense['careType']],
-          'careTypeOverflow' => care_expense['careType']&.humanize,
-          'ratePerHour' => split_currency_amount(care_expense['ratePerHour']),
-          'ratePerHourOverflow' => number_to_currency(care_expense['ratePerHour']),
-          'hoursPerWeek' => care_expense['hoursPerWeek'].to_s,
-          'careDateRange' => {
-            'from' => split_date(care_expense.dig('careDateRange', 'from')),
-            'to' => split_date(care_expense.dig('careDateRange', 'to'))
-          },
-          'careDateRangeOverflow' => build_date_range_string(care_expense['careDateRange']),
-          'noCareEndDate' => to_checkbox_on_off(care_expense['noCareEndDate']),
-          'paymentFrequency' => Constants::PAYMENT_FREQUENCY[care_expense['paymentFrequency']],
-          'paymentFrequencyOverflow' => care_expense['paymentFrequency'],
-          'paymentAmount' => split_currency_amount(care_expense['paymentAmount']),
-          'paymentAmountOverflow' => number_to_currency(care_expense['paymentAmount'])
-        }
-      end
-
-      # Map over medical expenses and create a set of data.
-      def merge_medical_expenses(medical_expenses)
-        medical_expenses&.map do |medical_expense|
-          medical_expense.merge({
-                                  'recipients' => Constants::RECIPIENTS[medical_expense['recipients']],
-                                  'recipientsOverflow' => medical_expense['recipients']&.humanize,
-                                  'paymentDate' => split_date(medical_expense['paymentDate']),
-                                  'paymentDateOverflow' => to_date_string(medical_expense['paymentDate']),
-                                  'paymentFrequency' =>
-                                    Constants::PAYMENT_FREQUENCY[medical_expense['paymentFrequency']],
-                                  'paymentFrequencyOverflow' => medical_expense['paymentFrequency'],
-                                  'paymentAmount' => split_currency_amount(medical_expense['paymentAmount']),
-                                  'paymentAmountOverflow' => number_to_currency(
-                                    medical_expense['paymentAmount']
-                                  )
-                                })
-        end
-      end
-
-      # SECTION XI: DIRECT DEPOSIT INFORMATION
-      def expand_direct_deposit_information
-        account_type = @form_data.dig('bankAccount', 'accountType')
-
-        @form_data['bankAccount'] = @form_data['bankAccount'].to_h.merge(
-          'accountType' => case account_type
-                           when 'checking' then 0
-                           when 'savings' then 1
-                           else 2 if @form_data['bankAccount'].nil?
-                           end
-        )
       end
     end
   end

@@ -4,6 +4,8 @@ module Pensions
   module PdfFill
     # Helpers used for PDF mapping
     module Helpers
+      include ActiveSupport::NumberHelper
+
       # Convert a date to a string
       def to_date_string(date)
         date_hash = split_date(date)
