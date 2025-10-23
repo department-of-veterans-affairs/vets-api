@@ -5,7 +5,7 @@ require_relative '../section'
 module Pensions
   module PdfFill
     # Section IX: Questions regarding income and assets
-    class Section09 < Section
+    class Section9 < Section
       # Section configuration hash
       KEY = {
         # 9a
