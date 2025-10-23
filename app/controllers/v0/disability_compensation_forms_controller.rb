@@ -280,10 +280,10 @@ module V0
     # when toxic exposure data has been changed or removed by the frontend. This is wrapped
     # in error handling to ensure logging failures do not impact veteran submissions.
     #
-    # @param saved_claim [SavedClaim::DisabilityCompensation::Form526AllClaim] The submitted claim
+    # @param submitted_claim [SavedClaim::DisabilityCompensation::Form526AllClaim] The submitted claim
     # @param submission [Form526Submission] The submission record
     # @return [void]
-    def log_toxic_exposure_changes(saved_claim, submission)
+    def log_toxic_exposure_changes(submitted_claim, submission)
       return unless Flipper.enabled?(:disability_526_log_toxic_exposure_purge, @current_user)
 
       in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user)
@@ -291,18 +291,18 @@ module V0
 
       monitor.track_toxic_exposure_changes(
         in_progress_form:,
-        submitted_claim: saved_claim,
-        submission:,
-        user_uuid: @current_user.uuid
+        submitted_claim:,
+        submission:
       )
     rescue => e
       # Don't fail submission if logging fails
       Rails.logger.error(
         'Error logging toxic exposure changes',
         user_uuid: @current_user&.uuid,
-        saved_claim_id: saved_claim&.id,
+        saved_claim_id: submitted_claim&.id,
         submission_id: submission&.id,
-        error: e.message
+        error: e.message,
+        backtrace: e.backtrace&.first(5)
       )
     end
   end

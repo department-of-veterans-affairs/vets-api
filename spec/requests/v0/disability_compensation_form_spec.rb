@@ -330,8 +330,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
                 hash_including(
                   in_progress_form:,
                   submitted_claim: kind_of(SavedClaim::DisabilityCompensation::Form526AllClaim),
-                  submission: kind_of(Form526Submission),
-                  user_uuid: user.uuid
+                  submission: kind_of(Form526Submission)
                 )
               )
 

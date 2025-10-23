@@ -107,7 +107,6 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
   end
 
   describe('#track_toxic_exposure_changes') do
-    let(:user_uuid) { SecureRandom.uuid }
     let(:in_progress_form_data) do
       {
         'toxicExposure' => {
@@ -132,7 +131,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
             completely_removed:
           )
         )
-        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim: saved_claim, submission:, user_uuid:)
+        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim: saved_claim, submission:)
       end
     end
 
@@ -149,6 +148,68 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
       include_examples 'logs changes event', removed_keys: ['gulfWar1990'], completely_removed: false
     end
 
+    context 'when conditions key removed' do
+      before do
+        form_data = {
+          'toxicExposure' => {
+            'gulfWar1990' => { 'iraq' => true }
+          }
+        }
+        allow(saved_claim).to receive(:form).and_return(form_data.to_json)
+      end
+
+      include_examples 'logs changes event', removed_keys: ['conditions'], completely_removed: false
+    end
+
+    context 'when all keys removed but toxicExposure object exists (empty hash)' do
+      before do
+        form_data = {
+          'toxicExposure' => {}
+        }
+        allow(saved_claim).to receive(:form).and_return(form_data.to_json)
+      end
+
+      include_examples 'logs changes event', removed_keys: %w[conditions gulfWar1990], completely_removed: false
+
+      it 'distinguishes empty object from nil' do
+        expect(monitor).to receive(:submit_event).with(
+          :info,
+          'Form526Submission toxic exposure orphaned dates purged',
+          "#{described_class::CLAIM_STATS_KEY}.toxic_exposure_changes",
+          hash_including(
+            submission_id: submission.id,
+            removed_keys: %w[conditions gulfWar1990],
+            completely_removed: false
+          )
+        )
+        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim: saved_claim, submission:)
+      end
+    end
+
+    context 'when multiple keys removed (3+ keys)' do
+      before do
+        # Setup InProgressForm with 3 keys
+        in_progress_data = {
+          'toxicExposure' => {
+            'conditions' => { 'asthma' => true },
+            'gulfWar1990' => { 'iraq' => true },
+            'gulfWar2001' => { 'afghanistan' => true }
+          }
+        }
+        allow(in_progress_form).to receive(:form_data).and_return(in_progress_data.to_json)
+
+        # Submitted only has conditions
+        form_data = {
+          'toxicExposure' => {
+            'conditions' => { 'asthma' => true }
+          }
+        }
+        allow(saved_claim).to receive(:form).and_return(form_data.to_json)
+      end
+
+      include_examples 'logs changes event', removed_keys: %w[gulfWar1990 gulfWar2001], completely_removed: false
+    end
+
     context 'when completely removed' do
       before { allow(saved_claim).to receive(:form).and_return({}.to_json) }
 
@@ -160,7 +221,7 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
 
       it 'does not log' do
         expect(monitor).not_to receive(:submit_event)
-        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim: saved_claim, submission:, user_uuid:)
+        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim: saved_claim, submission:)
       end
     end
   end

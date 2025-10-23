@@ -71,11 +71,11 @@ module DisabilityCompensation
       # @param in_progress_form [InProgressForm] User's saved form data
       # @param submitted_claim [SavedClaim::DisabilityCompensation::Form526AllClaim] The submitted claim
       # @param submission [Form526Submission] The submission record
-      # @param user_uuid [String] User's UUID
       # @return [void]
-      def track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:, user_uuid:)
+      def track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
         in_progress_form_data = parse_form_data(in_progress_form.form_data)
         submitted_data = parse_form_data(submitted_claim.form)
+
         return unless in_progress_form_data && submitted_data
 
         # NOTE: Both InProgressForm.form_data and SavedClaim.form store only the inner
@@ -90,14 +90,11 @@ module DisabilityCompensation
 
         change_metadata = calculate_toxic_exposure_changes(in_progress_toxic_exposure, submitted_toxic_exposure)
 
-        # Don't log if no meaningful changes (after filtering view: fields and empty hashes)
+        # Don't log if no meaningful changes (after filtering empty hashes)
         return if change_metadata[:removed_keys].empty? && !change_metadata[:completely_removed]
 
         log_toxic_exposure_changes(
-          in_progress_form:,
-          submitted_claim:,
           submission:,
-          user_uuid:,
           change_metadata:
         )
       end
@@ -166,15 +163,10 @@ module DisabilityCompensation
       # which toxic exposure keys were removed during submission.
       # Uses minimal data to reduce fingerprinting risk.
       #
-      # @param in_progress_form [InProgressForm] User's saved form data (unused, for signature compatibility)
-      # @param submitted_claim [SavedClaim::DisabilityCompensation::Form526AllClaim] The SavedClaim record (unused)
       # @param submission [Form526Submission] The Form526Submission record
-      # @param user_uuid [String] User's UUID (unused, for signature compatibility)
       # @param change_metadata [Hash] Hash containing removed_keys and removal flags
       # @return [void]
-      # rubocop:disable Lint/UnusedMethodArgument
-      def log_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:,
-                                     user_uuid:, change_metadata:)
+      def log_toxic_exposure_changes(submission:, change_metadata:)
         log_data = {
           submission_id: submission.id,
           completely_removed: change_metadata[:completely_removed],
@@ -188,13 +180,11 @@ module DisabilityCompensation
           log_data
         )
       end
-      # rubocop:enable Lint/UnusedMethodArgument
 
       # Calculate removed keys from toxic exposure changes
       #
       # Analyzes differences between save-in-progress and submitted toxic exposure data
-      # to identify which keys were removed. Filters out expected removals like
-      # 'view:' prefixed UI fields and empty hash values to reduce noise.
+      # to identify which keys were removed. Filters out empty hash values to reduce noise.
       #
       # @param in_progress_toxic_exposure [Hash] Toxic exposure data from InProgressForm
       # @param submitted_toxic_exposure [Hash, nil] Toxic exposure data from SavedClaim
@@ -208,8 +198,10 @@ module DisabilityCompensation
           in_progress_toxic_exposure[key].is_a?(Hash) && in_progress_toxic_exposure[key].empty?
         end
 
+        completely_removed = submitted_toxic_exposure.nil?
+
         {
-          completely_removed: submitted_toxic_exposure.nil?,
+          completely_removed:,
           removed_keys: removed_keys.sort
         }
       end
