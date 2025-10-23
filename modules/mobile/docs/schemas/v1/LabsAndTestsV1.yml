@@ -1,0 +1,87 @@
+type: object
+additionalProperties: false
+required:
+  - data
+  - meta
+properties:
+  data:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - id
+        - attributes
+      properties:
+        type:
+          type: string
+          example: labsAndTests
+        id:
+          type: string
+          example: abe3f152-90b0-45cb-8776-4958bad0e0ef
+          description: Upstream identifier
+        attributes:
+          type: object
+          additionalProperties: false
+          required:
+            - category
+            - subject
+            - effectiveDateTime
+            - issued
+            - code
+            - status
+          properties:
+            category:
+              type: string
+              example: LAB
+            subject:
+              type: string
+              example: Patient/1234567
+            effectiveDateTime:
+              type: string
+              format: date-time
+              example: 2021-01-01T00:00:00Z
+            issued:
+              type: string
+              format: date-time
+              example: 2021-01-01T00:00:00Z
+            code:
+              type: object
+              properties:
+                coding:
+                  type: array
+                  items:
+                    type: object
+                text:
+                  type: string
+            status:
+              type: string
+              example: final
+  meta:
+    type: object
+    additionalProperties: false
+    required:
+      - pagination
+    properties:
+      pagination:
+        type: object
+        additionalProperties: false
+        required:
+          - currentPage
+          - perPage
+          - totalPages
+          - totalEntries
+        properties:
+          currentPage:
+            type: integer
+            example: 1
+          perPage:
+            type: integer
+            example: 10
+          totalPages:
+            type: integer
+            example: 2
+          totalEntries:
+            type: integer
+            example: 15
