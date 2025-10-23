@@ -284,7 +284,10 @@ module V0
     # @param submission [Form526Submission] The submission record
     # @return [void]
     def log_toxic_exposure_changes(submitted_claim, submission)
-      return unless Flipper.enabled?(:disability_526_log_toxic_exposure_purge, @current_user)
+      # Enable logging if either toxic exposure purge flag is enabled
+      # First one is for general audience and second it for user-specific targeting for effected users
+      return unless Flipper.enabled?(:disability_526_toxic_exposure_opt_out_data_purge, @current_user) ||
+                    Flipper.enabled?(:disability_526_toxic_exposure_opt_out_data_purge_by_user, @current_user)
 
       in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user)
       return unless in_progress_form

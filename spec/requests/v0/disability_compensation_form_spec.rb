@@ -303,9 +303,13 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
             allow(monitor).to receive(:track_saved_claim_save_success)
             allow(monitor).to receive(:track_526_submission_with_banking_info)
             allow(monitor).to receive(:track_526_submission_without_banking_info)
+
             allow(Flipper).to receive(:enabled?)
-              .with(:disability_526_log_toxic_exposure_purge, anything)
+              .with(:disability_526_toxic_exposure_opt_out_data_purge, anything)
               .and_return(true)
+            allow(Flipper).to receive(:enabled?)
+              .with(:disability_526_toxic_exposure_opt_out_data_purge_by_user, anything)
+              .and_return(false)
           end
 
           context 'when toxic exposure keys are removed' do
@@ -413,8 +417,12 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
 
           context 'when flipper flag is disabled' do
             it 'does not call track_toxic_exposure_changes' do
+              # Disable both toxic exposure purge flags to prevent logging
               allow(Flipper).to receive(:enabled?)
-                .with(:disability_526_log_toxic_exposure_purge, anything)
+                .with(:disability_526_toxic_exposure_opt_out_data_purge, anything)
+                .and_return(false)
+              allow(Flipper).to receive(:enabled?)
+                .with(:disability_526_toxic_exposure_opt_out_data_purge_by_user, anything)
                 .and_return(false)
 
               expect(monitor).not_to receive(:track_toxic_exposure_changes)
