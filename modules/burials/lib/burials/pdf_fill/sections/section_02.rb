@@ -22,4 +22,3 @@ module Burials
     end
   end
 end
-
