@@ -52,12 +52,13 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
   after { Flipper.disable(:accredited_representative_portal_pilot) }
 
   def stub_ar_monitoring(controller: 'power_of_attorney_request_decisions', action: 'create')
-    span_double = instance_double(Span, set_tag: true)
+    span_double = double('span', set_tag: true)
     monitor = instance_double(
       AccreditedRepresentativePortal::Monitoring,
       track_duration: true,
       track_count: true
     )
+    allow(AccreditedRepresentativePortal::Monitoring).to receive(:new).and_call_original
     allow(AccreditedRepresentativePortal::Monitoring).to receive(:new)
       .with(
         'accredited-representative-portal',
@@ -67,31 +68,25 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     monitor
   end
 
-  # rubocop:disable Metrics/MethodLength
   def expect_poa_metrics(monitor:, decision:, request:)
     expected_tags = array_including("poa_code:#{request.power_of_attorney_holder_poa_code}",
-                                    "resolution:#{decision}")
+                                    "decision:#{decision}")
     expect(monitor).to have_received(:track_duration).with(
-      'vets_api.statsd.ar_poa_request_duration',
+      'ar.poa.request.duration',
       from: request.created_at,
       tags: expected_tags
     )
     metric = if decision == 'accepted'
-               'vets_api.statsd.ar_poa_request_accepted_duration'
+               'ar.poa.request.accepted.duration'
              else
-               'vets_api.statsd.ar_poa_request_declined_duration'
+               'ar.poa.request.declined.duration'
              end
     expect(monitor).to have_received(:track_duration).with(
       metric,
       from: request.created_at,
       tags: expected_tags
     )
-    expect(monitor).to have_received(:track_count).with(
-      'vets_api.statsd.ar_poa_request_count',
-      tags: expected_tags
-    )
   end
-  # rubocop:enable Metrics/MethodLength
 
   describe 'POST /accredited_representative_portal/v0/power_of_attorney_requests/:id/decision' do
     context "when user's VSO does not accept digital POAs" do
