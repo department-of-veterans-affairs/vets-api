@@ -284,14 +284,8 @@ module RepresentationManagement
     # @return [Hash] Transformed data for AccreditedIndividual record
     def data_transform_for_representative(rep)
       data_transform_for_entity(rep['representative'], 'representative', {
-                                  city: rep['workCity'],
-                                  state_code: rep['workState'],
                                   phone: rep['representative']['workNumber'],
                                   email: rep['representative']['workEmailAddress'],
-                                  address_line1: rep['workAddress1'],
-                                  address_line2: rep['workAddress2'],
-                                  address_line3: rep['workAddress3'],
-                                  zip_code: rep['workZip'],
                                   raw_address: raw_address_for_representative(rep),
                                   registration_number: rep.dig('representative', 'id')
                                 })
@@ -391,8 +385,6 @@ module RepresentationManagement
     # @return [Hash] Transformed data for AccreditedIndividual record
     def data_transform_for_agent(agent)
       data_transform_for_entity(agent, ENTITY_CONFIG.send(AGENTS).individual_type, {
-                                  country_code_iso3: agent['workCountry'],
-                                  country_name: agent['workCountry'],
                                   phone: agent['workPhoneNumber'],
                                   email: agent['workEmailAddress'],
                                   raw_address: raw_address_for_agent(agent)
@@ -405,8 +397,6 @@ module RepresentationManagement
     # @return [Hash] Transformed data for AccreditedIndividual record
     def data_transform_for_attorney(attorney)
       data_transform_for_entity(attorney, ENTITY_CONFIG.send(ATTORNEYS).individual_type, {
-                                  city: attorney['workCity'],
-                                  state_code: attorney['workState'],
                                   phone: attorney['workNumber'],
                                   email: attorney['emailAddress'],
                                   raw_address: raw_address_for_attorney(attorney)
@@ -427,11 +417,7 @@ module RepresentationManagement
         ogc_id: entity['id'],
         first_name: entity['firstName'],
         middle_initial: entity['middleName'].to_s.strip.first,
-        last_name: entity['lastName'],
-        address_line1: entity['workAddress1'],
-        address_line2: entity['workAddress2'],
-        address_line3: entity['workAddress3'],
-        zip_code: entity['workZip']
+        last_name: entity['lastName']
       }.merge(extra_attrs)
     end
 
