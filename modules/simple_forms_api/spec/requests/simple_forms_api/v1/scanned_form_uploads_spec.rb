@@ -10,7 +10,6 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
   let(:valid_pdf_file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
   let(:valid_image_file) { fixture_file_upload('doctors-note.jpg', 'image/jpeg') }
   let(:large_file) { fixture_file_upload('too_large.pdf', 'application/pdf') }
-  let(:too_many_mbs_file) { fixture_file_upload('large_mb.pdf', 'application/pdf') }
 
   before do
     sign_in(user)
@@ -183,10 +182,17 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       end
 
       it 'returns validation when too many mbs' do
+        too_many_mbs_file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
+        validation_result = PDFUtilities::PDFValidator::ValidationResult.new
+        validation_result.errors << 'file - size must not be greater than 100.0 MB'
+        allow_any_instance_of(PDFUtilities::PDFValidator::Validator).to receive(:validate).and_return(validation_result)
+
         params = { form_id: form_number, file: too_many_mbs_file }
+
         expect do
           post '/simple_forms_api/v1/supporting_documents_upload', params:
         end.not_to change(PersistentAttachment, :count)
+
         expect(response).to have_http_status(:unprocessable_entity)
         resp = JSON.parse(response.body)
         expect(resp['errors']).to be_an(Array)
