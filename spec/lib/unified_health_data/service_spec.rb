@@ -189,7 +189,6 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'handles gracefully' do
-        # Mock response with nil body (Faraday auto-parses, so body is already a Hash/nil)
         allow_any_instance_of(UnifiedHealthData::Client).to receive(:get_labs_by_date)
           .and_return(Faraday::Response.new(body: nil))
         allow(Flipper).to receive(:enabled?).and_return(true)
