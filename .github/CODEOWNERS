@@ -1754,6 +1754,7 @@ spec/requests/v1/gi/version_public_exports_spec.rb @department-of-veterans-affai
 spec/requests/v1/post911_gi_bill_status_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/requests/va_profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/routing/v0/map_services_routing_spec.rb @department-of-veterans-affairs/octo-identity
+spec/rswag/v0/form214192_spec.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 spec/rswag_override.rb @department-of-veterans-affairs/backend-review-group
 spec/scripts/import_va_certs_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/serializers/appointment_serializer_spec.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
@@ -1946,6 +1947,7 @@ spec/support/poa_stub.rb @department-of-veterans-affairs/health-apps-backend @de
 spec/support/rakelib/users_serialized.json @department-of-veterans-affairs/octo-identity
 spec/support/request_helper.rb @department-of-veterans-affairs/octo-identity
 spec/support/rswag/text_helpers.rb @department-of-veterans-affairs/lighthouse-dash
+spec/support/rswag_config.rb @department-of-veterans-affairs/backend-review-group
 spec/support/rx_client_helpers.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/mobile-api-team
 spec/support/rx_spec_helper.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/support/saml @department-of-veterans-affairs/octo-identity
