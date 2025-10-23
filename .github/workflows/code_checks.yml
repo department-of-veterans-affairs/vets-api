@@ -1,7 +1,7 @@
 name: Code Checks
 on:
   push:
-    branches: [master]
+    branches: [master, production-bypass]
   pull_request:
     types: [opened, reopened, synchronize]
 permissions:
@@ -216,7 +216,7 @@ jobs:
           TEST_ENV_NUMBER: ${{ matrix.test_group }}
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
-          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 24 -o '--format documentation'"
+          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 24"
 
       - name: Prepare SimpleCov shard payload
         if: always()
@@ -301,7 +301,7 @@ jobs:
 
       - name: Download coverage artifacts
         if: needs.tests.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: simplecov-resultset-*
           path: .
