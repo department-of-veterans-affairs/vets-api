@@ -37,6 +37,19 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
+          aws-region: us-gov-west-1
+
+      - name: Obtain GitHub Token
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+
       - name: Get pull_request data
         id: get_pr_data
         env:
@@ -120,6 +133,13 @@ jobs:
         with:
           number: ${{ steps.get_pr_data.outputs.pr_number }}
           labels: ready-for-review
+
+      - name: Respond to PR if PR is in draft mode
+        if: steps.get_pr_data.outputs.pr_draft == 'true'
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
+        with:
+          message: 'The Ready for Review workflow will always fail when a pull request is in draft mode, since the GitHub API does not assign teams or CODEOWNERS until the PR is marked as ready for review.'
+          github-token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Fail if draft
         if: steps.get_pr_data.outputs.pr_draft == 'true'
