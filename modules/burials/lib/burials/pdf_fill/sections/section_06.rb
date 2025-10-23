@@ -2,7 +2,7 @@
 
 require_relative '../section'
 
-module IncomeAndAssets
+module Burials
   module PdfFill
     # Section VI: Plot / Transportation allowance Information
     class Section6 < Section

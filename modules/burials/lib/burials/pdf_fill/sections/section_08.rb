@@ -2,7 +2,7 @@
 
 require_relative '../section'
 
-module IncomeAndAssets
+module Burials
   module PdfFill
     # Section VIII: Witnesses to signature
     class Section8 < Section

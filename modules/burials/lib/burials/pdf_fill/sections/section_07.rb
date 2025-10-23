@@ -2,7 +2,7 @@
 
 require_relative '../section'
 
-module IncomeAndAssets
+module Burials
   module PdfFill
     # Section VII: Claim certification and signatures
     class Section7 < Section

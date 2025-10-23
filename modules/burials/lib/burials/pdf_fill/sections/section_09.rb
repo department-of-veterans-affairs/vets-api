@@ -2,7 +2,7 @@
 
 require_relative '../section'
 
-module IncomeAndAssets
+module Burials
   module PdfFill
     # Section IX: Alternate signer certification and signature
     class Section9 < Section

@@ -2,7 +2,7 @@
 
 require_relative '../section'
 
-module IncomeAndAssets
+module Burials
   module PdfFill
     # Section I: Veteran Information
     class Section1 < Section
