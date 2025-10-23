@@ -298,7 +298,7 @@ module V0
         submitted_claim:,
         submission:
       )
-    rescue => e
+    rescue StandardError => e
       # Don't fail submission if logging fails
       Rails.logger.error(
         'Error logging toxic exposure changes',
