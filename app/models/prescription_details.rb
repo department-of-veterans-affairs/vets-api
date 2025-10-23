@@ -72,7 +72,8 @@ class PrescriptionDetails < Prescription
 
     if rx_rf_records.present?
       most_recent_record = rx_rf_records.reduce(nil) do |max, item|
-        next max unless item[:dispensed_date].present?
+        next max if item[:dispensed_date].blank?
+
         max.nil? || item[:dispensed_date] > max[:dispensed_date] ? item : max
       end
 
