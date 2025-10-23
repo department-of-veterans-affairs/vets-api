@@ -62,7 +62,7 @@ module V0
       end
     end
 
-    # rubocop:disable Metrics/MethodLength - Method was already at limit (20 lines), adding toxic exposure logging adds 1 line
+    # rubocop:disable Metrics/MethodLength - Method was already at limit (20 lines), adding toxic exposure logging increased the length slightly
     def submit_all_claim
       temp_separation_location_fix if Flipper.enabled?(:disability_compensation_temp_separation_location_code_string,
                                                        @current_user)
