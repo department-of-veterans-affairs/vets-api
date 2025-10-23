@@ -10,8 +10,9 @@ on: # `on` parses to `true` in ruby
       - lib/veteran_facing_services/**/*.rb
       - modules/burials/**/*.rb
       - modules/claims_evidence_api/**/*.rb
-      - modules/pensions/**/*.rb
       - modules/income_and_assets/**/*.rb
+      - modules/medical_expense_reports/**/*.rb
+      - modules/pensions/**/*.rb
       
 permissions:
   contents: read

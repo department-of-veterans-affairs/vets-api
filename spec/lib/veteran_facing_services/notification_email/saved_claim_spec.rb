@@ -49,7 +49,8 @@ RSpec.describe VeteranFacingServices::NotificationEmail::SavedClaim do
       it 'successfully sends a confirmation email' do
         api_key = vanotify_services_settings.form23_42fake.api_key
         callback_options = { callback_klass: be_a(String), callback_metadata: be_a(Hash) }
-        personalization = { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number }
+        personalization = { 'date_submitted' => fake_claim.submitted_at,
+                            'confirmation_number' => fake_claim.confirmation_number }
 
         expect(fake_claim).to receive(:va_notification?).with confirmation_email_template_id
         expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(vanotify)

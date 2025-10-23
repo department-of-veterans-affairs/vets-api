@@ -23,10 +23,8 @@ module VeteranFacingServices
     #     pensions: *vanotify_services_pension
     #
     class SavedClaim
-
-      # @param saved_claim [SavedClaim] the claim for which to send a notification
-      # @param service_name [String] alternative serivce name listed in Settings
-      #   default will be the formatted claim.form_id
+      # @param saved_claim_id [Integer] the claim id for which to send a notification
+      # @param service_name [String] alternative serivce name listed in Settings; default is formatted claim.form_id
       def initialize(saved_claim_id, service_name: nil)
         @claim = claim_class.find(saved_claim_id)
         @vanotify_service = service_name
@@ -94,13 +92,12 @@ module VeteranFacingServices
 
         is_enabled = flipper_enabled?(email_config.flipper_id)
         already_sent = claim.va_notification?(email_config.template_id)
-        if already_sent
-          monitor.duplicate_attempt(tags:, context:)
-        end
+        monitor.duplicate_attempt(tags:, context:) if already_sent
 
         email_template_id if is_enabled && !already_sent
       end
 
+      # the monitor for _this_ instance
       def monitor
         @monitor ||= VeteranFacingServices::NotificationEmail::Monitor.new
       end

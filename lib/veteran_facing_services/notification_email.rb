@@ -9,10 +9,12 @@ module VeteranFacingServices
     # error indicating failure to send email
     class FailureToSend < StandardError; end
 
+    # default monitor class for notification email
     class Monitor < ::Logging::Monitor
       # statsd metric prefix
       STATSD = 'api.veteran_facing_services.notification_email'
 
+      # allowed parameters
       ALLOWLIST = %w[
         claim_id
         email_type

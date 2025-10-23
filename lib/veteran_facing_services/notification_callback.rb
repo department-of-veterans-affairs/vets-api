@@ -21,6 +21,7 @@ module VeteranFacingServices
 
     # generic parent class for a notification callback
     class Default
+      # statsd metric prefix
       STATSD = 'api.veteran_facing_services.notification_callback'
 
       # static call to handle notification callback
@@ -36,7 +37,8 @@ module VeteranFacingServices
         when 'delivered'
           # success
           callback.on_delivered
-          monitor.track_request(:info, "#{callback.klass}: Delivered", "#{STATSD}.delivered", call_location:, tags:, **context)
+          monitor.track_request(:info, "#{callback.klass}: Delivered", "#{STATSD}.delivered", call_location:, tags:,
+                                                                                              **context)
 
         when 'permanent-failure'
           # delivery failed - log error
@@ -103,6 +105,7 @@ module VeteranFacingServices
         nil
       end
 
+      # retrieve _this_ callback tracking values
       def tracking
         [monitor, call_location, context, tags]
       end
@@ -147,9 +150,11 @@ module VeteranFacingServices
       end
     end
 
+    # default monitor class for a callback
     class Monitor < ::Logging::Monitor
       include ::Logging::Include::ZeroSilentFailures
 
+      # allowed parameters
       ALLOWLIST = %w[
         callback_klass
         callback_metadata
@@ -158,7 +163,7 @@ module VeteranFacingServices
         source
         status
         status_reason
-      ]
+      ].freeze
 
       def initialize
         super('vfs-notification-callback', allowlist: ALLOWLIST)
