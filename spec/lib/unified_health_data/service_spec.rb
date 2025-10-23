@@ -1126,7 +1126,7 @@ describe UnifiedHealthData::Service, type: :service do
         it 'handles API errors gracefully' do
           allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return(nil)
           allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(false)
-          allow(Rails.logger).to receive(:warn)
+          allow(Rails.logger).to receive(:error)
           allow(StatsD).to receive(:increment)
 
           # Mock API to raise an error
@@ -1139,8 +1139,8 @@ describe UnifiedHealthData::Service, type: :service do
             oracle_prescription = prescriptions.find { |p| p.prescription_id == '15214174591' }
 
             expect(oracle_prescription.facility_name).to be_nil
-            # Warning is logged multiple times for different prescriptions with same station number
-            expect(Rails.logger).to have_received(:warn).with(
+            # Error is logged multiple times for different prescriptions with same station number
+            expect(Rails.logger).to have_received(:error).with(
               'Failed to fetch facility name from API for station 556: API unavailable'
             ).at_least(:once)
             expect(StatsD).to have_received(:increment).with(
