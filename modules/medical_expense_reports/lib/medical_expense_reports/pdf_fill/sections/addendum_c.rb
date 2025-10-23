@@ -69,6 +69,11 @@ module MedicalExpenseReports
       end
 
       def expand_traveler(traveler)
+        traveler['travelLocation'] =
+          case traveler['travelLocation']
+          when 'OTHER' then traveler['travelLocationOther']
+          else traveler['travelLocation']
+          end
         traveler['travelReimbursementAmount'] =
           split_currency_amount_sm(traveler['travelReimbursementAmount'], { 'thousands' => 3 })
         traveler['travelDate'] = split_date(traveler['travelDate'])

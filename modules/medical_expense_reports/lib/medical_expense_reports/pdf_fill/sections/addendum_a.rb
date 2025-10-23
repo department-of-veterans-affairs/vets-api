@@ -96,8 +96,9 @@ module MedicalExpenseReports
 
       def expand_recipient(recipient)
         recipient['recipient'] = Constants::RECIPIENTS[recipient['recipient']] || 'Off'
-        recipient['startDate'] = split_date(recipient['startDate'])
-        recipient['endDate'] = split_date(recipient['endDate'])
+        recipient['careDate'] ||= {}
+        recipient['startDate'] = split_date(recipient.dig('careDate', 'from'))
+        recipient['endDate'] = split_date(recipient.dig('careDate', 'to'))
         recipient['monthlyAmount'] = split_currency_amount_sm(recipient['monthlyAmount'], { 'thousands' => 3 })
         recipient
       end
