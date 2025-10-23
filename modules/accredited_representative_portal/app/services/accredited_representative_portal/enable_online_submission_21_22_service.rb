@@ -10,9 +10,11 @@ module AccreditedRepresentativePortal
               .where(poa: codes)
               .where.not(can_accept_digital_poa_requests: true)
 
-      # rubocop:disable Rails/SkipsModelValidations
-      scope.update_all(can_accept_digital_poa_requests: true)
-      # rubocop:enable Rails/SkipsModelValidations
+      updated = 0
+
+      scope.each { |vso| updated += 1 if vso.update(can_accept_digital_poa_requests: true) }
+
+      updated
     end
 
     def self.normalize_codes(input)
