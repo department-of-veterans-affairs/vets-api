@@ -23,6 +23,7 @@ RSpec.describe UnifiedHealthData::FacilityNameCacheJob, type: :job do
     allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_lighthouse_client)
     allow(mock_lighthouse_client).to receive(:get_paginated_facilities).and_return(mock_response)
     allow(mock_response).to receive(:facilities).and_return(mock_facilities)
+    allow(mock_response).to receive(:links).and_return(nil) # No next page by default
 
     # Mock Rails cache
     allow(Rails.cache).to receive(:write)
@@ -111,13 +112,21 @@ RSpec.describe UnifiedHealthData::FacilityNameCacheJob, type: :job do
       let(:batch_size) { UnifiedHealthData::FacilityNameCacheJob::BATCH_SIZE }
 
       before do
-        paginated_facilities = Array.new(batch_size) do |index|
-          double('Facility', id: format('vha_%03d', index), name: "Facility #{index}")
-        end
-        allow(first_page_response).to receive(:facilities).and_return(paginated_facilities)
-        allow(second_page_response).to receive(:facilities).and_return(
-          [double('Facility', id: 'vha_1000', name: 'Facility 1000')]
-        )
+        first_page_facilities = [
+          double('Facility', id: 'vha_001', name: 'Facility 1'),
+          double('Facility', id: 'vha_002', name: 'Facility 2')
+        ]
+        second_page_facilities = [
+          double('Facility', id: 'vha_003', name: 'Facility 3')
+        ]
+
+        allow(first_page_response).to receive(:facilities).and_return(first_page_facilities)
+        allow(first_page_response).to receive(:links).and_return({
+          'next' => 'https://api.va.gov/services/va_facilities/v1/facilities?type=health&page=2&per_page=1000'
+        })
+
+        allow(second_page_response).to receive(:facilities).and_return(second_page_facilities)
+        allow(second_page_response).to receive(:links).and_return(nil) # No next page
 
         allow(mock_lighthouse_client).to receive(:get_paginated_facilities).and_return(
           first_page_response,
@@ -125,7 +134,7 @@ RSpec.describe UnifiedHealthData::FacilityNameCacheJob, type: :job do
         )
       end
 
-      it 'requests subsequent pages until the final page is smaller than the batch size' do
+      it 'requests subsequent pages using links.next until no next link is present' do
         job.perform
 
         expect(mock_lighthouse_client).to have_received(:get_paginated_facilities).with(
@@ -135,8 +144,8 @@ RSpec.describe UnifiedHealthData::FacilityNameCacheJob, type: :job do
         )
         expect(mock_lighthouse_client).to have_received(:get_paginated_facilities).with(
           type: 'health',
-          per_page: batch_size,
-          page: 2
+          page: '2',
+          per_page: '1000'
         )
       end
     end

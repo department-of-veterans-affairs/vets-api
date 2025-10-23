@@ -54,19 +54,18 @@ module UnifiedHealthData
     def fetch_vha_facilities
       facilities_client = Lighthouse::Facilities::V1::Client.new
       all_facilities = []
-      current_page = 1
 
       Rails.logger.info('[UnifiedHealthData] - Fetching VHA facilities from Lighthouse API')
 
-      loop do
-        facilities = facilities_client.get_paginated_facilities(
-          type: 'health',
-          per_page: BATCH_SIZE,
-          page: current_page
-        )
+      response = facilities_client.get_paginated_facilities(
+        type: 'health',
+        per_page: BATCH_SIZE,
+        page: 1
+      )
 
+      loop do
         # Filter to VHA facilities and extract station numbers
-        vha_facilities = facilities.facilities.filter_map do |facility|
+        vha_facilities = response.facilities.filter_map do |facility|
           next unless facility.id.start_with?('vha_')
 
           station_number = facility.id.sub(/^vha_/, '')
@@ -74,9 +73,15 @@ module UnifiedHealthData
         end
 
         all_facilities.concat(vha_facilities)
-        break if facilities.facilities.size < BATCH_SIZE
 
-        current_page += 1
+        # Check if there's a next page link
+        break unless response.links&.dig('next')
+
+        # Parse the next page URL to extract query parameters
+        next_url = URI.parse(response.links['next'])
+        next_params = URI.decode_www_form(next_url.query).to_h.transform_keys(&:to_sym)
+
+        response = facilities_client.get_paginated_facilities(next_params)
       end
 
       # Convert to hash for easy lookup
