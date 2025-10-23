@@ -8,7 +8,7 @@ module MyHealth
       service_tag 'mhv-medical-records'
 
       def download
-        file_format = params[:file_format] || 'xml'
+        file_format = params[:format] || 'xml'
         binary_data = service.get_ccd_binary(format: file_format)
 
         if binary_data.nil?
@@ -21,11 +21,7 @@ module MyHealth
                   disposition: "attachment; filename=ccd.#{file_format.downcase}",
                   status: :ok
       rescue ArgumentError => e
-        if e.message.include?('not available')
-          render_error('CCD Format Not Found', e.message, '404', 404, :not_found)
-        else
-          render_error('Invalid Format', e.message, '400', 400, :bad_request)
-        end
+        render_error('CCD Format Not Found', e.message, '404', 404, :not_found)
       rescue Common::Client::Errors::ClientError,
              Common::Exceptions::BackendServiceException,
              StandardError => e

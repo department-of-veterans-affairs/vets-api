@@ -8,7 +8,9 @@ MyHealth::Engine.routes.draw do
       resources :conditions, only: %i[index show], defaults: { format: :json }
       resources :immunizations, only: %i[index show], defaults: { format: :json }
       resources :labs_and_tests, only: %i[index], defaults: { format: :json }
-      get 'ccd/download', to: 'ccd#download'
+      get 'ccd/download(.:format)', to: 'ccd#download',
+                                    constraints: { format: /(xml|html|pdf)/ },
+                                    defaults: { format: 'xml' }
     end
   end
 

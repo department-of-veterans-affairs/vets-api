@@ -11,13 +11,18 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
 
   before do
     sign_in_as(current_user)
+    Timecop.freeze(Time.zone.parse('2025-10-22'))
+  end
+
+  after do
+    Timecop.return
   end
 
   describe 'GET /my_health/v2/medical_records/ccd/download' do
     context 'when successful with XML format' do
       it 'returns XML CCD' do
         VCR.use_cassette(ccd_cassette) do
-          get path, params: { file_format: 'xml' }
+          get "#{path}.xml"
 
           expect(response).to have_http_status(:ok)
           expect(response.content_type).to include('application/xml')
@@ -28,7 +33,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
 
       it 'sets correct filename for XML' do
         VCR.use_cassette(ccd_cassette) do
-          get path, params: { file_format: 'xml' }
+          get "#{path}.xml"
 
           expect(response.headers['Content-Disposition']).to include('filename=ccd.xml')
         end
@@ -36,7 +41,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
 
       it 'decodes Base64 data correctly' do
         VCR.use_cassette(ccd_cassette) do
-          get path, params: { file_format: 'xml' }
+          get "#{path}.xml"
 
           expect(response.body).to include('<?xml version') # Decoded XML, not Base64
           expect(response.body).to include('ClinicalDocument')
@@ -47,7 +52,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
     context 'when successful with HTML format' do
       it 'returns HTML CCD' do
         VCR.use_cassette(ccd_cassette) do
-          get path, params: { file_format: 'html' }
+          get "#{path}.html"
 
           expect(response).to have_http_status(:ok)
           expect(response.content_type).to include('text/html')
@@ -59,7 +64,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
     context 'when successful with PDF format' do
       it 'returns PDF CCD' do
         VCR.use_cassette(ccd_cassette) do
-          get path, params: { file_format: 'pdf' }
+          get "#{path}.pdf"
 
           expect(response).to have_http_status(:ok)
           expect(response.content_type).to eq('application/pdf')
@@ -71,22 +76,11 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
     context 'when format is not specified' do
       it 'defaults to XML format' do
         VCR.use_cassette(ccd_cassette) do
-          get path, params: {}
+          get path
 
           expect(response).to have_http_status(:ok)
           expect(response.content_type).to include('application/xml')
           expect(response.headers['Content-Disposition']).to include('filename=ccd.xml')
-        end
-      end
-    end
-
-    context 'when dates are not provided' do
-      it 'uses default dates and returns CCD successfully' do
-        VCR.use_cassette(ccd_cassette) do
-          get path, params: {}
-
-          expect(response).to have_http_status(:ok)
-          expect(response.content_type).to include('application/xml')
         end
       end
     end
@@ -110,22 +104,10 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
     end
 
     context 'when format is invalid' do
-      let(:service_double) { instance_double(UnifiedHealthData::Service) }
+      it 'returns 404 due to routing constraints (never reaches controller)' do
+        get "#{path}.json"
 
-      before do
-        allow(UnifiedHealthData::Service).to receive(:new).and_return(service_double)
-        allow(service_double).to receive(:get_ccd_binary)
-          .and_raise(ArgumentError, 'Invalid format: json. Use xml, html, or pdf')
-      end
-
-      it 'returns 400 bad request' do
-        get path, params: { file_format: 'json' }
-
-        expect(response).to have_http_status(:bad_request)
-        json_response = JSON.parse(response.body)
-        expect(json_response['errors'].first['title']).to eq('Invalid Format')
-        expect(json_response['errors'].first['detail']).to include('Invalid format')
-        expect(json_response['errors'].first['status']).to eq(400)
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -139,7 +121,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'returns 404 not found' do
-        get path, params: { file_format: 'html' }
+        get "#{path}.html"
 
         expect(response).to have_http_status(:not_found)
         json_response = JSON.parse(response.body)
@@ -161,7 +143,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'returns correct HTTP status based on error status' do
-        get path, params: {}
+        get path
 
         expect(response).to have_http_status(:service_unavailable)
         json_response = JSON.parse(response.body)
@@ -178,7 +160,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
       end
 
       it 'returns 500 internal server error' do
-        get path, params: {}
+        get path
 
         expect(response).to have_http_status(:internal_server_error)
         json_response = JSON.parse(response.body)
