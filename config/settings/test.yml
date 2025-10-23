@@ -957,6 +957,7 @@ mhv:
     app_token: fake-app-token
     gw_base_path: v1/sm/patient/
     mock: true
+    timeout: <%= ENV['mhv_sm_timeout'] || 60 %>
     x_api_key: fake-x-api-key
   uhd:
     app_id: 1000
@@ -975,7 +976,6 @@ mhv_mobile:
   sm:
     app_token: fake-app-token
     x_api_key: fake-x-api-key
-mhv_sm_timeout: <%= ENV['mhv_sm_timeout'] || 60 %>
 mobile_lighthouse:
   client_id: 0oajpx78t3M8kurld2p7
   rsa_key: ~
