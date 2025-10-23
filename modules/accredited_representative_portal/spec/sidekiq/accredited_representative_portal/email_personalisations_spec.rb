@@ -282,7 +282,6 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
 
     it 'returns the first name' do
       result = personalisation.generate
-      # debugger
       expect(result['first_name']).to eq('Bob')
     end
   end
