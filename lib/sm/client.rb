@@ -164,6 +164,7 @@ module SM
 
         loop do
           path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
+          path = append_requires_oh_messages_query(path)
           page_data = perform(:get, path, nil, token_headers).body
           json[:data].concat(page_data[:data])
           json[:metadata].merge(page_data[:metadata])
@@ -567,17 +568,6 @@ module SM
       response&.status
     end
     # @!endgroup
-
-    def get_unique_care_systems(all_recipients)
-      unique_care_system_ids = all_recipients.uniq(&:station_number).map(&:station_number)
-      unique_care_system_names = Mobile::FacilitiesHelper.get_facility_names(unique_care_system_ids)
-      unique_care_system_ids.zip(unique_care_system_names).map! do |system|
-        {
-          station_number: system[0],
-          health_care_system_name: system[1] || system[0]
-        }
-      end
-    end
 
     def get_cached_or_fetch_data(use_cache, cache_key, model)
       data = nil

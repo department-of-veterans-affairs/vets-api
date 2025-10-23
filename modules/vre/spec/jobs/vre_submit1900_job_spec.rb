@@ -20,19 +20,19 @@ describe VRE::VRESubmit1900Job do
   end
   let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
   let(:user) { OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) }
-  let(:claim) { create(:veteran_readiness_employment_claim) }
 
   let(:monitor) { double('VRE::VREMonitor') }
   let(:exhaustion_msg) do
     { 'args' => [], 'class' => 'VRE::VRESubmit1900Job', 'error_message' => 'An error occurred',
       'queue' => 'default' }
   end
+  let(:claim) { create(:veteran_readiness_employment_claim) }
 
   describe '#perform' do
     subject { described_class.new.perform(claim.id, encrypted_user) }
 
     before do
-      allow(VRE::VREVeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
+      allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
     end
 
     after do
@@ -51,9 +51,9 @@ describe VRE::VRESubmit1900Job do
     end
   end
 
-  describe 'queue exhaustion' do
+  describe 'raises an exception with email flipper on' do
     before do
-      allow(VRE::VREVeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
+      allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
       allow(VRE::VREMonitor).to receive(:new).and_return(monitor)
       allow(monitor).to receive :track_submission_exhaustion
       Flipper.enable(:vre_use_new_vfs_notification_library)
@@ -69,18 +69,23 @@ describe VRE::VRESubmit1900Job do
         end
       end
     end
+  end
 
-    context 'when email is not present' do
-      it 'raises an exception and sends no email' do
-        user_struct.va_profile_email = nil
+  describe 'when queue is exhausted with no email' do
+    before do
+      allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
+      allow(VRE::VREMonitor).to receive(:new).and_return(monitor)
+      allow(monitor).to receive :track_submission_exhaustion
+      user_struct.va_profile_email = nil
+    end
 
-        VRE::VRESubmit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-          expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
-          exhaustion_msg['args'] = [claim.id, encrypted_user]
-          allow(claim).to receive(:email).and_return(nil)
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
-          expect(VRE::NotificationEmail).not_to receive(:new)
-        end
+    it 'raises an exception' do
+      VRE::VRESubmit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
+        expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
+        exhaustion_msg['args'] = [claim.id, encrypted_user]
+        allow(claim).to receive(:email).and_return(nil)
+        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+        expect(VRE::NotificationEmail).not_to receive(:new)
       end
     end
   end
