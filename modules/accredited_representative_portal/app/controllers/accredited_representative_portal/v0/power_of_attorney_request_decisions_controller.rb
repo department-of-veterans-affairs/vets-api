@@ -57,7 +57,7 @@ module AccreditedRepresentativePortal
           current_user.power_of_attorney_holder_memberships
         ).call
 
-        track_decision_durations!('accepted')
+        track_decision_durations('accepted')
         render json: {}, status: :ok
       end
 
@@ -76,12 +76,12 @@ module AccreditedRepresentativePortal
         )
 
         send_declination_email(@poa_request)
-        track_decision_durations!('declined')
+        track_decision_durations('declined')
 
         render json: {}, status: :ok
       end
 
-      def track_decision_durations!(decision)
+      def track_decision_durations(decision)
         tags = ["decision:#{decision}", "poa_code:#{poa_code}"]
 
         ar_monitoring.track_duration(
