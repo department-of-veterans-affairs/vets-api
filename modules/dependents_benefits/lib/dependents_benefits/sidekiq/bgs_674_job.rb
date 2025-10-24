@@ -60,11 +60,10 @@ module DependentsBenefits
         submission_attempt&.fail!(error: exception)
       end
 
-      # Service-specific failure logic for permanent failures
-      # Update form submission record to failed
-      def mark_submission_failed(exception)
-        submission&.fail!(error: exception)
-      end
+      #
+      # BGS::Submission has no status update, so no-op here
+      # This differs from other submission types, which may require status updates on failure.
+      def mark_submission_failed(_exception) = nil
 
       def permanent_failure?(error)
         return false if error.nil?
