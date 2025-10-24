@@ -1555,6 +1555,45 @@ describe VAOS::V2::AppointmentsService do
         end
       end
     end
+
+    context 'when EPS fails to fetch appointments' do
+      it 'logs the error and re-raises the exception' do
+        allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments)
+          .and_raise(Common::Exceptions::BackendServiceException.new('EPS_502', { source: 'EPS' }))
+
+        expect(Rails.logger).to receive(:error)
+          .with(/Failed to fetch EPS appointments for referral \*\*\*1234/)
+
+        expect do
+          subject.get_active_appointments_for_referral('test-referral-1234')
+        end.to raise_error(Common::Exceptions::BackendServiceException)
+      end
+    end
+
+    context 'when VAOS fails to fetch appointments' do
+      it 'logs the error and re-raises the exception' do
+        appointments_service = VAOS::V2::AppointmentsService.new(user)
+        allow(VAOS::V2::AppointmentsService).to receive(:new).and_return(appointments_service)
+
+        VCR.use_cassette('vaos/eps/token/token_200',
+                         match_requests_on: %i[method path],
+                         allow_playback_repeats: true, tag: :force_utf8) do
+          VCR.use_cassette('vaos/eps/get_appointments/200_empty',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            allow(appointments_service).to receive(:get_all_appointments)
+              .and_raise(Common::Exceptions::BackendServiceException.new('VAOS_502', { detail: 'VAOS error' }))
+
+            expect(Rails.logger).to receive(:error)
+              .with(/Failed to fetch VAOS appointments for referral \*\*\*5678/)
+
+            expect do
+              appointments_service.get_active_appointments_for_referral('test-referral-5678')
+            end.to raise_error(StandardError)
+          end
+        end
+      end
+    end
   end
 
   describe '#referral_appointment_already_exists?' do

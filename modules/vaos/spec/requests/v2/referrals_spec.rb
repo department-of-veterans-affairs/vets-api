@@ -250,16 +250,16 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
         it 'returns error response when appointment service raises BackendServiceException' do
           allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
-            .and_raise(Common::Exceptions::BackendServiceException.new('VA900', { source: 'EPS' }))
+            .and_raise(Common::Exceptions::BackendServiceException.new('VAOS_502', { source: 'EPS' }))
 
           get "/vaos/v2/referrals/#{encrypted_uuid}"
 
-          expect(response).to have_http_status(:bad_request)
+          expect(response).to have_http_status(:bad_gateway)
           response_data = JSON.parse(response.body)
 
           expect(response_data).to have_key('errors')
           expect(response_data['errors']).to be_an(Array)
-          expect(response_data['errors'].first).to include('code' => 'VA900')
+          expect(response_data['errors'].first).to include('code' => 'VAOS_502')
         end
       end
 

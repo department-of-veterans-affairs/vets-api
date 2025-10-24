@@ -382,13 +382,30 @@ module VAOS
 
         deduplicated = deduplicate_eps_appointments(normalized)
         deduplicated.sort_by { |appt| appt[:start] || '' }
+      rescue Common::Exceptions::BackendServiceException => e
+        log_fetch_error('EPS', referral_number, "#{e.class.name} - #{e.message}")
+        raise
       end
 
       def fetch_and_normalize_vaos_appointments(referral_number)
         vaos_response = get_all_appointments({})
-        raise Common::Exceptions::BackendServiceException.new('VAOS', {}) if vaos_response[:meta][:failures].present?
+        check_vaos_response_for_failures(vaos_response, referral_number)
+        process_vaos_appointments(vaos_response[:data], referral_number)
+      rescue Common::Exceptions::BackendServiceException => e
+        log_fetch_error('VAOS', referral_number, "#{e.class.name} - #{e.message}")
+        raise
+      end
 
-        filtered = vaos_response[:data].select { |appt| appt[:referral_id] == referral_number }
+      def check_vaos_response_for_failures(vaos_response, referral_number)
+        return if vaos_response[:meta][:failures].blank?
+
+        log_fetch_error('VAOS', referral_number, vaos_response[:meta][:failures])
+        raise Common::Exceptions::BackendServiceException.new('VAOS_502',
+                                                              { detail: vaos_response[:meta][:failures].to_s })
+      end
+
+      def process_vaos_appointments(appointments_data, referral_number)
+        filtered = appointments_data.select { |appt| appt[:referral_id] == referral_number }
         normalized = filtered.map do |appt|
           {
             id: appt[:id],
@@ -400,6 +417,11 @@ module VAOS
 
         deduplicated = deduplicate_vaos_appointments(normalized)
         deduplicated.sort_by { |appt| appt[:start] || '' }
+      end
+
+      def log_fetch_error(source, referral_number, error_details)
+        masked_referral = "***#{referral_number.to_s.last(4)}"
+        Rails.logger.error("Failed to fetch #{source} appointments for referral #{masked_referral}: #{error_details}")
       end
 
       def normalize_eps_status(appointment)
