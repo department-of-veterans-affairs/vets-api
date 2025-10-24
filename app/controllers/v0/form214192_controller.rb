@@ -7,7 +7,6 @@ module V0
   class Form214192Controller < ApplicationController
     service_tag 'employment-information'
     skip_before_action :authenticate, only: %i[create download_pdf]
-    skip_before_action :verify_authenticity_token
 
     def create
       confirmation_number = SecureRandom.uuid
