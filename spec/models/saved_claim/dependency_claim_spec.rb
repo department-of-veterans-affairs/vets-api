@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe SavedClaim::DependencyClaim do
-  subject(:saved_claim) { create(:dependency_claim) }
+  let(:subject) { create(:dependency_claim) }
 
   let(:subject_v2) { create(:dependency_claim_v2) }
 
@@ -45,6 +45,7 @@ RSpec.describe SavedClaim::DependencyClaim do
   let(:file_path_v2) { "tmp/pdfs/686C-674-V2_#{subject_v2.id}_final.pdf" }
 
   before do
+    # Mock expensive PDF operations to avoid file I/O
     allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow(File).to receive(:rename)
     allow(Common::FileHelpers).to receive(:delete_file_if_exists)
