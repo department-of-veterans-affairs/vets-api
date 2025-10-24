@@ -135,6 +135,202 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               end
             end
           end
+
+          context 'phone number validation' do
+            let(:base_payload) do
+              {
+                data: {
+                  attributes: {
+                    veteran: {
+                      serviceNumber: '123678453',
+                      serviceBranch: 'ARMY',
+                      address: {
+                        addressLine1: '2719 Hyperion Ave',
+                        city: 'Los Angeles',
+                        countryCode: 'US',
+                        stateCode: 'CA',
+                        zipCode: '92264'
+                      },
+                      phone: {}
+                    },
+                    representative: { poaCode: '067' },
+                    recordConsent: true,
+                    consentAddressChange: true
+                  }
+                }
+              }
+            end
+
+            context 'when neither countryCode nor areaCode provided' do
+              it 'returns a 422 error' do
+                mock_ccg(scopes) do |auth_header|
+                  base_payload[:data][:attributes][:veteran][:phone] = { phoneNumber: '5551234' }
+
+                  post request_path, params: base_payload.to_json, headers: auth_header
+
+                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(JSON.parse(response.body)['errors'][0]['detail']).to include('areaCode')
+                end
+              end
+            end
+
+            context 'when countryCode is 1 without areaCode' do
+              it 'returns a 422 error requiring areaCode' do
+                mock_ccg(scopes) do |auth_header|
+                  base_payload[:data][:attributes][:veteran][:phone] = {
+                    countryCode: '1',
+                    phoneNumber: '5551234'
+                  }
+
+                  post request_path, params: base_payload.to_json, headers: auth_header
+
+                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(JSON.parse(response.body)['errors'][0]['detail']).to include('areaCode')
+                end
+              end
+            end
+
+            context 'when countryCode is international (not 1)' do
+              it 'accepts phone without areaCode' do
+                mock_ccg(scopes) do |auth_header|
+                  base_payload[:data][:attributes][:veteran][:phone] = {
+                    countryCode: '44',
+                    phoneNumber: '2012345678'
+                  }
+
+                  post request_path, params: base_payload.to_json, headers: auth_header
+
+                  expect(response).to have_http_status(:created)
+                end
+              end
+            end
+
+            context 'when areaCode provided without countryCode' do
+              it 'accepts legacy US format' do
+                mock_ccg(scopes) do |auth_header|
+                  base_payload[:data][:attributes][:veteran][:phone] = {
+                    areaCode: '555',
+                    phoneNumber: '5551234'
+                  }
+
+                  post request_path, params: base_payload.to_json, headers: auth_header
+
+                  expect(response).to have_http_status(:created)
+                end
+              end
+            end
+
+            context 'when areaCode pattern validation' do
+              it 'rejects areaCode starting with 1' do
+                mock_ccg(scopes) do |auth_header|
+                  base_payload[:data][:attributes][:veteran][:phone] = {
+                    areaCode: '155',
+                    phoneNumber: '5551234'
+                  }
+
+                  post request_path, params: base_payload.to_json, headers: auth_header
+
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+
+              it 'accepts valid areaCode starting with 2-9' do
+                mock_ccg(scopes) do |auth_header|
+                  base_payload[:data][:attributes][:veteran][:phone] = {
+                    areaCode: '215',
+                    phoneNumber: '5551234'
+                  }
+
+                  post request_path, params: base_payload.to_json, headers: auth_header
+
+                  expect(response).to have_http_status(:created)
+                end
+              end
+            end
+          end
+        end
+
+        # BGS Backend Limitation - Phone number database constraint
+        # The BGS VNP_PTCPNT_PHONE.PHONE_NBR column has an 11 character maximum.
+        # When areaCode + phoneNumber exceed 11 characters, BGS returns:
+        # ORA-12899: value too large for column "CORPPROD"."VNP_PTCPNT_PHONE"."PHONE_NBR" (actual: X, maximum: 11)
+        #
+        # This test documents the limitation that prevents full international phone support.
+        context 'BGS database limitation',
+                skip: 'BGS PHONE_NBR column limited to 11 characters - blocking international phone support' do
+          it 'fails when phone number exceeds 11 characters due to BGS database constraint' do
+            mock_ccg(scopes) do |auth_header|
+              # This payload passes API validation but will fail at BGS with ORA-12899 error
+              # Phone: 555 (areaCode) + "555-1234-567" (phoneNumber) = "555555-1234-567" (15 chars)
+              # BGS concatenates and tries to store in PHONE_NBR column (11 char max)
+              base_payload = {
+                data: {
+                  attributes: {
+                    veteran: {
+                      serviceNumber: '123678453',
+                      serviceBranch: 'ARMY',
+                      address: {
+                        addressLine1: '2719 Hyperion Ave',
+                        city: 'Los Angeles',
+                        countryCode: 'US',
+                        stateCode: 'CA',
+                        zipCode: '92264'
+                      },
+                      phone: {
+                        areaCode: '555',
+                        phoneNumber: '555-1234-567' # Results in 15 total chars when concatenated
+                      }
+                    },
+                    representative: { poaCode: '067' },
+                    recordConsent: true,
+                    consentAddressChange: true
+                  }
+                }
+              }
+
+              post request_path, params: base_payload.to_json, headers: auth_header
+
+              # Currently returns 500 due to BGS database constraint
+              # When BGS fixes this, it should return 201
+              expect(response).to have_http_status(:internal_server_error)
+            end
+          end
+
+          it 'fails with international phone numbers due to BGS database constraint' do
+            mock_ccg(scopes) do |auth_header|
+              # International format: phoneNumber alone is 12 chars (exceeds 11 char limit)
+              base_payload = {
+                data: {
+                  attributes: {
+                    veteran: {
+                      serviceNumber: '123678453',
+                      serviceBranch: 'ARMY',
+                      address: {
+                        addressLine1: '2719 Hyperion Ave',
+                        city: 'Los Angeles',
+                        countryCode: 'US',
+                        stateCode: 'CA',
+                        zipCode: '92264'
+                      },
+                      phone: {
+                        countryCode: '44',
+                        phoneNumber: '20-1234-5678' # 12 characters including dashes
+                      }
+                    },
+                    representative: { poaCode: '067' },
+                    recordConsent: true,
+                    consentAddressChange: true
+                  }
+                }
+              }
+
+              post request_path, params: base_payload.to_json, headers: auth_header
+
+              # Currently returns 500 due to BGS database constraint
+              # When BGS adds separate countryCode field and increases PHONE_NBR size, should return 201
+              expect(response).to have_http_status(:internal_server_error)
+            end
+          end
         end
       end
 
@@ -185,6 +381,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
 
               expected_response['data']['id'] = response_body['data']['id']
               expected_response['data']['type'] = response_body['data']['type']
+              expected_response['data']['attributes']['veteran']['phone']['countryCode'] = nil
 
               expected_response['data']['attributes']['claimant'] = {
                 'claimantId' => nil,
@@ -198,6 +395,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                   'zipCodeSuffix' => nil
                 },
                 'phone' => {
+                  'countryCode' => nil,
                   'areaCode' => nil,
                   'phoneNumber' => nil
                 },
@@ -245,6 +443,8 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               expected_response['data']['type'] = 'power-of-attorney-request'
               expected_response['data']['id'] = response_body['data']['id']
 
+              expected_response['data']['attributes']['veteran']['phone']['countryCode'] = nil
+
               expected_response['data']['attributes']['claimant'] = {
                 'claimantId' => nil,
                 'address' => {
@@ -257,6 +457,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                   'zipCodeSuffix' => nil
                 },
                 'phone' => {
+                  'countryCode' => nil,
                   'areaCode' => nil,
                   'phoneNumber' => nil
                 },
