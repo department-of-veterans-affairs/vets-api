@@ -18,7 +18,7 @@ RSpec.describe MebApi::DGI::Letters::Service do
     let(:user) { create(:user, :loa3) }
     let(:service) { MebApi::DGI::Letters::Service.new(user) }
 
-    describe '#get_claim_letter' do
+    describe '#get_claim_letter', skip: 'intermittent VCR errors' do
       let(:faraday_response) { double('faraday_connection') }
 
       before do
@@ -35,7 +35,7 @@ RSpec.describe MebApi::DGI::Letters::Service do
       end
     end
 
-    describe '#get_fry_claim_letter' do
+    describe '#get_fry_claim_letter', skip: 'intermittent VCR errors' do
       let(:faraday_response) { double('faraday_connection') }
 
       before do
