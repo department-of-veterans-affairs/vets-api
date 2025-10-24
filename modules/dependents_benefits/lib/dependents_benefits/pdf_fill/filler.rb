@@ -3,8 +3,8 @@
 require 'pdf_fill/extras_generator'
 require 'pdf_fill/extras_generator_v2'
 require 'pdf_fill/pdf_post_processor'
-require 'dependents_benefits/pdf_fill/va686c674v2'
-require 'dependents_benefits/pdf_fill/va21674v2'
+require 'dependents_benefits/pdf_fill/va21686c'
+require 'dependents_benefits/pdf_fill/va21674'
 require 'utilities/date_parser'
 require 'forwardable'
 
@@ -39,8 +39,8 @@ module DependentsBenefits
 
       # Registers form classes for various form IDs.
       {
-        '686C-674-V2' => DependentsBenefits::PdfFill::Va686c674v2,
-        '21-674-V2' => DependentsBenefits::PdfFill::Va21674v2
+        '21-686C' => DependentsBenefits::PdfFill::Va21686c,
+        '21-674' => DependentsBenefits::PdfFill::Va21674
       }.each do |form_id, form_class|
         register_form(form_id, form_class)
       end
@@ -170,8 +170,8 @@ module DependentsBenefits
       end
 
       def make_hash_converter(_form_id, form_class, _submit_date, _fill_options)
-        extras_generator = ExtrasGenerator.new
-        HashConverter.new(form_class.date_strftime, extras_generator)
+        extras_generator = ::PdfFill::ExtrasGenerator.new
+        ::PdfFill::HashConverter.new(form_class.date_strftime, extras_generator)
       end
 
       def should_stamp_form?(_form_id, fill_options, submit_date)

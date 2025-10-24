@@ -77,4 +77,11 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
       end
     end
   end
+
+  describe '#to_pdf' do
+    it 'does not fail' do
+      expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).with(claim, nil)
+      expect { claim.to_pdf }.not_to raise_error
+    end
+  end
 end
