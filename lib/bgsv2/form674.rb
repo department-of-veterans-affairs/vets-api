@@ -16,10 +16,10 @@ module BGSV2
 
     attr_reader :user, :saved_claim, :proc_id
 
-    def initialize(user, saved_claim, proc_id = nil)
+    def initialize(user, saved_claim)
       @user = user
       @saved_claim = saved_claim
-      @proc_id = proc_id || vnp_proc_id(saved_claim)
+      @proc_id = vnp_proc_id(saved_claim)
       @end_product_name = '130 - Automated School Attendance 674'
       @end_product_code = '130SCHATTEBN'
       @proc_state = 'Ready'
@@ -33,7 +33,7 @@ module BGSV2
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user:)
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
-      # we are TEMPORARILY always setting to MANUAL_VAGOV for 674 when submitted w/686c
+      # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
       if @saved_claim.submittable_686?
         set_claim_type('MANUAL_VAGOV')
         @proc_state = 'MANUAL_VAGOV'
@@ -71,7 +71,6 @@ module BGSV2
     def log_claim_status(benefit_claim_record, proc_id)
       if @proc_state == 'MANUAL_VAGOV'
         reason = 'This application needs manual review.'
-        # if 674 is being submitted alongside a 686c, note that in the reason
         if @saved_claim.submittable_686?
           reason = 'This application needs manual review because a 674 was submitted alongside a 686c.'
           monitor.track_event('info', "21-674 Combination 686C-674 claim set to manual by VA.gov: #{reason}",

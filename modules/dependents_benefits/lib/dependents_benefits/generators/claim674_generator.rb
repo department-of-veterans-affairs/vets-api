@@ -33,27 +33,21 @@ module DependentsBenefits
       def extract_form_data
         dependent_data = form_data.deep_dup
 
-        form_674_top = dependent_data.slice(
-          'veteran_information',
-          'statement_of_truth_signature',
-          'statement_of_truth_certified'
-        )
-
-        selectable686_options = dependent_data['dependents_application']&.dig('view:selectable686_options')
-        form_674_top['view:selectable686_options'] = selectable686_options
-
-        form_674_nested = dependent_data['dependents_application'].slice(
+        form_674_data = dependent_data['dependents_application']&.slice(
           'veteran_contact_information',
           'view:completed_child_stopped_attending_school',
           'view:add_or_remove_dependents',
           'view:remove_dependent_options',
           'view:selectable686_options',
           'child_stopped_attending_school',
+          'veteran_information',
           'days_till_expires',
           'privacy_agreement_accepted'
-        ).merge('student_information' => [student_data])
+        ) || {}
 
-        form_674_top.merge('dependents_application' => form_674_nested)
+        dependent_data
+          .slice('veteran_information', 'statement_of_truth_signature', 'statement_of_truth_certified')
+          .merge('dependents_application' => form_674_data.merge('student_information' => student_data))
       end
 
       def claim_class

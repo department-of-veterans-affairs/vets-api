@@ -484,9 +484,6 @@ FactoryBot.define do
 
     form do
       {
-        'view:selectable686_options' => {
-          'report674' => true
-        },
         'veteran_information' => {
           'birth_date' => '1980-01-01',
           'full_name' => { 'first' => 'Mark', 'last' => 'Webb' },
@@ -540,7 +537,7 @@ FactoryBot.define do
           }],
           'days_till_expires' => 365,
           'privacy_agreement_accepted' => true,
-          'student_information' => [{
+          'student_information' => {
             'remarks' => 'test additional information',
             'student_networth_information' => {
               'savings' => '500',
@@ -601,7 +598,7 @@ FactoryBot.define do
               'last' => 'student'
             },
             'birth_date' => '2005-01-01'
-          }]
+          }
         }
       }.to_json
     end
