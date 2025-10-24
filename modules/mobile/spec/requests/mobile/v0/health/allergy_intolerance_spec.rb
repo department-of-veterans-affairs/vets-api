@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../../../support/helpers/rails_helper'
+require 'unique_user_events'
 
 RSpec.describe 'Mobile::V0::Health::AllergyIntolerances', type: :request do
   let!(:user) { sis_user(icn: '32000225') }
@@ -147,6 +148,7 @@ RSpec.describe 'Mobile::V0::Health::AllergyIntolerances', type: :request do
     after { Flipper.disable(:mobile_allergy_intolerance_model) }
 
     it 'responds to GET #index' do
+      allow(UniqueUserEvents).to receive(:log_events)
       VCR.use_cassette('rrd/lighthouse_allergy_intolerances') do
         get '/mobile/v0/health/allergy-intolerances', headers: sis_headers
       end
@@ -161,6 +163,15 @@ RSpec.describe 'Mobile::V0::Health::AllergyIntolerances', type: :request do
       item = body['data'][0]
       expect(item['type']).to eq('allergy_intolerance')
       expect(item['attributes']['category'][0]).to eq('environment')
+
+      # Verify event logging was called
+      expect(UniqueUserEvents).to have_received(:log_events).with(
+        user: anything,
+        event_names: [
+          UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+          UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ALLERGIES_ACCESSED
+        ]
+      )
     end
   end
 end

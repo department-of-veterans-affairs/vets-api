@@ -52,9 +52,19 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS686cJob, type: :job do
     end
 
     context 'with BGS service error' do
-      it 'handles BGS errors gracefully' do
-        allow_any_instance_of(BGSV2::Form686c).to receive(:submit).and_raise(BGS::ShareError.new('failed', 500))
-        expect { job.perform(saved_claim.id, proc_id) }.to raise_error(BGS::ShareError)
+      it 'triggers backup job when permanent BGS failure occurs' do
+        permanent_error = BGS::ShareError.new('INVALID_SSN: Social Security Number is invalid', 400)
+
+        # Mock the submission to return a failed ServiceResponse
+        failed_response = DependentsBenefits::ServiceResponse.new(status: false, error: permanent_error)
+        allow(job).to receive(:submit_to_service).and_return(failed_response)
+
+        # Mock permanent_failure? to return true for the original error
+        allow(job).to receive(:permanent_failure?).with(instance_of(DependentsBenefits::Sidekiq::DependentSubmissionError)).and_return(true)
+
+        expect(job).to receive(:send_backup_job)
+
+        expect { job.perform(saved_claim.id, proc_id) }.to raise_error(Sidekiq::JobRetry::Skip)
       end
     end
   end

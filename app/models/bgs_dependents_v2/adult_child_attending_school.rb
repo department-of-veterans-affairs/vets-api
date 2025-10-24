@@ -27,9 +27,16 @@ module BGSDependentsV2
     attribute :birth_date, String
     attribute :ever_married_ind, String
     attribute :dependent_income, String
+    attribute :relationship_to_student, String
 
     validates :first, presence: true
     validates :last, presence: true
+
+    STUDENT_STATUS = {
+      'stepchild' => 'Stepchild',
+      'biological' => 'Biological',
+      'adopted' => 'Adopted Child'
+    }.freeze
 
     def initialize(dependents_application) # rubocop:disable Lint/MissingSuper
       @source = dependents_application
@@ -43,6 +50,7 @@ module BGSDependentsV2
       @middle = @full_name['middle']
       @last = @full_name['last']
       @suffix = @full_name['suffix']
+      @relationship_to_student = STUDENT_STATUS[@source['relationship_to_student']]
     end
 
     # Sets a hash with AdultChildAttendingSchool attributes

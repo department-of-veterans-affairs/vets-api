@@ -6,7 +6,8 @@ RSpec.shared_examples 'authorize_api_error_response' do
   let(:statsd_auth_failure) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE }
   let(:expected_error_log) { '[SignInService] [V0::SignInController] authorize error' }
   let(:expected_error_message) do
-    { errors: expected_error, client_id: client_id_value, type: type_value, acr: acr_value }
+    { errors: expected_error, client_id: client_id_value, type: type_value, acr: acr_value,
+      operation: operation_value || SignIn::Constants::Auth::AUTHORIZE }
   end
 
   it 'renders expected error' do

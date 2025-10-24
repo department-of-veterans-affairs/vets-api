@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'unique_user_events'
 
 require_relative '../../../../support/helpers/rails_helper'
 require_relative '../../../../support/helpers/committee_helper'
@@ -42,6 +43,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(mb_flipper, instance_of(User)).and_return(true)
+        allow(UniqueUserEvents).to receive(:log_events)
         VCR.use_cassette(labs_cassette) do
           get path, headers: sis_headers, params: default_params
         end
@@ -49,6 +51,16 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
 
       it 'returns a successful response' do
         expect(response).to be_successful
+      end
+
+      it 'logs unique user events for labs accessed' do
+        expect(UniqueUserEvents).to have_received(:log_events).with(
+          user: anything,
+          event_names: [
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_LABS_ACCESSED
+          ]
+        )
       end
 
       it 'returns the correct lab records' do

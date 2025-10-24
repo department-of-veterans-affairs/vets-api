@@ -761,9 +761,8 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       expected_keys = %i[
         individual_type registration_number poa_code ogc_id
-        first_name middle_initial last_name address_line1
-        address_line2 address_line3 zip_code country_code_iso3
-        country_name phone email raw_address
+        first_name middle_initial last_name
+        phone email raw_address
       ]
 
       expect(result.keys).to include(*expected_keys)
@@ -810,9 +809,8 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       expected_keys = %i[
         individual_type registration_number poa_code ogc_id
-        first_name middle_initial last_name address_line1
-        address_line2 address_line3 city state_code
-        zip_code phone email raw_address
+        first_name middle_initial last_name
+        phone email raw_address
       ]
 
       expect(result.keys).to include(*expected_keys)
@@ -823,8 +821,6 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       expect(result[:first_name]).to eq('Bob')
       expect(result[:middle_initial]).to eq('C')
       expect(result[:last_name]).to eq('Johnson')
-      expect(result[:city]).to eq('Anytown')
-      expect(result[:state_code]).to eq('CA')
       expect(result[:raw_address]).to be_a(Hash)
       expect(result[:raw_address]['address_line1']).to eq('321 Pine St')
     end
@@ -1449,11 +1445,6 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       expect(result[:first_name]).to eq('judy')
       expect(result[:middle_initial]).to eq('M')
       expect(result[:last_name]).to eq('aalaam')
-      expect(result[:address_line1]).to eq('123 Work St')
-      expect(result[:address_line2]).to eq('Apt 2')
-      expect(result[:city]).to eq('Work City')
-      expect(result[:state_code]).to eq('CA')
-      expect(result[:zip_code]).to eq('12345')
       expect(result[:phone]).to eq('555-1234')
       expect(result[:email]).to eq('judy@example.com')
     end

@@ -32,6 +32,16 @@ def abbreviate_snake_case_name(name)
 end
 
 namespace :rswag do
+  namespace :openapi do
+    desc 'Generate rswag docs for all VA.gov APIs'
+    task build: :environment do
+      ENV['PATTERN'] = 'spec/rswag/v0/*_spec.rb'
+      ENV['RAILS_MODULE'] = 'public'
+      ENV['SWAGGER_DRY_RUN'] = '0'
+      Rake::Task['rswag:specs:swaggerize'].invoke
+    end
+  end
+
   namespace :claims_api do
     desc 'Generate rswag docs by environment for the claims_api'
     task build: :environment do
