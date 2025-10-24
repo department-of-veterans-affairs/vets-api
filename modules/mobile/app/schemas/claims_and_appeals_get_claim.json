@@ -50,6 +50,7 @@
             "trackedItems"
           ],
           "properties": {
+            "claimTypeBase": { "type": "string" },
             "claimTypeCode": { "type": "string" },
             "claimType": { "type": "string" },
             "contentions": {

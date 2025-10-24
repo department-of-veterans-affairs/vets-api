@@ -102,3 +102,11 @@ properties:
           claimTypeCode:
             type: string
             example: '020NEW'
+          displayTitle:
+            type: string
+            description: Formatted title for display
+            example: "Claim for compensation"
+          claimTypeBase:
+            type: string
+            description: Base type of claim
+            nullable: true
