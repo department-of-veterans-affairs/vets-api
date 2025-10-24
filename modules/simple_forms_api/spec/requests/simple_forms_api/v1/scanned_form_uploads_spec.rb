@@ -189,12 +189,9 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         validation_result = PDFUtilities::PDFValidator::ValidationResult.new
         validation_result.errors << 'file - size must not be greater than 100.0 MB'
 
-        mock_validator = instance_double(
-          PDFUtilities::PDFValidator::Validator,
-          validate: validation_result
-        )
-
-        allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(mock_validator)
+        validator_double = instance_double(PDFUtilities::PDFValidator::Validator)
+        allow(validator_double).to receive(:validate).and_return(validation_result)
+        allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(validator_double)
 
         params = { form_id: form_number, file: too_many_mbs_file }
 
