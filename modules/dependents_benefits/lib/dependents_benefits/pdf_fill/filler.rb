@@ -39,8 +39,8 @@ module DependentsBenefits
 
       # Registers form classes for various form IDs.
       {
-        '21-686C' => DependentsBenefits::PdfFill::Va21686c,
-        '21-674' => DependentsBenefits::PdfFill::Va21674
+        DependentsBenefits::ADD_REMOVE_DEPENDENT => DependentsBenefits::PdfFill::Va21686c,
+        DependentsBenefits::SCHOOL_ATTENDANCE_APPROVAL => DependentsBenefits::PdfFill::Va21674
       }.each do |form_id, form_class|
         register_form(form_id, form_class)
       end
