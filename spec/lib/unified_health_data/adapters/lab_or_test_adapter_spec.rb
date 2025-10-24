@@ -718,8 +718,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
       it 'does not log when effectivePeriod has a start date' do
         record = base_record.deep_dup
         record['resource']['effectivePeriod'] = {
-          'start' => '2024-06-01T00:00:00Z',
-          'end' => '2024-06-02T00:00:00Z'
+          'start' => '2024-06-01T00:00:00Z'
         }
 
         expect(Rails.logger).not_to receive(:warn).with(
