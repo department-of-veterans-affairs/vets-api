@@ -9,8 +9,10 @@ module V0
       spec = openapi_spec
 
       if spec
-        spec['servers'] = [{ 'url' => request.base_url }]
-        render json: spec, content_type: 'application/vnd.oai.openapi+json'
+        # Clone the spec so we can modify servers without affecting the cached version
+        response_spec = spec.dup
+        response_spec['servers'] = [{ 'url' => request.base_url }]
+        render json: response_spec, content_type: 'application/vnd.oai.openapi+json'
       else
         render json: { error: 'OpenAPI specification not found' }, status: :not_found
       end

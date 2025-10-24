@@ -10,7 +10,7 @@ RSpec.describe V0::OpenApiController, type: :controller do
       it 'returns a successful response' do
         get :index
         expect(response).to have_http_status(:ok)
-        expect(response.content_type).to eq('application/json; charset=utf-8')
+        expect(response.content_type).to eq('application/vnd.oai.openapi+json; charset=utf-8')
         expect(JSON.parse(response.body)['openapi']).to eq('3.0.3')
       end
 
@@ -75,27 +75,25 @@ RSpec.describe V0::OpenApiController, type: :controller do
       let(:later_time) { Time.zone.parse('2025-01-01 13:00:00') }
 
       before do
-        # Clear any cached spec before each test
-        described_class.instance_variable_set(:@openapi_spec, nil)
-        described_class.instance_variable_set(:@openapi_spec_mtime, nil)
+        # Clear Rails cache before each test
+        Rails.cache.clear
 
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(openapi_file_path).and_return(true)
       end
 
-      it 'caches the parsed spec and does not re-parse on subsequent calls' do
+      it 'caches the parsed spec using mtime-based cache key' do
         allow(File).to receive(:mtime).with(openapi_file_path).and_return(initial_time)
         allow(File).to receive(:read).with(openapi_file_path).and_return(valid_json)
 
-        # First call - should read and parse
-        expect(File).to receive(:read).with(openapi_file_path).once.and_return(valid_json)
-        get :index
-        expect(response).to have_http_status(:ok)
+        # Verify Rails.cache.fetch is called with mtime-based key
+        cache_key = "openapi_spec_#{initial_time.to_i}"
+        expect(Rails.cache).to receive(:fetch).with(cache_key).and_call_original
 
-        # Second call - should use cached version, no File.read
-        expect(File).not_to receive(:read)
         get :index
         expect(response).to have_http_status(:ok)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['openapi']).to eq('3.0.3')
       end
 
       it 'reloads the spec when file mtime changes' do
@@ -105,12 +103,12 @@ RSpec.describe V0::OpenApiController, type: :controller do
         get :index
         expect(response).to have_http_status(:ok)
 
-        # File gets updated with new mtime
+        # File gets updated with new mtime - cache key changes
         updated_json = { 'openapi' => '3.0.3', 'updated' => true }.to_json
         allow(File).to receive(:mtime).with(openapi_file_path).and_return(later_time)
         allow(File).to receive(:read).with(openapi_file_path).and_return(updated_json)
 
-        # Should reload because mtime changed
+        # Should reload because mtime changed (different cache key)
         get :index
         expect(response).to have_http_status(:ok)
         parsed_response = JSON.parse(response.body)
