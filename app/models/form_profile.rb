@@ -125,6 +125,8 @@ class FormProfile
       21P-0519S-1-UPLOAD
       21P-530a-UPLOAD
       21P-8049-UPLOAD
+      21-2680
+      21-2680-house-bound-status
     ],
     fsr: ['5655'],
     hca: %w[1010ez 10-10EZR],
@@ -174,6 +176,8 @@ class FormProfile
     '5655' => ::FormProfiles::VA5655,
     '686C-674-V2' => ::FormProfiles::VA686c674v2,
     '686C-674' => ::FormProfiles::VA686c674,
+    '21-2680' => ::FormProfiles::VA212680,
+    '21-2680-house-bound-status' => ::FormProfiles::VA212680,
     'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt,
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
