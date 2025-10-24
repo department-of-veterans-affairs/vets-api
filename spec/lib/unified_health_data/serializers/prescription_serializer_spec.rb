@@ -9,6 +9,7 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
   let(:prescription) do
     UnifiedHealthData::Prescription.new(
       id: '12345',
+      type: 'Prescription',
       refill_status: 'active',
       refill_submit_date: '2023-05-15',
       refill_date: '2023-05-20',
@@ -52,6 +53,7 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       expect(data[:id]).to eq('12345')
 
       # core attributes
+      expect(attributes[:type]).to eq('Prescription')
       expect(attributes[:refill_status]).to eq('active')
       expect(attributes[:refill_remaining]).to eq(2)
       expect(attributes[:facility_name]).to eq('VA Medical Center')

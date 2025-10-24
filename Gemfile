@@ -25,6 +25,7 @@ path 'modules' do
   gem 'facilities_api'
   gem 'income_and_assets'
   gem 'income_limits'
+  gem 'increase_compensation'
   gem 'ivc_champva'
   gem 'meb_api'
   gem 'medical_expense_reports'

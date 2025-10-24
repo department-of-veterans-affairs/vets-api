@@ -8,7 +8,8 @@ module UnifiedHealthData
       include JSONAPI::Serializer
 
       # Core prescription attributes
-      attributes :refill_status,
+      attributes :type,
+                 :refill_status,
                  :refill_submit_date,
                  :refill_date,
                  :refill_remaining,
