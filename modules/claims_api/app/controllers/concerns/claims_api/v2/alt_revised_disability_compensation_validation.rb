@@ -21,88 +21,94 @@ module ClaimsApi
       YYYY_YYYYMM_REGEX = '^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$'.freeze
       YYYY_MM_DD_REGEX = '^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$'.freeze
 
-      def validate_form_526_submission_values(target_veteran)
+      def alt_rev_validate_form_526_submission_values(target_veteran)
         return if form_attributes.empty?
 
-        validate_claim_process_type_bdd if bdd_claim?
+        alt_rev_validate_claim_process_type_bdd if bdd_claim?
         # ensure mailing address country is valid
-        validate_form_526_identification
+        alt_rev_validate_form_526_identification
         # ensure disabilities are valid
-        validate_form_526_disabilities
+        alt_rev_validate_form_526_disabilities
         # ensure homeless information is valid
-        validate_form_526_veteran_homelessness
+        alt_rev_validate_form_526_veteran_homelessness
         # ensure toxic exposure info is valid
-        validate_form_526_toxic_exposure
+        alt_rev_validate_form_526_toxic_exposure
         # ensure new address is valid
-        validate_form_526_change_of_address
+        alt_rev_validate_form_526_change_of_address
         # ensure military service pay information is valid
-        validate_form_526_service_pay
+        alt_rev_validate_form_526_service_pay
         # ensure treatment centers information is valid
-        validate_form_526_treatments
+        alt_rev_validate_form_526_treatments
         # ensure service information is valid
-        validate_form_526_service_information(target_veteran)
+        alt_rev_validate_form_526_service_information(target_veteran)
         # collect errors and pass back to the controller
         error_collection if @errors
       end
 
       private
 
-      def validate_form_526_change_of_address
+      def alt_rev_validate_form_526_change_of_address
         return if form_attributes['changeOfAddress'].blank?
 
-        validate_form_526_change_of_address_required_fields
-        validate_form_526_change_of_address_beginning_date
-        validate_form_526_change_of_address_ending_date
-        validate_form_526_change_of_address_country
-        validate_form_526_change_of_address_state
-        validate_form_526_change_of_address_zip
+        alt_rev_validate_form_526_change_of_address_required_fields
+        alt_rev_validate_form_526_change_of_address_beginning_date
+        alt_rev_validate_form_526_change_of_address_ending_date
+        alt_rev_validate_form_526_change_of_address_country
+        alt_rev_validate_form_526_change_of_address_state
+        alt_rev_validate_form_526_change_of_address_zip
       end
 
-      def validate_form_526_change_of_address_required_fields
+      def alt_rev_validate_form_526_change_of_address_required_fields
         change_of_address = form_attributes['changeOfAddress']
 
         form_object_desc = '/changeOfAddress'
 
-        validate_form_526_coa_type_of_address_change_presence(change_of_address, form_object_desc)
-        validate_form_526_coa_address_line_one_presence(change_of_address, form_object_desc)
-        validate_form_526_coa_country_presence(change_of_address, form_object_desc)
-        validate_form_526_coa_city_presence(change_of_address, form_object_desc)
+        alt_rev_validate_form_526_coa_type_of_address_change_presence(change_of_address, form_object_desc)
+        alt_rev_validate_form_526_coa_address_line_one_presence(change_of_address, form_object_desc)
+        alt_rev_validate_form_526_coa_country_presence(change_of_address, form_object_desc)
+        alt_rev_validate_form_526_coa_city_presence(change_of_address, form_object_desc)
       end
 
-      def validate_form_526_coa_type_of_address_change_presence(change_of_address, form_object_desc)
+      def alt_rev_validate_form_526_coa_type_of_address_change_presence(change_of_address, form_object_desc)
         type_of_address_change = change_of_address&.dig('typeOfAddressChange')
         collect_error_if_value_not_present('typeOfAddressChange', form_object_desc) if type_of_address_change.blank?
       end
 
-      def validate_form_526_coa_address_line_one_presence(change_of_address, form_object_desc)
+      def alt_rev_validate_form_526_coa_address_line_one_presence(change_of_address, form_object_desc)
         address_line_one = change_of_address&.dig('addressLine1')
         collect_error_if_value_not_present('addressLine1', form_object_desc) if address_line_one.blank?
       end
 
-      def validate_form_526_coa_country_presence(change_of_address, form_object_desc)
+      def alt_rev_validate_form_526_coa_country_presence(change_of_address, form_object_desc)
         country = change_of_address&.dig('country')
         collect_error_if_value_not_present('country', form_object_desc) if country.blank?
       end
 
-      def validate_form_526_coa_city_presence(change_of_address, form_object_desc)
+      def alt_rev_validate_form_526_coa_city_presence(change_of_address, form_object_desc)
         city = change_of_address&.dig('city')
         collect_error_if_value_not_present('city', form_object_desc) if city.blank?
       end
 
-      def validate_form_526_change_of_address_beginning_date
+      def alt_rev_validate_form_526_change_of_address_beginning_date
         change_of_address = form_attributes['changeOfAddress']
         date = change_of_address.dig('dates', 'beginDate')
         return if date.nil? # nullable on schema
 
-        # If the date parse fails, then fall back to the InvalidFieldValue
         begin
-          nil if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
+          begins_in_past = Date.strptime(date, '%Y-%m-%d') <= Date.current
+          if 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange']) && begins_in_past
+            collect_error_messages(
+              detail: 'Change of address beginDate must be in the future if addressChangeType is TEMPORARY',
+              source: '/changeOfAddress/dates/beginDate'
+            )
+          end
         rescue
+          # If the date parse fails, then fall back to the InvalidFieldValue
           collect_error_messages(source: '/changeOfAddress/dates/beginDate', detail: 'beginDate is not a valid date.')
         end
       end
 
-      def validate_form_526_change_of_address_ending_date
+      def alt_rev_validate_form_526_change_of_address_ending_date
         change_of_address = form_attributes&.dig('changeOfAddress')
         date = change_of_address&.dig('dates', 'endDate')
         return if date.nil? # nullable on schema
@@ -127,7 +133,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_change_of_address_country
+      def alt_rev_validate_form_526_change_of_address_country
         country = form_attributes.dig('changeOfAddress', 'country')
         return if country.nil? || valid_countries.include?(country)
 
@@ -137,7 +143,7 @@ module ClaimsApi
         )
       end
 
-      def validate_form_526_change_of_address_state
+      def alt_rev_validate_form_526_change_of_address_state
         address = form_attributes['changeOfAddress'] || {}
         return if address['country'] != 'USA' || address['state'].present?
 
@@ -147,12 +153,12 @@ module ClaimsApi
         )
       end
 
-      def validate_form_526_change_of_address_zip
+      def alt_rev_validate_form_526_change_of_address_zip
         address = form_attributes['changeOfAddress'] || {}
-        validate_form_526_usa_coa_conditions(address) if address['country'] == 'USA'
+        alt_rev_validate_form_526_usa_coa_conditions(address) if address['country'] == 'USA'
       end
 
-      def validate_form_526_usa_coa_conditions(address)
+      def alt_rev_validate_form_526_usa_coa_conditions(address)
         if address['zipFirstFive'].blank?
           collect_error_messages(
             source: '/changeOfAddress/',
@@ -173,17 +179,17 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_identification
+      def alt_rev_validate_form_526_identification
         return if form_attributes['veteranIdentification'].blank?
 
-        validate_form_526_address_type
-        validate_form_526_current_mailing_address_country
-        validate_form_526_current_mailing_address_state
-        validate_form_526_current_mailing_address_zip
-        validate_form_526_service_number
+        alt_rev_validate_form_526_address_type
+        alt_rev_validate_form_526_current_mailing_address_country
+        alt_rev_validate_form_526_current_mailing_address_state
+        alt_rev_validate_form_526_current_mailing_address_zip
+        alt_rev_validate_form_526_service_number
       end
 
-      def validate_form_526_address_type
+      def alt_rev_validate_form_526_address_type
         addr = form_attributes.dig('veteranIdentification', 'mailingAddress')
         return unless address_is_military?(addr)
 
@@ -198,7 +204,7 @@ module ClaimsApi
         )
       end
 
-      def validate_form_526_service_number
+      def alt_rev_validate_form_526_service_number
         service_num = form_attributes.dig('veteranIdentification', 'serviceNumber')
         return if service_num.nil?
 
@@ -207,7 +213,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_current_mailing_address_country
+      def alt_rev_validate_form_526_current_mailing_address_country
         mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
         return if valid_countries.include?(mailing_address['country'])
 
@@ -217,7 +223,7 @@ module ClaimsApi
         )
       end
 
-      def validate_form_526_current_mailing_address_state
+      def alt_rev_validate_form_526_current_mailing_address_state
         mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
         return if mailing_address['country'] != 'USA' || mailing_address['state'].present?
 
@@ -227,7 +233,7 @@ module ClaimsApi
         )
       end
 
-      def validate_form_526_current_mailing_address_zip
+      def alt_rev_validate_form_526_current_mailing_address_zip
         mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
         if mailing_address['country'] == 'USA' && mailing_address['zipFirstFive'].blank?
           collect_error_messages(
@@ -242,18 +248,18 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disabilities
+      def alt_rev_validate_form_526_disabilities
         return if form_attributes['disabilities'].nil? || form_attributes['disabilities'].blank?
 
-        validate_disability_name
-        validate_form_526_disability_classification_code
-        validate_form_526_disability_approximate_begin_date
-        validate_form_526_disability_service_relevance
-        validate_form_526_disability_secondary_disabilities
-        validate_special_issues
+        alt_rev_validate_disability_name
+        alt_rev_validate_form_526_disability_classification_code
+        alt_rev_validate_form_526_disability_approximate_begin_date
+        alt_rev_validate_form_526_disability_service_relevance
+        alt_rev_validate_form_526_disability_secondary_disabilities
+        alt_rev_validate_special_issues
       end
 
-      def validate_disability_name
+      def alt_rev_validate_disability_name
         form_attributes['disabilities'].each_with_index do |disability, idx|
           disability_name = disability&.dig('name')
           if disability_name.blank?
@@ -263,7 +269,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_classification_code
+      def alt_rev_validate_form_526_disability_classification_code
         return if (form_attributes['disabilities'].pluck('classificationCode') - [nil]).blank?
 
         form_attributes['disabilities'].each_with_index do |disability, idx|
@@ -271,7 +277,7 @@ module ClaimsApi
 
           if brd_classification_ids.include?(disability['classificationCode'].to_i)
 
-            validate_form_526_disability_code_enddate(disability['classificationCode'].to_i, idx)
+            alt_rev_validate_form_526_disability_code_enddate(disability['classificationCode'].to_i, idx)
           else
             collect_error_messages(source: "/disabilities/#{idx}/classificationCode",
                                    detail: "The classificationCode (#{idx}) must match an active code " \
@@ -280,7 +286,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_code_enddate(classification_code, idx, sd_idx = nil)
+      def alt_rev_validate_form_526_disability_code_enddate(classification_code, idx, sd_idx = nil)
         reference_disability = brd_disabilities.find { |x| x[:id] == classification_code }
         end_date_time = reference_disability[:endDateTime] if reference_disability
         return if end_date_time.nil?
@@ -296,7 +302,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_approximate_begin_date
+      def alt_rev_validate_form_526_disability_approximate_begin_date
         disabilities = form_attributes&.dig('disabilities')
         return if disabilities.blank?
 
@@ -313,7 +319,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_service_relevance
+      def alt_rev_validate_form_526_disability_service_relevance
         disabilities = form_attributes['disabilities']
         return if disabilities.blank?
 
@@ -328,7 +334,7 @@ module ClaimsApi
         end
       end
 
-      def validate_special_issues
+      def alt_rev_validate_special_issues
         form_attributes['disabilities'].each_with_index do |disability, idx|
           next if disability['specialIssues'].blank?
 
@@ -348,27 +354,29 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_secondary_disabilities
+      def alt_rev_validate_form_526_disability_secondary_disabilities
         form_attributes['disabilities'].each_with_index do |disability, dis_idx|
           next if disability['secondaryDisabilities'].blank?
 
-          validate_form_526_disability_secondary_disability_required_fields(disability, dis_idx)
+          alt_rev_validate_form_526_disability_secondary_disability_required_fields(disability, dis_idx)
 
           disability['secondaryDisabilities'].each_with_index do |secondary_disability, sd_idx|
             if secondary_disability['classificationCode'].present?
-              validate_form_526_disability_code_enddate(secondary_disability['classificationCode'].to_i, dis_idx,
-                                                        sd_idx)
+              alt_rev_validate_form_526_disability_code_enddate(secondary_disability['classificationCode'].to_i,
+                                                                dis_idx,
+                                                                sd_idx)
             end
 
             if secondary_disability['approximateDate'].present?
-              validate_form_526_disability_secondary_disability_approximate_begin_date(secondary_disability, dis_idx,
-                                                                                       sd_idx)
+              alt_rev_validate_form_526_disability_secondary_disability_approximate_begin_date(secondary_disability,
+                                                                                               dis_idx,
+                                                                                               sd_idx)
             end
           end
         end
       end
 
-      def validate_form_526_disability_secondary_disability_required_fields(disability, disability_idx)
+      def alt_rev_validate_form_526_disability_secondary_disability_required_fields(disability, disability_idx)
         disability['secondaryDisabilities'].each_with_index do |secondary_disability, sd_idx|
           sd_name = secondary_disability&.dig('name')
           sd_disability_action_type = secondary_disability&.dig('disabilityActionType')
@@ -389,8 +397,9 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_secondary_disability_approximate_begin_date(secondary_disability, dis_idx,
-                                                                                   sd_idx)
+      def alt_rev_validate_form_526_disability_secondary_disability_approximate_begin_date(secondary_disability,
+                                                                                           dis_idx,
+                                                                                           sd_idx)
         return unless date_is_valid?(secondary_disability['approximateDate'],
                                      'disabilities.secondaryDisabilities.approximateDate')
 
@@ -400,7 +409,7 @@ module ClaimsApi
                                detail: "approximateDate (#{dis_idx}) must be a date in the past.")
       end
 
-      def validate_form_526_veteran_homelessness
+      def alt_rev_validate_form_526_veteran_homelessness
         return if form_attributes&.dig('homeless').nil? # nullable on schema
 
         handle_empty_other_description
@@ -441,20 +450,20 @@ module ClaimsApi
         phone.length > 25 if phone
       end
 
-      def validate_form_526_toxic_exposure
+      def alt_rev_validate_form_526_toxic_exposure
         return if form_attributes&.dig('toxicExposure').nil? # nullable on schema
 
         gulf_war_service = form_attributes&.dig('toxicExposure', 'gulfWarHazardService')
-        validate_form_526_toxic_exp_sections(gulf_war_service, 'gulfWarHazardService')
+        alt_rev_validate_form_526_toxic_exp_sections(gulf_war_service, 'gulfWarHazardService')
         herbicide_service = form_attributes&.dig('toxicExposure', 'herbicideHazardService')
-        validate_form_526_toxic_exp_sections(herbicide_service, 'herbicideHazardService')
+        alt_rev_validate_form_526_toxic_exp_sections(herbicide_service, 'herbicideHazardService')
         other_exposures = form_attributes&.dig('toxicExposure', 'additionalHazardExposures')
-        validate_form_526_toxic_multi_addtl_exp(other_exposures, 'additionalHazardExposures')
+        alt_rev_validate_form_526_toxic_multi_addtl_exp(other_exposures, 'additionalHazardExposures')
         multi_exposures = form_attributes&.dig('toxicExposure', 'multipleExposures')
-        validate_form_526_toxic_multi_addtl_exp(multi_exposures, 'multipleExposures')
+        alt_rev_validate_form_526_toxic_multi_addtl_exp(multi_exposures, 'multipleExposures')
       end
 
-      def validate_form_526_toxic_exp_sections(section, attribute_name)
+      def alt_rev_validate_form_526_toxic_exp_sections(section, attribute_name)
         if section&.nil? || section&.dig('servedInHerbicideHazardLocations') == 'NO' ||
            section&.dig('servedInGulfWarHazardLocations') == 'NO'
           return
@@ -466,12 +475,16 @@ module ClaimsApi
         begin_prop = "/toxicExposure/#{attribute_name}/serviceDates/beginDate"
         end_prop = "/toxicExposure/#{attribute_name}/serviceDates/endDate"
 
-        validate_service_date(begin_date, begin_prop) unless begin_date.nil? || !date_is_valid?(begin_date,
-                                                                                                begin_prop, true)
-        validate_service_date(end_date, end_prop) unless end_date.nil? || !date_is_valid?(end_date, end_prop, true)
+        alt_rev_validate_service_date(begin_date, begin_prop) unless begin_date.nil? || !date_is_valid?(
+          begin_date,
+          begin_prop, true
+        )
+        alt_rev_validate_service_date(end_date, end_prop) unless end_date.nil? || !date_is_valid?(end_date,
+                                                                                                  end_prop,
+                                                                                                  true)
       end
 
-      def validate_form_526_toxic_multi_addtl_exp(section, attribute_name)
+      def alt_rev_validate_form_526_toxic_multi_addtl_exp(section, attribute_name)
         return if section.nil?
 
         [section].flatten&.each do |item, idx|
@@ -481,26 +494,29 @@ module ClaimsApi
           begin_prop = "/toxicExposure/#{attribute_name}/#{idx}/exposureDates/beginDate"
           end_prop = "/toxicExposure/#{attribute_name}/#{idx}/exposureDates/endDate"
 
-          validate_service_date(begin_date, begin_prop) unless begin_date.nil? || !date_is_valid?(begin_date,
-                                                                                                  begin_prop, true)
-          validate_service_date(end_date, end_prop) unless end_date.nil? || !date_is_valid?(end_date, end_prop, true)
+          alt_rev_validate_service_date(begin_date, begin_prop) unless begin_date.nil? || !date_is_valid?(
+            begin_date,
+            begin_prop, true
+          )
+          alt_rev_validate_service_date(end_date, end_prop) unless end_date.nil? || !date_is_valid?(end_date, end_prop,
+                                                                                                    true)
         end
       end
 
-      def validate_service_date(date, prop)
+      def alt_rev_validate_service_date(date, prop)
         if date_has_day?(date) # this date should not have the day
           collect_error_messages(source: prop.to_s,
                                  detail: 'Service dates must be in the format of yyyy-mm or yyyy')
         end
       end
 
-      def validate_form_526_service_pay
-        validate_from_526_military_retired_pay_branch
-        validate_form_526_separation_pay_received_date
-        validate_from_526_separation_severance_pay_branch
+      def alt_rev_validate_form_526_service_pay
+        alt_rev_validate_from_526_military_retired_pay_branch
+        alt_rev_validate_form_526_separation_pay_received_date
+        alt_rev_validate_from_526_separation_severance_pay_branch
       end
 
-      def validate_from_526_military_retired_pay_branch
+      def alt_rev_validate_from_526_military_retired_pay_branch
         return if form_attributes.dig('servicePay', 'militaryRetiredPay').nil?
 
         branch = form_attributes.dig('servicePay', 'militaryRetiredPay', 'branchOfService')
@@ -512,13 +528,13 @@ module ClaimsApi
                                        'Reference Data API.')
       end
 
-      def validate_form_526_separation_pay_received_date
+      def alt_rev_validate_form_526_separation_pay_received_date
         separation_pay_received_date = form_attributes.dig('servicePay', 'separationSeverancePay',
                                                            'datePaymentReceived')
         nil if separation_pay_received_date.blank?
       end
 
-      def validate_from_526_separation_severance_pay_branch
+      def alt_rev_validate_from_526_separation_severance_pay_branch
         branch = form_attributes.dig('servicePay', 'separationSeverancePay', 'branchOfService')
         return if branch.nil? || brd_service_branch_names.include?(branch)
 
@@ -528,14 +544,14 @@ module ClaimsApi
                                        'Reference Data API.')
       end
 
-      def validate_form_526_treatments
+      def alt_rev_validate_form_526_treatments
         treatments = form_attributes['treatments']
         return if treatments.blank?
 
-        validate_treatment_dates(treatments)
+        alt_rev_validate_treatment_dates(treatments)
       end
 
-      def validate_treatment_dates(treatments)
+      def alt_rev_validate_treatment_dates(treatments)
         first_service_period = form_attributes['serviceInformation']['servicePeriods'].min_by do |per|
           per['activeDutyBeginDate']
         end
@@ -558,20 +574,20 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_service_information(target_veteran)
+      def alt_rev_validate_form_526_service_information(target_veteran)
         service_information = form_attributes['serviceInformation']
 
         return if service_information.nil? || service_information.blank?
 
-        validate_claim_date_to_active_duty_end_date(service_information)
-        validate_service_periods(service_information, target_veteran)
-        validate_service_branch_names(service_information)
-        validate_confinements(service_information)
-        validate_reserves_required_values(service_information)
-        validate_form_526_location_codes(service_information)
+        alt_rev_validate_claim_date_to_active_duty_end_date(service_information)
+        alt_rev_validate_service_periods(service_information, target_veteran)
+        alt_rev_validate_service_branch_names(service_information)
+        alt_rev_validate_confinements(service_information)
+        alt_rev_validate_reserves_required_values(service_information)
+        alt_rev_validate_form_526_location_codes(service_information)
       end
 
-      def validate_claim_date_to_active_duty_end_date(service_information)
+      def alt_rev_validate_claim_date_to_active_duty_end_date(service_information)
         ant_sep_date = form_attributes&.dig('serviceInformation', 'federalActivation', 'anticipatedSeparationDate')
         unless service_information['servicePeriods'].nil?
           max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
@@ -595,7 +611,7 @@ module ClaimsApi
         end
       end
 
-      def validate_service_periods(service_information, target_veteran)
+      def alt_rev_validate_service_periods(service_information, target_veteran)
         Date.strptime(target_veteran.birth_date, '%Y%m%d')
         service_information['servicePeriods'].each_with_index do |sp, idx|
           if sp['activeDutyBeginDate']
@@ -623,7 +639,7 @@ module ClaimsApi
         )
       end
 
-      def validate_form_526_location_codes(service_information)
+      def alt_rev_validate_form_526_location_codes(service_information)
         service_periods = service_information['servicePeriods']
         any_code_present = service_periods.any? do |service_period|
           service_period['separationLocationCode'].present?
@@ -656,7 +672,7 @@ module ClaimsApi
         end
       end
 
-      def validate_confinements(service_information) # rubocop:disable Metrics/MethodLength
+      def alt_rev_validate_confinements(service_information) # rubocop:disable Metrics/MethodLength
         confinements = service_information&.dig('confinements')
 
         return if confinements.blank?
@@ -696,7 +712,7 @@ module ClaimsApi
           conf_end.between?(service_begin, service_end)
       end
 
-      def validate_service_branch_names(service_information)
+      def alt_rev_validate_service_branch_names(service_information)
         downcase_branches = brd_service_branch_names.map(&:downcase)
         service_information['servicePeriods'].each_with_index do |sp, idx|
           unless downcase_branches.include?(sp['serviceBranch'].downcase)
@@ -710,17 +726,17 @@ module ClaimsApi
         end
       end
 
-      def validate_reserves_required_values(service_information)
-        validate_federal_activation_values(service_information)
+      def alt_rev_validate_reserves_required_values(service_information)
+        alt_rev_validate_federal_activation_values(service_information)
         reserves = service_information&.dig('reservesNationalGuardService')
 
         return if reserves.blank?
 
         # if reserves is not empty the we require tos dates
-        validate_reserves_tos_dates(reserves)
+        alt_rev_validate_reserves_tos_dates(reserves)
       end
 
-      def validate_reserves_tos_dates(reserves)
+      def alt_rev_validate_reserves_tos_dates(reserves)
         tos = reserves&.dig('obligationTermsOfService')
         return if tos.blank?
 
@@ -747,7 +763,7 @@ module ClaimsApi
         end
       end
 
-      def validate_federal_activation_values(service_information)
+      def alt_rev_validate_federal_activation_values(service_information)
         federal_activation = service_information&.dig('federalActivation')
         federal_activation_date = federal_activation&.dig('activationDate')
         anticipated_separation_date = federal_activation&.dig('anticipatedSeparationDate')
@@ -757,24 +773,24 @@ module ClaimsApi
         form_obj_desc = '/serviceInformation/federalActivation'
 
         # For a valid BDD EP code to be assigned we need these values
-        validate_required_values_for_federal_activation(federal_activation_date, anticipated_separation_date)
+        alt_rev_validate_required_values_for_federal_activation(federal_activation_date, anticipated_separation_date)
 
-        validate_federal_activation_date(federal_activation_date, form_obj_desc)
+        alt_rev_validate_federal_activation_date(federal_activation_date, form_obj_desc)
 
-        validate_federal_activation_date_order(federal_activation_date) if federal_activation_date.present?
+        alt_rev_validate_federal_activation_date_order(federal_activation_date) if federal_activation_date.present?
         if anticipated_separation_date.present?
-          validate_anticipated_separation_date_in_past(anticipated_separation_date)
+          alt_rev_validate_anticipated_separation_date_in_past(anticipated_separation_date)
         end
       end
 
-      def validate_federal_activation_date(federal_activation_date, form_obj_desc)
+      def alt_rev_validate_federal_activation_date(federal_activation_date, form_obj_desc)
         if federal_activation_date.blank?
           collect_error_if_value_not_present('federal activation date',
                                              form_obj_desc)
         end
       end
 
-      def validate_federal_activation_date_order(federal_activation_date)
+      def alt_rev_validate_federal_activation_date_order(federal_activation_date)
         # we know the dates are present
         if activation_date_not_after_duty_begin_date?(federal_activation_date)
           collect_error_messages(
@@ -785,7 +801,7 @@ module ClaimsApi
       end
 
       # rubocop:disable Metrics/MethodLength
-      def validate_required_values_for_federal_activation(activation_date, separation_date)
+      def alt_rev_validate_required_values_for_federal_activation(activation_date, separation_date)
         activation_form_obj_desc = 'serviceInformation/federalActivation/'
         reserves_dates_form_obj_desc = 'serviceInformation/reservesNationalGuardService/obligationTermsOfService/'
 
@@ -844,7 +860,7 @@ module ClaimsApi
         end
       end
 
-      def validate_anticipated_separation_date_in_past(date)
+      def alt_rev_validate_anticipated_separation_date_in_past(date)
         return if date.blank?
 
         if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
@@ -862,7 +878,7 @@ module ClaimsApi
         )
       end
 
-      def validate_claim_process_type_bdd
+      def alt_rev_validate_claim_process_type_bdd
         claim_date = Date.parse(CLAIM_DATE.to_s)
         service_information = form_attributes['serviceInformation']
         active_dates = service_information['servicePeriods']&.pluck('activeDutyEndDate')
