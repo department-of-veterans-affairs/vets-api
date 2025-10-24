@@ -27,16 +27,25 @@
             "description": "Form successfully submitted",
             "content": {
               "application/json": {
-                "example": {
-                  "data": {
-                    "id": "123456",
-                    "type": "form_submissions",
-                    "attributes": {
-                      "submitted_at": "2024-06-01T12:34:56Z",
-                      "regional_office": [],
-                      "confirmation_number": "ABCDEF123456",
-                      "guid": "550e8400-e29b-41d4-a716-446655440000",
-                      "form": "21-4192"
+                "examples": {
+                  "example_0": {
+                    "value": {
+                      "data": {
+                        "id": "123456",
+                        "type": "form_submissions",
+                        "attributes": {
+                          "submitted_at": "2024-06-01T12:34:56Z",
+                          "regional_office": [
+                            "Department of Veterans Affairs",
+                            "Example Regional Office",
+                            "P.O. Box 1234",
+                            "Example City, Wisconsin 12345-6789"
+                          ],
+                          "confirmation_number": "ABCDEF123456",
+                          "guid": "550e8400-e29b-41d4-a716-446655440000",
+                          "form": "21-4192"
+                        }
+                      }
                     }
                   }
                 },
@@ -88,6 +97,98 @@
                   "required": [
                     "data"
                   ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_0": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Unprocessable entity",
+                          "detail": "The property '#/' did not contain a required property of 'veteranInformation'",
+                          "code": "422",
+                          "status": "422"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - missing required parameter",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_0": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Missing parameter",
+                          "detail": "The required parameter \"form\", is missing",
+                          "code": "400",
+                          "status": "400"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -181,9 +282,9 @@
                               "country"
                             ]
                           }
-                      }
-                    },
-                    "employmentInformation": {
+                        }
+                      },
+                      "employmentInformation": {
                         "type": "object",
                         "required": [
                           "employerName",
@@ -283,7 +384,7 @@
                           }
                         }
                       },
-                    "militaryDutyStatus": {
+                      "militaryDutyStatus": {
                         "type": "object",
                         "properties": {
                           "currentDutyStatus": {
@@ -294,7 +395,7 @@
                           }
                         }
                       },
-                    "benefitEntitlementPayments": {
+                      "benefitEntitlementPayments": {
                         "type": "object",
                         "properties": {
                           "sickRetirementOtherBenefits": {

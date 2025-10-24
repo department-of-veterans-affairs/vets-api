@@ -119,6 +119,11 @@ FactoryBot::SyntaxRunner.class_eval do
 end
 
 RSpec.configure do |config|
+  # Disable host authorization for all tests
+  config.before(:suite) do
+    Rails.application.config.hosts.clear
+  end
+
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   # config.fixture_paths = Array(Rails.root / 'spec/fixtures')
 
