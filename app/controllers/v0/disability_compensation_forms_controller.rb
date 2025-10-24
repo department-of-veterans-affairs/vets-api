@@ -62,6 +62,7 @@ module V0
       end
     end
 
+    # rubocop:disable Metrics/MethodLength - Method was already at limit (20 lines), adding toxic exposure logging increased the length slightly
     def submit_all_claim
       temp_separation_location_fix if Flipper.enabled?(:disability_compensation_temp_separation_location_code_string,
                                                        @current_user)
@@ -77,10 +78,13 @@ module V0
       end
 
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
-      submission = create_submission(saved_claim)
       # if jid = 0 then the submission was prevented from going any further in the process
+      submission = create_submission(saved_claim)
+      if Flipper.enabled?(:disability_526_toxic_exposure_opt_out_data_purge, @current_user) ||
+         Flipper.enabled?(:disability_526_toxic_exposure_opt_out_data_purge_by_user, @current_user)
+        log_toxic_exposure_changes(saved_claim, submission)
+      end
       jid = 0
-
       # Feature flag to stop submission from being submitted to third-party service
       # With this on, the submission will NOT be processed by EVSS or Lighthouse,
       # nor will it go to VBMS,
@@ -94,6 +98,7 @@ module V0
       render json: { data: { attributes: { job_id: jid } } },
              status: :ok
     end
+    # rubocop:enable Metrics/MethodLength
 
     def submission_status
       job_status = Form526JobStatus.where(job_id: params[:job_id]).first
@@ -273,6 +278,36 @@ module V0
 
     def monitor
       @monitor ||= DisabilityCompensation::Loggers::Monitor.new
+    end
+
+    # Logs toxic exposure data changes during Form 526 submission
+    #
+    # Compares the user's InProgressForm with the submitted claim to detect
+    # when toxic exposure data has been changed or removed by the frontend. This is wrapped
+    # in error handling to ensure logging failures do not impact veteran submissions.
+    #
+    # @param submitted_claim [SavedClaim::DisabilityCompensation::Form526AllClaim] The submitted claim
+    # @param submission [Form526Submission] The submission record
+    # @return [void]
+    def log_toxic_exposure_changes(submitted_claim, submission)
+      in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user)
+      return unless in_progress_form
+
+      monitor.track_toxic_exposure_changes(
+        in_progress_form:,
+        submitted_claim:,
+        submission:
+      )
+    rescue => e
+      # Don't fail submission if logging fails
+      Rails.logger.error(
+        'Error logging toxic exposure changes',
+        user_uuid: @current_user&.uuid,
+        saved_claim_id: submitted_claim&.id,
+        submission_id: submission&.id,
+        error: e.message,
+        backtrace: e.backtrace&.first(5)
+      )
     end
   end
 end
