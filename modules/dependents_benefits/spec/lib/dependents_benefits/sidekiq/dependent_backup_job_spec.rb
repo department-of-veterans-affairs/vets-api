@@ -21,6 +21,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
   end
   let(:parent_claim) { create(:dependents_claim) }
   let(:job) { described_class.new }
+  let(:lh_submission) { instance_double(DependentsBenefits::BenefitsIntake::LighthouseSubmission) }
   let(:successful_response) { DependentsBenefits::ServiceResponse.new(status: true) }
   let(:user) { create(:evss_user) }
   let(:user_data) { DependentsBenefits::UserData.new(user, parent_claim.parsed_form).get_user_json }
@@ -32,10 +33,15 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
 
   describe '#perform' do
     context 'when job executes successfully' do
+      before do
+        allow(DependentsBenefits::BenefitsIntake::LighthouseSubmission).to receive(:new).and_return(lh_submission)
+      end
+
       it 'processes the claim and calls required methods' do
-        expect(job).to receive(:get_files_from_claim)
-        expect(job).to receive(:upload_to_lh).and_return(successful_response)
-        expect(job).to receive(:cleanup_file_paths)
+        expect(lh_submission).to receive(:initialize_service)
+        expect(lh_submission).to receive(:prepare_submission)
+        expect(lh_submission).to receive(:upload_to_lh).and_return(successful_response)
+        expect(lh_submission).to receive(:cleanup_file_paths)
 
         expect { job.perform(parent_claim.id) }.not_to raise_error
       end
@@ -45,14 +51,16 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
       let(:test_error) { StandardError.new('Test error') }
 
       before do
-        allow(job).to receive(:get_files_from_claim).and_raise(test_error)
+        allow(DependentsBenefits::BenefitsIntake::LighthouseSubmission).to receive(:new).and_return(lh_submission)
+        allow(lh_submission).to receive(:initialize_service)
+        allow(lh_submission).to receive(:prepare_submission).and_raise(test_error)
         allow(job).to receive(:monitor).and_return(monitor_instance)
       end
 
       it 'updates submission to failed, ensures cleanup, and re-raises error' do
         allow(monitor_instance).to receive(:track_submission_error)
         expect(job).to receive(:mark_submission_attempt_failed)
-        expect(job).to receive(:cleanup_file_paths)
+        expect(lh_submission).to receive(:cleanup_file_paths)
         expect do
           job.perform(parent_claim.id)
         end.to raise_error(DependentsBenefits::Sidekiq::DependentSubmissionError, 'Test error')
@@ -61,7 +69,11 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
 
     context 'when Lighthouse upload fails' do
       before do
-        allow(job).to receive(:upload_to_lh).and_return(double('Response', success?: false, 'error' => 'Upload failed'))
+        allow(DependentsBenefits::BenefitsIntake::LighthouseSubmission).to receive(:new).and_return(lh_submission)
+        allow(lh_submission).to receive(:initialize_service)
+        allow(lh_submission).to receive(:prepare_submission)
+        allow(lh_submission).to receive(:upload_to_lh).and_raise(StandardError.new('Upload failed'))
+        allow(lh_submission).to receive(:cleanup_file_paths)
       end
 
       it 'raises DependentSubmissionError' do
@@ -174,22 +186,23 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
 
   describe '#submit_to_service' do
     before do
-      allow(job).to receive_messages(monitor: monitor_instance, upload_to_lh: successful_response)
-      allow(job).to receive(:get_files_from_claim)
-      allow(job).to receive(:cleanup_file_paths)
+      allow(job).to receive(:monitor).and_return(monitor_instance)
+      allow(DependentsBenefits::BenefitsIntake::LighthouseSubmission).to receive(:new).and_return(lh_submission)
+      allow(lh_submission).to receive(:initialize_service)
+      allow(lh_submission).to receive(:prepare_submission)
+      allow(lh_submission).to receive(:upload_to_lh)
+      allow(lh_submission).to receive(:cleanup_file_paths)
       job.instance_variable_set(:@claim_id, parent_claim.id)
     end
 
-    it 'gets files from claim before upload and returns response' do
-      expect(job).to receive(:get_files_from_claim).ordered
-      expect(job).to receive(:upload_to_lh).ordered.and_return(successful_response)
+    it 'runs successfully' do
       result = job.send(:submit_to_service)
-      expect(result).to eq(successful_response)
+      expect(result.status).to be true
     end
 
     it 'ensures cleanup even on error and returns error response' do
-      allow(job).to receive(:get_files_from_claim).and_raise(StandardError.new('Test error'))
-      expect(job).to receive(:cleanup_file_paths)
+      allow(lh_submission).to receive(:prepare_submission).and_raise(StandardError.new('Test error'))
+      expect(lh_submission).to receive(:cleanup_file_paths)
 
       result = job.send(:submit_to_service)
       expect(result.status).to be false
