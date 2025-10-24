@@ -152,8 +152,12 @@ module VAOS
       # @raise [BackendServiceException] If either EPS or VAOS fails
       #
       def get_active_appointments_for_referral(referral_number)
+        start_time = Time.current
         eps_appointments = fetch_and_normalize_eps_appointments(referral_number)
         vaos_appointments = fetch_and_normalize_vaos_appointments(referral_number)
+
+        StatsD.histogram('vaos.get_active_appointments_for_referral.duration',
+                         (Time.current - start_time) * 1000)
 
         log_status_discrepancies(eps_appointments, vaos_appointments, referral_number)
 
