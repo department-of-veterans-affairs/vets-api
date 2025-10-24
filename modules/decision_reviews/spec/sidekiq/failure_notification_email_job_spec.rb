@@ -489,9 +489,11 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             # Clean up any SavedClaims with error status from previous tests to prevent pollution
             # This test expects NO emails to be sent and NO errors logged, so we need to ensure
             # only the SavedClaims created in this context (guid1, guid2) exist
-            SavedClaim.where("metadata LIKE ?", "%error%")
+            # rubocop:disable Rails/SkipsModelValidations
+            SavedClaim.where('metadata LIKE ?', '%error%')
                       .where.not(guid: [guid1, guid2])
                       .update_all(delete_date: Time.current)
+            # rubocop:enable Rails/SkipsModelValidations
           end
 
           it 'does not send another email' do
