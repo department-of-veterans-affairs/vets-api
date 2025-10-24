@@ -5,6 +5,8 @@
 
 module V0
   class Form214192Controller < ApplicationController
+    include RetriableConcern
+
     service_tag 'employment-information'
     skip_before_action :authenticate, only: %i[create download_pdf]
 
@@ -28,9 +30,47 @@ module V0
     end
 
     def download_pdf
+      parsed_form = JSON.parse(params[:form])
+
+      source_file_path = with_retries('Generate 21-4192 PDF') do
+        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
+      end
+
+      client_file_name = "21-4192_#{SecureRandom.uuid}.pdf"
+
+      file_contents = File.read(source_file_path)
+
+      send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
+    rescue JSON::ParserError => e
+      handle_json_parse_error(e)
+    rescue => e
+      handle_pdf_generation_error(e)
+    ensure
+      File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
+    end
+
+    private
+
+    def handle_json_parse_error(error)
+      Rails.logger.error('Form214192: Invalid JSON in form parameter', error: error.message)
       render json: {
-        message: 'PDF download stub - not yet implemented'
-      }, status: :ok
+        errors: [{
+          title: 'Invalid JSON',
+          detail: 'The form data provided is not valid JSON',
+          status: '400'
+        }]
+      }, status: :bad_request
+    end
+
+    def handle_pdf_generation_error(error)
+      Rails.logger.error('Form214192: Error generating PDF', error: error.message, backtrace: error.backtrace)
+      render json: {
+        errors: [{
+          title: 'PDF Generation Failed',
+          detail: 'An error occurred while generating the PDF',
+          status: '500'
+        }]
+      }, status: :internal_server_error
     end
   end
 end
