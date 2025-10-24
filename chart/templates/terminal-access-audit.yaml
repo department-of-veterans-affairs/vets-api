@@ -1,3 +1,5 @@
+{{- $root := . -}}
+{{- range $name, $service := $root.Values.web.webServices }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -22,3 +24,4 @@ data:
 
     # Execute the command inside the Rails container with CONSOLE_USER set
     # exec kubectl exec -it "$HOSTNAME" -c "$TARGET_CONTAINER" -- env CONSOLE_USER="$CONSOLE_USER" $CONSOLE_CMD
+{{- end }}
