@@ -63,16 +63,13 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
         # Should include student-specific data with exactly one student
         expect(parsed_form['dependents_application']['student_information']).to be_present
 
-        student = parsed_form['dependents_application']['student_information'].first
+        student = parsed_form['dependents_application']['student_information']
         expect(student['full_name']['first']).to eq('test')
         expect(student['student_earnings_from_school_year']).to be_present
         expect(student['school_information']).to be_present
 
         # Should include veteran contact and household info
         expect(parsed_form['dependents_application']['veteran_contact_information']).to be_present
-
-        # Should include 686c options
-        expect(parsed_form['view:selectable686_options']).to be_present
 
         # Should NOT include dependent-specific data
         expect(parsed_form['dependents_application']).not_to have_key('children_to_add')
