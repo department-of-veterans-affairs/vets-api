@@ -184,12 +184,30 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       post(:download_pdf, params: { form: form_data.to_json })
     end
 
-    it 'deletes temporary file even when error occurs' do
+    it 'deletes temporary file even when PDF generation fails' do
+      allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF generation error')
+      # File.delete should not be called since source_file_path is nil
+      expect(File).not_to receive(:delete)
+
+      post(:download_pdf, params: { form: form_data.to_json })
+      expect(response).to have_http_status(:internal_server_error)
+
+      json = JSON.parse(response.body)
+      expect(json['errors']).to be_present
+      expect(json['errors'].first['title']).to eq('PDF Generation Failed')
+      expect(json['errors'].first['status']).to eq('500')
+    end
+
+    it 'deletes temporary file even when file read fails' do
       allow(File).to receive(:read).with(temp_file_path).and_raise(StandardError, 'Read error')
       expect(File).to receive(:delete).with(temp_file_path)
 
       post(:download_pdf, params: { form: form_data.to_json })
       expect(response).to have_http_status(:internal_server_error)
+
+      json = JSON.parse(response.body)
+      expect(json['errors']).to be_present
+      expect(json['errors'].first['title']).to eq('PDF Generation Failed')
     end
 
     it 'does not require authentication' do
@@ -198,10 +216,30 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       expect(response).to have_http_status(:ok)
     end
 
-    context 'with invalid JSON' do
-      it 'raises error for invalid JSON' do
-        post(:download_pdf, params: { form: 'invalid json' })
+    context 'error handling' do
+      it 'returns 400 for invalid JSON' do
+        post(:download_pdf, params: { form: 'invalid json {not valid}' })
+        
+        expect(response).to have_http_status(:bad_request)
+        
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_present
+        expect(json['errors'].first['title']).to eq('Invalid JSON')
+        expect(json['errors'].first['detail']).to eq('The form data provided is not valid JSON')
+        expect(json['errors'].first['status']).to eq('400')
+      end
+
+      it 'returns 500 for PDF generation failures' do
+        allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF error')
+
+        post(:download_pdf, params: { form: form_data.to_json })
+        
         expect(response).to have_http_status(:internal_server_error)
+        
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_present
+        expect(json['errors'].first['title']).to eq('PDF Generation Failed')
+        expect(json['errors'].first['status']).to eq('500')
       end
     end
   end
