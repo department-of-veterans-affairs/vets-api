@@ -47,8 +47,6 @@ module DependentsBenefits
       raise e
     end
 
-    private
-
     def collect_child_claims
       claim_ids = SavedClaimGroup.child_claims_for(parent_claim_id).pluck(:saved_claim_id)
       child_claims = ::SavedClaim.where(id: claim_ids)
@@ -59,6 +57,8 @@ module DependentsBenefits
 
       child_claims
     end
+
+    private
 
     def enqueue_686c_submission(claim)
       jobs_count = 0
