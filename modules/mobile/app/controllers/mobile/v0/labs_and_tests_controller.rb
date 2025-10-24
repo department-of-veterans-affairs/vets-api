@@ -5,6 +5,8 @@ require 'lighthouse/veterans_health/client'
 module Mobile
   module V0
     class LabsAndTestsController < ApplicationController
+      service_tag 'mhv-medical-records'
+
       def index
         response = client.list_diagnostic_reports(params)
         diagnostic_reports = response.body['entry'].map do |entry|

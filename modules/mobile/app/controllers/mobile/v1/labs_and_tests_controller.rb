@@ -7,6 +7,8 @@ require 'unique_user_events'
 module Mobile
   module V1
     class LabsAndTestsController < ApplicationController
+      service_tag 'mhv-medical-records'
+
       before_action :controller_enabled?
 
       def index
