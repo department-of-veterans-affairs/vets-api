@@ -111,16 +111,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
       end
     end
 
-    context 'with a 1990s form' do
-      let(:application_1606) { create(:va1990s_full_form).education_benefits_claim }
-
-      it 'tracks the 1990s form' do
-        expect(subject).to receive(:track_form_type).with('22-1990s', 999)
-        result = subject.format_application(application_1606, rpo: 999)
-        expect(result).to be_a(EducationForm::Forms::VA1990s)
-      end
-    end
-
     context 'with a 5490 form' do
       let(:application_1606) { create(:va5490_full_form).education_benefits_claim }
 

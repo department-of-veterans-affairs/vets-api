@@ -15646,21 +15646,6 @@
             }
         },
         {
-            "id" : 1679,
-            "createDateTime" : "2022-06-14",
-            "modifiedDateTime" : "2022-06-14T16:46:22",
-            "name" : "L1679",
-            "description" : "VRRAP - ORIGINAL APPLICATION (V1990S)",
-            "isUserUploadable" : true,
-            "is526" : false,
-            "documentCategory" : {
-                "id" : 17,
-                "createDateTime" : "2012-01-25",
-                "modifiedDateTime" : "2014-04-28T14:44:52",
-                "description" : "Education"
-            }
-        },
-        {
             "id" : 1680,
             "createDateTime" : "2022-06-14",
             "modifiedDateTime" : "2022-06-14T16:46:22",
