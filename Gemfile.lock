@@ -151,7 +151,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     Ascii85 (2.0.1)
-    aasm (5.5.1)
+    aasm (5.5.2)
       concurrent-ruby (~> 1.0)
     actioncable (7.2.2.2)
       actionpack (= 7.2.2.2)
