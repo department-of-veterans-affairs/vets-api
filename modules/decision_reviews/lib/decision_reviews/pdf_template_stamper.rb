@@ -15,41 +15,49 @@ module DecisionReviews
     # fill_color: hex color for the covering box (optional, defaults to FFFFFF/white)
     FIELD_COORDINATES = {
       'hlr_form_failure' => {
-        first_name: { x: 75, y: 440, size: 11, cover_width: 65, page: 1 },
-        original_submission_timestamp: { x: 150, y: 615, size: 11, cover_width: 200, page: 1 },
-        form_submission_date: { x: 80, y: 414, size: 11, cover_width: 200, page: 2, fill_color: 'F0F0F0' }
+        first_name: { x: 75, y: 439, size: 12, cover_width: 200, page: 1 },
+        original_submission_timestamp: { x: 150, y: 609, size: 10, cover_width: 200, page: 1 },
+        email_sent_timestamp: { x: 150, y: 666, size: 9.5, cover_width: 200, page: 1 },
+        email_address: { x: 150, y: 652, size: 9.5, cover_width: 250, page: 1 },
+        form_submission_date_details: { x: 80, y: 411, size: 12, cover_width: 200, page: 2, fill_color: 'F0F0F0' }
       },
-      #TODO
       'sc_form_failure' => {
-        first_name: { x: 75, y: 440, size: 11, cover_width: 65, page: 1 },
-        original_submission_timestamp: { x: 150, y: 615, size: 11, cover_width: 200, page: 1 },
-        form_submission_date: { x: 80, y: 414, size: 11, cover_width: 200, page: 2, fill_color: 'F0F0F0' }
+        first_name: { x: 75, y: 439, size: 12, cover_width: 200, page: 1 },
+        original_submission_timestamp: { x: 150, y: 609, size: 10, cover_width: 200, page: 1 },
+        email_sent_timestamp: { x: 150, y: 666, size: 9.5, cover_width: 200, page: 1 },
+        email_address: { x: 150, y: 652, size: 9.5, cover_width: 250, page: 1 },
+        form_submission_date_details: { x: 80, y: 411, size: 12, cover_width: 200, page: 2, fill_color: 'F0F0F0' }
       },
-      #TODO
-      'sc_4142_failure' => {
-        first_name: { x: 75, y: 440, size: 11, cover_width: 65, page: 1 },
-        original_submission_timestamp: { x: 150, y: 615, size: 11, cover_width: 200, page: 1 },
-        form_submission_date: { x: 80, y: 414, size: 11, cover_width: 200, page: 2, fill_color: 'F0F0F0' },
-      },
-      #TODO
-      'sc_evidence_failure' => {
-        first_name: { x: 75, y: 440, size: 11, cover_width: 65, page: 1 },
-        original_submission_timestamp: { x: 150, y: 615, size: 11, cover_width: 200, page: 1 },
-        form_submission_date: { x: 80, y: 414, size: 11, cover_width: 200, page: 2, fill_color: 'F0F0F0' },
-        evidence_filename: { x: 100, y: 420, size: 11, cover_width: 200, page: 2 }
-      },
-      #TODO
       'nod_form_failure' => {
-        first_name: { x: 75, y: 440, size: 11, cover_width: 65, page: 1 },
-        original_submission_timestamp: { x: 150, y: 615, size: 11, cover_width: 200, page: 1 },
-        form_submission_date: { x: 80, y: 414, size: 11, cover_width: 200, page: 2, fill_color: 'F0F0F0' }
+        first_name: { x: 75, y: 439, size: 12, cover_width: 200, page: 1 },
+        original_submission_timestamp: { x: 150, y: 609, size: 10, cover_width: 200, page: 1 },
+        email_sent_timestamp: { x: 150, y: 666, size: 9.5, cover_width: 200, page: 1 },
+        email_address: { x: 150, y: 652, size: 9.5, cover_width: 250, page: 1 },
+        form_submission_date_details: { x: 80, y: 358, size: 12, cover_width: 200, page: 2, fill_color: 'F0F0F0' }
       },
-      #TODO
+      'sc_4142_failure' => {
+        first_name: { x: 75, y: 425, size: 12, cover_width: 200, page: 1 },
+        original_submission_timestamp: { x: 150, y: 608, size: 10, cover_width: 200, page: 1 },
+        email_sent_timestamp: { x: 150, y: 666, size: 9.5, cover_width: 200, page: 1 },
+        email_address: { x: 150, y: 652, size: 9.5, cover_width: 250, page: 1 },
+        form_submission_date_body: { x: 43, y: 372, size: 11, cover_width: 100, page: 1 },
+        form_submission_date_details: { x: 80, y: 400, size: 12, cover_width: 200, page: 2, fill_color: 'F0F0F0' }
+      },
+      'sc_evidence_failure' => {
+        first_name: { x: 75, y: 438, size: 12, cover_width: 200, page: 1 },
+        original_submission_timestamp: { x: 150, y: 608, size: 10, cover_width: 200, page: 1 },
+        email_sent_timestamp: { x: 150, y: 666, size: 9.5, cover_width: 200, page: 1 },
+        email_address: { x: 150, y: 652, size: 9.5, cover_width: 250, page: 1 },
+        form_submission_date_body: { x: 367, y: 406, size: 12, cover_width: 130, page: 1 },
+        evidence_filename: { x: 80, y: 282, size: 11, cover_width: 200, page: 1, fill_color: 'F0F0F0' }
+      },
       'nod_evidence_failure' => {
-        first_name: { x: 75, y: 440, size: 11, cover_width: 65, page: 1 },
-        original_submission_timestamp: { x: 150, y: 615, size: 11, cover_width: 200, page: 1 },
-        form_submission_date: { x: 80, y: 414, size: 11, cover_width: 200, page: 2, fill_color: 'F0F0F0' },\
-        evidence_filename: { x: 100, y: 420, size: 11, cover_width: 200, page: 2 }
+        first_name: { x: 75, y: 397, size: 12, cover_width: 200, page: 1 },
+        original_submission_timestamp: { x: 150, y: 608, size: 10, cover_width: 200, page: 1 },
+        email_sent_timestamp: { x: 150, y: 666, size: 9.5, cover_width: 200, page: 1 },
+        email_address: { x: 150, y: 652, size: 9.5, cover_width: 250, page: 1 },
+        form_submission_date_body: { x: 43, y: 343, size: 11, cover_width: 100, page: 1 },
+        evidence_filename: { x: 80, y: 238, size: 11, cover_width: 200, page: 1, fill_color: 'F0F0F0' }
       }
     }.freeze
 
@@ -58,13 +66,16 @@ module DecisionReviews
       @template_path = template_file_path
     end
 
-    def stamp_personalized_data(first_name:, submission_date:, evidence_filename: nil, **_unused)
+    def stamp_personalized_data(first_name:, submission_date:, email_address:, sent_date:, evidence_filename: nil,
+                                **_unused)
       coordinates = FIELD_COORDINATES[@template_type]
 
       # Create stamp overlay PDF
       stamp_path = create_stamp_overlay(
         first_name:,
         submission_date:,
+        email_address:,
+        sent_date:,
         evidence_filename:,
         coordinates:
       )
@@ -89,22 +100,33 @@ module DecisionReviews
     private
 
     def template_file_path
-      Rails.root.join('modules', 'decision_reviews', 'lib', 'decision_reviews', 'email_templates', "#{@template_type}.pdf")
+      Rails.root.join('modules', 'decision_reviews', 'lib', 'decision_reviews', 'email_templates',
+                      "#{@template_type}.pdf")
+    end
+
+    def format_timestamp(date)
+      date.strftime('%a, %b %d, %Y at %l:%M %p %Z')
+    end
+
+    def format_simple_date(date)
+      date.strftime('%B %d, %Y')
     end
 
     # Create a stamp overlay PDF with white boxes and text
     # Only stamps on pages specified in the field coordinates
     # All email templates are 2 pages, so we create a 2-page stamp PDF
-    def create_stamp_overlay(first_name:, submission_date:, evidence_filename:, coordinates:)
+    def create_stamp_overlay(first_name:, submission_date:, email_address:, sent_date:, evidence_filename:,
+                             coordinates:)
       stamp_path = "#{Common::FileHelpers.random_file_path}.pdf"
 
       # Prepare field values
-      formatted_date = submission_date.strftime('%B %d, %Y')
       field_values = {
         first_name: "#{first_name},",
-        submission_date: formatted_date,
-        original_submission_timestamp: formatted_date,
-        form_submission_date: formatted_date,
+        original_submission_timestamp: format_timestamp(submission_date),
+        email_sent_timestamp: format_timestamp(sent_date),
+        email_address:,
+        form_submission_date_body: format_simple_date(submission_date),
+        form_submission_date_details: format_simple_date(submission_date),
         evidence_filename:
       }
 
@@ -137,13 +159,14 @@ module DecisionReviews
       size = coords[:size]
       cover_width = coords[:cover_width]
       fill_color = coords[:fill_color] || 'FFFFFF' # Default to white
-      padding = 5
+      padding = 3
 
       # Draw box to cover placeholder (color customizable per field)
       pdf.fill_color fill_color
-      pdf.stroke_color 'FF0000' # Red outline for easier dev (can be removed later)
+      # pdf.stroke_color 'FF0000' # Red outline for easier dev (can be removed later)
       # pdf.fill_rectangle [x, y], cover_width + (padding * 2), size + (padding * 2)
-      pdf.fill_and_stroke_rectangle [x, y], cover_width + (padding * 2), size + (padding * 2)
+      pdf.fill_rectangle [x, y], cover_width + (padding * 2), size + 5
+      # pdf.fill_rectangle [x, y], cover_width + (padding * 2), size + (padding * 2)
 
       # Stamp the real text
       pdf.fill_color '000000'
