@@ -116,7 +116,7 @@ type: application
 # 0.15.12  - Discard ImageMagick k8s changes
 # 0.15.13  - Add external secret that removes SETTINGS__ prefix for env var injection
 # 0.15.14  - remove secret with SETTINGS__ prefix, as no longer used
-# 0.15.15  - Add branch selector to mockData 
+# 0.15.15  - Add branch selector to mockData
 # 0.15.16  - Fix branch selector to mockData
 # 0.15.17  - Set appname for all deployments
 # 0.15.18  - traefik api version settable through values.yaml
@@ -128,7 +128,9 @@ type: application
 # 0.15.24  - Set dbMigrate to parent helm chart and enable to true
 # 0.15.25  - Add all dbMigrate secrets to parameter store (every entry based on env)
 # 0.15.26  - Set ssm-env-vars secret refreshInternal to zero to only create secret once
-version: 0.15.26
+# 0.15.27  - Terminal Auditing setup
+
+version: 0.15.27
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to

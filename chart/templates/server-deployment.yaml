@@ -57,7 +57,7 @@ spec:
           args:
             - clone
             - --single-branch
-            - --branch 
+            - --branch
             - {{ $root.Values.mockData.branch }}
             - --
             - https://$(GITHUB_TOKEN)@github.com/department-of-veterans-affairs/vets-api-mockdata.git
@@ -246,6 +246,23 @@ spec:
             failureThreshold: 10
             timeoutSeconds: 30
             successThreshold: 1
+        {{- end }}
+        {{- if $root.Values.audit.enabled }}
+        - name: terminal-auditing
+          image: bitnami/kubectl:latest   # or your custom image with kubectl
+          command: ["/bin/bash", "/usr/local/bin/exec-proxy.sh"]
+          env:
+            - name: TARGET_CONTAINER
+              value: rails
+            - name: ARGOCD_USERNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['argocd-user']
+          volumeMounts:
+            - name: terminal-auditing
+              mountPath: /usr/local/bin/exec-proxy.sh
+              subPath: exec-proxy.sh
+              readOnly: true
         {{- end }}
       terminationGracePeriodSeconds: {{ $root.Values.web.terminationGracePeriodSeconds }}
       serviceAccountName: {{ $root.Values.serviceAccount.name }}
