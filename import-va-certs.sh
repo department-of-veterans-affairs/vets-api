@@ -5,8 +5,8 @@ set -euo pipefail
 (
     cd /usr/local/share/ca-certificates/
 
-    curl -LO https://cacerts.digicert.com/DigiCertTLSRSASHA2562020CA1-1.crt.pem
-    curl -LO https://digicert.tbs-certificats.com/DigiCertGlobalG2TLSRSASHA2562020CA1.crt
+    curl --retry 3 --retry-delay 5 --connect-timeout 10 --max-time 60 -LO https://cacerts.digicert.com/DigiCertTLSRSASHA2562020CA1-1.crt.pem
+    curl --retry 3 --retry-delay 5 --connect-timeout 10 --max-time 60 -LO https://digicert.tbs-certificats.com/DigiCertGlobalG2TLSRSASHA2562020CA1.crt
 
     # DoD ECA with multiple fallback mechanisms
     (
@@ -38,6 +38,10 @@ set -euo pipefail
 
     echo "Downloading VA certificates..."
     wget \
+        --tries=3 \
+        --waitretry=5 \
+        --timeout=60 \
+        --connect-timeout=10 \
         --level=1 \
         --quiet \
         --recursive \
