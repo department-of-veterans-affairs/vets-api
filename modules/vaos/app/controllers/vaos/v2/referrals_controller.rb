@@ -40,11 +40,29 @@ module VAOS
         response.uuid = referral_uuid
 
         log_referral_provider_metrics(response)
+        add_appointment_data_to_referral(response)
 
         render json: Ccra::ReferralDetailSerializer.new(response)
       end
 
       private
+
+      def add_appointment_data_to_referral(referral)
+        result = appointments_service.get_active_appointments_for_referral(referral.referral_number)
+
+        referral.appointments = {
+          EPS: {
+            data: result[:EPS][:data].map { |appt| { id: appt[:id], status: appt[:status], start: appt[:start] } }
+          },
+          VAOS: {
+            data: result[:VAOS][:data].map { |appt| { id: appt[:id], status: appt[:status], start: appt[:start] } }
+          }
+        }
+      end
+
+      def appointments_service
+        @appointments_service ||= VAOS::V2::AppointmentsService.new(current_user)
+      end
 
       # Logs the count of referrals returned from CCRA
       #
