@@ -31,17 +31,37 @@ module V0
 
     def download_pdf
       parsed_form = parse_form_data
+      source_file_path = generate_pdf(parsed_form)
 
-      source_file_path = with_retries('Generate 21-4192 PDF') do
+      send_pdf_response(source_file_path)
+    rescue JSON::ParserError => e
+      handle_json_parse_error(e)
+    rescue => e
+      handle_pdf_generation_error(e)
+    ensure
+      cleanup_temp_file(source_file_path)
+    end
+
+    private
+
+    def parse_form_data
+      JSON.parse(params[:form])
+    end
+
+    def generate_pdf(parsed_form)
+      with_retries('Generate 21-4192 PDF') do
         PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
       end
+    end
 
+    def send_pdf_response(source_file_path)
       client_file_name = "21-4192_#{SecureRandom.uuid}.pdf"
       file_contents = File.read(source_file_path)
-
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
-    rescue JSON::ParserError => e
-      Rails.logger.error('Form214192: Invalid JSON in form parameter', error: e.message)
+    end
+
+    def handle_json_parse_error(error)
+      Rails.logger.error('Form214192: Invalid JSON in form parameter', error: error.message)
       render json: {
         errors: [{
           title: 'Invalid JSON',
@@ -49,8 +69,10 @@ module V0
           status: '400'
         }]
       }, status: :bad_request
-    rescue => e
-      Rails.logger.error('Form214192: Error generating PDF', error: e.message, backtrace: e.backtrace)
+    end
+
+    def handle_pdf_generation_error(error)
+      Rails.logger.error('Form214192: Error generating PDF', error: error.message, backtrace: error.backtrace)
       render json: {
         errors: [{
           title: 'PDF Generation Failed',
@@ -58,14 +80,10 @@ module V0
           status: '500'
         }]
       }, status: :internal_server_error
-    ensure
-      File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
 
-    private
-
-    def parse_form_data
-      JSON.parse(params[:form])
+    def cleanup_temp_file(file_path)
+      File.delete(file_path) if file_path && File.exist?(file_path)
     end
   end
 end
