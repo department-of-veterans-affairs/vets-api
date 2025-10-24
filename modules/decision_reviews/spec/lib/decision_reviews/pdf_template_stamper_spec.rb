@@ -9,8 +9,8 @@ RSpec.describe DecisionReviews::PdfTemplateStamper do
   # let(:template_type) { 'sc_form_failure' }
   # let(:template_type) { 'nod_form_failure' }
   # let(:template_type) { 'sc_4142_failure' }
-  # let(:template_type) { 'sc_evidence_failure' }
-  let(:template_type) { 'nod_evidence_failure' }
+  let(:template_type) { 'sc_evidence_failure' }
+  # let(:template_type) { 'nod_evidence_failure' }
   let(:first_name) { 'Alexandria Longname' }
   let(:submission_date) { Time.zone.parse('2025-09-30 15:30:00') }
   let(:email_address) { 'superlongemail283747832@example.com' }
