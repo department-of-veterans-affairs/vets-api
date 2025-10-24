@@ -26,6 +26,7 @@ module Kafka
     attribute :state, :string
     attribute :timestamp, :string
     attribute :additional_ids, array: true, default: []
+    attribute :context
 
     validates :current_id, :vasi_id, :system_name, :submission_name, :state, :timestamp, presence: true
     validates :system_name, inclusion: { in: SYSTEM_NAMES }

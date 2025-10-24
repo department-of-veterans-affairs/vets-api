@@ -7,7 +7,7 @@ RSpec.describe Kafka do
   describe '#get_topic' do
     context 'when use_test_topic is false' do
       it 'returns the production topic name' do
-        expect(Kafka.get_topic(use_test_topic: false)).to eq('submission_trace_form_status_change_test')
+        expect(Kafka.get_topic(use_test_topic: false)).to eq('submission_trace_form_status_change')
       end
     end
 
@@ -177,7 +177,8 @@ RSpec.describe Kafka do
         'systemName' => 'VA_gov',
         'timestamp' => Time.zone.now.iso8601,
         'vasiId' => '2103',
-        'additionalIds' => %w[123 456] }
+        'additionalIds' => %w[123 456],
+        'context' => { 'note' => "Environment: #{Settings.vsp_environment}" } }
     end
 
     after { Kafka::ProducerManager.instance.producer.client.reset }
@@ -188,7 +189,7 @@ RSpec.describe Kafka do
           expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(expected_valid_output, false)
           expect(Kafka::ProducerManager.instance.producer).to receive(:produce_sync)
           Kafka.submit_event(icn:, prior_id:, current_id:, next_id:, submission_name:, state:, additional_ids:)
-          Kafka::AvroProducer.new.produce('submission_trace_form_status_change_test', expected_valid_output)
+          Kafka::AvroProducer.new.produce('submission_trace_form_status_change', expected_valid_output)
         end
       end
     end

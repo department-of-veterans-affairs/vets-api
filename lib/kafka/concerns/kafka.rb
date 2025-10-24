@@ -91,7 +91,10 @@ module Kafka
       'vasi_id' => VASI_ID,
       'system_name' => SYSTEM_NAME,
       'timestamp' => Time.current.iso8601,
-      'additional_ids' => additional_ids
+      'additional_ids' => additional_ids,
+      'context' => {
+        'note' => "Environment: #{Settings.vsp_environment}"
+      }
     }
 
     form_trace = Kafka::FormTrace.new(payload)

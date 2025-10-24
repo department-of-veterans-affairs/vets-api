@@ -5,7 +5,7 @@ require 'kafka/sidekiq/event_bus_submission_job'
 require 'kafka/avro_producer'
 
 RSpec.describe Kafka::EventBusSubmissionJob, type: :job do
-  let(:topic) { 'submission_trace_form_status_change_test' }
+  let(:topic) { 'submission_trace_form_status_change' }
   let(:payload) { { 'data' => { 'ICN' => 'id' } } }
   let(:monitor) { instance_double(Kafka::Monitor) }
   let(:producer) { instance_double(Kafka::AvroProducer) }
