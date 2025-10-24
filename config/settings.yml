@@ -735,6 +735,7 @@ lighthouse:
       - system/MedicationDispense.read
       - system/Encounter.read
       - system/Account.read
+      - system/Medication.read
       - launch
     timeout: 30
     use_mocks: false
@@ -1579,7 +1580,6 @@ vanotify:
         form1880_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1880_reminder_email'] %>
         form1900_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
         form1990_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form1990_confirmation_email'] %>
-        form1990e_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form1990e_confirmation_email'] %>
         form1990emeb_approved_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form1990emeb_approved_confirmation_email'] %>
         form1990emeb_denied_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form1990emeb_denied_confirmation_email'] %>
         form1990emeb_offramp_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form1990emeb_offramp_confirmation_email'] %>
