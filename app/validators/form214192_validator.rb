@@ -41,16 +41,13 @@ class Form214192Validator < ActiveModel::Validator
     end
 
     # Validate employer fields
-    required_employer_fields = %w[employerName employerAddress employerEmail]
-    required_employer_fields.each do |field|
-      validate_required_field(record, employment, field, "#{field} is required")
-    end
+    validate_required_field(record, employment, 'employerName', 'Employer name is required')
+    validate_required_field(record, employment, 'employerAddress', 'Employer address is required')
+    validate_required_field(record, employment, 'employerEmail', 'Employer email is required')
 
     # Validate employment detail fields
-    required_employment_fields = %w[typeOfWorkPerformed beginningDateOfEmployment]
-    required_employment_fields.each do |field|
-      validate_required_field(record, employment, field, "#{field} is required")
-    end
+    validate_required_field(record, employment, 'typeOfWorkPerformed', 'Type of work performed is required')
+    validate_required_field(record, employment, 'beginningDateOfEmployment', 'Beginning date of employment is required')
   end
 
   def validate_required_field(record, data, field, error_message)

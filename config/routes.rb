@@ -82,13 +82,6 @@ Rails.application.routes.draw do
     get 'apps/scopes/:category', to: 'apps#scopes', defaults: scope_default
     get 'apps/scopes', to: 'apps#scopes', defaults: scope_default
 
-    resources :letters, only: [:index] do
-      collection do
-        get 'beneficiary', to: 'letters#beneficiary'
-        post ':id', to: 'letters#download'
-      end
-    end
-
     resources :letters_discrepancy, only: [:index]
 
     resources :letters_generator, only: [:index] do
@@ -417,6 +410,7 @@ Rails.application.routes.draw do
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'
+  mount IncreaseCompensation::Engine, at: '/increase_compensation'
   mount IvcChampva::Engine, at: '/ivc_champva'
   mount MedicalExpenseReports::Engine, at: '/medical_expense_reports'
   mount RepresentationManagement::Engine, at: '/representation_management'

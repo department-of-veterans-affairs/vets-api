@@ -65,7 +65,7 @@ module MedicalExpenseReports
       }.freeze
 
       def expand(form_data = {})
-        form_data['additionalMedicalExpenses'] ||= []
+        form_data['medicalExpenses'] ||= []
         form_data['additionalMedicalExpenses'] = form_data['medicalExpenses'].drop(7).map { |r| expand_expense(r) }
         form_data
       end
