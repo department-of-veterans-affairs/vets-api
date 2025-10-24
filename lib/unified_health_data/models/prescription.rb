@@ -7,6 +7,7 @@ module UnifiedHealthData
     include Vets::Model
 
     attribute :id, String
+    attribute :type, String
     attribute :refill_status, String
     attribute :refill_submit_date, String
     attribute :refill_date, String
