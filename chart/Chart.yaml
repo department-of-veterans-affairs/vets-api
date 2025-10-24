@@ -129,8 +129,8 @@ type: application
 # 0.15.25  - Add all dbMigrate secrets to parameter store (every entry based on env)
 # 0.15.26  - Set ssm-env-vars secret refreshInternal to zero to only create secret once
 # 0.15.27  - Terminal Auditing setup
-
-version: 0.15.27
+# 0.15.28  - Terminal Auditing setup Attempt #2
+version: 0.15.28
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
