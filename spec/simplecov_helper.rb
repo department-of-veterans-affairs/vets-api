@@ -107,6 +107,7 @@ class SimpleCovHelper
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
     add_group 'IncomeAndAssets', 'modules/income_and_assets/'
+    add_group 'IncreaseCompensation', 'modules/increase_compensation/'
     add_group 'IvcChampva', 'modules/ivc_champva/'
     add_group 'MedicalExpenseReports', 'modules/medical_expense_reports/'
     add_group 'RepresentationManagement', 'modules/representation_management/'
