@@ -35,55 +35,40 @@ RSpec.describe VeteranFacingServices::NotificationEmail::SavedClaim do
   let(:fake_claim) { build(:fake_saved_claim) }
   let(:fake_email) { fake_claim.email }
   let(:notification) { described_class.new(fake_claim.id) }
+  let(:statsd) { VeteranFacingServices::NotificationEmail::Monitor::STATSD }
+  let(:vanotify) { double(send_email: true) }
 
   before do
     allow(Settings.vanotify).to receive(:services).and_return vanotify_services_settings
     allow(SavedClaim).to receive(:find).and_return(fake_claim)
+    allow(VaNotify::Service).to receive(:new).and_return(vanotify)
   end
 
   describe '#deliver' do
     context 'with a valid template_id and no flipper_id' do
       it 'successfully sends a confirmation email' do
+        api_key = vanotify_services_settings.form23_42fake.api_key
+        callback_options = { callback_klass: be_a(String), callback_metadata: be_a(Hash) }
+        personalization = { 'date_submitted' => fake_claim.submitted_at,
+                            'confirmation_number' => fake_claim.confirmation_number }
+
         expect(fake_claim).to receive(:va_notification?).with confirmation_email_template_id
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          fake_email,
-          confirmation_email_template_id,
-          { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number },
-          vanotify_services_settings.form23_42fake.api_key,
-          { callback_klass: VeteranFacingServices::NotificationCallback::SavedClaim.to_s,
-            callback_metadata: anything }
+        expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(vanotify)
+        expect(vanotify).to receive(:send_email).with(
+          {
+            email_address: fake_email,
+            template_id: confirmation_email_template_id,
+            personalisation: personalization
+          }.compact
         )
         expect(fake_claim).to receive(:insert_notification).with(confirmation_email_template_id)
 
-        metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.deliver_success"
-        # monitor_deliver_success
+        metric = "#{statsd}.send_success"
+        # monitor.send_success
         expect(StatsD).to receive(:increment).with(metric, tags: anything)
         expect(Rails.logger).to receive(:info)
 
         notification.deliver(:confirmation)
-      end
-
-      it 'successfully enqueues a confirmation email' do
-        at = 23.days.from_now
-
-        expect(fake_claim).to receive(:va_notification?).with confirmation_email_template_id
-        expect(VANotify::EmailJob).to receive(:perform_at).with(
-          at,
-          fake_email,
-          confirmation_email_template_id,
-          { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number },
-          vanotify_services_settings.form23_42fake.api_key,
-          { callback_klass: VeteranFacingServices::NotificationCallback::SavedClaim.to_s,
-            callback_metadata: anything }
-        )
-        expect(fake_claim).to receive(:insert_notification).with(confirmation_email_template_id)
-
-        metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.deliver_success"
-        # monitor_deliver_success
-        expect(StatsD).to receive(:increment).with(metric, tags: anything)
-        expect(Rails.logger).to receive(:info)
-
-        notification.deliver(:confirmation, at:)
       end
     end
 
@@ -91,7 +76,7 @@ RSpec.describe VeteranFacingServices::NotificationEmail::SavedClaim do
       it 'successfully sends when the flipper is enabled' do
         allow(Flipper).to receive(:enabled?).with(:"#{error_email_flipper_id}").and_return true
 
-        expect(VANotify::EmailJob).to receive(:perform_async)
+        expect(vanotify).to receive(:send_email)
         expect(StatsD).to receive(:increment)
         expect(Rails.logger).to receive(:info) # confirmation of the email sending
         expect(fake_claim).to receive(:insert_notification).with(error_email_template_id)
@@ -102,7 +87,7 @@ RSpec.describe VeteranFacingServices::NotificationEmail::SavedClaim do
       it 'does not send when the flipper is disabled' do
         allow(Flipper).to receive(:enabled?).with(:"#{error_email_flipper_id}").and_return false
 
-        expect(VANotify::EmailJob).not_to receive(:perform_async)
+        expect(vanotify).not_to receive(:send_email)
         expect(StatsD).not_to receive(:increment)
         expect(Rails.logger).not_to receive(:info) # confirmation of the email sending
 
@@ -112,12 +97,12 @@ RSpec.describe VeteranFacingServices::NotificationEmail::SavedClaim do
 
     context 'with invalid email type' do
       it 'records a failure to send' do
-        metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.send_failure"
-        # monitor_send_failure
+        metric = "#{statsd}.send_failure"
+        # monitor.send_failure
         expect(StatsD).to receive(:increment).with(metric, tags: anything)
         expect(Rails.logger).to receive(:error)
 
-        expect(VANotify::EmailJob).not_to receive(:perform_async)
+        expect(vanotify).not_to receive(:send_email)
         expect(fake_claim).not_to receive(:insert_notification)
 
         notification.deliver('foobar')
@@ -126,12 +111,12 @@ RSpec.describe VeteranFacingServices::NotificationEmail::SavedClaim do
 
     context 'with missing email config' do
       it 'records a failure to send' do
-        metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.send_failure"
-        # monitor_send_failure
+        metric = "#{statsd}.send_failure"
+        # monitor.send_failure
         expect(StatsD).to receive(:increment).with(metric, tags: anything)
         expect(Rails.logger).to receive(:error)
 
-        expect(VANotify::EmailJob).not_to receive(:perform_async)
+        expect(vanotify).not_to receive(:send_email)
         expect(fake_claim).not_to receive(:insert_notification)
 
         notification.deliver(:no_config)
@@ -140,12 +125,12 @@ RSpec.describe VeteranFacingServices::NotificationEmail::SavedClaim do
 
     context 'with missing email template' do
       it 'records a failure to send' do
-        metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.send_failure"
-        # monitor_send_failure
+        metric = "#{statsd}.send_failure"
+        # monitor.send_failure
         expect(StatsD).to receive(:increment).with(metric, tags: anything)
         expect(Rails.logger).to receive(:error)
 
-        expect(VANotify::EmailJob).not_to receive(:perform_async)
+        expect(vanotify).not_to receive(:send_email)
         expect(fake_claim).not_to receive(:insert_notification)
 
         notification.deliver(:no_template)
@@ -156,12 +141,12 @@ RSpec.describe VeteranFacingServices::NotificationEmail::SavedClaim do
       it 'records a failure to send' do
         allow(fake_claim).to receive(:email).and_return nil
 
-        metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.send_failure"
-        # monitor_send_failure
+        metric = "#{statsd}.send_failure"
+        # monitor.send_failure
         expect(StatsD).to receive(:increment).with(metric, tags: anything)
         expect(Rails.logger).to receive(:error)
 
-        expect(VANotify::EmailJob).not_to receive(:perform_async)
+        expect(vanotify).not_to receive(:send_email)
         expect(fake_claim).not_to receive(:insert_notification)
 
         notification.deliver(:confirmation)
@@ -171,12 +156,12 @@ RSpec.describe VeteranFacingServices::NotificationEmail::SavedClaim do
     it 'records a duplicate attempt' do
       allow(fake_claim).to receive(:va_notification?).and_return true
 
-      metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.duplicate_attempt"
-      # monitor_duplicate_attempt
+      metric = "#{statsd}.duplicate_attempt"
+      # monitor.duplicate_attempt
       expect(StatsD).to receive(:increment).with(metric, tags: anything)
       expect(Rails.logger).to receive(:warn)
 
-      expect(VANotify::EmailJob).not_to receive(:perform_async)
+      expect(vanotify).not_to receive(:send_email)
 
       notification.deliver(:confirmation)
     end
