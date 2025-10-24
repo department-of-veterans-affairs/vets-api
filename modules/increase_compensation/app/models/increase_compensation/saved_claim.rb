@@ -75,7 +75,7 @@ module IncreaseCompensation
       files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
       files.find_each { |f| f.update(saved_claim_id: id) }
 
-      Lighthouse::SubmitBenefitsIntakeClaim.perform_async(id)
+      # Lighthouse::SubmitBenefitsIntakeClaim.perform_async(id)
     end
 
     ##
