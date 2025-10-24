@@ -5,6 +5,8 @@ require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
+require_relative 'sections/section_07'
+
 # rubocop:disable Metrics/ClassLength
 module Burials
   module PdfFill
@@ -13,6 +15,7 @@ module Burials
       # Burial 21P-530EZ PDF Filler class
       class Va21p530ez < ::PdfFill::Forms::FormBase
         include ::PdfFill::Forms::FormHelper
+        include Helpers
 
         # The ID of the form being processed
         FORM_ID = '21P-530EZ'
@@ -86,7 +89,7 @@ module Burials
 
         # Mapping of the filled out form into JSON
         # rubocop:disable Layout/LineLength
-        KEY = {
+        key = {
           'veteranFullName' => { # start veteran information
             'first' => {
               key: 'form1[0].#subform[82].VeteransFirstName[0]',
@@ -556,136 +559,15 @@ module Burials
           },
           'hasTransportation' => {
             key: 'form1[0].#subform[83].ResponsibleForTransportation[0]'
-          },
-          'hasProcessOption' => {
-            key: 'form1[0].#subform[83].WantClaimFDCProcessedYes[0]'
-          },
-          'noProcessOption' => {
-            key: 'form1[0].#subform[83].WantClaimFDCProcessedNo[0]'
-          },
-          'signature' => {
-            key: 'form1[0].#subform[83].CLAIMANT_SIGNATURE[0]',
-            limit: 45,
-            question_num: 25,
-            question_label: 'Signature Of Claimant',
-            question_text: 'SIGNATURE OF CLAIMANT',
-            question_suffix: 'A'
-          },
-          'claimantPrintedName' => {
-            key: 'form1[0].#subform[83].ClaimantPrintedName[0]',
-            limit: 45,
-            question_num: 25,
-            question_label: 'Printed Name Of Claimant',
-            question_text: 'Printed Name of Claimant',
-            question_suffix: 'B'
-          },
-          'firmNameAndAddr' => {
-            key: 'form1[0].#subform[83].FirmNameAndAddress[0]',
-            limit: 90,
-            question_num: 26,
-            question_suffix: 'B',
-            question_label: 'Full Name And Address Of The Firm, Corporation, Or State Agency Filing As Claimant',
-            question_text: 'FULL NAME AND ADDRESS OF THE FIRM, CORPORATION, OR STATE AGENCY FILING AS CLAIMANT'
-          },
-          'officialPosition' => {
-            key: 'form1[0].#subform[83].OfficialPosition[0]',
-            limit: 90,
-            question_num: 26,
-            question_suffix: 'B',
-            question_label: 'Official Position Of Person Signing On Behalf Of Firm, Corporation Or State Agency',
-            question_text: 'OFFICIAL POSITION OF PERSON SIGNING ON BEHALF OF FIRM, CORPORATION OR STATE AGENCY'
-          },
-          'veteranSocialSecurityNumber3' => {
-            'first' => {
-              key: 'form1[0].#subform[83].#subform[84].VeteransSocialSecurityNumber_FirstThreeNumbers[2]'
-            },
-            'second' => {
-              key: 'form1[0].#subform[83].#subform[84].VeteransSocialSecurityNumber_SecondTwoNumbers[2]'
-            },
-            'third' => {
-              key: 'form1[0].#subform[83].#subform[84].VeteransSocialSecurityNumber_LastFourNumbers[2]'
-            }
           }
-        }.freeze
+        }
         # rubocop:enable Layout/LineLength
 
-        ##
-        # This method sanitizes a phone number by removing dashes
-        #
-        # @param phone [String] The phone number to be sanitized.
-        #
-        # @return [String]
-        def sanitize_phone(phone)
-          phone.gsub('-', '')
-        end
+        SECTION_CLASSES = [Section7].freeze
 
-        ##
-        # Splits a phone number from a hash into its component parts
-        #
-        # @param hash [Hash]
-        # @param key [String, Symbol]
-        #
-        # @return [Hash]
-        def split_phone(hash, key)
-          phone = hash[key]
-          return if phone.blank?
+        SECTION_CLASSES.each { |section| key.merge!(section::KEY) }
 
-          phone = sanitize_phone(phone)
-          hash[key] = {
-            'first' => phone[0..2],
-            'second' => phone[3..5],
-            'third' => phone[6..9]
-          }
-        end
-
-        ##
-        # Splits a postal code into its first five and last four digits if present
-        # If the postal code is blank, the method returns nil
-        #
-        # @param hash [Hash]
-        #
-        # @return [Hash]
-        def split_postal_code(hash)
-          postal_code = hash['claimantAddress']['postalCode']
-          return if postal_code.blank?
-
-          hash['claimantAddress']['postalCode'] = {
-            'firstFive' => postal_code[0..4],
-            'lastFour' => postal_code[6..10]
-          }
-        end
-
-        ##
-        # Expands a boolean checkbox value into a hash with "YES" or "NO" responses
-        #
-        # @param value [Boolean]
-        # @param key [String]
-        #
-        # @return [Hash]
-        def expand_checkbox(value, key)
-          {
-            "has#{key}" => value == true ? 'On' : nil,
-            "no#{key}" => value == false ? 'On' : nil
-          }
-        end
-
-        ##
-        # Expands a checkbox value within a hash and updates it in place
-        # Returns nil if the key is not present in the hash.
-        # This behavior stems from VBA's requirement that boolean values
-        # remain empty on the PDF if not selected on the online form.
-        #
-        # For more context, see this PR: https://github.com/department-of-veterans-affairs/vets-api/pull/22958
-        #
-        # @param hash [Hash]
-        # @param key [String]
-        #
-        # @return [Hash]
-        def expand_checkbox_in_place(hash, key)
-          return nil if hash[key].nil?
-
-          hash.merge!(expand_checkbox(hash[key], StringHelpers.capitalize_only(key)))
-        end
+        KEY = key.freeze
 
         ##
         # Expands tours of duty by formatting a few fields
@@ -789,55 +671,6 @@ module Burials
           return va_file_number if va_file_number.blank? || va_file_number.length < 10
 
           va_file_number.sub(/^[Cc]/, '')
-        end
-
-        ##
-        # Converts a boolean value into a checkbox selection
-        #
-        # This method returns 'On' if the value is truthy, otherwise it returns 'Off'
-        # Override for on/off vs 1/off @see FormHelper
-        #
-        # @param value [Boolean]
-        #
-        # @return [String]e
-        def select_checkbox(value)
-          value ? 'On' : 'Off'
-        end
-
-        ##
-        # Converts a boolean value into a radio selection
-        #
-        # This method returns 0 for true and 1 for false and nil for nil
-        # This behavior stems from VBA's request to keep boolean fields blank
-        # on the PDF if not selected on the online form.
-        #
-        # For more context, see this PR: https://github.com/department-of-veterans-affairs/vets-api/pull/22958
-        #
-        # @param value [Boolean, nil]
-        #
-        # @return [Integer, nil]
-        def select_radio(value)
-          return nil if value.nil?
-
-          value ? 0 : 1
-        end
-
-        ##
-        # Expands a value from a hash into a 'checkbox' structure
-        #
-        # Override for 'On' vs true @see FormHelper
-        #
-        # @param hash [Hash]
-        # @param key [Symbol]
-        #
-        # @return [void]
-        def expand_checkbox_as_hash(hash, key)
-          value = hash.try(:[], key)
-          return if value.blank?
-
-          hash['checkbox'] = {
-            value => 'On'
-          }
         end
 
         ##
