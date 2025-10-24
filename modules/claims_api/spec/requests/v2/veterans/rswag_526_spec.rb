@@ -521,6 +521,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             end
 
             before do |example|
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
               make_request(example)
             end
 
@@ -556,6 +557,11 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           end
 
           context 'when federalActivation is present but obligationTermsOfService is missing' do
+
+            before do
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
+            end
+
             def make_request(example)
               allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
 
@@ -653,6 +659,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           end
 
           before do |example|
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
@@ -761,6 +768,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           let(:data) { { data: { attributes: nil } } }
 
           before do |example|
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end

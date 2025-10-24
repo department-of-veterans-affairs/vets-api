@@ -127,7 +127,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       context 'when the location code is valid' do
         it 'returns no errors' do
           service_periods['servicePeriods'][0]['separationLocationCode'] = '24912'
-          test_526_validation_instance.send(:validate_form_526_location_codes, service_periods)
+          test_526_validation_instance.send(:alt_rev_validate_form_526_location_codes, service_periods)
           errors = test_526_validation_instance.send(:error_collection)
 
           expect(errors).to be_empty
@@ -137,7 +137,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       context 'when the location code is invalid' do
         it 'adds an error to the errors array' do
           service_periods['servicePeriods'][0]['separationLocationCode'] = '123456'
-          test_526_validation_instance.send(:validate_form_526_location_codes, service_periods)
+          test_526_validation_instance.send(:alt_rev_validate_form_526_location_codes, service_periods)
           errors = test_526_validation_instance.send(:error_collection)
 
           expect(errors.size).to eq(1)
@@ -146,7 +146,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
       context 'when the location code is valid in some service periods and invalid in others' do
         it 'adds an error to the errors array' do
-          test_526_validation_instance.send(:validate_form_526_location_codes, valid_and_invalid_separation_codes)
+          test_526_validation_instance.send(:alt_rev_validate_form_526_location_codes, valid_and_invalid_separation_codes)
           errors = test_526_validation_instance.send(:error_collection)
 
           expect(errors.size).to eq(1)
@@ -155,7 +155,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
       context 'when the location code is valid in some service periods and not present in others' do
         it 'returns no errors' do
-          test_526_validation_instance.send(:validate_form_526_location_codes, valid_and_no_separation_codes)
+          test_526_validation_instance.send(:alt_rev_validate_form_526_location_codes, valid_and_no_separation_codes)
           errors = test_526_validation_instance.send(:error_collection)
 
           expect(errors).to be_empty
@@ -165,7 +165,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
     context 'when a separation location code is not present' do
       it 'does not retrieve the location codes and skips validation' do
-        test_526_validation_instance.send(:validate_form_526_location_codes, no_separation_code)
+        test_526_validation_instance.send(:alt_rev_validate_form_526_location_codes, no_separation_code)
         errors = test_526_validation_instance.send(:error_collection)
 
         expect(test_526_validation_instance).not_to receive(:retrieve_separation_locations)
@@ -212,20 +212,20 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       context 'mailingAddress' do
         it 'returns an error with an incorrect MILITARY address combination' do
           subject.form_attributes['veteranIdentification']['mailingAddress'] = invalid_military_address
-          test_526_validation_instance.send(:validate_form_526_address_type)
+          test_526_validation_instance.send(:alt_rev_validate_form_526_address_type)
           expect(current_error_array[0][:detail]).to eq('Invalid city and military postal combination.')
           expect(current_error_array[0][:source]).to eq('/veteranIdentification/mailingAddress/')
         end
 
         it 'handles a correct MILITARY address combination' do
           subject.form_attributes['veteranIdentification']['mailingAddress'] = valid_military_address
-          test_526_validation_instance.send(:validate_form_526_address_type)
+          test_526_validation_instance.send(:alt_rev_validate_form_526_address_type)
           test_526_validation_instance.instance_variable_get('@errors')
           expect(current_error_array).to be_nil
         end
 
         it 'handles a DOMESTIC address' do
-          test_526_validation_instance.send(:validate_form_526_address_type)
+          test_526_validation_instance.send(:alt_rev_validate_form_526_address_type)
           test_526_validation_instance.instance_variable_get('@errors')
           expect(current_error_array).to be_nil
         end
@@ -253,7 +253,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
   describe 'validation of claimant mailing address elements' do
     context 'when the country is valid' do # country is USA in the JSON
       it 'responds with true' do
-        res = test_526_validation_instance.send(:validate_form_526_current_mailing_address_country)
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_current_mailing_address_country)
         expect(res).to be_nil
       end
     end
@@ -261,7 +261,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     context 'when the country is invalid' do
       it 'returns an error array' do
         subject.form_attributes['veteranIdentification']['mailingAddress']['country'] = 'United States of Nada'
-        res = test_526_validation_instance.send(:validate_form_526_current_mailing_address_country)
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_current_mailing_address_country)
         expect(res[0][:detail]).to eq('The country provided is not valid.')
         expect(res[0][:source]).to eq('/veteranIdentification/mailingAddress/country')
       end
@@ -273,7 +273,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['veteranIdentification']['mailingAddress']['internationalPostalCode'] = '151-8557'
         subject.form_attributes['veteranIdentification']['mailingAddress']['zipFirstFive'] = ''
         subject.form_attributes['veteranIdentification']['mailingAddress']['state'] = nil
-        res = test_526_validation_instance.send(:validate_form_526_current_mailing_address_state)
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_current_mailing_address_state)
         expect(res).to be_nil
       end
     end
@@ -284,7 +284,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       context 'without the required country value present' do
         it 'returns an error array' do
           subject.form_attributes['changeOfAddress']['country'] = ''
-          res = test_526_validation_instance.send(:validate_form_526_change_of_address_country)
+          res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_country)
           expect(res[0][:detail]).to eq('The country provided is not valid.')
           expect(res[0][:source]).to eq('/changeOfAddress/country')
         end
@@ -293,7 +293,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       context 'when beginDate is an invalid date value' do
         it 'returns an error array' do
           subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2018-09-45'
-          res = test_526_validation_instance.send(:validate_form_526_change_of_address_beginning_date)
+          res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_beginning_date)
           expect(res[0][:detail]).to eq('beginDate is not a valid date.')
           expect(res[0][:source]).to eq('/changeOfAddress/dates/beginDate')
         end
@@ -305,7 +305,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = ''
         change_of_address = subject.form_attributes['changeOfAddress']
         res = test_526_validation_instance.send(
-          :validate_form_526_coa_type_of_address_change_presence,
+          :alt_rev_validate_form_526_coa_type_of_address_change_presence,
           change_of_address,
           '/changeOfAddress'
         )
@@ -319,7 +319,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['changeOfAddress']['addressLine1'] = ''
         change_of_address = subject.form_attributes['changeOfAddress']
         res = test_526_validation_instance.send(
-          :validate_form_526_coa_address_line_one_presence,
+          :alt_rev_validate_form_526_coa_address_line_one_presence,
           change_of_address,
           '/changeOfAddress'
         )
@@ -330,7 +330,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
     context 'when the country is valid' do # country is USA in the JSON
       it 'responds with true' do
-        res = test_526_validation_instance.send(:validate_form_526_change_of_address_country)
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_country)
         expect(res).to be_nil
       end
     end
@@ -338,7 +338,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     context 'when the country is invalid' do
       it 'returns an error array' do
         subject.form_attributes['changeOfAddress']['country'] = 'United States of Nada'
-        res = test_526_validation_instance.send(:validate_form_526_change_of_address_country)
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_country)
         expect(res[0][:detail]).to eq('The country provided is not valid.')
         expect(res[0][:source]).to eq('/changeOfAddress/country')
       end
@@ -348,7 +348,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       context 'zipfirstFive is not included' do
         it 'returns an error array' do
           subject.form_attributes['changeOfAddress']['zipFirstFive'] = ''
-          test_526_validation_instance.send(:validate_form_526_change_of_address_zip)
+          test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_zip)
           expect(current_error_array[0][:detail]).to eq('The zipFirstFive is required if the country is USA.')
           expect(current_error_array[0][:source]).to eq('/changeOfAddress/')
         end
@@ -357,7 +357,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       context 'state is not included' do
         it 'returns an error array' do
           subject.form_attributes['changeOfAddress']['state'] = ''
-          test_526_validation_instance.send(:validate_form_526_change_of_address_zip)
+          test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_zip)
           expect(current_error_array[0][:detail]).to eq('The state is required if the country is USA.')
           expect(current_error_array[0][:source]).to eq('/changeOfAddress/')
         end
@@ -366,7 +366,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       context 'internationalPostalCode is included' do
         it 'returns an error array' do
           subject.form_attributes['changeOfAddress']['internationalPostalCode'] = '333-444'
-          test_526_validation_instance.send(:validate_form_526_change_of_address_zip)
+          test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_zip)
           expect(current_error_array[0][:detail])
             .to eq('The internationalPostalCode should not be provided if the country is USA.')
           expect(current_error_array[0][:source]).to eq('/changeOfAddress/internationalPostalCode')
@@ -379,7 +379,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['changeOfAddress']['country'] = ''
         change_of_address = subject.form_attributes['changeOfAddress']
         res = test_526_validation_instance.send(
-          :validate_form_526_coa_country_presence,
+          :alt_rev_validate_form_526_coa_country_presence,
           change_of_address,
           '/changeOfAddress'
         )
@@ -393,7 +393,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['changeOfAddress']['city'] = ''
         change_of_address = subject.form_attributes['changeOfAddress']
         res = test_526_validation_instance.send(
-          :validate_form_526_coa_city_presence,
+          :alt_rev_validate_form_526_coa_city_presence,
           change_of_address,
           '/changeOfAddress'
         )
@@ -407,7 +407,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       it 'returns an error array' do
         subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
         subject.form_attributes['changeOfAddress']['dates']['endDate'] = end_date
-        test_526_validation_instance.send(:validate_form_526_change_of_address_ending_date)
+        test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
         expect(current_error_array[0][:detail]).to eq("#{end_date} is not a valid date.")
         expect(current_error_array[0][:source]).to eq('data/attributes/changeOfAddress/dates/endDate')
       end
@@ -417,7 +417,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       it 'returns an error array' do
         subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
         subject.form_attributes['changeOfAddress']['dates']['endDate'] = '2022-01-01'
-        res = test_526_validation_instance.send(:validate_form_526_change_of_address_ending_date)
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
         expect(res[0][:detail]).to eq('endDate needs to be after beginDate.')
         expect(res[0][:source]).to eq('/changeOfAddress/dates/endDate')
       end
@@ -428,7 +428,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'
         subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
         subject.form_attributes['changeOfAddress']['dates']['endDate'] = '2024-01-01'
-        test_526_validation_instance.send(:validate_form_526_change_of_address_beginning_date)
+        test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_beginning_date)
         expect(current_error_array[0][:detail]).to eq('Change of address beginDate must be ' \
                                                       'in the future if addressChangeType is TEMPORARY')
         expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/beginDate')
@@ -440,7 +440,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'PERMANENT'
         subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '01-01-2023'
         subject.form_attributes['changeOfAddress']['dates']['endDate'] = '01-01-2024'
-        test_526_validation_instance.send(:validate_form_526_change_of_address_ending_date)
+        test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
         expect(current_error_array[0][:detail]).to eq('Change of address endDate cannot be included ' \
                                                       'when typeOfAddressChange is PERMANENT')
         expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/endDate')
@@ -494,7 +494,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
       invalid_service_info_for_bdd = valid_service_info_for_bdd
       subject.form_attributes['serviceInformation'] = invalid_service_info_for_bdd
-      test_526_validation_instance.send(:validate_federal_activation_values, invalid_service_info_for_bdd)
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_values, invalid_service_info_for_bdd)
 
       expect(current_error_array[0][:detail]).to eq(expected_detail)
       expect(current_error_array[0][:source]).to eq(expected_source)
@@ -502,7 +502,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
     context 'when federalActivation is present' do
       it 'and all the required attributes are present' do
-        test_526_validation_instance.send(:validate_federal_activation_values, valid_service_info_for_bdd)
+        test_526_validation_instance.send(:alt_rev_validate_federal_activation_values, valid_service_info_for_bdd)
         expect(current_error_array).to be_nil
       end
 
