@@ -78,6 +78,10 @@ properties:
               description: Type of claim
               nullable: true
               example: "020NEW"
+            claimTypeBase:
+              type: string
+              description: Base type of claim
+              nullable: true
   meta:
     type: object
     additionalProperties: false
