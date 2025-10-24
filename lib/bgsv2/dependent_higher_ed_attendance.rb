@@ -24,11 +24,10 @@ module BGSV2
 
       bgs_service.create_person(person_params(adult_attending_school, participant, formatted_info))
       send_address(adult_attending_school, participant, adult_attending_school.address)
-
       @dependents = adult_attending_school.serialize_dependent_result(
         participant,
         'Child',
-        'Biological',
+        formatted_info['relationship_to_student'] || 'Biological',
         {
           type: '674',
           dep_has_income_ind: formatted_info['dependent_income']

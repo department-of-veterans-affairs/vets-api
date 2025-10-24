@@ -34,36 +34,24 @@ module ClaimsApi
       end
 
       def transform_disability_values!(disability)
-        # Remove nil values for the optional fields
         %i[diagnosticCode classificationCode ratedDisabilityId specialIssues].each do |field|
           disability.delete(field) if disability[field].blank?
         end
 
-        # Transform approximate date to FES format
         begin_date = disability[:approximateBeginDate]
         disability[:approximateBeginDate] = make_date_object(begin_date, begin_date.length) if begin_date.present?
 
-        # Remove fields not needed for FES
         disability.except(*IGNORED_DISABILITY_FIELDS)
       end
 
       def flatten_disabilities(disabilities_array)
         disabilities_array.flat_map do |disability|
-          primary_disablity = disability.dup
-          # Remove secondaryDisabilities from primary_disablity before adding to list
-          secondary_disability_data = primary_disablity.delete(:secondaryDisabilities)
+          primary_disability = disability.dup
+          secondaries = primary_disability.delete(:secondaryDisabilities) || []
 
-          list = [primary_disablity]
-
-          if secondary_disability_data.present?
-            secondaries = secondary_disability_data.map do |secondary|
-              secondary_copy = secondary.dup
-              secondary_copy[:name] = secondary[:name]
-              secondary_copy[:disabilityActionType] = 'NEW'
-              secondary_copy
-            end
-            list.concat(secondaries)
-          end
+          list = []
+          list << primary_disability unless primary_disability[:disabilityActionType] == 'NONE'
+          list.concat(secondaries.map { |s| s.dup.merge(disabilityActionType: 'NEW') })
 
           list
         end

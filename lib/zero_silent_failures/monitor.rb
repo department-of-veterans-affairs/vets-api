@@ -5,8 +5,13 @@ require 'logging/monitor'
 # ZeroSilentFailures namespace
 module ZeroSilentFailures
   # global monitoring functions for ZSF - statsd and logging
+  # @deprecated
   # @see Logging::Monitor
   class Monitor < Logging::Monitor
+    unless defined?(Rails) && Rails.env.test?
+      ActiveSupport::Deprecation
+        .new.warn('ZeroSilentFailures::Monitor is deprecated, use Logging::BaseMonitor or `include Logging::Include::ZeroSilentFailures`')
+    end
     # record metrics and log for a silent failure
     #
     # @param additional_context [Hash] information to accompany the log to aid in debugging
