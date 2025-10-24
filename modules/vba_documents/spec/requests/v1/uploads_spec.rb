@@ -122,7 +122,7 @@ RSpec.describe 'VBADocument::V1::Uploads', retry: 3, type: :request do
     it 'keeps the displayed detail to 200 characters or less' do
       get "/services/vba_documents/v1/uploads/#{upload_large_detail.guid}"
       json = JSON.parse(response.body)
-      length = VBADocuments::UploadSerializer::MAX_DETAIL_DISPLAY_LENGTH
+      length = VBADocuments::V1::UploadSerializer::MAX_DETAIL_DISPLAY_LENGTH
       expect(json['data']['attributes']['detail'].length).to be <= length + 3
       expect(json['data']['attributes']['detail']).to match(/.*\.\.\.$/)
       get "/services/vba_documents/v1/uploads/#{upload.guid}"
