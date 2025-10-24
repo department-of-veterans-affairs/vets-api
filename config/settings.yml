@@ -817,6 +817,7 @@ maintenance:
     es: <%= ENV['maintenance__services__es'] %>
     evss: <%= ENV['maintenance__services__evss'] %>
     form1010d:  <%= ENV['maintenance__services__form1010d'] %>
+    form1010d_ext:  <%= ENV['maintenance__services__form1010d_ext'] %>
     form107959a: <%= ENV['maintenance__services__form107959a'] %>
     form107959c: <%= ENV['maintenance__services__form107959c'] %>
     form107959f1: <%= ENV['maintenance__services__form107959f1'] %>
