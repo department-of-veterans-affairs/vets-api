@@ -19,6 +19,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     'vba_21_4138.json',
     'vba_21_4140.json',
     'vba_21_4142.json',
+    'vba_21p_601.json',
     'vba_21p_0847.json',
     'vba_21p_0537.json',
     'vba_40_0247.json',
@@ -419,7 +420,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         it 'makes the request and expects a failure' do
           post '/simple_forms_api/v1/simple_forms', params: data
-
           expect(response).to have_http_status(:error)
           expect(response.body).to include("expected ',' or '}' after object value, got:")
 
