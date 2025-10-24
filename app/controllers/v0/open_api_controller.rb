@@ -5,14 +5,36 @@ module V0
     service_tag 'platform-base'
     skip_before_action :authenticate
 
-    def index
-      openapi_file_path = Rails.public_path.join('openapi.json')
+    class << self
+      def openapi_path
+        Rails.public_path.join('openapi.json')
+      end
 
-      if File.exist?(openapi_file_path)
-        openapi_spec = JSON.parse(File.read(openapi_file_path))
-        openapi_spec['servers'] =
-          [{ 'url' => "#{Rails.application.config.protocol}://#{Rails.application.config.hostname}" }]
-        render json: openapi_spec
+      def openapi_spec
+        path = openapi_path
+        return unless File.exist?(path)
+
+        mtime = File.mtime(path).to_i
+        if defined?(@openapi_spec_mtime) && @openapi_spec_mtime == mtime && @openapi_spec
+          return @openapi_spec
+        end
+
+        @openapi_spec_mtime = mtime
+        @openapi_spec = JSON.parse(File.read(path))
+      rescue JSON::ParserError => e
+        Rails.logger.error("Invalid openapi.json: #{e.message}")
+        nil
+      end
+    end
+
+    def index
+      spec = self.class.openapi_spec
+
+      if spec
+        # Clone the spec so we can modify servers without affecting the cached version
+        response_spec = spec.dup
+        response_spec['servers'] = [{ 'url' => request.base_url }]
+        render json: response_spec
       else
         render json: { error: 'OpenAPI specification not found' }, status: :not_found
       end

@@ -202,6 +202,8 @@ Rails.application.routes.draw do
     get 'startup_healthcheck', to: 'example#startup_healthcheck', as: :startup_healthcheck
     get 'openapi', to: 'open_api#index'
 
+    # Mounting Swagger UI for OpenAPI documentation.
+    # This is part of the OpenAPI endpoint infrastructure.
     mount Rswag::Ui::Engine => 'swagger'
 
     post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'

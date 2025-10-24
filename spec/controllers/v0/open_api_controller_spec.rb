@@ -54,12 +54,67 @@ RSpec.describe V0::OpenApiController, type: :controller do
 
     context 'when OpenAPI file exists but contains invalid JSON' do
       before do
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(openapi_file_path).and_return(true)
         allow(File).to receive(:read).with(openapi_file_path).and_return('invalid json content')
+        allow(File).to receive(:mtime).with(openapi_file_path).and_return(Time.current)
       end
 
-      it 'returns a 500 status' do
+      it 'returns a 404 status and logs the error' do
+        expect(Rails.logger).to receive(:error).with(/Invalid openapi.json/)
         get :index
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:not_found)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['error']).to eq('OpenAPI specification not found')
+      end
+    end
+
+    context 'caching and mtime behavior' do
+      let(:valid_json) { { 'openapi' => '3.0.3' }.to_json }
+      let(:initial_time) { Time.zone.parse('2025-01-01 12:00:00') }
+      let(:later_time) { Time.zone.parse('2025-01-01 13:00:00') }
+
+      before do
+        # Clear any cached spec before each test
+        described_class.instance_variable_set(:@openapi_spec, nil)
+        described_class.instance_variable_set(:@openapi_spec_mtime, nil)
+        
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(openapi_file_path).and_return(true)
+      end
+
+      it 'caches the parsed spec and does not re-parse on subsequent calls' do
+        allow(File).to receive(:mtime).with(openapi_file_path).and_return(initial_time)
+        allow(File).to receive(:read).with(openapi_file_path).and_return(valid_json)
+
+        # First call - should read and parse
+        expect(File).to receive(:read).with(openapi_file_path).once.and_return(valid_json)
+        get :index
+        expect(response).to have_http_status(:ok)
+
+        # Second call - should use cached version, no File.read
+        expect(File).not_to receive(:read)
+        get :index
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'reloads the spec when file mtime changes' do
+        # First call with initial time
+        allow(File).to receive(:mtime).with(openapi_file_path).and_return(initial_time)
+        allow(File).to receive(:read).with(openapi_file_path).and_return(valid_json)
+        get :index
+        expect(response).to have_http_status(:ok)
+
+        # File gets updated with new mtime
+        updated_json = { 'openapi' => '3.0.3', 'updated' => true }.to_json
+        allow(File).to receive(:mtime).with(openapi_file_path).and_return(later_time)
+        allow(File).to receive(:read).with(openapi_file_path).and_return(updated_json)
+
+        # Should reload because mtime changed
+        get :index
+        expect(response).to have_http_status(:ok)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['updated']).to eq(true)
       end
     end
   end
