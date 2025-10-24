@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'benefits_claims/title_generator'
+
 module Mobile
   module V0
     module Adapters
@@ -48,6 +50,12 @@ module Mobile
           phase_change_date = attributes.dig('claimPhaseDates', 'phaseChangeDate')
           events_timeline = events_timeline(attributes)
 
+          claim_type = attributes['claimType']
+          claim_type_code = attributes['claimTypeCode']
+
+          use_generated_titles = Flipper.enabled?(Mobile::V0::Adapters::ClaimsOverview::FEATURE_USE_TITLE_GENERATOR_MOBILE)
+          titles = BenefitsClaims::TitleGenerator.generate_titles(claim_type, claim_type_code)
+
           Mobile::V0::Claim.new(
             {
               id: claim['data']['id'],
@@ -64,12 +72,14 @@ module Mobile
               ever_phase_back: nil,
               current_phase_back: attributes.dig('claimPhaseDates', 'currentPhaseBack'),
               requested_decision: attributes['evidenceWaiverSubmitted5103'],
-              claim_type: attributes['claimType'],
+              claim_type:,
               contention_list: attributes['contentions'].pluck('name'),
               va_representative: nil,
               events_timeline:,
               updated_at: nil,
-              claim_type_code: attributes['claimTypeCode']
+              claim_type_code:,
+              claim_type_base: titles[:claim_type_base],
+              display_title: use_generated_titles ? titles[:display_title] : nil
             }
           )
         end

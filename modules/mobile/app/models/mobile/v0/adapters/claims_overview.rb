@@ -6,6 +6,8 @@ module Mobile
   module V0
     module Adapters
       class ClaimsOverview
+        FEATURE_USE_TITLE_GENERATOR_MOBILE = 'cst_use_claim_title_generator_mobile'
+
         APPEALS_TYPES = {
           legacy: 'legacyAppeal',
           supplemental_claim: 'supplementalClaim',
@@ -39,8 +41,6 @@ module Mobile
         end
 
         private
-
-        FEATURE_USE_TITLE_GENERATOR_MOBILE = 'cst_use_claim_title_generator_mobile'
 
         def parse_claim(entry)
           attributes = entry['attributes']
