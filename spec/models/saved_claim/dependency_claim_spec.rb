@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe SavedClaim::DependencyClaim do
-  let(:subject) { create(:dependency_claim) }
+  subject { create(:dependency_claim) }
 
   let(:subject_v2) { create(:dependency_claim_v2) }
 
