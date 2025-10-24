@@ -2,6 +2,7 @@
 
 require 'unified_health_data/service'
 require 'unified_health_data/serializers/clinical_notes_serializer'
+require 'unique_user_events'
 
 module MyHealth
   module V2
@@ -11,6 +12,16 @@ module MyHealth
       def index
         care_notes = service.get_care_summaries_and_notes
         serialized_notes = UnifiedHealthData::ClinicalNotesSerializer.new(care_notes)
+
+        # Log unique user events for clinical notes accessed
+        UniqueUserEvents.log_events(
+          user: @current_user,
+          event_names: [
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_NOTES_ACCESSED
+          ]
+        )
+
         render json: serialized_notes,
                status: :ok
       rescue Common::Client::Errors::ClientError,

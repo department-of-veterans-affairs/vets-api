@@ -61,9 +61,17 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :form214192, only: [:create] do
+      collection do
+        post :download_pdf
+      end
+    end
+
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
+
+    get 'enrollment_periods', to: 'enrollment_periods#index'
 
     resources :medical_copays, only: %i[index show]
     get 'medical_copays/get_pdf_statement_by_id/:statement_id', to: 'medical_copays#get_pdf_statement_by_id'
@@ -73,13 +81,6 @@ Rails.application.routes.draw do
     scope_default = { category: 'unknown_category' }
     get 'apps/scopes/:category', to: 'apps#scopes', defaults: scope_default
     get 'apps/scopes', to: 'apps#scopes', defaults: scope_default
-
-    resources :letters, only: [:index] do
-      collection do
-        get 'beneficiary', to: 'letters#beneficiary'
-        post ':id', to: 'letters#download'
-      end
-    end
 
     resources :letters_discrepancy, only: [:index]
 
@@ -409,6 +410,7 @@ Rails.application.routes.draw do
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'
+  mount IncreaseCompensation::Engine, at: '/increase_compensation'
   mount IvcChampva::Engine, at: '/ivc_champva'
   mount MedicalExpenseReports::Engine, at: '/medical_expense_reports'
   mount RepresentationManagement::Engine, at: '/representation_management'

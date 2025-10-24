@@ -6,7 +6,7 @@ require 'common/exceptions'
 module AAL
   class CreateAALForm
     include Vets::Model
-    include SentryLogging
+    include Vets::SharedLogging
 
     attribute :user_profile_id, Integer
     attribute :activity_type, String
