@@ -249,7 +249,7 @@ spec:
         {{- end }}
         {{- if $root.Values.audit.enabled }}
         - name: terminal-auditing-{{ $name }}
-          image: bitnami/kubectl:latest   # or your custom image with kubectl
+          image: bitnami/kubectl:1.29.2    # or your custom image with kubectl
           command: ["/bin/bash", "/usr/local/bin/exec-proxy.sh"]
           env:
             - name: TARGET_CONTAINER
