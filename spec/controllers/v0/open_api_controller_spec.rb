@@ -78,7 +78,7 @@ RSpec.describe V0::OpenApiController, type: :controller do
         # Clear any cached spec before each test
         described_class.instance_variable_set(:@openapi_spec, nil)
         described_class.instance_variable_set(:@openapi_spec_mtime, nil)
-        
+
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(openapi_file_path).and_return(true)
       end
@@ -114,7 +114,7 @@ RSpec.describe V0::OpenApiController, type: :controller do
         get :index
         expect(response).to have_http_status(:ok)
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response['updated']).to eq(true)
+        expect(parsed_response['updated']).to be(true)
       end
     end
   end
