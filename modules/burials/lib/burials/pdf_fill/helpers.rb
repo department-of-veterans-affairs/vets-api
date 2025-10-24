@@ -2,6 +2,7 @@
 
 module Burials
   module PdfFill
+    # Helpers used for PDF mapping
     module Helpers
       ##
       # Converts a boolean value into a checkbox selection

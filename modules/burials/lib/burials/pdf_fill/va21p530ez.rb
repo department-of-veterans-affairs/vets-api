@@ -563,10 +563,12 @@ module Burials
         }
         # rubocop:enable Layout/LineLength
 
+        # The list of section classes for form expansion and key building
         SECTION_CLASSES = [Section7].freeze
 
         SECTION_CLASSES.each { |section| key.merge!(section::KEY) }
 
+        # form configuration hash
         KEY = key.freeze
 
         ##
