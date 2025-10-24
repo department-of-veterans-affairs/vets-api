@@ -1,9 +1,10 @@
 {{- $root := . -}}
 {{- range $name, $service := $root.Values.web.webServices }}
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: terminal-auditing
+  name: terminal-auditing-{{ $name }}
   labels:
     app:  {{ $name }}
 data:
@@ -19,8 +20,8 @@ data:
     TARGET_CONTAINER="${TARGET_CONTAINER:-rails}"
 
     # Default to launching Rails console
-    CONSOLE_CMD="${@:-bundle exec rails console}"
+    # CONSOLE_CMD="${*:-bundle exec rails console}"
 
     # Execute the command inside the Rails container with CONSOLE_USER set
-    exec kubectl exec -it "$HOSTNAME" -c "$TARGET_CONTAINER" -- env CONSOLE_USER="$CONSOLE_USER" $CONSOLE_CMD
+    # exec kubectl exec -it "$HOSTNAME" -c "$TARGET_CONTAINER" -- env CONSOLE_USER="$CONSOLE_USER" $CONSOLE_CMD
 {{- end }}
