@@ -48,7 +48,7 @@ module DecisionReviews
         original_submission_timestamp: { x: 150, y: 608, size: 10, cover_width: 200, page: 1 },
         email_sent_timestamp: { x: 150, y: 666, size: 9.5, cover_width: 200, page: 1 },
         email_address: { x: 150, y: 652, size: 9.5, cover_width: 250, page: 1 },
-        form_submission_date_body: { x: 367, y: 406, size: 12, cover_width: 130, page: 1 },
+        form_submission_date_body: { x: 367, y: 405, size: 12, cover_width: 130, page: 1 },
         evidence_filename: { x: 80, y: 282, size: 11, cover_width: 200, page: 1, fill_color: 'F0F0F0' }
       },
       'nod_evidence_failure' => {
