@@ -362,12 +362,14 @@ module ClaimsApi
 
           disability['secondaryDisabilities'].each_with_index do |secondary_disability, sd_idx|
             if secondary_disability['classificationCode'].present?
-              alt_rev_validate_form_526_disability_code_enddate(secondary_disability['classificationCode'].to_i, dis_idx,
+              alt_rev_validate_form_526_disability_code_enddate(secondary_disability['classificationCode'].to_i,
+                                                                dis_idx,
                                                                 sd_idx)
             end
 
             if secondary_disability['approximateDate'].present?
-              alt_rev_validate_form_526_disability_secondary_disability_approximate_begin_date(secondary_disability, dis_idx,
+              alt_rev_validate_form_526_disability_secondary_disability_approximate_begin_date(secondary_disability,
+                                                                                               dis_idx,
                                                                                                sd_idx)
             end
           end
@@ -395,7 +397,8 @@ module ClaimsApi
         end
       end
 
-      def alt_rev_validate_form_526_disability_secondary_disability_approximate_begin_date(secondary_disability, dis_idx,
+      def alt_rev_validate_form_526_disability_secondary_disability_approximate_begin_date(secondary_disability,
+                                                                                           dis_idx,
                                                                                            sd_idx)
         return unless date_is_valid?(secondary_disability['approximateDate'],
                                      'disabilities.secondaryDisabilities.approximateDate')
@@ -472,9 +475,12 @@ module ClaimsApi
         begin_prop = "/toxicExposure/#{attribute_name}/serviceDates/beginDate"
         end_prop = "/toxicExposure/#{attribute_name}/serviceDates/endDate"
 
-        alt_rev_validate_service_date(begin_date, begin_prop) unless begin_date.nil? || !date_is_valid?(begin_date,
-                                                                                                        begin_prop, true)
-        alt_rev_validate_service_date(end_date, end_prop) unless end_date.nil? || !date_is_valid?(end_date, end_prop,
+        alt_rev_validate_service_date(begin_date, begin_prop) unless begin_date.nil? || !date_is_valid?(
+          begin_date,
+          begin_prop, true
+        )
+        alt_rev_validate_service_date(end_date, end_prop) unless end_date.nil? || !date_is_valid?(end_date,
+                                                                                                  end_prop,
                                                                                                   true)
       end
 
@@ -488,8 +494,10 @@ module ClaimsApi
           begin_prop = "/toxicExposure/#{attribute_name}/#{idx}/exposureDates/beginDate"
           end_prop = "/toxicExposure/#{attribute_name}/#{idx}/exposureDates/endDate"
 
-          alt_rev_validate_service_date(begin_date, begin_prop) unless begin_date.nil? || !date_is_valid?(begin_date,
-                                                                                                          begin_prop, true)
+          alt_rev_validate_service_date(begin_date, begin_prop) unless begin_date.nil? || !date_is_valid?(
+            begin_date,
+            begin_prop, true
+          )
           alt_rev_validate_service_date(end_date, end_prop) unless end_date.nil? || !date_is_valid?(end_date, end_prop,
                                                                                                     true)
         end
