@@ -52,9 +52,12 @@ module UnifiedHealthData
       def log_final_status_warning(record, status, encoded_data, observations)
         return unless status == 'final' && encoded_data.blank? && observations.blank?
 
+        patient_reference = record['resource']&.dig('subject', 'reference')
+        patient_last_four = patient_reference&.split('/')&.last&.last(4) || 'unknown'
+
         Rails.logger.warn(
           "DiagnosticReport #{record['resource']['id']} has status 'final' but is missing " \
-          'both encoded data and observations',
+          "both encoded data and observations (Patient: #{patient_last_four})",
           { service: 'unified_health_data' }
         )
       end

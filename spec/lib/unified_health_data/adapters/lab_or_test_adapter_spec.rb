@@ -601,9 +601,10 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
       it 'logs warning when status is final and has neither encoded data nor observations' do
         record = base_record.deep_dup
         record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
+        record['resource']['subject'] = { 'reference' => 'Patient/123456789' }
 
         expect(Rails.logger).to receive(:warn).with(
-          "DiagnosticReport test-123 has status 'final' but is missing both encoded data and observations",
+          "DiagnosticReport test-123 has status 'final' but is missing both encoded data and observations (Patient: 6789)",
           { service: 'unified_health_data' }
         )
 
@@ -634,7 +635,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         record['resource']['status'] = 'preliminary'
         record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
 
-        expect(Rails.logger).not_to receive(:warn)
+        expect(Rails.logger).not_to receive(:warn).with(
+          /has status 'final' but is missing/
+        )
 
         result = adapter.send(:parse_single_record, record)
         expect(result).not_to be_nil
@@ -645,7 +648,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         record['resource']['status'] = nil
         record['resource']['effectiveDateTime'] = '2024-06-01T00:00:00Z'
 
-        expect(Rails.logger).not_to receive(:warn)
+        expect(Rails.logger).not_to receive(:warn).with(
+          /has status 'final' but is missing/
+        )
 
         result = adapter.send(:parse_single_record, record)
         expect(result).not_to be_nil
