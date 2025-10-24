@@ -55,7 +55,7 @@ module V0
     end
 
     def form_params
-      params.require(:form214192)
+      params.require(:form)
     end
 
     def stats_key

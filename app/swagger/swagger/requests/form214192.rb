@@ -41,7 +41,7 @@ module Swagger
           key :tags, %w[benefits_forms]
 
           parameter do
-            key :name, :form214192
+            key :name, :form
             key :in, :body
             key :description, 'Form 21-4192 submission data'
             key :required, true

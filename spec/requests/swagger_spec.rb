@@ -2425,7 +2425,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'submitting a 21-4192 form' do
         let(:valid_form_data) do
           {
-            form214192: {
+            form: {
               veteranInformation: {
                 fullName: {
                   first: 'John',

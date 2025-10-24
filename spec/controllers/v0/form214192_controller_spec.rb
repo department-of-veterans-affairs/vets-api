@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe V0::Form214192Controller, type: :controller do
   before do
-    allow(Flipper).to receive(:enabled?).with(:form_214192_enabled).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:form_4192_enabled).and_return(true)
   end
 
   let(:form_data) do
@@ -46,12 +46,12 @@ RSpec.describe V0::Form214192Controller, type: :controller do
     context 'with valid form data' do
       it 'creates a new claim' do
         expect do
-          post :create, params: { form214192: form_data }
+          post :create, params: { form: form_data }
         end.to change(SavedClaim::Form214192, :count).by(1)
       end
 
       it 'returns expected response structure with success status' do
-        post :create, params: { form214192: form_data }
+        post :create, params: { form: form_data }
 
         expect(response).to have_http_status(:ok)
 
@@ -65,17 +65,17 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       end
 
       it 'returns a unique confirmation number for each request' do
-        post :create, params: { form214192: form_data }
+        post :create, params: { form: form_data }
         first_confirmation = JSON.parse(response.body)['data']['attributes']['confirmation_number']
 
-        post :create, params: { form214192: form_data }
+        post :create, params: { form: form_data }
         second_confirmation = JSON.parse(response.body)['data']['attributes']['confirmation_number']
 
         expect(first_confirmation).not_to eq(second_confirmation)
       end
 
       it 'returns a valid UUID as confirmation number' do
-        post :create, params: { form214192: form_data }
+        post :create, params: { form: form_data }
 
         json = JSON.parse(response.body)
         confirmation = json['data']['attributes']['confirmation_number']
@@ -84,7 +84,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       end
 
       it 'returns ISO 8601 formatted timestamp' do
-        post :create, params: { form214192: form_data }
+        post :create, params: { form: form_data }
 
         json = JSON.parse(response.body)
         submitted_at = json['data']['attributes']['submitted_at']
@@ -94,17 +94,17 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
       it 'queues Lighthouse submission job' do
         expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async)
-        post :create, params: { form214192: form_data }
+        post :create, params: { form: form_data }
       end
 
       it 'increments submission attempt metric' do
         expect(StatsD).to receive(:increment).with('api.form214192.submission_attempt')
-        post :create, params: { form214192: form_data }
+        post :create, params: { form: form_data }
       end
 
       it 'logs claim submission' do
         allow(Rails.logger).to receive(:info).and_call_original
-        post :create, params: { form214192: form_data }
+        post :create, params: { form: form_data }
 
         # Check that the logger was called with the expected message
         expect(Rails.logger).to have_received(:info).with(
@@ -113,7 +113,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       end
 
       it 'allows unauthenticated access to create endpoint' do
-        post :create, params: { form214192: form_data }
+        post :create, params: { form: form_data }
 
         expect(response).to have_http_status(:ok)
       end
@@ -121,40 +121,40 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
     context 'with invalid form data' do
       it 'returns validation errors for missing required fields' do
-        post :create, params: { form214192: { veteranInformation: { fullName: { first: '' } } } }
+        post :create, params: { form: { veteranInformation: { fullName: { first: '' } } } }
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
       it 'returns validation errors for missing veteran information' do
         invalid_data = form_data.dup
         invalid_data.delete(:veteranInformation)
-        post :create, params: { form214192: invalid_data }
+        post :create, params: { form: invalid_data }
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
       it 'returns validation errors for missing employment information' do
         invalid_data = form_data.dup
         invalid_data.delete(:employmentInformation)
-        post :create, params: { form214192: invalid_data }
+        post :create, params: { form: invalid_data }
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
       it 'returns validation errors for missing veteran SSN and VA file number' do
         invalid_data = form_data.dup
         invalid_data[:veteranInformation].delete(:ssn)
-        post :create, params: { form214192: invalid_data }
+        post :create, params: { form: invalid_data }
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
       it 'increments failure metric on validation error' do
         expect(StatsD).to receive(:increment).with('api.form214192.submission_attempt')
         expect(StatsD).to receive(:increment).with('api.form214192.failure')
-        post :create, params: { form214192: { veteranInformation: { fullName: { first: '' } } } }
+        post :create, params: { form: { veteranInformation: { fullName: { first: '' } } } }
       end
 
       it 'logs error on submission failure' do
         allow(Rails.logger).to receive(:error)
-        post :create, params: { form214192: { veteranInformation: { fullName: { first: '' } } } }
+        post :create, params: { form: { veteranInformation: { fullName: { first: '' } } } }
 
         expect(Rails.logger).to have_received(:error).with(
           'Form214192: error submitting claim',
@@ -164,7 +164,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
     end
 
     context 'with missing params' do
-      it 'returns error when form214192 param is missing' do
+      it 'returns error when form param is missing' do
         post :create, params: {}
         expect(response).to have_http_status(:bad_request)
       end
@@ -264,7 +264,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       end
 
       it 'returns 404 for create endpoint' do
-        post :create, params: { form214192: form_data }
+        post :create, params: { form: form_data }
         expect(response).to have_http_status(:not_found)
       end
 
@@ -276,7 +276,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
     context 'when feature flag is enabled' do
       it 'allows access to create endpoint' do
-        post :create, params: { form214192: form_data }
+        post :create, params: { form: form_data }
         expect(response).to have_http_status(:ok)
       end
 
