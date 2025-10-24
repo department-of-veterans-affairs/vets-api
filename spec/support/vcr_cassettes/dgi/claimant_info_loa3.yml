@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimType/Chapter33/claimants
+    uri: <DGI_VETS_URL>claimType/Chapter33/claimants
     body:
       encoding: UTF-8
       string: '{"ssn":"777097308"}'
