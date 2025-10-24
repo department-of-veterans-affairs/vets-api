@@ -43,7 +43,6 @@ class Form214192Validator < ActiveModel::Validator
     # Validate employer fields
     validate_required_field(record, employment, 'employerName', 'Employer name is required')
     validate_required_field(record, employment, 'employerAddress', 'Employer address is required')
-    validate_required_field(record, employment, 'employerEmail', 'Employer email is required')
 
     # Validate employment detail fields
     validate_required_field(record, employment, 'typeOfWorkPerformed', 'Type of work performed is required')

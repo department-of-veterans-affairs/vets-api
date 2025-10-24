@@ -2454,8 +2454,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
                   postalCode: '60601',
                   country: 'USA'
                 },
-                employerPhone: '555-987-6543',
-                employerEmail: 'hr@acme.com',
                 contactPerson: {
                   name: 'Jane Smith',
                   title: 'HR Manager',

@@ -22,8 +22,6 @@ RSpec.describe V0::Form214192Controller, type: :controller do
           state: 'CA',
           postalCode: '54321'
         },
-        employerEmail: 'hr@acme.com',
-        employerPhone: '555-987-6543',
         typeOfWorkPerformed: 'Software Developer',
         beginningDateOfEmployment: '2015-01-15',
         endingDateOfEmployment: '2023-06-30',
@@ -193,20 +191,22 @@ RSpec.describe V0::Form214192Controller, type: :controller do
         expect(response.body).to eq(pdf_content)
       end
 
-      it 'includes proper filename with employer name' do
+      it 'includes proper filename with UUID' do
         post :download_pdf, params: { form: form_data.to_json }
 
         expect(response.headers['Content-Disposition']).to include('attachment')
-        expect(response.headers['Content-Disposition']).to include('Acme_Corporation_21-4192')
+        expect(response.headers['Content-Disposition']).to include('21-4192_')
+        expect(response.headers['Content-Disposition']).to match(/21-4192_[a-f0-9-]+\.pdf/)
       end
 
-      it 'uses form number as filename when employer name is missing' do
-        form_without_employer = form_data.dup
-        form_without_employer[:employmentInformation].delete(:employerName)
+      it 'generates unique filename for each request' do
+        post :download_pdf, params: { form: form_data.to_json }
+        first_filename = response.headers['Content-Disposition']
 
-        post :download_pdf, params: { form: form_without_employer.to_json }
+        post :download_pdf, params: { form: form_data.to_json }
+        second_filename = response.headers['Content-Disposition']
 
-        expect(response.headers['Content-Disposition']).to include('21-4192_21-4192')
+        expect(first_filename).not_to eq(second_filename)
       end
 
       it 'calls PDF filler with correct parameters' do
@@ -260,7 +260,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
   describe 'feature flag' do
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:form_214192_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:form_4192_enabled).and_return(false)
       end
 
       it 'returns 404 for create endpoint' do

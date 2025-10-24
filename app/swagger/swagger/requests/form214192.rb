@@ -69,14 +69,12 @@ module Swagger
               property :employmentInformation do
                 key :type, :object
                 key :required,
-                    %i[employerName employerAddress employerEmail typeOfWorkPerformed beginningDateOfEmployment]
+                    %i[employerName employerAddress typeOfWorkPerformed beginningDateOfEmployment]
 
                 property :employerName, type: :string, example: 'Acme Corporation'
                 property :employerAddress do
                   key :$ref, :Form214192Address
                 end
-                property :employerPhone, type: :string, example: '555-987-6543'
-                property :employerEmail, type: :string, example: 'hr@acme.com'
                 property :contactPerson do
                   key :$ref, :Form214192ContactInfo
                 end

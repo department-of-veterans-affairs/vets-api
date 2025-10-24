@@ -17,7 +17,6 @@ module V0
         claim.process_attachments!
 
         Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-        claim.send_confirmation_email
 
         render json: SavedClaimSerializer.new(claim)
       else
@@ -30,19 +29,13 @@ module V0
     end
 
     def download_pdf
-      parsed_form = params[:form].is_a?(String) ? JSON.parse(params[:form]) : params[:form].to_unsafe_h
-
-      # Convert snake_case keys to camelCase for PDF generation
-      camel_case_form = convert_keys_to_camel_case(parsed_form)
-      file_name = SecureRandom.uuid
+      parsed_form = JSON.parse(params[:form])
 
       source_file_path = with_retries('Generate 21-4192 PDF') do
-        PdfFill::Filler.fill_ancillary_form(camel_case_form, file_name, '21-4192')
+        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
       end
 
-      employer_name = parsed_form.dig('employmentInformation', 'employerName')
-      file_path_name = employer_name ? employer_name.gsub(/[^0-9A-Za-z]/, '_') : '21-4192'
-      client_file_name = "#{file_path_name}_21-4192_#{Time.zone.now.to_i}.pdf"
+      client_file_name = "21-4192_#{SecureRandom.uuid}.pdf"
 
       file_contents = File.read(source_file_path)
 
@@ -54,7 +47,7 @@ module V0
     private
 
     def feature_enabled?
-      raise Common::Exceptions::RoutingError unless Flipper.enabled?(:form_214192_enabled)
+      raise Common::Exceptions::RoutingError unless Flipper.enabled?(:form_4192_enabled)
     end
 
     def record_submission_attempt
@@ -67,18 +60,6 @@ module V0
 
     def stats_key
       'api.form214192'
-    end
-
-    def convert_keys_to_camel_case(hash)
-      case hash
-      when Hash
-        hash.transform_keys { |key| key.to_s.camelize(:lower) }
-            .transform_values { |value| convert_keys_to_camel_case(value) }
-      when Array
-        hash.map { |item| convert_keys_to_camel_case(item) }
-      else
-        hash
-      end
     end
   end
 end

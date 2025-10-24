@@ -18,8 +18,6 @@ RSpec.describe SavedClaim::Form214192, type: :model do
           state: 'CA',
           postalCode: '54321'
         },
-        employerEmail: 'hr@acme.com',
-        employerPhone: '555-987-6543',
         contactPerson: {
           name: 'Jane Smith',
           title: 'HR Manager'
@@ -116,13 +114,6 @@ RSpec.describe SavedClaim::Form214192, type: :model do
       claim = described_class.new(form: form_data.to_json)
       expect(claim).not_to be_valid
       expect(claim.errors[:form_data]).to include('Employer address is required')
-    end
-
-    it 'requires employer email' do
-      form_data[:employmentInformation].delete(:employerEmail)
-      claim = described_class.new(form: form_data.to_json)
-      expect(claim).not_to be_valid
-      expect(claim.errors[:form_data]).to include('Employer email is required')
     end
 
     it 'requires type of work performed' do
