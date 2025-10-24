@@ -323,7 +323,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
           .and_return(referral_detail)
         allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
           .with(referral_number)
-          .and_return({ system: 'EPS', data: [] })
+          .and_return({ EPS: { data: [] }, VAOS: { data: [] } })
       end
 
       it 'returns a referral detail in JSON:API format' do
@@ -342,34 +342,61 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(response_data['data']['attributes']['referralNumber']).to eq(referral_number)
         expect(response_data['data']['attributes']['referralConsultId']).to eq(referral_consult_id)
         expect(response_data['data']['attributes']).to have_key('appointments')
-        expect(response_data['data']['attributes']['appointments']).to eq({ 'system' => 'EPS', 'data' => [] })
+        expect(response_data['data']['attributes']['appointments']).to eq({
+                                                                            'EPS' => { 'data' => [] },
+                                                                            'VAOS' => { 'data' => [] }
+                                                                          })
       end
 
-      context 'when EPS has active appointments' do
+      context 'when EPS and VAOS have active appointments' do
         before do
           allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
             .with(referral_number)
             .and_return({
-                          system: 'EPS',
-                          data: [
-                            { id: 'eps-123' },
-                            { id: 'eps-456' }
-                          ]
+                          EPS: {
+                            data: [
+                              { id: 'eps-123', status: 'active', start: '2021-09-05T10:00:00Z' },
+                              { id: 'eps-456', status: 'cancelled', start: '2021-09-06T10:00:00Z' }
+                            ]
+                          },
+                          VAOS: {
+                            data: [
+                              { id: 'vaos-789', status: 'active', start: '2021-09-07T10:00:00Z' }
+                            ]
+                          }
                         })
         end
 
-        it 'returns EPS appointments' do
+        it 'returns appointments from both sources' do
           get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
 
           expect(response).to have_http_status(:ok)
           response_data = JSON.parse(response.body)
 
           expect(response_data['data']['attributes']['appointments']).to eq({
-                                                                              'system' => 'EPS',
-                                                                              'data' => [
-                                                                                { 'id' => 'eps-123' },
-                                                                                { 'id' => 'eps-456' }
-                                                                              ]
+                                                                              'EPS' => {
+                                                                                'data' => [
+                                                                                  {
+                                                                                    'id' => 'eps-123',
+                                                                                    'status' => 'active',
+                                                                                    'start' => '2021-09-05T10:00:00Z'
+                                                                                  },
+                                                                                  {
+                                                                                    'id' => 'eps-456',
+                                                                                    'status' => 'cancelled',
+                                                                                    'start' => '2021-09-06T10:00:00Z'
+                                                                                  }
+                                                                                ]
+                                                                              },
+                                                                              'VAOS' => {
+                                                                                'data' => [
+                                                                                  {
+                                                                                    'id' => 'vaos-789',
+                                                                                    'status' => 'active',
+                                                                                    'start' => '2021-09-07T10:00:00Z'
+                                                                                  }
+                                                                                ]
+                                                                              }
                                                                             })
         end
       end
@@ -432,7 +459,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
             .and_return(referral_detail_missing_data)
           allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
             .with(referral_number)
-            .and_return({ system: 'EPS', data: [] })
+            .and_return({ EPS: { data: [] }, VAOS: { data: [] } })
         end
 
         it 'logs missing provider data with JSON structured format' do
@@ -479,7 +506,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
               .and_return(referral_detail_partial_missing)
             allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
               .with(referral_number)
-              .and_return({ system: 'EPS', data: [] })
+              .and_return({ EPS: { data: [] }, VAOS: { data: [] } })
           end
 
           it 'logs only the missing referring facility code in structured format' do
@@ -506,7 +533,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
               .and_return(referral_detail)
             allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
               .with(referral_number)
-              .and_return({ system: 'EPS', data: [] })
+              .and_return({ EPS: { data: [] }, VAOS: { data: [] } })
           end
 
           it 'does not log any missing provider data errors' do

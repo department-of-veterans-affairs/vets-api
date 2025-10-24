@@ -51,10 +51,13 @@ module VAOS
         result = appointments_service.get_active_appointments_for_referral(referral.referral_number)
 
         referral.appointments = {
-          system: result[:system],
-          data: result[:data].map { |appt| { id: appt[:id] } }
+          EPS: {
+            data: result[:EPS][:data].map { |appt| { id: appt[:id], status: appt[:status], start: appt[:start] } }
+          },
+          VAOS: {
+            data: result[:VAOS][:data].map { |appt| { id: appt[:id], status: appt[:status], start: appt[:start] } }
+          }
         }
-        referral.appointments[:errors] = result[:errors] if result[:errors].present?
       end
 
       def appointments_service
