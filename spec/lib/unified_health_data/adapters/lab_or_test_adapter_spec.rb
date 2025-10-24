@@ -604,7 +604,8 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         record['resource']['subject'] = { 'reference' => 'Patient/123456789' }
 
         expect(Rails.logger).to receive(:warn).with(
-          "DiagnosticReport test-123 has status 'final' but is missing both encoded data and observations (Patient: 6789)",
+          "DiagnosticReport test-123 has status 'final' but is missing both encoded data and observations " \
+          '(Patient: 6789)',
           { service: 'unified_health_data' }
         )
 
