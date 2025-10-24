@@ -557,9 +557,9 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           end
 
           context 'when federalActivation is present but obligationTermsOfService is missing' do
-
             before do
               allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
+              make_request(example)
             end
 
             def make_request(example)
@@ -595,10 +595,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             end
 
             let(:disability_comp_request) { data }
-
-            before do |example|
-              make_request(example)
-            end
 
             after do |example|
               append_example_metadata(example, response)

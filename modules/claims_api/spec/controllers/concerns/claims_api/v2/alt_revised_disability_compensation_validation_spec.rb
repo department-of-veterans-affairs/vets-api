@@ -146,7 +146,8 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
       context 'when the location code is valid in some service periods and invalid in others' do
         it 'adds an error to the errors array' do
-          test_526_validation_instance.send(:alt_rev_validate_form_526_location_codes, valid_and_invalid_separation_codes)
+          test_526_validation_instance.send(:alt_rev_validate_form_526_location_codes,
+                                            valid_and_invalid_separation_codes)
           errors = test_526_validation_instance.send(:error_collection)
 
           expect(errors.size).to eq(1)
