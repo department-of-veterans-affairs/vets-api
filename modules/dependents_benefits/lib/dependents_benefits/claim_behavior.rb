@@ -59,6 +59,10 @@ module DependentsBenefits
       schema_errors.empty? && validation_errors.empty?
     end
 
+    def to_pdf(file_name = nil)
+      DependentsBenefits::PdfFill::Filler.fill_form(self, file_name)
+    end
+
     def submittable_686?
       DEPENDENT_CLAIM_FLOWS.any? { |flow| parsed_form['view:selectable686_options'].include?(flow) }
     end
