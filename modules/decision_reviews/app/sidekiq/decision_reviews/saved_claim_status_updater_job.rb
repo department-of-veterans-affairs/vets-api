@@ -110,11 +110,16 @@ module DecisionReviews
       # return existing status if in one of the final status states
       metadata = JSON.parse(record.metadata || '{}')
       old_status = metadata['status']
+
       return [old_status, metadata.slice(*ATTRIBUTES_TO_STORE)] if FINAL_STATUSES.include? old_status
 
       response = get_record_status(record.guid)
       attributes = response.dig('data', 'attributes')
       status = attributes['status']
+
+      # Monitor for forms stuck >30 days in non-final status
+      # Only check after fresh API poll to ensure we have current status before alerting
+      monitor_stuck_form_with_metadata(record, status, metadata) if decision_review_stuck_records_monitoring_enabled?
 
       [status, attributes]
     rescue DecisionReviews::V1::ServiceException => e
@@ -132,8 +137,13 @@ module DecisionReviews
       attachment_ids = record.appeal_submission&.appeal_submission_uploads
                              &.pluck(:lighthouse_upload_id) || []
       old_metadata = extract_uploads_metadata(record.metadata)
+
       attachment_ids.each do |guid|
         result << handle_evidence_status(guid, old_metadata.fetch(guid, {}))
+
+        # Monitor for evidence uploads stuck >30 days in non-final status
+        # Only check after fresh API poll to ensure we have current status before alerting
+        monitor_stuck_evidence_upload(record, guid, result.last) if decision_review_stuck_records_monitoring_enabled?
       end
 
       result
@@ -344,9 +354,50 @@ module DecisionReviews
       end
     end
 
+    def monitor_stuck_form_with_metadata(record, status, _metadata)
+      monitor_stuck_record(
+        record:,
+        status:,
+        type: 'form',
+        additional_context: {}
+      )
+    end
+
+    def monitor_stuck_evidence_upload(record, upload_id, upload_data)
+      monitor_stuck_record(
+        record:,
+        status: upload_data['status'],
+        type: 'evidence',
+        additional_context: { upload_id: }
+      )
+    end
+
+    def monitor_stuck_record(record:, status:, type:, additional_context:)
+      stuck_threshold = 30.days.ago
+
+      # Use created_at to measure how long submission has existed (not when status last changed)
+      # This gives consistent age measurement since updated_at changes with every polling cycle
+      return unless FINAL_STATUSES.exclude?(status) && record.created_at < stuck_threshold
+
+      days_stuck = (Time.current - record.created_at) / 1.day.to_f
+
+      log_context = {
+        appeal_submission_id: record.appeal_submission&.id,
+        days_stuck: days_stuck.round(2),
+        created_at: record.created_at,
+        current_status: status
+      }.merge(additional_context)
+
+      Rails.logger.warn("#{log_prefix} #{type} stuck in non-final status", log_context)
+    end
+
     # Feature flag helpers for clean removal later
     def decision_review_final_status_polling_enabled?
       Flipper.enabled?(:decision_review_final_status_polling)
+    end
+
+    def decision_review_stuck_records_monitoring_enabled?
+      Flipper.enabled?(:decision_review_stuck_records_monitoring)
     end
   end
 end

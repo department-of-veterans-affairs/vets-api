@@ -38,9 +38,7 @@ class SourceAppMiddleware
     '1330m2-medallions',
     '1330m-medallions',
     '1990-edu-benefits',
-    '1990e-edu-benefits',
     '1990ez-edu-benefits',
-    '1990n-edu-benefits',
     '1990s-edu-benefits',
     '1995-edu-benefits',
     '21-0779-nursing-home-information',
@@ -52,6 +50,7 @@ class SourceAppMiddleware
     '21p-0537',
     '21P-0847-substitute-claimant',
     '21p-530a-interment-allowance',
+    '21P-601',
     '25-8832-planning-and-career-guidance',
     '28-1900-chapter-31',
     '4555-adapted-housing',
@@ -159,7 +158,8 @@ class SourceAppMiddleware
     'virtual-agent',
     'welcome-va-setup-review-information',
     'yellow-ribbon',
-    'your-debt'
+    'your-debt',
+    'ch31-eligibility-entitlement'
   ].freeze
 
   MOBILE_APP_NAMES = Set.new %w[
