@@ -3,6 +3,56 @@
 require 'rails_helper'
 
 RSpec.describe V0::Form214192Controller, type: :controller do
+  let(:form_data) do
+    {
+      veteranInformation: {
+        fullName: { first: 'John', middle: 'Michael', last: 'Doe' },
+        ssn: '123456789',
+        vaFileNumber: '987654321',
+        dateOfBirth: '1980-01-01'
+      },
+      employmentInformation: {
+        employerName: 'Acme Corporation',
+        employerAddress: {
+          street: '456 Business Ave',
+          street2: 'Suite 200',
+          city: 'Commerce City',
+          state: 'CA',
+          country: 'USA',
+          postalCode: '54321'
+        },
+        typeOfWorkPerformed: 'Software Developer',
+        beginningDateOfEmployment: '2015-01-15',
+        endingDateOfEmployment: '2020-12-31',
+        amountEarnedLast12Months: 95_000,
+        timeLostLast12MonthsOfEmployment: '6 months due to disability',
+        hoursWorkedDaily: 8,
+        hoursWorkedWeekly: 40,
+        concessions: 'Flexible schedule provided',
+        terminationReason: 'Position eliminated due to company restructuring',
+        dateLastWorked: '2020-12-31',
+        lastPaymentDate: '2021-01-15',
+        lastPaymentGrossAmount: 7916.67,
+        lumpSumPaymentMade: true,
+        grossAmountPaid: 15_000,
+        datePaid: '2021-02-01'
+      },
+      militaryDutyStatus: {
+        currentDutyStatus: 'Inactive Reserve',
+        veteranDisabilitiesPreventMilitaryDuties: true
+      },
+      benefitEntitlementPayments: {
+        sickRetirementOtherBenefits: true,
+        typeOfBenefit: 'Short-term disability insurance',
+        grossMonthlyAmountOfBenefit: 2500,
+        dateBenefitBegan: '2021-01-01',
+        dateFirstPaymentIssued: '2021-01-15',
+        dateBenefitWillStop: '2021-06-30',
+        remarks: 'Benefits paid through employer-provided insurance plan'
+      }
+    }
+  end
+
   describe 'POST #create' do
     it 'returns expected response structure' do
       form_data = {
@@ -80,19 +130,79 @@ RSpec.describe V0::Form214192Controller, type: :controller do
   end
 
   describe 'POST #download_pdf' do
-    it 'returns stub message' do
-      post(:download_pdf, params: { form: '{}' })
+    let(:pdf_content) { 'PDF_BINARY_CONTENT' }
+    let(:temp_file_path) { '/tmp/test_pdf.pdf' }
+
+    before do
+      allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(temp_file_path)
+      allow(File).to receive(:read).and_call_original
+      allow(File).to receive(:read).with(temp_file_path).and_return(pdf_content)
+      allow(File).to receive(:exist?).and_call_original
+      allow(File).to receive(:exist?).with(temp_file_path).and_return(true)
+      allow(File).to receive(:delete).and_call_original
+      allow(File).to receive(:delete).with(temp_file_path)
+    end
+
+    it 'generates and downloads PDF' do
+      post(:download_pdf, params: { form: form_data.to_json })
 
       expect(response).to have_http_status(:ok)
+      expect(response.headers['Content-Type']).to eq('application/pdf')
+      expect(response.body).to eq(pdf_content)
+    end
 
-      json = JSON.parse(response.body)
-      expect(json['message']).to eq('PDF download stub - not yet implemented')
+    it 'includes proper filename with UUID' do
+      post(:download_pdf, params: { form: form_data.to_json })
+
+      expect(response.headers['Content-Disposition']).to include('attachment')
+      expect(response.headers['Content-Disposition']).to include('21-4192_')
+      expect(response.headers['Content-Disposition']).to match(/21-4192_[a-f0-9-]+\.pdf/)
+    end
+
+    it 'generates unique filename for each request' do
+      post(:download_pdf, params: { form: form_data.to_json })
+      first_filename = response.headers['Content-Disposition']
+
+      post(:download_pdf, params: { form: form_data.to_json })
+      second_filename = response.headers['Content-Disposition']
+
+      expect(first_filename).not_to eq(second_filename)
+    end
+
+    it 'calls PDF filler with correct parameters' do
+      expect(PdfFill::Filler).to receive(:fill_ancillary_form)
+        .with(hash_including('employmentInformation' => hash_including('employerName' => 'Acme Corporation')),
+              anything,
+              '21-4192')
+        .and_return(temp_file_path)
+
+      post(:download_pdf, params: { form: form_data.to_json })
+    end
+
+    it 'deletes temporary PDF file after sending' do
+      expect(File).to receive(:delete).with(temp_file_path)
+      post(:download_pdf, params: { form: form_data.to_json })
+    end
+
+    it 'deletes temporary file even when error occurs' do
+      allow(File).to receive(:read).with(temp_file_path).and_raise(StandardError, 'Read error')
+      expect(File).to receive(:delete).with(temp_file_path)
+
+      post(:download_pdf, params: { form: form_data.to_json })
+      expect(response).to have_http_status(:internal_server_error)
     end
 
     it 'does not require authentication' do
-      post(:download_pdf, params: { form: '{}' })
+      post(:download_pdf, params: { form: form_data.to_json })
 
       expect(response).to have_http_status(:ok)
+    end
+
+    context 'with invalid JSON' do
+      it 'raises error for invalid JSON' do
+        post(:download_pdf, params: { form: 'invalid json' })
+        expect(response).to have_http_status(:internal_server_error)
+      end
     end
   end
 end
