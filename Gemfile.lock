@@ -1441,7 +1441,7 @@ DEPENDENCIES
   vre!
   vye!
   warden-github
-  waterdrop
+  waterdrop (= 2.8.12)
   web-console
   webmock
   webrick
