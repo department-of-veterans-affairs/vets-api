@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'dependents_benefits/sidekiq/bgs_674_job'
 require 'dependents_benefits/sidekiq/bgs_686c_job'
 require 'dependents_benefits/monitor'
 
@@ -78,9 +79,8 @@ module DependentsBenefits
       jobs_count = 0
 
       # Enqueue primary 674 submission job
-      # TODO: Add calls to submission jobs here as they are implemented
-      # Example: DependentsBenefits::SubmissionJob.perform_async(claim.id, proc_id)
-      # jobs_count += 1
+      Sidekiq::BGS674Job.perform_async(claim.id, proc_id)
+      jobs_count += 1
 
       monitor.track_processor_info('Enqueued 674 submission jobs', 'enqueue_674',
                                    parent_claim_id:, claim_id: claim.id)
