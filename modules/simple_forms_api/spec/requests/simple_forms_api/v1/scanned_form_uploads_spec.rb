@@ -177,15 +177,24 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
         resp = JSON.parse(response.body)
         expect(resp['errors']).to be_an(Array)
+        expect(resp['errors'][0]).to have_key('title')
+        expect(resp['errors'][0]['title']).to eq('File validation error')
         expect(resp['errors'][0]).to have_key('detail')
         expect(resp['errors'][0]['detail']).to include('Document exceeds the page size limit of 78 in. x 101 in.')
       end
 
       it 'returns validation when too many mbs' do
         too_many_mbs_file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
+
         validation_result = PDFUtilities::PDFValidator::ValidationResult.new
         validation_result.errors << 'file - size must not be greater than 100.0 MB'
-        allow_any_instance_of(PDFUtilities::PDFValidator::Validator).to receive(:validate).and_return(validation_result)
+
+        mock_validator = instance_double(
+          PDFUtilities::PDFValidator::Validator,
+          validate: validation_result
+        )
+
+        allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(mock_validator)
 
         params = { form_id: form_number, file: too_many_mbs_file }
 
@@ -196,6 +205,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
         resp = JSON.parse(response.body)
         expect(resp['errors']).to be_an(Array)
+        expect(resp['errors'][0]).to have_key('title')
         expect(resp['errors'][0]).to have_key('detail')
         expect(resp['errors'][0]['detail']).to include('file - size must not be greater than 100.0 MB')
       end
