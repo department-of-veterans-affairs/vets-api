@@ -83,7 +83,6 @@ module IncomeAndAssets
             }
           },
           'grossMonthlyIncomeOverflow' => {
-            key: "grossMonthlyIncomeOverflow[#{ITERATOR}]", # Fake key for overflow
             limit: 10,
             dollar: true,
             question_num: 3,
